@@ -568,19 +568,19 @@ class IdentityTests(object):
         """
         user_ref = {'id': uuid.uuid4().hex,
                     'name': uuid.uuid4().hex,
-                    'domain_id': CONF.identity.default_domain_id,
+                    'domain_id': DEFAULT_DOMAIN_ID,
                     'password': uuid.uuid4().hex,
                     'enabled': True}
         self.identity_api.create_user(user_ref['id'], user_ref)
 
         project_ref = {'id': uuid.uuid4().hex,
                        'name': uuid.uuid4().hex,
-                       'domain_id': CONF.identity.default_domain_id}
+                       'domain_id': DEFAULT_DOMAIN_ID}
         self.assignment_api.create_project(project_ref['id'], project_ref)
 
         group = {'id': uuid.uuid4().hex,
                  'name': uuid.uuid4().hex,
-                 'domain_id': CONF.identity.default_domain_id}
+                 'domain_id': DEFAULT_DOMAIN_ID}
         group_id = self.identity_api.create_group(group['id'], group)['id']
         self.identity_api.add_user_to_group(user_ref['id'], group_id)
 
@@ -1867,11 +1867,11 @@ class IdentityTests(object):
     def test_list_groups(self):
         group1 = {
             'id': uuid.uuid4().hex,
-            'domain_id': CONF.identity.default_domain_id,
+            'domain_id': DEFAULT_DOMAIN_ID,
             'name': uuid.uuid4().hex}
         group2 = {
             'id': uuid.uuid4().hex,
-            'domain_id': CONF.identity.default_domain_id,
+            'domain_id': DEFAULT_DOMAIN_ID,
             'name': uuid.uuid4().hex}
         self.identity_api.create_group(group1['id'], group1)
         self.identity_api.create_group(group2['id'], group2)
@@ -2152,7 +2152,7 @@ class IdentityTests(object):
     def test_check_user_not_in_group(self):
         new_group = {
             'id': uuid.uuid4().hex,
-            'domain_id': CONF.identity.default_domain_id,
+            'domain_id': DEFAULT_DOMAIN_ID,
             'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
         self.assertRaises(exception.UserNotFound,
@@ -2388,7 +2388,7 @@ class IdentityTests(object):
         # Creating a project with no description attribute.
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
-                   'domain_id': CONF.identity.default_domain_id,
+                   'domain_id': DEFAULT_DOMAIN_ID,
                    'enabled': True}
         self.assignment_api.create_project(project['id'], project)
 
@@ -2403,7 +2403,7 @@ class IdentityTests(object):
         # Creating a project with no description attribute.
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
-                   'domain_id': CONF.identity.default_domain_id,
+                   'domain_id': DEFAULT_DOMAIN_ID,
                    'enabled': True}
         self.assignment_api.create_project(project['id'], project)
 
@@ -2443,8 +2443,57 @@ class IdentityTests(object):
         ref['name'] = ref['name'].upper()
         self.assignment_api.create_domain(ref['id'], ref)
 
+    def test_attribute_update(self):
+        project = {
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex}
+        self.assignment_api.create_project(project['id'], project)
+
+        # pick a key known to be non-existent
+        key = 'description'
+
+        def assert_key_equals(value):
+            project_ref = self.assignment_api.update_project(
+                project['id'], project)
+            self.assertEqual(project_ref[key], value)
+            project_ref = self.assignment_api.get_project(project['id'])
+            self.assertEqual(project_ref[key], value)
+
+        def assert_get_key_is(value):
+            project_ref = self.assignment_api.update_project(
+                project['id'], project)
+            self.assertIs(project_ref.get(key), value)
+            project_ref = self.assignment_api.get_project(project['id'])
+            self.assertIs(project_ref.get(key), value)
+
+        # add an attribute that doesn't exist, set it to a falsey value
+        value = ''
+        project[key] = value
+        assert_key_equals(value)
+
+        # set an attribute with a falsey value to null
+        value = None
+        project[key] = value
+        assert_get_key_is(value)
+
+        # do it again, in case updating from this situation is handled oddly
+        value = None
+        project[key] = value
+        assert_get_key_is(value)
+
+        # set a possibly-null value to a falsey value
+        value = ''
+        project[key] = value
+        assert_key_equals(value)
+
+        # set a falsey value to a truthy value
+        value = uuid.uuid4().hex
+        project[key] = value
+        assert_key_equals(value)
+
     def test_user_crud(self):
-        user = {'domain_id': CONF.identity.default_domain_id,
+        user = {'domain_id': DEFAULT_DOMAIN_ID,
                 'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex, 'password': 'passw0rd'}
         self.identity_api.create_user(user['id'], user)
