@@ -15,6 +15,7 @@
 # under the License.
 
 from keystone.common import wsgi
+from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
 
 
@@ -51,6 +52,9 @@ class OAuth1Extension(wsgi.ExtensionRouter):
     """
 
     def add_routes(self, mapper):
+        # This is needed for dependency injection,
+        # it loads the OAuth driver which registers it as a dependency.
+        oauth1.Manager()
         consumer_controller = controllers.ConsumerCrudV3()
         access_token_controller = controllers.AccessTokenCrudV3()
         access_token_roles_controller = controllers.AccessTokenRolesV3()

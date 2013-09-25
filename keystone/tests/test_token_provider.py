@@ -19,7 +19,9 @@ import datetime
 from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import tests
+from keystone.tests import default_fixtures
 from keystone import token
+
 
 FUTURE_DELTA = datetime.timedelta(seconds=86400)
 CURRENT_DATE = timeutils.utcnow()
@@ -814,3 +816,12 @@ class TestTokenProvider(tests.TestCase):
         self.assertEqual(
             None,
             self.token_provider_api._is_valid_token(SAMPLE_V3_TOKEN_VALID))
+
+    def test_uuid_provider_no_oauth_fails_oauth(self):
+        self.load_fixtures(default_fixtures)
+        self.opt_in_group('token', provider=token.provider.UUID_PROVIDER)
+        driver = token.provider.Manager().driver
+        driver.oauth_api = None
+        self.assertRaises(exception.Forbidden,
+                          driver.issue_v3_token,
+                          self.user_foo['id'], ['oauth1'])
