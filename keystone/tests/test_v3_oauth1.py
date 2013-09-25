@@ -341,6 +341,17 @@ class AuthTokenTests(OAuthFlowTests):
                           self.access_token.key)
         self.assertEquals(oauth_section['consumer_id'], self.consumer.key)
 
+        # verify the roles section
+        roles_list = r.result['token']['roles']
+        # we can just verify the 0th role since we are only assigning one role
+        self.assertEquals(roles_list[0]['id'], self.role_id)
+
+        # verify that the token can perform delegated tasks
+        ref = self.new_user_ref(domain_id=self.domain_id)
+        r = self.admin_request(path='/v3/users', headers=headers,
+                               method='POST', body={'user': ref})
+        self.assertValidUserResponse(r, ref)
+
     def test_delete_access_token_also_revokes_token(self):
         self.test_oauth_flow()
 
