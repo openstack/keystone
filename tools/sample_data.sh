@@ -159,9 +159,9 @@ keystone service-create --name=nova \
                         --description="Nova Compute Service")
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     keystone endpoint-create --region RegionOne --service-id $NOVA_SERVICE \
-        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:\$(compute_port)s/v1.1/\$(tenant_id)s" \
-        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:\$(compute_port)s/v1.1/\$(tenant_id)s" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(compute_port)s/v1.1/\$(tenant_id)s"
+        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:\$(compute_port)s/v2/\$(tenant_id)s" \
+        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:\$(compute_port)s/v2/\$(tenant_id)s" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(compute_port)s/v2/\$(tenant_id)s"
 fi
 
 #
