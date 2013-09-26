@@ -2271,6 +2271,36 @@ class IdentityTests(object):
                           self.identity_api.get_project,
                           project['id'])
 
+    def test_project_update_missing_attrs_with_a_value(self):
+        # Creating a project with no description attribute.
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
+                   'domain_id': CONF.identity.default_domain_id,
+                   'enabled': True}
+        self.assignment_api.create_project(project['id'], project)
+
+        # Add a description attribute.
+        project['description'] = uuid.uuid4().hex
+        self.assignment_api.update_project(project['id'], project)
+
+        project_ref = self.identity_api.get_project(project['id'])
+        self.assertDictEqual(project_ref, project)
+
+    def test_project_update_missing_attrs_with_a_falsey_value(self):
+        # Creating a project with no description attribute.
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
+                   'domain_id': CONF.identity.default_domain_id,
+                   'enabled': True}
+        self.assignment_api.create_project(project['id'], project)
+
+        # Add a description attribute.
+        project['description'] = ''
+        self.assignment_api.update_project(project['id'], project)
+
+        project_ref = self.identity_api.get_project(project['id'])
+        self.assertDictEqual(project_ref, project)
+
     def test_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
