@@ -88,6 +88,19 @@
     "identity:get_role_for_trust": [["@"]],
     "identity:delete_trust": [["@"]],
 
+    "identity:create_consumer": [["rule:admin_required"]],
+    "identity:get_consumer": [["rule:admin_required"]],
+    "identity:list_consumers": [["rule:admin_required"]],
+    "identity:delete_consumer": [["rule:admin_required"]],
+    "identity:update_consumer": [["rule:admin_required"]],
+
+    "identity:authorize_request_token": [["rule:admin_required"]],
+    "identity:list_access_token_roles": [["rule:admin_required"]],
+    "identity:get_access_token_role": [["rule:admin_required"]],
+    "identity:list_access_tokens": [["rule:admin_required"]],
+    "identity:get_access_token": [["rule:admin_required"]],
+    "identity:delete_access_token": [["rule:admin_required"]],
+
     "identity:list_projects_for_endpoint": [["rule:admin_required"]],
     "identity:add_endpoint_to_project": [["rule:admin_required"]],
     "identity:check_endpoint_in_project": [["rule:admin_required"]],
