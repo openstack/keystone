@@ -303,17 +303,20 @@ class Manager(manager.Manager):
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
 
+    @notifications.created('role')
     def create_role(self, role_id, role):
         ret = self.driver.create_role(role_id, role)
         if SHOULD_CACHE(ret):
             self.get_role.set(ret, self, role_id)
         return ret
 
+    @notifications.updated('role')
     def update_role(self, role_id, role):
         ret = self.driver.update_role(role_id, role)
         self.get_role.invalidate(self, role_id)
         return ret
 
+    @notifications.deleted('role')
     def delete_role(self, role_id):
         self.driver.delete_role(role_id)
         self.get_role.invalidate(self, role_id)

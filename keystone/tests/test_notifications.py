@@ -19,6 +19,7 @@ import uuid
 from keystone import notifications
 from keystone.openstack.common.notifier import api as notifier_api
 from keystone import tests
+from keystone.tests import test_v3
 
 
 EXP_RESOURCE_TYPE = uuid.uuid4().hex
@@ -145,3 +146,95 @@ class NotificationsTestCase(tests.TestCase):
         self.stubs.Set(notifier_api, 'notify', fake_notify)
         notifications._send_notification(resource, resource_type, operation,
                                          host=host)
+
+
+class NotificationsForEntities(test_v3.RestfulTestCase):
+    def setUp(self):
+        super(NotificationsForEntities, self).setUp()
+
+        self.exp_resource_id = None
+        self.exp_operation = None
+        self.exp_resource_type = None
+        self.send_notification_called = False
+
+        def fake_notify(operation, resource_type, resource_id, host=None):
+            self.exp_resource_id = resource_id
+            self.exp_operation = operation
+            self.exp_resource_type = resource_type
+            self.send_notification_called = True
+
+        self.stubs.Set(notifications, '_send_notification', fake_notify)
+
+    def _assertLastNotify(self, resource_id, operation, resource_type):
+        self.assertIs(self.exp_operation, operation)
+        self.assertIs(self.exp_resource_id, resource_id)
+        self.assertIs(self.exp_resource_type, resource_type)
+        self.assertTrue(self.send_notification_called)
+
+    def test_create_group(self):
+        group_ref = self.new_group_ref(domain_id=self.domain_id)
+        self.identity_api.create_group(group_ref['id'], group_ref)
+        self._assertLastNotify(group_ref['id'], 'created', 'group')
+
+    def test_create_project(self):
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self._assertLastNotify(project_ref['id'], 'created', 'project')
+
+    def test_create_role(self):
+        role_ref = self.new_role_ref()
+        self.assignment_api.create_role(role_ref['id'], role_ref)
+        self._assertLastNotify(role_ref['id'], 'created', 'role')
+
+    def test_create_user(self):
+        user_ref = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(user_ref['id'], user_ref)
+        self._assertLastNotify(user_ref['id'], 'created', 'user')
+
+    def test_delete_group(self):
+        group_ref = self.new_group_ref(domain_id=self.domain_id)
+        self.identity_api.create_group(group_ref['id'], group_ref)
+        self.identity_api.delete_group(group_ref['id'])
+        self._assertLastNotify(group_ref['id'], 'deleted', 'group')
+
+    def test_delete_project(self):
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.assignment_api.delete_project(project_ref['id'])
+        self._assertLastNotify(project_ref['id'], 'deleted', 'project')
+
+    def test_delete_role(self):
+        role_ref = self.new_role_ref()
+        self.assignment_api.create_role(role_ref['id'], role_ref)
+        self.assignment_api.delete_role(role_ref['id'])
+        self._assertLastNotify(role_ref['id'], 'deleted', 'role')
+
+    def test_delete_user(self):
+        user_ref = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(user_ref['id'], user_ref)
+        self.identity_api.delete_user(user_ref['id'])
+        self._assertLastNotify(user_ref['id'], 'deleted', 'user')
+
+    def test_update_group(self):
+        group_ref = self.new_group_ref(domain_id=self.domain_id)
+        self.identity_api.create_group(group_ref['id'], group_ref)
+        self.identity_api.update_group(group_ref['id'], group_ref)
+        self._assertLastNotify(group_ref['id'], 'updated', 'group')
+
+    def test_update_project(self):
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self._assertLastNotify(project_ref['id'], 'updated', 'project')
+
+    def test_update_role(self):
+        role_ref = self.new_role_ref()
+        self.assignment_api.create_role(role_ref['id'], role_ref)
+        self.assignment_api.update_role(role_ref['id'], role_ref)
+        self._assertLastNotify(role_ref['id'], 'updated', 'role')
+
+    def test_update_user(self):
+        user_ref = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(user_ref['id'], user_ref)
+        self.identity_api.update_user(user_ref['id'], user_ref)
+        self._assertLastNotify(user_ref['id'], 'updated', 'user')
