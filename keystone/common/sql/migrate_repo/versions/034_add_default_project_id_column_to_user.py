@@ -23,7 +23,7 @@ from sqlalchemy.orm import sessionmaker
 def migrate_default_project_from_extra_json(meta, migrate_engine):
     user_table = sql.Table('user', meta, autoload=True)
 
-    user_list = user_table.select().execute()
+    user_list = list(user_table.select().execute())
     session = sessionmaker(bind=migrate_engine)()
     for user in user_list:
         try:
@@ -58,7 +58,7 @@ def migrate_default_project_from_extra_json(meta, migrate_engine):
 def migrate_default_project_to_extra_json(meta, migrate_engine):
     user_table = sql.Table('user', meta, autoload=True)
 
-    user_list = user_table.select().execute()
+    user_list = list(user_table.select().execute())
     session = sessionmaker(bind=migrate_engine)()
     for user in user_list:
         try:
