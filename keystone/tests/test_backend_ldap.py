@@ -310,6 +310,23 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                           self.identity_api.get_group,
                           group['id'])
 
+    def test_create_user_none_mapping(self):
+        # When create a user where an attribute maps to None, the entry is
+        # created without that attribute and it doesn't fail with a TypeError.
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_attribute_ignore = 'enabled,email,tenants,tenantId'
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        user = {'id': 'fake1',
+                'name': 'fake1',
+                'password': 'fakepass1',
+                'domain_id': CONF.identity.default_domain_id,
+                'default_project_id': 'maps_to_none',
+                }
+
+        # If this doesn't raise, then the test is successful.
+        self.identity_api.create_user('fake1', user)
+
 
 class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
     def setUp(self):

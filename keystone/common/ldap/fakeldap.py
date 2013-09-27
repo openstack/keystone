@@ -203,6 +203,11 @@ class FakeLdap(object):
         if server_fail:
             raise ldap.SERVER_DOWN
 
+        # The LDAP API raises a TypeError if attr name is None.
+        for k, dummy_v in attrs:
+            if k is None:
+                raise TypeError('must be string, not None. attrs=%s' % attrs)
+
         key = '%s%s' % (self.__prefix, dn)
         LOG.debug(_('FakeLdap add item: dn=%(dn)s, attrs=%(attrs)s') % {
             'dn': dn, 'attrs': attrs})

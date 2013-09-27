@@ -315,7 +315,8 @@ class BaseLdap(object):
                 continue
             if v is not None:
                 attr_type = self.attribute_mapping.get(k, k)
-                attrs.append((attr_type, [v]))
+                if attr_type is not None:
+                    attrs.append((attr_type, [v]))
                 extra_attrs = [attr for attr, name
                                in self.extra_attr_mapping.iteritems()
                                if name == k]
