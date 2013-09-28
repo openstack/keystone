@@ -129,5 +129,5 @@ class OAuth1Extension(wsgi.ExtensionRouter):
         mapper.connect(
             '/OS-OAUTH1/authorize/{request_token_id}',
             controller=oauth_controller,
-            action='authorize',
+            action='authorize_request_token',
             conditions=dict(method=['PUT']))
