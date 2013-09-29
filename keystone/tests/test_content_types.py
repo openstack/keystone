@@ -402,6 +402,15 @@ class CoreApiTests(object):
             token=token)
         self.assertValidAuthenticationResponse(r)
 
+    def test_invalid_token_404(self):
+        token = self.get_scoped_token()
+        self.admin_request(
+            path='/v2.0/tokens/%(token_id)s' % {
+                'token_id': 'invalid',
+            },
+            token=token,
+            expected_status=404)
+
     def test_validate_token_service_role(self):
         self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
             self.user_foo['id'],

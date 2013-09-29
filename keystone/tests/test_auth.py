@@ -432,7 +432,7 @@ class AuthWithToken(AuthTest):
 
         # Check the token is now invalid
         self.assertRaises(
-            exception.Unauthorized,
+            exception.TokenNotFound,
             self.controller.validate_token,
             dict(is_admin=True, query_string={}),
             token_id=token_id)

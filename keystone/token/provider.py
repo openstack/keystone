@@ -190,8 +190,11 @@ class Manager(manager.Manager):
             LOG.exception(_('Unexpected error or malformed token determining '
                             'token expiry: %s') % token)
 
-        # Token is expired, we have a malformed token, or something went wrong.
-        raise exception.Unauthorized(_('Failed to validate token'))
+        # FIXME(morganfainberg): This error message needs to be updated to
+        # reflect the token couldn't be found, but this change needs to wait
+        # until Icehouse due to string freeze in Havana.  This should be:
+        # "Failed to find valid token" or something similar.
+        raise exception.TokenNotFound(_('Failed to validate token'))
 
     def _token_belongs_to(self, token, belongs_to):
         """Check if the token belongs to the right tenant.
@@ -292,7 +295,7 @@ class Provider(object):
         :param token_id: identity of the token
         :type token_id: string
         :returns: token_data
-        :raises: keystone.exception.Unauthorized
+        :raises: keystone.exception.TokenNotFound
         """
         raise exception.NotImplemented()
 
@@ -304,7 +307,7 @@ class Provider(object):
         :param token_id: identity of the token
         :type token_id: string
         :returns: token data
-        :raises: keystone.exception.Unauthorized
+        :raises: keystone.exception.TokenNotFound
 
         """
         raise exception.NotImplemented()
@@ -317,6 +320,6 @@ class Provider(object):
         :param belongs_to: project_id token belongs to
         :type belongs_to: string
         :returns: token data
-        :raises: keystone.exception.Unauthorized
+        :raises: keystone.exception.TokenNotFound
         """
         raise exception.NotImplemented()
