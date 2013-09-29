@@ -37,8 +37,6 @@ FILE_OPTIONS = {
                    default='http://localhost:%(admin_port)s/'),
         cfg.StrOpt('onready'),
         cfg.StrOpt('auth_admin_prefix', default=''),
-        cfg.StrOpt('policy_file', default='policy.json'),
-        cfg.StrOpt('policy_default_rule', default=None),
         # default max request size is 112k
         cfg.IntOpt('max_request_body_size', default=114688),
         cfg.IntOpt('max_param_size', default=64),
