@@ -67,6 +67,11 @@ from keystone import token
 from keystone.token import provider as token_provider
 from keystone import trust
 
+# NOTE(dstanek): Tests inheriting from TestCase depend on having the
+#   policy_file command-line option declared before setUp runs. Importing the
+#   oslo policy module automatically declares the option.
+from keystone.openstack.common import policy as common_policy  # noqa
+
 
 LOG = logging.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.abspath('..'))
