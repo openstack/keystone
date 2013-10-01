@@ -13,6 +13,8 @@
 #   under the License.
 
 
+from sqlalchemy.exc import DisconnectionError
+
 from keystone.common import sql
 from keystone import tests
 
@@ -180,3 +182,59 @@ class TestBase(tests.TestCase):
         sql.set_global_engine(None)
         session2 = base.get_session()
         self.assertIsNot(session1.bind, session2.bind)
+
+
+class FakeDbapiConn(object):
+    """Simulates the dbapi_conn passed to mysql_on_checkout."""
+
+    class OperationalError(Exception):
+        pass
+
+    class Cursor(object):
+        def __init__(self, failwith=None):
+            self._failwith = failwith
+
+        def execute(self, sql):
+            if self._failwith:
+                raise self._failwith
+
+    def __init__(self, failwith=None):
+        self._cursor = self.Cursor(failwith=failwith)
+
+    def cursor(self):
+        return self._cursor
+
+
+class TestCheckoutHandler(tests.TestCase):
+    def _do_on_checkout(self, failwith=None):
+        dbapi_conn = FakeDbapiConn(failwith=failwith)
+        connection_rec = None
+        connection_proxy = None
+        sql.mysql_on_checkout(dbapi_conn, connection_rec, connection_proxy)
+
+    def test_checkout_success(self):
+        # If call mysql_on_checkout and query doesn't raise anything, then no
+        # problems
+
+        # If this doesn't raise then the test is successful.
+        self._do_on_checkout()
+
+    def test_disconnected(self):
+        # If call mysql_on_checkout and query raises OperationalError with
+        # specific errors, then raises DisconnectionError.
+
+        # mysql_on_checkout should look for 2006 among others.
+        disconnected_exception = FakeDbapiConn.OperationalError(2006)
+        self.assertRaises(DisconnectionError,
+                          self._do_on_checkout,
+                          failwith=disconnected_exception)
+
+    def test_error(self):
+        # If call mysql_on_checkout and query raises an exception that doesn't
+        # indicate disconnected, then the original error is raised.
+
+        # mysql_on_checkout doesn't look for 2056
+        other_exception = FakeDbapiConn.OperationalError(2056)
+        self.assertRaises(FakeDbapiConn.OperationalError,
+                          self._do_on_checkout,
+                          failwith=other_exception)
