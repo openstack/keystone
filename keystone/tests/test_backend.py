@@ -108,6 +108,20 @@ class IdentityTests(object):
         self.assertEqual(len(role_list), 1)
         self.assertIn(CONF.member_role_id, role_list)
 
+    def test_authenticate_if_no_password_set(self):
+        id_ = uuid.uuid4().hex
+        user = {
+            'id': id_,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID,
+        }
+        self.identity_api.create_user(user['id'], user)
+
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id=id_,
+                          password='password')
+
     def test_password_hashed(self):
         driver = self.identity_api._select_identity_driver(
             self.user_foo['domain_id'])

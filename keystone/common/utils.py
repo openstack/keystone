@@ -135,7 +135,7 @@ def check_password(password, hashed):
     It extracts the actual salt if this value is then passed as the salt.
 
     """
-    if password is None:
+    if password is None or hashed is None:
         return False
     password_utf8 = trunc_password(password).encode('utf-8')
     return passlib.hash.sha512_crypt.verify(password_utf8, hashed)

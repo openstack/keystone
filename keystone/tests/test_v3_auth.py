@@ -1766,6 +1766,17 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertDictEqual(v2_token_data['access']['token']['bind'],
                              token_data['token']['bind'])
 
+    def test_authenticating_a_user_with_no_password(self):
+        user = self.new_user_ref(domain_id=self.domain['id'])
+        user.pop('password', None)  # can't have a password for this test
+        self.identity_api.create_user(user['id'], user)
+
+        auth_data = self.build_authentication_request(
+            user_id=user['id'],
+            password='password')
+
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
+
 
 class TestAuthXML(TestAuthJSON):
     content_type = 'xml'
