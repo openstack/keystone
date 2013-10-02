@@ -60,7 +60,7 @@ class Tenant(controller.V2Controller):
         try:
             token_ref = self.token_api.get_token(context['token_id'])
         except exception.NotFound as e:
-            LOG.warning('Authentication failed: %s' % e)
+            LOG.warning(_('Authentication failed: %s') % e)
             raise exception.Unauthorized(e)
 
         user_ref = token_ref['user']
