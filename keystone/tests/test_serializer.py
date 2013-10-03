@@ -16,6 +16,8 @@
 
 import copy
 
+from testtools import matchers
+
 from keystone.common import serializer
 from keystone import tests
 
@@ -295,3 +297,21 @@ identity-service/2.0/identity-dev-guide-2.0.pdf" type="application/pdf"/>
             </object>
         """
         self.assertEqualXML(serializer.to_xml(d), xml)
+
+    def test_xml_with_namespaced_attribute_to_dict(self):
+        expected = {
+            "user": {
+                "username": "test_user",
+                "OS-KSADM:password": "mypass",
+            },
+        }
+
+        xmlns = 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0'
+        xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <user xmlns="http://docs.openstack.org/identity/api/v2.0"
+                    xmlns:OS-KSADM="%(xmlns)s"
+                    username="test_user"
+                    OS-KSADM:password="mypass"/>
+        """ % dict(xmlns=xmlns)
+        self.assertThat(serializer.from_xml(xml), matchers.Equals(expected))
