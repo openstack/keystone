@@ -279,7 +279,9 @@ database_opts = [
                deprecated_opts=[cfg.DeprecatedOpt('sql_connection',
                                                   group='DEFAULT'),
                                 cfg.DeprecatedOpt('sql_connection',
-                                                  group='DATABASE')]),
+                                                  group='DATABASE'),
+                                cfg.DeprecatedOpt('connection',
+                                                  group='sql'), ]),
     cfg.StrOpt('slave_connection',
                default='',
                help='The SQLAlchemy connection string used to connect to the '
