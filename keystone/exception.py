@@ -78,6 +78,24 @@ class ValidationTimeStampError(Error):
     title = 'Bad Request'
 
 
+class ControllerArgsError(ValidationError):
+    """Raised when controller methods receive incorrect argumemnts.
+
+    """
+
+    def _build_message(self, message, missing_required_args=None,
+                       extra_params=None):
+        errors = []
+
+        for param in sorted(extra_params or []):
+            errors.append(_('%s is not allowed.') % param)
+
+        for arg in sorted(missing_required_args or []):
+            errors.append(_('%s is required.') % arg)
+
+        return u' '.join(str(e) for e in errors)
+
+
 class StringLengthExceeded(ValidationError):
     message_format = _("String length exceeded.The length of"
                        " string '%(string)s' exceeded the limit"
