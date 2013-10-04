@@ -16,10 +16,12 @@
 
 """Main entry point into the Identity service."""
 
+import abc
 import functools
 import os
 
 from oslo.config import cfg
+import six
 
 from keystone import clean
 from keystone.common import controller
@@ -556,8 +558,11 @@ class Manager(manager.Manager):
         return self.assignment_api.remove_user_from_project(tenant_id, user_id)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     """Interface description for an Identity driver."""
+
+    @abc.abstractmethod
     def authenticate(self, user_id, password):
         """Authenticate a given user and password.
         :returns: user_ref
@@ -567,6 +572,7 @@ class Driver(object):
 
     # user crud
 
+    @abc.abstractmethod
     def create_user(self, user_id, user):
         """Creates a new user.
 
@@ -575,6 +581,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_users(self):
         """List all users in the system.
 
@@ -583,6 +590,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_users_in_group(self, group_id):
         """List all users in a group.
 
@@ -591,6 +599,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_user(self, user_id):
         """Get a user by ID.
 
@@ -600,6 +609,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_user(self, user_id, user):
         """Updates an existing user.
 
@@ -609,6 +619,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def add_user_to_group(self, user_id, group_id):
         """Adds a user to a group.
 
@@ -618,6 +629,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def check_user_in_group(self, user_id, group_id):
         """Checks if a user is a member of a group.
 
@@ -627,6 +639,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def remove_user_from_group(self, user_id, group_id):
         """Removes a user from a group.
 
@@ -635,6 +648,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_user(self, user_id):
         """Deletes an existing user.
 
@@ -643,6 +657,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_user_by_name(self, user_name, domain_id):
         """Get a user by name.
 
@@ -654,6 +669,7 @@ class Driver(object):
 
     # group crud
 
+    @abc.abstractmethod
     def create_group(self, group_id, group):
         """Creates a new group.
 
@@ -662,6 +678,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_groups(self):
         """List all groups in the system.
 
@@ -670,6 +687,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_groups_for_user(self, user_id):
         """List all groups a user is in
 
@@ -678,6 +696,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_group(self, group_id):
         """Get a group by ID.
 
@@ -687,6 +706,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_group(self, group_id, group):
         """Updates an existing group.
 
@@ -696,6 +716,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_group(self, group_id):
         """Deletes an existing group.
 
@@ -704,6 +725,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def is_domain_aware(self):
         """Indicates if Driver supports domains."""
         raise exception.NotImplemented()
