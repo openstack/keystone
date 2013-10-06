@@ -14,17 +14,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import abc
+
+import six
+
 from keystone.common import dependency
 from keystone import exception
 
 
 @dependency.requires('identity_api')
+@six.add_metaclass(abc.ABCMeta)
 class AuthMethodHandler(object):
     """Abstract base class for an authentication plugin."""
 
     def __init__(self):
         pass
 
+    @abc.abstractmethod
     def authenticate(self, context, auth_payload, auth_context):
         """Authenticate user and return an authentication context.
 
