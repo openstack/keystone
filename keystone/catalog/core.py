@@ -17,6 +17,10 @@
 
 """Main entry point into the Catalog service."""
 
+import abc
+
+import six
+
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
@@ -102,8 +106,11 @@ class Manager(manager.Manager):
             raise exception.NotFound('Catalog not found for user and tenant')
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     """Interface description for an Catalog driver."""
+
+    @abc.abstractmethod
     def create_service(self, service_id, service_ref):
         """Creates a new service.
 
@@ -112,6 +119,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_services(self):
         """List all services.
 
@@ -120,6 +128,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_service(self, service_id):
         """Get service by id.
 
@@ -129,6 +138,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_service(self, service_id):
         """Update service by id.
 
@@ -138,6 +148,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_service(self, service_id):
         """Deletes an existing service.
 
@@ -146,6 +157,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def create_endpoint(self, endpoint_id, endpoint_ref):
         """Creates a new endpoint for a service.
 
@@ -155,6 +167,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_endpoint(self, endpoint_id):
         """Get endpoint by id.
 
@@ -164,6 +177,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_endpoints(self):
         """List all endpoints.
 
@@ -172,6 +186,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_endpoint(self, endpoint_id, endpoint_ref):
         """Get endpoint by id.
 
@@ -182,6 +197,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_endpoint(self, endpoint_id):
         """Deletes an endpoint for a service.
 
@@ -190,6 +206,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_catalog(self, user_id, tenant_id, metadata=None):
         """Retrieve and format the current service catalog.
 
@@ -214,6 +231,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_v3_catalog(self, user_id, tenant_id, metadata=None):
         """Retrieve and format the current V3 service catalog.
 
