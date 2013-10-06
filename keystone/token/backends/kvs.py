@@ -65,6 +65,15 @@ class Token(kvs.Base, token.Driver):
         except exception.NotFound:
             raise exception.TokenNotFound(token_id=token_id)
 
+    def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
+                      consumer_id=None):
+        return super(Token, self).delete_tokens(
+            user_id=user_id,
+            tenant_id=tenant_id,
+            trust_id=trust_id,
+            consumer_id=consumer_id,
+        )
+
     def is_not_expired(self, now, ref):
         return not ref.get('expires') and ref.get('expires') < now
 

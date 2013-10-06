@@ -16,8 +16,11 @@
 
 """Main entry point into the Token service."""
 
+import abc
 import copy
 import datetime
+
+import six
 
 from keystone.common import cache
 from keystone.common import cms
@@ -191,9 +194,11 @@ class Manager(manager.Manager):
         self.token_provider_api.invalidate_individual_token_cache(token_id)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     """Interface description for a Token driver."""
 
+    @abc.abstractmethod
     def get_token(self, token_id):
         """Get a token by id.
 
@@ -205,6 +210,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def create_token(self, token_id, data):
         """Create a token by id and data.
 
@@ -228,6 +234,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_token(self, token_id):
         """Deletes a token by id.
 
@@ -239,6 +246,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
                       consumer_id=None):
         """Deletes tokens by user.
@@ -264,11 +272,6 @@ class Driver(object):
         :raises: keystone.exception.TokenNotFound
 
         """
-        # TODO(henry-nash): The SQL driver already has a more efficient
-        # implementation of this, although this is missing from the other
-        # backends.  These should be completed and then this should become
-        # a virtual method.  This is raised as bug #1227507.
-
         token_list = self.list_tokens(user_id,
                                       tenant_id=tenant_id,
                                       trust_id=trust_id,
@@ -280,6 +283,7 @@ class Driver(object):
             except exception.NotFound:
                 pass
 
+    @abc.abstractmethod
     def list_tokens(self, user_id, tenant_id=None, trust_id=None,
                     consumer_id=None):
         """Returns a list of current token_id's for a user
@@ -301,6 +305,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_revoked_tokens(self):
         """Returns a list of all revoked tokens
 
@@ -309,6 +314,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def flush_expired_tokens(self):
         """Archive or delete tokens that have expired.
         """
