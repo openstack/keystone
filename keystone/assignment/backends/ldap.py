@@ -259,6 +259,32 @@ class Assignment(assignment.Driver):
                 finally:
                     conn.unbind_s()
 
+    def create_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        raise exception.NotImplemented()
+
+    def get_grant(self, role_id, user_id=None, group_id=None,
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
+        raise exception.NotImplemented()
+
+    def delete_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        raise exception.NotImplemented()
+
+    def list_grants(self, user_id=None, group_id=None,
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
+        raise exception.NotImplemented()
+
+    def get_domain_by_name(self, domain_name):
+        raise exception.NotImplemented()
+
+    def list_role_assignments(self):
+        raise exception.NotImplemented()
+
 
 # TODO(termie): turn this into a data object and move logic to driver
 class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
