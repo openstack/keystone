@@ -19,7 +19,6 @@ import os.path
 import ldap
 from ldap import filter as ldap_filter
 
-from keystone.common.ldap import fakeldap
 from keystone import exception
 from keystone.openstack.common import log as logging
 
@@ -98,6 +97,21 @@ def ldap_scope(scope):
             _('Invalid LDAP scope: %(scope)s. Choose one of: %(options)s') % {
                 'scope': scope,
                 'options': ', '.join(LDAP_SCOPES.keys())})
+
+
+_HANDLERS = {}
+
+
+def register_handler(prefix, handler):
+    _HANDLERS[prefix] = handler
+
+
+def get_handler(conn_url):
+    for prefix, handler in _HANDLERS.iteritems():
+        if conn_url.startswith(prefix):
+            return handler
+
+    return LdapWrapper
 
 
 class BaseLdap(object):
@@ -210,16 +224,15 @@ class BaseLdap(object):
         return mapping
 
     def get_connection(self, user=None, password=None):
-        if self.LDAP_URL.startswith('fake://'):
-            conn = fakeldap.FakeLdap(self.LDAP_URL)
-        else:
-            conn = LdapWrapper(self.LDAP_URL,
-                               self.page_size,
-                               alias_dereferencing=self.alias_dereferencing,
-                               use_tls=self.use_tls,
-                               tls_cacertfile=self.tls_cacertfile,
-                               tls_cacertdir=self.tls_cacertdir,
-                               tls_req_cert=self.tls_req_cert)
+        handler = get_handler(self.LDAP_URL)
+
+        conn = handler(self.LDAP_URL,
+                       self.page_size,
+                       alias_dereferencing=self.alias_dereferencing,
+                       use_tls=self.use_tls,
+                       tls_cacertfile=self.tls_cacertfile,
+                       tls_cacertdir=self.tls_cacertdir,
+                       tls_req_cert=self.tls_req_cert)
 
         if user is None:
             user = self.LDAP_USER
