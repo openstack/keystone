@@ -32,7 +32,7 @@ class TestExtensionCase(test_v3.RestfulTestCase):
     def setup_database(self):
         self.conf_files = super(TestExtensionCase, self).config_files()
         self.conf_files.append(
-            tests.testsdir('test_associate_project_endpoint_extension.conf'))
+            tests.dirs.tests('test_associate_project_endpoint_extension.conf'))
         super(TestExtensionCase, self).setup_database()
         package_name = "%s.%s.migrate_repo" % (contrib.__name__,
                                                self.EXTENSION_NAME)

@@ -42,11 +42,11 @@ class TestAuthPlugin(tests.TestCase):
     def setUp(self):
         super(TestAuthPlugin, self).setUp()
         self.config([
-            tests.etcdir('keystone.conf.sample'),
-            tests.testsdir('test_overrides.conf'),
-            tests.testsdir('backend_sql.conf'),
-            tests.testsdir('backend_sql_disk.conf'),
-            tests.testsdir('test_auth_plugin.conf')])
+            tests.dirs.etc('keystone.conf.sample'),
+            tests.dirs.tests('test_overrides.conf'),
+            tests.dirs.tests('backend_sql.conf'),
+            tests.dirs.tests('backend_sql_disk.conf'),
+            tests.dirs.tests('test_auth_plugin.conf')])
         self.load_backends()
         auth.controllers.AUTH_METHODS[METHOD_NAME] = SimpleChallengeResponse()
 

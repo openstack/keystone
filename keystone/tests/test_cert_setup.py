@@ -25,18 +25,13 @@ from keystone.tests import default_fixtures
 from keystone import token
 
 
-ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SSLDIR = "%s/tests/ssl/" % ROOTDIR
+SSLDIR = tests.dirs.tests('ssl')
 CONF = tests.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-def rootdir(*p):
-    return os.path.join(SSLDIR, *p)
-
-
-CERTDIR = rootdir("certs")
-KEYDIR = rootdir("private")
+CERTDIR = os.path.join(SSLDIR, 'certs')
+KEYDIR = os.path.join(SSLDIR, 'private')
 
 
 class CertSetupTestCase(tests.TestCase):
@@ -93,7 +88,7 @@ class CertSetupTestCase(tests.TestCase):
 
     def tearDown(self):
         try:
-            shutil.rmtree(rootdir(SSLDIR))
+            shutil.rmtree(SSLDIR)
         except OSError:
             pass
         super(CertSetupTestCase, self).tearDown()

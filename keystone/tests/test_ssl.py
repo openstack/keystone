@@ -26,8 +26,8 @@ from keystone.tests.fixtures import appserver
 
 CONF = config.CONF
 
-CERTDIR = tests.rootdir("examples/pki/certs")
-KEYDIR = tests.rootdir("examples/pki/private")
+CERTDIR = tests.dirs.root('examples', 'pki', 'certs')
+KEYDIR = tests.dirs.root('examples', 'pki', 'private')
 CERT = os.path.join(CERTDIR, 'ssl_cert.pem')
 KEY = os.path.join(KEYDIR, 'ssl_key.pem')
 CA = os.path.join(CERTDIR, 'cacert.pem')

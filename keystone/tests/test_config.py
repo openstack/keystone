@@ -27,13 +27,13 @@ CONF = config.CONF
 class ConfigTestCase(tests.TestCase):
     def test_paste_config(self):
         self.assertEqual(config.find_paste_config(),
-                         tests.etcdir('keystone-paste.ini'))
+                         tests.dirs.etc('keystone-paste.ini'))
         self.opt_in_group('paste_deploy', config_file=uuid.uuid4().hex)
         self.assertRaises(exception.ConfigFileNotFound,
                           config.find_paste_config)
         self.opt_in_group('paste_deploy', config_file='')
         self.assertEqual(config.find_paste_config(),
-                         tests.etcdir('keystone.conf.sample'))
+                         tests.dirs.etc('keystone.conf.sample'))
 
     def test_config_default(self):
         self.assertEqual('keystone.auth.plugins.password.Password',

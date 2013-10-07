@@ -24,12 +24,12 @@ def _generate_paste_config():
     # Generate a file, based on keystone-paste.ini, that doesn't include
     # admin_token_auth in the pipeline
 
-    with open(tests.etcdir('keystone-paste.ini'), 'r') as f:
+    with open(tests.dirs.etc('keystone-paste.ini'), 'r') as f:
         contents = f.read()
 
     new_contents = contents.replace(' admin_token_auth ', ' ')
 
-    with open(tests.tmpdir('no_admin_token_auth-paste.ini'), 'w') as f:
+    with open(tests.dirs.tmp('no_admin_token_auth-paste.ini'), 'w') as f:
         f.write(new_contents)
 
 
@@ -41,12 +41,12 @@ class TestNoAdminTokenAuth(tests.TestCase):
         _generate_paste_config()
 
         self.admin_app = webtest.TestApp(
-            self.loadapp(tests.tmpdir('no_admin_token_auth'), name='admin'),
+            self.loadapp(tests.dirs.tmp('no_admin_token_auth'), name='admin'),
             extra_environ=dict(REMOTE_ADDR='127.0.0.1'))
 
     def tearDown(self):
         self.admin_app = None
-        os.remove(tests.tmpdir('no_admin_token_auth-paste.ini'))
+        os.remove(tests.dirs.tmp('no_admin_token_auth-paste.ini'))
         super(TestNoAdminTokenAuth, self).tearDown()
 
     def test_request_no_admin_token_auth(self):

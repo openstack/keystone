@@ -28,9 +28,9 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 class PamIdentity(tests.TestCase):
     def setUp(self):
         super(PamIdentity, self).setUp()
-        self.config([tests.etcdir('keystone.conf.sample'),
-                     tests.testsdir('test_overrides.conf'),
-                     tests.testsdir('backend_pam.conf')])
+        self.config([tests.dirs.etc('keystone.conf.sample'),
+                     tests.dirs.tests('test_overrides.conf'),
+                     tests.dirs.tests('backend_pam.conf')])
         self.identity_api = identity_pam.PamIdentity()
         tenant_id = uuid.uuid4().hex
         self.tenant_in = {'id': tenant_id, 'name': tenant_id}

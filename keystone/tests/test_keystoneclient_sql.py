@@ -30,9 +30,9 @@ CONF = config.CONF
 class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
     def config(self, config_files):
         super(KcMasterSqlTestCase, self).config([
-            tests.etcdir('keystone.conf.sample'),
-            tests.testsdir('test_overrides.conf'),
-            tests.testsdir('backend_sql.conf')])
+            tests.dirs.etc('keystone.conf.sample'),
+            tests.dirs.tests('test_overrides.conf'),
+            tests.dirs.tests('backend_sql.conf')])
 
         self.load_backends()
         self.engine = self.get_engine()

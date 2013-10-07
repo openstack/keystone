@@ -72,9 +72,9 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                       'ou': 'UserGroups'})
 
     def _set_config(self):
-        self.config([tests.etcdir('keystone.conf.sample'),
-                     tests.testsdir('test_overrides.conf'),
-                     tests.testsdir('backend_liveldap.conf')])
+        self.config([tests.dirs.etc('keystone.conf.sample'),
+                     tests.dirs.tests('test_overrides.conf'),
+                     tests.dirs.tests('backend_liveldap.conf')])
 
     def test_build_tree(self):
         """Regression test for building the tree names

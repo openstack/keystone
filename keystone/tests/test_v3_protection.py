@@ -414,7 +414,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         # Finally, switch to the v3 sample policy file
         self.orig_policy_file = CONF.policy_file
         rules.reset()
-        self.opt(policy_file=tests.etcdir('policy.v3cloudsample.json'))
+        self.opt(policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
 
     def load_sample_data(self):
         # Start by creating a couple of domains

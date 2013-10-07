@@ -82,20 +82,22 @@ CONF = config.CONF
 exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
 
 
-def rootdir(*p):
-    return os.path.join(ROOTDIR, *p)
+class dirs:
+    @staticmethod
+    def root(*p):
+        return os.path.join(ROOTDIR, *p)
 
+    @staticmethod
+    def etc(*p):
+        return os.path.join(ETCDIR, *p)
 
-def etcdir(*p):
-    return os.path.join(ETCDIR, *p)
+    @staticmethod
+    def tests(*p):
+        return os.path.join(TESTSDIR, *p)
 
-
-def testsdir(*p):
-    return os.path.join(TESTSDIR, *p)
-
-
-def tmpdir(*p):
-    return os.path.join(TMPDIR, *p)
+    @staticmethod
+    def tmp(*p):
+        return os.path.join(TMPDIR, *p)
 
 
 def checkout_vendor(repo, rev):
@@ -130,9 +132,9 @@ def checkout_vendor(repo, rev):
     return revdir
 
 
-def setup_test_database():
-    db = tmpdir('test.db')
-    pristine = tmpdir('test.db.pristine')
+def setup_database():
+    db = dirs.tmp('test.db')
+    pristine = dirs.tmp('test.db.pristine')
 
     try:
         if os.path.exists(db):
@@ -149,13 +151,13 @@ def setup_test_database():
 def generate_paste_config(extension_name):
     # Generate a file, based on keystone-paste.ini, that is named:
     # extension_name.ini, and includes extension_name in the pipeline
-    with open(etcdir('keystone-paste.ini'), 'r') as f:
+    with open(dirs.etc('keystone-paste.ini'), 'r') as f:
         contents = f.read()
 
     new_contents = contents.replace(' service_v3',
                                     ' %s service_v3' % (extension_name))
 
-    new_paste_file = tmpdir(extension_name + '.ini')
+    new_paste_file = dirs.tmp(extension_name + '.ini')
     with open(new_paste_file, 'w') as f:
         f.write(new_contents)
 
@@ -164,11 +166,11 @@ def generate_paste_config(extension_name):
 
 def remove_generated_paste_config(extension_name):
     # Remove the generated paste config file, named extension_name.ini
-    paste_file_to_remove = tmpdir(extension_name + '.ini')
+    paste_file_to_remove = dirs.tmp(extension_name + '.ini')
     os.remove(paste_file_to_remove)
 
 
-def teardown_test_database():
+def teardown_database():
     sql.core.set_global_engine(None)
 
 
@@ -253,11 +255,11 @@ class TestCase(testtools.TestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
-        self.config([etcdir('keystone.conf.sample'),
-                     testsdir('test_overrides.conf')])
+        self.config([dirs.etc('keystone.conf.sample'),
+                     dirs.tests('test_overrides.conf')])
         # ensure the cache region instance is setup
         cache.configure_cache_region(cache.REGION)
-        self.opt(policy_file=etcdir('policy.json'))
+        self.opt(policy_file=dirs.etc('policy.json'))
 
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
         warnings.filterwarnings('ignore', category=DeprecationWarning)

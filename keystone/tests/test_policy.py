@@ -219,9 +219,9 @@ class PolicyJsonTestCase(tests.TestCase):
         return set(json.load(file(filename)))
 
     def test_json_examples_have_matching_entries(self):
-        policy_keys = self._load_entries(tests.etcdir('policy.json'))
+        policy_keys = self._load_entries(tests.dirs.etc('policy.json'))
         cloud_policy_keys = self._load_entries(
-            tests.etcdir('policy.v3cloudsample.json'))
+            tests.dirs.etc('policy.v3cloudsample.json'))
 
         diffs = set(policy_keys).difference(set(cloud_policy_keys))
 
