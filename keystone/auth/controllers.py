@@ -14,6 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
+from keystone.common import cms
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
@@ -21,7 +24,7 @@ from keystone import config
 from keystone import exception
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log as logging
-from keystone import token
+from keystone.openstack.common import timeutils
 
 
 LOG = logging.getLogger(__name__)
@@ -276,7 +279,6 @@ class AuthInfo(object):
 class Auth(controller.V3Controller):
     def __init__(self, *args, **kw):
         super(Auth, self).__init__(*args, **kw)
-        self.token_controllers_ref = token.controllers.Auth()
         config.setup_authentication()
 
     def authenticate_for_token(self, context, auth=None):
@@ -413,7 +415,19 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def revocation_list(self, context, auth=None):
-        return self.token_controllers_ref.revocation_list(context, auth)
+        tokens = self.token_api.list_revoked_tokens()
+
+        for t in tokens:
+            expires = t['expires']
+            if not (expires and isinstance(expires, unicode)):
+                    t['expires'] = timeutils.isotime(expires)
+        data = {'revoked': tokens}
+        json_data = json.dumps(data)
+        signed_text = cms.cms_sign_text(json_data,
+                                        CONF.signing.certfile,
+                                        CONF.signing.keyfile)
+
+        return {'signed': signed_text}
 
 
 #FIXME(gyee): not sure if it belongs here or keystone.common. Park it here
