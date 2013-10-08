@@ -363,12 +363,13 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     """Test token revoke using v3 Identity API by token owner and admin."""
     def setUp(self):
         """Setup for Test Cases.
-        One domain A
-        Two users userNormalA and userAdminA
+        Two domains, domainA and domainB
+        Two users in domainA, userNormalA and userAdminA
+        One user in domainB, userAdminB
 
         """
         super(TestTokenRevokeSelfAndAdmin, self).setUp()
-
+        # DomainA setup
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
 
@@ -434,7 +435,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         self.head('/auth/tokens', headers=headers, expected_status=404,
                   token=adminA_token)
 
-    def test_admin_revokes_user_token(self):
+    def test_adminA_revokes_userA_token(self):
         r = self.post(
             '/auth/tokens',
             body=self.build_authentication_request(
@@ -469,6 +470,39 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         # valid X-Auth-Token and invalid X-Subject-Token (404)
         self.head('/auth/tokens', headers=headers, expected_status=404,
                   token=adminA_token)
+
+    def test_adminB_fails_revoking_userA_token(self):
+        # DomainB setup
+        self.domainB = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domainB['id'], self.domainB)
+        self.userAdminB = self.new_user_ref(domain_id=self.domainB['id'])
+        self.userAdminB['password'] = uuid.uuid4().hex
+        self.identity_api.create_user(self.userAdminB['id'], self.userAdminB)
+        self.assignment_api.create_grant(self.role1['id'],
+                                         user_id=self.userAdminB['id'],
+                                         domain_id=self.domainB['id'])
+        r = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.userNormalA['id'],
+                password=self.userNormalA['password'],
+                user_domain_id=self.domainA['id']))
+
+        user_token = r.headers.get('X-Subject-Token')
+        headers = {'X-Subject-Token': user_token}
+
+        r = self.post(
+            '/auth/tokens',
+            body=self.build_authentication_request(
+                user_id=self.userAdminB['id'],
+                password=self.userAdminB['password'],
+                domain_name=self.domainB['name']))
+        adminB_token = r.headers.get('X-Subject-Token')
+
+        self.head('/auth/tokens', headers=headers, expected_status=403,
+                  token=adminB_token)
+        self.delete('/auth/tokens', headers=headers, expected_status=403,
+                    token=adminB_token)
 
 
 class TestTokenRevoking(test_v3.RestfulTestCase):
