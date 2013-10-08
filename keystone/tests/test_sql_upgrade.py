@@ -601,7 +601,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.upgrade(32)
 
         user_table = self.select_table("user")
-        self.assertEquals(user_table.c.name.type.length, 255)
+        self.assertEqual(user_table.c.name.type.length, 255)
 
     def test_downgrade_32_to_31(self):
         self.upgrade(32)
@@ -628,10 +628,10 @@ class SqlUpgradeTests(SqlMigrateBase):
         q = q.filter(user_table.c.id == user_id)
         r = q.one()
         user_name = r[0]
-        self.assertEquals(len(user_name), 64)
+        self.assertEqual(len(user_name), 64)
 
         user_table = self.select_table("user")
-        self.assertEquals(user_table.c.name.type.length, 64)
+        self.assertEqual(user_table.c.name.type.length, 64)
 
     def test_downgrade_to_0(self):
         self.upgrade(self.max_version)
@@ -831,11 +831,11 @@ class SqlUpgradeTests(SqlMigrateBase):
             return role_count
 
         self.upgrade(16)
-        self.assertEquals(0, count_member_roles())
+        self.assertEqual(0, count_member_roles())
         self.upgrade(17)
-        self.assertEquals(1, count_member_roles())
+        self.assertEqual(1, count_member_roles())
         self.downgrade(16)
-        self.assertEquals(0, count_member_roles())
+        self.assertEqual(0, count_member_roles())
 
     def check_uniqueness_constraints(self):
         # Check uniqueness constraints for User & Project tables are

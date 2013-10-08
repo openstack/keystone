@@ -559,7 +559,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                           self.credential['id'])
         # And the no tokens we remain valid
         tokens = self.token_api.list_tokens(self.user['id'])
-        self.assertEquals(len(tokens), 0)
+        self.assertEqual(len(tokens), 0)
         # But the credential for user2 is unaffected
         r = self.credential_api.get_credential(self.credential2['id'])
         self.assertDictEqual(r, self.credential2)
@@ -1648,7 +1648,7 @@ class TestV3toV2Methods(tests.TestCase):
         user_list = [self.user1, self.user2, self.user3, self.user4]
         updated_list = self.identity_api.v3_to_v2_user(user_list)
 
-        self.assertEquals(len(updated_list), len(user_list))
+        self.assertEqual(len(updated_list), len(user_list))
 
         for i, ref in enumerate(updated_list):
             # Order should not change.

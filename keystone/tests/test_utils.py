@@ -98,7 +98,7 @@ class UtilsTestCase(tests.TestCase):
         @timezone
         def _test_unixtime():
             epoch = utils.unixtime(dt)
-            self.assertEquals(epoch, epoch_ans, "TZ=%s" % TZ)
+            self.assertEqual(epoch, epoch_ans, "TZ=%s" % TZ)
 
         dt = datetime.datetime(1970, 1, 2, 3, 4, 56, 0)
         epoch_ans = 56 + 4 * 60 + 3 * 3600 + 86400

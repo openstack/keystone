@@ -458,7 +458,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         if ref:
             for k in keys:
                 msg = '%s not equal: %s != %s' % (k, ref[k], entity[k])
-                self.assertEquals(ref[k], entity[k])
+                self.assertEqual(ref[k], entity[k])
 
         return entity
 

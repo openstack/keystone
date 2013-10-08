@@ -175,7 +175,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self._set_policy(new_policy)
         url_by_name = '/users/%s' % self.user1['id']
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEquals(self.user1['id'], r.result['user']['id'])
+        self.assertEqual(self.user1['id'], r.result['user']['id'])
 
     def test_get_user_protected_match_target(self):
         """GET /users/{id} (match target)
@@ -202,7 +202,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         url_by_name = '/users/%s' % self.user1['id']
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEquals(self.user1['id'], r.result['user']['id'])
+        self.assertEqual(self.user1['id'], r.result['user']['id'])
 
         url_by_name = '/users/%s' % uuid.uuid4().hex
         r = self.get(url_by_name, auth=self.auth,

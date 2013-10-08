@@ -426,8 +426,8 @@ class TestCase(NoModule, testtools.TestCase):
         self.assertTrue(len(l))
 
     def assertDictEqual(self, d1, d2, msg=None):
-        self.assert_(isinstance(d1, dict), 'First argument is not a dict')
-        self.assert_(isinstance(d2, dict), 'Second argument is not a dict')
+        self.assertTrue(isinstance(d1, dict), 'First argument is not a dict')
+        self.assertTrue(isinstance(d2, dict), 'Second argument is not a dict')
         self.assertEqual(d1, d2, msg)
 
     def assertRaisesRegexp(self, expected_exception, expected_regexp,

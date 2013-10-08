@@ -211,23 +211,23 @@ class S3TokenMiddlewareTestUtil(testtools.TestCase):
         self.assertRaises(ValueError, s3_token.split_path, '/a', 5, 4)
 
     def test_split_path_success(self):
-        self.assertEquals(s3_token.split_path('/a'), ['a'])
-        self.assertEquals(s3_token.split_path('/a/'), ['a'])
-        self.assertEquals(s3_token.split_path('/a/c', 2), ['a', 'c'])
-        self.assertEquals(s3_token.split_path('/a/c/o', 3), ['a', 'c', 'o'])
-        self.assertEquals(s3_token.split_path('/a/c/o/r', 3, 3, True),
-                          ['a', 'c', 'o/r'])
-        self.assertEquals(s3_token.split_path('/a/c', 2, 3, True),
-                          ['a', 'c', None])
-        self.assertEquals(s3_token.split_path('/a/c/', 2), ['a', 'c'])
-        self.assertEquals(s3_token.split_path('/a/c/', 2, 3), ['a', 'c', ''])
+        self.assertEqual(s3_token.split_path('/a'), ['a'])
+        self.assertEqual(s3_token.split_path('/a/'), ['a'])
+        self.assertEqual(s3_token.split_path('/a/c', 2), ['a', 'c'])
+        self.assertEqual(s3_token.split_path('/a/c/o', 3), ['a', 'c', 'o'])
+        self.assertEqual(s3_token.split_path('/a/c/o/r', 3, 3, True),
+                         ['a', 'c', 'o/r'])
+        self.assertEqual(s3_token.split_path('/a/c', 2, 3, True),
+                         ['a', 'c', None])
+        self.assertEqual(s3_token.split_path('/a/c/', 2), ['a', 'c'])
+        self.assertEqual(s3_token.split_path('/a/c/', 2, 3), ['a', 'c', ''])
 
     def test_split_path_invalid_path(self):
         try:
             s3_token.split_path('o\nn e', 2)
         except ValueError as err:
-            self.assertEquals(str(err), 'Invalid path: o%0An%20e')
+            self.assertEqual(str(err), 'Invalid path: o%0An%20e')
         try:
             s3_token.split_path('o\nn e', 2, 3, True)
         except ValueError as err:
-            self.assertEquals(str(err), 'Invalid path: o%0An%20e')
+            self.assertEqual(str(err), 'Invalid path: o%0An%20e')

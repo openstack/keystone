@@ -1126,7 +1126,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidProjectScopedTokenResponse(r)
-        self.assertEquals(token['bind']['kerberos'], self.user['name'])
+        self.assertEqual(token['bind']['kerberos'], self.user['name'])
 
     def test_unscoped_bind_with_remote_user(self):
         CONF.token.bind = ['kerberos']
@@ -1136,7 +1136,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
-        self.assertEquals(token['bind']['kerberos'], self.user['name'])
+        self.assertEqual(token['bind']['kerberos'], self.user['name'])
 
 
 class TestAuthJSON(test_v3.RestfulTestCase):
