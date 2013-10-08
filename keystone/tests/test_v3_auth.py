@@ -1094,12 +1094,42 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
                           auth_context)
 
 
-class TestAuthExternalDomain(test_v3.RestfulTestCase):
+class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
     def config_files(self):
         cfg_list = self._config_file_list[:]
-        cfg_list.append(tests.dirs.tests('auth_plugin_external_domain.conf'))
+        cfg_list.append(
+            tests.dirs.tests('auth_plugin_external_default_legacy.conf'))
+        return cfg_list
+
+    def test_remote_user_no_realm(self):
+        CONF.auth.methods = 'external'
+        api = auth.controllers.Auth()
+        context, auth_info, auth_context = self.build_external_auth_request(
+            self.default_domain_user['name'])
+        api.authenticate(context, auth_info, auth_context)
+        self.assertEqual(auth_context['user_id'],
+                         self.default_domain_user['id'])
+
+    def test_remote_user_no_domain(self):
+        api = auth.controllers.Auth()
+        context, auth_info, auth_context = self.build_external_auth_request(
+            self.user['name'])
+        self.assertRaises(exception.Unauthorized,
+                          api.authenticate,
+                          context,
+                          auth_info,
+                          auth_context)
+
+
+class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
+    content_type = 'json'
+
+    def config_files(self):
+        cfg_list = self._config_file_list[:]
+        cfg_list.append(
+            tests.dirs.tests('auth_plugin_external_domain_legacy.conf'))
         return cfg_list
 
     def test_remote_user_with_realm(self):
@@ -1138,6 +1168,61 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request()
         remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'AUTH_TYPE': 'Negotiate'})
+        r = self.post('/auth/tokens', body=auth_data)
+        token = self.assertValidUnscopedTokenResponse(r)
+        self.assertEqual(token['bind']['kerberos'], self.user['name'])
+
+
+class TestAuthExternalDomain(test_v3.RestfulTestCase):
+    content_type = 'json'
+
+    def config_files(self):
+        cfg_list = self._config_file_list[:]
+        cfg_list.append(tests.dirs.tests('auth_plugin_external_domain.conf'))
+        return cfg_list
+
+    def test_remote_user_with_realm(self):
+        api = auth.controllers.Auth()
+        remote_user = self.user['name']
+        remote_domain = self.domain['name']
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user, remote_domain=remote_domain)
+
+        api.authenticate(context, auth_info, auth_context)
+        self.assertEqual(auth_context['user_id'], self.user['id'])
+
+        # Now test to make sure the user name can, itself, contain the
+        # '@' character.
+        user = {'name': 'myname@mydivision'}
+        self.identity_api.update_user(self.user['id'], user)
+        remote_user = user["name"]
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user, remote_domain=remote_domain)
+
+        api.authenticate(context, auth_info, auth_context)
+        self.assertEqual(auth_context['user_id'], self.user['id'])
+
+    def test_project_id_scoped_with_remote_user(self):
+        CONF.token.bind = ['kerberos']
+        auth_data = self.build_authentication_request(
+            project_id=self.project['id'])
+        remote_user = self.user['name']
+        remote_domain = self.domain['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'REMOTE_DOMAIN': remote_domain,
+                                             'AUTH_TYPE': 'Negotiate'})
+        r = self.post('/auth/tokens', body=auth_data)
+        token = self.assertValidProjectScopedTokenResponse(r)
+        self.assertEqual(token['bind']['kerberos'], self.user['name'])
+
+    def test_unscoped_bind_with_remote_user(self):
+        CONF.token.bind = ['kerberos']
+        auth_data = self.build_authentication_request()
+        remote_user = self.user['name']
+        remote_domain = self.domain['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'REMOTE_DOMAIN': remote_domain,
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
@@ -1605,6 +1690,15 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         api = auth.controllers.Auth()
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
+        api.authenticate(context, auth_info, auth_context)
+        self.assertEqual(auth_context['user_id'],
+                         self.default_domain_user['id'])
+        # Now test to make sure the user name can, itself, contain the
+        # '@' character.
+        user = {'name': 'myname@mydivision'}
+        self.identity_api.update_user(self.default_domain_user['id'], user)
+        context, auth_info, auth_context = self.build_external_auth_request(
+            user["name"])
         api.authenticate(context, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'],
                          self.default_domain_user['id'])

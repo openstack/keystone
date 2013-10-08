@@ -129,7 +129,8 @@ file. It is up to the plugin to register its own configuration options.
 Keystone provides three authentication methods by default. ``password`` handles password
 authentication and ``token`` handles token authentication.  ``external`` is used in conjunction
 with authentication performed by a container web server that sets the ``REMOTE_USER``
-environment variable.
+environment variable. For more details, refer to :doc:`External Authentication
+<external-auth>`.
 
 How to Implement an Authentication Plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -174,7 +175,8 @@ agree on the ``user_id`` in the ``auth_context``.
 The ``REMOTE_USER`` environment variable is only set from a containing webserver.  However,
 to ensure that a user must go through other authentication mechanisms, even if this variable
 is set, remove ``external`` from the list of plugins specified in ``methods``.  This effectively
-disables external authentication.
+disables external authentication.  For more details, refer to :doc:`External
+Authentication <external-auth>`.
 
 
 Token Provider

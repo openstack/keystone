@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Keystone External Authentication Plugin"""
+"""Keystone External Authentication Plugins"""
 
 import abc
 
@@ -24,6 +24,7 @@ from keystone import auth
 from keystone.common import config
 from keystone import exception
 from keystone.openstack.common import log as logging
+from keystone.openstack.common import versionutils
 
 
 LOG = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class Base(auth.AuthMethodHandler):
             msg = _('No authenticated user')
             raise exception.Unauthorized(msg)
         try:
-            user_ref = self._authenticate(REMOTE_USER, auth_info)
+            user_ref = self._authenticate(REMOTE_USER, context, auth_info)
             auth_context['user_id'] = user_ref['id']
             if ('kerberos' in CONF.token.bind and
                 (context['environment'].get('AUTH_TYPE', '').lower()
@@ -56,7 +57,7 @@ class Base(auth.AuthMethodHandler):
             raise exception.Unauthorized(msg)
 
     @abc.abstractmethod
-    def _authenticate(self, remote_user):
+    def _authenticate(self, remote_user, context, auth_info):
         """Look up the user in the identity backend.
 
         Return user_ref
@@ -64,9 +65,78 @@ class Base(auth.AuthMethodHandler):
         pass
 
 
-class Default(Base):
-    def _authenticate(self, remote_user, auth_info):
+class DefaultDomain(Base):
+    def _authenticate(self, remote_user, context, auth_info):
         """Use remote_user to look up the user in the identity backend."""
+        domain_id = CONF.identity.default_domain_id
+        user_ref = auth_info.identity_api.get_user_by_name(remote_user,
+                                                           domain_id)
+        return user_ref
+
+
+class Domain(Base):
+    def _authenticate(self, remote_user, context, auth_info):
+        """Use remote_user to look up the user in the identity backend.
+
+        The domain will be extracted from the REMOTE_DOMAIN environment
+        variable if present. If not, the default domain will be used.
+        """
+
+        username = remote_user
+        try:
+            domain_name = context['environment']['REMOTE_DOMAIN']
+        except KeyError:
+            domain_id = CONF.identity.default_domain_id
+        else:
+            domain_ref = (auth_info.identity_api.
+                          get_domain_by_name(domain_name))
+            domain_id = domain_ref['id']
+
+        user_ref = auth_info.identity_api.get_user_by_name(username,
+                                                           domain_id)
+        return user_ref
+
+
+class ExternalDefault(DefaultDomain):
+    """Deprecated. Please use keystone.auth.external.DefaultDomain instead."""
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='keystone.auth.external.DefaultDomain',
+        remove_in=+1)
+    def __init__(self):
+        super(ExternalDefault, self).__init__()
+
+
+class ExternalDomain(Domain):
+    """Deprecated. Please use keystone.auth.external.Domain instead."""
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='keystone.auth.external.Domain',
+        remove_in=+1)
+    def __init__(self):
+        super(ExternalDomain, self).__init__()
+
+
+class LegacyDefaultDomain(Base):
+    """Deprecated. Please use keystone.auth.external.DefaultDomain instead.
+
+    This plugin exists to provide compatibility for the unintended behavior
+    described here: https://bugs.launchpad.net/keystone/+bug/1253484
+
+    """
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='keystone.auth.external.DefaultDomain',
+        remove_in=+1)
+    def __init__(self):
+        super(LegacyDefaultDomain, self).__init__()
+
+    def _authenticate(self, remote_user, context, auth_info):
+        """Use remote_user to look up the user in the identity backend."""
+        # NOTE(dolph): this unintentionally discards half the REMOTE_USER value
         names = remote_user.split('@')
         username = names.pop(0)
         domain_id = CONF.identity.default_domain_id
@@ -75,8 +145,17 @@ class Default(Base):
         return user_ref
 
 
-class Domain(Base):
-    def _authenticate(self, remote_user, auth_info):
+class LegacyDomain(Base):
+    """Deprecated. Please use keystone.auth.external.Domain instead."""
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='keystone.auth.external.Domain',
+        remove_in=+1)
+    def __init__(self):
+        super(LegacyDomain, self).__init__()
+
+    def _authenticate(self, remote_user, context, auth_info):
         """Use remote_user to look up the user in the identity backend.
 
         If remote_user contains an `@` assume that the substring before the
@@ -95,21 +174,3 @@ class Domain(Base):
         user_ref = auth_info.identity_api.get_user_by_name(username,
                                                            domain_id)
         return user_ref
-
-
-# NOTE(aloga): ExternalDefault and External have been renamed to Default and
-# Domain.
-class ExternalDefault(Default):
-    """Deprecated. Please use keystone.auth.external.Default instead."""
-    def __init__(self):
-        msg = _('keystone.auth.external.ExternalDefault is deprecated in'
-                'favor of keystone.auth.external.Default')
-        LOG.warning(msg)
-
-
-class ExternalDomain(Domain):
-    """Deprecated. Please use keystone.auth.external.Domain instead."""
-    def __init__(self):
-        msg = _('keystone.auth.external.ExternalDomain is deprecated in'
-                'favor of keystone.auth.external.Domain')
-        LOG.warning(msg)
