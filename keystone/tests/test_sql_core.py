@@ -205,7 +205,7 @@ class FakeDbapiConn(object):
         return self._cursor
 
 
-class TestCheckoutHandler(tests.TestCase):
+class TestMysqlCheckoutHandler(tests.TestCase):
     def _do_on_checkout(self, failwith=None):
         dbapi_conn = FakeDbapiConn(failwith=failwith)
         connection_rec = None
@@ -236,5 +236,57 @@ class TestCheckoutHandler(tests.TestCase):
         # mysql_on_checkout doesn't look for 2056
         other_exception = FakeDbapiConn.OperationalError(2056)
         self.assertRaises(FakeDbapiConn.OperationalError,
+                          self._do_on_checkout,
+                          failwith=other_exception)
+
+
+class TestDb2CheckoutHandler(tests.TestCase):
+
+    class FakeEngine(object):
+        class Dialect():
+            DISCONNECT_EXCEPTION = Exception()
+
+            @classmethod
+            def is_disconnect(cls, e, *args):
+                return (e is cls.DISCONNECT_EXCEPTION)
+
+        dialect = Dialect()
+
+    def _do_on_checkout(self, failwith=None):
+        engine = self.FakeEngine()
+        dbapi_conn = FakeDbapiConn(failwith=failwith)
+        connection_rec = None
+        connection_proxy = None
+        sql.db2_on_checkout(engine, dbapi_conn, connection_rec,
+                            connection_proxy)
+
+    def test_checkout_success(self):
+        # If call db2_on_checkout and query doesn't raise anything, then no
+        # problems
+
+        # If this doesn't raise then the test is successful.
+        self._do_on_checkout()
+
+    def test_disconnected(self):
+        # If call db2_on_checkout and query raises exception that engine
+        # dialect says is a disconnect problem, then raises DisconnectionError.
+
+        disconnected_exception = self.FakeEngine.Dialect.DISCONNECT_EXCEPTION
+        self.assertRaises(DisconnectionError,
+                          self._do_on_checkout,
+                          failwith=disconnected_exception)
+
+    def test_error(self):
+        # If call db2_on_checkout and query raises an exception that engine
+        # dialect says is not a disconnect problem, then the original error is
+        # raised.
+
+        # fake engine dialect doesn't look for this exception.
+
+        class OtherException(Exception):
+            pass
+
+        other_exception = OtherException()
+        self.assertRaises(OtherException,
                           self._do_on_checkout,
                           failwith=other_exception)
