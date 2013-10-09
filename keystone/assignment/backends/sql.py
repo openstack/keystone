@@ -165,11 +165,6 @@ class Assignment(sql.Base, assignment.Driver):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
-
         session = self.get_session()
         self._get_role(session, role_id)
 
