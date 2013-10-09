@@ -105,3 +105,26 @@ class UtilsTestCase(tests.TestCase):
         for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
             TZ = 'UTC' + d
             _test_unixtime()
+
+
+class LimitingReaderTests(tests.TestCase):
+
+    def test_read_default_value(self):
+
+        class FakeData(object):
+            def read(self, *args, **kwargs):
+                self.read_args = args
+                self.read_kwargs = kwargs
+                return 'helloworld'
+
+        data = FakeData()
+        utils.LimitingReader(data, 100)
+
+        self.assertEqual(data.read(), 'helloworld')
+        self.assertEqual(len(data.read_args), 0)
+        self.assertEqual(len(data.read_kwargs), 0)
+
+        self.assertEqual(data.read(10), 'helloworld')
+        self.assertEqual(len(data.read_args), 1)
+        self.assertEqual(len(data.read_kwargs), 0)
+        self.assertEqual(data.read_args[0], 10)
