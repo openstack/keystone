@@ -290,7 +290,12 @@ class LimitingReader(object):
                 yield chunk
 
     def read(self, i=None):
-        result = self.data.read(i)
+        # NOTE(jamielennox): We can't simply provide the default to the read()
+        # call as the expected default differs between mod_wsgi and eventlet
+        if i is None:
+            result = self.data.read()
+        else:
+            result = self.data.read(i)
         self.bytes_read += len(result)
         if self.bytes_read > self.limit:
             raise exception.RequestTooLarge()
