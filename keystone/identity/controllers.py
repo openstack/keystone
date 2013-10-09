@@ -91,7 +91,7 @@ class Tenant(controller.V2Controller):
         tenant_ref = self._normalize_dict(tenant)
 
         if 'name' not in tenant_ref or not tenant_ref['name']:
-            msg = 'Name field is required and cannot be empty'
+            msg = _('Name field is required and cannot be empty')
             raise exception.ValidationError(message=msg)
 
         self.assert_admin(context)
@@ -142,7 +142,7 @@ class Tenant(controller.V2Controller):
                     first_index = marker_index + 1
                     break
             else:
-                msg = 'Marker could not be found'
+                msg = _('Marker could not be found')
                 raise exception.ValidationError(message=msg)
 
         limit = kwargs.get('limit')
@@ -153,7 +153,7 @@ class Tenant(controller.V2Controller):
                 if limit < 0:
                     raise AssertionError()
             except (ValueError, AssertionError):
-                msg = 'Invalid limit value'
+                msg = _('Invalid limit value')
                 raise exception.ValidationError(message=msg)
             last_index = first_index + limit
 
@@ -195,10 +195,10 @@ class User(controller.V2Controller):
         self.assert_admin(context)
 
         if 'name' not in user or not user['name']:
-            msg = 'Name field is required and cannot be empty'
+            msg = _('Name field is required and cannot be empty')
             raise exception.ValidationError(message=msg)
         if 'enabled' in user and not isinstance(user['enabled'], bool):
-            msg = 'Enabled field must be a boolean'
+            msg = _('Enabled field must be a boolean')
             raise exception.ValidationError(message=msg)
 
         default_project_id = user.pop('tenantId', None)
@@ -222,7 +222,7 @@ class User(controller.V2Controller):
         self.assert_admin(context)
 
         if 'enabled' in user and not isinstance(user['enabled'], bool):
-            msg = 'Enabled field should be a boolean'
+            msg = _('Enabled field should be a boolean')
             raise exception.ValidationError(message=msg)
 
         default_project_id = user.pop('tenantId', None)
@@ -327,7 +327,7 @@ class Role(controller.V2Controller):
         self.assert_admin(context)
 
         if 'name' not in role or not role['name']:
-            msg = 'Name field is required and cannot be empty'
+            msg = _('Name field is required and cannot be empty')
             raise exception.ValidationError(message=msg)
 
         role_id = uuid.uuid4().hex
@@ -870,12 +870,12 @@ class RoleV3(controller.V3Controller):
 
     def _require_domain_xor_project(self, domain_id, project_id):
         if (domain_id and project_id) or (not domain_id and not project_id):
-            msg = 'Specify a domain or project, not both'
+            msg = _('Specify a domain or project, not both')
             raise exception.ValidationError(msg)
 
     def _require_user_xor_group(self, user_id, group_id):
         if (user_id and group_id) or (not user_id and not group_id):
-            msg = 'Specify a user or group, not both'
+            msg = _('Specify a user or group, not both')
             raise exception.ValidationError(msg)
 
     def _check_if_inherited(self, context):
