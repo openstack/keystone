@@ -15,16 +15,16 @@ python-ldap==2.3.13
 coverage
 # mock object framework
 mox
-# for test discovery and console feedback
-nose
-nosexcover
-openstack.nose_plugin
-nosehtmloutput
 # required to build documentation
 Sphinx>=1.1.2
-testtools>=0.9.32
 # test wsgi apps without starting an http server
 webtest
+
+extras
+discover
+python-subunit
+testrepository>=0.0.17
+testtools>=0.9.32
 
 # for python-keystoneclient
 # keystoneclient <0.2.1

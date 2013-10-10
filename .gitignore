@@ -28,3 +28,4 @@ keystone/tests/tmp/
 .project
 .pydevproject
 keystone/locale/*/LC_MESSAGES/*.mo
+.testrepository/
