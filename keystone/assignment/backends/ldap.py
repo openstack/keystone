@@ -33,12 +33,6 @@ from keystone.openstack.common import log as logging
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
-DEFAULT_DOMAIN = {
-    'id': CONF.identity.default_domain_id,
-    'name': 'Default',
-    'enabled': True
-}
-
 
 @dependency.requires('identity_api')
 class Assignment(assignment.Driver):
@@ -209,7 +203,7 @@ class Assignment(assignment.Driver):
 
     def get_domain(self, domain_id):
         self._validate_default_domain_id(domain_id)
-        return DEFAULT_DOMAIN
+        return assignment.DEFAULT_DOMAIN
 
     def update_domain(self, domain_id, domain):
         self._validate_default_domain_id(domain_id)

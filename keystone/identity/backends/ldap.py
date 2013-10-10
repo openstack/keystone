@@ -32,12 +32,6 @@ from keystone.openstack.common import log as logging
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
-DEFAULT_DOMAIN = {
-    'id': CONF.identity.default_domain_id,
-    'name': 'Default',
-    'enabled': True
-}
-
 
 @dependency.requires('assignment_api')
 class Identity(identity.Driver):
