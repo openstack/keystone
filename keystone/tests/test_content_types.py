@@ -853,6 +853,14 @@ class CoreApiTests(object):
             expected_status=401)
         self.assertValidErrorResponse(r)
 
+    def test_www_authenticate_header(self):
+        r = self.public_request(
+            path='/v2.0/tenants',
+            expected_status=401)
+        self.assertEqual(r.headers.get('WWW-Authenticate'),
+                         'Keystone uri="%s"' % (
+                             CONF.public_endpoint % CONF))
+
 
 class LegacyV2UsernameTests(object):
     """Tests to show the broken username behavior in V2.
