@@ -19,6 +19,7 @@ import uuid
 
 from keystone import auth
 from keystone import config
+from keystone.contrib import ec2
 from keystone import exception
 from keystone import identity
 from keystone.openstack.common import timeutils
@@ -517,7 +518,7 @@ class AuthWithTrust(AuthTest):
         self.sample_data = {'trustor_user_id': self.trustor['id'],
                             'trustee_user_id': self.trustee['id'],
                             'project_id': self.tenant_bar['id'],
-                            'impersonation': 'True',
+                            'impersonation': True,
                             'roles': [{'id': self.role_browser['id']},
                                       {'name': self.role_member['name']}]}
         expires_at = timeutils.strtime(timeutils.utcnow() +
@@ -525,7 +526,7 @@ class AuthWithTrust(AuthTest):
                                        fmt=TIME_FORMAT)
         self.create_trust(expires_at=expires_at)
 
-    def create_trust(self, expires_at=None, impersonation='True'):
+    def create_trust(self, expires_at=None, impersonation=True):
         username = self.trustor['name'],
         password = 'foo2'
         body_dict = _build_user_auth(username=username, password=password)
@@ -586,19 +587,41 @@ class AuthWithTrust(AuthTest):
             self.assertIn(role['id'], role_ids)
 
     def test_create_trust_no_impersonation(self):
-        self.create_trust(expires_at=None, impersonation='False')
+        self.create_trust(expires_at=None, impersonation=False)
         self.assertEquals(self.new_trust['trustor_user_id'],
                           self.trustor['id'])
         self.assertEquals(self.new_trust['trustee_user_id'],
                           self.trustee['id'])
-        self.assertEquals(self.new_trust['impersonation'],
-                          'False')
+        self.assertIs(self.new_trust['impersonation'], False)
         auth_response = self.fetch_v2_token_from_trust()
         token_user = auth_response['access']['user']
         self.assertEquals(token_user['id'],
                           self.new_trust['trustee_user_id'])
-
         #TODO Endpoints
+
+    def test_create_trust_impersonation(self):
+        self.create_trust(expires_at=None)
+        self.assertEqual(self.new_trust['trustor_user_id'], self.trustor['id'])
+        self.assertEqual(self.new_trust['trustee_user_id'], self.trustee['id'])
+        self.assertIs(self.new_trust['impersonation'], True)
+        auth_response = self.fetch_v2_token_from_trust()
+        token_user = auth_response['access']['user']
+        self.assertEqual(token_user['id'], self.new_trust['trustor_user_id'])
+
+    def test_disallow_ec2_credential_from_trust_scoped_token(self):
+        ec2_manager = ec2.Manager()
+        self.ec2_controller = ec2.Ec2Controller()
+        self.test_create_trust_impersonation()
+        auth_response = self.fetch_v2_token_from_trust()
+        # ensure it is not possible to create an ec2 token from a trust
+        context = {'token_id': auth_response['access']['token']['id'],
+                   'is_admin': False}
+
+        self.assertRaises(exception.Forbidden,
+                          self.ec2_controller.create_credential,
+                          context=context,
+                          user_id=self.user_foo['id'],
+                          tenant_id=self.tenant_bar['id'])
 
     def test_token_from_trust_wrong_user_fails(self):
         new_trust = self.create_trust()

@@ -207,6 +207,9 @@ class Ec2Controller(controller.V2Controller):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
 
+        # Disallow trust-scoped tokens from creating credentials.
+        self._assert_not_trust_scoped(context)
+
         self._assert_valid_user_id(context, user_id)
         self._assert_valid_project_id(context, tenant_id)
 
@@ -307,6 +310,22 @@ class Ec2Controller(controller.V2Controller):
             return True
         except exception.Forbidden:
             return False
+
+    def _assert_not_trust_scoped(self, context):
+        try:
+            token_ref = self.token_api.get_token(
+                context, token_id=context['token_id'])
+        except exception.TokenNotFound as e:
+            raise exception.Unauthorized(e)
+
+        # NOTE(morganfainberg): In Grizzly, it is not allowed to use a
+        # trust scoped token to create an EC2 credential, this is due to
+        # privilege escalation possibility (there is no way to correlate
+        # the trust to the EC2 credential and limit roles to the trust).
+        if 'trust' in token_ref:
+            raise exception.Forbidden()
+        if 'trust_id' in token_ref.get('metadata', {}):
+            raise exception.Forbidden()
 
     def _assert_owner(self, context, user_id, credential_id):
         """Ensure the provided user owns the credential.
