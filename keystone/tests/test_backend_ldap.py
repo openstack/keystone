@@ -137,6 +137,12 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_get_and_remove_role_grant_by_group_and_project(self):
         self.skipTest('Blocked by bug 1101287')
 
+    def test_delete_user_grant_no_user(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_delete_group_grant_no_group(self):
+        self.skipTest('Blocked by bug 1101287')
+
     def test_get_and_remove_role_grant_by_group_and_domain(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
 

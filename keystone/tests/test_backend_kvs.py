@@ -63,6 +63,18 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
     def test_move_project_between_domains_with_clashing_names_fails(self):
         self.skipTest('Blocked by bug 1119770')
 
+    def test_delete_user_grant_no_user(self):
+        # See bug 1239476, kvs checks if user exists and sql does not.
+        self.assertRaises(
+            exception.UserNotFound,
+            super(KvsIdentity, self).test_delete_user_grant_no_user)
+
+    def test_delete_group_grant_no_group(self):
+        # See bug 1239476, kvs checks if group exists and sql does not.
+        self.assertRaises(
+            exception.GroupNotFound,
+            super(KvsIdentity, self).test_delete_group_grant_no_group)
+
 
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
