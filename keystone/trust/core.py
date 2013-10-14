@@ -16,6 +16,10 @@
 
 """Main entry point into the Identity service."""
 
+import abc
+
+import six
+
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
@@ -41,7 +45,10 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.trust.driver)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
+
+    @abc.abstractmethod
     def create_trust(self, trust_id, trust, roles):
         """Create a new trust.
 
@@ -49,17 +56,22 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_trust(self, trust_id):
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_trusts(self):
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_trusts_for_trustee(self, trustee):
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_trusts_for_trustor(self, trustor):
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_trust(self, trust_id):
         raise exception.NotImplemented()
