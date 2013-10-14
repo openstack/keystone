@@ -35,7 +35,7 @@
     "identity:get_user": [["rule:admin_required"]],
     "identity:list_users": [["rule:admin_required"]],
     "identity:create_user": [["rule:admin_required"]],
-    "identity:update_user": [["rule:admin_or_owner"]],
+    "identity:update_user": [["rule:admin_required"]],
     "identity:delete_user": [["rule:admin_required"]],
 
     "identity:get_group": [["rule:admin_required"]],
