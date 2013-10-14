@@ -1607,6 +1607,16 @@ class IdentityTests(object):
                           self.identity_api.delete_role,
                           uuid.uuid4().hex)
 
+    def test_create_update_delete_unicode_project(self):
+        unicode_project_name = u'name \u540d\u5b57'
+        project = {'id': uuid.uuid4().hex,
+                   'name': unicode_project_name,
+                   'description': uuid.uuid4().hex,
+                   'domain_id': CONF.identity.default_domain_id}
+        self.assignment_api.create_project(project['id'], project)
+        self.assignment_api.update_project(project['id'], project)
+        self.assignment_api.delete_project(project['id'])
+
     def test_create_project_case_sensitivity(self):
         # create a ref with a lowercase name
         ref = {

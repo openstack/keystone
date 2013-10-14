@@ -28,10 +28,8 @@ from keystone.openstack.common import log
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
-REGION = dogpile.cache.make_region()
 
 make_region = dogpile.cache.make_region
-on_arguments = REGION.cache_on_arguments
 
 dogpile.cache.register_backend(
     'keystone.common.cache.noop',
@@ -41,33 +39,39 @@ dogpile.cache.register_backend(
 
 class DebugProxy(proxy.ProxyBackend):
     """Extra Logging ProxyBackend."""
+    # NOTE(morganfainberg): Pass all key/values through repr to ensure we have
+    # a clean description of the information.  Without use of repr, it might
+    # be possible to run into encode/decode error(s). For logging/debugging
+    # purposes encode/decode is irrelevant and we should be looking at the
+    # data exactly as it stands.
+
     def get(self, key):
         value = self.proxied.get(key)
         msg = _('CACHE_GET: Key: "%(key)s" Value: "%(value)s"')
-        LOG.debug(msg % {'key': key, 'value': value})
+        LOG.debug(msg % {'key': repr(key), 'value': repr(value)})
         return value
 
     def get_multi(self, keys):
         values = self.proxied.get_multi(keys)
         msg = _('CACHE_GET_MULTI: "%(keys)s" Values: "%(values)s"')
-        LOG.debug(msg % {'keys': keys, 'values': values})
+        LOG.debug(msg % {'keys': repr(keys), 'values': repr(values)})
         return values
 
     def set(self, key, value):
         msg = _('CACHE_SET: Key: "%(key)s" Value: "%(value)s"')
-        LOG.debug(msg % {'key': key, 'value': value})
+        LOG.debug(msg % {'key': repr(key), 'value': repr(value)})
         return self.proxied.set(key, value)
 
     def set_multi(self, keys):
-        LOG.debug(_('CACHE_SET_MULTI: "%s"') % keys)
+        LOG.debug(_('CACHE_SET_MULTI: "%s"') % repr(keys))
         self.proxied.set_multi(keys)
 
     def delete(self, key):
         self.proxied.delete(key)
-        LOG.debug(_('CACHE_DELETE: "%s"') % key)
+        LOG.debug(_('CACHE_DELETE: "%s"') % repr(key))
 
     def delete_multi(self, keys):
-        LOG.debug(_('CACHE_DELETE_MULTI: "%s"') % keys)
+        LOG.debug(_('CACHE_DELETE_MULTI: "%s"') % repr(keys))
         self.proxied.delete_multi(keys)
 
 
@@ -176,3 +180,23 @@ def should_cache_fn(section):
         conf_group = getattr(CONF, section)
         return getattr(conf_group, 'caching', True)
     return should_cache
+
+
+def key_generate_to_str(s):
+    # NOTE(morganfainberg): Since we need to stringify all arguments, attempt
+    # to stringify and handle the Unicode error explicitly as needed.
+    try:
+        return str(s)
+    except UnicodeEncodeError:
+        return s.encode('utf-8')
+
+
+def function_key_generator(namespace, fn, to_str=key_generate_to_str):
+    # NOTE(morganfainberg): This wraps dogpile.cache's default
+    # function_key_generator to change the default to_str mechanism.
+    return util.function_key_generator(namespace, fn, to_str=to_str)
+
+
+REGION = dogpile.cache.make_region(
+    function_key_generator=function_key_generator)
+on_arguments = REGION.cache_on_arguments
