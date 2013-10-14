@@ -297,6 +297,62 @@ class KeystoneClientTests(object):
         self.assertFalse([t for t in client.tenants.list()
                          if t.id == tenant.id])
 
+    def test_tenant_create_update_and_delete_unicode(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        tenant_name = u'original \u540d\u5b57'
+        tenant_description = 'My original tenant!'
+        tenant_enabled = True
+        client = self.get_client(admin=True)
+
+        # create, get, and list a tenant
+        tenant = client.tenants.create(tenant_name,
+                                       description=tenant_description,
+                                       enabled=tenant_enabled)
+        self.assertEqual(tenant.name, tenant_name)
+        self.assertEqual(tenant.description, tenant_description)
+        self.assertIs(tenant.enabled, tenant_enabled)
+
+        tenant = client.tenants.get(tenant.id)
+        self.assertEqual(tenant.name, tenant_name)
+        self.assertEqual(tenant.description, tenant_description)
+        self.assertIs(tenant.enabled, tenant_enabled)
+
+        # multiple tenants exist due to fixtures, so find the one we're testing
+        tenant = [t for t in client.tenants.list() if t.id == tenant.id].pop()
+        self.assertEqual(tenant.name, tenant_name)
+        self.assertEqual(tenant.description, tenant_description)
+        self.assertIs(tenant.enabled, tenant_enabled)
+
+        # update, get, and list a tenant
+        tenant_name = u'updated \u540d\u5b57'
+        tenant_description = 'Updated tenant!'
+        tenant_enabled = False
+        tenant = client.tenants.update(tenant.id,
+                                       tenant_name=tenant_name,
+                                       enabled=tenant_enabled,
+                                       description=tenant_description)
+        self.assertEqual(tenant.name, tenant_name)
+        self.assertEqual(tenant.description, tenant_description)
+        self.assertIs(tenant.enabled, tenant_enabled)
+
+        tenant = client.tenants.get(tenant.id)
+        self.assertEqual(tenant.name, tenant_name)
+        self.assertEqual(tenant.description, tenant_description)
+        self.assertIs(tenant.enabled, tenant_enabled)
+
+        tenant = [t for t in client.tenants.list() if t.id == tenant.id].pop()
+        self.assertEqual(tenant.name, tenant_name)
+        self.assertEqual(tenant.description, tenant_description)
+        self.assertIs(tenant.enabled, tenant_enabled)
+
+        # delete, get, and list a tenant
+        client.tenants.delete(tenant.id)
+        self.assertRaises(client_exceptions.NotFound, client.tenants.get,
+                          tenant.id)
+        self.assertFalse([t for t in client.tenants.list()
+                         if t.id == tenant.id])
+
     def test_tenant_create_no_name(self):
         from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
