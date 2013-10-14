@@ -22,7 +22,6 @@ from keystone import catalog
 from keystone.contrib import endpoint_filter
 from keystone.contrib import oauth1
 from keystone import exception
-from keystone import identity
 from keystone import policy
 from keystone import token
 
@@ -59,10 +58,6 @@ class TestDrivers(testtools.TestCase):
 
     def test_catalog_driver_unimplemented(self):
         interface = catalog.Driver()
-        self.assertInterfaceNotImplemented(interface)
-
-    def test_identity_driver_unimplemented(self):
-        interface = identity.Driver()
         self.assertInterfaceNotImplemented(interface)
 
     def test_policy_driver_unimplemented(self):

@@ -84,13 +84,7 @@ class PamIdentity(identity.Driver):
         # in LDAP backend
         return {'id': user_name, 'name': user_name}
 
-    def get_role(self, role_id):
-        raise NotImplementedError()
-
     def list_users(self):
-        raise NotImplementedError()
-
-    def list_roles(self):
         raise NotImplementedError()
 
     def add_user_to_project(self, tenant_id, user_id):
@@ -101,15 +95,6 @@ class PamIdentity(identity.Driver):
 
     def list_projects_for_user(self, user_id):
         return [{'id': user_id, 'name': user_id}]
-
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        raise NotImplementedError()
-
-    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        raise NotImplementedError()
-
-    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        raise NotImplementedError()
 
     def create_user(self, user_id, user):
         raise NotImplementedError()
@@ -132,11 +117,32 @@ class PamIdentity(identity.Driver):
     def _update_metadata(self, user_id, tenant_id, metadata):
         raise NotImplementedError()
 
-    def create_role(self, role_id, role):
+    def add_user_to_group(self, user_id, group_id):
         raise NotImplementedError()
 
-    def update_role(self, role_id, role):
+    def check_user_in_group(self, user_id, group_id):
         raise NotImplementedError()
 
-    def delete_role(self, role_id):
+    def remove_user_from_group(self, user_id, group_id):
+        raise NotImplementedError()
+
+    def create_group(self, group_id, group):
+        raise NotImplementedError()
+
+    def list_groups(self):
+        raise NotImplementedError()
+
+    def list_groups_for_user(self, user_id):
+        raise NotImplementedError()
+
+    def list_users_in_group(self, group_id):
+        raise NotImplementedError()
+
+    def get_group(self, group_id):
+        raise NotImplementedError()
+
+    def update_group(self, group_id, group):
+        raise NotImplementedError()
+
+    def delete_group(self, group_id):
         raise NotImplementedError()
