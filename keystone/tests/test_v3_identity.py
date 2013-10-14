@@ -156,7 +156,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = self.new_domain_ref()
-        self.identity_api.create_domain(self.domain2['id'], self.domain2)
+        self.assignment_api.create_domain(self.domain2['id'], self.domain2)
 
         self.project2 = self.new_project_ref(
             domain_id=self.domain2['id'])
@@ -167,8 +167,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             project_id=self.project2['id'])
         self.identity_api.create_user(self.user2['id'], self.user2)
 
-        self.identity_api.add_user_to_project(self.project2['id'],
-                                              self.user2['id'])
+        self.assignment_api.add_user_to_project(self.project2['id'],
+                                                self.user2['id'])
 
         # First check a user in that domain can authenticate, via
         # Both v2 and v3
@@ -254,7 +254,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = self.new_domain_ref()
-        self.identity_api.create_domain(self.domain2['id'], self.domain2)
+        self.assignment_api.create_domain(self.domain2['id'], self.domain2)
 
         self.project2 = self.new_project_ref(
             domain_id=self.domain2['id'])
@@ -290,7 +290,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                           self.identity_api.get_domain,
                           self.domain2['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_project,
+                          self.assignment_api.get_project,
                           self.project2['id'])
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
@@ -305,7 +305,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # ...and that all self.domain entities are still here
         r = self.identity_api.get_domain(self.domain['id'])
         self.assertDictEqual(r, self.domain)
-        r = self.identity_api.get_project(self.project['id'])
+        r = self.assignment_api.get_project(self.project['id'])
         self.assertDictEqual(r, self.project)
         r = self.identity_api.get_group(self.group['id'])
         self.assertDictEqual(r, self.group)
@@ -1015,9 +1015,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             domain_id=self.domain['id'])
         self.assignment_api.create_project(self.project1['id'], self.project1)
         self.role1 = self.new_role_ref()
-        self.identity_api.create_role(self.role1['id'], self.role1)
+        self.assignment_api.create_role(self.role1['id'], self.role1)
         self.role2 = self.new_role_ref()
-        self.identity_api.create_role(self.role2['id'], self.role2)
+        self.assignment_api.create_role(self.role2['id'], self.role2)
 
         # Now add one of each of the four types of assignment
 
@@ -1203,7 +1203,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.identity_api.create_domain(domain['id'], domain)
+        self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         user1['password'] = uuid.uuid4().hex
@@ -1295,7 +1295,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.identity_api.create_domain(domain['id'], domain)
+        self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         user1['password'] = uuid.uuid4().hex
@@ -1388,7 +1388,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.identity_api.create_domain(domain['id'], domain)
+        self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         user1['password'] = uuid.uuid4().hex
@@ -1491,7 +1491,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.identity_api.create_domain(domain['id'], domain)
+        self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         user1['password'] = uuid.uuid4().hex

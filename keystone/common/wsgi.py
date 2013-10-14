@@ -303,7 +303,7 @@ class Application(BaseApplication):
                 raise exception.Unauthorized()
 
             # NOTE(vish): this is pretty inefficient
-            creds['roles'] = [self.identity_api.get_role(role)['name']
+            creds['roles'] = [self.assignment_api.get_role(role)['name']
                               for role in creds.get('roles', [])]
             # Accept either is_admin or the admin role
             self.policy_api.enforce(creds, 'admin_required', {})

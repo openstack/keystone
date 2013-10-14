@@ -42,7 +42,7 @@ class CompatTestCase(tests.TestCase):
 
         # TODO(termie): add an admin user to the fixtures and use that user
         # override the fixtures, for now
-        self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
+        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_admin['id'])
@@ -927,8 +927,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
                       'domain_id': DEFAULT_DOMAIN_ID}
             self.assignment_api.create_project(tenant_id, tenant)
-            self.identity_api.add_user_to_project(tenant_id,
-                                                  self.user_foo['id'])
+            self.assignment_api.add_user_to_project(tenant_id,
+                                                    self.user_foo['id'])
 
         tenants = client.tenants.list()
         self.assertEqual(len(tenants), 3)
@@ -954,8 +954,8 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
             tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
                       'domain_id': DEFAULT_DOMAIN_ID}
             self.assignment_api.create_project(tenant_id, tenant)
-            self.identity_api.add_user_to_project(tenant_id,
-                                                  self.user_foo['id'])
+            self.assignment_api.add_user_to_project(tenant_id,
+                                                    self.user_foo['id'])
 
         tenants = client.tenants.list()
         self.assertEqual(len(tenants), 3)

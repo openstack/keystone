@@ -73,7 +73,7 @@ class RestfulTestCase(tests.TestCase):
 
         # TODO(termie): add an admin user to the fixtures and use that user
         # override the fixtures, for now
-        self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
+        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_admin['id'])
@@ -412,7 +412,7 @@ class CoreApiTests(object):
             expected_status=404)
 
     def test_validate_token_service_role(self):
-        self.metadata_foobar = self.identity_api.add_role_to_user_and_project(
+        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_service['id'],
             self.role_service['id'])

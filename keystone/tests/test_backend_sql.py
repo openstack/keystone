@@ -158,8 +158,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex}
         self.identity_api.create_user(user['id'], user)
-        self.identity_api.add_user_to_project(self.tenant_bar['id'],
-                                              user['id'])
+        self.assignment_api.add_user_to_project(self.tenant_bar['id'],
+                                                user['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
                           self.assignment_api.list_projects_for_user,
@@ -191,10 +191,10 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           tenant['id'],
                           tenant)
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_project,
+                          self.assignment_api.get_project,
                           tenant['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.identity_api.get_project_by_name,
+                          self.assignment_api.get_project_by_name,
                           tenant['name'],
                           DEFAULT_DOMAIN_ID)
 
@@ -202,11 +202,11 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         role = {'id': uuid.uuid4().hex,
                 'name': None}
         self.assertRaises(exception.Conflict,
-                          self.identity_api.create_role,
+                          self.assignment_api.create_role,
                           role['id'],
                           role)
         self.assertRaises(exception.RoleNotFound,
-                          self.identity_api.get_role,
+                          self.assignment_api.get_role,
                           role['id'])
 
     def test_delete_project_with_user_association(self):
@@ -215,8 +215,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': 'passwd'}
         self.identity_api.create_user('fake', user)
-        self.identity_api.add_user_to_project(self.tenant_bar['id'],
-                                              user['id'])
+        self.assignment_api.add_user_to_project(self.tenant_bar['id'],
+                                                user['id'])
         self.assignment_api.delete_project(self.tenant_bar['id'])
         tenants = self.assignment_api.list_projects_for_user(user['id'])
         self.assertEqual(tenants, [])
@@ -231,8 +231,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.identity_api.create_user(user['id'], user)
         role = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex}
-        self.identity_api.create_role(role['id'], role)
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.create_role(role['id'], role)
+        self.assignment_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
             role['id'])
@@ -255,8 +255,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.identity_api.create_user(user['id'], user)
         role = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex}
-        self.identity_api.create_role(role['id'], role)
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.create_role(role['id'], role)
+        self.assignment_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
             role['id'])
