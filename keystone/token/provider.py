@@ -317,8 +317,6 @@ class Provider(object):
 
         :param token_id: identity of the token
         :type token_id: string
-        :param belongs_to: project_id token belongs to
-        :type belongs_to: string
         :returns: token data
         :raises: keystone.exception.TokenNotFound
         """

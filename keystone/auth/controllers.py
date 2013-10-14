@@ -367,7 +367,11 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def validate_token(self, context):
         token_id = context.get('subject_token_id')
-        token_data = self.token_provider_api.validate_v3_token(token_id)
+        include_catalog = 'nocatalog' not in context['query_string']
+        token_data = self.token_provider_api.validate_v3_token(
+            token_id)
+        if not include_catalog and 'catalog' in token_data['token']:
+            del token_data['token']['catalog']
         return render_token_data_response(token_id, token_data)
 
     @controller.protected()
