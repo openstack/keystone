@@ -57,7 +57,6 @@ class Assignment(assignment.Driver):
 
         self.project = ProjectApi(CONF)
         self.role = RoleApi(CONF)
-        self._identity_api = None
 
     def get_project(self, tenant_id):
         return self._set_default_domain(self.project.get(tenant_id))
