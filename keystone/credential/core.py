@@ -16,6 +16,10 @@
 
 """Main entry point into the Credentials service."""
 
+import abc
+
+import six
+
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
@@ -41,9 +45,11 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.credential.driver)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     # credential crud
 
+    @abc.abstractmethod
     def create_credential(self, credential_id, credential):
         """Creates a new credential.
 
@@ -52,6 +58,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_credentials(self, **filters):
         """List all credentials in the system applying filters.
 
@@ -60,6 +67,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_credential(self, credential_id):
         """Get a credential by ID.
 
@@ -69,6 +77,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_credential(self, credential_id, credential):
         """Updates an existing credential.
 
@@ -78,6 +87,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_credential(self, credential_id):
         """Deletes an existing credential.
 
