@@ -16,6 +16,9 @@
 
 """Main entry point into the assignment service."""
 
+import abc
+
+import six
 
 from keystone import clean
 from keystone.common import cache
@@ -327,6 +330,7 @@ class Manager(manager.Manager):
                 if r['role_id'] == role_id]
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
 
     def _role_to_dict(self, role_id, inherited):
@@ -363,6 +367,7 @@ class Driver(object):
                                                      inherited).items()))
         return [dict(r) for r in role_set]
 
+    @abc.abstractmethod
     def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
 
@@ -372,6 +377,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_user_ids_for_project(self, tenant_id):
         """Lists all user IDs with a role assignment in the specified project.
 
@@ -381,6 +387,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant.
 
@@ -390,6 +397,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         """Remove a role from a user within given tenant.
 
@@ -402,6 +410,7 @@ class Driver(object):
 
     # assignment/grant crud
 
+    @abc.abstractmethod
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
@@ -421,6 +430,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_grants(self, user_id=None, group_id=None,
                     domain_id=None, project_id=None,
                     inherited_to_projects=False):
@@ -436,6 +446,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_grant(self, role_id, user_id=None, group_id=None,
                   domain_id=None, project_id=None,
                   inherited_to_projects=False):
@@ -451,6 +462,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
@@ -466,11 +478,13 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_role_assignments(self):
 
         raise exception.NotImplemented()
 
     # domain crud
+    @abc.abstractmethod
     def create_domain(self, domain_id, domain):
         """Creates a new domain.
 
@@ -479,6 +493,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_domains(self):
         """List all domains in the system.
 
@@ -487,6 +502,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_domain(self, domain_id):
         """Get a domain by ID.
 
@@ -496,6 +512,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_domain_by_name(self, domain_name):
         """Get a domain by name.
 
@@ -505,6 +522,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_domain(self, domain_id, domain):
         """Updates an existing domain.
 
@@ -514,6 +532,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_domain(self, domain_id):
         """Deletes an existing domain.
 
@@ -523,6 +542,7 @@ class Driver(object):
         raise exception.NotImplemented()
 
     # project crud
+    @abc.abstractmethod
     def create_project(self, project_id, project):
         """Creates a new project.
 
@@ -531,6 +551,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_projects(self, domain_id=None):
         """List all projects in the system.
 
@@ -539,6 +560,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_projects_for_user(self, user_id, group_ids):
         """List all projects associated with a given user.
 
@@ -552,6 +574,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_project(self, project_id):
         """Get a project by ID.
 
@@ -561,6 +584,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_project(self, project_id, project):
         """Updates an existing project.
 
@@ -570,6 +594,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_project(self, project_id):
         """Deletes an existing project.
 
@@ -581,6 +606,7 @@ class Driver(object):
     """Interface description for an assignment driver."""
     # role crud
 
+    @abc.abstractmethod
     def create_role(self, role_id, role):
         """Creates a new role.
 
@@ -589,6 +615,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_roles(self):
         """List all roles in the system.
 
@@ -597,6 +624,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_role(self, role_id):
         """Get a role by ID.
 
@@ -606,6 +634,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_role(self, role_id, role):
         """Updates an existing role.
 
@@ -615,6 +644,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_role(self, role_id):
         """Deletes an existing role.
 
@@ -624,6 +654,7 @@ class Driver(object):
         raise exception.NotImplemented()
 
 #TODO(ayoung): determine what else these two functions raise
+    @abc.abstractmethod
     def delete_user(self, user_id):
         """Deletes all assignments for a user.
 
@@ -632,6 +663,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_group(self, group_id):
         """Deletes all assignments for a group.
 

@@ -499,3 +499,19 @@ class Assignment(kvs.Base, assignment.Driver):
         domain_list = set(self.db.get('domain_list', []))
         domain_list.remove(domain_id)
         self.db.set('domain_list', list(domain_list))
+
+    def delete_user(self, user_id):
+        """Deletes all assignments for a user.
+
+        :raises: keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    def delete_group(self, group_id):
+        """Deletes all assignments for a group.
+
+        :raises: keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()

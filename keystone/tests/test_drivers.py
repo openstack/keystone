@@ -17,7 +17,6 @@
 import inspect
 import testtools
 
-from keystone import assignment
 from keystone import catalog
 from keystone.contrib import endpoint_filter
 from keystone.contrib import oauth1
@@ -51,10 +50,6 @@ class TestDrivers(testtools.TestCase):
             method = getattr(interface, name)
             if name[0] != '_' and callable(method):
                 self.assertMethodNotImplemented(method)
-
-    def test_assignment_driver_unimplemented(self):
-        interface = assignment.Driver()
-        self.assertInterfaceNotImplemented(interface)
 
     def test_catalog_driver_unimplemented(self):
         interface = catalog.Driver()
