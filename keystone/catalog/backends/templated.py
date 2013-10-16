@@ -19,6 +19,7 @@ import os.path
 from keystone.catalog.backends import kvs
 from keystone.catalog import core
 from keystone import config
+from keystone import exception
 from keystone.openstack.common import log as logging
 
 
@@ -120,3 +121,6 @@ class TemplatedCatalog(kvs.Catalog):
                     o[region][service][k] = core.format_url(v, d)
 
         return o
+
+    def get_v3_catalog(self, user_id, tenant_id, metadata=None):
+        raise exception.NotImplemented()
