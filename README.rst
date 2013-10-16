@@ -44,4 +44,8 @@ Future design work is tracked at:
 
     https://blueprints.launchpad.net/keystone
 
+Contributors are encouraged to join IRC (``#openstack-dev`` on freenode):
+
+    https://wiki.openstack.org/wiki/IRC
+
 For information on contributing to Keystone, see ``CONTRIBUTING.rst``.
