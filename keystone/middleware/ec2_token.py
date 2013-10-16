@@ -25,18 +25,22 @@ Starting point for routing EC2 requests.
 import urlparse
 
 from eventlet.green import httplib
+from oslo.config import cfg
 import webob.dec
 import webob.exc
 
-from nova import flags
-from nova import utils
-from nova import wsgi
+from keystone.common import config
+from keystone.common import wsgi
+from keystone.openstack.common import jsonutils
 
+keystone_ec2_opts = [
+    cfg.StrOpt('keystone_ec2_url',
+               default='http://localhost:5000/v2.0/ec2tokens',
+               help='URL to get token from ec2 request.'),
+]
 
-FLAGS = flags.FLAGS
-flags.DEFINE_string('keystone_ec2_url',
-                    'http://localhost:5000/v2.0/ec2tokens',
-                    'URL to get token from ec2 request.')
+CONF = config.CONF
+CONF.register_opts(keystone_ec2_opts)
 
 
 class EC2Token(wsgi.Middleware):
@@ -67,13 +71,13 @@ class EC2Token(wsgi.Middleware):
                 'params': auth_params,
             }
         }
-        creds_json = utils.dumps(creds)
+        creds_json = jsonutils.dumps(creds)
         headers = {'Content-Type': 'application/json'}
 
         # Disable 'has no x member' pylint error
         # for httplib and urlparse
         # pylint: disable-msg=E1101
-        o = urlparse.urlparse(FLAGS.keystone_ec2_url)
+        o = urlparse.urlparse(CONF.keystone_ec2_url)
         if o.scheme == 'http':
             conn = httplib.HTTPConnection(o.netloc)
         else:
@@ -86,7 +90,7 @@ class EC2Token(wsgi.Middleware):
         #             having keystone return token, tenant,
         #             user, and roles from this call.
 
-        result = utils.loads(response)
+        result = jsonutils.loads(response)
         try:
             token_id = result['access']['token']['id']
         except (AttributeError, KeyError):
