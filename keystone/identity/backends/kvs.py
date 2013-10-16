@@ -96,7 +96,7 @@ class Identity(kvs.Base, identity.Driver):
 
     def update_user(self, user_id, user):
         if 'name' in user:
-            existing = self.db.get('user_name-%s' % user['name'])
+            existing = self.db.get('user_name-%s' % user['name'], False)
             if existing and user_id != existing['id']:
                 msg = 'Duplicate name, %s.' % user['name']
                 raise exception.Conflict(type='user', details=msg)
@@ -113,7 +113,7 @@ class Identity(kvs.Base, identity.Driver):
         self.db.delete('user_name-%s' % old_user['name'])
         self.db.set('user-%s' % user_id, new_user)
         self.db.set('user_name-%s' % new_user['name'], new_user)
-        return new_user
+        return identity.filter_user(new_user)
 
     def add_user_to_group(self, user_id, group_id):
         self.get_group(group_id)
