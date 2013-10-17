@@ -204,7 +204,7 @@ def mysql_on_checkout(dbapi_conn, connection_rec, connection_proxy):
         dbapi_conn.cursor().execute('select 1')
     except dbapi_conn.OperationalError as e:
         if e.args[0] in (2006, 2013, 2014, 2045, 2055):
-            LOG.warn(_('Got mysql server has gone away: %s'), e)
+            LOG.warn(_('MySQL server has gone away: %s'), e)
             raise DisconnectionError("Database server went away")
         else:
             raise
@@ -219,7 +219,7 @@ def db2_on_checkout(engine, dbapi_conn, connection_rec, connection_proxy):
     except Exception as e:
         is_disconnect = engine.dialect.is_disconnect(e, dbapi_conn, cursor)
         if is_disconnect:
-            LOG.warn(_('Got database server has gone away: %s'), e)
+            LOG.warn(_('DB2 server has gone away: %s'), e)
             raise DisconnectionError("Database server went away")
         else:
             raise
