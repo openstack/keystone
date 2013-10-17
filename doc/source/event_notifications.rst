@@ -30,8 +30,10 @@ A notification is sent when a resource is successfully ``created``,
 ``updated``, or ``deleted``. The following resource types (where a
 ``<resource type>`` is always a singular noun) produce notifications:
 
-- ``user``
+- ``group``
 - ``project`` (i.e. "tenant")
+- ``role``
+- ``user``
 
 The following message template is used to form a message when an operation on a
 resource completes successfully::
