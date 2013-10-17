@@ -79,6 +79,11 @@ def append_v3_routers(mapper, routers):
     routers.append(
         router.Router(user_controller,
                       'users', 'user'))
+    mapper.connect('/users/{user_id}/password',
+                   controller=user_controller,
+                   action='change_password',
+                   conditions=dict(method=['POST']))
+
     mapper.connect('/groups/{group_id}/users',
                    controller=user_controller,
                    action='list_users_in_group',
