@@ -25,7 +25,6 @@ import time
 
 from lxml import etree
 import mox
-import nose.exc
 from paste import deploy
 import stubout
 import testtools
@@ -74,9 +73,9 @@ from keystone.openstack.common import policy as common_policy  # noqa
 
 
 LOG = logging.getLogger(__name__)
-ROOTDIR = os.path.dirname(os.path.abspath('..'))
+TESTSDIR = os.path.dirname(os.path.abspath(__file__))
+ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
-TESTSDIR = os.path.join(ROOTDIR, 'keystone', 'tests')
 ETCDIR = os.path.join(ROOTDIR, 'etc')
 TMPDIR = os.path.join(TESTSDIR, 'tmp')
 
@@ -490,7 +489,7 @@ class TestCase(NoModule, testtools.TestCase):
     def assertEqualXML(self, a, b):
         """Parses two XML documents from strings and compares the results.
 
-        This provides easy-to-read failures from nose.
+        This provides easy-to-read failures.
 
         """
         parser = etree.XMLParser(remove_blank_text=True)
@@ -510,13 +509,12 @@ class TestCase(NoModule, testtools.TestCase):
         b = canonical_xml(b)
         self.assertEqual(a.split('\n'), b.split('\n'))
 
-    @staticmethod
-    def skip_if_no_ipv6():
+    def skip_if_no_ipv6(self):
         try:
             s = socket.socket(socket.AF_INET6)
         except socket.error as e:
             if e.errno == errno.EAFNOSUPPORT:
-                raise nose.exc.SkipTest("IPv6 is not enabled in the system")
+                raise self.skipTest("IPv6 is not enabled in the system")
             else:
                 raise
         else:

@@ -32,9 +32,6 @@ function usage {
   echo "  -P, --no-pep8            Don't run flake8"
   echo "  -c, --coverage           Generate coverage report"
   echo "  -h, --help               Print this usage message"
-  echo "  -xintegration            Ignore all keystoneclient test cases (integration tests)"
-  echo "  --hide-elapsed           Don't print the elapsed time for each test along with slow test list"
-  echo "  --standard-threads       Don't do the eventlet threading monkeypatch."
   echo ""
   echo "Note: with no options specified, the script will try to run the tests in a virtual environment,"
   echo "      If no virtualenv is found, the script will ask if you would like to create one.  If you "
@@ -55,12 +52,8 @@ function process_option {
     -8|--8) short_flake8=1;;
     -P|--no-pep8) no_flake8=1;;
     -c|--coverage) coverage=1;;
-    -xintegration) nokeystoneclient=1;;
-    --standard-threads)
-        export STANDARD_THREADS=1
-        ;;
-    -*) noseopts="$noseopts $1";;
-    *) noseargs="$noseargs $1"
+    -*) testropts="$testropts $1";;
+    *) testrargs="$testrargs $1"
   esac
 }
 
@@ -69,14 +62,13 @@ with_venv=tools/with_venv.sh
 always_venv=0
 never_venv=0
 force=0
-noseargs=
-noseopts="--with-openstack --openstack-color"
+testrargs=
+testropts=--subunit
 wrapper=""
 just_flake8=0
 short_flake8=0
 no_flake8=0
 coverage=0
-nokeystoneclient=0
 recreate_db=1
 update=0
 
@@ -84,14 +76,11 @@ for arg in "$@"; do
   process_option $arg
 done
 
+TESTRTESTS="python setup.py testr"
+
 # If enabled, tell nose to collect coverage data
 if [ $coverage -eq 1 ]; then
-    noseopts="$noseopts --with-coverage --cover-package=keystone"
-fi
-
-if [ $nokeystoneclient -eq 1 ]; then
-    # disable the integration tests
-    noseopts="$noseopts -I test_keystoneclient* -I _test_import_auth_token.py"
+    TESTRTESTS="$TESTRTESTS --coverage"
 fi
 
 function cleanup_test_db {
@@ -103,19 +92,11 @@ function cleanup_test_db {
 }
 
 function run_tests {
-  # Just run the test suites in current environment
-  ${wrapper} $NOSETESTS
-  # If we get some short import error right away, print the error log directly
-  RESULT=$?
-  if [ "$RESULT" -ne "0" ];
-  then
-    ERRSIZE=`wc -l run_tests.log | awk '{print \$1}'`
-    if [ "$ERRSIZE" -lt "40" ];
-    then
-        cat run_tests.log
-    fi
-  fi
-  return $RESULT
+  set -e
+  echo ${wrapper}
+  ${wrapper} $TESTRTESTS --testr-args="$testropts $testrargs" | \
+      ${wrapper} subunit-2to1 | \
+      ${wrapper} tools/colorizer.py
 }
 
 function run_flake8 {
@@ -125,14 +106,16 @@ function run_flake8 {
       FLAGS=''
   fi
 
-
   echo "Running flake8 ..."
   # Just run flake8 in current environment
   echo ${wrapper} flake8 $FLAGS | tee pep8.txt
   ${wrapper} flake8 $FLAGS | tee pep8.txt
 }
 
-NOSETESTS="nosetests $noseopts $noseargs"
+echo "This script is now deprecated.  Please use tox instead."
+echo "Checkout http://tox.readthedocs.org/en/latest/ for information on tox."
+echo "[press enter to continue]"
+read
 
 if [ $never_venv -eq 0 ]
 then
@@ -188,15 +171,10 @@ run_tests
 
 # NOTE(sirp): we only want to run flake8 when we're running the full-test
 # suite, not when we're running tests individually. To handle this, we need to
-# distinguish between options (noseopts), which begin with a '-', and arguments
-# (noseargs).
-if [ -z "$noseargs" ]; then
+# distinguish between options (testropts), which begin with a '-', and arguments
+# (testrargs).
+if [ -z "$testrargs" ]; then
   if [ $no_flake8 -eq 0 ]; then
     run_flake8
   fi
-fi
-
-if [ $coverage -eq 1 ]; then
-    echo "Generating coverage report in covhtml/"
-    ${wrapper} coverage html -d covhtml -i
 fi
