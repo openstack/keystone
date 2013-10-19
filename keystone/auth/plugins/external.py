@@ -40,7 +40,7 @@ class Base(auth.AuthMethodHandler):
         user_id from the actual user from the REMOTE_USER env variable.
         """
         try:
-            REMOTE_USER = context['REMOTE_USER']
+            REMOTE_USER = context['environment']['REMOTE_USER']
         except KeyError:
             msg = _('No authenticated user')
             raise exception.Unauthorized(msg)
@@ -48,7 +48,8 @@ class Base(auth.AuthMethodHandler):
             user_ref = self._authenticate(REMOTE_USER, auth_info)
             auth_context['user_id'] = user_ref['id']
             if ('kerberos' in CONF.token.bind and
-                    context.get('AUTH_TYPE', '').lower() == 'negotiate'):
+                (context['environment'].get('AUTH_TYPE', '').lower()
+                 == 'negotiate')):
                 auth_context['bind']['kerberos'] = user_ref['name']
         except Exception:
             msg = _('Unable to lookup user %s') % (REMOTE_USER)

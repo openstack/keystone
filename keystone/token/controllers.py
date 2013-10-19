@@ -279,7 +279,7 @@ class Auth(controller.V2Controller):
 
         Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
         """
-        if 'REMOTE_USER' not in context:
+        if 'REMOTE_USER' not in context.get('environment', {}):
             raise ExternalAuthNotApplicable()
 
         #NOTE(jamielennox): xml and json differ and get confused about what
@@ -287,7 +287,7 @@ class Auth(controller.V2Controller):
         if not auth:
             auth = {}
 
-        username = context['REMOTE_USER']
+        username = context['environment']['REMOTE_USER']
         try:
             user_ref = self.identity_api.get_user_by_name(
                 username, DEFAULT_DOMAIN_ID)
@@ -303,7 +303,8 @@ class Auth(controller.V2Controller):
         expiry = core.default_expire_time()
         bind = None
         if ('kerberos' in CONF.token.bind and
-                context.get('AUTH_TYPE', '').lower() == 'negotiate'):
+                context['environment'].
+                get('AUTH_TYPE', '').lower() == 'negotiate'):
             bind = {'kerberos': username}
 
         return (user_ref, tenant_ref, metadata_ref, expiry, bind)

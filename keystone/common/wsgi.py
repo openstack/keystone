@@ -102,11 +102,12 @@ def validate_token_bind(context, token_ref):
 
     for bind_type, identifier in bind.iteritems():
         if bind_type == 'kerberos':
-            if not context.get('AUTH_TYPE', '').lower() == 'negotiate':
+            if not (context['environment'].get('AUTH_TYPE', '').lower()
+                    == 'negotiate'):
                 LOG.info(_("Kerberos credentials required and not present"))
                 raise exception.Unauthorized()
 
-            if not context.get('REMOTE_USER') == identifier:
+            if not context['environment'].get('REMOTE_USER') == identifier:
                 LOG.info(_("Kerberos credentials do not match those in bind"))
                 raise exception.Unauthorized()
 
@@ -214,15 +215,11 @@ class Application(BaseApplication):
         context['headers'] = dict(req.headers.iteritems())
         context['path'] = req.environ['PATH_INFO']
         params = req.environ.get(PARAMS_ENV, {})
-
-        for name in ['REMOTE_USER', 'AUTH_TYPE']:
-            try:
-                context[name] = req.environ[name]
-            except KeyError:
-                try:
-                    del context[name]
-                except KeyError:
-                    pass
+        #authentication and authorization attributes are set as environment
+        #values by the container and processed by the pipeline.  the complete
+        #set is not yet know.
+        context['environment'] = req.environ
+        req.environ = None
 
         params.update(arg_dict)
 

@@ -158,6 +158,7 @@ class RestfulTestCase(rest.RestfulTestCase):
 
         self.public_server = self.serveapp(app_conf, name='main')
         self.admin_server = self.serveapp(app_conf, name='admin')
+        self.empty_context = {'environment': {}}
 
     def tearDown(self):
         self.public_server.kill()
@@ -1039,7 +1040,7 @@ class RestfulTestCase(rest.RestfulTestCase):
         return {'auth': auth_data}
 
     def build_external_auth_request(self, remote_user, auth_data=None):
-        context = {'REMOTE_USER': remote_user}
+        context = {'environment': {'REMOTE_USER': remote_user}}
         if not auth_data:
             auth_data = self.build_authentication_request()['auth']
         no_context = None
