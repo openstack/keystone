@@ -324,7 +324,7 @@ The values that specify where to read the certificates are under the
 * ``certfile`` - Location of certificate used to verify tokens.  Default is ``/etc/keystone/ssl/certs/signing_cert.pem``
 * ``keyfile`` - Location of private key used to sign tokens.  Default is ``/etc/keystone/ssl/private/signing_key.pem``
 * ``ca_certs`` - Location of certificate for the authority that issued the above certificate. Default is ``/etc/keystone/ssl/certs/ca.pem``
-* ``ca_key`` - Default is ``/etc/keystone/ssl/certs/cakey.pem``
+* ``ca_key`` - Default is ``/etc/keystone/ssl/private/cakey.pem``
 * ``key_size`` - Default is ``2048``
 * ``valid_days`` - Default is ``3650``
 
