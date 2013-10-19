@@ -109,7 +109,7 @@ Initial Sample Data
 There is an included script which is helpful in setting up some initial sample
 data for use with keystone::
 
-    $ SERVICE_TOKEN=ADMIN tools/with_venv.sh tools/sample_data.sh
+    $ OS_SERVICE_TOKEN=ADMIN tools/with_venv.sh tools/sample_data.sh
 
 Notice it requires a service token read from an environment variable for
 authentication.  The default value "ADMIN" is from the ``admin_token``
@@ -118,7 +118,7 @@ option in the ``[DEFAULT]`` section in ``etc/keystone.conf``.
 Once run, you can see the sample data that has been created by using the
 `python-keystoneclient`_ command-line interface::
 
-    $ tools/with_venv.sh keystone --token ADMIN --endpoint http://127.0.0.1:35357/v2.0/ user-list
+    $ tools/with_venv.sh keystone --os-token ADMIN --os-endpoint http://127.0.0.1:35357/v2.0/ user-list
 
 Running Tests
 =============

@@ -724,7 +724,7 @@ To test this, you should now be able to start ``keystone-all`` and use the
 Keystone Client to list your tenants (which should successfully return an
 empty list from your new database)::
 
-    $ keystone --token ADMIN --endpoint http://127.0.0.1:35357/v2.0/ tenant-list
+    $ keystone --os-token ADMIN --os-endpoint http://127.0.0.1:35357/v2.0/ tenant-list
     +----+------+---------+
     | id | name | enabled |
     +----+------+---------+
@@ -732,10 +732,10 @@ empty list from your new database)::
 
 .. NOTE::
 
-    We're providing the default SERVICE_TOKEN and SERVICE_ENDPOINT values from
-    ``keystone.conf`` to connect to the Keystone service. If you changed those
-    values, or deployed Keystone to a different endpoint, you will need to
-    change the provided command accordingly.
+    We're providing the default OS_SERVICE_TOKEN and OS_SERVICE_ENDPOINT values
+    from ``keystone.conf`` to connect to the Keystone service. If you changed
+    those values, or deployed Keystone to a different endpoint, you will need
+    to change the provided command accordingly.
 
 Initializing Keystone
 =====================
@@ -773,9 +773,9 @@ Authenticating with a Token
 
 To use Keystone with a token, set the following flags:
 
-* ``--endpoint SERVICE_ENDPOINT``: allows you to specify the Keystone endpoint
+* ``--os-endpoint OS_SERVICE_ENDPOINT``: allows you to specify the Keystone endpoint
   to communicate with. The default endpoint is ``http://localhost:35357/v2.0``
-* ``--token SERVICE_TOKEN``: your service token
+* ``--os-token OS_SERVICE_TOKEN``: your service token
 
 To administer a Keystone endpoint, your token should be either belong to a user
 with the ``admin`` role, or, if you haven't created one yet, should be equal to
@@ -784,8 +784,8 @@ the value defined by ``[DEFAULT] admin_token`` in your ``keystone.conf``.
 You can also set these variables in your environment so that they do not need
 to be passed as arguments each time::
 
-    $ export SERVICE_ENDPOINT=http://localhost:35357/v2.0
-    $ export SERVICE_TOKEN=ADMIN
+    $ export OS_SERVICE_ENDPOINT=http://localhost:35357/v2.0
+    $ export OS_SERVICE_TOKEN=ADMIN
 
 Authenticating with a Password
 ------------------------------
@@ -880,14 +880,14 @@ provide additional (often optional) information. For example, the command
 ``user-list`` and ``tenant-create`` can be invoked as follows::
 
     # Using token auth env variables
-    export SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0/
-    export SERVICE_TOKEN=secrete_token
+    export OS_SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0/
+    export OS_SERVICE_TOKEN=secrete_token
     keystone user-list
     keystone tenant-create --name=demo
 
     # Using token auth flags
-    keystone --token=secrete --endpoint=http://127.0.0.1:35357/v2.0/ user-list
-    keystone --token=secrete --endpoint=http://127.0.0.1:35357/v2.0/ tenant-create --name=demo
+    keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ user-list
+    keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ tenant-create --name=demo
 
     # Using user + password + tenant_name env variables
     export OS_USERNAME=admin

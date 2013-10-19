@@ -19,8 +19,8 @@
 # This script is based on the original DevStack keystone_data.sh script.
 #
 # It demonstrates how to bootstrap Keystone with an administrative user
-# using the SERVICE_TOKEN and SERVICE_ENDPOINT environment variables
-# and the administrative API.  It will get the admin_token (SERVICE_TOKEN)
+# using the OS_SERVICE_TOKEN and OS_SERVICE_ENDPOINT environment variables
+# and the administrative API.  It will get the admin_token (OS_SERVICE_TOKEN)
 # and admin_port from keystone.conf if available.
 #
 # Disable creation of endpoints by setting DISABLE_ENDPOINTS environment variable.
@@ -71,14 +71,14 @@ if [[ -r "$KEYSTONE_CONF" ]]; then
     CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_port= | cut -d'=' -f2)
 fi
 
-export SERVICE_TOKEN=${SERVICE_TOKEN:-$CONFIG_SERVICE_TOKEN}
-if [[ -z "$SERVICE_TOKEN" ]]; then
+export OS_SERVICE_TOKEN=${OS_SERVICE_TOKEN:-$CONFIG_SERVICE_TOKEN}
+if [[ -z "$OS_SERVICE_TOKEN" ]]; then
     echo "No service token found."
-    echo "Set SERVICE_TOKEN manually from keystone.conf admin_token."
+    echo "Set OS_SERVICE_TOKEN manually from keystone.conf admin_token."
     exit 1
 fi
 
-export SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-35357}/v2.0}
+export OS_SERVICE_ENDPOINT=${OS_SERVICE_ENDPOINT:-http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-35357}/v2.0}
 
 function get_id () {
     echo `"$@" | grep ' id ' | awk '{print $4}'`
