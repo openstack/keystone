@@ -57,6 +57,15 @@ class IdentityTests(object):
         user_refs = self.identity_api.get_project_users(self.tenant_bar['id'])
         self.assertNotIn(self.user_two['id'], [x['id'] for x in user_refs])
 
+    def test_remove_user_role_not_assigned(self):
+        # Expect failure if attempt to remove a role that was never assigned to
+        # the user.
+        self.assertRaises(exception.RoleNotFound,
+                          self.identity_api.remove_role_from_user_and_project,
+                          tenant_id=self.tenant_bar['id'],
+                          user_id=self.user_two['id'],
+                          role_id=self.role_other['id'])
+
     def test_authenticate_bad_user(self):
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
