@@ -37,7 +37,7 @@ class EndpointFilter(sql.Base):
     def db_sync(self, version=None):
         migration.db_sync(version=version)
 
-    @sql.handle_conflicts(type='project_endpoint')
+    @sql.handle_conflicts(conflict_type='project_endpoint')
     def add_endpoint_to_project(self, endpoint_id, project_id):
         session = self.get_session()
         with session.begin():

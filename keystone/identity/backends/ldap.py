@@ -269,16 +269,16 @@ class GroupApi(common_ldap.BaseLdap):
             data.pop('description')
         return super(GroupApi, self).create(data)
 
-    def delete(self, id):
+    def delete(self, group_id):
         if self.subtree_delete_enabled:
-            super(GroupApi, self).deleteTree(id)
+            super(GroupApi, self).deleteTree(group_id)
         else:
             # TODO(spzala): this is only placeholder for group and domain
             # role support which will be added under bug 1101287
 
             query = '(objectClass=%s)' % self.object_class
             dn = None
-            dn = self._id_to_dn(id)
+            dn = self._id_to_dn(group_id)
             if dn:
                 try:
                     conn = self.get_connection()
@@ -290,11 +290,11 @@ class GroupApi(common_ldap.BaseLdap):
                     pass
                 finally:
                     conn.unbind_s()
-            super(GroupApi, self).delete(id)
+            super(GroupApi, self).delete(group_id)
 
-    def update(self, id, values):
-        old_obj = self.get(id)
-        return super(GroupApi, self).update(id, values, old_obj)
+    def update(self, group_id, values):
+        old_obj = self.get(group_id)
+        return super(GroupApi, self).update(group_id, values, old_obj)
 
     def add_user(self, user_dn, group_id, user_id):
         conn = self.get_connection()
@@ -330,7 +330,7 @@ class GroupApi(common_ldap.BaseLdap):
         query = '(&(objectClass=%s)(%s=%s)%s)' % (self.object_class,
                                                   self.member_attribute,
                                                   user_dn,
-                                                  self.filter or '')
+                                                  self.ldap_filter or '')
         memberships = self.get_all(query)
         return memberships
 

@@ -298,7 +298,7 @@ class Base(object):
         self._sessionmaker = None
 
 
-def handle_conflicts(type='object'):
+def handle_conflicts(conflict_type='object'):
     """Converts IntegrityError into HTTP 409 Conflict."""
     def decorator(method):
         @functools.wraps(method)
@@ -306,6 +306,7 @@ def handle_conflicts(type='object'):
             try:
                 return method(*args, **kwargs)
             except (IntegrityError, OperationalError) as e:
-                raise exception.Conflict(type=type, details=str(e.orig))
+                raise exception.Conflict(type=conflict_type,
+                                         details=str(e.orig))
         return wrapper
     return decorator

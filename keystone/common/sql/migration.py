@@ -80,10 +80,10 @@ def db_version_control(version=None, repo_path=None):
 def find_migrate_repo(package=None):
     """Get the path for the migrate repository."""
     if package is None:
-        file = __file__
+        filename = __file__
     else:
-        file = package.__file__
-    path = os.path.join(os.path.abspath(os.path.dirname(file)),
+        filename = package.__file__
+    path = os.path.join(os.path.abspath(os.path.dirname(filename)),
                         'migrate_repo')
     assert os.path.exists(path)
     return path

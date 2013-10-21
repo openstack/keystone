@@ -183,7 +183,7 @@ class Assignment(assignment.Driver):
 
     def delete_project(self, tenant_id):
         if self.project.subtree_delete_enabled:
-            self.project.deleteTree(id)
+            self.project.deleteTree(tenant_id)
         else:
             tenant_dn = self.project._id_to_dn(tenant_id)
             self.role.roles_delete_subtree_by_project(tenant_dn)
@@ -245,7 +245,7 @@ class Assignment(assignment.Driver):
             # role support which will be added under bug 1101287
             query = '(objectClass=%s)' % self.group.object_class
             dn = None
-            dn = self.group._id_to_dn(id)
+            dn = self.group._id_to_dn(group_id)
             if dn:
                 try:
                     conn = self.group.get_connection()
@@ -371,9 +371,9 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                 res.add(rolegrant.user_dn)
         return list(res)
 
-    def update(self, id, values):
-        old_obj = self.get(id)
-        return super(ProjectApi, self).update(id, values, old_obj)
+    def update(self, project_id, values):
+        old_obj = self.get(project_id)
+        return super(ProjectApi, self).update(project_id, values, old_obj)
 
 
 class UserRoleAssociation(object):
@@ -413,8 +413,8 @@ class RoleApi(common_ldap.BaseLdap):
         self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
-    def get(self, id, filter=None):
-        model = super(RoleApi, self).get(id, filter)
+    def get(self, role_id, role_filter=None):
+        model = super(RoleApi, self).get(role_id, role_filter)
         return model
 
     def create(self, values):
@@ -553,10 +553,10 @@ class RoleApi(common_ldap.BaseLdap):
             pass
         return super(RoleApi, self).update(role_id, role)
 
-    def delete(self, id, tenant_dn):
+    def delete(self, role_id, tenant_dn):
         conn = self.get_connection()
         query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
-                                                self.id_attr, id)
+                                                self.id_attr, role_id)
         try:
             for role_dn, _ in conn.search_s(tenant_dn,
                                             ldap.SCOPE_SUBTREE,
@@ -566,4 +566,4 @@ class RoleApi(common_ldap.BaseLdap):
             pass
         finally:
             conn.unbind_s()
-        super(RoleApi, self).delete(id)
+        super(RoleApi, self).delete(role_id)

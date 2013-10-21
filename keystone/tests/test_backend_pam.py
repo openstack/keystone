@@ -32,8 +32,8 @@ class PamIdentity(tests.TestCase):
                      tests.testsdir('test_overrides.conf'),
                      tests.testsdir('backend_pam.conf')])
         self.identity_api = identity_pam.PamIdentity()
-        id = uuid.uuid4().hex
-        self.tenant_in = {'id': id, 'name': id}
+        tenant_id = uuid.uuid4().hex
+        self.tenant_in = {'id': tenant_id, 'name': tenant_id}
         self.user_in = {'id': CONF.pam.userid, 'name': CONF.pam.userid}
 
     def test_get_project(self):
