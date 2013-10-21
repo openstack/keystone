@@ -16,8 +16,8 @@ pep8.txt
 nosetests.xml
 doc/build
 .DS_Store
+doc/source/api
 doc/source/modules.rst
-doc/source/keystone.*
 ChangeLog
 AUTHORS
 build/
