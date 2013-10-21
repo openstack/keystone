@@ -870,14 +870,6 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
         self.skipTest(
             'N/A: LDAP does not support multiple domains')
 
-    def test_remove_user_role_not_assigned(self):
-        # This raises exception as expected with SQL assignment backend but
-        # not with LDAP (see bug #1242855)
-        self.identity_api.remove_role_from_user_and_project(
-            tenant_id=self.tenant_bar['id'],
-            user_id=self.user_two['id'],
-            role_id=self.role_other['id'])
-
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):
