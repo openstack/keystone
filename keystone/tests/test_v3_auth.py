@@ -320,6 +320,16 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase):
         r = self.get('/auth/tokens', headers=self.headers)
         self.assertValidUnscopedTokenResponse(r)
 
+    def test_validate_token_nocatalog(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        headers = {'X-Subject-Token': resp.headers.get('X-Subject-Token')}
+        r = self.get('/auth/tokens?nocatalog', headers=headers)
+        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
+
     def test_revoke_token(self):
         headers = {'X-Subject-Token': self.get_scoped_token()}
         self.delete('/auth/tokens', headers=headers, expected_status=204)
