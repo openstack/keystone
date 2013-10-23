@@ -191,6 +191,7 @@ class User(controller.V2Controller):
 
     # CRUD extension
     def create_user(self, context, user):
+        user = self._normalize_OSKSADM_password_on_request(user)
         user = self._normalize_dict(user)
         self.assert_admin(context)
 
@@ -295,7 +296,20 @@ class User(controller.V2Controller):
         return self.update_user(context, user_id, user)
 
     def set_user_password(self, context, user_id, user):
+        user = self._normalize_OSKSADM_password_on_request(user)
         return self.update_user(context, user_id, user)
+
+    @staticmethod
+    def _normalize_OSKSADM_password_on_request(ref):
+        """Sets the password from the OS-KSADM Admin Extension.
+
+        The OS-KSADM Admin Extension documentation says that
+        `OS-KSADM:password` can be used in place of `password`.
+
+        """
+        if 'OS-KSADM:password' in ref:
+            ref['password'] = ref.pop('OS-KSADM:password')
+        return ref
 
 
 class Role(controller.V2Controller):

@@ -77,8 +77,8 @@ class XmlDeserializer(object):
         return dict((x.attrib['rel'], x.attrib['href']) for x in links)
 
     @staticmethod
-    def _tag_name(tag, namespace):
-        """Returns a tag name.
+    def _qualified_name(tag, namespace):
+        """Returns a qualified tag name.
 
         The tag name may contain the namespace prefix or not, which can
         be determined by specifying the parameter namespace.
@@ -115,7 +115,7 @@ class XmlDeserializer(object):
                 elif v in ['false']:
                     v = False
 
-            values[k] = v
+            values[self._qualified_name(k, namespace)] = v
 
         text = None
         if element.text is not None:
@@ -123,7 +123,7 @@ class XmlDeserializer(object):
 
         # current spec does not have attributes on an element with text
         values = values or text or {}
-        decoded_tag = XmlDeserializer._tag_name(element.tag, namespace)
+        decoded_tag = XmlDeserializer._qualified_name(element.tag, namespace)
         list_item_tag = None
         if (decoded_tag[-1] == 's' and len(values) == 0 and
                 decoded_tag != 'access'):
@@ -158,7 +158,7 @@ class XmlDeserializer(object):
         if not values:
             values = ""
 
-        d = {XmlDeserializer._tag_name(element.tag, namespace): values}
+        d = {XmlDeserializer._qualified_name(element.tag, namespace): values}
 
         if links:
             d['links'] = links

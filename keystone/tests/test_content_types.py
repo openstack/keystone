@@ -1112,6 +1112,80 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
             expected_status=400)
         self.assertValidErrorResponse(r)
 
+    def test_authenticating_a_user_with_an_OSKSADM_password(self):
+        token = self.get_scoped_token()
+
+        username = uuid.uuid4().hex
+        password = uuid.uuid4().hex
+
+        # create the user
+        r = self.admin_request(
+            method='POST',
+            path='/v2.0/users',
+            body={
+                'user': {
+                    'name': username,
+                    'OS-KSADM:password': password,
+                    'enabled': True,
+                },
+            },
+            token=token)
+
+        # successfully authenticate
+        self.public_request(
+            method='POST',
+            path='/v2.0/tokens',
+            body={
+                'auth': {
+                    'passwordCredentials': {
+                        'username': username,
+                        'password': password,
+                    },
+                },
+            },
+            expected_status=200)
+
+        # ensure password doesn't leak
+        user_id = r.result['user']['id']
+        r = self.admin_request(
+            method='GET',
+            path='/v2.0/users/%s' % user_id,
+            token=token,
+            expected_status=200)
+        self.assertNotIn('OS-KSADM:password', r.result['user'])
+
+    def test_updating_a_user_with_an_OSKSADM_password(self):
+        token = self.get_scoped_token()
+
+        user_id = self.user_foo['id']
+        password = uuid.uuid4().hex
+
+        # update the user
+        self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%s/OS-KSADM/password' % user_id,
+            body={
+                'user': {
+                   'password': password,
+                },
+            },
+            token=token,
+            expected_status=200)
+
+        # successfully authenticate
+        self.public_request(
+            method='POST',
+            path='/v2.0/tokens',
+            body={
+                'auth': {
+                    'passwordCredentials': {
+                        'username': self.user_foo['name'],
+                        'password': password,
+                    },
+                },
+            },
+            expected_status=200)
+
 
 class XmlTestCase(RestfulTestCase, CoreApiTests):
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'
@@ -1395,3 +1469,50 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
             token=token,
             expected_status=400)
         self.assertValidErrorResponse(r)
+
+    def test_authenticating_a_user_with_an_OSKSADM_password(self):
+        token = self.get_scoped_token()
+
+        xmlns = "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+
+        username = uuid.uuid4().hex
+        password = uuid.uuid4().hex
+
+        # create the user
+        self.admin_request(
+            method='POST',
+            path='/v2.0/users',
+            headers={
+                'Content-Type': 'application/xml'
+            },
+            body="""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <user xmlns="http://docs.openstack.org/identity/api/v2.0"
+                        xmlns:OS-KSADM="%(xmlns)s"
+                        name="%(username)s"
+                        OS-KSADM:password="%(password)s"
+                        enabled="true"/>
+            """ % dict(username=username, password=password, xmlns=xmlns),
+            token=token,
+            expected_status=200,
+            convert=False)
+
+        # successfully authenticate
+        self.public_request(
+            method='POST',
+            path='/v2.0/tokens',
+            headers={
+                'Content-Type': 'application/xml'
+            },
+            body="""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <auth xmlns="http://docs.openstack.org/identity/api/v2.0"
+                        xmlns:OS-KSADM="%(xmlns)s">
+                    <passwordCredentials
+                            username="%(username)s"
+                            password="%(password)s"/>
+                </auth>
+            """ % dict(username=username, password=password, xmlns=xmlns),
+            token=token,
+            expected_status=200,
+            convert=False)
