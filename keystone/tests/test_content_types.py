@@ -854,7 +854,126 @@ class CoreApiTests(object):
         self.assertValidErrorResponse(r)
 
 
-class JsonTestCase(RestfulTestCase, CoreApiTests):
+class LegacyV2UsernameTests(object):
+    """Tests to show the broken username behavior in V2.
+
+    The V2 API is documented to use `username` instead of `name`.  The
+    API forced used to use name and left the username to fall into the
+    `extra` field.
+
+    These tests ensure this behavior works so fixes to `username`/`name`
+    will be backward compatible.
+    """
+
+    def create_user(self, **user_attrs):
+        """Creates a users and returns the response object.
+
+        :param user_attrs: attributes added to the request body (optional)
+        """
+        token = self.get_scoped_token()
+        body = {
+            'user': {
+                'name': uuid.uuid4().hex,
+                'enabled': True,
+            },
+        }
+        body['user'].update(user_attrs)
+
+        return self.admin_request(
+            method='POST',
+            path='/v2.0/users',
+            token=token,
+            body=body,
+            expected_status=200)
+
+    def test_create_with_extra_username(self):
+        """The response for creating a user will contain the extra fields."""
+        fake_username = uuid.uuid4().hex
+        r = self.create_user(username=fake_username)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('username'), fake_username)
+
+    def test_get_returns_username_from_extra(self):
+        """The response for getting a user will contain the extra fields."""
+        token = self.get_scoped_token()
+
+        fake_username = uuid.uuid4().hex
+        r = self.create_user(username=fake_username)
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        r = self.admin_request(path='/v2.0/users/%s' % id_, token=token)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('username'), fake_username)
+
+    def test_update_returns_new_username_when_adding_username(self):
+        """The response for updating a user will contain the extra fields.
+
+        This is specifically testing for updating a username when a value
+        was not previously set.
+        """
+        token = self.get_scoped_token()
+
+        r = self.create_user()
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        name = self.get_user_attribute_from_response(r, 'name')
+        enabled = self.get_user_attribute_from_response(r, 'enabled')
+        r = self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%s' % id_,
+            token=token,
+            body={
+                'user': {
+                    'name': name,
+                    'username': 'new_username',
+                    'enabled': enabled,
+                },
+            },
+            expected_status=200)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('username'), 'new_username')
+
+    def test_update_returns_new_username_when_updating_username(self):
+        """The response for updating a user will contain the extra fields.
+
+        This tests updating a username that was previously set.
+        """
+        token = self.get_scoped_token()
+
+        r = self.create_user(username='original_username')
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        name = self.get_user_attribute_from_response(r, 'name')
+        enabled = self.get_user_attribute_from_response(r, 'enabled')
+        r = self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%s' % id_,
+            token=token,
+            body={
+                'user': {
+                    'name': name,
+                    'username': 'new_username',
+                    'enabled': enabled,
+                },
+            },
+            expected_status=200)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('username'), 'new_username')
+
+
+class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
     content_type = 'json'
 
     def _get_user_id(self, r):
@@ -1014,6 +1133,12 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
             self.assertIsNotNone(endpoint.get('publicURL'))
             self.assertIsNotNone(endpoint.get('internalURL'))
             self.assertIsNotNone(endpoint.get('adminURL'))
+
+    def get_user_from_response(self, r):
+        return r.result.get('user')
+
+    def get_user_attribute_from_response(self, r, attribute_name):
+        return r.result['user'][attribute_name]
 
     def test_service_crud_requires_auth(self):
         """Service CRUD should 401 without an X-Auth-Token (bug 1006822)."""
@@ -1187,7 +1312,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests):
             expected_status=200)
 
 
-class XmlTestCase(RestfulTestCase, CoreApiTests):
+class XmlTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'
     content_type = 'xml'
 
@@ -1366,6 +1491,12 @@ class XmlTestCase(RestfulTestCase, CoreApiTests):
         for tenant in r.result.findall(self._tag('tenant')):
             self.assertValidTenant(tenant)
             self.assertIn(tenant.get('enabled'), ['true', 'false'])
+
+    def get_user_from_response(self, r):
+        return r.result
+
+    def get_user_attribute_from_response(self, r, attribute_name):
+        return r.result.get(attribute_name)
 
     def test_authenticate_with_invalid_xml_in_password(self):
         # public_request would auto escape the ampersand
