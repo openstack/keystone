@@ -242,7 +242,7 @@ class NoModule(object):
         sys.meta_path.insert(0, finder)
 
 
-class TestCase(NoModule, testtools.TestCase):
+class TestCase(testtools.TestCase):
     def __init__(self, *args, **kw):
         super(TestCase, self).__init__(*args, **kw)
         self._paths = []
