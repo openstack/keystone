@@ -92,10 +92,10 @@ SAMPLE_V2_TOKEN = {
             {
                 "endpoints": [
                     {
-                        "adminURL": "http://localhost:8888/v1",
+                        "adminURL": "http://localhost:8080/v1",
                         "id": "7bd0c643e05a4a2ab40902b2fa0dd4e6",
-                        "internalURL": "http://localhost:8888/v1/AUTH_01257",
-                        "publicURL": "http://localhost:8888/v1/AUTH_01257",
+                        "internalURL": "http://localhost:8080/v1/AUTH_01257",
+                        "publicURL": "http://localhost:8080/v1/AUTH_01257",
                         "region": "RegionOne"
                     }
                 ],
@@ -202,19 +202,19 @@ SAMPLE_V3_TOKEN = {
                         "id": "7bd0c643e05a4a2ab40902b2fa0dd4e6",
                         "interface": "admin",
                         "region": "RegionOne",
-                        "url": "http://localhost:8888/v1"
+                        "url": "http://localhost:8080/v1"
                     },
                     {
                         "id": "43bef154594d4ccb8e49014d20624e1d",
                         "interface": "internal",
                         "region": "RegionOne",
-                        "url": "http://localhost:8888/v1/AUTH_01257"
+                        "url": "http://localhost:8080/v1/AUTH_01257"
                     },
                     {
                         "id": "e63b5f5d7aa3493690189d0ff843b9b3",
                         "interface": "public",
                         "region": "RegionOne",
-                        "url": "http://localhost:8888/v1/AUTH_01257"
+                        "url": "http://localhost:8080/v1/AUTH_01257"
                     }
                 ],
                 "id": "a669e152f1104810a4b6701aade721bb",
@@ -399,10 +399,10 @@ SAMPLE_V2_TOKEN_WITH_EMBEDED_VERSION = {
             {
                 "endpoints": [
                     {
-                        "adminURL": "http://localhost:8888/v1",
+                        "adminURL": "http://localhost:8080/v1",
                         "id": "7bd0c643e05a4a2ab40902b2fa0dd4e6",
-                        "internalURL": "http://localhost:8888/v1/AUTH_01257",
-                        "publicURL": "http://localhost:8888/v1/AUTH_01257",
+                        "internalURL": "http://localhost:8080/v1/AUTH_01257",
+                        "publicURL": "http://localhost:8080/v1/AUTH_01257",
                         "region": "RegionOne"
                     }
                 ],
@@ -509,19 +509,19 @@ SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = {
                         "id": "7bd0c643e05a4a2ab40902b2fa0dd4e6",
                         "interface": "admin",
                         "region": "RegionOne",
-                        "url": "http://localhost:8888/v1"
+                        "url": "http://localhost:8080/v1"
                     },
                     {
                         "id": "43bef154594d4ccb8e49014d20624e1d",
                         "interface": "internal",
                         "region": "RegionOne",
-                        "url": "http://localhost:8888/v1/AUTH_01257"
+                        "url": "http://localhost:8080/v1/AUTH_01257"
                     },
                     {
                         "id": "e63b5f5d7aa3493690189d0ff843b9b3",
                         "interface": "public",
                         "region": "RegionOne",
-                        "url": "http://localhost:8888/v1/AUTH_01257"
+                        "url": "http://localhost:8080/v1/AUTH_01257"
                     }
                 ],
                 "id": "a669e152f1104810a4b6701aade721bb",
