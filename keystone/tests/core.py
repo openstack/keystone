@@ -74,9 +74,9 @@ from keystone.openstack.common import policy as common_policy  # noqa
 
 
 LOG = logging.getLogger(__name__)
-ROOTDIR = os.path.dirname(os.path.abspath('..'))
+TESTSDIR = os.path.dirname(os.path.abspath(__file__))
+ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
-TESTSDIR = os.path.join(ROOTDIR, 'keystone', 'tests')
 ETCDIR = os.path.join(ROOTDIR, 'etc')
 TMPDIR = os.path.join(TESTSDIR, 'tmp')
 
