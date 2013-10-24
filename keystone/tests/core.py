@@ -14,6 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import absolute_import
+
 import errno
 import os
 import re
@@ -23,6 +25,8 @@ import StringIO
 import sys
 import time
 
+import fixtures
+import logging
 from lxml import etree
 from paste import deploy
 import testtools
@@ -54,7 +58,7 @@ from keystone.contrib import oauth1
 from keystone import credential
 from keystone import exception
 from keystone import identity
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone import policy
 from keystone import token
@@ -67,7 +71,7 @@ from keystone import trust
 from keystone.openstack.common import policy as common_policy  # noqa
 
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
 ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
@@ -256,6 +260,8 @@ class TestCase(testtools.TestCase):
         # ensure the cache region instance is setup
         cache.configure_cache_region(cache.REGION)
         self.opt(policy_file=etcdir('policy.json'))
+
+        self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
 
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)

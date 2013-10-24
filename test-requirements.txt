@@ -13,6 +13,8 @@ python-ldap==2.3.13
 # Testing
 # computes code coverage percentages
 coverage>=3.6
+# fixture stubbing
+fixtures>=0.3.14
 # mock object framework
 mock>=1.0
 mox>=0.5.3
