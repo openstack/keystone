@@ -2631,6 +2631,52 @@ class IdentityTests(object):
                           self.assignment_api.get_role,
                           role_id)
 
+    def create_user_dict(self, **attributes):
+        user_dict = {'id': uuid.uuid4().hex,
+                     'name': uuid.uuid4().hex,
+                     'domain_id': DEFAULT_DOMAIN_ID,
+                     'enabled': True}
+        user_dict.update(attributes)
+        return user_dict
+
+    def test_arbitrary_attributes_are_returned_from_create_user(self):
+        attr_value = uuid.uuid4().hex
+        user_data = self.create_user_dict(arbitrary_attr=attr_value)
+
+        user = self.identity_api.create_user(user_data['id'], user_data)
+
+        self.assertEqual(user['arbitrary_attr'], attr_value)
+
+    def test_arbitrary_attributes_are_returned_from_get_user(self):
+        attr_value = uuid.uuid4().hex
+        user_data = self.create_user_dict(arbitrary_attr=attr_value)
+
+        self.identity_api.create_user(user_data['id'], user_data)
+
+        user = self.identity_api.get_user(user_data['id'])
+        self.assertEqual(user['arbitrary_attr'], attr_value)
+
+    def test_new_arbitrary_attributes_are_returned_from_update_user(self):
+        user_data = self.create_user_dict()
+
+        user = self.identity_api.create_user(user_data['id'], user_data)
+        attr_value = uuid.uuid4().hex
+        user['arbitrary_attr'] = attr_value
+        updated_user = self.identity_api.update_user(user['id'], user)
+
+        self.assertEqual(updated_user['arbitrary_attr'], attr_value)
+
+    def test_updated_arbitrary_attributes_are_returned_from_update_user(self):
+        attr_value = uuid.uuid4().hex
+        user_data = self.create_user_dict(arbitrary_attr=attr_value)
+
+        new_attr_value = uuid.uuid4().hex
+        user = self.identity_api.create_user(user_data['id'], user_data)
+        user['arbitrary_attr'] = new_attr_value
+        updated_user = self.identity_api.update_user(user['id'], user)
+
+        self.assertEqual(updated_user['arbitrary_attr'], new_attr_value)
+
 
 class TokenTests(object):
     def _create_token_id(self):
