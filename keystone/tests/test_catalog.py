@@ -16,13 +16,13 @@
 
 import uuid
 
-from keystone.tests import test_content_types
+from keystone.tests import rest
 
 
 BASE_URL = 'http://127.0.0.1:35357/v2'
 
 
-class V2CatalogTestCase(test_content_types.RestfulTestCase):
+class V2CatalogTestCase(rest.RestfulTestCase):
     def setUp(self):
         super(V2CatalogTestCase, self).setUp()
         self.service_id = uuid.uuid4().hex
