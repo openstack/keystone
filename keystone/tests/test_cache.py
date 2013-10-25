@@ -83,6 +83,16 @@ class CacheRegionTest(tests.TestCase):
         self.region = cache.make_region()
         cache.configure_cache_region(self.region)
         self.region.wrap(TestProxy)
+        self.test_value = TestProxyValue('Decorator Test')
+
+    def _get_cacheable_function(self):
+        SHOULD_CACHE_FN = cache.should_cache_fn('cache')
+
+        @self.region.cache_on_arguments(should_cache_fn=SHOULD_CACHE_FN)
+        def cacheable_function(value):
+            return value
+
+        return cacheable_function
 
     def test_region_built_with_proxy_direct_cache_test(self):
         # Verify cache regions are properly built with proxies.
@@ -96,44 +106,66 @@ class CacheRegionTest(tests.TestCase):
         cache.configure_cache_region(self.region)
         cache.configure_cache_region(self.region)
 
-    def test_should_cache_fn(self):
-        # Verify should_cache_fn generates a sane function for subsystem
-        # toggle.
-        SHOULD_CACHE = cache.should_cache_fn('cache')
-        test_value = TestProxyValue('Decorator Test')
+    def test_should_cache_fn_global_cache_enabled(self):
+        # Verify should_cache_fn generates a sane function for subsystem and
+        # functions as expected with caching globally enabled.
+        cacheable_function = self._get_cacheable_function()
 
-        @self.region.cache_on_arguments(should_cache_fn=SHOULD_CACHE)
-        def cacheable_function(value):
-            return value
-
-        setattr(CONF.cache, 'caching', False)
-        cacheable_function(test_value)
-        cached_value = cacheable_function(test_value)
-        self.assertFalse(cached_value.cached)
-
-        setattr(CONF.cache, 'caching', True)
-        cacheable_function(test_value)
-        cached_value = cacheable_function(test_value)
+        self.opt_in_group('cache', enabled=True)
+        cacheable_function(self.test_value)
+        cached_value = cacheable_function(self.test_value)
         self.assertTrue(cached_value.cached)
 
-    def test_should_cache_fn_global(self):
-        # Verify should_cache_fn generates a sane function for global
-        # toggle.
-        SHOULD_CACHE = cache.should_cache_fn('cache')
-        test_value = TestProxyValue('Decorator Test')
+    def test_should_cache_fn_global_cache_disabled(self):
+        # Verify should_cache_fn generates a sane function for subsystem and
+        # functions as expected with caching globally disabled.
+        cacheable_function = self._get_cacheable_function()
 
-        @self.region.cache_on_arguments(should_cache_fn=SHOULD_CACHE)
-        def cacheable_function(value):
-            return value
-
-        setattr(CONF.cache, 'enabled', False)
-        cacheable_function(test_value)
-        cached_value = cacheable_function(test_value)
+        self.opt_in_group('cache', enabled=False)
+        cacheable_function(self.test_value)
+        cached_value = cacheable_function(self.test_value)
         self.assertFalse(cached_value.cached)
 
-        setattr(CONF.cache, 'enabled', True)
-        cacheable_function(test_value)
-        cached_value = cacheable_function(test_value)
+    def test_should_cache_fn_global_cache_disabled_section_cache_enabled(self):
+        # Verify should_cache_fn generates a sane function for subsystem and
+        # functions as expected with caching globally disabled and the specific
+        # section caching enabled.
+        cacheable_function = self._get_cacheable_function()
+
+        self.opt_in_group('cache', enabled=False)
+        # NOTE(morganfainberg): cannot use opt_in_group because 'caching' is a
+        # fabricated setting for tests.
+        setattr(CONF.cache, 'caching', True)
+        cacheable_function(self.test_value)
+        cached_value = cacheable_function(self.test_value)
+        self.assertFalse(cached_value.cached)
+
+    def test_should_cache_fn_global_cache_enabled_section_cache_disabled(self):
+        # Verify should_cache_fn generates a sane function for subsystem and
+        # functions as expected with caching globally enabled and the specific
+        # section caching disabled.
+        cacheable_function = self._get_cacheable_function()
+
+        self.opt_in_group('cache', enabled=True)
+        # NOTE(morganfainberg): cannot use opt_in_group because 'caching' is a
+        # fabricated setting for tests.
+        setattr(CONF.cache, 'caching', False)
+        cacheable_function(self.test_value)
+        cached_value = cacheable_function(self.test_value)
+        self.assertFalse(cached_value.cached)
+
+    def test_should_cache_fn_global_cache_enabled_section_cache_enabled(self):
+        # Verify should_cache_fn generates a sane function for subsystem and
+        # functions as expected with caching globally enabled and the specific
+        # section caching enabled.
+        cacheable_function = self._get_cacheable_function()
+
+        self.opt_in_group('cache', enabled=True)
+        # NOTE(morganfainberg): cannot use opt_in_group because 'caching' is a
+        # fabricated setting for tests.
+        setattr(CONF.cache, 'caching', True)
+        cacheable_function(self.test_value)
+        cached_value = cacheable_function(self.test_value)
         self.assertTrue(cached_value.cached)
 
     def test_cache_dictionary_config_builder(self):
