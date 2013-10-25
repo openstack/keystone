@@ -32,6 +32,13 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             self.service_id,
             self.service.copy())
 
+        # TODO(termie): add an admin user to the fixtures and use that user
+        # override the fixtures, for now
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            self.role_admin['id'])
+
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
         return {

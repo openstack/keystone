@@ -32,8 +32,6 @@ class TestAuthInfo(test_v3.RestfulTestCase):
     # building helper functions, they cause backend databases and fixtures
     # to be loaded unnecessarily.  Separating out the helper functions from
     # this base class would improve efficiency (Bug #1134836)
-    def setUp(self, load_sample_data=False):
-        super(TestAuthInfo, self).setUp(load_sample_data=load_sample_data)
 
     def test_missing_auth_methods(self):
         auth_data = {'identity': {}}
@@ -1803,7 +1801,7 @@ class TestTrustOptional(test_v3.RestfulTestCase):
 class TestTrustAuth(TestAuthInfo):
     def setUp(self):
         self.opt_in_group('trust', enabled=True)
-        super(TestTrustAuth, self).setUp(load_sample_data=True)
+        super(TestTrustAuth, self).setUp()
 
         # create a trustee to delegate stuff to
         self.trustee_user_id = uuid.uuid4().hex

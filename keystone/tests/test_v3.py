@@ -18,7 +18,6 @@ import datetime
 import uuid
 
 from lxml import etree
-import webtest
 
 from keystone import auth
 from keystone.common import cache
@@ -69,92 +68,15 @@ class RestfulTestCase(rest.RestfulTestCase):
         except AttributeError:
             pass
 
-    def setUp(self, load_sample_data=True, app_conf='keystone'):
+    def setUp(self, app_conf='keystone'):
         """Setup for v3 Restful Test Cases.
 
-        If a child class wants to create their own sample data
-        and provide their own auth data to obtain tokens, then
-        load_sample_data should be set to false.
-
         """
-        super(RestfulTestCase, self).setUp()
-        self.config(self.config_files())
-
-        self.setup_database()
-
         new_paste_file = self.generate_paste_config()
         if new_paste_file:
             app_conf = 'config:%s' % (new_paste_file)
 
-        # ensure the cache region instance is setup
-        cache.configure_cache_region(cache.REGION)
-
-        self.load_backends()
-
-        self.public_app = webtest.TestApp(
-            self.loadapp(app_conf, name='main'))
-        self.admin_app = webtest.TestApp(
-            self.loadapp(app_conf, name='admin'))
-
-        if load_sample_data:
-            self.domain_id = uuid.uuid4().hex
-            self.domain = self.new_domain_ref()
-            self.domain['id'] = self.domain_id
-            self.assignment_api.create_domain(self.domain_id, self.domain)
-
-            self.project_id = uuid.uuid4().hex
-            self.project = self.new_project_ref(
-                domain_id=self.domain_id)
-            self.project['id'] = self.project_id
-            self.assignment_api.create_project(self.project_id, self.project)
-
-            self.user_id = uuid.uuid4().hex
-            self.user = self.new_user_ref(domain_id=self.domain_id)
-            self.user['id'] = self.user_id
-            self.identity_api.create_user(self.user_id, self.user)
-
-            self.default_domain_project_id = uuid.uuid4().hex
-            self.default_domain_project = self.new_project_ref(
-                domain_id=DEFAULT_DOMAIN_ID)
-            self.default_domain_project['id'] = self.default_domain_project_id
-            self.assignment_api.create_project(self.default_domain_project_id,
-                                               self.default_domain_project)
-
-            self.default_domain_user_id = uuid.uuid4().hex
-            self.default_domain_user = self.new_user_ref(
-                domain_id=DEFAULT_DOMAIN_ID)
-            self.default_domain_user['id'] = self.default_domain_user_id
-            self.identity_api.create_user(self.default_domain_user_id,
-                                          self.default_domain_user)
-
-            # create & grant policy.json's default role for admin_required
-            self.role_id = uuid.uuid4().hex
-            self.role = self.new_role_ref()
-            self.role['id'] = self.role_id
-            self.role['name'] = 'admin'
-            self.assignment_api.create_role(self.role_id, self.role)
-            self.assignment_api.add_role_to_user_and_project(
-                self.user_id, self.project_id, self.role_id)
-            self.assignment_api.add_role_to_user_and_project(
-                self.default_domain_user_id, self.default_domain_project_id,
-                self.role_id)
-            self.assignment_api.add_role_to_user_and_project(
-                self.default_domain_user_id, self.project_id,
-                self.role_id)
-
-            self.service_id = uuid.uuid4().hex
-            self.service = self.new_service_ref()
-            self.service['id'] = self.service_id
-            self.catalog_api.create_service(
-                self.service_id,
-                self.service.copy())
-
-            self.endpoint_id = uuid.uuid4().hex
-            self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
-            self.endpoint['id'] = self.endpoint_id
-            self.catalog_api.create_endpoint(
-                self.endpoint_id,
-                self.endpoint.copy())
+        super(RestfulTestCase, self).setUp(app_conf=app_conf)
 
         self.empty_context = {'environment': {}}
 
@@ -167,6 +89,79 @@ class RestfulTestCase(rest.RestfulTestCase):
         CONF.reset()
         rules.reset()
         super(RestfulTestCase, self).tearDown()
+
+    def load_backends(self):
+        self.config(self.config_files())
+
+        self.setup_database()
+
+        # ensure the cache region instance is setup
+        cache.configure_cache_region(cache.REGION)
+
+        super(RestfulTestCase, self).load_backends()
+
+    def load_fixtures(self, fixtures):
+        self.load_sample_data()
+
+    def load_sample_data(self):
+        self.domain_id = uuid.uuid4().hex
+        self.domain = self.new_domain_ref()
+        self.domain['id'] = self.domain_id
+        self.assignment_api.create_domain(self.domain_id, self.domain)
+
+        self.project_id = uuid.uuid4().hex
+        self.project = self.new_project_ref(
+            domain_id=self.domain_id)
+        self.project['id'] = self.project_id
+        self.assignment_api.create_project(self.project_id, self.project)
+
+        self.user_id = uuid.uuid4().hex
+        self.user = self.new_user_ref(domain_id=self.domain_id)
+        self.user['id'] = self.user_id
+        self.identity_api.create_user(self.user_id, self.user)
+
+        self.default_domain_project_id = uuid.uuid4().hex
+        self.default_domain_project = self.new_project_ref(
+            domain_id=DEFAULT_DOMAIN_ID)
+        self.default_domain_project['id'] = self.default_domain_project_id
+        self.assignment_api.create_project(self.default_domain_project_id,
+                                           self.default_domain_project)
+
+        self.default_domain_user_id = uuid.uuid4().hex
+        self.default_domain_user = self.new_user_ref(
+            domain_id=DEFAULT_DOMAIN_ID)
+        self.default_domain_user['id'] = self.default_domain_user_id
+        self.identity_api.create_user(self.default_domain_user_id,
+                                      self.default_domain_user)
+
+        # create & grant policy.json's default role for admin_required
+        self.role_id = uuid.uuid4().hex
+        self.role = self.new_role_ref()
+        self.role['id'] = self.role_id
+        self.role['name'] = 'admin'
+        self.assignment_api.create_role(self.role_id, self.role)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_id, self.project_id, self.role_id)
+        self.assignment_api.add_role_to_user_and_project(
+            self.default_domain_user_id, self.default_domain_project_id,
+            self.role_id)
+        self.assignment_api.add_role_to_user_and_project(
+            self.default_domain_user_id, self.project_id,
+            self.role_id)
+
+        self.service_id = uuid.uuid4().hex
+        self.service = self.new_service_ref()
+        self.service['id'] = self.service_id
+        self.catalog_api.create_service(
+            self.service_id,
+            self.service.copy())
+
+        self.endpoint_id = uuid.uuid4().hex
+        self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
+        self.endpoint['id'] = self.endpoint_id
+        self.catalog_api.create_endpoint(
+            self.endpoint_id,
+            self.endpoint.copy())
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
