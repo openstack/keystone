@@ -79,7 +79,6 @@ TMPDIR = os.path.join(TESTSDIR, 'tmp')
 
 CONF = config.CONF
 
-cd = os.chdir
 exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
 
 
@@ -117,7 +116,7 @@ def checkout_vendor(repo, rev):
         if not os.path.exists(revdir):
             utils.git('clone', repo, revdir)
 
-        cd(revdir)
+        os.chdir(revdir)
         utils.git('checkout', '-q', 'master')
         utils.git('pull', '-q')
         utils.git('checkout', '-q', rev)
@@ -127,7 +126,7 @@ def checkout_vendor(repo, rev):
             fd.write('1')
     except environment.subprocess.CalledProcessError:
         LOG.warning(_('Failed to checkout %s'), repo)
-    cd(working_dir)
+    os.chdir(working_dir)
     return revdir
 
 
