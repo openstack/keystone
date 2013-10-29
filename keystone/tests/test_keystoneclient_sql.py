@@ -183,6 +183,24 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
         self.assertEquals(creds, [])
 
+    def test_ec2_credential_crud_non_admin(self):
+        na_client = self.get_client(self.user_two)
+        creds = na_client.ec2.list(user_id=self.user_two['id'])
+        self.assertEqual(creds, [])
+
+        cred = na_client.ec2.create(user_id=self.user_two['id'],
+                                    tenant_id=self.tenant_baz['id'])
+        creds = na_client.ec2.list(user_id=self.user_two['id'])
+        self.assertEqual(creds, [cred])
+        got = na_client.ec2.get(user_id=self.user_two['id'],
+                                access=cred.access)
+        self.assertEqual(cred, got)
+
+        na_client.ec2.delete(user_id=self.user_two['id'],
+                             access=cred.access)
+        creds = na_client.ec2.list(user_id=self.user_two['id'])
+        self.assertEqual(creds, [])
+
     def test_ec2_list_credentials(self):
         cred_1 = self.default_client.ec2.create(
             user_id=self.user_foo['id'],

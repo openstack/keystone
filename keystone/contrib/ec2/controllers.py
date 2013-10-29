@@ -280,7 +280,8 @@ class Ec2Controller(controller.V2Controller):
         :raises exception.Forbidden: on failure
 
         """
-        cred_ref = self.credential_api.get_credential(credential_id)
+        ec2_credential_id = utils.hash_access_key(credential_id)
+        cred_ref = self.credential_api.get_credential(ec2_credential_id)
         if user_id != cred_ref['user_id']:
             raise exception.Forbidden(_('Credential belongs to another user'))
 
