@@ -47,31 +47,31 @@ class DebugProxy(proxy.ProxyBackend):
 
     def get(self, key):
         value = self.proxied.get(key)
-        msg = _('CACHE_GET: Key: "%(key)s" Value: "%(value)s"')
-        LOG.debug(msg % {'key': repr(key), 'value': repr(value)})
+        LOG.debug(_('CACHE_GET: Key: "%(key)r" Value: "%(value)r"'),
+                  {'key': key, 'value': value})
         return value
 
     def get_multi(self, keys):
         values = self.proxied.get_multi(keys)
-        msg = _('CACHE_GET_MULTI: "%(keys)s" Values: "%(values)s"')
-        LOG.debug(msg % {'keys': repr(keys), 'values': repr(values)})
+        LOG.debug(_('CACHE_GET_MULTI: "%(keys)r" Values: "%(values)r"'),
+                  {'keys': keys, 'values': values})
         return values
 
     def set(self, key, value):
-        msg = _('CACHE_SET: Key: "%(key)s" Value: "%(value)s"')
-        LOG.debug(msg % {'key': repr(key), 'value': repr(value)})
+        LOG.debug(_('CACHE_SET: Key: "%(key)r" Value: "%(value)r"'),
+                  {'key': key, 'value': value})
         return self.proxied.set(key, value)
 
     def set_multi(self, keys):
-        LOG.debug(_('CACHE_SET_MULTI: "%s"') % repr(keys))
+        LOG.debug(_('CACHE_SET_MULTI: "%r"'), keys)
         self.proxied.set_multi(keys)
 
     def delete(self, key):
         self.proxied.delete(key)
-        LOG.debug(_('CACHE_DELETE: "%s"') % repr(key))
+        LOG.debug(_('CACHE_DELETE: "%r"'), key)
 
     def delete_multi(self, keys):
-        LOG.debug(_('CACHE_DELETE_MULTI: "%s"') % repr(keys))
+        LOG.debug(_('CACHE_DELETE_MULTI: "%r"'), keys)
         self.proxied.delete_multi(keys)
 
 
@@ -145,7 +145,7 @@ def configure_cache_region(region):
             # ProxyBackends work, see the dogpile.cache documents on
             # "changing-backend-behavior"
             cls = importutils.import_class(class_path)
-            LOG.debug(_('Adding cache-proxy \'%s\' to backend.') % class_path)
+            LOG.debug(_("Adding cache-proxy '%s' to backend."), class_path)
             region.wrap(cls)
 
     return region

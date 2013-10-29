@@ -30,7 +30,7 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):
-    LOG.debug(_('RBAC: Authorizing %(action)s(%(kwargs)s)') % {
+    LOG.debug(_('RBAC: Authorizing %(action)s(%(kwargs)s)'), {
         'action': action,
         'kwargs': ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])})
 
@@ -184,7 +184,7 @@ def filterprotected(*filters):
                         if item in context['query_string']:
                             target[item] = context['query_string'][item]
 
-                    LOG.debug(_('RBAC: Adding query filter params (%s)') % (
+                    LOG.debug(_('RBAC: Adding query filter params (%s)'), (
                         ', '.join(['%s=%s' % (item, target[item])
                                   for item in target])))
 
@@ -262,11 +262,10 @@ class V2Controller(wsgi.Application):
                         target = _('Domain (%s)') % assignment['domain_id']
                     else:
                         target = _('Unknown Target')
-                    msg = (_('Group (%(group)s), referenced in assignment '
-                             'for %(target)s, not found - ignoring.') % {
-                                 'group': assignment['group_id'],
-                                 'target': target})
-                    LOG.debug(msg)
+                    msg = _('Group (%(group)s), referenced in assignment '
+                            'for %(target)s, not found - ignoring.')
+                    LOG.debug(msg, {'group': assignment['group_id'],
+                                    'target': target})
                     continue
 
                 if 'project_id' in assignment:

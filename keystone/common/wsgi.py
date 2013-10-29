@@ -235,7 +235,7 @@ class Application(BaseApplication):
             result = method(context, **params)
         except exception.Unauthorized as e:
             LOG.warning(
-                _('Authorization failed. %(exception)s from %(remote_addr)s') %
+                _('Authorization failed. %(exception)s from %(remote_addr)s'),
                 {'exception': e, 'remote_addr': req.environ['REMOTE_ADDR']})
             return render_exception(e, user_locale=req.best_match_language())
         except exception.Error as e:

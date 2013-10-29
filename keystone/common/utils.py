@@ -73,7 +73,7 @@ def trunc_password(password):
     try:
         if len(password) > max_length:
             LOG.warning(
-                _('Truncating user password to %s characters.') % max_length)
+                _('Truncating user password to %s characters.'), max_length)
         return password[:max_length]
     except TypeError:
         raise exception.ValidationError(attribute='string', target='password')

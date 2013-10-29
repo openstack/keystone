@@ -97,7 +97,7 @@ def enforce(credentials, action, target, do_raise=True):
 
 class Policy(policy.Driver):
     def enforce(self, credentials, action, target):
-        LOG.debug(_('enforce %(action)s: %(credentials)s') % {
+        LOG.debug(_('enforce %(action)s: %(credentials)s'), {
             'action': action,
             'credentials': credentials})
         enforce(credentials, action, target)

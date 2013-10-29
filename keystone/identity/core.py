@@ -91,9 +91,9 @@ class DomainConfigs(dict):
         try:
             domain_ref = assignment_api.get_domain_by_name(domain_name)
         except exception.DomainNotFound:
-            msg = (_('Invalid domain name (%s) found in config file name')
-                   % domain_name)
-            LOG.warning(msg)
+            LOG.warning(
+                _('Invalid domain name (%s) found in config file name'),
+                domain_name)
 
         if domain_ref:
             # Create a new entry in the domain config dict, which contains
@@ -116,8 +116,8 @@ class DomainConfigs(dict):
 
         conf_dir = CONF.identity.domain_config_dir
         if not os.path.exists(conf_dir):
-            msg = _('Unable to locate domain config directory: %s') % conf_dir
-            LOG.warning(msg)
+            LOG.warning(_('Unable to locate domain config directory: %s'),
+                        conf_dir)
             return
 
         for r, d, f in os.walk(conf_dir):
@@ -129,9 +129,9 @@ class DomainConfigs(dict):
                                           [os.path.join(r, fname)],
                                           names[1])
                     else:
-                        msg = (_('Ignoring file (%s) while scanning domain '
-                                 'config directory') % fname)
-                        LOG.debug(msg)
+                        LOG.debug(_('Ignoring file (%s) while scanning domain '
+                                    'config directory'),
+                                  fname)
 
     def get_domain_driver(self, domain_id):
         if domain_id in self:
