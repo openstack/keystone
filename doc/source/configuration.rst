@@ -620,7 +620,7 @@ Inherited Role Assignment Extension
 
 Keystone provides an optional extension that adds the capability to assign roles to a domain that, rather than
 affect the domain itself, are instead inherited to all projects owned by theat domain.  This extension is disabled by
-default, but can be enabled by including the following in ``keystone.conf``.
+default, but can be enabled by including the following in ``keystone.conf``::
 
     [os_inherit]
     enabled = True
