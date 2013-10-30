@@ -18,6 +18,7 @@
 import logging
 import os
 import signal
+import socket
 import sys
 
 # If ../keystone/__init__.py exists, add ../ to Python search path, so that
@@ -56,7 +57,7 @@ def create_server(conf, name, host, port):
     if CONF.ssl.enable:
         server.set_ssl(CONF.ssl.certfile, CONF.ssl.keyfile,
                        CONF.ssl.ca_certs, CONF.ssl.cert_required)
-    return server
+    return name, server
 
 
 def sigint_handler(signal, frame):
@@ -68,8 +69,13 @@ def sigint_handler(signal, frame):
 def serve(*servers):
     signal.signal(signal.SIGINT, sigint_handler)
 
-    for server in servers:
-        server.start()
+    for name, server in servers:
+        try:
+            server.start()
+        except socket.error:
+            logging.exception(_('Failed to start the %(name)s server') % {
+                'name': name})
+            raise
 
     # notify calling process we are ready to serve
     if CONF.onready:
@@ -82,7 +88,7 @@ def serve(*servers):
             except Exception:
                 logging.exception('Failed to execute onready command')
 
-    for server in servers:
+    for name, server in servers:
         server.wait()
 
 
