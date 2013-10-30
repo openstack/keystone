@@ -234,9 +234,15 @@ class User(controller.V2Controller):
         old_user_ref = self.identity_api.v3_to_v2_user(
             self.identity_api.get_user(user_id))
 
-        if ('tenantId' in old_user_ref and
+        # Check whether a tenant is being added or changed for the user.
+        # Catch the case where the tenant is being changed for a user and also
+        # where a user previously had no tenant but a tenant is now being
+        # added for the user.
+        if (('tenantId' in old_user_ref and
                 old_user_ref['tenantId'] != default_project_id and
-                default_project_id is not None):
+                default_project_id is not None) or
+            ('tenantId' not in old_user_ref and
+                default_project_id is not None)):
             # Make sure the new project actually exists before we perform the
             # user update.
             self.assignment_api.get_project(default_project_id)

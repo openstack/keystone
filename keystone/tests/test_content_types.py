@@ -538,6 +538,38 @@ class CoreApiTests(object):
             token=token,
             expected_status=404)
 
+    def test_update_user_with_invalid_tenant_no_prev_tenant(self):
+        token = self.get_scoped_token()
+
+        # Create a new user
+        r = self.admin_request(
+            method='POST',
+            path='/v2.0/users',
+            body={
+                'user': {
+                    'name': 'test_invalid_tenant',
+                    'password': uuid.uuid4().hex,
+                    'enabled': True,
+                },
+            },
+            token=token,
+            expected_status=200)
+        user_id = self._get_user_id(r.result)
+
+        # Update user with an invalid tenant
+        r = self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%(user_id)s' % {
+                'user_id': user_id,
+            },
+            body={
+                'user': {
+                    'tenantId': 'abcde12345heha',
+                },
+            },
+            token=token,
+            expected_status=404)
+
     def test_update_user_with_old_tenant(self):
         token = self.get_scoped_token()
 
