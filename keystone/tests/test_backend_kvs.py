@@ -75,6 +75,20 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
             exception.GroupNotFound,
             super(KvsIdentity, self).test_delete_group_grant_no_group)
 
+    def test_create_grant_no_user(self):
+        # If call create_grant on KVS backend with a user that doesn't exist,
+        # raises UserNotFound.
+        # The behavior is different depending on the backend, see bug #1239476.
+        self.assertRaises(exception.UserNotFound,
+                          super(KvsIdentity, self).test_create_grant_no_user)
+
+    def test_create_grant_no_group(self):
+        # If call create_grant on KVS backend with a group that doesn't exist,
+        # raises GroupNotFound.
+        # The behavior is different depending on the backend, see bug #1239476.
+        self.assertRaises(exception.GroupNotFound,
+                          super(KvsIdentity, self).test_create_grant_no_group)
+
 
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):

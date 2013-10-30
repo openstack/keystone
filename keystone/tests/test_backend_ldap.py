@@ -894,6 +894,18 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
         self.skipTest(
             'N/A: LDAP does not support multiple domains')
 
+    def test_create_grant_no_user(self):
+        # The LDAP assignment backend doesn't implement create_grant.
+        self.assertRaises(
+            exception.NotImplemented,
+            super(BaseLDAPIdentity, self).test_create_grant_no_user)
+
+    def test_create_grant_no_group(self):
+        # The LDAP assignment backend doesn't implement create_grant.
+        self.assertRaises(
+            exception.NotImplemented,
+            super(BaseLDAPIdentity, self).test_create_grant_no_group)
+
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):
