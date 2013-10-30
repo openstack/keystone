@@ -20,7 +20,6 @@ import testtools
 from keystone.contrib import endpoint_filter
 from keystone.contrib import oauth1
 from keystone import exception
-from keystone import policy
 
 
 class TestDrivers(testtools.TestCase):
@@ -48,10 +47,6 @@ class TestDrivers(testtools.TestCase):
             method = getattr(interface, name)
             if name[0] != '_' and callable(method):
                 self.assertMethodNotImplemented(method)
-
-    def test_policy_driver_unimplemented(self):
-        interface = policy.Driver()
-        self.assertInterfaceNotImplemented(interface)
 
     def test_oauth1_driver_unimplemented(self):
         interface = oauth1.Driver()

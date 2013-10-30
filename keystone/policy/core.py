@@ -16,6 +16,9 @@
 
 """Main entry point into the Policy service."""
 
+import abc
+
+import six
 
 from keystone.common import dependency
 from keystone.common import manager
@@ -59,7 +62,10 @@ class Manager(manager.Manager):
             raise exception.PolicyNotFound(policy_id=policy_id)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
+
+    @abc.abstractmethod
     def enforce(self, context, credentials, action, target):
         """Verify that a user is authorized to perform action.
 
@@ -68,6 +74,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def create_policy(self, policy_id, policy):
         """Store a policy blob.
 
@@ -76,10 +83,12 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_policies(self):
         """List all policies."""
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def get_policy(self, policy_id):
         """Retrieve a specific policy blob.
 
@@ -88,6 +97,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def update_policy(self, policy_id, policy):
         """Update a policy blob.
 
@@ -96,6 +106,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def delete_policy(self, policy_id):
         """Remove a policy blob.
 
