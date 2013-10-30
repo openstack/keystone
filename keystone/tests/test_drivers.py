@@ -21,7 +21,6 @@ from keystone.contrib import endpoint_filter
 from keystone.contrib import oauth1
 from keystone import exception
 from keystone import policy
-from keystone import token
 
 
 class TestDrivers(testtools.TestCase):
@@ -52,10 +51,6 @@ class TestDrivers(testtools.TestCase):
 
     def test_policy_driver_unimplemented(self):
         interface = policy.Driver()
-        self.assertInterfaceNotImplemented(interface)
-
-    def test_token_driver_unimplemented(self):
-        interface = token.Driver()
         self.assertInterfaceNotImplemented(interface)
 
     def test_oauth1_driver_unimplemented(self):

@@ -178,6 +178,15 @@ class Token(token.Driver):
         self._add_to_revocation_list(data)
         return result
 
+    def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
+                      consumer_id=None):
+        return super(Token, self).delete_tokens(
+            user_id=user_id,
+            tenant_id=tenant_id,
+            trust_id=trust_id,
+            consumer_id=consumer_id,
+        )
+
     def list_tokens(self, user_id, tenant_id=None, trust_id=None,
                     consumer_id=None):
         tokens = []
@@ -216,3 +225,8 @@ class Token(token.Driver):
         if list_json:
             return jsonutils.loads('[%s]' % list_json)
         return []
+
+    def flush_expired_tokens(self):
+        """Archive or delete tokens that have expired.
+        """
+        raise exception.NotImplemented()
