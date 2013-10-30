@@ -30,7 +30,7 @@ OPENSTACK_REPO = 'https://review.openstack.org/p/openstack'
 KEYSTONECLIENT_REPO = '%s/python-keystoneclient.git' % OPENSTACK_REPO
 
 
-class CompatTestCase(tests.TestCase):
+class CompatTestCase(tests.NoModule, tests.TestCase):
     def setUp(self):
         super(CompatTestCase, self).setUp()
 
