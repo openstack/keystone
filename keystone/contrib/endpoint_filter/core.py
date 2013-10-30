@@ -14,6 +14,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import abc
+
+import six
 
 from keystone.common import dependency
 from keystone.common import extension
@@ -59,9 +62,11 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.endpoint_filter.driver)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     """Interface description for an Endpoint Filter driver."""
 
+    @abc.abstractmethod
     def add_endpoint_to_project(self, endpoint_id, project_id):
         """Creates an endpoint to project association.
 
@@ -75,6 +80,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def remove_endpoint_from_project(self, endpoint_id, project_id):
         """Removes an endpoint to project association.
 
@@ -88,6 +94,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def check_endpoint_in_project(self, endpoint_id, project_id):
         """Checks if an endpoint is associated with a project.
 
@@ -101,6 +108,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_endpoints_for_project(self, project_id):
         """List all endpoints associated with a project.
 
@@ -111,6 +119,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def list_projects_for_endpoint(self, endpoint_id):
         """List all projects associated with an endpoint.
 
