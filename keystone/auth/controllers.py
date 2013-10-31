@@ -94,9 +94,10 @@ class AuthInfo(object):
                                             target='domain')
         try:
             if domain_name:
-                domain_ref = self.identity_api.get_domain_by_name(domain_name)
+                domain_ref = self.assignment_api.get_domain_by_name(
+                    domain_name)
             else:
-                domain_ref = self.identity_api.get_domain(domain_id)
+                domain_ref = self.assignment_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)

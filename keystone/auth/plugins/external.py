@@ -87,7 +87,7 @@ class Domain(Base):
         username = names.pop(0)
         if names:
             domain_name = names[0]
-            domain_ref = (auth_info.identity_api.
+            domain_ref = (auth_info.assignment_api.
                           get_domain_by_name(domain_name))
             domain_id = domain_ref['id']
         else:

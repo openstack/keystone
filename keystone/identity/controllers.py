@@ -605,16 +605,6 @@ class DomainV3(controller.V3Controller):
         self._delete_domain_contents(context, domain_id)
         return self.assignment_api.delete_domain(domain_id)
 
-    def _get_domain_by_name(self, context, domain_name):
-        """Get the domain via its unique name.
-
-        For use by token authentication - not for hooking to the identity
-        router as a public api.
-
-        """
-        ref = self.assignment_api.get_domain_by_name(domain_name)
-        return {'domain': ref}
-
 
 class ProjectV3(controller.V3Controller):
     collection_name = 'projects'
