@@ -24,9 +24,7 @@ import sys
 import time
 
 from lxml import etree
-import mox
 from paste import deploy
-import stubout
 import testtools
 
 
@@ -82,6 +80,7 @@ TMPDIR = os.path.join(TESTSDIR, 'tmp')
 CONF = config.CONF
 
 cd = os.chdir
+exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
 
 
 def rootdir(*p):
@@ -259,10 +258,7 @@ class TestCase(testtools.TestCase):
                      testsdir('test_overrides.conf')])
         # ensure the cache region instance is setup
         cache.configure_cache_region(cache.REGION)
-        self.mox = mox.Mox()
         self.opt(policy_file=etcdir('policy.json'))
-        self.stubs = stubout.StubOutForTesting()
-        self.stubs.Set(exception, '_FATAL_EXCEPTION_FORMAT_ERRORS', True)
 
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
@@ -270,10 +266,6 @@ class TestCase(testtools.TestCase):
     def tearDown(self):
         try:
             timeutils.clear_time_override()
-            self.mox.UnsetStubs()
-            self.stubs.UnsetAll()
-            self.stubs.SmartUnsetAll()
-            self.mox.VerifyAll()
             # NOTE(morganfainberg):  The only way to reconfigure the
             # CacheRegion object on each setUp() call is to remove the
             # .backend property.

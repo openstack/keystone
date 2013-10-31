@@ -21,6 +21,7 @@ import gettext
 
 from keystone.common import wsgi
 from keystone import exception
+from keystone.openstack.common.fixture import moxstubout
 from keystone.openstack.common import gettextutils
 from keystone.openstack.common import jsonutils
 from keystone import tests
@@ -223,6 +224,9 @@ class LocalizedResponseTest(tests.TestCase):
     def setUp(self):
         super(LocalizedResponseTest, self).setUp()
         gettextutils._AVAILABLE_LANGUAGES.clear()
+
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.stubs = fixture.stubs
 
     def tearDown(self):
         gettextutils._AVAILABLE_LANGUAGES.clear()
