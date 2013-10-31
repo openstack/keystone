@@ -1157,8 +1157,7 @@ class IdentityTests(object):
         self.assertDictEqual(roles_ref[0], role2)
 
     def test_delete_user_grant_no_user(self):
-        # If delete grant and the user doesn't exist then fails with
-        # UserNotFound.
+        # Can delete a grant where the user doesn't exist.
         role_id = uuid.uuid4().hex
         role = {'id': role_id, 'name': uuid.uuid4().hex}
         self.assignment_api.create_role(role_id, role)
@@ -1168,14 +1167,11 @@ class IdentityTests(object):
         self.assignment_api.create_grant(role_id, user_id=user_id,
                                          project_id=self.tenant_bar['id'])
 
-        self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.delete_grant,
-                          role_id, user_id=user_id,
-                          project_id=self.tenant_bar['id'])
+        self.assignment_api.delete_grant(role_id, user_id=user_id,
+                                         project_id=self.tenant_bar['id'])
 
     def test_delete_group_grant_no_group(self):
-        # If delete grant and the group doesn't exist then fails with
-        # GroupNotFound.
+        # Can delete a grant where the group doesn't exist.
         role_id = uuid.uuid4().hex
         role = {'id': role_id, 'name': uuid.uuid4().hex}
         self.assignment_api.create_role(role_id, role)
@@ -1185,10 +1181,8 @@ class IdentityTests(object):
         self.assignment_api.create_grant(role_id, group_id=group_id,
                                          project_id=self.tenant_bar['id'])
 
-        self.assertRaises(exception.GroupNotFound,
-                          self.assignment_api.delete_grant,
-                          role_id, group_id=group_id,
-                          project_id=self.tenant_bar['id'])
+        self.assignment_api.delete_grant(role_id, group_id=group_id,
+                                         project_id=self.tenant_bar['id'])
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         role_list = []

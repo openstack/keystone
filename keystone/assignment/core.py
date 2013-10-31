@@ -469,11 +469,9 @@ class Driver(object):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        """Lists assignments/grants.
+        """Deletes assignments/grants.
 
-        :raises: keystone.exception.UserNotFound,
-                 keystone.exception.GroupNotFound,
-                 keystone.exception.ProjectNotFound,
+        :raises: keystone.exception.ProjectNotFound,
                  keystone.exception.DomainNotFound,
                  keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
