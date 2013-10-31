@@ -425,7 +425,6 @@ class Driver(object):
 
         :raises: keystone.exception.UserNotFound,
                  keystone.exception.GroupNotFound,
-                 keystone.exception.ProjectNotFound,
                  keystone.exception.DomainNotFound,
                  keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
@@ -443,7 +442,6 @@ class Driver(object):
                  keystone.exception.GroupNotFound,
                  keystone.exception.ProjectNotFound,
                  keystone.exception.DomainNotFound,
-                 keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
 
         """
@@ -459,7 +457,6 @@ class Driver(object):
                  keystone.exception.GroupNotFound,
                  keystone.exception.ProjectNotFound,
                  keystone.exception.DomainNotFound,
-                 keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
 
         """
@@ -473,7 +470,6 @@ class Driver(object):
 
         :raises: keystone.exception.ProjectNotFound,
                  keystone.exception.DomainNotFound,
-                 keystone.exception.ProjectNotFound,
                  keystone.exception.RoleNotFound
 
         """
