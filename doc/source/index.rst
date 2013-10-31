@@ -68,6 +68,7 @@ Developers Documentation
    apache-httpd
    external-auth
    event_notifications
+   EXTENSIONS_HOWTO
 
 Code Documentation
 ==================
