@@ -14,6 +14,7 @@ python-ldap==2.3.13
 # computes code coverage percentages
 coverage
 # mock object framework
+mock>=1.0
 mox
 # required to build documentation
 Sphinx>=1.1.2
