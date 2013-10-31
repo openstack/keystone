@@ -71,7 +71,7 @@ class ConsumerCrudV3(controller.V3Controller):
             raise exception.ValidationError(message=msg)
 
 
-@dependency.requires('oauth_api')
+@dependency.requires('oauth_api', 'token_api')
 class AccessTokenCrudV3(controller.V3Controller):
     collection_name = 'access_tokens'
     member_name = 'access_token'
@@ -120,7 +120,7 @@ class AccessTokenCrudV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('oauth_api', 'assignment_api')
+@dependency.requires('assignment_api', 'oauth_api')
 class AccessTokenRolesV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'
@@ -159,8 +159,7 @@ class AccessTokenRolesV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('oauth_api', 'token_api', 'identity_api',
-                     'token_provider_api', 'assignment_api')
+@dependency.requires('assignment_api', 'oauth_api', 'token_api')
 class OAuthControllerV3(controller.V3Controller):
     collection_name = 'not_used'
     member_name = 'not_used'

@@ -202,9 +202,8 @@ def filterprotected(*filters):
     return _filterprotected
 
 
-@dependency.requires('identity_api', 'policy_api', 'token_api',
-                     'trust_api', 'catalog_api', 'credential_api',
-                     'assignment_api')
+@dependency.requires('assignment_api', 'identity_api', 'policy_api',
+                     'token_api', 'trust_api')
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
 
@@ -314,6 +313,7 @@ class V2Controller(wsgi.Application):
         return ref
 
 
+@dependency.requires('identity_api', 'policy_api', 'token_api')
 class V3Controller(V2Controller):
     """Base controller class for Identity API v3.
 

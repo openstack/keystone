@@ -15,6 +15,7 @@
 # under the License.
 
 from keystone import auth
+from keystone.common import dependency
 from keystone import exception
 from keystone import identity
 from keystone.openstack.common import log as logging
@@ -97,6 +98,7 @@ class UserAuthInfo(object):
         self.domain_id = domain_ref['id']
 
 
+@dependency.requires('identity_api')
 class Password(auth.AuthMethodHandler):
     def authenticate(self, context, auth_payload, user_context):
         """Try to authenticate against the identity backend."""

@@ -37,7 +37,8 @@ class ExternalAuthNotApplicable(Exception):
     pass
 
 
-@dependency.requires('token_provider_api')
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+                     'token_api', 'token_provider_api', 'trust_api')
 class Auth(controller.V2Controller):
     def ca_cert(self, context, auth=None):
         ca_file = open(CONF.signing.ca_certs, 'r')

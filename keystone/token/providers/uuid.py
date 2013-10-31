@@ -36,7 +36,6 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'identity_api')
 class V2TokenDataHelper(object):
     """Creates V2 token data."""
     @classmethod
@@ -132,7 +131,8 @@ class V2TokenDataHelper(object):
         return services.values()
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'identity_api')
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+                     'trust_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
     def __init__(self):
@@ -330,7 +330,7 @@ class V3TokenDataHelper(object):
 
 @dependency.optional('oauth_api')
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'token_api')
+                     'token_api', 'trust_api')
 class Provider(token.provider.Provider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)

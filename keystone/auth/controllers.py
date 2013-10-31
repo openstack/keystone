@@ -272,7 +272,7 @@ class AuthInfo(object):
         self._scope_data = (domain_id, project_id, trust)
 
 
-@dependency.requires('token_provider_api')
+@dependency.requires('identity_api', 'token_provider_api')
 class Auth(controller.V3Controller):
     def __init__(self, *args, **kw):
         super(Auth, self).__init__(*args, **kw)

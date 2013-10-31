@@ -18,9 +18,11 @@ import hashlib
 import json
 
 from keystone.common import controller
+from keystone.common import dependency
 from keystone import exception
 
 
+@dependency.requires('credential_api')
 class CredentialV3(controller.V3Controller):
     collection_name = 'credentials'
     member_name = 'credential'
