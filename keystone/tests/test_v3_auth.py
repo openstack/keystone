@@ -39,7 +39,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
         auth_data = {'identity': {}}
         auth_data['identity']['token'] = {'id': uuid.uuid4().hex}
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo,
+                          auth.controllers.AuthInfo.create,
                           None,
                           auth_data)
 
@@ -48,7 +48,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
         auth_data['abc'] = {'test': 'test'}
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
-                          auth.controllers.AuthInfo,
+                          auth.controllers.AuthInfo.create,
                           None,
                           auth_data)
 
@@ -56,7 +56,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
         auth_data = {'methods': ['password']}
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo,
+                          auth.controllers.AuthInfo.create,
                           None,
                           auth_data)
 
@@ -66,7 +66,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
             password='test',
             project_name='abc')['auth']
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo,
+                          auth.controllers.AuthInfo.create,
                           None,
                           auth_data)
 
@@ -77,7 +77,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
             project_name='test',
             domain_name='test')['auth']
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo,
+                          auth.controllers.AuthInfo.create,
                           None,
                           auth_data)
 
@@ -86,7 +86,7 @@ class TestAuthInfo(test_v3.RestfulTestCase):
             user_id='test',
             password='test')['auth']
         context = None
-        auth_info = auth.controllers.AuthInfo(context, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(context, auth_data)
 
         method_name = uuid.uuid4().hex
         self.assertRaises(exception.ValidationError,
