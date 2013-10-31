@@ -21,6 +21,7 @@ import urllib2
 
 from keystone import config
 from keystone import exception
+from keystone.openstack.common.fixture import moxstubout
 from keystone.openstack.common import policy as common_policy
 from keystone.policy.backends import rules
 from keystone import tests
@@ -80,6 +81,9 @@ class PolicyTestCase(tests.TestCase):
         self._set_rules()
         self.credentials = {}
         self.target = {}
+
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.stubs = fixture.stubs
 
     def _set_rules(self):
         these_rules = common_policy.Rules(

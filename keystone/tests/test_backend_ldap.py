@@ -27,6 +27,7 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import fakeldap
@@ -352,6 +353,10 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
         common_ldap.register_handler('fake://', fakeldap.FakeLdap)
         self.load_backends()
         self.load_fixtures(default_fixtures)
+
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.mox = fixture.mox
+        self.stubs = fixture.stubs
 
     def test_configurable_allowed_project_actions(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}

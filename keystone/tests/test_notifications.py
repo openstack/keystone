@@ -17,6 +17,7 @@
 import uuid
 
 from keystone import notifications
+from keystone.openstack.common.fixture import moxstubout
 from keystone.openstack.common.notifier import api as notifier_api
 from keystone import tests
 from keystone.tests import test_v3
@@ -44,6 +45,9 @@ class NotificationsWrapperTestCase(tests.TestCase):
             self.assertEqual(self.exp_resource_id, resource_id)
             self.assertEqual(self.exp_host, host)
             self.send_notification_called = True
+
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.stubs = fixture.stubs
 
         self.stubs.Set(notifications, '_send_notification', fake_notify)
 
@@ -118,6 +122,11 @@ class NotificationsWrapperTestCase(tests.TestCase):
 
 
 class NotificationsTestCase(tests.TestCase):
+    def setUp(self):
+        super(NotificationsTestCase, self).setUp()
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.stubs = fixture.stubs
+
     def test_send_notification(self):
         """Test the private method _send_notification to ensure event_type,
            payload, and context are built and passed properly.
@@ -162,6 +171,9 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
             self.exp_operation = operation
             self.exp_resource_type = resource_type
             self.send_notification_called = True
+
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.stubs = fixture.stubs
 
         self.stubs.Set(notifications, '_send_notification', fake_notify)
 
