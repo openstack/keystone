@@ -120,7 +120,7 @@ class Auth(controller.V2Controller):
 
         roles_ref = []
         for role_id in metadata_ref.get('roles', []):
-            role_ref = self.identity_api.get_role(role_id)
+            role_ref = self.assignment_api.get_role(role_id)
             roles_ref.append(dict(name=role_ref['name']))
 
         (token_id, token_data) = self.token_provider_api.issue_v2_token(
@@ -331,7 +331,7 @@ class Auth(controller.V2Controller):
 
         if tenant_name:
             try:
-                tenant_ref = self.identity_api.get_project_by_name(
+                tenant_ref = self.assignment_api.get_project_by_name(
                     tenant_name, DEFAULT_DOMAIN_ID)
                 tenant_id = tenant_ref['id']
             except exception.ProjectNotFound as e:
@@ -364,8 +364,8 @@ class Auth(controller.V2Controller):
         role_list = []
         if tenant_id:
             try:
-                tenant_ref = self.identity_api.get_project(tenant_id)
-                role_list = self.identity_api.get_roles_for_user_and_project(
+                tenant_ref = self.assignment_api.get_project(tenant_id)
+                role_list = self.assignment_api.get_roles_for_user_and_project(
                     user_id, tenant_id)
             except exception.ProjectNotFound:
                 pass

@@ -507,9 +507,9 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         credentials = urlparse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
 
-        self.identity_api.remove_role_from_user_and_project(self.user_id,
-                                                            self.project_id,
-                                                            self.role_id)
+        self.assignment_api.remove_role_from_user_and_project(self.user_id,
+                                                              self.project_id,
+                                                              self.role_id)
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
         self.admin_request(path=url, method='PUT',

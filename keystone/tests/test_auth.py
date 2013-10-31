@@ -230,7 +230,7 @@ class AuthWithToken(AuthTest):
     def test_auth_unscoped_token_project(self):
         """Verify getting a token in a tenant with an unscoped token."""
         # Add a role in so we can check we get this back
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_member['id'])
@@ -253,19 +253,19 @@ class AuthWithToken(AuthTest):
     def test_auth_token_project_group_role(self):
         """Verify getting a token in a tenant with group roles."""
         # Add a v2 style role in so we can check we get this back
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_member['id'])
         # Now create a group role for this user as well
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.identity_api.create_domain(domain1['id'], domain1)
+        self.assignment_api.create_domain(domain1['id'], domain1)
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
                      'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
         self.identity_api.add_user_to_group(self.user_foo['id'],
                                             new_group['id'])
-        self.identity_api.create_grant(
+        self.assignment_api.create_grant(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'],
             role_id=self.role_admin['id'])
@@ -288,38 +288,38 @@ class AuthWithToken(AuthTest):
         """Verify getting a token in cross domain group/project roles."""
         # create domain, project and group and grant roles to user
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.identity_api.create_domain(domain1['id'], domain1)
+        self.assignment_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
         self.assignment_api.create_project(project1['id'], project1)
         role_foo_domain1 = {'id': uuid.uuid4().hex,
                             'name': uuid.uuid4().hex}
-        self.identity_api.create_role(role_foo_domain1['id'],
-                                      role_foo_domain1)
+        self.assignment_api.create_role(role_foo_domain1['id'],
+                                        role_foo_domain1)
         role_group_domain1 = {'id': uuid.uuid4().hex,
                               'name': uuid.uuid4().hex}
-        self.identity_api.create_role(role_group_domain1['id'],
-                                      role_group_domain1)
-        self.identity_api.add_user_to_project(project1['id'],
-                                              self.user_foo['id'])
+        self.assignment_api.create_role(role_group_domain1['id'],
+                                        role_group_domain1)
+        self.assignment_api.add_user_to_project(project1['id'],
+                                                self.user_foo['id'])
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
                      'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
         self.identity_api.add_user_to_group(self.user_foo['id'],
                                             new_group['id'])
-        self.identity_api.create_grant(
+        self.assignment_api.create_grant(
             user_id=self.user_foo['id'],
             project_id=project1['id'],
             role_id=self.role_member['id'])
-        self.identity_api.create_grant(
+        self.assignment_api.create_grant(
             group_id=new_group['id'],
             project_id=project1['id'],
             role_id=self.role_admin['id'])
-        self.identity_api.create_grant(
+        self.assignment_api.create_grant(
             user_id=self.user_foo['id'],
             domain_id=domain1['id'],
             role_id=role_foo_domain1['id'])
-        self.identity_api.create_grant(
+        self.assignment_api.create_grant(
             group_id=new_group['id'],
             domain_id=domain1['id'],
             role_id=role_group_domain1['id'])
@@ -410,7 +410,7 @@ class AuthWithToken(AuthTest):
         self.assignment_api.create_project(project1['id'], project1)
         role_one = {'id': 'role_one', 'name': uuid.uuid4().hex}
         self.assignment_api.create_role(role_one['id'], role_one)
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project1['id'], role_one['id'])
         no_context = {}
 
@@ -597,7 +597,7 @@ class AuthWithTrust(AuthTest):
         self.assigned_roles = [self.role_member['id'],
                                self.role_browser['id']]
         for assigned_role in self.assigned_roles:
-            self.identity_api.add_role_to_user_and_project(
+            self.assignment_api.add_role_to_user_and_project(
                 self.trustor['id'], self.tenant_bar['id'], assigned_role)
 
         self.sample_data = {'trustor_user_id': self.trustor['id'],
@@ -801,7 +801,7 @@ class AuthWithTrust(AuthTest):
 
     def test_token_from_trust_with_no_role_fails(self):
         for assigned_role in self.assigned_roles:
-            self.identity_api.remove_role_from_user_and_project(
+            self.assignment_api.remove_role_from_user_and_project(
                 self.trustor['id'], self.tenant_bar['id'], assigned_role)
         request_body = self.build_v2_token_request('TWO', 'two2')
         self.assertRaises(
@@ -817,12 +817,12 @@ class AuthWithTrust(AuthTest):
             self.controller.authenticate, {}, request_body)
 
     def test_token_from_trust_with_wrong_role_fails(self):
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.add_role_to_user_and_project(
             self.trustor['id'],
             self.tenant_bar['id'],
             self.role_other['id'])
         for assigned_role in self.assigned_roles:
-            self.identity_api.remove_role_from_user_and_project(
+            self.assignment_api.remove_role_from_user_and_project(
                 self.trustor['id'], self.tenant_bar['id'], assigned_role)
 
         request_body = self.build_v2_token_request('TWO', 'two2')

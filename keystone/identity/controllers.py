@@ -39,7 +39,7 @@ class Tenant(controller.V2Controller):
                 context, context['query_string'].get('name'))
 
         self.assert_admin(context)
-        tenant_refs = self.identity_api.list_projects()
+        tenant_refs = self.assignment_api.list_projects()
         for tenant_ref in tenant_refs:
             tenant_ref = self.filter_domain_id(tenant_ref)
         params = {
@@ -77,12 +77,12 @@ class Tenant(controller.V2Controller):
     def get_project(self, context, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-        ref = self.identity_api.get_project(tenant_id)
+        ref = self.assignment_api.get_project(tenant_id)
         return {'tenant': self.filter_domain_id(ref)}
 
     def get_project_by_name(self, context, tenant_name):
         self.assert_admin(context)
-        ref = self.identity_api.get_project_by_name(
+        ref = self.assignment_api.get_project_by_name(
             tenant_name, DEFAULT_DOMAIN_ID)
         return {'tenant': self.filter_domain_id(ref)}
 
@@ -215,7 +215,8 @@ class User(controller.V2Controller):
             self.identity_api.create_user(user_id, user_ref))
 
         if default_project_id is not None:
-            self.identity_api.add_user_to_project(default_project_id, user_id)
+            self.assignment_api.add_user_to_project(default_project_id,
+                                                    user_id)
         return {'user': new_user_ref}
 
     def update_user(self, context, user_id, user):
@@ -326,15 +327,15 @@ class Role(controller.V2Controller):
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant ID required')
 
-        roles = self.identity_api.get_roles_for_user_and_project(
+        roles = self.assignment_api.get_roles_for_user_and_project(
             user_id, tenant_id)
-        return {'roles': [self.identity_api.get_role(x)
+        return {'roles': [self.assignment_api.get_role(x)
                           for x in roles]}
 
     # CRUD extension
     def get_role(self, context, role_id):
         self.assert_admin(context)
-        return {'role': self.identity_api.get_role(role_id)}
+        return {'role': self.assignment_api.get_role(role_id)}
 
     def create_role(self, context, role):
         role = self._normalize_dict(role)
@@ -346,7 +347,7 @@ class Role(controller.V2Controller):
 
         role_id = uuid.uuid4().hex
         role['id'] = role_id
-        role_ref = self.identity_api.create_role(role_id, role)
+        role_ref = self.assignment_api.create_role(role_id, role)
         return {'role': role_ref}
 
     def delete_role(self, context, role_id):
@@ -355,11 +356,11 @@ class Role(controller.V2Controller):
         # We must first, however, revoke any tokens for users that have an
         # assignment with this role.
         self._delete_tokens_for_role(role_id)
-        self.identity_api.delete_role(role_id)
+        self.assignment_api.delete_role(role_id)
 
     def get_roles(self, context):
         self.assert_admin(context)
-        return {'roles': self.identity_api.list_roles()}
+        return {'roles': self.assignment_api.list_roles()}
 
     def add_role_to_user(self, context, user_id, role_id, tenant_id=None):
         """Add a role to a user and tenant pair.
@@ -373,10 +374,10 @@ class Role(controller.V2Controller):
             raise exception.NotImplemented(message='User roles not supported: '
                                                    'tenant_id required')
 
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.add_role_to_user_and_project(
             user_id, tenant_id, role_id)
 
-        role_ref = self.identity_api.get_role(role_id)
+        role_ref = self.assignment_api.get_role(role_id)
         return {'role': role_ref}
 
     def remove_role_from_user(self, context, user_id, role_id, tenant_id=None):
@@ -393,7 +394,7 @@ class Role(controller.V2Controller):
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant, so we must follow up on that
-        self.identity_api.remove_role_from_user_and_project(
+        self.assignment_api.remove_role_from_user_and_project(
             user_id, tenant_id, role_id)
         self._delete_tokens_for_user(user_id)
 
@@ -417,7 +418,7 @@ class Role(controller.V2Controller):
             # the default domain.
             if tenant['domain_id'] != DEFAULT_DOMAIN_ID:
                 continue
-            role_ids = self.identity_api.get_roles_for_user_and_project(
+            role_ids = self.assignment_api.get_roles_for_user_and_project(
                 user_id, tenant['id'])
             for role_id in role_ids:
                 ref = {'roleId': role_id,
@@ -439,11 +440,11 @@ class Role(controller.V2Controller):
         # TODO(termie): for now we're ignoring the actual role
         tenant_id = role.get('tenantId')
         role_id = role.get('roleId')
-        self.identity_api.add_role_to_user_and_project(
+        self.assignment_api.add_role_to_user_and_project(
             user_id, tenant_id, role_id)
         self._delete_tokens_for_user(user_id)
 
-        role_ref = self.identity_api.get_role(role_id)
+        role_ref = self.assignment_api.get_role(role_id)
         return {'role': role_ref}
 
     # COMPAT(diablo): CRUD extension
@@ -463,7 +464,7 @@ class Role(controller.V2Controller):
         role_ref_ref = urlparse.parse_qs(role_ref_id)
         tenant_id = role_ref_ref.get('tenantId')[0]
         role_id = role_ref_ref.get('roleId')[0]
-        self.identity_api.remove_role_from_user_and_project(
+        self.assignment_api.remove_role_from_user_and_project(
             user_id, tenant_id, role_id)
         self._delete_tokens_for_user(user_id)
 
@@ -481,31 +482,31 @@ class DomainV3(controller.V3Controller):
         self._require_attribute(domain, 'name')
 
         ref = self._assign_unique_id(self._normalize_dict(domain))
-        ref = self.identity_api.create_domain(ref['id'], ref)
+        ref = self.assignment_api.create_domain(ref['id'], ref)
         return DomainV3.wrap_member(context, ref)
 
     @controller.filterprotected('enabled', 'name')
     def list_domains(self, context, filters):
-        refs = self.identity_api.list_domains()
+        refs = self.assignment_api.list_domains()
         return DomainV3.wrap_collection(context, refs, filters)
 
     @controller.protected()
     def get_domain(self, context, domain_id):
-        ref = self.identity_api.get_domain(domain_id)
+        ref = self.assignment_api.get_domain(domain_id)
         return DomainV3.wrap_member(context, ref)
 
     @controller.protected()
     def update_domain(self, context, domain_id, domain):
         self._require_matching_id(domain_id, domain)
 
-        ref = self.identity_api.update_domain(domain_id, domain)
+        ref = self.assignment_api.update_domain(domain_id, domain)
 
         # disable owned users & projects when the API user specifically set
         #     enabled=False
         # FIXME(dolph): need a driver call to directly revoke all tokens by
         #               project or domain, regardless of user
         if not domain.get('enabled', True):
-            projects = [x for x in self.identity_api.list_projects()
+            projects = [x for x in self.assignment_api.list_projects()
                         if x.get('domain_id') == domain_id]
             for user in self.identity_api.list_users():
                 # TODO(dolph): disable domain-scoped tokens
@@ -562,7 +563,7 @@ class DomainV3(controller.V3Controller):
         user_refs = self.identity_api.list_users()
         user_ids = [r['id'] for r in user_refs if r['domain_id'] == domain_id]
 
-        proj_refs = self.identity_api.list_projects()
+        proj_refs = self.assignment_api.list_projects()
         proj_ids = [r['id'] for r in proj_refs if r['domain_id'] == domain_id]
 
         # First delete the projects themselves
@@ -595,14 +596,14 @@ class DomainV3(controller.V3Controller):
         # has been previously disabled.  This also prevents a user deleting
         # their own domain since, once it is disabled, they won't be able
         # to get a valid token to issue this delete.
-        ref = self.identity_api.get_domain(domain_id)
+        ref = self.assignment_api.get_domain(domain_id)
         if ref['enabled']:
             raise exception.ForbiddenAction(
                 action='delete a domain that is not disabled')
 
         # OK, we are go for delete!
         self._delete_domain_contents(context, domain_id)
-        return self.identity_api.delete_domain(domain_id)
+        return self.assignment_api.delete_domain(domain_id)
 
     def _get_domain_by_name(self, context, domain_name):
         """Get the domain via its unique name.
@@ -611,7 +612,7 @@ class DomainV3(controller.V3Controller):
         router as a public api.
 
         """
-        ref = self.identity_api.get_domain_by_name(domain_name)
+        ref = self.assignment_api.get_domain_by_name(domain_name)
         return {'domain': ref}
 
 
@@ -634,17 +635,17 @@ class ProjectV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_projects(self, context, filters):
-        refs = self.identity_api.list_projects()
+        refs = self.assignment_api.list_projects()
         return ProjectV3.wrap_collection(context, refs, filters)
 
     @controller.filterprotected('enabled', 'name')
     def list_user_projects(self, context, filters, user_id):
-        refs = self.identity_api.list_projects_for_user(user_id)
+        refs = self.assignment_api.list_projects_for_user(user_id)
         return ProjectV3.wrap_collection(context, refs, filters)
 
     @controller.protected()
     def get_project(self, context, project_id):
-        ref = self.identity_api.get_project(project_id)
+        ref = self.assignment_api.get_project(project_id)
         return ProjectV3.wrap_member(context, ref)
 
     @controller.protected()
@@ -854,24 +855,24 @@ class RoleV3(controller.V3Controller):
         self._require_attribute(role, 'name')
 
         ref = self._assign_unique_id(self._normalize_dict(role))
-        ref = self.identity_api.create_role(ref['id'], ref)
+        ref = self.assignment_api.create_role(ref['id'], ref)
         return RoleV3.wrap_member(context, ref)
 
     @controller.filterprotected('name')
     def list_roles(self, context, filters):
-        refs = self.identity_api.list_roles()
+        refs = self.assignment_api.list_roles()
         return RoleV3.wrap_collection(context, refs, filters)
 
     @controller.protected()
     def get_role(self, context, role_id):
-        ref = self.identity_api.get_role(role_id)
+        ref = self.assignment_api.get_role(role_id)
         return RoleV3.wrap_member(context, ref)
 
     @controller.protected()
     def update_role(self, context, role_id, role):
         self._require_matching_id(role_id, role)
 
-        ref = self.identity_api.update_role(role_id, role)
+        ref = self.assignment_api.update_role(role_id, role)
         return RoleV3.wrap_member(context, ref)
 
     @controller.protected()
@@ -880,7 +881,7 @@ class RoleV3(controller.V3Controller):
         # We must first, however, revoke any tokens for users that have an
         # assignment with this role.
         self._delete_tokens_for_role(role_id)
-        self.identity_api.delete_role(role_id)
+        self.assignment_api.delete_role(role_id)
 
     def _require_domain_xor_project(self, domain_id, project_id):
         if (domain_id and project_id) or (not domain_id and not project_id):
@@ -909,7 +910,7 @@ class RoleV3(controller.V3Controller):
         """
         ref = {}
         if role_id:
-            ref['role'] = self.identity_api.get_role(role_id)
+            ref['role'] = self.assignment_api.get_role(role_id)
         if user_id:
             ref['user'] = self.identity_api.get_user(user_id)
         else:
@@ -934,7 +935,7 @@ class RoleV3(controller.V3Controller):
         if group_id:
             self.identity_api.get_group(group_id)
 
-        self.identity_api.create_grant(
+        self.assignment_api.create_grant(
             role_id, user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
 
@@ -945,7 +946,7 @@ class RoleV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
-        refs = self.identity_api.list_grants(
+        refs = self.assignment_api.list_grants(
             user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
         return RoleV3.wrap_collection(context, refs)
@@ -962,7 +963,7 @@ class RoleV3(controller.V3Controller):
         if group_id:
             self.identity_api.get_group(group_id)
 
-        self.identity_api.get_grant(
+        self.assignment_api.get_grant(
             role_id, user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
 
@@ -973,7 +974,7 @@ class RoleV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
-        self.identity_api.delete_grant(
+        self.assignment_api.delete_grant(
             role_id, user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
 

@@ -79,7 +79,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         except AttributeError:
             LOG.debug(_('RBAC: Proceeding without tenant'))
         # NOTE(vish): this is pretty inefficient
-        creds['roles'] = [self.identity_api.get_role(role)['name']
+        creds['roles'] = [self.assignment_api.get_role(role)['name']
                           for role in creds.get('roles', [])]
 
     return creds

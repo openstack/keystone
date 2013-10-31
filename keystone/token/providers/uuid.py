@@ -36,7 +36,7 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-@dependency.requires('catalog_api', 'identity_api')
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api')
 class V2TokenDataHelper(object):
     """Creates V2 token data."""
     @classmethod
@@ -132,7 +132,7 @@ class V2TokenDataHelper(object):
         return services.values()
 
 
-@dependency.requires('catalog_api', 'identity_api')
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
     def __init__(self):
@@ -144,7 +144,7 @@ class V3TokenDataHelper(object):
         return {'id': domain_ref['id'], 'name': domain_ref['name']}
 
     def _get_filtered_project(self, project_id):
-        project_ref = self.identity_api.get_project(project_id)
+        project_ref = self.assignment_api.get_project(project_id)
         filtered_project = {
             'id': project_ref['id'],
             'name': project_ref['name']}
@@ -165,12 +165,12 @@ class V3TokenDataHelper(object):
     def _get_roles_for_user(self, user_id, domain_id, project_id):
         roles = []
         if domain_id:
-            roles = self.identity_api.get_roles_for_user_and_domain(
+            roles = self.assignment_api.get_roles_for_user_and_domain(
                 user_id, domain_id)
         if project_id:
-            roles = self.identity_api.get_roles_for_user_and_project(
+            roles = self.assignment_api.get_roles_for_user_and_project(
                 user_id, project_id)
-        return [self.identity_api.get_role(role_id) for role_id in roles]
+        return [self.assignment_api.get_role(role_id) for role_id in roles]
 
     def _populate_user(self, token_data, user_id, domain_id, project_id,
                        trust):
@@ -215,7 +215,7 @@ class V3TokenDataHelper(object):
         if access_token:
             filtered_roles = []
             authed_role_ids = json.loads(access_token['role_ids'])
-            all_roles = self.identity_api.list_roles()
+            all_roles = self.assignment_api.list_roles()
             for role in all_roles:
                 for authed_role in authed_role_ids:
                     if authed_role == role['id']:
@@ -329,7 +329,8 @@ class V3TokenDataHelper(object):
 
 
 @dependency.optional('oauth_api')
-@dependency.requires('token_api', 'identity_api', 'catalog_api')
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+                     'token_api')
 class Provider(token.provider.Provider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
@@ -507,7 +508,7 @@ class Provider(token.provider.Provider):
                     trust_ref['trustor_user_id'])
                 if trustor_user_ref['domain_id'] != DEFAULT_DOMAIN_ID:
                     raise exception.Unauthorized(msg)
-                project_ref = self.identity_api.get_project(
+                project_ref = self.assignment_api.get_project(
                     trust_ref['project_id'])
                 if project_ref['domain_id'] != DEFAULT_DOMAIN_ID:
                     raise exception.Unauthorized(msg)
@@ -535,7 +536,7 @@ class Provider(token.provider.Provider):
                 metadata_ref = token_ref['metadata']
                 roles_ref = []
                 for role_id in metadata_ref.get('roles', []):
-                    roles_ref.append(self.identity_api.get_role(role_id))
+                    roles_ref.append(self.assignment_api.get_role(role_id))
 
                 # Get a service catalog if possible
                 # This is needed for on-behalf-of requests

@@ -45,7 +45,8 @@ from keystone import exception
 from keystone import token
 
 
-@dependency.requires('catalog_api', 'credential_api', 'token_provider_api')
+@dependency.requires('assignment_api', 'catalog_api', 'credential_api',
+                     'token_provider_api')
 class Ec2Controller(controller.V2Controller):
     def check_signature(self, creds_ref, credentials):
         signer = ec2_utils.Ec2Signer(creds_ref['secret'])
@@ -99,11 +100,11 @@ class Ec2Controller(controller.V2Controller):
         # TODO(termie): don't create new tokens every time
         # TODO(termie): this is copied from TokenController.authenticate
         token_id = uuid.uuid4().hex
-        tenant_ref = self.identity_api.get_project(creds_ref['tenant_id'])
+        tenant_ref = self.assignment_api.get_project(creds_ref['tenant_id'])
         user_ref = self.identity_api.get_user(creds_ref['user_id'])
         metadata_ref = {}
         metadata_ref['roles'] = (
-            self.identity_api.get_roles_for_user_and_project(
+            self.assignment_api.get_roles_for_user_and_project(
                 user_ref['id'], tenant_ref['id']))
 
         # Validate that the auth info is valid and nothing is disabled
@@ -112,7 +113,7 @@ class Ec2Controller(controller.V2Controller):
         roles = metadata_ref.get('roles', [])
         if not roles:
             raise exception.Unauthorized(message='User not valid for tenant.')
-        roles_ref = [self.identity_api.get_role(role_id)
+        roles_ref = [self.assignment_api.get_role(role_id)
                      for role_id in roles]
 
         catalog_ref = self.catalog_api.get_catalog(
@@ -289,6 +290,6 @@ class Ec2Controller(controller.V2Controller):
         :raises exception.ProjectNotFound: on failure
 
         """
-        project_ref = self.identity_api.get_project(project_id)
+        project_ref = self.assignment_api.get_project(project_id)
         if not project_ref:
             raise exception.ProjectNotFound(project_id=project_id)
