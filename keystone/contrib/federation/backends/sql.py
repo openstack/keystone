@@ -13,9 +13,11 @@
 # under the License.
 
 from keystone.common import sql
-from keystone.common.sql import migration
+from keystone.common.sql import migration_helpers
+from keystone.contrib import federation
 from keystone.contrib.federation import core
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common import jsonutils
 
@@ -89,7 +91,8 @@ class MappingModel(sql.ModelBase, sql.DictBase):
 class Federation(sql.Base, core.Driver):
 
     def db_sync(self):
-        migration.db_sync()
+        abs_path = migration_helpers.find_migrate_repo(federation)
+        migration.db_sync(abs_path)
 
     # Identity Provider CRUD
     @sql.handle_conflicts(conflict_type='identity_provider')
