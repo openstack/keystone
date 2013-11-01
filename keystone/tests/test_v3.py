@@ -1038,6 +1038,15 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             auth_data['scope'] = self.build_auth_scope(**kwargs)
         return {'auth': auth_data}
 
+    def build_external_auth_request(self, remote_user, auth_data=None):
+        context = {'REMOTE_USER': remote_user}
+        if not auth_data:
+            auth_data = self.build_authentication_request()['auth']
+        no_context = None
+        auth_info = auth.controllers.AuthInfo(no_context, auth_data)
+        auth_context = {'extras': {}, 'method_names': []}
+        return context, auth_info, auth_context
+
 
 class VersionTestCase(RestfulTestCase):
     def test_get_version(self):

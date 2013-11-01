@@ -1085,12 +1085,10 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
         return list
 
     def test_remote_user_disabled(self):
-        auth_data = self.build_authentication_request()['auth']
         api = auth.controllers.Auth()
-        context = {'REMOTE_USER': '%s@%s' % (self.user['name'],
-                                             self.domain['id'])}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user)
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
                           context,
@@ -1107,12 +1105,11 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         return list
 
     def test_remote_user_with_realm(self):
-        auth_data = self.build_authentication_request()['auth']
         api = auth.controllers.Auth()
-        context = {'REMOTE_USER': '%s@%s' %
-                   (self.user['name'], self.domain['name'])}
-        auth_info = auth.controllers.AuthInfo(context, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user)
+
         api.authenticate(context, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'], self.user['id'])
 
@@ -1120,10 +1117,10 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         # '@' character.
         user = {'name': 'myname@mydivision'}
         self.identity_api.update_user(self.user['id'], user)
-        context = {'REMOTE_USER': '%s@%s' %
-                   (user['name'], self.domain['name'])}
-        auth_info = auth.controllers.AuthInfo(context, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        remote_user = '%s@%s' % (user["name"], self.domain['name'])
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user)
+
         api.authenticate(context, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'], self.user['id'])
 
@@ -1630,20 +1627,16 @@ class TestAuthJSON(test_v3.RestfulTestCase):
     def test_remote_user_no_realm(self):
         CONF.auth.methods = 'external'
         api = auth.controllers.Auth()
-        auth_data = self.build_authentication_request()['auth']
-        context = {'REMOTE_USER': self.default_domain_user['name']}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        context, auth_info, auth_context = self.build_external_auth_request(
+            self.default_domain_user['name'])
         api.authenticate(context, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'],
                          self.default_domain_user['id'])
 
     def test_remote_user_no_domain(self):
-        auth_data = self.build_authentication_request()['auth']
         api = auth.controllers.Auth()
-        context = {'REMOTE_USER': self.user['name']}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        context, auth_info, auth_context = self.build_external_auth_request(
+            self.user['name'])
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
                           context,
@@ -1653,14 +1646,14 @@ class TestAuthJSON(test_v3.RestfulTestCase):
     def test_remote_user_and_password(self):
         #both REMOTE_USER and password methods must pass.
         #note that they do not have to match
+        api = auth.controllers.Auth()
         auth_data = self.build_authentication_request(
             user_domain_id=self.domain['id'],
             username=self.user['name'],
             password=self.user['password'])['auth']
-        api = auth.controllers.Auth()
-        context = {'REMOTE_USER': self.default_domain_user['name']}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        context, auth_info, auth_context = self.build_external_auth_request(
+            self.default_domain_user['name'], auth_data=auth_data)
+
         api.authenticate(context, auth_info, auth_context)
 
     def test_remote_user_and_explicit_external(self):
@@ -1684,14 +1677,13 @@ class TestAuthJSON(test_v3.RestfulTestCase):
 
     def test_remote_user_bad_password(self):
         #both REMOTE_USER and password methods must pass.
+        api = auth.controllers.Auth()
         auth_data = self.build_authentication_request(
             user_domain_id=self.domain['id'],
             username=self.user['name'],
             password='badpassword')['auth']
-        api = auth.controllers.Auth()
-        context = {'REMOTE_USER': self.default_domain_user['name']}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        context, auth_info, auth_context = self.build_external_auth_request(
+            self.default_domain_user['name'], auth_data=auth_data)
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
                           context,
