@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
+
 from keystone import config
 from keystone import controllers
 from keystone.openstack.common.fixture import moxstubout
@@ -117,8 +119,8 @@ class VersionTestCase(tests.TestCase):
         self.public_app = self.loadapp('keystone', 'main')
         self.admin_app = self.loadapp('keystone', 'admin')
 
-        self.public_server = self.serveapp('keystone', name='main')
-        self.admin_server = self.serveapp('keystone', name='admin')
+        port = random.randint(10000, 30000)
+        self.opt(public_port=port, admin_port=port)
 
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
@@ -327,8 +329,8 @@ vnd.openstack.identity-v3+xml"/>
         self.public_app = self.loadapp('keystone', 'main')
         self.admin_app = self.loadapp('keystone', 'admin')
 
-        self.public_server = self.serveapp('keystone', name='main')
-        self.admin_server = self.serveapp('keystone', name='admin')
+        port = random.randint(10000, 30000)
+        self.opt(public_port=port, admin_port=port)
 
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
