@@ -18,6 +18,7 @@
 from keystone.common import environment
 from keystone import config
 from keystone import tests
+from keystone.tests.fixtures import appserver
 
 
 CONF = config.CONF
@@ -32,17 +33,18 @@ class IPv6TestCase(tests.TestCase):
 
     def test_ipv6_ok(self):
         """Make sure both public and admin API work with ipv6."""
-        self.public_server = self.serveapp('keystone', name='main',
-                                           host="::1", port=0)
-        self.admin_server = self.serveapp('keystone', name='admin',
-                                          host="::1", port=0)
+        paste_conf = self._paste_config('keystone')
+
         # Verify Admin
-        conn = environment.httplib.HTTPConnection('::1', CONF.admin_port)
-        conn.request('GET', '/')
-        resp = conn.getresponse()
-        self.assertEqual(resp.status, 300)
+        with appserver.AppServer(paste_conf, appserver.ADMIN, host="::1"):
+            conn = environment.httplib.HTTPConnection('::1', CONF.admin_port)
+            conn.request('GET', '/')
+            resp = conn.getresponse()
+            self.assertEqual(resp.status, 300)
+
         # Verify Public
-        conn = environment.httplib.HTTPConnection('::1', CONF.public_port)
-        conn.request('GET', '/')
-        resp = conn.getresponse()
-        self.assertEqual(resp.status, 300)
+        with appserver.AppServer(paste_conf, appserver.MAIN, host="::1"):
+            conn = environment.httplib.HTTPConnection('::1', CONF.public_port)
+            conn.request('GET', '/')
+            resp = conn.getresponse()
+            self.assertEqual(resp.status, 300)
