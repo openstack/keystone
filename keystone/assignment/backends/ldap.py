@@ -192,7 +192,7 @@ class Assignment(assignment.Driver):
 
     def update_role(self, role_id, role):
         self.get_role(role_id)
-        self.role.update(role_id, role)
+        return self.role.update(role_id, role)
 
     def create_domain(self, domain_id, domain):
         if domain_id == CONF.identity.default_domain_id:

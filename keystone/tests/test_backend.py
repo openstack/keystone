@@ -1511,10 +1511,11 @@ class IdentityTests(object):
         self.assertDictEqual(role_ref_dict, role)
 
         role['name'] = uuid.uuid4().hex
-        self.assignment_api.update_role(role['id'], role)
+        updated_role_ref = self.assignment_api.update_role(role['id'], role)
         role_ref = self.assignment_api.get_role(role['id'])
         role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
         self.assertDictEqual(role_ref_dict, role)
+        self.assertDictEqual(role_ref_dict, updated_role_ref)
 
         self.assignment_api.delete_role(role['id'])
         self.assertRaises(exception.RoleNotFound,
