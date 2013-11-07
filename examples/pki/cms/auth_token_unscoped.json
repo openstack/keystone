@@ -1,1 +1,1 @@
-{"access": {"token": {"expires": "2012-08-17T15:35:34Z", "id": "01e032c996ef4406b144335915a41e79"}, "serviceCatalog": {}, "user": {"username": "user_name1", "roles_links": [], "id": "c9c89e3be3ee453fbf00c7966f6d3fbd", "roles": [{'name': 'role1'},{'name': 'role2'},], "name": "user_name1"}}}
+{"access": {"token": {"expires": "2012-08-17T15:35:34Z", "id": "01e032c996ef4406b144335915a41e79"}, "serviceCatalog": {}, "user": {"username": "user_name1", "roles_links": [], "id": "c9c89e3be3ee453fbf00c7966f6d3fbd", "roles": [{"name": "role1"},{"name": "role2"}], "name": "user_name1"}}}
