@@ -69,6 +69,15 @@ class ValidationError(Error):
     title = 'Bad Request'
 
 
+class ValidationTimeStampError(Error):
+    message_format = _("Timestamp not in expected format."
+                       " The server could not comply with the request"
+                       " since it is either malformed or otherwise"
+                       " incorrect. The client is assumed to be in error.")
+    code = 400
+    title = 'Bad Request'
+
+
 class StringLengthExceeded(ValidationError):
     message_format = _("String length exceeded.The length of"
                        " string '%(string)s' exceeded the limit"
