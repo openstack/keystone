@@ -86,7 +86,7 @@ class DbSync(BaseApp):
                 migration.db_version_control(version=None, repo_path=repo_path)
             except exceptions.DatabaseAlreadyControlledError:
                 pass
-            migration.db_sync(version=None, repo_path=repo_path)
+            migration.db_sync(version=version, repo_path=repo_path)
 
 
 class DbVersion(BaseApp):
