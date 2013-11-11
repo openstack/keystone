@@ -27,7 +27,7 @@ from keystone import config
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
 from keystone import tests
-from keystone.tests import test_content_types
+from keystone.tests import rest
 
 
 CONF = config.CONF
@@ -36,7 +36,7 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
-class RestfulTestCase(test_content_types.RestfulTestCase):
+class RestfulTestCase(rest.RestfulTestCase):
     _config_file_list = [tests.etcdir('keystone.conf.sample'),
                          tests.testsdir('test_overrides.conf'),
                          tests.testsdir('backend_sql.conf'),
