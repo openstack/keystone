@@ -36,7 +36,7 @@ import os
 import time
 import uuid
 
-from six.moves import cStringIO
+from six import moves
 from testtools import matchers
 
 from keystone.common import utils
@@ -139,7 +139,7 @@ class TestDeprecated(tests.TestCase):
 
     def setUp(self):
         super(TestDeprecated, self).setUp()
-        self.deprecated_message = cStringIO()
+        self.deprecated_message = moves.cStringIO()
         self.handler = logging.StreamHandler(self.deprecated_message)
         self.logger = logging.getLogger('keystone.common.utils')
         self.logger.addHandler(self.handler)
