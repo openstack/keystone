@@ -1666,12 +1666,11 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         auth_data['identity']['methods'] = ["password", "external"]
         auth_data['identity']['external'] = {}
         api = auth.controllers.Auth()
-        context = {}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
-                          context,
+                          self.empty_context,
                           auth_info,
                           auth_context)
 

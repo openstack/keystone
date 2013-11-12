@@ -71,6 +71,10 @@ class AuthTest(tests.TestCase):
         # need to register the token provider first because auth controller
         # depends on it
         token.provider.Manager()
+        self.context_with_remote_user = {'environment':
+                                         {'REMOTE_USER': 'FOO',
+                                          'AUTH_TYPE': 'Negotiate'}}
+        self.empty_context = {'environment': {}}
 
         self.controller = token.controllers.Auth()
 
@@ -379,8 +383,8 @@ class AuthWithToken(AuthTest):
     def test_token_auth_with_binding(self):
         CONF.token.bind = ['kerberos']
         body_dict = _build_user_auth()
-        context = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
-        unscoped_token = self.controller.authenticate(context, body_dict)
+        unscoped_token = self.controller.authenticate(
+            self.context_with_remote_user, body_dict)
 
         # the token should have bind information in it
         bind = unscoped_token['access']['token']['bind']
@@ -394,10 +398,11 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.empty_context, body_dict)
 
         # using token with remote user context succeeds
-        scoped_token = self.controller.authenticate(context, body_dict)
+        scoped_token = self.controller.authenticate(
+            self.context_with_remote_user, body_dict)
 
         # the bind information should be carried over from the original token
         bind = scoped_token['access']['token']['bind']
@@ -517,7 +522,7 @@ class AuthWithRemoteUser(AuthTest):
 
         body_dict = _build_user_auth()
         remote_token = self.controller.authenticate(
-            {'REMOTE_USER': 'FOO'}, body_dict)
+            self.context_with_remote_user, body_dict)
 
         self.assertEqualTokens(local_token, remote_token)
 
@@ -541,7 +546,7 @@ class AuthWithRemoteUser(AuthTest):
         body_dict = _build_user_auth(
             tenant_name='BAR')
         remote_token = self.controller.authenticate(
-            {'REMOTE_USER': 'FOO'}, body_dict)
+            self.context_with_remote_user, body_dict)
 
         self.assertEqualTokens(local_token, remote_token)
 
@@ -556,7 +561,7 @@ class AuthWithRemoteUser(AuthTest):
 
         body_dict = _build_user_auth(tenant_name='BAZ')
         remote_token = self.controller.authenticate(
-            {'REMOTE_USER': 'TWO'}, body_dict)
+            {'environment': {'REMOTE_USER': 'TWO'}}, body_dict)
 
         self.assertEqualTokens(local_token, remote_token)
 
@@ -566,21 +571,21 @@ class AuthWithRemoteUser(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {'REMOTE_USER': uuid.uuid4().hex},
+            {'environment': {'REMOTE_USER': uuid.uuid4().hex}},
             body_dict)
 
     def test_bind_with_kerberos(self):
         CONF.token.bind = ['kerberos']
-        kerb = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
         body_dict = _build_user_auth(tenant_name="BAR")
-        token = self.controller.authenticate(kerb, body_dict)
+        token = self.controller.authenticate(self.context_with_remote_user,
+                                             body_dict)
         self.assertEqual(token['access']['token']['bind']['kerberos'], 'FOO')
 
     def test_bind_without_config_opt(self):
         CONF.token.bind = ['x509']
-        kerb = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
         body_dict = _build_user_auth(tenant_name='BAR')
-        token = self.controller.authenticate(kerb, body_dict)
+        token = self.controller.authenticate(self.context_with_remote_user,
+                                             body_dict)
         self.assertNotIn('bind', token['access']['token'])
 
 
@@ -715,7 +720,9 @@ class AuthWithTrust(AuthTest):
                 'project': {
                     'id': self.tenant_baz['id']}}}
         auth_response = (self.auth_v3_controller.authenticate_for_token
-                         ({'query_string': {}}, v3_password_data))
+                         ({'environment': {},
+                           'query_string': {}},
+                          v3_password_data))
         token = auth_response.headers['X-Subject-Token']
 
         v3_req_with_trust = {
@@ -725,7 +732,9 @@ class AuthWithTrust(AuthTest):
             "scope": {
                 "OS-TRUST:trust": {"id": self.new_trust['id']}}}
         token_auth_response = (self.auth_v3_controller.authenticate_for_token
-                               ({'query_string': {}}, v3_req_with_trust))
+                               ({'environment': {},
+                                 'query_string': {}},
+                                v3_req_with_trust))
         return token_auth_response
 
     def test_create_v3_token_from_trust(self):
@@ -754,7 +763,8 @@ class AuthWithTrust(AuthTest):
         self.assertRaises(
             exception.Forbidden,
             self.auth_v3_controller.authenticate_for_token,
-            {'query_string': {}}, v3_token_data)
+            {'environment': {},
+             'query_string': {}}, v3_token_data)
 
     def test_token_from_trust(self):
         auth_response = self.fetch_v2_token_from_trust()

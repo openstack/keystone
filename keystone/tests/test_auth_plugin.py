@@ -74,7 +74,7 @@ class TestAuthPlugin(tests.TestCase):
         auth_info = auth.controllers.AuthInfo(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         try:
-            self.api.authenticate({}, auth_info, auth_context)
+            self.api.authenticate({'environment': {}}, auth_info, auth_context)
         except exception.AdditionalAuthRequired as e:
             self.assertTrue('methods' in e.authentication)
             self.assertTrue(METHOD_NAME in e.authentication['methods'])
@@ -88,7 +88,7 @@ class TestAuthPlugin(tests.TestCase):
         auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
-        self.api.authenticate({}, auth_info, auth_context)
+        self.api.authenticate({'environment': {}}, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'], DEMO_USER_ID)
 
         # test incorrect response
@@ -100,6 +100,6 @@ class TestAuthPlugin(tests.TestCase):
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,
                           self.api.authenticate,
-                          {},
+                          {'environment': {}},
                           auth_info,
                           auth_context)

@@ -49,12 +49,12 @@ class BindTest(tests.TestCase):
                 self.assert_kerberos_bind(tokens, bind_level,
                                           use_kerberos=val, success=success)
         else:
-            context = {}
+            context = {'environment': {}}
             CONF.token.enforce_token_bind = bind_level
 
             if use_kerberos:
-                context['REMOTE_USER'] = KERBEROS_BIND
-                context['AUTH_TYPE'] = 'Negotiate'
+                context['environment']['REMOTE_USER'] = KERBEROS_BIND
+                context['environment']['AUTH_TYPE'] = 'Negotiate'
 
             if not success:
                 self.assertRaises(exception.Unauthorized,
