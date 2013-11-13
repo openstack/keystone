@@ -91,10 +91,33 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             self.assertEqual(response.result['endpoint'][field], value)
 
     def test_endpoint_create_with_null_adminurl(self):
-        self._endpoint_create(adminurl=None)
+        req_body, response = self._endpoint_create(adminurl=None)
+        self.assertEqual(req_body['endpoint']['adminurl'], None)
+        self.assertNotIn('adminurl', response.result['endpoint'])
+
+    def test_endpoint_create_with_empty_adminurl(self):
+        req_body, response = self._endpoint_create(adminurl='')
+        self.assertEqual(req_body['endpoint']['adminurl'], '')
+        self.assertNotIn("adminurl", response.result['endpoint'])
 
     def test_endpoint_create_with_null_internalurl(self):
-        self._endpoint_create(internalurl=None)
+        req_body, response = self._endpoint_create(internalurl=None)
+        self.assertEqual(req_body['endpoint']['internalurl'], None)
+        self.assertNotIn('internalurl', response.result['endpoint'])
+
+    def test_endpoint_create_with_empty_internalurl(self):
+        req_body, response = self._endpoint_create(internalurl='')
+        self.assertEqual(req_body['endpoint']['internalurl'], '')
+        self.assertNotIn("internalurl", response.result['endpoint'])
 
     def test_endpoint_create_with_null_publicurl(self):
         self._endpoint_create(expected_status=400, publicurl=None)
+
+    def test_endpoint_create_with_empty_publicurl(self):
+        self._endpoint_create(expected_status=400, publicurl='')
+
+    def test_endpoint_create_with_null_service_id(self):
+        self._endpoint_create(expected_status=400, service_id=None)
+
+    def test_endpoint_create_with_empty_service_id(self):
+        self._endpoint_create(expected_status=400, service_id='')

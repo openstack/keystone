@@ -91,18 +91,22 @@ class Endpoint(controller.V2Controller):
 
         # according to the v2 spec publicurl is mandatory
         self._require_attribute(endpoint, 'publicurl')
+        # service_id is necessary
+        self._require_attribute(endpoint, 'service_id')
 
         legacy_endpoint_ref = endpoint.copy()
 
         urls = {}
         for i in INTERFACES:
             # remove all urls so they aren't persisted them more than once
-            if endpoint.get('%surl' % i) is not None:
+            url = '%surl' % i
+            if endpoint.get(url):
                 # valid urls need to be persisted
-                urls[i] = endpoint.pop('%surl' % i)
-            elif '%surl' % i in endpoint:
-                # null urls can be discarded
-                endpoint.pop('%surl' % i)
+                urls[i] = endpoint.pop(url)
+            elif url in endpoint:
+                # null or empty urls can be discarded
+                endpoint.pop(url)
+                legacy_endpoint_ref.pop(url)
 
         legacy_endpoint_id = uuid.uuid4().hex
         for interface, url in urls.iteritems():
