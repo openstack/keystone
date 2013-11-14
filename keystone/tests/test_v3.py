@@ -22,9 +22,11 @@ from lxml import etree
 import six
 
 from keystone import auth
+from keystone.common import authorization
 from keystone.common import cache
 from keystone.common import serializer
 from keystone import config
+from keystone import middleware
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
 from keystone import tests
@@ -1116,3 +1118,47 @@ class RestfulTestCase(rest.RestfulTestCase):
 class VersionTestCase(RestfulTestCase):
     def test_get_version(self):
         pass
+
+
+#NOTE(gyee): test AuthContextMiddleware here instead of test_middleware.py
+# because we need the token
+class AuthContextMiddlewareTestCase(RestfulTestCase):
+    def _mock_request_object(self, token_id):
+
+        class fake_req:
+            headers = {middleware.AUTH_TOKEN_HEADER: token_id}
+            environ = {}
+
+        return fake_req()
+
+    def test_auth_context_build_by_middleware(self):
+        # test to make sure AuthContextMiddleware successful build the auth
+        # context from the incoming auth token
+        admin_token = self.get_scoped_token()
+        req = self._mock_request_object(admin_token)
+        application = None
+        middleware.AuthContextMiddleware(application).process_request(req)
+        self.assertEqual(
+            req.environ.get(authorization.AUTH_CONTEXT_ENV)['user_id'],
+            self.user['id'])
+
+    def test_auth_context_override(self):
+        overridden_context = 'OVERRIDDEN_CONTEXT'
+        # this token should not be used
+        token = uuid.uuid4().hex
+        req = self._mock_request_object(token)
+        req.environ[authorization.AUTH_CONTEXT_ENV] = overridden_context
+        application = None
+        middleware.AuthContextMiddleware(application).process_request(req)
+        # make sure overridden context take precedence
+        self.assertEqual(req.environ.get(authorization.AUTH_CONTEXT_ENV),
+                         overridden_context)
+
+    def test_admin_token_auth_context(self):
+        # test to make sure AuthContextMiddleware does not attempt to build
+        # auth context if the incoming auth token is the special admin token
+        req = self._mock_request_object(CONF.admin_token)
+        application = None
+        middleware.AuthContextMiddleware(application).process_request(req)
+        self.assertDictEqual(req.environ.get(authorization.AUTH_CONTEXT_ENV),
+                             {})
