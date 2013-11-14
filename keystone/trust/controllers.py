@@ -171,8 +171,11 @@ class TrustV3(controller.V3Controller):
             if trust.get('expires_at') is not None:
                 if not trust['expires_at'].endswith('Z'):
                     trust['expires_at'] += 'Z'
-                trust['expires_at'] = (timeutils.parse_isotime
-                                       (trust['expires_at']))
+                try:
+                    trust['expires_at'] = (timeutils.parse_isotime
+                                           (trust['expires_at']))
+                except ValueError:
+                    raise exception.ValidationTimeStampError()
             new_trust = self.trust_api.create_trust(
                 trust_id=uuid.uuid4().hex,
                 trust=trust,

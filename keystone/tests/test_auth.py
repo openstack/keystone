@@ -666,6 +666,17 @@ class AuthWithTrust(AuthTest):
         for role in self.new_trust['roles']:
             self.assertIn(role['id'], role_ids)
 
+    def test_create_trust_expires_bad(self):
+        self.assertRaises(exception.ValidationTimeStampError,
+                          self.create_trust,
+                          expires_at="bad")
+        self.assertRaises(exception.ValidationTimeStampError,
+                          self.create_trust,
+                          expires_at="")
+        self.assertRaises(exception.ValidationTimeStampError,
+                          self.create_trust,
+                          expires_at="Z")
+
     def test_get_trust(self):
         context = {'token_id': self.unscoped_token['access']['token']['id']}
         trust = self.trust_controller.get_trust(context,
