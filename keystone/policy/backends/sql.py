@@ -34,7 +34,7 @@ class Policy(sql.Base, rules.Policy):
     def db_sync(self, version=None):
         migration.db_sync(version=version)
 
-    @sql.handle_conflicts(type='policy')
+    @sql.handle_conflicts(conflict_type='policy')
     def create_policy(self, policy_id, policy):
         session = self.get_session()
 
@@ -63,7 +63,7 @@ class Policy(sql.Base, rules.Policy):
 
         return self._get_policy(session, policy_id).to_dict()
 
-    @sql.handle_conflicts(type='policy')
+    @sql.handle_conflicts(conflict_type='policy')
     def update_policy(self, policy_id, policy):
         session = self.get_session()
 

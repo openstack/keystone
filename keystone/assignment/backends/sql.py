@@ -382,7 +382,7 @@ class Assignment(sql.Base, assignment.Driver):
         return assignment_list
 
     # CRUD
-    @sql.handle_conflicts(type='project')
+    @sql.handle_conflicts(conflict_type='project')
     def create_project(self, tenant_id, tenant):
         tenant['name'] = clean.project_name(tenant['name'])
         session = self.get_session()
@@ -392,7 +392,7 @@ class Assignment(sql.Base, assignment.Driver):
             session.flush()
         return tenant_ref.to_dict()
 
-    @sql.handle_conflicts(type='project')
+    @sql.handle_conflicts(conflict_type='project')
     def update_project(self, tenant_id, tenant):
         session = self.get_session()
 
@@ -412,7 +412,7 @@ class Assignment(sql.Base, assignment.Driver):
             session.flush()
         return tenant_ref.to_dict(include_extra_dict=True)
 
-    @sql.handle_conflicts(type='project')
+    @sql.handle_conflicts(conflict_type='project')
     def delete_project(self, tenant_id):
         session = self.get_session()
 
@@ -434,7 +434,7 @@ class Assignment(sql.Base, assignment.Driver):
             session.delete(tenant_ref)
             session.flush()
 
-    @sql.handle_conflicts(type='metadata')
+    @sql.handle_conflicts(conflict_type='metadata')
     def _create_metadata(self, user_id, tenant_id, metadata,
                          domain_id=None, group_id=None):
         session = self.get_session()
@@ -464,7 +464,7 @@ class Assignment(sql.Base, assignment.Driver):
             session.flush()
         return metadata
 
-    @sql.handle_conflicts(type='metadata')
+    @sql.handle_conflicts(conflict_type='metadata')
     def _update_metadata(self, user_id, tenant_id, metadata,
                          domain_id=None, group_id=None):
         session = self.get_session()
@@ -496,7 +496,7 @@ class Assignment(sql.Base, assignment.Driver):
 
     # domain crud
 
-    @sql.handle_conflicts(type='domain')
+    @sql.handle_conflicts(conflict_type='domain')
     def create_domain(self, domain_id, domain):
         session = self.get_session()
         with session.begin():
@@ -529,7 +529,7 @@ class Assignment(sql.Base, assignment.Driver):
             raise exception.DomainNotFound(domain_id=domain_name)
         return ref.to_dict()
 
-    @sql.handle_conflicts(type='domain')
+    @sql.handle_conflicts(conflict_type='domain')
     def update_domain(self, domain_id, domain):
         session = self.get_session()
         with session.begin():
@@ -554,7 +554,7 @@ class Assignment(sql.Base, assignment.Driver):
 
     # role crud
 
-    @sql.handle_conflicts(type='role')
+    @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
         session = self.get_session()
         with session.begin():
@@ -578,7 +578,7 @@ class Assignment(sql.Base, assignment.Driver):
         session = self.get_session()
         return self._get_role(session, role_id).to_dict()
 
-    @sql.handle_conflicts(type='role')
+    @sql.handle_conflicts(conflict_type='role')
     def update_role(self, role_id, role):
         session = self.get_session()
         with session.begin():

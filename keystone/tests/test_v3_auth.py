@@ -1080,9 +1080,9 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
 
 class TestAuthExternalDisabled(test_v3.RestfulTestCase):
     def config_files(self):
-        list = self._config_file_list[:]
-        list.append(tests.testsdir('auth_plugin_external_disabled.conf'))
-        return list
+        cfg_list = self._config_file_list[:]
+        cfg_list.append(tests.testsdir('auth_plugin_external_disabled.conf'))
+        return cfg_list
 
     def test_remote_user_disabled(self):
         api = auth.controllers.Auth()
@@ -1100,9 +1100,9 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
     def config_files(self):
-        list = self._config_file_list[:]
-        list.append(tests.testsdir('auth_plugin_external_domain.conf'))
-        return list
+        cfg_list = self._config_file_list[:]
+        cfg_list.append(tests.testsdir('auth_plugin_external_domain.conf'))
+        return cfg_list
 
     def test_remote_user_with_realm(self):
         api = auth.controllers.Auth()

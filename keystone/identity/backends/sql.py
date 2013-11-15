@@ -110,7 +110,7 @@ class Identity(sql.Base, identity.Driver):
 
     # user crud
 
-    @sql.handle_conflicts(type='user')
+    @sql.handle_conflicts(conflict_type='user')
     def create_user(self, user_id, user):
         user = utils.hash_user_password(user)
         session = self.get_session()
@@ -146,7 +146,7 @@ class Identity(sql.Base, identity.Driver):
             raise exception.UserNotFound(user_id=user_name)
         return identity.filter_user(user_ref.to_dict())
 
-    @sql.handle_conflicts(type='user')
+    @sql.handle_conflicts(conflict_type='user')
     def update_user(self, user_id, user):
         session = self.get_session()
         if 'id' in user and user_id != user['id']:
@@ -237,7 +237,7 @@ class Identity(sql.Base, identity.Driver):
 
     # group crud
 
-    @sql.handle_conflicts(type='group')
+    @sql.handle_conflicts(conflict_type='group')
     def create_group(self, group_id, group):
         session = self.get_session()
         with session.begin():
@@ -261,7 +261,7 @@ class Identity(sql.Base, identity.Driver):
         session = self.get_session()
         return self._get_group(session, group_id).to_dict()
 
-    @sql.handle_conflicts(type='group')
+    @sql.handle_conflicts(conflict_type='group')
     def update_group(self, group_id, group):
         session = self.get_session()
 
