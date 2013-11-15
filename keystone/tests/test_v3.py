@@ -1053,7 +1053,7 @@ class RestfulTestCase(rest.RestfulTestCase):
         if not auth_data:
             auth_data = self.build_authentication_request()['auth']
         no_context = None
-        auth_info = auth.controllers.AuthInfo(no_context, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(no_context, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         return context, auth_info, auth_context
 

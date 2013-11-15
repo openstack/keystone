@@ -62,7 +62,7 @@ class TestAuthPlugin(tests.TestCase):
         auth_data[method_name] = {'test': 'test'}
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
-                          auth.controllers.AuthInfo,
+                          auth.controllers.AuthInfo.create,
                           None,
                           auth_data)
 
@@ -71,7 +71,7 @@ class TestAuthPlugin(tests.TestCase):
         auth_data['simple-challenge-response'] = {
             'test': 'test'}
         auth_data = {'identity': auth_data}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         try:
             self.api.authenticate({'environment': {}}, auth_info, auth_context)
@@ -86,7 +86,7 @@ class TestAuthPlugin(tests.TestCase):
         auth_data['simple-challenge-response'] = {
             'response': EXPECTED_RESPONSE}
         auth_data = {'identity': auth_data}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.api.authenticate({'environment': {}}, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'], DEMO_USER_ID)
@@ -96,7 +96,7 @@ class TestAuthPlugin(tests.TestCase):
         auth_data['simple-challenge-response'] = {
             'response': uuid.uuid4().hex}
         auth_data = {'identity': auth_data}
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,
                           self.api.authenticate,

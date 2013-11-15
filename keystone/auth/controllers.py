@@ -14,17 +14,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
-from keystone import identity
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log as logging
 from keystone import token
-from keystone import trust
 
 
 LOG = logging.getLogger(__name__)
@@ -49,14 +46,17 @@ def get_auth_method(method_name):
     return AUTH_METHODS[method_name]
 
 
-@dependency.requires('assignment_api')
+@dependency.requires('assignment_api', 'identity_api', 'trust_api')
 class AuthInfo(object):
     """Encapsulation of "auth" request."""
 
+    @staticmethod
+    def create(context, auth=None):
+        auth_info = AuthInfo(context, auth=auth)
+        auth_info._validate_and_normalize_auth_data()
+        return auth_info
+
     def __init__(self, context, auth=None):
-        self.assignment_api = assignment.Manager()
-        self.identity_api = identity.Manager()
-        self.trust_api = trust.Manager()
         self.context = context
         self.auth = auth
         self._scope_data = (None, None, None)
@@ -65,7 +65,6 @@ class AuthInfo(object):
         # domain scope: (domain_id, None, None)
         # trust scope: (None, None, trust_ref)
         # unscoped: (None, None, None)
-        self._validate_and_normalize_auth_data()
 
     def _assert_project_is_enabled(self, project_ref):
         # ensure the project is enabled
@@ -284,7 +283,7 @@ class Auth(controller.V3Controller):
         include_catalog = 'nocatalog' not in context['query_string']
 
         try:
-            auth_info = AuthInfo(context, auth=auth)
+            auth_info = AuthInfo.create(context, auth=auth)
             auth_context = {'extras': {}, 'method_names': [], 'bind': {}}
             self.authenticate(context, auth_info, auth_context)
             if auth_context.get('access_token_id'):
