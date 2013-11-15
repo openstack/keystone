@@ -1,10 +1,10 @@
-hacking>=0.5.6,<0.8
+hacking>=0.8.0,<0.9
 
 # Optional backend: SQL
 pysqlite
 
 # Optional backend: Memcache
-python-memcached
+python-memcached>=1.48
 
 # Optional backend: LDAP
 # authenticate against an existing LDAP server
