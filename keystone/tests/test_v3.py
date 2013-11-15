@@ -263,6 +263,21 @@ class RestfulTestCase(rest.RestfulTestCase):
 
         return ref
 
+    def create_new_default_project_for_user(self, user_id, domain_id,
+                                            enable_project=True):
+        ref = self.new_project_ref(domain_id=domain_id)
+        ref['enabled'] = enable_project
+        r = self.post('/projects', body={'project': ref})
+        project = self.assertValidProjectResponse(r, ref)
+        # set the user's preferred project
+        body = {'user': {'default_project_id': project['id']}}
+        r = self.patch('/users/%(user_id)s' % {
+            'user_id': user_id},
+            body=body)
+        self.assertValidUserResponse(r)
+
+        return project
+
     def admin_request(self, *args, **kwargs):
         """Translates XML responses to dicts.
 
