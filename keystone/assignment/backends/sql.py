@@ -423,10 +423,6 @@ class Assignment(sql.Base, assignment.Driver):
             q = q.filter_by(project_id=tenant_id)
             q.delete(False)
 
-            q = session.query(UserProjectGrant)
-            q = q.filter_by(project_id=tenant_id)
-            q.delete(False)
-
             q = session.query(GroupProjectGrant)
             q = q.filter_by(project_id=tenant_id)
             q.delete(False)
