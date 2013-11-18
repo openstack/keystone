@@ -124,20 +124,67 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                           self.identity_api.get_user,
                           self.user_foo['id'])
 
-    def test_get_role_grant_by_user_and_project(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_get_role_grants_for_user_and_project_404(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_add_role_grant_to_user_and_project_404(self):
-        self.skipTest('Blocked by bug 1101287')
-
     def test_remove_role_grant_from_user_and_project(self):
-        self.skipTest('Blocked by bug 1101287')
+        self.assignment_api.create_grant(user_id=self.user_foo['id'],
+                                         project_id=self.tenant_baz['id'],
+                                         role_id='member')
+        roles_ref = self.assignment_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_baz['id'])
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.assignment_api.delete_grant(user_id=self.user_foo['id'],
+                                         project_id=self.tenant_baz['id'],
+                                         role_id='member')
+        roles_ref = self.assignment_api.list_grants(
+            user_id=self.user_foo['id'],
+            project_id=self.tenant_baz['id'])
+        self.assertEqual(len(roles_ref), 0)
+        self.assertRaises(exception.NotFound,
+                          self.assignment_api.delete_grant,
+                          user_id=self.user_foo['id'],
+                          project_id=self.tenant_baz['id'],
+                          role_id='member')
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
-        self.skipTest('Blocked by bug 1101287')
+        new_domain = self._get_domain_fixture()
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'enabled': True,
+                    'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user['id'], new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+
+        roles_ref = self.assignment_api.list_grants(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertEqual(roles_ref, [])
+        self.assertEqual(len(roles_ref), 0)
+
+        self.assignment_api.create_grant(group_id=new_group['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id='member')
+        roles_ref = self.assignment_api.list_grants(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertNotEmpty(roles_ref)
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.assignment_api.delete_grant(group_id=new_group['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id='member')
+        roles_ref = self.assignment_api.list_grants(
+            group_id=new_group['id'],
+            project_id=self.tenant_bar['id'])
+        self.assertEqual(len(roles_ref), 0)
+        self.assertRaises(exception.NotFound,
+                          self.assignment_api.delete_grant,
+                          group_id=new_group['id'],
+                          project_id=self.tenant_bar['id'],
+                          role_id='member')
 
     def test_delete_user_grant_no_user(self):
         self.skipTest('Blocked by bug 1101287')
@@ -179,10 +226,61 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
     def test_list_projects_for_user(self):
-        self.skipTest('Blocked by bug 1101287')
+        domain = self._get_domain_fixture()
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertEqual(len(user_projects), 0)
+        self.assignment_api.create_grant(user_id=user1['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_member['id'])
+        self.assignment_api.create_grant(user_id=user1['id'],
+                                         project_id=self.tenant_baz['id'],
+                                         role_id=self.role_member['id'])
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertEqual(len(user_projects), 2)
 
     def test_list_projects_for_user_with_grants(self):
-        self.skipTest('Blocked by bug 1221805')
+        domain = self._get_domain_fixture()
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': uuid.uuid4().hex, 'enabled': True,
+                    'domain_id': domain['id']}
+        self.identity_api.create_user(new_user['id'], new_user)
+
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group1['id'], group1)
+        group2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group2['id'], group2)
+
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project2['id'], project2)
+
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            group1['id'])
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            group2['id'])
+
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_member['id'])
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=project1['id'],
+                                         role_id=self.role_admin['id'])
+        self.assignment_api.create_grant(group_id=group2['id'],
+                                         project_id=project2['id'],
+                                         role_id=self.role_admin['id'])
+
+        user_projects = self.assignment_api.list_projects_for_user(
+            new_user['id'])
+        self.assertEqual(len(user_projects), 2)
 
     def test_create_duplicate_user_name_in_different_domains(self):
         self.skipTest('Blocked by bug 1101276')
@@ -217,7 +315,33 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
     def test_list_role_assignments_unfiltered(self):
-        self.skipTest('Blocked by bug 1221805')
+        new_domain = self._get_domain_fixture()
+        new_user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'password': uuid.uuid4().hex, 'enabled': True,
+                    'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user['id'],
+                                      new_user)
+        new_group = {'id': uuid.uuid4().hex, 'domain_id': new_domain['id'],
+                     'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+        new_project = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex,
+                       'domain_id': new_domain['id']}
+        self.assignment_api.create_project(new_project['id'], new_project)
+
+        # First check how many role grant already exist
+        existing_assignments = len(self.assignment_api.list_role_assignments())
+
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=new_project['id'],
+                                         role_id='other')
+        self.assignment_api.create_grant(group_id=new_group['id'],
+                                         project_id=new_project['id'],
+                                         role_id='admin')
+
+        # Read back the list of assignments - check it is gone up by 2
+        after_assignments = len(self.assignment_api.list_role_assignments())
+        self.assertEqual(after_assignments, existing_assignments + 2)
 
     def test_list_role_assignments_bad_role(self):
         self.skipTest('Blocked by bug 1221805')
@@ -920,16 +1044,10 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
             'N/A: LDAP does not support multiple domains')
 
     def test_create_grant_no_user(self):
-        # The LDAP assignment backend doesn't implement create_grant.
-        self.assertRaises(
-            exception.NotImplemented,
-            super(BaseLDAPIdentity, self).test_create_grant_no_user)
+        self.skipTest('Blocked by bug 1101287')
 
     def test_create_grant_no_group(self):
-        # The LDAP assignment backend doesn't implement create_grant.
-        self.assertRaises(
-            exception.NotImplemented,
-            super(BaseLDAPIdentity, self).test_create_grant_no_group)
+        self.skipTest('Blocked by bug 1101287')
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
@@ -1043,6 +1161,15 @@ class LdapIdentitySqlAssignment(sql.Base, tests.TestCase, BaseLDAPIdentity):
     def test_role_filter(self):
         self.skipTest(
             'N/A: Not part of SQL backend')
+
+    def test_add_role_grant_to_user_and_project_404(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_get_role_grants_for_user_and_project_404(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_list_projects_for_user_with_grants(self):
+        self.skipTest('Blocked by bug 1221805')
 
 
 class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
@@ -1274,3 +1401,12 @@ class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
         self.assertFalse(conf.identity.domain_specific_drivers_enabled)
         # ..and make sure a domain-specifc options is also set
         self.assertEqual(conf.ldap.url, 'fake://memory1')
+
+    def test_add_role_grant_to_user_and_project_404(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_get_role_grants_for_user_and_project_404(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_list_projects_for_user_with_grants(self):
+        self.skipTest('Blocked by bug 1221805')
