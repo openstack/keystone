@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import uuid
 import webob
 
@@ -50,7 +51,11 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
         self.public_server = self.serveapp('keystone', name='main')
         self.admin_server = self.serveapp('keystone', name='admin')
 
-        revdir = tests.checkout_vendor(*self.get_checkout())
+        checkout_info = self.get_checkout()
+        if isinstance(checkout_info, str):
+            revdir = checkout_info
+        else:
+            revdir = tests.checkout_vendor(*checkout_info)
         self.add_path(revdir)
         self.clear_module('keystoneclient')
 
@@ -1065,6 +1070,24 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         self.assertRaises(client_exceptions.Unauthorized, client.tenants.list)
         client.auth_token = new_token_id
         client.tenants.list()
+
+
+class KcOptTestCase(KcMasterTestCase):
+    # Set KSCTEST_PATH to the keystoneclient directory, then run this test.
+    #
+    # For example, to test your local keystoneclient,
+    #
+    # KSCTEST_PATH=/opt/stack/python-keystoneclient \
+    #  tox -e py27 test_keystoneclient.KcOptTestCase
+
+    def setUp(self):
+        self.path = os.environ.get('KSCTEST_PATH')
+        if not self.path:
+            self.skip('Set KSCTEST_PATH env to test with local client')
+        super(KcOptTestCase, self).setUp()
+
+    def get_checkout(self):
+        return self.path
 
 
 class KcEssex3TestCase(CompatTestCase, KeystoneClientTests):
