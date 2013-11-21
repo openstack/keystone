@@ -1339,6 +1339,14 @@ class SqlUpgradeTests(SqlMigrateBase):
         else:
             self.assertEqual(len(index_data), 0)
 
+    def test_revoked_token_index(self):
+        self.upgrade(35)
+        table = sqlalchemy.Table('token', self.metadata, autoload=True)
+        index_data = [(idx.name, idx.columns.keys())
+                      for idx in table.indexes]
+        self.assertIn(('ix_token_expires_valid', ['expires', 'valid']),
+                      index_data)
+
     def test_migrate_ec2_credential(self):
         user = {
             'id': 'foo',
