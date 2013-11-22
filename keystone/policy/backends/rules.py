@@ -101,3 +101,18 @@ class Policy(policy.Driver):
             'action': action,
             'credentials': credentials})
         enforce(credentials, action, target)
+
+    def create_policy(self, policy_id, policy):
+        raise exception.NotImplemented()
+
+    def list_policies(self):
+        raise exception.NotImplemented()
+
+    def get_policy(self, policy_id):
+        raise exception.NotImplemented()
+
+    def update_policy(self, policy_id, policy):
+        raise exception.NotImplemented()
+
+    def delete_policy(self, policy_id):
+        raise exception.NotImplemented()
