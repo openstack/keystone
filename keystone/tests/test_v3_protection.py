@@ -52,7 +52,26 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         # Ensure that test_v3.RestfulTestCase doesn't load its own
         # sample data, which would make checking the results of our
         # tests harder
-        super(IdentityTestProtectedCase, self).setUp(load_sample_data=False)
+        super(IdentityTestProtectedCase, self).setUp()
+
+        # Initialize the policy engine and allow us to write to a temp
+        # file in each test to create the policies
+        self.orig_policy_file = CONF.policy_file
+        rules.reset()
+        _unused, self.tmpfilename = tempfile.mkstemp()
+        self.opt(policy_file=self.tmpfilename)
+
+        # A default auth request we can use - un-scoped user token
+        self.auth = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'])
+
+    def tearDown(self):
+        super(IdentityTestProtectedCase, self).tearDown()
+        rules.reset()
+        self.opt(policy_file=self.orig_policy_file)
+
+    def load_sample_data(self):
         # Start by creating a couple of domains
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
@@ -97,23 +116,6 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assignment_api.create_grant(self.role1['id'],
                                          user_id=self.user1['id'],
                                          domain_id=self.domainA['id'])
-
-        # Initialize the policy engine and allow us to write to a temp
-        # file in each test to create the policies
-        self.orig_policy_file = CONF.policy_file
-        rules.reset()
-        _unused, self.tmpfilename = tempfile.mkstemp()
-        self.opt(policy_file=self.tmpfilename)
-
-        # A default auth request we can use - un-scoped user token
-        self.auth = self.build_authentication_request(
-            user_id=self.user1['id'],
-            password=self.user1['password'])
-
-    def tearDown(self):
-        super(IdentityTestProtectedCase, self).tearDown()
-        rules.reset()
-        self.opt(policy_file=self.orig_policy_file)
 
     def _get_id_list_from_ref_list(self, ref_list):
         result_list = []
@@ -407,8 +409,14 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         # Ensure that test_v3.RestfulTestCase doesn't load its own
         # sample data, which would make checking the results of our
         # tests harder
-        super(IdentityTestv3CloudPolicySample, self).setUp(
-            load_sample_data=False)
+        super(IdentityTestv3CloudPolicySample, self).setUp()
+
+        # Finally, switch to the v3 sample policy file
+        self.orig_policy_file = CONF.policy_file
+        rules.reset()
+        self.opt(policy_file=tests.etcdir('policy.v3cloudsample.json'))
+
+    def load_sample_data(self):
         # Start by creating a couple of domains
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
@@ -466,11 +474,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.just_a_user['id'],
                                          project_id=self.project['id'])
-
-        # Finally, switch to the v3 sample policy file
-        self.orig_policy_file = CONF.policy_file
-        rules.reset()
-        self.opt(policy_file=tests.etcdir('policy.v3cloudsample.json'))
 
     def tearDown(self):
         super(IdentityTestv3CloudPolicySample, self).tearDown()

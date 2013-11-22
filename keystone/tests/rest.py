@@ -55,23 +55,16 @@ class RestfulTestCase(tests.TestCase):
     # default content type to test
     content_type = 'json'
 
-    def setUp(self):
+    def setUp(self, app_conf='keystone'):
         super(RestfulTestCase, self).setUp()
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
         self.public_app = webtest.TestApp(
-            self.loadapp('keystone', name='main'))
+            self.loadapp(app_conf, name='main'))
         self.admin_app = webtest.TestApp(
-            self.loadapp('keystone', name='admin'))
-
-        # TODO(termie): add an admin user to the fixtures and use that user
-        # override the fixtures, for now
-        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'],
-            self.tenant_bar['id'],
-            self.role_admin['id'])
+            self.loadapp(app_conf, name='admin'))
 
     def tearDown(self):
         self.public_app = None
