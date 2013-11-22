@@ -22,6 +22,7 @@ from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.fixtures import appserver
 
 
 CONF = config.CONF
@@ -47,19 +48,15 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
             self.tenant_bar['id'],
             self.role_admin['id'])
 
-        self.public_server = self.serveapp('keystone', name='main')
-        self.admin_server = self.serveapp('keystone', name='admin')
+        conf = self._paste_config('keystone')
+        fixture = self.useFixture(appserver.AppServer(conf, appserver.MAIN))
+        self.public_server = fixture.server
+        fixture = self.useFixture(appserver.AppServer(conf, appserver.ADMIN))
+        self.admin_server = fixture.server
 
         revdir = tests.checkout_vendor(*self.get_checkout())
         self.add_path(revdir)
         self.clear_module('keystoneclient')
-
-    def tearDown(self):
-        self.public_server.kill()
-        self.admin_server.kill()
-        self.public_server = None
-        self.admin_server = None
-        super(CompatTestCase, self).tearDown()
 
     def _public_url(self):
         public_port = self.public_server.socket_info['socket'][1]

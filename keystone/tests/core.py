@@ -39,14 +39,11 @@ from keystone.openstack.common import gettextutils
 # Accept-Language in the request rather than the Keystone server locale.
 gettextutils.install('keystone', lazy=True)
 
-
-from keystone.common import environment
-environment.use_eventlet()
-
 from keystone import assignment
 from keystone import catalog
 from keystone.common import cache
 from keystone.common import dependency
+from keystone.common import environment
 from keystone.common import kvs
 from keystone.common import sql
 from keystone.common import utils
@@ -383,20 +380,6 @@ class TestCase(testtools.TestCase):
 
     def appconfig(self, config):
         return deploy.appconfig(self._paste_config(config))
-
-    def serveapp(self, config, name=None, cert=None, key=None, ca=None,
-                 cert_required=None, host="127.0.0.1", port=0):
-        app = self.loadapp(config, name=name)
-        server = environment.Server(app, host, port)
-        if cert is not None and ca is not None and key is not None:
-            server.set_ssl(certfile=cert, keyfile=key, ca_certs=ca,
-                           cert_required=cert_required)
-        server.start(key='socket')
-
-        # Service catalog tests need to know the port we ran on.
-        port = server.socket_info['socket'][1]
-        self.opt(public_port=port, admin_port=port)
-        return server
 
     def client(self, app, *args, **kw):
         return TestClient(app, *args, **kw)
