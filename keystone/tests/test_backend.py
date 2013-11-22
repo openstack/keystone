@@ -2418,17 +2418,17 @@ class IdentityTests(object):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
         self.assignment_api.create_domain(domain['id'], domain)
-        domain_ref = self.identity_api.get_domain(domain['id'])
+        domain_ref = self.assignment_api.get_domain(domain['id'])
         self.assertDictEqual(domain_ref, domain)
 
         domain['name'] = uuid.uuid4().hex
         self.assignment_api.update_domain(domain['id'], domain)
-        domain_ref = self.identity_api.get_domain(domain['id'])
+        domain_ref = self.assignment_api.get_domain(domain['id'])
         self.assertDictEqual(domain_ref, domain)
 
         self.assignment_api.delete_domain(domain['id'])
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.get_domain,
+                          self.assignment_api.get_domain,
                           domain['id'])
 
     def test_create_domain_case_sensitivity(self):

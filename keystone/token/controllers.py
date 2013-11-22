@@ -351,7 +351,7 @@ class Auth(controller.V2Controller):
         domain_name = auth.get('domainName', None)
         if domain_name:
             try:
-                domain_ref = self.identity_api._get_domain_by_name(
+                domain_ref = self.assignment_api.get_domain_by_name(
                     domain_name)
                 domain_id = domain_ref['id']
             except exception.DomainNotFound as e:

@@ -287,7 +287,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # Check all the domain2 relevant entities are gone
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.get_domain,
+                          self.assignment_api.get_domain,
                           self.domain2['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.get_project,
@@ -303,7 +303,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                           self.credential2['id'])
 
         # ...and that all self.domain entities are still here
-        r = self.identity_api.get_domain(self.domain['id'])
+        r = self.assignment_api.get_domain(self.domain['id'])
         self.assertDictEqual(r, self.domain)
         r = self.assignment_api.get_project(self.project['id'])
         self.assertDictEqual(r, self.project)

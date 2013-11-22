@@ -40,7 +40,7 @@ CONF = config.CONF
 class BaseLDAPIdentity(test_backend.IdentityTests):
     def _get_domain_fixture(self):
         """Domains in LDAP are read-only, so just return the static one."""
-        return self.identity_api.get_domain(CONF.identity.default_domain_id)
+        return self.assignment_api.get_domain(CONF.identity.default_domain_id)
 
     def clear_database(self):
         for shelf in fakeldap.FakeShelves:
@@ -267,7 +267,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertEqual(res[0]['id'], user_1_id, "Expected user 1 id")
 
     def test_list_domains(self):
-        domains = self.identity_api.list_domains()
+        domains = self.assignment_api.list_domains()
         self.assertEqual(
             domains,
             [assignment.DEFAULT_DOMAIN])
@@ -729,7 +729,7 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
                           CONF.identity.default_domain_id,
                           domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.get_domain,
+                          self.assignment_api.get_domain,
                           domain['id'])
 
         domain['description'] = uuid.uuid4().hex
@@ -742,7 +742,7 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
                           CONF.identity.default_domain_id,
                           domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.get_domain,
+                          self.assignment_api.get_domain,
                           domain['id'])
         self.assertRaises(exception.DomainNotFound,
                           self.assignment_api.delete_domain,
@@ -751,7 +751,7 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
                           self.assignment_api.delete_domain,
                           CONF.identity.default_domain_id)
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.get_domain,
+                          self.assignment_api.get_domain,
                           domain['id'])
 
     def test_create_domain_case_sensitivity(self):
@@ -1004,7 +1004,7 @@ class LdapIdentitySqlAssignment(sql.Base, tests.TestCase, BaseLDAPIdentity):
         pass
 
     def test_list_domains(self):
-        domains = self.identity_api.list_domains()
+        domains = self.assignment_api.list_domains()
         self.assertEqual(domains, [assignment.DEFAULT_DOMAIN])
 
     def test_project_filter(self):

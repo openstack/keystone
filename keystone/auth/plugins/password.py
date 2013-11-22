@@ -24,7 +24,7 @@ METHOD_NAME = 'password'
 LOG = logging.getLogger(__name__)
 
 
-@dependency.requires('identity_api')
+@dependency.requires('assignment_api', 'identity_api')
 class UserAuthInfo(object):
     @staticmethod
     def create(auth_payload):
@@ -58,9 +58,10 @@ class UserAuthInfo(object):
                                             target='domain')
         try:
             if domain_name:
-                domain_ref = self.identity_api.get_domain_by_name(domain_name)
+                domain_ref = self.assignment_api.get_domain_by_name(
+                    domain_name)
             else:
-                domain_ref = self.identity_api.get_domain(domain_id)
+                domain_ref = self.assignment_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
@@ -89,7 +90,7 @@ class UserAuthInfo(object):
                     user_name, domain_ref['id'])
             else:
                 user_ref = self.identity_api.get_user(user_id)
-                domain_ref = self.identity_api.get_domain(
+                domain_ref = self.assignment_api.get_domain(
                     user_ref['domain_id'])
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:

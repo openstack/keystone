@@ -27,6 +27,7 @@ from keystone import clean
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import manager
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone import notifications
@@ -279,7 +280,7 @@ class Manager(manager.Manager):
         if driver:
             return driver
         else:
-            self.get_domain(domain_id)
+            self.assignment_api.get_domain(domain_id)
             return self.driver
 
     def _get_domain_conf(self, domain_id):
@@ -453,24 +454,160 @@ class Manager(manager.Manager):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
         return driver.check_user_in_group(user_id, group_id)
 
-    # TODO(henry-nash, ayoung) The following cross calls to the assignment
-    # API should be removed, with the controller and tests making the correct
-    # calls direct to assignment.
-
-    # NOTE(tellesmvn):The following 4 methods where not removed since ayoung
-    # told me not to because someone else is working on a new feature involving
-    # these methods where the idea is to identify in which domain the user is
+    # TODO(morganfainberg): Remove the following deprecated methods once
+    # Icehouse is released.  Maintain identity -> assignment proxy for 1
+    # release.
+    @utils.deprecated('I', in_favor_of='assignment_api.get_domain_by_name',
+                      remove_in=1, what='identity_api.get_domain_by_name')
     def get_domain_by_name(self, domain_name):
         return self.assignment_api.get_domain_by_name(domain_name)
 
+    @utils.deprecated('I', in_favor_of='assignment_api.get_domain',
+                      remove_in=1, what='identity_api.get_domain')
     def get_domain(self, domain_id):
         return self.assignment_api.get_domain(domain_id)
 
+    @utils.deprecated('I', in_favor_of='assignment_api.update_domain',
+                      remove_in=1, what='identity_api.update_domain')
     def update_domain(self, domain_id, domain):
         return self.assignment_api.update_domain(domain_id, domain)
 
+    @utils.deprecated('I', in_favor_of='assignment_api.list_domains',
+                      remove_in=1, what='identity_api.list_domains')
     def list_domains(self):
         return self.assignment_api.list_domains()
+
+    @utils.deprecated('I', in_favor_of='assignment_api.delete_domain',
+                      remove_in=1, what='identity_api.delete_domain')
+    def delete_domain(self, domain_id):
+        return self.assignment_api.delete_domain(domain_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.create_domain',
+                      remove_in=1, what='identity_api.create_domain')
+    def create_domain(self, domain_id, domain):
+        return self.assignment_api.create_domain(domain_id, domain)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.list_projects_for_user',
+                      remove_in=1, what='identity_api.list_projects_for_user')
+    def list_projects_for_user(self, user_id):
+        return self.assignment_api.list_projects_for_user(user_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.add_user_to_project',
+                      remove_in=1, what='identity_api.add_user_to_project')
+    def add_user_to_project(self, tenant_id, user_id):
+        return self.assignment_api.add_user_to_project(tenant_id, user_id)
+
+    @utils.deprecated('I',
+                      in_favor_of='assignment_api.remove_user_from_project',
+                      remove_in=1,
+                      what='identity_api.remove_user_from_project')
+    def remove_user_from_project(self, tenant_id, user_id):
+        return self.assignment_api.remove_user_from_project(tenant_id, user_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.get_project',
+                      remove_in=1, what='identity_api.get_project')
+    def get_project(self, tenant_id):
+        return self.assignment_api.get_project(tenant_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.list_projects',
+                      remove_in=1, what='identity_api.list_projects')
+    def list_projects(self, domain_id=None):
+        return self.assignment_api.list_projects(domain_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.get_role',
+                      remove_in=1, what='identity_api.get_role')
+    def get_role(self, role_id):
+        return self.assignment_api.get_role(role_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.list_roles',
+                      remove_in=1, what='identity_api.list_roles')
+    def list_roles(self):
+        return self.assignment_api.list_roles()
+
+    @utils.deprecated('I', in_favor_of='assignment_api.get_project_users',
+                      remove_in=1, what='identity_api.get_project_users')
+    def get_project_users(self, tenant_id):
+        return self.assignment_api.get_project_users(tenant_id)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.list_projects_for_user',
+                      remove_in=1, what='identity_api.list_projects_for_user')
+    def get_roles_for_user_and_project(self, user_id, tenant_id):
+        return self.assignment_api.get_roles_for_user_and_project(
+            user_id, tenant_id)
+
+    @utils.deprecated(
+        'I', in_favor_of='assignment_api.get_roles_for_user_and_domain',
+        remove_in=1, what='identity_api.get_roles_for_user_and_domain')
+    def get_roles_for_user_and_domain(self, user_id, domain_id):
+        return (self.assignment_api.get_roles_for_user_and_domain
+                (user_id, domain_id))
+
+    @utils.deprecated(
+        'I', in_favor_of='assignment_api.add_role_to_user_and_project',
+        remove_in=1, what='identity_api.add_role_to_user_and_project')
+    def add_role_to_user_and_project(self, user_id,
+                                     tenant_id, role_id):
+        return (self.assignment_api.add_role_to_user_and_project
+                (user_id, tenant_id, role_id))
+
+    @utils.deprecated('I', in_favor_of='assignment_api.create_role',
+                      remove_in=1, what='identity_api.create_role')
+    def create_role(self, role_id, role):
+        return self.assignment_api.create_role(role_id, role)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.delete_role',
+                      remove_in=1, what='identity_api.delete_role')
+    def delete_role(self, role_id):
+        return self.assignment_api.delete_role(role_id)
+
+    @utils.deprecated(
+        'I', in_favor_of='assignment_api.remove_role_from_user_and_project',
+        remove_in=1, what='identity_api.remove_role_from_user_and_project')
+    def remove_role_from_user_and_project(self, user_id,
+                                          tenant_id, role_id):
+        return (self.assignment_api.remove_role_from_user_and_project
+                (user_id, tenant_id, role_id))
+
+    @utils.deprecated('I', in_favor_of='assignment_api.update_role',
+                      remove_in=1, what='identity_api.update_role')
+    def update_role(self, role_id, role):
+        return self.assignment_api.update_role(role_id, role)
+
+    @utils.deprecated('I', in_favor_of='assignment_api.create_grant',
+                      remove_in=1, what='identity_api.create_grant')
+    def create_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        return (self.assignment_api.create_grant
+                (role_id, user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
+
+    @utils.deprecated('I', in_favor_of='assignment_api.list_grants',
+                      remove_in=1, what='identity_api.list_grants')
+    def list_grants(self, user_id=None, group_id=None,
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
+        return (self.assignment_api.list_grants
+                (user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
+
+    @utils.deprecated('I', in_favor_of='assignment_api.get_grant',
+                      remove_in=1, what='identity_api.get_grant')
+    def get_grant(self, role_id, user_id=None, group_id=None,
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
+        return (self.assignment_api.get_grant
+                (role_id, user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
+
+    @utils.deprecated('I', in_favor_of='assignment_api.delete_grant',
+                      remove_in=1, what='identity_api.delete_grant')
+    def delete_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        return (self.assignment_api.delete_grant
+                (role_id, user_id, group_id, domain_id, project_id,
+                 inherited_to_projects))
 
 
 @six.add_metaclass(abc.ABCMeta)
