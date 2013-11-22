@@ -428,6 +428,10 @@ password = keystone.auth.plugins.password.Password
 token = keystone.auth.plugins.token.Token
 oauth1 = keystone.auth.plugins.oauth1.OAuth
 
+[memcache]
+# servers = localhost:11211
+# max_compare_and_set_retry = 16
+
 [paste_deploy]
 # Name of the paste configuration file that defines the available pipelines
 config_file = keystone-paste.ini
