@@ -241,6 +241,6 @@ class NotImplemented(Error):
     title = 'Not Implemented'
 
 
-class PasteConfigNotFound(UnexpectedError):
-    message_format = _("The Keystone paste configuration file"
-                       " %(config_file)s could not be found.")
+class ConfigFileNotFound(UnexpectedError):
+    message_format = _("The Keystone configuration file %(config_file)s could "
+                       "not be found.")
