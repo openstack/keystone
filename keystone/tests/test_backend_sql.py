@@ -22,9 +22,11 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
+from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import test_backend
+from keystone.token.backends import sql as token_sql
 
 
 CONF = config.CONF
@@ -352,7 +354,23 @@ class SqlTrust(SqlTests, test_backend.TrustTests):
 
 
 class SqlToken(SqlTests, test_backend.TokenTests):
-    pass
+    def test_token_revocation_list_uses_right_columns(self):
+        # This query used to be heavy with too many columns. We want
+        # to make sure it is only running with the minimum columns
+        # necessary.
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.mox = fixture.mox
+        tok = token_sql.Token()
+        session = tok.get_session()
+        q = session.query(token_sql.TokenModel.id,
+                          token_sql.TokenModel.expires)
+        self.mox.StubOutWithMock(session, 'query')
+        session.query(token_sql.TokenModel.id,
+                      token_sql.TokenModel.expires).AndReturn(q)
+        self.mox.StubOutWithMock(tok, 'get_session')
+        tok.get_session().AndReturn(session)
+        self.mox.ReplayAll()
+        tok.list_revoked_tokens()
 
 
 class SqlCatalog(SqlTests, test_backend.CatalogTests):

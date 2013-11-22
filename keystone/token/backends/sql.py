@@ -33,7 +33,7 @@ class TokenModel(sql.ModelBase, sql.DictBase):
     trust_id = sql.Column(sql.String(64))
     __table_args__ = (
         sql.Index('ix_token_expires', 'expires'),
-        sql.Index('ix_token_valid', 'valid')
+        sql.Index('ix_token_expires_valid', 'expires', 'valid')
     )
 
 
@@ -181,13 +181,13 @@ class Token(sql.Base, token.Driver):
         session = self.get_session()
         tokens = []
         now = timeutils.utcnow()
-        query = session.query(TokenModel)
+        query = session.query(TokenModel.id, TokenModel.expires)
         query = query.filter(TokenModel.expires > now)
         token_references = query.filter_by(valid=False)
         for token_ref in token_references:
             record = {
-                'id': token_ref['id'],
-                'expires': token_ref['expires'],
+                'id': token_ref[0],
+                'expires': token_ref[1],
             }
             tokens.append(record)
         return tokens
