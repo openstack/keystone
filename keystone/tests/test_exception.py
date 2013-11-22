@@ -85,6 +85,20 @@ class ExceptionTestCase(tests.TestCase):
         except UnicodeEncodeError:
             self.fail("unicode error message not supported")
 
+    def test_unicode_string(self):
+        e = exception.ValidationError(attribute='xx',
+                                      target='Long \xe2\x80\x93 Dash')
+
+        self.assertIn(u'\u2013', e.message)
+
+    def test_invalid_unicode_string(self):
+        # NOTE(jamielennox): This is a complete failure case so what is
+        # returned in the e.message is not that important so long as there is
+        # an error with a message
+        e = exception.ValidationError(attribute='xx',
+                                      target='\xe7a va')
+        self.assertIn('%(attribute)', e.message)
+
 
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
