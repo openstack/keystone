@@ -67,7 +67,6 @@ def main(argv):
     install.install_dependencies()
     install.run_command([os.path.join(venv, 'bin/python'),
                         'setup.py', 'develop'])
-    install.post_process()
     print_help()
 
 
