@@ -51,7 +51,6 @@ from keystone.common import environment
 environment.use_eventlet()
 
 from keystone import auth
-from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
@@ -65,6 +64,7 @@ from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone import service
+from keystone.tests import fixtures as ksfixtures
 
 # NOTE(dstanek): Tests inheriting from TestCase depend on having the
 #   policy_file command-line option declared before setUp runs. Importing the
@@ -328,16 +328,9 @@ class TestCase(testtools.TestCase):
 
         self.opt(policy_file=dirs.etc('policy.json'))
 
-        # NOTE(morganfainberg):  The only way to reconfigure the
-        # CacheRegion object on each setUp() call is to remove the
-        # .backend property.
-        self.addCleanup(delattr, cache.REGION, 'backend')
-
-        # ensure the cache region instance is setup
-        cache.configure_cache_region(cache.REGION)
-
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
         warnings.filterwarnings('ignore', category=DeprecationWarning)
+        self.useFixture(ksfixtures.Cache())
 
         # Clear the registry of providers so that providers from previous
         # tests aren't used.
