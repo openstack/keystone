@@ -217,9 +217,9 @@ def drop_unique_constraint(migrate_engine, table_name, uc_name, *columns,
     NullType with the correct column type.
 
     :param migrate_engine: sqlalchemy engine
-    :param table_name:     name of table that contains uniq constraint.
-    :param uc_name:        name of uniq constraint that will be dropped.
-    :param columns:        columns that are in uniq constraint.
+    :param table_name:     name of table that contains unique constraint.
+    :param uc_name:        name of unique constraint that will be dropped.
+    :param columns:        columns that are in unique constraint.
     :param col_name_col_instance:   contains pair column_name=column_instance.
                             column_instance is instance of Column. These params
                             are required only for columns that have unsupported

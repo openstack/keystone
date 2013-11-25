@@ -47,7 +47,7 @@ class ModelBase(object):
         #                 raises NoneType exception if there is no running
         #                 transaction and rollback is called. As long as
         #                 sqlalchemy has this bug we have to create transaction
-        #                 explicity.
+        #                 explicitly.
         with session.begin(subtransactions=True):
             session.add(self)
             session.flush()

@@ -29,8 +29,8 @@ class EndpointFilterV3Controller(controller.V3Controller):
         """Establishes an association between an endpoint and a project."""
         # NOTE(gyee): we just need to make sure endpoint and project exist
         # first. We don't really care whether if project is disabled.
-        # The relationship can still be establed even with a disabled project
-        # as there are no security implications.
+        # The relationship can still be established even with a disabled
+        # project as there are no security implications.
         self.catalog_api.get_endpoint(endpoint_id)
         self.assignment_api.get_project(project_id)
         # NOTE(gyee): we may need to cleanup any existing project-endpoint

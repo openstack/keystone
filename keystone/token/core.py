@@ -52,7 +52,7 @@ def default_expire_time():
 def validate_auth_info(self, user_ref, tenant_ref):
     """Validate user and tenant auth info.
 
-    Validate the user and tenant auth into in order to ensure that user and
+    Validate the user and tenant auth info in order to ensure that user and
     tenant information is valid and not disabled.
 
     Consolidate the checks here to ensure consistency between token auth and
