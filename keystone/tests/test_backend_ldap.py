@@ -340,6 +340,9 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertRaises(exception.Conflict,
                           super(BaseLDAPIdentity, self).test_update_user_name)
 
+    def test_arbitrary_attributes_are_returned_from_create_user(self):
+        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
+
     def test_arbitrary_attributes_are_returned_from_get_user(self):
         self.skipTest("Using arbitrary attributes doesn't work under LDAP")
 
