@@ -227,6 +227,9 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
     def test_create_unicode_user_name(self):
         self.skipTest('Addressed by bug #1172106')
 
+    def test_create_update_delete_unicode_project(self):
+        self.skipTest('Addressed by bug #1172106')
+
     def test_create_project_case_sensitivity(self):
         # The attribute used for the live LDAP tests is case insensitive.
 
