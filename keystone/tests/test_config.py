@@ -14,6 +14,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import uuid
+
 from keystone import config
 from keystone import exception
 from keystone import tests
@@ -26,8 +28,8 @@ class ConfigTestCase(tests.TestCase):
     def test_paste_config(self):
         self.assertEqual(config.find_paste_config(),
                          tests.etcdir('keystone-paste.ini'))
-        self.opt_in_group('paste_deploy', config_file='XYZ')
-        self.assertRaises(exception.PasteConfigNotFound,
+        self.opt_in_group('paste_deploy', config_file=uuid.uuid4().hex)
+        self.assertRaises(exception.ConfigFileNotFound,
                           config.find_paste_config)
         self.opt_in_group('paste_deploy', config_file='')
         self.assertEqual(config.find_paste_config(),

@@ -30,16 +30,20 @@ configure = config.configure
 
 
 def find_paste_config():
-    """Selects Keystone paste.deploy configuration file.
+    """Find Keystone's paste.deploy configuration file.
 
-    Keystone paste.deploy configuration file is selectd in [paste_deploy]
-    section of the main Keystone configuration file.
-    For example:
+    Keystone's paste.deploy configuration file is specified in the
+    ``[paste_deploy]`` section of the main Keystone configuration file,
+    ``keystone.conf``.
+
+    For example::
+
         [paste_deploy]
         config_file = keystone-paste.ini
 
     :returns: The selected configuration filename
-    :raises: exception.PasteConfigNotFound
+    :raises: exception.ConfigFileNotFound
+
     """
     if CONF.paste_deploy.config_file:
         paste_config = CONF.paste_deploy.config_file
@@ -50,8 +54,11 @@ def find_paste_config():
         paste_config = CONF.config_file[0]
         paste_config_value = paste_config
     else:
+        # this provides backwards compatibility for keystone.conf files that
+        # still have the entire paste configuration included, rather than just
+        # a [paste_deploy] configuration section referring to an external file
         paste_config = CONF.find_file('keystone.conf')
         paste_config_value = 'keystone.conf'
     if not paste_config or not os.path.exists(paste_config):
-        raise exception.PasteConfigNotFound(config_file=paste_config_value)
+        raise exception.ConfigFileNotFound(config_file=paste_config_value)
     return paste_config
