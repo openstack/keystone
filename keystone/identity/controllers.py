@@ -60,7 +60,7 @@ class Tenant(controller.V2Controller):
         try:
             token_ref = self.token_api.get_token(context['token_id'])
         except exception.NotFound as e:
-            LOG.warning(_('Authentication failed: %s') % e)
+            LOG.warning(_('Authentication failed: %s'), e)
             raise exception.Unauthorized(e)
 
         user_ref = token_ref['user']
@@ -1116,7 +1116,7 @@ class RoleAssignmentV3(controller.V3Controller):
                     target = 'Unknown'
                 LOG.warning(
                     _('Group %(group)s not found for role-assignment - '
-                      '%(target)s with Role: %(role)s') % {
+                      '%(target)s with Role: %(role)s'), {
                           'group': ref['group_id'], 'target': target,
                           'role': ref.get('role_id')})
             return members

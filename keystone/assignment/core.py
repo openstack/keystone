@@ -222,7 +222,7 @@ class Manager(manager.Manager):
                 config.CONF.member_role_id)
         except exception.RoleNotFound:
             LOG.info(_("Creating the default role %s "
-                       "because it does not exist.") %
+                       "because it does not exist."),
                      config.CONF.member_role_id)
             role = {'id': CONF.member_role_id,
                     'name': CONF.member_role_name}

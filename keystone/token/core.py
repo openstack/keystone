@@ -65,7 +65,7 @@ def validate_auth_info(self, user_ref, tenant_ref):
     """
     # If the user is disabled don't allow them to authenticate
     if not user_ref.get('enabled', True):
-        msg = 'User is disabled: %s' % user_ref['id']
+        msg = _('User is disabled: %s') % user_ref['id']
         LOG.warning(msg)
         raise exception.Unauthorized(msg)
 
@@ -73,14 +73,14 @@ def validate_auth_info(self, user_ref, tenant_ref):
     user_domain_ref = self.assignment_api.get_domain(
         user_ref['domain_id'])
     if user_domain_ref and not user_domain_ref.get('enabled', True):
-        msg = 'Domain is disabled: %s' % user_domain_ref['id']
+        msg = _('Domain is disabled: %s') % user_domain_ref['id']
         LOG.warning(msg)
         raise exception.Unauthorized(msg)
 
     if tenant_ref:
         # If the project is disabled don't allow them to authenticate
         if not tenant_ref.get('enabled', True):
-            msg = 'Tenant is disabled: %s' % tenant_ref['id']
+            msg = _('Tenant is disabled: %s') % tenant_ref['id']
             LOG.warning(msg)
             raise exception.Unauthorized(msg)
 
@@ -89,7 +89,7 @@ def validate_auth_info(self, user_ref, tenant_ref):
             tenant_ref['domain_id'])
         if (project_domain_ref and
                 not project_domain_ref.get('enabled', True)):
-            msg = 'Domain is disabled: %s' % project_domain_ref['id']
+            msg = _('Domain is disabled: %s') % project_domain_ref['id']
             LOG.warning(msg)
             raise exception.Unauthorized(msg)
 

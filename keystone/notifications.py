@@ -93,6 +93,6 @@ def _send_notification(operation, resource_type, resource_id, host=None):
         notifier_api.notify(
             context, publisher_id, event_type, notifier_api.INFO, payload)
     except Exception:
-        msg = (_('Failed to send %(res_id)s %(event_type)s notification') %
-               {'res_id': resource_id, 'event_type': event_type})
-        LOG.exception(msg)
+        LOG.exception(
+            _('Failed to send %(res_id)s %(event_type)s notification'),
+            {'res_id': resource_id, 'event_type': event_type})

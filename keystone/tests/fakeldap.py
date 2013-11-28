@@ -190,7 +190,7 @@ class FakeLdap(object):
 
         if not utils.ldap_check_password(password, db_password):
             LOG.debug(_('FakeLdap bind fail: password for dn=%s does'
-                      ' not match') % dn)
+                      ' not match'), dn)
             raise ldap.INVALID_CREDENTIALS
 
     def unbind_s(self):
@@ -209,7 +209,7 @@ class FakeLdap(object):
                 raise TypeError('must be string, not None. attrs=%s' % attrs)
 
         key = '%s%s' % (self.__prefix, dn)
-        LOG.debug(_('FakeLdap add item: dn=%(dn)s, attrs=%(attrs)s') % {
+        LOG.debug(_('FakeLdap add item: dn=%(dn)s, attrs=%(attrs)s'), {
             'dn': dn, 'attrs': attrs})
         if key in self.db:
             LOG.debug(_('FakeLdap add item failed: dn=%s is'
@@ -259,7 +259,7 @@ class FakeLdap(object):
             raise ldap.SERVER_DOWN
 
         key = '%s%s' % (self.__prefix, dn)
-        LOG.debug(_('FakeLdap modify item: dn=%(dn)s attrs=%(attrs)s') % {
+        LOG.debug(_('FakeLdap modify item: dn=%(dn)s attrs=%(attrs)s'), {
             'dn': dn, 'attrs': attrs})
         try:
             entry = self.db[key]
@@ -291,7 +291,7 @@ class FakeLdap(object):
                         except ValueError:
                             LOG.debug(_('FakeLdap modify item failed: '
                                       'item has no attribute "%(k)s" with '
-                                      'value "%(v)s" to delete') % {
+                                      'value "%(v)s" to delete'), {
                                           'k': k, 'v': val})
                             raise ldap.NO_SUCH_ATTRIBUTE
             else:
@@ -316,7 +316,7 @@ class FakeLdap(object):
             raise ldap.SERVER_DOWN
 
         LOG.debug(
-            _('FakeLdap search at dn=%(dn)s scope=%(scope)s query=%(query)s') %
+            _('FakeLdap search at dn=%(dn)s scope=%(scope)s query=%(query)s'),
             {'dn': dn, 'scope': SCOPE_NAMES.get(scope, scope), 'query': query})
         if scope == ldap.SCOPE_BASE:
             try:

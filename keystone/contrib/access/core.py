@@ -56,5 +56,5 @@ class AccessLogMiddleware(wsgi.Middleware):
             data['datetime'] = '%s %s' % (now.strftime(APACHE_TIME_FORMAT),
                                           now.strftime('%z') or '+0000')
 
-            LOG.info(APACHE_LOG_FORMAT % data)
+            LOG.info(APACHE_LOG_FORMAT, data)
         return response

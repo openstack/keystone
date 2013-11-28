@@ -39,6 +39,6 @@ class Provider(uuid.Provider):
                                           CONF.signing.keyfile)
             return token_id
         except environment.subprocess.CalledProcessError:
-            LOG.exception('Unable to sign token')
+            LOG.exception(_('Unable to sign token'))
             raise exception.UnexpectedError(_(
                 'Unable to sign token.'))

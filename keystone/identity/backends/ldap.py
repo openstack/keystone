@@ -160,7 +160,7 @@ class Identity(identity.Driver):
             except exception.UserNotFound:
                 LOG.debug(_("Group member '%(user_dn)s' not found in"
                             " '%(group_id)s'. The user should be removed"
-                            " from the group. The user will be ignored.") %
+                            " from the group. The user will be ignored."),
                           dict(user_dn=user_dn, group_id=group_id))
         return users
 

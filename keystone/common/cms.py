@@ -39,7 +39,7 @@ def cms_verify(formatted, signing_cert_file_name, ca_file_name):
     output, err = process.communicate(formatted)
     retcode = process.poll()
     if retcode:
-        LOG.error(_('Verify error: %s') % err)
+        LOG.error(_('Verify error: %s'), err)
         raise environment.subprocess.CalledProcessError(retcode,
                                                         "openssl", output=err)
     return output
@@ -135,7 +135,7 @@ def cms_sign_text(text, signing_cert_file_name, signing_key_file_name):
                       "ensure you've configured PKI with "
                       "'keystone-manage pki_setup'"))
         else:
-            LOG.error(_('Signing error: %s') % err)
+            LOG.error(_('Signing error: %s'), err)
         raise environment.subprocess.CalledProcessError(retcode, "openssl")
     return output
 

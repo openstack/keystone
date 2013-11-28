@@ -212,12 +212,12 @@ class BaseLdap(object):
             except Exception:
                 LOG.warn(_(
                     'Invalid additional attribute mapping: "%s". '
-                    'Format must be <ldap_attribute>:<keystone_attribute>')
-                    % item)
+                    'Format must be <ldap_attribute>:<keystone_attribute>'),
+                    item)
                 continue
             if attr_map not in self.attribute_mapping:
                 LOG.warn(_('Invalid additional attribute mapping: "%(item)s". '
-                           'Value "%(attr_map)s" must use one of %(keys)s.') %
+                           'Value "%(attr_map)s" must use one of %(keys)s.'),
                          {'item': item, 'attr_map': attr_map,
                           'keys': ', '.join(self.attribute_mapping.keys())})
                 continue
@@ -486,7 +486,7 @@ class LdapWrapper(object):
                   'tls_cacertfile=%(tls_cacertfile)s\n'
                   'tls_cacertdir=%(tls_cacertdir)s\n'
                   'tls_req_cert=%(tls_req_cert)s\n'
-                  'tls_avail=%(tls_avail)s\n') %
+                  'tls_avail=%(tls_avail)s\n'),
                   {'use_tls': use_tls,
                    'tls_cacertfile': tls_cacertfile,
                    'tls_cacertdir': tls_cacertdir,
@@ -562,7 +562,7 @@ class LdapWrapper(object):
                        if kind != 'userPassword'
                        else ['****'])
                       for kind, values in ldap_attrs]
-        LOG.debug(_('LDAP add: dn=%(dn)s, attrs=%(attrs)s') % {
+        LOG.debug(_('LDAP add: dn=%(dn)s, attrs=%(attrs)s'), {
             'dn': dn, 'attrs': sane_attrs})
         return self.conn.add_s(dn, ldap_attrs)
 
@@ -575,7 +575,7 @@ class LdapWrapper(object):
             attrlist = [attr for attr in attrlist if attr is not None]
         LOG.debug(_(
             'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
-            'attrs=%(attrlist)s') % {
+            'attrs=%(attrlist)s'), {
                 'dn': dn,
                 'scope': scope,
                 'query': query,
@@ -642,7 +642,7 @@ class LdapWrapper(object):
         sane_modlist = [(op, kind, (values if kind != 'userPassword'
                                     else ['****']))
                         for op, kind, values in ldap_modlist]
-        LOG.debug(_('LDAP modify: dn=%(dn)s, modlist=%(modlist)s') % {
+        LOG.debug(_('LDAP modify: dn=%(dn)s, modlist=%(modlist)s'), {
             'dn': dn, 'modlist': sane_modlist})
 
         return self.conn.modify_s(dn, ldap_modlist)
@@ -653,7 +653,7 @@ class LdapWrapper(object):
 
     def delete_ext_s(self, dn, serverctrls):
         LOG.debug(
-            _('LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s') % {
+            _('LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s'), {
                 'dn': dn, 'serverctrls': serverctrls})
         return self.conn.delete_ext_s(dn, serverctrls)
 

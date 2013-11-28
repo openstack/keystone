@@ -188,7 +188,7 @@ class Manager(manager.Manager):
                 return None
         except Exception:
             LOG.exception(_('Unexpected error or malformed token determining '
-                            'token expiry: %s') % token)
+                            'token expiry: %s'), token)
 
         # FIXME(morganfainberg): This error message needs to be updated to
         # reflect the token couldn't be found, but this change needs to wait

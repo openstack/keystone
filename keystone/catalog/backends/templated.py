@@ -104,7 +104,7 @@ class TemplatedCatalog(kvs.Catalog):
         try:
             self.templates = parse_templates(open(template_file))
         except IOError:
-            LOG.critical(_('Unable to open template file %s') % template_file)
+            LOG.critical(_('Unable to open template file %s'), template_file)
             raise
 
     def get_catalog(self, user_id, tenant_id, metadata=None):

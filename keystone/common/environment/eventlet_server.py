@@ -47,7 +47,7 @@ class Server(object):
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
-        LOG.info(_('Starting %(arg0)s on %(host)s:%(port)s') %
+        LOG.info(_('Starting %(arg0)s on %(host)s:%(port)s'),
                  {'arg0': sys.argv[0],
                   'host': self.host,
                   'port': self.port})
