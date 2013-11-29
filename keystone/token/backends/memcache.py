@@ -44,7 +44,7 @@ class Token(token.Driver):
         return self._memcache_client or self._get_memcache_client()
 
     def _get_memcache_client(self):
-        memcache_servers = CONF.memcache.servers.split(',')
+        memcache_servers = CONF.memcache.servers
         # NOTE(morganfainberg): The memcache client library for python is NOT
         # thread safe and should not be passed between threads. This is highly
         # specific to the cas() (compare and set) methods and the caching of

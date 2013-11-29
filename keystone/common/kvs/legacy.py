@@ -15,6 +15,7 @@
 # under the License.
 
 from keystone import exception
+from keystone.openstack.common import versionutils
 
 
 class DictKvs(dict):
@@ -47,6 +48,10 @@ INMEMDB = DictKvs()
 
 
 class Base(object):
+    @versionutils.deprecated(versionutils.deprecated.ICEHOUSE,
+                             in_favor_of='keystone.common.kvs.KeyValueStore',
+                             remove_in=+1,
+                             what='keystone.common.kvs.Base')
     def __init__(self, db=None):
         if db is None:
             db = INMEMDB

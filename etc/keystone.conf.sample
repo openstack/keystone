@@ -432,6 +432,14 @@ oauth1 = keystone.auth.plugins.oauth1.OAuth
 # servers = localhost:11211
 # max_compare_and_set_retry = 16
 
+[kvs]
+# backends =
+# config_prefix = keystone.kvs
+# enable_key_mangler = True
+#
+# KeyValueStore lock timeout in seconds
+# default_lock_timeout = 5
+
 [paste_deploy]
 # Name of the paste configuration file that defines the available pipelines
 config_file = keystone-paste.ini
