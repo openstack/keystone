@@ -67,6 +67,8 @@ def timezone(func):
 
 
 class UtilsTestCase(tests.TestCase):
+    OPTIONAL = object()
+
     def test_hash(self):
         password = 'right'
         wrong = 'wrongwrong'  # Two wrongs don't make a right
@@ -78,6 +80,47 @@ class UtilsTestCase(tests.TestCase):
         bigboy = '0' * 9999999
         hashed = utils.hash_password(bigboy)
         self.assertTrue(utils.check_password(bigboy, hashed))
+
+    def _create_test_user(self, password=OPTIONAL):
+        user = {"name": "hthtest"}
+        if password is not self.OPTIONAL:
+            user['password'] = password
+
+        return user
+
+    def test_hash_user_password_without_password(self):
+        user = self._create_test_user()
+        hashed = utils.hash_user_password(user)
+        self.assertEqual(user, hashed)
+
+    def test_hash_user_password_with_null_password(self):
+        user = self._create_test_user(password=None)
+        hashed = utils.hash_user_password(user)
+        self.assertEqual(user, hashed)
+
+    def test_hash_user_password_with_empty_password(self):
+        password = ''
+        user = self._create_test_user(password=password)
+        user_hashed = utils.hash_user_password(user)
+        password_hashed = user_hashed['password']
+        self.assertTrue(utils.check_password(password, password_hashed))
+
+    def test_hash_ldap_user_password_without_password(self):
+        user = self._create_test_user()
+        hashed = utils.hash_ldap_user_password(user)
+        self.assertEqual(user, hashed)
+
+    def test_hash_ldap_user_password_with_null_password(self):
+        user = self._create_test_user(password=None)
+        hashed = utils.hash_ldap_user_password(user)
+        self.assertEqual(user, hashed)
+
+    def test_hash_ldap_user_password_with_empty_password(self):
+        password = ''
+        user = self._create_test_user(password=password)
+        user_hashed = utils.hash_ldap_user_password(user)
+        password_hashed = user_hashed['password']
+        self.assertTrue(utils.ldap_check_password(password, password_hashed))
 
     def test_hash_edge_cases(self):
         hashed = utils.hash_password('secret')
