@@ -25,6 +25,7 @@ from pycadf import cadftype
 from pycadf import eventfactory
 from pycadf import resource
 
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 notifier_opts = [

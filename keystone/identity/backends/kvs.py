@@ -16,6 +16,7 @@ from keystone.common import kvs
 from keystone.common import utils
 from keystone import exception
 from keystone import identity
+from keystone.openstack.common.gettextutils import _
 
 
 class _UserIdToDomainId(object):

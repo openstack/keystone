@@ -23,6 +23,7 @@ from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone.token import core

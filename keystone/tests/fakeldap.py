@@ -30,6 +30,7 @@ import six
 from six import moves
 
 from keystone.common import utils
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 

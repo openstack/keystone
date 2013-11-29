@@ -17,13 +17,6 @@ import os
 
 from paste import deploy
 
-from keystone.openstack.common import gettextutils
-
-# NOTE(blk-u):
-# gettextutils.install() must run to set _ before importing any modules that
-# contain static translated strings.
-gettextutils.install('keystone', lazy=True)
-
 from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql

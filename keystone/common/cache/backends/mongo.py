@@ -20,6 +20,7 @@ from dogpile.cache import util as dp_util
 import six
 
 from keystone import exception
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils

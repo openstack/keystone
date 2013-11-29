@@ -571,7 +571,7 @@ class KVSTest(tests.TestCase):
 
 class TestMemcachedBackend(tests.TestCase):
 
-    @mock.patch('__builtin__._', six.text_type)
+    @mock.patch('keystone.common.kvs.backends.memcached._', six.text_type)
     def test_invalid_backend_fails_initialization(self):
         raises_valueerror = matchers.Raises(matchers.MatchesException(
             ValueError, r'.*FakeBackend.*'))

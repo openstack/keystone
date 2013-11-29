@@ -27,6 +27,7 @@ from dogpile.cache.backends import memcached
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 

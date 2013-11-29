@@ -19,6 +19,7 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone import exception
+from keystone.openstack.common.gettextutils import _
 
 
 @dependency.requires('credential_api')
