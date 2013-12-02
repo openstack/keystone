@@ -15,9 +15,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import StringIO
 import tempfile
 import urllib2
+
+from testtools import matchers
 
 from keystone import config
 from keystone import exception
@@ -208,3 +211,18 @@ class DefaultPolicyTestCase(tests.TestCase):
         self._set_rules(new_default_rule)
         self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           self.credentials, "example:noexist", {})
+
+
+class PolicyJsonTestCase(tests.TestCase):
+
+    def _load_entries(self, filename):
+        return set(json.load(file(filename)))
+
+    def test_json_examples_have_matching_entries(self):
+        policy_keys = self._load_entries(tests.etcdir('policy.json'))
+        cloud_policy_keys = self._load_entries(
+            tests.etcdir('policy.v3cloudsample.json'))
+
+        diffs = set(policy_keys).difference(set(cloud_policy_keys))
+
+        self.assertThat(diffs, matchers.Equals(set()))
