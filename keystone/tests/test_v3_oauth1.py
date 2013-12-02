@@ -60,50 +60,43 @@ class OAuth1Tests(test_v3.RestfulTestCase):
             body={'consumer': ref})
         return resp.result.get('consumer')
 
-    def _oauth_request(self, consumer, token=None, **kw):
-        return oauth1.Request.from_consumer_and_token(consumer=consumer,
-                                                      token=token,
-                                                      **kw)
-
     def _create_request_token(self, consumer, project_id):
-        params = {'requested_project_id': project_id}
-        headers = {'Content-Type': 'application/json'}
-        url = '/OS-OAUTH1/request_token'
-        oreq = self._oauth_request(
-            consumer=consumer,
-            http_url=self.base_url + url,
-            http_method='POST',
-            parameters=params)
-        hmac = oauth1.SignatureMethod_HMAC_SHA1()
-        oreq.sign_request(hmac, consumer, None)
-        headers.update(oreq.to_header())
-        headers.update(params)
-        return url, headers
+        endpoint = '/OS-OAUTH1/request_token'
+        client = oauth1.Client(consumer['key'],
+                               client_secret=consumer['secret'],
+                               signature_method=oauth1.SIG_HMAC,
+                               callback_uri="oob")
+        headers = {'requested_project_id': project_id}
+        url, headers, body = client.sign(self.base_url + endpoint,
+                                         http_method='POST',
+                                         headers=headers)
+        return endpoint, headers
 
     def _create_access_token(self, consumer, token):
-        headers = {'Content-Type': 'application/json'}
-        url = '/OS-OAUTH1/access_token'
-        oreq = self._oauth_request(
-            consumer=consumer, token=token,
-            http_method='POST',
-            http_url=self.base_url + url)
-        hmac = oauth1.SignatureMethod_HMAC_SHA1()
-        oreq.sign_request(hmac, consumer, token)
-        headers.update(oreq.to_header())
-        return url, headers
+        endpoint = '/OS-OAUTH1/access_token'
+        client = oauth1.Client(consumer['key'],
+                               client_secret=consumer['secret'],
+                               resource_owner_key=token.key,
+                               resource_owner_secret=token.secret,
+                               signature_method=oauth1.SIG_HMAC,
+                               verifier=token.verifier)
+        url, headers, body = client.sign(self.base_url + endpoint,
+                                         http_method='POST')
+        headers.update({'Content-Type': 'application/json'})
+        return endpoint, headers
 
     def _get_oauth_token(self, consumer, token):
-        headers = {'Content-Type': 'application/json'}
-        body = {'auth': {'identity': {'methods': ['oauth1'], 'oauth1': {}}}}
-        url = '/auth/tokens'
-        oreq = self._oauth_request(
-            consumer=consumer, token=token,
-            http_method='POST',
-            http_url=self.base_url + url)
-        hmac = oauth1.SignatureMethod_HMAC_SHA1()
-        oreq.sign_request(hmac, consumer, token)
-        headers.update(oreq.to_header())
-        return url, headers, body
+        client = oauth1.Client(consumer['key'],
+                               client_secret=consumer['secret'],
+                               resource_owner_key=token.key,
+                               resource_owner_secret=token.secret,
+                               signature_method=oauth1.SIG_HMAC)
+        endpoint = '/auth/tokens'
+        url, headers, body = client.sign(self.base_url + endpoint,
+                                         http_method='POST')
+        headers.update({'Content-Type': 'application/json'})
+        ref = {'auth': {'identity': {'oauth1': {}, 'methods': ['oauth1']}}}
+        return endpoint, headers, ref
 
     def _authorize_request_token(self, request_id):
         return '/OS-OAUTH1/authorize/%s' % (request_id)
@@ -214,8 +207,8 @@ class OAuthFlowTests(OAuth1Tests):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
         consumer_secret = consumer.get('secret')
-        self.consumer = oauth1.Consumer(consumer_id, consumer_secret)
-        self.assertIsNotNone(self.consumer.key)
+        self.consumer = {'key': consumer_id, 'secret': consumer_secret}
+        self.assertIsNotNone(self.consumer['secret'])
 
         url, headers = self._create_request_token(self.consumer,
                                                   self.project_id)
@@ -270,7 +263,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                            'key': self.access_token.key})
         entity = resp.result.get('access_token')
         self.assertEqual(entity['id'], self.access_token.key)
-        self.assertEqual(entity['consumer_id'], self.consumer.key)
+        self.assertEqual(entity['consumer_id'], self.consumer['key'])
 
     def test_get_access_token_dne(self):
         self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
@@ -339,7 +332,7 @@ class AuthTokenTests(OAuthFlowTests):
         oauth_section = r.result['token']['OS-OAUTH1']
         self.assertEqual(oauth_section['access_token_id'],
                          self.access_token.key)
-        self.assertEqual(oauth_section['consumer_id'], self.consumer.key)
+        self.assertEqual(oauth_section['consumer_id'], self.consumer['key'])
 
         # verify the roles section
         roles_list = r.result['token']['roles']
@@ -371,7 +364,7 @@ class AuthTokenTests(OAuthFlowTests):
         self.test_oauth_flow()
 
         # Delete consumer
-        consumer_id = self.consumer.key
+        consumer_id = self.consumer['key']
         resp = self.delete('/OS-OAUTH1/consumers/%(consumer_id)s'
                            % {'consumer_id': consumer_id})
         self.assertResponseStatus(resp, 204)
@@ -443,7 +436,7 @@ class AuthTokenTests(OAuthFlowTests):
         self.test_oauth_flow()
         self.token_api.get_token(self.keystone_token_id)
         self.token_api.delete_tokens(self.user_id,
-                                     consumer_id=self.consumer.key)
+                                     consumer_id=self.consumer['key'])
         self.assertRaises(exception.TokenNotFound, self.token_api.get_token,
                           self.keystone_token_id)
 
@@ -453,20 +446,18 @@ class MaliciousOAuth1Tests(OAuth1Tests):
     def test_bad_consumer_secret(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
-        consumer = oauth1.Consumer(consumer_id, "bad_secret")
-        url, headers = self._create_request_token(consumer,
-                                                  self.project_id)
-        self.post(url, headers=headers, expected_status=500)
+        consumer = {'key': consumer_id, 'secret': uuid.uuid4().hex}
+        url, headers = self._create_request_token(consumer, self.project_id)
+        self.post(url, headers=headers, expected_status=401)
 
     def test_bad_request_token_key(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
         consumer_secret = consumer.get('secret')
-        consumer = oauth1.Consumer(consumer_id, consumer_secret)
-        url, headers = self._create_request_token(consumer,
-                                                  self.project_id)
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+        url, headers = self._create_request_token(consumer, self.project_id)
         self.post(url, headers=headers)
-        url = self._authorize_request_token("bad_key")
+        url = self._authorize_request_token(uuid.uuid4().hex)
         body = {'roles': [{'id': self.role_id}]}
         self.put(url, body=body, expected_status=404)
 
@@ -474,10 +465,9 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
         consumer_secret = consumer.get('secret')
-        consumer = oauth1.Consumer(consumer_id, consumer_secret)
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
 
-        url, headers = self._create_request_token(consumer,
-                                                  self.project_id)
+        url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
@@ -490,26 +480,23 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         verifier = resp.result['token']['oauth_verifier']
         self.assertIsNotNone(verifier)
 
-        request_token.set_verifier("bad verifier")
-        url, headers = self._create_access_token(consumer,
-                                                 request_token)
+        request_token.set_verifier(uuid.uuid4().hex)
+        url, headers = self._create_access_token(consumer, request_token)
         self.post(url, headers=headers, expected_status=401)
 
     def test_bad_authorizing_roles(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
         consumer_secret = consumer.get('secret')
-        consumer = oauth1.Consumer(consumer_id, consumer_secret)
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
 
-        url, headers = self._create_request_token(consumer,
-                                                  self.project_id)
+        url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(url, headers=headers)
         credentials = urlparse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
 
-        self.assignment_api.remove_role_from_user_and_project(self.user_id,
-                                                              self.project_id,
-                                                              self.role_id)
+        self.assignment_api.remove_role_from_user_and_project(
+            self.user_id, self.project_id, self.role_id)
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
         self.admin_request(path=url, method='PUT',
@@ -521,8 +508,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
         consumer_secret = consumer.get('secret')
-        self.consumer = oauth1.Consumer(consumer_id, consumer_secret)
-        self.assertIsNotNone(self.consumer.key)
+        self.consumer = {'key': consumer_id, 'secret': consumer_secret}
+        self.assertIsNotNone(self.consumer['key'])
 
         url, headers = self._create_request_token(self.consumer,
                                                   self.project_id)
@@ -542,8 +529,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = self._create_single_consumer()
         consumer_id = consumer.get('id')
         consumer_secret = consumer.get('secret')
-        self.consumer = oauth1.Consumer(consumer_id, consumer_secret)
-        self.assertIsNotNone(self.consumer.key)
+        self.consumer = {'key': consumer_id, 'secret': consumer_secret}
+        self.assertIsNotNone(self.consumer['key'])
 
         url, headers = self._create_request_token(self.consumer,
                                                   self.project_id)

@@ -162,7 +162,12 @@ class OAuth1(sql.Base):
             consumer_ref.extra = new_consumer.extra
         return core.filter_consumer(consumer_ref.to_dict())
 
-    def create_request_token(self, consumer_id, project_id, token_duration):
+    def create_request_token(self, consumer_id, project_id, token_duration,
+                             request_token_id=None, request_token_secret=None):
+        if request_token_id is None:
+            request_token_id = uuid.uuid4().hex
+        if request_token_secret is None:
+            request_token_secret = uuid.uuid4().hex
         expiry_date = None
         if token_duration:
             now = timeutils.utcnow()
@@ -170,9 +175,8 @@ class OAuth1(sql.Base):
             expiry_date = timeutils.isotime(future, subsecond=True)
 
         ref = {}
-        request_token_id = uuid.uuid4().hex
         ref['id'] = request_token_id
-        ref['request_secret'] = uuid.uuid4().hex
+        ref['request_secret'] = request_token_secret
         ref['verifier'] = None
         ref['authorizing_user_id'] = None
         ref['requested_project_id'] = project_id
@@ -214,7 +218,12 @@ class OAuth1(sql.Base):
 
         return token_ref.to_dict()
 
-    def create_access_token(self, request_token_id, token_duration):
+    def create_access_token(self, request_token_id, token_duration,
+                            access_token_id=None, access_token_secret=None):
+        if access_token_id is None:
+            access_token_id = uuid.uuid4().hex
+        if access_token_secret is None:
+            access_token_secret = uuid.uuid4().hex
         session = self.get_session()
         with session.begin():
             req_token_ref = self._get_request_token(session, request_token_id)
@@ -228,9 +237,8 @@ class OAuth1(sql.Base):
 
             # add Access Token
             ref = {}
-            access_token_id = uuid.uuid4().hex
             ref['id'] = access_token_id
-            ref['access_secret'] = uuid.uuid4().hex
+            ref['access_secret'] = access_token_secret
             ref['authorizing_user_id'] = token_dict['authorizing_user_id']
             ref['project_id'] = token_dict['requested_project_id']
             ref['role_ids'] = token_dict['role_ids']
