@@ -718,18 +718,21 @@ class UserV3(controller.V3Controller):
             domain_scope=self._get_domain_id_for_request(context))
         return UserV3.wrap_member(context, ref)
 
-    @controller.protected()
-    def update_user(self, context, user_id, user):
+    def _update_user(self, context, user_id, user, domain_scope):
         self._require_matching_id(user_id, user)
         ref = self.identity_api.update_user(
-            user_id, user,
-            domain_scope=self._get_domain_id_for_request(context))
+            user_id, user, domain_scope=domain_scope)
 
         if user.get('password') or not user.get('enabled', True):
             # revoke all tokens owned by this user
             self._delete_tokens_for_user(user_id)
 
         return UserV3.wrap_member(context, ref)
+
+    @controller.protected()
+    def update_user(self, context, user_id, user):
+        domain_scope = self._get_domain_id_for_request(context)
+        return self._update_user(context, user_id, user, domain_scope)
 
     @controller.protected(callback=_check_user_and_group_protection)
     def add_user_to_group(self, context, user_id, group_id):
@@ -771,6 +774,29 @@ class UserV3(controller.V3Controller):
     @controller.protected()
     def delete_user(self, context, user_id):
         return self._delete_user(context, user_id)
+
+    @controller.protected()
+    def change_password(self, context, user_id, user):
+        original_password = user.get('original_password')
+        if original_password is None:
+            raise exception.ValidationError(target='user',
+                                            attribute='original_password')
+
+        password = user.get('password')
+        if password is None:
+            raise exception.ValidationError(target='user',
+                                            attribute='password')
+
+        domain_scope = self._get_domain_id_for_request(context)
+        try:
+            self.identity_api.authenticate(user_id=user_id,
+                                           password=original_password,
+                                           domain_scope=domain_scope)
+        except AssertionError:
+            raise exception.Unauthorized()
+
+        update_dict = {'password': password}
+        self._update_user(context, user_id, update_dict, domain_scope)
 
 
 class GroupV3(controller.V3Controller):

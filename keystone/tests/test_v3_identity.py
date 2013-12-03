@@ -16,6 +16,8 @@
 
 import uuid
 
+from testtools import matchers
+
 from keystone.common import controller
 from keystone import exception
 from keystone import tests
@@ -1688,3 +1690,72 @@ class TestV3toV2Methods(tests.TestCase):
         updated_ref = controller.V3Controller.filter_domain_id(ref)
         self.assertIs(ref, updated_ref)
         self.assertDictEqual(ref, expected_ref)
+
+
+class UserChangingPasswordsTestCase(test_v3.RestfulTestCase):
+
+    def setUp(self):
+        super(UserChangingPasswordsTestCase, self).setUp()
+        self.user_ref = self.new_user_ref(domain_id=self.domain['id'])
+        self.identity_api.create_user(self.user_ref['id'], self.user_ref)
+        self.token = self.get_request_token(self.user_ref['password'], 201)
+
+    def get_request_token(self, password, expected_status):
+        auth_data = self.build_authentication_request(
+            user_id=self.user_ref['id'],
+            password=password)
+        r = self.post('/auth/tokens',
+                      body=auth_data,
+                      expected_status=expected_status)
+        return r.headers.get('X-Subject-Token')
+
+    def change_password(self, expected_status, **kwargs):
+        """Returns a test response for a change password request."""
+        return self.post('/users/%s/password' % self.user_ref['id'],
+                         body={'user': kwargs},
+                         token=self.token,
+                         expected_status=expected_status)
+
+    def test_changing_password(self):
+        # original password works
+        self.get_request_token(self.user_ref['password'],
+                               expected_status=201)
+
+        # change password
+        new_password = uuid.uuid4().hex
+        self.change_password(password=new_password,
+                             original_password=self.user_ref['password'],
+                             expected_status=204)
+
+        # old password fails
+        self.get_request_token(self.user_ref['password'], expected_status=401)
+
+        # new password works
+        self.get_request_token(new_password, expected_status=201)
+
+    def test_changing_password_with_missing_original_password_fails(self):
+        r = self.change_password(password=uuid.uuid4().hex,
+                                 expected_status=400)
+        self.assertThat(r.result['error']['message'],
+                        matchers.Contains('original_password'))
+
+    def test_changing_password_with_missing_password_fails(self):
+        r = self.change_password(original_password=self.user_ref['password'],
+                                 expected_status=400)
+        self.assertThat(r.result['error']['message'],
+                        matchers.Contains('password'))
+
+    def test_changing_password_with_incorrect_password_fails(self):
+        self.change_password(password=uuid.uuid4().hex,
+                             original_password=uuid.uuid4().hex,
+                             expected_status=401)
+
+    def test_changing_password_with_disabled_user_fails(self):
+        # disable the user account
+        self.user_ref['enabled'] = False
+        self.patch('/users/%s' % self.user_ref['id'],
+                   body={'user': self.user_ref})
+
+        self.change_password(password=uuid.uuid4().hex,
+                             original_password=self.user_ref['password'],
+                             expected_status=401)
