@@ -12,10 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.tests.contrib.kds.fixture import kvsdb
-from keystone.tests.contrib.kds.fixture import sqlitedb
+from keystone.contrib.kds.db import api as db_api
+from keystone.tests.contrib.kds import base
+from keystone.tests.contrib.kds import fixture
 
-SqliteDb = sqlitedb.SqliteDb
-KvsDb = kvsdb.KvsDb
 
-__all__ = [SqliteDb, KvsDb]
+class BaseTestCase(base.BaseTestCase):
+
+    scenarios = [('sqlitedb', {'sql_fixture': fixture.SqliteDb}),
+                 ('kvsdb', {'sql_fixture': fixture.KvsDb})]
+
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+
+        self.useFixture(self.sql_fixture())
+
+        self.DB = db_api.get_instance()

@@ -28,6 +28,7 @@ discover
 python-subunit
 testrepository>=0.0.17
 testtools>=0.9.32
+testscenarios>=0.4
 
 # for python-keystoneclient
 # keystoneclient <0.2.1

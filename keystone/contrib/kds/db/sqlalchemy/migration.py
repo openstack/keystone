@@ -12,10 +12,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.tests.contrib.kds.fixture import kvsdb
-from keystone.tests.contrib.kds.fixture import sqlitedb
+import os
 
-SqliteDb = sqlitedb.SqliteDb
-KvsDb = kvsdb.KvsDb
+from keystone.openstack.common.db.sqlalchemy import migration
 
-__all__ = [SqliteDb, KvsDb]
+
+def _repo_path():
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                        'migrate_repo')
+
+
+def db_version_control(version=None):
+    return migration.db_version_control(_repo_path(), version=version)
+
+
+def db_sync(version=None):
+    return migration.db_sync(_repo_path(), version=version)
+
+
+def db_version(version=None):
+    return migration.db_version(_repo_path(), version)
