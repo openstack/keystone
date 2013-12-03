@@ -18,11 +18,9 @@ import abc
 
 import six
 
-from keystone.common import dependency
 from keystone import exception
 
 
-@dependency.requires('identity_api')
 @six.add_metaclass(abc.ABCMeta)
 class AuthMethodHandler(object):
     """Abstract base class for an authentication plugin."""

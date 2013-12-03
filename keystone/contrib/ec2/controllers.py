@@ -46,7 +46,7 @@ from keystone import token
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
-                     'token_provider_api')
+                     'identity_api', 'token_api', 'token_provider_api')
 class Ec2Controller(controller.V2Controller):
     def check_signature(self, creds_ref, credentials):
         signer = ec2_utils.Ec2Signer(creds_ref['secret'])

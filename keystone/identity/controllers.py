@@ -22,6 +22,7 @@ import urlparse
 import uuid
 
 from keystone.common import controller
+from keystone.common import dependency
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log as logging
@@ -31,6 +32,7 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 LOG = logging.getLogger(__name__)
 
 
+@dependency.requires('assignment_api', 'identity_api', 'token_api')
 class Tenant(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -176,6 +178,7 @@ class Tenant(controller.V2Controller):
         return o
 
 
+@dependency.requires('assignment_api', 'identity_api')
 class User(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -337,6 +340,7 @@ class User(controller.V2Controller):
         return ref
 
 
+@dependency.requires('assignment_api', 'identity_api')
 class Role(controller.V2Controller):
 
     # COMPAT(essex-3)
@@ -504,6 +508,7 @@ class Role(controller.V2Controller):
         self._delete_tokens_for_user(user_id)
 
 
+@dependency.requires('assignment_api', 'identity_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
@@ -641,6 +646,7 @@ class DomainV3(controller.V3Controller):
         return self.assignment_api.delete_domain(domain_id)
 
 
+@dependency.requires('assignment_api', 'credential_api')
 class ProjectV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
@@ -703,6 +709,7 @@ class ProjectV3(controller.V3Controller):
         return self._delete_project(context, project_id)
 
 
+@dependency.requires('identity_api', 'credential_api')
 class UserV3(controller.V3Controller):
     collection_name = 'users'
     member_name = 'user'
@@ -828,6 +835,7 @@ class UserV3(controller.V3Controller):
         self._update_user(context, user_id, update_dict, domain_scope)
 
 
+@dependency.requires('identity_api')
 class GroupV3(controller.V3Controller):
     collection_name = 'groups'
     member_name = 'group'
@@ -893,6 +901,7 @@ class GroupV3(controller.V3Controller):
         return self._delete_group(context, group_id)
 
 
+@dependency.requires('assignment_api', 'identity_api')
 class RoleV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'
@@ -1037,6 +1046,7 @@ class RoleV3(controller.V3Controller):
             self._delete_tokens_for_group(group_id)
 
 
+@dependency.requires('assignment_api', 'identity_api')
 class RoleAssignmentV3(controller.V3Controller):
 
     # TODO(henry-nash): The current implementation does not provide a full

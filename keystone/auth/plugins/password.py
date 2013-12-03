@@ -102,6 +102,7 @@ class UserAuthInfo(object):
         self.domain_id = domain_ref['id']
 
 
+@dependency.requires('identity_api')
 class Password(auth.AuthMethodHandler):
     def authenticate(self, context, auth_payload, user_context):
         """Try to authenticate against the identity backend."""

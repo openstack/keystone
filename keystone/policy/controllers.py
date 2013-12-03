@@ -15,8 +15,10 @@
 # under the License.
 
 from keystone.common import controller
+from keystone.common import dependency
 
 
+@dependency.requires('policy_api')
 class PolicyV3(controller.V3Controller):
     collection_name = 'policies'
     member_name = 'policy'

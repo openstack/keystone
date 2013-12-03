@@ -21,7 +21,7 @@ from keystone.common import dependency
 from keystone.identity import controllers as identity_controllers
 
 
-@dependency.requires('assignment_api', 'endpoint_filter_api')
+@dependency.requires('assignment_api', 'catalog_api', 'endpoint_filter_api')
 class EndpointFilterV3Controller(controller.V3Controller):
 
     @controller.protected()
