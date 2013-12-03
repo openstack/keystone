@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 #    Copyright 2011 OpenStack Foundation
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -28,6 +26,7 @@ import kombu.connection
 import kombu.entity
 import kombu.messaging
 from oslo.config import cfg
+import six
 
 from keystone.openstack.common import excutils
 from keystone.openstack.common.gettextutils import _  # noqa
@@ -146,29 +145,23 @@ class ConsumerBase(object):
         Messages that are processed without exception are ack'ed.
 
         If the message processing generates an exception, it will be
-        ack'ed if ack_on_error=True. Otherwise it will be .reject()'ed.
-        Rejection is better than waiting for the message to timeout.
-        Rejected messages are immediately requeued.
+        ack'ed if ack_on_error=True. Otherwise it will be .requeue()'ed.
         """
 
-        ack_msg = False
         try:
             msg = rpc_common.deserialize_msg(message.payload)
             callback(msg)
-            ack_msg = True
         except Exception:
             if self.ack_on_error:
-                ack_msg = True
                 LOG.exception(_("Failed to process message"
                                 " ... skipping it."))
+                message.ack()
             else:
                 LOG.exception(_("Failed to process message"
                                 " ... will requeue."))
-        finally:
-            if ack_msg:
-                message.ack()
-            else:
-                message.reject()
+                message.requeue()
+        else:
+            message.ack()
 
     def consume(self, *args, **kwargs):
         """Actually declare the consumer on the amqp channel.  This will
@@ -631,7 +624,7 @@ class Connection(object):
 
         def _declare_consumer():
             consumer = consumer_cls(self.conf, self.channel, topic, callback,
-                                    self.consumer_num.next())
+                                    six.next(self.consumer_num))
             self.consumers.append(consumer)
             return consumer
 
@@ -738,7 +731,7 @@ class Connection(object):
         it = self.iterconsume(limit=limit)
         while True:
             try:
-                it.next()
+                six.next(it)
             except StopIteration:
                 return
 
@@ -789,6 +782,7 @@ class Connection(object):
             callback=callback,
             connection_pool=rpc_amqp.get_connection_pool(self.conf,
                                                          Connection),
+            wait_for_consumers=not ack_on_error
         )
         self.proxy_callbacks.append(callback_wrapper)
         self.declare_topic_consumer(

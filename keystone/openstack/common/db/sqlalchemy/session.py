@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
 # All Rights Reserved.
@@ -109,7 +107,7 @@ Recommended ways to use sessions within this framework:
                 filter_by(id=subq.as_scalar()).\
                 update({'bar': newbar})
 
-  For reference, this emits approximagely the following SQL statement:
+  For reference, this emits approximately the following SQL statement:
 
     UPDATE bar SET bar = ${newbar}
         WHERE id=(SELECT bar_id FROM foo WHERE id = ${foo_id} LIMIT 1);
@@ -613,7 +611,7 @@ def _ping_listener(dbapi_conn, connection_rec, connection_proxy):
         dbapi_conn.cursor().execute('select 1')
     except dbapi_conn.OperationalError as ex:
         if ex.args[0] in (2006, 2013, 2014, 2045, 2055):
-            LOG.warn(_('Got mysql server has gone away: %s'), ex)
+            LOG.warning(_('Got mysql server has gone away: %s'), ex)
             raise sqla_exc.DisconnectionError("Database server went away")
         else:
             raise
@@ -695,7 +693,7 @@ def create_engine(sql_connection, sqlite_fk=False):
             remaining = 'infinite'
         while True:
             msg = _('SQL connection failed. %s attempts left.')
-            LOG.warn(msg % remaining)
+            LOG.warning(msg % remaining)
             if remaining != 'infinite':
                 remaining -= 1
             time.sleep(CONF.database.retry_interval)
@@ -754,25 +752,25 @@ def _patch_mysqldb_with_stacktrace_comments():
 
     def _do_query(self, q):
         stack = ''
-        for file, line, method, function in traceback.extract_stack():
+        for filename, line, method, function in traceback.extract_stack():
             # exclude various common things from trace
-            if file.endswith('session.py') and method == '_do_query':
+            if filename.endswith('session.py') and method == '_do_query':
                 continue
-            if file.endswith('api.py') and method == 'wrapper':
+            if filename.endswith('api.py') and method == 'wrapper':
                 continue
-            if file.endswith('utils.py') and method == '_inner':
+            if filename.endswith('utils.py') and method == '_inner':
                 continue
-            if file.endswith('exception.py') and method == '_wrap':
+            if filename.endswith('exception.py') and method == '_wrap':
                 continue
             # db/api is just a wrapper around db/sqlalchemy/api
-            if file.endswith('db/api.py'):
+            if filename.endswith('db/api.py'):
                 continue
             # only trace inside keystone
-            index = file.rfind('keystone')
+            index = filename.rfind('keystone')
             if index == -1:
                 continue
             stack += "File:%s:%s Method:%s() Line:%s | " \
-                     % (file[index:], line, method, function)
+                     % (filename[index:], line, method, function)
 
         # strip trailing " | " from stack
         if stack:

@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 #    Copyright 2011 OpenStack Foundation
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -146,7 +144,7 @@ def multicall(conf, context, topic, msg, timeout=None):
     try:
         consumer = CONSUMERS[topic][0]
     except (KeyError, IndexError):
-        return iter([None])
+        raise rpc_common.Timeout("No consumers available")
     else:
         return consumer.call(context, version, method, namespace, args,
                              timeout)

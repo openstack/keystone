@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010-2011 OpenStack Foundation
 # Copyright 2012-2013 IBM Corp.
 # All Rights Reserved.
@@ -16,17 +14,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
-import commands
 import ConfigParser
+import functools
 import os
-import urlparse
+import subprocess
 
+import lockfile
 import sqlalchemy
 import sqlalchemy.exc
 
-from keystone.openstack.common import lockutils
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log as logging
+from keystone.openstack.common.py3kcompat import urlutils
 from keystone.openstack.common import test
 
 LOG = logging.getLogger(__name__)
@@ -93,6 +92,22 @@ def get_db_connection_info(conn_pieces):
     return (user, password, database, host)
 
 
+def _set_db_lock(lock_path=None, lock_prefix=None):
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                path = lock_path or os.environ.get("KEYSTONE_LOCK_PATH")
+                lock = lockfile.FileLock(os.path.join(path, lock_prefix))
+                with lock:
+                    LOG.debug(_('Got lock "%s"') % f.__name__)
+                    return f(*args, **kwargs)
+            finally:
+                LOG.debug(_('Lock released "%s"') % f.__name__)
+        return wrapper
+    return decorator
+
+
 class BaseMigrationTestCase(test.BaseTestCase):
     """Base class fort testing of migration utils."""
 
@@ -143,12 +158,13 @@ class BaseMigrationTestCase(test.BaseTestCase):
         super(BaseMigrationTestCase, self).tearDown()
 
     def execute_cmd(self, cmd=None):
-        status, output = commands.getstatusoutput(cmd)
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+        output = process.communicate()[0]
         LOG.debug(output)
-        self.assertEqual(0, status,
+        self.assertEqual(0, process.returncode,
                          "Failed to run: %s\n%s" % (cmd, output))
 
-    @lockutils.synchronized('pgadmin', 'tests-', external=True)
     def _reset_pg(self, conn_pieces):
         (user, password, database, host) = get_db_connection_info(conn_pieces)
         os.environ['PGPASSWORD'] = password
@@ -170,10 +186,11 @@ class BaseMigrationTestCase(test.BaseTestCase):
         os.unsetenv('PGPASSWORD')
         os.unsetenv('PGUSER')
 
+    @_set_db_lock(lock_prefix='migration_tests-')
     def _reset_databases(self):
         for key, engine in self.engines.items():
             conn_string = self.test_databases[key]
-            conn_pieces = urlparse.urlparse(conn_string)
+            conn_pieces = urlutils.urlparse(conn_string)
             engine.dispose()
             if conn_string.startswith('sqlite'):
                 # We can just delete the SQLite database, which is

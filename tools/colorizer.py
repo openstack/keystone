@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
 
 # Copyright (c) 2013, Nebula, Inc.
 # Copyright 2010 United States Government as represented by the
@@ -47,6 +46,7 @@ import subunit
 import sys
 import unittest
 
+import six
 import testtools
 
 
@@ -274,7 +274,7 @@ class OpenStackTestResult(testtools.TestResult):
         self.stopTestRun()
 
     def stopTestRun(self):
-        for cls in list(self.results.iterkeys()):
+        for cls in list(six.iterkeys(self.results)):
             self.writeTestCase(cls)
         self.stream.writeln()
         self.writeSlowTests()

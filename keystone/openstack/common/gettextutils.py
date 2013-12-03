@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2012 Red Hat, Inc.
 # Copyright 2013 IBM Corp.
 # All Rights Reserved.
@@ -317,7 +315,7 @@ def get_available_languages(domain):
     # NOTE(luisg): Babel <1.0 used a function called list(), which was
     # renamed to locale_identifiers() in >=1.0, the requirements master list
     # requires >=0.9.6, uncapped, so defensively work with both. We can remove
-    # this check when the master list updates to >=1.0, and all projects udpate
+    # this check when the master list updates to >=1.0, and update all projects
     list_identifiers = (getattr(localedata, 'list', None) or
                         getattr(localedata, 'locale_identifiers'))
     locale_identifiers = list_identifiers()
@@ -329,13 +327,21 @@ def get_available_languages(domain):
 
 
 def get_localized_message(message, user_locale):
-    """Gets a localized version of the given message in the given locale."""
+    """Gets a localized version of the given message in the given locale.
+
+    If the message is not a Message object the message is returned as-is.
+    If the locale is None the message is translated to the default locale.
+
+    :returns: the translated message in unicode, or the original message if
+              it could not be translated
+    """
+    translated = message
     if isinstance(message, Message):
-        if user_locale:
-            message.locale = user_locale
-        return six.text_type(message)
-    else:
-        return message
+        original_locale = message.locale
+        message.locale = user_locale
+        translated = six.text_type(message)
+        message.locale = original_locale
+    return translated
 
 
 class LocaleHandler(logging.Handler):
