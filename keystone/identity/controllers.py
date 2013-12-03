@@ -20,6 +20,7 @@ import copy
 import urllib
 import urlparse
 import uuid
+import json
 
 from keystone.common import controller
 from keystone import config
@@ -689,6 +690,15 @@ class UserV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
     def list_users(self, context, filters):
+        
+        # (btang)sync user domain id in token with context domain_id
+        # this makes sure that context has 'domain_id' in 'query_string'
+        # so that only users in the domain will be returned
+        token_ref = self.token_api.get_token(context['token_id'])
+        if 'domain_id' not in context['query_string']:
+            context['query_string']['domain_id'] = \
+                token_ref['token_data']['token']['user']['domain']['id']
+
         refs = self.identity_api.list_users(
             domain_scope=self._get_domain_id_for_request(context))
         return UserV3.wrap_collection(context, refs, filters)
