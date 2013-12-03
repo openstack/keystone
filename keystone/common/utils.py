@@ -548,6 +548,7 @@ class deprecated(object):
 
     FOLSOM = 'F'
     GRIZZLY = 'G'
+    HAVANA = 'H'
     ICEHOUSE = 'I'
 
     _RELEASES = {

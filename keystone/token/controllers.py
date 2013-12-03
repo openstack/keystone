@@ -39,18 +39,22 @@ class ExternalAuthNotApplicable(Exception):
 
 @dependency.requires('token_provider_api')
 class Auth(controller.V2Controller):
+
+    @controller.v2_deprecated
     def ca_cert(self, context, auth=None):
         ca_file = open(CONF.signing.ca_certs, 'r')
         data = ca_file.read()
         ca_file.close()
         return data
 
+    @controller.v2_deprecated
     def signing_cert(self, context, auth=None):
         cert_file = open(CONF.signing.certfile, 'r')
         data = cert_file.read()
         cert_file.close()
         return data
 
+    @controller.v2_deprecated
     def authenticate(self, context, auth=None):
         """Authenticate credentials and return a token.
 
@@ -395,6 +399,7 @@ class Auth(controller.V2Controller):
                     _('Token does not belong to specified tenant.'))
         return data
 
+    @controller.v2_deprecated
     @controller.protected()
     def validate_token_head(self, context, token_id):
         """Check that a token is valid.
@@ -407,6 +412,7 @@ class Auth(controller.V2Controller):
         belongs_to = context['query_string'].get('belongsTo')
         self.token_provider_api.check_v2_token(token_id, belongs_to)
 
+    @controller.v2_deprecated
     @controller.protected()
     def validate_token(self, context, token_id):
         """Check that a token is valid.
@@ -419,12 +425,14 @@ class Auth(controller.V2Controller):
         belongs_to = context['query_string'].get('belongsTo')
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
+    @controller.v2_deprecated
     def delete_token(self, context, token_id):
         """Delete a token, effectively invalidating it for authz."""
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
         self.token_api.delete_token(token_id)
 
+    @controller.v2_deprecated
     @controller.protected()
     def revocation_list(self, context, auth=None):
         tokens = self.token_api.list_revoked_tokens()
@@ -441,6 +449,7 @@ class Auth(controller.V2Controller):
 
         return {'signed': signed_text}
 
+    @controller.v2_deprecated
     def endpoints(self, context, token_id):
         """Return a list of endpoints available to the token."""
         self.assert_admin(context)

@@ -24,6 +24,7 @@ import socket
 import StringIO
 import sys
 import time
+import warnings
 
 import fixtures
 import logging
@@ -262,6 +263,7 @@ class TestCase(testtools.TestCase):
         self.opt(policy_file=etcdir('policy.json'))
 
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
 
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
