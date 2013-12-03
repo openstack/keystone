@@ -26,6 +26,7 @@ from keystone.common import cache
 from keystone.common import cms
 from keystone.common import dependency
 from keystone.common import manager
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log as logging
@@ -162,8 +163,8 @@ class Manager(manager.Manager):
 
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
                       consumer_id=None):
-        token_list = self.driver.list_tokens(user_id, tenant_id, trust_id,
-                                             consumer_id)
+        token_list = self.driver._list_tokens(user_id, tenant_id, trust_id,
+                                              consumer_id)
         self.driver.delete_tokens(user_id, tenant_id, trust_id, consumer_id)
         for token_id in token_list:
             unique_id = self.unique_id(token_id)
@@ -192,6 +193,31 @@ class Manager(manager.Manager):
         # do the explicit individual token invalidation.
         self._get_token.invalidate(self, token_id)
         self.token_provider_api.invalidate_individual_token_cache(token_id)
+
+    @utils.deprecated(utils.deprecated.ICEHOUSE, remove_in=+1)
+    def list_tokens(self, user_id, tenant_id=None, trust_id=None,
+                    consumer_id=None):
+        """Returns a list of current token_id's for a user
+
+        This is effectively a private method only used by the ``delete_tokens``
+        method and should not be called by anything outside of the
+        ``token_api`` manager or the token driver itself.
+
+        :param user_id: identity of the user
+        :type user_id: string
+        :param tenant_id: identity of the tenant
+        :type tenant_id: string
+        :param trust_id: identity of the trust
+        :type trust_id: string
+        :param consumer_id: identity of the consumer
+        :type consumer_id: string
+        :returns: list of token_id's
+
+        """
+        return self.driver._list_tokens(user_id,
+                                        tenant_id=tenant_id,
+                                        trust_id=trust_id,
+                                        consumer_id=consumer_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -272,10 +298,10 @@ class Driver(object):
         :raises: keystone.exception.TokenNotFound
 
         """
-        token_list = self.list_tokens(user_id,
-                                      tenant_id=tenant_id,
-                                      trust_id=trust_id,
-                                      consumer_id=consumer_id)
+        token_list = self._list_tokens(user_id,
+                                       tenant_id=tenant_id,
+                                       trust_id=trust_id,
+                                       consumer_id=consumer_id)
 
         for token in token_list:
             try:
@@ -284,8 +310,8 @@ class Driver(object):
                 pass
 
     @abc.abstractmethod
-    def list_tokens(self, user_id, tenant_id=None, trust_id=None,
-                    consumer_id=None):
+    def _list_tokens(self, user_id, tenant_id=None, trust_id=None,
+                     consumer_id=None):
         """Returns a list of current token_id's for a user
 
         This is effectively a private method only used by the ``delete_tokens``

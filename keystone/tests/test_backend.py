@@ -2823,19 +2823,19 @@ class TokenTests(object):
         return new_token['id']
 
     def test_delete_tokens(self):
-        tokens = self.token_api.list_tokens('testuserid')
+        tokens = self.token_api._list_tokens('testuserid')
         self.assertEqual(len(tokens), 0)
         token_id1 = self.create_token_sample_data('testtenantid')
         token_id2 = self.create_token_sample_data('testtenantid')
         token_id3 = self.create_token_sample_data(tenant_id='testtenantid',
                                                   user_id="testuserid1")
-        tokens = self.token_api.list_tokens('testuserid')
+        tokens = self.token_api._list_tokens('testuserid')
         self.assertEqual(len(tokens), 2)
         self.assertIn(token_id2, tokens)
         self.assertIn(token_id1, tokens)
         self.token_api.delete_tokens(user_id='testuserid',
                                      tenant_id='testtenantid')
-        tokens = self.token_api.list_tokens('testuserid')
+        tokens = self.token_api._list_tokens('testuserid')
         self.assertEqual(len(tokens), 0)
         self.assertRaises(exception.TokenNotFound,
                           self.token_api.get_token, token_id1)
@@ -2845,14 +2845,14 @@ class TokenTests(object):
         self.token_api.get_token(token_id3)
 
     def test_delete_tokens_trust(self):
-        tokens = self.token_api.list_tokens(user_id='testuserid')
+        tokens = self.token_api._list_tokens(user_id='testuserid')
         self.assertEqual(len(tokens), 0)
         token_id1 = self.create_token_sample_data(tenant_id='testtenantid',
                                                   trust_id='testtrustid')
         token_id2 = self.create_token_sample_data(tenant_id='testtenantid',
                                                   user_id="testuserid1",
                                                   trust_id="testtrustid1")
-        tokens = self.token_api.list_tokens('testuserid')
+        tokens = self.token_api._list_tokens('testuserid')
         self.assertEqual(len(tokens), 1)
         self.assertIn(token_id1, tokens)
         self.token_api.delete_tokens(user_id='testuserid',
@@ -2863,6 +2863,50 @@ class TokenTests(object):
         self.token_api.get_token(token_id2)
 
     def test_token_list(self):
+        tokens = self.token_api._list_tokens('testuserid')
+        self.assertEqual(len(tokens), 0)
+        token_id1 = self.create_token_sample_data()
+        tokens = self.token_api._list_tokens('testuserid')
+        self.assertEqual(len(tokens), 1)
+        self.assertIn(token_id1, tokens)
+        token_id2 = self.create_token_sample_data()
+        tokens = self.token_api._list_tokens('testuserid')
+        self.assertEqual(len(tokens), 2)
+        self.assertIn(token_id2, tokens)
+        self.assertIn(token_id1, tokens)
+        self.token_api.delete_token(token_id1)
+        tokens = self.token_api._list_tokens('testuserid')
+        self.assertIn(token_id2, tokens)
+        self.assertNotIn(token_id1, tokens)
+        self.token_api.delete_token(token_id2)
+        tokens = self.token_api._list_tokens('testuserid')
+        self.assertNotIn(token_id2, tokens)
+        self.assertNotIn(token_id1, tokens)
+
+        # tenant-specific tokens
+        tenant1 = uuid.uuid4().hex
+        tenant2 = uuid.uuid4().hex
+        token_id3 = self.create_token_sample_data(tenant_id=tenant1)
+        token_id4 = self.create_token_sample_data(tenant_id=tenant2)
+        # test for existing but empty tenant (LP:1078497)
+        token_id5 = self.create_token_sample_data(tenant_id=NULL_OBJECT)
+        tokens = self.token_api._list_tokens('testuserid')
+        self.assertEqual(len(tokens), 3)
+        self.assertNotIn(token_id1, tokens)
+        self.assertNotIn(token_id2, tokens)
+        self.assertIn(token_id3, tokens)
+        self.assertIn(token_id4, tokens)
+        self.assertIn(token_id5, tokens)
+        tokens = self.token_api._list_tokens('testuserid', tenant2)
+        self.assertEqual(len(tokens), 1)
+        self.assertNotIn(token_id1, tokens)
+        self.assertNotIn(token_id2, tokens)
+        self.assertNotIn(token_id3, tokens)
+        self.assertIn(token_id4, tokens)
+
+    def test_token_list_deprecated_public_interface(self):
+        # TODO(morganfainberg): Remove once token_api.list_tokens is removed
+        # (post Icehouse release)
         tokens = self.token_api.list_tokens('testuserid')
         self.assertEqual(len(tokens), 0)
         token_id1 = self.create_token_sample_data()
@@ -2907,7 +2951,7 @@ class TokenTests(object):
     def test_token_list_trust(self):
         trust_id = uuid.uuid4().hex
         token_id5 = self.create_token_sample_data(trust_id=trust_id)
-        tokens = self.token_api.list_tokens('testuserid', trust_id=trust_id)
+        tokens = self.token_api._list_tokens('testuserid', trust_id=trust_id)
         self.assertEqual(len(tokens), 1)
         self.assertIn(token_id5, tokens)
 
@@ -3006,7 +3050,7 @@ class TokenTests(object):
         self.assertDictEqual(data_ref, data)
 
         self.token_api.flush_expired_tokens()
-        tokens = self.token_api.list_tokens('testuserid')
+        tokens = self.token_api._list_tokens('testuserid')
         self.assertEqual(len(tokens), 1)
         self.assertIn(token_id, tokens)
 
