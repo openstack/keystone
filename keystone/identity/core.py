@@ -63,7 +63,7 @@ def filter_user(user_ref):
 
 
 class DomainConfigs(dict):
-    """Discover, store and provide access to domain specifc configs.
+    """Discover, store and provide access to domain specific configs.
 
     The setup_domain_drives() call will be made via the wrapper from
     the first call to any driver function handled by this manager. This
@@ -194,7 +194,7 @@ class Manager(manager.Manager):
     from with the @domains_configured wrapper in a lazy loading fashion
     to get around the fact that we can't satisfy the assignment api it needs
     from within our __init__() function since the assignment driver is not
-    itself yet intitalized.
+    itself yet initialized.
 
     Each of the identity calls are pre-processed here to choose, based on
     domain, which of the drivers should be called. The non-domain-specific

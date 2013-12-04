@@ -67,7 +67,7 @@ class TemplatedCatalog(kvs.Catalog):
 
     and is stored in a similar looking hierarchy. Where a value can contain
     values to be interpolated by standard python string interpolation that look
-    like (the % is replaced by a $ due to paste attmepting to interpolate on
+    like (the % is replaced by a $ due to paste attempting to interpolate on
     its own:
 
       http://localhost:$(public_port)s/
