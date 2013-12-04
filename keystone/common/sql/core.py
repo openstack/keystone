@@ -15,6 +15,7 @@
 # under the License.
 
 """SQL backends for the various services."""
+import contextlib
 import functools
 
 import sqlalchemy as sql
@@ -22,7 +23,7 @@ import sqlalchemy.engine.url
 from sqlalchemy.exc import DisconnectionError
 from sqlalchemy.ext import declarative
 import sqlalchemy.orm
-from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm.attributes import flag_modified, InstrumentedAttribute
 import sqlalchemy.pool
 from sqlalchemy import types as sql_types
 
@@ -58,6 +59,8 @@ Text = sql.Text
 UniqueConstraint = sql.UniqueConstraint
 relationship = sql.orm.relationship
 joinedload = sql.orm.joinedload
+# Suppress flake8's unused import warning for flag_modified:
+flag_modified = flag_modified
 
 
 def initialize_decorator(init):
@@ -238,6 +241,13 @@ class Base(object):
             register_global_engine_callback(self.clear_engine)
         return self._sessionmaker(autocommit=autocommit,
                                   expire_on_commit=expire_on_commit)
+
+    @contextlib.contextmanager
+    def transaction(self, expire_on_commit=False):
+        """Return a SQLAlchemy session in a scoped transaction."""
+        session = self.get_session(expire_on_commit=expire_on_commit)
+        with session.begin():
+            yield session
 
     def get_engine(self, allow_global_engine=True):
         """Return a SQLAlchemy engine.
