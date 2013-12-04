@@ -222,6 +222,10 @@ class GroupNotFound(NotFound):
     message_format = _("Could not find group, %(group_id)s.")
 
 
+class MappingNotFound(NotFound):
+    message_format = _("Could not find mapping, %(mapping_id)s.")
+
+
 class TrustNotFound(NotFound):
     message_format = _("Could not find trust, %(trust_id)s.")
 
