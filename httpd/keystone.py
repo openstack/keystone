@@ -29,6 +29,7 @@ gettextutils.install('keystone')
 from keystone.common import environment
 from keystone import config
 from keystone.openstack.common import log
+from keystone import service
 
 
 CONF = config.CONF
@@ -40,6 +41,9 @@ name = os.path.basename(__file__)
 
 if CONF.debug:
     CONF.log_opt_values(log.getLogger(CONF.prog), logging.DEBUG)
+
+
+drivers = service.load_backends()
 
 # NOTE(ldbragst): 'application' is required in this context by WSGI spec.
 # The following is a reference to Python Paste Deploy documentation

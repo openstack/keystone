@@ -44,8 +44,6 @@ from keystone.openstack.common import gettextutils
 # Accept-Language in the request rather than the Keystone server locale.
 gettextutils.install('keystone', lazy=True)
 
-from keystone import assignment
-from keystone import catalog
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import environment
@@ -55,17 +53,10 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
-from keystone.contrib import endpoint_filter
-from keystone.contrib import oauth1
-from keystone import credential
 from keystone import exception
-from keystone import identity
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
-from keystone import policy
-from keystone import token
-from keystone.token import provider as token_provider
-from keystone import trust
+from keystone import service
 
 # NOTE(dstanek): Tests inheriting from TestCase depend on having the
 #   policy_file command-line option declared before setUp runs. Importing the
@@ -347,22 +338,10 @@ class TestCase(testtools.TestCase):
         # should eventually be removed once testing has been cleaned up.
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
-        # NOTE(blk-u): identity must be before assignment to ensure that the
-        # identity driver is available to the assignment manager because the
-        # assignment manager gets the default assignment driver from the
-        # identity driver.
-        for manager in [identity, assignment, catalog, credential,
-                        endpoint_filter, policy, token, token_provider,
-                        trust, oauth1]:
-            # manager.__name__ is like keystone.xxx[.yyy],
-            # converted to xxx[_yyy]
-            manager_name = ('%s_api' %
-                            manager.__name__.replace('keystone.', '').
-                            replace('.', '_'))
+        drivers = service.load_backends(include_oauth1=True)
 
-            setattr(self, manager_name, manager.Manager())
-
-        dependency.resolve_future_dependencies()
+        for manager_name, manager in drivers.iteritems():
+            setattr(self, manager_name, manager)
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.
