@@ -14,8 +14,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from keystone.common import config
 from keystone.openstack.common import log as logging
+from keystone.openstack.common import strutils
 
 
 CONF = config.CONF
@@ -56,7 +59,20 @@ class Error(StandardError):
 
         """
         if not message:
-            message = self.message_format % kwargs
+            try:
+                message = self.message_format % kwargs
+            except UnicodeDecodeError:
+                try:
+                    kwargs = dict([(k, strutils.safe_decode(v)) for k, v in
+                                   six.iteritems(kwargs)])
+                except UnicodeDecodeError:
+                    # NOTE(jamielennox): This is the complete failure case
+                    # at least by showing the template we have some idea
+                    # of where the error is coming from
+                    message = self.message_format
+                else:
+                    message = self.message_format % kwargs
+
         return message
 
 
