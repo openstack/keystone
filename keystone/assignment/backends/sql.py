@@ -16,7 +16,6 @@
 
 from keystone import assignment
 from keystone import clean
-from keystone.common import dependency
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import config
@@ -27,7 +26,6 @@ from keystone.openstack.common.db.sqlalchemy import session as db_session
 CONF = config.CONF
 
 
-@dependency.requires('identity_api')
 class Assignment(sql.Base, assignment.Driver):
 
     # Internal interface to manage the database
@@ -303,8 +301,6 @@ class Assignment(sql.Base, assignment.Driver):
             return _project_ids_to_dicts(session, project_ids)
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        self.identity_api.get_user(user_id)
-
         with sql.transaction() as session:
             self._get_project(session, tenant_id)
             self._get_role(session, role_id)

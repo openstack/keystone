@@ -174,7 +174,7 @@ class Tenant(controller.V2Controller):
         return o
 
 
-@dependency.requires('assignment_api', 'identity_api')
+@dependency.requires('assignment_api')
 class Role(controller.V2Controller):
 
     # COMPAT(essex-3)
@@ -275,8 +275,6 @@ class Role(controller.V2Controller):
 
         """
         self.assert_admin(context)
-        # Ensure user exists by getting it first.
-        self.identity_api.get_user(user_id)
         tenants = self.assignment_api.list_projects_for_user(user_id)
         o = []
         for tenant in tenants:
@@ -509,11 +507,6 @@ class RoleV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
-
         self.assignment_api.create_grant(
             role_id, user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
@@ -536,11 +529,6 @@ class RoleV3(controller.V3Controller):
         """Checks if a role has been granted on either a domain or project."""
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
-
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
 
         self.assignment_api.get_grant(
             role_id, user_id, group_id, domain_id, project_id,

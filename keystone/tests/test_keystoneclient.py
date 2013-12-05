@@ -898,13 +898,15 @@ class KeystoneClientTests(object):
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.add_user_role,
                           tenant=self.tenant_baz['id'],
-                          user=uuid.uuid4().hex,
-                          role=self.role_member['id'])
-        self.assertRaises(client_exceptions.NotFound,
-                          client.roles.add_user_role,
-                          tenant=self.tenant_baz['id'],
                           user=self.user_foo['id'],
                           role=uuid.uuid4().hex)
+
+    def test_user_role_add_no_user(self):
+        # If add_user_role and user doesn't exist, doesn't fail.
+        client = self.get_client(admin=True)
+        client.roles.add_user_role(tenant=self.tenant_baz['id'],
+                                   user=uuid.uuid4().hex,
+                                   role=self.role_member['id'])
 
     def test_user_role_remove_404(self):
         from keystoneclient import exceptions as client_exceptions
