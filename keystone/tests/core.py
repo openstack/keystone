@@ -21,14 +21,12 @@ import os
 import re
 import shutil
 import socket
-import StringIO
 import sys
 import time
 import warnings
 
 import fixtures
 import logging
-from lxml import etree
 from paste import deploy
 import testtools
 
@@ -468,29 +466,6 @@ class TestCase(testtools.TestCase):
             standardMsg += 'Mismatched values: %s' % ','.join(mismatched)
 
         self.fail(self._formatMessage(msg, standardMsg))
-
-    def assertEqualXML(self, a, b):
-        """Parses two XML documents from strings and compares the results.
-
-        This provides easy-to-read failures.
-
-        """
-        parser = etree.XMLParser(remove_blank_text=True)
-
-        def canonical_xml(s):
-            s = s.strip()
-
-            fp = StringIO.StringIO()
-            dom = etree.fromstring(s, parser)
-            dom.getroottree().write_c14n(fp)
-            s = fp.getvalue()
-
-            dom = etree.fromstring(s, parser)
-            return etree.tostring(dom, pretty_print=True)
-
-        a = canonical_xml(a)
-        b = canonical_xml(b)
-        self.assertEqual(a.split('\n'), b.split('\n'))
 
     def skip_if_no_ipv6(self):
         try:

@@ -20,22 +20,23 @@ from testtools import matchers
 
 from keystone.common import serializer
 from keystone import tests
+from keystone.tests import matchers as ksmatchers
 
 
 class XmlSerializerTestCase(tests.TestCase):
     def assertSerializeDeserialize(self, d, xml, xmlns=None):
-        self.assertEqualXML(
+        self.assertThat(
             serializer.to_xml(copy.deepcopy(d), xmlns),
-            xml)
+            ksmatchers.XMLEquals(xml))
         self.assertEqual(serializer.from_xml(xml), d)
 
         # operations should be invertible
         self.assertEqual(
             serializer.from_xml(serializer.to_xml(copy.deepcopy(d), xmlns)),
             d)
-        self.assertEqualXML(
+        self.assertThat(
             serializer.to_xml(serializer.from_xml(xml), xmlns),
-            xml)
+            ksmatchers.XMLEquals(xml))
 
     def test_auth_request(self):
         d = {
@@ -162,7 +163,7 @@ class XmlSerializerTestCase(tests.TestCase):
                 <policy id="ab12cd"/>
             </policies>
         """
-        self.assertEqualXML(serializer.to_xml(d), xml)
+        self.assertThat(serializer.to_xml(d), ksmatchers.XMLEquals(xml))
 
     def test_values_list(self):
         d = {
@@ -183,7 +184,7 @@ class XmlSerializerTestCase(tests.TestCase):
             </objects>
         """
 
-        self.assertEqualXML(serializer.to_xml(d), xml)
+        self.assertThat(serializer.to_xml(d), ksmatchers.XMLEquals(xml))
 
     def test_collection_list(self):
         d = {
@@ -296,7 +297,7 @@ identity-service/2.0/content/" type="text/html"/>
 identity-service/2.0/identity-dev-guide-2.0.pdf" type="application/pdf"/>
             </object>
         """
-        self.assertEqualXML(serializer.to_xml(d), xml)
+        self.assertThat(serializer.to_xml(d), ksmatchers.XMLEquals(xml))
 
     def test_xml_with_namespaced_attribute_to_dict(self):
         expected = {
