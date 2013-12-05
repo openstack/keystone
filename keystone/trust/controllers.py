@@ -203,9 +203,16 @@ class TrustV3(controller.V3Controller):
             if user_id != calling_user_id:
                 raise exception.Forbidden()
             trusts += self.trust_api.list_trusts_for_trustee(user_id)
-        global_roles = self.identity_api.list_roles()
         for trust in trusts:
-            self._fill_in_roles(context, trust, global_roles)
+            # get_trust returns roles, list_trusts does not
+            # It seems in some circumstances, roles does not
+            # exist in the query response, so check first
+            if 'roles' in trust:
+                del trust['roles']
+            if trust.get('expires_at') is not None:
+                trust['expires_at'] = (timeutils.isotime
+                                       (trust['expires_at'],
+                                        subsecond=True))
         return TrustV3.wrap_collection(context, trusts)
 
     @controller.protected()
