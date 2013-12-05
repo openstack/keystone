@@ -90,7 +90,7 @@ class TrustV3(controller.V3Controller):
                             self.assignment_api.list_roles())
         return TrustV3.wrap_member(context, trust)
 
-    def _fill_in_roles(self, context, trust, global_roles):
+    def _fill_in_roles(self, context, trust, all_roles):
         if trust.get('expires_at') is not None:
             trust['expires_at'] = (timeutils.isotime
                                    (trust['expires_at'],
@@ -102,7 +102,7 @@ class TrustV3(controller.V3Controller):
         for trust_role in trust['roles']:
             if isinstance(trust_role, basestring):
                 trust_role = {'id': trust_role}
-            matching_roles = [x for x in global_roles
+            matching_roles = [x for x in all_roles
                               if x['id'] == trust_role['id']]
             if matching_roles:
                 full_role = identity.controllers.RoleV3.wrap_member(
@@ -114,19 +114,17 @@ class TrustV3(controller.V3Controller):
             'next': None,
             'previous': None}
 
-    def _clean_role_list(self, context, trust, global_roles):
+    def _clean_role_list(self, context, trust, all_roles):
         trust_roles = []
-        global_role_names = dict((r['name'], r)
-                                 for r in
-                                 global_roles)
+        all_role_names = dict((r['name'], r) for r in all_roles)
         for role in trust.get('roles', []):
             if 'id' in role:
                 trust_roles.append({'id': role['id']})
             elif 'name' in role:
                 rolename = role['name']
-                if rolename in global_role_names:
+                if rolename in all_role_names:
                     trust_roles.append({'id':
-                                        global_role_names[rolename]['id']})
+                                        all_role_names[rolename]['id']})
                 else:
                     raise exception.RoleNotFound("role %s is not defined" %
                                                  rolename)
@@ -155,8 +153,8 @@ class TrustV3(controller.V3Controller):
             trustee_ref = self.identity_api.get_user(trust['trustee_user_id'])
             if not trustee_ref:
                 raise exception.UserNotFound(user_id=trust['trustee_user_id'])
-            global_roles = self.assignment_api.list_roles()
-            clean_roles = self._clean_role_list(context, trust, global_roles)
+            all_roles = self.assignment_api.list_roles()
+            clean_roles = self._clean_role_list(context, trust, all_roles)
             if trust.get('project_id'):
                 user_role = self.assignment_api.get_roles_for_user_and_project(
                     user_id,
@@ -180,9 +178,7 @@ class TrustV3(controller.V3Controller):
                 trust_id=uuid.uuid4().hex,
                 trust=trust,
                 roles=clean_roles)
-            self._fill_in_roles(context,
-                                new_trust,
-                                global_roles)
+            self._fill_in_roles(context, new_trust, all_roles)
             return TrustV3.wrap_member(context, new_trust)
         except KeyError as e:
             raise exception.ValidationError(attribute=e.args[0],
@@ -268,9 +264,8 @@ class TrustV3(controller.V3Controller):
                           if x['id'] == role_id]
         if not matching_roles:
             raise exception.RoleNotFound(role_id=role_id)
-        global_roles = self.assignment_api.list_roles()
-        matching_roles = [x for x in global_roles
-                          if x['id'] == role_id]
+        all_roles = self.assignment_api.list_roles()
+        matching_roles = [x for x in all_roles if x['id'] == role_id]
         if matching_roles:
             full_role = (identity.controllers.
                          RoleV3.wrap_member(context, matching_roles[0]))
