@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
 # All Rights Reserved.
@@ -29,6 +27,7 @@ from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import local
 from keystone.openstack.common import log as logging
+from keystone.openstack.common import versionutils
 
 
 CONF = cfg.CONF
@@ -265,7 +264,7 @@ def _safe_log(log_func, msg, msg_data):
 
     def _fix_passwords(d):
         """Sanitizes the password fields in the dictionary."""
-        for k in d.iterkeys():
+        for k in six.iterkeys(d):
             if k.lower().find('password') != -1:
                 d[k] = '<SANITIZED>'
             elif k.lower() in SANITIZE:
@@ -441,19 +440,15 @@ def client_exceptions(*exceptions):
     return outer
 
 
+# TODO(sirp): we should deprecate this in favor of
+# using `versionutils.is_compatible` directly
 def version_is_compatible(imp_version, version):
     """Determine whether versions are compatible.
 
     :param imp_version: The version implemented
     :param version: The version requested by an incoming message.
     """
-    version_parts = version.split('.')
-    imp_version_parts = imp_version.split('.')
-    if int(version_parts[0]) != int(imp_version_parts[0]):  # Major
-        return False
-    if int(version_parts[1]) > int(imp_version_parts[1]):  # Minor
-        return False
-    return True
+    return versionutils.is_compatible(version, imp_version)
 
 
 def serialize_msg(raw_msg):

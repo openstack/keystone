@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2011 OpenStack Foundation.
 # Copyright 2012, Red Hat, Inc.
 #
@@ -23,6 +21,8 @@ import logging
 import sys
 import time
 import traceback
+
+import six
 
 from keystone.openstack.common.gettextutils import _  # noqa
 
@@ -65,7 +65,7 @@ class save_and_reraise_exception(object):
                                                      self.tb))
             return False
         if self.reraise:
-            raise self.type_, self.value, self.tb
+            six.reraise(self.type_, self.value, self.tb)
 
 
 def forever_retry_uncaught_exceptions(infunc):
@@ -77,7 +77,7 @@ def forever_retry_uncaught_exceptions(infunc):
             try:
                 return infunc(*args, **kwargs)
             except Exception as exc:
-                this_exc_message = unicode(exc)
+                this_exc_message = six.u(str(exc))
                 if this_exc_message == last_exc_message:
                     exc_count += 1
                 else:

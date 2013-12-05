@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
 # Copyright 2011 Justin Santa Barbara
@@ -20,6 +18,7 @@
 """Generic Node base class for all workers that run on hosts."""
 
 import errno
+import logging as std_logging
 import os
 import random
 import signal
@@ -28,7 +27,6 @@ import time
 
 import eventlet
 from eventlet import event
-import logging as std_logging
 from oslo.config import cfg
 
 from keystone.openstack.common import eventlet_backdoor
@@ -41,6 +39,29 @@ from keystone.openstack.common import threadgroup
 rpc = importutils.try_import('keystone.openstack.common.rpc')
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
+
+
+def _sighup_supported():
+    return hasattr(signal, 'SIGHUP')
+
+
+def _is_sighup(signo):
+    return _sighup_supported() and signo == signal.SIGHUP
+
+
+def _signo_to_signame(signo):
+    signals = {signal.SIGTERM: 'SIGTERM',
+               signal.SIGINT: 'SIGINT'}
+    if _sighup_supported():
+        signals[signal.SIGHUP] = 'SIGHUP'
+    return signals[signo]
+
+
+def _set_signals_handler(handler):
+    signal.signal(signal.SIGTERM, handler)
+    signal.signal(signal.SIGINT, handler)
+    if _sighup_supported():
+        signal.signal(signal.SIGHUP, handler)
 
 
 class Launcher(object):
@@ -100,18 +121,13 @@ class SignalExit(SystemExit):
 class ServiceLauncher(Launcher):
     def _handle_signal(self, signo, frame):
         # Allow the process to be killed again and die from natural causes
-        signal.signal(signal.SIGTERM, signal.SIG_DFL)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-        signal.signal(signal.SIGHUP, signal.SIG_DFL)
-
+        _set_signals_handler(signal.SIG_DFL)
         raise SignalExit(signo)
 
     def handle_signal(self):
-        signal.signal(signal.SIGTERM, self._handle_signal)
-        signal.signal(signal.SIGINT, self._handle_signal)
-        signal.signal(signal.SIGHUP, self._handle_signal)
+        _set_signals_handler(self._handle_signal)
 
-    def _wait_for_exit_or_signal(self):
+    def _wait_for_exit_or_signal(self, ready_callback=None):
         status = None
         signo = 0
 
@@ -119,11 +135,11 @@ class ServiceLauncher(Launcher):
         CONF.log_opt_values(LOG, std_logging.DEBUG)
 
         try:
+            if ready_callback:
+                ready_callback()
             super(ServiceLauncher, self).wait()
         except SignalExit as exc:
-            signame = {signal.SIGTERM: 'SIGTERM',
-                       signal.SIGINT: 'SIGINT',
-                       signal.SIGHUP: 'SIGHUP'}[exc.signo]
+            signame = _signo_to_signame(exc.signo)
             LOG.info(_('Caught %s, exiting'), signame)
             status = exc.code
             signo = exc.signo
@@ -140,11 +156,11 @@ class ServiceLauncher(Launcher):
 
         return status, signo
 
-    def wait(self):
+    def wait(self, ready_callback=None):
         while True:
             self.handle_signal()
-            status, signo = self._wait_for_exit_or_signal()
-            if signo != signal.SIGHUP:
+            status, signo = self._wait_for_exit_or_signal(ready_callback)
+            if not _is_sighup(signo):
                 return status
             self.restart()
 
@@ -167,18 +183,14 @@ class ProcessLauncher(object):
         self.handle_signal()
 
     def handle_signal(self):
-        signal.signal(signal.SIGTERM, self._handle_signal)
-        signal.signal(signal.SIGINT, self._handle_signal)
-        signal.signal(signal.SIGHUP, self._handle_signal)
+        _set_signals_handler(self._handle_signal)
 
     def _handle_signal(self, signo, frame):
         self.sigcaught = signo
         self.running = False
 
         # Allow the process to be killed again and die from natural causes
-        signal.signal(signal.SIGTERM, signal.SIG_DFL)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-        signal.signal(signal.SIGHUP, signal.SIG_DFL)
+        _set_signals_handler(signal.SIG_DFL)
 
     def _pipe_watcher(self):
         # This will block until the write end is closed when the parent
@@ -200,20 +212,22 @@ class ProcessLauncher(object):
             raise SignalExit(signal.SIGHUP)
 
         signal.signal(signal.SIGTERM, _sigterm)
-        signal.signal(signal.SIGHUP, _sighup)
+        if _sighup_supported():
+            signal.signal(signal.SIGHUP, _sighup)
         # Block SIGINT and let the parent send us a SIGTERM
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     def _child_wait_for_exit_or_signal(self, launcher):
-        status = None
+        status = 0
         signo = 0
 
+        # NOTE(johannes): All exceptions are caught to ensure this
+        # doesn't fallback into the loop spawning children. It would
+        # be bad for a child to spawn more children.
         try:
             launcher.wait()
         except SignalExit as exc:
-            signame = {signal.SIGTERM: 'SIGTERM',
-                       signal.SIGINT: 'SIGINT',
-                       signal.SIGHUP: 'SIGHUP'}[exc.signo]
+            signame = _signo_to_signame(exc.signo)
             LOG.info(_('Caught %s, exiting'), signame)
             status = exc.code
             signo = exc.signo
@@ -262,14 +276,11 @@ class ProcessLauncher(object):
 
         pid = os.fork()
         if pid == 0:
-            # NOTE(johannes): All exceptions are caught to ensure this
-            # doesn't fallback into the loop spawning children. It would
-            # be bad for a child to spawn more children.
             launcher = self._child_process(wrap.service)
             while True:
                 self._child_process_handle_signal()
                 status, signo = self._child_wait_for_exit_or_signal(launcher)
-                if signo != signal.SIGHUP:
+                if not _is_sighup(signo):
                     break
                 launcher.restart()
 
@@ -339,11 +350,9 @@ class ProcessLauncher(object):
             self.handle_signal()
             self._respawn_children()
             if self.sigcaught:
-                signame = {signal.SIGTERM: 'SIGTERM',
-                           signal.SIGINT: 'SIGINT',
-                           signal.SIGHUP: 'SIGHUP'}[self.sigcaught]
+                signame = _signo_to_signame(self.sigcaught)
                 LOG.info(_('Caught %s, stopping children'), signame)
-            if self.sigcaught != signal.SIGHUP:
+            if not _is_sighup(self.sigcaught):
                 break
 
             for pid in self.children:

@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2011 X.commerce, a business unit of eBay Inc.
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
@@ -41,7 +39,7 @@ class ModelBase(object):
         if not session:
             session = sa.get_session()
         # NOTE(boris-42): This part of code should be look like:
-        #                       sesssion.add(self)
+        #                       session.add(self)
         #                       session.flush()
         #                 But there is a bug in sqlalchemy and eventlet that
         #                 raises NoneType exception if there is no running

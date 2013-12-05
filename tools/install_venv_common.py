@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2013 OpenStack Foundation
 # Copyright 2013 IBM Corp.
 #
@@ -114,12 +112,12 @@ class InstallVenv(object):
         print('Installing dependencies with pip (this can take a while)...')
 
         # First things first, make sure our venv has the latest pip and
-        # setuptools.
-        self.pip_install('pip>=1.3')
+        # setuptools and pbr
+        self.pip_install('pip>=1.4')
         self.pip_install('setuptools')
+        self.pip_install('pbr')
 
-        self.pip_install('-r', self.requirements)
-        self.pip_install('-r', self.test_requirements)
+        self.pip_install('-r', self.requirements, '-r', self.test_requirements)
 
     def parse_args(self, argv):
         """Parses command-line arguments."""
