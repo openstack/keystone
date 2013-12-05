@@ -14,6 +14,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""This module provides support for dependency injection.
+
+Providers are registered via the 'provider' decorator, and dependencies on them
+are registered with 'requires' or 'optional'. Providers are available to their
+consumers via an attribute. See the documentation for the individual functions
+for more detail.
+
+See also:
+
+    https://en.wikipedia.org/wiki/Dependency_injection
+"""
+
 REGISTRY = {}
 
 _future_dependencies = {}
@@ -21,13 +33,35 @@ _future_optionals = {}
 
 
 class UnresolvableDependencyException(Exception):
+    """An UnresolvableDependencyException is raised when a required dependency
+    is not resolvable; see 'resolve_future_dependencies'.
+    """
     def __init__(self, name):
         msg = 'Unregistered dependency: %s' % name
         super(UnresolvableDependencyException, self).__init__(msg)
 
 
 def provider(name):
-    """Register the wrapped dependency provider under the specified name."""
+    """'provider' is a class decorator used to register providers.
+
+    When 'provider' is used to decorate a class, members of that class will
+    register themselves as providers for the named dependency. As an example,
+    In the code fragment:
+
+        @dependency.provider('foo_api')
+        class Foo:
+            def __init__(self):
+                ...
+
+            ...
+
+        foo = Foo()
+
+    The object 'foo' will be registered as a provider for 'foo_api'. No more
+    than one such instance should be created; additional instances will replace
+    the previous ones, possibly resulting in different instances being used by
+    different consumers.
+    """
     def wrapper(cls):
         def wrapped(init):
             def __wrapped_init__(self, *args, **kwargs):
@@ -64,7 +98,31 @@ def _process_dependencies(obj):
 
 
 def requires(*dependencies):
-    """Inject specified dependencies from the registry into the instance."""
+    """'requires' is a class decorator used to inject providers into consumers.
+
+    The required providers will be made available to instances of the decorated
+    class via an attribute with the same name as the provider. For example,
+    in the code fragment:
+
+        @dependency.requires('foo_api', 'bar_api')
+        class FooBarClient:
+            def __init__(self):
+                ...
+
+            ...
+
+        client = FooBarClient()
+
+    The object 'client' will have attributes named 'foo_api' and 'bar_api',
+    which are instances of the named providers.
+
+    Objects must not rely on the existence of these attributes until after
+    'resolve_future_dependencies' has been called; they may not exist
+    beforehand.
+
+    Dependencies registered via 'required' must have providers - if not, an
+    exception will be raised when 'resolve_future_dependencies' is called.
+    """
     def wrapper(self, *args, **kwargs):
         """Inject each dependency from the registry."""
         self.__wrapped_init__(*args, **kwargs)
@@ -87,9 +145,8 @@ def requires(*dependencies):
 
 
 def optional(*dependencies):
-    """Optionally inject specified dependencies from the registry into the
-       instance.
-
+    """'optional' is the same as 'requires', except that the dependencies are
+    optional - if no provider is available, the attributes will be set to None.
     """
     def wrapper(self, *args, **kwargs):
         """Inject each dependency from the registry."""
@@ -114,6 +171,20 @@ def optional(*dependencies):
 
 
 def resolve_future_dependencies(provider_name=None):
+    """'resolve_future_dependencies' forces injection of all dependencies.
+
+    Before this function is called, circular dependencies may not have been
+    injected. This function should be called only once, after all global
+    providers are registered. If an object needs to be created after this
+    call, it must not have circular dependencies.
+
+    If any required dependencies are unresolvable, this function will raise an
+    UnresolvableDependencyException.
+
+    Outside of this module, this function should be called with no arguments;
+    the optional argument is used internally, and should be treated as an
+    implementation detail.
+    """
     if provider_name:
         # A provider was registered, so take care of any objects depending on
         # it.
