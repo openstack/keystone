@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
@@ -336,3 +337,21 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
             policy=policy.id)
         policies = [x for x in client.policies.list() if x.id == policy.id]
         self.assertEqual(len(policies), 0)
+
+
+class KcOptTestCase(KcMasterSqlTestCase):
+    # Set KSCTEST_PATH to the keystoneclient directory, then run this test.
+    #
+    # For example, to test your local keystoneclient,
+    #
+    # KSCTEST_PATH=/opt/stack/python-keystoneclient \
+    #  tox -e py27 test_keystoneclient_sql.KcOptTestCase
+
+    def setUp(self):
+        self.path = os.environ.get('KSCTEST_PATH')
+        if not self.path:
+            self.skip('Set KSCTEST_PATH env to test with local client')
+        super(KcOptTestCase, self).setUp()
+
+    def get_checkout(self):
+        return self.path
