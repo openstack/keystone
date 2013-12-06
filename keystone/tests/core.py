@@ -17,6 +17,7 @@
 from __future__ import absolute_import
 
 import errno
+import functools
 import os
 import re
 import shutil
@@ -29,6 +30,7 @@ import fixtures
 import logging
 from paste import deploy
 import testtools
+from testtools import testcase
 
 
 from keystone.openstack.common import gettextutils
@@ -172,6 +174,41 @@ def remove_generated_paste_config(extension_name):
 
 def teardown_database():
     sql.core.set_global_engine(None)
+
+
+def skip_if_cache_disabled(*sections):
+    """This decorator is used to skip a test if caching is disabled either
+    globally or for the specific section.
+
+    In the code fragment:
+
+        @skip_if_cache_is_disabled('assignment', 'token')
+        def test_method(*args):
+            ...
+
+    The method test_method would be skipped if caching is disabled globally via
+    the `enabled` option in the `cache` section of the configuration or if
+    the `caching` option is set to false in either `assignment` or `token`
+    sections of the configuration.  This decorator can be used with no
+    arguments to only check global caching.
+
+    If a specified configuration section does not define the `caching` option,
+    this decorator makes the same assumption as the `should_cache_fn` in
+    keystone.common.cache that caching should be enabled.
+    """
+    def wrapper(f):
+        @functools.wraps(f)
+        def inner(*args, **kwargs):
+            if not CONF.cache.enabled:
+                raise testcase.TestSkipped('Cache globally disabled.')
+            for s in sections:
+                conf_sec = getattr(CONF, s, None)
+                if conf_sec is not None:
+                    if not getattr(conf_sec, 'caching', True):
+                        raise testcase.TestSkipped('%s caching disabled.' % s)
+            return f(*args, **kwargs)
+        return inner
+    return wrapper
 
 
 class TestClient(object):
