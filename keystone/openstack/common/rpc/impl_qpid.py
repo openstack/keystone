@@ -130,14 +130,13 @@ class ConsumerBase(object):
                     },
                 },
             }
-            if link_name:
-                addr_opts["link"]["name"] = link_name
             addr_opts["node"]["x-declare"].update(node_opts)
         elif conf.qpid_topology_version == 2:
             addr_opts = {
                 "link": {
                     "x-declare": {
                         "auto-delete": True,
+                        "exclusive": False,
                     },
                 },
             }
@@ -145,6 +144,8 @@ class ConsumerBase(object):
             raise_invalid_topology_version()
 
         addr_opts["link"]["x-declare"].update(link_opts)
+        if link_name:
+            addr_opts["link"]["name"] = link_name
 
         self.address = "%s ; %s" % (node_name, jsonutils.dumps(addr_opts))
 
@@ -219,14 +220,16 @@ class DirectConsumer(ConsumerBase):
         if conf.qpid_topology_version == 1:
             node_name = "%s/%s" % (msg_id, msg_id)
             node_opts = {"type": "direct"}
+            link_name = msg_id
         elif conf.qpid_topology_version == 2:
             node_name = "amq.direct/%s" % msg_id
             node_opts = {}
+            link_name = None
         else:
             raise_invalid_topology_version()
 
         super(DirectConsumer, self).__init__(conf, session, callback,
-                                             node_name, node_opts, msg_id,
+                                             node_name, node_opts, link_name,
                                              link_opts)
 
 
