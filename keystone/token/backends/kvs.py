@@ -136,8 +136,8 @@ class Token(kvs.Base, token.Driver):
                         tokens.append(token.split('-', 1)[1])
         return tokens
 
-    def list_tokens(self, user_id, tenant_id=None, trust_id=None,
-                    consumer_id=None):
+    def _list_tokens(self, user_id, tenant_id=None, trust_id=None,
+                     consumer_id=None):
         if trust_id:
             return self._list_tokens_for_trust(trust_id)
         if consumer_id:

@@ -787,7 +787,7 @@ class AuthWithTrust(AuthTest):
                          " only get the two roles specified in the trust.")
 
     def assert_token_count_for_trust(self, expected_value):
-        tokens = self.trust_controller.token_api.list_tokens(
+        tokens = self.trust_controller.token_api._list_tokens(
             self.trustee['id'], trust_id=self.new_trust['id'])
         token_count = len(tokens)
         self.assertEqual(token_count, expected_value)
@@ -812,12 +812,12 @@ class AuthWithTrust(AuthTest):
         context = {'token_id': self.unscoped_token['access']['token']['id']}
         self.fetch_v2_token_from_trust()
         trust_id = self.new_trust['id']
-        tokens = self.token_api.list_tokens(self.trustor['id'],
-                                            trust_id=trust_id)
+        tokens = self.token_api._list_tokens(self.trustor['id'],
+                                             trust_id=trust_id)
         self.assertEqual(len(tokens), 1)
         self.trust_controller.delete_trust(context, trust_id=trust_id)
-        tokens = self.token_api.list_tokens(self.trustor['id'],
-                                            trust_id=trust_id)
+        tokens = self.token_api._list_tokens(self.trustor['id'],
+                                             trust_id=trust_id)
         self.assertEqual(len(tokens), 0)
 
     def test_token_from_trust_with_no_role_fails(self):

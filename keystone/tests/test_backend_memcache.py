@@ -160,7 +160,7 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
         self.token_api.create_token(valid_token_id, valid_data)
         self.token_api.create_token(expired_token_id, expired_data)
         # NOTE(morganfainberg): Directly access the data cache since we need to
-        # get expired tokens as well as valid tokens. token_api.list_tokens()
+        # get expired tokens as well as valid tokens. token_api._list_tokens()
         # will not return any expired tokens in the list.
         user_key = self.token_api.driver._prefix_user_id(user_id)
         user_record = self.token_api.driver.client.get(user_key)

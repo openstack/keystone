@@ -19,12 +19,12 @@ import os
 import urlparse
 import uuid
 
-from keystone.common import cms
 from keystone.common.sql import migration
 from keystone import config
 from keystone import contrib
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
+from keystone import exception
 from keystone.openstack.common import importutils
 from keystone.tests import test_v3
 
@@ -439,13 +439,13 @@ class AuthTokenTests(OAuthFlowTests):
             method='POST',
             expected_status=403)
 
-    def test_list_keystone_tokens_by_consumer(self):
+    def test_delete_keystone_tokens_by_consumer_id(self):
         self.test_oauth_flow()
-        tokens = self.token_api.list_tokens(self.user_id,
-                                            consumer_id=self.consumer.key)
-        keystone_token_uuid = cms.cms_hash_token(self.keystone_token_id)
-        self.assertTrue(len(tokens) > 0)
-        self.assertTrue(keystone_token_uuid in tokens)
+        self.token_api.get_token(self.keystone_token_id)
+        self.token_api.delete_tokens(self.user_id,
+                                     consumer_id=self.consumer.key)
+        self.assertRaises(exception.TokenNotFound, self.token_api.get_token,
+                          self.keystone_token_id)
 
 
 class MaliciousOAuth1Tests(OAuth1Tests):
