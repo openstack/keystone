@@ -17,6 +17,7 @@
 import copy
 import datetime
 import hashlib
+import mock
 import uuid
 
 from keystone.catalog import core
@@ -1564,6 +1565,28 @@ class IdentityTests(object):
     def test_remove_user_from_project(self):
         self.assignment_api.add_user_to_project(self.tenant_baz['id'],
                                                 self.user_foo['id'])
+        self.assignment_api.remove_user_from_project(self.tenant_baz['id'],
+                                                     self.user_foo['id'])
+        tenants = self.assignment_api.list_projects_for_user(
+            self.user_foo['id'])
+        self.assertNotIn(self.tenant_baz, tenants)
+
+    def test_remove_user_from_project_race_delete_role(self):
+        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
+                                                self.user_foo['id'])
+        self.assignment_api.add_role_to_user_and_project(
+            tenant_id=self.tenant_baz['id'],
+            user_id=self.user_foo['id'],
+            role_id=self.role_other['id'])
+
+        # Mock a race condition, delete a role after
+        # get_roles_for_user_and_project() is called in
+        # remove_user_from_project().
+        roles = self.assignment_api.get_roles_for_user_and_project(
+            self.user_foo['id'], self.tenant_baz['id'])
+        self.assignment_api.delete_role(self.role_other['id'])
+        self.assignment_api.get_roles_for_user_and_project = mock.Mock(
+            return_value=roles)
         self.assignment_api.remove_user_from_project(self.tenant_baz['id'],
                                                      self.user_foo['id'])
         tenants = self.assignment_api.list_projects_for_user(
