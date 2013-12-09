@@ -20,6 +20,7 @@ from keystone.tests import rest
 
 
 BASE_URL = 'http://127.0.0.1:35357/v2'
+SERVICE_FIXTURE = object()
 
 
 class V2CatalogTestCase(rest.RestfulTestCase):
@@ -59,42 +60,41 @@ class V2CatalogTestCase(rest.RestfulTestCase):
     def assertValidErrorResponse(self, response):
         self.assertEqual(response.status_code, 400)
 
-    def _endpoint_create(self, expected_status=200, missing_param=None):
+    def _endpoint_create(self, expected_status=200, service_id=SERVICE_FIXTURE,
+                         publicurl='http://localhost:8080',
+                         internalurl='http://localhost:8080',
+                         adminurl='http://localhost:8080'):
+        if service_id is SERVICE_FIXTURE:
+            service_id = self.service_id
+        # FIXME(dolph): expected status should actually be 201 Created
         path = '/v2.0/endpoints'
         body = {
-            "endpoint": {
-                "adminurl": "http://localhost:8080",
-                "service_id": self.service_id,
-                "region": "regionOne",
-                "internalurl": "http://localhost:8080",
-                "publicurl": "http://localhost:8080"
+            'endpoint': {
+                'adminurl': adminurl,
+                'service_id': service_id,
+                'region': 'regionOne',
+                'internalurl': internalurl,
+                'publicurl': publicurl
             }
         }
-        if missing_param:
-            body['endpoint'][missing_param] = None
+
         r = self.admin_request(method='POST', token=self.get_scoped_token(),
                                path=path, expected_status=expected_status,
                                body=body)
         return body, r
 
     def test_endpoint_create(self):
-        req_body, response = self._endpoint_create(expected_status=200)
+        req_body, response = self._endpoint_create()
         self.assertTrue('endpoint' in response.result)
         self.assertTrue('id' in response.result['endpoint'])
         for field, value in req_body['endpoint'].iteritems():
             self.assertEqual(response.result['endpoint'][field], value)
 
-    def test_endpoint_create_with_missing_adminurl(self):
-        req_body, response = self._endpoint_create(expected_status=200,
-                                                   missing_param='adminurl')
-        self.assertEqual(response.status_code, 200)
+    def test_endpoint_create_with_null_adminurl(self):
+        self._endpoint_create(adminurl=None)
 
-    def test_endpoint_create_with_missing_internalurl(self):
-        req_body, response = self._endpoint_create(expected_status=200,
-                                                   missing_param='internalurl')
-        self.assertEqual(response.status_code, 200)
+    def test_endpoint_create_with_null_internalurl(self):
+        self._endpoint_create(internalurl=None)
 
-    def test_endpoint_create_with_missing_publicurl(self):
-        req_body, response = self._endpoint_create(expected_status=400,
-                                                   missing_param='publicurl')
-        self.assertValidErrorResponse(response)
+    def test_endpoint_create_with_null_publicurl(self):
+        self._endpoint_create(expected_status=400, publicurl=None)
