@@ -21,7 +21,7 @@ mox>=0.5.3
 # Optional KVS feature encryption testing
 pycrypto>=2.6
 # required to build documentation
-sphinx>=1.1.2
+sphinx>=1.1.2,<1.2
 # test wsgi apps without starting an http server
 WebTest>=2.0
 
