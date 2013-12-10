@@ -72,7 +72,7 @@
 
     "admin_on_domain_filter" : "rule:admin_required and domain_id:%(scope.domain.id)s",
     "admin_on_project_filter" : "rule:admin_required and project_id:%(scope.project.id)s",
-    "identity:list_role_assignments": "admin_on_domain_filter or admin_on_project_filter",
+    "identity:list_role_assignments": "rule:admin_on_domain_filter or rule:admin_on_project_filter",
 
     "identity:get_policy": "rule:cloud_admin",
     "identity:list_policies": "rule:cloud_admin",
