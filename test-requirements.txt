@@ -12,28 +12,28 @@ python-ldap==2.3.13
 
 # Testing
 # computes code coverage percentages
-coverage
+coverage>=3.6
 # mock object framework
-mox
+mox>=0.5.3
 # for test discovery and console feedback
 nose
 nosexcover
-openstack.nose_plugin
-nosehtmloutput
+openstack.nose_plugin>=0.7
+nosehtmloutput>=0.0.3
 # required to build documentation
-Sphinx>=1.1.2
+sphinx>=1.1.2,<1.2
 testtools>=0.9.32
 # test wsgi apps without starting an http server
-webtest
+WebTest>=2.0
 
 # for python-keystoneclient
 # keystoneclient <0.2.1
 httplib2
 # replaces httplib2 in keystoneclient >=0.2.1
-requests>=1.0.0
-keyring
+requests>=1.1
+keyring>=1.6.1,<2.0
 
-netifaces
+netifaces>=0.5
 
 # For documentation
 oslo.sphinx
