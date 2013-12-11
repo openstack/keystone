@@ -133,9 +133,9 @@ def paginate_query(query, model, limit, sort_keys, marker=None,
 
         # Build up an array of sort criteria as in the docstring
         criteria_list = []
-        for i in range(0, len(sort_keys)):
+        for i in range(len(sort_keys)):
             crit_attrs = []
-            for j in range(0, i):
+            for j in range(i):
                 model_attr = getattr(model, sort_keys[j])
                 crit_attrs.append((model_attr == marker_values[j]))
 
@@ -215,9 +215,9 @@ def drop_unique_constraint(migrate_engine, table_name, uc_name, *columns,
     NullType with the correct column type.
 
     :param migrate_engine: sqlalchemy engine
-    :param table_name:     name of table that contains unique constraint.
-    :param uc_name:        name of unique constraint that will be dropped.
-    :param columns:        columns that are in unique constraint.
+    :param table_name:     name of table that contains uniq constraint.
+    :param uc_name:        name of uniq constraint that will be dropped.
+    :param columns:        columns that are in uniq constraint.
     :param col_name_col_instance:   contains pair column_name=column_instance.
                             column_instance is instance of Column. These params
                             are required only for columns that have unsupported
