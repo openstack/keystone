@@ -132,7 +132,7 @@ GET /extensions
 
 Discover the API extensions enabled at the endpoint::
 
-    $ curl http://0.0.0.0:35357/extensions
+    $ curl http://localhost:35357/v2.0/extensions/
 
 Returns::
 
