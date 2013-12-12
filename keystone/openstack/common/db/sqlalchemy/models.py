@@ -59,7 +59,16 @@ class ModelBase(object):
     def get(self, key, default=None):
         return getattr(self, key, default)
 
-    def _get_extra_keys(self):
+    @property
+    def _extra_keys(self):
+        """Specifies custom fields
+
+        Subclasses can override this property to return a list
+        of custom fields that should be included in their dict
+        representation.
+
+        For reference check tests/db/sqlalchemy/test_models.py
+        """
         return []
 
     def __iter__(self):
@@ -67,7 +76,7 @@ class ModelBase(object):
         # NOTE(russellb): Allow models to specify other keys that can be looked
         # up, beyond the actual db columns.  An example would be the 'name'
         # property for an Instance.
-        columns.extend(self._get_extra_keys())
+        columns.extend(self._extra_keys)
         self._i = iter(columns)
         return self
 
@@ -89,7 +98,7 @@ class ModelBase(object):
         joined = dict([(k, v) for k, v in six.iteritems(self.__dict__)
                       if not k[0] == '_'])
         local.update(joined)
-        return local.iteritems()
+        return six.iteritems(local)
 
 
 class TimestampMixin(object):

@@ -23,7 +23,7 @@ import lockfile
 import sqlalchemy
 import sqlalchemy.exc
 
-from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common.gettextutils import _  # noqa
 from keystone.openstack.common import log as logging
 from keystone.openstack.common.py3kcompat import urlutils
 from keystone.openstack.common import test
