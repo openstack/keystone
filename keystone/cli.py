@@ -214,6 +214,7 @@ def main(argv=None, config_files=None):
 
     config.configure()
     sql.initialize()
+    config.set_default_for_default_log_levels()
 
     CONF(args=argv[1:],
          project='keystone',
