@@ -104,7 +104,7 @@ if __name__ == '__main__':
          version=pbr.version.VersionInfo('keystone').version_string(),
          default_config_files=config_files)
 
-    config.setup_logging(CONF, product_name='keystone')
+    config.setup_logging()
 
     # Log the options used when starting if we're in debug mode...
     if CONF.debug:

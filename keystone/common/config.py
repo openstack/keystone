@@ -16,8 +16,6 @@
 
 from oslo.config import cfg
 
-from keystone.openstack.common import log as logging
-
 
 _DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)8s [%(name)s] %(message)s"
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -275,19 +273,6 @@ FILE_OPTIONS = {
 
 
 CONF = cfg.CONF
-
-
-def setup_logging(conf, product_name='keystone'):
-    """Sets up the logging options for a log with supplied name
-
-    :param conf: a cfg.ConfOpts object
-    """
-    # NOTE(ldbragst): This method will be removed along with other
-    # refactoring in favor of using the
-    # keystone/openstack/common/log.py implementation. This just ensures
-    # that in the time between introduction and refactoring, we still have
-    # a working logging implementation.
-    logging.setup(product_name)
 
 
 def setup_authentication(conf=None):
