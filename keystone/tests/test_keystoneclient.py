@@ -855,10 +855,6 @@ class KeystoneClientTests(object):
         # TODO(ja): MEMBERSHIP CRUD
         # TODO(ja): determine what else todo
 
-
-class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
-    checkout_info = (KEYSTONECLIENT_REPO, 'master')
-
     def test_tenant_add_and_remove_user(self):
         client = self.get_client(admin=True)
         client.roles.add_user_role(tenant=self.tenant_bar['id'],
@@ -1065,6 +1061,10 @@ class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
         self.assertRaises(client_exceptions.Unauthorized, client.tenants.list)
         client.auth_token = new_token_id
         client.tenants.list()
+
+
+class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
+    checkout_info = (KEYSTONECLIENT_REPO, 'master')
 
 
 class KcOptTestCase(KcMasterTestCase):
