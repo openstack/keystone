@@ -35,7 +35,8 @@ LOG = log.getLogger(__name__)
 class Server(object):
     """Server class to manage multiple WSGI sockets and applications."""
 
-    def __init__(self, application, host=None, port=None, threads=1000):
+    def __init__(self, application, host=None, port=None, threads=1000,
+                 keepalive=False, keepidle=None):
         self.application = application
         self.host = host or '0.0.0.0'
         self.port = port or 0
@@ -44,6 +45,8 @@ class Server(object):
         self.greenthread = None
         self.do_ssl = False
         self.cert_required = False
+        self.keepalive = keepalive
+        self.keepidle = keepidle
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
@@ -76,6 +79,15 @@ class Server(object):
                                           cert_reqs=cert_reqs,
                                           ca_certs=self.ca_certs)
             _socket = sslsocket
+
+        # Optionally enable keepalive on the wsgi socket.
+        if self.keepalive:
+            _socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+
+            # This option isn't available in the OS X version of eventlet
+            if hasattr(socket, 'TCP_KEEPIDLE') and self.keepidle is not None:
+                _socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE,
+                                   self.keepidle)
 
         self.greenthread = self.pool.spawn(self._run,
                                            self.application,

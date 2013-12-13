@@ -47,7 +47,17 @@ FILE_OPTIONS = {
         cfg.StrOpt('member_role_id',
                    default='9fe2ff9ee4384b1894a90878d3e92bab'),
         cfg.StrOpt('member_role_name', default='_member_'),
-        cfg.IntOpt('crypt_strength', default=40000)],
+        cfg.IntOpt('crypt_strength', default=40000),
+        cfg.BoolOpt('tcp_keepalive', default=False,
+                    help=("Set this to True if you want to enable "
+                          "TCP_KEEPALIVE on server sockets i.e. sockets used "
+                          "by the keystone wsgi server for client "
+                          "connections")),
+        cfg.IntOpt('tcp_keepidle',
+                   default=600,
+                   help=("Sets the value of TCP_KEEPIDLE in seconds for each "
+                         "server socket. Only applies if tcp_keepalive is "
+                         "True. Not supported on OS X."))],
     'identity': [
         cfg.StrOpt('default_domain_id', default='default'),
         cfg.BoolOpt('domain_specific_drivers_enabled',
