@@ -361,6 +361,89 @@ Example (using the above cacheable_function)::
 .. _`dogpile.cache`: http://dogpilecache.readthedocs.org/
 
 
+dogpile.cache based Key-Value-Store (KVS)
+-----------------------------------------
+The ``dogpile.cache`` based KVS system has been designed to allow for flexible stores for the
+backend of the KVS system. The implementation allows for the use of any normal ``dogpile.cache``
+cache backends to be used as a store. All interfacing to the KVS system happens via the
+``KeyValueStore`` object located at ``keystone.common.kvs.KeyValueStore``.
+
+To utilize the KVS system an instantiation of the ``KeyValueStore`` class is needed. To accquire
+a KeyValueStore instantiation use the ``keystone.common.kvs.get_key_value_store`` factory
+function. This factory will either create a new ``KeyValueStore`` object or retrieve the
+already instantiated ``KeyValueStore`` object by the name passed as an argument. The object must
+be configured before use. The KVS object will only be retrievable with the
+``get_key_value_store`` function while there is an active reference outside of the registry.
+Once all references have been removed the object is gone (the registry uses a ``weakref`` to
+match the object to the name).
+
+Example Instantiation and Configuration::
+
+    kvs_store = kvs.get_key_value_store('TestKVSRegion')
+    kvs_store.configure('openstack.kvs.Memory', ...)
+
+Any keyword arguments passed to the configure method that are not defined as part of the
+KeyValueStore object configuration are passed to the backend for further configuration (e.g.
+memcache servers, lock_timeout, etc).
+
+The memcached backend uses the Keystone manager mechanism to support the use of any of the
+provided dogpile.cache memcached backends (``BMemcached``, ``pylibmc``, and basic ``Memcached``).
+By default the standard Memcache backend is used.  Currently the Memcache URLs come from the
+``servers`` option in the ``[memcache]`` configuration section of the Keystone config.
+
+Example configuring the KVS system to use memcached and a specific dogpile.cache memcached backend::
+
+    kvs_store = kvs.get_key_value_store('TestKVSRegion')
+    kvs_store.configure('openstack.kvs.Memcached', dogpile_cache_backend='MemcachedBackend')
+
+Once a KVS object has been instantiated the method of interacting is the same as most memcache
+implementations::
+
+    kvs_store = kvs.get_key_value_store('TestKVSRegion')
+    kvs_store.configure(...)
+    # Set a Value
+    kvs_store.set(<Key>, <Value>)
+    # Retrieve a value:
+    retrieved_value = kvs_store.get(<key>)
+    # Delete a key/value pair:
+    kvs_store.delete(<key>)
+    # multi-get:
+    kvs_store.get_multi([<key>, <key>, ...])
+    # multi-set:
+    kvs_store.set_multi(dict(<key>=<value>, <key>=<value>, ...))
+    # multi-delete
+    kvs_store.delete_multi([<key>, <key>, ...])
+
+
+There is a global configuration option to be aware of (that can be set in the ``[kvs]`` section of
+the Keystone configuration file): ``enable_key_mangler`` can be set top false, disabling the use of
+key_manglers (modification of the key when saving to the backend to help prevent
+collisions or exceeding key size limits with memcached).
+
+.. NOTE::
+    The ``enable_key_mangler`` option in the ``[kvs]`` section of the Keystone configuration file
+    is not the same option (and does not affect the cache-layer key manglers) from the option in the
+    ``[cache]`` section of the configuration file. Similarly the ``[cache]`` section options
+    relating to key manglers has no bearing on the ``[kvs]`` objects.
+
+.. WARNING::
+    Setting the ``enable_key_mangler`` option to False can have detrimental effects on the
+    KeyValueStore backend. It is recommended that this value is not set to False except for
+    debugging issues with the ``dogpile.cache`` backend itself.
+
+Any backends that are to be used with the ``KeyValueStore`` system need to be registered with
+dogpile. For in-tree/provided backends, the registration should occur in
+``keystone/common/kvs/__init__.py``. For backends that are developed out of tree, the location
+should be added to the ``backends`` option in the ``[kvs]`` section of the Keystone configuration::
+
+    [kvs]
+    backends = backend_module1.backend_class1,backend_module2.backend_class2
+
+All registered backends will receive the "short name" of "openstack.kvs.<class name>" for use in the
+``configure`` method on the ``KeyValueStore`` object.  The ``<class name>`` of a backend must be
+globally unique.
+
+
 Building the Documentation
 ==========================
 

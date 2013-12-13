@@ -50,6 +50,7 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import kvs
+from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
 from keystone.common import utils
 from keystone.common import wsgi
@@ -339,6 +340,12 @@ class TestCase(testtools.TestCase):
         # tests call load_backends multiple times. These should be fixed to
         # only call load_backends once.
         dependency.reset()
+
+        # TODO(morganfainberg): Shouldn't need to clear the registry here, but
+        # some tests call load_backends multiple times.  Since it is not
+        # possible to re-configure a backend, we need to clear the list.  This
+        # should eventually be removed once testing has been cleaned up.
+        kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
         # NOTE(blk-u): identity must be before assignment to ensure that the
         # identity driver is available to the assignment manager because the
