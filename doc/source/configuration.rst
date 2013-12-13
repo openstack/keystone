@@ -197,6 +197,32 @@ Conversely, if ``provider`` is ``keystone.token.providers.uuid.Provider``,
 For a customized provider, ``token_format`` must not set to ``PKI`` or
 ``UUID``.
 
+PKI or UUID?
+^^^^^^^^^^^^
+
+UUID-based tokens are randomly generated opaque strings that are issued and
+validated by the identity service. They must be persisted by the identity
+service in order to be later validated, and revoking them is simply a matter of
+deleting them from the token persistence backend.
+
+PKI-based tokens are Cryptographic Message Syntax (CMS) strings that can be
+verified offline using keystone's public signing key. The only reason for them
+to be persisted by the identity service is to later build token revocation
+lists (explicit lists of tokens that have been revoked), otherwise they are
+theoretically ephemeral. PKI tokens should therefore have much better scaling
+characteristics (decentralized validation). They are base-64 encoded (and are
+therefore not URL-friendly without encoding) and may be too long to fit in
+either headers or URLs if they contain extensive service catalogs or other
+additional attributes.
+
+.. WARNING::
+    Both UUID- and PKI-based tokens are bearer tokens, meaning that they must
+    be protected from unnecessary disclosure to prevent unauthorized access.
+
+The current architectural approaches for both UUID- and PKI-based tokens have
+pain points exposed by environments under heavy load (search bugs and
+blueprints for the latest details and potential solutions), although PKI tokens
+became the default configuration option in the Grizzly release.
 
 Caching Layer
 -------------
