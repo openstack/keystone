@@ -16,6 +16,9 @@
 
 """Token provider interface."""
 
+import abc
+
+import six
 
 from keystone.common import cache
 from keystone.common import dependency
@@ -224,9 +227,11 @@ class Manager(manager.Manager):
         self._validate_v3_token.invalidate(self, token_id)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Provider(object):
     """Interface description for a Token provider."""
 
+    @abc.abstractmethod
     def get_token_version(self, token_data):
         """Return the version of the given token data.
 
@@ -240,6 +245,7 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
         """Issue a V2 token.
 
@@ -253,6 +259,7 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
                        metadata_ref=None, include_catalog=True):
@@ -278,6 +285,7 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def revoke_token(self, token_id):
         """Revoke a given token.
 
@@ -287,6 +295,7 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def validate_token(self, token_id):
         """Detect token version and validate token and return the token data.
 
@@ -299,6 +308,7 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def validate_v2_token(self, token_id):
         """Validate the given V2 token and return the token data.
 
@@ -312,6 +322,7 @@ class Provider(object):
         """
         raise exception.NotImplemented()
 
+    @abc.abstractmethod
     def validate_v3_token(self, token_id):
         """Validate the given V3 token and return the token_data.
 
@@ -319,5 +330,15 @@ class Provider(object):
         :type token_id: string
         :returns: token data
         :raises: keystone.exception.TokenNotFound
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def _get_token_id(self, token_data):
+        """Generate the token_id based upon the data in token_data.
+
+        :param token_data: token information
+        :type token_data: dict
+        returns: token identifier
         """
         raise exception.NotImplemented()
