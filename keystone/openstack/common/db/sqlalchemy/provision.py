@@ -22,6 +22,7 @@ import os
 import random
 import string
 
+from six import moves
 import sqlalchemy
 
 from keystone.openstack.common.db import exception as exc
@@ -34,7 +35,8 @@ def _gen_credentials(*names):
     """Generate credentials."""
     auth_dict = {}
     for name in names:
-        val = ''.join(random.choice(string.lowercase) for i in xrange(10))
+        val = ''.join(random.choice(string.ascii_lowercase)
+                      for i in moves.range(10))
         auth_dict[name] = val
     return auth_dict
 
