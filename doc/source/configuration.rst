@@ -71,6 +71,7 @@ following sections:
 * ``[ssl]`` - SSL configuration
 * ``[auth]`` - Authentication plugin configuration
 * ``[os_inherit]`` - Inherited Role Assignment extension
+* ``[endpoint_filter]`` - Endpoint Filtering extension configuration
 * ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
 
 The Keystone primary configuration file is expected to be named ``keystone.conf``.
@@ -713,6 +714,13 @@ OAuth1.0a
    :maxdepth: 1
 
    extensions/oauth1-configuration.rst
+
+Endpoint Filtering
+------------------
+.. toctree::
+   :maxdepth: 1
+
+   extensions/endpoint_filter-configuration.rst
 
 .. _`prepare your deployment`:
 
