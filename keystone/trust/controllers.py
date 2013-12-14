@@ -16,11 +16,11 @@
 
 import uuid
 
+from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
 from keystone import config
 from keystone import exception
-from keystone import identity
 from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 
@@ -105,7 +105,7 @@ class TrustV3(controller.V3Controller):
             matching_roles = [x for x in global_roles
                               if x['id'] == trust_role['id']]
             if matching_roles:
-                full_role = identity.controllers.RoleV3.wrap_member(
+                full_role = assignment.controllers.RoleV3.wrap_member(
                     context, matching_roles[0])['role']
                 trust_full_roles.append(full_role)
         trust['roles'] = trust_full_roles
@@ -265,7 +265,7 @@ class TrustV3(controller.V3Controller):
         matching_roles = [x for x in global_roles
                           if x['id'] == role_id]
         if matching_roles:
-            full_role = (identity.controllers.
+            full_role = (assignment.controllers.
                          RoleV3.wrap_member(context, matching_roles[0]))
             return full_role
         else:

@@ -83,7 +83,7 @@ def public_app_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
-                                [identity.routers.Public(),
+                                [assignment.routers.Public(),
                                  token.routers.Router(),
                                  routers.VersionV2('public'),
                                  routers.Extension(False)])
@@ -95,6 +95,7 @@ def admin_app_factory(global_conf, **local_conf):
     conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [identity.routers.Admin(),
+                                 assignment.routers.Admin(),
                                     token.routers.Router(),
                                     routers.VersionV2('admin'),
                                     routers.Extension()])
@@ -123,7 +124,7 @@ def v3_app_factory(global_conf, **local_conf):
     conf.update(local_conf)
     mapper = routes.Mapper()
     v3routers = []
-    for module in [auth, catalog, credential, identity, policy]:
+    for module in [assignment, auth, catalog, credential, identity, policy]:
         module.routers.append_v3_routers(mapper, v3routers)
 
     if CONF.trust.enabled:
