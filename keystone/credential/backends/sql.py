@@ -89,3 +89,19 @@ class Credential(sql.Base, credential.Driver):
             ref = self._get_credential(session, credential_id)
             session.delete(ref)
             session.flush()
+
+    def delete_credentials_for_project(self, project_id):
+        session = self.get_session()
+
+        with session.begin():
+            query = session.query(CredentialModel)
+            query = query.filter_by(project_id=project_id)
+            query.delete()
+
+    def delete_credentials_for_user(self, user_id):
+        session = self.get_session()
+
+        with session.begin():
+            query = session.query(CredentialModel)
+            query = query.filter_by(user_id=user_id)
+            query.delete()
