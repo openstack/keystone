@@ -88,9 +88,11 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
         self.assertRaises(client_exceptions.NotFound, client.endpoints.delete,
                           id=endpoint.id)
 
-    def _send_ec2_auth_request(self, credentials):
+    def _send_ec2_auth_request(self, credentials, client=None):
+        if not client:
+            client = self.default_client
         url = '%s/ec2tokens' % self.default_client.auth_url
-        (resp, token) = self.default_client.request(
+        (resp, token) = client.request(
             url=url, method='POST',
             body={'credentials': credentials})
         return resp, token
@@ -99,9 +101,12 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
         cred = self. default_client.ec2.create(
             user_id=self.user_foo['id'],
             tenant_id=self.tenant_bar['id'])
-        signer = ec2_utils.Ec2Signer(cred.secret)
+        return self._generate_user_ec2_credentials(cred.access, cred.secret)
+
+    def _generate_user_ec2_credentials(self, access, secret):
+        signer = ec2_utils.Ec2Signer(secret)
         credentials = {'params': {'SignatureVersion': '2'},
-                       'access': cred.access,
+                       'access': access,
                        'verb': 'GET',
                        'host': 'localhost',
                        'path': '/service/cloud'}
@@ -114,6 +119,43 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
         resp, token = self._send_ec2_auth_request(credentials)
         self.assertEqual(resp.status_code, 200)
         self.assertIn('access', token)
+
+    def test_ec2_auth_success_trust(self):
+        # Add "other" role user_foo and create trust delegating it to user_two
+        self.identity_api.add_role_to_user_and_project(
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            self.role_other['id'])
+        trust_id = 'atrust123'
+        trust = {'trustor_user_id': self.user_foo['id'],
+                 'trustee_user_id': self.user_two['id'],
+                 'project_id': self.tenant_bar['id'],
+                 'impersonation': True}
+        roles = [self.role_other]
+        self.trust_api.create_trust(trust_id, trust, roles)
+
+        # Create a client for user_two, scoped to the trust
+        client = self.get_client(self.user_two)
+        ret = client.authenticate(trust_id=trust_id,
+                                  tenant_id=self.tenant_bar['id'])
+        self.assertTrue(ret)
+        self.assertTrue(client.auth_ref.trust_scoped)
+        self.assertEqual(trust_id, client.auth_ref.trust_id)
+
+        # Create an ec2 keypair using the trust client impersonating user_foo
+        cred = client.ec2.create(user_id=self.user_foo['id'],
+                                 tenant_id=self.tenant_bar['id'])
+        credentials, signature = self._generate_user_ec2_credentials(
+            cred.access, cred.secret)
+        credentials['signature'] = signature
+        resp, token = self._send_ec2_auth_request(credentials)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(trust_id, token['access']['trust']['id'])
+        #TODO(shardy) we really want to check the roles and trustee
+        # but because of where the stubbing happens we don't seem to
+        # hit the necessary code in controllers.py _authenticate_token
+        # so although all is OK via a real request, it incorrect in
+        # this test..
 
     def test_ec2_auth_failure(self):
         from keystoneclient import exceptions as client_exceptions

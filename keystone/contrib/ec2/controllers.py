@@ -106,6 +106,11 @@ class Ec2Controller(controller.V2Controller):
             self.identity_api.get_roles_for_user_and_project(
                 user_ref['id'], tenant_ref['id']))
 
+        trust_id = creds_ref.get('trust_id')
+        if trust_id:
+            metadata_ref['trust_id'] = trust_id
+            metadata_ref['trustee_user_id'] = user_ref['id']
+
         # Validate that the auth info is valid and nothing is disabled
         token.validate_auth_info(self, user_ref, tenant_ref)
 
@@ -146,8 +151,10 @@ class Ec2Controller(controller.V2Controller):
 
         self._assert_valid_user_id(user_id)
         self._assert_valid_project_id(tenant_id)
+        trust_id = self._context_trust_id(context)
         blob = {'access': uuid.uuid4().hex,
-                'secret': uuid.uuid4().hex}
+                'secret': uuid.uuid4().hex,
+                'trust_id': trust_id}
         credential_id = utils.hash_access_key(blob['access'])
         cred_ref = {'user_id': user_id,
                     'project_id': tenant_id,
@@ -213,7 +220,8 @@ class Ec2Controller(controller.V2Controller):
         return {'user_id': credential.get('user_id'),
                 'tenant_id': credential.get('project_id'),
                 'access': blob.get('access'),
-                'secret': blob.get('secret')}
+                'secret': blob.get('secret'),
+                'trust_id': blob.get('trust_id')}
 
     def _get_credentials(self, credential_id):
         """Return credentials from an ID.
@@ -243,6 +251,13 @@ class Ec2Controller(controller.V2Controller):
 
         if token_ref['user'].get('id') != user_id:
             raise exception.Forbidden(_('Token belongs to another user'))
+
+    def _context_trust_id(self, context):
+        try:
+            token_ref = self.token_api.get_token(context['token_id'])
+        except exception.TokenNotFound as e:
+            raise exception.Unauthorized(e)
+        return token_ref.get('trust_id')
 
     def _is_admin(self, context):
         """Wrap admin assertion error return statement.
