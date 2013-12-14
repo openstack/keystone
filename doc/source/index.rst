@@ -75,7 +75,7 @@ Code Documentation
 .. toctree::
    :maxdepth: 1
 
-   api/autoindex
+   api/modules
 
 Indices and tables
 ==================
