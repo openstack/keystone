@@ -21,6 +21,7 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 
 from keystone.common import sql
 from keystone import config
+from keystone.openstack.common.db.sqlalchemy import session
 from keystone import tests
 from keystone.tests import test_keystoneclient
 
@@ -36,7 +37,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
             tests.dirs.tests('backend_sql.conf')])
 
         self.load_backends()
-        self.engine = self.get_engine()
+        self.engine = session.get_engine()
         sql.ModelBase.metadata.create_all(bind=self.engine)
 
     def setUp(self):
@@ -45,8 +46,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase, sql.Base):
 
     def tearDown(self):
         sql.ModelBase.metadata.drop_all(bind=self.engine)
-        self.engine.dispose()
-        sql.set_global_engine(None)
+        session.cleanup()
         super(KcMasterSqlTestCase, self).tearDown()
 
     def test_endpoint_crud(self):

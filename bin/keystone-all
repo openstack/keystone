@@ -43,6 +43,7 @@ from keystone.openstack.common import gettextutils
 gettextutils.install('keystone')
 
 from keystone.common import environment
+from keystone.common import sql
 from keystone.common import utils
 from keystone import config
 from keystone.openstack.common import importutils
@@ -100,6 +101,8 @@ if __name__ == '__main__':
     config_files = None
     if os.path.exists(dev_conf):
         config_files = [dev_conf]
+
+    sql.initialize()
 
     CONF(project='keystone',
          version=pbr.version.VersionInfo('keystone').version_string(),
