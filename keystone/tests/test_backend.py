@@ -1765,6 +1765,38 @@ class IdentityTests(object):
                           'fake1',
                           user)
 
+    def test_create_user_missed_password(self):
+        user = {'id': 'fake1', 'name': 'fake1',
+                'domain_id': DEFAULT_DOMAIN_ID}
+        self.identity_api.create_user('fake1', user)
+        self.identity_api.get_user('fake1')
+        # Make sure  the user is not allowed to login
+        # with a password that  is empty string or None
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id='fake1',
+                          password='')
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id='fake1',
+                          password=None)
+
+    def test_create_user_none_password(self):
+        user = {'id': 'fake1', 'name': 'fake1', 'password': None,
+                'domain_id': DEFAULT_DOMAIN_ID}
+        self.identity_api.create_user('fake1', user)
+        self.identity_api.get_user('fake1')
+        # Make sure  the user is not allowed to login
+        # with a password that  is empty string or None
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id='fake1',
+                          password='')
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          user_id='fake1',
+                          password=None)
+
     def test_create_user_invalid_name_fails(self):
         user = {'id': 'fake1', 'name': None,
                 'domain_id': DEFAULT_DOMAIN_ID}
