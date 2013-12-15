@@ -42,23 +42,32 @@ LOG = logging.getLogger(__name__)
 # Ensure the cache is configured and built before we instantiate the managers
 cache.configure_cache_region(cache.REGION)
 
-# Ensure that the identity driver is created before the assignment manager.
-# The default assignment driver is determined by the identity driver, so the
-# identity driver must be available to the assignment manager.
-_IDENTITY_API = identity.Manager()
 
-DRIVERS = dict(
-    assignment_api=assignment.Manager(),
-    catalog_api=catalog.Manager(),
-    credentials_api=credential.Manager(),
-    endpoint_filter_api=endpoint_filter.Manager(),
-    identity_api=_IDENTITY_API,
-    policy_api=policy.Manager(),
-    token_api=token.Manager(),
-    trust_api=trust.Manager(),
-    token_provider_api=token.provider.Manager())
+def load_backends(include_oauth1=False):
 
-dependency.resolve_future_dependencies()
+    # Ensure that the identity driver is created before the assignment manager.
+    # The default assignment driver is determined by the identity driver, so
+    # the identity driver must be available to the assignment manager.
+    _IDENTITY_API = identity.Manager()
+
+    DRIVERS = dict(
+        assignment_api=assignment.Manager(),
+        catalog_api=catalog.Manager(),
+        credential_api=credential.Manager(),
+        endpoint_filter_api=endpoint_filter.Manager(),
+        identity_api=_IDENTITY_API,
+        policy_api=policy.Manager(),
+        token_api=token.Manager(),
+        trust_api=trust.Manager(),
+        token_provider_api=token.provider.Manager())
+
+    if include_oauth1:
+        from keystone.contrib import oauth1
+        DRIVERS['oauth1_api'] = oauth1.Manager()
+
+    dependency.resolve_future_dependencies()
+
+    return DRIVERS
 
 
 def fail_gracefully(f):

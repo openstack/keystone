@@ -46,6 +46,7 @@ from keystone.common import environment
 from keystone.common import utils
 from keystone import config
 from keystone.openstack.common import importutils
+from keystone import service
 
 
 CONF = config.CONF
@@ -121,6 +122,8 @@ if __name__ == '__main__':
         # 000794.html
         monkeypatch_thread = False
     environment.use_eventlet(monkeypatch_thread)
+
+    service.load_backends()
 
     servers = []
     servers.append(create_server(paste_config,
