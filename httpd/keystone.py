@@ -33,7 +33,7 @@ from keystone.openstack.common import log
 
 CONF = config.CONF
 CONF(project='keystone')
-config.setup_logging(CONF)
+config.setup_logging()
 
 environment.use_stdlib()
 name = os.path.basename(__file__)

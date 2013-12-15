@@ -215,5 +215,5 @@ def main(argv=None, config_files=None):
          version=pbr.version.VersionInfo('keystone').version_string(),
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
          default_config_files=config_files)
-    config.setup_logging(CONF)
+    config.setup_logging()
     CONF.command.cmd_class.main()
