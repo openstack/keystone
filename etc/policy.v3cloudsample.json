@@ -3,8 +3,8 @@
     "cloud_admin": "rule:admin_required and domain_id:admin_domain_id",
     "service_role": "role:service",
     "service_or_admin": "rule:admin_required or rule:service_role",
-    "owner" : "user_id:%(user_id)s or user_id:%(target.entity.user_id)s",
-    "admin_or_owner": "rule:admin_required or rule:owner",
+    "owner" : "user_id:%(user_id)s or user_id:%(target.token.user_id)s",
+    "admin_or_owner": "(rule:admin_required and domain_id:%(target.token.user.domain.id)s) or rule:owner",
     "admin_or_cloud_admin": "rule:admin_required or rule:cloud_admin",
 
     "default": "rule:admin_required",
