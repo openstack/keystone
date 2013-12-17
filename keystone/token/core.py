@@ -26,11 +26,11 @@ from keystone.common import cache
 from keystone.common import cms
 from keystone.common import dependency
 from keystone.common import manager
-from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -194,7 +194,7 @@ class Manager(manager.Manager):
         self._get_token.invalidate(self, token_id)
         self.token_provider_api.invalidate_individual_token_cache(token_id)
 
-    @utils.deprecated(utils.deprecated.ICEHOUSE, remove_in=+1)
+    @versionutils.deprecated(versionutils.deprecated.ICEHOUSE, remove_in=+1)
     def list_tokens(self, user_id, tenant_id=None, trust_id=None,
                     consumer_id=None):
         """Returns a list of current token_id's for a user
