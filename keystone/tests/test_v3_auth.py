@@ -2294,3 +2294,40 @@ class TestTrustAuth(TestAuthInfo):
         self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.user_id, expected_status=401,
                  token=trust_token)
+
+    def test_trustee_can_do_role_ops(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id])
+        del ref['id']
+
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'])
+
+        r = self.get(
+            '/OS-TRUST/trusts/%(trust_id)s/roles' % {
+                'trust_id': trust['id']},
+            auth=auth_data)
+        self.assertValidRoleListResponse(r, self.role)
+
+        self.head(
+            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
+                'trust_id': trust['id'],
+                'role_id': self.role['id']},
+            auth=auth_data,
+            expected_status=204)
+
+        r = self.get(
+            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
+                'trust_id': trust['id'],
+                'role_id': self.role['id']},
+            auth=auth_data,
+            expected_status=200)
+        self.assertValidRoleResponse(r, self.role)
