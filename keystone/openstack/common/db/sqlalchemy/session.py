@@ -21,7 +21,7 @@ Initializing:
 * Call set_defaults with the minimal of the following kwargs:
     sql_connection, sqlite_db
 
-  Example:
+  Example::
 
     session.set_defaults(
         sql_connection="sqlite:///var/lib/keystone/sqlite.db",
@@ -42,17 +42,17 @@ Recommended ways to use sessions within this framework:
   functionality should be handled at a logical level. For an example, look at
   the code around quotas and reservation_rollback().
 
-  Examples:
+  Examples::
 
     def get_foo(context, foo):
-        return model_query(context, models.Foo).\
-                filter_by(foo=foo).\
-                first()
+        return (model_query(context, models.Foo).
+                filter_by(foo=foo).
+                first())
 
     def update_foo(context, id, newfoo):
-        model_query(context, models.Foo).\
-                filter_by(id=id).\
-                update({'foo': newfoo})
+        (model_query(context, models.Foo).
+                filter_by(id=id).
+                update({'foo': newfoo}))
 
     def create_foo(context, values):
         foo_ref = models.Foo()
@@ -74,6 +74,8 @@ Recommended ways to use sessions within this framework:
   If you create models within the session, they need to be added, but you
   do not need to call model.save()
 
+  ::
+
     def create_many_foo(context, foos):
         session = get_session()
         with session.begin():
@@ -85,29 +87,29 @@ Recommended ways to use sessions within this framework:
     def update_bar(context, foo_id, newbar):
         session = get_session()
         with session.begin():
-            foo_ref = model_query(context, models.Foo, session).\
-                        filter_by(id=foo_id).\
-                        first()
-            model_query(context, models.Bar, session).\
-                        filter_by(id=foo_ref['bar_id']).\
-                        update({'bar': newbar})
+            foo_ref = (model_query(context, models.Foo, session).
+                        filter_by(id=foo_id).
+                        first())
+            (model_query(context, models.Bar, session).
+                        filter_by(id=foo_ref['bar_id']).
+                        update({'bar': newbar}))
 
   Note: update_bar is a trivially simple example of using "with session.begin".
   Whereas create_many_foo is a good example of when a transaction is needed,
   it is always best to use as few queries as possible. The two queries in
   update_bar can be better expressed using a single query which avoids
-  the need for an explicit transaction. It can be expressed like so:
+  the need for an explicit transaction. It can be expressed like so::
 
     def update_bar(context, foo_id, newbar):
-        subq = model_query(context, models.Foo.id).\
-                filter_by(id=foo_id).\
-                limit(1).\
-                subquery()
-        model_query(context, models.Bar).\
-                filter_by(id=subq.as_scalar()).\
-                update({'bar': newbar})
+        subq = (model_query(context, models.Foo.id).
+                filter_by(id=foo_id).
+                limit(1).
+                subquery())
+        (model_query(context, models.Bar).
+                filter_by(id=subq.as_scalar()).
+                update({'bar': newbar}))
 
-  For reference, this emits approximately the following SQL statement:
+  For reference, this emits approximately the following SQL statement::
 
     UPDATE bar SET bar = ${newbar}
         WHERE id=(SELECT bar_id FROM foo WHERE id = ${foo_id} LIMIT 1);
@@ -126,6 +128,8 @@ Recommended ways to use sessions within this framework:
   single database transaction spans more than one method. Error handling
   becomes less clear in this situation. When this is needed for code clarity,
   it should be clearly documented.
+
+  ::
 
     def myfunc(foo):
         session = get_session()
@@ -171,7 +175,7 @@ There are some things which it is best to avoid:
 Enabling soft deletes:
 
 * To use/enable soft-deletes, the SoftDeleteMixin must be added
-  to your model class. For example:
+  to your model class. For example::
 
       class NovaBase(models.SoftDeleteMixin, models.ModelBase):
           pass
@@ -179,14 +183,15 @@ Enabling soft deletes:
 
 Efficient use of soft deletes:
 
-* There are two possible ways to mark a record as deleted:
+* There are two possible ways to mark a record as deleted::
+
     model.soft_delete() and query.soft_delete().
 
   model.soft_delete() method works with single already fetched entry.
   query.soft_delete() makes only one db request for all entries that correspond
   to query.
 
-* In almost all cases you should use query.soft_delete(). Some examples:
+* In almost all cases you should use query.soft_delete(). Some examples::
 
         def soft_delete_bar():
             count = model_query(BarModel).find(some_condition).soft_delete()
@@ -197,9 +202,9 @@ Efficient use of soft deletes:
             if session is None:
                 session = get_session()
             with session.begin(subtransactions=True):
-                count = model_query(BarModel).\
-                            find(some_condition).\
-                            soft_delete(synchronize_session=True)
+                count = (model_query(BarModel).
+                            find(some_condition).
+                            soft_delete(synchronize_session=True))
                             # Here synchronize_session is required, because we
                             # don't know what is going on in outer session.
                 if count == 0:
@@ -209,6 +214,8 @@ Efficient use of soft deletes:
   you fetch a single record, work with it, and mark it as deleted in the same
   transaction.
 
+  ::
+
         def soft_delete_bar_model():
             session = get_session()
             with session.begin():
@@ -217,13 +224,13 @@ Efficient use of soft deletes:
                 bar_ref.soft_delete(session=session)
 
   However, if you need to work with all entries that correspond to query and
-  then soft delete them you should use query.soft_delete() method:
+  then soft delete them you should use query.soft_delete() method::
 
         def soft_delete_multi_models():
             session = get_session()
             with session.begin():
-                query = model_query(BarModel, session=session).\
-                            find(some_condition)
+                query = (model_query(BarModel, session=session).
+                            find(some_condition))
                 model_refs = query.all()
                 # Work with model_refs
                 query.soft_delete(synchronize_session=False)
@@ -233,6 +240,8 @@ Efficient use of soft deletes:
   When working with many rows, it is very important to use query.soft_delete,
   which issues a single query. Using model.soft_delete(), as in the following
   example, is very inefficient.
+
+  ::
 
         for bar_ref in bar_refs:
             bar_ref.soft_delete(session=session)
@@ -247,7 +256,6 @@ import time
 from oslo.config import cfg
 import six
 from sqlalchemy import exc as sqla_exc
-import sqlalchemy.interfaces
 from sqlalchemy.interfaces import PoolListener
 import sqlalchemy.orm
 from sqlalchemy.pool import NullPool, StaticPool
