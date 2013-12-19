@@ -621,6 +621,19 @@ class ProjectV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_projects(self, context, filters):
+        # (btang)sync project domain id in token with context domain_id
+        # this makes sure that context has 'domain_id' in 'query_string'
+        # so that only projects in the domain will be returned
+
+        try:
+            token_ref = self.token_api.get_token(context['token_id'])
+        except exception.TokenNotFound:
+            LOG.warning(_('Invalid token in _get_domain_id_for_request'))
+            raise exception.Unauthorized()
+        if 'domain_id' not in context['query_string']:
+            context['query_string']['domain_id'] = \
+                token_ref['token_data']['token']['project']['domain']['id']
+        
         refs = self.identity_api.list_projects()
         return ProjectV3.wrap_collection(context, refs, filters)
 
@@ -691,13 +704,17 @@ class UserV3(controller.V3Controller):
     @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
     def list_users(self, context, filters):
         
-        # (btang)sync user domain id in token with context domain_id
+        # (btang)sync project domain id in token with context domain_id
         # this makes sure that context has 'domain_id' in 'query_string'
         # so that only users in the domain will be returned
-        token_ref = self.token_api.get_token(context['token_id'])
+        try:
+            token_ref = self.token_api.get_token(context['token_id'])
+        except exception.TokenNotFound:
+            LOG.warning(_('Invalid token in _get_domain_id_for_request'))
+            raise exception.Unauthorized()
         if 'domain_id' not in context['query_string']:
             context['query_string']['domain_id'] = \
-                token_ref['token_data']['token']['user']['domain']['id']
+                token_ref['token_data']['token']['project']['domain']['id']
 
         refs = self.identity_api.list_users(
             domain_scope=self._get_domain_id_for_request(context))
@@ -791,6 +808,18 @@ class GroupV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'name')
     def list_groups(self, context, filters):
+        # (btang)sync project domain id in token with context domain_id
+        # this makes sure that context has 'domain_id' in 'query_string'
+        # so that only groups in the domain will be returned
+        try:
+            token_ref = self.token_api.get_token(context['token_id'])
+        except exception.TokenNotFound:
+            LOG.warning(_('Invalid token in _get_domain_id_for_request'))
+            raise exception.Unauthorized()
+        if 'domain_id' not in context['query_string']:
+            context['query_string']['domain_id'] = \
+                token_ref['token_data']['token']['project']['domain']['id']
+        
         refs = self.identity_api.list_groups(
             domain_scope=self._get_domain_id_for_request(context))
         return GroupV3.wrap_collection(context, refs, filters)
