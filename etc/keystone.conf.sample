@@ -44,6 +44,12 @@
 # similar to max_param_size, but provides an exception for token values
 # max_token_size = 8192
 
+# the filename to use with sqlite
+# sqlite_db = keystone.db
+
+# If true, use synchronous mode for sqlite
+# sqlite_synchronous = True
+
 # === Logging Options ===
 # Print debugging output
 # (includes plaintext request logging, potentially including passwords)
@@ -145,10 +151,47 @@
 
 [sql]
 # The SQLAlchemy connection string used to connect to the database
+# DEPRECATED: use connection in the [database] section instead.
 # connection = sqlite:///keystone.db
 
 # the timeout before idle sql connections are reaped
+# DEPRECATED: use idle_timeout in the [database] section instead.
 # idle_timeout = 200
+
+[database]
+# The SQLAlchemy connection string used to connect to the database
+# connection = sqlite:///keystone.db
+
+# The SQLAlchemy connection string used to connect to the slave database
+# Note that Keystone does not use this option.
+# slave_connection =
+
+# timeout before idle sql connections are reaped
+# idle_timeout = 3600
+
+# Minimum number of SQL connections to keep open in a pool
+# min_pool_size = 1
+
+# Maximum number of SQL connections to keep open in a pool
+# max_pool_size =
+
+# maximum db connection retries during startup. (setting -1 implies an infinite retry count)
+# max_retries = 10
+
+# interval between retries of opening a sql connection
+# retry_interval = 10
+
+# If set, use this value for max_overflow with sqlalchemy
+# max_overflow =
+
+# Verbosity of SQL debugging information. 0=None, 100=Everything
+# connection_debug = 0
+
+# Add python stack traces to SQL as comment strings
+# connection_trace = False
+
+# If set, use this value for pool_timeout with sqlalchemy
+# pool_timeout =
 
 [identity]
 # driver = keystone.identity.backends.sql.Identity

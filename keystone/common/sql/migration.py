@@ -41,11 +41,11 @@ except ImportError:
 
 def migrate_repository(version, current_version, repo_path):
     if version is None or version > current_version:
-        result = versioning_api.upgrade(CONF.sql.connection,
+        result = versioning_api.upgrade(CONF.database.connection,
                                         repo_path, version)
     else:
         result = versioning_api.downgrade(
-            CONF.sql.connection, repo_path, version)
+            CONF.database.connection, repo_path, version)
     return result
 
 
@@ -65,7 +65,7 @@ def db_version(repo_path=None):
     if repo_path is None:
         repo_path = find_migrate_repo()
     try:
-        return versioning_api.db_version(CONF.sql.connection, repo_path)
+        return versioning_api.db_version(CONF.database.connection, repo_path)
     except versioning_exceptions.DatabaseNotControlledError:
         return db_version_control(0)
 
@@ -73,7 +73,8 @@ def db_version(repo_path=None):
 def db_version_control(version=None, repo_path=None):
     if repo_path is None:
         repo_path = find_migrate_repo()
-    versioning_api.version_control(CONF.sql.connection, repo_path, version)
+    versioning_api.version_control(CONF.database.connection, repo_path,
+                                   version)
     return version
 
 

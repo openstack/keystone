@@ -22,6 +22,7 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
+from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import default_fixtures
@@ -45,7 +46,7 @@ class SqlTests(tests.TestCase, sql.Base):
 
         # create tables and keep an engine reference for cleanup.
         # this must be done after the models are loaded by the managers.
-        self.engine = self.get_engine()
+        self.engine = session.get_engine()
         sql.ModelBase.metadata.create_all(bind=self.engine)
 
         # populate the engine with tables & fixtures
@@ -55,8 +56,7 @@ class SqlTests(tests.TestCase, sql.Base):
 
     def tearDown(self):
         sql.ModelBase.metadata.drop_all(bind=self.engine)
-        self.engine.dispose()
-        sql.set_global_engine(None)
+        session.cleanup()
         super(SqlTests, self).tearDown()
 
 
