@@ -17,6 +17,7 @@
 import base64
 from keystone.common import pemutils
 from keystone import tests
+from six import moves
 
 
 # List of 2-tuples, (pem_type, pem_header)
@@ -24,7 +25,7 @@ headers = pemutils.PEM_TYPE_TO_HEADER.items()
 
 
 def make_data(size, offset=0):
-    return ''.join([chr(x % 255) for x in xrange(offset, size + offset)])
+    return ''.join([chr(x % 255) for x in moves.range(offset, size + offset)])
 
 
 def make_base64_from_data(data):
@@ -33,7 +34,7 @@ def make_base64_from_data(data):
 
 def wrap_base64(base64_text):
     wrapped_text = '\n'.join([base64_text[x:x + 64]
-                              for x in xrange(0, len(base64_text), 64)])
+                              for x in moves.range(0, len(base64_text), 64)])
     wrapped_text += '\n'
     return wrapped_text
 
@@ -115,13 +116,13 @@ class TestPEMParse(tests.TestCase):
         count = len(headers)
         pems = []
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             p = pems[i]
             text = p.pem_text
 
@@ -163,19 +164,19 @@ class TestPEMParse(tests.TestCase):
         pems = []
         text = ''
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             text += pems[i].pem_text
 
         parse_results = pemutils.parse_pem(text)
         self.assertEqual(len(parse_results), count)
 
-        for i in xrange(count):
+        for i in moves.range(count):
             r = parse_results[i]
             p = pems[i]
 
@@ -193,16 +194,16 @@ class TestPEMParse(tests.TestCase):
         pems = []
         text = ''
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             text += pems[i].pem_text
 
-        for i in xrange(count):
+        for i in moves.range(count):
             parse_results = pemutils.parse_pem(text, pem_type=headers[i][0])
             self.assertEqual(len(parse_results), 1)
 
@@ -223,13 +224,13 @@ class TestPEMParse(tests.TestCase):
         pems = []
         text = ''
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             text += 'bla bla\n'
             text += 'yada yada yada\n'
             text += pems[i].pem_text
@@ -238,7 +239,7 @@ class TestPEMParse(tests.TestCase):
         parse_results = pemutils.parse_pem(text)
         self.assertEqual(len(parse_results), count)
 
-        for i in xrange(count):
+        for i in moves.range(count):
             r = parse_results[i]
             p = pems[i]
 
@@ -272,13 +273,13 @@ class TestPEMParse(tests.TestCase):
         count = len(headers)
         pems = []
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             p = pems[i]
             text = p.pem_text
 
@@ -290,13 +291,13 @@ class TestPEMParse(tests.TestCase):
         count = len(headers)
         pems = []
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             p = pems[i]
             text = p.pem_text
             self.assertTrue(pemutils.is_pem(text, pem_type=p.pem_type))
@@ -308,13 +309,13 @@ class TestPEMParse(tests.TestCase):
         count = len(headers)
         pems = []
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             p = pems[i]
             pem = pemutils.base64_to_pem(p.base64_text, p.pem_type)
             self.assertEqual(pemutils.get_pem_data(pem, p.pem_type), p.data)
@@ -324,13 +325,13 @@ class TestPEMParse(tests.TestCase):
         count = len(headers)
         pems = []
 
-        for i in xrange(count):
+        for i in moves.range(count):
             pems.append(PEM(pem_type=headers[i][0],
                             pem_header=headers[i][1],
                             data_size=data_size + i,
                             data_offset=i))
 
-        for i in xrange(count):
+        for i in moves.range(count):
             p = pems[i]
             pem = pemutils.binary_to_pem(p.data, p.pem_type)
             self.assertEqual(pemutils.get_pem_data(pem, p.pem_type), p.data)
