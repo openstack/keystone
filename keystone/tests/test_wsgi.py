@@ -187,39 +187,6 @@ class MiddlewareTest(BaseWSGITest):
         self.assertEqual("test", app.kwargs["testkey"])
 
 
-class WSGIFunctionTest(tests.TestCase):
-    def test_mask_password(self):
-        message = ("test = 'password': 'aaaaaa', 'param1': 'value1', "
-                   "\"new_password\": 'bbbbbb'")
-        self.assertEqual(wsgi.mask_password(message, True),
-                         u"test = 'password': '***', 'param1': 'value1', "
-                         "\"new_password\": '***'")
-
-        message = "test = 'password'  :   'aaaaaa'"
-        self.assertEqual(wsgi.mask_password(message, False, '111'),
-                         "test = 'password'  :   '111'")
-
-        message = u"test = u'password' : u'aaaaaa'"
-        self.assertEqual(wsgi.mask_password(message, True),
-                         u"test = u'password' : u'***'")
-
-        message = 'test = "password" : "aaaaaaaaa"'
-        self.assertEqual(wsgi.mask_password(message),
-                         'test = "password" : "***"')
-
-        message = 'test = "original_password" : "aaaaaaaaa"'
-        self.assertEqual(wsgi.mask_password(message),
-                         'test = "original_password" : "***"')
-
-        message = 'test = "original_password" : ""'
-        self.assertEqual(wsgi.mask_password(message),
-                         'test = "original_password" : "***"')
-
-        message = 'test = "param1" : "value"'
-        self.assertEqual(wsgi.mask_password(message),
-                         'test = "param1" : "value"')
-
-
 class LocalizedResponseTest(tests.TestCase):
     def setUp(self):
         super(LocalizedResponseTest, self).setUp()
