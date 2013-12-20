@@ -145,15 +145,16 @@ class DictBase(models.ModelBase):
         return getattr(self, key)
 
 
+@contextlib.contextmanager
+def transaction(expire_on_commit=False):
+    """Return a SQLAlchemy session in a scoped transaction."""
+    session = db_session.get_session(expire_on_commit=expire_on_commit)
+    with session.begin():
+        yield session
+
+
 # Backends
 class Base(object):
-    @contextlib.contextmanager
-    def transaction(self, expire_on_commit=False):
-        """Return a SQLAlchemy session in a scoped transaction."""
-        session = db_session.get_session(expire_on_commit=expire_on_commit)
-        with session.begin():
-            yield session
-
     def _filter(self, model, query, hints):
         """Applies filtering to a query.
 
