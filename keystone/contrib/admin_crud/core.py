@@ -13,6 +13,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+from keystone import assignment
 from keystone import catalog
 from keystone.common import extension
 from keystone.common import wsgi
@@ -47,9 +49,9 @@ class CrudExtension(wsgi.ExtensionRouter):
     """
 
     def add_routes(self, mapper):
-        tenant_controller = identity.controllers.Tenant()
+        tenant_controller = assignment.controllers.Tenant()
         user_controller = identity.controllers.User()
-        role_controller = identity.controllers.Role()
+        role_controller = assignment.controllers.Role()
         service_controller = catalog.controllers.Service()
         endpoint_controller = catalog.controllers.Endpoint()
 

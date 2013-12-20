@@ -16,10 +16,10 @@ import copy
 import datetime
 import uuid
 
+from keystone import assignment
 from keystone import auth
 from keystone import config
 from keystone import exception
-from keystone import identity
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
@@ -409,7 +409,7 @@ class AuthWithToken(AuthTest):
         self.assertEqual(bind['kerberos'], 'FOO')
 
     def test_deleting_role_revokes_token(self):
-        role_controller = identity.controllers.Role()
+        role_controller = assignment.controllers.Role()
         project1 = {'id': 'Project1', 'name': uuid.uuid4().hex,
                     'domain_id': DEFAULT_DOMAIN_ID}
         self.assignment_api.create_project(project1['id'], project1)

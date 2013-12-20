@@ -15,4 +15,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.assignment import controllers
 from keystone.assignment.core import *
+from keystone.assignment import routers

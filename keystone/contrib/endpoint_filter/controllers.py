@@ -15,10 +15,10 @@
 # under the License.
 
 
+from keystone import assignment
 from keystone.catalog import controllers as catalog_controllers
 from keystone.common import controller
 from keystone.common import dependency
-from keystone.identity import controllers as identity_controllers
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'endpoint_filter_api')
@@ -72,5 +72,5 @@ class EndpointFilterV3Controller(controller.V3Controller):
 
         projects = [self.assignment_api.get_project(
             ref.project_id) for ref in refs]
-        return identity_controllers.ProjectV3.wrap_collection(context,
-                                                              projects)
+        return assignment.controllers.ProjectV3.wrap_collection(context,
+                                                                projects)
