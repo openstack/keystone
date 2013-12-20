@@ -20,7 +20,6 @@ import copy
 import urllib
 import urlparse
 import uuid
-import json
 
 from keystone.common import controller
 from keystone import config
@@ -621,7 +620,7 @@ class ProjectV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_projects(self, context, filters):
-        # (btang)sync project domain id in token with context domain_id
+        # (botang)sync project domain id in token with context domain_id
         # this makes sure that context has 'domain_id' in 'query_string'
         # so that only projects in the domain will be returned
 
@@ -704,7 +703,7 @@ class UserV3(controller.V3Controller):
     @controller.filterprotected('domain_id', 'email', 'enabled', 'name')
     def list_users(self, context, filters):
         
-        # (btang)sync project domain id in token with context domain_id
+        # (botang)sync project domain id in token with context domain_id
         # this makes sure that context has 'domain_id' in 'query_string'
         # so that only users in the domain will be returned
         try:
@@ -808,7 +807,7 @@ class GroupV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'name')
     def list_groups(self, context, filters):
-        # (btang)sync project domain id in token with context domain_id
+        # (botang)sync project domain id in token with context domain_id
         # this makes sure that context has 'domain_id' in 'query_string'
         # so that only groups in the domain will be returned
         try:

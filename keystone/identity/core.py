@@ -255,9 +255,6 @@ class Manager(manager.Manager):
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
-    def _filter_domain_id(self, ref, domain_id):
-        return [u for u in ref if u['domain_id'] == domain_id]
-    
     def _clear_domain_id(self, ref):
         # Clear the domain_id, and then check to ensure that if this
         # was not the default domain, it is being handled by its own
@@ -350,7 +347,6 @@ class Manager(manager.Manager):
         if not driver.is_domain_aware():
             user_list = self._set_domain_id(user_list, domain_id)
         return user_list
-        #return self._filter_domain_id(user_list, domain_id)
 
     @notifications.updated('user')
     @domains_configured
