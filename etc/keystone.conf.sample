@@ -1,5 +1,8 @@
 [DEFAULT]
-# A "shared secret" between keystone and other openstack services
+# A "shared secret" that can be used to bootstrap Keystone. This "token" does
+# not represent a user, and carries no explicit authorization. To disable in
+# production (highly recommended), remove AdminTokenAuthMiddleware from your
+# paste application pipelines (for example, in keystone-paste.ini).
 # admin_token = ADMIN
 
 # The IP address of the network interface to listen on
