@@ -33,6 +33,8 @@ from eventlet import pools
 from eventlet import queue
 from eventlet import semaphore
 from oslo.config import cfg
+import six
+
 
 from keystone.openstack.common import excutils
 from keystone.openstack.common.gettextutils import _  # noqa
@@ -300,10 +302,11 @@ def pack_context(msg, context):
     """
     if isinstance(context, dict):
         context_d = dict([('_context_%s' % key, value)
-                          for (key, value) in context.iteritems()])
+                          for (key, value) in six.iteritems(context)])
     else:
         context_d = dict([('_context_%s' % key, value)
-                          for (key, value) in context.to_dict().iteritems()])
+                          for (key, value) in
+                          six.iteritems(context.to_dict())])
 
     msg.update(context_d)
 
