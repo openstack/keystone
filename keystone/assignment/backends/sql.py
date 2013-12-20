@@ -21,6 +21,7 @@ from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import config
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 
 
 CONF = config.CONF
@@ -67,7 +68,7 @@ class Assignment(sql.Base, assignment.Driver):
                       domain_id=None, group_id=None, session=None):
         # We aren't given a session when called by the manager directly.
         if session is None:
-            session = self.get_session()
+            session = db_session.get_session()
         if user_id:
             if tenant_id:
                 q = session.query(UserProjectGrant)

@@ -18,6 +18,7 @@ from keystone.common import sql
 from keystone.common.sql import migration
 from keystone.contrib.federation import core
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common import jsonutils
 
 
@@ -95,7 +96,7 @@ class Federation(sql.Base, core.Driver):
     # Identity Provider CRUD
     @sql.handle_conflicts(conflict_type='identity_provider')
     def create_idp(self, idp_id, idp):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             idp['id'] = idp_id
             idp_ref = IdentityProviderModel.from_dict(idp)
@@ -103,7 +104,7 @@ class Federation(sql.Base, core.Driver):
         return idp_ref.to_dict()
 
     def delete_idp(self, idp_id):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             idp_ref = self._get_idp(session, idp_id)
             q = session.query(IdentityProviderModel)
@@ -118,19 +119,19 @@ class Federation(sql.Base, core.Driver):
         return idp_ref
 
     def list_idps(self):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             idps = session.query(IdentityProviderModel)
         idps_list = [idp.to_dict() for idp in idps]
         return idps_list
 
     def get_idp(self, idp_id):
-        session = self.get_session()
+        session = db_session.get_session()
         idp_ref = self._get_idp(session, idp_id)
         return idp_ref.to_dict()
 
     def update_idp(self, idp_id, idp):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             idp_ref = self._get_idp(session, idp_id)
             old_idp = idp_ref.to_dict()
@@ -159,7 +160,7 @@ class Federation(sql.Base, core.Driver):
 
     @sql.handle_conflicts(conflict_type='federation_protocol')
     def create_protocol(self, idp_id, protocol_id, protocol):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
                 self._get_idp(session, idp_id)
                 protocol['id'] = protocol_id
@@ -169,7 +170,7 @@ class Federation(sql.Base, core.Driver):
         return protocol_ref.to_dict()
 
     def update_protocol(self, idp_id, protocol_id, protocol):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             proto_ref = self._get_protocol(session, idp_id, protocol_id)
             old_proto = proto_ref.to_dict()
@@ -180,19 +181,19 @@ class Federation(sql.Base, core.Driver):
         return proto_ref.to_dict()
 
     def get_protocol(self, idp_id, protocol_id):
-        session = self.get_session()
+        session = db_session.get_session()
         protocol_ref = self._get_protocol(session, idp_id, protocol_id)
         return protocol_ref.to_dict()
 
     def list_protocols(self, idp_id):
-        session = self.get_session()
+        session = db_session.get_session()
         q = session.query(FederationProtocolModel)
         q = q.filter_by(idp_id=idp_id)
         protocols = [protocol.to_dict() for protocol in q]
         return protocols
 
     def delete_protocol(self, idp_id, protocol_id):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             key_ref = self._get_protocol(session, idp_id, protocol_id)
             q = session.query(FederationProtocolModel)
@@ -209,7 +210,7 @@ class Federation(sql.Base, core.Driver):
 
     @sql.handle_conflicts(conflict_type='mapping')
     def create_mapping(self, mapping_id, mapping):
-        session = self.get_session()
+        session = db_session.get_session()
         ref = {}
         ref['id'] = mapping_id
         ref['rules'] = jsonutils.dumps(mapping.get('rules'))
@@ -219,19 +220,19 @@ class Federation(sql.Base, core.Driver):
         return mapping_ref.to_dict()
 
     def delete_mapping(self, mapping_id):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             mapping_ref = self._get_mapping(session, mapping_id)
             session.delete(mapping_ref)
 
     def list_mappings(self):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             mappings = session.query(MappingModel)
         return [x.to_dict() for x in mappings]
 
     def get_mapping(self, mapping_id):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             mapping_ref = self._get_mapping(session, mapping_id)
         return mapping_ref.to_dict()
@@ -241,7 +242,7 @@ class Federation(sql.Base, core.Driver):
         ref = {}
         ref['id'] = mapping_id
         ref['rules'] = jsonutils.dumps(mapping.get('rules'))
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             mapping_ref = self._get_mapping(session, mapping_id)
             old_mapping = mapping_ref.to_dict()
