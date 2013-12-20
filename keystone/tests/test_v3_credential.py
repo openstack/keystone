@@ -18,6 +18,7 @@ import hashlib
 import json
 import uuid
 
+from keystone import exception
 from keystone.tests import test_v3
 
 
@@ -35,6 +36,18 @@ class CredentialTestCase(test_v3.RestfulTestCase):
         self.credential_api.create_credential(
             self.credential_id,
             self.credential)
+
+    def test_credential_api_delete_credentials_for_project(self):
+        self.credential_api.delete_credentials_for_project(self.project_id)
+        self.assertRaises(exception.CredentialNotFound,
+                          self.credential_api.get_credential,
+                          credential_id=self.credential_id)
+
+    def test_credential_api_delete_credentials_for_user(self):
+        self.credential_api.delete_credentials_for_user(self.user_id)
+        self.assertRaises(exception.CredentialNotFound,
+                          self.credential_api.get_credential,
+                          credential_id=self.credential_id)
 
     def test_list_credentials(self):
         """Call ``GET /credentials``."""

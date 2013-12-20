@@ -508,7 +508,7 @@ class Role(controller.V2Controller):
         self._delete_tokens_for_user(user_id)
 
 
-@dependency.requires('assignment_api', 'identity_api')
+@dependency.requires('assignment_api', 'credential_api', 'identity_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
@@ -606,23 +606,49 @@ class DomainV3(controller.V3Controller):
         proj_refs = self.assignment_api.list_projects()
         proj_ids = [r['id'] for r in proj_refs if r['domain_id'] == domain_id]
 
-        # First delete the projects themselves
-        project_cntl = ProjectV3()
-        for project in proj_ids:
-            project_cntl._delete_project(context, project)
-
         # Get the list of groups owned by this domain and delete them
         group_refs = self.identity_api.list_groups()
         group_ids = ([r['id'] for r in group_refs
                      if r['domain_id'] == domain_id])
-        group_cntl = GroupV3()
-        for group in group_ids:
-            group_cntl._delete_group(context, group)
+
+        # First delete the projects themselves
+        for project_id in proj_ids:
+            # NOTE(morganfainberg): Ensure we cleanup the credentials for the
+            # project and any outstanding tokens.
+            self.credential_api.delete_credentials_for_project(project_id)
+            try:
+                self._delete_tokens_for_project(project_id)
+                self.assignment_api.delete_project(project_id)
+            except exception.ProjectNotFound:
+                # NOTE(morganfainberg): We should still perform the cleanups
+                # if the project can't be found for sanity-sake.
+                pass
+
+        for group_id in group_ids:
+            # NOTE(morganfainberg): Cleanup any existing groups.
+            try:
+                self.identity_api.delete_group(group_id,
+                                               domain_scope=r['domain_id'])
+            except exception.GroupNotFound:
+                # NOTE(morganfainberg): In the case that a race has occurred
+                # and the group no longer exists, continue on and delete the
+                # rest of the groups.
+                pass
 
         # And finally, delete the users themselves
-        user_cntl = UserV3()
-        for user in user_ids:
-            user_cntl._delete_user(context, user)
+        for user_id in user_ids:
+            # Delete any credentials that reference this user
+            self.credential_api.delete_credentials_for_user(user_id)
+            # Make sure any tokens are marked as deleted
+            try:
+                self._delete_tokens_for_user(user_id)
+                self.identity_api.delete_user(user_id,
+                                              domain_scope=r['domain_id'])
+            except exception.UserNotFound:
+                # NOTE(morganfainberg): In the case that a race has occurred
+                # and the user no longer exists, continue on and delete the
+                # rest of the users.
+                pass
 
     @controller.protected()
     def delete_domain(self, context, domain_id):
@@ -690,23 +716,11 @@ class ProjectV3(controller.V3Controller):
         ref = self.assignment_api.update_project(project_id, project)
         return ProjectV3.wrap_member(context, ref)
 
-    def _delete_project(self, context, project_id):
-        # Delete any credentials that reference this project
-        for cred in self.credential_api.list_credentials():
-            if cred['project_id'] == project_id:
-                self.credential_api.delete_credential(cred['id'])
-
-        # Delete all tokens belonging to the users for that project
-        self._delete_tokens_for_project(project_id)
-
-        # Finally delete the project itself - the backend is
-        # responsible for deleting any role assignments related
-        # to this project
-        return self.assignment_api.delete_project(project_id)
-
     @controller.protected()
     def delete_project(self, context, project_id):
-        return self._delete_project(context, project_id)
+        self.credential_api.delete_credentials_for_project(project_id)
+        self._delete_tokens_for_project(project_id)
+        return self.assignment_api.delete_project(project_id)
 
 
 @dependency.requires('identity_api', 'credential_api')
@@ -792,24 +806,17 @@ class UserV3(controller.V3Controller):
             domain_scope=self._get_domain_id_for_request(context))
         self._delete_tokens_for_user(user_id)
 
-    def _delete_user(self, context, user_id):
+    @controller.protected()
+    def delete_user(self, context, user_id):
         # Delete any credentials that reference this user
-        for cred in self.credential_api.list_credentials():
-            if cred['user_id'] == user_id:
-                self.credential_api.delete_credential(cred['id'])
-
+        self.credential_api.delete_credentials_for_user(user_id)
         # Make sure any tokens are marked as deleted
         domain_id = self._get_domain_id_for_request(context)
         self._delete_tokens_for_user(user_id)
         # Finally delete the user itself - the backend is
         # responsible for deleting any role assignments related
         # to this user
-        return self.identity_api.delete_user(
-            user_id, domain_scope=domain_id)
-
-    @controller.protected()
-    def delete_user(self, context, user_id):
-        return self._delete_user(context, user_id)
+        return self.identity_api.delete_user(user_id, domain_scope=domain_id)
 
     @controller.protected()
     def change_password(self, context, user_id, user):
@@ -882,23 +889,19 @@ class GroupV3(controller.V3Controller):
             domain_scope=self._get_domain_id_for_request(context))
         return GroupV3.wrap_member(context, ref)
 
-    def _delete_group(self, context, group_id):
+    @controller.protected()
+    def delete_group(self, context, group_id):
         # As well as deleting the group, we need to invalidate
         # any tokens for the users who are members of the group.
         # We get the list of users before we attempt the group
         # deletion, so that we can remove these tokens after we know
         # the group deletion succeeded.
-
         domain_id = self._get_domain_id_for_request(context)
         user_refs = self.identity_api.list_users_in_group(
             group_id, domain_scope=domain_id)
         self.identity_api.delete_group(group_id, domain_scope=domain_id)
         for user in user_refs:
             self._delete_tokens_for_user(user['id'])
-
-    @controller.protected()
-    def delete_group(self, context, group_id):
-        return self._delete_group(context, group_id)
 
 
 @dependency.requires('assignment_api', 'identity_api')
