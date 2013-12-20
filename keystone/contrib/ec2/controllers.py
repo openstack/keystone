@@ -151,7 +151,7 @@ class Ec2Controller(controller.V2Controller):
 
         self._assert_valid_user_id(user_id)
         self._assert_valid_project_id(tenant_id)
-        trust_id = self._context_trust_id(context)
+        trust_id = self._get_trust_id_for_request(context)
         blob = {'access': uuid.uuid4().hex,
                 'secret': uuid.uuid4().hex,
                 'trust_id': trust_id}
@@ -251,13 +251,6 @@ class Ec2Controller(controller.V2Controller):
 
         if token_ref['user'].get('id') != user_id:
             raise exception.Forbidden(_('Token belongs to another user'))
-
-    def _context_trust_id(self, context):
-        try:
-            token_ref = self.token_api.get_token(context['token_id'])
-        except exception.TokenNotFound as e:
-            raise exception.Unauthorized(e)
-        return token_ref.get('trust_id')
 
     def _is_admin(self, context):
         """Wrap admin assertion error return statement.

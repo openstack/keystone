@@ -289,6 +289,20 @@ class Application(BaseApplication):
             msg = '%s field is required and cannot be empty' % attr
             raise exception.ValidationError(message=msg)
 
+    def _get_trust_id_for_request(self, context):
+        """Get the trust_id for a call.
+
+        Retrieve the trust_id from the token
+        Returns None if token is is not trust scoped
+        """
+        try:
+            token_ref = self.token_api.get_token(context['token_id'])
+        except exception.TokenNotFound:
+            LOG.warning(_('Invalid token in _get_trust_id_for_request'))
+            raise exception.Unauthorized()
+
+        return token_ref.get('trust_id')
+
 
 class Middleware(Application):
     """Base WSGI middleware.
