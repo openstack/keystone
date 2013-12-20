@@ -390,10 +390,7 @@ class KcOptTestCase(KcMasterSqlTestCase):
     #  tox -e py27 test_keystoneclient_sql.KcOptTestCase
 
     def setUp(self):
-        self.path = os.environ.get('KSCTEST_PATH')
-        if not self.path:
+        self.checkout_info = os.environ.get('KSCTEST_PATH')
+        if not self.checkout_info:
             self.skip('Set KSCTEST_PATH env to test with local client')
         super(KcOptTestCase, self).setUp()
-
-    def get_checkout(self):
-        return self.path

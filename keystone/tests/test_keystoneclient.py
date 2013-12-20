@@ -55,11 +55,10 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
         fixture = self.useFixture(appserver.AppServer(conf, appserver.ADMIN))
         self.admin_server = fixture.server
 
-        checkout_info = self.get_checkout()
-        if isinstance(checkout_info, str):
-            revdir = checkout_info
+        if isinstance(self.checkout_info, str):
+            revdir = self.checkout_info
         else:
-            revdir = tests.checkout_vendor(*checkout_info)
+            revdir = tests.checkout_vendor(*self.checkout_info)
         self.add_path(revdir)
         self.clear_module('keystoneclient')
 
@@ -858,8 +857,7 @@ class KeystoneClientTests(object):
 
 
 class KcMasterTestCase(CompatTestCase, KeystoneClientTests):
-    def get_checkout(self):
-        return KEYSTONECLIENT_REPO, 'master'
+    checkout_info = (KEYSTONECLIENT_REPO, 'master')
 
     def test_tenant_add_and_remove_user(self):
         client = self.get_client(admin=True)
@@ -1078,10 +1076,7 @@ class KcOptTestCase(KcMasterTestCase):
     #  tox -e py27 test_keystoneclient.KcOptTestCase
 
     def setUp(self):
-        self.path = os.environ.get('KSCTEST_PATH')
-        if not self.path:
+        self.checkout_info = os.environ.get('KSCTEST_PATH')
+        if not self.checkout_info:
             self.skip('Set KSCTEST_PATH env to test with local client')
         super(KcOptTestCase, self).setUp()
-
-    def get_checkout(self):
-        return self.path
