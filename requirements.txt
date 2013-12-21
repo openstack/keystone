@@ -10,7 +10,7 @@ Paste
 Routes>=1.12.3
 six>=1.4.1
 SQLAlchemy>=0.7.8,<=0.7.99
-sqlalchemy-migrate>=0.7.2
+sqlalchemy-migrate>=0.8.2
 passlib
 lxml>=2.3
 iso8601>=0.1.8
