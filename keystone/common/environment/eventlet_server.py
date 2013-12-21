@@ -90,7 +90,7 @@ class Server(object):
         self.do_ssl = True
 
     def kill(self):
-        if self.greenthread:
+        if self.greenthread is not None:
             self.greenthread.kill()
 
     def wait(self):
