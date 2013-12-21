@@ -68,6 +68,25 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
 
+    def create_region(self, region_id, region_ref):
+        try:
+            return self.driver.create_region(region_id, region_ref)
+        except exception.NotFound:
+            parent_region_id = region_ref.get('parent_region_id')
+            raise exception.RegionNotFound(region_id=parent_region_id)
+
+    def get_region(self, region_id):
+        try:
+            return self.driver.get_region(region_id)
+        except exception.NotFound:
+            raise exception.RegionNotFound(region_id=region_id)
+
+    def delete_region(self, region_id):
+        try:
+            return self.driver.delete_region(region_id)
+        except exception.NotFound:
+            raise exception.RegionNotFound(region_id=region_id)
+
     def get_service(self, service_id):
         try:
             return self.driver.get_service(service_id)
@@ -109,6 +128,54 @@ class Manager(manager.Manager):
 @six.add_metaclass(abc.ABCMeta)
 class Driver(object):
     """Interface description for an Catalog driver."""
+
+    @abc.abstractmethod
+    def create_region(self, region_id, region_ref):
+        """Creates a new region.
+
+        :raises: keystone.exception.Conflict
+        :raises: keystone.exception.RegionNotFound (if parent region invalid)
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def list_regions(self):
+        """List all regions.
+
+        :returns: list of region_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def get_region(self, region_id):
+        """Get region by id.
+
+        :returns: region_ref dict
+        :raises: keystone.exception.RegionNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def update_region(self, region_id):
+        """Update region by id.
+
+        :returns: region_ref dict
+        :raises: keystone.exception.RegionNotFound
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def delete_region(self, region_id):
+        """Deletes an existing region.
+
+        :raises: keystone.exception.RegionNotFound
+
+        """
+        raise exception.NotImplemented()
 
     @abc.abstractmethod
     def create_service(self, service_id, service_ref):

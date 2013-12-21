@@ -1674,6 +1674,14 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertEqual(user1['default_project_id'],
                          new_json_data['tenant_id'])
 
+    def test_region_migration(self):
+        self.upgrade(36)
+        self.assertTableDoesNotExist('region')
+        self.upgrade(37)
+        self.assertTableExists('region')
+        self.downgrade(36)
+        self.assertTableDoesNotExist('region')
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

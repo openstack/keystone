@@ -19,6 +19,8 @@ from keystone.common import router
 
 
 def append_v3_routers(mapper, routers):
+    routers.append(router.Router(controllers.RegionV3(),
+                                 'regions', 'region'))
     routers.append(router.Router(controllers.ServiceV3(),
                                  'services', 'service'))
     routers.append(router.Router(controllers.EndpointV3(),

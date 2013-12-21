@@ -189,6 +189,10 @@ class RoleNotFound(NotFound):
     message_format = _("Could not find role, %(role_id)s.")
 
 
+class RegionNotFound(NotFound):
+    message_format = _("Could not find region, %(region_id)s.")
+
+
 class ServiceNotFound(NotFound):
     message_format = _("Could not find service, %(service_id)s.")
 

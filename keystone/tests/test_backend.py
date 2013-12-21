@@ -21,6 +21,7 @@ import mock
 import uuid
 
 from six import moves
+from testtools import matchers
 
 from keystone.catalog import core
 from keystone import config
@@ -3437,6 +3438,80 @@ class CommonHelperTests(tests.TestCase):
 
 
 class CatalogTests(object):
+    def test_region_crud(self):
+        # create
+        region_id = uuid.uuid4().hex
+        new_region = {
+            'id': region_id,
+            'description': uuid.uuid4().hex,
+        }
+        res = self.catalog_api.create_region(
+            region_id,
+            new_region.copy())
+        # Ensure that we don't need to have a
+        # parent_region_id in the original supplied
+        # ref dict, but that it will be returned from
+        # the endpoint, with None value.
+        expected_region = new_region.copy()
+        expected_region['parent_region_id'] = None
+        self.assertDictEqual(res, expected_region)
+
+        # Test adding another region with the one above
+        # as its parent. We will check below whether deleting
+        # the parent successfully deletes any child regions.
+        parent_region_id = region_id
+        region_id = uuid.uuid4().hex
+        new_region = {
+            'id': region_id,
+            'description': uuid.uuid4().hex,
+            'parent_region_id': parent_region_id
+        }
+        self.catalog_api.create_region(
+            region_id,
+            new_region.copy())
+
+        # list
+        regions = self.catalog_api.list_regions()
+        self.assertThat(regions, matchers.HasLength(2))
+        region_ids = [x['id'] for x in regions]
+        self.assertIn(parent_region_id, region_ids)
+        self.assertIn(region_id, region_ids)
+
+        # delete
+        self.catalog_api.delete_region(parent_region_id)
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.delete_region,
+                          parent_region_id)
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.get_region,
+                          parent_region_id)
+        # Ensure the child is also gone...
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.get_region,
+                          region_id)
+
+    def test_get_region_404(self):
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.get_region,
+                          uuid.uuid4().hex)
+
+    def test_delete_region_404(self):
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.delete_region,
+                          uuid.uuid4().hex)
+
+    def test_create_region_invalid_parent_region_404(self):
+        region_id = uuid.uuid4().hex
+        new_region = {
+            'id': region_id,
+            'description': uuid.uuid4().hex,
+            'parent_region_id': 'nonexisting'
+        }
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.create_region,
+                          region_id,
+                          new_region)
+
     def test_service_crud(self):
         # create
         service_id = uuid.uuid4().hex

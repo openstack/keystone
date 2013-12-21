@@ -137,6 +137,43 @@ class Endpoint(controller.V2Controller):
 
 
 @dependency.requires('catalog_api')
+class RegionV3(controller.V3Controller):
+    collection_name = 'regions'
+    member_name = 'region'
+
+    def __init__(self):
+        super(RegionV3, self).__init__()
+        self.get_member_from_driver = self.catalog_api.get_region
+
+    @controller.protected()
+    def create_region(self, context, region):
+        ref = self._assign_unique_id(self._normalize_dict(region))
+
+        ref = self.catalog_api.create_region(ref['id'], ref)
+        return RegionV3.wrap_member(context, ref)
+
+    def list_regions(self, context):
+        refs = self.catalog_api.list_regions()
+        return RegionV3.wrap_collection(context, refs)
+
+    @controller.protected()
+    def get_region(self, context, region_id):
+        ref = self.catalog_api.get_region(region_id)
+        return RegionV3.wrap_member(context, ref)
+
+    @controller.protected()
+    def update_region(self, context, region_id, region):
+        self._require_matching_id(region_id, region)
+
+        ref = self.catalog_api.update_region(region_id, region)
+        return RegionV3.wrap_member(context, ref)
+
+    @controller.protected()
+    def delete_region(self, context, region_id):
+        return self.catalog_api.delete_region(region_id)
+
+
+@dependency.requires('catalog_api')
 class ServiceV3(controller.V3Controller):
     collection_name = 'services'
     member_name = 'service'
