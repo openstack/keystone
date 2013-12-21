@@ -130,6 +130,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /users (unprotected)
 
         Test Plan:
+
         - Update policy so api is unprotected
         - Use an un-scoped token to make sure we can get back all
           the users independent of domain
@@ -146,6 +147,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /users?domain_id=mydomain (filtered)
 
         Test Plan:
+
         - Update policy so api is unprotected
         - Use an un-scoped token to make sure we can filter the
           users by domainB, getting back the 2 users in that domain
@@ -163,6 +165,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /users/{id} (match payload)
 
         Test Plan:
+
         - Update policy to protect api by user_id
         - List users with user_id of user1 as filter, to check that
           this will correctly match user_id in the flattened
@@ -182,6 +185,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /users/{id} (match target)
 
         Test Plan:
+
         - Update policy to protect api by domain_id
         - Try and read a user who is in DomainB with a token scoped
           to Domain A - this should fail
@@ -213,6 +217,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """DELETE /domains/{id}/users/{id}/roles/{id} (match target)
 
         Test Plan:
+
         - Update policy to protect api by domain_id of entities in
           the grant
         - Try and delete the existing grant that has a user who is
@@ -251,6 +256,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /users?domain_id=mydomain (protected)
 
         Test Plan:
+
         - Update policy to protect api by domain_id
         - List groups using a token scoped to domainA with a filter
           specifying domainA - we should only get back the one user
@@ -281,6 +287,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /groups?domain_id=mydomain (protected)
 
         Test Plan:
+
         - Update policy to protect api by domain_id
         - List groups using a token scoped to domainA and make sure
           we only get back the two groups that are in domainA
@@ -311,6 +318,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /groups?domain_id=mydomain&name=myname (protected)
 
         Test Plan:
+
         - Update policy to protect api by domain_id
         - List groups using a token scoped to domainA with a filter
           specifying both domainA and the name of group.
@@ -337,6 +345,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /domains?enabled=0
 
         Test Plan:
+
         - Update policy for no protection on api
         - Filter by the 'enabled' boolean to get disabled domains, which
           should return just domainC
@@ -372,6 +381,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         """GET /domains?enabled&name=myname
 
         Test Plan:
+
         - Update policy for no protection on api
         - Filter by the 'enabled' boolean and name - this should
           return a single domain

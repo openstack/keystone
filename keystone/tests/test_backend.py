@@ -458,6 +458,7 @@ class IdentityTests(object):
         """Test for unfiltered listing role assignments.
 
         Test Plan:
+
         - Create a domain, with a user, group & project
         - Find how many role assignments already exist (from default
           fixtures)
@@ -563,6 +564,7 @@ class IdentityTests(object):
         """Test for get role by user and project, user was added into a group.
 
         Test Plan:
+
         - Create a user, a project & a group, add this user to group
         - Create roles and grant them to user and project
         - Check the role list get by the user and project was as expected
@@ -626,6 +628,7 @@ class IdentityTests(object):
         """Test for getting roles for user on a domain.
 
         Test Plan:
+
         - Create a domain, with 2 users
         - Check no roles yet exit
         - Give user1 two roles on the domain, user2 one role
@@ -682,6 +685,7 @@ class IdentityTests(object):
         """Test errors raised when getting roles for user on a domain.
 
         Test Plan:
+
         - Check non-existing user gives UserNotFound
         - Check non-existing domain gives DomainNotFound
 
@@ -1287,6 +1291,7 @@ class IdentityTests(object):
         """Test multiple group roles for user on project and domain.
 
         Test Plan:
+
         - Create 6 roles
         - Create a domain, with a project, user and two groups
         - Make the user a member of both groups
@@ -3562,6 +3567,7 @@ class InheritanceTests(object):
         """Test inherited user roles.
 
         Test Plan:
+
         - Enable OS-INHERIT extension
         - Create 3 roles
         - Create a domain, with a project and a user
@@ -3637,6 +3643,7 @@ class InheritanceTests(object):
         """Test inherited group roles.
 
         Test Plan:
+
         - Enable OS-INHERIT extension
         - Create 4 roles
         - Create a domain, with a project, user and two groups
@@ -3720,6 +3727,7 @@ class InheritanceTests(object):
         """Test inherited group roles.
 
         Test Plan:
+
         - Enable OS-INHERIT extension
         - Create a domain, with two projects and a user
         - Assign an inherited user role on the domain, as well as a direct
@@ -3759,6 +3767,7 @@ class InheritanceTests(object):
         """Test inherited group roles.
 
         Test Plan:
+
         - Enable OS-INHERIT extension
         - Create two domains, each with two projects
         - Create a user and group

@@ -264,7 +264,7 @@ def pem_search(text, start=0):
     The start and end positions are suitable for use as slices into
     the text. To search for multiple PEM blocks pass pem_end as the
     start position for the next iteration. Terminate the iteration
-    when None is returned. Example:
+    when None is returned. Example::
 
         start = 0
         while True:
@@ -335,7 +335,7 @@ def parse_pem(text, pem_type=None, max_items=None):
     including the decoded binary data for the PEM block.  The list is
     ordered in the same order as found in the text.
 
-    Examples:
+    Examples::
 
         # Get all certs
         certs = parse_pem(text, 'cert')

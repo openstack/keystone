@@ -27,7 +27,7 @@ class OAuth1Extension(wsgi.ExtensionRouter):
     on behalf of that user. This is done using an oauth-similar flow and
     api.
 
-    The API looks like:
+    The API looks like::
 
       # Basic admin-only consumer crud
       POST /OS-OAUTH1/consumers

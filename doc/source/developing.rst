@@ -260,14 +260,14 @@ development environment, there's a couple of things you need to do.
 1. Build the message files. Run the following command in your keystone
    directory::
 
- $ python setup.py compile_catalog
+   $ python setup.py compile_catalog
 
 This will generate .mo files like keystone/locale/[lang]/LC_MESSAGES/[lang].mo
 
 2. When running Keystone, set the ``KEYSTONE_LOCALEDIR`` environment variable
    to the keystone/locale directory. For example::
 
-  $ KEYSTONE_LOCALEDIR=/opt/stack/keystone/keystone/locale keystone-all
+   $ KEYSTONE_LOCALEDIR=/opt/stack/keystone/keystone/locale keystone-all
 
 Now you can get a translated error response::
 
