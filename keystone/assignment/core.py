@@ -64,12 +64,12 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(assignment_driver)
 
     @notifications.created('project')
-    def create_project(self, tenant_id, tenant_ref):
-        tenant = tenant_ref.copy()
+    def create_project(self, tenant_id, tenant):
+        tenant = tenant.copy()
         tenant.setdefault('enabled', True)
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         tenant.setdefault('description', '')
-        ret = self.driver.create_project(tenant_id, tenant_ref)
+        ret = self.driver.create_project(tenant_id, tenant)
         if SHOULD_CACHE(ret):
             self.get_project.set(ret, self, tenant_id)
             self.get_project_by_name.set(ret, self, ret['name'],
@@ -77,11 +77,11 @@ class Manager(manager.Manager):
         return ret
 
     @notifications.updated('project')
-    def update_project(self, tenant_id, tenant_ref):
-        tenant = tenant_ref.copy()
+    def update_project(self, tenant_id, tenant):
+        tenant = tenant.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        ret = self.driver.update_project(tenant_id, tenant_ref)
+        ret = self.driver.update_project(tenant_id, tenant)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, ret['name'],
                                             ret['domain_id'])
