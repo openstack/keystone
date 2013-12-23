@@ -334,19 +334,6 @@ class Manager(manager.Manager):
         Users: Reference domains for grants
 
         """
-        # Start by disabling all the users in this domain, to minimize the
-        # the risk that things are changing under our feet.
-        # TODO(henry-nash): In theory this step should not be necessary, since
-        # users of a disabled domain are prevented from authenticating.
-        # However there are some existing bugs in this area (e.g. 1130236).
-        # Consider removing this code once these have been fixed.
-        user_refs = self.identity_api.list_users()
-        user_refs = [r for r in user_refs if r['domain_id'] == domain_id]
-        for user in user_refs:
-            if user['enabled']:
-                user['enabled'] = False
-                self.identity_api.update_user(user['id'], user)
-
         user_refs = self.identity_api.list_users()
         proj_refs = self.list_projects()
         group_refs = self.identity_api.list_groups()
