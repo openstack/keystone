@@ -71,7 +71,7 @@ class OAuth(auth.AuthMethodHandler):
                                              consumer_obj,
                                              token=acc_token_obj)
 
-        if len(params) != 0:
+        if params:
             msg = _('There should not be any non-oauth parameters')
             raise exception.Unauthorized(message=msg)
 

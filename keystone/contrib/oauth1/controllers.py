@@ -265,7 +265,7 @@ class OAuthControllerV3(controller.V3Controller):
                                              consumer_obj,
                                              token=req_token_obj)
 
-        if len(params) != 0:
+        if params:
             msg = _('There should not be any non-oauth parameters')
             raise exception.Unauthorized(message=msg)
 

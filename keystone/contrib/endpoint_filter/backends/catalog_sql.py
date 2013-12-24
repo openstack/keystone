@@ -33,7 +33,7 @@ class EndpointFilterCatalog(sql.Catalog):
 
         refs = self.endpoint_filter_api.list_endpoints_for_project(project_id)
 
-        if (len(refs) == 0 and
+        if (not refs and
                 CONF.endpoint_filter.return_all_endpoints_if_no_filter):
             return super(EndpointFilterCatalog, self).get_v3_catalog(
                 user_id, project_id, metadata=metadata)

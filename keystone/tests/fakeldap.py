@@ -280,7 +280,7 @@ class FakeLdap(object):
                 values[:] = _process_attr(k, v)
             elif cmd == ldap.MOD_DELETE:
                 if v is None:
-                    if len(values) == 0:
+                    if not values:
                         LOG.debug(_('FakeLdap modify item failed: '
                                   'item has no attribute "%s" to delete'), k)
                         raise ldap.NO_SUCH_ATTRIBUTE

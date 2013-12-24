@@ -125,7 +125,7 @@ class XmlDeserializer(object):
         values = values or text or {}
         decoded_tag = XmlDeserializer._qualified_name(element.tag, namespace)
         list_item_tag = None
-        if (decoded_tag[-1] == 's' and len(values) == 0 and
+        if (decoded_tag[-1] == 's' and not values and
                 decoded_tag != 'access'):
             # FIXME(gyee): special-case lists for now unti we
             # figure out how to properly handle them.
