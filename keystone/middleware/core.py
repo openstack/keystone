@@ -151,6 +151,7 @@ class XmlBodyMiddleware(wsgi.Middleware):
         remove_in=+2)
     def __init__(self, *args, **kwargs):
         super(XmlBodyMiddleware, self).__init__(*args, **kwargs)
+        self.xmlns = None
 
     def process_request(self, request):
         """Transform the request from XML to JSON."""
@@ -173,11 +174,27 @@ class XmlBodyMiddleware(wsgi.Middleware):
             response.content_type = 'application/xml'
             try:
                 body_obj = jsonutils.loads(response.body)
-                response.body = serializer.to_xml(body_obj)
+                response.body = serializer.to_xml(body_obj, xmlns=self.xmlns)
             except Exception:
                 LOG.exception('Serializer failed')
                 raise exception.Error(message=response.body)
         return response
+
+
+class XmlBodyMiddlewareV2(XmlBodyMiddleware):
+    """De/serializes XML to/from JSON for v2.0 API."""
+
+    def __init__(self, *args, **kwargs):
+        super(XmlBodyMiddlewareV2, self).__init__(*args, **kwargs)
+        self.xmlns = 'http://docs.openstack.org/identity/api/v2.0'
+
+
+class XmlBodyMiddlewareV3(XmlBodyMiddleware):
+    """De/serializes XML to/from JSON for v3 API."""
+
+    def __init__(self, *args, **kwargs):
+        super(XmlBodyMiddlewareV3, self).__init__(*args, **kwargs)
+        self.xmlns = 'http://docs.openstack.org/identity/api/v3'
 
 
 class NormalizingFilter(wsgi.Middleware):

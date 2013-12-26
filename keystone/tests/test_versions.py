@@ -268,6 +268,7 @@ class XmlVersionTestCase(tests.TestCase):
 
     DOC_INTRO = '<?xml version="1.0" encoding="UTF-8"?>'
     XML_NAMESPACE_ATTR = 'xmlns="http://docs.openstack.org/identity/api/v2.0"'
+    XML_NAMESPACE_V3 = 'xmlns="http://docs.openstack.org/identity/api/v3"'
 
     v2_VERSION_DATA = """
 <version %(v2_namespace)s status="deprecated" updated="2014-04-17T00:00:00Z"
@@ -312,7 +313,7 @@ vnd.openstack.identity-v3+xml"/>
 """
 
     v3_VERSION_RESPONSE = ((DOC_INTRO + v3_VERSION_DATA) %
-                           dict(v3_namespace=XML_NAMESPACE_ATTR))
+                           dict(v3_namespace=XML_NAMESPACE_V3))
 
     VERSIONS_RESPONSE = ((DOC_INTRO + """
 <versions %(namespace)s>
