@@ -1,4 +1,4 @@
-# English (Australia) translations for keystone.
+# Icelandic (Iceland) translations for keystone.
 # Copyright (C) 2013 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
 "POT-Creation-Date: 2013-12-28 06:00+0000\n"
-"PO-Revision-Date: 2013-07-29 22:01+0000\n"
+"PO-Revision-Date: 2013-12-19 05:30+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language-Team: English (Australia) "
-"(http://www.transifex.com/projects/p/openstack/language/en_AU/)\n"
+"Language-Team: Icelandic (Iceland) "
+"(http://www.transifex.com/projects/p/openstack/language/is_IS/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -2068,123 +2068,4 @@ msgstr ""
 #: keystone/token/providers/pki.py:43
 msgid "Unable to sign token."
 msgstr ""
-
-#~ msgid "Unable to locate specified logging config file: %s"
-#~ msgstr ""
-
-#~ msgid "Invalid syslog facility"
-#~ msgstr ""
-
-#~ msgid "Invalid token in normalize_domain_id"
-#~ msgstr ""
-
-#~ msgid "Cannot migrate EC2 credential: %s"
-#~ msgstr ""
-
-#~ msgid "Create tenant %s"
-#~ msgstr ""
-
-#~ msgid "Create user %s"
-#~ msgstr ""
-
-#~ msgid "Add user %(user_id)s to tenant %(tenant_id)s"
-#~ msgstr ""
-
-#~ msgid "Ignoring existing role %s"
-#~ msgstr ""
-
-#~ msgid "Create role %s"
-#~ msgstr ""
-
-#~ msgid "Assign role %(role_id)s to user %(user_id)s on tenant %(tenant_id)s"
-#~ msgstr ""
-
-#~ msgid "Creating ec2 cred for user %(user_id)s and tenant %(tenant_id)s"
-#~ msgstr ""
-
-#~ msgid "Changing Name not supported by LDAP"
-#~ msgstr ""
-
-#~ msgid "Failed to verify token"
-#~ msgstr ""
-
-#~ msgid "CACHE_GET: Key: \"%(key)s)\" \"%(value)s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_GET_MULTI: \"%(key)s\" \"%(value)s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_SET: Key: %(key)s Value: %(value)s"
-#~ msgstr ""
-
-#~ msgid "CACHE_SET_MULTI: %s"
-#~ msgstr ""
-
-#~ msgid "CACHE_DELETE: %s"
-#~ msgstr ""
-
-#~ msgid "CACHE_DELETE_MULTI: %s"
-#~ msgstr ""
-
-#~ msgid "Invalid LDAP TLS certs option: %(option). Choose one of: %(options)s"
-#~ msgstr ""
-
-#~ msgid "Non-oauth parameter - roles, do not match"
-#~ msgstr ""
-
-#~ msgid "could not find matching roles for provided role ids"
-#~ msgstr ""
-
-#~ msgid "Failed to understand rule %(rule)s"
-#~ msgstr ""
-
-#~ msgid "Failed to understand rule %(rule)r"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The Keystone paste configuration file "
-#~ "%(config_file)s could not be found."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Malformed endpoint %s - incomplete "
-#~ "format                   (are you missing a"
-#~ " type notifier ?)"
-#~ msgstr ""
-
-#~ msgid "CACHE_GET: Key: \"%(key)s\" Value: \"%(value)s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_GET_MULTI: \"%(keys)s\" Values: \"%(values)s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_SET: Key: \"%(key)s\" Value: \"%(value)s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_SET_MULTI: \"%s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_DELETE: \"%s\""
-#~ msgstr ""
-
-#~ msgid "CACHE_DELETE_MULTI: \"%s\""
-#~ msgstr ""
-
-#~ msgid "Global engine callback raised."
-#~ msgstr ""
-
-#~ msgid "MySQL server has gone away: %s"
-#~ msgstr ""
-
-#~ msgid "DB2 server has gone away: %s"
-#~ msgstr ""
-
-#~ msgid "Got mysql server has gone away: %s"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Number of call waiters is greater "
-#~ "than warning threshhold: %d. There could"
-#~ " be a MulticallProxyWaiter leak."
-#~ msgstr ""
 
