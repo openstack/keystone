@@ -1671,6 +1671,16 @@ class IdentityTests(object):
         ref['name'] = ref['name'].upper()
         self.assignment_api.create_project(ref['id'], ref)
 
+    def test_create_project_with_no_enabled_field(self):
+        ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex.lower(),
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assignment_api.create_project(ref['id'], ref)
+
+        project = self.assignment_api.get_project(ref['id'])
+        self.assertIs(project['enabled'], True)
+
     def test_create_project_long_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'a' * 65,
                   'domain_id': DEFAULT_DOMAIN_ID}
