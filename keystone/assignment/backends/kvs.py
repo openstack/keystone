@@ -141,7 +141,7 @@ class Assignment(kvs.Base, assignment.Driver):
                 'Cannot remove role that has not been granted, %s') %
                 role_id)
 
-        if len(metadata_ref['roles']):
+        if metadata_ref['roles']:
             self._update_metadata(user_id, tenant_id, metadata_ref)
         else:
 

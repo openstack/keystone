@@ -195,7 +195,7 @@ def filterprotected(*filters):
                 #
                 # First  any query filter parameters
                 target = dict()
-                if len(filters) > 0:
+                if filters:
                     for item in filters:
                         if item in context['query_string']:
                             target[item] = context['query_string'][item]

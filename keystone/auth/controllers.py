@@ -399,7 +399,7 @@ class Auth(controller.V3Controller):
                 auth_response['methods'].append(method_name)
                 auth_response[method_name] = resp
 
-        if len(auth_response["methods"]) > 0:
+        if auth_response["methods"]:
             # authentication continuation required
             raise exception.AdditionalAuthRequired(auth_response)
 
