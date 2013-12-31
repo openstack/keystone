@@ -146,6 +146,60 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase):
                                   method='GET',
                                   expected_status=401)
 
+    def test_v3_v2_intermix_new_default_domain(self):
+        # If the default_domain_id config option is changed, then should be
+        # able to validate a v3 token with user in the new domain.
+
+        # 1) Create a new domain for the user.
+        new_domain_id = uuid.uuid4().hex
+        new_domain = {
+            'description': uuid.uuid4().hex,
+            'enabled': True,
+            'id': new_domain_id,
+            'name': uuid.uuid4().hex,
+        }
+
+        self.assignment_api.create_domain(new_domain_id, new_domain)
+
+        # 2) Create user in new domain.
+        new_user_id = uuid.uuid4().hex
+        new_user_password = uuid.uuid4().hex
+        new_user = {
+            'id': new_user_id,
+            'name': uuid.uuid4().hex,
+            'domain_id': new_domain_id,
+            'password': new_user_password,
+            'email': uuid.uuid4().hex,
+        }
+
+        self.identity_api.create_user(new_user_id, new_user)
+
+        # 3) Update the default_domain_id config option to the new domain
+
+        self.opt_in_group('identity', default_domain_id=new_domain_id)
+
+        # 4) Get a token using v3 api.
+
+        auth_data = self.build_authentication_request(
+            user_id=new_user_id,
+            password=new_user_password)
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.headers.get('X-Subject-Token')
+
+        # 5) Authenticate token using v2 api.
+
+        # TODO(blk-u): The following should work (remove expected_status=401).
+        # We should not expect Unauthorized because the authorizer code should
+        # be looking up the user in the new default domain, but it's using the
+        # old domain because it's storing the domain_id statically.
+        # See bug 1265108
+
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET',
+                                  expected_status=401)
+
     def test_v3_v2_intermix_domain_scoped_token_failed(self):
         # grant the domain role to user
         path = '/domains/%s/users/%s/roles/%s' % (
