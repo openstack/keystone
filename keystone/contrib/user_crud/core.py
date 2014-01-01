@@ -21,10 +21,10 @@ from keystone.common import extension
 from keystone.common import wsgi
 from keystone import exception
 from keystone import identity
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 extension.register_public_extension(

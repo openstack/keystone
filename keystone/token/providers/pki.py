@@ -22,13 +22,13 @@ from keystone.common import cms
 from keystone.common import environment
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.token.providers import common
 
 
 CONF = config.CONF
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 class Provider(common.BaseProvider):

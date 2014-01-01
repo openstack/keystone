@@ -17,10 +17,10 @@
 import hashlib
 
 from keystone.common import environment
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 PKI_ANS1_PREFIX = 'MII'
 
 

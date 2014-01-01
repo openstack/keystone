@@ -18,11 +18,11 @@ import copy
 
 from keystone.common import kvs
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone import token
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 class Token(kvs.Base, token.Driver):

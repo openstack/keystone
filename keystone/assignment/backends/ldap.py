@@ -27,11 +27,11 @@ from keystone.common import models
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import ldap as ldap_identity
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 @dependency.requires('identity_api')

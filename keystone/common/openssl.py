@@ -20,9 +20,9 @@ import os
 from keystone.common import environment
 from keystone.common import utils
 from keystone import config
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 CONF = config.CONF
 
 PUBLIC_DIR_PERMS = 0o755        # -rwxr-xr-x

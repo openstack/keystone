@@ -30,13 +30,13 @@ import passlib.hash
 from keystone.common import config
 from keystone.common import environment
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from six import moves
 
 
 CONF = config.CONF
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 def read_cached_file(filename, cache_info, reload_func=None):

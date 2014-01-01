@@ -38,11 +38,11 @@ import urllib
 import webob
 
 from keystone.openstack.common import jsonutils
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 
 PROTOCOL_NAME = 'S3 Token Authentication'
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 # TODO(kun): remove it after oslo merge this.

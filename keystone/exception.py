@@ -17,12 +17,12 @@
 import six
 
 from keystone.common import config
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import strutils
 
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 # Tests use this to make exception message format errors fatal
 _FATAL_EXCEPTION_FORMAT_ERRORS = False
