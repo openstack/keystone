@@ -29,7 +29,6 @@ from keystone.token import core
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 class ExternalAuthNotApplicable(Exception):
@@ -259,7 +258,7 @@ class Auth(controller.V2Controller):
         if username:
             try:
                 user_ref = self.identity_api.get_user_by_name(
-                    username, DEFAULT_DOMAIN_ID)
+                    username, CONF.identity.default_domain_id)
                 user_id = user_ref['id']
             except exception.UserNotFound as e:
                 raise exception.Unauthorized(e)
@@ -295,7 +294,7 @@ class Auth(controller.V2Controller):
         username = context['environment']['REMOTE_USER']
         try:
             user_ref = self.identity_api.get_user_by_name(
-                username, DEFAULT_DOMAIN_ID)
+                username, CONF.identity.default_domain_id)
             user_id = user_ref['id']
         except exception.UserNotFound as e:
             raise exception.Unauthorized(e)
@@ -338,7 +337,7 @@ class Auth(controller.V2Controller):
         if tenant_name:
             try:
                 tenant_ref = self.assignment_api.get_project_by_name(
-                    tenant_name, DEFAULT_DOMAIN_ID)
+                    tenant_name, CONF.identity.default_domain_id)
                 tenant_id = tenant_ref['id']
             except exception.ProjectNotFound as e:
                 raise exception.Unauthorized(e)

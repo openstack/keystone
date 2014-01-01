@@ -202,7 +202,7 @@ class Assignment(assignment.Driver):
 
     def get_domain(self, domain_id):
         self._validate_default_domain_id(domain_id)
-        return assignment.DEFAULT_DOMAIN
+        return assignment.calc_default_domain()
 
     def update_domain(self, domain_id, domain):
         self._validate_default_domain_id(domain_id)
@@ -213,7 +213,7 @@ class Assignment(assignment.Driver):
         raise exception.Forbidden('Domains are read-only against LDAP')
 
     def list_domains(self):
-        return [assignment.DEFAULT_DOMAIN]
+        return [assignment.calc_default_domain()]
 
 #Bulk actions on User From identity
     def delete_user(self, user_id):

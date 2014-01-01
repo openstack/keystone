@@ -188,17 +188,10 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase):
 
         # 5) Authenticate token using v2 api.
 
-        # TODO(blk-u): The following should work (remove expected_status=401).
-        # We should not expect Unauthorized because the authorizer code should
-        # be looking up the user in the new default domain, but it's using the
-        # old domain because it's storing the domain_id statically.
-        # See bug 1265108
-
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
                                   token='ADMIN',
-                                  method='GET',
-                                  expected_status=401)
+                                  method='GET')
 
     def test_v3_v2_intermix_domain_scoped_token_failed(self):
         # grant the domain role to user

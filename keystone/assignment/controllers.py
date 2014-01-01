@@ -30,7 +30,6 @@ from keystone.openstack.common import log
 
 
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 LOG = log.getLogger(__name__)
 
 
@@ -74,7 +73,7 @@ class Tenant(controller.V2Controller):
         tenant_refs = (
             self.assignment_api.list_projects_for_user(user_ref['id']))
         tenant_refs = [self.filter_domain_id(ref) for ref in tenant_refs
-                       if ref['domain_id'] == DEFAULT_DOMAIN_ID]
+                       if ref['domain_id'] == CONF.identity.default_domain_id]
         params = {
             'limit': context['query_string'].get('limit'),
             'marker': context['query_string'].get('marker'),
@@ -92,7 +91,7 @@ class Tenant(controller.V2Controller):
     def get_project_by_name(self, context, tenant_name):
         self.assert_admin(context)
         ref = self.assignment_api.get_project_by_name(
-            tenant_name, DEFAULT_DOMAIN_ID)
+            tenant_name, CONF.identity.default_domain_id)
         return {'tenant': self.filter_domain_id(ref)}
 
     # CRUD Extension
@@ -281,7 +280,7 @@ class Role(controller.V2Controller):
         for tenant in tenants:
             # As a v2 call, we should limit the response to those projects in
             # the default domain.
-            if tenant['domain_id'] != DEFAULT_DOMAIN_ID:
+            if tenant['domain_id'] != CONF.identity.default_domain_id:
                 continue
             role_ids = self.assignment_api.get_roles_for_user_and_project(
                 user_id, tenant['id'])

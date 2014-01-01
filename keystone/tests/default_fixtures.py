@@ -121,4 +121,4 @@ ROLES = [
     }
 ]
 
-DOMAINS = [assignment.DEFAULT_DOMAIN]
+DOMAINS = [assignment.calc_default_domain()]

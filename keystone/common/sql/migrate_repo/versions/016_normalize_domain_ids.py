@@ -44,7 +44,6 @@ from keystone import config
 
 
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def _disable_foreign_constraints(session, migrate_engine):
@@ -121,7 +120,7 @@ def upgrade_user_table_with_copy(meta, migrate_engine, session):
                          'extra': user.extra,
                          'password': user.password,
                          'enabled': user.enabled,
-                         'domain_id': DEFAULT_DOMAIN_ID})
+                         'domain_id': CONF.identity.default_domain_id})
     _enable_foreign_constraints(session, migrate_engine)
     session.execute('drop table temp_user;')
 
@@ -190,7 +189,7 @@ def upgrade_project_table_with_copy(meta, migrate_engine, session):
                          'extra': project.extra,
                          'description': project.description,
                          'enabled': project.enabled,
-                         'domain_id': DEFAULT_DOMAIN_ID})
+                         'domain_id': CONF.identity.default_domain_id})
     _enable_foreign_constraints(session, migrate_engine)
     session.execute('drop table temp_project;')
 
@@ -333,7 +332,7 @@ def upgrade_user_table_with_col_create(meta, migrate_engine, session):
         sql.Column('domain_id', sql.String(64),
                    sql.ForeignKey('domain.id'), nullable=True))
     for user in session.query(user_table).all():
-        values = {'domain_id': DEFAULT_DOMAIN_ID}
+        values = {'domain_id': CONF.identity.default_domain_id}
         update = user_table.update().\
             where(user_table.c.id == user.id).\
             values(values)
@@ -362,7 +361,7 @@ def upgrade_project_table_with_col_create(meta, migrate_engine, session):
         sql.Column('domain_id', sql.String(64),
                    sql.ForeignKey('domain.id'), nullable=True))
     for project in session.query(project_table).all():
-        values = {'domain_id': DEFAULT_DOMAIN_ID}
+        values = {'domain_id': CONF.identity.default_domain_id}
         update = project_table.update().\
             where(project_table.c.id == project.id).\
             values(values)

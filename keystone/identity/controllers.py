@@ -30,7 +30,6 @@ from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 LOG = log.getLogger(__name__)
 
 
@@ -116,7 +115,8 @@ class User(controller.V2Controller):
     @controller.v2_deprecated
     def get_user_by_name(self, context, user_name):
         self.assert_admin(context)
-        ref = self.identity_api.get_user_by_name(user_name, DEFAULT_DOMAIN_ID)
+        ref = self.identity_api.get_user_by_name(
+            user_name, CONF.identity.default_domain_id)
         return {'user': self.identity_api.v3_to_v2_user(ref)}
 
     # CRUD extension
