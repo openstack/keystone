@@ -170,8 +170,7 @@ class V3TokenDataHelper(object):
                 user_id, project_id)
         return [self.assignment_api.get_role(role_id) for role_id in roles]
 
-    def _populate_user(self, token_data, user_id, domain_id, project_id,
-                       trust):
+    def _populate_user(self, token_data, user_id, trust):
         if 'user' in token_data:
             # no need to repopulate user if it already exists
             return
@@ -315,7 +314,7 @@ class V3TokenDataHelper(object):
             token_data['bind'] = bind
 
         self._populate_scope(token_data, domain_id, project_id)
-        self._populate_user(token_data, user_id, domain_id, project_id, trust)
+        self._populate_user(token_data, user_id, trust)
         self._populate_roles(token_data, user_id, domain_id, project_id, trust,
                              access_token)
         if include_catalog:
