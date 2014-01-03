@@ -33,6 +33,7 @@ class TestExtensionCase(test_v3.RestfulTestCase):
         self.conf_files = super(TestExtensionCase, self).config_files()
         self.conf_files.append(
             tests.dirs.tests('test_associate_project_endpoint_extension.conf'))
+        self.addCleanup(self.conf_files.pop)
         super(TestExtensionCase, self).setup_database()
         package_name = "%s.%s.migrate_repo" % (contrib.__name__,
                                                self.EXTENSION_NAME)
@@ -44,9 +45,6 @@ class TestExtensionCase(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(TestExtensionCase, self).setUp()
-        self.addCleanup(self.conf_files.pop)
-        # TODO(blk-u): check if the above is necessary and remove if not.
-
         self.default_request_url = (
             '/OS-EP-FILTER/projects/%(project_id)s'
             '/endpoints/%(endpoint_id)s' % {
