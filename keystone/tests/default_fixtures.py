@@ -17,14 +17,13 @@
 # NOTE(dolph): please try to avoid additional fixtures if possible; test suite
 #              performance may be negatively affected.
 
-from keystone import assignment
 from keystone import config
 
 
 CONF = config.CONF
 
 
-DEFAULT_DOMAIN_ID = config.CONF.identity.default_domain_id
+DEFAULT_DOMAIN_ID = 'default'
 
 
 TENANTS = [
@@ -104,8 +103,8 @@ ROLES = [
         'id': 'member',
         'name': 'Member',
     }, {
-        'id': CONF.member_role_id,
-        'name': CONF.member_role_name,
+        'id': '9fe2ff9ee4384b1894a90878d3e92bab',
+        'name': '_member_',
     }, {
         'id': 'other',
         'name': 'Other',
@@ -121,4 +120,9 @@ ROLES = [
     }
 ]
 
-DOMAINS = [assignment.calc_default_domain()]
+DOMAINS = [{'description':
+            (u'Owns users and tenants (i.e. projects)'
+                ' available on Identity API v2.'),
+            'enabled': True,
+            'id': DEFAULT_DOMAIN_ID,
+            'name': u'Default'}]

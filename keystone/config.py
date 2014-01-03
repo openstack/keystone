@@ -22,7 +22,6 @@ from keystone import exception
 from keystone.openstack.common import log
 
 
-config.configure()
 CONF = config.CONF
 
 setup_authentication = config.setup_authentication

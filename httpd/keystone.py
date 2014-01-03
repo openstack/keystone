@@ -36,6 +36,7 @@ from keystone import service
 
 CONF = config.CONF
 
+config.configure()
 sql.initialize()
 
 CONF(project='keystone')

@@ -70,6 +70,9 @@ from keystone import service
 from keystone.openstack.common import policy as common_policy  # noqa
 
 
+config.configure()
+
+
 LOG = log.getLogger(__name__)
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
 ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))

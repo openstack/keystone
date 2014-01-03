@@ -212,6 +212,7 @@ command_opt = cfg.SubCommandOpt('command',
 def main(argv=None, config_files=None):
     CONF.register_cli_opt(command_opt)
 
+    config.configure()
     sql.initialize()
 
     CONF(args=argv[1:],

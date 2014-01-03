@@ -30,7 +30,7 @@ from keystone.tests import rest
 
 
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
+DEFAULT_DOMAIN_ID = 'default'
 
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
