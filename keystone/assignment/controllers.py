@@ -119,11 +119,6 @@ class Tenant(controller.V2Controller):
         clean_tenant = tenant.copy()
         clean_tenant.pop('domain_id', None)
 
-        # If the project has been disabled (or enabled=False) we are
-        # deleting the tokens for that project.
-        if not tenant.get('enabled', True):
-            self._delete_tokens_for_project(tenant_id)
-
         tenant_ref = self.assignment_api.update_project(
             tenant_id, clean_tenant)
         return {'tenant': tenant_ref}
@@ -131,8 +126,6 @@ class Tenant(controller.V2Controller):
     @controller.v2_deprecated
     def delete_project(self, context, tenant_id):
         self.assert_admin(context)
-        # Delete all tokens belonging to the users for that project
-        self._delete_tokens_for_project(tenant_id)
         self.assignment_api.delete_project(tenant_id)
 
     @controller.v2_deprecated
@@ -225,10 +218,6 @@ class Role(controller.V2Controller):
     @controller.v2_deprecated
     def delete_role(self, context, role_id):
         self.assert_admin(context)
-        # The driver will delete any assignments for this role.
-        # We must first, however, revoke any tokens for users that have an
-        # assignment with this role.
-        self._delete_tokens_for_role(role_id)
         self.assignment_api.delete_role(role_id)
 
     @controller.v2_deprecated
@@ -272,7 +261,6 @@ class Role(controller.V2Controller):
         # a user also adds them to a tenant, so we must follow up on that
         self.assignment_api.remove_role_from_user_and_project(
             user_id, tenant_id, role_id)
-        self._delete_tokens_for_user(user_id)
 
     # COMPAT(diablo): CRUD extension
     @controller.v2_deprecated
@@ -320,7 +308,6 @@ class Role(controller.V2Controller):
         role_id = role.get('roleId')
         self.assignment_api.add_role_to_user_and_project(
             user_id, tenant_id, role_id)
-        self._delete_tokens_for_user(user_id)
 
         role_ref = self.assignment_api.get_role(role_id)
         return {'role': role_ref}
@@ -345,10 +332,9 @@ class Role(controller.V2Controller):
         role_id = role_ref_ref.get('roleId')[0]
         self.assignment_api.remove_role_from_user_and_project(
             user_id, tenant_id, role_id)
-        self._delete_tokens_for_user(user_id)
 
 
-@dependency.requires('assignment_api', 'credential_api', 'identity_api')
+@dependency.requires('assignment_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
@@ -378,143 +364,15 @@ class DomainV3(controller.V3Controller):
     @controller.protected()
     def update_domain(self, context, domain_id, domain):
         self._require_matching_id(domain_id, domain)
-
         ref = self.assignment_api.update_domain(domain_id, domain)
-
-        # disable owned users & projects when the API user specifically set
-        #     enabled=False
-        # FIXME(dolph): need a driver call to directly revoke all tokens by
-        #               project or domain, regardless of user
-        if not domain.get('enabled', True):
-            projects = [x for x in self.assignment_api.list_projects()
-                        if x.get('domain_id') == domain_id]
-            for user in self.identity_api.list_users():
-                # TODO(dolph): disable domain-scoped tokens
-                """
-                self.token_api.revoke_tokens(
-                    user_id=user['id'],
-                    domain_id=domain_id)
-                """
-                # revoke all tokens for users owned by this domain
-                if user.get('domain_id') == domain_id:
-                    self._delete_tokens_for_user(user['id'])
-                else:
-                    # only revoke tokens on projects owned by this domain
-                    for project in projects:
-                        self._delete_tokens_for_user(
-                            user['id'], project_id=project['id'])
         return DomainV3.wrap_member(context, ref)
-
-    def _delete_domain_contents(self, context, domain_id):
-        """Delete the contents of a domain.
-
-        Before we delete a domain, we need to remove all the entities
-        that are owned by it, i.e. Users, Groups & Projects. To do this we
-        call the respective delete functions for these entities, which are
-        themselves responsible for deleting any credentials and role grants
-        associated with them as well as revoking any relevant tokens.
-
-        The order we delete entities is also important since some types
-        of backend may need to maintain referential integrity
-        throughout, and many of the entities have relationship with each
-        other. The following deletion order is therefore used:
-
-        Projects: Reference user and groups for grants
-        Groups: Reference users for membership and domains for grants
-        Users: Reference domains for grants
-
-        """
-        # Start by disabling all the users in this domain, to minimize the
-        # the risk that things are changing under our feet.
-        # TODO(henry-nash): In theory this step should not be necessary, since
-        # users of a disabled domain are prevented from authenticating.
-        # However there are some existing bugs in this area (e.g. 1130236).
-        # Consider removing this code once these have been fixed.
-        user_refs = self.identity_api.list_users()
-        user_refs = [r for r in user_refs if r['domain_id'] == domain_id]
-        for user in user_refs:
-            if user['enabled']:
-                user['enabled'] = False
-                self.identity_api.update_user(user['id'], user)
-                self._delete_tokens_for_user(user['id'])
-
-        # Now, for safety, reload list of users, as well as projects, that are
-        # owned by this domain.
-        user_refs = self.identity_api.list_users()
-        user_ids = [r['id'] for r in user_refs if r['domain_id'] == domain_id]
-
-        proj_refs = self.assignment_api.list_projects()
-        proj_ids = [r['id'] for r in proj_refs if r['domain_id'] == domain_id]
-
-        # Get the list of groups owned by this domain and delete them
-        group_refs = self.identity_api.list_groups()
-        group_ids = ([r['id'] for r in group_refs
-                     if r['domain_id'] == domain_id])
-
-        # First delete the projects themselves
-        for project_id in proj_ids:
-            # NOTE(morganfainberg): Ensure we cleanup the credentials for the
-            # project and any outstanding tokens. This must occur after the
-            # project deletion has occurred to ensure we don't have a race
-            # where new cred or token is issued.
-            self.credential_api.delete_credentials_for_project(project_id)
-            try:
-                self._delete_tokens_for_project(project_id)
-                self.assignment_api.delete_project(project_id)
-            except exception.ProjectNotFound:
-                # NOTE(morganfainberg): We should still perform the cleanups
-                # if the project can't be found for sanity-sake.
-                pass
-
-        for group_id in group_ids:
-            # NOTE(morganfainberg): Cleanup any existing groups.
-            try:
-                self.identity_api.delete_group(group_id,
-                                               domain_scope=r['domain_id'])
-            except exception.GroupNotFound:
-                # NOTE(morganfainberg): In the case that a race has occurred
-                # and the group no longer exists, continue on and delete the
-                # rest of the groups.
-                pass
-
-        # And finally, delete the users themselves
-        for user_id in user_ids:
-            # Delete any credentials that reference this user
-            self.credential_api.delete_credentials_for_user(user_id)
-            # Make sure any tokens are marked as deleted
-            try:
-                self._delete_tokens_for_user(user_id)
-                self.identity_api.delete_user(user_id,
-                                              domain_scope=r['domain_id'])
-            except exception.UserNotFound:
-                # NOTE(morganfainberg): In the case that a race has occurred
-                # and the user no longer exists, continue on and delete the
-                # rest of the users.
-                pass
 
     @controller.protected()
     def delete_domain(self, context, domain_id):
-        # explicitly forbid deleting the default domain (this should be a
-        # carefully orchestrated manual process involving configuration
-        # changes, etc)
-        if domain_id == DEFAULT_DOMAIN_ID:
-            raise exception.ForbiddenAction(action='delete the default domain')
-
-        # To help avoid inadvertent deletes, we insist that the domain
-        # has been previously disabled.  This also prevents a user deleting
-        # their own domain since, once it is disabled, they won't be able
-        # to get a valid token to issue this delete.
-        ref = self.assignment_api.get_domain(domain_id)
-        if ref['enabled']:
-            raise exception.ForbiddenAction(
-                action='delete a domain that is not disabled')
-
-        # OK, we are go for delete!
-        self._delete_domain_contents(context, domain_id)
         return self.assignment_api.delete_domain(domain_id)
 
 
-@dependency.requires('assignment_api', 'credential_api')
+@dependency.requires('assignment_api')
 class ProjectV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
@@ -551,17 +409,11 @@ class ProjectV3(controller.V3Controller):
     def update_project(self, context, project_id, project):
         self._require_matching_id(project_id, project)
 
-        # The project was disabled so we delete the tokens
-        if not project.get('enabled', True):
-            self._delete_tokens_for_project(project_id)
-
         ref = self.assignment_api.update_project(project_id, project)
         return ProjectV3.wrap_member(context, ref)
 
     @controller.protected()
     def delete_project(self, context, project_id):
-        self.credential_api.delete_credentials_for_project(project_id)
-        self._delete_tokens_for_project(project_id)
         return self.assignment_api.delete_project(project_id)
 
 
@@ -601,10 +453,6 @@ class RoleV3(controller.V3Controller):
 
     @controller.protected()
     def delete_role(self, context, role_id):
-        # The driver will delete any assignments for this role.
-        # We must first, however, revoke any tokens for users that have an
-        # assignment with this role.
-        self._delete_tokens_for_role(role_id)
         self.assignment_api.delete_role(role_id)
 
     def _require_domain_xor_project(self, domain_id, project_id):
@@ -701,13 +549,6 @@ class RoleV3(controller.V3Controller):
         self.assignment_api.delete_grant(
             role_id, user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
-
-        # Now delete any tokens for this user or, in the case of a group,
-        # tokens from all the uses who are members of this group.
-        if user_id:
-            self._delete_tokens_for_user(user_id)
-        else:
-            self._delete_tokens_for_group(group_id)
 
 
 @dependency.requires('assignment_api', 'identity_api')

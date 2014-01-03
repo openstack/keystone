@@ -275,7 +275,8 @@ class AuthInfo(object):
         self._scope_data = (domain_id, project_id, trust)
 
 
-@dependency.requires('identity_api', 'token_provider_api')
+@dependency.requires('assignment_api', 'identity_api', 'token_api',
+                     'token_provider_api')
 class Auth(controller.V3Controller):
 
     # Note(atiwari): From V3 auth controller code we are

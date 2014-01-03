@@ -218,93 +218,8 @@ def filterprotected(*filters):
     return _filterprotected
 
 
-@dependency.requires('assignment_api', 'identity_api', 'policy_api',
-                     'token_api', 'trust_api')
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
-
-    def _delete_tokens_for_trust(self, user_id, trust_id):
-        self.token_api.delete_tokens(user_id, trust_id=trust_id)
-
-    def _delete_tokens_for_user(self, user_id, project_id=None):
-        #First delete tokens that could get other tokens.
-        self.token_api.delete_tokens(user_id, tenant_id=project_id)
-
-        #delete tokens generated from trusts
-        for trust in self.trust_api.list_trusts_for_trustee(user_id):
-            self._delete_tokens_for_trust(user_id, trust['id'])
-        for trust in self.trust_api.list_trusts_for_trustor(user_id):
-            self._delete_tokens_for_trust(trust['trustee_user_id'],
-                                          trust['id'])
-
-    def _delete_tokens_for_project(self, project_id):
-        user_ids = self.assignment_api.list_user_ids_for_project(project_id)
-        for user_id in user_ids:
-            self._delete_tokens_for_user(user_id, project_id=project_id)
-
-    def _delete_tokens_for_role(self, role_id):
-        assignments = self.assignment_api.list_role_assignments_for_role(
-            role_id=role_id)
-
-        # Iterate over the assignments for this role and build the list of
-        # user or user+project IDs for the tokens we need to delete
-        user_ids = set()
-        user_and_project_ids = list()
-        for assignment in assignments:
-            # If we have a project assignment, then record both the user and
-            # project IDs so we can target the right token to delete. If it is
-            # a domain assignment, we might as well kill all the tokens for
-            # the user, since in the vast majority of cases all the tokens
-            # for a user will be within one domain anyway, so not worth
-            # trying to delete tokens for each project in the domain.
-            if 'user_id' in assignment:
-                if 'project_id' in assignment:
-                    user_and_project_ids.append(
-                        (assignment['user_id'], assignment['project_id']))
-                elif 'domain_id' in assignment:
-                    user_ids.add(assignment['user_id'])
-            elif 'group_id' in assignment:
-                # Add in any users for this group, being tolerant of any
-                # cross-driver database integrity errors.
-                try:
-                    users = self.identity_api.list_users_in_group(
-                        assignment['group_id'])
-                except exception.GroupNotFound:
-                    # Ignore it, but log a debug message
-                    if 'project_id' in assignment:
-                        target = _('Project (%s)') % assignment['project_id']
-                    elif 'domain_id' in assignment:
-                        target = _('Domain (%s)') % assignment['domain_id']
-                    else:
-                        target = _('Unknown Target')
-                    msg = _('Group (%(group)s), referenced in assignment '
-                            'for %(target)s, not found - ignoring.')
-                    LOG.debug(msg, {'group': assignment['group_id'],
-                                    'target': target})
-                    continue
-
-                if 'project_id' in assignment:
-                    for user in users:
-                        user_and_project_ids.append(
-                            (user['id'], assignment['project_id']))
-                elif 'domain_id' in assignment:
-                    for user in users:
-                        user_ids.add(user['id'])
-
-        # Now process the built up lists.  Before issuing calls to delete any
-        # tokens, let's try and minimize the number of calls by pruning out
-        # any user+project deletions where a general token deletion for that
-        # same user is also planned.
-        user_and_project_ids_to_action = []
-        for user_and_project_id in user_and_project_ids:
-            if user_and_project_id[0] not in user_ids:
-                user_and_project_ids_to_action.append(user_and_project_id)
-
-        for user_id in user_ids:
-            self._delete_tokens_for_user(user_id)
-        for user_id, project_id in user_and_project_ids_to_action:
-            self._delete_tokens_for_user(user_id, project_id)
-
     def _require_attribute(self, ref, attr):
         """Ensures the reference contains the specified attribute."""
         if ref.get(attr) is None or ref.get(attr) == '':
@@ -328,7 +243,7 @@ class V2Controller(wsgi.Application):
         return ref
 
 
-@dependency.requires('identity_api', 'policy_api', 'token_api')
+@dependency.requires('policy_api', 'token_api')
 class V3Controller(V2Controller):
     """Base controller class for Identity API v3.
 
@@ -342,11 +257,6 @@ class V3Controller(V2Controller):
     collection_name = 'entities'
     member_name = 'entity'
     get_member_from_driver = None
-
-    def _delete_tokens_for_group(self, group_id):
-        user_refs = self.identity_api.list_users_in_group(group_id)
-        for user in user_refs:
-            self._delete_tokens_for_user(user['id'])
 
     @classmethod
     def base_url(cls, path=None):

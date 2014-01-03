@@ -2209,6 +2209,11 @@ class IdentityTests(object):
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
+        # Make sure we get an empty list back on a new group, not an error.
+        user_refs = self.identity_api.list_users_in_group(new_group['id'])
+        self.assertEqual(user_refs, [])
+        # Make sure we get the correct users back once they have been added
+        # to the group.
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
                     'domain_id': domain['id']}
@@ -2470,7 +2475,19 @@ class IdentityTests(object):
         domain_ref = self.assignment_api.get_domain(domain['id'])
         self.assertDictEqual(domain_ref, domain)
 
+        # Ensure an 'enabled' domain cannot be deleted
+        self.assertRaises(exception.ForbiddenAction,
+                          self.assignment_api.delete_domain,
+                          domain_id=domain['id'])
+
+        # Disable the domain
+        domain['enabled'] = False
+        self.assignment_api.update_domain(domain['id'], domain)
+
+        # Delete the domain
         self.assignment_api.delete_domain(domain['id'])
+
+        # Make sure the domain no longer exists
         self.assertRaises(exception.DomainNotFound,
                           self.assignment_api.get_domain,
                           domain['id'])
@@ -2640,6 +2657,11 @@ class IdentityTests(object):
         self.assignment_api.update_domain(domain_id, domain_ref)
         self.assertDictContainsSubset(
             domain_ref, self.assignment_api.get_domain(domain_id))
+        # Make sure domain is 'disabled', bypass assignment api manager
+        domain_ref_disabled = domain_ref.copy()
+        domain_ref_disabled['enabled'] = False
+        self.assignment_api.driver.update_domain(domain_id,
+                                                 domain_ref_disabled)
         # Delete domain, bypassing assignment api manager
         self.assignment_api.driver.delete_domain(domain_id)
         # Verify get_domain still returns the domain
@@ -2654,6 +2676,9 @@ class IdentityTests(object):
         # Recreate Domain
         self.assignment_api.create_domain(domain_id, domain)
         self.assignment_api.get_domain(domain_id)
+        # Make sure domain is 'disabled', bypass assignment api manager
+        domain['enabled'] = False
+        self.assignment_api.driver.update_domain(domain_id, domain)
         # Delete domain
         self.assignment_api.delete_domain(domain_id)
         # verify DomainNotFound raised

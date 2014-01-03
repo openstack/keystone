@@ -43,14 +43,14 @@ DEFAULT_DOMAIN = {'description':
 
 
 @dependency.provider('assignment_api')
-@dependency.requires('identity_api')
+@dependency.requires('credential_api', 'identity_api', 'token_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
     See :mod:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.
     assignment.Manager() and identity.Manager() have a circular dependency.
-    The late import works around this.  THe if block prevents creation of the
+    The late import works around this.  The if block prevents creation of the
     api object by both managers.
     """
 
@@ -81,6 +81,10 @@ class Manager(manager.Manager):
         tenant = tenant.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
+        if not tenant.get('enabled', True):
+            self.token_api.delete_tokens_for_users(
+                self.list_user_ids_for_project(tenant_id),
+                project_id=tenant_id)
         ret = self.driver.update_project(tenant_id, tenant)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, ret['name'],
@@ -90,10 +94,13 @@ class Manager(manager.Manager):
     @notifications.deleted('project')
     def delete_project(self, tenant_id):
         project = self.driver.get_project(tenant_id)
+        user_ids = self.list_user_ids_for_project(tenant_id)
+        self.token_api.delete_tokens_for_users(user_ids, project_id=tenant_id)
         ret = self.driver.delete_project(tenant_id)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, project['name'],
                                             project['domain_id'])
+        self.credential_api.delete_credentials_for_project(tenant_id)
         return ret
 
     def get_roles_for_user_and_project(self, user_id, tenant_id):
@@ -278,15 +285,108 @@ class Manager(manager.Manager):
 
     def update_domain(self, domain_id, domain):
         ret = self.driver.update_domain(domain_id, domain)
+        # disable owned users & projects when the API user specifically set
+        #     enabled=False
+        if not domain.get('enabled', True):
+            self.token_api.delete_tokens_for_domain(domain_id)
         self.get_domain.invalidate(self, domain_id)
         self.get_domain_by_name.invalidate(self, ret['name'])
         return ret
 
     def delete_domain(self, domain_id):
+        # explicitly forbid deleting the default domain (this should be a
+        # carefully orchestrated manual process involving configuration
+        # changes, etc)
+        if domain_id == DEFAULT_DOMAIN['id']:
+            raise exception.ForbiddenAction(action='delete the default domain')
+
         domain = self.driver.get_domain(domain_id)
+
+        # To help avoid inadvertent deletes, we insist that the domain
+        # has been previously disabled.  This also prevents a user deleting
+        # their own domain since, once it is disabled, they won't be able
+        # to get a valid token to issue this delete.
+        if domain['enabled']:
+            raise exception.ForbiddenAction(
+                action='delete a domain that is not disabled')
+
+        self._delete_domain_contents(domain_id)
         self.driver.delete_domain(domain_id)
         self.get_domain.invalidate(self, domain_id)
         self.get_domain_by_name.invalidate(self, domain['name'])
+
+    def _delete_domain_contents(self, domain_id):
+        """Delete the contents of a domain.
+
+        Before we delete a domain, we need to remove all the entities
+        that are owned by it, i.e. Users, Groups & Projects. To do this we
+        call the respective delete functions for these entities, which are
+        themselves responsible for deleting any credentials and role grants
+        associated with them as well as revoking any relevant tokens.
+
+        The order we delete entities is also important since some types
+        of backend may need to maintain referential integrity
+        throughout, and many of the entities have relationship with each
+        other. The following deletion order is therefore used:
+
+        Projects: Reference user and groups for grants
+        Groups: Reference users for membership and domains for grants
+        Users: Reference domains for grants
+
+        """
+        # Start by disabling all the users in this domain, to minimize the
+        # the risk that things are changing under our feet.
+        # TODO(henry-nash): In theory this step should not be necessary, since
+        # users of a disabled domain are prevented from authenticating.
+        # However there are some existing bugs in this area (e.g. 1130236).
+        # Consider removing this code once these have been fixed.
+        user_refs = self.identity_api.list_users()
+        user_refs = [r for r in user_refs if r['domain_id'] == domain_id]
+        for user in user_refs:
+            if user['enabled']:
+                user['enabled'] = False
+                self.identity_api.update_user(user['id'], user)
+
+        user_refs = self.identity_api.list_users()
+        proj_refs = self.list_projects()
+        group_refs = self.identity_api.list_groups()
+
+        # First delete the projects themselves
+        for project in proj_refs:
+            if project['domain_id'] == domain_id:
+                try:
+                    self.delete_project(project['id'])
+                except exception.ProjectNotFound:
+                    LOG.debug(_('Project %(projectid)s not found when '
+                                'deleting domain contents for %(domainid)s, '
+                                'continuing with cleanup.'),
+                              {'projectid': project['id'],
+                               'domainid': domain_id})
+
+        for group in group_refs:
+            # NOTE(morganfainberg): Cleanup any existing groups.
+            if group['domain_id'] == domain_id:
+                try:
+                    self.identity_api.delete_group(group['id'],
+                                                   domain_scope=domain_id)
+                except exception.GroupNotFound:
+                    LOG.debug(_('Group %(groupid)s not found when deleting '
+                                'domain contents for %(domainid)s, continuing '
+                                'with cleanup.'),
+                              {'groupid': group['id'], 'domainid': domain_id})
+
+        # And finally, delete the users themselves
+        for user in user_refs:
+            if user['domain_id'] == domain_id:
+                try:
+                    self.identity_api.delete_user(user['id'],
+                                                  domain_scope=domain_id)
+                except exception.UserNotFound:
+                    LOG.debug(_('User %(userid)s not found when '
+                                'deleting domain contents for %(domainid)s, '
+                                'continuing with cleanup.'),
+                              {'userid': user['id'],
+                               'domainid': domain_id})
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=CONF.assignment.cache_time)
@@ -318,6 +418,17 @@ class Manager(manager.Manager):
 
     @notifications.deleted('role')
     def delete_role(self, role_id):
+        try:
+            self._delete_tokens_for_role(role_id)
+        except exception.NotImplemented:
+            # FIXME(morganfainberg): Not all backends (ldap) implement
+            # `list_role_assignments_for_role` which would have previously
+            # caused a NotImplmented error to be raised when called through
+            # the controller. Now error or proper action will always come from
+            # the `delete_role` method logic. Work needs to be done to make
+            # the behavior between drivers consistent (capable of revoking
+            # tokens for the same circumstances).
+            pass
         self.driver.delete_role(role_id)
         self.get_role.invalidate(self, role_id)
 
@@ -331,6 +442,94 @@ class Manager(manager.Manager):
         # implementation.
         return [r for r in self.driver.list_role_assignments()
                 if r['role_id'] == role_id]
+
+    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
+        self.driver.remove_role_from_user_and_project(user_id, tenant_id,
+                                                      role_id)
+        self.token_api.delete_tokens_for_user(user_id)
+
+    def delete_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        user_ids = []
+        if group_id is not None:
+            # NOTE(morganfainberg): The user ids are the important part for
+            # invalidating tokens below, so extract them here.
+            try:
+                for user in self.identity_api.list_users_in_group(group_id,
+                                                                  domain_id):
+                    if user['id'] != user_id:
+                        user_ids.append(user['id'])
+            except exception.GroupNotFound:
+                LOG.debug(_('Group %s not found, no tokens to invalidate.'),
+                          group_id)
+
+        self.driver.delete_grant(role_id, user_id, group_id, domain_id,
+                                 project_id, inherited_to_projects)
+        if user_id is not None:
+            user_ids.append(user_id)
+        self.token_api.delete_tokens_for_users(user_ids)
+
+    def _delete_tokens_for_role(self, role_id):
+        assignments = self.list_role_assignments_for_role(role_id=role_id)
+
+        # Iterate over the assignments for this role and build the list of
+        # user or user+project IDs for the tokens we need to delete
+        user_ids = set()
+        user_and_project_ids = list()
+        for assignment in assignments:
+            # If we have a project assignment, then record both the user and
+            # project IDs so we can target the right token to delete. If it is
+            # a domain assignment, we might as well kill all the tokens for
+            # the user, since in the vast majority of cases all the tokens
+            # for a user will be within one domain anyway, so not worth
+            # trying to delete tokens for each project in the domain.
+            if 'user_id' in assignment:
+                if 'project_id' in assignment:
+                    user_and_project_ids.append(
+                        (assignment['user_id'], assignment['project_id']))
+                elif 'domain_id' in assignment:
+                    user_ids.add(assignment['user_id'])
+            elif 'group_id' in assignment:
+                # Add in any users for this group, being tolerant of any
+                # cross-driver database integrity errors.
+                try:
+                    users = self.identity_api.list_users_in_group(
+                        assignment['group_id'])
+                except exception.GroupNotFound:
+                    # Ignore it, but log a debug message
+                    if 'project_id' in assignment:
+                        target = _('Project (%s)') % assignment['project_id']
+                    elif 'domain_id' in assignment:
+                        target = _('Domain (%s)') % assignment['domain_id']
+                    else:
+                        target = _('Unknown Target')
+                    msg = _('Group (%(group)s), referenced in assignment '
+                            'for %(target)s, not found - ignoring.')
+                    LOG.debug(msg, {'group': assignment['group_id'],
+                                    'target': target})
+                    continue
+
+                if 'project_id' in assignment:
+                    for user in users:
+                        user_and_project_ids.append(
+                            (user['id'], assignment['project_id']))
+                elif 'domain_id' in assignment:
+                    for user in users:
+                        user_ids.add(user['id'])
+
+        # Now process the built up lists.  Before issuing calls to delete any
+        # tokens, let's try and minimize the number of calls by pruning out
+        # any user+project deletions where a general token deletion for that
+        # same user is also planned.
+        user_and_project_ids_to_action = []
+        for user_and_project_id in user_and_project_ids:
+            if user_and_project_id[0] not in user_ids:
+                user_and_project_ids_to_action.append(user_and_project_id)
+
+        self.token_api.delete_tokens_for_users(user_ids)
+        for user_id, project_id in user_and_project_ids_to_action:
+            self.token_api.delete_tokens_for_user(user_id, project_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
