@@ -84,10 +84,6 @@ class RestfulTestCase(rest.RestfulTestCase):
         #drop the policy rules
         self.addCleanup(rules.reset)
 
-        # TODO(blk-u): check if the following line is necessary and remove if
-        # it's not. TestCase already does CONF.reset.
-        self.addCleanup(CONF.reset)
-
         # need to reset the plug-ins
         self.addCleanup(setattr, auth.controllers, 'AUTH_METHODS', {})
 
