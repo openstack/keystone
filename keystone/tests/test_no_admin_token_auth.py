@@ -20,34 +20,31 @@ import webtest
 from keystone import tests
 
 
-def _generate_paste_config():
-    # Generate a file, based on keystone-paste.ini, that doesn't include
-    # admin_token_auth in the pipeline
-
-    with open(tests.dirs.etc('keystone-paste.ini'), 'r') as f:
-        contents = f.read()
-
-    new_contents = contents.replace(' admin_token_auth ', ' ')
-
-    with open(tests.dirs.tmp('no_admin_token_auth-paste.ini'), 'w') as f:
-        f.write(new_contents)
-
-
 class TestNoAdminTokenAuth(tests.TestCase):
     def setUp(self):
         super(TestNoAdminTokenAuth, self).setUp()
         self.load_backends()
 
-        _generate_paste_config()
-        self.addCleanup(os.remove,
-                        tests.dirs.tmp('no_admin_token_auth-paste.ini'))
-        # TODO(blk-u): Make _generate_paste_config a member function and have
-        # it also do addCleanup.
+        self._generate_paste_config()
 
         self.admin_app = webtest.TestApp(
             self.loadapp(tests.dirs.tmp('no_admin_token_auth'), name='admin'),
             extra_environ=dict(REMOTE_ADDR='127.0.0.1'))
         self.addCleanup(setattr, self, 'admin_app', None)
+
+    def _generate_paste_config(self):
+        # Generate a file, based on keystone-paste.ini, that doesn't include
+        # admin_token_auth in the pipeline
+
+        with open(tests.dirs.etc('keystone-paste.ini'), 'r') as f:
+            contents = f.read()
+
+        new_contents = contents.replace(' admin_token_auth ', ' ')
+
+        filename = tests.dirs.tmp('no_admin_token_auth-paste.ini')
+        with open(filename, 'w') as f:
+            f.write(new_contents)
+        self.addCleanup(os.remove, filename)
 
     def test_request_no_admin_token_auth(self):
         # This test verifies that if the admin_token_auth middleware isn't
