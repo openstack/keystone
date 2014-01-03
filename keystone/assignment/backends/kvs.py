@@ -259,6 +259,12 @@ class Assignment(kvs.Base, assignment.Driver):
                 self.db.set('metadata-%s-%s' % (tenant_id, user_id), metadata)
                 try:
                     user_ref = self._get_user(user_id)
+                    # FIXME(morganfainberg): Setting the password does a number
+                    # of things including invalidating tokens. Simple solution
+                    # is to remove it from the ref before sending it on. The
+                    # correct solution is to remove the need to call the
+                    # identity_api from within the driver.
+                    user_ref.pop('password', None)
                     tenants = set(user_ref.get('tenants', []))
                     if tenant_id not in tenants:
                         tenants.add(tenant_id)
