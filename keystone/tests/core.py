@@ -16,7 +16,6 @@
 
 from __future__ import absolute_import
 
-import errno
 import functools
 import os
 import re
@@ -504,16 +503,25 @@ class TestCase(testtools.TestCase):
 
         self.fail(self._formatMessage(msg, standardMsg))
 
+    @property
+    def ipv6_enabled(self):
+        if socket.has_ipv6:
+            sock = None
+            try:
+                sock = socket.socket(socket.AF_INET6)
+                # NOTE(Mouad): Try to bind to IPv6 loopback ip address.
+                sock.bind(("::1", 0))
+                return True
+            except socket.error:
+                pass
+            finally:
+                if sock:
+                    sock.close()
+        return False
+
     def skip_if_no_ipv6(self):
-        try:
-            s = socket.socket(socket.AF_INET6)
-        except socket.error as e:
-            if e.errno == errno.EAFNOSUPPORT:
-                raise self.skipTest("IPv6 is not enabled in the system")
-            else:
-                raise
-        else:
-            s.close()
+        if not self.ipv6_enabled:
+            raise self.skipTest("IPv6 is not enabled in the system")
 
     def assertSetEqual(self, set1, set2, msg=None):
         # TODO(morganfainberg): Remove this and self._assertSetEqual once
