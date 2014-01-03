@@ -37,6 +37,10 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 SHOULD_CACHE = cache.should_cache_fn('token')
 
+# NOTE(blk-u): The config options are not available at import time.
+EXPIRATION_TIME = lambda: CONF.token.cache_time
+REVOCATION_CACHE_EXPIRATION_TIME = lambda: CONF.token.revocation_cache_time
+
 
 def default_expire_time():
     """Determine when a fresh token should expire.
@@ -144,7 +148,7 @@ class Manager(manager.Manager):
         return token_ref
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.token.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def _get_token(self, token_id):
         # Only ever use the "unique" id in the cache key.
         return self.driver.get_token(token_id)
@@ -178,7 +182,7 @@ class Manager(manager.Manager):
         self.invalidate_revocation_list()
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.token.revocation_cache_time)
+                        expiration_time=REVOCATION_CACHE_EXPIRATION_TIME)
     def list_revoked_tokens(self):
         return self.driver.list_revoked_tokens()
 
