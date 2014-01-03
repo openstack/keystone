@@ -36,16 +36,17 @@ CONF = config.CONF
 class PolicyFileTestCase(tests.TestCase):
     def setUp(self):
         super(PolicyFileTestCase, self).setUp()
+
         self.orig_policy_file = CONF.policy_file
+        # TODO(blk-u): Resetting the conf value here is probably unnecessary
+        # since TestCase clears conf.
+        self.addCleanup(self.opt, policy_file=self.orig_policy_file)
+
         rules.reset()
+        self.addCleanup(rules.reset)
         _unused, self.tmpfilename = tempfile.mkstemp()
         self.opt(policy_file=self.tmpfilename)
         self.target = {}
-
-    def tearDown(self):
-        super(PolicyFileTestCase, self).tearDown()
-        rules.reset()
-        self.opt(policy_file=self.orig_policy_file)
 
     def test_modified_policy_reloads(self):
         action = "example:test"
@@ -65,6 +66,7 @@ class PolicyTestCase(tests.TestCase):
     def setUp(self):
         super(PolicyTestCase, self).setUp()
         rules.reset()
+        self.addCleanup(rules.reset)
         # NOTE(vish): preload rules to circumvent reloading from file
         rules.init()
         self.rules = {
@@ -93,10 +95,6 @@ class PolicyTestCase(tests.TestCase):
             dict((k, common_policy.parse_rule(v))
                  for k, v in self.rules.items()))
         rules._ENFORCER.set_rules(these_rules)
-
-    def tearDown(self):
-        rules.reset()
-        super(PolicyTestCase, self).tearDown()
 
     def test_enforce_nonexistent_action_throws(self):
         action = "example:noexist"
@@ -165,6 +163,7 @@ class DefaultPolicyTestCase(tests.TestCase):
     def setUp(self):
         super(DefaultPolicyTestCase, self).setUp()
         rules.reset()
+        self.addCleanup(rules.reset)
         rules.init()
 
         self.rules = {
@@ -181,6 +180,8 @@ class DefaultPolicyTestCase(tests.TestCase):
         # Oslo policy as we shoudn't have to reload the rules if they have
         # already been set using set_rules().
         self._old_load_rules = rules._ENFORCER.load_rules
+        self.addCleanup(setattr, rules._ENFORCER, 'load_rules',
+                        self._old_load_rules)
         setattr(rules._ENFORCER, 'load_rules', lambda *args, **kwargs: None)
 
     def _set_rules(self, default_rule):
@@ -188,11 +189,6 @@ class DefaultPolicyTestCase(tests.TestCase):
             dict((k, common_policy.parse_rule(v))
                  for k, v in self.rules.items()), default_rule)
         rules._ENFORCER.set_rules(these_rules)
-
-    def tearDown(self):
-        super(DefaultPolicyTestCase, self).tearDown()
-        rules._ENFORCER.load_rules = self._old_load_rules
-        rules.reset()
 
     def test_policy_called(self):
         self.assertRaises(exception.ForbiddenAction, rules.enforce,

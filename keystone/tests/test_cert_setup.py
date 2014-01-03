@@ -53,6 +53,14 @@ class CertSetupTestCase(tests.TestCase):
         self.load_fixtures(default_fixtures)
         self.controller = token.controllers.Auth()
 
+        def cleanup_ssldir():
+            try:
+                shutil.rmtree(SSLDIR)
+            except OSError:
+                pass
+
+        self.addCleanup(cleanup_ssldir)
+
     def test_can_handle_missing_certs(self):
         self.opt_in_group('signing', certfile='invalid')
         user = {
@@ -85,10 +93,3 @@ class CertSetupTestCase(tests.TestCase):
         self.assertTrue(os.path.exists(CONF.ssl.ca_certs))
         self.assertTrue(os.path.exists(CONF.ssl.certfile))
         self.assertTrue(os.path.exists(CONF.ssl.keyfile))
-
-    def tearDown(self):
-        try:
-            shutil.rmtree(SSLDIR)
-        except OSError:
-            pass
-        super(CertSetupTestCase, self).tearDown()

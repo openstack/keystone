@@ -1019,15 +1019,14 @@ class LdapIdentitySqlAssignment(sql.Base, tests.TestCase, BaseLDAPIdentity):
         self.load_backends()
         cache.configure_cache_region(cache.REGION)
         self.engine = session.get_engine()
+        self.addCleanup(session.cleanup)
+
         sql.ModelBase.metadata.create_all(bind=self.engine)
+        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+
         self.load_fixtures(default_fixtures)
         #defaulted by the data load
         self.user_foo['enabled'] = True
-
-    def tearDown(self):
-        sql.ModelBase.metadata.drop_all(bind=self.engine)
-        session.cleanup()
-        super(LdapIdentitySqlAssignment, self).tearDown()
 
     def test_domain_crud(self):
         pass
@@ -1068,8 +1067,13 @@ class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
 
         self._set_config()
         self.load_backends()
+
         self.engine = session.get_engine()
+        self.addCleanup(session.cleanup)
+
         sql.ModelBase.metadata.create_all(bind=self.engine)
+        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+
         self._setup_domain_test_data()
 
         # All initial domain data setup complete, time to switch on support
@@ -1077,24 +1081,23 @@ class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
 
         self.orig_config_domains_enabled = (
             config.CONF.identity.domain_specific_drivers_enabled)
+        self.addCleanup(
+            self.opt_in_group, 'identity',
+            domain_specific_drivers_enabled=self.orig_config_domains_enabled)
         self.opt_in_group('identity', domain_specific_drivers_enabled=True)
+
         self.orig_config_dir = (
             config.CONF.identity.domain_config_dir)
+        self.addCleanup(self.opt_in_group, 'identity',
+                        domain_config_dir=self.orig_config_dir)
         self.opt_in_group('identity', domain_config_dir=tests.TESTSDIR)
+
         self._set_domain_configs()
         self.clear_database()
         self.load_fixtures(default_fixtures)
 
-    def tearDown(self):
-        super(MultiLDAPandSQLIdentity, self).tearDown()
-        self.opt_in_group(
-            'identity',
-            domain_config_dir=self.orig_config_dir)
-        self.opt_in_group(
-            'identity',
-            domain_specific_drivers_enabled=self.orig_config_domains_enabled)
-        sql.ModelBase.metadata.drop_all(bind=self.engine)
-        session.cleanup()
+        # TODO(blk-u): the addCleanup of config options above is probably
+        # unnecessary since TestCase resets config.
 
     def _set_config(self):
         self.config([tests.dirs.etc('keystone.conf.sample'),

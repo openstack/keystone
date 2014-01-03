@@ -57,19 +57,18 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         # Initialize the policy engine and allow us to write to a temp
         # file in each test to create the policies
         self.orig_policy_file = CONF.policy_file
+        self.addCleanup(rules.reset)
         rules.reset()
         _unused, self.tmpfilename = tempfile.mkstemp()
+
+        #TODO(blk-u): This seems unnecessary since TestCase resets conf.
+        self.addCleanup(self.opt, policy_file=self.orig_policy_file)
         self.opt(policy_file=self.tmpfilename)
 
         # A default auth request we can use - un-scoped user token
         self.auth = self.build_authentication_request(
             user_id=self.user1['id'],
             password=self.user1['password'])
-
-    def tearDown(self):
-        super(IdentityTestProtectedCase, self).tearDown()
-        rules.reset()
-        self.opt(policy_file=self.orig_policy_file)
 
     def load_sample_data(self):
         # Start by creating a couple of domains
@@ -413,6 +412,10 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         # Finally, switch to the v3 sample policy file
         self.orig_policy_file = CONF.policy_file
+        self.addCleanup(self.opt, policy_file=self.orig_policy_file)
+        # TODO(blk-u): Resetting the conf setting is probably unnecessary since
+        # TestCase does it.
+        self.addCleanup(rules.reset)
         rules.reset()
         self.opt(policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
 
@@ -474,11 +477,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.just_a_user['id'],
                                          project_id=self.project['id'])
-
-    def tearDown(self):
-        super(IdentityTestv3CloudPolicySample, self).tearDown()
-        rules.reset()
-        self.opt(policy_file=self.orig_policy_file)
 
     def _stati(self, expected_status):
         # Return the expected return codes for APIs with and without data

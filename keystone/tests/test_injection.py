@@ -21,9 +21,9 @@ from keystone.common import dependency
 
 
 class TestDependencyInjection(testtools.TestCase):
-    def tearDown(self):
-        dependency.reset()
-        super(TestDependencyInjection, self).tearDown()
+    def setUp(self):
+        super(TestDependencyInjection, self).setUp()
+        self.addCleanup(dependency.reset)
 
     def test_dependency_injection(self):
         class Interface(object):

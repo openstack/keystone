@@ -73,6 +73,7 @@ class RestfulTestCase(rest.RestfulTestCase):
 
         """
         new_paste_file = self.generate_paste_config()
+        self.addCleanup(self.remove_generated_paste_config)
         if new_paste_file:
             app_conf = 'config:%s' % (new_paste_file)
 
@@ -80,15 +81,17 @@ class RestfulTestCase(rest.RestfulTestCase):
 
         self.empty_context = {'environment': {}}
 
-    def tearDown(self):
-        self.teardown_database()
-        self.remove_generated_paste_config()
-        # need to reset the plug-ins
-        auth.controllers.AUTH_METHODS = {}
         #drop the policy rules
-        CONF.reset()
-        rules.reset()
-        super(RestfulTestCase, self).tearDown()
+        self.addCleanup(rules.reset)
+
+        # TODO(blk-u): check if the following line is necessary and remove if
+        # it's not. TestCase already does CONF.reset.
+        self.addCleanup(CONF.reset)
+
+        # need to reset the plug-ins
+        self.addCleanup(setattr, auth.controllers, 'AUTH_METHODS', {})
+
+        self.addCleanup(self.teardown_database)
 
     def load_backends(self):
         self.config(self.config_files())
