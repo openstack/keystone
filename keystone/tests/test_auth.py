@@ -64,7 +64,6 @@ class AuthTest(tests.TestCase):
     def setUp(self):
         super(AuthTest, self).setUp()
 
-        CONF.identity.driver = 'keystone.identity.backends.kvs.Identity'
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
