@@ -158,7 +158,7 @@ class Driver(object):
         """Update consumer.
 
         :param consumer_id: id of consumer to update
-        :type consumer_ref: string
+        :type consumer_id: string
         :param consumer_ref: new consumer ref with consumer name
         :type consumer_ref: dict
         :returns: consumer_ref
@@ -181,7 +181,7 @@ class Driver(object):
         and description.
 
         :param consumer_id: id of consumer to get
-        :type consumer_ref: string
+        :type consumer_id: string
         :returns: consumer_ref
 
         """
@@ -196,7 +196,7 @@ class Driver(object):
         consumer secret is required to verify incoming OAuth requests.
 
         :param consumer_id: id of consumer to get
-        :type consumer_ref: string
+        :type consumer_id: string
         :returns: consumer_ref
 
         """
@@ -207,7 +207,7 @@ class Driver(object):
         """Delete consumer.
 
         :param consumer_id: id of consumer to get
-        :type consumer_ref: string
+        :type consumer_id: string
         :returns: None.
 
         """
