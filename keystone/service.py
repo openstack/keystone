@@ -21,7 +21,6 @@ from keystone import assignment
 from keystone import auth
 from keystone import catalog
 from keystone.common import cache
-from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
 from keystone.contrib import endpoint_filter
@@ -43,7 +42,7 @@ LOG = logging.getLogger(__name__)
 cache.configure_cache_region(cache.REGION)
 
 
-def load_backends(include_oauth1=False):
+def load_backends():
 
     # Ensure that the identity driver is created before the assignment manager.
     # The default assignment driver is determined by the identity driver, so
@@ -60,12 +59,6 @@ def load_backends(include_oauth1=False):
         token_api=token.Manager(),
         trust_api=trust.Manager(),
         token_provider_api=token.provider.Manager())
-
-    if include_oauth1:
-        from keystone.contrib import oauth1
-        DRIVERS['oauth1_api'] = oauth1.Manager()
-
-    dependency.resolve_future_dependencies()
 
     return DRIVERS
 

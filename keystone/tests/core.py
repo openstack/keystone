@@ -349,7 +349,14 @@ class TestCase(testtools.TestCase):
         # should eventually be removed once testing has been cleaned up.
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
-        drivers = service.load_backends(include_oauth1=True)
+        drivers = service.load_backends()
+
+        # TODO(stevemar): currently, load oauth1 driver as well, eventually
+        # we need to have this as optional.
+        from keystone.contrib import oauth1
+        drivers['oauth1_api'] = oauth1.Manager()
+
+        dependency.resolve_future_dependencies()
 
         for manager_name, manager in drivers.iteritems():
             setattr(self, manager_name, manager)

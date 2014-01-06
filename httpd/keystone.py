@@ -26,6 +26,7 @@ from keystone.openstack.common import gettextutils
 # contain static translated strings.
 gettextutils.install('keystone')
 
+from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql
 from keystone import config
@@ -54,3 +55,5 @@ drivers = service.load_backends()
 # http://pythonpaste.org/deploy/
 application = deploy.loadapp('config:%s' % config.find_paste_config(),
                              name=name)
+
+dependency.resolve_future_dependencies()
