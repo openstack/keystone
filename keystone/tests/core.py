@@ -370,6 +370,9 @@ class TestCase(testtools.TestCase):
         from keystone.contrib import oauth1
         drivers['oauth1_api'] = oauth1.Manager()
 
+        from keystone.contrib import federation
+        drivers['federation_api'] = federation.Manager()
+
         dependency.resolve_future_dependencies()
 
         for manager_name, manager in drivers.iteritems():

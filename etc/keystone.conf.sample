@@ -344,6 +344,9 @@
 # Specify how quickly the access token will expire (in seconds)
 # access_token_duration = 86400
 
+[federation]
+#driver = keystone.contrib.federation.backends.sql.Federation
+
 [ssl]
 #enable = True
 #certfile = /etc/keystone/ssl/certs/keystone.pem
