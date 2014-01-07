@@ -43,9 +43,14 @@ from keystone.openstack.common import gettextutils
 # Accept-Language in the request rather than the Keystone server locale.
 gettextutils.install('keystone', lazy=True)
 
+# NOTE(ayoung)
+# environment.use_eventlet must run before any of the code that will
+# call the eventlet monkeypatching.
+from keystone.common import environment
+environment.use_eventlet()
+
 from keystone.common import cache
 from keystone.common import dependency
-from keystone.common import environment
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
