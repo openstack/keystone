@@ -60,7 +60,6 @@ class Trust(sql.Base, trust.Driver):
                 trust_role.role_id = role['id']
                 added_roles.append({'id': role['id']})
                 session.add(trust_role)
-            session.flush()
         trust_dict = ref.to_dict()
         trust_dict['roles'] = added_roles
         return trust_dict
@@ -118,4 +117,3 @@ class Trust(sql.Base, trust.Driver):
             if not trust_ref:
                 raise exception.TrustNotFound(trust_id=trust_id)
             trust_ref.deleted_at = timeutils.utcnow()
-            session.flush()

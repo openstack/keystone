@@ -44,7 +44,6 @@ class EndpointFilter(sql.Base):
             endpoint_filter_ref = ProjectEndpoint(endpoint_id=endpoint_id,
                                                   project_id=project_id)
             session.add(endpoint_filter_ref)
-            session.flush()
 
     def _get_project_endpoint_ref(self, session, endpoint_id, project_id):
         endpoint_filter_ref = session.query(ProjectEndpoint).get(
@@ -66,7 +65,6 @@ class EndpointFilter(sql.Base):
             session, endpoint_id, project_id)
         with session.begin():
             session.delete(endpoint_filter_ref)
-            session.flush()
 
     def list_endpoints_for_project(self, project_id):
         session = self.get_session()

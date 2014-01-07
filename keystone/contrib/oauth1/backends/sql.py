@@ -108,7 +108,6 @@ class OAuth1(sql.Base):
         with session.begin():
             consumer_ref = Consumer.from_dict(consumer)
             session.add(consumer_ref)
-            session.flush()
         return consumer_ref.to_dict()
 
     def _delete_consumer(self, session, consumer_id):
@@ -146,7 +145,6 @@ class OAuth1(sql.Base):
             self._delete_request_tokens(session, consumer_id)
             self._delete_access_tokens(session, consumer_id)
             self._delete_consumer(session, consumer_id)
-            session.flush()
 
     def list_consumers(self):
         session = self.get_session()
@@ -162,7 +160,6 @@ class OAuth1(sql.Base):
             new_consumer = Consumer.from_dict(old_consumer_dict)
             consumer_ref.description = new_consumer.description
             consumer_ref.extra = new_consumer.extra
-            session.flush()
         return core.filter_consumer(consumer_ref.to_dict())
 
     def create_request_token(self, consumer_id, project_id, token_duration):
@@ -186,7 +183,6 @@ class OAuth1(sql.Base):
         with session.begin():
             token_ref = RequestToken.from_dict(ref)
             session.add(token_ref)
-            session.flush()
         return token_ref.to_dict()
 
     def _get_request_token(self, session, request_token_id):
@@ -216,7 +212,6 @@ class OAuth1(sql.Base):
                         or attr == 'role_ids'):
                     setattr(token_ref, attr, getattr(new_token, attr))
 
-            session.flush()
         return token_ref.to_dict()
 
     def create_access_token(self, request_token_id, token_duration):
@@ -250,7 +245,6 @@ class OAuth1(sql.Base):
             q.delete(False)
             session.delete(req_token_ref)
 
-            session.flush()
         return token_ref.to_dict()
 
     def _get_access_token(self, session, access_token_id):
@@ -283,4 +277,3 @@ class OAuth1(sql.Base):
             q.delete(False)
 
             session.delete(token_ref)
-            session.flush()

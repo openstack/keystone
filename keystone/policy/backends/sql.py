@@ -41,7 +41,6 @@ class Policy(sql.Base, rules.Policy):
         with session.begin():
             ref = PolicyModel.from_dict(policy)
             session.add(ref)
-            session.flush()
 
         return ref.to_dict()
 
@@ -75,7 +74,6 @@ class Policy(sql.Base, rules.Policy):
             ref.blob = new_policy.blob
             ref.type = new_policy.type
             ref.extra = new_policy.extra
-            session.flush()
 
         return ref.to_dict()
 
@@ -85,4 +83,3 @@ class Policy(sql.Base, rules.Policy):
         with session.begin():
             ref = self._get_policy(session, policy_id)
             session.delete(ref)
-            session.flush()

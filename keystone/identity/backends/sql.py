@@ -117,7 +117,6 @@ class Identity(sql.Base, identity.Driver):
         with session.begin():
             user_ref = User.from_dict(user)
             session.add(user_ref)
-            session.flush()
         return identity.filter_user(user_ref.to_dict())
 
     def list_users(self):
@@ -163,7 +162,6 @@ class Identity(sql.Base, identity.Driver):
                 if attr != 'id':
                     setattr(user_ref, attr, getattr(new_user, attr))
             user_ref.extra = new_user.extra
-            session.flush()
         return identity.filter_user(user_ref.to_dict(include_extra_dict=True))
 
     def add_user_to_group(self, user_id, group_id):
@@ -180,7 +178,6 @@ class Identity(sql.Base, identity.Driver):
         with session.begin():
             session.add(UserGroupMembership(user_id=user_id,
                                             group_id=group_id))
-            session.flush()
 
     def check_user_in_group(self, user_id, group_id):
         session = self.get_session()
@@ -204,7 +201,6 @@ class Identity(sql.Base, identity.Driver):
             raise exception.NotFound('User not found in group')
         with session.begin():
             session.delete(membership_ref)
-            session.flush()
 
     def list_groups_for_user(self, user_id):
         session = self.get_session()
@@ -232,7 +228,6 @@ class Identity(sql.Base, identity.Driver):
             q.delete(False)
 
             session.delete(ref)
-            session.flush()
         self.assignment_api.delete_user(user_id)
 
     # group crud
@@ -243,7 +238,6 @@ class Identity(sql.Base, identity.Driver):
         with session.begin():
             ref = Group.from_dict(group)
             session.add(ref)
-            session.flush()
         return ref.to_dict()
 
     def list_groups(self):
@@ -275,7 +269,6 @@ class Identity(sql.Base, identity.Driver):
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_group, attr))
             ref.extra = new_group.extra
-            session.flush()
         return ref.to_dict()
 
     def delete_group(self, group_id):
@@ -289,5 +282,4 @@ class Identity(sql.Base, identity.Driver):
             q.delete(False)
 
             session.delete(ref)
-            session.flush()
         self.assignment_api.delete_group(group_id)

@@ -45,7 +45,6 @@ class Credential(sql.Base, credential.Driver):
         with session.begin():
             ref = CredentialModel.from_dict(credential)
             session.add(ref)
-            session.flush()
         return ref.to_dict()
 
     def list_credentials(self, **filters):
@@ -79,7 +78,6 @@ class Credential(sql.Base, credential.Driver):
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_credential, attr))
             ref.extra = new_credential.extra
-            session.flush()
         return ref.to_dict()
 
     def delete_credential(self, credential_id):
@@ -88,7 +86,6 @@ class Credential(sql.Base, credential.Driver):
         with session.begin():
             ref = self._get_credential(session, credential_id)
             session.delete(ref)
-            session.flush()
 
     def delete_credentials_for_project(self, project_id):
         session = self.get_session()
