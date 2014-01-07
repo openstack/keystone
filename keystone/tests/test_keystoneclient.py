@@ -46,10 +46,10 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
         # be addressed allowing for non-SQL based testing to occur.
         self.load_backends()
         self.engine = session.get_engine()
-        sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(session.cleanup)
         self.addCleanup(sql.ModelBase.metadata.drop_all,
                         bind=self.engine)
+        sql.ModelBase.metadata.create_all(bind=self.engine)
 
     def setUp(self):
         super(CompatTestCase, self).setUp()

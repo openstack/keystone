@@ -431,8 +431,8 @@ class Manager(manager.Manager):
         # We get the list of users before we attempt the group
         # deletion, so that we can remove these tokens after we know
         # the group deletion succeeded.
-        user_ids = [u['id']
-                    for u in self.list_users_in_group(group_id, domain_scope)]
+        user_ids = [
+            u['id'] for u in self.list_users_in_group(group_id, domain_scope)]
         self.token_api.delete_tokens_for_users(user_ids)
         driver.delete_group(group_id)
 
