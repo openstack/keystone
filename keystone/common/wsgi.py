@@ -27,6 +27,7 @@ import webob.dec
 import webob.exc
 
 from keystone.common import config
+from keystone.common import dependency
 from keystone.common import utils
 from keystone import exception
 from keystone.openstack.common import gettextutils
@@ -177,6 +178,7 @@ class BaseApplication(object):
         raise NotImplementedError('You must implement __call__')
 
 
+@dependency.requires('assignment_api', 'policy_api', 'token_api')
 class Application(BaseApplication):
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):

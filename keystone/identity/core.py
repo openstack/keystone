@@ -191,7 +191,7 @@ def domains_configured(f):
 
 
 @dependency.provider('identity_api')
-@dependency.requires('assignment_api')
+@dependency.requires('assignment_api', 'credential_api', 'token_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
@@ -373,6 +373,8 @@ class Manager(manager.Manager):
         if not driver.is_domain_aware():
             user = self._clear_domain_id(user)
         ref = driver.update_user(user_id, user)
+        if user.get('enabled') is False or user.get('password') is not None:
+            self.token_api.delete_tokens_for_user(user_id)
         if not driver.is_domain_aware():
             ref = self._set_domain_id(ref, domain_id)
         return ref
@@ -382,6 +384,8 @@ class Manager(manager.Manager):
     def delete_user(self, user_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
         driver.delete_user(user_id)
+        self.credential_api.delete_credentials_for_user(user_id)
+        self.token_api.delete_tokens_for_user(user_id)
 
     @notifications.created('group')
     @domains_configured
@@ -422,17 +426,27 @@ class Manager(manager.Manager):
     @domains_configured
     def delete_group(self, group_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
+        # As well as deleting the group, we need to invalidate
+        # any tokens for the users who are members of the group.
+        # We get the list of users before we attempt the group
+        # deletion, so that we can remove these tokens after we know
+        # the group deletion succeeded.
+        user_ids = [u['id']
+                    for u in self.list_users_in_group(group_id, domain_scope)]
+        self.token_api.delete_tokens_for_users(user_ids)
         driver.delete_group(group_id)
 
     @domains_configured
     def add_user_to_group(self, user_id, group_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
         driver.add_user_to_group(user_id, group_id)
+        self.token_api.delete_tokens_for_user(user_id)
 
     @domains_configured
     def remove_user_from_group(self, user_id, group_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
         driver.remove_user_from_group(user_id, group_id)
+        self.token_api.delete_tokens_for_user(user_id)
 
     @domains_configured
     def list_groups_for_user(self, user_id, domain_scope=None):

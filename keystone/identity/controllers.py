@@ -182,10 +182,6 @@ class User(controller.V2Controller):
         user_ref = self.identity_api.v3_to_v2_user(
             self.identity_api.update_user(user_id, user))
 
-        if user.get('password') or not user.get('enabled', True):
-        # If the password was changed or the user was disabled we clear tokens
-            self._delete_tokens_for_user(user_id)
-
         # If 'tenantId' is in either ref, we might need to add or remove the
         # user from a project.
         if 'tenantId' in user_ref or 'tenantId' in old_user_ref:
@@ -230,7 +226,6 @@ class User(controller.V2Controller):
     def delete_user(self, context, user_id):
         self.assert_admin(context)
         self.identity_api.delete_user(user_id)
-        self._delete_tokens_for_user(user_id)
 
     @controller.v2_deprecated
     def set_user_enabled(self, context, user_id, user):
@@ -254,7 +249,7 @@ class User(controller.V2Controller):
         return ref
 
 
-@dependency.requires('identity_api', 'credential_api')
+@dependency.requires('identity_api')
 class UserV3(controller.V3Controller):
     collection_name = 'users'
     member_name = 'user'
@@ -303,11 +298,6 @@ class UserV3(controller.V3Controller):
         self._require_matching_id(user_id, user)
         ref = self.identity_api.update_user(
             user_id, user, domain_scope=domain_scope)
-
-        if user.get('password') or not user.get('enabled', True):
-            # revoke all tokens owned by this user
-            self._delete_tokens_for_user(user_id)
-
         return UserV3.wrap_member(context, ref)
 
     @controller.protected()
@@ -320,9 +310,6 @@ class UserV3(controller.V3Controller):
         self.identity_api.add_user_to_group(
             user_id, group_id,
             domain_scope=self._get_domain_id_for_request(context))
-        # Delete any tokens so that group membership can have an
-        # immediate effect
-        self._delete_tokens_for_user(user_id)
 
     @controller.protected(callback=_check_user_and_group_protection)
     def check_user_in_group(self, context, user_id, group_id):
@@ -335,15 +322,11 @@ class UserV3(controller.V3Controller):
         self.identity_api.remove_user_from_group(
             user_id, group_id,
             domain_scope=self._get_domain_id_for_request(context))
-        self._delete_tokens_for_user(user_id)
 
     @controller.protected()
     def delete_user(self, context, user_id):
-        # Delete any credentials that reference this user
-        self.credential_api.delete_credentials_for_user(user_id)
         # Make sure any tokens are marked as deleted
         domain_id = self._get_domain_id_for_request(context)
-        self._delete_tokens_for_user(user_id)
         # Finally delete the user itself - the backend is
         # responsible for deleting any role assignments related
         # to this user
@@ -422,17 +405,8 @@ class GroupV3(controller.V3Controller):
 
     @controller.protected()
     def delete_group(self, context, group_id):
-        # As well as deleting the group, we need to invalidate
-        # any tokens for the users who are members of the group.
-        # We get the list of users before we attempt the group
-        # deletion, so that we can remove these tokens after we know
-        # the group deletion succeeded.
         domain_id = self._get_domain_id_for_request(context)
-        user_refs = self.identity_api.list_users_in_group(
-            group_id, domain_scope=domain_id)
         self.identity_api.delete_group(group_id, domain_scope=domain_id)
-        for user in user_refs:
-            self._delete_tokens_for_user(user['id'])
 
 
 # TODO(morganfainberg): Remove proxy compat classes once Icehouse is released.
