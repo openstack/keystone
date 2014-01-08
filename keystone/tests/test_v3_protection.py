@@ -595,6 +595,16 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         self._test_user_management(self.domainA['id'])
 
+    def test_user_management_by_cloud_admin(self):
+        # Test users management with a cloud admin. This user should
+        # be able to manage users in any domain.
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            domain_id=self.admin_domain['id'])
+
+        self._test_user_management(self.domainA['id'])
+
     def test_project_management(self):
         # First, authentication with a user that does not have the project
         # admin role - houldn't be able to do much.
@@ -636,6 +646,16 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         self._test_grants('domains', self.domainA['id'])
 
+    def test_domain_grants_by_cloud_admin(self):
+        # Test domain grants with a cloud admin. This user should be
+        # able to manage roles on any domain.
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            domain_id=self.admin_domain['id'])
+
+        self._test_grants('domains', self.domainA['id'])
+
     def test_project_grants(self):
         self.auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
@@ -650,6 +670,16 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
             user_id=self.project_admin_user['id'],
             password=self.project_admin_user['password'],
             project_id=self.project['id'])
+
+        self._test_grants('projects', self.project['id'])
+
+    def test_project_grants_by_domain_admin(self):
+        # Test project grants with a domain admin. This user should be
+        # able to manage roles on any project in its own domain.
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
 
         self._test_grants('projects', self.project['id'])
 
