@@ -220,12 +220,6 @@ def filterprotected(*filters):
 
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
-    def _require_attribute(self, ref, attr):
-        """Ensures the reference contains the specified attribute."""
-        if ref.get(attr) is None or ref.get(attr) == '':
-            msg = '%s field is required and cannot be empty' % attr
-            raise exception.ValidationError(message=msg)
-
     def _normalize_domain_id(self, context, ref):
         """Fill in domain_id since v2 calls are not domain-aware.
 
@@ -244,7 +238,7 @@ class V2Controller(wsgi.Application):
 
 
 @dependency.requires('policy_api', 'token_api')
-class V3Controller(V2Controller):
+class V3Controller(wsgi.Application):
     """Base controller class for Identity API v3.
 
     Child classes should set the ``collection_name`` and ``member_name`` class

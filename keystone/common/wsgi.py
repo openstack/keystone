@@ -283,6 +283,12 @@ class Application(BaseApplication):
             # Accept either is_admin or the admin role
             self.policy_api.enforce(creds, 'admin_required', {})
 
+    def _require_attribute(self, ref, attr):
+        """Ensures the reference contains the specified attribute."""
+        if ref.get(attr) is None or ref.get(attr) == '':
+            msg = '%s field is required and cannot be empty' % attr
+            raise exception.ValidationError(message=msg)
+
 
 class Middleware(Application):
     """Base WSGI middleware.
