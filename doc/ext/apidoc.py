@@ -17,7 +17,6 @@
 # NOTE(dstanek): Uncomment the [pbr] section in setup.cfg and remove this
 # Sphinx extension when https://launchpad.net/bugs/1260495 is fixed.
 
-import functools
 import os.path as path
 
 from sphinx import apidoc
