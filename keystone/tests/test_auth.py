@@ -617,7 +617,7 @@ class AuthWithTrust(AuthTest):
         self.create_trust(expires_at=expires_at)
 
     def create_trust(self, expires_at=None, impersonation=True):
-        username = self.trustor['name'],
+        username = self.trustor['name']
         password = 'foo2'
         body_dict = _build_user_auth(username=username, password=password)
         self.unscoped_token = self.controller.authenticate({}, body_dict)
