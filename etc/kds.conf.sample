@@ -1,0 +1,238 @@
+[DEFAULT]
+
+#
+# Options defined in keystone.contrib.kds.common.service
+#
+
+# IP for the server to bind to (string value)
+#bind_ip=0.0.0.0
+
+# The port for the server (integer value)
+#port=9109
+
+#
+# Options defined in keystone.openstack.common.db.sqlalchemy.session
+#
+
+# the filename to use with sqlite (string value)
+#sqlite_db=keystone.sqlite
+
+# If true, use synchronous mode for sqlite (boolean value)
+#sqlite_synchronous=true
+
+#
+# Options defined in keystone.openstack.common.eventlet_backdoor
+#
+
+# Enable eventlet backdoor.  Acceptable values are 0, <port>,
+# and <start>:<end>, where 0 results in listening on a random
+# tcp port number; <port> results in listening on the
+# specified port number (and not enabling backdoor if that
+# port is in use); and <start>:<end> results in listening on
+# the smallest unused port number within the specified range
+# of port numbers.  The chosen port is displayed in the
+# service's log file. (string value)
+#backdoor_port=<None>
+
+#
+# Options defined in keystone.openstack.common.lockutils
+#
+
+# Whether to disable inter-process locks (boolean value)
+#disable_process_locking=false
+
+# Directory to use for lock files. (string value)
+#lock_path=<None>
+
+#
+# Options defined in keystone.openstack.common.log
+#
+
+# Print debugging output (set logging level to DEBUG instead
+# of default WARNING level). (boolean value)
+#debug=false
+
+# Print more verbose output (set logging level to INFO instead
+# of default WARNING level). (boolean value)
+#verbose=false
+
+# Log output to standard error (boolean value)
+#use_stderr=true
+
+# format string to use for log messages with context (string
+# value)
+#logging_context_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s
+
+# format string to use for log messages without context
+# (string value)
+#logging_default_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
+
+# data to append to log format when level is DEBUG (string
+# value)
+#logging_debug_format_suffix=%(funcName)s %(pathname)s:%(lineno)d
+
+# prefix each line of exception output with this format
+# (string value)
+#logging_exception_prefix=%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
+
+# list of logger=LEVEL pairs (list value)
+#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,keystone=INFO,qpid=WARN,sqlalchemy=WARN,suds=INFO,iso8601=WARN
+
+# publish error events (boolean value)
+#publish_errors=false
+
+# make deprecations fatal (boolean value)
+#fatal_deprecations=false
+
+# If an instance is passed with the log message, format it
+# like this (string value)
+#instance_format="[instance: %(uuid)s] "
+
+# If an instance UUID is passed with the log message, format
+# it like this (string value)
+#instance_uuid_format="[instance: %(uuid)s] "
+
+# The name of logging configuration file. It does not disable
+# existing loggers, but just appends specified logging
+# configuration to any other existing logging options. Please
+# see the Python logging module documentation for details on
+# logging configuration files. (string value)
+# Deprecated group/name - [DEFAULT]/log_config
+#log_config_append=<None>
+
+# DEPRECATED. A logging.Formatter log message format string
+# which may use any of the available logging.LogRecord
+# attributes. This option is deprecated.  Please use
+# logging_context_format_string and
+# logging_default_format_string instead. (string value)
+#log_format=<None>
+
+# Format string for %%(asctime)s in log records. Default:
+# %(default)s (string value)
+#log_date_format=%Y-%m-%d %H:%M:%S
+
+# (Optional) Name of log file to output to. If no default is
+# set, logging will go to stdout. (string value)
+# Deprecated group/name - [DEFAULT]/logfile
+#log_file=<None>
+
+# (Optional) The base directory used for relative --log-file
+# paths (string value)
+# Deprecated group/name - [DEFAULT]/logdir
+#log_dir=<None>
+
+# Use syslog for logging. (boolean value)
+#use_syslog=false
+
+# syslog facility to receive log lines (string value)
+#syslog_log_facility=LOG_USER
+
+#
+# Options defined in keystone.openstack.common.policy
+#
+
+# JSON file containing policy (string value)
+#policy_file=policy.json
+
+# Rule enforced when requested rule is not found (string
+# value)
+#policy_default_rule=default
+
+[ssl]
+
+#
+# Options defined in keystone.openstack.common.sslutils
+#
+
+# CA certificate file to use to verify connecting clients
+# (string value)
+#ca_file=<None>
+
+# Certificate file to use when starting the server securely
+# (string value)
+#cert_file=<None>
+
+# Private key file to use when starting the server securely
+# (string value)
+#key_file=<None>
+
+[database]
+
+#
+# Options defined in keystone.openstack.common.db.api
+#
+
+# The backend to use for db (string value)
+# Deprecated group/name - [DEFAULT]/db_backend
+#backend=sqlalchemy
+
+# Enable the experimental use of thread pooling for all DB API
+# calls (boolean value)
+# Deprecated group/name - [DEFAULT]/dbapi_use_tpool
+#use_tpool=false
+
+#
+# Options defined in keystone.openstack.common.db.sqlalchemy.session
+#
+
+# The SQLAlchemy connection string used to connect to the
+# database (string value)
+# Deprecated group/name - [DEFAULT]/sql_connection
+# Deprecated group/name - [DATABASE]/sql_connection
+# Deprecated group/name - [sql]/connection
+#connection=sqlite:////keystone/openstack/common/db/$sqlite_db
+
+# The SQLAlchemy connection string used to connect to the
+# slave database (string value)
+#slave_connection=
+
+# timeout before idle sql connections are reaped (integer
+# value)
+# Deprecated group/name - [DEFAULT]/sql_idle_timeout
+# Deprecated group/name - [DATABASE]/sql_idle_timeout
+#idle_timeout=3600
+
+# Minimum number of SQL connections to keep open in a pool
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_min_pool_size
+# Deprecated group/name - [DATABASE]/sql_min_pool_size
+#min_pool_size=1
+
+# Maximum number of SQL connections to keep open in a pool
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_pool_size
+# Deprecated group/name - [DATABASE]/sql_max_pool_size
+#max_pool_size=<None>
+
+# maximum db connection retries during startup. (setting -1
+# implies an infinite retry count) (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_retries
+# Deprecated group/name - [DATABASE]/sql_max_retries
+#max_retries=10
+
+# interval between retries of opening a sql connection
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_retry_interval
+# Deprecated group/name - [DATABASE]/reconnect_interval
+#retry_interval=10
+
+# If set, use this value for max_overflow with sqlalchemy
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_overflow
+# Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
+#max_overflow=<None>
+
+# Verbosity of SQL debugging information. 0=None,
+# 100=Everything (integer value)
+# Deprecated group/name - [DEFAULT]/sql_connection_debug
+#connection_debug=0
+
+# Add python stack traces to SQL as comment strings (boolean
+# value)
+# Deprecated group/name - [DEFAULT]/sql_connection_trace
+#connection_trace=false
+
+# If set, use this value for pool_timeout with sqlalchemy
+# (integer value)
+# Deprecated group/name - [DATABASE]/sqlalchemy_pool_timeout
+#pool_timeout=<None>

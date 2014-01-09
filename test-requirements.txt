@@ -18,8 +18,6 @@ fixtures>=0.3.14
 # mock object framework
 mock>=1.0
 mox>=0.5.3
-# Optional KVS feature encryption testing
-pycrypto>=2.6
 # required to build documentation
 sphinx>=1.1.2,<1.2
 # test wsgi apps without starting an http server
