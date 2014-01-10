@@ -297,8 +297,9 @@ class Manager(manager.Manager):
         # explicitly forbid deleting the default domain (this should be a
         # carefully orchestrated manual process involving configuration
         # changes, etc)
-        if domain_id == DEFAULT_DOMAIN['id']:
-            raise exception.ForbiddenAction(action='delete the default domain')
+        if domain_id == CONF.identity.default_domain_id:
+            raise exception.ForbiddenAction(action=_('delete the default '
+                                                     'domain'))
 
         domain = self.driver.get_domain(domain_id)
 
@@ -308,7 +309,7 @@ class Manager(manager.Manager):
         # to get a valid token to issue this delete.
         if domain['enabled']:
             raise exception.ForbiddenAction(
-                action='delete a domain that is not disabled')
+                action=_('delete a domain that is not disabled'))
 
         self._delete_domain_contents(domain_id)
         self.driver.delete_domain(domain_id)
@@ -351,7 +352,7 @@ class Manager(manager.Manager):
                                'domainid': domain_id})
 
         for group in group_refs:
-            # NOTE(morganfainberg): Cleanup any existing groups.
+            # Cleanup any existing groups.
             if group['domain_id'] == domain_id:
                 try:
                     self.identity_api.delete_group(group['id'],
@@ -414,7 +415,8 @@ class Manager(manager.Manager):
             # the controller. Now error or proper action will always come from
             # the `delete_role` method logic. Work needs to be done to make
             # the behavior between drivers consistent (capable of revoking
-            # tokens for the same circumstances).
+            # tokens for the same circumstances).  This is related to the bug
+            # https://bugs.launchpad.net/keystone/+bug/1221805
             pass
         self.driver.delete_role(role_id)
         self.get_role.invalidate(self, role_id)
