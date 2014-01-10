@@ -73,9 +73,11 @@ class BaseCertificateConfigure(object):
         self.ssl_dictionary.update(kwargs)
 
     def exec_command(self, command):
-        to_exec = command % self.ssl_dictionary
-        LOG.info(to_exec)
-        environment.subprocess.check_call(to_exec.rsplit(' '))
+        to_exec = []
+        for cmd_part in command:
+            to_exec.append(cmd_part % self.ssl_dictionary)
+        LOG.info(' '.join(to_exec))
+        environment.subprocess.check_call(to_exec)
 
     def build_ssl_config_file(self):
         utils.make_dirs(os.path.dirname(self.ssl_config_file_name),
@@ -118,8 +120,9 @@ class BaseCertificateConfigure(object):
                         user=self.use_keystone_user,
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(ca_key_file):
-            self.exec_command('openssl genrsa -out %(ca_private_key)s '
-                              '%(key_size)d')
+            self.exec_command(['openssl', 'genrsa',
+                               '-out', '%(ca_private_key)s',
+                               '%(key_size)d'])
         utils.set_permissions(ca_key_file,
                               mode=PRIVATE_FILE_PERMS,
                               user=self.use_keystone_user,
@@ -131,11 +134,13 @@ class BaseCertificateConfigure(object):
                         user=self.use_keystone_user,
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(ca_cert):
-            self.exec_command('openssl req -new -x509 -extensions v3_ca '
-                              '-key %(ca_private_key)s -out %(ca_cert)s '
-                              '-days %(valid_days)d '
-                              '-config %(ssl_config)s '
-                              '-subj %(cert_subject)s')
+            self.exec_command(['openssl', 'req', '-new', '-x509',
+                               '-extensions', 'v3_ca',
+                               '-key', '%(ca_private_key)s',
+                               '-out', '%(ca_cert)s',
+                               '-days', '%(valid_days)d',
+                               '-config', '%(ssl_config)s',
+                               '-subj', '%(cert_subject)s'])
         utils.set_permissions(ca_cert,
                               mode=PUBLIC_FILE_PERMS,
                               user=self.use_keystone_user,
@@ -148,8 +153,8 @@ class BaseCertificateConfigure(object):
                         user=self.use_keystone_user,
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(signing_keyfile):
-            self.exec_command('openssl genrsa -out %(signing_key)s '
-                              '%(key_size)d ')
+            self.exec_command(['openssl', 'genrsa', '-out', '%(signing_key)s',
+                               '%(key_size)d'])
         utils.set_permissions(signing_keyfile,
                               mode=PRIVATE_FILE_PERMS,
                               user=self.use_keystone_user,
@@ -163,14 +168,18 @@ class BaseCertificateConfigure(object):
                         user=self.use_keystone_user,
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(signing_cert):
-            self.exec_command('openssl req -key %(signing_key)s -new '
-                              '-out %(request_file)s -config %(ssl_config)s '
-                              '-subj %(cert_subject)s')
+            self.exec_command(['openssl', 'req', '-key', '%(signing_key)s',
+                               '-new', '-out', '%(request_file)s',
+                               '-config', '%(ssl_config)s',
+                               '-subj', '%(cert_subject)s'])
 
-            self.exec_command('openssl ca -batch -out %(signing_cert)s '
-                              '-config %(ssl_config)s -days %(valid_days)dd '
-                              '-cert %(ca_cert)s -keyfile %(ca_private_key)s '
-                              '-infiles %(request_file)s')
+            self.exec_command(['openssl', 'ca', '-batch',
+                               '-out', '%(signing_cert)s',
+                               '-config', '%(ssl_config)s',
+                               '-days', '%(valid_days)dd',
+                               '-cert', '%(ca_cert)s',
+                               '-keyfile', '%(ca_private_key)s',
+                               '-infiles', '%(request_file)s'])
 
     def run(self):
         self.build_ssl_config_file()
