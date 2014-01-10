@@ -36,7 +36,5 @@ httplib2
 requests>=1.1
 keyring>=1.6.1,<2.0
 
-netifaces>=0.5
-
 # For documentation
 oslo.sphinx
