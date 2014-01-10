@@ -436,10 +436,6 @@ class Router(object):
           mapper.connect(None, '/v1.0/{path_info:.*}', controller=BlogApp())
 
         """
-        # if we're only running in debug, bump routes' internal logging up a
-        # notch, as it's very spammy
-        if CONF.debug:
-            logging.getLogger('routes.middleware')
 
         self.map = mapper
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,
