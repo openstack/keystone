@@ -336,7 +336,8 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         # When create a user where an attribute maps to None, the entry is
         # created without that attribute and it doesn't fail with a TypeError.
         conf = self.get_config(CONF.identity.default_domain_id)
-        conf.ldap.user_attribute_ignore = 'enabled,email,tenants,tenantId'
+        conf.ldap.user_attribute_ignore = ['enabled', 'email',
+                                           'tenants', 'tenantId']
         self.reload_backends(CONF.identity.default_domain_id)
 
         user = {'id': 'fake1',
