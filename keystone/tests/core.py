@@ -424,9 +424,6 @@ class TestCase(testtools.TestCase):
     def loadapp(self, config, name='main'):
         return deploy.loadapp(self._paste_config(config), name=name)
 
-    def appconfig(self, config):
-        return deploy.appconfig(self._paste_config(config))
-
     def client(self, app, *args, **kw):
         return TestClient(app, *args, **kw)
 
