@@ -490,7 +490,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_list_users_in_group(self):
         """Call ``GET /groups/{group_id}/users``."""
-        r = self.put('/groups/%(group_id)s/users/%(user_id)s' % {
+        self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
         r = self.get('/groups/%(group_id)s/users' % {
             'group_id': self.group_id})
