@@ -251,8 +251,14 @@ class Manager(manager.Manager):
         if not roles:
             raise exception.NotFound(tenant_id)
         for role_id in roles:
-            self.driver.remove_role_from_user_and_project(user_id, tenant_id,
-                                                          role_id)
+            try:
+                self.driver.remove_role_from_user_and_project(user_id,
+                                                              tenant_id,
+                                                              role_id)
+            except exception.RoleNotFound:
+                LOG.debug(_("Removing role %s failed because it does not "
+                            "exist."),
+                          role_id)
 
     def list_projects_for_user(self, user_id):
         # NOTE(henry-nash): In order to get a complete list of user projects,
