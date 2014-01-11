@@ -44,15 +44,14 @@ class TestExtensionCase(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(TestExtensionCase, self).setUp()
+        self.addCleanup(self.conf_files.pop)
+        # TODO(blk-u): check if the above is necessary and remove if not.
+
         self.default_request_url = (
             '/OS-EP-FILTER/projects/%(project_id)s'
             '/endpoints/%(endpoint_id)s' % {
             'project_id': self.default_domain_project_id,
             'endpoint_id': self.endpoint_id})
-
-    def tearDown(self):
-        super(TestExtensionCase, self).tearDown()
-        self.conf_files.pop()
 
 
 class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):

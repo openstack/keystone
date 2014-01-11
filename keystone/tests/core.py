@@ -252,16 +252,18 @@ class TestClient(object):
 class NoModule(object):
     """A mixin class to provide support for unloading/disabling modules."""
 
-    def __init__(self, *args, **kw):
-        super(NoModule, self).__init__(*args, **kw)
-        self._finders = []
-        self._cleared_modules = {}
+    def setUp(self):
+        super(NoModule, self).setUp()
 
-    def tearDown(self):
-        super(NoModule, self).tearDown()
-        for finder in self._finders:
-            sys.meta_path.remove(finder)
-        sys.modules.update(self._cleared_modules)
+        self._finders = []
+
+        def cleanup_finders():
+            for finder in self._finders:
+                sys.meta_path.remove(finder)
+        self.addCleanup(cleanup_finders)
+
+        self._cleared_modules = {}
+        self.addCleanup(sys.modules.update, self._cleared_modules)
 
     def clear_module(self, module):
         cleared_modules = {}
@@ -288,9 +290,17 @@ class NoModule(object):
 
 
 class TestCase(testtools.TestCase):
-    def __init__(self, *args, **kw):
-        super(TestCase, self).__init__(*args, **kw)
+    def setUp(self):
+        super(TestCase, self).setUp()
+
         self._paths = []
+
+        def _cleanup_paths():
+            for path in self._paths:
+                if path in sys.path:
+                    sys.path.remove(path)
+        self.addCleanup(_cleanup_paths)
+
         self._memo = {}
         self._overrides = []
         self._group_overrides = {}
@@ -298,39 +308,34 @@ class TestCase(testtools.TestCase):
         # show complete diffs on failure
         self.maxDiff = None
 
-    def setUp(self):
-        super(TestCase, self).setUp()
+        self.addCleanup(CONF.reset)
+
         self.config([dirs.etc('keystone.conf.sample'),
                      dirs.tests('test_overrides.conf')])
+
+        self.opt(policy_file=dirs.etc('policy.json'))
+
+        # NOTE(morganfainberg):  The only way to reconfigure the
+        # CacheRegion object on each setUp() call is to remove the
+        # .backend property.
+        self.addCleanup(delattr, cache.REGION, 'backend')
+
         # ensure the cache region instance is setup
         cache.configure_cache_region(cache.REGION)
-        self.opt(policy_file=dirs.etc('policy.json'))
 
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
         warnings.filterwarnings('ignore', category=DeprecationWarning)
 
+        # Clear the registry of providers so that providers from previous
+        # tests aren't used.
+        self.addCleanup(dependency.reset)
+
+        self.addCleanup(kvs.INMEMDB.clear)
+
+        self.addCleanup(timeutils.clear_time_override)
+
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
-
-    def tearDown(self):
-        try:
-            timeutils.clear_time_override()
-            # NOTE(morganfainberg):  The only way to reconfigure the
-            # CacheRegion object on each setUp() call is to remove the
-            # .backend property.
-            del cache.REGION.backend
-            super(TestCase, self).tearDown()
-        finally:
-            for path in self._paths:
-                if path in sys.path:
-                    sys.path.remove(path)
-
-            # Clear the registry of providers so that providers from previous
-            # tests aren't used.
-            dependency.reset()
-
-            kvs.INMEMDB.clear()
-            CONF.reset()
 
     def opt_in_group(self, group, **kw):
         for k, v in kw.iteritems():

@@ -190,14 +190,12 @@ class MiddlewareTest(BaseWSGITest):
 class LocalizedResponseTest(tests.TestCase):
     def setUp(self):
         super(LocalizedResponseTest, self).setUp()
+
         gettextutils._AVAILABLE_LANGUAGES.clear()
+        self.addCleanup(gettextutils._AVAILABLE_LANGUAGES.clear)
 
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
-
-    def tearDown(self):
-        gettextutils._AVAILABLE_LANGUAGES.clear()
-        super(LocalizedResponseTest, self).tearDown()
 
     def _set_expected_languages(self, all_locales=[], avail_locales=None):
         # Override localedata.locale_identifiers to return some locales.

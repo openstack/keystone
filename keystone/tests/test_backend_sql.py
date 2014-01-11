@@ -47,17 +47,15 @@ class SqlTests(tests.TestCase, sql.Base):
         # create tables and keep an engine reference for cleanup.
         # this must be done after the models are loaded by the managers.
         self.engine = session.get_engine()
+        self.addCleanup(session.cleanup)
+
         sql.ModelBase.metadata.create_all(bind=self.engine)
+        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
 
         # populate the engine with tables & fixtures
         self.load_fixtures(default_fixtures)
         #defaulted by the data load
         self.user_foo['enabled'] = True
-
-    def tearDown(self):
-        sql.ModelBase.metadata.drop_all(bind=self.engine)
-        session.cleanup()
-        super(SqlTests, self).tearDown()
 
 
 class SqlModels(SqlTests):

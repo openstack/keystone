@@ -39,15 +39,15 @@ class TestNoAdminTokenAuth(tests.TestCase):
         self.load_backends()
 
         _generate_paste_config()
+        self.addCleanup(os.remove,
+                        tests.dirs.tmp('no_admin_token_auth-paste.ini'))
+        # TODO(blk-u): Make _generate_paste_config a member function and have
+        # it also do addCleanup.
 
         self.admin_app = webtest.TestApp(
             self.loadapp(tests.dirs.tmp('no_admin_token_auth'), name='admin'),
             extra_environ=dict(REMOTE_ADDR='127.0.0.1'))
-
-    def tearDown(self):
-        self.admin_app = None
-        os.remove(tests.dirs.tmp('no_admin_token_auth-paste.ini'))
-        super(TestNoAdminTokenAuth, self).tearDown()
+        self.addCleanup(setattr, self, 'admin_app', None)
 
     def test_request_no_admin_token_auth(self):
         # This test verifies that if the admin_token_auth middleware isn't
