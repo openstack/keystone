@@ -34,6 +34,7 @@ CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
 
 
+_RPC_ENVELOPE_VERSION = '2.0'
 '''RPC Envelope Version.
 
 This version number applies to the top level structure of messages sent out.
@@ -46,7 +47,7 @@ This version number applies to the message envelope that is used in the
 serialization done inside the rpc layer.  See serialize_msg() and
 deserialize_msg().
 
-The current message format (version 2.0) is very simple.  It is:
+The current message format (version 2.0) is very simple.  It is::
 
     {
         'oslo.version': <RPC Envelope Version as a String>,
@@ -64,7 +65,6 @@ We will JSON encode the application message payload.  The message envelope,
 which includes the JSON encoded application message body, will be passed down
 to the messaging libraries as a dict.
 '''
-_RPC_ENVELOPE_VERSION = '2.0'
 
 _VERSION_KEY = 'oslo.version'
 _MESSAGE_KEY = 'oslo.message'
@@ -86,7 +86,7 @@ class RPCException(Exception):
                 # kwargs doesn't match a variable in the message
                 # log the issue and the kwargs
                 LOG.exception(_('Exception in string format operation'))
-                for name, value in kwargs.iteritems():
+                for name, value in six.iteritems(kwargs):
                     LOG.error("%s: %s" % (name, value))
                 # at least get the core message out if something happened
                 message = self.msg_fmt
