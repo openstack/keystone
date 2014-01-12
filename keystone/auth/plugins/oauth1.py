@@ -19,12 +19,12 @@ from keystone.common import dependency
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import core as oauth
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 
 
 METHOD_NAME = 'oauth1'
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 @dependency.requires('oauth_api')

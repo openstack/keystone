@@ -22,11 +22,11 @@ from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
 
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 

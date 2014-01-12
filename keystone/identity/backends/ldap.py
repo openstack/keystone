@@ -26,11 +26,11 @@ from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 @dependency.requires('assignment_api')

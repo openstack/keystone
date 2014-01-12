@@ -20,9 +20,9 @@ import ldap
 import ldap.filter
 
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}

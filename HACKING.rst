@@ -25,8 +25,8 @@ Logging
 
 Use the common logging module, and ensure you ``getLogger``::
 
-    from keystone.openstack.common import log as logging
+    from keystone.openstack.common import log
 
-    LOG = logging.getLogger(__name__)
+    LOG = log.getLogger(__name__)
 
     LOG.debug('Foobar')

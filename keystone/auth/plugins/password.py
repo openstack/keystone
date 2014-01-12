@@ -17,11 +17,11 @@
 from keystone import auth
 from keystone.common import dependency
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 METHOD_NAME = 'password'
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 @dependency.requires('assignment_api', 'identity_api')

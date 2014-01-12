@@ -17,14 +17,14 @@
 from keystone import auth
 from keystone.common import wsgi
 from keystone import exception
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone.token import provider
 
 
 METHOD_NAME = 'token'
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 class Token(auth.AuthMethodHandler):

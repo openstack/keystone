@@ -18,10 +18,10 @@ import functools
 import os
 
 from keystone.common import config
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 __all__ = ['Server', 'httplib', 'subprocess']

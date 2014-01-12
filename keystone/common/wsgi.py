@@ -33,11 +33,11 @@ from keystone import exception
 from keystone.openstack.common import gettextutils
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 # Environment variable used to pass the request context
 CONTEXT_ENV = 'openstack.context'
@@ -382,11 +382,11 @@ class Debug(Middleware):
             LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
             for key, value in req.environ.items():
                 LOG.debug('%s = %s', key,
-                          logging.mask_password(value))
+                          log.mask_password(value))
             LOG.debug('')
             LOG.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
             for line in req.body_file:
-                LOG.debug('%s', logging.mask_password(line))
+                LOG.debug('%s', log.mask_password(line))
             LOG.debug('')
 
         resp = req.get_response(self.application)
@@ -436,7 +436,6 @@ class Router(object):
           mapper.connect(None, '/v1.0/{path_info:.*}', controller=BlogApp())
 
         """
-
         self.map = mapper
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,
                                                           self.map)

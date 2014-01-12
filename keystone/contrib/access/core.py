@@ -18,12 +18,12 @@ import webob.dec
 
 from keystone.common import wsgi
 from keystone import config
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF
-LOG = logging.getLogger('access')
+LOG = log.getLogger('access')
 APACHE_TIME_FORMAT = '%d/%b/%Y:%H:%M:%S'
 APACHE_LOG_FORMAT = (
     '%(remote_addr)s - %(remote_user)s [%(datetime)s] "%(method)s %(url)s '

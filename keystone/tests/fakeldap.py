@@ -30,7 +30,7 @@ import shelve
 import ldap
 
 from keystone.common import utils
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 from six import moves
 
 
@@ -41,7 +41,7 @@ SCOPE_NAMES = {
 }
 
 
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 def _process_attr(attr_name, value_or_values):

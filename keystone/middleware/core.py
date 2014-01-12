@@ -22,10 +22,10 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone.openstack.common import jsonutils
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import log
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 # Header used to transmit the auth token
