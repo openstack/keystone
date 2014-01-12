@@ -1051,8 +1051,11 @@ class RestfulTestCase(rest.RestfulTestCase):
             auth_data['scope'] = self.build_auth_scope(**kwargs)
         return {'auth': auth_data}
 
-    def build_external_auth_request(self, remote_user, auth_data=None):
+    def build_external_auth_request(self, remote_user,
+                                    remote_domain=None, auth_data=None):
         context = {'environment': {'REMOTE_USER': remote_user}}
+        if remote_domain:
+            context['environment']['REMOTE_DOMAIN'] = remote_domain
         if not auth_data:
             auth_data = self.build_authentication_request()['auth']
         no_context = None

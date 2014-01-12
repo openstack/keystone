@@ -250,7 +250,7 @@ FILE_OPTIONS = {
                    default='keystone.auth.plugins.token.Token'),
         #deals with REMOTE_USER authentication
         cfg.StrOpt('external',
-                   default='keystone.auth.plugins.external.Default')],
+                   default='keystone.auth.plugins.external.DefaultDomain')],
     'paste_deploy': [
         cfg.StrOpt('config_file', default=None)],
     'memcache': [
