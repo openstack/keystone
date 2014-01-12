@@ -76,14 +76,12 @@ class Catalog(sql.Base, catalog.Driver):
             ref = self._get_service(session, service_id)
             session.query(Endpoint).filter_by(service_id=service_id).delete()
             session.delete(ref)
-            session.flush()
 
     def create_service(self, service_id, service_ref):
         session = self.get_session()
         with session.begin():
             service = Service.from_dict(service_ref)
             session.add(service)
-            session.flush()
         return service.to_dict()
 
     def update_service(self, service_id, service_ref):
@@ -97,7 +95,6 @@ class Catalog(sql.Base, catalog.Driver):
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_service, attr))
             ref.extra = new_service.extra
-            session.flush()
         return ref.to_dict()
 
     # Endpoints
@@ -107,7 +104,6 @@ class Catalog(sql.Base, catalog.Driver):
         new_endpoint = Endpoint.from_dict(endpoint_ref)
         with session.begin():
             session.add(new_endpoint)
-            session.flush()
         return new_endpoint.to_dict()
 
     def delete_endpoint(self, endpoint_id):
@@ -115,7 +111,6 @@ class Catalog(sql.Base, catalog.Driver):
         with session.begin():
             ref = self._get_endpoint(session, endpoint_id)
             session.delete(ref)
-            session.flush()
 
     def _get_endpoint(self, session, endpoint_id):
         try:
@@ -143,7 +138,6 @@ class Catalog(sql.Base, catalog.Driver):
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_endpoint, attr))
             ref.extra = new_endpoint.extra
-            session.flush()
         return ref.to_dict()
 
     def get_catalog(self, user_id, tenant_id, metadata=None):

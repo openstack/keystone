@@ -60,7 +60,6 @@ class Token(sql.Base, token.Driver):
         session = self.get_session()
         with session.begin():
             session.add(token_ref)
-            session.flush()
         return token_ref.to_dict()
 
     def delete_token(self, token_id):
@@ -70,7 +69,6 @@ class Token(sql.Base, token.Driver):
             if not token_ref or not token_ref.valid:
                 raise exception.TokenNotFound(token_id=token_id)
             token_ref.valid = False
-            session.flush()
 
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
                       consumer_id=None):
@@ -104,8 +102,6 @@ class Token(sql.Base, token.Driver):
                         continue
 
                 token_ref.valid = False
-
-            session.flush()
 
     def _tenant_matches(self, tenant_id, token_ref_dict):
         return ((tenant_id is None) or
@@ -165,7 +161,6 @@ class Token(sql.Base, token.Driver):
                 token_ref_dict = token_ref.to_dict()
                 if self._consumer_matches(consumer_id, token_ref_dict):
                     tokens.append(token_ref_dict['id'])
-            session.flush()
         return tokens
 
     def _list_tokens(self, user_id, tenant_id=None, trust_id=None,
