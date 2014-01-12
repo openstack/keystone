@@ -36,7 +36,7 @@ from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.types import NullType
 
-from keystone.openstack.common.gettextutils import _  # noqa
+from keystone.openstack.common.gettextutils import _
 
 from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils

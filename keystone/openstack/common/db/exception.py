@@ -16,7 +16,7 @@
 
 """DB related custom exceptions."""
 
-from keystone.openstack.common.gettextutils import _  # noqa
+from keystone.openstack.common.gettextutils import _
 
 
 class DBError(Exception):
