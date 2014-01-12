@@ -42,6 +42,7 @@ from keystone.openstack.common import gettextutils
 # contain static translated strings.
 gettextutils.install('keystone')
 
+from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql
 from keystone.common import utils
@@ -137,4 +138,6 @@ if __name__ == '__main__':
                                  'main',
                                  CONF.public_bind_host,
                                  int(CONF.public_port)))
+
+    dependency.resolve_future_dependencies()
     serve(*servers)
