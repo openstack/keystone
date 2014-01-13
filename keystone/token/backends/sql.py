@@ -187,11 +187,41 @@ class Token(sql.Base, token.Driver):
             tokens.append(record)
         return tokens
 
+    def token_flush_batch_size(self, dialect):
+        batch_size = 0
+        if dialect == 'ibm_db_sa':
+            # This functionality is limited to DB2, because
+            # it is necessary to prevent the tranaction log
+            # from filling up, whereas at least some of the
+            # other supported databases do not support update
+            # queries with LIMIT subqueries nor do they appear
+            # to require the use of such queries when deleting
+            # large numbers of records at once.
+            batch_size = 100
+            # Limit of 100 is known to not fill a transaction log
+            # of default maximum size while not significantly
+            # impacting the performance of large token purges on
+            # systems where the maximum transaction log size has
+            # been increased beyond the default.
+        return batch_size
+
     def flush_expired_tokens(self):
         session = self.get_session()
-
-        query = session.query(TokenModel)
-        query = query.filter(TokenModel.expires < timeutils.utcnow())
-        query.delete(synchronize_session=False)
+        dialect = session.bind.dialect.name
+        batch_size = self.token_flush_batch_size(dialect)
+        if batch_size > 0:
+            query = session.query(TokenModel.id)
+            query = query.filter(TokenModel.expires < timeutils.utcnow())
+            query = query.limit(batch_size).subquery()
+            delete_query = (session.query(TokenModel).
+                            filter(TokenModel.id.in_(query)))
+            while True:
+                rowcount = delete_query.delete(synchronize_session=False)
+                if rowcount == 0:
+                    break
+        else:
+            query = session.query(TokenModel)
+            query = query.filter(TokenModel.expires < timeutils.utcnow())
+            query.delete(synchronize_session=False)
 
         session.flush()
