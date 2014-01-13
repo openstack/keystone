@@ -145,3 +145,70 @@ class CredentialTestCase(test_v3.RestfulTestCase):
             '/credentials',
             body={'credential': ref}, expected_status=400)
         self.assertValidErrorResponse(response)
+
+
+class TestCredentialTrustScoped(test_v3.RestfulTestCase):
+    """Test credential with trust scoped token."""
+    def setUp(self):
+        self.opt_in_group('trust', enabled=True)
+        super(TestCredentialTrustScoped, self).setUp()
+
+        self.trustee_user_id = uuid.uuid4().hex
+        self.trustee_user = self.new_user_ref(domain_id=self.domain_id)
+        self.trustee_user['id'] = self.trustee_user_id
+        self.identity_api.create_user(self.trustee_user_id, self.trustee_user)
+
+    def test_trust_scoped_ec2_credential(self):
+        """Call ``POST /credentials`` for creating ec2 credential."""
+        # Create the trust
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        # Get a trust scoped token
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectTrustScopedTokenResponse(r, self.user)
+        trust_id = r.result['token']['OS-TRUST:trust']['id']
+        token_id = r.headers.get('X-Subject-Token')
+
+        # Create the credential with the trust scoped token
+        ref = self.new_credential_ref(user_id=self.user['id'])
+        blob = {"access": uuid.uuid4().hex,
+                "secret": uuid.uuid4().hex}
+        ref['blob'] = json.dumps(blob)
+        ref['type'] = 'ec2'
+        r = self.post(
+            '/credentials',
+            body={'credential': ref},
+            token=token_id)
+
+        # We expect the response blob to contain the trust_id
+        ret_ref = ref.copy()
+        ret_blob = blob.copy()
+        ret_blob['trust_id'] = trust_id
+        ret_ref['blob'] = json.dumps(ret_blob)
+        self.assertValidCredentialResponse(r, ref=ret_ref)
+
+        # Assert credential id is same as hash of access key id for
+        # ec2 credentials
+        self.assertEqual(r.result['credential']['id'],
+                         hashlib.sha256(blob['access']).hexdigest())
+
+        # Create second ec2 credential with the same access key id and check
+        # for conflict.
+        self.post(
+            '/credentials',
+            body={'credential': ref},
+            token=token_id,
+            expected_status=409)
