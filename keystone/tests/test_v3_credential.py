@@ -18,11 +18,36 @@ import hashlib
 import json
 import uuid
 
+from keystoneclient.contrib.ec2 import utils as ec2_utils
+
 from keystone import exception
 from keystone.tests import test_v3
 
 
-class CredentialTestCase(test_v3.RestfulTestCase):
+class CredentialBaseTestCase(test_v3.RestfulTestCase):
+    def _create_dict_blob_credential(self):
+        blob = {"access": uuid.uuid4().hex,
+                "secret": uuid.uuid4().hex}
+        credential_id = hashlib.sha256(blob['access']).hexdigest()
+        credential = self.new_credential_ref(
+            user_id=self.user['id'],
+            project_id=self.project_id)
+        credential['id'] = credential_id
+
+        # Store the blob as a dict *not* JSON ref bug #1259584
+        # This means we can test the dict->json workaround, added
+        # as part of the bugfix for backwards compatibility works.
+        credential['blob'] = blob
+        credential['type'] = 'ec2'
+        # Create direct via the DB API to avoid validation failure
+        self.credential_api.create_credential(
+            credential_id,
+            credential)
+        expected_blob = json.dumps(blob)
+        return expected_blob, credential_id
+
+
+class CredentialTestCase(CredentialBaseTestCase):
     """Test credential CRUD."""
     def setUp(self):
 
@@ -212,3 +237,67 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
             body={'credential': ref},
             token=token_id,
             expected_status=409)
+
+
+class TestCredentialEc2(CredentialBaseTestCase):
+    """Test v3 credential compatibility with ec2tokens."""
+    def setUp(self):
+        super(TestCredentialEc2, self).setUp()
+
+    def _validate_signature(self, access, secret):
+        """Test signature validation with the access/secret provided."""
+        signer = ec2_utils.Ec2Signer(secret)
+        params = {'SignatureMethod': 'HmacSHA256',
+                  'SignatureVersion': '2',
+                  'AWSAccessKeyId': access}
+        request = {'host': 'foo',
+                   'verb': 'GET',
+                   'path': '/bar',
+                   'params': params}
+        signature = signer.generate(request)
+
+        # Now make a request to validate the signed dummy request via the
+        # ec2tokens API.  This proves the v3 ec2 credentials actually work.
+        sig_ref = {'access': access,
+                   'signature': signature,
+                   'host': 'foo',
+                   'verb': 'GET',
+                   'path': '/bar',
+                   'params': params}
+        r = self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': sig_ref},
+            expected_status=200)
+        # FIXME(shardy): ec2tokens is available via both v3 and v2
+        # paths, but it returns a v2 token in both cases, so we can
+        # only do a sanity assertion here for now.
+        self.assertIsNotNone(r.result['access']['token']['id'])
+
+    def test_ec2_credential_signature_validate(self):
+        """Test signature validation with a v3 ec2 credential."""
+        ref = self.new_credential_ref(
+            user_id=self.user['id'],
+            project_id=self.project_id)
+        blob = {"access": uuid.uuid4().hex,
+                "secret": uuid.uuid4().hex}
+        ref['blob'] = json.dumps(blob)
+        ref['type'] = 'ec2'
+        r = self.post(
+            '/credentials',
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+        # Assert credential id is same as hash of access key id
+        self.assertEqual(r.result['credential']['id'],
+                         hashlib.sha256(blob['access']).hexdigest())
+
+        cred_blob = json.loads(r.result['credential']['blob'])
+        self.assertEqual(blob, cred_blob)
+        self._validate_signature(access=cred_blob['access'],
+                                 secret=cred_blob['secret'])
+
+    def test_ec2_credential_signature_validate_legacy(self):
+        """Test signature validation with a legacy v3 ec2 credential."""
+        cred_json, credential_id = self._create_dict_blob_credential()
+        cred_blob = json.loads(cred_json)
+        self._validate_signature(access=cred_blob['access'],
+                                 secret=cred_blob['secret'])
