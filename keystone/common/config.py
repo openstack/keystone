@@ -69,7 +69,7 @@ FILE_OPTIONS = {
     'token': [
         cfg.ListOpt('bind', default=[]),
         cfg.StrOpt('enforce_token_bind', default='permissive'),
-        cfg.IntOpt('expiration', default=86400),
+        cfg.IntOpt('expiration', default=3600),
         cfg.StrOpt('provider', default=None),
         cfg.StrOpt('driver',
                    default='keystone.token.backends.sql.Token'),

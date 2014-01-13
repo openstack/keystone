@@ -256,7 +256,7 @@
 # provider =
 
 # Amount of time a token should remain valid (in seconds)
-# expiration = 86400
+# expiration = 3600
 
 # External auth mechanisms that should add bind information to token.
 # eg kerberos, x509
