@@ -21,7 +21,7 @@ from wsgiref import simple_server
 from keystone.openstack.common import gettextutils
 
 PROJECT = 'kds'
-gettextutils.install(PROJECT)
+gettextutils.install(PROJECT, lazy=True)
 
 from keystone.contrib.kds.api import app
 from keystone.contrib.kds.common import service
