@@ -23,6 +23,7 @@
 import re
 
 import routes.middleware
+import six
 import webob.dec
 import webob.exc
 
@@ -559,11 +560,18 @@ def render_response(body=None, status=None, headers=None):
 
 def render_exception(error, user_locale=None):
     """Forms a WSGI response based on the current error."""
+
+    error_message = error.args[0]
+    message = gettextutils.translate(error_message, desired_locale=user_locale)
+    if message is error_message:
+        # translate() didn't do anything because it wasn't a Message,
+        # convert to a string.
+        message = six.text_type(message)
+
     body = {'error': {
         'code': error.code,
         'title': error.title,
-        'message': unicode(gettextutils.get_localized_message(error.args[0],
-                                                              user_locale)),
+        'message': message,
     }}
     headers = []
     if isinstance(error, exception.AuthPluginException):
