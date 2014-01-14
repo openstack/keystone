@@ -204,6 +204,20 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.identity_api.create_user(user_ref['id'], user_ref)
         self._assertLastNotify(user_ref['id'], 'created', 'user')
 
+    def test_create_trust(self):
+        trustor = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(trustor['id'], trustor)
+        trustee = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(trustee['id'], trustee)
+        role_ref = self.new_role_ref()
+        self.assignment_api.create_role(role_ref['id'], role_ref)
+        trust_ref = self.new_trust_ref(trustor['id'],
+                                       trustee['id'])
+        self.trust_api.create_trust(trust_ref['id'],
+                                    trust_ref,
+                                    [role_ref])
+        self._assertLastNotify(trust_ref['id'], 'created', 'trust')
+
     def test_delete_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         self.identity_api.create_group(group_ref['id'], group_ref)
@@ -227,6 +241,19 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.identity_api.create_user(user_ref['id'], user_ref)
         self.identity_api.delete_user(user_ref['id'])
         self._assertLastNotify(user_ref['id'], 'deleted', 'user')
+
+    def test_delete_trust(self):
+        trustor = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(trustor['id'], trustor)
+        trustee = self.new_user_ref(domain_id=self.domain_id)
+        self.identity_api.create_user(trustee['id'], trustee)
+        role_ref = self.new_role_ref()
+        trust_ref = self.new_trust_ref(trustor['id'], trustee['id'])
+        self.trust_api.create_trust(trust_ref['id'],
+                                    trust_ref,
+                                    [role_ref])
+        self.trust_api.delete_trust(trust_ref['id'])
+        self._assertLastNotify(trust_ref['id'], 'deleted', 'trust')
 
     def test_update_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
