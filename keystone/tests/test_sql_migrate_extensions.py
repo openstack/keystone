@@ -15,15 +15,22 @@
 # under the License.
 """
 To run these tests against a live database:
+
 1. Modify the file `tests/backend_sql.conf` to use the connection for your
    live database
 2. Set up a blank, live database.
 3. run the tests using
+
+   ::
+
     ./run_tests.sh -N  test_sql_upgrade
-    WARNING::
-        Your database will be wiped.
-    Do not do this against a Database with valuable data as
-    all data will be lost.
+
+   WARNING::
+
+       Your database will be wiped.
+
+   Do not do this against a Database with valuable data as
+   all data will be lost.
 """
 
 

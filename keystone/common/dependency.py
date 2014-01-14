@@ -46,7 +46,7 @@ def provider(name):
 
     When 'provider' is used to decorate a class, members of that class will
     register themselves as providers for the named dependency. As an example,
-    In the code fragment:
+    In the code fragment::
 
         @dependency.provider('foo_api')
         class Foo:
@@ -102,7 +102,7 @@ def requires(*dependencies):
 
     The required providers will be made available to instances of the decorated
     class via an attribute with the same name as the provider. For example,
-    in the code fragment:
+    in the code fragment::
 
         @dependency.requires('foo_api', 'bar_api')
         class FooBarClient:

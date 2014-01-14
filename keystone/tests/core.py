@@ -188,7 +188,7 @@ def skip_if_cache_disabled(*sections):
     """This decorator is used to skip a test if caching is disabled either
     globally or for the specific section.
 
-    In the code fragment:
+    In the code fragment::
 
         @skip_if_cache_is_disabled('assignment', 'token')
         def test_method(*args):

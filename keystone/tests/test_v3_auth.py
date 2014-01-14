@@ -645,6 +645,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         """Test deleting a user grant revokes token.
 
         Test Plan:
+
         - Get a token for user1, scoped to ProjectA
         - Delete the grant user1 has on ProjectA
         - Check token is no longer valid
@@ -676,6 +677,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         """Test deleting a role revokes token.
 
         Test Plan:
+
         - Add some additional test data, namely:
             - A third project (project C)
             - Three additional users - user4 owned by domainB and user5 and 6
@@ -805,6 +807,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         """Test user-domain role assignment maintains existing token.
 
         Test Plan:
+
         - Get a token for user1, scoped to ProjectA
         - Create a grant for user1 on DomainB
         - Check token is still valid
@@ -897,6 +900,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         """Test deleting a group grant revokes tokens.
 
         Test Plan:
+
         - Get a token for user1, scoped to ProjectA
         - Get a token for user2, scoped to ProjectA
         - Get a token for user3, scoped to ProjectA
@@ -958,6 +962,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         """Test domain-group role assignment maintains existing token.
 
         Test Plan:
+
         - Get a token for user1, scoped to ProjectA
         - Create a grant for group1 on DomainB
         - Check token is still longer valid
@@ -989,6 +994,7 @@ class TestTokenRevoking(test_v3.RestfulTestCase):
         """Test add/removal to/from group revokes token.
 
         Test Plan:
+
         - Get a token for user1, scoped to ProjectA
         - Get a token for user2, scoped to ProjectA
         - Remove user1 from group1
@@ -1379,6 +1385,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         """Test correct roles are returned in scoped token.
 
         Test Plan:
+
         - Create a domain, with 1 project, 2 users (user1 and user2)
           and 2 groups (group1 and group2)
         - Make user1 a member of group1, user2 a member of group2

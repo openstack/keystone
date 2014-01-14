@@ -170,7 +170,7 @@ class Driver(object):
     def list_consumers(self):
         """List consumers.
 
-        returns: list of consumers
+        :returns: list of consumers
 
         """
         raise exception.NotImplemented()
@@ -219,7 +219,7 @@ class Driver(object):
 
         :param user_id: search for access tokens authorized by given user id
         :type user_id: string
-        returns: list of access tokens the user has authorized
+        :returns: list of access tokens the user has authorized
 
         """
         raise exception.NotImplemented()
@@ -232,7 +232,7 @@ class Driver(object):
         :type user_id: string
         :param access_token_id: access token to delete
         :type access_token_id: string
-        returns: None
+        :returns: None
 
         """
         raise exception.NotImplemented()
@@ -248,7 +248,7 @@ class Driver(object):
         :type requested_project_id: string
         :param request_token_duration: duration of request token
         :type request_token_duration: string
-        returns: request_token_ref
+        :returns: request_token_ref
 
         """
         raise exception.NotImplemented()
@@ -259,7 +259,7 @@ class Driver(object):
 
         :param request_token_id: the id of the request token
         :type request_token_id: string
-        returns: request_token_ref
+        :returns: request_token_ref
 
         """
         raise exception.NotImplemented()
@@ -270,7 +270,7 @@ class Driver(object):
 
         :param access_token_id: the id of the access token
         :type access_token_id: string
-        returns: access_token_ref
+        :returns: access_token_ref
 
         """
         raise exception.NotImplemented()
@@ -285,7 +285,7 @@ class Driver(object):
         :type user_id: string
         :param role_ids: list of role ids to authorize
         :type role_ids: list
-        returns: verifier
+        :returns: verifier
 
         """
         raise exception.NotImplemented()
@@ -298,7 +298,7 @@ class Driver(object):
         :type request_id: string
         :param access_token_duration: duration of an access token
         :type access_token_duration: string
-        returns: access_token_ref
+        :returns: access_token_ref
 
         """
         raise exception.NotImplemented()

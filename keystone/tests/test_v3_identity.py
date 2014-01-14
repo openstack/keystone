@@ -246,6 +246,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         by the delete.
 
         Test Plan:
+
         - Create domain2 and a 2nd set of entities
         - Disable domain2
         - Delete domain2
@@ -359,7 +360,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidProjectResponse(r, ref)
 
     def test_delete_project(self):
-        """Call ``DELETE /projects/{project_id}
+        """Call ``DELETE /projects/{project_id}``
 
         As well as making sure the delete succeeds, we ensure
         that any credentials that reference this projects are
@@ -749,6 +750,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         and delete the role assignments we use the old grant APIs.
 
         Test Plan:
+
         - Create extra user for tests
         - Get a list of all existing role assignments
         - Add a new assignment for each of the four combinations, i.e.
@@ -838,6 +840,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """Call ``GET /role_assignments?effective``.
 
         Test Plan:
+
         - Create two extra user for tests
         - Add these users to a group
         - Add a role assignment for the group on a domain
@@ -908,6 +911,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         policy checking on query/filter parameters.
 
         Test Plan:
+
         - Create two extra user for tests
         - Add these users to a group
         - Add a role assignment for the group on a domain
@@ -981,6 +985,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """Call ``GET /role_assignments?filters``.
 
         Test Plan:
+
         - Create extra users, group, role and project for tests
         - Make the following assignments:
           Give group1, role1 on project1 and domain
@@ -1188,6 +1193,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         """Call ``GET /role_assignments with inherited domain grants``.
 
         Test Plan:
+
         - Create 4 roles
         - Create a domain with a user and two projects
         - Assign two direct roles to project1
@@ -1281,6 +1287,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         """Call ``GET /role_assignments with inherited domain grants``.
 
         Test Plan:
+
         - Issue the URL to add inherited role to the domain
         - Issue the URL to check effective roles on project include the
           inherited role
@@ -1373,6 +1380,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         """Call ``GET /role_assignments with inherited group domain grants``.
 
         Test Plan:
+
         - Create 4 roles
         - Create a domain with a user and two projects
         - Assign two direct roles to project1
@@ -1477,6 +1485,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         """Call ``GET /role_assignments?scope.OS-INHERIT:inherited_to``.
 
         Test Plan:
+
         - Create 5 roles
         - Create a domain with a user, group and two projects
         - Assign three direct spoiler roles to projects

@@ -133,33 +133,32 @@ def base64_to_base64url(text):
     This function only translates the altchars, non-alphabet
     characters are not filtered out.
 
-    WARNING
-    -------
+    WARNING::
 
-    base64url continues to use the '=' pad character which is NOT URL
-    safe. RFC-4648 suggests two alternate methods to deal with this.
+        base64url continues to use the '=' pad character which is NOT URL
+        safe. RFC-4648 suggests two alternate methods to deal with this:
 
-    percent-encode
-        percent-encode the pad character (e.g. '=' becomes
-        '%3D'). This makes the base64url text fully safe. But
-        percent-enconding has the downside of requiring
-        percent-decoding prior to feeding the base64url text into a
-        base64url decoder since most base64url decoders do not
-        recognize %3D as a pad character and most decoders require
-        correct padding.
+        percent-encode
+            percent-encode the pad character (e.g. '=' becomes
+            '%3D'). This makes the base64url text fully safe. But
+            percent-enconding has the downside of requiring
+            percent-decoding prior to feeding the base64url text into a
+            base64url decoder since most base64url decoders do not
+            recognize %3D as a pad character and most decoders require
+            correct padding.
 
-    no-padding
-        padding is not strictly necessary to decode base64 or
-        base64url text, the pad can be computed from the input text
-        length. However many decoders demand padding and will consider
-        non-padded text to be malformed. If one wants to omit the
-        trailing pad character(s) for use in URL's it can be added back
-        using the base64_assure_padding() function.
+        no-padding
+            padding is not strictly necessary to decode base64 or
+            base64url text, the pad can be computed from the input text
+            length. However many decoders demand padding and will consider
+            non-padded text to be malformed. If one wants to omit the
+            trailing pad character(s) for use in URL's it can be added back
+            using the base64_assure_padding() function.
 
-    This function makes no decisions about which padding methodolgy to
-    use. One can either call base64_strip_padding() to remove any pad
-    characters (restoring later with base64_assure_padding()) or call
-    base64url_percent_encode() to percent-encode the pad characters.
+        This function makes no decisions about which padding methodolgy to
+        use. One can either call base64_strip_padding() to remove any pad
+        characters (restoring later with base64_assure_padding()) or call
+        base64url_percent_encode() to percent-encode the pad characters.
 
     :param text: input base64 text
     :type text: string
@@ -373,7 +372,7 @@ def base64_wrap(text, width=64):
     Input is assumed to consist only of members of a base64
     alphabet (i.e no whitepace). Fold the text into lines whose
     line length is width chars long, terminate each line with line
-    ending (default is '\n'). Return the wrapped text as a single
+    ending (default is '\\n'). Return the wrapped text as a single
     string.
 
     Use the filter_formatting() function to assure the input text

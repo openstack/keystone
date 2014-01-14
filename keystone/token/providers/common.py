@@ -85,27 +85,27 @@ class V2TokenDataHelper(object):
     @classmethod
     def format_catalog(cls, catalog_ref):
         """Munge catalogs from internal to output format
-        Internal catalogs look like:
+        Internal catalogs look like::
 
-        {$REGION: {
-            {$SERVICE: {
-                $key1: $value1,
+          {$REGION: {
+              {$SERVICE: {
+                  $key1: $value1,
+                  ...
+                  }
+              }
+          }
+
+        The legacy api wants them to look like::
+
+          [{'name': $SERVICE[name],
+            'type': $SERVICE,
+            'endpoints': [{
+                'tenantId': $tenant_id,
                 ...
-                }
-            }
-        }
-
-        The legacy api wants them to look like
-
-        [{'name': $SERVICE[name],
-          'type': $SERVICE,
-          'endpoints': [{
-              'tenantId': $tenant_id,
-              ...
-              'region': $REGION,
-              }],
-          'endpoints_links': [],
-         }]
+                'region': $REGION,
+                }],
+            'endpoints_links': [],
+           }]
 
         """
         if not catalog_ref:

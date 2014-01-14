@@ -160,7 +160,7 @@ def should_cache_fn(section):
     decorator if caching for that driver is enabled.  To properly use this
     with the decorator, pass this function the configuration section and assign
     the result to a variable.  Pass the new variable to the caching decorator
-    as the named argument ``should_cache_fn``.  e.g.:
+    as the named argument ``should_cache_fn``.  e.g.::
 
         from keystone.common import cache
 

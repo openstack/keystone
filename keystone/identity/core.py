@@ -82,6 +82,7 @@ class DomainConfigs(dict):
 
     For each file, the domain_name will be turned into a domain_id and then
     this class will:
+
     - Create a new config structure, adding in the specific additional options
       defined in this config file
     - Initialise a new instance of the required driver with this new config.
