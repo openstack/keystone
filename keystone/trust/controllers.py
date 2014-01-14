@@ -168,10 +168,10 @@ class TrustV3(controller.V3Controller):
                                            (trust['expires_at']))
                 except ValueError:
                     raise exception.ValidationTimeStampError()
-            new_trust = self.trust_api.create_trust(
-                trust_id=uuid.uuid4().hex,
-                trust=trust,
-                roles=clean_roles)
+            trust_id = uuid.uuid4().hex
+            new_trust = self.trust_api.create_trust(trust_id,
+                                                    trust,
+                                                    clean_roles)
             self._fill_in_roles(context, new_trust, all_roles)
             return TrustV3.wrap_member(context, new_trust)
         except KeyError as e:
