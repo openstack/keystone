@@ -66,15 +66,29 @@ class CredentialV3(controller.V3Controller):
         ref = self.credential_api.create_credential(ref['id'], ref)
         return CredentialV3.wrap_member(context, ref)
 
+    @staticmethod
+    def _blob_to_json(ref):
+        # credentials stored via ec2tokens before the fix for #1259584
+        # need json serializing, as that's the documented API format
+        blob = ref.get('blob')
+        if isinstance(blob, dict):
+            new_ref = ref.copy()
+            new_ref['blob'] = json.dumps(blob)
+            return new_ref
+        else:
+            return ref
+
     @controller.protected()
     def list_credentials(self, context):
         refs = self.credential_api.list_credentials()
-        return CredentialV3.wrap_collection(context, refs)
+        ret_refs = [self._blob_to_json(r) for r in refs]
+        return CredentialV3.wrap_collection(context, ret_refs)
 
     @controller.protected()
     def get_credential(self, context, credential_id):
         ref = self.credential_api.get_credential(credential_id)
-        return CredentialV3.wrap_member(context, ref)
+        ret_ref = self._blob_to_json(ref)
+        return CredentialV3.wrap_member(context, ret_ref)
 
     @controller.protected()
     def update_credential(self, context, credential_id, credential):

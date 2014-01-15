@@ -142,6 +142,27 @@ class CredentialTestCase(CredentialBaseTestCase):
             '/credentials',
             body={'credential': ref}, expected_status=409)
 
+    def test_get_ec2_dict_blob(self):
+        """Ensure non-JSON blob data is correctly converted."""
+        expected_blob, credential_id = self._create_dict_blob_credential()
+
+        r = self.get(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': credential_id})
+        self.assertEqual(expected_blob, r.result['credential']['blob'])
+
+    def test_list_ec2_dict_blob(self):
+        """Ensure non-JSON blob data is correctly converted."""
+        expected_blob, credential_id = self._create_dict_blob_credential()
+
+        list_r = self.get('/credentials')
+        list_creds = list_r.result['credentials']
+        list_ids = [r['id'] for r in list_creds]
+        self.assertIn(credential_id, list_ids)
+        for r in list_creds:
+            if r['id'] == credential_id:
+                self.assertEqual(expected_blob, r['blob'])
+
     def test_create_non_ec2_credential(self):
         """Call ``POST /credentials`` for creating non-ec2 credential."""
         ref = self.new_credential_ref(user_id=self.user['id'])
