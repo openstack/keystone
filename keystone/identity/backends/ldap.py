@@ -86,10 +86,12 @@ class Identity(identity.Driver):
 
     # CRUD
     def create_user(self, user_id, user):
+        self.user.check_allow_create()
         user_ref = self.user.create(user)
         return identity.filter_user(user_ref)
 
     def update_user(self, user_id, user):
+        self.user.check_allow_update()
         if 'id' in user and user['id'] != user_id:
             raise exception.ValidationError('Cannot change user ID')
         old_obj = self.user.get(user_id)
@@ -103,6 +105,7 @@ class Identity(identity.Driver):
         return self.user.get_filtered(user_id)
 
     def delete_user(self, user_id):
+        self.user.check_allow_delete()
         self.assignment_api.delete_user(user_id)
         user_dn = self.user._id_to_dn(user_id)
         groups = self.group.list_user_groups(user_dn)
@@ -116,6 +119,7 @@ class Identity(identity.Driver):
         self.user.delete(user_id)
 
     def create_group(self, group_id, group):
+        self.group.check_allow_create()
         group['name'] = clean.group_name(group['name'])
         return self.group.create(group)
 
@@ -123,11 +127,13 @@ class Identity(identity.Driver):
         return self.group.get(group_id)
 
     def update_group(self, group_id, group):
+        self.group.check_allow_update()
         if 'name' in group:
             group['name'] = clean.group_name(group['name'])
         return self.group.update(group_id, group)
 
     def delete_group(self, group_id):
+        self.group.check_allow_delete()
         return self.group.delete(group_id)
 
     def add_user_to_group(self, user_id, group_id):

@@ -65,6 +65,7 @@ class Assignment(assignment.Driver):
         return self._set_default_domain(self.project.get_by_name(tenant_name))
 
     def create_project(self, tenant_id, tenant):
+        self.project.check_allow_create()
         tenant = self._validate_default_domain(tenant)
         tenant['name'] = clean.project_name(tenant['name'])
         data = tenant.copy()
@@ -75,6 +76,7 @@ class Assignment(assignment.Driver):
         return self._set_default_domain(self.project.create(data))
 
     def update_project(self, tenant_id, tenant):
+        self.project.check_allow_update()
         tenant = self._validate_default_domain(tenant)
         if 'name' in tenant:
             tenant['name'] = clean.project_name(tenant['name'])
@@ -187,6 +189,7 @@ class Assignment(assignment.Driver):
         return {}
 
     def create_role(self, role_id, role):
+        self.role.check_allow_create()
         try:
             self.get_role(role_id)
         except exception.NotFound:
@@ -206,9 +209,11 @@ class Assignment(assignment.Driver):
         return self.role.create(role)
 
     def delete_role(self, role_id):
+        self.role.check_allow_delete()
         return self.role.delete(role_id, self.project.tree_dn)
 
     def delete_project(self, tenant_id):
+        self.project.check_allow_delete()
         if self.project.subtree_delete_enabled:
             self.project.deleteTree(tenant_id)
         else:
@@ -232,6 +237,7 @@ class Assignment(assignment.Driver):
                                      group_id, role_id)
 
     def update_role(self, role_id, role):
+        self.role.check_allow_update()
         self.get_role(role_id)
         return self.role.update(role_id, role)
 

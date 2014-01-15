@@ -112,6 +112,16 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                           self.identity_api.delete_user,
                           self.user_foo['id'])
 
+    def test_configurable_forbidden_create_existing_user(self):
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_allow_create = False
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        self.assertRaises(exception.ForbiddenAction,
+                          self.identity_api.create_user,
+                          self.user_foo['id'],
+                          self.user_foo)
+
     def test_user_filter(self):
         user_ref = self.identity_api.get_user(self.user_foo['id'])
         self.user_foo.pop('password')
