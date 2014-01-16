@@ -34,7 +34,7 @@ testtools>=0.9.32
 httplib2
 # replaces httplib2 in keystoneclient >=0.2.1
 requests>=1.1
-keyring>=1.6.1,<2.0
+keyring>=1.6.1,<2.0,>=2.1
 
 # For documentation
 oslo.sphinx
