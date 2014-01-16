@@ -237,7 +237,7 @@
 # driver = keystone.catalog.backends.sql.Catalog
 
 # static, file-based backend (does *NOT* support any management commands)
-# driver = keystone.catalog.backends.templated.TemplatedCatalog
+# driver = keystone.catalog.backends.templated.Catalog
 
 # template_file = default_catalog.templates
 

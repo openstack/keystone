@@ -1,4 +1,4 @@
-# config for TemplatedCatalog, using camelCase because I don't want to do
+# config for templated.Catalog, using camelCase because I don't want to do
 # translations for keystone compat
 catalog.RegionOne.identity.publicURL = http://localhost:$(public_port)s/v2.0
 catalog.RegionOne.identity.adminURL = http://localhost:$(admin_port)s/v2.0
