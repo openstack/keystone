@@ -16,6 +16,7 @@
 
 import datetime
 
+from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import tests
@@ -23,7 +24,9 @@ from keystone.tests import default_fixtures
 from keystone import token
 
 
-FUTURE_DELTA = datetime.timedelta(seconds=86400)
+CONF = config.CONF
+
+FUTURE_DELTA = datetime.timedelta(seconds=CONF.token.expiration)
 CURRENT_DATE = timeutils.utcnow()
 
 SAMPLE_V2_TOKEN = {
