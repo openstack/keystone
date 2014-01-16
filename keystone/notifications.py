@@ -16,11 +16,19 @@
 
 """Notifications module for OpenStack Identity Service resources"""
 
+import logging
+
 from keystone.openstack.common import log
 from keystone.openstack.common.notifier import api as notifier_api
 
 
 LOG = log.getLogger(__name__)
+# NOTE(gyee): actions that can be notified. One must update this list whenever
+# a new action is supported.
+ACTIONS = frozenset(['created', 'deleted', 'updated'])
+# resource types that can be notified
+RESOURCE_TYPES = set()
+SUBSCRIBERS = {}
 
 
 class ManagerNotificationWrapper(object):
@@ -35,6 +43,7 @@ class ManagerNotificationWrapper(object):
     def __init__(self, operation, resource_type, host=None):
         self.operation = operation
         self.resource_type = resource_type
+        RESOURCE_TYPES.add(resource_type)
         self.host = host
 
     def __call__(self, f):
@@ -70,6 +79,65 @@ def deleted(*args, **kwargs):
     return ManagerNotificationWrapper('deleted', *args, **kwargs)
 
 
+def _get_callback_info(callback):
+    if getattr(callback, 'im_class', None):
+        return [getattr(callback, '__module__', None),
+                callback.im_class.__name__,
+                callback.__name__]
+    else:
+        return [getattr(callback, '__module__', None), callback.__name__]
+
+
+def register_event_callback(event, resource_type, callbacks):
+    if event not in ACTIONS:
+        raise ValueError(_('%(event)s is not a valid notification event, must '
+                           'be one of: %(actions)s') %
+                         {'event': event, 'actions': ', '.join(ACTIONS)})
+    if resource_type not in RESOURCE_TYPES:
+        raise ValueError(_('%(resource_type)s is not a valid notification '
+                           'resource, must be one of: %(types)s') %
+                         {'resource_type': resource_type,
+                          'types': ', '.join(RESOURCE_TYPES)})
+
+    if not hasattr(callbacks, '__iter__'):
+        callbacks = [callbacks]
+
+    for callback in callbacks:
+        if not callable(callback):
+            msg = _('Method not callable: %s') % callback
+            LOG.error(msg)
+            raise TypeError(msg)
+        SUBSCRIBERS.setdefault(event, {}).setdefault(resource_type, set())
+        SUBSCRIBERS[event][resource_type].add(callback)
+
+        if LOG.logger.getEffectiveLevel() <= logging.INFO:
+            # Do this only if its going to appear in the logs.
+            msg = _('Callback: `%(callback)s` subscribed to event '
+                    '`%(event)s`.')
+            callback_info = _get_callback_info(callback)
+            callback_str = '.'.join(
+                filter(lambda i: i is not None, callback_info))
+            event_str = '.'.join(['identity', resource_type, event])
+            LOG.info(msg, {'callback': callback_str, 'event': event_str})
+
+
+def notify_event_callbacks(service, resource_type, operation, payload):
+    """Sends a notification to registered extensions."""
+    if operation in SUBSCRIBERS:
+        if resource_type in SUBSCRIBERS[operation]:
+            for cb in SUBSCRIBERS[operation][resource_type]:
+                subst_dict = {'cb_name': cb.__name__,
+                              'service': service,
+                              'resource_type': resource_type,
+                              'operation': operation,
+                              'payload': payload}
+                LOG.debug(_('Invoking callback %(cb_name)s for event '
+                          '%(service)s %(resource_type)s %(operation)s for'
+                          '%(payload)s'),
+                          subst_dict)
+                cb(service, resource_type, operation, payload)
+
+
 def _send_notification(operation, resource_type, resource_id, host=None):
     """Send notification to inform observers about the affected resource.
 
@@ -88,6 +156,8 @@ def _send_notification(operation, resource_type, resource_id, host=None):
         'service': service,
         'resource_type': resource_type,
         'operation': operation}
+
+    notify_event_callbacks(service, resource_type, operation, payload)
 
     try:
         notifier_api.notify(

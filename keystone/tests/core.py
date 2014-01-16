@@ -58,6 +58,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
+from keystone import notifications
 from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
@@ -333,6 +334,9 @@ class TestCase(testtools.TestCase):
         self.addCleanup(kvs.INMEMDB.clear)
 
         self.addCleanup(timeutils.clear_time_override)
+
+        # Ensure Notification subscriotions and resource types are empty
+        self.addCleanup(notifications.SUBSCRIBERS.clear)
 
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
