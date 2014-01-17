@@ -405,11 +405,16 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         The following data is created:
 
-        - Three domains: A, B and admin_domain, and one project
-        - DomainA has users: domain_admin and just_a_user. domain_admin has
-          role 'admin', just_a_user does not
-        - admin_domain has user cloud_admin, with a plain role
-        - domain_admin and just_a_user gave the same roles on the project
+        - Three domains: domainA, domainB and admin_domain
+        - One project, which name is 'project'
+        - domainA has three users: domain_admin_user, project_admin_user and
+          just_a_user:
+          - domain_admin_user has role 'admin' on domainA,
+          - project_admin_user has role 'admin' on the project,
+          - just_a_user has a non-admin role on both domainA and the
+            project.
+        - admin_domain has user cloud_admin_user, with an 'admin' role
+          on admin_domain.
 
         We test various api protection rules from the cloud sample policy
         file to make sure the sample is valid and that we correctly enforce it.
@@ -577,8 +582,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
                     expected_status=status_no_data)
 
     def test_user_management(self):
-        # First, authentication with a user that does not have the domain
-        # admin role - houldn't be able to do much.
+        # First, authenticate with a user that does not have the domain
+        # admin role - shouldn't be able to do much.
         self.auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'],
@@ -587,7 +592,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self._test_user_management(
             self.domainA['id'], expected=exception.ForbiddenAction.code)
 
-        # Now, authentication with a user that does have the domain admin role
+        # Now, authenticate with a user that does have the domain admin role
         self.auth = self.build_authentication_request(
             user_id=self.domain_admin_user['id'],
             password=self.domain_admin_user['password'],
@@ -596,8 +601,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self._test_user_management(self.domainA['id'])
 
     def test_project_management(self):
-        # First, authentication with a user that does not have the project
-        # admin role - houldn't be able to do much.
+        # First, authenticate with a user that does not have the project
+        # admin role - shouldn't be able to do much.
         self.auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'],
@@ -611,7 +616,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         url = '/users/%s/projects' % self.just_a_user['id']
         self.get(url, auth=self.auth)
 
-        # Now, authentication with a user that does have the domain admin role
+        # Now, authenticate with a user that does have the domain admin role
         self.auth = self.build_authentication_request(
             user_id=self.domain_admin_user['id'],
             password=self.domain_admin_user['password'],
@@ -628,7 +633,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self._test_grants('domains', self.domainA['id'],
                           expected=exception.ForbiddenAction.code)
 
-        # Now, authentication with a user that does have the domain admin role
+        # Now, authenticate with a user that does have the domain admin role
         self.auth = self.build_authentication_request(
             user_id=self.domain_admin_user['id'],
             password=self.domain_admin_user['password'],
@@ -645,7 +650,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self._test_grants('projects', self.project['id'],
                           expected=exception.ForbiddenAction.code)
 
-        # Now, authentication with a user that does have the domain admin role
+        # Now, authenticate with a user that does have the project
+        # admin role
         self.auth = self.build_authentication_request(
             user_id=self.project_admin_user['id'],
             password=self.project_admin_user['password'],
