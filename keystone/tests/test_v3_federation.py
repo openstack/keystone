@@ -20,6 +20,7 @@ import uuid
 from keystone.common.sql import migration
 from keystone import config
 from keystone import contrib
+from keystone.contrib.federation import utils as mapping_utils
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
@@ -584,3 +585,135 @@ class MappingCRUDTests(FederationTests):
         url = self.MAPPING_URL + uuid.uuid4().hex
         self.put(url, expected_status=400,
                  body={'mapping': mapping_fixtures.MAPPING_EXTRA_RULES_PROPS})
+
+
+class MappingRuleEngineTests(FederationTests):
+    """A class for testing the mapping rule engine."""
+
+    def test_rule_engine_any_one_of_and_direct_mapping(self):
+        """Should return user's name and group id EMPLOYEE_GROUP_ID.
+
+        The ADMIN_ASSERTION should successfully have a match in MAPPING_LARGE.
+        The will test the case where `any_one_of` is valid, and there is
+        a direct mapping for the users name.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_LARGE
+        assertion = mapping_fixtures.ADMIN_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        fn = mapping_fixtures.ADMIN_ASSERTION.get('FirstName')
+        ln = mapping_fixtures.ADMIN_ASSERTION.get('LastName')
+        full_name = '%s %s' % (fn, ln)
+
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertIn(mapping_fixtures.EMPLOYEE_GROUP_ID, group_ids)
+        self.assertEqual(name, full_name)
+
+    def test_rule_engine_no_regex_match(self):
+        """Should return no values, the email of the tester won't match.
+
+        This will not match since the email in the assertion will fail
+        the regex test. It is set to match any @example.com address.
+        But the incoming value is set to eviltester@example.org.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_LARGE
+        assertion = mapping_fixtures.BAD_TESTER_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertIsNone(name)
+        self.assertEqual(group_ids, [])
+
+    def test_rule_engine_any_one_of_many_rules(self):
+        """Should return group CONTRACTOR_GROUP_ID.
+
+        The CONTRACTOR_ASSERTION should successfully have a match in
+        MAPPING_SMALL. This will test the case where many rules
+        must be matched, including an `any_one_of`, and a direct
+        mapping.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_SMALL
+        assertion = mapping_fixtures.CONTRACTOR_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertIsNone(name)
+        self.assertIn(mapping_fixtures.CONTRACTOR_GROUP_ID, group_ids)
+
+    def test_rule_engine_not_any_of_and_direct_mapping(self):
+        """Should return user's name and email.
+
+        The CUSTOMER_ASSERTION should successfully have a match in
+        MAPPING_LARGE. This will test the case where a requirement
+        has `not_any_of`, and direct mapping to a username, no group.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_LARGE
+        assertion = mapping_fixtures.CUSTOMER_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        user_name = mapping_fixtures.CUSTOMER_ASSERTION.get('UserName')
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertEqual(name, user_name)
+        self.assertEqual(group_ids, [])
+
+    def test_rule_engine_not_any_of_many_rules(self):
+        """Should return group EMPLOYEE_GROUP_ID.
+
+        The EMPLOYEE_ASSERTION should successfully have a match in
+        MAPPING_SMALL. This will test the case where many remote
+        rules must be matched, including a `not_any_of`.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_SMALL
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertIsNone(name)
+        self.assertIn(mapping_fixtures.EMPLOYEE_GROUP_ID, group_ids)
+
+    def test_rule_engine_regex_match_and_many_groups(self):
+        """Should return group DEVELOPER_GROUP_ID and TESTER_GROUP_ID.
+
+        The TESTER_ASSERTION should successfully have a match in
+        MAPPING_LARGE. This will test a successful regex match
+        for an `any_one_of` evaluation type, and will have many
+        groups returned.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_LARGE
+        assertion = mapping_fixtures.TESTER_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertIsNone(name)
+        self.assertIn(mapping_fixtures.DEVELOPER_GROUP_ID, group_ids)
+        self.assertIn(mapping_fixtures.TESTER_GROUP_ID, group_ids)
