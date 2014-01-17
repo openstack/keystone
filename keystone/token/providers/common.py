@@ -45,7 +45,7 @@ class V2TokenDataHelper(object):
             roles_ref = []
         expires = token_ref.get('expires', token.default_expire_time())
         if expires is not None:
-            if not isinstance(expires, unicode):
+            if not isinstance(expires, six.text_type):
                 expires = timeutils.isotime(expires)
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,

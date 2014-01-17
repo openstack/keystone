@@ -16,6 +16,8 @@
 import datetime
 import uuid
 
+import six
+
 from keystone import config
 from keystone import exception
 from keystone import identity
@@ -103,7 +105,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         self.token_api.driver._store.set(user_key, token_list)
 
     def test_cleanup_user_index_on_create(self):
-        user_id = unicode(uuid.uuid4().hex)
+        user_id = six.text_type(uuid.uuid4().hex)
         valid_token_id, data = self.create_token_sample_data(user_id=user_id)
         expired_token_id, expired_data = self.create_token_sample_data(
             user_id=user_id)

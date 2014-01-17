@@ -441,7 +441,7 @@ class Auth(controller.V2Controller):
 
         for t in tokens:
             expires = t['expires']
-            if not (expires and isinstance(expires, unicode)):
+            if not (expires and isinstance(expires, six.text_type)):
                     t['expires'] = timeutils.isotime(expires)
         data = {'revoked': tokens}
         json_data = json.dumps(data)

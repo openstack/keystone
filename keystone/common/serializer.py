@@ -218,8 +218,8 @@ class XmlSerializer(object):
         for k, v in six.iteritems(links_json):
             if v:
                 link = etree.Element('link')
-                link.set('rel', unicode(k))
-                link.set('href', unicode(v))
+                link.set('rel', six.text_type(k))
+                link.set('href', six.text_type(v))
                 links.append(link)
         element.append(links)
 
@@ -279,18 +279,18 @@ class XmlSerializer(object):
     def _populate_bool(self, element, k, v):
         """Populates an element with a key & boolean value."""
         # booleans are 'true' and 'false'
-        element.set(k, unicode(v).lower())
+        element.set(k, six.text_type(v).lower())
 
     def _populate_str(self, element, k, v):
         """Populates an element with a key & string value."""
         if k in ['description']:
             # always becomes an element
             child = etree.Element(k)
-            child.text = unicode(v)
+            child.text = six.text_type(v)
             element.append(child)
         else:
             # add attributes to the current element
-            element.set(k, unicode(v))
+            element.set(k, six.text_type(v))
 
     def _populate_number(self, element, k, v):
         """Populates an element with a key & numeric value."""
@@ -316,7 +316,7 @@ class XmlSerializer(object):
                     element.append(child)
 
         elif isinstance(value, six.string_types):
-            element.text = unicode(value)
+            element.text = six.text_type(value)
 
     def _populate_sequence(self, element, l):
         """Populates an etree with a sequence of elements, given a list."""

@@ -19,6 +19,7 @@ import datetime
 import uuid
 
 import memcache
+import six
 
 from keystone.common import utils
 from keystone import config
@@ -125,7 +126,7 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
         self.token_api = self.token_man
 
     def test_create_unicode_token_id(self):
-        token_id = unicode(self._create_token_id())
+        token_id = six.text_type(self._create_token_id())
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': 'testuserid'}}
         self.token_api.create_token(token_id, data)
@@ -133,14 +134,14 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
 
     def test_create_unicode_user_id(self):
         token_id = self._create_token_id()
-        user_id = unicode(uuid.uuid4().hex)
+        user_id = six.text_type(uuid.uuid4().hex)
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': user_id}}
         self.token_api.create_token(token_id, data)
         self.token_api.get_token(token_id)
 
     def test_list_tokens_unicode_user_id(self):
-        user_id = unicode(uuid.uuid4().hex)
+        user_id = six.text_type(uuid.uuid4().hex)
         self.token_api.list_tokens(user_id)
 
     def test_flush_expired_token(self):
@@ -151,7 +152,7 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
         valid_token_id = uuid.uuid4().hex
         second_valid_token_id = uuid.uuid4().hex
         expired_token_id = uuid.uuid4().hex
-        user_id = unicode(uuid.uuid4().hex)
+        user_id = six.text_type(uuid.uuid4().hex)
 
         expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
 
@@ -184,7 +185,7 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
     def test_cas_failure(self):
         self.token_api.driver.client.reject_cas = True
         token_id = uuid.uuid4().hex
-        user_id = unicode(uuid.uuid4().hex)
+        user_id = six.text_type(uuid.uuid4().hex)
         user_key = self.token_api.driver._prefix_user_id(user_id)
         token_data = jsonutils.dumps(token_id)
         self.assertRaises(
@@ -197,7 +198,7 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
         @test_utils.timezone
         def _create_token(expire_time):
             token_id = uuid.uuid4().hex
-            user_id = unicode(uuid.uuid4().hex)
+            user_id = six.text_type(uuid.uuid4().hex)
             data = {'id': token_id, 'a': 'b', 'user': {'id': user_id},
                     'expires': expire_time
                     }
