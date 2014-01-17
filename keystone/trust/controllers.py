@@ -16,6 +16,8 @@
 
 import uuid
 
+import six
+
 from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
@@ -94,7 +96,7 @@ class TrustV3(controller.V3Controller):
             trust['roles'] = []
         trust_full_roles = []
         for trust_role in trust['roles']:
-            if isinstance(trust_role, basestring):
+            if isinstance(trust_role, six.string_types):
                 trust_role = {'id': trust_role}
             matching_roles = [x for x in all_roles
                               if x['id'] == trust_role['id']]

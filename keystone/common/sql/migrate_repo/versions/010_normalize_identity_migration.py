@@ -16,6 +16,8 @@
 
 import json
 
+import six
+
 from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import sessionmaker
 
@@ -27,7 +29,8 @@ def is_enabled(enabled):
     # no explicit value means enabled
     if enabled is True or enabled is None:
         return True
-    if isinstance(enabled, basestring) and enabled.lower() in DISABLED_VALUES:
+    if (isinstance(enabled, six.string_types)
+            and enabled.lower() in DISABLED_VALUES):
         return False
     return bool(enabled)
 

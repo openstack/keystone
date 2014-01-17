@@ -25,6 +25,8 @@ by convention, with a few hardcoded exceptions.
 from lxml import etree
 import re
 
+import six
+
 
 DOCTYPE = '<?xml version="1.0" encoding="UTF-8"?>'
 XMLNS = 'http://docs.openstack.org/identity/api/v2.0'
@@ -313,7 +315,7 @@ class XmlSerializer(object):
                     self.populate_element(child, item)
                     element.append(child)
 
-        elif isinstance(value, basestring):
+        elif isinstance(value, six.string_types):
             element.text = unicode(value)
 
     def _populate_sequence(self, element, l):
@@ -339,7 +341,7 @@ class XmlSerializer(object):
                 self._populate_list(element, k, v)
             elif isinstance(v, bool):
                 self._populate_bool(element, k, v)
-            elif isinstance(v, basestring):
+            elif isinstance(v, six.string_types):
                 self._populate_str(element, k, v)
             elif type(v) in [int, float, long, complex]:
                 self._populate_number(element, k, v)

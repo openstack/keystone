@@ -18,6 +18,8 @@ import collections
 import functools
 import uuid
 
+import six
+
 from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
@@ -317,7 +319,7 @@ class V3Controller(wsgi.Application):
 
             """
             if type(ref_attr) is bool:
-                if (isinstance(val_attr, basestring) and
+                if (isinstance(val_attr, six.string_types) and
                         val_attr == '0'):
                     val = False
                 else:

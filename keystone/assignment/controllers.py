@@ -22,6 +22,8 @@ import urllib
 import urlparse
 import uuid
 
+import six
+
 from keystone.common import controller
 from keystone.common import dependency
 from keystone import config
@@ -828,7 +830,7 @@ class RoleAssignmentV3(controller.V3Controller):
 
         """
 
-        if (isinstance(filter_value, basestring) and
+        if (isinstance(filter_value, six.string_types) and
                 filter_value == '0'):
             val = False
         else:
