@@ -26,6 +26,31 @@ from keystone import exception
 CONF = config.CONF
 
 
+class Region(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'region'
+    attributes = ['id', 'description', 'parent_region_id']
+    id = sql.Column(sql.String(64), primary_key=True)
+    description = sql.Column(sql.String(255))
+    # NOTE(jaypipes): Right now, using an adjacency list model for
+    #                 storing the hierarchy of regions is fine, since
+    #                 the API does not support any kind of querying for
+    #                 more complex hierarchical queries such as "get me only
+    #                 the regions that are subchildren of this region", etc.
+    #                 If, in the future, such queries are needed, then it
+    #                 would be possible to add in columns to this model for
+    #                 "left" and "right" and provide support for a nested set
+    #                 model.
+    parent_region_id = sql.Column(sql.String(64), nullable=True)
+
+    # TODO(jaypipes): I think it's absolutely stupid that every single model
+    #                 is required to have an "extra" column because of the
+    #                 DictBase in the keystone.common.sql.core module. Forcing
+    #                 tables to have pointless columns in the database is just
+    #                 bad. Remove all of this extra JSON blob stuff.
+    #                 See: https://bugs.launchpad.net/keystone/+bug/1265071
+    extra = sql.Column(sql.JsonBlob())
+
+
 class Service(sql.ModelBase, sql.DictBase):
     __tablename__ = 'service'
     attributes = ['id', 'type']
@@ -53,6 +78,77 @@ class Endpoint(sql.ModelBase, sql.DictBase):
 class Catalog(sql.Base, catalog.Driver):
     def db_sync(self, version=None):
         migration.db_sync(version=version)
+
+    # Regions
+    def list_regions(self):
+        session = self.get_session()
+        regions = session.query(Region).all()
+        return [s.to_dict() for s in list(regions)]
+
+    def _get_region(self, session, region_id):
+        ref = session.query(Region).get(region_id)
+        if not ref:
+            raise exception.RegionNotFound(region_id=region_id)
+        return ref
+
+    def _delete_child_regions(self, session, region_id):
+        """Delete all child regions.
+
+        Recursively delete any region that has the supplied region
+        as its parent.
+        """
+        children = session.query(Region).filter_by(parent_region_id=region_id)
+        for child in children:
+            self._delete_child_regions(session, child.id)
+            session.delete(child)
+
+    def _check_parent_region(self, session, region_ref):
+        """Raise a NotFound if the parent region does not exist.
+
+        If the region_ref has a specified parent_region_id, check that
+        the parent exists, otherwise, raise a NotFound.
+        """
+        parent_region_id = region_ref.get('parent_region_id')
+        if parent_region_id is not None:
+            # This will raise NotFound if the parent doesn't exist,
+            # which is the behavior we want.
+            self._get_region(session, parent_region_id)
+
+    def get_region(self, region_id):
+        session = self.get_session()
+        return self._get_region(session, region_id).to_dict()
+
+    def delete_region(self, region_id):
+        session = self.get_session()
+        with session.begin():
+            ref = self._get_region(session, region_id)
+            self._delete_child_regions(session, region_id)
+            session.query(Region).filter_by(id=region_id).delete()
+            session.delete(ref)
+            session.flush()
+
+    def create_region(self, region_id, region_ref):
+        session = self.get_session()
+        with session.begin():
+            self._check_parent_region(session, region_ref)
+            region = Region.from_dict(region_ref)
+            session.add(region)
+            session.flush()
+        return region.to_dict()
+
+    def update_region(self, region_id, region_ref):
+        session = self.get_session()
+        with session.begin():
+            self._check_parent_region(session, region_ref)
+            ref = self._get_region(session, region_id)
+            old_dict = ref.to_dict()
+            old_dict.update(region_ref)
+            new_region = Region.from_dict(old_dict)
+            for attr in Region.attributes:
+                if attr != 'id':
+                    setattr(ref, attr, getattr(new_region, attr))
+            session.flush()
+        return ref.to_dict()
 
     # Services
     def list_services(self):

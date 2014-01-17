@@ -23,6 +23,46 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(CatalogTestCase, self).setUp()
 
+    # region crud tests
+
+    def test_create_region(self):
+        """Call ``POST /regions``."""
+        ref = self.new_region_ref()
+        r = self.post(
+            '/regions',
+            body={'region': ref})
+        return self.assertValidRegionResponse(r, ref)
+
+    def test_list_regions(self):
+        """Call ``GET /regions``."""
+        r = self.get('/regions')
+        self.assertValidRegionListResponse(r, ref=self.region)
+
+    def test_list_regions_xml(self):
+        """Call ``GET /regions (xml data)``."""
+        r = self.get('/regions', content_type='xml')
+        self.assertValidRegionListResponse(r, ref=self.region)
+
+    def test_get_region(self):
+        """Call ``GET /regions/{region_id}``."""
+        r = self.get('/regions/%(region_id)s' % {
+            'region_id': self.region_id})
+        self.assertValidRegionResponse(r, self.region)
+
+    def test_update_region(self):
+        """Call ``PATCH /regions/{region_id}``."""
+        region = self.new_region_ref()
+        del region['id']
+        r = self.patch('/regions/%(region_id)s' % {
+            'region_id': self.region_id},
+            body={'region': region})
+        self.assertValidRegionResponse(r, region)
+
+    def test_delete_region(self):
+        """Call ``DELETE /regions/{region_id}``."""
+        self.delete('/regions/%(region_id)s' % {
+            'region_id': self.region_id})
+
     # service crud tests
 
     def test_create_service(self):
