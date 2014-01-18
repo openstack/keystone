@@ -14,8 +14,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
-
 from babel import localedata
 import gettext
 
@@ -239,34 +237,6 @@ class LocalizedResponseTest(tests.TestCase):
 
         req = wsgi.Request.blank('/', headers={'Accept-Language': 'zh'})
         self.assertIsNone(req.best_match_language())
-
-    def test_localized_message(self):
-        # If the accept-language header is set on the request, the localized
-        # message is returned by calling get_localized_message.
-
-        LANG_ID = uuid.uuid4().hex
-        ORIGINAL_TEXT = uuid.uuid4().hex
-        TRANSLATED_TEXT = uuid.uuid4().hex
-
-        self._set_expected_languages(all_locales=[LANG_ID])
-
-        def fake_get_localized_message(message, user_locale):
-            if (user_locale == LANG_ID and
-                    message == ORIGINAL_TEXT):
-                return TRANSLATED_TEXT
-
-        self.stubs.Set(gettextutils, 'get_localized_message',
-                       fake_get_localized_message)
-
-        error = exception.NotFound(message=ORIGINAL_TEXT)
-        resp = wsgi.render_exception(error, user_locale=LANG_ID)
-        result = jsonutils.loads(resp.body)
-
-        exp = {'error': {'message': TRANSLATED_TEXT,
-                         'code': 404,
-                         'title': 'Not Found'}}
-
-        self.assertEqual(exp, result)
 
     def test_static_translated_string_is_Message(self):
         # Statically created message strings are Message objects so that they
