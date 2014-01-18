@@ -21,6 +21,7 @@ from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
 from keystone.contrib.oauth1 import core as oauth1
+from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
@@ -176,26 +177,21 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.ValidationError(
                 attribute='requested_project_id', target='request')
 
-        consumer_ref = self.oauth_api.get_consumer_with_secret(consumer_id)
-        consumer = oauth1.Consumer(key=consumer_ref['id'],
-                                   secret=consumer_ref['secret'])
-
         url = oauth1.rebuild_url(context['path'])
-        oauth_request = oauth1.Request.from_request(
-            http_method='POST',
-            http_url=url,
-            headers=context['headers'],
-            query_string=context['query_string'],
-            parameters={'requested_project_id': requested_project_id})
-        oauth_server = oauth1.Server()
-        oauth_server.add_signature_method(oauth1.SignatureMethod_HMAC_SHA1())
-        params = oauth_server.verify_request(oauth_request,
-                                             consumer,
-                                             token=None)
 
-        project_params = params['requested_project_id']
-        if project_params != requested_project_id:
-            msg = _('Non-oauth parameter - project, do not match')
+        req_headers = {'Requested-Project-Id': requested_project_id}
+        req_headers.update(headers)
+        request_verifier = oauth1.RequestTokenEndpoint(
+            request_validator=validator.OAuthValidator(),
+            token_generator=oauth1.token_generator)
+        h, b, s = request_verifier.create_request_token_response(
+            url,
+            http_method='POST',
+            body=context['query_string'],
+            headers=req_headers)
+
+        if (not b) or int(s) > 399:
+            msg = _('Invalid signature')
             raise exception.Unauthorized(message=msg)
 
         request_token_duration = CONF.oauth1.request_token_duration
@@ -235,7 +231,6 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.ValidationError(
                 attribute='oauth_verifier', target='request')
 
-        consumer = self.oauth_api.get_consumer_with_secret(consumer_id)
         req_token = self.oauth_api.get_request_token(
             request_token_id)
 
@@ -247,25 +242,18 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
-        consumer_obj = oauth1.Consumer(key=consumer['id'],
-                                       secret=consumer['secret'])
-        req_token_obj = oauth1.Token(key=req_token['id'],
-                                     secret=req_token['request_secret'])
-        req_token_obj.set_verifier(oauth_verifier)
-
         url = oauth1.rebuild_url(context['path'])
-        oauth_request = oauth1.Request.from_request(
-            http_method='POST',
-            http_url=url,
-            headers=context['headers'],
-            query_string=context['query_string'])
-        oauth_server = oauth1.Server()
-        oauth_server.add_signature_method(oauth1.SignatureMethod_HMAC_SHA1())
-        params = oauth_server.verify_request(oauth_request,
-                                             consumer_obj,
-                                             token=req_token_obj)
 
-        if params:
+        access_verifier = oauth1.AccessTokenEndpoint(
+            request_validator=validator.OAuthValidator(),
+            token_generator=oauth1.token_generator)
+        h, b, s = access_verifier.create_access_token_response(
+            url,
+            http_method='POST',
+            body=context['query_string'],
+            headers=headers)
+        params = oauth1.extract_non_oauth_params(b)
+        if len(params) != 0:
             msg = _('There should not be any non-oauth parameters')
             raise exception.Unauthorized(message=msg)
 

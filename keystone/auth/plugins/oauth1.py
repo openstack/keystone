@@ -18,6 +18,7 @@ from keystone import auth
 from keystone.common import dependency
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import core as oauth
+from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
@@ -36,7 +37,6 @@ class OAuth(auth.AuthMethodHandler):
         """Turn a signed request with an access key into a keystone token."""
         headers = context['headers']
         oauth_headers = oauth.get_oauth_headers(headers)
-        consumer_id = oauth_headers.get('oauth_consumer_key')
         access_token_id = oauth_headers.get('oauth_token')
 
         if not access_token_id:
@@ -44,7 +44,6 @@ class OAuth(auth.AuthMethodHandler):
                 attribute='oauth_token', target='request')
 
         acc_token = self.oauth_api.get_access_token(access_token_id)
-        consumer = self.oauth_api.get_consumer_with_secret(consumer_id)
 
         expires_at = acc_token['expires_at']
         if expires_at:
@@ -54,27 +53,20 @@ class OAuth(auth.AuthMethodHandler):
             if now > expires:
                 raise exception.Unauthorized(_('Access token is expired'))
 
-        consumer_obj = oauth1.Consumer(key=consumer['id'],
-                                       secret=consumer['secret'])
-        acc_token_obj = oauth1.Token(key=acc_token['id'],
-                                     secret=acc_token['access_secret'])
-
         url = oauth.rebuild_url(context['path'])
-        oauth_request = oauth1.Request.from_request(
+        access_verifier = oauth.ResourceEndpoint(
+            request_validator=validator.OAuthValidator(),
+            token_generator=oauth.token_generator)
+        result, request = access_verifier.validate_protected_resource_request(
+            url,
             http_method='POST',
-            http_url=url,
-            headers=context['headers'],
-            query_string=context['query_string'])
-        oauth_server = oauth1.Server()
-        oauth_server.add_signature_method(oauth1.SignatureMethod_HMAC_SHA1())
-        params = oauth_server.verify_request(oauth_request,
-                                             consumer_obj,
-                                             token=acc_token_obj)
-
-        if params:
-            msg = _('There should not be any non-oauth parameters')
-            raise exception.Unauthorized(message=msg)
-
+            body=context['query_string'],
+            headers=headers,
+            realms=None
+        )
+        if not result:
+            msg = _('Could not validate the access token')
+            raise exception.Unauthorized(msg)
         auth_context['user_id'] = acc_token['authorizing_user_id']
         auth_context['access_token_id'] = access_token_id
         auth_context['project_id'] = acc_token['project_id']
