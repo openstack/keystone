@@ -74,8 +74,10 @@ def parse_deref(opt):
     try:
         return LDAP_DEREF[opt]
     except KeyError:
-        raise ValueError((_('Invalid LDAP deref option: %s. Choose one of: ') %
-                         opt) + ', '.join(LDAP_DEREF.keys()))
+        raise ValueError(_('Invalid LDAP deref option: %(option)s. '
+                           'Choose one of: %(options)s') %
+                         {'option': opt,
+                          'options': ', '.join(LDAP_DEREF.keys()), })
 
 
 def parse_tls_cert(opt):
