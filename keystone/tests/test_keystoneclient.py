@@ -66,8 +66,10 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
         conf = self._paste_config('keystone')
         fixture = self.useFixture(appserver.AppServer(conf, appserver.MAIN))
         self.public_server = fixture.server
+        self.addCleanup(delattr, self, 'public_server')
         fixture = self.useFixture(appserver.AppServer(conf, appserver.ADMIN))
         self.admin_server = fixture.server
+        self.addCleanup(delattr, self, 'admin_server')
 
         if isinstance(self.checkout_info, str):
             revdir = self.checkout_info
