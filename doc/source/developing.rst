@@ -120,6 +120,10 @@ Once run, you can see the sample data that has been created by using the
 
     $ tools/with_venv.sh keystone --os-token ADMIN --os-endpoint http://127.0.0.1:35357/v2.0/ user-list
 
+
+Testing
+-------
+
 Running Tests
 =============
 
@@ -157,7 +161,7 @@ common configuration of Python 2.7 and PEP-8), list the environments with the
 See ``tox.ini`` for the full list of available test environments.
 
 Test Structure
---------------
+==============
 
 Not all of the tests in the tests directory are strictly unit tests. Keystone
 intentionally includes tests that run the service locally and drives the entire
@@ -186,7 +190,7 @@ of python-keystoneclient, and then verifying it against a temporarily running
 local instance to explicitly verify basic functional testing across the API.
 
 Testing Schema Migrations
--------------------------
+=========================
 
 The application of schema migrations can be tested using SQLAlchemy Migrate’s
 built-in test runner, one migration at a time.
@@ -209,7 +213,7 @@ of your data during migration.
 
 
 Writing Tests
--------------
+=============
 
 To add tests covering all drivers, update the relevant base test class
 (``test_backend.py``, ``test_legacy_compat.py``, and
@@ -221,7 +225,7 @@ configuration of the test class in ``setUp()``.
 
 
 Further Testing
----------------
+===============
 
 devstack_ is the *best* way to quickly deploy keystone with the rest of the
 OpenStack universe and should be critical step in your development workflow!
@@ -235,8 +239,9 @@ You may also be interested in either the
 .. _OpenStack Integration Testing Project: https://github.com/openstack/tempest
 
 
-LDAP
-----
+LDAP Tests
+==========
+
 LDAP has a fake backend that performs rudimentary operations.  If you
 are building more significant LDAP functionality, you should test against
 a live LDAP server.  Devstack has an option to set up a directory server for
@@ -445,7 +450,7 @@ globally unique.
 
 
 Building the Documentation
-==========================
+--------------------------
 
 The documentation is generated with Sphinx uning the tox command.  To create HTML docs and man pages::
 
