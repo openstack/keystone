@@ -110,6 +110,14 @@ class ValidationSizeError(Error):
     title = 'Bad Request'
 
 
+class PKITokenExpected(Error):
+    message_format = _('The certificates you requested are not available. '
+                       'It is likely that this server does not use PKI tokens '
+                       'otherwise this is the result of misconfiguration.')
+    code = 403
+    title = 'Cannot retrieve certificates'
+
+
 class SecurityError(Error):
     """Avoids exposing details of security failures, unless in debug mode."""
 
@@ -247,6 +255,11 @@ class UnexpectedError(Error):
                        " from fulfilling your request. %(exception)s")
     code = 500
     title = 'Internal Server Error'
+
+
+class CertificateFilesUnavailable(UnexpectedError):
+    message_format = _("Expected signing certificates are not available "
+                       "on the server. Please check Keystone configuration.")
 
 
 class MalformedEndpoint(UnexpectedError):
