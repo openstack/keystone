@@ -23,7 +23,6 @@ sphinx>=1.1.2,<1.2
 # test wsgi apps without starting an http server
 WebTest>=2.0
 
-extras
 discover
 python-subunit
 testrepository>=0.0.17
