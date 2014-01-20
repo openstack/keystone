@@ -12,9 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import os
 import uuid
 import webob
+
+import mock
 
 from keystone.common import sql
 from keystone import config
@@ -530,12 +533,14 @@ class KeystoneClientTests(object):
                           client.tokens.authenticate,
                           token=token_id)
 
-    def test_token_expiry_maintained(self):
-        timeutils.set_time_override()
+    @mock.patch.object(timeutils, 'utcnow')
+    def test_token_expiry_maintained(self, mock_utcnow):
+        now = datetime.datetime.utcnow()
+        mock_utcnow.return_value = now
         foo_client = self.get_client(self.user_foo)
 
         orig_token = foo_client.service_catalog.catalog['token']
-        timeutils.advance_time_seconds(1)
+        mock_utcnow.return_value = now + datetime.timedelta(seconds=1)
         reauthenticated_token = foo_client.tokens.authenticate(
             token=foo_client.auth_token)
 

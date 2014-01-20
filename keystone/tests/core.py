@@ -63,7 +63,6 @@ from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 from keystone import service
 from keystone.tests import fixtures as ksfixtures
 
@@ -347,8 +346,6 @@ class TestCase(testtools.TestCase):
         self.addCleanup(dependency.reset)
 
         self.addCleanup(kvs.INMEMDB.clear)
-
-        self.addCleanup(timeutils.clear_time_override)
 
         # Ensure Notification subscriotions and resource types are empty
         self.addCleanup(notifications.SUBSCRIBERS.clear)
