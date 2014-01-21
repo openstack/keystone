@@ -28,6 +28,7 @@ import warnings
 import fixtures
 import logging
 from paste import deploy
+import six
 import testtools
 from testtools import testcase
 
@@ -234,7 +235,7 @@ class TestClient(object):
 
         req = wsgi.Request.blank(path)
         req.method = method
-        for k, v in headers.iteritems():
+        for k, v in six.iteritems(headers):
             req.headers[k] = v
         if body:
             req.body = body
@@ -342,11 +343,11 @@ class TestCase(testtools.TestCase):
         CONF(args=[], project='keystone', default_config_files=config_files)
 
     def opt_in_group(self, group, **kw):
-        for k, v in kw.iteritems():
+        for k, v in six.iteritems(kw):
             CONF.set_override(k, v, group)
 
     def opt(self, **kw):
-        for k, v in kw.iteritems():
+        for k, v in six.iteritems(kw):
             CONF.set_override(k, v)
 
     def load_backends(self):
@@ -372,7 +373,7 @@ class TestCase(testtools.TestCase):
 
         dependency.resolve_future_dependencies()
 
-        for manager_name, manager in drivers.iteritems():
+        for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
 
     def load_fixtures(self, fixtures):
@@ -506,7 +507,7 @@ class TestCase(testtools.TestCase):
 
         missing = []
         mismatched = []
-        for key, value in expected.iteritems():
+        for key, value in six.iteritems(expected):
             if key not in actual:
                 missing.append(key)
             elif value != actual[key]:

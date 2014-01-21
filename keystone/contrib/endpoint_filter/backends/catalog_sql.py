@@ -14,6 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from keystone.catalog.backends import sql
 from keystone.catalog import core as catalog_core
 from keystone.common import dependency
@@ -26,7 +28,7 @@ CONF = config.CONF
 @dependency.requires('endpoint_filter_api')
 class EndpointFilterCatalog(sql.Catalog):
     def get_v3_catalog(self, user_id, project_id, metadata=None):
-        d = dict(CONF.iteritems())
+        d = dict(six.iteritems(CONF))
         d.update({'tenant_id': project_id, 'user_id': user_id})
 
         services = {}
@@ -61,7 +63,7 @@ class EndpointFilterCatalog(sql.Catalog):
 
         # format catalog
         catalog = []
-        for service_id, service in services.iteritems():
+        for service_id, service in six.iteritems(services):
             formatted_service = {}
             formatted_service['id'] = service['id']
             formatted_service['type'] = service['type']

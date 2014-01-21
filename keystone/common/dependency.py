@@ -26,6 +26,8 @@ See also:
     https://en.wikipedia.org/wiki/Dependency_injection
 """
 
+import six
+
 from keystone import notifications
 
 
@@ -234,7 +236,7 @@ def resolve_future_dependencies(provider_name=None):
 
     # Resolve optional dependencies, sets the attribute to None if there's no
     # provider registered.
-    for dependency, targets in _future_optionals.iteritems():
+    for dependency, targets in six.iteritems(_future_optionals):
         provider = REGISTRY.get(dependency)
         for target in targets:
             setattr(target, dependency, provider)
@@ -244,7 +246,7 @@ def resolve_future_dependencies(provider_name=None):
     # Resolve optional dependencies, raises UnresolvableDependencyException if
     # there's no provider registered.
     try:
-        for dependency, targets in _future_dependencies.iteritems():
+        for dependency, targets in six.iteritems(_future_dependencies):
             if dependency not in REGISTRY:
                 raise UnresolvableDependencyException(dependency)
 

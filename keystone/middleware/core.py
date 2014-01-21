@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
 import webob.dec
 
 from keystone.common import config
@@ -81,7 +82,7 @@ class PostParamsMiddleware(wsgi.Middleware):
     def process_request(self, request):
         params_parsed = request.params
         params = {}
-        for k, v in params_parsed.iteritems():
+        for k, v in six.iteritems(params_parsed):
             if k in ('self', 'context'):
                 continue
             if k.startswith('_'):
@@ -130,7 +131,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
                 params_parsed = {}
 
         params = {}
-        for k, v in params_parsed.iteritems():
+        for k, v in six.iteritems(params_parsed):
             if k in ('self', 'context'):
                 continue
             if k.startswith('_'):

@@ -78,7 +78,7 @@ def validate_token_bind(context, token_ref):
         LOG.info(_("Named bind mode %s not in bind information"), name)
         raise exception.Unauthorized()
 
-    for bind_type, identifier in bind.iteritems():
+    for bind_type, identifier in six.iteritems(bind):
         if bind_type == 'kerberos':
             if not (context['environment'].get('AUTH_TYPE', '').lower()
                     == 'negotiate'):
@@ -190,8 +190,8 @@ class Application(BaseApplication):
 
         # allow middleware up the stack to provide context, params and headers.
         context = req.environ.get(CONTEXT_ENV, {})
-        context['query_string'] = dict(req.params.iteritems())
-        context['headers'] = dict(req.headers.iteritems())
+        context['query_string'] = dict(six.iteritems(req.params))
+        context['headers'] = dict(six.iteritems(req.headers))
         context['path'] = req.environ['PATH_INFO']
         params = req.environ.get(PARAMS_ENV, {})
         #authentication and authorization attributes are set as environment
@@ -254,7 +254,7 @@ class Application(BaseApplication):
 
     def _normalize_dict(self, d):
         return dict([(self._normalize_arg(k), v)
-                     for (k, v) in d.iteritems()])
+                     for (k, v) in six.iteritems(d)])
 
     def assert_admin(self, context):
         if not context['is_admin']:
@@ -393,7 +393,7 @@ class Debug(Middleware):
         resp = req.get_response(self.application)
         if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
             LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
-            for (key, value) in resp.headers.iteritems():
+            for (key, value) in six.iteritems(resp.headers):
                 LOG.debug('%s = %s', key, value)
             LOG.debug('')
 

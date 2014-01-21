@@ -16,6 +16,8 @@
 
 import json
 
+import six
+
 from keystone.common import cms
 from keystone.common import controller
 from keystone.common import dependency
@@ -490,8 +492,8 @@ class Auth(controller.V2Controller):
             return {}
 
         endpoints = []
-        for region_name, region_ref in catalog_ref.iteritems():
-            for service_type, service_ref in region_ref.iteritems():
+        for region_name, region_ref in six.iteritems(catalog_ref):
+            for service_type, service_ref in six.iteritems(region_ref):
                 endpoints.append({
                     'id': service_ref.get('id'),
                     'name': service_ref.get('name'),

@@ -23,6 +23,7 @@ CONF() because it sets up configuration options.
 import contextlib
 import functools
 
+import six
 import sqlalchemy as sql
 from sqlalchemy.ext import declarative
 from sqlalchemy.orm.attributes import flag_modified, InstrumentedAttribute
@@ -116,7 +117,7 @@ class DictBase(models.ModelBase):
     def from_dict(cls, d):
         new_d = d.copy()
 
-        new_d['extra'] = dict((k, new_d.pop(k)) for k in d.iterkeys()
+        new_d['extra'] = dict((k, new_d.pop(k)) for k in six.iterkeys(d)
                               if k not in cls.attributes and k != 'extra')
 
         return cls(**new_d)

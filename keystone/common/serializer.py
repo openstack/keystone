@@ -25,6 +25,8 @@ by convention, with a few hardcoded exceptions.
 from lxml import etree
 import re
 
+import six
+
 
 DOCTYPE = '<?xml version="1.0" encoding="UTF-8"?>'
 XMLNS = 'http://docs.openstack.org/identity/api/v2.0'
@@ -107,7 +109,7 @@ class XmlDeserializer(object):
     def walk_element(self, element, namespace=False):
         """Populates a dictionary by walking an etree element."""
         values = {}
-        for k, v in element.attrib.iteritems():
+        for k, v in six.iteritems(element.attrib):
             # boolean-looking attributes become booleans in JSON
             if k in ['enabled']:
                 if v in ['true']:
@@ -213,7 +215,7 @@ class XmlSerializer(object):
 
     def _populate_links(self, element, links_json):
         links = etree.Element('links')
-        for k, v in links_json.iteritems():
+        for k, v in six.iteritems(links_json):
             if v:
                 link = etree.Element('link')
                 link.set('rel', unicode(k))
@@ -332,7 +334,7 @@ class XmlSerializer(object):
 
     def _populate_tree(self, element, d):
         """Populates an etree with attributes & elements, given a dict."""
-        for k, v in d.iteritems():
+        for k, v in six.iteritems(d):
             if isinstance(v, dict):
                 self._populate_dict(element, k, v)
             elif isinstance(v, list):
