@@ -42,6 +42,7 @@ function process_option {
     -h|--help) usage;;
     -V|--virtual-env) always_venv=1; never_venv=0;;
     -N|--no-virtual-env) always_venv=0; never_venv=1;;
+    -x|--stop) failfast=1;;
     -f|--force) force=1;;
     -u|--update) update=1;;
     -p|--pep8) just_flake8=1;;
@@ -58,6 +59,7 @@ with_venv=tools/with_venv.sh
 always_venv=0
 never_venv=0
 force=0
+failfast=0
 testrargs=
 testropts=--subunit
 wrapper=""
@@ -81,6 +83,9 @@ fi
 function run_tests {
   set -e
   echo ${wrapper}
+  if [ $failfast -eq 1 ]; then
+      testrargs="$testrargs -- --failfast"
+  fi
   ${wrapper} $TESTRTESTS --testr-args="$testropts $testrargs" | \
       ${wrapper} subunit-2to1 | \
       ${wrapper} tools/colorizer.py
