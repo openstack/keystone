@@ -138,6 +138,7 @@
     "identity:update_mapping": "rule:admin_required",
 
     "identity:list_projects_for_groups": "",
-    "identity:list_domains_for_groups": ""
+    "identity:list_domains_for_groups": "",
 
+    "identity:list_revoke_events": ""
 }

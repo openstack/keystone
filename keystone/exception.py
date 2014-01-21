@@ -294,6 +294,13 @@ class NotImplemented(Error):
     title = 'Not Implemented'
 
 
+class Gone(Error):
+    message_format = _("The service you have requested is no"
+                       " longer available on this server.")
+    code = 410
+    title = 'Gone'
+
+
 class ConfigFileNotFound(UnexpectedError):
     message_format = _("The Keystone configuration file %(config_file)s could "
                        "not be found.")

@@ -231,6 +231,14 @@ class AuthContextMiddleware(wsgi.Middleware):
 
         try:
             token_ref = self.token_api.get_token(token_id)
+            # TODO(ayoung): These two functions return the token in different
+            # formats instead of two calls, only make one.  However, the call
+            # to get_token hits the caching layer, and does not validate the
+            # token.  In the future, this should be reduced to one call.
+            if not CONF.token.revoke_by_id:
+                self.token_api.token_provider_api.validate_token(
+                    context['token_id'])
+
             # TODO(gyee): validate_token_bind should really be its own
             # middleware
             wsgi.validate_token_bind(context, token_ref)

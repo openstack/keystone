@@ -448,6 +448,8 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def revocation_list(self, context, auth=None):
+        if not CONF.token.revoke_by_id:
+            raise exception.Gone()
         tokens = self.token_api.list_revoked_tokens()
 
         for t in tokens:

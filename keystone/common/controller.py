@@ -49,6 +49,13 @@ def _build_policy_check_credentials(self, action, context, kwargs):
     try:
         LOG.debug(_('RBAC: building auth context from the incoming '
                     'auth token'))
+        # TODO(ayoung): These two functions return the token in different
+        # formats.  However, the call
+        # to get_token hits the caching layer, and does not validate the
+        # token.  This should be reduced to one call
+        if not CONF.token.revoke_by_id:
+            self.token_api.token_provider_api.validate_token(
+                context['token_id'])
         token_ref = self.token_api.get_token(context['token_id'])
     except exception.TokenNotFound:
         LOG.warning(_('RBAC: Invalid token'))

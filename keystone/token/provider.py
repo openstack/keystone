@@ -22,6 +22,8 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
+from keystone.contrib.revoke import model as revoke_model
+
 from keystone import exception
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
@@ -50,6 +52,7 @@ class UnsupportedTokenVersionException(Exception):
 
 
 @dependency.requires('token_api')
+@dependency.optional('revoke_api')
 @dependency.provider('token_provider_api')
 class Manager(manager.Manager):
     """Default pivot point for the token provider backend.
@@ -115,14 +118,42 @@ class Manager(manager.Manager):
         self._is_valid_token(token)
         return token
 
+    def check_revocation_v2(self, token):
+        try:
+            token_data = token['access']
+        except KeyError:
+            raise exception.TokenNotFound(_('Failed to validate token'))
+
+        token_values = revoke_model.build_token_values_v2(
+            token_data, CONF.identity.default_domain_id)
+        if self.revoke_api is not None:
+            self.revoke_api.check_token(token_values)
+
     def validate_v2_token(self, token_id, belongs_to=None):
         unique_id = self.token_api.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         token = self._validate_v2_token(unique_id)
+        self.check_revocation_v2(token)
         self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token
+
+    def check_revocation_v3(self, token):
+        try:
+            token_data = token['token']
+        except KeyError:
+            raise exception.TokenNotFound(_('Failed to validate token'))
+        token_values = revoke_model.build_token_values(token_data)
+        if self.revoke_api is not None:
+            self.revoke_api.check_token(token_values)
+
+    def check_revocation(self, token):
+        version = self.driver.get_token_version(token)
+        if version == V2:
+            return self.check_revocation_v2(token)
+        else:
+            return self.check_revocation_v3(token)
 
     def validate_v3_token(self, token_id):
         unique_id = self.token_api.unique_id(token_id)
@@ -187,14 +218,17 @@ class Manager(manager.Manager):
                 expires_at = token_data['token']['expires']
             expiry = timeutils.normalize_time(
                 timeutils.parse_isotime(expires_at))
-            if current_time < expiry:
-                # Token is has not expired and has not been revoked.
-                return None
         except Exception:
             LOG.exception(_('Unexpected error or malformed token determining '
                             'token expiry: %s'), token)
+            raise exception.TokenNotFound(_('Failed to validate token'))
 
-        raise exception.TokenNotFound(_("The token is malformed or expired."))
+        if current_time < expiry:
+            self.check_revocation(token)
+            # Token has not expired and has not been revoked.
+            return None
+        else:
+            raise exception.TokenNotFound(_('Failed to validate token'))
 
     def _token_belongs_to(self, token, belongs_to):
         """Check if the token belongs to the right tenant.

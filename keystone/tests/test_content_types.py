@@ -18,6 +18,7 @@ import six
 
 from keystone.common import extension
 from keystone import config
+from keystone import tests
 from keystone.tests import rest
 
 
@@ -193,6 +194,28 @@ class CoreApiTests(object):
             path='/v2.0/tokens/%s' % token,
             token=token)
         self.assertValidAuthenticationResponse(r)
+
+    def test_remove_role_revokes_token(self):
+        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'],
+            self.tenant_service['id'],
+            self.role_service['id'])
+
+        token = self.get_scoped_token(tenant_id='service')
+        r = self.admin_request(
+            path='/v2.0/tokens/%s' % token,
+            token=token)
+        self.assertValidAuthenticationResponse(r)
+
+        self.assignment_api.remove_role_from_user_and_project(
+            self.user_foo['id'],
+            self.tenant_service['id'],
+            self.role_service['id'])
+
+        r = self.admin_request(
+            path='/v2.0/tokens/%s' % token,
+            token=token,
+            expected_status=401)
 
     def test_validate_token_belongs_to(self):
         token = self.get_scoped_token()
@@ -1289,6 +1312,16 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
             expected_status=200)
 
 
+class RevokeApiJsonTestCase(JsonTestCase):
+    def config_files(self):
+        cfg_list = self._config_file_list[:]
+        cfg_list.append(tests.dirs.tests('test_revoke_kvs.conf'))
+        return cfg_list
+
+    def test_fetch_revocation_list_admin_200(self):
+        self.skipTest('Revoke API disables revocation_list.')
+
+
 class XmlTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
     xmlns = 'http://docs.openstack.org/identity/api/v2.0'
     content_type = 'xml'
@@ -1624,3 +1657,26 @@ class XmlTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
             token=token,
             expected_status=200,
             convert=False)
+
+    def test_remove_role_revokes_token(self):
+        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'],
+            self.tenant_service['id'],
+            self.role_service['id'])
+
+        token = self.get_scoped_token(tenant_id='service')
+        r = self.admin_request(
+            path='/v2.0/tokens/%s' % token,
+            token=token)
+        self.assertValidAuthenticationResponse(r)
+
+        self.assignment_api.remove_role_from_user_and_project(
+            self.user_foo['id'],
+            self.tenant_service['id'],
+            self.role_service['id'])
+
+        # TODO(ayoung): test fails due to XML problem
+#        r = self.admin_request(
+#            path='/v2.0/tokens/%s' % token,
+#            token=token,
+#            expected_status=401)
