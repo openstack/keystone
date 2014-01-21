@@ -469,7 +469,7 @@
 
 [auth]
 methods = external,password,token,oauth1
-#external = keystone.auth.plugins.external.ExternalDefault
+#external = keystone.auth.plugins.external.DefaultDomain
 password = keystone.auth.plugins.password.Password
 token = keystone.auth.plugins.token.Token
 oauth1 = keystone.auth.plugins.oauth1.OAuth
