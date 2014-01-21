@@ -37,11 +37,6 @@ class PolicyFileTestCase(tests.TestCase):
     def setUp(self):
         super(PolicyFileTestCase, self).setUp()
 
-        self.orig_policy_file = CONF.policy_file
-        # TODO(blk-u): Resetting the conf value here is probably unnecessary
-        # since TestCase clears conf.
-        self.addCleanup(self.opt, policy_file=self.orig_policy_file)
-
         rules.reset()
         self.addCleanup(rules.reset)
         _unused, self.tmpfilename = tempfile.mkstemp()

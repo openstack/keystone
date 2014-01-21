@@ -1207,25 +1207,13 @@ class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
         # All initial domain data setup complete, time to switch on support
         # for separate backends per domain.
 
-        self.orig_config_domains_enabled = (
-            config.CONF.identity.domain_specific_drivers_enabled)
-        self.addCleanup(
-            self.opt_in_group, 'identity',
-            domain_specific_drivers_enabled=self.orig_config_domains_enabled)
-        self.opt_in_group('identity', domain_specific_drivers_enabled=True)
-
-        self.orig_config_dir = (
-            config.CONF.identity.domain_config_dir)
-        self.addCleanup(self.opt_in_group, 'identity',
-                        domain_config_dir=self.orig_config_dir)
-        self.opt_in_group('identity', domain_config_dir=tests.TESTSDIR)
+        self.opt_in_group('identity',
+                          domain_specific_drivers_enabled=True,
+                          domain_config_dir=tests.TESTSDIR)
 
         self._set_domain_configs()
         self.clear_database()
         self.load_fixtures(default_fixtures)
-
-        # TODO(blk-u): the addCleanup of config options above is probably
-        # unnecessary since TestCase resets config.
 
     def _set_config(self):
         self.config([tests.dirs.etc('keystone.conf.sample'),

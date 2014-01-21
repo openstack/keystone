@@ -56,13 +56,9 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         # Initialize the policy engine and allow us to write to a temp
         # file in each test to create the policies
-        self.orig_policy_file = CONF.policy_file
         self.addCleanup(rules.reset)
         rules.reset()
         _unused, self.tmpfilename = tempfile.mkstemp()
-
-        #TODO(blk-u): This seems unnecessary since TestCase resets conf.
-        self.addCleanup(self.opt, policy_file=self.orig_policy_file)
         self.opt(policy_file=self.tmpfilename)
 
         # A default auth request we can use - un-scoped user token
@@ -421,10 +417,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         super(IdentityTestv3CloudPolicySample, self).setUp()
 
         # Finally, switch to the v3 sample policy file
-        self.orig_policy_file = CONF.policy_file
-        self.addCleanup(self.opt, policy_file=self.orig_policy_file)
-        # TODO(blk-u): Resetting the conf setting is probably unnecessary since
-        # TestCase does it.
         self.addCleanup(rules.reset)
         rules.reset()
         self.opt(policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
