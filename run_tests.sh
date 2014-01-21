@@ -112,11 +112,6 @@ function run_flake8 {
   ${wrapper} flake8 $FLAGS | tee pep8.txt
 }
 
-echo "This script is now deprecated.  Please use tox instead."
-echo "Checkout http://tox.readthedocs.org/en/latest/ for information on tox."
-echo "[press enter to continue]"
-read
-
 if [ $never_venv -eq 0 ]
 then
   # Remove the virtual environment if --force used
