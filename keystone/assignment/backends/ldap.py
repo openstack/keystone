@@ -111,7 +111,7 @@ class Assignment(assignment.Driver):
                     if a.user_dn.upper() == group_dn.upper()]
 
         if domain_id is not None:
-            msg = 'Domain metadata not supported by LDAP'
+            msg = _('Domain metadata not supported by LDAP')
             raise exception.NotImplemented(message=msg)
         if group_id is None and user_id is None:
             return {}
@@ -196,7 +196,7 @@ class Assignment(assignment.Driver):
         except exception.NotFound:
             pass
         else:
-            msg = 'Duplicate ID, %s.' % role_id
+            msg = _('Duplicate ID, %s.') % role_id
             raise exception.Conflict(type='role', details=msg)
 
         try:
@@ -204,7 +204,7 @@ class Assignment(assignment.Driver):
         except exception.NotFound:
             pass
         else:
-            msg = 'Duplicate name, %s.' % role['name']
+            msg = _('Duplicate name, %s.') % role['name']
             raise exception.Conflict(type='role', details=msg)
 
         return self.role.create(role)
@@ -241,9 +241,9 @@ class Assignment(assignment.Driver):
 
     def create_domain(self, domain_id, domain):
         if domain_id == CONF.identity.default_domain_id:
-            msg = 'Duplicate ID, %s.' % domain_id
+            msg = _('Duplicate ID, %s.') % domain_id
             raise exception.Conflict(type='domain', details=msg)
-        raise exception.Forbidden('Domains are read-only against LDAP')
+        raise exception.Forbidden(_('Domains are read-only against LDAP'))
 
     def get_domain(self, domain_id):
         self._validate_default_domain_id(domain_id)
@@ -251,11 +251,11 @@ class Assignment(assignment.Driver):
 
     def update_domain(self, domain_id, domain):
         self._validate_default_domain_id(domain_id)
-        raise exception.Forbidden('Domains are read-only against LDAP')
+        raise exception.Forbidden(_('Domains are read-only against LDAP'))
 
     def delete_domain(self, domain_id):
         self._validate_default_domain_id(domain_id)
-        raise exception.Forbidden('Domains are read-only against LDAP')
+        raise exception.Forbidden(_('Domains are read-only against LDAP'))
 
     def list_domains(self, hints):
         return [assignment.calc_default_domain()]
@@ -549,8 +549,9 @@ class RoleApi(common_ldap.BaseLdap):
             conn.modify_s(role_dn, [(ldap.MOD_ADD,
                                      self.member_attribute, user_dn)])
         except ldap.TYPE_OR_VALUE_EXISTS:
-            msg = ('User %s already has role %s in tenant %s'
-                   % (user_id, role_id, tenant_id))
+            msg = (_('User %(user_id)s already has role %(role_id)s in '
+                     'tenant %(tenant_id)s') %
+                   dict(user_id=user_id, role_id=role_id, tenant_id=tenant_id))
             raise exception.Conflict(type='role grant', details=msg)
         except ldap.NO_SUCH_OBJECT:
             if tenant_id is None or self.get(role_id) is None:
@@ -661,7 +662,7 @@ class RoleApi(common_ldap.BaseLdap):
     def update(self, role_id, role):
         try:
             old_name = self.get_by_name(role['name'])
-            raise exception.Conflict('Cannot duplicate name %s' % old_name)
+            raise exception.Conflict(_('Cannot duplicate name %s') % old_name)
         except exception.NotFound:
             pass
         return super(RoleApi, self).update(role_id, role)
