@@ -18,6 +18,7 @@ import uuid
 
 from keystone import assignment
 from keystone import auth
+from keystone.common import environment
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
@@ -76,6 +77,11 @@ class AuthTest(tests.TestCase):
         self.empty_context = {'environment': {}}
 
         self.controller = token.controllers.Auth()
+        #This call sets up, among other things, the call to popen
+        #that will be used to run the CMS command.  These tests were
+        #passing only due to the global nature of the call.  If the
+        #tests in this file are run alone, API calls return unauthorized.
+        environment.use_eventlet(monkeypatch_thread=False)
 
     def assertEqualTokens(self, a, b):
         """Assert that two tokens are equal.
