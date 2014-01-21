@@ -160,6 +160,21 @@ common configuration of Python 2.7 and PEP-8), list the environments with the
 
 See ``tox.ini`` for the full list of available test environments.
 
+Running with PDB
+~~~~~~~~~~~~~~~~
+
+Using PDB breakpoints with tox and testr normally doesn't work since the tests
+just fail with a BdbQuit exception rather than stopping at the breakpoint.
+
+To run with PDB breakpoints during testing, use the ``debug`` tox environment
+rather than ``py27``. Here's an example, passing the name of a test since
+you'll normally only want to run the test that hits your breakpoint::
+
+    $ tox -e debug keystone.tests.test_auth.AuthWithToken.test_belongs_to
+
+For reference, the ``debug`` tox environment implements the instructions
+here: https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
+
 Test Structure
 ==============
 
