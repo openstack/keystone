@@ -16,8 +16,9 @@
 
 import copy
 import os
-import urlparse
 import uuid
+
+from six.moves import urllib
 
 from keystone.common.sql import migration
 from keystone import config
@@ -213,7 +214,7 @@ class OAuthFlowTests(OAuth1Tests):
         url, headers = self._create_request_token(self.consumer,
                                                   self.project_id)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
         request_secret = credentials.get('oauth_token_secret')[0]
         self.request_token = oauth1.Token(request_key, request_secret)
@@ -228,7 +229,7 @@ class OAuthFlowTests(OAuth1Tests):
         url, headers = self._create_access_token(self.consumer,
                                                  self.request_token)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         access_key = credentials.get('oauth_token')[0]
         access_secret = credentials.get('oauth_token_secret')[0]
         self.access_token = oauth1.Token(access_key, access_secret)
@@ -469,7 +470,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
         request_secret = credentials.get('oauth_token_secret')[0]
         request_token = oauth1.Token(request_key, request_secret)
@@ -492,7 +493,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
 
         self.assignment_api.remove_role_from_user_and_project(
@@ -514,7 +515,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(self.consumer,
                                                   self.project_id)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
         request_secret = credentials.get('oauth_token_secret')[0]
         self.request_token = oauth1.Token(request_key, request_secret)
@@ -535,7 +536,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(self.consumer,
                                                   self.project_id)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         request_key = credentials.get('oauth_token')[0]
         request_secret = credentials.get('oauth_token_secret')[0]
         self.request_token = oauth1.Token(request_key, request_secret)
@@ -550,7 +551,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_access_token(self.consumer,
                                                  self.request_token)
         content = self.post(url, headers=headers)
-        credentials = urlparse.parse_qs(content.result)
+        credentials = urllib.parse.parse_qs(content.result)
         access_key = credentials.get('oauth_token')[0]
         access_secret = credentials.get('oauth_token_secret')[0]
         self.access_token = oauth1.Token(access_key, access_secret)
