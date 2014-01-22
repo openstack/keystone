@@ -31,7 +31,7 @@ class CredentialV3(controller.V3Controller):
         super(CredentialV3, self).__init__()
         self.get_member_from_driver = self.credential_api.get_credential
 
-    def _assign_unique_id(self, ref):
+    def _assign_unique_id(self, ref, trust_id=None):
         # Generates and assigns a unique identifer to
         # a credential reference.
         if ref.get('type', '').lower() == 'ec2':
@@ -46,15 +46,23 @@ class CredentialV3(controller.V3Controller):
             if blob.get('access') is None:
                 raise exception.ValidationError(attribute='access',
                                                 target='blob')
-            ref = ref.copy()
-            ref['id'] = hashlib.sha256(blob['access']).hexdigest()
-            return ref
+            ret_ref = ref.copy()
+            ret_ref['id'] = hashlib.sha256(blob['access']).hexdigest()
+            # Update the blob with the trust_id, so credentials created
+            # with a trust scoped token will result in trust scoped
+            # tokens when authentication via ec2tokens happens
+            if trust_id is not None:
+                blob['trust_id'] = trust_id
+                ret_ref['blob'] = json.dumps(blob)
+            return ret_ref
         else:
             return super(CredentialV3, self)._assign_unique_id(ref)
 
     @controller.protected()
     def create_credential(self, context, credential):
-        ref = self._assign_unique_id(self._normalize_dict(credential))
+        trust_id = self._get_trust_id_for_request(context)
+        ref = self._assign_unique_id(self._normalize_dict(credential),
+                                     trust_id)
         ref = self.credential_api.create_credential(ref['id'], ref)
         return CredentialV3.wrap_member(context, ref)
 
