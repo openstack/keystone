@@ -27,7 +27,6 @@ LOG = log.getLogger(__name__)
 # a new action is supported.
 ACTIONS = frozenset(['created', 'deleted', 'updated'])
 # resource types that can be notified
-RESOURCE_TYPES = set()
 SUBSCRIBERS = {}
 
 
@@ -43,7 +42,6 @@ class ManagerNotificationWrapper(object):
     def __init__(self, operation, resource_type, host=None):
         self.operation = operation
         self.resource_type = resource_type
-        RESOURCE_TYPES.add(resource_type)
         self.host = host
 
     def __call__(self, f):
@@ -93,11 +91,6 @@ def register_event_callback(event, resource_type, callbacks):
         raise ValueError(_('%(event)s is not a valid notification event, must '
                            'be one of: %(actions)s') %
                          {'event': event, 'actions': ', '.join(ACTIONS)})
-    if resource_type not in RESOURCE_TYPES:
-        raise ValueError(_('%(resource_type)s is not a valid notification '
-                           'resource, must be one of: %(types)s') %
-                         {'resource_type': resource_type,
-                          'types': ', '.join(RESOURCE_TYPES)})
 
     if not hasattr(callbacks, '__iter__'):
         callbacks = [callbacks]
