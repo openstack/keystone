@@ -32,7 +32,7 @@ from keystone.openstack.common import gettextutils
 
 # NOTE(blk-u): gettextutils.install() must run to set _ before importing any
 # modules that contain static translated strings.
-gettextutils.install('keystone')
+gettextutils.install('keystone', lazy=True)
 
 from keystone import cli
 from keystone.common import environment
