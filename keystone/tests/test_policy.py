@@ -16,10 +16,10 @@
 #    under the License.
 
 import json
-import StringIO
 import tempfile
 import urllib2
 
+import six
 from testtools import matchers
 
 from keystone import config
@@ -108,7 +108,7 @@ class PolicyTestCase(tests.TestCase):
     def test_enforce_http_true(self):
 
         def fakeurlopen(url, post_data):
-            return StringIO.StringIO("True")
+            return six.StringIO("True")
 
         self.stubs.Set(urllib2, 'urlopen', fakeurlopen)
         action = "example:get_http"
@@ -119,7 +119,7 @@ class PolicyTestCase(tests.TestCase):
     def test_enforce_http_false(self):
 
         def fakeurlopen(url, post_data):
-            return StringIO.StringIO("False")
+            return six.StringIO("False")
         self.stubs.Set(urllib2, 'urlopen', fakeurlopen)
         action = "example:get_http"
         target = {}
