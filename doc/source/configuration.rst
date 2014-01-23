@@ -242,7 +242,7 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
 
 * ``enabled`` - enables/disables caching across all of keystone
 * ``debug_cache_backend`` - enables more in-depth logging from the cache backend (get, set, delete, etc)
-* ``backend`` - the caching backend module to use e.g. ``dogpile.cache.memcache``
+* ``backend`` - the caching backend module to use e.g. ``dogpile.cache.memcached``
 
     .. NOTE::
         A given ``backend`` must be registered with ``dogpile.cache`` before it
