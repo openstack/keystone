@@ -14,9 +14,8 @@
 
 import os
 
-COMMON_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-ROOT_DIR = os.path.join(COMMON_DIR, '..')
-TEST_DIR = os.path.join(ROOT_DIR, 'tests')
+TEST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+TMP_DIR = os.path.join(TEST_DIR, '..', '..', 'tmp')
 
 
 def root_path(*args):
@@ -25,3 +24,7 @@ def root_path(*args):
 
 def test_path(*args):
     return os.path.join(TEST_DIR, *args)
+
+
+def tmp_path(*args):
+    return os.path.join(TMP_DIR, *args)

@@ -16,7 +16,6 @@ import webtest
 
 import pecan.testing
 
-from keystone.contrib.kds.common import paths
 from keystone.openstack.common import jsonutils
 from keystone.tests.contrib.kds import base
 
@@ -50,9 +49,7 @@ class BaseTestCase(base.BaseTestCase):
         self.app_config = {
             'app': {
                 'root': root,
-                'modules': ['keystone.contrib.kds.api'],
-                'static_root': paths.root_path('public'),
-                'template_path': paths.root_path('kds', 'api', 'templates'),
+                'modules': ['keystone.contrib.kds.api']
             },
         }
 
