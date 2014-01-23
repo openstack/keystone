@@ -68,7 +68,7 @@ class MemcachedLock(object):
                 i += 1
             else:
                 raise exception.UnexpectedError(
-                    _('Maximum lock attempts on %s occured.') % self.key)
+                    _('Maximum lock attempts on %s occurred.') % self.key)
 
     def release(self):
         client = self.client_fn()

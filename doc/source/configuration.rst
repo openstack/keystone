@@ -1349,7 +1349,7 @@ Read Only LDAP
 --------------
 
 Many environments typically have user and group information in directories that
-are accessable by LDAP. This information is for read-only use in a wide array
+are accessible by LDAP. This information is for read-only use in a wide array
 of applications. Prior to the Havana release, we could not deploy Keystone with
 read-only directories as backends because Keystone also needed to store
 information such as projects, roles, domains and role assignments into the
