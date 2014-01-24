@@ -410,6 +410,24 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
             domains,
             [assignment.DEFAULT_DOMAIN])
 
+    def test_list_domains_non_default_domain_id(self):
+        # If change the default_domain_id, the ID of the default domain
+        # returned by list_domains changes is the new default_domain_id.
+
+        orig_default_domain_id = CONF.identity.default_domain_id
+
+        new_domain_id = uuid.uuid4().hex
+        self.opt_in_group('identity', default_domain_id=new_domain_id)
+
+        domains = self.assignment_api.list_domains()
+
+        # TODO(blk-u): The following should be
+        #   self.assertEqual(domains[0]['id'], new_domain_id)
+        # but the domain ID doesn't change because some parts are keeping
+        # references to the old config value. See bug 1265108.
+
+        self.assertEqual(domains[0]['id'], orig_default_domain_id)
+
     def test_authenticate_requires_simple_bind(self):
         user = {
             'id': 'no_meta',
@@ -1154,6 +1172,21 @@ class LdapIdentitySqlAssignment(sql.Base, tests.TestCase, BaseLDAPIdentity):
         domains = self.assignment_api.list_domains()
         self.assertEqual(domains, [assignment.DEFAULT_DOMAIN])
 
+    def test_list_domains_non_default_domain_id(self):
+        # If change the default_domain_id, the ID of the default domain
+        # returned by list_domains doesn't change because the SQL identity
+        # backend reads it from the database, which doesn't get updated by
+        # config change.
+
+        orig_default_domain_id = CONF.identity.default_domain_id
+
+        new_domain_id = uuid.uuid4().hex
+        self.opt_in_group('identity', default_domain_id=new_domain_id)
+
+        domains = self.assignment_api.list_domains()
+
+        self.assertEqual(domains[0]['id'], orig_default_domain_id)
+
     def test_project_filter(self):
         self.skipTest(
             'N/A: Not part of SQL backend')
@@ -1278,6 +1311,10 @@ class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
         return self.identity_api.domain_configs.get_domain_conf(domain_id)
 
     def test_list_domains(self):
+        self.skipTest(
+            'N/A: Not relevant for multi ldap testing')
+
+    def test_list_domains_non_default_domain_id(self):
         self.skipTest(
             'N/A: Not relevant for multi ldap testing')
 
