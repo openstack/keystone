@@ -24,6 +24,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone import notifications
 from keystone.openstack.common import log
 
 
@@ -43,6 +44,22 @@ class Manager(manager.Manager):
 
     def __init__(self):
         super(Manager, self).__init__(CONF.trust.driver)
+
+    @notifications.created('trust')
+    def create_trust(self, trust_id, trust, roles):
+        """Create a new trust.
+
+        :returns: a new trust
+        """
+        return self.driver.create_trust(trust_id, trust, roles)
+
+    @notifications.deleted('trust')
+    def delete_trust(self, trust_id):
+        """Remove a trust.
+
+        :raises: keystone.exception.TrustNotFound
+        """
+        self.driver.delete_trust(trust_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
