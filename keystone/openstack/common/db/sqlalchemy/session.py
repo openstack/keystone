@@ -304,6 +304,7 @@ database_opts = [
                        '../', '$sqlite_db')),
                help='The SQLAlchemy connection string used to connect to the '
                     'database',
+               secret=True,
                deprecated_opts=[cfg.DeprecatedOpt('sql_connection',
                                                   group='DEFAULT'),
                                 cfg.DeprecatedOpt('sql_connection',
@@ -312,6 +313,7 @@ database_opts = [
                                                   group='sql'), ]),
     cfg.StrOpt('slave_connection',
                default='',
+               secret=True,
                help='The SQLAlchemy connection string used to connect to the '
                     'slave database'),
     cfg.IntOpt('idle_timeout',
