@@ -73,6 +73,7 @@ following sections:
 * ``[os_inherit]`` - Inherited Role Assignment extension
 * ``[endpoint_filter]`` - Endpoint Filtering extension configuration
 * ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
+* ``[federation]`` - Federation driver configuration
 
 The Keystone primary configuration file is expected to be named ``keystone.conf``.
 When starting Keystone, you can specify a different configuration file to
@@ -723,6 +724,14 @@ Endpoint Filtering
    :maxdepth: 1
 
    extensions/endpoint_filter-configuration.rst
+
+Federation
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   extensions/federation-configuration.rst
 
 .. _`prepare your deployment`:
 

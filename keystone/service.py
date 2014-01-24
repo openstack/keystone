@@ -43,7 +43,6 @@ cache.configure_cache_region(cache.REGION)
 
 
 def load_backends():
-
     # Ensure that the identity driver is created before the assignment manager.
     # The default assignment driver is determined by the identity driver, so
     # the identity driver must be available to the assignment manager.

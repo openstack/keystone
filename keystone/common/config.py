@@ -141,6 +141,12 @@ FILE_OPTIONS = {
                    default='keystone.contrib.oauth1.backends.sql.OAuth1'),
         cfg.IntOpt('request_token_duration', default=28800),
         cfg.IntOpt('access_token_duration', default=86400)],
+
+    'federation': [
+        cfg.StrOpt('driver',
+                   default='keystone.contrib.federation.'
+                           'backends.sql.Federation')],
+
     'policy': [
         cfg.StrOpt('driver',
                    default='keystone.policy.backends.sql.Policy')],
