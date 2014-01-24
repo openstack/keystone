@@ -216,7 +216,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.create_trust(trust_ref['id'],
                                     trust_ref,
                                     [role_ref])
-        self._assertLastNotify(trust_ref['id'], 'created', 'trust')
+        self._assertLastNotify(trust_ref['id'], 'created', 'OS-TRUST:trust')
 
     def test_delete_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
@@ -253,7 +253,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
                                     trust_ref,
                                     [role_ref])
         self.trust_api.delete_trust(trust_ref['id'])
-        self._assertLastNotify(trust_ref['id'], 'deleted', 'trust')
+        self._assertLastNotify(trust_ref['id'], 'deleted', 'OS-TRUST:trust')
 
     def test_update_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
