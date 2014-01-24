@@ -179,9 +179,9 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.stubs.Set(notifications, '_send_notification', fake_notify)
 
     def _assertLastNotify(self, resource_id, operation, resource_type):
-        self.assertIs(self.exp_operation, operation)
-        self.assertIs(self.exp_resource_id, resource_id)
-        self.assertIs(self.exp_resource_type, resource_type)
+        self.assertEqual(self.exp_operation, operation)
+        self.assertEqual(self.exp_resource_id, resource_id)
+        self.assertEqual(self.exp_resource_type, resource_type)
         self.assertTrue(self.send_notification_called)
 
     def test_create_group(self):
