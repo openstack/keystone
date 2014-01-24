@@ -506,6 +506,57 @@ class AuthWithPasswordCredentials(AuthTest):
         token = self.controller.authenticate({}, body_dict)
         self.assertNotIn('bind', token['access']['token'])
 
+    def test_change_default_domain_id(self):
+        # If the default_domain_id config option is not the default then the
+        # user in auth data is from the new default domain.
+
+        # 1) Create a new domain.
+        new_domain_id = uuid.uuid4().hex
+        new_domain = {
+            'description': uuid.uuid4().hex,
+            'enabled': True,
+            'id': new_domain_id,
+            'name': uuid.uuid4().hex,
+        }
+
+        self.assignment_api.create_domain(new_domain_id, new_domain)
+
+        # 2) Create user "foo" in new domain with different password than
+        #    default-domain foo.
+        new_user_id = uuid.uuid4().hex
+        new_user_password = uuid.uuid4().hex
+        new_user = {
+            'id': new_user_id,
+            'name': self.user_foo['name'],
+            'domain_id': new_domain_id,
+            'password': new_user_password,
+            'email': 'foo@bar2.com',
+        }
+
+        self.identity_api.create_user(new_user_id, new_user)
+
+        # 3) Update the default_domain_id config option to the new domain
+
+        self.opt_in_group('identity', default_domain_id=new_domain_id)
+
+        # 4) Authenticate as "foo" using the password in the new domain.
+
+        body_dict = _build_user_auth(
+            username=self.user_foo['name'],
+            password=new_user_password)
+
+        # TODO(blk-u): The following should be
+        #  self.controller.authenticate({}, body_dict)
+        # We should not expect Unauthorized because the authorizor code should
+        # be looking up the user in the new default domain, but it's using the
+        # old domain because it's storing the domain_id statically.
+        # See bug 1265108
+
+        self.assertRaises(
+            exception.Unauthorized,
+            self.controller.authenticate,
+            {}, body_dict)
+
 
 class AuthWithRemoteUser(AuthTest):
     def setUp(self):
