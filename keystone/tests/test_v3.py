@@ -155,7 +155,6 @@ class RestfulTestCase(rest.RestfulTestCase):
         self.region = self.new_region_ref()
         self.region['id'] = self.region_id
         self.catalog_api.create_region(
-            self.region_id,
             self.region.copy())
 
         self.service_id = uuid.uuid4().hex

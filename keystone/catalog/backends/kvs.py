@@ -51,7 +51,8 @@ class Catalog(kvs.Base, catalog.Driver):
             # which is the behavior we want.
             self.get_region(parent_region_id)
 
-    def create_region(self, region_id, region):
+    def create_region(self, region):
+        region_id = region['id']
         region.setdefault('parent_region_id')
         self._check_parent_region(region)
         self.db.set('region-%s' % region_id, region)

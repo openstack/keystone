@@ -20,10 +20,20 @@ from keystone.tests import test_v3
 class CatalogTestCase(test_v3.RestfulTestCase):
     """Test service & endpoint CRUD."""
 
-    def setUp(self):
-        super(CatalogTestCase, self).setUp()
-
     # region crud tests
+
+    def test_create_region_with_id(self):
+        """Call ``PUT /regions/{region_id}``."""
+        ref = dict(description="my region")
+        region_id = 'myregion'
+        r = self.put(
+            '/regions/myregion',
+            body={'region': ref}, expected_status=200)
+        self.assertValidRegionResponse(r, ref)
+        # Double-check that the region ID was kept as-is and not
+        # populated with a UUID, like is the case with POST /regions
+        entity = r.result.get("region")
+        self.assertEqual(region_id, entity['id'])
 
     def test_create_region(self):
         """Call ``POST /regions``."""
@@ -31,7 +41,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/regions',
             body={'region': ref})
-        return self.assertValidRegionResponse(r, ref)
+        self.assertValidRegionResponse(r, ref)
 
     def test_list_regions(self):
         """Call ``GET /regions``."""
@@ -71,7 +81,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/services',
             body={'service': ref})
-        return self.assertValidServiceResponse(r, ref)
+        self.assertValidServiceResponse(r, ref)
 
     def test_list_services(self):
         """Call ``GET /services``."""

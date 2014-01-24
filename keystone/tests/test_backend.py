@@ -3450,7 +3450,6 @@ class CatalogTests(object):
             'description': uuid.uuid4().hex,
         }
         res = self.catalog_api.create_region(
-            region_id,
             new_region.copy())
         # Ensure that we don't need to have a
         # parent_region_id in the original supplied
@@ -3471,7 +3470,6 @@ class CatalogTests(object):
             'parent_region_id': parent_region_id
         }
         self.catalog_api.create_region(
-            region_id,
             new_region.copy())
 
         # list
@@ -3513,7 +3511,6 @@ class CatalogTests(object):
         }
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.create_region,
-                          region_id,
                           new_region)
 
     def test_service_crud(self):
