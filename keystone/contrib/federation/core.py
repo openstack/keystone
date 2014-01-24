@@ -1,6 +1,5 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright 2013 OpenStack Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -142,6 +141,62 @@ class Driver(object):
 
         :raises: keystone.exception.IdentityProviderNotFound,
                  keystone.exception.FederatedProtocolNotFound,
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def create_mapping(self, mapping_ref):
+        """Create a mapping.
+
+        :param mapping_ref: mapping ref with mapping name
+        :type mapping_ref: dict
+        :returns: mapping_ref
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def delete_mapping(self, mapping_id):
+        """Delete a mapping.
+
+        :param mapping_id: id of mapping to delete
+        :type mapping_ref: string
+        :returns: None
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def update_mapping(self, mapping_id, mapping_ref):
+        """Update a mapping.
+
+        :param mapping_id: id of mapping to update
+        :type mapping_id: string
+        :param mapping_ref: new mapping ref
+        :type mapping_ref: dict
+        :returns: mapping_ref
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def list_mappings(self):
+        """List all mappings.
+
+        returns: list of mappings
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def get_mapping(self, mapping_id):
+        """Get a mapping, returns the mapping based
+        on mapping_id.
+
+        :param mapping_id: id of mapping to get
+        :type mapping_ref: string
+        :returns: mapping_ref
 
         """
         raise exception.NotImplemented()

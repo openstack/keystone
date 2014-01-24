@@ -18,6 +18,7 @@ from keystone.common import sql
 from keystone.common.sql import migration
 from keystone.contrib.federation import core
 from keystone import exception
+from keystone.openstack.common import jsonutils
 
 
 class FederationProtocolModel(sql.ModelBase, sql.DictBase):
@@ -66,13 +67,32 @@ class IdentityProviderModel(sql.ModelBase, sql.DictBase):
         return d
 
 
+class MappingModel(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'mapping'
+    attributes = ['id', 'rules']
+
+    id = sql.Column(sql.String(64), primary_key=True)
+    rules = sql.Column(sql.JsonBlob(), nullable=False)
+
+    @classmethod
+    def from_dict(cls, dictionary):
+        new_dictionary = dictionary.copy()
+        return cls(**new_dictionary)
+
+    def to_dict(self):
+        """Return a dictionary with model's attributes."""
+        d = dict()
+        for attr in self.__class__.attributes:
+            d[attr] = getattr(self, attr)
+        return d
+
+
 class Federation(sql.Base, core.Driver):
 
     def db_sync(self):
         migration.db_sync()
 
     # Identity Provider CRUD
-
     @sql.handle_conflicts(conflict_type='identity_provider')
     def create_idp(self, idp_id, idp):
         session = self.get_session()
@@ -121,7 +141,6 @@ class Federation(sql.Base, core.Driver):
         return idp_ref.to_dict()
 
     # Protocol CRUD
-
     def _get_protocol(self, session, idp_id, protocol_id):
         q = session.query(FederationProtocolModel)
         q = q.filter_by(id=protocol_id, idp_id=idp_id)
@@ -180,3 +199,54 @@ class Federation(sql.Base, core.Driver):
             q = q.filter_by(id=protocol_id, idp_id=idp_id)
             q.delete(synchronize_session=False)
             session.delete(key_ref)
+
+    # Mapping CRUD
+    def _get_mapping(self, session, mapping_id):
+        mapping_ref = session.query(MappingModel).get(mapping_id)
+        if not mapping_ref:
+            raise exception.MappingNotFound(mapping_id=mapping_id)
+        return mapping_ref
+
+    @sql.handle_conflicts(conflict_type='mapping')
+    def create_mapping(self, mapping_id, mapping):
+        session = self.get_session()
+        ref = {}
+        ref['id'] = mapping_id
+        ref['rules'] = jsonutils.dumps(mapping.get('rules'))
+        with session.begin():
+            mapping_ref = MappingModel.from_dict(ref)
+            session.add(mapping_ref)
+        return mapping_ref.to_dict()
+
+    def delete_mapping(self, mapping_id):
+        session = self.get_session()
+        with session.begin():
+            mapping_ref = self._get_mapping(session, mapping_id)
+            session.delete(mapping_ref)
+
+    def list_mappings(self):
+        session = self.get_session()
+        with session.begin():
+            mappings = session.query(MappingModel)
+        return [x.to_dict() for x in mappings]
+
+    def get_mapping(self, mapping_id):
+        session = self.get_session()
+        with session.begin():
+            mapping_ref = self._get_mapping(session, mapping_id)
+        return mapping_ref.to_dict()
+
+    @sql.handle_conflicts(conflict_type='mapping')
+    def update_mapping(self, mapping_id, mapping):
+        ref = {}
+        ref['id'] = mapping_id
+        ref['rules'] = jsonutils.dumps(mapping.get('rules'))
+        session = self.get_session()
+        with session.begin():
+            mapping_ref = self._get_mapping(session, mapping_id)
+            old_mapping = mapping_ref.to_dict()
+            old_mapping.update(ref)
+            new_mapping = MappingModel.from_dict(old_mapping)
+            for attr in MappingModel.attributes:
+                setattr(mapping_ref, attr, getattr(new_mapping, attr))
+        return mapping_ref.to_dict()

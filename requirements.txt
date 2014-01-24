@@ -19,6 +19,7 @@ oslo.config>=1.2.0
 Babel>=1.3
 oauthlib
 dogpile.cache>=0.5.0
+jsonschema>=1.3.0,!=1.4.0
 
 # KDS exclusive dependencies
 

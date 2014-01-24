@@ -118,5 +118,11 @@
     "identity:update_protocol": "rule:admin_required",
     "identity:get_protocol": "rule:admin_required",
     "identity:list_protocols": "rule:admin_required",
-    "identity:delete_protocol": "rule:admin_required"
+    "identity:delete_protocol": "rule:admin_required",
+
+    "identity:create_mapping": "rule:admin_required",
+    "identity:get_mapping": "rule:admin_required",
+    "identity:list_mappings": "rule:admin_required",
+    "identity:delete_mapping": "rule:admin_required",
+    "identity:update_mapping": "rule:admin_required"
 }
