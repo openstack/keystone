@@ -74,9 +74,6 @@ class TestProxyValue(object):
 
 
 class CacheRegionTest(tests.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(CacheRegionTest, self).__init__(*args, **kwargs)
-        self.region = None
 
     def setUp(self):
         super(CacheRegionTest, self).setUp()
@@ -215,9 +212,6 @@ class CacheRegionTest(tests.TestCase):
 
 
 class CacheNoopBackendTest(tests.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(CacheNoopBackendTest, self).__init__(*args, **kwargs)
-        self.region = None
 
     def setUp(self):
         super(CacheNoopBackendTest, self).setUp()

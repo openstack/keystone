@@ -40,9 +40,6 @@ class FederationTests(test_v3.RestfulTestCase):
     EXTENSION_NAME = 'federation'
     EXTENSION_TO_ADD = 'federation_extension'
 
-    def __init__(self, *args, **kwargs):
-        super(FederationTests, self).__init__(*args, **kwargs)
-
     def setup_database(self):
         super(FederationTests, self).setup_database()
         package_name = "%s.%s.migrate_repo" % (contrib.__name__,
