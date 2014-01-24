@@ -7,6 +7,12 @@
 
     "default": "rule:admin_required",
 
+    "identity:get_region": "",
+    "identity:list_regions": "",
+    "identity:create_region": "rule:admin_required",
+    "identity:update_region": "rule:admin_required",
+    "identity:delete_region": "rule:admin_required",
+
     "identity:get_service": "rule:admin_required",
     "identity:list_services": "rule:admin_required",
     "identity:create_service": "rule:admin_required",
