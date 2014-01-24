@@ -28,7 +28,7 @@ LOG = log.getLogger(__name__)
 _FATAL_EXCEPTION_FORMAT_ERRORS = False
 
 
-class Error(StandardError):
+class Error(Exception):
     """Base error class.
 
     Child classes should define an HTTP status code, title, and a
