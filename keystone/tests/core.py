@@ -382,6 +382,14 @@ class TestCase(testtools.TestCase):
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
 
+        # The credential backend only supports SQL, so we always have to load
+        # the tables.
+        self.engine = session.get_engine()
+        self.addCleanup(session.cleanup)
+
+        sql.ModelBase.metadata.create_all(bind=self.engine)
+        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.
 
