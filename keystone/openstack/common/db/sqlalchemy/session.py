@@ -81,6 +81,8 @@ Recommended ways to use sessions within this framework:
 
   ::
 
+  ::
+
     def create_many_foo(context, foos):
         session = get_session()
         with session.begin():

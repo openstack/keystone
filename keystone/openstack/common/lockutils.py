@@ -146,16 +146,16 @@ def lock(name, lock_file_prefix=None, external=False, lock_path=None):
     True, in which case, it'll yield an InterProcessLock instance.
 
     :param lock_file_prefix: The lock_file_prefix argument is used to provide
-    lock files on disk with a meaningful prefix.
+      lock files on disk with a meaningful prefix.
 
     :param external: The external keyword argument denotes whether this lock
-    should work across multiple processes. This means that if two different
-    workers both run a a method decorated with @synchronized('mylock',
-    external=True), only one of them will execute at a time.
+      should work across multiple processes. This means that if two different
+      workers both run a a method decorated with @synchronized('mylock',
+      external=True), only one of them will execute at a time.
 
     :param lock_path: The lock_path keyword argument is used to specify a
-    special location for external lock files to live. If nothing is set, then
-    CONF.lock_path is used as a default.
+      special location for external lock files to live. If nothing is set, then
+      CONF.lock_path is used as a default.
     """
     with _semaphores_lock:
         try:

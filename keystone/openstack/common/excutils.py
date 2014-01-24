@@ -42,13 +42,13 @@ class save_and_reraise_exception(object):
 
     In some cases the caller may not want to re-raise the exception, and
     for those circumstances this context provides a reraise flag that
-    can be used to suppress the exception.  For example:
+    can be used to suppress the exception.  For example::
 
-    except Exception:
-        with save_and_reraise_exception() as ctxt:
-            decide_if_need_reraise()
-            if not should_be_reraised:
-                ctxt.reraise = False
+      except Exception:
+          with save_and_reraise_exception() as ctxt:
+              decide_if_need_reraise()
+              if not should_be_reraised:
+                  ctxt.reraise = False
     """
     def __init__(self):
         self.reraise = True
