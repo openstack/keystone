@@ -28,7 +28,6 @@ from keystone.openstack.common import versionutils
 
 LOG = log.getLogger(__name__)
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 v2_deprecated = versionutils.deprecated(what='v2 API',
                                         as_of=versionutils.deprecated.ICEHOUSE,
@@ -227,7 +226,7 @@ class V2Controller(wsgi.Application):
         specified in the v2 call.
 
         """
-        ref['domain_id'] = DEFAULT_DOMAIN_ID
+        ref['domain_id'] = CONF.identity.default_domain_id
         return ref
 
     @staticmethod
@@ -347,7 +346,7 @@ class V3Controller(wsgi.Application):
         """Get the domain_id for a v3 call."""
 
         if context['is_admin']:
-            return DEFAULT_DOMAIN_ID
+            return CONF.identity.default_domain_id
 
         # Fish the domain_id out of the token
         #
@@ -365,7 +364,7 @@ class V3Controller(wsgi.Application):
         if 'domain' in token_ref:
             return token_ref['domain']['id']
         else:
-            return DEFAULT_DOMAIN_ID
+            return CONF.identity.default_domain_id
 
     def _normalize_domain_id(self, context, ref):
         """Fill in domain_id if not specified in a v3 call."""

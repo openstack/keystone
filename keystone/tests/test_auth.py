@@ -545,17 +545,8 @@ class AuthWithPasswordCredentials(AuthTest):
             username=self.user_foo['name'],
             password=new_user_password)
 
-        # TODO(blk-u): The following should be
-        #  self.controller.authenticate({}, body_dict)
-        # We should not expect Unauthorized because the authorizor code should
-        # be looking up the user in the new default domain, but it's using the
-        # old domain because it's storing the domain_id statically.
-        # See bug 1265108
-
-        self.assertRaises(
-            exception.Unauthorized,
-            self.controller.authenticate,
-            {}, body_dict)
+        # The test is successful if this doesn't raise, so no need to assert.
+        self.controller.authenticate({}, body_dict)
 
 
 class AuthWithRemoteUser(AuthTest):

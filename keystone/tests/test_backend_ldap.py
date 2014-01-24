@@ -408,25 +408,18 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         domains = self.assignment_api.list_domains()
         self.assertEqual(
             domains,
-            [assignment.DEFAULT_DOMAIN])
+            [assignment.calc_default_domain()])
 
     def test_list_domains_non_default_domain_id(self):
         # If change the default_domain_id, the ID of the default domain
         # returned by list_domains changes is the new default_domain_id.
-
-        orig_default_domain_id = CONF.identity.default_domain_id
 
         new_domain_id = uuid.uuid4().hex
         self.opt_in_group('identity', default_domain_id=new_domain_id)
 
         domains = self.assignment_api.list_domains()
 
-        # TODO(blk-u): The following should be
-        #   self.assertEqual(domains[0]['id'], new_domain_id)
-        # but the domain ID doesn't change because some parts are keeping
-        # references to the old config value. See bug 1265108.
-
-        self.assertEqual(domains[0]['id'], orig_default_domain_id)
+        self.assertEqual(domains[0]['id'], new_domain_id)
 
     def test_authenticate_requires_simple_bind(self):
         user = {
@@ -1170,7 +1163,7 @@ class LdapIdentitySqlAssignment(sql.Base, tests.TestCase, BaseLDAPIdentity):
 
     def test_list_domains(self):
         domains = self.assignment_api.list_domains()
-        self.assertEqual(domains, [assignment.DEFAULT_DOMAIN])
+        self.assertEqual(domains, [assignment.calc_default_domain()])
 
     def test_list_domains_non_default_domain_id(self):
         # If change the default_domain_id, the ID of the default domain
@@ -1264,7 +1257,7 @@ class MultiLDAPandSQLIdentity(sql.Base, tests.TestCase, BaseLDAPIdentity):
                     self.assignment_api.get_domain_by_name(domain['name']))
             return ref
 
-        self.domain_default = create_domain(assignment.DEFAULT_DOMAIN)
+        self.domain_default = create_domain(assignment.calc_default_domain())
         self.domain1 = create_domain(
             {'id': uuid.uuid4().hex, 'name': 'domain1'})
         self.domain2 = create_domain(

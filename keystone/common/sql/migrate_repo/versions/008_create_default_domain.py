@@ -23,7 +23,6 @@ from keystone import config
 
 
 CONF = config.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 def upgrade(migrate_engine):
@@ -34,7 +33,7 @@ def upgrade(migrate_engine):
     domain_table = sql.Table('domain', meta, autoload=True)
 
     domain = {
-        'id': DEFAULT_DOMAIN_ID,
+        'id': CONF.identity.default_domain_id,
         'name': 'Default',
         'enabled': True,
         'extra': json.dumps({
@@ -55,5 +54,6 @@ def downgrade(migrate_engine):
     sql.Table('domain', meta, autoload=True)
     session = orm.sessionmaker(bind=migrate_engine)()
     session.execute(
-        'DELETE FROM domain WHERE id=:id', {'id': DEFAULT_DOMAIN_ID})
+        'DELETE FROM domain WHERE id=:id',
+        {'id': CONF.identity.default_domain_id})
     session.commit()
