@@ -100,11 +100,6 @@ class StringLengthExceeded(ValidationError):
                        " of column %(type)s(CHAR(%(length)d)).")
 
 
-class ImmutableAttributeError(ValidationError):
-    message_format = _("Could not change immutable attribute %(attribute)s"
-                       " in target %(target)s")
-
-
 class ValidationSizeError(Error):
     message_format = _("Request attribute %(attribute)s must be"
                        " less than or equal to %(size)i. The server"
@@ -166,6 +161,11 @@ class Forbidden(SecurityError):
 class ForbiddenAction(Forbidden):
     message_format = _("You are not authorized to perform the"
                        " requested action, %(action)s.")
+
+
+class ImmutableAttributeError(Forbidden):
+    message_format = _("Could not change immutable attribute %(attribute)s"
+                       " in target %(target)s")
 
 
 class NotFound(Error):

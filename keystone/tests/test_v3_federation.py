@@ -277,7 +277,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_update_idp_immutable_attributes(self):
         """Update IdP's immutable parameters.
 
-        Expect HTTP 400 code.
+        Expect HTTP 403 code.
 
         """
         default_resp = self._create_default_idp()
@@ -291,7 +291,7 @@ class FederatedIdentityProviderTests(FederationTests):
         body['protocols'] = [uuid.uuid4().hex, uuid.uuid4().hex]
 
         url = self.base_url(suffix=idp_id)
-        self.patch(url, body={'identity_provider': body}, expected_status=400)
+        self.patch(url, body={'identity_provider': body}, expected_status=403)
 
     def test_update_nonexistent_idp(self):
         """Update nonexistent IdP
