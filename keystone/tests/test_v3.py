@@ -18,6 +18,7 @@ import datetime
 import uuid
 
 from lxml import etree
+import six
 
 from keystone import auth
 from keystone.common import cache
@@ -250,7 +251,7 @@ class RestfulTestCase(rest.RestfulTestCase):
         ref['impersonation'] = impersonation or False
         ref['project_id'] = project_id
 
-        if isinstance(expires, basestring):
+        if isinstance(expires, six.string_types):
             ref['expires_at'] = expires
         elif isinstance(expires, dict):
             ref['expires_at'] = timeutils.strtime(

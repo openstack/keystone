@@ -17,6 +17,8 @@
 import json
 import sys
 
+import six
+
 from keystone.common import dependency
 from keystone import config
 from keystone import exception
@@ -287,7 +289,7 @@ class V3TokenDataHelper(object):
     def _populate_token_dates(self, token_data, expires=None, trust=None):
         if not expires:
             expires = token.default_expire_time()
-        if not isinstance(expires, basestring):
+        if not isinstance(expires, six.string_types):
             expires = timeutils.isotime(expires, subsecond=True)
         token_data['expires_at'] = expires
         token_data['issued_at'] = timeutils.isotime(subsecond=True)
@@ -358,7 +360,7 @@ class BaseProvider(provider.Provider):
         token_data['access']['token']['id'] = token_id
         try:
             expiry = token_data['access']['token']['expires']
-            if isinstance(expiry, basestring):
+            if isinstance(expiry, six.string_types):
                 expiry = timeutils.normalize_time(
                     timeutils.parse_isotime(expiry))
             data = dict(key=token_id,
@@ -414,7 +416,7 @@ class BaseProvider(provider.Provider):
         token_id = self._get_token_id(token_data)
         try:
             expiry = token_data['token']['expires_at']
-            if isinstance(expiry, basestring):
+            if isinstance(expiry, six.string_types):
                 expiry = timeutils.normalize_time(
                     timeutils.parse_isotime(expiry))
             # FIXME(gyee): is there really a need to store roles in metadata?

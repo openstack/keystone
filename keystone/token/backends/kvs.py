@@ -18,6 +18,8 @@
 from __future__ import absolute_import
 import copy
 
+import six
+
 from keystone.common import kvs
 from keystone import config
 from keystone import exception
@@ -192,7 +194,7 @@ class Token(token.Driver):
         current_time = self._get_current_time()
         expires = data['expires']
 
-        if isinstance(expires, basestring):
+        if isinstance(expires, six.string_types):
             expires = timeutils.parse_isotime(expires)
 
         expires = timeutils.normalize_time(expires)

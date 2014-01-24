@@ -26,6 +26,7 @@ import os
 import pwd
 
 import passlib.hash
+import six
 
 from keystone.common import config
 from keystone.common import environment
@@ -330,7 +331,7 @@ def get_unix_user(user=None):
     :return: tuple of (uid, name)
     '''
 
-    if isinstance(user, basestring):
+    if isinstance(user, six.string_types):
         try:
             user_info = pwd.getpwnam(user)
         except KeyError:
@@ -386,7 +387,7 @@ def get_unix_group(group=None):
     :return: tuple of (gid, name)
     '''
 
-    if isinstance(group, basestring):
+    if isinstance(group, six.string_types):
         try:
             group_info = grp.getgrnam(group)
         except KeyError:
