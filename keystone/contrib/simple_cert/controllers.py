@@ -27,7 +27,7 @@ CONF = cfg.CONF
 class SimpleCert(controller.V3Controller):
 
     def _get_certificate(self, name):
-        # If we aren't using the PKI Provider then we should return a 204
+        # If we aren't using the PKI Provider then we should return a 403
         if not isinstance(self.token_provider_api.driver, pki.Provider):
             raise exception.PKITokenExpected()
 
