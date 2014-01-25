@@ -34,6 +34,9 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 SHOULD_CACHE = cache.should_cache_fn('assignment')
 
+# NOTE(blk-u): The config option is not available at import time.
+EXPIRATION_TIME = lambda: CONF.assignment.cache_time
+
 
 def calc_default_domain():
     return {'description':
@@ -275,12 +278,12 @@ class Manager(manager.Manager):
         return self.driver.list_projects_for_user(user_id, group_ids)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.assignment.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def get_domain(self, domain_id):
         return self.driver.get_domain(domain_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.assignment.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def get_domain_by_name(self, domain_name):
         return self.driver.get_domain_by_name(domain_name)
 
@@ -385,17 +388,17 @@ class Manager(manager.Manager):
                                'domainid': domain_id})
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.assignment.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def get_project(self, project_id):
         return self.driver.get_project(project_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.assignment.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def get_project_by_name(self, tenant_name, domain_id):
         return self.driver.get_project_by_name(tenant_name, domain_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.assignment.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
 

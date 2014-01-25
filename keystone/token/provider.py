@@ -33,6 +33,8 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 SHOULD_CACHE = cache.should_cache_fn('token')
 
+# NOTE(blk-u): The config options are not available at import time.
+EXPIRATION_TIME = lambda: CONF.token.cache_time
 
 # supported token versions
 V2 = 'v2.0'
@@ -158,17 +160,17 @@ class Manager(manager.Manager):
         self.validate_v3_token(unique_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.token.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def _validate_token(self, token_id):
         return self.driver.validate_token(token_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.token.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def _validate_v2_token(self, token_id):
         return self.driver.validate_v2_token(token_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=CONF.token.cache_time)
+                        expiration_time=EXPIRATION_TIME)
     def _validate_v3_token(self, token_id):
         return self.driver.validate_v3_token(token_id)
 
