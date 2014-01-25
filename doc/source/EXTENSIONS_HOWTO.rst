@@ -78,7 +78,7 @@ Example::
 
 In case the Extension is overriding or re-implementing an existing portion of
 Keystone the required change should be commented in the `configuration.rst` but
-not placed in the `keystone.conf.sample` file to avoid unecessary confusion.
+not placed in the `keystone.conf.sample` file to avoid unnecessary confusion.
 
 
 `keystone-paste.ini` File

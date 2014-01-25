@@ -38,14 +38,14 @@ class Token(auth.AuthMethodHandler):
                                                 target=METHOD_NAME)
             token_id = auth_payload['id']
             response = self.provider.validate_token(token_id)
-            #for V3 tokens, the esential data is under  the 'token' value.
+            #for V3 tokens, the essential data is under  the 'token' value.
             #For V2, the comparable data was nested under 'access'
             token_ref = response.get('token', response.get('access'))
 
             #Do not allow tokens used for delegation to
             #create another token, or perform any changes of
             #state in Keystone. TO do so is to invite elevation of
-            #priviledge attacks
+            #privilege attacks
             if 'OS-TRUST:trust' in token_ref:
                 raise exception.Forbidden()
             if 'trust' in token_ref:

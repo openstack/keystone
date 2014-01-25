@@ -16,7 +16,7 @@
 
 
 """
-PEM formatted data is used frequenlty in conjunction with X509 PKI as
+PEM formatted data is used frequently in conjunction with X509 PKI as
 a data exchange mechanism for binary data. The acronym PEM stands for
 Privacy Enhanced Mail as defined in RFC-1421. Contrary to expectation
 the PEM format in common use has little to do with RFC-1421. Instead
@@ -24,7 +24,7 @@ what we know as PEM format grew out of the need for a data exchange
 mechanism largely by the influence of OpenSSL. Other X509
 implementations have adopted it.
 
-Unfortunately PEM format has never been officialy standarized. It's
+Unfortunately PEM format has never been officially standarized. It's
 basic format is as follows:
 
 1) A header consisting of 5 hyphens followed by the word BEGIN and a
@@ -38,7 +38,7 @@ text may be less than 64 characters. The content and format of the
 binary data is entirely dependent upon the type of data announced in
 the header and footer.
 
-3) A footer in the exact same as the header execpt the word BEGIN is
+3) A footer in the exact same as the header except the word BEGIN is
 replaced by END. The content name in both the header and footer should
 exactly match.
 

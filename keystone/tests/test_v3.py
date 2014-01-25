@@ -998,7 +998,7 @@ class RestfulTestCase(rest.RestfulTestCase):
 
         if summary:
             # Trust list contains no roles, but getting a specific
-            # trust by ID provides the detailed reponse containing roles
+            # trust by ID provides the detailed response containing roles
             self.assertNotIn('roles', entity)
             self.assertIn('project_id', entity)
         else:
