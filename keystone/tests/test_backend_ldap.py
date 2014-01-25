@@ -1067,8 +1067,9 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         self.config([tests.dirs.etc('keystone.conf.sample'),
                      tests.dirs.tests('test_overrides.conf'),
                      tests.dirs.tests('backend_ldap.conf')])
-        CONF.ldap.user_enabled_emulation = True
-        CONF.ldap.tenant_enabled_emulation = True
+        self.opt_in_group('ldap',
+                          user_enabled_emulation=True,
+                          tenant_enabled_emulation=True)
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)

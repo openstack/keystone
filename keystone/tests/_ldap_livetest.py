@@ -103,19 +103,20 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         create_object("ou=alt_users,%s" % CONF.ldap.user_tree_dn,
                       aliased_users_ldif)
 
-        CONF.ldap.query_scope = 'sub'
-        CONF.ldap.alias_dereferencing = 'never'
+        self.opt_in_group('ldap',
+                          query_scope='sub',
+                          alias_dereferencing='never')
         self.identity_api = identity_ldap.Identity()
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           'alt_fake1')
 
-        CONF.ldap.alias_dereferencing = 'searching'
+        self.opt_in_group('ldap', alias_dereferencing='searching')
         self.identity_api = identity_ldap.Identity()
         user_ref = self.identity_api.get_user('alt_fake1')
         self.assertEqual(user_ref['id'], 'alt_fake1')
 
-        CONF.ldap.alias_dereferencing = 'always'
+        self.opt_in_group('ldap', alias_dereferencing='always')
         self.identity_api = identity_ldap.Identity()
         user_ref = self.identity_api.get_user('alt_fake1')
         self.assertEqual(user_ref['id'], 'alt_fake1')
@@ -201,7 +202,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                 negative_user['id'])
             self.assertEqual(len(group_refs), 0)
 
-        CONF.ldap.group_filter = "(dn=xx)"
+        self.opt_in_group('ldap', group_filter='(dn=xx)')
         self.reload_backends(CONF.identity.default_domain_id)
         group_refs = self.identity_api.list_groups_for_user(
             positive_user['id'])
@@ -210,7 +211,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
             negative_user['id'])
         self.assertEqual(len(group_refs), 0)
 
-        CONF.ldap.group_filter = "(objectclass=*)"
+        self.opt_in_group('ldap', group_filter='(objectclass=*)')
         self.reload_backends(CONF.identity.default_domain_id)
         group_refs = self.identity_api.list_groups_for_user(
             positive_user['id'])
@@ -220,8 +221,10 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         self.assertEqual(len(group_refs), 0)
 
     def test_user_enable_attribute_mask(self):
-        CONF.ldap.user_enabled_emulation = False
-        CONF.ldap.user_enabled_attribute = 'employeeType'
+        self.opt_in_group(
+            'ldap',
+            user_enable_emulation=False,
+            user_enabled_attribute='employeeType')
         super(LiveLDAPIdentity, self).test_user_enable_attribute_mask()
 
     def test_create_unicode_user_name(self):

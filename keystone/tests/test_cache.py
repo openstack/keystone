@@ -85,6 +85,18 @@ class CacheRegionTest(tests.TestCase):
         self.region.wrap(TestProxy)
         self.test_value = TestProxyValue('Decorator Test')
 
+    def _add_test_caching_option(self):
+        test_cache_opt = config.config.cfg.BoolOpt('caching', default=True)
+
+        def reset_and_unregister_opt():
+            # NOTE(morganfainberg): Reset is required before unregistering
+            # arguments or ArgsAlreadyParsedError is raised.
+            CONF.reset()
+            CONF.unregister_opt(test_cache_opt, group='cache')
+
+        self.addCleanup(reset_and_unregister_opt)
+        CONF.register_opt(test_cache_opt, group='cache')
+
     def _get_cacheable_function(self):
         SHOULD_CACHE_FN = cache.should_cache_fn('cache')
 
@@ -132,10 +144,10 @@ class CacheRegionTest(tests.TestCase):
         # section caching enabled.
         cacheable_function = self._get_cacheable_function()
 
+        self._add_test_caching_option()
         self.opt_in_group('cache', enabled=False)
-        # NOTE(morganfainberg): cannot use opt_in_group because 'caching' is a
-        # fabricated setting for tests.
-        setattr(CONF.cache, 'caching', True)
+        self.opt_in_group('cache', caching=True)
+
         cacheable_function(self.test_value)
         cached_value = cacheable_function(self.test_value)
         self.assertFalse(cached_value.cached)
@@ -146,10 +158,10 @@ class CacheRegionTest(tests.TestCase):
         # section caching disabled.
         cacheable_function = self._get_cacheable_function()
 
+        self._add_test_caching_option()
         self.opt_in_group('cache', enabled=True)
-        # NOTE(morganfainberg): cannot use opt_in_group because 'caching' is a
-        # fabricated setting for tests.
-        setattr(CONF.cache, 'caching', False)
+        self.opt_in_group('cache', caching=False)
+
         cacheable_function(self.test_value)
         cached_value = cacheable_function(self.test_value)
         self.assertFalse(cached_value.cached)
@@ -160,21 +172,22 @@ class CacheRegionTest(tests.TestCase):
         # section caching enabled.
         cacheable_function = self._get_cacheable_function()
 
+        self._add_test_caching_option()
         self.opt_in_group('cache', enabled=True)
-        # NOTE(morganfainberg): cannot use opt_in_group because 'caching' is a
-        # fabricated setting for tests.
-        setattr(CONF.cache, 'caching', True)
+        self.opt_in_group('cache', caching=True)
+
         cacheable_function(self.test_value)
         cached_value = cacheable_function(self.test_value)
         self.assertTrue(cached_value.cached)
 
     def test_cache_dictionary_config_builder(self):
         """Validate we build a sane dogpile.cache dictionary config."""
-        CONF.cache.config_prefix = 'test_prefix'
-        CONF.cache.backend = 'some_test_backend'
-        CONF.cache.expiration_time = 86400
-        CONF.cache.backend_argument = ['arg1:test', 'arg2:test:test',
-                                       'arg3.invalid']
+        self.opt_in_group('cache',
+                          config_prefix='test_prefix',
+                          backend='some_test_backend',
+                          expiration_time=86400,
+                          backend_argument=['arg1:test', 'arg2:test:test',
+                                            'arg3.invalid'])
 
         config_dict = cache.build_cache_config()
         self.assertEqual(
@@ -222,7 +235,7 @@ class CacheNoopBackendTest(tests.TestCase):
     def setUp(self):
         super(CacheNoopBackendTest, self).setUp()
         self.region = cache.make_region()
-        setattr(CONF.cache, 'backend', 'keystone.common.cache.noop')
+        self.opt_in_group('cache', backend='keystone.common.cache.noop')
         cache.configure_cache_region(self.region)
 
     def test_noop_backend(self):

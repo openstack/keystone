@@ -44,9 +44,10 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
                      tests.dirs.tests('backend_tls_liveldap.conf')])
 
     def test_tls_certfile_demand_option(self):
-        CONF.ldap.use_tls = True
-        CONF.ldap.tls_cacertdir = None
-        CONF.ldap.tls_req_cert = 'demand'
+        self.opt_in_group('ldap',
+                          use_tls=True,
+                          tls_cacertdir=None,
+                          tls_req_cert='demand')
         self.identity_api = identity.backends.ldap.Identity()
 
         user = {'id': 'fake1',
@@ -65,9 +66,10 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
                           'fake1')
 
     def test_tls_certdir_demand_option(self):
-        CONF.ldap.use_tls = True
-        CONF.ldap.tls_cacertfile = None
-        CONF.ldap.tls_req_cert = 'demand'
+        self.opt_in_group('ldap',
+                          use_tls=True,
+                          tls_cacertdir=None,
+                          tls_req_cert='demand')
         self.identity_api = identity.backends.ldap.Identity()
 
         user = {'id': 'fake1',
@@ -86,10 +88,12 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
                           'fake1')
 
     def test_tls_bad_certfile(self):
-        CONF.ldap.use_tls = True
-        CONF.ldap.tls_req_cert = 'demand'
-        CONF.ldap.tls_cacertfile = '/etc/keystone/ssl/certs/mythicalcert.pem'
-        CONF.ldap.tls_cacertdir = None
+        self.opt_in_group(
+            'ldap',
+            use_tls=True,
+            tls_req_cert='demand',
+            tls_cacertfile='/etc/keystone/ssl/certs/mythicalcert.pem',
+            tls_cacertdir=None)
         self.identity_api = identity.backends.ldap.Identity()
 
         user = {'id': 'fake1',
@@ -99,10 +103,12 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
         self.assertRaises(IOError, self.identity_api.create_user, 'fake', user)
 
     def test_tls_bad_certdir(self):
-        CONF.ldap.use_tls = True
-        CONF.ldap.tls_cacertfile = None
-        CONF.ldap.tls_req_cert = 'demand'
-        CONF.ldap.tls_cacertdir = '/etc/keystone/ssl/mythicalcertdir'
+        self.opt_in_group(
+            'ldap',
+            use_tls=True,
+            tls_cacertfile=None,
+            tls_req_cert='demand',
+            tls_cacertdir='/etc/keystone/ssl/mythicalcertdir')
         self.identity_api = identity.backends.ldap.Identity()
 
         user = {'id': 'fake1',

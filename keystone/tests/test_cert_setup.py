@@ -38,16 +38,21 @@ class CertSetupTestCase(tests.TestCase):
 
     def setUp(self):
         super(CertSetupTestCase, self).setUp()
-        CONF.signing.certfile = os.path.join(CERTDIR, 'signing_cert.pem')
-        CONF.signing.ca_certs = os.path.join(CERTDIR, "ca.pem")
-        CONF.signing.ca_key = os.path.join(CERTDIR, "cakey.pem")
-        CONF.signing.keyfile = os.path.join(KEYDIR, "signing_key.pem")
+        ca_certs = os.path.join(CERTDIR, 'ca.pem')
+        ca_key = os.path.join(CERTDIR, 'cakey.pem')
 
-        CONF.ssl.ca_certs = CONF.signing.ca_certs
-        CONF.ssl.ca_key = CONF.signing.ca_key
-
-        CONF.ssl.certfile = os.path.join(CERTDIR, 'keystone.pem')
-        CONF.ssl.keyfile = os.path.join(KEYDIR, 'keystonekey.pem')
+        self.opt_in_group(
+            'signing',
+            certfile=os.path.join(CERTDIR, 'signing_cert.pem'),
+            ca_certs=ca_certs,
+            ca_key=ca_key,
+            keyfile=os.path.join(KEYDIR, 'signing_key.pem'))
+        self.opt_in_group(
+            'ssl',
+            ca_certs=ca_certs,
+            ca_key=ca_key,
+            certfile=os.path.join(CERTDIR, 'keystone.pem'),
+            keyfile=os.path.join(KEYDIR, 'keystonekey.pem'))
 
         self.load_backends()
         self.load_fixtures(default_fixtures)

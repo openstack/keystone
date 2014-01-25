@@ -13,11 +13,9 @@
 # under the License.
 
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
 from keystone import tests
 
-CONF = config.CONF
 
 KERBEROS_BIND = 'USER@REALM'
 
@@ -50,7 +48,7 @@ class BindTest(tests.TestCase):
                                           use_kerberos=val, success=success)
         else:
             context = {'environment': {}}
-            CONF.token.enforce_token_bind = bind_level
+            self.opt_in_group('token', enforce_token_bind=bind_level)
 
             if use_kerberos:
                 context['environment']['REMOTE_USER'] = KERBEROS_BIND

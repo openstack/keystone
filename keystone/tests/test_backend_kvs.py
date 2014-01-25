@@ -18,22 +18,19 @@ import uuid
 
 import six
 
-from keystone import config
 from keystone import exception
-from keystone import identity
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import test_backend
 
-CONF = config.CONF
-
 
 class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
     def setUp(self):
         super(KvsIdentity, self).setUp()
-        identity.CONF.identity.driver = (
-            'keystone.identity.backends.kvs.Identity')
+        self.opt_in_group(
+            'identity',
+            driver='keystone.identity.backends.kvs.Identity')
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -83,8 +80,9 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
-        identity.CONF.identity.driver = (
-            'keystone.identity.backends.kvs.Identity')
+        self.opt_in_group(
+            'identity',
+            driver='keystone.identity.backends.kvs.Identity')
         self.load_backends()
 
     def test_flush_expired_token(self):
@@ -158,12 +156,15 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
 class KvsTrust(tests.TestCase, test_backend.TrustTests):
     def setUp(self):
         super(KvsTrust, self).setUp()
-        identity.CONF.identity.driver = (
-            'keystone.identity.backends.kvs.Identity')
-        identity.CONF.trust.driver = (
-            'keystone.trust.backends.kvs.Trust')
-        identity.CONF.catalog.driver = (
-            'keystone.catalog.backends.kvs.Catalog')
+        self.opt_in_group(
+            'identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.opt_in_group(
+            'trust',
+            driver='keystone.trust.backends.kvs.Trust')
+        self.opt_in_group(
+            'catalog',
+            driver='keystone.catalog.backends.kvs.Catalog')
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -171,12 +172,15 @@ class KvsTrust(tests.TestCase, test_backend.TrustTests):
 class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(KvsCatalog, self).setUp()
-        identity.CONF.identity.driver = (
-            'keystone.identity.backends.kvs.Identity')
-        identity.CONF.trust.driver = (
-            'keystone.trust.backends.kvs.Trust')
-        identity.CONF.catalog.driver = (
-            'keystone.catalog.backends.kvs.Catalog')
+        self.opt_in_group(
+            'identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.opt_in_group(
+            'trust',
+            driver='keystone.trust.backends.kvs.Trust')
+        self.opt_in_group(
+            'catalog',
+            driver='keystone.catalog.backends.kvs.Catalog')
         self.load_backends()
         self._load_fake_catalog()
 
@@ -207,7 +211,11 @@ class KvsTokenCacheInvalidation(tests.TestCase,
                                 test_backend.TokenCacheInvalidation):
     def setUp(self):
         super(KvsTokenCacheInvalidation, self).setUp()
-        CONF.identity.driver = 'keystone.identity.backends.kvs.Identity'
-        CONF.token.driver = 'keystone.token.backends.kvs.Token'
+        self.opt_in_group(
+            'identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.opt_in_group(
+            'token',
+            driver='keystone.token.backends.kvs.Token')
         self.load_backends()
         self._create_test_data()

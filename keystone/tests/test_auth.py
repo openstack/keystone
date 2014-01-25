@@ -387,7 +387,7 @@ class AuthWithToken(AuthTest):
             token_id=scoped_token_id)
 
     def test_token_auth_with_binding(self):
-        CONF.token.bind = ['kerberos']
+        self.opt_in_group('token', bind=['kerberos'])
         body_dict = _build_user_auth()
         unscoped_token = self.controller.authenticate(
             self.context_with_remote_user, body_dict)
@@ -507,7 +507,7 @@ class AuthWithPasswordCredentials(AuthTest):
                           {}, body_dict)
 
     def test_bind_without_remote_user(self):
-        CONF.token.bind = ['kerberos']
+        self.opt_in_group('token', bind=['kerberos'])
         body_dict = _build_user_auth(username='FOO', password='foo2',
                                      tenant_name='BAR')
         token = self.controller.authenticate({}, body_dict)
@@ -623,14 +623,14 @@ class AuthWithRemoteUser(AuthTest):
             body_dict)
 
     def test_bind_with_kerberos(self):
-        CONF.token.bind = ['kerberos']
+        self.opt_in_group('token', bind=['kerberos'])
         body_dict = _build_user_auth(tenant_name="BAR")
         token = self.controller.authenticate(self.context_with_remote_user,
                                              body_dict)
         self.assertEqual(token['access']['token']['bind']['kerberos'], 'FOO')
 
     def test_bind_without_config_opt(self):
-        CONF.token.bind = ['x509']
+        self.opt_in_group('token', bind=['x509'])
         body_dict = _build_user_auth(tenant_name='BAR')
         token = self.controller.authenticate(self.context_with_remote_user,
                                              body_dict)
