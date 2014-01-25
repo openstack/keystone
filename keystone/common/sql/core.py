@@ -167,12 +167,12 @@ class Base(object):
         :returns query: query, updated with any filters satisfied
 
         """
-        def inexact_filter(model, query, filter, hints):
+        def inexact_filter(model, query, filter_, hints):
             """Applies an inexact filter to a query.
 
             :param model: the table model in question
             :param query: query to apply filters to
-            :param filter: the dict that describes this filter
+            :param filter_: the dict that describes this filter
             :param hints: contains the list of filters yet to be satisfied.
                           Any filters satisfied here will be removed so that
                           the caller will know if any filters remain.
@@ -181,7 +181,7 @@ class Base(object):
                             satisfy
 
             """
-            column_attr = getattr(model, filter['name'])
+            column_attr = getattr(model, filter_['name'])
 
             # TODO(henry-nash): Sqlalchemy 0.7 defaults to case insensitivity
             # so once we find a way of changing that (maybe on a call-by-call
@@ -189,28 +189,28 @@ class Base(object):
             # the filters below.  For now, these case sensitive versions will
             # be handled at the controller level.
 
-            if filter['case_sensitive']:
+            if filter_['case_sensitive']:
                 return query
 
-            if filter['comparator'] == 'contains':
-                query_term = column_attr.ilike('%%%s%%' % filter['value'])
-            elif filter['comparator'] == 'startswith':
-                query_term = column_attr.ilike('%s%%' % filter['value'])
-            elif filter['comparator'] == 'endswith':
-                query_term = column_attr.ilike('%%%s' % filter['value'])
+            if filter_['comparator'] == 'contains':
+                query_term = column_attr.ilike('%%%s%%' % filter_['value'])
+            elif filter_['comparator'] == 'startswith':
+                query_term = column_attr.ilike('%s%%' % filter_['value'])
+            elif filter_['comparator'] == 'endswith':
+                query_term = column_attr.ilike('%%%s' % filter_['value'])
             else:
                 # It's a filter we don't understand, so let the caller
                 # work out if they need to do something with it.
                 return query
 
-            hints.remove(filter)
+            hints.remove(filter_)
             return query.filter(query_term)
 
-        def exact_filter(model, filter, cumlative_filter_dict, hints):
+        def exact_filter(model, filter_, cumlative_filter_dict, hints):
             """Applies an exact filter to a query.
 
             :param model: the table model in question
-            :param filter: the dict that describes this filter
+            :param filter_: the dict that describes this filter
             :param cumlative_filter_dict: a dict that describes the set of
                                           exact filters built up so far
             :param hints: contains the list of filters yet to be satisfied.
@@ -220,23 +220,23 @@ class Base(object):
             :returns cumlative_filter_dict: updated cumulative dict
 
             """
-            key = filter['name']
+            key = filter_['name']
             if isinstance(getattr(model, key).property.columns[0].type,
                           sql.types.Boolean):
-                filter_dict[key] = utils.attr_as_boolean(filter['value'])
+                filter_dict[key] = utils.attr_as_boolean(filter_['value'])
             else:
-                filter_dict[key] = filter['value']
-            hints.remove(filter)
+                filter_dict[key] = filter_['value']
+            hints.remove(filter_)
             return filter_dict
 
         filter_dict = {}
 
-        for filter in hints.filters():
+        for filter_ in hints.filters():
             # TODO(henry-nash): Check if name is valid column, if not skip
-            if filter['comparator'] == 'equals':
-                filter_dict = exact_filter(model, filter, filter_dict, hints)
+            if filter_['comparator'] == 'equals':
+                filter_dict = exact_filter(model, filter_, filter_dict, hints)
             else:
-                query = inexact_filter(model, query, filter, hints)
+                query = inexact_filter(model, query, filter_, hints)
 
         # Apply any exact filters we built up
         if filter_dict:
@@ -244,7 +244,7 @@ class Base(object):
 
         return query
 
-    def filter(self, model, query, hints):
+    def filter_query(self, model, query, hints):
         """Applies filtering to a query.
 
         :param model: table model
