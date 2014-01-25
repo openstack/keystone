@@ -15,6 +15,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from keystone import catalog
 from keystone.catalog import core
 from keystone.common import sql
@@ -237,7 +239,7 @@ class Catalog(sql.Base, catalog.Driver):
         return ref.to_dict()
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
-        d = dict(CONF.iteritems())
+        d = dict(six.iteritems(CONF))
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 
@@ -265,7 +267,7 @@ class Catalog(sql.Base, catalog.Driver):
         return catalog
 
     def get_v3_catalog(self, user_id, tenant_id, metadata=None):
-        d = dict(CONF.iteritems())
+        d = dict(six.iteritems(CONF))
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 

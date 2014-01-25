@@ -18,6 +18,7 @@ import os.path
 
 import ldap
 import ldap.filter
+import six
 
 from keystone import exception
 from keystone.openstack.common import log
@@ -109,7 +110,7 @@ def register_handler(prefix, handler):
 
 
 def get_handler(conn_url):
-    for prefix, handler in _HANDLERS.iteritems():
+    for prefix, handler in six.iteritems(_HANDLERS):
         if conn_url.startswith(prefix):
             return handler
 
@@ -162,7 +163,7 @@ class BaseLdap(object):
             self.object_class = (getattr(conf.ldap, objclass)
                                  or self.DEFAULT_OBJECTCLASS)
 
-            for k, v in self.attribute_options_names.iteritems():
+            for k, v in six.iteritems(self.attribute_options_names):
                 v = '%s_%s_attribute' % (self.options_name, v)
                 self.attribute_mapping[k] = getattr(conf.ldap, v)
 
@@ -326,7 +327,7 @@ class BaseLdap(object):
         conn = self.get_connection()
         object_classes = self.structural_classes + [self.object_class]
         attrs = [('objectClass', object_classes)]
-        for k, v in values.iteritems():
+        for k, v in six.iteritems(values):
             if k == 'id' or k in self.attribute_ignore:
                 continue
             if v is not None:
@@ -334,7 +335,7 @@ class BaseLdap(object):
                 if attr_type is not None:
                     attrs.append((attr_type, [v]))
                 extra_attrs = [attr for attr, name
-                               in self.extra_attr_mapping.iteritems()
+                               in six.iteritems(self.extra_attr_mapping)
                                if name == k]
                 for attr in extra_attrs:
                     attrs.append((attr, [v]))
@@ -413,7 +414,7 @@ class BaseLdap(object):
             old_obj = self.get(object_id)
 
         modlist = []
-        for k, v in values.iteritems():
+        for k, v in six.iteritems(values):
             if k == 'id' or k in self.attribute_ignore:
                 continue
 
@@ -590,7 +591,7 @@ class LdapWrapper(object):
         o = []
         for dn, attrs in res:
             o.append((dn, dict((kind, [ldap2py(x) for x in values])
-                               for kind, values in attrs.iteritems())))
+                               for kind, values in six.iteritems(attrs))))
         return o
 
     def paged_search_s(self, dn, scope, query, attrlist=None):

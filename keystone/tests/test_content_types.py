@@ -16,6 +16,8 @@
 
 import uuid
 
+import six
+
 from keystone.common import extension
 from keystone import config
 from keystone.tests import rest
@@ -826,7 +828,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
     def assertValidExtension(self, extension, expected):
         super(JsonTestCase, self).assertValidExtension(extension)
-        descriptions = [ext['description'] for ext in expected.itervalues()]
+        descriptions = [ext['description'] for ext in six.itervalues(expected)]
         description = extension.get('description')
         self.assertIsNotNone(description)
         self.assertIn(description, descriptions)
@@ -1176,7 +1178,7 @@ class XmlTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         self.assertTrue(extension.find(self._tag('description')).text)
         links = extension.find(self._tag('links'))
         self.assertNotEmpty(links.findall(self._tag('link')))
-        descriptions = [ext['description'] for ext in expected.itervalues()]
+        descriptions = [ext['description'] for ext in six.itervalues(expected)]
         description = extension.find(self._tag('description')).text
         self.assertIn(description, descriptions)
         for link in links.findall(self._tag('link')):

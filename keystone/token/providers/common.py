@@ -113,8 +113,8 @@ class V2TokenDataHelper(object):
             return []
 
         services = {}
-        for region, region_ref in catalog_ref.iteritems():
-            for service, service_ref in region_ref.iteritems():
+        for region, region_ref in six.iteritems(catalog_ref):
+            for service, service_ref in six.iteritems(region_ref):
                 new_service_ref = services.get(service, {})
                 new_service_ref['name'] = service_ref.pop('name')
                 new_service_ref['type'] = service

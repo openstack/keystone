@@ -28,6 +28,7 @@ import re
 import shelve
 
 import ldap
+import six
 
 from keystone.common import utils
 from keystone.openstack.common import log
@@ -324,11 +325,11 @@ class FakeLdap(object):
             results = [(dn, item_dict)]
         elif scope == ldap.SCOPE_SUBTREE:
             results = [(k[len(self.__prefix):], v)
-                       for k, v in self.db.iteritems()
+                       for k, v in six.iteritems(self.db)
                        if re.match('%s.*,%s' % (self.__prefix, dn), k)]
         elif scope == ldap.SCOPE_ONELEVEL:
             results = [(k[len(self.__prefix):], v)
-                       for k, v in self.db.iteritems()
+                       for k, v in six.iteritems(self.db)
                        if re.match('%s\w+=[^,]+,%s' % (self.__prefix, dn), k)]
         else:
             LOG.debug('search fail: unknown scope %s', scope)
@@ -343,7 +344,7 @@ class FakeLdap(object):
             match_attrs[id_attr] = [id_val]
             if not query or _match_query(query, match_attrs):
                 # filter the attributes by fields
-                attrs = dict([(k, v) for k, v in attrs.iteritems()
+                attrs = dict([(k, v) for k, v in six.iteritems(attrs)
                               if not fields or k in fields])
                 objects.append((dn, attrs))
 

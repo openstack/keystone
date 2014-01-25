@@ -24,6 +24,7 @@ from dogpile.cache import proxy
 from dogpile.cache import region
 from dogpile.cache import util as dogpile_util
 from dogpile.core import nameregistry
+import six
 
 from keystone.common import config
 from keystone import exception
@@ -204,7 +205,7 @@ class KeyValueStore(object):
         if config_args['lock_timeout'] > 0:
             config_args['lock_timeout'] += LOCK_WINDOW
 
-        for argument, value in config_args.iteritems():
+        for argument, value in six.iteritems(config_args):
             arg_key = '.'.join([prefix, 'arguments', argument])
             conf_dict[arg_key] = value
 

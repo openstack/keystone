@@ -16,6 +16,8 @@
 
 import os.path
 
+import six
+
 from keystone.catalog.backends import kvs
 from keystone.catalog import core
 from keystone import config
@@ -108,16 +110,16 @@ class TemplatedCatalog(kvs.Catalog):
             raise
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
-        d = dict(CONF.iteritems())
+        d = dict(six.iteritems(CONF))
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 
         o = {}
-        for region, region_ref in self.templates.iteritems():
+        for region, region_ref in six.iteritems(self.templates):
             o[region] = {}
-            for service, service_ref in region_ref.iteritems():
+            for service, service_ref in six.iteritems(region_ref):
                 o[region][service] = {}
-                for k, v in service_ref.iteritems():
+                for k, v in six.iteritems(service_ref):
                     o[region][service][k] = core.format_url(v, d)
 
         return o

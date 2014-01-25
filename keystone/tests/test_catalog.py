@@ -16,6 +16,8 @@
 
 import uuid
 
+import six
+
 from keystone.tests import rest
 
 
@@ -87,7 +89,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         req_body, response = self._endpoint_create()
         self.assertTrue('endpoint' in response.result)
         self.assertTrue('id' in response.result['endpoint'])
-        for field, value in req_body['endpoint'].iteritems():
+        for field, value in six.iteritems(req_body['endpoint']):
             self.assertEqual(response.result['endpoint'][field], value)
 
     def test_endpoint_create_with_null_adminurl(self):
