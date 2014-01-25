@@ -26,8 +26,6 @@ from keystone import config
 
 CONF = config.CONF
 
-environment.use_eventlet()
-
 MAIN = 'main'
 ADMIN = 'admin'
 
