@@ -103,6 +103,7 @@ if __name__ == '__main__':
     if os.path.exists(dev_conf):
         config_files = [dev_conf]
 
+    config.configure()
     sql.initialize()
 
     CONF(project='keystone',
