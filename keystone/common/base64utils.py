@@ -39,11 +39,11 @@ This module provides the following base64 utility functionality:
 
 """
 
-import io
 import re
 import string
 import urllib
 
+import six
 from six import moves
 
 
@@ -385,7 +385,7 @@ def base64_wrap(text, width=64):
     :returns: string -- wrapped text.
     """
 
-    buf = io.StringIO()
+    buf = six.StringIO()
 
     for line in base64_wrap_iter(text, width):
         buf.write(line)
