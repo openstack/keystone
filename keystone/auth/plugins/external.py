@@ -31,6 +31,9 @@ CONF = config.CONF
 
 @six.add_metaclass(abc.ABCMeta)
 class Base(auth.AuthMethodHandler):
+
+    method = 'external'
+
     def authenticate(self, context, auth_info, auth_context):
         """Use REMOTE_USER to look up the user in the identity backend.
 

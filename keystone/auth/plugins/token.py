@@ -22,12 +22,13 @@ from keystone.openstack.common import timeutils
 from keystone.token import provider
 
 
-METHOD_NAME = 'token'
-
 LOG = log.getLogger(__name__)
 
 
 class Token(auth.AuthMethodHandler):
+
+    method = 'token'
+
     def __init__(self):
         self.provider = provider.Manager()
 
@@ -35,7 +36,7 @@ class Token(auth.AuthMethodHandler):
         try:
             if 'id' not in auth_payload:
                 raise exception.ValidationError(attribute='id',
-                                                target=METHOD_NAME)
+                                                target=self.method)
             token_id = auth_payload['id']
             response = self.provider.validate_token(token_id)
             #for V3 tokens, the essential data is under  the 'token' value.

@@ -24,12 +24,14 @@ from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 
 
-METHOD_NAME = 'oauth1'
 LOG = log.getLogger(__name__)
 
 
 @dependency.requires('oauth_api')
 class OAuth(auth.AuthMethodHandler):
+
+    method = 'oauth1'
+
     def __init__(self):
         self.oauth_api = oauth1.Manager()
 
