@@ -34,8 +34,12 @@ class PolicyV3(controller.V3Controller):
 
     @controller.filterprotected('type')
     def list_policies(self, context, filters):
+        hints = PolicyV3.build_driver_hints(context, filters)
+        # We don't bother passing the hints in, since this would be
+        # a highly unlikely filter to use - wrap_collection() can
+        # handle if required.
         refs = self.policy_api.list_policies()
-        return PolicyV3.wrap_collection(context, refs, filters)
+        return PolicyV3.wrap_collection(context, refs, hints=hints)
 
     @controller.protected()
     def get_policy(self, context, policy_id):

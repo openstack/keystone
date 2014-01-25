@@ -119,9 +119,10 @@ class Identity(sql.Base, identity.Driver):
             session.add(user_ref)
         return identity.filter_user(user_ref.to_dict())
 
-    def list_users(self):
+    def list_users(self, hints):
         session = self.get_session()
-        user_refs = session.query(User)
+        query = session.query(User)
+        user_refs = self.filter(User, query, hints)
         return [identity.filter_user(x.to_dict()) for x in user_refs]
 
     def _get_user(self, session, user_id):
@@ -202,14 +203,24 @@ class Identity(sql.Base, identity.Driver):
         with session.begin():
             session.delete(membership_ref)
 
-    def list_groups_for_user(self, user_id):
+    def list_groups_for_user(self, user_id, hints):
+        # TODO(henry-nash) We could implement full filtering here by enhancing
+        # the join below.  However, since it is likely to be a fairly rare
+        # occurrence to filter on more than the user_id already being used
+        # here, this is left as future enhancement and until then we leave
+        # it for the controller to do for us.
         session = self.get_session()
         self.get_user(user_id)
         query = session.query(Group).join(UserGroupMembership)
         query = query.filter(UserGroupMembership.user_id == user_id)
         return [g.to_dict() for g in query]
 
-    def list_users_in_group(self, group_id):
+    def list_users_in_group(self, group_id, hints):
+        # TODO(henry-nash) We could implement full filtering here by enhancing
+        # the join below.  However, since it is likely to be a fairly rare
+        # occurrence to filter on more than the group_id already being used
+        # here, this is left as future enhancement and until then we leave
+        # it for the controller to do for us.
         session = self.get_session()
         self.get_group(group_id)
         query = session.query(User).join(UserGroupMembership)
@@ -240,9 +251,10 @@ class Identity(sql.Base, identity.Driver):
             session.add(ref)
         return ref.to_dict()
 
-    def list_groups(self):
+    def list_groups(self, hints):
         session = self.get_session()
-        refs = session.query(Group).all()
+        query = session.query(Group)
+        refs = self.filter(Group, query, hints)
         return [ref.to_dict() for ref in refs]
 
     def _get_group(self, session, group_id):

@@ -18,9 +18,9 @@ import collections
 import functools
 import uuid
 
-import six
-
 from keystone.common import dependency
+from keystone.common import driver_hints
+from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
 from keystone import exception
@@ -279,9 +279,29 @@ class V3Controller(wsgi.Application):
         return {cls.member_name: ref}
 
     @classmethod
-    def wrap_collection(cls, context, refs, filters=[]):
-        for f in filters:
-            refs = cls.filter_by_attribute(context, refs, f)
+    def wrap_collection(cls, context, refs, hints=None):
+        """Wrap a collection, checking for filtering and pagination.
+
+        Returns the wrapped collection, which includes:
+        - Executing any filtering not already carried out
+        - Paginating if necessary
+        - Adds 'self' links in every member
+        - Adds 'next', 'self' and 'prev' links for the whole collection.
+
+        :param context: the current context, containing the original url path
+                        and query string
+        :param refs: the list of members of the collection
+        :param hints: list hints, containing any relevant
+                      filters. Any filters already satisfied by drivers
+                      will have been removed
+        """
+        # Check if there are any filters in hints that were not
+        # handled by the drivers. The driver will not have paginated or
+        # limited the output if it found there were filters it was unable to
+        # handle.
+
+        if hints is not None:
+            refs = cls.filter_by_attributes(refs, hints)
 
         refs = cls.paginate(context, refs)
 
@@ -306,8 +326,8 @@ class V3Controller(wsgi.Application):
         return refs[per_page * (page - 1):per_page * page]
 
     @classmethod
-    def filter_by_attribute(cls, context, refs, attr):
-        """Filters a list of references by query string value."""
+    def filter_by_attributes(cls, refs, hints):
+        """Filters a list of references by filter values."""
 
         def _attr_match(ref_attr, val_attr):
             """Matches attributes allowing for booleans as strings.
@@ -318,20 +338,112 @@ class V3Controller(wsgi.Application):
 
             """
             if type(ref_attr) is bool:
-                if (isinstance(val_attr, six.string_types) and
-                        val_attr == '0'):
-                    val = False
-                else:
-                    val = True
-                return (ref_attr == val)
+                return ref_attr == utils.attr_as_boolean(val_attr)
             else:
-                return (ref_attr == val_attr)
+                return ref_attr == val_attr
 
-        if attr in context['query_string']:
-            value = context['query_string'][attr]
-            return [r for r in refs if _attr_match(
-                flatten(r).get(attr), value)]
+        def _inexact_attr_match(filter, ref):
+            """Applies an inexact filter to a result dict.
+
+            :param filter: the filter in question
+            :param ref: the dict to check
+
+            :returns True if there is a match
+
+            """
+            comparator = filter['comparator']
+            key = filter['name']
+
+            if key in ref:
+                filter_value = filter['value']
+                target_value = ref[key]
+                if not filter['case_sensitive']:
+                    # We only support inexact filters on strings so
+                    # it's OK to use lower()
+                    filter_value = filter_value.lower()
+                    target_value = target_value.lower()
+
+                if comparator == 'contains':
+                    return (filter_value in target_value)
+                elif comparator == 'startswith':
+                    return target_value.startswith(filter_value)
+                elif comparator == 'endswith':
+                    return target_value.endswith(filter_value)
+                else:
+                    # We silently ignore unsupported filters
+                    return True
+
+            return False
+
+        for filter in hints.filters():
+            if filter['comparator'] == 'equals':
+                attr = filter['name']
+                value = filter['value']
+                refs = [r for r in refs if _attr_match(
+                    flatten(r).get(attr), value)]
+            else:
+                # It might be an inexact filter
+                refs = [r for r in refs if _inexact_attr_match(
+                    filter, r)]
+
         return refs
+
+    @classmethod
+    def build_driver_hints(cls, context, supported_filters):
+        """Build list hints based on the context query string.
+
+        :param context: contains the query_string from which any list hints can
+                        be extracted
+        :param supported_filters: list of filters supported, so ignore any
+                                  keys in query_dict that are not in this list.
+
+        """
+        query_dict = context['query_string']
+        hints = driver_hints.Hints()
+
+        if query_dict is None:
+            return hints
+
+        for key in query_dict:
+            # Check if this is an exact filter
+            if supported_filters is None or key in supported_filters:
+                hints.add_filter(key, query_dict[key])
+                continue
+
+            # Check if it is an inexact filter
+            for valid_key in supported_filters:
+                # See if this entry in query_dict matches a known key with an
+                # inexact suffix added.  If it doesn't match, then that just
+                # means that there is no inexact filter for that key in this
+                # query.
+                if not key.startswith(valid_key + '__'):
+                    continue
+
+                base_key, comparator = key.split('__', 1)
+
+                # We map the query-style inexact of, for example:
+                #
+                # {'email__contains', 'myISP'}
+                #
+                # into a list directive add filter call parameters of:
+                #
+                # name = 'email'
+                # value = 'myISP'
+                # comparator = 'contains'
+                # case_sensitive = True
+
+                case_sensitive = True
+                if comparator.startswith('i'):
+                    case_sensitive = False
+                    comparator = comparator[1:]
+                hints.add_filter(base_key, query_dict[key],
+                                 comparator=comparator,
+                                 case_sensitive=case_sensitive)
+
+        # NOTE(henry-nash): If we were to support pagination, we would pull any
+        # pagination directives out of the query_dict here, and add them into
+        # the hints list.
+        return hints
 
     def _require_matching_id(self, value, ref):
         """Ensures the value matches the reference's ID, if any."""

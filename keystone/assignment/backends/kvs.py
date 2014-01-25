@@ -34,15 +34,19 @@ class Assignment(kvs.Base, assignment.Driver):
         except exception.NotFound:
             raise exception.ProjectNotFound(project_id=tenant_id)
 
-    def list_projects(self, domain_id=None):
+    def _build_project_refs(self):
         project_keys = filter(lambda x: x.startswith("tenant-"),
                               self.db.keys())
-        project_refs = [self.db.get(key) for key in project_keys]
+        return [self.db.get(key) for key in project_keys]
 
-        if domain_id:
-            self.get_domain(domain_id)
-            project_refs = filter(lambda x: domain_id in x['domain_id'],
-                                  project_refs)
+    def list_projects(self, hints):
+        return self._build_project_refs()
+
+    def list_projects_in_domain(self, domain_id):
+        project_refs = self._build_project_refs()
+        self.get_domain(domain_id)
+        project_refs = filter(lambda x: domain_id in x['domain_id'],
+                              project_refs)
         return project_refs
 
     def get_project_by_name(self, tenant_name, domain_id):
@@ -90,11 +94,14 @@ class Assignment(kvs.Base, assignment.Driver):
         except exception.NotFound:
             raise exception.RoleNotFound(role_id=role_id)
 
-    def list_roles(self):
+    def list_roles(self, hints):
+        return self._list_roles()
+
+    def _list_roles(self):
         role_ids = self.db.get('role_list', [])
         return [self.get_role(x) for x in role_ids]
 
-    def list_projects_for_user(self, user_id, group_ids):
+    def list_projects_for_user(self, user_id, group_ids, hints):
         # NOTE(henry-nash): The kvs backend is being deprecated, so no
         # support is provided for projects that the user has a role on solely
         # by virtue of group membership.
@@ -285,7 +292,7 @@ class Assignment(kvs.Base, assignment.Driver):
             msg = 'Duplicate ID, %s.' % role_id
             raise exception.Conflict(type='role', details=msg)
 
-        for role_ref in self.list_roles():
+        for role_ref in self._list_roles():
             if role['name'] == role_ref['name']:
                 msg = 'Duplicate name, %s.' % role['name']
                 raise exception.Conflict(type='role', details=msg)
@@ -297,7 +304,7 @@ class Assignment(kvs.Base, assignment.Driver):
 
     def update_role(self, role_id, role):
         old_role_ref = None
-        for role_ref in self.list_roles():
+        for role_ref in self._list_roles():
             if role['name'] == role_ref['name'] and role_id != role_ref['id']:
                 msg = 'Duplicate name, %s.' % role['name']
                 raise exception.Conflict(type='role', details=msg)
@@ -467,7 +474,7 @@ class Assignment(kvs.Base, assignment.Driver):
         self.db.set('domain_list', list(domain_list))
         return domain
 
-    def list_domains(self):
+    def list_domains(self, hints):
         domain_ids = self.db.get('domain_list', [])
         return [self.get_domain(x) for x in domain_ids]
 
