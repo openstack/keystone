@@ -27,7 +27,7 @@ class FederationProtocolModel(sql.ModelBase, sql.DictBase):
     attributes = ['id', 'idp_id', 'mapping_id']
     mutable_attributes = frozenset(['mapping_id'])
 
-    id = sql.Column(sql.String(64), primary_key=True, autoincrement=False)
+    id = sql.Column(sql.String(64), primary_key=True)
     idp_id = sql.Column(sql.String(64), sql.ForeignKey('identity_provider.id',
                         ondelete='CASCADE'), primary_key=True)
     mapping_id = sql.Column(sql.String(64), nullable=False)
