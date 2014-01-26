@@ -785,6 +785,161 @@ class LegacyV2UsernameTests(object):
         user = self.get_user_from_response(r)
         self.assertEqual(user.get('username'), 'new_username')
 
+    def test_username_is_always_returned_create(self):
+        """Username is set as the value of name if no username is provided.
+
+        This matches the v2.0 spec where we really should be using username
+        and not name.
+        """
+        r = self.create_user()
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), user.get('username'))
+
+    def test_username_is_always_returned_get(self):
+        """Username is set as the value of name if no username is provided.
+
+        This matches the v2.0 spec where we really should be using username
+        and not name.
+        """
+        token = self.get_scoped_token()
+
+        r = self.create_user()
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        r = self.admin_request(path='/v2.0/users/%s' % id_, token=token)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), user.get('username'))
+
+    def test_username_is_always_returned_get_by_name(self):
+        """Username is set as the value of name if no username is provided.
+
+        This matches the v2.0 spec where we really should be using username
+        and not name.
+        """
+        token = self.get_scoped_token()
+
+        r = self.create_user()
+
+        name = self.get_user_attribute_from_response(r, 'name')
+        r = self.admin_request(path='/v2.0/users?name=%s' % name, token=token)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), user.get('username'))
+
+    def test_username_is_always_returned_update_no_username_provided(self):
+        """Username is set as the value of name if no username is provided.
+
+        This matches the v2.0 spec where we really should be using username
+        and not name.
+        """
+        token = self.get_scoped_token()
+
+        r = self.create_user()
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        name = self.get_user_attribute_from_response(r, 'name')
+        enabled = self.get_user_attribute_from_response(r, 'enabled')
+        r = self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%s' % id_,
+            token=token,
+            body={
+                'user': {
+                    'name': name,
+                    'enabled': enabled,
+                },
+            },
+            expected_status=200)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), user.get('username'))
+
+    def test_updated_username_is_returned(self):
+        """Username is set as the value of name if no username is provided.
+
+        This matches the v2.0 spec where we really should be using username
+        and not name.
+        """
+        token = self.get_scoped_token()
+
+        r = self.create_user()
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        name = self.get_user_attribute_from_response(r, 'name')
+        enabled = self.get_user_attribute_from_response(r, 'enabled')
+        r = self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%s' % id_,
+            token=token,
+            body={
+                'user': {
+                    'name': name,
+                    'enabled': enabled,
+                },
+            },
+            expected_status=200)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), user.get('username'))
+
+    def test_username_can_be_used_instead_of_name_create(self):
+        token = self.get_scoped_token()
+
+        r = self.admin_request(
+            method='POST',
+            path='/v2.0/users',
+            token=token,
+            body={
+                'user': {
+                    'username': uuid.uuid4().hex,
+                    'enabled': True,
+                },
+            },
+            expected_status=200)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), user.get('username'))
+
+    def test_username_can_be_used_instead_of_name_update(self):
+        token = self.get_scoped_token()
+
+        r = self.create_user()
+
+        id_ = self.get_user_attribute_from_response(r, 'id')
+        new_username = uuid.uuid4().hex
+        enabled = self.get_user_attribute_from_response(r, 'enabled')
+        r = self.admin_request(
+            method='PUT',
+            path='/v2.0/users/%s' % id_,
+            token=token,
+            body={
+                'user': {
+                    'username': new_username,
+                    'enabled': enabled,
+                },
+            },
+            expected_status=200)
+
+        self.assertValidUserResponse(r)
+
+        user = self.get_user_from_response(r)
+        self.assertEqual(user.get('name'), new_username)
+        self.assertEqual(user.get('name'), user.get('username'))
+
 
 class RestfulTestCase(rest.RestfulTestCase):
 

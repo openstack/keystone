@@ -224,6 +224,7 @@ class Manager(manager.Manager):
 
         * v2.0 users are not domain aware, and should have domain_id removed
         * v2.0 users expect the use of tenantId instead of default_project_id
+        * v2.0 users have a username attribute
 
         This method should only be applied to user_refs being returned from the
         v2.0 controller(s).
@@ -248,6 +249,7 @@ class Manager(manager.Manager):
             """Run through the various filter/normalization methods."""
             _format_default_project_id(ref)
             controller.V2Controller.filter_domain_id(ref)
+            controller.V2Controller.normalize_username_in_response(ref)
             return ref
 
         if isinstance(ref, dict):
