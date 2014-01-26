@@ -26,22 +26,15 @@ from keystone import exception
 CONF = config.CONF
 
 
-@dependency.requires('federation_api')
-class IdentityProvider(controller.V3Controller):
-    """Identity Provider representation.
+class _ControllerBase(controller.V3Controller):
+    """Base behaviors for federation controllers.
 
     Two new class parameters:
     - _mutable_parameters - set of parameters that can be changed by users.
                             Usually used by cls.check_immutable_params()
     - _public_parameters - set of parameters that are exposed to the user.
                            Usually used by cls.filter_params()
-
     """
-    collection_name = 'identity_providers'
-    member_name = 'identity_provider'
-
-    _mutable_parameters = frozenset(['description', 'enabled'])
-    _public_parameters = frozenset(['id', 'enabled', 'description', 'links'])
 
     @classmethod
     def check_immutable_params(cls, ref):
@@ -91,6 +84,16 @@ class IdentityProvider(controller.V3Controller):
 
         path = '/OS-FEDERATION/' + cls.collection_name
         return controller.V3Controller.base_url(path=path)
+
+
+@dependency.requires('federation_api')
+class IdentityProvider(_ControllerBase):
+    """Identity Provider representation."""
+    collection_name = 'identity_providers'
+    member_name = 'identity_provider'
+
+    _mutable_parameters = frozenset(['description', 'enabled'])
+    _public_parameters = frozenset(['id', 'enabled', 'description', 'links'])
 
     @classmethod
     def _add_related_links(cls, ref):
@@ -169,7 +172,7 @@ class IdentityProvider(controller.V3Controller):
 
 
 @dependency.requires('federation_api')
-class FederationProtocol(IdentityProvider):
+class FederationProtocol(_ControllerBase):
     """A federation protocol representation.
 
     See IdentityProvider docstring for explanation on _mutable_parameters
@@ -255,14 +258,9 @@ class FederationProtocol(IdentityProvider):
 
 
 @dependency.requires('federation_api')
-class MappingController(controller.V3Controller):
+class MappingController(_ControllerBase):
     collection_name = 'mappings'
     member_name = 'mapping'
-
-    @classmethod
-    def base_url(cls, path=None):
-        path = '/OS-FEDERATION/' + cls.collection_name
-        return controller.V3Controller.base_url(path)
 
     @controller.protected()
     def create_mapping(self, context, mapping_id, mapping):
