@@ -41,11 +41,11 @@ class Assignment(sql.Base, assignment.Driver):
         return project_ref
 
     def get_project(self, tenant_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             return self._get_project(session, tenant_id).to_dict()
 
     def get_project_by_name(self, tenant_name, domain_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             query = session.query(Project)
             query = query.filter_by(name=tenant_name)
             query = query.filter_by(domain_id=domain_id)
@@ -56,7 +56,7 @@ class Assignment(sql.Base, assignment.Driver):
             return project_ref.to_dict()
 
     def list_user_ids_for_project(self, tenant_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             self._get_project(session, tenant_id)
             query = session.query(UserProjectGrant)
             query = query.filter(UserProjectGrant.project_id ==
@@ -93,7 +93,7 @@ class Assignment(sql.Base, assignment.Driver):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             self._get_role(session, role_id)
 
             if domain_id:
@@ -127,7 +127,7 @@ class Assignment(sql.Base, assignment.Driver):
     def list_grants(self, user_id=None, group_id=None,
                     domain_id=None, project_id=None,
                     inherited_to_projects=False):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             if domain_id:
                 self._get_domain(session, domain_id)
             if project_id:
@@ -147,7 +147,7 @@ class Assignment(sql.Base, assignment.Driver):
     def get_grant(self, role_id, user_id=None, group_id=None,
                   domain_id=None, project_id=None,
                   inherited_to_projects=False):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             role_ref = self._get_role(session, role_id)
             if domain_id:
                 self._get_domain(session, domain_id)
@@ -169,7 +169,7 @@ class Assignment(sql.Base, assignment.Driver):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             self._delete_grant(session=session, role_id=role_id,
                                user_id=user_id, group_id=group_id,
                                domain_id=domain_id, project_id=project_id,
@@ -210,13 +210,13 @@ class Assignment(sql.Base, assignment.Driver):
                                   domain_id, group_id)
 
     def list_projects(self, hints):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             query = session.query(Project)
             project_refs = self.filter(Project, query, hints)
             return [project_ref.to_dict() for project_ref in project_refs]
 
     def list_projects_in_domain(self, domain_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             self._get_domain(session, domain_id)
             query = session.query(Project)
             project_refs = query.filter_by(domain_id=domain_id)
@@ -251,7 +251,7 @@ class Assignment(sql.Base, assignment.Driver):
         # grant entries, only include this project if there are actually roles
         # present.
 
-        with self.transaction() as session:
+        with sql.transaction() as session:
             # First get a list of the projects for which the user has a direct
             # role assigned
             query = session.query(UserProjectGrant)
@@ -305,7 +305,7 @@ class Assignment(sql.Base, assignment.Driver):
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.identity_api.get_user(user_id)
 
-        with self.transaction() as session:
+        with sql.transaction() as session:
             self._get_project(session, tenant_id)
             self._get_role(session, role_id)
             try:
@@ -333,7 +333,7 @@ class Assignment(sql.Base, assignment.Driver):
                                       metadata_ref)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             try:
                 metadata_ref = self._get_metadata(user_id, tenant_id,
                                                   session=session)
@@ -367,7 +367,7 @@ class Assignment(sql.Base, assignment.Driver):
         # assignment table, simplifying the logic of this (and many other)
         # functions.
 
-        with self.transaction() as session:
+        with sql.transaction() as session:
             assignment_list = []
             refs = session.query(UserDomainGrant).all()
             for x in refs:
@@ -413,7 +413,7 @@ class Assignment(sql.Base, assignment.Driver):
     @sql.handle_conflicts(conflict_type='project')
     def create_project(self, tenant_id, tenant):
         tenant['name'] = clean.project_name(tenant['name'])
-        with self.transaction() as session:
+        with sql.transaction() as session:
             tenant_ref = Project.from_dict(tenant)
             session.add(tenant_ref)
             return tenant_ref.to_dict()
@@ -423,7 +423,7 @@ class Assignment(sql.Base, assignment.Driver):
         if 'name' in tenant:
             tenant['name'] = clean.project_name(tenant['name'])
 
-        with self.transaction() as session:
+        with sql.transaction() as session:
             tenant_ref = self._get_project(session, tenant_id)
             old_project_dict = tenant_ref.to_dict()
             for k in tenant:
@@ -437,7 +437,7 @@ class Assignment(sql.Base, assignment.Driver):
 
     @sql.handle_conflicts(conflict_type='project')
     def delete_project(self, tenant_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             tenant_ref = self._get_project(session, tenant_id)
 
             q = session.query(UserProjectGrant)
@@ -523,13 +523,13 @@ class Assignment(sql.Base, assignment.Driver):
 
     @sql.handle_conflicts(conflict_type='domain')
     def create_domain(self, domain_id, domain):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             ref = Domain.from_dict(domain)
             session.add(ref)
         return ref.to_dict()
 
     def list_domains(self, hints):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             query = session.query(Domain)
             refs = self.filter(Domain, query, hints)
             return [ref.to_dict() for ref in refs]
@@ -541,11 +541,11 @@ class Assignment(sql.Base, assignment.Driver):
         return ref
 
     def get_domain(self, domain_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             return self._get_domain(session, domain_id).to_dict()
 
     def get_domain_by_name(self, domain_name):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             try:
                 ref = (session.query(Domain).
                        filter_by(name=domain_name).one())
@@ -555,7 +555,7 @@ class Assignment(sql.Base, assignment.Driver):
 
     @sql.handle_conflicts(conflict_type='domain')
     def update_domain(self, domain_id, domain):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             ref = self._get_domain(session, domain_id)
             old_dict = ref.to_dict()
             for k in domain:
@@ -568,7 +568,7 @@ class Assignment(sql.Base, assignment.Driver):
             return ref.to_dict()
 
     def delete_domain(self, domain_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             ref = self._get_domain(session, domain_id)
             session.delete(ref)
 
@@ -576,13 +576,13 @@ class Assignment(sql.Base, assignment.Driver):
 
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             ref = Role.from_dict(role)
             session.add(ref)
             return ref.to_dict()
 
     def list_roles(self, hints):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             query = session.query(Role)
             refs = self.filter(Role, query, hints)
             return [ref.to_dict() for ref in refs]
@@ -594,12 +594,12 @@ class Assignment(sql.Base, assignment.Driver):
         return ref
 
     def get_role(self, role_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             return self._get_role(session, role_id).to_dict()
 
     @sql.handle_conflicts(conflict_type='role')
     def update_role(self, role_id, role):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             ref = self._get_role(session, role_id)
             old_dict = ref.to_dict()
             for k in role:
@@ -612,7 +612,7 @@ class Assignment(sql.Base, assignment.Driver):
             return ref.to_dict()
 
     def delete_role(self, role_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             ref = self._get_role(session, role_id)
             for metadata_ref in session.query(UserProjectGrant):
                 try:
@@ -646,7 +646,7 @@ class Assignment(sql.Base, assignment.Driver):
             session.delete(ref)
 
     def delete_user(self, user_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             q = session.query(UserProjectGrant)
             q = q.filter_by(user_id=user_id)
             q.delete(False)
@@ -656,7 +656,7 @@ class Assignment(sql.Base, assignment.Driver):
             q.delete(False)
 
     def delete_group(self, group_id):
-        with self.transaction() as session:
+        with sql.transaction() as session:
             q = session.query(GroupProjectGrant)
             q = q.filter_by(group_id=group_id)
             q.delete(False)
