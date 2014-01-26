@@ -33,6 +33,7 @@ To enable the endpoint filter extension:
     pipeline = access_log sizelimit url_normalize token_auth admin_token_auth xml_body json_body ec2_extension s3_extension endpoint_filter_extension service_v3
 
 3. create the endpoint filter extension tables if using the provided sql backend. example::
+
     ./bin/keystone-manage db_sync --extension endpoint_filter
 
 4. optional: change ``return_all_endpoints_if_no_filter`` the ``[endpoint_filter]`` section
@@ -40,3 +41,4 @@ To enable the endpoint filter extension:
 
     [endpoint_filter]
     return_all_endpoints_if_no_filter = False
+
