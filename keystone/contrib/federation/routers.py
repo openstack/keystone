@@ -22,7 +22,7 @@ class FederationExtension(wsgi.ExtensionRouter):
 
     The API looks like::
 
-        PUT /OS-FEDERATION/identity_providers
+        PUT /OS-FEDERATION/identity_providers/$identity_provider
         GET /OS-FEDERATION/identity_providers
         GET /OS-FEDERATION/identity_providers/$identity_provider
         DELETE /OS-FEDERATION/identity_providers/$identity_provider

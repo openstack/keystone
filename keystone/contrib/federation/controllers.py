@@ -33,7 +33,7 @@ class IdentityProvider(controller.V3Controller):
     Two new class parameters:
     - _mutable_parameters - set of parameters that can be changed by users.
                             Usually used by cls.check_immutable_params()
-    - _public_parameters - set of parameters that exposed to the user.
+    - _public_parameters - set of parameters that are exposed to the user.
                            Usually used by cls.filter_params()
 
     """
@@ -45,7 +45,7 @@ class IdentityProvider(controller.V3Controller):
 
     @classmethod
     def check_immutable_params(cls, ref, keys=None):
-        """Raise exception when disallowed parameter is stored in the keys
+        """Raise exception when disallowed parameter is stored in the keys.
 
         Check whether the ref dictionary representing a request has only
         mutable parameters included. If not, raise an exception. This method
