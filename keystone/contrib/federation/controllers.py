@@ -44,8 +44,8 @@ class IdentityProvider(controller.V3Controller):
     _public_parameters = frozenset(['id', 'enabled', 'description', 'links'])
 
     @classmethod
-    def check_immutable_params(cls, ref, keys=None):
-        """Raise exception when disallowed parameter is stored in the keys.
+    def check_immutable_params(cls, ref):
+        """Raise exception when disallowed parameter is in ref.
 
         Check whether the ref dictionary representing a request has only
         mutable parameters included. If not, raise an exception. This method
@@ -53,16 +53,11 @@ class IdentityProvider(controller.V3Controller):
 
         :param ref: a dictionary representing deserialized request to be
                     stored
-        :param keys: a set with mutable parameters. If None, use default class
-                     attribute - _mutable_parameters
         :raises exception.ImmutableAttributeError
 
         """
-        if keys is None:
-            keys = cls._mutable_parameters
-
         ref_keys = set(ref.keys())
-        blocked_keys = ref_keys.difference(keys)
+        blocked_keys = ref_keys.difference(cls._mutable_parameters)
 
         if not blocked_keys:
             #No immutable parameters changed
@@ -73,7 +68,7 @@ class IdentityProvider(controller.V3Controller):
         raise exception.ImmutableAttributeError(**exception_args)
 
     @classmethod
-    def filter_params(cls, ref, keys=None):
+    def filter_params(cls, ref):
         """Remove unspecified parameters from the dictionary.
 
         This function removes unspecified parameters from the dictionary. See
@@ -83,14 +78,9 @@ class IdentityProvider(controller.V3Controller):
 
         :param ref: a dictionary representing deserialized response to be
                     serialized
-        :param keys: a set of attribute names, that are allowed in the request.
-                     If None, use the class attribute _public_parameters
-
         """
-        if keys is None:
-            keys = cls._public_parameters
         ref_keys = set(ref.keys())
-        blocked_keys = ref_keys - keys
+        blocked_keys = ref_keys - cls._public_parameters
         for blocked_param in blocked_keys:
             del ref[blocked_param]
         return ref
@@ -146,14 +136,11 @@ class IdentityProvider(controller.V3Controller):
 
     @controller.protected()
     def create_identity_provider(self, context, idp_id, identity_provider):
-        mutable_params = set(['description', 'enabled'])
-        public_params = set(['id', 'description', 'enabled'])
         identity_provider = self._normalize_dict(identity_provider)
         identity_provider.setdefault('enabled', False)
-        IdentityProvider.check_immutable_params(identity_provider,
-                                                keys=mutable_params)
+        IdentityProvider.check_immutable_params(identity_provider)
         idp_ref = self.federation_api.create_idp(idp_id, identity_provider)
-        idp_ref = IdentityProvider.filter_params(idp_ref, keys=public_params)
+        idp_ref = IdentityProvider.filter_params(idp_ref)
         response = IdentityProvider.wrap_member(context, idp_ref)
         return wsgi.render_response(body=response, status=('201', 'Created'))
 
@@ -193,7 +180,7 @@ class FederationProtocol(IdentityProvider):
     member_name = 'protocol'
 
     _public_parameters = frozenset(['id', 'mapping_id', 'links'])
-    _mutable_parameters = set(['mapping_id'])
+    _mutable_parameters = frozenset(['mapping_id'])
 
     @classmethod
     def _add_self_referential_link(cls, ref):
@@ -238,8 +225,7 @@ class FederationProtocol(IdentityProvider):
     @controller.protected()
     def create_protocol(self, context, idp_id, protocol_id, protocol):
         ref = self._normalize_dict(protocol)
-        keys = self._mutable_parameters.copy()
-        FederationProtocol.check_immutable_params(ref, keys=keys)
+        FederationProtocol.check_immutable_params(ref)
         ref = self.federation_api.create_protocol(idp_id, protocol_id, ref)
         response = FederationProtocol.wrap_member(context, ref)
         return wsgi.render_response(body=response, status=('201', 'Created'))
