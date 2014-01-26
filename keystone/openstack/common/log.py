@@ -41,7 +41,7 @@ from oslo.config import cfg
 import six
 from six import moves
 
-from keystone.openstack.common.gettextutils import _  # noqa
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import local
@@ -391,9 +391,11 @@ class JSONFormatter(logging.Formatter):
 def _create_logging_excepthook(product_name):
     def logging_excepthook(exc_type, value, tb):
         extra = {}
-        if CONF.verbose:
+        if CONF.verbose or CONF.debug:
             extra['exc_info'] = (exc_type, value, tb)
-        getLogger(product_name).critical(str(value), **extra)
+        getLogger(product_name).critical(
+            "".join(traceback.format_exception_only(exc_type, value)),
+            **extra)
     return logging_excepthook
 
 
@@ -543,7 +545,7 @@ class WritableLogger(object):
         self.level = level
 
     def write(self, msg):
-        self.logger.log(self.level, msg)
+        self.logger.log(self.level, msg.rstrip())
 
 
 class ContextFormatter(logging.Formatter):
@@ -561,7 +563,7 @@ class ContextFormatter(logging.Formatter):
 
     def format(self, record):
         """Uses contextstring if request_id is set, otherwise default."""
-        # NOTE(sdague): default the fancier formating params
+        # NOTE(sdague): default the fancier formatting params
         # to an empty string so we don't throw an exception if
         # they get used
         for key in ('instance', 'color'):
@@ -577,7 +579,7 @@ class ContextFormatter(logging.Formatter):
                 CONF.logging_debug_format_suffix):
             self._fmt += " " + CONF.logging_debug_format_suffix
 
-        # Cache this on the record, Logger will respect our formated copy
+        # Cache this on the record, Logger will respect our formatted copy
         if record.exc_info:
             record.exc_text = self.formatException(record.exc_info, record)
         return logging.Formatter.format(self, record)
