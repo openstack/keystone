@@ -24,9 +24,6 @@ CONF = config.CONF
 class SqlFederation(test_backend_sql.SqlModels):
     """Set of tests for checking SQL Federation."""
 
-    def setUp(self):
-        super(SqlFederation, self).setUp()
-
     def test_identity_provider(self):
         cols = (('id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
