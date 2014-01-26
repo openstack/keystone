@@ -2485,3 +2485,22 @@ class TestTrustAuth(TestAuthInfo):
             auth=auth_data,
             expected_status=200)
         self.assertValidRoleResponse(r, self.role)
+
+
+class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
+    def test_api_protection_with_no_auth_context_in_env(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.project['id'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.headers.get('X-Subject-Token')
+        auth_controller = auth.controllers.Auth()
+        # all we care is that auth context is not in the environment and
+        # 'token_id' is used to build the auth context instead
+        context = {'subject_token_id': token,
+                   'token_id': token,
+                   'query_string': {},
+                   'environment': {}}
+        r = auth_controller.validate_token(context)
+        self.assertEqual(r.status_code, 200)

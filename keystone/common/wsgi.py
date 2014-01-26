@@ -345,6 +345,7 @@ class Middleware(Application):
         return _factory
 
     def __init__(self, application):
+        super(Middleware, self).__init__()
         self.application = application
 
     def process_request(self, request):

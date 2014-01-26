@@ -18,6 +18,7 @@ import uuid
 
 from keystone import assignment
 from keystone import auth
+from keystone.common import authorization
 from keystone.common import environment
 from keystone import config
 from keystone import exception
@@ -663,12 +664,20 @@ class AuthWithTrust(AuthTest):
                                        fmt=TIME_FORMAT)
         self.create_trust(expires_at=expires_at)
 
+    def _create_auth_context(self, token_id):
+        token_ref = self.token_api.get_token(token_id)
+        auth_context = authorization.token_to_auth_context(
+            token_ref['token_data'])
+        return {'environment': {authorization.AUTH_CONTEXT_ENV: auth_context},
+                'token_id': token_id}
+
     def create_trust(self, expires_at=None, impersonation=True):
         username = self.trustor['name']
         password = 'foo2'
         body_dict = _build_user_auth(username=username, password=password)
         self.unscoped_token = self.controller.authenticate({}, body_dict)
-        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        context = self._create_auth_context(
+            self.unscoped_token['access']['token']['id'])
         trust_data = copy.deepcopy(self.sample_data)
         trust_data['expires_at'] = expires_at
         trust_data['impersonation'] = impersonation
@@ -686,7 +695,8 @@ class AuthWithTrust(AuthTest):
         return request_body
 
     def test_create_trust_bad_data_fails(self):
-        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        context = self._create_auth_context(
+            self.unscoped_token['access']['token']['id'])
         bad_sample_data = {'trustor_user_id': self.trustor['id']}
 
         self.assertRaises(exception.ValidationError,
@@ -856,7 +866,8 @@ class AuthWithTrust(AuthTest):
             self.controller.authenticate, {}, request_body)
 
     def test_delete_trust_revokes_token(self):
-        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        context = self._create_auth_context(
+            self.unscoped_token['access']['token']['id'])
         self.fetch_v2_token_from_trust()
         trust_id = self.new_trust['id']
         tokens = self.token_api._list_tokens(self.trustor['id'],
