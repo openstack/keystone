@@ -18,6 +18,7 @@ from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import credential
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 
 
 class CredentialModel(sql.ModelBase, sql.DictBase):
@@ -41,14 +42,14 @@ class Credential(sql.Base, credential.Driver):
 
     @sql.handle_conflicts(conflict_type='credential')
     def create_credential(self, credential_id, credential):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             ref = CredentialModel.from_dict(credential)
             session.add(ref)
         return ref.to_dict()
 
     def list_credentials(self, **filters):
-        session = self.get_session()
+        session = db_session.get_session()
         query = session.query(CredentialModel)
         if 'user_id' in filters:
             query = query.filter_by(user_id=filters.get('user_id'))
@@ -62,12 +63,12 @@ class Credential(sql.Base, credential.Driver):
         return ref
 
     def get_credential(self, credential_id):
-        session = self.get_session()
+        session = db_session.get_session()
         return self._get_credential(session, credential_id).to_dict()
 
     @sql.handle_conflicts(conflict_type='credential')
     def update_credential(self, credential_id, credential):
-        session = self.get_session()
+        session = db_session.get_session()
         with session.begin():
             ref = self._get_credential(session, credential_id)
             old_dict = ref.to_dict()
@@ -81,14 +82,14 @@ class Credential(sql.Base, credential.Driver):
         return ref.to_dict()
 
     def delete_credential(self, credential_id):
-        session = self.get_session()
+        session = db_session.get_session()
 
         with session.begin():
             ref = self._get_credential(session, credential_id)
             session.delete(ref)
 
     def delete_credentials_for_project(self, project_id):
-        session = self.get_session()
+        session = db_session.get_session()
 
         with session.begin():
             query = session.query(CredentialModel)
@@ -96,7 +97,7 @@ class Credential(sql.Base, credential.Driver):
             query.delete()
 
     def delete_credentials_for_user(self, user_id):
-        session = self.get_session()
+        session = db_session.get_session()
 
         with session.begin():
             query = session.query(CredentialModel)

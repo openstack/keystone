@@ -17,6 +17,7 @@
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.policy.backends import rules
 
 
@@ -36,7 +37,7 @@ class Policy(sql.Base, rules.Policy):
 
     @sql.handle_conflicts(conflict_type='policy')
     def create_policy(self, policy_id, policy):
-        session = self.get_session()
+        session = db_session.get_session()
 
         with session.begin():
             ref = PolicyModel.from_dict(policy)
@@ -45,7 +46,7 @@ class Policy(sql.Base, rules.Policy):
         return ref.to_dict()
 
     def list_policies(self):
-        session = self.get_session()
+        session = db_session.get_session()
 
         refs = session.query(PolicyModel).all()
         return [ref.to_dict() for ref in refs]
@@ -58,13 +59,13 @@ class Policy(sql.Base, rules.Policy):
         return ref
 
     def get_policy(self, policy_id):
-        session = self.get_session()
+        session = db_session.get_session()
 
         return self._get_policy(session, policy_id).to_dict()
 
     @sql.handle_conflicts(conflict_type='policy')
     def update_policy(self, policy_id, policy):
-        session = self.get_session()
+        session = db_session.get_session()
 
         with session.begin():
             ref = self._get_policy(session, policy_id)
@@ -78,7 +79,7 @@ class Policy(sql.Base, rules.Policy):
         return ref.to_dict()
 
     def delete_policy(self, policy_id):
-        session = self.get_session()
+        session = db_session.get_session()
 
         with session.begin():
             ref = self._get_policy(session, policy_id)

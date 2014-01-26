@@ -22,7 +22,7 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
-from keystone.openstack.common.db.sqlalchemy import session
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import default_fixtures
@@ -46,8 +46,8 @@ class SqlTests(tests.TestCase, sql.Base):
 
         # create tables and keep an engine reference for cleanup.
         # this must be done after the models are loaded by the managers.
-        self.engine = session.get_engine()
-        self.addCleanup(session.cleanup)
+        self.engine = db_session.get_engine()
+        self.addCleanup(db_session.cleanup)
 
         sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
@@ -148,7 +148,7 @@ class SqlModels(SqlTests):
 
 class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_password_hashed(self):
-        session = self.identity_api.get_session()
+        session = db_session.get_session()
         user_ref = self.identity_api._get_user(session, self.user_foo['id'])
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
 
@@ -337,7 +337,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             'password': uuid.uuid4().hex}
 
         self.identity_api.create_user(user_id, user)
-        session = self.get_session()
+        session = db_session.get_session()
         query = session.query(identity_sql.User)
         query = query.filter_by(id=user_id)
         raw_user_ref = query.one()
@@ -359,14 +359,14 @@ class SqlToken(SqlTests, test_backend.TokenTests):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.mox = fixture.mox
         tok = token_sql.Token()
-        session = tok.get_session()
+        session = db_session.get_session()
         q = session.query(token_sql.TokenModel.id,
                           token_sql.TokenModel.expires)
         self.mox.StubOutWithMock(session, 'query')
         session.query(token_sql.TokenModel.id,
                       token_sql.TokenModel.expires).AndReturn(q)
-        self.mox.StubOutWithMock(tok, 'get_session')
-        tok.get_session().AndReturn(session)
+        self.mox.StubOutWithMock(db_session, 'get_session')
+        db_session.get_session().AndReturn(session)
         self.mox.ReplayAll()
         tok.list_revoked_tokens()
 

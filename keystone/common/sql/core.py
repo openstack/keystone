@@ -33,7 +33,7 @@ from keystone.common import utils
 from keystone import exception
 from keystone.openstack.common.db import exception as db_exception
 from keystone.openstack.common.db.sqlalchemy import models
-from keystone.openstack.common.db.sqlalchemy import session
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common import jsonutils
 
 
@@ -61,7 +61,7 @@ flag_modified = flag_modified
 def initialize():
     """Initialize the module."""
 
-    session.set_defaults(
+    db_session.set_defaults(
         sql_connection="sqlite:///keystone.db",
         sqlite_db="keystone.db")
 
@@ -148,12 +148,10 @@ class DictBase(models.ModelBase):
 
 # Backends
 class Base(object):
-    get_session = session.get_session
-
     @contextlib.contextmanager
     def transaction(self, expire_on_commit=False):
         """Return a SQLAlchemy session in a scoped transaction."""
-        session = self.get_session(expire_on_commit=expire_on_commit)
+        session = db_session.get_session(expire_on_commit=expire_on_commit)
         with session.begin():
             yield session
 
