@@ -207,28 +207,29 @@ class Base(object):
             hints.remove(filter_)
             return query.filter(query_term)
 
-        def exact_filter(model, filter_, cumlative_filter_dict, hints):
+        def exact_filter(model, filter_, cumulative_filter_dict, hints):
             """Applies an exact filter to a query.
 
             :param model: the table model in question
             :param filter_: the dict that describes this filter
-            :param cumlative_filter_dict: a dict that describes the set of
+            :param cumulative_filter_dict: a dict that describes the set of
                                           exact filters built up so far
             :param hints: contains the list of filters yet to be satisfied.
                           Any filters satisfied here will be removed so that
                           the caller will know if any filters remain.
 
-            :returns cumlative_filter_dict: updated cumulative dict
+            :returns: updated cumulative dict
 
             """
             key = filter_['name']
             if isinstance(getattr(model, key).property.columns[0].type,
                           sql.types.Boolean):
-                filter_dict[key] = utils.attr_as_boolean(filter_['value'])
+                cumulative_filter_dict[key] = (
+                    utils.attr_as_boolean(filter_['value']))
             else:
-                filter_dict[key] = filter_['value']
+                cumulative_filter_dict[key] = filter_['value']
             hints.remove(filter_)
-            return filter_dict
+            return cumulative_filter_dict
 
         filter_dict = {}
 
