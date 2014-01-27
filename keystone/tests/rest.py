@@ -20,6 +20,7 @@ from lxml import etree
 import six
 import webtest
 
+from keystone.auth import controllers as auth_controllers
 from keystone.common import serializer
 from keystone.openstack.common import jsonutils
 from keystone import tests
@@ -58,6 +59,9 @@ class RestfulTestCase(tests.TestCase):
 
     def setUp(self, app_conf='keystone'):
         super(RestfulTestCase, self).setUp()
+
+        # Will need to reset the plug-ins
+        self.addCleanup(setattr, auth_controllers, 'AUTH_METHODS', {})
 
         self.load_backends()
         self.load_fixtures(default_fixtures)

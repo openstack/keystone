@@ -90,9 +90,6 @@ class RestfulTestCase(rest.RestfulTestCase):
         #drop the policy rules
         self.addCleanup(rules.reset)
 
-        # need to reset the plug-ins
-        self.addCleanup(setattr, auth.controllers, 'AUTH_METHODS', {})
-
         self.addCleanup(self.teardown_database)
 
     def load_backends(self):
@@ -344,9 +341,9 @@ class RestfulTestCase(rest.RestfulTestCase):
     def v3_request(self, path, **kwargs):
         # Check if the caller has passed in auth details for
         # use in requesting the token
-        auth = kwargs.pop('auth', None)
-        if auth:
-            token = self.get_requested_token(auth)
+        auth_arg = kwargs.pop('auth', None)
+        if auth_arg:
+            token = self.get_requested_token(auth_arg)
         else:
             token = kwargs.pop('token', None)
             if not token:
