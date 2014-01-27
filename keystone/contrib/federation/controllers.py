@@ -121,6 +121,7 @@ class IdentityProvider(_ControllerBase):
     def wrap_member(cls, context, ref):
         cls._add_self_referential_link(ref)
         cls._add_related_links(ref)
+        ref = cls.filter_params(ref)
         return {cls.member_name: ref}
 
     #TODO(marek-denis): Implement, when mapping engine is ready
@@ -143,7 +144,6 @@ class IdentityProvider(_ControllerBase):
         identity_provider.setdefault('enabled', False)
         IdentityProvider.check_immutable_params(identity_provider)
         idp_ref = self.federation_api.create_idp(idp_id, identity_provider)
-        idp_ref = IdentityProvider.filter_params(idp_ref)
         response = IdentityProvider.wrap_member(context, idp_ref)
         return wsgi.render_response(body=response, status=('201', 'Created'))
 
@@ -156,7 +156,6 @@ class IdentityProvider(_ControllerBase):
     @controller.protected()
     def get_identity_provider(self, context, idp_id):
         ref = self.federation_api.get_idp(idp_id)
-        ref = self.filter_params(ref)
         return IdentityProvider.wrap_member(context, ref)
 
     @controller.protected()
