@@ -129,7 +129,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         - Update policy for no protection on api
         - Filter by the 'enabled' boolean to get disabled domains, which
           should return just domainC
-        - Try the filter using different ways of specifying 'true'
+        - Try the filter using different ways of specifying True/False
           to test that our handling of booleans in filter matching is
           correct
 
@@ -141,14 +141,21 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.assertEqual(len(id_list), 1)
         self.assertIn(self.domainC['id'], id_list)
 
+        # Try a few ways of specifying 'false'
+        for val in ('0', 'false', 'False', 'FALSE', 'n', 'no', 'off'):
+            r = self.get('/domains?enabled=%s' % val, auth=self.auth)
+            id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
+            self.assertEqual([self.domainC['id']], id_list)
+
         # Now try a few ways of specifying 'true' when we should get back
         # the other two domains, plus the default domain
-        r = self.get('/domains?enabled=1', auth=self.auth)
-        id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
-        self.assertEqual(len(id_list), 3)
-        self.assertIn(self.domainA['id'], id_list)
-        self.assertIn(self.domainB['id'], id_list)
-        self.assertIn(CONF.identity.default_domain_id, id_list)
+        for val in ('1', 'true', 'True', 'TRUE', 'y', 'yes', 'on'):
+            r = self.get('/domains?enabled=%s' % val, auth=self.auth)
+            id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
+            self.assertEqual(len(id_list), 3)
+            self.assertIn(self.domainA['id'], id_list)
+            self.assertIn(self.domainB['id'], id_list)
+            self.assertIn(CONF.identity.default_domain_id, id_list)
 
         r = self.get('/domains?enabled', auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))

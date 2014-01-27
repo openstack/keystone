@@ -32,6 +32,7 @@ from keystone.common import config
 from keystone.common import environment
 from keystone import exception
 from keystone.openstack.common import log
+from keystone.openstack.common import strutils
 from six import moves
 
 
@@ -144,12 +145,13 @@ def check_password(password, hashed):
 def attr_as_boolean(val_attr):
     """Returns the boolean value, decoded from a string.
 
-    We test explicitly for a value '0' which we treat as meaning False.
+    We test explicitly for a value meaning False, which can be one of
+    several formats as specified in oslo strutils.FALSE_STRINGS.
     All other string values (including an empty string) are treated as
     meaning True.
 
     """
-    return not (isinstance(val_attr, six.string_types) and val_attr == '0')
+    return strutils.bool_from_string(val_attr, default=True)
 
 
 # From python 2.7
