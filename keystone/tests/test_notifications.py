@@ -440,3 +440,68 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
         notifications.SUBSCRIBERS = {}
         self.assertRaises(ValueError, Foo)
+
+
+class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
+
+    LOCAL_HOST = 'localhost'
+    ACTION = 'authenticate'
+
+    def setUp(self):
+        super(CadfNotificationsWrapperTestCase, self).setUp()
+        self._notifications = []
+
+        def fake_notify(action, initiator, outcome):
+            note = {
+                'action': action,
+                'initiator': initiator,
+                # NOTE(stevemar): outcome has 2 stages, pending and success
+                # so we are ignoring it for now.
+                #'outcome': outcome,
+                'send_notification_called': True}
+            self._notifications.append(note)
+
+        # TODO(stevemar): Look into using mock instead of mox
+        fixture = self.useFixture(moxstubout.MoxStubout())
+        self.stubs = fixture.stubs
+        self.stubs.Set(notifications, '_send_audit_notification',
+                       fake_notify)
+
+    def _assertLastNotify(self, action, user_id):
+        self.assertTrue(self._notifications)
+        note = self._notifications[-1]
+        self.assertEqual(note['action'], action)
+        initiator = note['initiator']
+        self.assertEqual(initiator.name, user_id)
+        self.assertEqual(initiator.host.address, self.LOCAL_HOST)
+        self.assertTrue(note['send_notification_called'])
+
+    def test_v3_authenticate_user_name_and_domain_id(self):
+        user_id = self.user_id
+        user_name = self.user['name']
+        password = self.user['password']
+        domain_id = self.domain_id
+        data = self.build_authentication_request(username=user_name,
+                                                 user_domain_id=domain_id,
+                                                 password=password)
+        self.post('/auth/tokens', body=data)
+        self._assertLastNotify(self.ACTION, user_id)
+
+    def test_v3_authenticate_user_id(self):
+        user_id = self.user_id
+        password = self.user['password']
+        data = self.build_authentication_request(user_id=user_id,
+                                                 password=password)
+        self.post('/auth/tokens', body=data)
+        self._assertLastNotify(self.ACTION, user_id)
+
+    def test_v3_authenticate_user_name_and_domain_name(self):
+        user_id = self.user_id
+        user_name = self.user['name']
+        password = self.user['password']
+        domain_name = self.domain['name']
+        data = self.build_authentication_request(username=user_name,
+                                                 user_domain_name=domain_name,
+                                                 password=password)
+        self.post('/auth/tokens', body=data)
+        self._assertLastNotify(self.ACTION, user_id)

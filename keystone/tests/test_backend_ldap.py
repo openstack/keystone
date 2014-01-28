@@ -447,6 +447,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id=user['id'],
                           password=None,
                           domain_scope=user['domain_id'])

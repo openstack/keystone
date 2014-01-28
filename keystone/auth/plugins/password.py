@@ -113,6 +113,7 @@ class Password(auth.AuthMethodHandler):
         # all we care is password matches
         try:
             self.identity_api.authenticate(
+                context,
                 user_id=user_info.user_id,
                 password=user_info.password,
                 domain_scope=user_info.domain_id)
