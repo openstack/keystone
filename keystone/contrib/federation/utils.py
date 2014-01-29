@@ -51,8 +51,8 @@ MAPPING_SCHEMA = {
     "definitions": {
         "empty": {
             "type": "object",
+            "required": ['type'],
             "properties": {
-                "required": ['type'],
                 "type": {
                     "type": "string"
                 },

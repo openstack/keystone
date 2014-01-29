@@ -551,3 +551,13 @@ class MappingTests(FederationTests):
         url = self.MAPPING_URL + uuid.uuid4().hex
         self.put(url, expected_status=400,
                  body={'mapping': mapping_fixtures.MAPPING_MISSING_LOCAL})
+
+    def test_create_mapping_missing_type(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        self.put(url, expected_status=400,
+                 body={'mapping': mapping_fixtures.MAPPING_MISSING_TYPE})
+
+    def test_create_mapping_wrong_type(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        self.put(url, expected_status=400,
+                 body={'mapping': mapping_fixtures.MAPPING_WRONG_TYPE})
