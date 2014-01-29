@@ -84,8 +84,8 @@ class Version(wsgi.Application):
         if 'v2.0' in _VERSIONS:
             versions['v2.0'] = {
                 'id': 'v2.0',
-                'status': 'stable',
-                'updated': '2013-03-06T00:00:00Z',
+                'status': 'deprecated',
+                'updated': '2014-04-17T00:00:00Z',
                 'links': [
                     {
                         'rel': 'self',
