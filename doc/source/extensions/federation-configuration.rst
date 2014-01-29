@@ -24,7 +24,7 @@ To enable the federation extension:
    ``keystone.conf``. For example::
 
        [federation]
-       driver = keystone.contrib.federation.backends.sql.IdentityProvider
+       driver = keystone.contrib.federation.backends.sql.Federation
 
 2. Add the ``federation_extension`` middleware to the ``api_v3`` pipeline in
    ``keystone-paste.ini``. For example::
