@@ -30,10 +30,12 @@ class _ControllerBase(controller.V3Controller):
     """Base behaviors for federation controllers.
 
     Two new class parameters:
-    - _mutable_parameters - set of parameters that can be changed by users.
-                            Usually used by cls.check_immutable_params()
-    - _public_parameters - set of parameters that are exposed to the user.
-                           Usually used by cls.filter_params()
+
+    * `_mutable_parameters` - set of parameters that can be changed by users.
+                              Usually used by cls.check_immutable_params()
+    * `_public_parameters` - set of parameters that are exposed to the user.
+                             Usually used by cls.filter_params()
+
     """
 
     @classmethod
@@ -46,7 +48,7 @@ class _ControllerBase(controller.V3Controller):
 
         :param ref: a dictionary representing deserialized request to be
                     stored
-        :raises exception.ImmutableAttributeError
+        :raises: :class:`keystone.exception.ImmutableAttributeError`
 
         """
         ref_keys = set(ref.keys())

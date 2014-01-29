@@ -109,6 +109,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """GET /users?domain_id=mydomain (filtered)
 
         Test Plan:
+
         - Update policy so api is unprotected
         - Use an un-scoped token to make sure we can filter the
           users by domainB, getting back the 2 users in that domain
@@ -126,6 +127,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """GET /domains?enabled=0
 
         Test Plan:
+
         - Update policy for no protection on api
         - Filter by the 'enabled' boolean to get disabled domains, which
           should return just domainC
@@ -168,6 +170,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """GET /domains?enabled&name=myname
 
         Test Plan:
+
         - Update policy for no protection on api
         - Filter by the 'enabled' boolean and name - this should
           return a single domain
@@ -186,6 +189,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """GET /users?name=%myname%
 
         Test Plan:
+
         - Update policy so api is unprotected
         - Update a user with name that has filter escape characters
         - Ensure we can filter on it
@@ -269,6 +273,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """GET /users?name=<injected sql_statement>
 
         Test Plan:
+
         - Attempt to get all entities back by passing a two-term attribute
         - Attempt to piggyback filter to damage DB (e.g. drop table)
 

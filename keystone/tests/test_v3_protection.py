@@ -350,10 +350,10 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         - One project, which name is 'project'
         - domainA has three users: domain_admin_user, project_admin_user and
           just_a_user:
+
           - domain_admin_user has role 'admin' on domainA,
           - project_admin_user has role 'admin' on the project,
-          - just_a_user has a non-admin role on both domainA and the
-            project.
+          - just_a_user has a non-admin role on both domainA and the project.
         - admin_domain has user cloud_admin_user, with an 'admin' role
           on admin_domain.
 
