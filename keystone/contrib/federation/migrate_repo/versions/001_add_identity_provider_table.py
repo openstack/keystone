@@ -32,8 +32,7 @@ def upgrade(migrate_engine):
     federation_protocol_table = sql.Table(
         'federation_protocol',
         meta,
-        sql.Column('id', sql.String(64), primary_key=True,
-                   autoincrement=False),
+        sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('idp_id', sql.String(64),
                    sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
                    primary_key=True),
