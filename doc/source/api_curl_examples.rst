@@ -322,9 +322,6 @@ Returns::
                 "adminURL": "http://cdn.admin-nets.local/v1.1/1",
                 "region": "RegionOne",
                 "tenantId": 1,
-                "versionId": "1.1",
-                "versionList": "http://127.0.0.1:7777/",
-                "versionInfo": "http://127.0.0.1:7777/v1.1",
                 "type": "object-store",
                 "id": 5,
                 "publicURL": "http://cdn.publicinternets.com/v1.1/1"
