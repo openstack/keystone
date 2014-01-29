@@ -20,6 +20,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -32,6 +33,14 @@ APACHE_LOG_FORMAT = (
 
 class AccessLogMiddleware(wsgi.Middleware):
     """Writes an access log to INFO."""
+
+    @versionutils.deprecated(
+        what='keystone.contrib.access.core.AccessLogMiddleware',
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='eventlet debug access log or httpd access log',
+        remove_in=+2)
+    def __init__(self, *args, **kwargs):
+        super(AccessLogMiddleware, self).__init__(*args, **kwargs)
 
     @webob.dec.wsgify
     def __call__(self, request):
