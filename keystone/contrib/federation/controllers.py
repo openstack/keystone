@@ -149,7 +149,6 @@ class IdentityProvider(controller.V3Controller):
         mutable_params = set(['description', 'enabled'])
         public_params = set(['id', 'description', 'enabled'])
         identity_provider = self._normalize_dict(identity_provider)
-        identity_provider.setdefault('description', '')
         identity_provider.setdefault('enabled', False)
         IdentityProvider.check_immutable_params(identity_provider,
                                                 keys=mutable_params)
