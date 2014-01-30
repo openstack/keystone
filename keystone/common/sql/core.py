@@ -271,13 +271,14 @@ def handle_conflicts(conflict_type='object'):
             try:
                 return method(*args, **kwargs)
             except db_exception.DBDuplicateEntry as e:
-                raise exception.Conflict(type=conflict_type, details=str(e))
+                raise exception.Conflict(type=conflict_type,
+                                         details=six.text_type(e))
             except db_exception.DBError as e:
                 # TODO(blk-u): inspecting inner_exception breaks encapsulation;
                 # oslo.db should provide exception we need.
                 if isinstance(e.inner_exception, IntegrityError):
                     raise exception.Conflict(type=conflict_type,
-                                             details=str(e))
+                                             details=six.text_type(e))
                 raise
 
         return wrapper

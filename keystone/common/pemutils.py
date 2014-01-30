@@ -392,7 +392,7 @@ def parse_pem(text, pem_type=None, max_items=None):
                   '%(position)d: %(err_msg)s') %
                 {'pem_type': block.pem_type,
                  'position': block.pem_start,
-                 'err_msg': str(e)})
+                 'err_msg': six.text_type(e)})
         else:
             block.binary_data = binary_data
 
