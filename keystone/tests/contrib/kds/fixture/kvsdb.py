@@ -12,10 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.tests.contrib.kds.fixture import kvsdb
-from keystone.tests.contrib.kds.fixture import sqlitedb
+import fixtures
+from oslo.config import cfg
 
-SqliteDb = sqlitedb.SqliteDb
-KvsDb = kvsdb.KvsDb
+from keystone.contrib.kds.db import api as db_api
 
-__all__ = [SqliteDb, KvsDb]
+CONF = cfg.CONF
+
+
+class KvsDb(fixtures.Fixture):
+
+    def setUp(self):
+        super(KvsDb, self).setUp()
+
+        CONF.set_override('backend', 'kvs', 'database')
+
+        db_api.reset()

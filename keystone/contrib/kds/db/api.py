@@ -12,10 +12,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.tests.contrib.kds.fixture import kvsdb
-from keystone.tests.contrib.kds.fixture import sqlitedb
+from oslo.config import cfg
 
-SqliteDb = sqlitedb.SqliteDb
-KvsDb = kvsdb.KvsDb
+from keystone.openstack.common.db import api as db_api
 
-__all__ = [SqliteDb, KvsDb]
+CONF = cfg.CONF
+
+_BACKEND_MAPPING = {'sqlalchemy': 'keystone.contrib.kds.db.sqlalchemy.api',
+                    'kvs': 'keystone.contrib.kds.db.kvs.api'}
+
+IMPL = db_api.DBAPI(backend_mapping=_BACKEND_MAPPING)
+
+
+def reset():
+    global IMPL
+    IMPL = db_api.DBAPI(backend_mapping=_BACKEND_MAPPING)
+
+
+def get_instance():
+    """Return a DB API instance."""
+    return IMPL

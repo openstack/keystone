@@ -23,4 +23,8 @@ class BaseTestCase(test.BaseTestCase):
         super(BaseTestCase, self).setUp()
         self.config_fixture = self.useFixture(config.Config())
         self.CONF = self.config_fixture.conf
+
         service.parse_args(args=[])
+
+    def config(self, *args, **kwargs):
+        self.config_fixture.config(*args, **kwargs)
