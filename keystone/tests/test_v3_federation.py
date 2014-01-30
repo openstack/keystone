@@ -437,7 +437,8 @@ class FederatedIdentityProviderTests(FederationTests):
         self.get(url, expected_status=404)
 
 
-class MappingTests(FederationTests):
+class MappingCRUDTests(FederationTests):
+    """A class for testing CRUD operations for Mappings."""
 
     MAPPING_URL = '/OS-FEDERATION/mappings/'
 
