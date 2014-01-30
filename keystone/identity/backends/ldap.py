@@ -55,17 +55,17 @@ class Identity(identity.Driver):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         if not user_id or not password:
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         conn = None
         try:
             conn = self.user.get_connection(self.user._id_to_dn(user_id),
                                             password)
             if not conn:
-                raise AssertionError('Invalid user / password')
+                raise AssertionError(_('Invalid user / password'))
         except Exception:
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         finally:
             if conn:
                 conn.unbind_s()
@@ -92,10 +92,10 @@ class Identity(identity.Driver):
 
     def update_user(self, user_id, user):
         if 'id' in user and user['id'] != user_id:
-            raise exception.ValidationError('Cannot change user ID')
+            raise exception.ValidationError(_('Cannot change user ID'))
         old_obj = self.user.get(user_id)
         if 'name' in user and old_obj.get('name') != user['name']:
-            raise exception.Conflict('Cannot change user name')
+            raise exception.Conflict(_('Cannot change user name'))
 
         user = utils.hash_ldap_user_password(user)
         if self.user.enabled_mask:

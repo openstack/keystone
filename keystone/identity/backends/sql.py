@@ -104,9 +104,9 @@ class Identity(sql.Base, identity.Driver):
         try:
             user_ref = self._get_user(session, user_id)
         except exception.UserNotFound:
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         if not self._check_password(password, user_ref):
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         return identity.filter_user(user_ref.to_dict())
 
     # user crud
@@ -151,7 +151,7 @@ class Identity(sql.Base, identity.Driver):
     def update_user(self, user_id, user):
         session = db_session.get_session()
         if 'id' in user and user_id != user['id']:
-            raise exception.ValidationError('Cannot change user ID')
+            raise exception.ValidationError(_('Cannot change user ID'))
 
         with session.begin():
             user_ref = self._get_user(session, user_id)
@@ -189,7 +189,7 @@ class Identity(sql.Base, identity.Driver):
         query = query.filter_by(user_id=user_id)
         query = query.filter_by(group_id=group_id)
         if not query.first():
-            raise exception.NotFound('User not found in group')
+            raise exception.NotFound(_('User not found in group'))
 
     def remove_user_from_group(self, user_id, group_id):
         session = db_session.get_session()
@@ -200,7 +200,7 @@ class Identity(sql.Base, identity.Driver):
         query = query.filter_by(group_id=group_id)
         membership_ref = query.first()
         if membership_ref is None:
-            raise exception.NotFound('User not found in group')
+            raise exception.NotFound(_('User not found in group'))
         with session.begin():
             session.delete(membership_ref)
 

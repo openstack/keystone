@@ -287,7 +287,7 @@ class Application(BaseApplication):
     def _require_attribute(self, ref, attr):
         """Ensures the reference contains the specified attribute."""
         if ref.get(attr) is None or ref.get(attr) == '':
-            msg = '%s field is required and cannot be empty' % attr
+            msg = _('%s field is required and cannot be empty') % attr
             raise exception.ValidationError(message=msg)
 
     def _get_trust_id_for_request(self, context):
