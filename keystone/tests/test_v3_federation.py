@@ -579,3 +579,8 @@ class MappingCRUDTests(FederationTests):
         url = self.MAPPING_URL + uuid.uuid4().hex
         self.put(url, expected_status=400,
                  body={'mapping': {}})
+
+    def test_create_mapping_extra_rules_properties(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        self.put(url, expected_status=400,
+                 body={'mapping': mapping_fixtures.MAPPING_EXTRA_RULES_PROPS})

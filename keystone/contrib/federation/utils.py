@@ -29,6 +29,8 @@ MAPPING_SCHEMA = {
             "type": "array",
             "items": {
                 "type": "object",
+                "required": ['local', 'remote'],
+                "additionalProperties": False,
                 "properties": {
                     "local": {
                         "type": "array"
