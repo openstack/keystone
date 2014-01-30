@@ -22,6 +22,7 @@ from keystone import exception
 
 MAPPING_SCHEMA = {
     "type": "object",
+    "required": ['rules'],
     "properties": {
         "rules": {
             "minItems": 1,
