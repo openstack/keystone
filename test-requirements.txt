@@ -24,14 +24,14 @@ sphinx>=1.1.2,<1.2
 WebTest>=2.0
 
 discover
-python-subunit
+python-subunit>=0.0.18
 testrepository>=0.0.17
-testtools>=0.9.32
+testtools>=0.9.34
 testscenarios>=0.4
 
 # for python-keystoneclient
 # keystoneclient <0.2.1
-httplib2
+httplib2>=0.7.5
 # replaces httplib2 in keystoneclient >=0.2.1
 requests>=1.1
 keyring>=1.6.1,<2.0,>=2.1
