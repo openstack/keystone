@@ -7,6 +7,14 @@
     "admin_or_owner": "(rule:admin_required and domain_id:%(target.token.user.domain.id)s) or rule:owner",
     "admin_or_cloud_admin": "rule:admin_required or rule:cloud_admin",
 
+    "user_domain_id": "domain_id:%(target.user.domain_id)s or domain_id:%(user.domain_id)s",
+    "project_domain_id": "domain_id:%(target.project.domain_id)s or domain_id:%(project.domain_id)s",
+    "groups_domain_id": "domain_id:%(group.domain_id)s or domain_id:%(target.group.domain_id)s",
+    "same_domain_id": "domain_id:%(domain_id)s or domain_id:%(target.domain.id)s",
+    "match_domain_id": "rule:same_domain_id or rule:user_domain_id or rule:project_domain_id or rule:groups_domain_id",
+    "domain_admin": "rule:admin_required and rule:match_domain_id",
+    "project_admin": "rule:admin_required and project_id:%(target.project.id)s",
+
     "default": "rule:admin_required",
 
     "identity:get_service": "rule:admin_or_cloud_admin",
@@ -34,11 +42,11 @@
     "identity:update_project": "rule:admin_required and domain_id:%(target.project.domain_id)s",
     "identity:delete_project": "rule:admin_required and domain_id:%(target.project.domain_id)s",
 
-    "identity:get_user": "rule:admin_required and domain_id:%(target.user.domain_id)s",
-    "identity:list_users": "rule:admin_required and domain_id:%(domain_id)s",
-    "identity:create_user": "rule:admin_required and domain_id:%(user.domain_id)s",
-    "identity:update_user": "rule:admin_required and domain_id:%(target.user.domain_id)s",
-    "identity:delete_user": "rule:admin_required and domain_id:%(target.user.domain_id)s",
+    "identity:get_user": "rule:cloud_admin or rule:domain_admin",
+    "identity:list_users": "rule:cloud_admin or rule:domain_admin",
+    "identity:create_user": "rule:cloud_admin or rule:domain_admin",
+    "identity:update_user": "rule:cloud_admin or rule:domain_admin",
+    "identity:delete_user": "rule:cloud_admin or rule:domain_admin",
 
     "identity:get_group": "rule:admin_required and domain_id:%(target.group.domain_id)s",
     "identity:list_groups": "rule:admin_required and domain_id:%(domain_id)s",
@@ -63,12 +71,10 @@
     "identity:update_role": "rule:cloud_admin",
     "identity:delete_role": "rule:cloud_admin",
 
-    "admin_on_domain_target" : "rule:admin_required and domain_id:%(target.domain.id)s",
-    "admin_on_project_target" : "rule:admin_required and project_id:%(target.project.id)s",
-    "identity:check_grant": "rule:admin_on_project_target or rule:admin_on_domain_target",
-    "identity:list_grants": "rule:admin_on_project_target or rule:admin_on_domain_target",
-    "identity:create_grant": "rule:admin_on_project_target or rule:admin_on_domain_target",
-    "identity:revoke_grant": "rule:admin_on_project_target or rule:admin_on_domain_target",
+    "identity:check_grant": "rule:cloud_admin or rule:domain_admin or rule:project_admin",
+    "identity:list_grants": "rule:cloud_admin or rule:domain_admin or rule:project_admin",
+    "identity:create_grant": "rule:cloud_admin or rule:domain_admin or rule:project_admin",
+    "identity:revoke_grant": "rule:cloud_admin or rule:domain_admin or rule:project_admin",
 
     "admin_on_domain_filter" : "rule:admin_required and domain_id:%(scope.domain.id)s",
     "admin_on_project_filter" : "rule:admin_required and project_id:%(scope.project.id)s",
