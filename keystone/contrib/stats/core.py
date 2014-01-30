@@ -21,6 +21,7 @@ from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 from keystone import policy
 from keystone import token
 
@@ -134,6 +135,11 @@ class StatsMiddleware(wsgi.Middleware):
 
     response_attributes = ['status_int']
 
+    @versionutils.deprecated(
+        what='keystone.contrib.stats.core.StatsMiddleware',
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='external tooling',
+        remove_in=+2)
     def __init__(self, *args, **kwargs):
         self.stats_api = Manager()
         return super(StatsMiddleware, self).__init__(*args, **kwargs)
