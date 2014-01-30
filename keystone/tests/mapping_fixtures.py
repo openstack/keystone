@@ -209,3 +209,35 @@ MAPPING_MISSING_LOCAL = {
         }
     ]
 }
+
+MAPPING_WRONG_TYPE = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": "$1"
+                }
+            ],
+            "remote": [
+                {
+                    "not_type": "UserName"
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_MISSING_TYPE = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": "$1"
+                }
+            ],
+            "remote": [
+                {}
+            ]
+        }
+    ]
+}
