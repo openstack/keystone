@@ -111,15 +111,11 @@
 # RPC driver example (not enabled by default)
 # notification_driver = keystone.openstack.common.notifier.rpc_notifier
 
-# Default notification level for outgoing notifications
-# default_notification_level = INFO
-
 # Default publisher_id for outgoing notifications; included in the payload.
 # default_publisher_id =
 
 # AMQP topics to publish to when using the RPC notification driver.
 # Multiple values can be specified by separating with commas.
-# The actual topic names will be %s.%(default_notification_level)s
 # notification_topics = notifications
 
 # === RPC Options ===
