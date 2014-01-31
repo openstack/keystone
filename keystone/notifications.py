@@ -37,12 +37,10 @@ class ManagerNotificationWrapper(object):
     ``Exception`` (such as ``keystone.exception.NotFound``).
 
     :param resource_type: type of resource being affected
-    :param host: host of the resource (optional)
     """
-    def __init__(self, operation, resource_type, host=None):
+    def __init__(self, operation, resource_type):
         self.operation = operation
         self.resource_type = resource_type
-        self.host = host
 
     def __call__(self, f):
         def wrapper(*args, **kwargs):
@@ -55,8 +53,7 @@ class ManagerNotificationWrapper(object):
                 _send_notification(
                     self.operation,
                     self.resource_type,
-                    args[1],  # f(self, resource_id, ...)
-                    self.host)
+                    args[1])  # f(self, resource_id, ...)
             return result
 
         return wrapper
@@ -131,7 +128,7 @@ def notify_event_callbacks(service, resource_type, operation, payload):
                 cb(service, resource_type, operation, payload)
 
 
-def _send_notification(operation, resource_type, resource_id, host=None):
+def _send_notification(operation, resource_type, resource_id):
     """Send notification to inform observers about the affected resource.
 
     This method doesn't raise an exception when sending the notification fails.
@@ -139,12 +136,11 @@ def _send_notification(operation, resource_type, resource_id, host=None):
     :param operation: operation being performed (created, updated, or deleted)
     :param resource_type: type of resource being operated on
     :param resource_id: ID of resource being operated on
-    :param host: resource host
     """
     context = {}
     payload = {'resource_info': resource_id}
     service = 'identity'
-    publisher_id = notifier_api.publisher_id(service, host=host)
+    publisher_id = notifier_api.publisher_id(service)
     event_type = '%(service)s.%(resource_type)s.%(operation)s' % {
         'service': service,
         'resource_type': resource_type,
