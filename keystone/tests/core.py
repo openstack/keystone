@@ -50,6 +50,7 @@ gettextutils.install('keystone', lazy=True)
 from keystone.common import environment
 environment.use_eventlet()
 
+from keystone import auth
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import kvs
@@ -342,6 +343,9 @@ class TestCase(testtools.TestCase):
         # Ensure Notification subscriotions and resource types are empty
         self.addCleanup(notifications.SUBSCRIBERS.clear)
 
+        # Reset the auth-plugin registry
+        self.addCleanup(self.clear_auth_plugin_registry)
+
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
 
@@ -367,6 +371,7 @@ class TestCase(testtools.TestCase):
         # should eventually be removed once testing has been cleaned up.
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
+        self.clear_auth_plugin_registry()
         drivers = service.load_backends()
 
         # TODO(stevemar): currently, load oauth1 driver as well, eventually
@@ -453,6 +458,10 @@ class TestCase(testtools.TestCase):
     def add_path(self, path):
         sys.path.insert(0, path)
         self._paths.append(path)
+
+    def clear_auth_plugin_registry(self):
+        auth.controllers.AUTH_METHODS.clear()
+        auth.controllers.AUTH_PLUGINS_LOADED = False
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
         """Asserts that two datetimes are nearly equal within a small delta.

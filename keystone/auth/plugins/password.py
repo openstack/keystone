@@ -104,6 +104,9 @@ class UserAuthInfo(object):
 
 @dependency.requires('identity_api')
 class Password(auth.AuthMethodHandler):
+
+    method = METHOD_NAME
+
     def authenticate(self, context, auth_payload, user_context):
         """Try to authenticate against the identity backend."""
         user_info = UserAuthInfo.create(auth_payload)

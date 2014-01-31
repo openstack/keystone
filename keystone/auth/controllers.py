@@ -35,19 +35,53 @@ CONF = config.CONF
 
 # registry of authentication methods
 AUTH_METHODS = {}
+AUTH_PLUGINS_LOADED = False
 
 
-def load_auth_method(method_name):
-    if method_name not in CONF.auth.methods:
-        raise exception.AuthMethodNotSupported()
-    driver = CONF.auth.get(method_name)
-    return importutils.import_object(driver)
+def load_auth_methods():
+    global AUTH_PLUGINS_LOADED
+
+    if AUTH_PLUGINS_LOADED:
+        # Only try and load methods a single time.
+        return
+    # config.setup_authentication should be idempotent, call it to ensure we
+    # have setup all the appropriate configuration options we may need.
+    config.setup_authentication()
+    for plugin in CONF.auth.methods:
+        if '.' in plugin:
+            # NOTE(morganfainberg): if '.' is in the plugin name, it should be
+            # imported rather than used as a plugin identifier.
+            plugin_class = plugin
+            driver = importutils.import_object(plugin)
+            if not hasattr(driver, 'method'):
+                raise ValueError(_('Cannot load an auth-plugin by class-name '
+                                   'without a "method" attribute defined: %s'),
+                                 plugin_class)
+        else:
+            plugin_class = CONF.auth.get(plugin)
+            driver = importutils.import_object(plugin_class)
+            if hasattr(driver, 'method'):
+                if driver.method != plugin:
+                    raise ValueError(_('Driver requested method %(req)s does '
+                                       'not match plugin name %(plugin)s.') %
+                                     {'req': driver.method,
+                                      'plugin': plugin})
+            else:
+                LOG.warning(_('Auth Plugin %s does not have a "method" '
+                              'attribute.'), plugin)
+                setattr(driver, 'method', plugin)
+        if driver.method in AUTH_METHODS:
+            raise ValueError(_('Auth plugin %(plugin)s is requesting '
+                               'previously registered method %(method)s') %
+                             {'plugin': plugin_class, 'method': driver.method})
+        AUTH_METHODS[driver.method] = driver
+    AUTH_PLUGINS_LOADED = True
 
 
 def get_auth_method(method_name):
     global AUTH_METHODS
     if method_name not in AUTH_METHODS:
-        AUTH_METHODS[method_name] = load_auth_method(method_name)
+        raise exception.AuthMethodNotSupported()
     return AUTH_METHODS[method_name]
 
 
@@ -213,7 +247,7 @@ class AuthInfo(object):
 
         # make sure auth method is supported
         for method_name in self.get_method_names():
-            if method_name not in CONF.auth.methods:
+            if method_name not in AUTH_METHODS:
                 raise exception.AuthMethodNotSupported()
 
     def _validate_and_normalize_auth_data(self):
