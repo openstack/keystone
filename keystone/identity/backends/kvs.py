@@ -70,9 +70,9 @@ class Identity(kvs.Base, identity.Driver):
         try:
             user_ref = self._get_user(user_id)
         except exception.UserNotFound:
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         if not utils.check_password(password, user_ref.get('password')):
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         return identity.filter_user(user_ref)
 
     def _get_user(self, user_id):
@@ -115,7 +115,7 @@ class Identity(kvs.Base, identity.Driver):
         except exception.UserNotFound:
             pass
         else:
-            msg = 'Duplicate ID, %s.' % user_id
+            msg = _('Duplicate ID, %s.') % user_id
             raise exception.Conflict(type='user', details=msg)
 
         try:
@@ -123,7 +123,7 @@ class Identity(kvs.Base, identity.Driver):
         except exception.UserNotFound:
             pass
         else:
-            msg = 'Duplicate name, %s.' % user['name']
+            msg = _('Duplicate name, %s.') % user['name']
             raise exception.Conflict(type='user', details=msg)
 
         user = utils.hash_user_password(user)
@@ -150,7 +150,7 @@ class Identity(kvs.Base, identity.Driver):
             user_key = self._calc_user_name_key(user['name'], domain_id)
             existing = self.db.get(user_key, False)
             if existing and user_id != existing['id']:
-                msg = 'Duplicate name, %s.' % user['name']
+                msg = _('Duplicate name, %s.') % user['name']
                 raise exception.Conflict(type='user', details=msg)
         # get the old name and delete it too
         old_user = self.db.get('user-%s' % user_id)

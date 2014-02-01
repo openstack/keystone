@@ -47,7 +47,7 @@ def PAM_authenticate(username, password):
         auth.authenticate()
         auth.acct_mgmt()
     except PAM.error:
-        raise AssertionError('Invalid user / password')
+        raise AssertionError(_('Invalid user / password'))
 
     return True
 
@@ -64,7 +64,7 @@ class PamIdentity(identity.Driver):
     def authenticate(self, user_id, password):
         auth = pam.authenticate if pam else PAM_authenticate
         if not auth(user_id, password):
-            raise AssertionError('Invalid user / password')
+            raise AssertionError(_('Invalid user / password'))
         user = {'id': user_id, 'name': user_id}
         return user
 
