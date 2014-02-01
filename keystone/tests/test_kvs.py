@@ -156,7 +156,18 @@ class KVSTest(tests.TestCase):
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.Memory')
 
-        self.assertIs(kvs._region.key_mangler, None)
+        self.assertIsNone(kvs._region.key_mangler)
+        self.assertIsNone(kvs._region.backend.key_mangler)
+
+    def test_kvs_key_mangler_set_on_backend(self):
+        def test_key_mangler(key):
+            return key
+
+        kvs = self._get_kvs_region()
+        kvs.configure('openstack.kvs.Memory')
+        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        kvs._set_key_mangler(test_key_mangler)
+        self.assertIs(kvs._region.backend.key_mangler, test_key_mangler)
 
     def test_kvs_basic_get_set_delete(self):
         # Test the basic get/set/delete actions on the KVS region
