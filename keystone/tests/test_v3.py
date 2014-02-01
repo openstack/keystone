@@ -916,7 +916,7 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         return self.assertValidListResponse(
             resp,
             'trusts',
-            self.assertValidTrust,
+            self.assertValidTrustSummary,
             *args,
             **kwargs)
 
@@ -928,7 +928,10 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
             *args,
             **kwargs)
 
-    def assertValidTrust(self, entity, ref=None):
+    def assertValidTrustSummary(self, entity, ref=None):
+        return self.assertValidTrust(entity, ref, summary=True)
+
+    def assertValidTrust(self, entity, ref=None, summary=False):
         self.assertIsNotNone(entity.get('trustor_user_id'))
         self.assertIsNotNone(entity.get('trustee_user_id'))
 
@@ -936,21 +939,23 @@ class RestfulTestCase(test_content_types.RestfulTestCase):
         if entity['expires_at'] is not None:
             self.assertValidISO8601ExtendedFormatDatetime(entity['expires_at'])
 
-        # always disallow project xor project_id (neither or both is allowed)
-        has_roles = bool(entity.get('roles'))
-        has_project = bool(entity.get('project_id'))
-        self.assertFalse(has_roles ^ has_project)
+        if summary:
+            # Trust list contains no roles, but getting a specific
+            # trust by ID provides the detailed reponse containing roles
+            self.assertNotIn('roles', entity)
+            self.assertIn('project_id', entity)
+        else:
+            for role in entity['roles']:
+                self.assertIsNotNone(role)
+                self.assertValidEntity(role)
+                self.assertValidRole(role)
 
-        for role in entity['roles']:
-            self.assertIsNotNone(role)
-            self.assertValidEntity(role)
-            self.assertValidRole(role)
+            self.assertValidListLinks(entity.get('roles_links'))
 
-        self.assertValidListLinks(entity.get('roles_links'))
-
-        # these were used during dev and shouldn't land in final impl
-        self.assertNotIn('role_ids', entity)
-        self.assertNotIn('role_names', entity)
+            # always disallow role xor project_id (neither or both is allowed)
+            has_roles = bool(entity.get('roles'))
+            has_project = bool(entity.get('project_id'))
+            self.assertFalse(has_roles ^ has_project)
 
         if ref:
             self.assertEqual(ref['trustor_user_id'], entity['trustor_user_id'])
