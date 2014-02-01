@@ -128,7 +128,7 @@ class Ec2Controller(controller.V2Controller):
         # NOTE(morganfainberg): Make sure the data is in correct form since it
         # might be consumed external to Keystone and this is a v2.0 controller.
         # The token provider doesn't actually expect either v2 or v3 user data.
-        user_ref = self.identity_api.v3_to_v2_user(user_ref)
+        user_ref = self.v3_to_v2_user(user_ref)
         auth_token_data = dict(user=user_ref,
                                tenant=tenant_ref,
                                metadata=metadata_ref,
