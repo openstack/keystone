@@ -14,10 +14,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
 import uuid
 
 from dogpile.cache import api
-from dogpile.cache.backends import memcached as dogpile_memcached
 from dogpile.cache import proxy
 from dogpile.cache import util
 import mock
@@ -87,6 +87,68 @@ class RegionProxy2Fixture(proxy.ProxyBackend):
     """A test dogpile.cache proxy that does nothing."""
 
 
+class TestMemcacheDriver(api.CacheBackend):
+    """A test dogpile.cache backend that conforms to the mixin-mechanism for
+    overriding set and set_multi methods on dogpile memcached drivers.
+    """
+    class test_client(object):
+        # FIXME(morganfainberg): Convert this test client over to using mock
+        # and/or mock.MagicMock as appropriate
+
+        def __init__(self):
+            self.__name__ = 'TestingMemcacheDriverClientObject'
+            self.set_arguments_passed = None
+            self.keys_values = {}
+            self.lock_set_time = None
+            self.lock_expiry = None
+
+        def set(self, key, value, **set_arguments):
+            self.keys_values.clear()
+            self.keys_values[key] = value
+            self.set_arguments_passed = set_arguments
+
+        def set_multi(self, mapping, **set_arguments):
+            self.keys_values.clear()
+            self.keys_values = mapping
+            self.set_arguments_passed = set_arguments
+
+        def add(self, key, value, expiry_time):
+            # NOTE(morganfainberg): `add` is used in this case for the
+            # memcache lock testing. If further testing is required around the
+            # actual memcache `add` interface, this method should be
+            # expanded to work more like the actual memcache `add` function
+            if self.lock_expiry is not None and self.lock_set_time is not None:
+                if time.time() - self.lock_set_time < self.lock_expiry:
+                    return False
+            self.lock_expiry = expiry_time
+            self.lock_set_time = time.time()
+            return True
+
+        def delete(self, key):
+            # NOTE(morganfainberg): `delete` is used in this case for the
+            # memcache lock testing. If further testing is required around the
+            # actual memcache `delete` interface, this method should be
+            # expanded to work more like the actual memcache `delete` function.
+            self.lock_expiry = None
+            self.lock_set_time = None
+            return True
+
+    def __init__(self, arguments):
+        self.client = self.test_client()
+        self.set_arguments = {}
+        # NOTE(morganfainberg): This is the same logic as the dogpile backend
+        # since we need to mirror that functionality for the `set_argument`
+        # values to appear on the actual backend.
+        if 'memcached_expire_time' in arguments:
+            self.set_arguments['time'] = arguments['memcached_expire_time']
+
+    def set(self, key, value):
+        self.client.set(key, value, **self.set_arguments)
+
+    def set_multi(self, mapping):
+        self.client.set_multi(mapping, **self.set_arguments)
+
+
 class KVSTest(tests.TestCase):
     def setUp(self):
         super(KVSTest, self).setUp()
@@ -94,6 +156,10 @@ class KVSTest(tests.TestCase):
         self.value_foo = uuid.uuid4().hex
         self.key_bar = 'bar_' + uuid.uuid4().hex
         self.value_bar = {'complex_data_structure': uuid.uuid4().hex}
+        self.addCleanup(memcached.VALID_DOGPILE_BACKENDS.pop,
+                        'TestDriver',
+                        None)
+        memcached.VALID_DOGPILE_BACKENDS['TestDriver'] = TestMemcacheDriver
 
     def _get_kvs_region(self, name=None):
         if name is None:
@@ -140,6 +206,9 @@ class KVSTest(tests.TestCase):
         kvs.configure('openstack.kvs.Memory')
 
         self.assertIs(kvs._region.key_mangler, util.sha1_mangle_key)
+        # The backend should also have the keymangler set the same as the
+        # region now.
+        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
 
     def test_kvs_key_mangler_configuration_backend(self):
         kvs = self._get_kvs_region()
@@ -339,9 +408,9 @@ class KVSTest(tests.TestCase):
     def test_kvs_memcached_manager_valid_dogpile_memcached_backend(self):
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.Memcached',
-                      memcached_backend='memcached')
+                      memcached_backend='TestDriver')
         self.assertIsInstance(kvs._region.backend.driver,
-                              dogpile_memcached.MemcachedBackend)
+                              TestMemcacheDriver)
 
     def test_kvs_memcached_manager_invalid_dogpile_memcached_backend(self):
         # Invalid dogpile memcache backend should raise ValueError
@@ -350,6 +419,154 @@ class KVSTest(tests.TestCase):
                           kvs.configure,
                           backing_store='openstack.kvs.Memcached',
                           memcached_backend=uuid.uuid4().hex)
+
+    def test_kvs_memcache_manager_no_expiry_keys(self):
+        # Make sure the memcache backend recalculates the no-expiry keys
+        # correctly when a key-mangler is set on it.
+
+        def new_mangler(key):
+            return '_mangled_key_' + key
+
+        kvs = self._get_kvs_region()
+        no_expiry_keys = set(['test_key'])
+        kvs.configure('openstack.kvs.Memcached',
+                      memcached_backend='TestDriver',
+                      no_expiry_keys=no_expiry_keys)
+        calculated_keys = set([kvs._region.key_mangler(key)
+                               for key in no_expiry_keys])
+        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        self.assertSetEqual(calculated_keys,
+                            kvs._region.backend.no_expiry_hashed_keys)
+        self.assertSetEqual(no_expiry_keys,
+                            kvs._region.backend.raw_no_expiry_keys)
+        calculated_keys = set([new_mangler(key) for key in no_expiry_keys])
+        kvs._region.backend.key_mangler = new_mangler
+        self.assertSetEqual(calculated_keys,
+                            kvs._region.backend.no_expiry_hashed_keys)
+        self.assertSetEqual(no_expiry_keys,
+                            kvs._region.backend.raw_no_expiry_keys)
+
+    def test_kvs_memcache_key_mangler_set_to_none(self):
+        kvs = self._get_kvs_region()
+        no_expiry_keys = set(['test_key'])
+        kvs.configure('openstack.kvs.Memcached',
+                      memcached_backend='TestDriver',
+                      no_expiry_keys=no_expiry_keys)
+        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        kvs._region.backend.key_mangler = None
+        self.assertSetEqual(kvs._region.backend.raw_no_expiry_keys,
+                            kvs._region.backend.no_expiry_hashed_keys)
+        self.assertIsNone(kvs._region.backend.key_mangler)
+
+    def test_noncallable_key_mangler_set_on_driver_raises_type_error(self):
+        kvs = self._get_kvs_region()
+        kvs.configure('openstack.kvs.Memcached',
+                      memcached_backend='TestDriver')
+        self.assertRaises(TypeError,
+                          setattr,
+                          kvs._region.backend,
+                          'key_mangler',
+                          'Non-Callable')
+
+    def test_kvs_memcache_set_arguments_and_memcache_expires_ttl(self):
+        # Test the "set_arguments" (arguments passed on all set calls) logic
+        # and the no-expiry-key modifications of set_arguments for the explicit
+        # memcache TTL.
+        self.opt_in_group('kvs', enable_key_mangler=False)
+        kvs = self._get_kvs_region()
+        memcache_expire_time = 86400
+
+        expected_set_args = {'time': memcache_expire_time}
+        expected_no_expiry_args = {}
+
+        expected_foo_keys = [self.key_foo]
+        expected_bar_keys = [self.key_bar]
+
+        mapping_foo = dict([(self.key_foo, self.value_foo)])
+        mapping_bar = dict([(self.key_bar, self.value_bar)])
+
+        kvs.configure(backing_store='openstack.kvs.Memcached',
+                      memcached_backend='TestDriver',
+                      memcached_expire_time=memcache_expire_time,
+                      some_other_arg=uuid.uuid4().hex,
+                      no_expiry_keys=[self.key_bar])
+        # Ensure the set_arguments are correct
+        self.assertDictEqual(
+            kvs._region.backend._get_set_arguments_driver_attr(),
+            expected_set_args)
+
+        # Set a key that would have an expiry and verify the correct result
+        # occurred and that the correct set_arguments were passed.
+        kvs.set(self.key_foo, self.value_foo)
+        self.assertDictEqual(
+            kvs._region.backend.driver.client.set_arguments_passed,
+            expected_set_args)
+        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
+                         expected_foo_keys)
+        self.assertEqual(
+            kvs._region.backend.driver.client.keys_values[self.key_foo][0],
+            self.value_foo)
+
+        # Set a key that would not have an expiry and verify the correct result
+        # occurred and that the correct set_arguments were passed.
+        kvs.set(self.key_bar, self.value_bar)
+        self.assertDictEqual(
+            kvs._region.backend.driver.client.set_arguments_passed,
+            expected_no_expiry_args)
+        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
+                         expected_bar_keys)
+        self.assertEqual(
+            kvs._region.backend.driver.client.keys_values[self.key_bar][0],
+            self.value_bar)
+
+        # set_multi a dict that would have an expiry and verify the correct
+        # result occurred and that the correct set_arguments were passed.
+        kvs.set_multi(mapping_foo)
+        self.assertDictEqual(
+            kvs._region.backend.driver.client.set_arguments_passed,
+            expected_set_args)
+        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
+                         expected_foo_keys)
+        self.assertEqual(
+            kvs._region.backend.driver.client.keys_values[self.key_foo][0],
+            self.value_foo)
+
+        # set_multi a dict that would not have an expiry and verify the correct
+        # result occurred and that the correct set_arguments were passed.
+        kvs.set_multi(mapping_bar)
+        self.assertDictEqual(
+            kvs._region.backend.driver.client.set_arguments_passed,
+            expected_no_expiry_args)
+        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
+                         expected_bar_keys)
+        self.assertEqual(
+            kvs._region.backend.driver.client.keys_values[self.key_bar][0],
+            self.value_bar)
+
+    def test_memcached_lock_max_lock_attempts(self):
+        kvs = self._get_kvs_region()
+        max_lock_attempts = 1
+        test_key = uuid.uuid4().hex
+
+        kvs.configure(backing_store='openstack.kvs.Memcached',
+                      memcached_backend='TestDriver',
+                      max_lock_attempts=max_lock_attempts)
+
+        self.assertEqual(kvs._region.backend.max_lock_attempts,
+                         max_lock_attempts)
+        # Simple Lock success test
+        with kvs.get_lock(test_key) as lock:
+            kvs.set(test_key, 'testing', lock)
+
+        def lock_within_a_lock(key):
+            with kvs.get_lock(key) as first_lock:
+                kvs.set(test_key, 'lock', first_lock)
+                with kvs.get_lock(key) as second_lock:
+                    kvs.set(key, 'lock-within-a-lock', second_lock)
+
+        self.assertRaises(exception.UnexpectedError,
+                          lock_within_a_lock,
+                          key=test_key)
 
 
 class TestMemcachedBackend(tests.TestCase):

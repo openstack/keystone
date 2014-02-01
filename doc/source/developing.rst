@@ -465,6 +465,50 @@ KeyValueStore object named "TestKVSRegion" and a specific Memcached driver:
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached')
 
+The memcached backend supports a mechanism to supply an explicit TTL (in seconds) to all keys
+set via the KVS object. This is accomplished by passing the argument ``memcached_expire_time``
+as a keyword argument to the ``configure`` method. Passing the ``memcache_expire_time`` argument
+will cause the ``time`` argument to be added to all ``set`` and ``set_multi`` calls performed by
+the memcached client. ``memcached_expire_time`` is an argument exclusive to the memcached dogpile
+backend, and will be ignored if passed to another backend:
+
+.. code:: python
+
+    kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached',
+                        memcached_expire_time=86400)
+
+If an explicit TTL is configured via the ``memcached_expire_time`` argument, it is possible to
+exempt specific keys from receiving the TTL by passing the argument ``no_expiry_keys`` (list)
+as a keyword argument to the ``configure`` method. ``no_expiry_keys`` should be supported by
+all OpenStack-specific dogpile backends (memcached) that have the ability to set an explicit TTL:
+
+.. code:: python
+
+    kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached',
+                    memcached_expire_time=86400, no_expiry_keys=['key', 'second_key', ...])
+
+
+.. NOTE::
+    For the non-expiring keys functionality to work, the backend must support the ability for
+    the region to set the key_mangler on it and have the attribute ``raw_no_expiry_keys``.
+    In most cases, support for setting the key_mangler on the backend is handled by allowing
+    the region object to set the ``key_mangler`` attribute on the backend.
+
+    The ``raw_no_expiry_keys`` attribute is expected to be used to hold the values of the
+    keyword argument ``no_expiry_keys`` prior to hashing. It is the responsibility of the
+    backend to use these raw values to determine if a key should be exempt from expiring
+    and not set the TTL on the non-expiring keys when the ``set`` or ``set_multi`` methods are
+    called.
+
+    Typically the key will be hashed by the region using its key_mangler method
+    before being passed to the backend to set the value in the KeyValueStore. This
+    means that in most cases, the backend will need to either pre-compute the hashed versions
+    of the keys (when the key_mangler is set) and store a cached copy, or hash each item in
+    the ``raw_no_expiry_keys`` attribute on each call to ``.set()`` and ``.set_multi()``. The
+    ``memcached`` backend handles this hashing and caching of the keys by utilizing an
+    ``@property`` method for the ``.key_mangler`` attribute on the backend and utilizing the
+    associated ``.settr()`` method to front-load the hashing work at attribute set time.
+
 Once a KVS object has been instantiated the method of interacting is the same as most memcache
 implementations:
 
