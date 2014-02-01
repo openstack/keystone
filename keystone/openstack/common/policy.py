@@ -56,16 +56,17 @@ as it allows particular rules to be explicitly disabled.
 
 import abc
 import re
-import urllib
-import urllib2
 
 from oslo.config import cfg
 import six
+import six.moves.urllib.parse as urlparse
+import six.moves.urllib.request as urlrequest
 
 from keystone.openstack.common import fileutils
-from keystone.openstack.common.gettextutils import _  # noqa
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log as logging
+
 
 policy_opts = [
     cfg.StrOpt('policy_file',
@@ -824,8 +825,8 @@ class HttpCheck(Check):
         url = ('http:' + self.match) % target
         data = {'target': jsonutils.dumps(target),
                 'credentials': jsonutils.dumps(creds)}
-        post_data = urllib.urlencode(data)
-        f = urllib2.urlopen(url, post_data)
+        post_data = urlparse.urlencode(data)
+        f = urlrequest.urlopen(url, post_data)
         return f.read() == "True"
 
 
