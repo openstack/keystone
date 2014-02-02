@@ -13,6 +13,7 @@
 # under the License.
 
 import os
+import uuid
 
 from keystone import exception
 from keystone import tests
@@ -73,6 +74,37 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
         self.skipTest("Templated backend doesn't have disabled endpoints")
 
     def test_get_v3_catalog_endpoint_disabled(self):
-        f = (super(TestTemplatedCatalog, self).
-             test_get_v3_catalog_endpoint_disabled)
-        self.assertRaises(exception.NotImplemented, f)
+        self.skipTest("Templated backend doesn't have disabled endpoints")
+
+    def test_get_v3_catalog(self):
+        user_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+        catalog_ref = self.catalog_api.get_v3_catalog(user_id, project_id)
+        exp_catalog = [
+            {'endpoints': [
+                {'interface': 'admin',
+                 'region': 'RegionOne',
+                 'url': 'http://localhost:8774/v1.1/%s' % project_id},
+                {'interface': 'public',
+                 'region': 'RegionOne',
+                 'url': 'http://localhost:8774/v1.1/%s' % project_id},
+                {'interface': 'internal',
+                 'region': 'RegionOne',
+                 'url': 'http://localhost:8774/v1.1/%s' % project_id}],
+             'type': 'compute',
+             'name': "'Compute Service'",
+             'id': '2'},
+            {'endpoints': [
+                {'interface': 'admin',
+                 'region': 'RegionOne',
+                 'url': 'http://localhost:35357/v2.0'},
+                {'interface': 'public',
+                 'region': 'RegionOne',
+                 'url': 'http://localhost:5000/v2.0'},
+                {'interface': 'internal',
+                 'region': 'RegionOne',
+                 'url': 'http://localhost:35357/v2.0'}],
+             'type': 'identity',
+             'name': "'Identity Service'",
+             'id': '1'}]
+        self.assertEqual(exp_catalog, catalog_ref)

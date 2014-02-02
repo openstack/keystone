@@ -15,7 +15,6 @@
 
 from keystone import catalog
 from keystone.common import kvs
-from keystone import exception
 
 
 class Catalog(kvs.Base, catalog.Driver):
@@ -138,6 +137,3 @@ class Catalog(kvs.Base, catalog.Driver):
     def _create_catalog(self, user_id, tenant_id, data):
         self.db.set('catalog-%s-%s' % (tenant_id, user_id), data)
         return data
-
-    def get_v3_catalog(self, user_id, tenant_id, metadata=None):
-        raise exception.NotImplemented()
