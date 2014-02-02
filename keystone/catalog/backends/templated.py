@@ -125,9 +125,6 @@ class Catalog(kvs.Catalog):
 
         return o
 
-    def get_v3_catalog(self, user_id, tenant_id, metadata=None):
-        raise exception.NotImplemented()
-
 
 @versionutils.deprecated(
     versionutils.deprecated.ICEHOUSE,
