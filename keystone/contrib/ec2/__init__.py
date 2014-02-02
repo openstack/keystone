@@ -17,3 +17,4 @@
 from keystone.contrib.ec2 import controllers
 from keystone.contrib.ec2.core import *
 from keystone.contrib.ec2.routers import Ec2Extension
+from keystone.contrib.ec2.routers import Ec2ExtensionV3
