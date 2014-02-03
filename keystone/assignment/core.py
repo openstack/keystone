@@ -838,7 +838,6 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    """Interface description for an assignment driver."""
     # role crud
 
     @abc.abstractmethod
