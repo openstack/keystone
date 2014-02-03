@@ -137,8 +137,7 @@ def register_event_callback(event, resource_type, callbacks):
             msg = _('Callback: `%(callback)s` subscribed to event '
                     '`%(event)s`.')
             callback_info = _get_callback_info(callback)
-            callback_str = '.'.join(
-                filter(lambda i: i is not None, callback_info))
+            callback_str = '.'.join(i for i in callback_info if i is not None)
             event_str = '.'.join(['identity', resource_type, event])
             LOG.info(msg, {'callback': callback_str, 'event': event_str})
 
