@@ -180,7 +180,7 @@ class Ec2Controller(controller.V2Controller):
             user_id=user_id)
         return {'credentials':
                 [self._convert_v3_to_ec2_credential(credential)
-                for credential in credential_refs]}
+                    for credential in credential_refs]}
 
     def get_credential(self, context, user_id, credential_id):
         """Retrieve a user's access/secret pair by the access key.

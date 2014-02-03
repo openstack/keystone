@@ -48,8 +48,8 @@ class TestExtensionCase(test_v3.RestfulTestCase):
         self.default_request_url = (
             '/OS-EP-FILTER/projects/%(project_id)s'
             '/endpoints/%(endpoint_id)s' % {
-            'project_id': self.default_domain_project_id,
-            'endpoint_id': self.endpoint_id})
+                'project_id': self.default_domain_project_id,
+                'endpoint_id': self.endpoint_id})
 
 
 class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
@@ -75,8 +75,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         """
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': uuid.uuid4().hex,
-                 'endpoint_id': self.endpoint_id},
+                     'project_id': uuid.uuid4().hex,
+                     'endpoint_id': self.endpoint_id},
                  body='',
                  expected_status=404)
 
@@ -88,8 +88,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         """
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': self.default_domain_project_id,
-                 'endpoint_id': uuid.uuid4().hex},
+                     'project_id': self.default_domain_project_id,
+                     'endpoint_id': uuid.uuid4().hex},
                  body='',
                  expected_status=404)
 
@@ -115,8 +115,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                  expected_status=204)
         self.head('/OS-EP-FILTER/projects/%(project_id)s'
                   '/endpoints/%(endpoint_id)s' % {
-                  'project_id': self.default_domain_project_id,
-                  'endpoint_id': self.endpoint_id},
+                      'project_id': self.default_domain_project_id,
+                      'endpoint_id': self.endpoint_id},
                   expected_status=204)
 
     def test_check_endpoint_project_assoc_noproj(self):
@@ -128,8 +128,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.head('/OS-EP-FILTER/projects/%(project_id)s'
                   '/endpoints/%(endpoint_id)s' % {
-                  'project_id': uuid.uuid4().hex,
-                  'endpoint_id': self.endpoint_id},
+                      'project_id': uuid.uuid4().hex,
+                      'endpoint_id': self.endpoint_id},
                   body='',
                   expected_status=404)
 
@@ -142,8 +142,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.head('/OS-EP-FILTER/projects/%(project_id)s'
                   '/endpoints/%(endpoint_id)s' % {
-                  'project_id': self.default_domain_project_id,
-                  'endpoint_id': uuid.uuid4().hex},
+                      'project_id': self.default_domain_project_id,
+                      'endpoint_id': uuid.uuid4().hex},
                   body='',
                   expected_status=404)
 
@@ -206,8 +206,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.delete('/OS-EP-FILTER/projects/%(project_id)s'
                     '/endpoints/%(endpoint_id)s' % {
-                    'project_id': self.default_domain_project_id,
-                    'endpoint_id': self.endpoint_id},
+                        'project_id': self.default_domain_project_id,
+                        'endpoint_id': self.endpoint_id},
                     expected_status=204)
 
     def test_remove_endpoint_project_assoc_noproj(self):
@@ -219,8 +219,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.delete('/OS-EP-FILTER/projects/%(project_id)s'
                     '/endpoints/%(endpoint_id)s' % {
-                    'project_id': uuid.uuid4().hex,
-                    'endpoint_id': self.endpoint_id},
+                        'project_id': uuid.uuid4().hex,
+                        'endpoint_id': self.endpoint_id},
                     body='',
                     expected_status=404)
 
@@ -233,8 +233,8 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.delete('/OS-EP-FILTER/projects/%(project_id)s'
                     '/endpoints/%(endpoint_id)s' % {
-                    'project_id': self.default_domain_project_id,
-                    'endpoint_id': uuid.uuid4().hex},
+                        'project_id': self.default_domain_project_id,
+                        'endpoint_id': uuid.uuid4().hex},
                     body='',
                     expected_status=404)
 
@@ -265,8 +265,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         # add one endpoint to the project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': project['id'],
-                 'endpoint_id': self.endpoint_id},
+                     'project_id': project['id'],
+                     'endpoint_id': self.endpoint_id},
                  body='',
                  expected_status=204)
 
@@ -288,8 +288,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         # add one endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': self.project['id'],
-                 'endpoint_id': self.endpoint_id},
+                     'project_id': self.project['id'],
+                     'endpoint_id': self.endpoint_id},
                  body='',
                  expected_status=204)
 
@@ -329,8 +329,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         # add one endpoint to the project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': project['id'],
-                 'endpoint_id': self.endpoint_id},
+                     'project_id': project['id'],
+                     'endpoint_id': self.endpoint_id},
                  body='',
                  expected_status=204)
 
@@ -352,8 +352,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         # add one endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': self.project['id'],
-                 'endpoint_id': self.endpoint_id},
+                     'project_id': self.project['id'],
+                     'endpoint_id': self.endpoint_id},
                  body='',
                  expected_status=204)
 
@@ -422,8 +422,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         # add first endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': self.project['id'],
-                 'endpoint_id': self.endpoint_id},
+                     'project_id': self.project['id'],
+                     'endpoint_id': self.endpoint_id},
                  body='',
                  expected_status=204)
 
@@ -438,8 +438,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         # add second endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
-                 'project_id': self.project['id'],
-                 'endpoint_id': self.endpoint_id2},
+                     'project_id': self.project['id'],
+                     'endpoint_id': self.endpoint_id2},
                  body='',
                  expected_status=204)
 

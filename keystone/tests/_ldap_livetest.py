@@ -60,16 +60,16 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         create_object(CONF.ldap.suffix, tree_dn_attrs)
         create_object(CONF.ldap.user_tree_dn,
                       {'objectclass': 'organizationalUnit',
-                      'ou': 'Users'})
+                       'ou': 'Users'})
         create_object(CONF.ldap.role_tree_dn,
                       {'objectclass': 'organizationalUnit',
-                      'ou': 'Roles'})
+                       'ou': 'Roles'})
         create_object(CONF.ldap.tenant_tree_dn,
                       {'objectclass': 'organizationalUnit',
-                      'ou': 'Projects'})
+                       'ou': 'Projects'})
         create_object(CONF.ldap.group_tree_dn,
                       {'objectclass': 'organizationalUnit',
-                      'ou': 'UserGroups'})
+                       'ou': 'UserGroups'})
 
     def _set_config(self):
         self.config([tests.dirs.etc('keystone.conf.sample'),

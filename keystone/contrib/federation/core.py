@@ -36,13 +36,11 @@ EXTENSION_DATA = {
     'alias': 'OS-FEDERATION',
     'updated': '2013-12-17T12:00:0-00:00',
     'description': 'OpenStack Identity Providers Mechanism.',
-    'links': [
-            {
-            'rel': 'describedby',
-            'type': 'text/html',
-            'href': 'https://github.com/openstack/identity-api'
-            }
-    ]}
+    'links': [{
+        'rel': 'describedby',
+        'type': 'text/html',
+        'href': 'https://github.com/openstack/identity-api'
+    }]}
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 

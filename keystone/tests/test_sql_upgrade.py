@@ -1393,7 +1393,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         credential_api = credential.Manager()
         self.assertNotEmpty(credential_api.
                             list_credentials(
-                            user_id=ec2_credential['user_id']))
+                                user_id=ec2_credential['user_id']))
         self.downgrade(32)
         session.commit()
         self.assertTableExists('ec2_credential')
