@@ -82,15 +82,19 @@ class Manager(manager.Manager):
                                          ret['domain_id'])
         return ret
 
+    @notifications.disabled('project', public=False)
+    def _disable_project(self, tenant_id):
+        return self.token_api.delete_tokens_for_users(
+            self.list_user_ids_for_project(tenant_id),
+            project_id=tenant_id)
+
     @notifications.updated('project')
     def update_project(self, tenant_id, tenant):
         tenant = tenant.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         if not tenant.get('enabled', True):
-            self.token_api.delete_tokens_for_users(
-                self.list_user_ids_for_project(tenant_id),
-                project_id=tenant_id)
+            self._disable_project(tenant_id)
         ret = self.driver.update_project(tenant_id, tenant)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, ret['name'],
@@ -299,12 +303,17 @@ class Manager(manager.Manager):
     def list_domains(self, hints=None):
         return self.driver.list_domains(hints or driver_hints.Hints())
 
+    @notifications.disabled('domain', public=False)
+    def _disable_domain(self, domain_id):
+        self.token_api.delete_tokens_for_domain(domain_id)
+
+    @notifications.updated('domain')
     def update_domain(self, domain_id, domain):
         ret = self.driver.update_domain(domain_id, domain)
         # disable owned users & projects when the API user specifically set
         #     enabled=False
         if not domain.get('enabled', True):
-            self.token_api.delete_tokens_for_domain(domain_id)
+            self._disable_domain(domain_id)
         self.get_domain.invalidate(self, domain_id)
         self.get_domain_by_name.invalidate(self, ret['name'])
         return ret

@@ -40,7 +40,8 @@ class NotificationsWrapperTestCase(tests.TestCase):
         self.exp_operation = None
         self.send_notification_called = False
 
-        def fake_notify(operation, resource_type, resource_id):
+        def fake_notify(operation, resource_type, resource_id,
+                        public=True):
             self.assertEqual(self.exp_operation, operation)
             self.assertEqual(EXP_RESOURCE_TYPE, resource_type)
             self.assertEqual(self.exp_resource_id, resource_id)
@@ -49,7 +50,7 @@ class NotificationsWrapperTestCase(tests.TestCase):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
-        self.stubs.Set(notifications, '_send_notification', fake_notify)
+        self.stubs.Set(notifications, 'send_notification', fake_notify)
 
     @notifications.created(EXP_RESOURCE_TYPE)
     def create_resource(self, resource_id, data):
@@ -150,36 +151,62 @@ class NotificationsTestCase(tests.TestCase):
 
         mod_path = 'keystone.notifications.notifier_api.notify'
         with mock.patch(mod_path) as mocked:
-            notifications._send_notification(operation, resource_type,
-                                             resource)
+            notifications.send_notification(operation, resource_type,
+                                            resource)
             mocked.assert_called_once_with(*expected_args)
 
 
 class NotificationsForEntities(test_v3.RestfulTestCase):
     def setUp(self):
         super(NotificationsForEntities, self).setUp()
+        self._notifications = []
 
-        self.exp_resource_id = None
-        self.exp_operation = None
-        self.exp_resource_type = None
-        self.send_notification_called = False
-
-        def fake_notify(operation, resource_type, resource_id):
-            self.exp_resource_id = resource_id
-            self.exp_operation = operation
-            self.exp_resource_type = resource_type
-            self.send_notification_called = True
+        def fake_notify(operation, resource_type, resource_id,
+                        public=True):
+            note = {
+                'resource_id': resource_id,
+                'operation': operation,
+                'resource_type': resource_type,
+                'send_notification_called': True,
+                'public': public}
+            self._notifications.append(note)
 
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
-        self.stubs.Set(notifications, '_send_notification', fake_notify)
+        self.stubs.Set(notifications, 'send_notification', fake_notify)
 
     def _assertLastNotify(self, resource_id, operation, resource_type):
-        self.assertEqual(self.exp_operation, operation)
-        self.assertEqual(self.exp_resource_id, resource_id)
-        self.assertEqual(self.exp_resource_type, resource_type)
-        self.assertTrue(self.send_notification_called)
+        self.assertTrue(len(self._notifications) > 0)
+        note = self._notifications[-1]
+        self.assertEqual(note['operation'], operation)
+        self.assertEqual(note['resource_id'], resource_id)
+        self.assertEqual(note['resource_type'], resource_type)
+        self.assertTrue(note['send_notification_called'])
+
+    def _assertNotifyNotSent(self, resource_id, operation, resource_type,
+                             public=True):
+        unexpected = {
+            'resource_id': resource_id,
+            'operation': operation,
+            'resource_type': resource_type,
+            'send_notification_called': True,
+            'public': public}
+        for note in self._notifications:
+            self.assertNotEqual(unexpected, note)
+
+    def _assertNotifySent(self, resource_id, operation, resource_type, public):
+        expected = {
+            'resource_id': resource_id,
+            'operation': operation,
+            'resource_type': resource_type,
+            'send_notification_called': True,
+            'public': public}
+        for note in self._notifications:
+            if expected == note:
+                break
+        else:
+            self.fail("Notification not sent.")
 
     def test_create_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
@@ -239,6 +266,12 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.identity_api.delete_user(user_ref['id'])
         self._assertLastNotify(user_ref['id'], 'deleted', 'user')
 
+    def test_update_domain(self):
+        domain_ref = self.new_domain_ref()
+        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self._assertLastNotify(domain_ref['id'], 'updated', 'domain')
+
     def test_delete_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
         self.identity_api.create_user(trustor['id'], trustor)
@@ -252,6 +285,14 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.delete_trust(trust_ref['id'])
         self._assertLastNotify(trust_ref['id'], 'deleted', 'OS-TRUST:trust')
 
+    def test_disable_domain(self):
+        domain_ref = self.new_domain_ref()
+        self.identity_api.create_domain(domain_ref['id'], domain_ref)
+        domain_ref['enabled'] = False
+        self.identity_api.update_domain(domain_ref['id'], domain_ref)
+        self._assertNotifySent(domain_ref['id'], 'disabled', 'domain',
+                               public=False)
+
     def test_update_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         self.identity_api.create_group(group_ref['id'], group_ref)
@@ -262,7 +303,24 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         self.assignment_api.update_project(project_ref['id'], project_ref)
+        self._assertNotifySent(project_ref['id'], 'updated', 'project',
+                               public=True)
+
+    def test_disable_project(self):
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        project_ref['enabled'] = False
+        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self._assertNotifySent(project_ref['id'], 'disabled', 'project',
+                               public=False)
+
+    def test_update_project_does_not_send_disable(self):
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        project_ref['enabled'] = True
+        self.assignment_api.update_project(project_ref['id'], project_ref)
         self._assertLastNotify(project_ref['id'], 'updated', 'project')
+        self._assertNotifyNotSent(project_ref['id'], 'disabled', 'project')
 
     def test_update_role(self):
         role_ref = self.new_role_ref()
