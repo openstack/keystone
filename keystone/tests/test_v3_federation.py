@@ -559,3 +559,18 @@ class MappingCRUDTests(FederationTests):
         url = self.MAPPING_URL + uuid.uuid4().hex
         self.put(url, expected_status=400,
                  body={'mapping': mapping_fixtures.MAPPING_WRONG_TYPE})
+
+    def test_create_mapping_extra_remote_properties_not_any_of(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        mapping = mapping_fixtures.MAPPING_EXTRA_REMOTE_PROPS_NOT_ANY_OF
+        self.put(url, expected_status=400, body={'mapping': mapping})
+
+    def test_create_mapping_extra_remote_properties_any_one_of(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        mapping = mapping_fixtures.MAPPING_EXTRA_REMOTE_PROPS_ANY_ONE_OF
+        self.put(url, expected_status=400, body={'mapping': mapping})
+
+    def test_create_mapping_extra_remote_properties_just_type(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        mapping = mapping_fixtures.MAPPING_EXTRA_REMOTE_PROPS_JUST_TYPE
+        self.put(url, expected_status=400, body={'mapping': mapping})
