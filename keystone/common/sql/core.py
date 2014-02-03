@@ -89,7 +89,7 @@ def initialize_decorator(init):
                     column = attr.property.columns[0]
                     if isinstance(column.type, String):
                         if not isinstance(v, six.text_type):
-                            v = str(v)
+                            v = six.text_type(v)
                         if column.type.length and \
                                 column.type.length < len(v):
                             raise exception.StringLengthExceeded(
