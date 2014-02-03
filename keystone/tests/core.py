@@ -505,7 +505,7 @@ class TestCase(testtools.TestCase):
                 excName = expected_exception.__name__
             else:
                 excName = str(expected_exception)
-            raise self.failureException, "%s not raised" % excName
+            raise self.failureException("%s not raised" % excName)
 
     def assertDictContainsSubset(self, expected, actual, msg=None):
         """Checks whether actual is a superset of expected."""
