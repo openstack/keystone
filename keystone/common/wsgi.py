@@ -287,6 +287,12 @@ class Application(BaseApplication):
         Retrieve the trust_id from the token
         Returns None if token is is not trust scoped
         """
+        if ('token_id' not in context or
+                context.get('token_id') == CONF.admin_token):
+            LOG.debug(_('will not lookup trust as the request auth token is '
+                        'either absent or it is the system admin token'))
+            return None
+
         try:
             token_ref = self.token_api.get_token(context['token_id'])
         except exception.TokenNotFound:

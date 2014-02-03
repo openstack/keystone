@@ -18,8 +18,12 @@ import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 
+from keystone import config
 from keystone import exception
 from keystone.tests import test_v3
+
+
+CONF = config.CONF
 
 
 class CredentialBaseTestCase(test_v3.RestfulTestCase):
@@ -189,6 +193,15 @@ class CredentialTestCase(CredentialBaseTestCase):
             '/credentials',
             body={'credential': ref}, expected_status=400)
         self.assertValidErrorResponse(response)
+
+    def test_create_credential_with_admin_token(self):
+        # Make sure we can create credential with the static admin token
+        ref = self.new_credential_ref(user_id=self.user['id'])
+        r = self.post(
+            '/credentials',
+            body={'credential': ref},
+            token=CONF.admin_token)
+        self.assertValidCredentialResponse(r, ref)
 
 
 class TestCredentialTrustScoped(test_v3.RestfulTestCase):
