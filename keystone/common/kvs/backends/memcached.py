@@ -104,7 +104,7 @@ class MemcachedBackend(manager.Manager):
         else:
             if backend not in VALID_DOGPILE_BACKENDS:
                 raise ValueError(_('Backend `%s` is not a valid dogpile '
-                                   'memcached backend.'), backend)
+                                   'memcached backend.') % backend)
             else:
                 self.driver = getattr(memcached, backend)(arguments)
 
