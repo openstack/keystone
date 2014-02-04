@@ -74,7 +74,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             'endpoint': {
                 'adminurl': adminurl,
                 'service_id': service_id,
-                'region': 'regionOne',
+                'region': 'RegionOne',
                 'internalurl': internalurl,
                 'publicurl': publicurl
             }
