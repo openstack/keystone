@@ -269,11 +269,11 @@ devstack_ is the *best* way to quickly deploy keystone with the rest of the
 OpenStack universe and should be critical step in your development workflow!
 
 You may also be interested in either the
-`OpenStack Continuous Integration Project`_ or the
+`OpenStack Continuous Integration Infrastructure`_ or the
 `OpenStack Integration Testing Project`_.
 
 .. _devstack: http://devstack.org/
-.. _OpenStack Continuous Integration Project: https://github.com/openstack/openstack-ci
+.. _OpenStack Continuous Integration Infrastructure: http://ci.openstack.org
 .. _OpenStack Integration Testing Project: https://github.com/openstack/tempest
 
 
