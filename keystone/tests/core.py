@@ -31,6 +31,7 @@ from paste import deploy
 import six
 import testtools
 from testtools import testcase
+import webob
 
 from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
@@ -57,7 +58,6 @@ from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
 from keystone.common import utils
-from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone import notifications
@@ -241,7 +241,7 @@ class TestClient(object):
         if self.token:
             headers.setdefault('X-Auth-Token', self.token)
 
-        req = wsgi.Request.blank(path)
+        req = webob.Request.blank(path)
         req.method = method
         for k, v in six.iteritems(headers):
             req.headers[k] = v
