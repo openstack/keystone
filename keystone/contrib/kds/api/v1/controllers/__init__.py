@@ -10,20 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pecan
 
-from keystone.contrib.kds.api.v1 import controllers
+from keystone.contrib.kds.api.v1.controllers import controller
 
 
-class RootController(object):
+Controller = controller.Controller
 
-    v1 = controllers.Controller()
-
-    @pecan.expose('json')
-    def index(self):
-        pecan.response.status = 300
-        return {
-            'versions': [
-                self.v1.version_info(),
-            ]
-        }
+__all__ = ['Controller']

@@ -12,18 +12,18 @@
 
 import pecan
 
-from keystone.contrib.kds.api.v1 import controllers
 
+class Controller(object):
+    """Version 1 API controller root."""
 
-class RootController(object):
-
-    v1 = controllers.Controller()
+    @staticmethod
+    def version_info():
+        return {'status': 'stable',
+                'id': 'v1.0',
+                'links': [{
+                    'href': '%s/v1/' % pecan.request.host_url,
+                    'rel': 'self'}]}
 
     @pecan.expose('json')
     def index(self):
-        pecan.response.status = 300
-        return {
-            'versions': [
-                self.v1.version_info(),
-            ]
-        }
+        return {'version': self.version_info()}
