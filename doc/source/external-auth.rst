@@ -95,7 +95,9 @@ user must exist in advance in the identity backend so that a proper token can
 be issued.
 
 Your code should set the ``REMOTE_USER`` if the user is properly authenticated,
-following the semantics below::
+following the semantics below:
+
+.. code:: python
 
     from keystone.common import wsgi
 
