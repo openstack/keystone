@@ -34,10 +34,11 @@ class Connection(object):
         :param DateTime expiration: When the key should expire
                                     (None is never expire).
 
-        :raises IntegrityError: If a key exists then new keys assigned to the
-                                name must have the same 'group' setting. If the
-                                value of group is changed an IntegrityError is
-                                raised.
+        :raises GroupStatusChanged: If a key exists then new keys assigned to
+            the name must have the same 'group' setting. If the value of group
+            is changed a
+            :class:`keystone.contrib.kds.common.exception.GroupStatusChanged`
+            is raised.
 
         :returns int: The generation number of this key.
         """
