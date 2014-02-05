@@ -18,10 +18,12 @@
 
 Initializing:
 
-* Call set_defaults with the minimal of the following kwargs:
-    sql_connection, sqlite_db
+* Call `set_defaults()` with the minimal of the following kwargs:
+  ``sql_connection``, ``sqlite_db``
 
-  Example::
+  Example:
+
+  .. code:: python
 
     session.set_defaults(
         sql_connection="sqlite:///var/lib/keystone/sqlite.db",
@@ -29,20 +31,22 @@ Initializing:
 
 Recommended ways to use sessions within this framework:
 
-* Don't use them explicitly; this is like running with AUTOCOMMIT=1.
-  model_query() will implicitly use a session when called without one
+* Don't use them explicitly; this is like running with ``AUTOCOMMIT=1``.
+  `model_query()` will implicitly use a session when called without one
   supplied. This is the ideal situation because it will allow queries
   to be automatically retried if the database connection is interrupted.
 
-    Note: Automatic retry will be enabled in a future patch.
+  .. note:: Automatic retry will be enabled in a future patch.
 
   It is generally fine to issue several queries in a row like this. Even though
   they may be run in separate transactions and/or separate sessions, each one
   will see the data from the prior calls. If needed, undo- or rollback-like
   functionality should be handled at a logical level. For an example, look at
-  the code around quotas and reservation_rollback().
+  the code around quotas and `reservation_rollback()`.
 
-  Examples::
+  Examples:
+
+  .. code:: python
 
     def get_foo(context, foo):
         return (model_query(context, models.Foo).
@@ -61,27 +65,26 @@ Recommended ways to use sessions within this framework:
         return foo_ref
 
 
-* Within the scope of a single method, keeping all the reads and writes within
-  the context managed by a single session. In this way, the session's __exit__
-  handler will take care of calling flush() and commit() for you.
-  If using this approach, you should not explicitly call flush() or commit().
-  Any error within the context of the session will cause the session to emit
-  a ROLLBACK. Database Errors like IntegrityError will be raised in
-  session's __exit__ handler, and any try/except within the context managed
-  by session will not be triggered. And catching other non-database errors in
-  the session will not trigger the ROLLBACK, so exception handlers should
-  always be outside the session, unless the developer wants to do a partial
-  commit on purpose. If the connection is dropped before this is possible,
-  the database will implicitly roll back the transaction.
+* Within the scope of a single method, keep all the reads and writes within
+  the context managed by a single session. In this way, the session's
+  `__exit__` handler will take care of calling `flush()` and `commit()` for
+  you. If using this approach, you should not explicitly call `flush()` or
+  `commit()`. Any error within the context of the session will cause the
+  session to emit a `ROLLBACK`. Database errors like `IntegrityError` will be
+  raised in `session`'s `__exit__` handler, and any try/except within the
+  context managed by `session` will not be triggered. And catching other
+  non-database errors in the session will not trigger the ROLLBACK, so
+  exception handlers should  always be outside the session, unless the
+  developer wants to do a partial commit on purpose. If the connection is
+  dropped before this is possible, the database will implicitly roll back the
+  transaction.
 
-     Note: statements in the session scope will not be automatically retried.
+  .. note:: Statements in the session scope will not be automatically retried.
 
   If you create models within the session, they need to be added, but you
-  do not need to call model.save()
+  do not need to call `model.save()`:
 
-  ::
-
-  ::
+  .. code:: python
 
     def create_many_foo(context, foos):
         session = get_session()
@@ -101,11 +104,16 @@ Recommended ways to use sessions within this framework:
                         filter_by(id=foo_ref['bar_id']).
                         update({'bar': newbar}))
 
-  Note: update_bar is a trivially simple example of using "with session.begin".
-  Whereas create_many_foo is a good example of when a transaction is needed,
-  it is always best to use as few queries as possible. The two queries in
-  update_bar can be better expressed using a single query which avoids
-  the need for an explicit transaction. It can be expressed like so::
+  .. note:: `update_bar` is a trivially simple example of using
+     ``with session.begin``. Whereas `create_many_foo` is a good example of
+     when a transaction is needed, it is always best to use as few queries as
+     possible.
+
+  The two queries in `update_bar` can be better expressed using a single query
+  which avoids the need for an explicit transaction. It can be expressed like
+  so:
+
+  .. code:: python
 
     def update_bar(context, foo_id, newbar):
         subq = (model_query(context, models.Foo.id).
@@ -121,10 +129,12 @@ Recommended ways to use sessions within this framework:
     UPDATE bar SET bar = ${newbar}
         WHERE id=(SELECT bar_id FROM foo WHERE id = ${foo_id} LIMIT 1);
 
-  Note: create_duplicate_foo is a trivially simple example of catching an
-  exception while using "with session.begin". Here create two duplicate
-  instances with same primary key, must catch the exception out of context
-  managed by a single session:
+  .. note:: `create_duplicate_foo` is a trivially simple example of catching an
+     exception while using ``with session.begin``. Here create two duplicate
+     instances with same primary key, must catch the exception out of context
+     managed by a single session:
+
+  .. code:: python
 
     def create_duplicate_foo(context):
         foo1 = models.Foo()
@@ -140,7 +150,7 @@ Recommended ways to use sessions within this framework:
 
 * Passing an active session between methods. Sessions should only be passed
   to private methods. The private method must use a subtransaction; otherwise
-  SQLAlchemy will throw an error when you call session.begin() on an existing
+  SQLAlchemy will throw an error when you call `session.begin()` on an existing
   transaction. Public methods should not accept a session parameter and should
   not be involved in sessions within the caller's scope.
 
@@ -153,7 +163,7 @@ Recommended ways to use sessions within this framework:
   becomes less clear in this situation. When this is needed for code clarity,
   it should be clearly documented.
 
-  ::
+  .. code:: python
 
     def myfunc(foo):
         session = get_session()
@@ -174,13 +184,13 @@ There are some things which it is best to avoid:
 
 * Don't keep a transaction open any longer than necessary.
 
-  This means that your "with session.begin()" block should be as short
+  This means that your ``with session.begin()`` block should be as short
   as possible, while still containing all the related calls for that
   transaction.
 
-* Avoid "with_lockmode('UPDATE')" when possible.
+* Avoid ``with_lockmode('UPDATE')`` when possible.
 
-  In MySQL/InnoDB, when a "SELECT ... FOR UPDATE" query does not match
+  In MySQL/InnoDB, when a ``SELECT ... FOR UPDATE`` query does not match
   any rows, it will take a gap-lock. This is a form of write-lock on the
   "gap" where no rows exist, and prevents any other writes to that space.
   This can effectively prevent any INSERT into a table by locking the gap
@@ -191,15 +201,18 @@ There are some things which it is best to avoid:
   number of rows matching a query, and if only one row is returned,
   then issue the SELECT FOR UPDATE.
 
-  The better long-term solution is to use INSERT .. ON DUPLICATE KEY UPDATE.
+  The better long-term solution is to use
+  ``INSERT .. ON DUPLICATE KEY UPDATE``.
   However, this can not be done until the "deleted" columns are removed and
   proper UNIQUE constraints are added to the tables.
 
 
 Enabling soft deletes:
 
-* To use/enable soft-deletes, the SoftDeleteMixin must be added
-  to your model class. For example::
+* To use/enable soft-deletes, the `SoftDeleteMixin` must be added
+  to your model class. For example:
+
+  .. code:: python
 
       class NovaBase(models.SoftDeleteMixin, models.ModelBase):
           pass
@@ -207,15 +220,16 @@ Enabling soft deletes:
 
 Efficient use of soft deletes:
 
-* There are two possible ways to mark a record as deleted::
+* There are two possible ways to mark a record as deleted:
+  `model.soft_delete()` and `query.soft_delete()`.
 
-    model.soft_delete() and query.soft_delete().
+  The `model.soft_delete()` method works with a single already-fetched entry.
+  `query.soft_delete()` makes only one db request for all entries that
+  correspond to the query.
 
-  model.soft_delete() method works with single already fetched entry.
-  query.soft_delete() makes only one db request for all entries that correspond
-  to query.
+* In almost all cases you should use `query.soft_delete()`. Some examples:
 
-* In almost all cases you should use query.soft_delete(). Some examples::
+  .. code:: python
 
         def soft_delete_bar():
             count = model_query(BarModel).find(some_condition).soft_delete()
@@ -234,11 +248,11 @@ Efficient use of soft deletes:
                 if count == 0:
                     raise Exception("0 entries were soft deleted")
 
-* There is only one situation where model.soft_delete() is appropriate: when
+* There is only one situation where `model.soft_delete()` is appropriate: when
   you fetch a single record, work with it, and mark it as deleted in the same
   transaction.
 
-  ::
+  .. code:: python
 
         def soft_delete_bar_model():
             session = get_session()
@@ -248,7 +262,9 @@ Efficient use of soft deletes:
                 bar_ref.soft_delete(session=session)
 
   However, if you need to work with all entries that correspond to query and
-  then soft delete them you should use query.soft_delete() method::
+  then soft delete them you should use the `query.soft_delete()` method:
+
+  .. code:: python
 
         def soft_delete_multi_models():
             session = get_session()
@@ -262,17 +278,19 @@ Efficient use of soft deletes:
                 # session and these entries are not used after this.
 
   When working with many rows, it is very important to use query.soft_delete,
-  which issues a single query. Using model.soft_delete(), as in the following
+  which issues a single query. Using `model.soft_delete()`, as in the following
   example, is very inefficient.
 
-  ::
+  .. code:: python
 
         for bar_ref in bar_refs:
             bar_ref.soft_delete(session=session)
         # This will produce count(bar_refs) db requests.
+
 """
 
 import functools
+import logging
 import os.path
 import re
 import time
@@ -287,16 +305,15 @@ from sqlalchemy.sql.expression import literal_column
 
 from keystone.openstack.common.db import exception
 from keystone.openstack.common.gettextutils import _
-from keystone.openstack.common import log as logging
 from keystone.openstack.common import timeutils
 
 sqlite_db_opts = [
     cfg.StrOpt('sqlite_db',
                default='keystone.sqlite',
-               help='the filename to use with sqlite'),
+               help='The file name to use with SQLite'),
     cfg.BoolOpt('sqlite_synchronous',
                 default=True,
-                help='If true, use synchronous mode for sqlite'),
+                help='If True, SQLite uses synchronous mode'),
 ]
 
 database_opts = [
@@ -326,7 +343,7 @@ database_opts = [
                                                   group='DATABASE'),
                                 cfg.DeprecatedOpt('idle_timeout',
                                                   group='sql')],
-               help='timeout before idle sql connections are reaped'),
+               help='Timeout before idle sql connections are reaped'),
     cfg.IntOpt('min_pool_size',
                default=1,
                deprecated_opts=[cfg.DeprecatedOpt('sql_min_pool_size',
@@ -349,7 +366,7 @@ database_opts = [
                                                   group='DEFAULT'),
                                 cfg.DeprecatedOpt('sql_max_retries',
                                                   group='DATABASE')],
-               help='maximum db connection retries during startup. '
+               help='Maximum db connection retries during startup. '
                     '(setting -1 implies an infinite retry count)'),
     cfg.IntOpt('retry_interval',
                default=10,
@@ -357,7 +374,7 @@ database_opts = [
                                                   group='DEFAULT'),
                                 cfg.DeprecatedOpt('reconnect_interval',
                                                   group='DATABASE')],
-               help='interval between retries of opening a sql connection'),
+               help='Interval between retries of opening a sql connection'),
     cfg.IntOpt('max_overflow',
                default=None,
                deprecated_opts=[cfg.DeprecatedOpt('sql_max_overflow',
@@ -687,7 +704,7 @@ def _is_db_connection_error(args):
     # NOTE(adam_g): This is currently MySQL specific and needs to be extended
     #               to support Postgres and others.
     # For the db2, the error code is -30081 since the db2 is still not ready
-    conn_err_codes = ('2002', '2003', '2006', '-30081')
+    conn_err_codes = ('2002', '2003', '2006', '2013', '-30081')
     for err_code in conn_err_codes:
         if args.find(err_code) != -1:
             return True
@@ -739,13 +756,16 @@ def create_engine(sql_connection, sqlite_fk=False,
     if engine.name in ['mysql', 'ibm_db_sa']:
         callback = functools.partial(_ping_listener, engine)
         sqlalchemy.event.listen(engine, 'checkout', callback)
-        if mysql_traditional_mode:
-            sqlalchemy.event.listen(engine, 'checkout', _set_mode_traditional)
-        else:
-            LOG.warning(_("This application has not enabled MySQL traditional"
-                          " mode, which means silent data corruption may"
-                          " occur. Please encourage the application"
-                          " developers to enable this mode."))
+        if engine.name == 'mysql':
+            if mysql_traditional_mode:
+                sqlalchemy.event.listen(engine, 'checkout',
+                                        _set_mode_traditional)
+            else:
+                LOG.warning(_("This application has not enabled MySQL "
+                              "traditional mode, which means silent "
+                              "data corruption may occur. "
+                              "Please encourage the application "
+                              "developers to enable this mode."))
     elif 'sqlite' in connection_dict.drivername:
         if not CONF.sqlite_synchronous:
             sqlalchemy.event.listen(engine, 'connect',
