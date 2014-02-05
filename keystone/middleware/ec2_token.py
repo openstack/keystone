@@ -22,10 +22,9 @@ Starting point for routing EC2 requests.
 
 """
 
-import urlparse
-
 from eventlet.green import httplib
 from oslo.config import cfg
+from six.moves import urllib
 import webob.dec
 import webob.exc
 
@@ -77,7 +76,7 @@ class EC2Token(wsgi.Middleware):
         # Disable 'has no x member' pylint error
         # for httplib and urlparse
         # pylint: disable-msg=E1101
-        o = urlparse.urlparse(CONF.keystone_ec2_url)
+        o = urllib.parse.urlparse(CONF.keystone_ec2_url)
         if o.scheme == 'http':
             conn = httplib.HTTPConnection(o.netloc)
         else:
