@@ -21,10 +21,10 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-keystone-manage is the command line tool that interacts with the keystone
+keystone-manage is the command line tool that interacts with the Keystone
 service to initialize and update data within Keystone.  Generally,
-keystone-manage is only used for operations that can not be accomplished
-with through the keystone REST api, such data import/export and schema
+keystone-manage is only used for operations that cannot be accomplished
+with the Keystone REST api, such data import/export and schema
 migrations.
 
 
