@@ -43,12 +43,13 @@ class Hints(list):
 
         Each filter term consists of:
 
-        name: the name of the attribute being matched
-        value: the value against which it is being matched
-        comparator: the operation, which can be one of 'equals',
-                    'startswith' or 'endswith'
-        case_sensitive: whether any comparison should take account of case
-        type: will always be 'filter'
+        * ``name``: the name of the attribute being matched
+        * ``value``: the value against which it is being matched
+        * ``comparator``: the operation, which can be one of ``equals``,
+                          ``startswith`` or ``endswith``
+        * ``case_sensitive``: whether any comparison should take account of
+                              case
+        * ``type``: will always be 'filter'
 
         """
         return [x for x in self if x['type'] == 'filter']
