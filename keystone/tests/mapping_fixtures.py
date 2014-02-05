@@ -14,7 +14,6 @@
 # under the License.
 
 MAPPING_SMALL = {
-    'name': 'large mapping',
     "rules": [
         {
             "local": [
