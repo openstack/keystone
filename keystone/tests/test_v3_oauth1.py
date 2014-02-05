@@ -36,7 +36,7 @@ CONF = config.CONF
 class OAuth1Tests(test_v3.RestfulTestCase):
 
     EXTENSION_NAME = 'oauth1'
-    EXTENSION_TO_ADD = 'oauth_extension'
+    EXTENSION_TO_ADD = 'oauth1_extension'
 
     def setup_database(self):
         super(OAuth1Tests, self).setup_database()
