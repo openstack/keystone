@@ -106,29 +106,13 @@ class SqlModels(SqlTests):
                 ('name', sql.String, 255))
         self.assertExpectedSchema('role', cols)
 
-    def test_user_project_metadata_model(self):
-        cols = (('user_id', sql.String, 64),
-                ('project_id', sql.String, 64),
-                ('data', sql.JsonBlob, None))
-        self.assertExpectedSchema('user_project_metadata', cols)
-
-    def test_user_domain_metadata_model(self):
-        cols = (('user_id', sql.String, 64),
-                ('domain_id', sql.String, 64),
-                ('data', sql.JsonBlob, None))
-        self.assertExpectedSchema('user_domain_metadata', cols)
-
-    def test_group_project_metadata_model(self):
-        cols = (('group_id', sql.String, 64),
-                ('project_id', sql.String, 64),
-                ('data', sql.JsonBlob, None))
-        self.assertExpectedSchema('group_project_metadata', cols)
-
-    def test_group_domain_metadata_model(self):
-        cols = (('group_id', sql.String, 64),
-                ('domain_id', sql.String, 64),
-                ('data', sql.JsonBlob, None))
-        self.assertExpectedSchema('group_domain_metadata', cols)
+    def test_role_assignment_model(self):
+        cols = (('type', sql.Enum, None),
+                ('actor_id', sql.String, 64),
+                ('target_id', sql.String, 64),
+                ('role_id', sql.String, 64),
+                ('inherited', sql.Boolean, False))
+        self.assertExpectedSchema('assignment', cols)
 
     def test_user_group_membership(self):
         cols = (('group_id', sql.String, 64),
