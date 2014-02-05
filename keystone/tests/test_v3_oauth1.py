@@ -105,11 +105,14 @@ class OAuth1Tests(test_v3.RestfulTestCase):
 
 class ConsumerCRUDTests(OAuth1Tests):
 
-    def _consumer_create(self, description=None, description_flag=True):
+    def _consumer_create(self, description=None, description_flag=True,
+                         **kwargs):
         if description_flag:
             ref = {'description': description}
         else:
             ref = {}
+        if kwargs:
+            ref.update(kwargs)
         resp = self.post(
             '/OS-OAUTH1/consumers',
             body={'consumer': ref})
@@ -118,6 +121,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertEqual(consumer['description'], description)
         self.assertIsNotNone(consumer_id)
         self.assertIsNotNone(consumer.get('secret'))
+        return consumer
 
     def test_consumer_create(self):
         description = uuid.uuid4().hex
@@ -128,6 +132,16 @@ class ConsumerCRUDTests(OAuth1Tests):
 
     def test_consumer_create_none_desc_2(self):
         self._consumer_create(description_flag=False)
+
+    def test_consumer_create_normalize_field(self):
+        # If create a consumer with a field with : or - in the name,
+        # the name is normalized by converting those chars to _.
+        field_name = 'some:weird-field'
+        field_value = uuid.uuid4().hex
+        extra_fields = {field_name: field_value}
+        consumer = self._consumer_create(**extra_fields)
+        normalized_field_name = 'some_weird_field'
+        self.assertEqual(field_value, consumer[normalized_field_name])
 
     def test_consumer_delete(self):
         consumer = self._create_single_consumer()
@@ -187,6 +201,45 @@ class ConsumerCRUDTests(OAuth1Tests):
                    % {'consumer_id': original_id},
                    body={'consumer': update_ref},
                    expected_status=400)
+
+    def test_consumer_update_normalize_field(self):
+        # If update a consumer with a field with : or - in the name,
+        # the name is normalized by converting those chars to _.
+        field1_name = 'some:weird-field'
+        field1_orig_value = uuid.uuid4().hex
+
+        extra_fields = {field1_name: field1_orig_value}
+        consumer = self._consumer_create(**extra_fields)
+        consumer_id = consumer['id']
+
+        field1_new_value = uuid.uuid4().hex
+
+        field2_name = 'weird:some-field'
+        field2_value = uuid.uuid4().hex
+
+        update_ref = {field1_name: field1_new_value,
+                      field2_name: field2_value}
+
+        update_resp = self.patch('/OS-OAUTH1/consumers/%s' % consumer_id,
+                                 body={'consumer': update_ref})
+        consumer = update_resp.result['consumer']
+
+        # TODO(blk-u): Update isn't working correctly. It should be
+        # normalizing the field names like when a consumer is created.
+        # See bug 1276857.
+        # The assertion code should be like this:
+        #
+        # normalized_field1_name = 'some_weird_field'
+        # self.assertEqual(field1_new_value, consumer[normalized_field1_name])
+        #
+        # normalized_field2_name = 'weird_some_field'
+        # self.assertEqual(field2_value, consumer[normalized_field2_name])
+
+        normalized_field1_name = 'some_weird_field'
+        self.assertEqual(field1_orig_value, consumer[normalized_field1_name])
+        self.assertEqual(field1_new_value, consumer[field1_name])
+
+        self.assertEqual(field2_value, consumer[field2_name])
 
     def test_consumer_create_no_description(self):
         resp = self.post('/OS-OAUTH1/consumers', body={'consumer': {}})
