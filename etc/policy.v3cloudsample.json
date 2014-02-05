@@ -136,5 +136,9 @@
     "identity:get_mapping": "rule:admin_required",
     "identity:list_mappings": "rule:admin_required",
     "identity:delete_mapping": "rule:admin_required",
-    "identity:update_mapping": "rule:admin_required"
+    "identity:update_mapping": "rule:admin_required",
+
+    "identity:list_projects_for_groups": "",
+    "identity:list_domains_for_groups": ""
+
 }

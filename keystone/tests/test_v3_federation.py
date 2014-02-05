@@ -13,10 +13,12 @@
 import random
 import uuid
 
+from keystone.auth import controllers as auth_controllers
 from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import contrib
 from keystone.contrib.federation import utils as mapping_utils
+from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
@@ -600,8 +602,8 @@ class MappingRuleEngineTests(FederationTests):
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         values = rp.process(assertion)
 
-        fn = mapping_fixtures.ADMIN_ASSERTION.get('FirstName')
-        ln = mapping_fixtures.ADMIN_ASSERTION.get('LastName')
+        fn = assertion.get('FirstName')
+        ln = assertion.get('LastName')
         full_name = '%s %s' % (fn, ln)
 
         group_ids = values.get('group_ids')
@@ -611,24 +613,21 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual(name, full_name)
 
     def test_rule_engine_no_regex_match(self):
-        """Should return no values, the email of the tester won't match.
+        """Should deny authorization, the email of the tester won't match.
 
         This will not match since the email in the assertion will fail
         the regex test. It is set to match any @example.com address.
         But the incoming value is set to eviltester@example.org.
+        RuleProcessor should raise exception.Unauthorized exception.
 
         """
 
         mapping = mapping_fixtures.MAPPING_LARGE
         assertion = mapping_fixtures.BAD_TESTER_ASSERTION
         rp = mapping_utils.RuleProcessor(mapping['rules'])
-        values = rp.process(assertion)
 
-        group_ids = values.get('group_ids')
-        name = values.get('name')
-
-        self.assertIsNone(name)
-        self.assertEqual(group_ids, [])
+        self.assertRaises(exception.Unauthorized,
+                          rp.process, assertion)
 
     def test_rule_engine_any_one_of_many_rules(self):
         """Should return group CONTRACTOR_GROUP_ID.
@@ -645,10 +644,11 @@ class MappingRuleEngineTests(FederationTests):
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         values = rp.process(assertion)
 
+        user_name = assertion.get('UserName')
         group_ids = values.get('group_ids')
         name = values.get('name')
 
-        self.assertIsNone(name)
+        self.assertEqual(user_name, name)
         self.assertIn(mapping_fixtures.CONTRACTOR_GROUP_ID, group_ids)
 
     def test_rule_engine_not_any_of_and_direct_mapping(self):
@@ -665,7 +665,7 @@ class MappingRuleEngineTests(FederationTests):
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         values = rp.process(assertion)
 
-        user_name = mapping_fixtures.CUSTOMER_ASSERTION.get('UserName')
+        user_name = assertion.get('UserName')
         group_ids = values.get('group_ids')
         name = values.get('name')
 
@@ -685,11 +685,11 @@ class MappingRuleEngineTests(FederationTests):
         assertion = mapping_fixtures.EMPLOYEE_ASSERTION
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         values = rp.process(assertion)
-
+        user_name = assertion.get('UserName')
         group_ids = values.get('group_ids')
         name = values.get('name')
 
-        self.assertIsNone(name)
+        self.assertEqual(name, user_name)
         self.assertIn(mapping_fixtures.EMPLOYEE_GROUP_ID, group_ids)
 
     def test_rule_engine_regex_match_and_many_groups(self):
@@ -706,10 +706,596 @@ class MappingRuleEngineTests(FederationTests):
         assertion = mapping_fixtures.TESTER_ASSERTION
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         values = rp.process(assertion)
-
+        user_name = assertion.get('UserName')
         group_ids = values.get('group_ids')
         name = values.get('name')
 
-        self.assertIsNone(name)
+        self.assertEqual(user_name, name)
         self.assertIn(mapping_fixtures.DEVELOPER_GROUP_ID, group_ids)
         self.assertIn(mapping_fixtures.TESTER_GROUP_ID, group_ids)
+
+
+class FederatedTokenTests(FederationTests):
+
+    IDP = 'ORG_IDP'
+    PROTOCOL = 'saml2'
+    AUTH_METHOD = 'saml2'
+    USER = 'user@ORGANIZATION'
+
+    UNSCOPED_V3_SAML2_REQ = {
+        "identity": {
+            "methods": [AUTH_METHOD],
+            AUTH_METHOD: {
+                "identity_provider": IDP,
+                "protocol": PROTOCOL
+            }
+        }
+    }
+
+    AUTH_URL = '/auth/tokens'
+
+    def setUp(self):
+        super(FederationTests, self).setUp()
+        self.load_sample_data()
+        self.load_federation_sample_data()
+
+    def idp_ref(self, id=None):
+        idp = {
+            'id': id or uuid.uuid4().hex,
+            'enabled': True,
+            'description': uuid.uuid4().hex
+        }
+        return idp
+
+    def proto_ref(self, mapping_id=None):
+        proto = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': mapping_id or uuid.uuid4().hex
+        }
+        return proto
+
+    def mapping_ref(self, rules=None):
+        return {
+            'id': uuid.uuid4().hex,
+            'rules': rules or self.rules['rules']
+        }
+
+    def _scope_request(self, unscoped_token_id, scope, scope_id):
+        return {
+            'auth': {
+                'identity': {
+                    'methods': [
+                        self.AUTH_METHOD
+                    ],
+                    self.AUTH_METHOD: {
+                        'id': unscoped_token_id
+                    }
+                },
+                'scope': {
+                    scope: {
+                        'id': scope_id
+                    }
+                }
+            }
+        }
+
+    def _project(self, project):
+        return (project['id'], project['name'])
+
+    def _roles(self, roles):
+        return set([(r['id'], r['name']) for r in roles])
+
+    def _check_projects_and_roles(self, token, roles, projects):
+        """Check whether the projects and the roles match."""
+        token_roles = token.get('roles')
+        if token_roles is None:
+            raise AssertionError('Roles not found in the token')
+        token_roles = self._roles(token_roles)
+        roles_ref = self._roles(roles)
+        self.assertEqual(token_roles, roles_ref)
+
+        token_projects = token.get('project')
+        if token_projects is None:
+            raise AssertionError('Projects not found in the token')
+        token_projects = self._project(token_projects)
+        projects_ref = self._project(projects)
+        self.assertEqual(token_projects, projects_ref)
+
+    def _check_scoped_token_attributes(self, token):
+        def xor_project_domain(iterable):
+            return sum(('project' in iterable, 'domain' in iterable)) % 2
+
+        for obj in ('user', 'catalog', 'expires_at', 'issued_at',
+                    'methods', 'roles'):
+            self.assertIn(obj, token)
+        # Check for either project or domain
+        if not xor_project_domain(token.keys()):
+            raise AssertionError("You must specify either"
+                                 "project or domain.")
+
+    def _issue_unscoped_token(self, assertion='EMPLOYEE_ASSERTION'):
+        api = auth_controllers.Auth()
+        context = {'environment': {}}
+        self._inject_assertion(context, assertion)
+        r = api.authenticate_for_token(context, self.UNSCOPED_V3_SAML2_REQ)
+        return r
+
+    def test_issue_unscoped_token(self):
+        r = self._issue_unscoped_token()
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_scope_to_project_once(self):
+        r = self.post(self.AUTH_URL,
+                      body=self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
+        token_resp = r.result['token']
+        project_id = token_resp['project']['id']
+        self.assertEqual(project_id, self.proj_employees['id'])
+        self._check_scoped_token_attributes(token_resp)
+        roles_ref = [self.role_employee]
+        projects_ref = self.proj_employees
+        self._check_projects_and_roles(token_resp, roles_ref, projects_ref)
+
+    def scope_to_bad_project(self):
+        """Scope unscoped token with a project we don't have access to."""
+
+        self.post(self.AUTH_URL,
+                  body=self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
+                  expected_status=401)
+
+    def test_scope_to_project_multiple_times(self):
+        """Try to scope the unscoped token multiple times.
+
+        The new tokens should be scoped to:
+
+        * Customers' project
+        * Employees' project
+
+        """
+
+        bodies = (self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN,
+                  self.TOKEN_SCOPE_PROJECT_CUSTOMER_FROM_ADMIN)
+        project_ids = (self.proj_employees['id'],
+                       self.proj_customers['id'])
+        for body, project_id_ref in zip(bodies, project_ids):
+            r = self.post(self.AUTH_URL, body=body)
+            token_resp = r.result['token']
+            project_id = token_resp['project']['id']
+            self.assertEqual(project_id, project_id_ref)
+            self._check_scoped_token_attributes(token_resp)
+
+    def test_scope_token_from_nonexistent_unscoped_token(self):
+        """Try to scope token from non-existent unscoped token."""
+        self.post(self.AUTH_URL,
+                  body=self.TOKEN_SCOPE_PROJECT_FROM_NONEXISTENT_TOKEN,
+                  expected_status=404)
+
+    def test_issue_token_from_rules_without_user(self):
+        api = auth_controllers.Auth()
+        context = {'environment': {}}
+        self._inject_assertion(context, 'BAD_TESTER_ASSERTION')
+        self.assertRaises(exception.Unauthorized,
+                          api.authenticate_for_token,
+                          context, self.UNSCOPED_V3_SAML2_REQ)
+
+    def test_issue_token_with_nonexistent_group(self):
+        r = self._issue_unscoped_token(assertion='CONTRACTOR_ASSERTION')
+        groups = r.json['token']['user']['OS-FEDERATION:groups']
+        group_ids = set(g['id'] for g in groups)
+        group_ids_ref = set(['bad_group_id'])
+        self.assertEqual(group_ids, group_ids_ref)
+
+    def test_scope_to_domain_once(self):
+        r = self.post(self.AUTH_URL,
+                      body=self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER)
+        token_resp = r.result['token']
+        domain_id = token_resp['domain']['id']
+        self.assertEqual(domain_id, self.domainA['id'])
+        self._check_scoped_token_attributes(token_resp)
+
+    def test_scope_to_domain_multiple_tokens(self):
+        """Issue multiple tokens scoping to different domains.
+
+        The new tokens should be scoped to:
+
+        * domainA
+        * domainB
+        * domainC
+
+        """
+        bodies = (self.TOKEN_SCOPE_DOMAIN_A_FROM_ADMIN,
+                  self.TOKEN_SCOPE_DOMAIN_B_FROM_ADMIN,
+                  self.TOKEN_SCOPE_DOMAIN_C_FROM_ADMIN)
+        domain_ids = (self.domainA['id'],
+                      self.domainB['id'],
+                      self.domainC['id'])
+
+        for body, domain_id_ref in zip(bodies, domain_ids):
+            r = self.post(self.AUTH_URL, body=body)
+            token_resp = r.result['token']
+            domain_id = token_resp['domain']['id']
+            self.assertEqual(domain_id, domain_id_ref)
+            self._check_scoped_token_attributes(token_resp)
+
+    def test_list_projects(self):
+        url = '/OS-FEDERATION/projects'
+
+        token = (self.tokens['CUSTOMER_ASSERTION'],
+                 self.tokens['EMPLOYEE_ASSERTION'],
+                 self.tokens['ADMIN_ASSERTION'])
+
+        projects_refs = (set([self.proj_customers['id']]),
+                         set([self.proj_employees['id'],
+                              self.project_all['id']]),
+                         set([self.proj_employees['id'],
+                              self.project_all['id'],
+                              self.proj_customers['id']]))
+
+        for token, projects_ref in zip(token, projects_refs):
+            r = self.get(url, token=token)
+            projects_resp = r.result['projects']
+            projects = set(p['id'] for p in projects_resp)
+            self.assertEqual(projects, projects_ref)
+
+    def test_list_domains(self):
+        url = '/OS-FEDERATION/domains'
+
+        tokens = (self.tokens['CUSTOMER_ASSERTION'],
+                  self.tokens['EMPLOYEE_ASSERTION'],
+                  self.tokens['ADMIN_ASSERTION'])
+
+        domain_refs = (set([self.domainA['id']]),
+                       set([self.domainA['id'],
+                            self.domainB['id']]),
+                       set([self.domainA['id'],
+                            self.domainB['id'],
+                            self.domainC['id']]))
+
+        for token, domains_ref in zip(tokens, domain_refs):
+            r = self.get(url, token=token)
+            domains_resp = r.result['domains']
+            domains = set(p['id'] for p in domains_resp)
+            self.assertEqual(domains, domains_ref)
+
+    def test_full_workflow(self):
+        """Test 'standard' workflow for granting access tokens.
+
+        * Issue unscoped token
+        * List available projects based on groups
+        * Scope token to a one of available projects
+
+        """
+
+        r = self._issue_unscoped_token()
+        employee_unscoped_token_id = r.headers.get('X-Subject-Token')
+        r = self.get('/OS-FEDERATION/projects',
+                     token=employee_unscoped_token_id)
+        projects = r.result['projects']
+        random_project = random.randint(0, len(projects)) - 1
+        project = projects[random_project]
+
+        v3_scope_request = self._scope_request(employee_unscoped_token_id,
+                                               'project', project['id'])
+
+        r = self.post(self.AUTH_URL, body=v3_scope_request)
+        token_resp = r.result['token']
+        project_id = token_resp['project']['id']
+        self.assertEqual(project_id, project['id'])
+        self._check_scoped_token_attributes(token_resp)
+
+    def load_federation_sample_data(self):
+        """Inject additional data."""
+
+        # Create and add domains
+        self.domainA = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domainA['id'],
+                                          self.domainA)
+
+        self.domainB = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domainB['id'],
+                                          self.domainB)
+
+        self.domainC = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domainC['id'],
+                                          self.domainC)
+
+        # Create and add projects
+        self.proj_employees = self.new_project_ref(
+            domain_id=self.domainA['id'])
+        self.assignment_api.create_project(self.proj_employees['id'],
+                                           self.proj_employees)
+        self.proj_customers = self.new_project_ref(
+            domain_id=self.domainA['id'])
+        self.assignment_api.create_project(self.proj_customers['id'],
+                                           self.proj_customers)
+
+        self.project_all = self.new_project_ref(
+            domain_id=self.domainA['id'])
+        self.assignment_api.create_project(self.project_all['id'],
+                                           self.project_all)
+
+        # Create and add groups
+        self.group_employees = self.new_group_ref(
+            domain_id=self.domainA['id'])
+        self.identity_api.create_group(self.group_employees['id'],
+                                       self.group_employees)
+
+        self.group_customers = self.new_group_ref(
+            domain_id=self.domainA['id'])
+        self.identity_api.create_group(self.group_customers['id'],
+                                       self.group_customers)
+
+        self.group_admins = self.new_group_ref(
+            domain_id=self.domainA['id'])
+        self.identity_api.create_group(self.group_admins['id'],
+                                       self.group_admins)
+
+        # Create and add roles
+        self.role_employee = self.new_role_ref()
+        self.assignment_api.create_role(self.role_employee['id'],
+                                        self.role_employee)
+        self.role_customer = self.new_role_ref()
+        self.assignment_api.create_role(self.role_customer['id'],
+                                        self.role_customer)
+
+        self.role_admin = self.new_role_ref()
+        self.assignment_api.create_role(self.role_admin['id'],
+                                        self.role_admin)
+
+        # Employees can access
+        # * proj_employees
+        # * project_all
+        self.assignment_api.create_grant(self.role_employee['id'],
+                                         group_id=self.group_employees['id'],
+                                         project_id=self.proj_employees['id'])
+        self.assignment_api.create_grant(self.role_employee['id'],
+                                         group_id=self.group_employees['id'],
+                                         project_id=self.project_all['id'])
+        # Customers can access
+        # * proj_customers
+        self.assignment_api.create_grant(self.role_customer['id'],
+                                         group_id=self.group_customers['id'],
+                                         project_id=self.proj_customers['id'])
+
+        # Admins can access:
+        # * proj_customers
+        # * proj_employees
+        # * project_all
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         group_id=self.group_admins['id'],
+                                         project_id=self.proj_customers['id'])
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         group_id=self.group_admins['id'],
+                                         project_id=self.proj_employees['id'])
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         group_id=self.group_admins['id'],
+                                         project_id=self.project_all['id'])
+
+        self.assignment_api.create_grant(self.role_customer['id'],
+                                         group_id=self.group_customers['id'],
+                                         domain_id=self.domainA['id'])
+
+        # Customers can access:
+        # * domain A
+        self.assignment_api.create_grant(self.role_customer['id'],
+                                         group_id=self.group_customers['id'],
+                                         domain_id=self.domainA['id'])
+
+        # Employees can access:
+        # * domain A
+        # * domain B
+
+        self.assignment_api.create_grant(self.role_employee['id'],
+                                         group_id=self.group_employees['id'],
+                                         domain_id=self.domainA['id'])
+        self.assignment_api.create_grant(self.role_employee['id'],
+                                         group_id=self.group_employees['id'],
+                                         domain_id=self.domainB['id'])
+
+        # Admins can access:
+        # * domain A
+        # * domain B
+        # * domain C
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         group_id=self.group_admins['id'],
+                                         domain_id=self.domainA['id'])
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         group_id=self.group_admins['id'],
+                                         domain_id=self.domainB['id'])
+
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         group_id=self.group_admins['id'],
+                                         domain_id=self.domainC['id'])
+        self.rules = {
+            'rules': [
+                {
+                    'local': [
+                        {
+                            'group': {
+                                'id': self.group_employees['id']
+                            }
+                        },
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        }
+                    ],
+                    'remote': [
+                        {
+                            'type': 'UserName'
+                        },
+                        {
+                            'type': 'orgPersonType',
+                            'any_one_of': [
+                                'Employee'
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'local': [
+                        {
+                            'group': {
+                                'id': self.group_customers['id']
+                            }
+                        },
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        }
+                    ],
+                    'remote': [
+                        {
+                            'type': 'UserName'
+                        },
+                        {
+                            'type': 'orgPersonType',
+                            'any_one_of': [
+                                'Customer'
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'local': [
+                        {
+                            'group': {
+                                'id': self.group_admins['id']
+                            }
+                        },
+                        {
+                            'group': {
+                                'id': self.group_employees['id']
+                            }
+                        },
+                        {
+                            'group': {
+                                'id': self.group_customers['id']
+                            }
+                        },
+
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        }
+                    ],
+                    'remote': [
+                        {
+                            'type': 'UserName'
+                        },
+                        {
+                            'type': 'orgPersonType',
+                            'any_one_of': [
+                                'Admin',
+                                'Chief'
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'local': [
+                        {
+                            'group': {
+                                'id': 'bad_group_id'
+                            }
+                        },
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        }
+                    ],
+                    'remote': [
+                        {
+                            'type': 'UserName',
+                        },
+                        {
+                            'type': 'FirstName',
+                            'any_one_of': [
+                                'Jill'
+                            ]
+                        },
+                        {
+                            'type': 'LastName',
+                            'any_one_of': [
+                                'Smith'
+                            ]
+                        }
+                    ]
+                },
+
+            ]
+        }
+
+        # Add IDP
+        self.idp = self.idp_ref(id=self.IDP)
+        self.federation_api.create_idp(self.idp['id'],
+                                       self.idp)
+
+        # Add a mapping
+        self.mapping = self.mapping_ref()
+        self.federation_api.create_mapping(self.mapping['id'],
+                                           self.mapping)
+        # Add protocols
+        self.proto_saml = self.proto_ref(mapping_id=self.mapping['id'])
+        self.proto_saml['id'] = self.PROTOCOL
+        self.federation_api.create_protocol(self.idp['id'],
+                                            self.proto_saml['id'],
+                                            self.proto_saml)
+        # Generate fake tokens
+        context = {'environment': {}}
+
+        self.tokens = {}
+        VARIANTS = ('EMPLOYEE_ASSERTION', 'CUSTOMER_ASSERTION',
+                    'ADMIN_ASSERTION')
+        api = auth_controllers.Auth()
+        for variant in VARIANTS:
+            self._inject_assertion(context, variant)
+            r = api.authenticate_for_token(context, self.UNSCOPED_V3_SAML2_REQ)
+            self.tokens[variant] = r.headers.get('X-Subject-Token')
+
+        self.TOKEN_SCOPE_PROJECT_FROM_NONEXISTENT_TOKEN = self._scope_request(
+            uuid.uuid4().hex, 'project', self.proj_customers['id'])
+
+        self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE = self._scope_request(
+            self.tokens['EMPLOYEE_ASSERTION'], 'project',
+            self.proj_employees['id'])
+
+        self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN = self._scope_request(
+            self.tokens['ADMIN_ASSERTION'], 'project',
+            self.proj_employees['id'])
+
+        self.TOKEN_SCOPE_PROJECT_CUSTOMER_FROM_ADMIN = self._scope_request(
+            self.tokens['ADMIN_ASSERTION'], 'project',
+            self.proj_customers['id'])
+
+        self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER = self._scope_request(
+            self.tokens['CUSTOMER_ASSERTION'], 'project',
+            self.proj_employees['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER = self._scope_request(
+            self.tokens['CUSTOMER_ASSERTION'], 'domain', self.domainA['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_B_FROM_CUSTOMER = self._scope_request(
+            self.tokens['CUSTOMER_ASSERTION'], 'domain', self.domainB['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_B_FROM_CUSTOMER = self._scope_request(
+            self.tokens['CUSTOMER_ASSERTION'], 'domain',
+            self.domainB['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_A_FROM_ADMIN = self._scope_request(
+            self.tokens['ADMIN_ASSERTION'], 'domain', self.domainA['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_B_FROM_ADMIN = self._scope_request(
+            self.tokens['ADMIN_ASSERTION'], 'domain', self.domainB['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_C_FROM_ADMIN = self._scope_request(
+            self.tokens['ADMIN_ASSERTION'], 'domain',
+            self.domainC['id'])
+
+    def _inject_assertion(self, context, variant):
+        assertion = getattr(mapping_fixtures, variant)
+        context['environment'].update(assertion)
+        context['query_string'] = []

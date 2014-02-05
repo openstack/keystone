@@ -58,6 +58,7 @@ relationship = sql.orm.relationship
 joinedload = sql.orm.joinedload
 # Suppress flake8's unused import warning for flag_modified:
 flag_modified = flag_modified
+and_ = sql.and_
 
 
 def initialize():

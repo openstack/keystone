@@ -279,6 +279,52 @@ class Assignment(assignment.Driver):
 
             return _project_ids_to_dicts(session, project_ids)
 
+    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+
+        if project_id is not None:
+            assignment_type = AssignmentType.GROUP_PROJECT
+            target_id = project_id
+        elif domain_id is not None:
+            assignment_type = AssignmentType.GROUP_DOMAIN
+            target_id = domain_id
+        else:
+            raise AttributeError(_("Must specify either domain or project"))
+
+        sql_constraints = sql.and_(
+            RoleAssignment.type == assignment_type,
+            RoleAssignment.target_id == target_id,
+            Role.id == RoleAssignment.role_id,
+            RoleAssignment.actor_id.in_(group_ids))
+
+        session = db_session.get_session()
+        with session.begin():
+            query = session.query(Role).filter(
+                sql_constraints).distinct()
+        return [role.to_dict() for role in query.all()]
+
+    def _list_entities_for_groups(self, group_ids, entity):
+        if entity == Domain:
+            assignment_type = AssignmentType.GROUP_DOMAIN
+        else:
+            assignment_type = AssignmentType.GROUP_PROJECT
+
+        group_sql_conditions = sql.and_(
+            RoleAssignment.type == assignment_type,
+            entity.id == RoleAssignment.target_id,
+            RoleAssignment.actor_id.in_(group_ids))
+
+        session = db_session.get_session()
+        with session.begin():
+            query = session.query(entity).filter(
+                group_sql_conditions)
+        return [x.to_dict() for x in query.all()]
+
+    def list_projects_for_groups(self, group_ids):
+        return self._list_entities_for_groups(group_ids, Project)
+
+    def list_domains_for_groups(self, group_ids):
+        return self._list_entities_for_groups(group_ids, Domain)
+
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         with sql.transaction() as session:
             self._get_project(session, tenant_id)

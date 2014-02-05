@@ -21,6 +21,7 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import config
+from keystone.contrib import federation
 from keystone import exception
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log
@@ -341,6 +342,10 @@ class Auth(controller.V3Controller):
             project_id = trust['project_id']
         if domain_id or project_id or trust:
             # scope is specified
+            return
+
+        # Skip scoping when unscoped federated token is being issued
+        if federation.IDENTITY_PROVIDER in auth_context:
             return
 
         # fill in default_project_id if it is available

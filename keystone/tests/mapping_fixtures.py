@@ -28,9 +28,17 @@ MAPPING_SMALL = {
                     "group": {
                         "id": EMPLOYEE_GROUP_ID
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "not_any_of": [
@@ -52,9 +60,17 @@ MAPPING_SMALL = {
                     "group": {
                         "id": CONTRACTOR_GROUP_ID
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "any_one_of": [
@@ -148,9 +164,17 @@ MAPPING_LARGE = {
                     "group": {
                         "id": DEVELOPER_GROUP_ID
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "any_one_of": [
@@ -278,9 +302,17 @@ MAPPING_EXTRA_REMOTE_PROPS_NOT_ANY_OF = {
                     "group": {
                         "id": "0cd5e9"
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "not_any_of": [
@@ -301,9 +333,17 @@ MAPPING_EXTRA_REMOTE_PROPS_ANY_ONE_OF = {
                     "group": {
                         "id": "0cd5e9"
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "any_one_of": [
@@ -324,9 +364,17 @@ MAPPING_EXTRA_REMOTE_PROPS_JUST_TYPE = {
                     "group": {
                         "id": "0cd5e9"
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "invalid_type": "xyz"
@@ -344,12 +392,20 @@ MAPPING_EXTRA_RULES_PROPS = {
                     "group": {
                         "id": "0cd5e9"
                     }
+                },
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
                 }
             ],
             "invalid_type": {
                 "id": "xyz",
             },
             "remote": [
+                {
+                    "type": "UserName"
+                },
                 {
                     "type": "orgPersonType",
                     "not_any_of": [

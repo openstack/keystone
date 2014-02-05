@@ -246,3 +246,11 @@ class Federation(core.Driver):
             for attr in MappingModel.attributes:
                 setattr(mapping_ref, attr, getattr(new_mapping, attr))
         return mapping_ref.to_dict()
+
+    def get_mapping_from_idp_and_protocol(self, idp_id, protocol_id):
+        session = db_session.get_session()
+        with session.begin():
+            protocol_ref = self._get_protocol(session, idp_id, protocol_id)
+            mapping_id = protocol_ref.mapping_id
+            mapping_ref = self._get_mapping(session, mapping_id)
+        return mapping_ref.to_dict()

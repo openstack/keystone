@@ -191,7 +191,10 @@ class RuleProcessor(object):
                     new_local = self._update_local_mapping(local, direct_maps)
                     identity_values.append(new_local)
 
-        return self._transform(identity_values)
+        mapped_properties = self._transform(identity_values)
+        if mapped_properties.get('name') is None:
+            raise exception.Unauthorized(_("Could not map user"))
+        return mapped_properties
 
     def _transform(self, identity_values):
         """Transform local mappings, to an easier to understand format.
