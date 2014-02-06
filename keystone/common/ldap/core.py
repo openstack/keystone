@@ -297,6 +297,21 @@ class BaseLdap(object):
 
         return obj
 
+    def check_allow_create(self):
+        if not self.allow_create:
+            action = _('LDAP %s create') % self.options_name
+            raise exception.ForbiddenAction(action=action)
+
+    def check_allow_update(self):
+        if not self.allow_update:
+            action = _('LDAP %s update') % self.options_name
+            raise exception.ForbiddenAction(action=action)
+
+    def check_allow_delete(self):
+        if not self.allow_delete:
+            action = _('LDAP %s delete') % self.options_name
+            raise exception.ForbiddenAction(action=action)
+
     def affirm_unique(self, values):
         if values.get('name') is not None:
             try:
@@ -320,10 +335,6 @@ class BaseLdap(object):
 
     def create(self, values):
         self.affirm_unique(values)
-        if not self.allow_create:
-            action = _('LDAP %s create') % self.options_name
-            raise exception.ForbiddenAction(action=action)
-
         conn = self.get_connection()
         object_classes = self.structural_classes + [self.object_class]
         attrs = [('objectClass', object_classes)]
@@ -406,10 +417,6 @@ class BaseLdap(object):
                 for x in self._ldap_get_all(ldap_filter)]
 
     def update(self, object_id, values, old_obj=None):
-        if not self.allow_update:
-            action = _('LDAP %s update') % self.options_name
-            raise exception.ForbiddenAction(action=action)
-
         if old_obj is None:
             old_obj = self.get(object_id)
 
@@ -454,10 +461,6 @@ class BaseLdap(object):
         return self.get(object_id)
 
     def delete(self, object_id):
-        if not self.allow_delete:
-            action = _('LDAP %s delete') % self.options_name
-            raise exception.ForbiddenAction(action=action)
-
         conn = self.get_connection()
         try:
             conn.delete_s(self._id_to_dn(object_id))
