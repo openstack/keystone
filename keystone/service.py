@@ -14,6 +14,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sys
+
 import functools
 import routes
 
@@ -75,8 +77,8 @@ def fail_gracefully(f):
 
             # exception message is printed to all logs
             LOG.critical(e)
+            sys.exit(1)
 
-            exit(1)
     return wrapper
 
 

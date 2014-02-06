@@ -32,7 +32,7 @@ import six
 import testtools
 from testtools import testcase
 
-
+from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
 
 # NOTE(blk-u):
@@ -225,6 +225,10 @@ def skip_if_cache_disabled(*sections):
     return wrapper
 
 
+class UnexpectedExit(Exception):
+    pass
+
+
 class TestClient(object):
     def __init__(self, app=None, token=None):
         self.app = app
@@ -315,6 +319,9 @@ class TestCase(testtools.TestCase):
         self.maxDiff = None
 
         self.addCleanup(CONF.reset)
+
+        self.exit_patch = self.useFixture(mockpatch.PatchObject(sys, 'exit'))
+        self.exit_patch.mock.side_effect = UnexpectedExit
 
         self.config([dirs.etc('keystone.conf.sample'),
                      dirs.tests('test_overrides.conf')])
