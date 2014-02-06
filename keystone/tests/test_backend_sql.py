@@ -44,14 +44,6 @@ class SqlTests(tests.TestCase, sql.Base):
 
         self.load_backends()
 
-        # create tables and keep an engine reference for cleanup.
-        # this must be done after the models are loaded by the managers.
-        self.engine = db_session.get_engine()
-        self.addCleanup(db_session.cleanup)
-
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
-
         # populate the engine with tables & fixtures
         self.load_fixtures(default_fixtures)
         #defaulted by the data load

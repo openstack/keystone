@@ -22,6 +22,10 @@ from keystone import exception
 from keystone import identity
 from keystone.openstack.common.db.sqlalchemy import session as db_session
 
+# Import assignment sql to ensure that the models defined in there are
+# available for the reference from User and Group to Domain.id.
+from keystone.assignment.backends import sql as assignment_sql  # flake8: noqa
+
 
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
