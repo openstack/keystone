@@ -1154,8 +1154,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
-            'user_id': self.user1['id'],
-            'project_id': self.project1['id']})
+                'user_id': self.user1['id'],
+                'project_id': self.project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 1)
@@ -1198,8 +1198,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?effective&user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
-            'user_id': self.user1['id'],
-            'project_id': self.project1['id']})
+                'user_id': self.user1['id'],
+                'project_id': self.project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 2)
@@ -1314,8 +1314,8 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?user.id=%(user_id)s'
             '&scope.domain.id=%(domain_id)s' % {
-            'user_id': user1['id'],
-            'domain_id': domain['id']})
+                'user_id': user1['id'],
+                'domain_id': domain['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 1)
@@ -1330,8 +1330,8 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?effective&user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
-            'user_id': user1['id'],
-            'project_id': project1['id']})
+                'user_id': user1['id'],
+                'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 3)
@@ -1408,8 +1408,8 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?effective&user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
-            'user_id': user1['id'],
-            'project_id': project1['id']})
+                'user_id': user1['id'],
+                'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 3)
@@ -1512,8 +1512,8 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?group.id=%(group_id)s'
             '&scope.domain.id=%(domain_id)s' % {
-            'group_id': group1['id'],
-            'domain_id': domain['id']})
+                'group_id': group1['id'],
+                'domain_id': domain['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 1)
@@ -1528,8 +1528,8 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         collection_url = (
             '/role_assignments?effective&user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
-            'user_id': user1['id'],
-            'project_id': project1['id']})
+                'user_id': user1['id'],
+                'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(len(r.result.get('role_assignments')), 3)

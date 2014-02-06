@@ -3348,11 +3348,11 @@ class TrustTests(object):
         trust_data = (self.trust_api.create_trust
                       (new_id,
                        {'trustor_user_id': self.trustor['id'],
-                       'trustee_user_id': self.user_two['id'],
-                       'project_id': self.tenant_bar['id'],
-                       'expires_at': timeutils.
+                        'trustee_user_id': self.user_two['id'],
+                        'project_id': self.tenant_bar['id'],
+                        'expires_at': timeutils.
                         parse_isotime('2031-02-18T18:10:00Z'),
-                       'impersonation': True},
+                        'impersonation': True},
                        roles=[{"id": "member"},
                               {"id": "other"},
                               {"id": "browser"}]))
