@@ -4059,7 +4059,7 @@ class FilterTests(filtering.FilterTests):
         # SQL backend tests).  For production deployments. OpenStack
         # assumes a case sensitive database.  For these tests, therefore, we
         # need to be able to check the sensitivity of the database so as to
-        # know whether to run case senstive tests here.
+        # know whether to run case sensitive tests here.
 
         self._delete_test_data('user', user_list)
 
