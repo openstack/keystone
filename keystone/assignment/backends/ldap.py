@@ -385,7 +385,10 @@ class Assignment(assignment.Driver):
                                             inherited_to_projects)]
 
     def get_domain_by_name(self, domain_name):
-        raise exception.NotImplemented()
+        default_domain = assignment.calc_default_domain()
+        if domain_name != default_domain['name']:
+            raise exception.DomainNotFound(domain_id=domain_name)
+        return default_domain
 
     def list_role_assignments(self):
         role_assignments = []

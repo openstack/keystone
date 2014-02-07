@@ -2887,6 +2887,21 @@ class IdentityTests(object):
             group_id=uuid.uuid4().hex,
             project_id=self.tenant_bar['id'])
 
+    def test_get_default_domain_by_name(self):
+        domain_name = 'default'
+
+        domain = {'id': uuid.uuid4().hex, 'name': domain_name, 'enabled': True}
+        self.assignment_api.create_domain(domain['id'], domain)
+
+        domain_ref = self.assignment_api.get_domain_by_name(domain_name)
+        self.assertEqual(domain_ref, domain)
+
+    def test_get_not_default_domain_by_name(self):
+        domain_name = 'foo'
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.get_domain_by_name,
+                          domain_name)
+
 
 class TokenTests(object):
     def _create_token_id(self):
