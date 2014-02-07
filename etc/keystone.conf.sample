@@ -15,6 +15,14 @@
 # The port number which the public admin listens on
 # admin_port = 35357
 
+# Set this to True if you want to enable TCP_KEEPALIVE on server sockets i.e.
+# sockets used by the keystone wsgi server for client connections.
+# tcp_keepalive = False
+
+# Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
+# applies if tcp_keepalive is True. Not supported on OS X.
+# tcp_keepidle = 600
+
 # The base endpoint URLs for keystone that are advertised to clients
 # (NOTE: this does NOT affect how keystone listens for connections)
 # public_endpoint = http://localhost:%(public_port)s/
