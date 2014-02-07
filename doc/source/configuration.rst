@@ -257,6 +257,7 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
     * ``dogpile.cache.redis`` - `Redis`_ backend
     * ``dogpile.cache.dbm`` - local DBM file backend
     * ``dogpile.cache.memory`` - in-memory cache
+    * ``keystone.cache.mongo`` - MongoDB as caching backend
 
         .. WARNING::
             ``dogpile.cache.memory`` is not suitable for use outside of unit testing
@@ -320,6 +321,7 @@ For more information about the different backends (and configuration options):
     * `dogpile.cache.backends.memcached`_
     * `dogpile.cache.backends.redis`_
     * `dogpile.cache.backends.file`_
+    * :mod:`keystone.common.cache.backends.mongo`
 
 .. _`dogpile.cache`: http://dogpilecache.readthedocs.org/en/latest/
 .. _`python-memcached`: http://www.tummy.com/software/python-memcached/
@@ -331,6 +333,7 @@ For more information about the different backends (and configuration options):
 .. _`dogpile.cache.backends.redis`: http://dogpilecache.readthedocs.org/en/latest/api.html#redis-backends
 .. _`dogpile.cache.backends.file`: http://dogpilecache.readthedocs.org/en/latest/api.html#file-backends
 .. _`ProxyBackends`: http://dogpilecache.readthedocs.org/en/latest/api.html#proxy-backends
+.. _`PyMongo API`: http://api.mongodb.org/python/current/api/pymongo/index.html
 
 
 Certificates for PKI
