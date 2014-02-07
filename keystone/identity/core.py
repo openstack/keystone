@@ -74,7 +74,7 @@ def filter_user(user_ref):
 class DomainConfigs(dict):
     """Discover, store and provide access to domain specific configs.
 
-    The setup_domain_drives() call will be made via the wrapper from
+    The setup_domain_drivers() call will be made via the wrapper from
     the first call to any driver function handled by this manager. This
     setup call it will scan the domain config directory for files of the form
 
