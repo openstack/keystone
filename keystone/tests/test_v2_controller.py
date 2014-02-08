@@ -18,7 +18,6 @@
 import uuid
 
 from keystone.assignment import controllers
-from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
 
@@ -40,25 +39,28 @@ class TenantTestCase(tests.TestCase):
         self.role_controller = controllers.Role()
 
     def test_get_project_users_no_user(self):
-        """get_project_users when user doesn't exist, raises UserNotFound.
+        """get_project_users when user doesn't exist.
 
         When a user that's not known to `identity` has a role on a project,
-        then `get_project_users` raises
-        :class:`keystone.exception.UserNotFound`.
+        then `get_project_users` just skips that user.
 
         """
-        # Assign a role to a user that doesn't exist to the `bar` project.
-
         project_id = self.tenant_bar['id']
+
+        orig_project_users = self.tenant_controller.get_project_users(
+            _ADMIN_CONTEXT, project_id)
+
+        # Assign a role to a user that doesn't exist to the `bar` project.
 
         user_id = uuid.uuid4().hex
         self.role_controller.add_role_to_user(
             _ADMIN_CONTEXT, user_id, self.role_other['id'], project_id)
 
-        self.assertRaisesRegexp(exception.UserNotFound,
-                                'Could not find user, %s' % user_id,
-                                self.tenant_controller.get_project_users,
-                                _ADMIN_CONTEXT, project_id)
+        new_project_users = self.tenant_controller.get_project_users(
+            _ADMIN_CONTEXT, project_id)
+
+        # The new user isn't included in the result, so no change.
+        self.assertEqual(orig_project_users, new_project_users)
 
     def test_list_projects_default_domain(self):
         """Test that list projects only returns those in the default domain."""
