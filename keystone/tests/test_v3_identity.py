@@ -1706,22 +1706,22 @@ class TestV3toV2Methods(tests.TestCase):
 
     def test_v3_to_v2_user_method(self):
 
-        updated_user1 = self.identity_api.v3_to_v2_user(self.user1)
+        updated_user1 = controller.V2Controller.v3_to_v2_user(self.user1)
         self.assertIs(self.user1, updated_user1)
         self.assertDictEqual(self.user1, self.expected_user)
-        updated_user2 = self.identity_api.v3_to_v2_user(self.user2)
+        updated_user2 = controller.V2Controller.v3_to_v2_user(self.user2)
         self.assertIs(self.user2, updated_user2)
         self.assertDictEqual(self.user2, self.expected_user_no_tenant_id)
-        updated_user3 = self.identity_api.v3_to_v2_user(self.user3)
+        updated_user3 = controller.V2Controller.v3_to_v2_user(self.user3)
         self.assertIs(self.user3, updated_user3)
         self.assertDictEqual(self.user3, self.expected_user)
-        updated_user4 = self.identity_api.v3_to_v2_user(self.user4)
+        updated_user4 = controller.V2Controller.v3_to_v2_user(self.user4)
         self.assertIs(self.user4, updated_user4)
         self.assertDictEqual(self.user4, self.expected_user_no_tenant_id)
 
     def test_v3_to_v2_user_method_list(self):
         user_list = [self.user1, self.user2, self.user3, self.user4]
-        updated_list = self.identity_api.v3_to_v2_user(user_list)
+        updated_list = controller.V2Controller.v3_to_v2_user(user_list)
 
         self.assertEqual(len(updated_list), len(user_list))
 

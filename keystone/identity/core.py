@@ -24,7 +24,6 @@ from oslo.config import cfg
 import six
 
 from keystone import clean
-from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
@@ -217,47 +216,6 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
         self.domain_configs = DomainConfigs()
-
-    @staticmethod
-    def v3_to_v2_user(ref):
-        """Convert a user_ref from v3 to v2 compatible.
-
-        * v2.0 users are not domain aware, and should have domain_id removed
-        * v2.0 users expect the use of tenantId instead of default_project_id
-        * v2.0 users have a username attribute
-
-        This method should only be applied to user_refs being returned from the
-        v2.0 controller(s).
-
-        If ref is a list type, we will iterate through each element and do the
-        conversion.
-        """
-
-        def _format_default_project_id(ref):
-            """Convert default_project_id to tenantId for v2 calls."""
-            default_project_id = ref.pop('default_project_id', None)
-            if default_project_id is not None:
-                ref['tenantId'] = default_project_id
-            elif 'tenantId' in ref:
-                # NOTE(morganfainberg): To avoid v2.0 confusion if somehow a
-                # tenantId property sneaks its way into the extra blob on the
-                # user, we remove it here.  If default_project_id is set, we
-                # would override it in either case.
-                del ref['tenantId']
-
-        def _normalize_and_filter_user_properties(ref):
-            """Run through the various filter/normalization methods."""
-            _format_default_project_id(ref)
-            controller.V2Controller.filter_domain_id(ref)
-            controller.V2Controller.normalize_username_in_response(ref)
-            return ref
-
-        if isinstance(ref, dict):
-            return _normalize_and_filter_user_properties(ref)
-        elif isinstance(ref, list):
-            return [_normalize_and_filter_user_properties(x) for x in ref]
-        else:
-            raise ValueError(_('Expected dict or list: %s') % type(ref))
 
     # Domain ID normalization methods
 

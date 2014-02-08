@@ -98,7 +98,7 @@ class User(controller.V2Controller):
     def get_user(self, context, user_id):
         self.assert_admin(context)
         ref = self.identity_api.get_user(user_id)
-        return {'user': self.identity_api.v3_to_v2_user(ref)}
+        return {'user': self.v3_to_v2_user(ref)}
 
     @controller.v2_deprecated
     def get_users(self, context):
@@ -110,14 +110,14 @@ class User(controller.V2Controller):
 
         self.assert_admin(context)
         user_list = self.identity_api.list_users()
-        return {'users': self.identity_api.v3_to_v2_user(user_list)}
+        return {'users': self.v3_to_v2_user(user_list)}
 
     @controller.v2_deprecated
     def get_user_by_name(self, context, user_name):
         self.assert_admin(context)
         ref = self.identity_api.get_user_by_name(
             user_name, CONF.identity.default_domain_id)
-        return {'user': self.identity_api.v3_to_v2_user(ref)}
+        return {'user': self.v3_to_v2_user(ref)}
 
     # CRUD extension
     @controller.v2_deprecated
@@ -143,7 +143,7 @@ class User(controller.V2Controller):
         user_id = uuid.uuid4().hex
         user_ref = self._normalize_domain_id(context, user.copy())
         user_ref['id'] = user_id
-        new_user_ref = self.identity_api.v3_to_v2_user(
+        new_user_ref = self.v3_to_v2_user(
             self.identity_api.create_user(user_id, user_ref))
 
         if default_project_id is not None:
@@ -165,7 +165,7 @@ class User(controller.V2Controller):
         if default_project_id is not None:
             user['default_project_id'] = default_project_id
 
-        old_user_ref = self.identity_api.v3_to_v2_user(
+        old_user_ref = self.v3_to_v2_user(
             self.identity_api.get_user(user_id))
 
         # Check whether a tenant is being added or changed for the user.
@@ -181,7 +181,7 @@ class User(controller.V2Controller):
             # user update.
             self.assignment_api.get_project(default_project_id)
 
-        user_ref = self.identity_api.v3_to_v2_user(
+        user_ref = self.v3_to_v2_user(
             self.identity_api.update_user(user_id, user))
 
         # If 'tenantId' is in either ref, we might need to add or remove the
