@@ -295,3 +295,11 @@ class NotImplemented(Error):
 class ConfigFileNotFound(UnexpectedError):
     message_format = _("The Keystone configuration file %(config_file)s could "
                        "not be found.")
+
+
+class MigrationNotProvided(Exception):
+    def __init__(self, mod_name, path):
+        super(MigrationNotProvided, self).__init__(_(
+            "%(mod_name)s doesn't provide database migrations. The migration"
+            " repository path at %(path)s doesn't exist or isn't a directory."
+        ) % {'mod_name': mod_name, 'path': path})
