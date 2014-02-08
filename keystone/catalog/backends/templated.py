@@ -23,6 +23,7 @@ from keystone.catalog import core
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 
 
 LOG = log.getLogger(__name__)
@@ -57,10 +58,7 @@ def parse_templates(template_lines):
     return o
 
 
-# TODO(jaypipes): should be templated.Catalog,
-# not templated.TemplatedCatalog to be consistent with
-# other catalog backends
-class TemplatedCatalog(kvs.Catalog):
+class Catalog(kvs.Catalog):
     """A backend that generates endpoints for the Catalog based on templates.
 
     It is usually configured via config entries that look like:
@@ -93,6 +91,7 @@ class TemplatedCatalog(kvs.Catalog):
     """
 
     def __init__(self, templates=None):
+        super(Catalog, self).__init__()
         if templates:
             self.templates = templates
         else:
@@ -100,7 +99,6 @@ class TemplatedCatalog(kvs.Catalog):
             if not os.path.exists(template_file):
                 template_file = CONF.find_file(template_file)
             self._load_templates(template_file)
-        super(TemplatedCatalog, self).__init__()
 
     def _load_templates(self, template_file):
         try:
@@ -126,3 +124,11 @@ class TemplatedCatalog(kvs.Catalog):
 
     def get_v3_catalog(self, user_id, tenant_id, metadata=None):
         raise exception.NotImplemented()
+
+
+@versionutils.deprecated(
+    versionutils.deprecated.ICEHOUSE,
+    in_favor_of='keystone.catalog.backends.templated.Catalog',
+    remove_in=+2)
+class TemplatedCatalog(Catalog):
+    pass

@@ -468,8 +468,8 @@ To build your service catalog using this driver, see the built-in help::
 You can also refer to `an example in Keystone (tools/sample_data.sh)
 <https://github.com/openstack/keystone/blob/master/tools/sample_data.sh>`_.
 
-File-based Service Catalog (``templated.TemplatedCatalog``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File-based Service Catalog (``templated.Catalog``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The templated catalog is an in-memory backend initialized from a read-only
 ``template_file``. Choose this option only if you know that your
@@ -486,7 +486,7 @@ service catalog will not change very much over time.
 ``keystone.conf`` example::
 
     [catalog]
-    driver = keystone.catalog.backends.templated.TemplatedCatalog
+    driver = keystone.catalog.backends.templated.Catalog
     template_file = /opt/stack/keystone/etc/default_catalog.templates
 
 The value of ``template_file`` is expected to be an absolute path to your
