@@ -311,7 +311,7 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_protocol_composite_pk(self):
         """Test whether Keystone let's add two entities with identical
-        names, however attached to diferent IdPs.
+        names, however attached to different IdPs.
 
         1. Add IdP and assign it protocol with predefined name
         2. Add another IdP and assign it a protocol with same name.
