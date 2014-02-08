@@ -37,14 +37,12 @@ class NotificationsWrapperTestCase(tests.TestCase):
 
         self.exp_resource_id = None
         self.exp_operation = None
-        self.exp_host = None
         self.send_notification_called = False
 
-        def fake_notify(operation, resource_type, resource_id, host=None):
+        def fake_notify(operation, resource_type, resource_id):
             self.assertEqual(self.exp_operation, operation)
             self.assertEqual(EXP_RESOURCE_TYPE, resource_type)
             self.assertEqual(self.exp_resource_id, resource_id)
-            self.assertEqual(self.exp_host, host)
             self.send_notification_called = True
 
         fixture = self.useFixture(moxstubout.MoxStubout())
@@ -62,7 +60,6 @@ class NotificationsWrapperTestCase(tests.TestCase):
         exp_resource_data = {
             'id': self.exp_resource_id,
             'key': uuid.uuid4().hex}
-        self.exp_host = None
 
         self.create_resource(self.exp_resource_id, exp_resource_data)
         self.assertTrue(self.send_notification_called)
@@ -77,7 +74,6 @@ class NotificationsWrapperTestCase(tests.TestCase):
         exp_resource_data = {
             'id': self.exp_resource_id,
             'key': uuid.uuid4().hex}
-        self.exp_host = None
 
         self.update_resource(self.exp_resource_id, exp_resource_data)
         self.assertTrue(self.send_notification_called)
@@ -89,7 +85,6 @@ class NotificationsWrapperTestCase(tests.TestCase):
     def test_resource_deleted_notification(self):
         self.exp_operation = 'deleted'
         self.exp_resource_id = uuid.uuid4().hex
-        self.exp_host = None
 
         self.delete_resource(self.exp_resource_id)
         self.assertTrue(self.send_notification_called)
@@ -136,7 +131,6 @@ class NotificationsTestCase(tests.TestCase):
         resource = uuid.uuid4().hex
         resource_type = EXP_RESOURCE_TYPE
         operation = 'created'
-        host = None
 
         # NOTE(ldbragst): Even though notifications._send_notification doesn't
         # contain logic that creates cases, this is suppose to test that
@@ -154,8 +148,7 @@ class NotificationsTestCase(tests.TestCase):
             self.assertEqual(exp_payload, payload)
 
         self.stubs.Set(notifier_api, 'notify', fake_notify)
-        notifications._send_notification(resource, resource_type, operation,
-                                         host=host)
+        notifications._send_notification(resource, resource_type, operation)
 
 
 class NotificationsForEntities(test_v3.RestfulTestCase):
@@ -167,7 +160,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.exp_resource_type = None
         self.send_notification_called = False
 
-        def fake_notify(operation, resource_type, resource_id, host=None):
+        def fake_notify(operation, resource_type, resource_id):
             self.exp_resource_id = resource_id
             self.exp_operation = operation
             self.exp_resource_type = resource_type
