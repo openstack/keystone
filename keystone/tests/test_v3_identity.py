@@ -777,6 +777,26 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleListResponse(r, expected_length=0)
         self.assertIn(collection_url, r.result['links']['self'])
 
+    def test_crud_group_project_role_grants_no_group(self):
+        """Grant role on a project to a group that doesn't exist, 404 result.
+
+        When grant a role on a project to a group that doesn't exist, the
+        server returns 404 Not Found for the group.
+
+        """
+
+        group_id = uuid.uuid4().hex
+
+        collection_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/roles' % {
+                'project_id': self.project_id,
+                'group_id': group_id})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        self.put(member_url, expected_status=404)
+
     def test_crud_group_domain_role_grants(self):
         collection_url = (
             '/domains/%(domain_id)s/groups/%(group_id)s/roles' % {
@@ -796,6 +816,26 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0)
         self.assertIn(collection_url, r.result['links']['self'])
+
+    def test_crud_group_domain_role_grants_no_group(self):
+        """Grant role on a domain to a group that doesn't exist, 404 result.
+
+        When grant a role on a domain to a group that doesn't exist, the server
+        returns 404 Not Found for the group.
+
+        """
+
+        group_id = uuid.uuid4().hex
+
+        collection_url = (
+            '/domains/%(domain_id)s/groups/%(group_id)s/roles' % {
+                'domain_id': self.domain_id,
+                'group_id': group_id})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        self.put(member_url, expected_status=404)
 
     def test_get_role_assignments(self):
         """Call ``GET /role_assignments``.
