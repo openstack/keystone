@@ -21,25 +21,22 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-keystone-manage is the command line tool that interacts with the Keystone
-service to initialize and update data within Keystone.  Generally,
-keystone-manage is only used for operations that cannot be accomplished
-with the Keystone REST api, such data import/export and schema
-migrations.
-
+``keystone-manage`` is the command line tool which interacts with the Keystone
+service to initialize and update data within Keystone. Generally,
+``keystone-manage`` is only used for operations that cannot be accomplished
+with the HTTP API, such data import/export and database migrations.
 
 USAGE
 =====
 
     ``keystone-manage [options] action [additional args]``
 
-
 General keystone-manage options:
 --------------------------------
 
 * ``--help`` : display verbose help output.
 
-Invoking keystone-manage by itself will give you some usage information.
+Invoking ``keystone-manage`` by itself will give you some usage information.
 
 Available commands:
 
@@ -48,7 +45,6 @@ Available commands:
 * ``pki_setup``: Initialize the certificates used to sign tokens.
 * ``ssl_setup``: Generate certificates for SSL.
 * ``token_flush``: Purge expired tokens.
-
 
 OPTIONS
 =======
