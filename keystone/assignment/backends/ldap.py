@@ -21,7 +21,6 @@ import ldap as ldap
 
 from keystone import assignment
 from keystone import clean
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
 from keystone.common import models
@@ -35,7 +34,6 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('identity_api')
 class Assignment(assignment.Driver):
     def __init__(self):
         super(Assignment, self).__init__()
@@ -90,7 +88,6 @@ class Assignment(assignment.Driver):
                       domain_id=None, group_id=None):
 
         def _get_roles_for_just_user_and_project(user_id, tenant_id):
-            self.identity_api.get_user(user_id)
             self.get_project(tenant_id)
             return [self.role._dn_to_id(a.role_dn)
                     for a in self.role.get_role_assignments
@@ -98,7 +95,6 @@ class Assignment(assignment.Driver):
                     if self.user._dn_to_id(a.user_dn) == user_id]
 
         def _get_roles_for_group_and_project(group_id, project_id):
-            self.identity_api.get_group(group_id)
             self.get_project(project_id)
             group_dn = self.group._id_to_dn(group_id)
             # NOTE(marcos-fermin-lobo): In Active Directory, for functions
@@ -140,7 +136,6 @@ class Assignment(assignment.Driver):
         # NOTE(henry-nash): The LDAP backend is being deprecated, so no
         # support is provided for projects that the user has a role on solely
         # by virtue of group membership.
-        self.identity_api.get_user(user_id)
         user_dn = self.user._id_to_dn(user_id)
         associations = (self.role.list_project_roles_for_user
                         (user_dn, self.project.tree_dn))
@@ -166,7 +161,6 @@ class Assignment(assignment.Driver):
                                  self.project._id_to_dn(tenant_id))
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        self.identity_api.get_user(user_id)
         self.get_project(tenant_id)
         self.get_role(role_id)
         user_dn = self.user._id_to_dn(user_id)
@@ -178,7 +172,6 @@ class Assignment(assignment.Driver):
                                    tenant_dn=tenant_dn)
 
     def _add_role_to_group_and_project(self, group_id, tenant_id, role_id):
-        self.identity_api.get_group(group_id)
         self.get_project(tenant_id)
         self.get_role(role_id)
         group_dn = self.group._id_to_dn(group_id)
@@ -354,11 +347,6 @@ class Assignment(assignment.Driver):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        if user_id:
-            self.identity_api.get_user(user_id)
-        if group_id:
-            self.identity_api.get_group(group_id)
-
         self.get_role(role_id)
 
         if domain_id:
