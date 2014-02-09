@@ -2025,8 +2025,8 @@ class TestTrustAuth(TestAuthInfo):
         self.identity_api.create_user(self.trustee_user_id, self.trustee_user)
 
     def test_create_trust_400(self):
-        self.skipTest('Blocked by bug 1133435')
-        self.post('/OS-TRUST/trusts', body={'trust': {}}, expected_status=400)
+        # The server returns a 403 Forbidden rather than a 400, see bug 1133435
+        self.post('/OS-TRUST/trusts', body={'trust': {}}, expected_status=403)
 
     def test_create_unscoped_trust(self):
         ref = self.new_trust_ref(

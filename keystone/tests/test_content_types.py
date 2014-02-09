@@ -253,15 +253,14 @@ class CoreApiTests(object):
         self.assertValidTenantResponse(r)
 
     def test_get_user_roles(self):
-        self.skipTest('Blocked by bug 933565')
+        # The server responds with a 501 Not Implemented. See bug 933565.
 
         token = self.get_scoped_token()
-        r = self.admin_request(
+        self.admin_request(
             path='/v2.0/users/%(user_id)s/roles' % {
                 'user_id': self.user_foo['id'],
             },
-            token=token)
-        self.assertValidRoleListResponse(r)
+            token=token, expected_status=501)
 
     def test_get_user_roles_with_tenant(self):
         token = self.get_scoped_token()
