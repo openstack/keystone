@@ -85,6 +85,10 @@ def get_auth_method(method_name):
     return AUTH_METHODS[method_name]
 
 
+# TODO(blk-u): this class doesn't use identity_api directly, but makes it
+# available for consumers. Consumers should probably not be getting
+# identity_api from this since it's available in global registry, then
+# identity_api should be removed from this list.
 @dependency.requires('assignment_api', 'identity_api', 'trust_api')
 class AuthInfo(object):
     """Encapsulation of "auth" request."""
@@ -115,12 +119,6 @@ class AuthInfo(object):
     def _assert_domain_is_enabled(self, domain_ref):
         if not domain_ref.get('enabled'):
             msg = _('Domain is disabled: %s') % (domain_ref['id'])
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
-
-    def _assert_user_is_enabled(self, user_ref):
-        if not user_ref.get('enabled', True):
-            msg = _('User is disabled: %s') % (user_ref['id'])
             LOG.warning(msg)
             raise exception.Unauthorized(msg)
 
@@ -175,29 +173,6 @@ class AuthInfo(object):
         if not trust:
             raise exception.TrustNotFound(trust_id=trust_id)
         return trust
-
-    def lookup_user(self, user_info):
-        user_id = user_info.get('id')
-        user_name = user_info.get('name')
-        user_ref = None
-        if not user_id and not user_name:
-            raise exception.ValidationError(attribute='id or name',
-                                            target='user')
-        try:
-            if user_name:
-                if 'domain' not in user_info:
-                    raise exception.ValidationError(attribute='domain',
-                                                    target='user')
-                domain_ref = self._lookup_domain(user_info['domain'])
-                user_ref = self.identity_api.get_user_by_name(
-                    user_name, domain_ref['id'])
-            else:
-                user_ref = self.identity_api.get_user(user_id)
-        except exception.UserNotFound as e:
-            LOG.exception(e)
-            raise exception.Unauthorized(e)
-        self._assert_user_is_enabled(user_ref)
-        return user_ref
 
     def _validate_and_normalize_scope_data(self):
         """Validate and normalize scope data."""
