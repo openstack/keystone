@@ -22,6 +22,7 @@ from keystone.common import openssl
 from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests import rest
 from keystone import token
 
 
@@ -34,7 +35,7 @@ CERTDIR = os.path.join(SSLDIR, 'certs')
 KEYDIR = os.path.join(SSLDIR, 'private')
 
 
-class CertSetupTestCase(tests.TestCase):
+class CertSetupTestCase(rest.RestfulTestCase):
 
     def setUp(self):
         super(CertSetupTestCase, self).setUp()
@@ -98,3 +99,41 @@ class CertSetupTestCase(tests.TestCase):
         self.assertTrue(os.path.exists(CONF.ssl.ca_certs))
         self.assertTrue(os.path.exists(CONF.ssl.certfile))
         self.assertTrue(os.path.exists(CONF.ssl.keyfile))
+
+    def test_fetch_signing_cert(self):
+        pki = openssl.ConfigurePKI(None, None)
+        pki.run()
+
+        # NOTE(jamielennox): Use request directly because certificate
+        # requests don't have some of the normal information
+        signing_resp = self.request(self.public_app,
+                                    '/v2.0/certificates/signing',
+                                    method='GET', expected_status=200)
+
+        cacert_resp = self.request(self.public_app,
+                                   '/v2.0/certificates/ca',
+                                   method='GET', expected_status=200)
+
+        with open(CONF.signing.certfile) as f:
+            self.assertEqual(signing_resp.text, f.read())
+
+        with open(CONF.signing.ca_certs) as f:
+            self.assertEqual(cacert_resp.text, f.read())
+
+        # NOTE(jamielennox): This is weird behaviour that we need to enforce.
+        # It doesn't matter what you ask for it's always going to give text
+        # with a text/html content_type.
+
+        for path in ['/v2.0/certificates/signing', '/v2.0/certificates/ca']:
+            for accept in [None, 'text/html', 'application/json', 'text/xml']:
+                headers = {'Accept': accept} if accept else {}
+                resp = self.request(self.public_app, path, method='GET',
+                                    expected_status=200,
+                                    headers=headers)
+
+                self.assertEqual(resp.content_type, 'text/html')
+
+    def test_failure(self):
+        for path in ['/v2.0/certificates/signing', '/v2.0/certificates/ca']:
+            self.request(self.public_app, path, method='GET',
+                         expected_status=500)
