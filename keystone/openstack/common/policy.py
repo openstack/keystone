@@ -55,6 +55,7 @@ as it allows particular rules to be explicitly disabled.
 """
 
 import abc
+import ast
 import re
 
 from oslo.config import cfg
@@ -119,11 +120,16 @@ class Rules(dict):
 
         # If the default rule isn't actually defined, do something
         # reasonably intelligent
-        if not self.default_rule or self.default_rule not in self:
+        if not self.default_rule:
             raise KeyError(key)
 
         if isinstance(self.default_rule, BaseCheck):
             return self.default_rule
+
+        # We need to check this or we can get infinite recursion
+        if self.default_rule not in self:
+            raise KeyError(key)
+
         elif isinstance(self.default_rule, six.string_types):
             return self[self.default_rule]
 
@@ -839,6 +845,8 @@ class GenericCheck(Check):
 
             tenant:%(tenant_id)s
             role:compute:admin
+            True:%(user.enabled)s
+            'Member':%(role.name)s
         """
 
         # TODO(termie): do dict inspection via dot syntax
@@ -849,6 +857,12 @@ class GenericCheck(Check):
             # present in Target return false
             return False
 
-        if self.kind in creds:
-            return match == six.text_type(creds[self.kind])
-        return False
+        try:
+            # Try to interpret self.kind as a literal
+            leftval = ast.literal_eval(self.kind)
+        except ValueError:
+            try:
+                leftval = creds[self.kind]
+            except KeyError:
+                return False
+        return match == six.text_type(leftval)
