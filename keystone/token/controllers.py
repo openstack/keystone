@@ -345,25 +345,6 @@ class Auth(controller.V2Controller):
                 raise exception.Unauthorized(e)
         return tenant_id
 
-    def _get_domain_id_from_auth(self, auth):
-        """Extract domain information from v3 auth dict.
-
-        Returns a valid domain_id if it exists, or None if not specified.
-        """
-        # FIXME(henry-nash): This is a placeholder that needs to be
-        # only called in the v3 context, and the auth.get calls
-        # converted to the v3 format
-        domain_id = auth.get('domainId', None)
-        domain_name = auth.get('domainName', None)
-        if domain_name:
-            try:
-                domain_ref = self.assignment_api.get_domain_by_name(
-                    domain_name)
-                domain_id = domain_ref['id']
-            except exception.DomainNotFound as e:
-                raise exception.Unauthorized(e)
-        return domain_id
-
     def _get_project_roles_and_ref(self, user_id, tenant_id):
         """Returns the project roles for this user, and the project ref."""
 
