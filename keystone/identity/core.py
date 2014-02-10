@@ -254,13 +254,6 @@ class Manager(manager.Manager):
             self.assignment_api.get_domain(domain_id)
             return self.driver
 
-    def _get_domain_conf(self, domain_id):
-        conf = self.domain_configs.get_domain_conf(domain_id)
-        if conf:
-            return conf
-        else:
-            return CONF
-
     def _get_domain_id_and_driver(self, domain_scope):
         domain_id = self._normalize_scope(domain_scope)
         driver = self._select_identity_driver(domain_id)
