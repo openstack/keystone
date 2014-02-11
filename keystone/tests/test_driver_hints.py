@@ -49,3 +49,16 @@ class ListHintsTests(test.TestCase):
         hints2.add_filter('t4', 'data1')
         hints2.add_filter('t5', 'data2')
         self.assertEqual(len(hints.filters()), 2)
+
+    def test_limits(self):
+        hints = driver_hints.Hints()
+        self.assertIsNone(hints.get_limit())
+        hints.set_limit(10)
+        self.assertEqual(hints.get_limit()['limit'], 10)
+        self.assertFalse(hints.get_limit()['truncated'])
+        hints.set_limit(11)
+        self.assertEqual(hints.get_limit()['limit'], 11)
+        self.assertFalse(hints.get_limit()['truncated'])
+        hints.set_limit(10, truncated=True)
+        self.assertEqual(hints.get_limit()['limit'], 10)
+        self.assertTrue(hints.get_limit()['truncated'])

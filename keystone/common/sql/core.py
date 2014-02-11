@@ -154,6 +154,47 @@ def transaction(expire_on_commit=False):
         yield session
 
 
+def truncated(f):
+    """Ensure list truncation is detected in Driver list entity methods.
+
+    This is designed to wrap and sql Driver list_{entity} methods in order to
+    calculate if the resultant list has been truncated. Provided a limit dict
+    is found in the hints list, we increment the limit by one so as to ask the
+    wrapped function for one more entity than the limit, and then once the list
+    has been generated, we check to see if the original limit has been
+    exceeded, in which case we truncate back to that limit and set the
+    'truncated' boolean to 'true' in the hints limit dict.
+
+    """
+    @functools.wraps(f)
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(args[0], 'get_limit'):
+            raise exception.UnexpectedError(
+                _('Cannot truncate a driver call without hints list as '
+                  'first parameter after self '))
+
+        hints = args[0]
+        limit_dict = hints.get_limit()
+        if limit_dict is None:
+            return f(self, *args, **kwargs)
+
+        # A limit is set, so ask for one more entry than we need
+        list_limit = limit_dict['limit']
+        hints.set_limit(list_limit + 1)
+        ref_list = f(self, *args, **kwargs)
+
+        # If we got more than the original limit then trim back the list and
+        # mark it truncated.  In both cases, make sure we set the limit back
+        # to its original value.
+        if len(ref_list) > list_limit:
+            hints.set_limit(list_limit, truncated=True)
+            return ref_list[:list_limit]
+        else:
+            hints.set_limit(list_limit)
+            return ref_list
+    return wrapper
+
+
 # Backends
 class Base(object):
     def _filter(self, model, query, hints):
@@ -245,22 +286,55 @@ class Base(object):
 
         return query
 
-    def filter_query(self, model, query, hints):
-        """Applies filtering to a query.
+    def _limit(self, query, hints):
+        """Applies a limit to a query.
 
-        :param model: table model
         :param query: query to apply filters to
-        :param hints: contains the list of filters yet to be satisfied.
-                      Any filters satisfied here will be removed so that
-                      the caller will know if any filters remain.
+        :param hints: contains the list of filters and limit details.
 
         :returns updated query
 
         """
-        if hints is not None:
-            query = self._filter(model, query, hints)
+        # NOTE(henry-nash): If we were to implement pagination, then we
+        # we would expand this method to support pagination and limiting.
 
+        # If we satisfied all the filters, set an upper limit if supplied
+        list_limit = hints.get_limit()
+        if list_limit:
+            query = query.limit(list_limit['limit'])
         return query
+
+    def filter_limit_query(self, model, query, hints):
+        """Applies filtering and limit to a query.
+
+        :param model: table model
+        :param query: query to apply filters to
+        :param hints: contains the list of filters and limit details.  This may
+                      be None, indicating that there are no filters or limits
+                      to be applied. If it's not None, then any filters
+                      satisfied here will be removed so that the caller will
+                      know if any filters remain.
+
+        :returns: updated query
+
+        """
+        if hints is None:
+            return query
+
+        # First try and satisfy any filters
+        query = self._filter(model, query, hints)
+
+        # NOTE(henry-nash): Any unsatisfied filters will have been left in
+        # the hints list for the controller to handle. We can only try and
+        # limit here if all the filters are already satisfied since, if not,
+        # doing so might mess up the final results. If there are still
+        # unsatisfied filters, we have to leave any limiting to the controller
+        # as well.
+
+        if not hints.filters():
+            return self._limit(query, hints)
+        else:
+            return query
 
 
 def handle_conflicts(conflict_type='object'):

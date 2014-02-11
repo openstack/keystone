@@ -61,6 +61,12 @@
 # If true, use synchronous mode for sqlite
 # sqlite_synchronous = True
 
+# The maximum number of entities that will be returned in a collection can be
+# set with list_limit, with no limit set by default.  This global limit may be
+# then overridden for a specific driver, by specifying a list_limit in the
+# appropriate section (e.g. [assignment])
+# list_limit =
+
 # === Logging Options ===
 # Print debugging output
 # (includes plaintext request logging, potentially including passwords)
@@ -222,6 +228,9 @@
 # Maximum supported length for user passwords; decrease to improve performance.
 # max_password_length = 4096
 
+# Maximum number of entities that will be returned in an identity collection
+# list_limit =
+
 [credential]
 # driver = keystone.credential.backends.sql.Credential
 
@@ -244,6 +253,9 @@
 # driver = keystone.catalog.backends.templated.Catalog
 
 # template_file = default_catalog.templates
+
+# Maximum number of entities that will be returned in a catalog collection
+# list_limit =
 
 [endpoint_filter]
 # extension for creating associations between project and endpoints in order to
@@ -325,6 +337,9 @@
 [policy]
 # driver = keystone.policy.backends.sql.Policy
 
+# Maximum number of entities that will be returned in a policy collection
+# list_limit =
+
 [ec2]
 # driver = keystone.contrib.ec2.backends.kvs.Ec2
 
@@ -337,6 +352,9 @@
 
 # Assignment specific cache time-to-live (TTL) in seconds.
 # cache_time =
+
+# Maximum number of entities that will be returned in an assignment collection
+# list_limit =
 
 [oauth1]
 # driver = keystone.contrib.oauth1.backends.sql.OAuth1
