@@ -55,6 +55,7 @@ class Connection(object):
 
         :returns dict: A dictionary of the key information or None if not
                        found. Keys will contain:
+
                        - name: Unique name of the key.
                        - group: If this key is a group key or not.
                        - key: The key data.
@@ -62,4 +63,5 @@ class Connection(object):
                        - generation: The generation of this key.
                        - expiration: When the key expires (or None).
                                      Expired keys can be returned.
+
         """

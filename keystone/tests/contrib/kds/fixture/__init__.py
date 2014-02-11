@@ -18,4 +18,4 @@ from keystone.tests.contrib.kds.fixture import sqlitedb
 SqliteDb = sqlitedb.SqliteDb
 KvsDb = kvsdb.KvsDb
 
-__all__ = [SqliteDb, KvsDb]
+__all__ = ['SqliteDb', 'KvsDb']
