@@ -167,21 +167,20 @@ def truncated(f):
 
     """
     @functools.wraps(f)
-    def wrapper(self, *args, **kwargs):
-        if not hasattr(args[0], 'get_limit'):
+    def wrapper(self, hints, *args, **kwargs):
+        if not hasattr(hints, 'get_limit'):
             raise exception.UnexpectedError(
                 _('Cannot truncate a driver call without hints list as '
                   'first parameter after self '))
 
-        hints = args[0]
         limit_dict = hints.get_limit()
         if limit_dict is None:
-            return f(self, *args, **kwargs)
+            return f(self, hints, *args, **kwargs)
 
         # A limit is set, so ask for one more entry than we need
         list_limit = limit_dict['limit']
         hints.set_limit(list_limit + 1)
-        ref_list = f(self, *args, **kwargs)
+        ref_list = f(self, hints, *args, **kwargs)
 
         # If we got more than the original limit then trim back the list and
         # mark it truncated.  In both cases, make sure we set the limit back
