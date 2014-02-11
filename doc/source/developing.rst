@@ -346,7 +346,9 @@ which will provide a reference, to a function, that will consult the global cach
         calling ``should_cache_fn``, the returned function reference will default to enabling
         caching for that ``manager``.
 
-Example use of cache and ``should_cache_fn`` (in this example, ``token`` is the manager)::
+Example use of cache and ``should_cache_fn`` (in this example, ``token`` is the manager):
+
+.. code:: python
 
     from keystone.common import cache
     SHOULD_CACHE = cache.should_cache_fn('token')
@@ -372,7 +374,9 @@ If the ``expiration_time`` argument passed to the decorator is set to ``None``, 
 time will be set to the global default (``expiration_time`` option in the ``[cache]``
 configuration section.
 
-Example of using a section specific ``cache_time`` (in this example, ``identity`` is the manager)::
+Example of using a section specific ``cache_time`` (in this example, ``identity`` is the manager):
+
+.. code:: python
 
     from keystone.common import cache
     SHOULD_CACHE = cache.should_cache_fn('identity')
@@ -387,7 +391,9 @@ For cache invalidation, the ``on_arguments`` decorator will add an ``invalidate`
 (attribute) to your decorated function.  To invalidate the cache, you pass the same arguments
 to the ``invalidate`` method as you would the normal function.
 
-Example (using the above cacheable_function)::
+Example (using the above cacheable_function):
+
+.. code:: python
 
     def invalidate_cache(arg1, arg2, arg3):
         cacheable_function.invalidate(arg1, arg2, arg3)
@@ -420,7 +426,9 @@ be configured before use. The KVS object will only be retrievable with the
 Once all references have been removed the object is gone (the registry uses a ``weakref`` to
 match the object to the name).
 
-Example Instantiation and Configuration::
+Example Instantiation and Configuration:
+
+.. code:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure('openstack.kvs.Memory', ...)
@@ -434,13 +442,17 @@ provided dogpile.cache memcached backends (``BMemcached``, ``pylibmc``, and basi
 By default the standard Memcache backend is used.  Currently the Memcache URLs come from the
 ``servers`` option in the ``[memcache]`` configuration section of the Keystone config.
 
-Example configuring the KVS system to use memcached and a specific dogpile.cache memcached backend::
+Example configuring the KVS system to use memcached and a specific dogpile.cache memcached backend:
+
+.. code:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure('openstack.kvs.Memcached', dogpile_cache_backend='MemcachedBackend')
 
 Once a KVS object has been instantiated the method of interacting is the same as most memcache
-implementations::
+implementations:
+
+.. code:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure(...)
