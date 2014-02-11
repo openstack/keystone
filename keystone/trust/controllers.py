@@ -242,29 +242,12 @@ class TrustV3(controller.V3Controller):
             raise exception.TrustNotFound(trust_id)
         user_id = self._get_user_id(context)
         _trustor_trustee_only(trust, user_id)
-        matching_roles = [x for x in trust['roles']
-                          if x['id'] == role_id]
-        if not matching_roles:
+        if not any(role['id'] == role_id for role in trust['roles']):
             raise exception.RoleNotFound(role_id=role_id)
 
     @controller.protected()
     def get_role_for_trust(self, context, trust_id, role_id):
-        """Checks if a role has been assigned to a trust."""
-        trust = self.trust_api.get_trust(trust_id)
-        if not trust:
-            raise exception.TrustNotFound(trust_id)
-
-        user_id = self._get_user_id(context)
-        _trustor_trustee_only(trust, user_id)
-        matching_roles = [x for x in trust['roles']
-                          if x['id'] == role_id]
-        if not matching_roles:
-            raise exception.RoleNotFound(role_id=role_id)
-        all_roles = self.assignment_api.list_roles()
-        matching_roles = [x for x in all_roles if x['id'] == role_id]
-        if matching_roles:
-            full_role = (assignment.controllers.
-                         RoleV3.wrap_member(context, matching_roles[0]))
-            return full_role
-        else:
-            raise exception.RoleNotFound(role_id=role_id)
+        """Get a role that has been assigned to a trust."""
+        self.check_role_for_trust(context, trust_id, role_id)
+        role = self.assignment_api.get_role(role_id)
+        return assignment.controllers.RoleV3.wrap_member(context, role)
