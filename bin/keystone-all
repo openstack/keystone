@@ -107,6 +107,7 @@ if __name__ == '__main__':
 
     config.configure()
     sql.initialize()
+    config.set_default_for_default_log_levels()
 
     CONF(project='keystone',
          version=pbr.version.VersionInfo('keystone').version_string(),

@@ -38,6 +38,7 @@ CONF = config.CONF
 
 config.configure()
 sql.initialize()
+config.set_default_for_default_log_levels()
 
 CONF(project='keystone')
 config.setup_logging()
