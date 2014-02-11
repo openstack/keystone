@@ -270,6 +270,13 @@ class V3Controller(wsgi.Application):
     the API. This is required for supporting self-referential links,
     pagination, etc.
 
+    Class parameters:
+
+    * `_mutable_parameters` - set of parameters that can be changed by users.
+                              Usually used by cls.check_immutable_params()
+    * `_public_parameters` - set of parameters that are exposed to the user.
+                             Usually used by cls.filter_params()
+
     """
 
     collection_name = 'entities'
@@ -571,3 +578,73 @@ class V3Controller(wsgi.Application):
                                     action,
                                     authorization.flatten(policy_dict))
             LOG.debug(_('RBAC: Authorization granted'))
+
+    @classmethod
+    def check_immutable_params(cls, ref):
+        """Raise exception when disallowed parameter is in ref.
+
+        Check whether the ref dictionary representing a request has only
+        mutable parameters included. If not, raise an exception. This method
+        checks only root-level keys from a ref dictionary.
+
+        :param ref: a dictionary representing deserialized request to be
+                    stored
+        :raises: :class:`keystone.exception.ImmutableAttributeError`
+
+        """
+        ref_keys = set(ref.keys())
+        blocked_keys = ref_keys.difference(cls._mutable_parameters)
+
+        if not blocked_keys:
+            #No immutable parameters changed
+            return
+
+        exception_args = {'target': cls.__name__,
+                          'attribute': blocked_keys.pop()}
+        raise exception.ImmutableAttributeError(**exception_args)
+
+    @classmethod
+    def check_required_params(cls, ref):
+        """Raise exception when required parameter is not in ref.
+
+        Check whether the ref dictionary representing a request has the
+        required parameters to fulfill the request. If not, raise an
+        exception. This method checks only root-level keys from a ref
+        dictionary.
+
+        :param ref: a dictionary representing deserialized request to be
+                    stored
+        :raises: :class:`keystone.exception.ValidationError`
+
+        """
+        ref_keys = set(ref.keys())
+        missing_args = []
+
+        for required in cls._required_parameters:
+            if required not in ref_keys:
+                missing_args.append(required)
+
+        if len(missing_args) > 0:
+            exception_args = {'target': cls.__name__,
+                              'attribute': missing_args.pop()}
+            raise exception.ValidationError(**exception_args)
+        else:
+            return
+
+    @classmethod
+    def filter_params(cls, ref):
+        """Remove unspecified parameters from the dictionary.
+
+        This function removes unspecified parameters from the dictionary. See
+        check_immutable_parameters for corresponding function that raises
+        exceptions. This method checks only root-level keys from a ref
+        dictionary.
+
+        :param ref: a dictionary representing deserialized response to be
+                    serialized
+        """
+        ref_keys = set(ref.keys())
+        blocked_keys = ref_keys - cls._public_parameters
+        for blocked_param in blocked_keys:
+            del ref[blocked_param]
+        return ref
