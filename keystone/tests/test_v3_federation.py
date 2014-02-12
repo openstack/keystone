@@ -168,7 +168,7 @@ class FederatedIdentityProviderTests(FederationTests):
             return r.get('id')
 
         ids = []
-        for _ in xrange(iterations):
+        for _ in range(iterations):
             id = get_id(self._create_default_idp())
             ids.append(id)
         ids = set(ids)
@@ -386,7 +386,7 @@ class FederatedIdentityProviderTests(FederationTests):
         resp, idp_id, proto = self._assign_protocol_to_idp(expected_status=201)
         iterations = random.randint(0, 16)
         protocol_ids = []
-        for _ in xrange(iterations):
+        for _ in range(iterations):
             resp, _, proto = self._assign_protocol_to_idp(idp_id=idp_id,
                                                           expected_status=201)
             proto_id = self._fetch_attribute_from_response(resp, 'protocol')
