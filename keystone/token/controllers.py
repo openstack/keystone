@@ -83,8 +83,6 @@ class Auth(controller.V2Controller):
             raise exception.ValidationError(attribute='auth',
                                             target='request body')
 
-        auth_token_data = None
-
         if "token" in auth:
             # Try to authenticate using a token
             auth_info = self._authenticate_token(
