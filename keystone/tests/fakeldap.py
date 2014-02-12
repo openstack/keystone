@@ -26,9 +26,9 @@ library to work with nova.
 
 import re
 import shelve
+import six
 
 import ldap
-import six
 
 from keystone.common import utils
 from keystone.openstack.common import log
@@ -41,6 +41,8 @@ SCOPE_NAMES = {
     ldap.SCOPE_SUBTREE: 'SCOPE_SUBTREE',
 }
 
+#http://msdn.microsoft.com/en-us/library/windows/desktop/aa366991(v=vs.85).aspx
+CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
 
 LOG = log.getLogger(__name__)
 
@@ -238,9 +240,16 @@ class FakeLdap(object):
         if server_fail:
             raise ldap.SERVER_DOWN
 
-        key = '%s%s' % (self.__prefix, dn)
-        LOG.debug('delete item: dn=%s', dn)
         try:
+            if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
+                LOG.debug('FakeLdap subtree_delete item: dn=%s', dn)
+                children = [k for k, v in six.iteritems(self.db)
+                            if re.match('%s.*,%s' % (self.__prefix, dn), k)]
+                for c in children:
+                    del self.db[c]
+
+            LOG.debug(_('FakeLdap delete item: dn=%s'), dn)
+            key = '%s%s' % (self.__prefix, dn)
             del self.db[key]
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.', dn)

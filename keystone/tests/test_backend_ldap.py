@@ -541,6 +541,40 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
                           self.assignment_api.get_project,
                           'fake1')
 
+    def test_configurable_subtree_delete(self):
+        self.opt_in_group('ldap', allow_subtree_delete=True)
+        self.load_backends()
+
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': CONF.identity.default_domain_id}
+        self.assignment_api.create_project(project1['id'], project1)
+
+        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role1['id'], role1)
+
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'domain_id': CONF.identity.default_domain_id,
+                 'password': uuid.uuid4().hex,
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+
+        self.assignment_api.add_role_to_user_and_project(
+            user_id=user1['id'],
+            tenant_id=project1['id'],
+            role_id=role1['id'])
+
+        self.assignment_api.delete_project(project1['id'])
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          project1['id'])
+
+        self.assignment_api.create_project(project1['id'], project1)
+
+        list = self.assignment_api.get_roles_for_user_and_project(
+            user1['id'],
+            project1['id'])
+        self.assertEqual(len(list), 0)
+
     def test_configurable_forbidden_project_actions(self):
         CONF.ldap.tenant_allow_create = False
         CONF.ldap.tenant_allow_update = False
