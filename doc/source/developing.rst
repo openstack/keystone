@@ -308,6 +308,26 @@ installed devstack with a different LDAP password, modify the file
 ``keystone/tests/backend_liveldap.conf`` to reflect your password.
 
 
+Generating Updated Sample Config File
+-------------------------------------
+
+Keystone's sample configuration file ``etc/keystone.conf.sample`` is automatically
+generated based upon all of the options available within Keystone. These options
+are sourced from the many files around Keystone as well as some external libraries.
+
+If new options are added, primarily located in ``keystone.common.config``, a new
+sample configuration file needs to be generated. Generating a new sample configuration
+to be included in a commit run::
+
+    $ tox -esample_config -r
+
+The tox command will place an updated sample config in ``etc/keystone.conf.sample``.
+
+If there is a new external library (e.g. ``oslo.messaging``) that utilizes the
+``oslo.config`` package for configuration, it can be added to the list of libraries
+found in ``tools/config/oslo.config.generator.rc``.
+
+
 Translated responses
 --------------------
 
