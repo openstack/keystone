@@ -23,25 +23,25 @@ Extension code base in the ``keystone/contrib/example`` folder.
 
 - All Extensions must be created in the ``keystone/contrib`` folder.
 - The new Extension code must be contained in a new folder under ``contrib``.
-- Whenever possible an Extension should follow the following structure
-  convention::
+- Whenever possible an Extension should follow the following directory
+  structure convention::
 
-      keystone
-          \\\  contrib
-                \\\  my_extension
-                         \\\  backends             (optional)
-
-                         \\\  migrate_repo         (optional)
-
-                         \\\  __init__.py          (mandatory)
-
-                         \\\  configuration.rst    (mandatory)
-
-                         \\\  core.py              (mandatory)
-
-                         \\\  controllers.py       (mandatory for API Extension)
-
-                         \\\  routers.py           (mandatory for API Extension)
+      keystone/contrib/
+      └── my_extension
+          ├── backends (optional)
+          │   ├── __init__.py (mandatory)
+          │   └── sql.py (optional)
+          │   └── kvs.py (optional)
+          ├── migrate_repo (optional)
+          │   ├── __init__.py (mandatory)
+          │   ├── migrate.cfg (mandatory)
+          │   └── versions (mandatory)
+          │       ├── 001_create_tables.py (mandatory)
+          │       └── __init__.py (mandatory)
+          ├── __init__.py (mandatory)
+          ├── core.py (mandatory)
+          ├── controllers.py (mandatory for API Extension)
+          └── routers.py (mandatory for API Extension)
 
 - If the Extension implements an API Extension the ``controllers.py`` and
   ``routers.py`` must be present and correctly handle the API Extension
@@ -187,18 +187,8 @@ Backends
 ========
 
 The ``backends`` folder provides the model implementations for the different
-backends supported by the Extension. The folder structure must be the
-following::
-
-    keystone
-        \\\  contrib
-              \\\  my_extension
-                       \\\  backends
-                              \\\   __init__.py       (required)
-
-                              \\\   sql.py            (optional)
-
-                              \\\   kvs.py            (optional)
+backends supported by the Extension. See General above for an example directory
+structure.
 
 If a SQL backend is provided, in the ``sql.py`` backend implementation it is
 mandatory to define the new table(s) that the Extension introduces and the
