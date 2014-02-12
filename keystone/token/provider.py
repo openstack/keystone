@@ -195,11 +195,7 @@ class Manager(manager.Manager):
             LOG.exception(_('Unexpected error or malformed token determining '
                             'token expiry: %s'), token)
 
-        # FIXME(morganfainberg): This error message needs to be updated to
-        # reflect the token couldn't be found, but this change needs to wait
-        # until Icehouse due to string freeze in Havana.  This should be:
-        # "Failed to find valid token" or something similar.
-        raise exception.TokenNotFound(_('Failed to validate token'))
+        raise exception.TokenNotFound(_("The token is malformed or expired."))
 
     def _token_belongs_to(self, token, belongs_to):
         """Check if the token belongs to the right tenant.
