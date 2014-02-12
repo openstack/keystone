@@ -69,9 +69,9 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
 
-    def create_region(self, region_id, region_ref):
+    def create_region(self, region_ref):
         try:
-            return self.driver.create_region(region_id, region_ref)
+            return self.driver.create_region(region_ref)
         except exception.NotFound:
             parent_region_id = region_ref.get('parent_region_id')
             raise exception.RegionNotFound(region_id=parent_region_id)
@@ -142,7 +142,7 @@ class Driver(object):
         return CONF.catalog.list_limit or CONF.list_limit
 
     @abc.abstractmethod
-    def create_region(self, region_id, region_ref):
+    def create_region(self, region_ref):
         """Creates a new region.
 
         :raises: keystone.exception.Conflict

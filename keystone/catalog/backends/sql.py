@@ -130,7 +130,7 @@ class Catalog(sql.Base, catalog.Driver):
             session.delete(ref)
             session.flush()
 
-    def create_region(self, region_id, region_ref):
+    def create_region(self, region_ref):
         session = db_session.get_session()
         with session.begin():
             self._check_parent_region(session, region_ref)
