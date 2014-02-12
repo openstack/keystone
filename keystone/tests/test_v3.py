@@ -491,7 +491,7 @@ class RestfulTestCase(rest.RestfulTestCase):
         except Exception:
             msg = '%s is not a valid ISO 8601 extended format date time.' % dt
             raise AssertionError(msg)
-        self.assertTrue(isinstance(dt, datetime.datetime))
+        self.assertIsInstance(dt, datetime.datetime)
 
     def assertValidTokenResponse(self, r, user=None):
         self.assertTrue(r.headers.get('X-Subject-Token'))
@@ -572,7 +572,7 @@ class RestfulTestCase(rest.RestfulTestCase):
         trust = token.get('OS-TRUST:trust')
         self.assertIsNotNone(trust)
         self.assertIsNotNone(trust.get('id'))
-        self.assertTrue(isinstance(trust.get('impersonation'), bool))
+        self.assertIsInstance(trust.get('impersonation'), bool)
         self.assertIsNotNone(trust.get('trustor_user'))
         self.assertIsNotNone(trust.get('trustee_user'))
         self.assertIsNotNone(trust['trustor_user'].get('id'))

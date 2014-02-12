@@ -1042,7 +1042,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         if require_service_catalog:
             self.assertIsNotNone(serviceCatalog)
         if serviceCatalog is not None:
-            self.assertTrue(isinstance(serviceCatalog, list))
+            self.assertIsInstance(serviceCatalog, list)
             if require_service_catalog:
                 self.assertNotEmpty(serviceCatalog)
             for service in r.result['access']['serviceCatalog']:

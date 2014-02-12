@@ -2898,14 +2898,14 @@ class TokenTests(object):
         data_ref = self.token_api.create_token(token_id, data)
         expires = data_ref.pop('expires')
         data_ref.pop('user_id')
-        self.assertTrue(isinstance(expires, datetime.datetime))
+        self.assertIsInstance(expires, datetime.datetime)
         data_ref.pop('id')
         data.pop('id')
         self.assertDictEqual(data_ref, data)
 
         new_data_ref = self.token_api.get_token(token_id)
         expires = new_data_ref.pop('expires')
-        self.assertTrue(isinstance(expires, datetime.datetime))
+        self.assertIsInstance(expires, datetime.datetime)
         new_data_ref.pop('user_id')
         new_data_ref.pop('id')
 
