@@ -354,29 +354,29 @@
 # Log output to standard error (boolean value)
 #use_stderr=true
 
-# format string to use for log messages with context (string
+# Format string to use for log messages with context (string
 # value)
 #logging_context_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
 
-# format string to use for log messages without context
+# Format string to use for log messages without context
 # (string value)
 #logging_default_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
 
-# data to append to log format when level is DEBUG (string
+# Data to append to log format when level is DEBUG (string
 # value)
 #logging_debug_format_suffix=%(funcName)s %(pathname)s:%(lineno)d
 
-# prefix each line of exception output with this format
+# Prefix each line of exception output with this format
 # (string value)
 #logging_exception_prefix=%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
 
-# list of logger=LEVEL pairs (list value)
-#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,iso8601=WARN
+# List of logger=LEVEL pairs (list value)
+#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN
 
-# publish error events (boolean value)
+# Publish error events (boolean value)
 #publish_errors=false
 
-# make deprecations fatal (boolean value)
+# Make deprecations fatal (boolean value)
 #fatal_deprecations=false
 
 # If an instance is passed with the log message, format it
@@ -416,10 +416,18 @@
 # Deprecated group/name - [DEFAULT]/logdir
 #log_dir=<None>
 
-# Use syslog for logging. (boolean value)
+# Use syslog for logging. Existing syslog format is DEPRECATED
+# during I, and then will be changed in J to honor RFC5424
+# (boolean value)
 #use_syslog=false
 
-# syslog facility to receive log lines (string value)
+# (Optional) Use syslog rfc5424 format for logging. If
+# enabled, will add APP-NAME (RFC5424) before the MSG part of
+# the syslog message.  The old format without APP-NAME is
+# deprecated in I, and will be removed in J. (boolean value)
+#use_syslog_rfc_format=false
+
+# Syslog facility to receive log lines (string value)
 #syslog_log_facility=LOG_USER
 
 
