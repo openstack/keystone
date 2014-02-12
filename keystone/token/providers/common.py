@@ -139,7 +139,7 @@ class V3TokenDataHelper(object):
             self.trust_api = trust.Manager()
 
     def _get_filtered_domain(self, domain_id):
-        domain_ref = self.identity_api.get_domain(domain_id)
+        domain_ref = self.assignment_api.get_domain(domain_id)
         return {'id': domain_ref['id'], 'name': domain_ref['name']}
 
     def _get_filtered_project(self, project_id):
