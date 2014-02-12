@@ -119,7 +119,7 @@ class Server(object):
         logger = log.getLogger('eventlet.wsgi.server')
         try:
             eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                                 log=log.WritableLogger(logger))
+                                 log=log.WritableLogger(logger), debug=False)
         except Exception:
             LOG.exception(_('Server error'))
             raise
