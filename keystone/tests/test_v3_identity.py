@@ -1763,10 +1763,10 @@ class TestV3toV2Methods(tests.TestCase):
         self.assertDictEqual(ref, expected_ref)
 
 
-class UserChangingPasswordsTestCase(test_v3.RestfulTestCase):
+class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(UserChangingPasswordsTestCase, self).setUp()
+        super(UserSelfServiceChangingPasswordsTestCase, self).setUp()
         self.user_ref = self.new_user_ref(domain_id=self.domain['id'])
         self.identity_api.create_user(self.user_ref['id'], self.user_ref)
         self.token = self.get_request_token(self.user_ref['password'], 201)
