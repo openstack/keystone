@@ -152,12 +152,6 @@ class Federation(sql.Base, core.Driver):
                       'idp_id': idp_id}
             raise exception.FederatedProtocolNotFound(**kwargs)
 
-    def _store_protocol(self, session, protocol_ref):
-        try:
-            session.add(protocol_ref)
-        except sql.IntegrityError:
-            raise exception.ValidationError()
-
     @sql.handle_conflicts(conflict_type='federation_protocol')
     def create_protocol(self, idp_id, protocol_id, protocol):
         session = db_session.get_session()
