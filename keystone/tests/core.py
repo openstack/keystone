@@ -506,10 +506,10 @@ class TestCase(testtools.TestCase):
                 expected_regexp = re.compile(expected_regexp)
 
             if isinstance(exc_value.args[0], gettextutils.Message):
-                if not expected_regexp.search(unicode(exc_value)):
+                if not expected_regexp.search(six.text_type(exc_value)):
                     raise self.failureException(
                         '"%s" does not match "%s"' %
-                        (expected_regexp.pattern, unicode(exc_value)))
+                        (expected_regexp.pattern, six.text_type(exc_value)))
             else:
                 if not expected_regexp.search(str(exc_value)):
                     raise self.failureException(
