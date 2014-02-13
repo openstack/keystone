@@ -182,9 +182,6 @@ class Assignment(assignment.Driver):
                                     role_dn=role_dn,
                                     tenant_dn=tenant_dn)
 
-    def _create_metadata(self, user_id, tenant_id, metadata):
-        return {}
-
     def create_role(self, role_id, role):
         self.role.check_allow_create()
         try:
