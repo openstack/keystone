@@ -268,7 +268,7 @@ class Auth(controller.V2Controller):
                 user_id=user_id,
                 password=password)
         except AssertionError as e:
-            raise exception.Unauthorized(e)
+            raise exception.Unauthorized(e.args[0])
 
         metadata_ref = {}
         tenant_id = self._get_project_id_from_auth(auth)
