@@ -21,6 +21,7 @@ import sys
 from migrate.versioning import api as versioning_api
 
 from keystone import config
+from keystone import exception
 
 
 CONF = config.CONF
@@ -84,5 +85,7 @@ def find_migrate_repo(package=None):
         filename = package.__file__
     path = os.path.join(os.path.abspath(os.path.dirname(filename)),
                         'migrate_repo')
-    assert os.path.exists(path)
+    if not os.path.exists(path):
+        raise exception.MigrationNotProvided(
+            mod_name=os.path.dirname(filename), path=path)
     return path
