@@ -28,12 +28,12 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 extension_data = {
-    'name': 'Openstack Keystone Stats API',
+    'name': 'OpenStack Keystone Stats API',
     'namespace': 'http://docs.openstack.org/identity/api/ext/'
                  'OS-STATS/v1.0',
     'alias': 'OS-STATS',
     'updated': '2013-07-07T12:00:0-00:00',
-    'description': 'Openstack Keystone Stats API.',
+    'description': 'OpenStack Keystone Stats API.',
     'links': [
         {
             'rel': 'describedby',
