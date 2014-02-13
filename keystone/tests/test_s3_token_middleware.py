@@ -13,219 +13,26 @@
 # under the License.
 
 import testtools
-import webob
+
+from keystoneclient.middleware import s3_token as ksc_s3_token
 
 from keystone.middleware import s3_token
-from keystone.openstack.common import jsonutils
-
-
-class FakeHTTPResponse(object):
-    def __init__(self, status, body):
-        self.status = status
-        self.body = body
-        self.reason = ""
-
-    def read(self):
-        return self.body
-
-
-class FakeApp(object):
-    """This represents a WSGI app protected by the auth_token middleware."""
-    def __call__(self, env, start_response):
-        resp = webob.Response()
-        resp.environ = env
-        return resp(env, start_response)
-
-
-class FakeHTTPConnection(object):
-    def __init__(self, *args):
-        return
-
-    def getresponse(self):
-        return self.resp
-
-    def close(self):
-        pass
-
-    def request(self, method, path, **kwargs):
-        pass
 
 
 class S3TokenMiddlewareTestBase(testtools.TestCase):
-    def setUp(self):
-        super(S3TokenMiddlewareTestBase, self).setUp()
+    def test_symbols(self):
+        """Verify s3_token middleware symbols.
 
-    def start_fake_response(self, status, headers):
-        self.response_status = int(status.split(' ', 1)[0])
-        self.response_headers = dict(headers)
+        Verify that the keystone version of s3_token middleware forwards the
+        public symbols from the keystoneclient version of the s3_token
+        middleware for backwards compatibility.
 
+        """
 
-def good_request(cls, method, path, **kwargs):
-    cls.status = 201
-    ret = {'access': {'token':
-                      {'id': 'TOKEN_ID',
-                       'tenant': {'id': 'TENANT_ID'}}}}
-    body = jsonutils.dumps(ret)
-    cls.resp = FakeHTTPResponse(cls.status, body)
-
-
-class S3TokenMiddlewareTestGood(S3TokenMiddlewareTestBase):
-    def setup_middleware_fake(self):
-        self.middleware.http_client_class = FakeHTTPConnection
-        self.middleware.http_client_class.request = good_request
-
-    def setUp(self):
-        self.middleware = s3_token.S3Token(FakeApp(), {})
-        self.setup_middleware_fake()
-        super(S3TokenMiddlewareTestGood, self).setUp()
-
-    # Ignore the request and pass to the next middleware in the
-    # pipeline if no path has been specified.
-    def test_no_path_request(self):
-        req = webob.Request.blank('/')
-        self.middleware(req.environ, self.start_fake_response)
-        self.assertEqual(self.response_status, 200)
-
-    # Ignore the request and pass to the next middleware in the
-    # pipeline if no Authorization header has been specified
-    def test_without_authorization(self):
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        self.middleware(req.environ, self.start_fake_response)
-        self.assertEqual(self.response_status, 200)
-
-    def test_without_auth_storage_token(self):
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'badboy'
-        self.middleware(req.environ, self.start_fake_response)
-        self.assertEqual(self.response_status, 200)
-
-    def test_authorized(self):
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'access:signature'
-        req.headers['X-Storage-Token'] = 'token'
-        req.get_response(self.middleware)
-        self.assertTrue(req.path.startswith('/v1/AUTH_TENANT_ID'))
-        self.assertEqual(req.headers['X-Auth-Token'], 'TOKEN_ID')
-
-    def test_authorized_http(self):
-        self.middleware = (
-            s3_token.filter_factory({'auth_protocol': 'http'})(FakeApp()))
-        self.setup_middleware_fake()
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'access:signature'
-        req.headers['X-Storage-Token'] = 'token'
-        req.get_response(self.middleware)
-        self.assertTrue(req.path.startswith('/v1/AUTH_TENANT_ID'))
-        self.assertEqual(req.headers['X-Auth-Token'], 'TOKEN_ID')
-
-    def test_authorization_nova_toconnect(self):
-        req = webob.Request.blank('/v1/AUTH_swiftint/c/o')
-        req.headers['Authorization'] = 'access:FORCED_TENANT_ID:signature'
-        req.headers['X-Storage-Token'] = 'token'
-        req.get_response(self.middleware)
-        path = req.environ['PATH_INFO']
-        self.assertTrue(path.startswith('/v1/AUTH_FORCED_TENANT_ID'))
-
-
-class S3TokenMiddlewareTestBad(S3TokenMiddlewareTestBase):
-    def setUp(self):
-        self.middleware = s3_token.S3Token(FakeApp(), {})
-        self.middleware.http_client_class = FakeHTTPConnection
-        super(S3TokenMiddlewareTestBad, self).setUp()
-
-    def test_unauthorized_token(self):
-        def request(self, method, path, **kwargs):
-            ret = {"error":
-                   {"message": "EC2 access key not found.",
-                    "code": 401,
-                    "title": "Unauthorized"}}
-            body = jsonutils.dumps(ret)
-            self.status = 403
-            self.resp = FakeHTTPResponse(self.status, body)
-
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'access:signature'
-        req.headers['X-Storage-Token'] = 'token'
-        self.middleware.http_client_class.request = request
-        resp = req.get_response(self.middleware)
-        s3_denied_req = self.middleware.deny_request('AccessDenied')
-        self.assertEqual(resp.body, s3_denied_req.body)
-        self.assertEqual(resp.status_int, s3_denied_req.status_int)
-
-    def test_bogus_authorization(self):
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'badboy'
-        req.headers['X-Storage-Token'] = 'token'
-        resp = req.get_response(self.middleware)
-        self.assertEqual(resp.status_int, 400)
-        s3_invalid_req = self.middleware.deny_request('InvalidURI')
-        self.assertEqual(resp.body, s3_invalid_req.body)
-        self.assertEqual(resp.status_int, s3_invalid_req.status_int)
-
-    def test_fail_to_connect_to_keystone(self):
-        def request(self, method, path, **kwargs):
-            raise s3_token.ServiceError
-        self.middleware.http_client_class.request = request
-
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'access:signature'
-        req.headers['X-Storage-Token'] = 'token'
-        self.middleware.http_client_class.status = 503
-        resp = req.get_response(self.middleware)
-        s3_invalid_req = self.middleware.deny_request('InvalidURI')
-        self.assertEqual(resp.body, s3_invalid_req.body)
-        self.assertEqual(resp.status_int, s3_invalid_req.status_int)
-
-    def test_bad_reply(self):
-        def request(self, method, path, **kwargs):
-            body = "<badreply>"
-            self.status = 201
-            self.resp = FakeHTTPResponse(self.status, body)
-
-        req = webob.Request.blank('/v1/AUTH_cfa/c/o')
-        req.headers['Authorization'] = 'access:signature'
-        req.headers['X-Storage-Token'] = 'token'
-        self.middleware.http_client_class.request = request
-        resp = req.get_response(self.middleware)
-        s3_invalid_req = self.middleware.deny_request('InvalidURI')
-        self.assertEqual(resp.body, s3_invalid_req.body)
-        self.assertEqual(resp.status_int, s3_invalid_req.status_int)
-
-
-class S3TokenMiddlewareTestUtil(testtools.TestCase):
-    def test_split_path_failed(self):
-        self.assertRaises(ValueError, s3_token.split_path, '')
-        self.assertRaises(ValueError, s3_token.split_path, '/')
-        self.assertRaises(ValueError, s3_token.split_path, '//')
-        self.assertRaises(ValueError, s3_token.split_path, '//a')
-        self.assertRaises(ValueError, s3_token.split_path, '/a/c')
-        self.assertRaises(ValueError, s3_token.split_path, '//c')
-        self.assertRaises(ValueError, s3_token.split_path, '/a/c/')
-        self.assertRaises(ValueError, s3_token.split_path, '/a//')
-        self.assertRaises(ValueError, s3_token.split_path, '/a', 2)
-        self.assertRaises(ValueError, s3_token.split_path, '/a', 2, 3)
-        self.assertRaises(ValueError, s3_token.split_path, '/a', 2, 3, True)
-        self.assertRaises(ValueError, s3_token.split_path, '/a/c/o/r', 3, 3)
-        self.assertRaises(ValueError, s3_token.split_path, '/a', 5, 4)
-
-    def test_split_path_success(self):
-        self.assertEqual(s3_token.split_path('/a'), ['a'])
-        self.assertEqual(s3_token.split_path('/a/'), ['a'])
-        self.assertEqual(s3_token.split_path('/a/c', 2), ['a', 'c'])
-        self.assertEqual(s3_token.split_path('/a/c/o', 3), ['a', 'c', 'o'])
-        self.assertEqual(s3_token.split_path('/a/c/o/r', 3, 3, True),
-                         ['a', 'c', 'o/r'])
-        self.assertEqual(s3_token.split_path('/a/c', 2, 3, True),
-                         ['a', 'c', None])
-        self.assertEqual(s3_token.split_path('/a/c/', 2), ['a', 'c'])
-        self.assertEqual(s3_token.split_path('/a/c/', 2, 3), ['a', 'c', ''])
-
-    def test_split_path_invalid_path(self):
-        try:
-            s3_token.split_path('o\nn e', 2)
-        except ValueError as err:
-            self.assertEqual(str(err), 'Invalid path: o%0An%20e')
-        try:
-            s3_token.split_path('o\nn e', 2, 3, True)
-        except ValueError as err:
-            self.assertEqual(str(err), 'Invalid path: o%0An%20e')
+        self.assertIs(ksc_s3_token.PROTOCOL_NAME, s3_token.PROTOCOL_NAME)
+        self.assertIs(ksc_s3_token.split_path, s3_token.split_path)
+        self.assertIs(ksc_s3_token.ServiceError, s3_token.ServiceError)
+        self.assertIs(ksc_s3_token.filter_factory, s3_token.filter_factory)
+        self.assertTrue(
+            issubclass(s3_token.S3Token, ksc_s3_token.S3Token),
+            's3_token.S3Token is not subclass of keystoneclient s3_token')
