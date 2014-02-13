@@ -461,6 +461,17 @@ class Manager(manager.Manager):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
         return driver.check_user_in_group(user_id, group_id)
 
+    @domains_configured
+    def change_password(self, user_id, original_password, new_password,
+                        domain_scope):
+
+        # authenticate() will raise an AssertionError if authentication fails
+        self.authenticate(user_id, original_password,
+                          domain_scope=domain_scope)
+
+        update_dict = {'password': new_password}
+        self.update_user(user_id, update_dict, domain_scope=domain_scope)
+
     # TODO(morganfainberg): Remove the following deprecated methods once
     # Icehouse is released.  Maintain identity -> assignment proxy for 1
     # release.
