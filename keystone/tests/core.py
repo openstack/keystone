@@ -55,7 +55,7 @@ from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
-from keystone.common import utils
+from keystone.common import utils as common_utils
 from keystone import config
 from keystone import exception
 from keystone import notifications
@@ -132,12 +132,12 @@ def checkout_vendor(repo, rev):
                 return revdir
 
         if not os.path.exists(revdir):
-            utils.git('clone', repo, revdir)
+            common_utils.git('clone', repo, revdir)
 
         os.chdir(revdir)
-        utils.git('checkout', '-q', 'master')
-        utils.git('pull', '-q')
-        utils.git('checkout', '-q', rev)
+        common_utils.git('checkout', '-q', 'master')
+        common_utils.git('pull', '-q')
+        common_utils.git('checkout', '-q', rev)
 
         # write out a modified time
         with open(modcheck, 'w') as fd:

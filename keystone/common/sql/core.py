@@ -144,6 +144,19 @@ class DictBase(models.ModelBase):
         return getattr(self, key)
 
 
+class ModelDictMixin(object):
+
+    @classmethod
+    def from_dict(cls, d):
+        """Returns a model instance from a dictionary."""
+        return cls(**d)
+
+    def to_dict(self):
+        """Returns the model's attributes as a dictionary."""
+        names = (column.name for column in self.__table__.columns)
+        return dict((name, getattr(self, name)) for name in names)
+
+
 @contextlib.contextmanager
 def transaction(expire_on_commit=False):
     """Return a SQLAlchemy session in a scoped transaction."""
