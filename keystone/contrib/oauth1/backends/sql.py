@@ -16,6 +16,8 @@ import datetime
 import random
 import uuid
 
+import six
+
 from keystone.common import sql
 from keystone.common.sql import migration
 from keystone.contrib.oauth1 import core
@@ -54,7 +56,7 @@ class RequestToken(sql.ModelBase, sql.DictBase):
         return cls(**user_dict)
 
     def to_dict(self):
-        return dict(self.iteritems())
+        return dict(six.iteritems(self))
 
 
 class AccessToken(sql.ModelBase, sql.DictBase):
@@ -77,7 +79,7 @@ class AccessToken(sql.ModelBase, sql.DictBase):
         return cls(**user_dict)
 
     def to_dict(self):
-        return dict(self.iteritems())
+        return dict(six.iteritems(self))
 
 
 class OAuth1(sql.Base):

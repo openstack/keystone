@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from keystone import assignment
 from keystone import clean
 from keystone.common import sql
@@ -727,7 +729,7 @@ class BaseGrant(sql.DictBase):
         Grant tables don't have non-indexed 'extra' attributes, so the
         parent implementation is not applicable.
         """
-        return dict(self.iteritems())
+        return dict(six.iteritems(self))
 
 
 class UserProjectGrant(sql.ModelBase, BaseGrant):
