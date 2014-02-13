@@ -43,7 +43,7 @@ CONF.register_opts(keystone_ec2_opts)
 class EC2Token(wsgi.Middleware):
     """Authenticate an EC2 request with keystone and convert to token."""
 
-    @webob.dec.wsgify(RequestClass=wsgi.Request)
+    @webob.dec.wsgify()
     def __call__(self, req):
         # Read request signature and access id.
         try:
