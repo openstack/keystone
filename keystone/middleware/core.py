@@ -191,7 +191,7 @@ class RequestBodySizeLimiter(wsgi.Middleware):
     def __init__(self, *args, **kwargs):
         super(RequestBodySizeLimiter, self).__init__(*args, **kwargs)
 
-    @webob.dec.wsgify(RequestClass=wsgi.Request)
+    @webob.dec.wsgify()
     def __call__(self, req):
 
         if req.content_length > CONF.max_request_body_size:
