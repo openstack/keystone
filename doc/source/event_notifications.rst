@@ -57,6 +57,10 @@ Notifications for create, update and delete events are all similar to each
 other, where either ``created``, ``updated`` or ``deleted`` is inserted as the
 ``<operation>`` in the above notification's ``event_type``.
 
+The ``priority`` of the notification being sent is not configurable through
+the Keystone configuration file. This value is defaulted to INFO for all
+notifications sent in Keystone's case.
+
 If the operation fails, the notification won't be sent, and no special error
 notification will be sent.  Information about the error is handled through
 normal exception paths.
