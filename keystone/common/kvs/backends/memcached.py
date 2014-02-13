@@ -76,7 +76,7 @@ class MemcachedLock(object):
 
 
 class MemcachedBackend(manager.Manager):
-    """Pivot point to leverage the various dogpile.cache memcache backends.
+    """Pivot point to leverage the various dogpile.cache memcached backends.
 
     To specify a specific dogpile.cache memcached backend, pass the region
     backend argument `dogpile_memcache_backend` set to one of the known dogpile
