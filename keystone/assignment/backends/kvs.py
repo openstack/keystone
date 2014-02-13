@@ -21,8 +21,37 @@ from keystone import exception
 
 @dependency.requires('identity_api')
 class Assignment(kvs.Base, assignment.Driver):
-    def __init__(self):
-        super(Assignment, self).__init__()
+    """KVS Assignment backend.
+
+    This backend uses the following mappings to store data:
+
+    * Domains:
+
+      * domain_list -> [domain_id, ...]
+      * domain-{id} -> domain_ref
+      * domain_name-{name} -> domain_ref
+
+    * Projects:
+
+      * tenant-{id} -> project_ref
+      * tenant_name-{name} -> project_ref
+
+    * Roles:
+
+      * role_list -> [role_id, ...]
+      * role-{id} -> role_ref
+
+    * Role assignments:
+
+      * metadata-{target}-{actor} -> {'roles': [{'id': role-id, ...}, ...]}
+
+    Also uses:
+
+    * Users:
+
+      * user-{id} -> user_ref
+
+    """
 
     # Public interface
 
@@ -153,14 +182,8 @@ class Assignment(kvs.Base, assignment.Driver):
     def list_role_assignments(self):
         """List the role assignments.
 
-        The kvs backend stores role assignments as key-values:
-
-        "metadata-{target}-{actor}", with the value being a role list
-
-        i.e. "metadata-MyProjectID-MyUserID" [{'id': role1}, {'id': role2}]
-
-        ...so we enumerate the list and extract the targets, actors
-        and roles.
+        We enumerate the metadata entries and extract the targets, actors, and
+        roles.
 
         """
         assignment_list = []
