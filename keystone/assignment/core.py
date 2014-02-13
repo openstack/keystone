@@ -335,7 +335,8 @@ class Manager(manager.Manager):
         # to get a valid token to issue this delete.
         if domain['enabled']:
             raise exception.ForbiddenAction(
-                action=_('delete a domain that is not disabled'))
+                action=_('cannot delete a domain that is enabled, '
+                         'please disable it first.'))
 
         self._delete_domain_contents(domain_id)
         self.driver.delete_domain(domain_id)
