@@ -194,145 +194,151 @@ def truncated(f):
 
 # Backends
 class Base(object):
-    def _filter(self, model, query, hints):
-        """Applies filtering to a query.
+    # TODO(blk-u): remove this class since doesn't do anything.
+    pass
+
+
+def _filter(model, query, hints):
+    """Applies filtering to a query.
+
+    :param model: the table model in question
+    :param query: query to apply filters to
+    :param hints: contains the list of filters yet to be satisfied.
+                  Any filters satisfied here will be removed so that
+                  the caller will know if any filters remain.
+
+    :returns query: query, updated with any filters satisfied
+
+    """
+    def inexact_filter(model, query, filter_, hints):
+        """Applies an inexact filter to a query.
 
         :param model: the table model in question
         :param query: query to apply filters to
+        :param filter_: the dict that describes this filter
         :param hints: contains the list of filters yet to be satisfied.
                       Any filters satisfied here will be removed so that
                       the caller will know if any filters remain.
 
-        :returns query: query, updated with any filters satisfied
+        :returns query: query updated to add any inexact filters we could
+                        satisfy
 
         """
-        def inexact_filter(model, query, filter_, hints):
-            """Applies an inexact filter to a query.
+        column_attr = getattr(model, filter_['name'])
 
-            :param model: the table model in question
-            :param query: query to apply filters to
-            :param filter_: the dict that describes this filter
-            :param hints: contains the list of filters yet to be satisfied.
-                          Any filters satisfied here will be removed so that
-                          the caller will know if any filters remain.
+        # TODO(henry-nash): Sqlalchemy 0.7 defaults to case insensitivity
+        # so once we find a way of changing that (maybe on a call-by-call
+        # basis), we can add support for the case sensitive versions of
+        # the filters below.  For now, these case sensitive versions will
+        # be handled at the controller level.
 
-            :returns query: query updated to add any inexact filters we could
-                            satisfy
-
-            """
-            column_attr = getattr(model, filter_['name'])
-
-            # TODO(henry-nash): Sqlalchemy 0.7 defaults to case insensitivity
-            # so once we find a way of changing that (maybe on a call-by-call
-            # basis), we can add support for the case sensitive versions of
-            # the filters below.  For now, these case sensitive versions will
-            # be handled at the controller level.
-
-            if filter_['case_sensitive']:
-                return query
-
-            if filter_['comparator'] == 'contains':
-                query_term = column_attr.ilike('%%%s%%' % filter_['value'])
-            elif filter_['comparator'] == 'startswith':
-                query_term = column_attr.ilike('%s%%' % filter_['value'])
-            elif filter_['comparator'] == 'endswith':
-                query_term = column_attr.ilike('%%%s' % filter_['value'])
-            else:
-                # It's a filter we don't understand, so let the caller
-                # work out if they need to do something with it.
-                return query
-
-            hints.remove(filter_)
-            return query.filter(query_term)
-
-        def exact_filter(model, filter_, cumulative_filter_dict, hints):
-            """Applies an exact filter to a query.
-
-            :param model: the table model in question
-            :param filter_: the dict that describes this filter
-            :param cumulative_filter_dict: a dict that describes the set of
-                                          exact filters built up so far
-            :param hints: contains the list of filters yet to be satisfied.
-                          Any filters satisfied here will be removed so that
-                          the caller will know if any filters remain.
-
-            :returns: updated cumulative dict
-
-            """
-            key = filter_['name']
-            if isinstance(getattr(model, key).property.columns[0].type,
-                          sql.types.Boolean):
-                cumulative_filter_dict[key] = (
-                    utils.attr_as_boolean(filter_['value']))
-            else:
-                cumulative_filter_dict[key] = filter_['value']
-            hints.remove(filter_)
-            return cumulative_filter_dict
-
-        filter_dict = {}
-
-        for filter_ in hints.filters():
-            # TODO(henry-nash): Check if name is valid column, if not skip
-            if filter_['comparator'] == 'equals':
-                filter_dict = exact_filter(model, filter_, filter_dict, hints)
-            else:
-                query = inexact_filter(model, query, filter_, hints)
-
-        # Apply any exact filters we built up
-        if filter_dict:
-            query = query.filter_by(**filter_dict)
-
-        return query
-
-    def _limit(self, query, hints):
-        """Applies a limit to a query.
-
-        :param query: query to apply filters to
-        :param hints: contains the list of filters and limit details.
-
-        :returns updated query
-
-        """
-        # NOTE(henry-nash): If we were to implement pagination, then we
-        # we would expand this method to support pagination and limiting.
-
-        # If we satisfied all the filters, set an upper limit if supplied
-        list_limit = hints.get_limit()
-        if list_limit:
-            query = query.limit(list_limit['limit'])
-        return query
-
-    def filter_limit_query(self, model, query, hints):
-        """Applies filtering and limit to a query.
-
-        :param model: table model
-        :param query: query to apply filters to
-        :param hints: contains the list of filters and limit details.  This may
-                      be None, indicating that there are no filters or limits
-                      to be applied. If it's not None, then any filters
-                      satisfied here will be removed so that the caller will
-                      know if any filters remain.
-
-        :returns: updated query
-
-        """
-        if hints is None:
+        if filter_['case_sensitive']:
             return query
 
-        # First try and satisfy any filters
-        query = self._filter(model, query, hints)
-
-        # NOTE(henry-nash): Any unsatisfied filters will have been left in
-        # the hints list for the controller to handle. We can only try and
-        # limit here if all the filters are already satisfied since, if not,
-        # doing so might mess up the final results. If there are still
-        # unsatisfied filters, we have to leave any limiting to the controller
-        # as well.
-
-        if not hints.filters():
-            return self._limit(query, hints)
+        if filter_['comparator'] == 'contains':
+            query_term = column_attr.ilike('%%%s%%' % filter_['value'])
+        elif filter_['comparator'] == 'startswith':
+            query_term = column_attr.ilike('%s%%' % filter_['value'])
+        elif filter_['comparator'] == 'endswith':
+            query_term = column_attr.ilike('%%%s' % filter_['value'])
         else:
+            # It's a filter we don't understand, so let the caller
+            # work out if they need to do something with it.
             return query
+
+        hints.remove(filter_)
+        return query.filter(query_term)
+
+    def exact_filter(model, filter_, cumulative_filter_dict, hints):
+        """Applies an exact filter to a query.
+
+        :param model: the table model in question
+        :param filter_: the dict that describes this filter
+        :param cumulative_filter_dict: a dict that describes the set of
+                                      exact filters built up so far
+        :param hints: contains the list of filters yet to be satisfied.
+                      Any filters satisfied here will be removed so that
+                      the caller will know if any filters remain.
+
+        :returns: updated cumulative dict
+
+        """
+        key = filter_['name']
+        if isinstance(getattr(model, key).property.columns[0].type,
+                      sql.types.Boolean):
+            cumulative_filter_dict[key] = (
+                utils.attr_as_boolean(filter_['value']))
+        else:
+            cumulative_filter_dict[key] = filter_['value']
+        hints.remove(filter_)
+        return cumulative_filter_dict
+
+    filter_dict = {}
+
+    for filter_ in hints.filters():
+        # TODO(henry-nash): Check if name is valid column, if not skip
+        if filter_['comparator'] == 'equals':
+            filter_dict = exact_filter(model, filter_, filter_dict, hints)
+        else:
+            query = inexact_filter(model, query, filter_, hints)
+
+    # Apply any exact filters we built up
+    if filter_dict:
+        query = query.filter_by(**filter_dict)
+
+    return query
+
+
+def _limit(query, hints):
+    """Applies a limit to a query.
+
+    :param query: query to apply filters to
+    :param hints: contains the list of filters and limit details.
+
+    :returns updated query
+
+    """
+    # NOTE(henry-nash): If we were to implement pagination, then we
+    # we would expand this method to support pagination and limiting.
+
+    # If we satisfied all the filters, set an upper limit if supplied
+    list_limit = hints.get_limit()
+    if list_limit:
+        query = query.limit(list_limit['limit'])
+    return query
+
+
+def filter_limit_query(model, query, hints):
+    """Applies filtering and limit to a query.
+
+    :param model: table model
+    :param query: query to apply filters to
+    :param hints: contains the list of filters and limit details.  This may
+                  be None, indicating that there are no filters or limits
+                  to be applied. If it's not None, then any filters
+                  satisfied here will be removed so that the caller will
+                  know if any filters remain.
+
+    :returns: updated query
+
+    """
+    if hints is None:
+        return query
+
+    # First try and satisfy any filters
+    query = _filter(model, query, hints)
+
+    # NOTE(henry-nash): Any unsatisfied filters will have been left in
+    # the hints list for the controller to handle. We can only try and
+    # limit here if all the filters are already satisfied since, if not,
+    # doing so might mess up the final results. If there are still
+    # unsatisfied filters, we have to leave any limiting to the controller
+    # as well.
+
+    if not hints.filters():
+        return _limit(query, hints)
+    else:
+        return query
 
 
 def handle_conflicts(conflict_type='object'):

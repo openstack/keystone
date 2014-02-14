@@ -156,7 +156,7 @@ class Catalog(sql.Base, catalog.Driver):
     def list_services(self, hints):
         session = db_session.get_session()
         services = session.query(Service)
-        services = self.filter_limit_query(Service, services, hints)
+        services = sql.filter_limit_query(Service, services, hints)
         return [s.to_dict() for s in list(services)]
 
     def _get_service(self, session, service_id):
@@ -225,7 +225,7 @@ class Catalog(sql.Base, catalog.Driver):
     def list_endpoints(self, hints):
         session = db_session.get_session()
         endpoints = session.query(Endpoint)
-        endpoints = self.filter_limit_query(Endpoint, endpoints, hints)
+        endpoints = sql.filter_limit_query(Endpoint, endpoints, hints)
         return [e.to_dict() for e in list(endpoints)]
 
     def update_endpoint(self, endpoint_id, endpoint_ref):
