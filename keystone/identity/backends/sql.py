@@ -75,7 +75,7 @@ class UserGroupMembership(sql.ModelBase, sql.DictBase):
 
 
 @dependency.requires('assignment_api')
-class Identity(sql.Base, identity.Driver):
+class Identity(identity.Driver):
     def default_assignment_driver(self):
         return "keystone.assignment.backends.sql.Assignment"
 

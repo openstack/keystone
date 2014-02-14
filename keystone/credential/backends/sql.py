@@ -32,7 +32,7 @@ class CredentialModel(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class Credential(sql.Base, credential.Driver):
+class Credential(credential.Driver):
     # Internal interface to manage the database
     def db_sync(self, version=None):
         migration.db_sync(

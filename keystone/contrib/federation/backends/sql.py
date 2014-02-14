@@ -88,7 +88,7 @@ class MappingModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class Federation(sql.Base, core.Driver):
+class Federation(core.Driver):
 
     def db_sync(self):
         abs_path = migration_helpers.find_migrate_repo(federation)

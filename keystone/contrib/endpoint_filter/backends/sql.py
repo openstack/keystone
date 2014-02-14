@@ -32,7 +32,7 @@ class ProjectEndpoint(sql.ModelBase, sql.DictBase):
                             nullable=False)
 
 
-class EndpointFilter(sql.Base):
+class EndpointFilter(object):
     # Internal interface to manage the database
 
     def db_sync(self, version=None):

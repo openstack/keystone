@@ -29,7 +29,7 @@ class PolicyModel(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class Policy(sql.Base, rules.Policy):
+class Policy(rules.Policy):
     # Internal interface to manage the database
     def db_sync(self, version=None):
         migration.db_sync(

@@ -32,7 +32,7 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlTests(tests.TestCase, sql.Base):
+class SqlTests(tests.TestCase):
 
     def setUp(self):
         super(SqlTests, self).setUp()

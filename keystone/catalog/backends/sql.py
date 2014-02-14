@@ -77,7 +77,7 @@ class Endpoint(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class Catalog(sql.Base, catalog.Driver):
+class Catalog(catalog.Driver):
     def db_sync(self, version=None):
         migration.db_sync(
             migration_helpers.find_migrate_repo(), version=version)
