@@ -268,7 +268,7 @@ FILE_OPTIONS = {
         cfg.StrOpt('external',
                    default='keystone.auth.plugins.external.DefaultDomain')],
     'paste_deploy': [
-        cfg.StrOpt('config_file', default=None)],
+        cfg.StrOpt('config_file', default='keystone-paste.ini')],
     'memcache': [
         cfg.ListOpt('servers', default=['localhost:11211']),
         cfg.IntOpt('max_compare_and_set_retry', default=16)],
