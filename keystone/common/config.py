@@ -19,7 +19,7 @@ _DEFAULT_AUTH_METHODS = ['external', 'password', 'token']
 
 
 FILE_OPTIONS = {
-    '': [
+    None: [
         cfg.StrOpt('admin_token', secret=True, default='ADMIN'),
         cfg.StrOpt('public_bind_host',
                    default='0.0.0.0',
@@ -320,3 +320,27 @@ def configure(conf=None):
 
     # register any non-default auth methods here (used by extensions, etc)
     setup_authentication(conf)
+
+
+def list_opts():
+    """Return a list of oslo.config options available in Keystone.
+
+    The returned list includes all oslo.config options which are registered by
+    the as the "FILE_OPTIONS" in keystone.common.config. This list will not
+    include the options from the oslo-incubator library or any options
+    registered dynamically at run time.
+
+    Each element of the list is a tuple. The first element is the name of the
+    group under which the list of elements in the second element will be
+    registered. A group name of None corresponds to the [DEFAULT] group in
+    config files.
+
+    This function is also discoverable via the 'oslo.config.opts' entry point
+    under the 'keystone.config.opts' namespace.
+
+    The purpose of this is to allow tools like the Oslo sample config file
+    generator to discover the options exposed to users by this library.
+
+    :returns: a list of (group_name, opts) tuples
+    """
+    return FILE_OPTIONS.items()

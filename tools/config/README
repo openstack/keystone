@@ -1,0 +1,38 @@
+This generate_sample.sh tool is used to generate sample config files
+from OpenStack project source trees.
+
+Run it by passing the base directory and package name i.e.
+
+  $> generate_sample.sh --base-dir /opt/stack/nova --package-name nova \
+                        --output-dir /opt/stack/nova/etc
+  $> generate_sample.sh -b /opt/stack/neutron -p nova -o /opt/stack/neutron/etc
+
+Optionally, include libraries that register entry points for option
+discovery, such as oslo.messaging:
+
+  $> generate_sample.sh -b /opt/stack/ceilometer -p ceilometer \
+                        -o /opt/stack/ceilometer/etc -l oslo.messaging
+
+Watch out for warnings about modules like libvirt, qpid and zmq not
+being found - these warnings are significant because they result
+in options not appearing in the generated config file.
+
+
+
+This check_uptodate.sh tool is used to ensure that the generated sample
+config file in the OpenStack project source tree is continually kept up
+to date with the code itself.
+
+This can be done by adding a hook to tox.ini. For example, if a project
+already had flake8 enabled in a section like this:
+
+  [testenv.pep8]
+  commands =
+    flake8 {posargs}
+
+This section would be changed to:
+
+  [testenv.pep8]
+  commands =
+    flake8 {posargs}
+    {toxinidir}/tools/config/check_uptodate.sh
