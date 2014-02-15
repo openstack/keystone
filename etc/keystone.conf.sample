@@ -511,6 +511,5 @@
 # default_lock_timeout = 5
 
 [paste_deploy]
-# Name of the paste configuration file, typically `keystone-paste.ini`, that
-# defines the available pipelines
-# config_file =
+# Name of the paste configuration file that defines the available pipelines
+# config_file = keystone-paste.ini
