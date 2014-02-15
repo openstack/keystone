@@ -13,7 +13,7 @@
 # under the License.
 
 from __future__ import absolute_import
-
+import atexit
 import functools
 import os
 import re
@@ -150,16 +150,27 @@ def setup_database():
     db = dirs.tmp('test.db')
     pristine = dirs.tmp('test.db.pristine')
 
-    try:
-        if os.path.exists(db):
-            os.unlink(db)
-        if not os.path.exists(pristine):
-            sql.migration.db_sync()
-            shutil.copyfile(db, pristine)
-        else:
-            shutil.copyfile(pristine, db)
-    except Exception:
-        pass
+    if os.path.exists(db):
+        os.unlink(db)
+    if not os.path.exists(pristine):
+        sql.migration.db_sync()
+        shutil.copyfile(db, pristine)
+    else:
+        shutil.copyfile(pristine, db)
+
+
+def teardown_database():
+    session.cleanup()
+
+
+@atexit.register
+def remove_test_databases():
+    db = dirs.tmp('test.db')
+    if os.path.exists(db):
+        os.unlink(db)
+    pristine = dirs.tmp('test.db.pristine')
+    if os.path.exists(pristine):
+        os.unlink(pristine)
 
 
 def generate_paste_config(extension_name):
@@ -182,10 +193,6 @@ def remove_generated_paste_config(extension_name):
     # Remove the generated paste config file, named extension_name.ini
     paste_file_to_remove = dirs.tmp(extension_name + '.ini')
     os.remove(paste_file_to_remove)
-
-
-def teardown_database():
-    session.cleanup()
 
 
 def skip_if_cache_disabled(*sections):
