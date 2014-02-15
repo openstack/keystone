@@ -7,9 +7,9 @@ Keystone Management Utility
 ---------------------------
 
 :Author: openstack@lists.openstack.org
-:Date:   2013-10-17
+:Date:   2014-02-14
 :Copyright: OpenStack Foundation
-:Version: 2013.2
+:Version: 2014.1
 :Manual section: 1
 :Manual group: cloud computing
 
@@ -61,17 +61,19 @@ OPTIONS
                         precedence. The default files used are: None
   --debug, -d           Print debugging output (set logging level to DEBUG
                         instead of default WARNING level).
-  --log-config PATH     If this option is specified, the logging configuration
-                        file specified is used and overrides any other logging
-                        options specified. Please see the Python logging
-                        module documentation for details on logging
-                        configuration files.
+  --log-config-append PATH, --log_config PATH
+                        The name of logging configuration file. It does not
+                        disable existing loggers, but just appends specified
+                        logging configuration to any other existing logging
+                        options. Please see the Python logging module
+                        documentation for details on logging configuration
+                        files.
   --log-date-format DATE_FORMAT
                         Format string for %(asctime)s in log records. Default:
                         None
   --log-dir LOG_DIR, --logdir LOG_DIR
-                        (Optional) The base directory used for relative
-                        --log-file paths
+                        (Optional) The base directory used for relative --log-
+                        file paths
   --log-file PATH, --logfile PATH
                         (Optional) Name of log file to output to. If no
                         default is set, logging will go to stdout.
