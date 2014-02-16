@@ -655,14 +655,12 @@ class KeystoneClientTests(object):
                           client.users.update,
                           user=uuid.uuid4().hex)
 
-    def test_user_update_tenant_404(self):
-        self.skipTest('N/A')
-        from keystoneclient import exceptions as client_exceptions
+    def test_user_update_tenant(self):
         client = self.get_client(admin=True)
-        self.assertRaises(client_exceptions.NotFound,
-                          client.users.update,
-                          user=self.user_foo['id'],
-                          tenant_id=uuid.uuid4().hex)
+        tenant_id = uuid.uuid4().hex
+        user = client.users.update(user=self.user_foo['id'],
+                                   tenant_id=tenant_id)
+        self.assertEqual(tenant_id, user.tenant_id)
 
     def test_user_update_password_404(self):
         from keystoneclient import exceptions as client_exceptions
