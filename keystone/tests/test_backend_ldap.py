@@ -350,6 +350,33 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         after_assignments = len(self.assignment_api.list_role_assignments())
         self.assertEqual(existing_assignments + 2, after_assignments)
 
+    def test_list_role_assignments_dumb_member(self):
+        self.config_fixture.config(group='ldap', use_dumb_member=True)
+        self.clear_database()
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+        new_domain = self._get_domain_fixture()
+        new_user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'password': uuid.uuid4().hex, 'enabled': True,
+                    'domain_id': new_domain['id']}
+        self.identity_api.create_user(new_user['id'],
+                                      new_user)
+        new_project = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex,
+                       'domain_id': new_domain['id']}
+        self.assignment_api.create_project(new_project['id'], new_project)
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=new_project['id'],
+                                         role_id='other')
+
+        # Read back the list of assignments and ensure
+        # that the LDAP dumb member isn't listed.
+        assignment_ids = [a['user_id'] for a in
+                          self.assignment_api.list_role_assignments()]
+        dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
+        self.assertNotIn(dumb_id, assignment_ids)
+
     def test_list_role_assignments_bad_role(self):
         self.skipTest('Blocked by bug 1221805')
 
@@ -671,14 +698,14 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
                           self.role_member['id'])
 
     def test_dumb_member(self):
-        CONF.ldap.use_dumb_member = True
-        CONF.ldap.dumb_member = 'cn=dumb,cn=example,cn=com'
+        self.config_fixture.config(group='ldap', use_dumb_member=True)
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
-                          'dumb')
+                          dumb_id)
 
     def test_project_attribute_mapping(self):
         CONF.ldap.tenant_name_attribute = 'ou'
