@@ -219,22 +219,11 @@ class ConsumerCRUDTests(OAuth1Tests):
                                  body={'consumer': update_ref})
         consumer = update_resp.result['consumer']
 
-        # TODO(blk-u): Update isn't working correctly. It should be
-        # normalizing the field names like when a consumer is created.
-        # See bug 1276857.
-        # The assertion code should be like this:
-        #
-        # normalized_field1_name = 'some_weird_field'
-        # self.assertEqual(field1_new_value, consumer[normalized_field1_name])
-        #
-        # normalized_field2_name = 'weird_some_field'
-        # self.assertEqual(field2_value, consumer[normalized_field2_name])
-
         normalized_field1_name = 'some_weird_field'
-        self.assertEqual(field1_orig_value, consumer[normalized_field1_name])
-        self.assertEqual(field1_new_value, consumer[field1_name])
+        self.assertEqual(field1_new_value, consumer[normalized_field1_name])
 
-        self.assertEqual(field2_value, consumer[field2_name])
+        normalized_field2_name = 'weird_some_field'
+        self.assertEqual(field2_value, consumer[normalized_field2_name])
 
     def test_consumer_create_no_description(self):
         resp = self.post('/OS-OAUTH1/consumers', body={'consumer': {}})
