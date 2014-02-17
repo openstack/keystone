@@ -293,6 +293,7 @@ class Manager(manager.Manager):
     def get_domain_by_name(self, domain_name):
         return self.driver.get_domain_by_name(domain_name)
 
+    @notifications.created('domain')
     def create_domain(self, domain_id, domain):
         ret = self.driver.create_domain(domain_id, domain)
         if SHOULD_CACHE(ret):
@@ -319,6 +320,7 @@ class Manager(manager.Manager):
         self.get_domain_by_name.invalidate(self, ret['name'])
         return ret
 
+    @notifications.deleted('domain')
     def delete_domain(self, domain_id):
         # explicitly forbid deleting the default domain (this should be a
         # carefully orchestrated manual process involving configuration

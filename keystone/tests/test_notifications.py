@@ -174,6 +174,12 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
         self.stubs.Set(notifications, 'send_notification', fake_notify)
 
+    def _assertNotifySeen(self, resource_id, operation, resource_type):
+        self.assertIn(operation, self.exp_operations)
+        self.assertIn(resource_id, self.exp_resource_ids)
+        self.assertIn(resource_type, self.exp_resource_types)
+        self.assertTrue(self.send_notification_called)
+
     def _assertLastNotify(self, resource_id, operation, resource_type):
         self.assertTrue(len(self._notifications) > 0)
         note = self._notifications[-1]
@@ -267,6 +273,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
     def test_update_domain(self):
         domain_ref = self.new_domain_ref()
         self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        domain_ref['description'] = uuid.uuid4().hex
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
         self._assertLastNotify(domain_ref['id'], 'updated', 'domain')
 
@@ -283,11 +290,19 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.delete_trust(trust_ref['id'])
         self._assertLastNotify(trust_ref['id'], 'deleted', 'OS-TRUST:trust')
 
+    def test_delete_domain(self):
+        domain_ref = self.new_domain_ref()
+        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        domain_ref['enabled'] = False
+        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self.assignment_api.delete_domain(domain_ref['id'])
+        self._assertLastNotify(domain_ref['id'], 'deleted', 'domain')
+
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()
-        self.identity_api.create_domain(domain_ref['id'], domain_ref)
+        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['enabled'] = False
-        self.identity_api.update_domain(domain_ref['id'], domain_ref)
+        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
         self._assertNotifySent(domain_ref['id'], 'disabled', 'domain',
                                public=False)
 
