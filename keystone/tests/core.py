@@ -347,6 +347,7 @@ class TestCase(testtools.TestCase):
 
         # Ensure Notification subscriotions and resource types are empty
         self.addCleanup(notifications.SUBSCRIBERS.clear)
+        self.addCleanup(notifications._reset_notifier)
 
         # Reset the auth-plugin registry
         self.addCleanup(self.clear_auth_plugin_registry)
