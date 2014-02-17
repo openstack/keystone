@@ -54,7 +54,7 @@ class OAuth1Tests(test_v3.RestfulTestCase):
         resp = self.post(
             '/OS-OAUTH1/consumers',
             body={'consumer': ref})
-        return resp.result.get('consumer')
+        return resp.result['consumer']
 
     def _create_request_token(self, consumer, project_id):
         endpoint = '/OS-OAUTH1/request_token'
@@ -111,11 +111,11 @@ class ConsumerCRUDTests(OAuth1Tests):
         resp = self.post(
             '/OS-OAUTH1/consumers',
             body={'consumer': ref})
-        consumer = resp.result.get('consumer')
-        consumer_id = consumer.get('id')
+        consumer = resp.result['consumer']
+        consumer_id = consumer['id']
         self.assertEqual(consumer['description'], description)
         self.assertIsNotNone(consumer_id)
-        self.assertIsNotNone(consumer.get('secret'))
+        self.assertIsNotNone(consumer['secret'])
         return consumer
 
     def test_consumer_create(self):
@@ -140,60 +140,55 @@ class ConsumerCRUDTests(OAuth1Tests):
 
     def test_consumer_delete(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        resp = self.delete('/OS-OAUTH1/consumers/%(consumer_id)s'
-                           % {'consumer_id': consumer_id})
+        consumer_id = consumer['id']
+        resp = self.delete('/OS-OAUTH1/consumers/%s' % consumer_id)
         self.assertResponseStatus(resp, 204)
 
     def test_consumer_get(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        resp = self.get('/OS-OAUTH1/consumers/%(consumer_id)s'
-                        % {'consumer_id': consumer_id})
-        self.assertEqual(resp.result.get('consumer').get('id'), consumer_id)
+        consumer_id = consumer['id']
+        resp = self.get('/OS-OAUTH1/consumers/%s' % consumer_id)
+        self.assertEqual(resp.result['consumer']['id'], consumer_id)
 
     def test_consumer_list(self):
         resp = self.get('/OS-OAUTH1/consumers')
-        entities = resp.result.get('consumers')
+        entities = resp.result['consumers']
         self.assertIsNotNone(entities)
-        self.assertValidListLinks(resp.result.get('links'))
+        self.assertValidListLinks(resp.result['links'])
 
     def test_consumer_update(self):
         consumer = self._create_single_consumer()
-        original_id = consumer.get('id')
-        original_description = consumer.get('description')
-        update_description = original_description + "_new"
+        original_id = consumer['id']
+        original_description = consumer['description']
+        update_description = original_description + '_new'
 
         update_ref = {'description': update_description}
-        update_resp = self.patch('/OS-OAUTH1/consumers/%(consumer_id)s'
-                                 % {'consumer_id': original_id},
+        update_resp = self.patch('/OS-OAUTH1/consumers/%s' % original_id,
                                  body={'consumer': update_ref})
-        consumer = update_resp.result.get('consumer')
-        self.assertEqual(consumer.get('description'), update_description)
-        self.assertEqual(consumer.get('id'), original_id)
+        consumer = update_resp.result['consumer']
+        self.assertEqual(consumer['description'], update_description)
+        self.assertEqual(consumer['id'], original_id)
 
     def test_consumer_update_bad_secret(self):
         consumer = self._create_single_consumer()
-        original_id = consumer.get('id')
+        original_id = consumer['id']
         update_ref = copy.deepcopy(consumer)
         update_ref['description'] = uuid.uuid4().hex
         update_ref['secret'] = uuid.uuid4().hex
-        self.patch('/OS-OAUTH1/consumers/%(consumer_id)s'
-                   % {'consumer_id': original_id},
+        self.patch('/OS-OAUTH1/consumers/%s' % original_id,
                    body={'consumer': update_ref},
                    expected_status=400)
 
     def test_consumer_update_bad_id(self):
         consumer = self._create_single_consumer()
-        original_id = consumer.get('id')
-        original_description = consumer.get('description')
+        original_id = consumer['id']
+        original_description = consumer['description']
         update_description = original_description + "_new"
 
         update_ref = copy.deepcopy(consumer)
         update_ref['description'] = update_description
         update_ref['id'] = update_description
-        self.patch('/OS-OAUTH1/consumers/%(consumer_id)s'
-                   % {'consumer_id': original_id},
+        self.patch('/OS-OAUTH1/consumers/%s' % original_id,
                    body={'consumer': update_ref},
                    expected_status=400)
 
@@ -227,11 +222,11 @@ class ConsumerCRUDTests(OAuth1Tests):
 
     def test_consumer_create_no_description(self):
         resp = self.post('/OS-OAUTH1/consumers', body={'consumer': {}})
-        consumer = resp.result.get('consumer')
-        consumer_id = consumer.get('id')
-        self.assertEqual(consumer.get('description'), None)
+        consumer = resp.result['consumer']
+        consumer_id = consumer['id']
+        self.assertIsNone(consumer['description'])
         self.assertIsNotNone(consumer_id)
-        self.assertIsNotNone(consumer.get('secret'))
+        self.assertIsNotNone(consumer['secret'])
 
     def test_consumer_get_bad_id(self):
         self.get('/OS-OAUTH1/consumers/%(consumer_id)s'
@@ -243,8 +238,8 @@ class OAuthFlowTests(OAuth1Tests):
 
     def test_oauth_flow(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
         self.consumer = {'key': consumer_id, 'secret': consumer_secret}
         self.assertIsNotNone(self.consumer['secret'])
 
@@ -252,8 +247,8 @@ class OAuthFlowTests(OAuth1Tests):
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        request_key = credentials.get('oauth_token')[0]
-        request_secret = credentials.get('oauth_token_secret')[0]
+        request_key = credentials['oauth_token'][0]
+        request_secret = credentials['oauth_token_secret'][0]
         self.request_token = oauth1.Token(request_key, request_secret)
         self.assertIsNotNone(self.request_token.key)
 
@@ -267,16 +262,16 @@ class OAuthFlowTests(OAuth1Tests):
                                                  self.request_token)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        access_key = credentials.get('oauth_token')[0]
-        access_secret = credentials.get('oauth_token_secret')[0]
+        access_key = credentials['oauth_token'][0]
+        access_secret = credentials['oauth_token_secret'][0]
         self.access_token = oauth1.Token(access_key, access_secret)
         self.assertIsNotNone(self.access_token.key)
 
         url, headers, body = self._get_oauth_token(self.consumer,
                                                    self.access_token)
         content = self.post(url, headers=headers, body=body)
-        self.keystone_token_id = content.headers.get('X-Subject-Token')
-        self.keystone_token = content.result.get('token')
+        self.keystone_token_id = content.headers['X-Subject-Token']
+        self.keystone_token = content.result['token']
         self.assertIsNotNone(self.keystone_token_id)
 
 
@@ -290,16 +285,16 @@ class AccessTokenCRUDTests(OAuthFlowTests):
     def test_list_no_access_tokens(self):
         resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
                         % {'user_id': self.user_id})
-        entities = resp.result.get('access_tokens')
-        self.assertTrue(len(entities) == 0)
-        self.assertValidListLinks(resp.result.get('links'))
+        entities = resp.result['access_tokens']
+        self.assertEqual([], entities)
+        self.assertValidListLinks(resp.result['links'])
 
     def test_get_single_access_token(self):
         self.test_oauth_flow()
         resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
                         % {'user_id': self.user_id,
                            'key': self.access_token.key})
-        entity = resp.result.get('access_token')
+        entity = resp.result['access_token']
         self.assertEqual(entity['id'], self.access_token.key)
         self.assertEqual(entity['consumer_id'], self.consumer['key'])
 
@@ -314,9 +309,9 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         resp = self.get('/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles'
                         % {'id': self.user_id,
                            'key': self.access_token.key})
-        entities = resp.result.get('roles')
-        self.assertTrue(len(entities) > 0)
-        self.assertValidListLinks(resp.result.get('links'))
+        entities = resp.result['roles']
+        self.assertTrue(entities)
+        self.assertValidListLinks(resp.result['links'])
 
     def test_get_role_in_access_token(self):
         self.test_oauth_flow()
@@ -324,7 +319,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                % {'id': self.user_id, 'key': self.access_token.key,
                   'role': self.role_id})
         resp = self.get(url)
-        entity = resp.result.get('role')
+        entity = resp.result['role']
         self.assertEqual(entity['id'], self.role_id)
 
     def test_get_role_in_access_token_dne(self):
@@ -339,9 +334,9 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         # List access_tokens should be > 0
         resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
                         % {'user_id': self.user_id})
-        entities = resp.result.get('access_tokens')
-        self.assertTrue(len(entities) > 0)
-        self.assertValidListLinks(resp.result.get('links'))
+        entities = resp.result['access_tokens']
+        self.assertTrue(entities)
+        self.assertValidListLinks(resp.result['links'])
 
         # Delete access_token
         resp = self.delete('/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
@@ -352,9 +347,9 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         # List access_token should be 0
         resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
                         % {'user_id': self.user_id})
-        entities = resp.result.get('access_tokens')
-        self.assertTrue(len(entities) == 0)
-        self.assertValidListLinks(resp.result.get('links'))
+        entities = resp.result['access_tokens']
+        self.assertEqual([], entities)
+        self.assertValidListLinks(resp.result['links'])
 
 
 class AuthTokenTests(OAuthFlowTests):
@@ -410,8 +405,8 @@ class AuthTokenTests(OAuthFlowTests):
         # List access_token should be 0
         resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
                         % {'user_id': self.user_id})
-        entities = resp.result.get('access_tokens')
-        self.assertEqual(len(entities), 0)
+        entities = resp.result['access_tokens']
+        self.assertEqual([], entities)
 
         # Check Keystone Token no longer exists
         headers = {'X-Subject-Token': self.keystone_token_id,
@@ -483,15 +478,15 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
     def test_bad_consumer_secret(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
+        consumer_id = consumer['id']
         consumer = {'key': consumer_id, 'secret': uuid.uuid4().hex}
         url, headers = self._create_request_token(consumer, self.project_id)
         self.post(url, headers=headers, expected_status=401)
 
     def test_bad_request_token_key(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
         consumer = {'key': consumer_id, 'secret': consumer_secret}
         url, headers = self._create_request_token(consumer, self.project_id)
         self.post(url, headers=headers)
@@ -501,15 +496,15 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
     def test_bad_verifier(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
         consumer = {'key': consumer_id, 'secret': consumer_secret}
 
         url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        request_key = credentials.get('oauth_token')[0]
-        request_secret = credentials.get('oauth_token_secret')[0]
+        request_key = credentials['oauth_token'][0]
+        request_secret = credentials['oauth_token_secret'][0]
         request_token = oauth1.Token(request_key, request_secret)
 
         url = self._authorize_request_token(request_key)
@@ -524,14 +519,14 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
     def test_bad_authorizing_roles(self):
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
         consumer = {'key': consumer_id, 'secret': consumer_secret}
 
         url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        request_key = credentials.get('oauth_token')[0]
+        request_key = credentials['oauth_token'][0]
 
         self.assignment_api.remove_role_from_user_and_project(
             self.user_id, self.project_id, self.role_id)
@@ -544,8 +539,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         CONF.oauth1.request_token_duration = -1
 
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
         self.consumer = {'key': consumer_id, 'secret': consumer_secret}
         self.assertIsNotNone(self.consumer['key'])
 
@@ -553,8 +548,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        request_key = credentials.get('oauth_token')[0]
-        request_secret = credentials.get('oauth_token_secret')[0]
+        request_key = credentials['oauth_token'][0]
+        request_secret = credentials['oauth_token_secret'][0]
         self.request_token = oauth1.Token(request_key, request_secret)
         self.assertIsNotNone(self.request_token.key)
 
@@ -565,8 +560,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
     def test_expired_creating_keystone_token(self):
         CONF.oauth1.access_token_duration = -1
         consumer = self._create_single_consumer()
-        consumer_id = consumer.get('id')
-        consumer_secret = consumer.get('secret')
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
         self.consumer = {'key': consumer_id, 'secret': consumer_secret}
         self.assertIsNotNone(self.consumer['key'])
 
@@ -574,8 +569,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                   self.project_id)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        request_key = credentials.get('oauth_token')[0]
-        request_secret = credentials.get('oauth_token_secret')[0]
+        request_key = credentials['oauth_token'][0]
+        request_secret = credentials['oauth_token_secret'][0]
         self.request_token = oauth1.Token(request_key, request_secret)
         self.assertIsNotNone(self.request_token.key)
 
@@ -589,8 +584,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                  self.request_token)
         content = self.post(url, headers=headers)
         credentials = urllib.parse.parse_qs(content.result)
-        access_key = credentials.get('oauth_token')[0]
-        access_secret = credentials.get('oauth_token_secret')[0]
+        access_key = credentials['oauth_token'][0]
+        access_secret = credentials['oauth_token_secret'][0]
         self.access_token = oauth1.Token(access_key, access_secret)
         self.assertIsNotNone(self.access_token.key)
 
