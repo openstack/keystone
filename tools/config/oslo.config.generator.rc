@@ -1,0 +1,1 @@
+KEYSTONE_CONFIG_GENERATOR_EXTRA_LIBRARIES='keystone oslo.messaging'
