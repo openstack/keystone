@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
 import random
 import uuid
 
@@ -40,12 +39,10 @@ class FederationTests(test_v3.RestfulTestCase):
 
     def setup_database(self):
         super(FederationTests, self).setup_database()
-        package_name = "%s.%s.migrate_repo" % (contrib.__name__,
-                                               self.EXTENSION_NAME)
+        package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
         package = importutils.import_module(package_name)
-        self.repo_path = os.path.abspath(os.path.dirname(package.__file__))
-        migration.db_version_control(version=None, repo_path=self.repo_path)
-        migration.db_sync(version=None, repo_path=self.repo_path)
+        migration.db_version_control(package=package)
+        migration.db_sync(package=package)
 
 
 class FederatedIdentityProviderTests(FederationTests):
