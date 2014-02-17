@@ -39,11 +39,12 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+    _TRUST = "OS-TRUST:trust"
 
     def __init__(self):
         super(Manager, self).__init__(CONF.trust.driver)
 
-    @notifications.created('OS-TRUST:trust')
+    @notifications.created(_TRUST)
     def create_trust(self, trust_id, trust, roles):
         """Create a new trust.
 
@@ -51,7 +52,7 @@ class Manager(manager.Manager):
         """
         return self.driver.create_trust(trust_id, trust, roles)
 
-    @notifications.deleted('OS-TRUST:trust')
+    @notifications.deleted(_TRUST)
     def delete_trust(self, trust_id):
         """Remove a trust.
 
