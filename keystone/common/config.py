@@ -549,15 +549,15 @@ def configure(conf=None):
 def list_opts():
     """Return a list of oslo.config options available in Keystone.
 
-    The returned list includes all oslo.config options which are registered by
-    the as the "FILE_OPTIONS" in keystone.common.config. This list will not
-    include the options from the oslo-incubator library or any options
-    registered dynamically at run time.
+    The returned list includes all oslo.config options which are registered as
+    the "FILE_OPTIONS" in keystone.common.config. This list will not include
+    the options from the oslo-incubator library or any options registered
+    dynamically at run time.
 
-    Each element of the list is a tuple. The first element is the name of the
-    group under which the list of elements in the second element will be
-    registered. A group name of None corresponds to the [DEFAULT] group in
-    config files.
+    Each object in the list is a two element tuple. The first element of
+    each tuple is the name of the group under which the list of options in the
+    second element will be registered. A group name of None corresponds to the
+    [DEFAULT] group in config files.
 
     This function is also discoverable via the 'oslo.config.opts' entry point
     under the 'keystone.config.opts' namespace.
