@@ -23,11 +23,12 @@ import pbr.version
 
 from keystone.common import openssl
 from keystone.common import sql
-from keystone.common.sql import migration
+from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
 from keystone import contrib
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common import importutils
 from keystone import token
 
@@ -70,7 +71,7 @@ class DbSync(BaseApp):
         version = CONF.command.version
         extension = CONF.command.extension
         if not extension:
-            migration.db_sync(version=version)
+            abs_path = migration_helpers.find_migrate_repo()
         else:
             try:
                 package_name = '.'.join((contrib.__name__, extension))
@@ -79,18 +80,18 @@ class DbSync(BaseApp):
                 raise ImportError(_("%s extension does not exist.")
                                   % package_name)
             try:
+                abs_path = migration_helpers.find_migrate_repo(package)
                 try:
-                    migration.db_version_control(package=package)
+                    migration.db_version_control(abs_path)
                 # Register the repo with the version control API
                 # If it already knows about the repo, it will throw
                 # an exception that we can safely ignore
                 except exceptions.DatabaseAlreadyControlledError:
                     pass
-
-                migration.db_sync(version=version, package=package)
             except exception.MigrationNotProvided as e:
                 print(e)
                 exit(0)
+        migration.db_sync(abs_path, version=version)
 
 
 class DbVersion(BaseApp):
@@ -117,12 +118,14 @@ class DbVersion(BaseApp):
                 raise ImportError(_("%s extension does not exist.")
                                   % package_name)
             try:
-                print(migration.db_version(package))
+                print(migration.db_version(
+                    migration_helpers.find_migrate_repo(package)), 0)
             except exception.MigrationNotProvided as e:
                 print(e)
                 exit(0)
         else:
-            print(migration.db_version())
+            print(migration.db_version(
+                migration_helpers.find_migrate_repo()), 0)
 
 
 class BaseCertificateSetup(BaseApp):
