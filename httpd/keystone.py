@@ -24,12 +24,12 @@ from keystone.openstack.common import gettextutils
 # gettextutils._() is called at import time.
 gettextutils.enable_lazy()
 
+from keystone import backends
 from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql
 from keystone import config
 from keystone.openstack.common import log
-from keystone import service
 
 
 CONF = config.CONF
@@ -48,7 +48,7 @@ if CONF.debug:
     CONF.log_opt_values(log.getLogger(CONF.prog), logging.DEBUG)
 
 
-drivers = service.load_backends()
+drivers = backends.load_backends()
 
 # NOTE(ldbragst): 'application' is required in this context by WSGI spec.
 # The following is a reference to Python Paste Deploy documentation

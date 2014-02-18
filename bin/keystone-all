@@ -41,6 +41,7 @@ from keystone.openstack.common import gettextutils
 # gettextutils._() is called at import time.
 gettextutils.enable_lazy()
 
+from keystone import backends
 from keystone.common import dependency
 from keystone.common import environment
 from keystone.common import sql
@@ -48,7 +49,6 @@ from keystone.common import utils
 from keystone import config
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
-from keystone import service
 
 
 CONF = config.CONF
@@ -131,7 +131,7 @@ if __name__ == '__main__':
         monkeypatch_thread = False
     environment.use_eventlet(monkeypatch_thread)
 
-    service.load_backends()
+    backends.load_backends()
 
     servers = []
     servers.append(create_server(paste_config,
