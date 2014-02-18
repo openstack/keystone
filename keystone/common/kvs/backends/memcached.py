@@ -35,9 +35,9 @@ LOG = log.getLogger(__name__)
 NO_VALUE = api.NO_VALUE
 
 
-VALID_DOGPILE_BACKENDS = filter(
-    lambda x: x not in ('GenericMemcachedBackend', 'MemcachedLock'),
-    memcached.__all__)
+VALID_DOGPILE_BACKENDS = dict(pylibmc=memcached.PylibmcBackend,
+                              bmemcached=memcached.BMemcachedBackend,
+                              memcached=memcached.MemcachedBackend)
 
 
 class MemcachedLock(object):
@@ -78,10 +78,9 @@ class MemcachedLock(object):
 class MemcachedBackend(manager.Manager):
     """Pivot point to leverage the various dogpile.cache memcached backends.
 
-    To specify a specific dogpile.cache memcached backend, pass the region
-    backend argument `dogpile_memcache_backend` set to one of the known dogpile
-    memcache backends (at this time `MemcachedBackend`, `BMemcachedBackend`,
-    `PylibmcBackend` are valid).
+    To specify a specific dogpile.cache memcached driver, pass the argument
+    `memcached_driver` set to one of the provided memcached drivers (at this
+    time `memcached`, `bmemcached`, `pylibmc` are valid).
     """
     def __init__(self, arguments):
         self.lock_timeout = arguments.pop('lock_timeout', None)
@@ -89,7 +88,7 @@ class MemcachedBackend(manager.Manager):
         # NOTE(morganfainberg): Remove distributed locking from the arguments
         # passed to the "real" backend if it exists.
         arguments.pop('distributed_lock', None)
-        backend = arguments.pop('dogpile_memcache_backend', None)
+        backend = arguments.pop('memcached_backend', None)
         if 'url' not in arguments:
             # FIXME(morganfainberg): Log deprecation warning for old-style
             # configuration once full dict_config style configuration for
@@ -100,13 +99,16 @@ class MemcachedBackend(manager.Manager):
         if backend is None:
             # NOTE(morganfainberg): Use the basic memcached backend if nothing
             # else is supplied.
-            self.driver = memcached.MemcachedBackend(arguments)
+            self.driver = VALID_DOGPILE_BACKENDS['memcached'](arguments)
         else:
             if backend not in VALID_DOGPILE_BACKENDS:
-                raise ValueError(_('Backend `%s` is not a valid dogpile '
-                                   'memcached backend.') % backend)
+                raise ValueError(
+                    _('Backend `%(driver)s` is not a valid memcached '
+                      'backend. Valid drivers: %(driver_list)s') %
+                    {'driver': backend,
+                     'driver_list': ','.join(VALID_DOGPILE_BACKENDS.keys())})
             else:
-                self.driver = getattr(memcached, backend)(arguments)
+                self.driver = VALID_DOGPILE_BACKENDS[backend](arguments)
 
     @classmethod
     def from_config_dict(cls, config_dict, prefix):

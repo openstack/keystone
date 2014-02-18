@@ -450,19 +450,20 @@ Example Instantiation and Configuration:
 
 Any keyword arguments passed to the configure method that are not defined as part of the
 KeyValueStore object configuration are passed to the backend for further configuration (e.g.
-memcache servers, lock_timeout, etc).
+memcached servers, lock_timeout, etc).
 
 The memcached backend uses the Keystone manager mechanism to support the use of any of the
-provided dogpile.cache memcached backends (``BMemcached``, ``pylibmc``, and basic ``Memcached``).
-By default the standard Memcache backend is used.  Currently the Memcache URLs come from the
+provided memcached backends (``bmemcached``, ``pylibmc``, and basic ``memcached``).
+By default the ``memcached`` backend is used.  Currently the Memcache URLs come from the
 ``servers`` option in the ``[memcache]`` configuration section of the Keystone config.
 
-Example configuring the KVS system to use memcached and a specific dogpile.cache memcached backend:
+The following is an example showing how to configure the KVS system to use a
+KeyValueStore object named "TestKVSRegion" and a specific Memcached driver:
 
 .. code:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
-    kvs_store.configure('openstack.kvs.Memcached', dogpile_cache_backend='MemcachedBackend')
+    kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached')
 
 Once a KVS object has been instantiated the method of interacting is the same as most memcache
 implementations:

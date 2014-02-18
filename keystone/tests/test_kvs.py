@@ -336,20 +336,20 @@ class KVSTest(tests.TestCase):
         kvs.configure('openstack.kvs.Memory')
         core._register_backends()
 
-    def test_kvs_memcache_manager_valid_dogpile_memcache_backend(self):
+    def test_kvs_memcached_manager_valid_dogpile_memcached_backend(self):
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.Memcached',
-                      dogpile_memcache_backend='MemcachedBackend')
+                      memcached_backend='memcached')
         self.assertIsInstance(kvs._region.backend.driver,
                               dogpile_memcached.MemcachedBackend)
 
-    def test_kvs_memcache_manager_invalid_dogpile_memcache_backend(self):
+    def test_kvs_memcached_manager_invalid_dogpile_memcached_backend(self):
         # Invalid dogpile memcache backend should raise ValueError
         kvs = self._get_kvs_region()
         self.assertRaises(ValueError,
                           kvs.configure,
                           backing_store='openstack.kvs.Memcached',
-                          dogpile_memcache_backend=uuid.uuid4().hex)
+                          memcached_backend=uuid.uuid4().hex)
 
 
 class TestMemcachedBackend(tests.TestCase):
@@ -357,11 +357,11 @@ class TestMemcachedBackend(tests.TestCase):
     @mock.patch('__builtin__._', six.text_type)
     def test_invalid_backend_fails_initialization(self):
         raises_valueerror = matchers.Raises(matchers.MatchesException(
-            ValueError, r'.*some\.fake\.Backend.*'))
+            ValueError, r'.*FakeBackend.*'))
 
         options = {
             'url': 'needed to get to the focus of this test (the backend)',
-            'dogpile_memcache_backend': 'some.fake.Backend',
+            'memcached_backend': 'FakeBackend',
         }
         self.assertThat(lambda: memcached.MemcachedBackend(options),
                         raises_valueerror)
