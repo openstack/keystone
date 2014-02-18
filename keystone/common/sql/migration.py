@@ -15,13 +15,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 import sys
 
 from migrate.versioning import api as versioning_api
 
+from keystone.common.sql import migration_helpers
 from keystone import config
-from keystone import exception
 
 
 CONF = config.CONF
@@ -54,13 +53,13 @@ def db_sync(version=None, package=None):
             version = int(version)
         except ValueError:
             raise Exception(_('version should be an integer'))
-    repo_path = find_migrate_repo(package=package)
+    repo_path = migration_helpers.find_migrate_repo(package=package)
     current_version = db_version(package=package)
     return migrate_repository(version, current_version, repo_path)
 
 
 def db_version(package=None):
-    repo_path = find_migrate_repo(package=package)
+    repo_path = migration_helpers.find_migrate_repo(package=package)
     try:
         return versioning_api.db_version(CONF.database.connection, repo_path)
     except versioning_exceptions.DatabaseNotControlledError:
@@ -68,21 +67,7 @@ def db_version(package=None):
 
 
 def db_version_control(version=None, package=None):
-    repo_path = find_migrate_repo(package=package)
+    repo_path = migration_helpers.find_migrate_repo(package=package)
     versioning_api.version_control(CONF.database.connection, repo_path,
                                    version)
     return version
-
-
-def find_migrate_repo(package=None):
-    """Get the path for the migrate repository."""
-    if package is None:
-        filename = __file__
-    else:
-        filename = package.__file__
-    path = os.path.join(os.path.abspath(os.path.dirname(filename)),
-                        'migrate_repo')
-    if not os.path.exists(path):
-        raise exception.MigrationNotProvided(
-            mod_name=os.path.dirname(filename), path=path)
-    return path

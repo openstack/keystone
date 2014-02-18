@@ -37,6 +37,7 @@ from migrate.versioning import api as versioning_api
 import sqlalchemy
 
 from keystone.common.sql import migration
+from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
 from keystone import credential
@@ -76,7 +77,8 @@ class SqlMigrateBase(tests.TestCase):
         self.Session = session.get_maker(self.engine, autocommit=False)
 
         self.initialize_sql()
-        self.repo_path = migration.find_migrate_repo(self.repo_package())
+        self.repo_path = migration_helpers.find_migrate_repo(
+            self.repo_package())
         self.schema = versioning_api.ControlledSchema.create(
             self.engine,
             self.repo_path, 0)

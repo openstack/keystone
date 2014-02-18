@@ -13,8 +13,14 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
+import os
+
 import migrate
 import sqlalchemy
+
+from keystone.common import sql
+from keystone import exception
 
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
@@ -91,3 +97,12 @@ def rename_tables_with_constraints(renames, constraints, engine):
 
     if engine != 'sqlite':
         add_constraints(constraints)
+
+
+def find_migrate_repo(package=None, repo_name='migrate_repo'):
+    package = package or sql
+    path = os.path.abspath(os.path.join(
+        os.path.dirname(package.__file__), repo_name))
+    if os.path.isdir(path):
+        return path
+    raise exception.MigrationNotProvided(package.__name__, path)
