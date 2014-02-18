@@ -211,6 +211,8 @@ class Manager(manager.Manager):
     the domain in question.
 
     """
+    _USER = 'user'
+    _GROUP = 'group'
 
     def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
@@ -280,7 +282,7 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
-    @notifications.created('user')
+    @notifications.created(_USER)
     @domains_configured
     def create_user(self, user_id, user_ref):
         user = user_ref.copy()
@@ -327,7 +329,7 @@ class Manager(manager.Manager):
             ref_list = self._set_domain_id(ref_list, domain_id)
         return ref_list
 
-    @notifications.updated('user')
+    @notifications.updated(_USER)
     @domains_configured
     def update_user(self, user_id, user_ref, domain_scope=None):
         user = user_ref.copy()
@@ -348,7 +350,7 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
-    @notifications.deleted('user')
+    @notifications.deleted(_USER)
     @domains_configured
     def delete_user(self, user_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
@@ -356,7 +358,7 @@ class Manager(manager.Manager):
         self.credential_api.delete_credentials_for_user(user_id)
         self.token_api.delete_tokens_for_user(user_id)
 
-    @notifications.created('group')
+    @notifications.created(_GROUP)
     @domains_configured
     def create_group(self, group_id, group_ref):
         group = group_ref.copy()
@@ -380,7 +382,7 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
-    @notifications.updated('group')
+    @notifications.updated(_GROUP)
     @domains_configured
     def update_group(self, group_id, group, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
@@ -404,7 +406,7 @@ class Manager(manager.Manager):
                 self.revoke_api.revoke_by_user(u['id'])
         self.token_api.delete_tokens_for_users(user_ids)
 
-    @notifications.deleted('group')
+    @notifications.deleted(_GROUP)
     @domains_configured
     def delete_group(self, group_id, domain_scope=None):
         domain_id, driver = self._get_domain_id_and_driver(domain_scope)
