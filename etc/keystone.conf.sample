@@ -119,26 +119,36 @@
 
 # notification_driver can be defined multiple times
 # Do nothing driver (the default)
-# notification_driver = keystone.openstack.common.notifier.no_op_notifier
+# notification_driver = noop
 # Logging driver example (not enabled by default)
-# notification_driver = keystone.openstack.common.notifier.log_notifier
+# notification_driver = log
 # RPC driver example (not enabled by default)
-# notification_driver = keystone.openstack.common.notifier.rpc_notifier
+# notification_driver = messaging
 
 # Default publisher_id for outgoing notifications; included in the payload.
 # default_publisher_id =
 
-# AMQP topics to publish to when using the RPC notification driver.
-# Multiple values can be specified by separating with commas.
+# AMQP topics to publish to when using the RPC notification driver. Multiple
+# values can be specified by separating with commas.
 # notification_topics = notifications
+
+# A URL representing the messaging driver to use and its full configuration. If
+# not set, we fall back to the RPC option and driver specific configuration.
+# transport_url =
+
+# The default exchange under which topics are scoped. May be overridden by an
+# exchange name specified in the transport_url option.
+# control_exchange = openstack
+
 
 # === RPC Options ===
 
 # For Keystone, these options apply only when the RPC notification driver is
 # used.
 
-# The messaging module to use, defaults to kombu.
-# rpc_backend = keystone.openstack.common.rpc.impl_kombu
+# The messaging driver to use, defaults to rabbit (kombu). Other
+# drivers include qpid and zmq.
+# rpc_backend = rabbit
 
 # Size of RPC thread pool
 # rpc_thread_pool_size = 64

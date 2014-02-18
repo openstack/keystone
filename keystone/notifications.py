@@ -15,10 +15,18 @@
 """Notifications module for OpenStack Identity Service resources"""
 
 import logging
+import socket
+
+from oslo.config import cfg
+from oslo import messaging
 
 from keystone.openstack.common import log
-from keystone.openstack.common.notifier import api as notifier_api
 
+notifier_opts = [
+    cfg.StrOpt('default_publisher_id',
+               default=None,
+               help='Default publisher_id for outgoing notifications'),
+]
 
 LOG = log.getLogger(__name__)
 # NOTE(gyee): actions that can be notified. One must update this list whenever
@@ -26,6 +34,11 @@ LOG = log.getLogger(__name__)
 ACTIONS = frozenset(['created', 'deleted', 'disabled', 'updated'])
 # resource types that can be notified
 SUBSCRIBERS = {}
+_notifier = None
+
+
+CONF = cfg.CONF
+CONF.register_opts(notifier_opts)
 
 
 class ManagerNotificationWrapper(object):
@@ -57,7 +70,7 @@ class ManagerNotificationWrapper(object):
                 raise
             else:
                 resource_id = args[self.resource_id_arg_index]
-                send_notification(
+                _send_notification(
                     self.operation,
                     self.resource_type,
                     resource_id,
@@ -141,8 +154,34 @@ def notify_event_callbacks(service, resource_type, operation, payload):
                 cb(service, resource_type, operation, payload)
 
 
-def send_notification(operation, resource_type, resource_id,
-                      public=True):
+def _get_notifier():
+    """Return a notifier object.
+
+    If _notifier is None it means that a notifier object has not been set.
+    If _notifier is False it means that a notifier has previously failed to
+    construct.
+    Otherwise it is a constructed Notifier object.
+    """
+    global _notifier
+
+    if _notifier is None:
+        host = CONF.default_publisher_id or socket.gethostname()
+        try:
+            transport = messaging.get_transport(CONF)
+            _notifier = messaging.Notifier(transport, "identity.%s" % host)
+        except Exception:
+            LOG.exception("Failed to construct notifier")
+            _notifier = False
+
+    return _notifier
+
+
+def _reset_notifier():
+    global _notifier
+    _notifier = None
+
+
+def _send_notification(operation, resource_type, resource_id, public=True):
     """Send notification to inform observers about the affected resource.
 
     This method doesn't raise an exception when sending the notification fails.
@@ -158,7 +197,6 @@ def send_notification(operation, resource_type, resource_id,
     context = {}
     payload = {'resource_info': resource_id}
     service = 'identity'
-    publisher_id = notifier_api.publisher_id(service)
     event_type = '%(service)s.%(resource_type)s.%(operation)s' % {
         'service': service,
         'resource_type': resource_type,
@@ -167,10 +205,11 @@ def send_notification(operation, resource_type, resource_id,
     notify_event_callbacks(service, resource_type, operation, payload)
 
     if public:
-        try:
-            notifier_api.notify(
-                context, publisher_id, event_type, notifier_api.INFO, payload)
-        except Exception:
-            LOG.exception(
-                _('Failed to send %(res_id)s %(event_type)s notification'),
-                {'res_id': resource_id, 'event_type': event_type})
+        notifier = _get_notifier()
+        if notifier:
+            try:
+                notifier.info(context, event_type, payload)
+            except Exception:
+                LOG.exception(_(
+                    'Failed to send %(res_id)s %(event_type)s notification'),
+                    {'res_id': resource_id, 'event_type': event_type})

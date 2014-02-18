@@ -15,6 +15,7 @@
 import uuid
 
 import mock
+from oslo.config import cfg
 
 from keystone.common import dependency
 from keystone import notifications
@@ -22,6 +23,8 @@ from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import test_v3
 
+
+CONF = cfg.CONF
 
 EXP_RESOURCE_TYPE = uuid.uuid4().hex
 
@@ -48,7 +51,7 @@ class NotificationsWrapperTestCase(tests.TestCase):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
-        self.stubs.Set(notifications, 'send_notification', fake_notify)
+        self.stubs.Set(notifications, '_send_notification', fake_notify)
 
     @notifications.created(EXP_RESOURCE_TYPE)
     def create_resource(self, resource_id, data):
@@ -123,11 +126,14 @@ class NotificationsTestCase(tests.TestCase):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
+        # these should use self.opt(), but they haven't been registered yet
+        CONF.rpc_backend = 'fake'
+        CONF.notification_driver = ['fake']
+
     def test_send_notification(self):
         """Test the private method _send_notification to ensure event_type,
            payload, and context are built and passed properly.
         """
-
         resource = uuid.uuid4().hex
         resource_type = EXP_RESOURCE_TYPE
         operation = 'created'
@@ -141,17 +147,18 @@ class NotificationsTestCase(tests.TestCase):
         # ensures and maintains these conditions.
         expected_args = [
             {},  # empty context
-            mock.ANY,  # publisher
             'identity.%s.created' % resource_type,  # event_type
+            {'resource_info': resource},  # payload
             'INFO',  # priority is always INFO...
-            {'resource_info': resource}  # payload
         ]
 
-        mod_path = 'keystone.notifications.notifier_api.notify'
-        with mock.patch(mod_path) as mocked:
-            notifications.send_notification(operation, resource_type,
-                                            resource)
+        with mock.patch.object(notifications._get_notifier(),
+                               '_notify') as mocked:
+            notifications._send_notification(operation, resource_type,
+                                             resource)
             mocked.assert_called_once_with(*expected_args)
+
+        notifications._send_notification(operation, resource_type, resource)
 
 
 class NotificationsForEntities(test_v3.RestfulTestCase):
@@ -172,7 +179,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
-        self.stubs.Set(notifications, 'send_notification', fake_notify)
+        self.stubs.Set(notifications, '_send_notification', fake_notify)
 
     def _assertNotifySeen(self, resource_id, operation, resource_type):
         self.assertIn(operation, self.exp_operations)
