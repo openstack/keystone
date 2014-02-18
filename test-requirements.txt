@@ -37,7 +37,7 @@ requests>=1.1
 keyring>=1.6.1,<2.0,>=2.1
 
 # For documentation
-oslo.sphinx
+oslosphinx
 
 # Used only by oslo
 kombu>=2.4.8
