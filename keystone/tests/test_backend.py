@@ -79,17 +79,20 @@ class IdentityTests(object):
     def test_authenticate_bad_user(self):
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id=uuid.uuid4().hex,
                           password=self.user_foo['password'])
 
     def test_authenticate_bad_password(self):
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id=self.user_foo['id'],
                           password=uuid.uuid4().hex)
 
     def test_authenticate(self):
         user_ref = self.identity_api.authenticate(
+            context={},
             user_id=self.user_sna['id'],
             password=self.user_sna['password'])
         # NOTE(termie): the password field is left in user_sna to make
@@ -110,6 +113,7 @@ class IdentityTests(object):
         self.assignment_api.add_user_to_project(self.tenant_baz['id'],
                                                 user['id'])
         user_ref = self.identity_api.authenticate(
+            context={},
             user_id=user['id'],
             password=user['password'])
         self.assertNotIn('password', user_ref)
@@ -134,6 +138,7 @@ class IdentityTests(object):
 
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id=id_,
                           password='password')
 
@@ -1819,10 +1824,12 @@ class IdentityTests(object):
         # with a password that  is empty string or None
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id='fake1',
                           password='')
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id='fake1',
                           password=None)
 
@@ -1835,10 +1842,12 @@ class IdentityTests(object):
         # with a password that  is empty string or None
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id='fake1',
                           password='')
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
+                          context={},
                           user_id='fake1',
                           password=None)
 
