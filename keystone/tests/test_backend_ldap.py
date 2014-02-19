@@ -547,6 +547,9 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertRaises(exception.Conflict,
                           super(BaseLDAPIdentity, self).test_update_user_name)
 
+    def test_attribute_update(self):
+        self.skipTest("Blank value in a required field is an error in LDAP")
+
     def test_arbitrary_attributes_are_returned_from_create_user(self):
         self.skipTest("Using arbitrary attributes doesn't work under LDAP")
 
@@ -1274,6 +1277,59 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         conn = get_conn('searching')
         self.assertEqual(ldap.DEREF_SEARCHING,
                          conn.get_option(ldap.OPT_DEREF))
+
+    def test_list_users_no_dn(self):
+        users = self.identity_api.list_users()
+        self.assertEqual(len(default_fixtures.USERS), len(users))
+        user_ids = set(user['id'] for user in users)
+        expected_user_ids = set(user['id'] for user in default_fixtures.USERS)
+        for user_ref in users:
+            self.assertNotIn('dn', user_ref)
+        self.assertEqual(expected_user_ids, user_ids)
+
+    def test_list_groups_no_dn(self):
+        # Create some test groups.
+        domain = self._get_domain_fixture()
+        expected_group_ids = []
+        numgroups = 3
+        for _ in range(numgroups):
+            group = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                     'domain_id': domain['id']}
+            self.identity_api.create_group(group['id'], group)
+            expected_group_ids.append(group['id'])
+        # Fetch the test groups and ensure that they don't contain a dn.
+        groups = self.identity_api.list_groups()
+        self.assertEqual(numgroups, len(groups))
+        group_ids = set(group['id'] for group in groups)
+        for group_ref in groups:
+            self.assertNotIn('dn', group_ref)
+        self.assertEqual(set(expected_group_ids), group_ids)
+
+    def test_list_groups_for_user_no_dn(self):
+        # Create a test user.
+        user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                'domain_id': CONF.identity.default_domain_id,
+                'password': uuid.uuid4().hex,
+                'enabled': True}
+        self.identity_api.create_user(user['id'], user)
+        # Create some test groups and add the test user as a member.
+        domain = self._get_domain_fixture()
+        expected_group_ids = []
+        numgroups = 3
+        for _ in range(numgroups):
+            group = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                     'domain_id': domain['id']}
+            self.identity_api.create_group(group['id'], group)
+            expected_group_ids.append(group['id'])
+            self.identity_api.add_user_to_group(user['id'], group['id'])
+        # Fetch the groups for the test user
+        # and ensure they don't contain a dn.
+        groups = self.identity_api.list_groups_for_user(user['id'])
+        self.assertEqual(numgroups, len(groups))
+        group_ids = set(group['id'] for group in groups)
+        for group_ref in groups:
+            self.assertNotIn('dn', group_ref)
+        self.assertEqual(set(expected_group_ids), group_ids)
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):

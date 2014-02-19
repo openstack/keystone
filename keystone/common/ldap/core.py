@@ -641,6 +641,21 @@ def _get_connection(conn_url):
     return PythonLDAPHandler()
 
 
+def filter_entity(entity_ref):
+    """Filter out private items in an entity dict.
+
+    :param entity_ref:  the entity dictionary. The 'dn' field will be removed.
+        'dn' is used in LDAP, but should not be returned to the user.  This
+        value may be modified.
+
+    :returns: entity_ref
+
+    """
+    if entity_ref:
+        entity_ref.pop('dn', None)
+    return entity_ref
+
+
 class BaseLdap(object):
     DEFAULT_SUFFIX = "dc=example,dc=com"
     DEFAULT_OU = None
@@ -942,8 +957,6 @@ class BaseLdap(object):
                                       six.iteritems(query_params)])))
         try:
             return conn.search_s(search_base, scope, query, attrlist)
-        except ldap.NO_SUCH_OBJECT:
-            return []
         finally:
             conn.unbind_s()
 

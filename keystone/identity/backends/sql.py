@@ -187,7 +187,10 @@ class Identity(identity.Driver):
         query = query.filter_by(user_id=user_id)
         query = query.filter_by(group_id=group_id)
         if not query.first():
-            raise exception.NotFound(_('User not found in group'))
+            raise exception.NotFound(_("User '%(user_id)s' not found in"
+                                       " group '%(group_id)s'") %
+                                     {'user_id': user_id,
+                                      'group_id': group_id})
 
     def remove_user_from_group(self, user_id, group_id):
         session = sql.get_session()
@@ -198,7 +201,14 @@ class Identity(identity.Driver):
         query = query.filter_by(group_id=group_id)
         membership_ref = query.first()
         if membership_ref is None:
-            raise exception.NotFound(_('User not found in group'))
+            # Check if the group and user exist to return descriptive
+            # exceptions.
+            self.get_group(group_id)
+            self.get_user(user_id)
+            raise exception.NotFound(_("User '%(user_id)s' not found in"
+                                       " group '%(group_id)s'") %
+                                     {'user_id': user_id,
+                                      'group_id': group_id})
         with session.begin():
             session.delete(membership_ref)
 

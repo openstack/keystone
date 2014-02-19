@@ -2239,6 +2239,11 @@ class IdentityTests(object):
                           uuid.uuid4().hex,
                           new_group['id'])
 
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.add_user_to_group,
+                          uuid.uuid4().hex,
+                          uuid.uuid4().hex)
+
     def test_check_user_in_group(self):
         domain = self._get_domain_fixture()
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
@@ -2272,10 +2277,6 @@ class IdentityTests(object):
             'domain_id': DEFAULT_DOMAIN_ID,
             'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.check_user_in_group,
-                          uuid.uuid4().hex,
-                          new_group['id'])
 
         new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
                     'password': uuid.uuid4().hex, 'enabled': True,
@@ -2286,6 +2287,33 @@ class IdentityTests(object):
                           self.identity_api.check_user_in_group,
                           new_user['id'],
                           new_group['id'])
+
+    def test_check_user_in_group_404(self):
+        new_user = {'id': uuid.uuid4().hex, 'name': 'new_user',
+                    'password': uuid.uuid4().hex, 'enabled': True,
+                    'domain_id': DEFAULT_DOMAIN_ID}
+        self.identity_api.create_user(new_user['id'], new_user)
+
+        new_group = {
+            'id': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'name': uuid.uuid4().hex}
+        self.identity_api.create_group(new_group['id'], new_group)
+
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.check_user_in_group,
+                          uuid.uuid4().hex,
+                          new_group['id'])
+
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.check_user_in_group,
+                          new_user['id'],
+                          uuid.uuid4().hex)
+
+        self.assertRaises(exception.NotFound,
+                          self.identity_api.check_user_in_group,
+                          uuid.uuid4().hex,
+                          uuid.uuid4().hex)
 
     def test_list_users_in_group(self):
         domain = self._get_domain_fixture()
@@ -2310,6 +2338,11 @@ class IdentityTests(object):
                 found = True
             self.assertNotIn('password', x)
         self.assertTrue(found)
+
+    def test_list_users_in_group_404(self):
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.list_users_in_group,
+                          uuid.uuid4().hex)
 
     def test_list_groups_for_user(self):
         domain = self._get_domain_fixture()
@@ -2405,12 +2438,12 @@ class IdentityTests(object):
         new_group = {'id': uuid.uuid4().hex, 'domain_id': domain['id'],
                      'name': uuid.uuid4().hex}
         self.identity_api.create_group(new_group['id'], new_group)
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.GroupNotFound,
                           self.identity_api.remove_user_from_group,
                           new_user['id'],
                           uuid.uuid4().hex)
 
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.UserNotFound,
                           self.identity_api.remove_user_from_group,
                           uuid.uuid4().hex,
                           new_group['id'])

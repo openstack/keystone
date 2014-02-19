@@ -60,7 +60,7 @@ class Identity(identity.Driver):
             raise AssertionError(_('Invalid user / password'))
         conn = None
         try:
-            conn = self.user.get_connection(self.user._id_to_dn(user_id),
+            conn = self.user.get_connection(user_ref['dn'],
                                             password)
             if not conn:
                 raise AssertionError(_('Invalid user / password'))
@@ -69,13 +69,13 @@ class Identity(identity.Driver):
         finally:
             if conn:
                 conn.unbind_s()
-        return identity.filter_user(user_ref)
+        return self.user.filter_attributes(user_ref)
 
     def _get_user(self, user_id):
         return self.user.get(user_id)
 
     def get_user(self, user_id):
-        return identity.filter_user(self._get_user(user_id))
+        return self.user.get_filtered(user_id)
 
     def list_users(self, hints):
         return self.user.get_all_filtered()
@@ -83,13 +83,13 @@ class Identity(identity.Driver):
     def get_user_by_name(self, user_name, domain_id):
         # domain_id will already have been handled in the Manager layer,
         # parameter left in so this matches the Driver specification
-        return identity.filter_user(self.user.get_by_name(user_name))
+        return self.user.filter_attributes(self.user.get_by_name(user_name))
 
     # CRUD
     def create_user(self, user_id, user):
         self.user.check_allow_create()
         user_ref = self.user.create(user)
-        return identity.filter_user(user_ref)
+        return self.user.filter_attributes(user_ref)
 
     def update_user(self, user_id, user):
         self.user.check_allow_update()
@@ -107,57 +107,53 @@ class Identity(identity.Driver):
     def delete_user(self, user_id):
         self.user.check_allow_delete()
         self.assignment_api.delete_user(user_id)
-        user_dn = self.user._id_to_dn(user_id)
+        user = self.user.get(user_id)
+        user_dn = user['dn']
         groups = self.group.list_user_groups(user_dn)
         for group in groups:
             self.group.remove_user(user_dn, group['id'], user_id)
 
-        user = self.user.get(user_id)
         if hasattr(user, 'tenant_id'):
-            self.project.remove_user(user.tenant_id,
-                                     self.user._id_to_dn(user_id))
+            self.project.remove_user(user.tenant_id, user_dn)
         self.user.delete(user_id)
 
     def create_group(self, group_id, group):
         self.group.check_allow_create()
         group['name'] = clean.group_name(group['name'])
-        return self.group.create(group)
+        return common_ldap.filter_entity(self.group.create(group))
 
     def get_group(self, group_id):
-        return self.group.get(group_id)
+        return self.group.get_filtered(group_id)
 
     def update_group(self, group_id, group):
         self.group.check_allow_update()
         if 'name' in group:
             group['name'] = clean.group_name(group['name'])
-        return self.group.update(group_id, group)
+        return common_ldap.filter_entity(self.group.update(group_id, group))
 
     def delete_group(self, group_id):
         self.group.check_allow_delete()
         return self.group.delete(group_id)
 
     def add_user_to_group(self, user_id, group_id):
-        self.get_user(user_id)
-        self.get_group(group_id)
-        user_dn = self.user._id_to_dn(user_id)
+        user_ref = self._get_user(user_id)
+        user_dn = user_ref['dn']
         self.group.add_user(user_dn, group_id, user_id)
 
     def remove_user_from_group(self, user_id, group_id):
-        self.get_user(user_id)
-        self.get_group(group_id)
-        user_dn = self.user._id_to_dn(user_id)
+        user_ref = self._get_user(user_id)
+        user_dn = user_ref['dn']
         self.group.remove_user(user_dn, group_id, user_id)
 
     def list_groups_for_user(self, user_id, hints):
-        self.get_user(user_id)
-        user_dn = self.user._id_to_dn(user_id)
-        return self.group.list_user_groups(user_dn)
+        user_ref = self._get_user(user_id)
+        user_dn = user_ref['dn']
+        return self.group.list_user_groups_filtered(user_dn)
 
     def list_groups(self, hints):
-        return self.group.get_all()
+        return self.group.get_all_filtered()
 
     def list_users_in_group(self, group_id, hints):
-        self.get_group(group_id)
         users = []
         for user_dn in self.group.list_group_users(group_id):
             user_id = self.user._dn_to_id(user_dn)
@@ -171,14 +167,18 @@ class Identity(identity.Driver):
         return users
 
     def check_user_in_group(self, user_id, group_id):
-        self.get_user(user_id)
-        self.get_group(group_id)
         user_refs = self.list_users_in_group(group_id, driver_hints.Hints())
         for x in user_refs:
             if x['id'] == user_id:
                 break
         else:
-            raise exception.NotFound(_('User not found in group'))
+            # Try to fetch the user to see if it even exists.  This
+            # will raise a more accurate exception.
+            self.get_user(user_id)
+            raise exception.NotFound(_("User '%(user_id)s' not found in"
+                                       " group '%(group_id)s'") %
+                                     {'user_id': user_id,
+                                      'group_id': group_id})
 
 
 # TODO(termie): turn this into a data object and move logic to driver
@@ -209,6 +209,8 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             enabled = int(obj.get('enabled', self.enabled_default))
             obj['enabled'] = ((enabled & self.enabled_mask) !=
                               self.enabled_mask)
+        obj['dn'] = res[0]
+
         return obj
 
     def mask_enabled_attribute(self, values):
@@ -235,10 +237,13 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
 
     def get_filtered(self, user_id):
         user = self.get(user_id)
-        return identity.filter_user(user)
+        return self.filter_attributes(user)
 
     def get_all_filtered(self):
-        return [identity.filter_user(user) for user in self.get_all()]
+        return [self.filter_attributes(user) for user in self.get_all()]
+
+    def filter_attributes(self, user):
+        return identity.filter_user(common_ldap.filter_entity(user))
 
 
 class GroupApi(common_ldap.BaseLdap):
@@ -253,6 +258,11 @@ class GroupApi(common_ldap.BaseLdap):
                                'name': 'name'}
     immutable_attrs = ['name']
     model = models.Group
+
+    def _ldap_res_to_model(self, res):
+        model = super(GroupApi, self)._ldap_res_to_model(res)
+        model['dn'] = res[0]
+        return model
 
     def __init__(self, conf):
         super(GroupApi, self).__init__(conf)
@@ -275,11 +285,12 @@ class GroupApi(common_ldap.BaseLdap):
             # role support which will be added under bug 1101287
 
             query = '(objectClass=%s)' % self.object_class
-            dn = self._id_to_dn(group_id)
-            if dn:
+            group_ref = self.get(group_id)
+            group_dn = group_ref['dn']
+            if group_dn:
                 try:
                     conn = self.get_connection()
-                    roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
+                    roles = conn.search_s(group_dn, ldap.SCOPE_ONELEVEL,
                                           query, ['%s' % '1.1'])
                     for role_dn, _ in roles:
                         conn.delete_s(role_dn)
@@ -294,17 +305,20 @@ class GroupApi(common_ldap.BaseLdap):
         return super(GroupApi, self).update(group_id, values, old_obj)
 
     def add_user(self, user_dn, group_id, user_id):
+        group_ref = self.get(group_id)
+        group_dn = group_ref['dn']
         try:
-            super(GroupApi, self).add_member(user_dn, self._id_to_dn(group_id))
+            super(GroupApi, self).add_member(user_dn, group_dn)
         except exception.Conflict:
             raise exception.Conflict(_(
                 'User %(user_id)s is already a member of group %(group_id)s') %
                 {'user_id': user_id, 'group_id': group_id})
 
     def remove_user(self, user_dn, group_id, user_id):
+        group_ref = self.get(group_id)
+        group_dn = group_ref['dn']
         try:
-            super(GroupApi, self).remove_member(user_dn,
-                                                self._id_to_dn(group_id))
+            super(GroupApi, self).remove_member(user_dn, group_dn)
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.UserNotFound(user_id=user_id)
 
@@ -316,14 +330,29 @@ class GroupApi(common_ldap.BaseLdap):
                                                   self.member_attribute,
                                                   user_dn_esc,
                                                   self.ldap_filter or '')
-        memberships = self.get_all(query)
-        return memberships
+        return self.get_all(query)
+
+    def list_user_groups_filtered(self, user_dn):
+        """Return a filtered list of groups for which the user is a member."""
+
+        user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
+        query = '(&(objectClass=%s)(%s=%s)%s)' % (self.object_class,
+                                                  self.member_attribute,
+                                                  user_dn_esc,
+                                                  self.ldap_filter or '')
+        return self.get_all_filtered(query)
 
     def list_group_users(self, group_id):
         """Return a list of user dns which are members of a group."""
-        group_dn = self._id_to_dn(group_id)
-        attrs = self._ldap_get_list(group_dn, ldap.SCOPE_BASE,
-                                    attrlist=(self.member_attribute,))
+        group_ref = self.get(group_id)
+        group_dn = group_ref['dn']
+
+        try:
+            attrs = self._ldap_get_list(group_dn, ldap.SCOPE_BASE,
+                                        attrlist=(self.member_attribute,))
+        except ldap.NO_SUCH_OBJECT:
+            raise self.NotFound(group_id=group_id)
+
         users = []
         for dn, member in attrs:
             user_dns = member.get(self.member_attribute, [])
@@ -332,3 +361,11 @@ class GroupApi(common_ldap.BaseLdap):
                     continue
                 users.append(user_dn)
         return users
+
+    def get_filtered(self, group_id):
+        group = self.get(group_id)
+        return common_ldap.filter_entity(group)
+
+    def get_all_filtered(self, query=None):
+        return [common_ldap.filter_entity(group)
+                for group in self.get_all(query)]
