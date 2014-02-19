@@ -57,6 +57,7 @@ class Manager(manager.Manager):
     The late import works around this.  The if block prevents creation of the
     api object by both managers.
     """
+    _PROJECT = 'project'
 
     def __init__(self):
         assignment_driver = CONF.assignment.driver
@@ -67,7 +68,7 @@ class Manager(manager.Manager):
 
         super(Manager, self).__init__(assignment_driver)
 
-    @notifications.created('project')
+    @notifications.created(_PROJECT)
     def create_project(self, tenant_id, tenant):
         tenant = tenant.copy()
         tenant.setdefault('enabled', True)
@@ -80,13 +81,13 @@ class Manager(manager.Manager):
                                          ret['domain_id'])
         return ret
 
-    @notifications.disabled('project', public=False)
+    @notifications.disabled(_PROJECT, public=False)
     def _disable_project(self, tenant_id):
         return self.token_api.delete_tokens_for_users(
             self.list_user_ids_for_project(tenant_id),
             project_id=tenant_id)
 
-    @notifications.updated('project')
+    @notifications.updated(_PROJECT)
     def update_project(self, tenant_id, tenant):
         tenant = tenant.copy()
         if 'enabled' in tenant:
@@ -99,7 +100,7 @@ class Manager(manager.Manager):
                                             ret['domain_id'])
         return ret
 
-    @notifications.deleted('project')
+    @notifications.deleted(_PROJECT)
     def delete_project(self, tenant_id):
         project = self.driver.get_project(tenant_id)
         user_ids = self.list_user_ids_for_project(tenant_id)
