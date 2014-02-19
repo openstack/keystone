@@ -221,7 +221,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
     def test_user_enable_attribute_mask(self):
         self.opt_in_group(
             'ldap',
-            user_enable_emulation=False,
+            user_enabled_emulation=False,
             user_enabled_attribute='employeeType')
         super(LiveLDAPIdentity, self).test_user_enable_attribute_mask()
 
