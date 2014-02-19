@@ -16,16 +16,22 @@ from keystone.openstack.common import log
 
 CONF = cfg.CONF
 
-API_SERVICE_OPTS = [
-    cfg.StrOpt('bind_ip',
-               default='0.0.0.0',
-               help='IP for the server to bind to'),
-    cfg.IntOpt('port',
-               default=9109,
-               help='The port for the server'),
-]
+FILE_OPTIONS = {
+    None: [
+        cfg.StrOpt('bind_ip',
+                   default='0.0.0.0',
+                   help='IP for the server to bind to'),
+        cfg.IntOpt('port',
+                   default=9109,
+                   help='The port for the server')]}
 
-CONF.register_opts(API_SERVICE_OPTS)
+
+def configure(conf=None):
+    if conf is None:
+        conf = CONF
+
+    for group in FILE_OPTIONS:
+        conf.register_opts(FILE_OPTIONS[group], group=group)
 
 
 def parse_args(args, default_config_files=None):
@@ -41,3 +47,6 @@ def prepare_service(argv=[]):
                                          ])
     parse_args(argv)
     log.setup('kds')
+
+
+configure()
