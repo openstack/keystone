@@ -108,7 +108,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
                                                subsecond=True)),
             (expired_token_id, timeutils.isotime(expired_token_ref['expires'],
                                                  subsecond=True))]
-        self.assertEqual(user_token_list, expected_user_token_list)
+        self.assertEqual(expected_user_token_list, user_token_list)
         new_expired_data = (expired_token_id,
                             timeutils.isotime(
                                 (timeutils.utcnow() - expire_delta),
@@ -124,7 +124,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
             (valid_token_id_2, timeutils.isotime(valid_token_ref_2['expires'],
                                                  subsecond=True))]
         user_token_list = self.token_api.driver._store.get(user_key)
-        self.assertEqual(user_token_list, expected_user_token_list)
+        self.assertEqual(expected_user_token_list, user_token_list)
 
         # Test that revoked tokens are removed from the list on create.
         self.token_api.delete_token(valid_token_id_2)
@@ -136,7 +136,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
             (new_token_id, timeutils.isotime(new_token_ref['expires'],
                                              subsecond=True))]
         user_token_list = self.token_api.driver._store.get(user_key)
-        self.assertEqual(user_token_list, expected_user_token_list)
+        self.assertEqual(expected_user_token_list, user_token_list)
 
 
 class KvsTrust(tests.TestCase, test_backend.TrustTests):
