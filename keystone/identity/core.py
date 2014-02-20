@@ -103,20 +103,20 @@ class DomainConfigs(dict):
             LOG.warning(
                 _('Invalid domain name (%s) found in config file name'),
                 domain_name)
+            return
 
-        if domain_ref:
-            # Create a new entry in the domain config dict, which contains
-            # a new instance of both the conf environment and driver using
-            # options defined in this set of config files.  Later, when we
-            # service calls via this Manager, we'll index via this domain
-            # config dict to make sure we call the right driver
-            domain = domain_ref['id']
-            self[domain] = {}
-            self[domain]['cfg'] = cfg.ConfigOpts()
-            config.configure(conf=self[domain]['cfg'])
-            self[domain]['cfg'](args=[], project='keystone',
-                                default_config_files=file_list)
-            self._load_driver(assignment_api, domain)
+        # Create a new entry in the domain config dict, which contains
+        # a new instance of both the conf environment and driver using
+        # options defined in this set of config files.  Later, when we
+        # service calls via this Manager, we'll index via this domain
+        # config dict to make sure we call the right driver
+        domain = domain_ref['id']
+        self[domain] = {}
+        self[domain]['cfg'] = cfg.ConfigOpts()
+        config.configure(conf=self[domain]['cfg'])
+        self[domain]['cfg'](args=[], project='keystone',
+                            default_config_files=file_list)
+        self._load_driver(assignment_api, domain)
 
     def setup_domain_drivers(self, standard_driver, assignment_api):
         # This is called by the api call wrapper
