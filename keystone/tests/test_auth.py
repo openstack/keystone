@@ -205,8 +205,7 @@ class AuthWithToken(AuthTest):
         body_dict = _build_user_auth(username='FOO',
                                      password='foo2')
         unscoped_token = self.controller.authenticate({}, body_dict)
-        tenant = unscoped_token["access"]["token"].get("tenant", None)
-        self.assertEqual(None, tenant)
+        self.assertNotIn('tenant', unscoped_token['access']['token'])
 
     def test_auth_invalid_token(self):
         """Verify exception is raised if invalid token."""
