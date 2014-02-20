@@ -97,9 +97,13 @@ def _match_query(query, attrs):
     # cut off the parentheses
     inner = query[1:-1]
     if inner.startswith(('&', '|')):
+        if inner[0] == '&':
+            matchfn = all
+        else:
+            matchfn = any
         # cut off the & or |
         groups = _paren_groups(inner[1:])
-        return all(_match_query(group, attrs) for group in groups)
+        return matchfn(_match_query(group, attrs) for group in groups)
     if inner.startswith('!'):
         # cut off the ! and the nested parentheses
         return not _match_query(query[2:-1], attrs)
@@ -292,7 +296,7 @@ class FakeLdap(core.LDAPHandler):
 
         key = self.key(dn)
         LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
-            'dn': dn, 'attrs': modlist})
+            'dn': core.utf8_decode(dn), 'attrs': modlist})
         if key in self.db:
             LOG.debug('add item failed: dn=%s is already in store.',
                       core.utf8_decode(dn))
@@ -308,7 +312,7 @@ class FakeLdap(core.LDAPHandler):
             raise ldap.SERVER_DOWN
 
         key = self.key(dn)
-        LOG.debug('delete item: dn=%s', dn)
+        LOG.debug('delete item: dn=%s', core.utf8_decode(dn))
         try:
             del self.db[key]
         except KeyError:
@@ -316,6 +320,12 @@ class FakeLdap(core.LDAPHandler):
                       core.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
+
+    def _getChildren(self, dn):
+        return [k for k, v in six.iteritems(self.db)
+                if re.match('%s.*,%s' % (
+                            re.escape(self.__prefix),
+                            re.escape(self.dn(dn))), k)]
 
     def delete_ext_s(self, dn, serverctrls, clientctrls=None):
         """Remove the ldap object at specified dn."""
@@ -326,10 +336,7 @@ class FakeLdap(core.LDAPHandler):
             if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
                 LOG.debug('FakeLdap subtree_delete item: dn=%s',
                           core.utf8_decode(dn))
-                children = [k for k, v in six.iteritems(self.db)
-                            if re.match('%s.*,%s' % (
-                                        re.escape(self.__prefix),
-                                        re.escape(self.dn(dn))), k)]
+                children = self._getChildren(dn)
                 for c in children:
                     del self.db[c]
 
@@ -354,7 +361,7 @@ class FakeLdap(core.LDAPHandler):
 
         key = self.key(dn)
         LOG.debug('modify item: dn=%(dn)s attrs=%(attrs)s', {
-            'dn': dn, 'attrs': modlist})
+            'dn': core.utf8_decode(dn), 'attrs': modlist})
         try:
             entry = self.db[key]
         except KeyError:
@@ -418,10 +425,25 @@ class FakeLdap(core.LDAPHandler):
                 raise ldap.NO_SUCH_OBJECT
             results = [(base, item_dict)]
         elif scope == ldap.SCOPE_SUBTREE:
-            results = [(k[len(self.__prefix):], v)
-                       for k, v in six.iteritems(self.db)
-                       if re.match('%s.*,%s' % (re.escape(self.__prefix),
-                                                re.escape(self.dn(base))), k)]
+            # FIXME - LDAP search with SUBTREE scope must return the base
+            # entry, but the code below does _not_.  Unfortunately, there are
+            # several tests that depend on this broken behavior, and fail
+            # when the base entry is returned in the search results.  The
+            # fix is easy here, just initialize results as above for
+            # the SCOPE_BASE case.
+            # https://bugs.launchpad.net/keystone/+bug/1368772
+            results = []
+            try:
+                item_dict = self.db[self.key(base)]
+                results.extend([(base, item_dict)])
+            except KeyError:
+                LOG.debug('search fail: dn not found for SCOPE_SUBTREE')
+            extraresults = [(k[len(self.__prefix):], v)
+                            for k, v in six.iteritems(self.db)
+                            if re.match('%s.*,%s' %
+                                        (re.escape(self.__prefix),
+                                         re.escape(self.dn(base))), k)]
+            results.extend(extraresults)
         elif scope == ldap.SCOPE_ONELEVEL:
 
             def get_entries():
@@ -518,3 +540,33 @@ class FakeLdapPool(FakeLdap):
     def unbind_ext_s(self):
         '''Added to extend FakeLdap as connector class.'''
         pass
+
+
+class FakeLdapNoSubtreeDelete(FakeLdap):
+    """FakeLdap subclass that does not support subtree delete
+
+    Same as FakeLdap except delete will throw the LDAP error
+    ldap.NOT_ALLOWED_ON_NONLEAF if there is an attempt to delete
+    an entry that has children.
+    """
+
+    def delete_s(self, dn):
+        self.delete_ext_s(dn, [], None)
+
+    def delete_ext_s(self, dn, serverctrls, clientctrls=None):
+        """Remove the ldap object at specified dn."""
+        if server_fail:
+            raise ldap.SERVER_DOWN
+
+        try:
+            children = self._getChildren(dn)
+            if children:
+                raise ldap.NOT_ALLOWED_ON_NONLEAF
+
+        except KeyError:
+            LOG.debug('delete item failed: dn=%s not found.',
+                      core.utf8_decode(dn))
+            raise ldap.NO_SUCH_OBJECT
+        super(FakeLdapNoSubtreeDelete, self).delete_ext_s(dn,
+                                                          serverctrls,
+                                                          clientctrls)
