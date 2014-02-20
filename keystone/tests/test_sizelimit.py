@@ -40,7 +40,7 @@ class TestRequestBodySizeLimiter(tests.TestCase):
         self.request.headers['Content-Length'] = MAX_REQUEST_BODY_SIZE
         self.request.body = "0" * MAX_REQUEST_BODY_SIZE
         response = self.request.get_response(self.middleware)
-        self.assertEqual(response.status_int, 200)
+        self.assertEqual(200, response.status_int)
 
     def test_content_length_too_large(self):
         self.request.headers['Content-Length'] = MAX_REQUEST_BODY_SIZE + 1
