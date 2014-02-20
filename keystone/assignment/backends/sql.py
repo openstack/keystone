@@ -213,7 +213,7 @@ class Assignment(sql.Base, assignment.Driver):
     def list_projects(self, hints):
         with sql.transaction() as session:
             query = session.query(Project)
-            project_refs = self.filter_limit_query(Project, query, hints)
+            project_refs = sql.filter_limit_query(Project, query, hints)
             return [project_ref.to_dict() for project_ref in project_refs]
 
     def list_projects_in_domain(self, domain_id):
@@ -386,7 +386,7 @@ class Assignment(sql.Base, assignment.Driver):
     def list_domains(self, hints):
         with sql.transaction() as session:
             query = session.query(Domain)
-            refs = self.filter_limit_query(Domain, query, hints)
+            refs = sql.filter_limit_query(Domain, query, hints)
             return [ref.to_dict() for ref in refs]
 
     def _get_domain(self, session, domain_id):
@@ -447,7 +447,7 @@ class Assignment(sql.Base, assignment.Driver):
     def list_roles(self, hints):
         with sql.transaction() as session:
             query = session.query(Role)
-            refs = self.filter_limit_query(Role, query, hints)
+            refs = sql.filter_limit_query(Role, query, hints)
             return [ref.to_dict() for ref in refs]
 
     def _get_role(self, session, role_id):
