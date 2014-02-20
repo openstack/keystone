@@ -206,7 +206,7 @@ class AuthWithToken(AuthTest):
                                      password='foo2')
         unscoped_token = self.controller.authenticate({}, body_dict)
         tenant = unscoped_token["access"]["token"].get("tenant", None)
-        self.assertEqual(tenant, None)
+        self.assertEqual(None, tenant)
 
     def test_auth_invalid_token(self):
         """Verify exception is raised if invalid token."""
@@ -257,8 +257,8 @@ class AuthWithToken(AuthTest):
 
         tenant = scoped_token["access"]["token"]["tenant"]
         roles = scoped_token["access"]["metadata"]["roles"]
-        self.assertEqual(tenant["id"], self.tenant_bar['id'])
-        self.assertEqual(roles[0], self.role_member['id'])
+        self.assertEqual(self.tenant_bar['id'], tenant["id"])
+        self.assertEqual(self.role_member['id'], roles[0])
 
     def test_auth_token_project_group_role(self):
         """Verify getting a token in a tenant with group roles."""
@@ -290,7 +290,7 @@ class AuthWithToken(AuthTest):
 
         tenant = scoped_token["access"]["token"]["tenant"]
         roles = scoped_token["access"]["metadata"]["roles"]
-        self.assertEqual(tenant["id"], self.tenant_bar['id'])
+        self.assertEqual(self.tenant_bar['id'], tenant["id"])
         self.assertIn(self.role_member['id'], roles)
         self.assertIn(self.role_admin['id'], roles)
 
@@ -343,7 +343,7 @@ class AuthWithToken(AuthTest):
         scoped_token = self.controller.authenticate({}, body_dict)
         tenant = scoped_token["access"]["token"]["tenant"]
         roles = scoped_token["access"]["metadata"]["roles"]
-        self.assertEqual(tenant["id"], project1['id'])
+        self.assertEqual(project1['id'], tenant["id"])
         self.assertIn(self.role_member['id'], roles)
         self.assertIn(self.role_admin['id'], roles)
         self.assertNotIn(role_foo_domain1['id'], roles)
@@ -394,7 +394,7 @@ class AuthWithToken(AuthTest):
 
         # the token should have bind information in it
         bind = unscoped_token['access']['token']['bind']
-        self.assertEqual(bind['kerberos'], 'FOO')
+        self.assertEqual('FOO', bind['kerberos'])
 
         body_dict = _build_user_auth(
             token=unscoped_token['access']['token'],
@@ -412,7 +412,7 @@ class AuthWithToken(AuthTest):
 
         # the bind information should be carried over from the original token
         bind = scoped_token['access']['token']['bind']
-        self.assertEqual(bind['kerberos'], 'FOO')
+        self.assertEqual('FOO', bind['kerberos'])
 
     def test_deleting_role_revokes_token(self):
         role_controller = assignment.controllers.Role()
@@ -627,7 +627,7 @@ class AuthWithRemoteUser(AuthTest):
         body_dict = _build_user_auth(tenant_name="BAR")
         token = self.controller.authenticate(self.context_with_remote_user,
                                              body_dict)
-        self.assertEqual(token['access']['token']['bind']['kerberos'], 'FOO')
+        self.assertEqual('FOO', token['access']['token']['bind']['kerberos'])
 
     def test_bind_without_config_opt(self):
         self.opt_in_group('token', bind=['x509'])
@@ -707,11 +707,11 @@ class AuthWithTrust(AuthTest):
         self.new_trust = None
         self.sample_data['roles'] = []
         self.create_trust()
-        self.assertEqual(self.new_trust['roles'], [])
+        self.assertEqual([], self.new_trust['roles'])
 
     def test_create_trust(self):
-        self.assertEqual(self.new_trust['trustor_user_id'], self.trustor['id'])
-        self.assertEqual(self.new_trust['trustee_user_id'], self.trustee['id'])
+        self.assertEqual(self.trustor['id'], self.new_trust['trustor_user_id'])
+        self.assertEqual(self.trustee['id'], self.new_trust['trustee_user_id'])
         role_ids = [self.role_browser['id'], self.role_member['id']]
         self.assertTrue(timeutils.parse_strtime(self.new_trust['expires_at'],
                                                 fmt=TIME_FORMAT))
@@ -738,16 +738,16 @@ class AuthWithTrust(AuthTest):
         context = {'token_id': self.unscoped_token['access']['token']['id']}
         trust = self.trust_controller.get_trust(context,
                                                 self.new_trust['id'])['trust']
-        self.assertEqual(trust['trustor_user_id'], self.trustor['id'])
-        self.assertEqual(trust['trustee_user_id'], self.trustee['id'])
+        self.assertEqual(self.trustor['id'], trust['trustor_user_id'])
+        self.assertEqual(self.trustee['id'], trust['trustee_user_id'])
         role_ids = [self.role_browser['id'], self.role_member['id']]
         for role in self.new_trust['roles']:
             self.assertIn(role['id'], role_ids)
 
     def test_create_trust_no_impersonation(self):
         self.create_trust(expires_at=None, impersonation=False)
-        self.assertEqual(self.new_trust['trustor_user_id'], self.trustor['id'])
-        self.assertEqual(self.new_trust['trustee_user_id'], self.trustee['id'])
+        self.assertEqual(self.trustor['id'], self.new_trust['trustor_user_id'])
+        self.assertEqual(self.trustee['id'], self.new_trust['trustee_user_id'])
         self.assertIs(self.new_trust['impersonation'], False)
         auth_response = self.fetch_v2_token_from_trust()
         token_user = auth_response['access']['user']
@@ -757,8 +757,8 @@ class AuthWithTrust(AuthTest):
 
     def test_create_trust_impersonation(self):
         self.create_trust(expires_at=None)
-        self.assertEqual(self.new_trust['trustor_user_id'], self.trustor['id'])
-        self.assertEqual(self.new_trust['trustee_user_id'], self.trustee['id'])
+        self.assertEqual(self.trustor['id'], self.new_trust['trustor_user_id'])
+        self.assertEqual(self.trustee['id'], self.new_trust['trustee_user_id'])
         self.assertIs(self.new_trust['impersonation'], True)
         auth_response = self.fetch_v2_token_from_trust()
         token_user = auth_response['access']['user']
@@ -809,17 +809,17 @@ class AuthWithTrust(AuthTest):
         auth_response = self.fetch_v3_token_from_trust()
 
         trust_token_user = auth_response.json['token']['user']
-        self.assertEqual(trust_token_user['id'], self.trustor['id'])
+        self.assertEqual(self.trustor['id'], trust_token_user['id'])
 
         trust_token_trust = auth_response.json['token']['OS-TRUST:trust']
         self.assertEqual(trust_token_trust['id'], self.new_trust['id'])
-        self.assertEqual(trust_token_trust['trustor_user']['id'],
-                         self.trustor['id'])
-        self.assertEqual(trust_token_trust['trustee_user']['id'],
-                         self.trustee['id'])
+        self.assertEqual(self.trustor['id'],
+                         trust_token_trust['trustor_user']['id'])
+        self.assertEqual(self.trustee['id'],
+                         trust_token_trust['trustee_user']['id'])
 
         trust_token_roles = auth_response.json['token']['roles']
-        self.assertEqual(len(trust_token_roles), 2)
+        self.assertEqual(2, len(trust_token_roles))
 
     def test_v3_trust_token_get_token_fails(self):
         auth_response = self.fetch_v3_token_from_trust()
@@ -838,8 +838,8 @@ class AuthWithTrust(AuthTest):
         auth_response = self.fetch_v2_token_from_trust()
 
         self.assertIsNotNone(auth_response)
-        self.assertEqual(len(auth_response['access']['metadata']['roles']),
-                         2,
+        self.assertEqual(2,
+                         len(auth_response['access']['metadata']['roles']),
                          "user_foo has three roles, but the token should"
                          " only get the two roles specified in the trust.")
 
@@ -847,7 +847,7 @@ class AuthWithTrust(AuthTest):
         tokens = self.trust_controller.token_api._list_tokens(
             self.trustee['id'], trust_id=self.new_trust['id'])
         token_count = len(tokens)
-        self.assertEqual(token_count, expected_value)
+        self.assertEqual(expected_value, token_count)
 
     def test_delete_tokens_for_user_invalidates_tokens_from_trust(self):
         self.assert_token_count_for_trust(0)
@@ -872,11 +872,11 @@ class AuthWithTrust(AuthTest):
         trust_id = self.new_trust['id']
         tokens = self.token_api._list_tokens(self.trustor['id'],
                                              trust_id=trust_id)
-        self.assertEqual(len(tokens), 1)
+        self.assertEqual(1, len(tokens))
         self.trust_controller.delete_trust(context, trust_id=trust_id)
         tokens = self.token_api._list_tokens(self.trustor['id'],
                                              trust_id=trust_id)
-        self.assertEqual(len(tokens), 0)
+        self.assertEqual(0, len(tokens))
 
     def test_token_from_trust_with_no_role_fails(self):
         for assigned_role in self.assigned_roles:
