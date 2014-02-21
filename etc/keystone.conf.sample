@@ -1,525 +1,1471 @@
 [DEFAULT]
-# A "shared secret" that can be used to bootstrap Keystone. This "token" does
-# not represent a user, and carries no explicit authorization. To disable in
-# production (highly recommended), remove AdminTokenAuthMiddleware from your
-# paste application pipelines (for example, in keystone-paste.ini).
-# admin_token = ADMIN
 
-# The IP address of the network interface to listen on
-# public_bind_host = 0.0.0.0
-# admin_bind_host = 0.0.0.0
+#
+# Options defined in keystone
+#
 
-# The port number which the public service listens on
-# public_port = 5000
+# A "shared secret" that can be used to bootstrap Keystone.
+# This "token" does not represent a user, and carries no
+# explicit authorization. To disable in production (highly
+# recommended), remove AdminTokenAuthMiddleware from your
+# paste application pipelines (for example, in keystone-
+# paste.ini). (string value)
+#admin_token=ADMIN
 
-# The port number which the public admin listens on
-# admin_port = 35357
+# The IP Address of the network interface to for the public
+# service to listen on. (string value)
+# Deprecated group/name - [DEFAULT]/bind_host
+#public_bind_host=0.0.0.0
 
-# Set this to True if you want to enable TCP_KEEPALIVE on server sockets i.e.
-# sockets used by the keystone wsgi server for client connections.
-# tcp_keepalive = False
+# The IP Address of the network interface to for the admin
+# service to listen on. (string value)
+# Deprecated group/name - [DEFAULT]/bind_host
+#admin_bind_host=0.0.0.0
 
-# Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
-# applies if tcp_keepalive is True. Not supported on OS X.
-# tcp_keepidle = 600
+# The port which the OpenStack Compute service listens on.
+# (integer value)
+#compute_port=8774
 
-# The base endpoint URLs for keystone that are advertised to clients
-# (NOTE: this does NOT affect how keystone listens for connections)
-# public_endpoint = http://localhost:%(public_port)s/
-# admin_endpoint = http://localhost:%(admin_port)s/
+# The port number which the admin service listens on. (integer
+# value)
+#admin_port=35357
 
-# The port number which the OpenStack Compute service listens on
-# compute_port = 8774
+# The port number which the public service listens on.
+# (integer value)
+#public_port=5000
 
-# Path to your policy definition containing identity actions
-# policy_file = policy.json
+# The base public endpoint URL for keystone that are
+# advertised to clients (NOTE: this does NOT affect how
+# keystone listens for connections) (string value)
+#public_endpoint=http://localhost:%(public_port)s/
 
-# Rule to check if no matching policy definition is found
-# FIXME(dolph): This should really be defined as [policy] default_rule
-# policy_default_rule = admin_required
+# The base admin endpoint URL for keystone that are advertised
+# to clients (NOTE: this does NOT affect how keystone listens
+# for connections) (string value)
+#admin_endpoint=http://localhost:%(admin_port)s/
 
-# Role for migrating membership relationships
-# During a SQL upgrade, the following values will be used to create a new role
-# that will replace records in the user_tenant_membership table with explicit
-# role grants.  After migration, the member_role_id will be used in the API
-# add_user_to_project, and member_role_name will be ignored.
-# member_role_id = 9fe2ff9ee4384b1894a90878d3e92bab
-# member_role_name = _member_
+# onready allows you to send a notification when the process
+# is ready to serve For example, to have it notify using
+# systemd, one could set shell command: "onready = systemd-
+# notify --ready" or a module with notify() method: "onready =
+# keystone.common.systemd" (string value)
+#onready=<None>
 
-# enforced by optional sizelimit middleware (keystone.middleware:RequestBodySizeLimiter)
-# max_request_body_size = 114688
+# enforced by optional sizelimit middleware
+# (keystone.middleware:RequestBodySizeLimiter) (integer value)
+#max_request_body_size=114688
 
-# limit the sizes of user & tenant ID/names
-# max_param_size = 64
+# limit the sizes of user & tenant ID/names (integer value)
+#max_param_size=64
 
-# similar to max_param_size, but provides an exception for token values
-# max_token_size = 8192
+# similar to max_param_size, but provides an exception for
+# token values (integer value)
+#max_token_size=8192
 
-# The file name to use with SQLite
-# sqlite_db = keystone.db
+# During a SQL upgrade member_role_id will be used to create a
+# new role that will replace records in the
+# user_tenant_membership table with explicit role grants.
+# After migration, the member_role_id will be used in the API
+# add_user_to_project. (string value)
+#member_role_id=9fe2ff9ee4384b1894a90878d3e92bab
 
-# If True, SQLite uses synchronous mode'
-# sqlite_synchronous = True
+# During a SQL upgrade member_role_id will be used to create a
+# new role that will replace records in the
+# user_tenant_membership table with explicit role grants.
+# After migration, member_role_name will be ignored. (string
+# value)
+#member_role_name=_member_
 
-# The maximum number of entities that will be returned in a collection can be
-# set with list_limit, with no limit set by default.  This global limit may be
-# then overridden for a specific driver, by specifying a list_limit in the
-# appropriate section (e.g. [assignment])
-# list_limit =
+# The value passed as the keyword "rounds" to passlib encrypt
+# method. (integer value)
+#crypt_strength=40000
 
-# === Logging Options ===
-# Print debugging output
-# (includes plaintext request logging, potentially including passwords)
-# debug = False
+# Set this to True if you want to enable TCP_KEEPALIVE on
+# server sockets i.e. sockets used by the keystone wsgi server
+# for client connections (boolean value)
+#tcp_keepalive=false
 
-# Print more verbose output
-# verbose = False
+# Sets the value of TCP_KEEPIDLE in seconds for each server
+# socket. Only applies if tcp_keepalive is True. Not supported
+# on OS X. (integer value)
+#tcp_keepidle=600
 
-# Name of log file to output to. If not set, logging will go to stdout.
-# log_file = keystone.log
+# The maximum number of entities that will be returned in a
+# collection can be set with list_limit, with no limit set by
+# default. This global limit may be then overridden for a
+# specific driver, by specifying a list_limit in the
+# appropriate section (e.g. [assignment] (integer value)
+#list_limit=<None>
 
-# The directory to keep log files in (will be prepended to --logfile)
-# log_dir = /var/log/keystone
 
-# Use syslog for logging.
-# use_syslog = False
+#
+# Options defined in oslo.messaging
+#
 
-# syslog facility to receive log lines
-# syslog_log_facility = LOG_USER
+# Use durable queues in amqp. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues=false
+
+# Auto-delete queues in amqp. (boolean value)
+#amqp_auto_delete=false
+
+# Size of RPC connection pool (integer value)
+#rpc_conn_pool_size=30
+
+# Modules of exceptions that are permitted to be recreatedupon
+# receiving exception data from an rpc call. (list value)
+#allowed_rpc_exception_modules=oslo.messaging.exceptions,nova.exception,cinder.exception,exceptions
+
+# Qpid broker hostname (string value)
+#qpid_hostname=localhost
+
+# Qpid broker port (integer value)
+#qpid_port=5672
+
+# Qpid HA cluster host:port pairs (list value)
+#qpid_hosts=$qpid_hostname:$qpid_port
+
+# Username for Qpid connection (string value)
+#qpid_username=
+
+# Password for Qpid connection (string value)
+#qpid_password=
+
+# Space separated list of SASL mechanisms to use for auth
+# (string value)
+#qpid_sasl_mechanisms=
+
+# Seconds between connection keepalive heartbeats (integer
+# value)
+#qpid_heartbeat=60
+
+# Transport to use, either 'tcp' or 'ssl' (string value)
+#qpid_protocol=tcp
+
+# Disable Nagle algorithm (boolean value)
+#qpid_tcp_nodelay=true
+
+# The qpid topology version to use.  Version 1 is what was
+# originally used by impl_qpid.  Version 2 includes some
+# backwards-incompatible changes that allow broker federation
+# to work.  Users should update to version 2 when they are
+# able to take everything down, as it requires a clean break.
+# (integer value)
+#qpid_topology_version=1
+
+# SSL version to use (valid only if SSL enabled). valid values
+# are TLSv1, SSLv23 and SSLv3. SSLv2 may be available on some
+# distributions (string value)
+#kombu_ssl_version=
+
+# SSL key file (valid only if SSL enabled) (string value)
+#kombu_ssl_keyfile=
+
+# SSL cert file (valid only if SSL enabled) (string value)
+#kombu_ssl_certfile=
+
+# SSL certification authority file (valid only if SSL enabled)
+# (string value)
+#kombu_ssl_ca_certs=
+
+# The RabbitMQ broker address where a single node is used
+# (string value)
+#rabbit_host=localhost
+
+# The RabbitMQ broker port where a single node is used
+# (integer value)
+#rabbit_port=5672
+
+# RabbitMQ HA cluster host:port pairs (list value)
+#rabbit_hosts=$rabbit_host:$rabbit_port
+
+# Connect over SSL for RabbitMQ (boolean value)
+#rabbit_use_ssl=false
+
+# The RabbitMQ userid (string value)
+#rabbit_userid=guest
+
+# The RabbitMQ password (string value)
+#rabbit_password=guest
+
+# The RabbitMQ virtual host (string value)
+#rabbit_virtual_host=/
+
+# How frequently to retry connecting with RabbitMQ (integer
+# value)
+#rabbit_retry_interval=1
+
+# How long to backoff for between retries when connecting to
+# RabbitMQ (integer value)
+#rabbit_retry_backoff=2
+
+# Maximum number of RabbitMQ connection retries. Default is 0
+# (infinite retry count) (integer value)
+#rabbit_max_retries=0
+
+# Use HA queues in RabbitMQ (x-ha-policy: all). If you change
+# this option, you must wipe the RabbitMQ database. (boolean
+# value)
+#rabbit_ha_queues=false
+
+# If passed, use a fake RabbitMQ provider (boolean value)
+#fake_rabbit=false
+
+# ZeroMQ bind address. Should be a wildcard (*), an ethernet
+# interface, or IP. The "host" option should point or resolve
+# to this address. (string value)
+#rpc_zmq_bind_address=*
+
+# MatchMaker driver (string value)
+#rpc_zmq_matchmaker=oslo.messaging._drivers.matchmaker.MatchMakerLocalhost
+
+# ZeroMQ receiver listening port (integer value)
+#rpc_zmq_port=9501
+
+# Number of ZeroMQ contexts, defaults to 1 (integer value)
+#rpc_zmq_contexts=1
+
+# Maximum number of ingress messages to locally buffer per
+# topic. Default is unlimited. (integer value)
+#rpc_zmq_topic_backlog=<None>
+
+# Directory for holding IPC sockets (string value)
+#rpc_zmq_ipc_dir=/var/run/openstack
+
+# Name of this node. Must be a valid hostname, FQDN, or IP
+# address. Must match "host" option, if running Nova. (string
+# value)
+#rpc_zmq_host=keystone
+
+# Seconds to wait before a cast expires (TTL). Only supported
+# by impl_zmq. (integer value)
+#rpc_cast_timeout=30
+
+# Heartbeat frequency (integer value)
+#matchmaker_heartbeat_freq=300
+
+# Heartbeat time-to-live. (integer value)
+#matchmaker_heartbeat_ttl=600
+
+# Host to locate redis (string value)
+#host=127.0.0.1
+
+# Use this port to connect to redis host. (integer value)
+#port=6379
+
+# Password for Redis server. (optional) (string value)
+#password=<None>
+
+# Size of RPC greenthread pool (integer value)
+#rpc_thread_pool_size=64
+
+# Driver or drivers to handle sending notifications (multi
+# valued)
+#notification_driver=
+
+# AMQP topic used for OpenStack notifications (list value)
+# Deprecated group/name - [rpc_notifier2]/topics
+#notification_topics=notifications
+
+# Seconds to wait for a response from a call (integer value)
+#rpc_response_timeout=60
+
+# A URL representing the messaging driver to use and its full
+# configuration. If not set, we fall back to the rpc_backend
+# option and driver specific configuration. (string value)
+#transport_url=<None>
+
+# The messaging driver to use, defaults to rabbit. Other
+# drivers include qpid and zmq. (string value)
+#rpc_backend=rabbit
+
+# The default exchange under which topics are scoped. May be
+# overridden by an exchange name specified in the
+# transport_url option. (string value)
+#control_exchange=openstack
+
+
+#
+# Options defined in keystone.notifications
+#
+
+# Default publisher_id for outgoing notifications (string
+# value)
+#default_publisher_id=<None>
+
+
+#
+# Options defined in keystone.middleware.ec2_token
+#
+
+# URL to get token from ec2 request. (string value)
+#keystone_ec2_url=http://localhost:5000/v2.0/ec2tokens
+
+
+#
+# Options defined in keystone.openstack.common.db.sqlalchemy.session
+#
+
+# The file name to use with SQLite (string value)
+#sqlite_db=keystone.sqlite
+
+# If True, SQLite uses synchronous mode (boolean value)
+#sqlite_synchronous=true
+
+
+#
+# Options defined in keystone.openstack.common.eventlet_backdoor
+#
+
+# Enable eventlet backdoor.  Acceptable values are 0, <port>,
+# and <start>:<end>, where 0 results in listening on a random
+# tcp port number; <port> results in listening on the
+# specified port number (and not enabling backdoor if that
+# port is in use); and <start>:<end> results in listening on
+# the smallest unused port number within the specified range
+# of port numbers.  The chosen port is displayed in the
+# service's log file. (string value)
+#backdoor_port=<None>
+
+
+#
+# Options defined in keystone.openstack.common.lockutils
+#
+
+# Whether to disable inter-process locks (boolean value)
+#disable_process_locking=false
+
+# Directory to use for lock files. (string value)
+#lock_path=<None>
+
+
+#
+# Options defined in keystone.openstack.common.log
+#
+
+# Print debugging output (set logging level to DEBUG instead
+# of default WARNING level). (boolean value)
+#debug=false
+
+# Print more verbose output (set logging level to INFO instead
+# of default WARNING level). (boolean value)
+#verbose=false
+
+# Log output to standard error (boolean value)
+#use_stderr=true
+
+# format string to use for log messages with context (string
+# value)
+#logging_context_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
+
+# format string to use for log messages without context
+# (string value)
+#logging_default_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
+
+# data to append to log format when level is DEBUG (string
+# value)
+#logging_debug_format_suffix=%(funcName)s %(pathname)s:%(lineno)d
+
+# prefix each line of exception output with this format
+# (string value)
+#logging_exception_prefix=%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
 
 # list of logger=LEVEL pairs (list value)
-#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,iso8601=WARN,dogpile=INFO,routes=INFO
+#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,iso8601=WARN
+
+# publish error events (boolean value)
+#publish_errors=false
+
+# make deprecations fatal (boolean value)
+#fatal_deprecations=false
+
+# If an instance is passed with the log message, format it
+# like this (string value)
+#instance_format="[instance: %(uuid)s] "
+
+# If an instance UUID is passed with the log message, format
+# it like this (string value)
+#instance_uuid_format="[instance: %(uuid)s] "
 
 # The name of logging configuration file. It does not disable
 # existing loggers, but just appends specified logging
 # configuration to any other existing logging options. Please
 # see the Python logging module documentation for details on
 # logging configuration files. (string value)
+# Deprecated group/name - [DEFAULT]/log_config
 #log_config_append=<None>
 
-# A logging.Formatter log message format string which may use any of the
-# available logging.LogRecord attributes.
-# log_format = %(asctime)s %(levelname)8s [%(name)s] %(message)s
+# DEPRECATED. A logging.Formatter log message format string
+# which may use any of the available logging.LogRecord
+# attributes. This option is deprecated.  Please use
+# logging_context_format_string and
+# logging_default_format_string instead. (string value)
+#log_format=<None>
 
-# Format string for %(asctime)s in log records.
-# log_date_format = %Y-%m-%d %H:%M:%S
+# Format string for %%(asctime)s in log records. Default:
+# %(default)s (string value)
+#log_date_format=%Y-%m-%d %H:%M:%S
 
-# onready allows you to send a notification when the process is ready to serve
-# For example, to have it notify using systemd, one could set shell command:
-# onready = systemd-notify --ready
-# or a module with notify() method:
-# onready = keystone.common.systemd
+# (Optional) Name of log file to output to. If no default is
+# set, logging will go to stdout. (string value)
+# Deprecated group/name - [DEFAULT]/logfile
+#log_file=<None>
 
-# === Notification Options ===
+# (Optional) The base directory used for relative --log-file
+# paths (string value)
+# Deprecated group/name - [DEFAULT]/logdir
+#log_dir=<None>
 
-# Notifications can be sent when users or projects are created, updated or
-# deleted. There are three methods of sending notifications: logging (via the
-# log_file directive), rpc (via a message queue) and no_op (no notifications
-# sent, the default)
+# Use syslog for logging. (boolean value)
+#use_syslog=false
 
-# notification_driver can be defined multiple times
-# Do nothing driver (the default)
-# notification_driver = noop
-# Logging driver example (not enabled by default)
-# notification_driver = log
-# RPC driver example (not enabled by default)
-# notification_driver = messaging
-
-# Default publisher_id for outgoing notifications; included in the payload.
-# default_publisher_id =
-
-# AMQP topics to publish to when using the RPC notification driver. Multiple
-# values can be specified by separating with commas.
-# notification_topics = notifications
-
-# A URL representing the messaging driver to use and its full configuration. If
-# not set, we fall back to the RPC option and driver specific configuration.
-# transport_url =
-
-# The default exchange under which topics are scoped. May be overridden by an
-# exchange name specified in the transport_url option.
-# control_exchange = openstack
+# syslog facility to receive log lines (string value)
+#syslog_log_facility=LOG_USER
 
 
-# === RPC Options ===
+#
+# Options defined in keystone.openstack.common.notifier.api
+#
 
-# For Keystone, these options apply only when the RPC notification driver is
-# used.
+# Driver or drivers to handle sending notifications (multi
+# valued)
+#notification_driver=
 
-# The messaging driver to use, defaults to rabbit (kombu). Other
-# drivers include qpid and zmq.
-# rpc_backend = rabbit
+# Default notification level for outgoing notifications
+# (string value)
+#default_notification_level=INFO
 
-# Size of RPC thread pool
-# rpc_thread_pool_size = 64
+# Default publisher_id for outgoing notifications (string
+# value)
+#default_publisher_id=<None>
 
-# Size of RPC connection pool
-# rpc_conn_pool_size = 30
+
+#
+# Options defined in keystone.openstack.common.notifier.rpc_notifier
+#
+
+# AMQP topic used for OpenStack notifications (list value)
+#notification_topics=notifications
+
+
+#
+# Options defined in keystone.openstack.common.policy
+#
+
+# JSON file containing policy (string value)
+#policy_file=policy.json
+
+# Rule enforced when requested rule is not found (string
+# value)
+#policy_default_rule=default
+
+
+#
+# Options defined in keystone.openstack.common.rpc
+#
+
+# The messaging module to use, defaults to kombu. (string
+# value)
+#rpc_backend=keystone.openstack.common.rpc.impl_kombu
+
+# Size of RPC thread pool (integer value)
+#rpc_thread_pool_size=64
+
+# Size of RPC connection pool (integer value)
+#rpc_conn_pool_size=30
 
 # Seconds to wait for a response from call or multicall
-# rpc_response_timeout = 60
+# (integer value)
+#rpc_response_timeout=60
 
-# Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.
-# rpc_cast_timeout = 30
+# Seconds to wait before a cast expires (TTL). Only supported
+# by impl_zmq. (integer value)
+#rpc_cast_timeout=30
 
-# Modules of exceptions that are permitted to be recreated upon receiving
-# exception data from an rpc call.
-# allowed_rpc_exception_modules = keystone.openstack.common.exception,nova.exception,cinder.exception,exceptions
+# Modules of exceptions that are permitted to be recreated
+# upon receiving exception data from an rpc call. (list value)
+#allowed_rpc_exception_modules=nova.exception,cinder.exception,exceptions
 
-# If True, use a fake RabbitMQ provider
-# fake_rabbit = False
+# If passed, use a fake RabbitMQ provider (boolean value)
+#fake_rabbit=false
 
 # AMQP exchange to connect to if using RabbitMQ or Qpid
-# control_exchange = openstack
+# (string value)
+#control_exchange=openstack
 
-[sql]
-# The SQLAlchemy connection string used to connect to the database
-# DEPRECATED: use connection in the [database] section instead.
-# connection = sqlite:///keystone.db
 
-# Timeout before idle sql connections are reaped
-# DEPRECATED: use idle_timeout in the [database] section instead.
-# idle_timeout = 200
-
-[database]
-# The SQLAlchemy connection string used to connect to the database
-# connection = sqlite:///keystone.db
-
-# The SQLAlchemy connection string used to connect to the slave database
-# Note that Keystone does not use this option.
-# slave_connection =
-
-# Timeout before idle sql connections are reaped
-# idle_timeout = 3600
-
-# Minimum number of SQL connections to keep open in a pool
-# min_pool_size = 1
-
-# Maximum number of SQL connections to keep open in a pool
-# max_pool_size =
-
-# Maximum db connection retries during startup. (setting -1 implies an infinite retry count)
-# max_retries = 10
-
-# Interval between retries of opening a sql connection
-# retry_interval = 10
-
-# If set, use this value for max_overflow with sqlalchemy
-# max_overflow =
-
-# Verbosity of SQL debugging information. 0=None, 100=Everything
-# connection_debug = 0
-
-# Add python stack traces to SQL as comment strings
-# connection_trace = False
-
-# If set, use this value for pool_timeout with sqlalchemy
-# pool_timeout =
-
-[identity]
-# driver = keystone.identity.backends.sql.Identity
-
-# This references the domain to use for all Identity API v2 requests (which are
-# not aware of domains). A domain with this ID will be created for you by
-# keystone-manage db_sync in migration 008.  The domain referenced by this ID
-# cannot be deleted on the v3 API, to prevent accidentally breaking the v2 API.
-# There is nothing special about this domain, other than the fact that it must
-# exist to order to maintain support for your v2 clients.
-# default_domain_id = default
 #
-# A subset (or all) of domains can have their own identity driver, each with
-# their own partial configuration file in a domain configuration directory.
-# Only values specific to the domain need to be placed in the domain specific
-# configuration file. This feature is disabled by default; set
-# domain_specific_drivers_enabled to True to enable.
-# domain_specific_drivers_enabled = False
-# domain_config_dir = /etc/keystone/domains
+# Options defined in keystone.openstack.common.rpc.amqp
+#
 
-# Maximum supported length for user passwords; decrease to improve performance.
-# max_password_length = 4096
+# Use durable queues in amqp. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues=false
 
-# Maximum number of entities that will be returned in an identity collection
-# list_limit =
+# Auto-delete queues in amqp. (boolean value)
+#amqp_auto_delete=false
 
-[credential]
-# driver = keystone.credential.backends.sql.Credential
 
-[trust]
-# driver = keystone.trust.backends.sql.Trust
+#
+# Options defined in keystone.openstack.common.rpc.impl_kombu
+#
 
-# delegation and impersonation features can be optionally disabled
-# enabled = True
+# SSL version to use (valid only if SSL enabled). valid values
+# are TLSv1, SSLv23 and SSLv3. SSLv2 may be available on some
+# distributions (string value)
+#kombu_ssl_version=
 
-[os_inherit]
-# role-assignment inheritance to projects from owning domain can be
-# optionally enabled
-# enabled = False
+# SSL key file (valid only if SSL enabled) (string value)
+#kombu_ssl_keyfile=
 
-[catalog]
-# dynamic, sql-based backend (supports API/CLI-based management commands)
-# driver = keystone.catalog.backends.sql.Catalog
+# SSL cert file (valid only if SSL enabled) (string value)
+#kombu_ssl_certfile=
 
-# static, file-based backend (does *NOT* support any management commands)
-# driver = keystone.catalog.backends.templated.Catalog
+# SSL certification authority file (valid only if SSL enabled)
+# (string value)
+#kombu_ssl_ca_certs=
 
-# template_file = default_catalog.templates
+# The RabbitMQ broker address where a single node is used
+# (string value)
+#rabbit_host=localhost
 
-# Maximum number of entities that will be returned in a catalog collection
-# list_limit =
+# The RabbitMQ broker port where a single node is used
+# (integer value)
+#rabbit_port=5672
 
-[endpoint_filter]
-# extension for creating associations between project and endpoints in order to
-# provide a tailored catalog for project-scoped token requests.
-# driver = keystone.contrib.endpoint_filter.backends.sql.EndpointFilter
-# return_all_endpoints_if_no_filter = True
+# RabbitMQ HA cluster host:port pairs (list value)
+#rabbit_hosts=$rabbit_host:$rabbit_port
 
-[token]
-# Provides token persistence.
-# driver = keystone.token.backends.sql.Token
+# connect over SSL for RabbitMQ (boolean value)
+#rabbit_use_ssl=false
 
-# Controls the token construction, validation, and revocation operations.
-# Core providers are keystone.token.providers.[pki|uuid].Provider
-# provider =
+# the RabbitMQ userid (string value)
+#rabbit_userid=guest
 
-# Amount of time a token should remain valid (in seconds)
-# expiration = 3600
+# the RabbitMQ password (string value)
+#rabbit_password=guest
 
-# External auth mechanisms that should add bind information to token.
-# eg kerberos, x509
-# bind =
+# the RabbitMQ virtual host (string value)
+#rabbit_virtual_host=/
 
-# Enforcement policy on tokens presented to keystone with bind information.
-# One of disabled, permissive, strict, required or a specifically required bind
-# mode e.g. kerberos or x509 to require binding to that authentication.
-# enforce_token_bind = permissive
+# how frequently to retry connecting with RabbitMQ (integer
+# value)
+#rabbit_retry_interval=1
 
-# Token specific caching toggle. This has no effect unless the global caching
-# option is set to True
-# caching = True
+# how long to backoff for between retries when connecting to
+# RabbitMQ (integer value)
+#rabbit_retry_backoff=2
 
-# Token specific cache time-to-live (TTL) in seconds.
-# cache_time =
+# maximum retries with trying to connect to RabbitMQ (the
+# default of 0 implies an infinite retry count) (integer
+# value)
+#rabbit_max_retries=0
 
-# Revocation-List specific cache time-to-live (TTL) in seconds.
-# revocation_cache_time = 3600
+# use H/A queues in RabbitMQ (x-ha-policy: all).You need to
+# wipe RabbitMQ database when changing this option. (boolean
+# value)
+#rabbit_ha_queues=false
 
-[cache]
-# Global cache functionality toggle.
-# enabled = False
 
-# Prefix for building the configuration dictionary for the cache region. This
-# should not need to be changed unless there is another dogpile.cache region
-# with the same configuration name
-# config_prefix = cache.keystone
+#
+# Options defined in keystone.openstack.common.rpc.impl_qpid
+#
 
-# Default TTL, in seconds, for any cached item in the dogpile.cache region.
-# This applies to any cached method that doesn't have an explicit cache
-# expiration time defined for it.
-# expiration_time = 600
+# Qpid broker hostname (string value)
+#qpid_hostname=localhost
 
-# Dogpile.cache backend module. It is recommended that Memcache
-# (dogpile.cache.memcached) or Redis (dogpile.cache.redis) be used in production
-# deployments.  Small workloads (single process) like devstack can use the
-# dogpile.cache.memory backend.
-# backend = keystone.common.cache.noop
+# Qpid broker port (integer value)
+#qpid_port=5672
 
-# Arguments supplied to the backend module. Specify this option once per
-# argument to be passed to the dogpile.cache backend.
-# Example format: <argname>:<value>
-# backend_argument =
+# Qpid HA cluster host:port pairs (list value)
+#qpid_hosts=$qpid_hostname:$qpid_port
 
-# Proxy Classes to import that will affect the way the dogpile.cache backend
-# functions.  See the dogpile.cache documentation on changing-backend-behavior.
-# Comma delimited list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2
-# proxies =
+# Username for qpid connection (string value)
+#qpid_username=
 
-# Use a key-mangling function (sha1) to ensure fixed length cache-keys. This
-# is toggle-able for debugging purposes, it is highly recommended to always
-# leave this set to True.
-# use_key_mangler = True
+# Password for qpid connection (string value)
+#qpid_password=
 
-# Extra debugging from the cache backend (cache keys, get/set/delete/etc calls)
-# This is only really useful if you need to see the specific cache-backend
-# get/set/delete calls with the keys/values.  Typically this should be left
-# set to False.
-# debug_cache_backend = False
+# Space separated list of SASL mechanisms to use for auth
+# (string value)
+#qpid_sasl_mechanisms=
 
-[policy]
-# driver = keystone.policy.backends.sql.Policy
+# Seconds between connection keepalive heartbeats (integer
+# value)
+#qpid_heartbeat=60
 
-# Maximum number of entities that will be returned in a policy collection
-# list_limit =
+# Transport to use, either 'tcp' or 'ssl' (string value)
+#qpid_protocol=tcp
 
-[ec2]
-# driver = keystone.contrib.ec2.backends.kvs.Ec2
+# Disable Nagle algorithm (boolean value)
+#qpid_tcp_nodelay=true
+
+# The qpid topology version to use.  Version 1 is what was
+# originally used by impl_qpid.  Version 2 includes some
+# backwards-incompatible changes that allow broker federation
+# to work.  Users should update to version 2 when they are
+# able to take everything down, as it requires a clean break.
+# (integer value)
+#qpid_topology_version=1
+
+
+#
+# Options defined in keystone.openstack.common.rpc.impl_zmq
+#
+
+# ZeroMQ bind address. Should be a wildcard (*), an ethernet
+# interface, or IP. The "host" option should point or resolve
+# to this address. (string value)
+#rpc_zmq_bind_address=*
+
+# MatchMaker driver (string value)
+#rpc_zmq_matchmaker=keystone.openstack.common.rpc.matchmaker.MatchMakerLocalhost
+
+# ZeroMQ receiver listening port (integer value)
+#rpc_zmq_port=9501
+
+# Number of ZeroMQ contexts, defaults to 1 (integer value)
+#rpc_zmq_contexts=1
+
+# Maximum number of ingress messages to locally buffer per
+# topic. Default is unlimited. (integer value)
+#rpc_zmq_topic_backlog=<None>
+
+# Directory for holding IPC sockets (string value)
+#rpc_zmq_ipc_dir=/var/run/openstack
+
+# Name of this node. Must be a valid hostname, FQDN, or IP
+# address. Must match "host" option, if running Nova. (string
+# value)
+#rpc_zmq_host=keystone
+
+
+#
+# Options defined in keystone.openstack.common.rpc.matchmaker
+#
+
+# Heartbeat frequency (integer value)
+#matchmaker_heartbeat_freq=300
+
+# Heartbeat time-to-live. (integer value)
+#matchmaker_heartbeat_ttl=600
+
 
 [assignment]
-# driver =
 
-# Assignment specific caching toggle. This has no effect unless the global
-# caching option is set to True
-# caching = True
-
-# Assignment specific cache time-to-live (TTL) in seconds.
-# cache_time =
-
-# Maximum number of entities that will be returned in an assignment collection
-# list_limit =
-
-[oauth1]
-# driver = keystone.contrib.oauth1.backends.sql.OAuth1
-
-# The Identity service may include expire attributes.
-# If no such attribute is included, then the token lasts indefinitely.
-# Specify how quickly the request token will expire (in seconds)
-# request_token_duration = 28800
-# Specify how quickly the access token will expire (in seconds)
-# access_token_duration = 86400
-
-[federation]
-#driver = keystone.contrib.federation.backends.sql.Federation
-
-[ssl]
-#enable = True
-#certfile = /etc/keystone/ssl/certs/keystone.pem
-#keyfile = /etc/keystone/ssl/private/keystonekey.pem
-#ca_certs = /etc/keystone/ssl/certs/ca.pem
-#ca_key = /etc/keystone/ssl/private/cakey.pem
-#key_size = 1024
-#valid_days = 3650
-#cert_required = False
-#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
-
-[signing]
-# Deprecated in favor of provider in the [token] section
-# Allowed values are PKI or UUID
-#token_format =
-
-#certfile = /etc/keystone/ssl/certs/signing_cert.pem
-#keyfile = /etc/keystone/ssl/private/signing_key.pem
-#ca_certs = /etc/keystone/ssl/certs/ca.pem
-#ca_key = /etc/keystone/ssl/private/cakey.pem
-#key_size = 2048
-#valid_days = 3650
-#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
-
-[ldap]
-# url = ldap://localhost
-# user = dc=Manager,dc=example,dc=com
-# password = None
-# suffix = cn=example,cn=com
-# use_dumb_member = False
-# allow_subtree_delete = False
-# dumb_member = cn=dumb,dc=example,dc=com
-
-# Maximum results per page; a value of zero ('0') disables paging (default)
-# page_size = 0
-
-# The LDAP dereferencing option for queries. This can be either 'never',
-# 'searching', 'always', 'finding' or 'default'. The 'default' option falls
-# back to using default dereferencing configured by your ldap.conf.
-# alias_dereferencing = default
-
-# The LDAP scope for queries, this can be either 'one'
-# (onelevel/singleLevel) or 'sub' (subtree/wholeSubtree)
-# query_scope = one
-
-# user_tree_dn = ou=Users,dc=example,dc=com
-# user_filter =
-# user_objectclass = inetOrgPerson
-# user_id_attribute = cn
-# user_name_attribute = sn
-# user_mail_attribute = email
-# user_pass_attribute = userPassword
-# user_enabled_attribute = enabled
-# user_enabled_mask = 0
-# user_enabled_default = True
-# user_attribute_ignore = default_project_id,tenants
-# user_default_project_id_attribute =
-# user_allow_create = True
-# user_allow_update = True
-# user_allow_delete = True
-# user_enabled_emulation = False
-# user_enabled_emulation_dn =
-
-# tenant_tree_dn = ou=Projects,dc=example,dc=com
-# tenant_filter =
-# tenant_objectclass = groupOfNames
-# tenant_domain_id_attribute = businessCategory
-# tenant_id_attribute = cn
-# tenant_member_attribute = member
-# tenant_name_attribute = ou
-# tenant_desc_attribute = desc
-# tenant_enabled_attribute = enabled
-# tenant_attribute_ignore =
-# tenant_allow_create = True
-# tenant_allow_update = True
-# tenant_allow_delete = True
-# tenant_enabled_emulation = False
-# tenant_enabled_emulation_dn =
-
-# role_tree_dn = ou=Roles,dc=example,dc=com
-# role_filter =
-# role_objectclass = organizationalRole
-# role_id_attribute = cn
-# role_name_attribute = ou
-# role_member_attribute = roleOccupant
-# role_attribute_ignore =
-# role_allow_create = True
-# role_allow_update = True
-# role_allow_delete = True
-
-# group_tree_dn =
-# group_filter =
-# group_objectclass = groupOfNames
-# group_id_attribute = cn
-# group_name_attribute = ou
-# group_member_attribute = member
-# group_desc_attribute = desc
-# group_attribute_ignore =
-# group_allow_create = True
-# group_allow_update = True
-# group_allow_delete = True
-
-# ldap TLS options
-# if both tls_cacertfile and tls_cacertdir are set then
-# tls_cacertfile will be used and tls_cacertdir is ignored
-# valid options for tls_req_cert are demand, never, and allow
-# use_tls = False
-# tls_cacertfile =
-# tls_cacertdir =
-# tls_req_cert = demand
-
-# Additional attribute mappings can be used to map ldap attributes to internal
-# keystone attributes. This allows keystone to fulfill ldap objectclass
-# requirements. An example to map the description and gecos attributes to a
-# user's name would be:
-# user_additional_attribute_mapping = description:name, gecos:name
 #
-# domain_additional_attribute_mapping =
-# group_additional_attribute_mapping =
-# role_additional_attribute_mapping =
-# project_additional_attribute_mapping =
-# user_additional_attribute_mapping =
+# Options defined in keystone
+#
+
+# Keystone Assignment backend driver (string value)
+#driver=<None>
+
+# Toggle for assignment caching. This has no effect unless
+# global caching is enabled. (boolean value)
+#caching=true
+
+# TTL (in seconds) to cache assignment data. This has no
+# effect unless global caching is enabled. (integer value)
+#cache_time=<None>
+
+# Maximum number of entities that will be returned in an
+# assignment collection (integer value)
+#list_limit=<None>
+
 
 [auth]
-# methods = external,password,token
-# external = keystone.auth.plugins.external.DefaultDomain
-# password = keystone.auth.plugins.password.Password
-# token = keystone.auth.plugins.token.Token
 
-[memcache]
-# servers = localhost:11211
-# max_compare_and_set_retry = 16
+#
+# Options defined in keystone
+#
+
+# Default auth methods. (list value)
+#methods=external,password,token
+
+# The password auth plugin module (string value)
+#password=keystone.auth.plugins.password.Password
+
+# The token auth plugin module (string value)
+#token=keystone.auth.plugins.token.Token
+
+# The external (REMOTE_USER) auth plugin module. (string
+# value)
+#external=keystone.auth.plugins.external.DefaultDomain
+
+
+[cache]
+
+#
+# Options defined in keystone
+#
+
+# Prefix for building the configuration dictionary for the
+# cache region. This should not need to be changed unless
+# there is another dogpile.cache region with the same
+# configuration name (string value)
+#config_prefix=cache.keystone
+
+# Default TTL, in seconds, for any cached item in the
+# dogpile.cache region. This applies to any cached method that
+# doesn't have an explicit cache expiration time defined for
+# it. (integer value)
+#expiration_time=600
+
+# Dogpile.cache backend module. It is recommended that
+# Memcache (dogpile.cache.memcache) or Redis
+# (dogpile.cache.redis) be used in production deployments.
+# Small workloads (single process) like devstack can use the
+# dogpile.cache.memory backend. (string value)
+#backend=keystone.common.cache.noop
+
+# Use a key-mangling function (sha1) to ensure fixed length
+# cache-keys. This is toggle-able for debugging purposes, it
+# is highly recommended to always leave this set to True.
+# (boolean value)
+#use_key_mangler=true
+
+# Arguments supplied to the backend module. Specify this
+# option once per argument to be passed to the dogpile.cache
+# backend. Example format: <argname>:<value> (multi valued)
+#backend_argument=
+
+# Proxy Classes to import that will affect the way the
+# dogpile.cache backend functions. See the dogpile.cache
+# documentation on changing-backend-behavior. Comma delimited
+# list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2
+# (list value)
+#proxies=
+
+# Global toggle for all caching using the should_cache_fn
+# mechanism (boolean value)
+#enabled=false
+
+# Extra debugging from the cache backend (cache keys,
+# get/set/delete/etc calls) This is only really useful if you
+# need to see the specific cache-backend get/set/delete calls
+# with the keys/values.  Typically this should be left set to
+# False. (boolean value)
+#debug_cache_backend=false
+
+
+[catalog]
+
+#
+# Options defined in keystone
+#
+
+# Catalog template file name for use with the template catalog
+# backend. (string value)
+#template_file=default_catalog.templates
+
+# Keystone catalog backend driver (string value)
+#driver=keystone.catalog.backends.sql.Catalog
+
+# Maximum number of entities that will be returned in a
+# catalog collection (integer value)
+#list_limit=<None>
+
+
+[credential]
+
+#
+# Options defined in keystone
+#
+
+# Keystone Credential backend driver (string value)
+#driver=keystone.credential.backends.sql.Credential
+
+
+[database]
+
+#
+# Options defined in keystone.openstack.common.db.api
+#
+
+# The backend to use for db (string value)
+# Deprecated group/name - [DEFAULT]/db_backend
+#backend=sqlalchemy
+
+
+#
+# Options defined in keystone.openstack.common.db.sqlalchemy.session
+#
+
+# The SQLAlchemy connection string used to connect to the
+# database (string value)
+# Deprecated group/name - [DEFAULT]/sql_connection
+# Deprecated group/name - [DATABASE]/sql_connection
+# Deprecated group/name - [sql]/connection
+#connection=sqlite:////keystone/openstack/common/db/$sqlite_db
+
+# The SQLAlchemy connection string used to connect to the
+# slave database (string value)
+#slave_connection=
+
+# Timeout before idle sql connections are reaped (integer
+# value)
+# Deprecated group/name - [DEFAULT]/sql_idle_timeout
+# Deprecated group/name - [DATABASE]/sql_idle_timeout
+# Deprecated group/name - [sql]/idle_timeout
+#idle_timeout=3600
+
+# Minimum number of SQL connections to keep open in a pool
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_min_pool_size
+# Deprecated group/name - [DATABASE]/sql_min_pool_size
+#min_pool_size=1
+
+# Maximum number of SQL connections to keep open in a pool
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_pool_size
+# Deprecated group/name - [DATABASE]/sql_max_pool_size
+#max_pool_size=<None>
+
+# Maximum db connection retries during startup. (setting -1
+# implies an infinite retry count) (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_retries
+# Deprecated group/name - [DATABASE]/sql_max_retries
+#max_retries=10
+
+# Interval between retries of opening a sql connection
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_retry_interval
+# Deprecated group/name - [DATABASE]/reconnect_interval
+#retry_interval=10
+
+# If set, use this value for max_overflow with sqlalchemy
+# (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_overflow
+# Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
+#max_overflow=<None>
+
+# Verbosity of SQL debugging information. 0=None,
+# 100=Everything (integer value)
+# Deprecated group/name - [DEFAULT]/sql_connection_debug
+#connection_debug=0
+
+# Add python stack traces to SQL as comment strings (boolean
+# value)
+# Deprecated group/name - [DEFAULT]/sql_connection_trace
+#connection_trace=false
+
+# If set, use this value for pool_timeout with sqlalchemy
+# (integer value)
+# Deprecated group/name - [DATABASE]/sqlalchemy_pool_timeout
+#pool_timeout=<None>
+
+
+[ec2]
+
+#
+# Options defined in keystone
+#
+
+# Keystone EC2Credential backend driver (string value)
+#driver=keystone.contrib.ec2.backends.kvs.Ec2
+
+
+[endpoint_filter]
+
+#
+# Options defined in keystone
+#
+
+# Keystone Endpoint Filter backend driver (string value)
+#driver=keystone.contrib.endpoint_filter.backends.sql.EndpointFilter
+
+# Toggle to return all active endpoints if no filter exists.
+# (boolean value)
+#return_all_endpoints_if_no_filter=true
+
+
+[federation]
+
+#
+# Options defined in keystone
+#
+
+# Keystone Federation backend driver (string value)
+#driver=keystone.contrib.federation.backends.sql.Federation
+
+
+[identity]
+
+#
+# Options defined in keystone
+#
+
+# This references the domain to use for all Identity API v2
+# requests (which are not aware of domains). A domain with
+# this ID will be created for you by keystone-manage db_sync
+# in migration 008.  The domain referenced by this ID cannot
+# be deleted on the v3 API, to prevent accidentally breaking
+# the v2 API. There is nothing special about this domain,
+# other than the fact that it must exist to order to maintain
+# support for your v2 clients. (string value)
+#default_domain_id=default
+
+# A subset (or all) of domains can have their own identity
+# driver, each with their own partial configuration file in a
+# domain configuration directory. Only values specific to the
+# domain need to be placed in the domain specific
+# configuration file. This feature is disabled by default; set
+# to True to enable. (boolean value)
+#domain_specific_drivers_enabled=false
+
+# Path for Keystone to locate the domain specificidentity
+# configuration files if domain_specific_drivers_enabled is
+# set to true. (string value)
+#domain_config_dir=/etc/keystone/domains
+
+# Keystone Identity backend driver (string value)
+#driver=keystone.identity.backends.sql.Identity
+
+# Maximum supported length for user passwords; decrease to
+# improve performance. (integer value)
+#max_password_length=4096
+
+# Maximum number of entities that will be returned in an
+# identity collection (integer value)
+#list_limit=<None>
+
 
 [kvs]
-# backends =
-# config_prefix = keystone.kvs
-# enable_key_mangler = True
+
 #
-# KeyValueStore lock timeout in seconds
-# default_lock_timeout = 5
+# Options defined in keystone
+#
+
+# Extra dogpile.cache backend modules to register with the
+# dogpile.cache library (list value)
+#backends=
+
+# Prefix for building the configuration dictionary for the KVS
+# region. This should not need to be changed unless there is
+# another dogpile.cache region with the same configuration
+# name (string value)
+#config_prefix=keystone.kvs
+
+# Toggle to disable using a key-mangling function to ensure
+# fixed length keys. This is toggle-able for debugging
+# purposes, it is highly recommended to always leave this set
+# to True. (boolean value)
+#enable_key_mangler=true
+
+# Default lock timeout for distributed locking. (integer
+# value)
+#default_lock_timeout=5
+
+
+[ldap]
+
+#
+# Options defined in keystone
+#
+
+# URL for connecting to the LDAP server (string value)
+#url=ldap://localhost
+
+# User BindDN to query the LDAP server (string value)
+#user=<None>
+
+# Password for the BindDN to query the LDAP server (string
+# value)
+#password=<None>
+
+# LDAP server suffix (string value)
+#suffix=cn=example,cn=com
+
+#  (boolean value)
+#use_dumb_member=false
+
+#  (string value)
+#dumb_member=cn=dumb,dc=nonexistent
+
+# allow deleting subtrees (boolean value)
+#allow_subtree_delete=false
+
+# The LDAP scope for queries, this can be either "one"
+# (onelevel/singleLevel) or "sub" (subtree/wholeSubtree)
+# (string value)
+#query_scope=one
+
+# Maximum results per page; a value of zero ("0") disables
+# paging (integer value)
+#page_size=0
+
+# The LDAP dereferencing option for queries. This can be
+# either "never", "searching", "always", "finding" or
+# "default". The "default" option falls back to using default
+# dereferencing configured by your ldap.conf. (string value)
+#alias_dereferencing=default
+
+#  (string value)
+#user_tree_dn=<None>
+
+#  (string value)
+#user_filter=<None>
+
+#  (string value)
+#user_objectclass=inetOrgPerson
+
+#  (string value)
+#user_id_attribute=cn
+
+#  (string value)
+#user_name_attribute=sn
+
+#  (string value)
+#user_mail_attribute=email
+
+#  (string value)
+#user_pass_attribute=userPassword
+
+#  (string value)
+#user_enabled_attribute=enabled
+
+#  (integer value)
+#user_enabled_mask=0
+
+#  (string value)
+#user_enabled_default=True
+
+#  (list value)
+#user_attribute_ignore=default_project_id,tenants
+
+#  (string value)
+#user_default_project_id_attribute=<None>
+
+#  (boolean value)
+#user_allow_create=true
+
+#  (boolean value)
+#user_allow_update=true
+
+#  (boolean value)
+#user_allow_delete=true
+
+#  (boolean value)
+#user_enabled_emulation=false
+
+#  (string value)
+#user_enabled_emulation_dn=<None>
+
+#  (list value)
+#user_additional_attribute_mapping=
+
+#  (string value)
+#tenant_tree_dn=<None>
+
+#  (string value)
+#tenant_filter=<None>
+
+#  (string value)
+#tenant_objectclass=groupOfNames
+
+#  (string value)
+#tenant_id_attribute=cn
+
+#  (string value)
+#tenant_member_attribute=member
+
+#  (string value)
+#tenant_name_attribute=ou
+
+#  (string value)
+#tenant_desc_attribute=description
+
+#  (string value)
+#tenant_enabled_attribute=enabled
+
+#  (string value)
+#tenant_domain_id_attribute=businessCategory
+
+#  (list value)
+#tenant_attribute_ignore=
+
+#  (boolean value)
+#tenant_allow_create=true
+
+#  (boolean value)
+#tenant_allow_update=true
+
+#  (boolean value)
+#tenant_allow_delete=true
+
+#  (boolean value)
+#tenant_enabled_emulation=false
+
+#  (string value)
+#tenant_enabled_emulation_dn=<None>
+
+#  (list value)
+#tenant_additional_attribute_mapping=
+
+#  (string value)
+#role_tree_dn=<None>
+
+#  (string value)
+#role_filter=<None>
+
+#  (string value)
+#role_objectclass=organizationalRole
+
+#  (string value)
+#role_id_attribute=cn
+
+#  (string value)
+#role_name_attribute=ou
+
+#  (string value)
+#role_member_attribute=roleOccupant
+
+#  (list value)
+#role_attribute_ignore=
+
+#  (boolean value)
+#role_allow_create=true
+
+#  (boolean value)
+#role_allow_update=true
+
+#  (boolean value)
+#role_allow_delete=true
+
+#  (list value)
+#role_additional_attribute_mapping=
+
+#  (string value)
+#group_tree_dn=<None>
+
+#  (string value)
+#group_filter=<None>
+
+#  (string value)
+#group_objectclass=groupOfNames
+
+#  (string value)
+#group_id_attribute=cn
+
+#  (string value)
+#group_name_attribute=ou
+
+#  (string value)
+#group_member_attribute=member
+
+#  (string value)
+#group_desc_attribute=description
+
+#  (list value)
+#group_attribute_ignore=
+
+#  (boolean value)
+#group_allow_create=true
+
+#  (boolean value)
+#group_allow_update=true
+
+#  (boolean value)
+#group_allow_delete=true
+
+#  (list value)
+#group_additional_attribute_mapping=
+
+#  (string value)
+#tls_cacertfile=<None>
+
+#  (string value)
+#tls_cacertdir=<None>
+
+#  (boolean value)
+#use_tls=false
+
+# valid options for tls_req_cert are demand, never, and allow
+# (string value)
+#tls_req_cert=demand
+
+
+[matchmaker_redis]
+
+#
+# Options defined in keystone.openstack.common.rpc.matchmaker_redis
+#
+
+# Host to locate redis (string value)
+#host=127.0.0.1
+
+# Use this port to connect to redis host. (integer value)
+#port=6379
+
+# Password for Redis server. (optional) (string value)
+#password=<None>
+
+
+[matchmaker_ring]
+
+#
+# Options defined in oslo.messaging
+#
+
+# Matchmaker ring file (JSON) (string value)
+# Deprecated group/name - [DEFAULT]/matchmaker_ringfile
+#ringfile=/etc/oslo/matchmaker_ring.json
+
+
+#
+# Options defined in keystone.openstack.common.rpc.matchmaker_ring
+#
+
+# Matchmaker ring file (JSON) (string value)
+# Deprecated group/name - [DEFAULT]/matchmaker_ringfile
+#ringfile=/etc/oslo/matchmaker_ring.json
+
+
+[memcache]
+
+#
+# Options defined in keystone
+#
+
+# Memcache servers in the format of "host:port" (list value)
+#servers=localhost:11211
+
+# Number of compare-and-set attempts to make when using
+# compare-and-set in the token memcache back end (integer
+# value)
+#max_compare_and_set_retry=16
+
+
+[oauth1]
+
+#
+# Options defined in keystone
+#
+
+# Keystone Credential backend driver (string value)
+#driver=keystone.contrib.oauth1.backends.sql.OAuth1
+
+# Duration (in seconds) for the OAuth Request Token (integer
+# value)
+#request_token_duration=28800
+
+# Duration (in seconds) for the OAuth Access Token (integer
+# value)
+#access_token_duration=86400
+
+
+[os_inherit]
+
+#
+# Options defined in keystone
+#
+
+# role-assignment inheritance to projects from owning domain
+# can be optionally enabled (boolean value)
+#enabled=false
+
+
+[pam]
+
+#
+# Options defined in keystone
+#
+
+#  (string value)
+#userid=<None>
+
+#  (string value)
+#password=<None>
+
 
 [paste_deploy]
-# Name of the paste configuration file that defines the available pipelines
-# config_file = keystone-paste.ini
+
+#
+# Options defined in keystone
+#
+
+# Name of the paste configuration file that defines the
+# available pipelines (string value)
+#config_file=keystone-paste.ini
+
+
+[policy]
+
+#
+# Options defined in keystone
+#
+
+# Keystone Policy backend driver (string value)
+#driver=keystone.policy.backends.sql.Policy
+
+# Maximum number of entities that will be returned in a policy
+# collection (integer value)
+#list_limit=<None>
+
+
+[rpc_notifier2]
+
+#
+# Options defined in keystone.openstack.common.notifier.rpc_notifier2
+#
+
+# AMQP topic(s) used for OpenStack notifications (list value)
+#topics=notifications
+
+
+[signing]
+
+#
+# Options defined in keystone
+#
+
+# Deprecated in favor of provider in the [token] section
+# (string value)
+#token_format=<None>
+
+# Path of the certfile for token signing. (string value)
+#certfile=/etc/keystone/ssl/certs/signing_cert.pem
+
+# Path of the keyfile for token signing. (string value)
+#keyfile=/etc/keystone/ssl/private/signing_key.pem
+
+# Path of the CA for token signing. (string value)
+#ca_certs=/etc/keystone/ssl/certs/ca.pem
+
+# Path of the CA Key for token signing (string value)
+#ca_key=/etc/keystone/ssl/private/cakey.pem
+
+# Key Size (in bits) for token signing cert (auto generated
+# certificate) (integer value)
+#key_size=2048
+
+# Day the token signing cert is valid for (auto generated
+# certificate) (integer value)
+#valid_days=3650
+
+# Certificate Subject (auto generated certificate) for token
+# signing. (string value)
+#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
+
+
+[ssl]
+
+#
+# Options defined in keystone
+#
+
+# Toggle for SSL support on the keystone eventlet servers.
+# (boolean value)
+#enable=false
+
+# Path of the certfile for SSL. (string value)
+#certfile=/etc/keystone/ssl/certs/keystone.pem
+
+# Path of the keyfile for SSL. (string value)
+#keyfile=/etc/keystone/ssl/private/keystonekey.pem
+
+# Path of the ca cert file for SSL. (string value)
+#ca_certs=/etc/keystone/ssl/certs/ca.pem
+
+# Path of the CA key file for SSL (string value)
+#ca_key=/etc/keystone/ssl/private/cakey.pem
+
+#  (boolean value)
+#cert_required=false
+
+# SSL Key Length (in bits) (auto generated certificate)
+# (integer value)
+#key_size=1024
+
+# Days the certificate is valid for once signed (auto
+# generated certificate) (integer value)
+#valid_days=3650
+
+# SSL Certificate Subject (auto generated certificate) (string
+# value)
+#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
+
+
+#
+# Options defined in keystone.openstack.common.sslutils
+#
+
+# CA certificate file to use to verify connecting clients
+# (string value)
+#ca_file=<None>
+
+# Certificate file to use when starting the server securely
+# (string value)
+#cert_file=<None>
+
+# Private key file to use when starting the server securely
+# (string value)
+#key_file=<None>
+
+
+[stats]
+
+#
+# Options defined in keystone
+#
+
+# Keystone stats backend driver (string value)
+#driver=keystone.contrib.stats.backends.kvs.Stats
+
+
+[token]
+
+#
+# Options defined in keystone
+#
+
+# External auth mechanisms that should add bind information to
+# token e.g. kerberos, x509 (list value)
+#bind=
+
+# Enforcement policy on tokens presented to keystone with bind
+# information. One of disabled, permissive, strict, required
+# or a specifically required bind mode e.g. kerberos or x509
+# to require binding to that authentication. (string value)
+#enforce_token_bind=permissive
+
+# Amount of time a token should remain valid (in seconds)
+# (integer value)
+#expiration=3600
+
+# Controls the token construction, validation, and revocation
+# operations. Core providers are
+# keystone.token.providers.[pki|uuid].Provider (string value)
+#provider=<None>
+
+# Keystone Token persistence backend driver (string value)
+#driver=keystone.token.backends.sql.Token
+
+# Toggle for token system cacheing. This has no effect unless
+# global caching is enabled. (boolean value)
+#caching=true
+
+# Time to cache the revocation list (in seconds). This has no
+# effect unless global and token caching are enabled. (integer
+# value)
+#revocation_cache_time=3600
+
+# Time to cache tokens (in seconds). This has no effect unless
+# global and token caching are enabled. (integer value)
+#cache_time=<None>
+
+
+[trust]
+
+#
+# Options defined in keystone
+#
+
+# delegation and impersonation features can be optionally
+# disabled (boolean value)
+#enabled=true
+
+# Keystone Trust backend driver (string value)
+#driver=keystone.trust.backends.sql.Trust
+
+
