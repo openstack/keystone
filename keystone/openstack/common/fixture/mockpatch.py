@@ -22,14 +22,15 @@ import mock
 class PatchObject(fixtures.Fixture):
     """Deal with code around mock."""
 
-    def __init__(self, obj, attr, **kwargs):
+    def __init__(self, obj, attr, new=mock.DEFAULT, **kwargs):
         self.obj = obj
         self.attr = attr
         self.kwargs = kwargs
+        self.new = new
 
     def setUp(self):
         super(PatchObject, self).setUp()
-        _p = mock.patch.object(self.obj, self.attr, **self.kwargs)
+        _p = mock.patch.object(self.obj, self.attr, self.new, **self.kwargs)
         self.mock = _p.start()
         self.addCleanup(_p.stop)
 
@@ -38,12 +39,13 @@ class Patch(fixtures.Fixture):
 
     """Deal with code around mock.patch."""
 
-    def __init__(self, obj, **kwargs):
+    def __init__(self, obj, new=mock.DEFAULT, **kwargs):
         self.obj = obj
         self.kwargs = kwargs
+        self.new = new
 
     def setUp(self):
         super(Patch, self).setUp()
-        _p = mock.patch(self.obj, **self.kwargs)
+        _p = mock.patch(self.obj, self.new, **self.kwargs)
         self.mock = _p.start()
         self.addCleanup(_p.stop)
