@@ -18,6 +18,7 @@ import uuid
 
 import memcache
 
+import default_fixtures
 from keystone.common import utils
 from keystone.openstack.common import timeutils
 from keystone import test
@@ -75,8 +76,10 @@ class MemcacheClient(object):
 class MemcacheToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(MemcacheToken, self).setUp()
+        self.load_backends()
         fake_client = MemcacheClient()
         self.token_api = token_memcache.Token(client=fake_client)
+        self.load_fixtures(default_fixtures)
 
     def test_create_unicode_token_id(self):
         token_id = unicode(self._create_token_id())

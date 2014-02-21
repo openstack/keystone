@@ -62,6 +62,15 @@ class Token(token.Driver):
         return token_ref
 
     def create_token(self, token_id, data):
+
+        def update_index(user_id, token_data):
+            user_key = self._prefix_user_id(user_id)
+            if not self.client.append(user_key, ',%s' % token_data):
+                if not self.client.add(user_key, token_data):
+                    if not self.client.append(user_key, ',%s' % token_data):
+                        msg = _('Unable to add token user list.')
+                        raise exception.UnexpectedError(msg)
+
         data_copy = copy.deepcopy(data)
         ptk = self._prefix_token_id(token.unique_id(token_id))
         if not data_copy.get('expires'):
@@ -73,15 +82,19 @@ class Token(token.Driver):
             expires_ts = utils.unixtime(data_copy['expires'])
             kwargs['time'] = expires_ts
         self.client.set(ptk, data_copy, **kwargs)
+        token_data = jsonutils.dumps(token_id)
         if 'id' in data['user']:
-            token_data = jsonutils.dumps(token_id)
             user_id = data['user']['id']
-            user_key = self._prefix_user_id(user_id)
-            if not self.client.append(user_key, ',%s' % token_data):
-                if not self.client.add(user_key, token_data):
-                    if not self.client.append(user_key, ',%s' % token_data):
-                        msg = _('Unable to add token user list.')
-                        raise exception.UnexpectedError(msg)
+            update_index(user_id, token_data)
+
+        if CONF.trust.enabled and data.get('trust_id'):
+            if 'access' in data_copy:
+                trustee_user_id = data_copy['access']['trust'][
+                    'trustee_user_id']
+            else:
+                trustee_user_id = data_copy['OS-TRUST:trust'][
+                    'trustee_user_id']
+            update_index(trustee_user_id, token_data)
         return copy.deepcopy(data_copy)
 
     def _add_to_revocation_list(self, token_id, token_data):

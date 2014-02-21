@@ -73,6 +73,8 @@ class KvsToken(test.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
         self.token_api = token_kvs.Token(db={})
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
 
 
 class KvsTrust(test.TestCase, test_backend.TrustTests):
