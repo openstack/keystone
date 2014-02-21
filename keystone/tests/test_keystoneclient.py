@@ -18,7 +18,6 @@ import webob
 
 from keystone.common import sql
 from keystone import config
-from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 from keystone import tests
@@ -43,8 +42,8 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
         # credential api makes some very SQL specific assumptions that should
         # be addressed allowing for non-SQL based testing to occur.
         self.load_backends()
-        self.engine = session.get_engine()
-        self.addCleanup(session.cleanup)
+        self.engine = sql.get_engine()
+        self.addCleanup(sql.cleanup)
         self.addCleanup(sql.ModelBase.metadata.drop_all,
                         bind=self.engine)
         sql.ModelBase.metadata.create_all(bind=self.engine)

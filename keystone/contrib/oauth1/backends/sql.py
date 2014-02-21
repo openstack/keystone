@@ -24,7 +24,6 @@ from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import core
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 
@@ -86,7 +85,8 @@ class AccessToken(sql.ModelBase, sql.DictBase):
 
 class OAuth1(object):
     def db_sync(self):
-        migration.db_sync(migration_helpers.find_migrate_repo(oauth1))
+        migration.db_sync(sql.get_engine(),
+                          migration_helpers.find_migrate_repo(oauth1))
 
     def _get_consumer(self, session, consumer_id):
         consumer_ref = session.query(Consumer).get(consumer_id)
@@ -95,7 +95,7 @@ class OAuth1(object):
         return consumer_ref
 
     def get_consumer_with_secret(self, consumer_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         consumer_ref = self._get_consumer(session, consumer_id)
         return consumer_ref.to_dict()
 
@@ -107,7 +107,7 @@ class OAuth1(object):
         consumer['secret'] = uuid.uuid4().hex
         if not consumer.get('description'):
             consumer['description'] = None
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             consumer_ref = Consumer.from_dict(consumer)
             session.add(consumer_ref)
@@ -143,19 +143,19 @@ class OAuth1(object):
             session.delete(token_ref)
 
     def delete_consumer(self, consumer_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             self._delete_request_tokens(session, consumer_id)
             self._delete_access_tokens(session, consumer_id)
             self._delete_consumer(session, consumer_id)
 
     def list_consumers(self):
-        session = db_session.get_session()
+        session = sql.get_session()
         cons = session.query(Consumer)
         return [core.filter_consumer(x.to_dict()) for x in cons]
 
     def update_consumer(self, consumer_id, consumer):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             consumer_ref = self._get_consumer(session, consumer_id)
             old_consumer_dict = consumer_ref.to_dict()
@@ -186,7 +186,7 @@ class OAuth1(object):
         ref['role_ids'] = None
         ref['consumer_id'] = consumer_id
         ref['expires_at'] = expiry_date
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             token_ref = RequestToken.from_dict(ref)
             session.add(token_ref)
@@ -199,13 +199,13 @@ class OAuth1(object):
         return token_ref
 
     def get_request_token(self, request_token_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         token_ref = self._get_request_token(session, request_token_id)
         return token_ref.to_dict()
 
     def authorize_request_token(self, request_token_id, user_id,
                                 role_ids):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             token_ref = self._get_request_token(session, request_token_id)
             token_dict = token_ref.to_dict()
@@ -227,7 +227,7 @@ class OAuth1(object):
             access_token_id = uuid.uuid4().hex
         if access_token_secret is None:
             access_token_secret = uuid.uuid4().hex
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             req_token_ref = self._get_request_token(session, request_token_id)
             token_dict = req_token_ref.to_dict()
@@ -265,18 +265,18 @@ class OAuth1(object):
         return token_ref
 
     def get_access_token(self, access_token_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         token_ref = self._get_access_token(session, access_token_id)
         return token_ref.to_dict()
 
     def list_access_tokens(self, user_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         q = session.query(AccessToken)
         user_auths = q.filter_by(authorizing_user_id=user_id)
         return [core.filter_token(x.to_dict()) for x in user_auths]
 
     def delete_access_token(self, user_id, access_token_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             token_ref = self._get_access_token(session, access_token_id)
             token_dict = token_ref.to_dict()

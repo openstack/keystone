@@ -44,7 +44,7 @@ from keystone import config
 from keystone import credential
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common.db.sqlalchemy import session
+from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone import tests
 from keystone.tests import default_fixtures
 
@@ -75,8 +75,8 @@ class SqlMigrateBase(tests.TestCase):
         self.config(self.config_files())
 
         # create and share a single sqlalchemy engine for testing
-        self.engine = session.get_engine()
-        self.Session = session.get_maker(self.engine, autocommit=False)
+        self.engine = sql.get_engine()
+        self.Session = db_session.get_maker(self.engine, autocommit=False)
 
         self.initialize_sql()
         self.repo_path = migration_helpers.find_migrate_repo(
@@ -94,7 +94,7 @@ class SqlMigrateBase(tests.TestCase):
                                  autoload=True)
         self.downgrade(0)
         table.drop(self.engine, checkfirst=True)
-        session.cleanup()
+        sql.cleanup()
         super(SqlMigrateBase, self).tearDown()
 
     def select_table(self, name):
@@ -158,7 +158,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('user')
 
     def test_start_version_0(self):
-        version = migration.db_version(self.repo_path, 0)
+        version = migration.db_version(sql.get_engine(), self.repo_path, 0)
         self.assertEqual(version, 0, "DB is not at version 0")
 
     def test_two_steps_forward_one_step_back(self):

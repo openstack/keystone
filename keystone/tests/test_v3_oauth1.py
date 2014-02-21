@@ -17,6 +17,7 @@ import uuid
 
 from six.moves import urllib
 
+from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import contrib
@@ -41,8 +42,8 @@ class OAuth1Tests(test_v3.RestfulTestCase):
         package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
         package = importutils.import_module(package_name)
         abs_path = migration_helpers.find_migrate_repo(package)
-        migration.db_version_control(abs_path)
-        migration.db_sync(abs_path)
+        migration.db_version_control(sql.get_engine(), abs_path)
+        migration.db_sync(sql.get_engine(), abs_path)
 
     def setUp(self):
         super(OAuth1Tests, self).setUp()

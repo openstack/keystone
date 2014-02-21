@@ -22,7 +22,6 @@ from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common.db.sqlalchemy import session as db_session
 
 
 CONF = config.CONF
@@ -82,11 +81,12 @@ class Endpoint(sql.ModelBase, sql.DictBase):
 class Catalog(catalog.Driver):
     def db_sync(self, version=None):
         migration.db_sync(
-            migration_helpers.find_migrate_repo(), version=version)
+            sql.get_engine(), migration_helpers.find_migrate_repo(),
+            version=version)
 
     # Regions
     def list_regions(self):
-        session = db_session.get_session()
+        session = sql.get_session()
         regions = session.query(Region).all()
         return [s.to_dict() for s in list(regions)]
 
@@ -120,11 +120,11 @@ class Catalog(catalog.Driver):
             self._get_region(session, parent_region_id)
 
     def get_region(self, region_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         return self._get_region(session, region_id).to_dict()
 
     def delete_region(self, region_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = self._get_region(session, region_id)
             self._delete_child_regions(session, region_id)
@@ -133,7 +133,7 @@ class Catalog(catalog.Driver):
             session.flush()
 
     def create_region(self, region_ref):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             self._check_parent_region(session, region_ref)
             region = Region.from_dict(region_ref)
@@ -142,7 +142,7 @@ class Catalog(catalog.Driver):
         return region.to_dict()
 
     def update_region(self, region_id, region_ref):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             self._check_parent_region(session, region_ref)
             ref = self._get_region(session, region_id)
@@ -158,7 +158,7 @@ class Catalog(catalog.Driver):
     # Services
     @sql.truncated
     def list_services(self, hints):
-        session = db_session.get_session()
+        session = sql.get_session()
         services = session.query(Service)
         services = sql.filter_limit_query(Service, services, hints)
         return [s.to_dict() for s in list(services)]
@@ -170,25 +170,25 @@ class Catalog(catalog.Driver):
         return ref
 
     def get_service(self, service_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         return self._get_service(session, service_id).to_dict()
 
     def delete_service(self, service_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = self._get_service(session, service_id)
             session.query(Endpoint).filter_by(service_id=service_id).delete()
             session.delete(ref)
 
     def create_service(self, service_id, service_ref):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             service = Service.from_dict(service_ref)
             session.add(service)
         return service.to_dict()
 
     def update_service(self, service_id, service_ref):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = self._get_service(session, service_id)
             old_dict = ref.to_dict()
@@ -202,7 +202,7 @@ class Catalog(catalog.Driver):
 
     # Endpoints
     def create_endpoint(self, endpoint_id, endpoint_ref):
-        session = db_session.get_session()
+        session = sql.get_session()
         self.get_service(endpoint_ref['service_id'])
         new_endpoint = Endpoint.from_dict(endpoint_ref)
         with session.begin():
@@ -210,7 +210,7 @@ class Catalog(catalog.Driver):
         return new_endpoint.to_dict()
 
     def delete_endpoint(self, endpoint_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = self._get_endpoint(session, endpoint_id)
             session.delete(ref)
@@ -222,18 +222,18 @@ class Catalog(catalog.Driver):
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
     def get_endpoint(self, endpoint_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         return self._get_endpoint(session, endpoint_id).to_dict()
 
     @sql.truncated
     def list_endpoints(self, hints):
-        session = db_session.get_session()
+        session = sql.get_session()
         endpoints = session.query(Endpoint)
         endpoints = sql.filter_limit_query(Endpoint, endpoints, hints)
         return [e.to_dict() for e in list(endpoints)]
 
     def update_endpoint(self, endpoint_id, endpoint_ref):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = self._get_endpoint(session, endpoint_id)
             old_dict = ref.to_dict()
@@ -250,7 +250,7 @@ class Catalog(catalog.Driver):
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 
-        session = db_session.get_session()
+        session = sql.get_session()
         endpoints = (session.query(Endpoint).
                      options(sql.joinedload(Endpoint.service)).
                      all())
@@ -278,7 +278,7 @@ class Catalog(catalog.Driver):
         d.update({'tenant_id': tenant_id,
                   'user_id': user_id})
 
-        session = db_session.get_session()
+        session = sql.get_session()
         services = (session.query(Service).
                     options(sql.joinedload(Service.endpoints)).
                     all())

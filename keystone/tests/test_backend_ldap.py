@@ -25,7 +25,6 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import default_fixtures
@@ -1204,8 +1203,8 @@ class LdapIdentitySqlAssignment(tests.TestCase, BaseLDAPIdentity):
         self.clear_database()
         self.load_backends()
         cache.configure_cache_region(cache.REGION)
-        self.engine = session.get_engine()
-        self.addCleanup(session.cleanup)
+        self.engine = sql.get_engine()
+        self.addCleanup(sql.cleanup)
 
         sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
@@ -1278,8 +1277,8 @@ class MultiLDAPandSQLIdentity(tests.TestCase, BaseLDAPIdentity):
         self._set_config()
         self.load_backends()
 
-        self.engine = session.get_engine()
-        self.addCleanup(session.cleanup)
+        self.engine = sql.get_engine()
+        self.addCleanup(sql.cleanup)
 
         sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)

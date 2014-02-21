@@ -15,81 +15,41 @@
 #    under the License.
 
 import functools
+import logging
 import os
 import subprocess
 
 import lockfile
 from six import moves
+from six.moves.urllib import parse
 import sqlalchemy
 import sqlalchemy.exc
 
-from keystone.openstack.common.gettextutils import _
-from keystone.openstack.common import log as logging
-from keystone.openstack.common.py3kcompat import urlutils
+from keystone.openstack.common.db.sqlalchemy import utils
+from keystone.openstack.common.gettextutils import _LE
 from keystone.openstack.common import test
 
 LOG = logging.getLogger(__name__)
 
 
-def _get_connect_string(backend, user, passwd, database):
-    """Get database connection
-
-    Try to get a connection with a very specific set of values, if we get
-    these then we'll run the tests, otherwise they are skipped
-    """
-    if backend == "postgres":
-        backend = "postgresql+psycopg2"
-    elif backend == "mysql":
-        backend = "mysql+mysqldb"
-    else:
-        raise Exception("Unrecognized backend: '%s'" % backend)
-
-    return ("%(backend)s://%(user)s:%(passwd)s@localhost/%(database)s"
-            % {'backend': backend, 'user': user, 'passwd': passwd,
-               'database': database})
-
-
-def _is_backend_avail(backend, user, passwd, database):
-    try:
-        connect_uri = _get_connect_string(backend, user, passwd, database)
-        engine = sqlalchemy.create_engine(connect_uri)
-        connection = engine.connect()
-    except Exception:
-        # intentionally catch all to handle exceptions even if we don't
-        # have any backend code loaded.
-        return False
-    else:
-        connection.close()
-        engine.dispose()
-        return True
-
-
 def _have_mysql(user, passwd, database):
     present = os.environ.get('TEST_MYSQL_PRESENT')
     if present is None:
-        return _is_backend_avail('mysql', user, passwd, database)
+        return utils.is_backend_avail(backend='mysql',
+                                      user=user,
+                                      passwd=passwd,
+                                      database=database)
     return present.lower() in ('', 'true')
 
 
 def _have_postgresql(user, passwd, database):
     present = os.environ.get('TEST_POSTGRESQL_PRESENT')
     if present is None:
-        return _is_backend_avail('postgres', user, passwd, database)
+        return utils.is_backend_avail(backend='postgres',
+                                      user=user,
+                                      passwd=passwd,
+                                      database=database)
     return present.lower() in ('', 'true')
-
-
-def get_db_connection_info(conn_pieces):
-    database = conn_pieces.path.strip('/')
-    loc_pieces = conn_pieces.netloc.split('@')
-    host = loc_pieces[1]
-
-    auth_pieces = loc_pieces[0].split(':')
-    user = auth_pieces[0]
-    password = ""
-    if len(auth_pieces) > 1:
-        password = auth_pieces[1].strip()
-
-    return (user, password, database, host)
 
 
 def _set_db_lock(lock_path=None, lock_prefix=None):
@@ -100,10 +60,10 @@ def _set_db_lock(lock_path=None, lock_prefix=None):
                 path = lock_path or os.environ.get("KEYSTONE_LOCK_PATH")
                 lock = lockfile.FileLock(os.path.join(path, lock_prefix))
                 with lock:
-                    LOG.debug(_('Got lock "%s"') % f.__name__)
+                    LOG.debug('Got lock "%s"' % f.__name__)
                     return f(*args, **kwargs)
             finally:
-                LOG.debug(_('Lock released "%s"') % f.__name__)
+                LOG.debug('Lock released "%s"' % f.__name__)
         return wrapper
     return decorator
 
@@ -166,7 +126,10 @@ class BaseMigrationTestCase(test.BaseTestCase):
                          "Failed to run: %s\n%s" % (cmd, output))
 
     def _reset_pg(self, conn_pieces):
-        (user, password, database, host) = get_db_connection_info(conn_pieces)
+        (user,
+         password,
+         database,
+         host) = utils.get_db_connection_info(conn_pieces)
         os.environ['PGPASSWORD'] = password
         os.environ['PGUSER'] = user
         # note(boris-42): We must create and drop database, we can't
@@ -190,7 +153,7 @@ class BaseMigrationTestCase(test.BaseTestCase):
     def _reset_databases(self):
         for key, engine in self.engines.items():
             conn_string = self.test_databases[key]
-            conn_pieces = urlutils.urlparse(conn_string)
+            conn_pieces = parse.urlparse(conn_string)
             engine.dispose()
             if conn_string.startswith('sqlite'):
                 # We can just delete the SQLite database, which is
@@ -205,7 +168,7 @@ class BaseMigrationTestCase(test.BaseTestCase):
                 # the MYSQL database, which is easier and less error-prone
                 # than using SQLAlchemy to do this via MetaData...trust me.
                 (user, password, database, host) = \
-                    get_db_connection_info(conn_pieces)
+                    utils.get_db_connection_info(conn_pieces)
                 sql = ("drop database if exists %(db)s; "
                        "create database %(db)s;") % {'db': database}
                 cmd = ("mysql -u \"%(user)s\" -p\"%(password)s\" -h %(host)s "
@@ -301,6 +264,6 @@ class WalkVersionsMixin(object):
                 if check:
                     check(engine, data)
         except Exception:
-            LOG.error("Failed to migrate to version %s on engine %s" %
+            LOG.error(_LE("Failed to migrate to version %s on engine %s") %
                       (version, engine))
             raise

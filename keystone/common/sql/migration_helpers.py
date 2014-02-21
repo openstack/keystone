@@ -126,7 +126,7 @@ def sync_database_to_version(extension=None, version=None):
         try:
             abs_path = find_migrate_repo(package)
             try:
-                migration.db_version_control(abs_path)
+                migration.db_version_control(sql.get_engine(), abs_path)
             # Register the repo with the version control API
             # If it already knows about the repo, it will throw
             # an exception that we can safely ignore
@@ -135,7 +135,7 @@ def sync_database_to_version(extension=None, version=None):
         except exception.MigrationNotProvided as e:
             print(e)
             sys.exit(1)
-    migration.db_sync(abs_path, version=version)
+    migration.db_sync(sql.get_engine(), abs_path, version=version)
 
 
 def print_db_version(extension=None):

@@ -14,7 +14,6 @@
 
 from keystone.common import sql
 from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common import timeutils
 from keystone import trust
 
@@ -47,7 +46,7 @@ class TrustRole(sql.ModelBase):
 class Trust(trust.Driver):
     @sql.handle_conflicts(conflict_type='trust')
     def create_trust(self, trust_id, trust, roles):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = TrustModel.from_dict(trust)
             ref['id'] = trust_id
@@ -73,7 +72,7 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def consume_use(self, trust_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             ref = (session.query(TrustModel).
                    with_lockmode('update').
@@ -90,7 +89,7 @@ class Trust(trust.Driver):
                 raise exception.TrustUseLimitReached(trust_id=trust_id)
 
     def get_trust(self, trust_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         ref = (session.query(TrustModel).
                filter_by(deleted_at=None).
                filter_by(id=trust_id).first())
@@ -111,13 +110,13 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def list_trusts(self):
-        session = db_session.get_session()
+        session = sql.get_session()
         trusts = session.query(TrustModel).filter_by(deleted_at=None)
         return [trust_ref.to_dict() for trust_ref in trusts]
 
     @sql.handle_conflicts(conflict_type='trust')
     def list_trusts_for_trustee(self, trustee_user_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         trusts = (session.query(TrustModel).
                   filter_by(deleted_at=None).
                   filter_by(trustee_user_id=trustee_user_id))
@@ -125,7 +124,7 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def list_trusts_for_trustor(self, trustor_user_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         trusts = (session.query(TrustModel).
                   filter_by(deleted_at=None).
                   filter_by(trustor_user_id=trustor_user_id))
@@ -133,7 +132,7 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def delete_trust(self, trust_id):
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             trust_ref = session.query(TrustModel).get(trust_id)
             if not trust_ref:

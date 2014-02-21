@@ -21,7 +21,6 @@ from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common.db.sqlalchemy import session as db_session
 
 
 CONF = config.CONF
@@ -39,7 +38,8 @@ class Assignment(assignment.Driver):
     # Internal interface to manage the database
     def db_sync(self, version=None):
         migration.db_sync(
-            migration_helpers.find_migrate_repo(), version=version)
+            sql.get_engine(), migration_helpers.find_migrate_repo(),
+            version=version)
 
     def _get_project(self, session, project_id):
         project_ref = session.query(Project).get(project_id)
@@ -81,7 +81,7 @@ class Assignment(assignment.Driver):
 
         # We aren't given a session when called by the manager directly.
         if session is None:
-            session = db_session.get_session()
+            session = sql.get_session()
 
         q = session.query(RoleAssignment)
         q = q.filter_by(actor_id=user_id or group_id)
@@ -296,7 +296,7 @@ class Assignment(assignment.Driver):
             Role.id == RoleAssignment.role_id,
             RoleAssignment.actor_id.in_(group_ids))
 
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             query = session.query(Role).filter(
                 sql_constraints).distinct()
@@ -313,7 +313,7 @@ class Assignment(assignment.Driver):
             entity.id == RoleAssignment.target_id,
             RoleAssignment.actor_id.in_(group_ids))
 
-        session = db_session.get_session()
+        session = sql.get_session()
         with session.begin():
             query = session.query(entity).filter(
                 group_sql_conditions)
