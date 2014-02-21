@@ -150,5 +150,7 @@ class Token(kvs.Base, token.Driver):
     def flush_expired_tokens(self):
         now = timeutils.utcnow()
         for token, token_ref in self.db.items():
+            if not token.startswith('revoked-token-'):
+                continue
             if self.is_expired(now, token_ref):
                 self.db.delete(token)
