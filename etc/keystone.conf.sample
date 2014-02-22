@@ -424,31 +424,6 @@
 
 
 #
-# Options defined in keystone.openstack.common.notifier.api
-#
-
-# Driver or drivers to handle sending notifications (multi
-# valued)
-#notification_driver=
-
-# Default notification level for outgoing notifications
-# (string value)
-#default_notification_level=INFO
-
-# Default publisher_id for outgoing notifications (string
-# value)
-#default_publisher_id=<None>
-
-
-#
-# Options defined in keystone.openstack.common.notifier.rpc_notifier
-#
-
-# AMQP topic used for OpenStack notifications (list value)
-#notification_topics=notifications
-
-
-#
 # Options defined in keystone.openstack.common.policy
 #
 
@@ -1301,16 +1276,6 @@
 # Maximum number of entities that will be returned in a policy
 # collection (integer value)
 #list_limit=<None>
-
-
-[rpc_notifier2]
-
-#
-# Options defined in keystone.openstack.common.notifier.rpc_notifier2
-#
-
-# AMQP topic(s) used for OpenStack notifications (list value)
-#topics=notifications
 
 
 [signing]
