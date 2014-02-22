@@ -215,7 +215,7 @@ class Auth(controller.V2Controller):
             metadata_ref['trustee_user_id'] = trust_ref['trustee_user_id']
             metadata_ref['trust_id'] = trust_id
 
-        bind = old_token_ref.get('bind', None)
+        bind = old_token_ref.get('bind')
 
         return (current_user_ref, tenant_ref, metadata_ref, expiry, bind)
 
@@ -243,7 +243,7 @@ class Auth(controller.V2Controller):
                 attribute='username or userId',
                 target='passwordCredentials')
 
-        user_id = auth['passwordCredentials'].get('userId', None)
+        user_id = auth['passwordCredentials'].get('userId')
         if user_id and len(user_id) > CONF.max_param_size:
             raise exception.ValidationSizeError(attribute='userId',
                                                 size=CONF.max_param_size)
@@ -323,12 +323,12 @@ class Auth(controller.V2Controller):
 
         Returns a valid tenant_id if it exists, or None if not specified.
         """
-        tenant_id = auth.get('tenantId', None)
+        tenant_id = auth.get('tenantId')
         if tenant_id and len(tenant_id) > CONF.max_param_size:
             raise exception.ValidationSizeError(attribute='tenantId',
                                                 size=CONF.max_param_size)
 
-        tenant_name = auth.get('tenantName', None)
+        tenant_name = auth.get('tenantName')
         if tenant_name and len(tenant_name) > CONF.max_param_size:
             raise exception.ValidationSizeError(attribute='tenantName',
                                                 size=CONF.max_param_size)

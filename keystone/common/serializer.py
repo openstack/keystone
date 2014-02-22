@@ -96,7 +96,7 @@ class XmlDeserializer(object):
         prefix = None
         for xmlns in XMLNS_LIST:
             if xmlns['value'] == ns:
-                prefix = xmlns.get('prefix', None)
+                prefix = xmlns.get('prefix')
                 break
         if prefix is not None:
             return '%(PREFIX)s:%(tag_name)s' \
@@ -209,7 +209,7 @@ class XmlSerializer(object):
         root_name = m.string[m.start():]
         prefix = m.string[0:m.start() - 1]
         for ns in XMLNS_LIST:
-            if prefix == ns.get('prefix', None):
+            if prefix == ns.get('prefix'):
                 xmlns = ns['value']
                 break
         # only the root dom element gets an xlmns
