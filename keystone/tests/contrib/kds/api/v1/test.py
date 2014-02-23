@@ -10,20 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pecan
-
-from keystone.contrib.kds.api.v1 import controllers
+from keystone.tests.contrib.kds.api.v1 import base
 
 
-class RootController(object):
+class TestVersion(base.BaseTestCase):
 
-    v1 = controllers.Controller()
+    def test_versions(self):
+        resp = self.get('/')
+        version = resp.json['version']
+        self.assertEqual(resp.status_code, 200)
 
-    @pecan.expose('json')
-    def index(self):
-        pecan.response.status = 300
-        return {
-            'versions': [
-                self.v1.version_info(),
-            ]
-        }
+        host = 'http://localhost'  # webtest default
+
+        self.assertEqual(version['id'], 'v1.0')
+        self.assertEqual(version['status'], 'stable')
+        self.assertEqual(version['links'][0]['href'], '%s/v1/' % host)
+        self.assertEqual(version['links'][0]['rel'], 'self')

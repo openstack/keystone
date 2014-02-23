@@ -10,20 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pecan
-
-from keystone.contrib.kds.api.v1 import controllers
+from keystone.tests.contrib.kds.api import base
 
 
-class RootController(object):
+def v1_url(*args):
+    return base.urljoin('v1', *args)
 
-    v1 = controllers.Controller()
 
-    @pecan.expose('json')
-    def index(self):
-        pecan.response.status = 300
-        return {
-            'versions': [
-                self.v1.version_info(),
-            ]
-        }
+class BaseTestCase(base.BaseTestCase):
+
+    def get(self, url, *args, **kwargs):
+        return super(BaseTestCase, self).get(v1_url(url), *args, **kwargs)
+
+    def post(self, url, *args, **kwargs):
+        return super(BaseTestCase, self).post(v1_url(url), *args, **kwargs)
+
+    def put(self, url, *args, **kwargs):
+        return super(BaseTestCase, self).put(v1_url(url), *args, **kwargs)
