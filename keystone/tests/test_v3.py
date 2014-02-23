@@ -165,12 +165,11 @@ class RestfulTestCase(rest.RestfulTestCase):
         self.endpoint_id = uuid.uuid4().hex
         self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
         self.endpoint['id'] = self.endpoint_id
-        # FIXME(blk-u): Endpoints should default to enabled=True, so should be
-        # able to remove the next line. See bug 1282266.
-        self.endpoint['enabled'] = True
         self.catalog_api.create_endpoint(
             self.endpoint_id,
             self.endpoint.copy())
+        # The server adds 'enabled' and defaults to True.
+        self.endpoint['enabled'] = True
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
@@ -695,6 +694,7 @@ class RestfulTestCase(rest.RestfulTestCase):
     def assertValidEndpoint(self, entity, ref=None):
         self.assertIsNotNone(entity.get('interface'))
         self.assertIsNotNone(entity.get('service_id'))
+        self.assertIsInstance(entity['enabled'], bool)
 
         # this is intended to be an unexposed implementation detail
         self.assertNotIn('legacy_endpoint_id', entity)
