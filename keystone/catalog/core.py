@@ -69,6 +69,15 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.catalog.driver)
 
     def create_region(self, region_ref):
+        # Check duplicate ID
+        try:
+            self.get_region(region_ref['id'])
+        except exception.RegionNotFound:
+            pass
+        else:
+            msg = _('Duplicate ID, %s.') % region_ref['id']
+            raise exception.Conflict(type='region', details=msg)
+
         try:
             return self.driver.create_region(region_ref)
         except exception.NotFound:

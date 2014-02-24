@@ -3553,6 +3553,18 @@ class CatalogTests(object):
                           self.catalog_api.get_region,
                           region_id)
 
+    def test_create_region_with_duplicate_id(self):
+        region_id = uuid.uuid4().hex
+        new_region = {
+            'id': region_id,
+            'description': uuid.uuid4().hex
+        }
+        self.catalog_api.create_region(new_region)
+        # Create region again with duplicate id
+        self.assertRaises(exception.Conflict,
+                          self.catalog_api.create_region,
+                          new_region)
+
     def test_get_region_404(self):
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.get_region,
