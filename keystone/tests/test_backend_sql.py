@@ -70,7 +70,7 @@ class SqlModels(SqlTests):
         for col, type_, length in cols:
             self.assertIsInstance(table.c[col].type, type_)
             if length:
-                self.assertEqual(table.c[col].type.length, length)
+                self.assertEqual(length, table.c[col].type.length)
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
@@ -196,7 +196,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                                                 user['id'])
         self.assignment_api.delete_project(self.tenant_bar['id'])
         tenants = self.assignment_api.list_projects_for_user(user['id'])
-        self.assertEqual(tenants, [])
+        self.assertEqual([], tenants)
 
     def test_metadata_removed_on_delete_user(self):
         # A test to check that the internal representation
@@ -373,12 +373,12 @@ class SqlToken(SqlTests, test_backend.TokenTests):
     def test_token_flush_batch_size_default(self):
         tok = token_sql.Token()
         sqlite_batch = tok.token_flush_batch_size('sqlite')
-        self.assertEqual(sqlite_batch, 0)
+        self.assertEqual(0, sqlite_batch)
 
     def test_token_flush_batch_size_db2(self):
         tok = token_sql.Token()
         db2_batch = tok.token_flush_batch_size('ibm_db_sa')
-        self.assertEqual(db2_batch, 100)
+        self.assertEqual(100, db2_batch)
 
 
 class SqlCatalog(SqlTests, test_backend.CatalogTests):
@@ -426,9 +426,9 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
         catalog = self.catalog_api.get_catalog('user', 'tenant')
         catalog_endpoint = catalog[endpoint['region']][service['type']]
-        self.assertEqual(catalog_endpoint['name'], service['name'])
-        self.assertEqual(catalog_endpoint['id'], endpoint['id'])
-        self.assertEqual(catalog_endpoint['publicURL'], '')
+        self.assertEqual(service['name'], catalog_endpoint['name'])
+        self.assertEqual(endpoint['id'], catalog_endpoint['id'])
+        self.assertEqual('', catalog_endpoint['publicURL'])
         self.assertIsNone(catalog_endpoint.get('adminURL'))
         self.assertIsNone(catalog_endpoint.get('internalURL'))
 
