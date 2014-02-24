@@ -24,58 +24,7 @@ CONF = config.CONF
 
 
 class _ControllerBase(controller.V3Controller):
-    """Base behaviors for federation controllers.
-
-    Two new class parameters:
-
-    * `_mutable_parameters` - set of parameters that can be changed by users.
-                              Usually used by cls.check_immutable_params()
-    * `_public_parameters` - set of parameters that are exposed to the user.
-                             Usually used by cls.filter_params()
-
-    """
-
-    @classmethod
-    def check_immutable_params(cls, ref):
-        """Raise exception when disallowed parameter is in ref.
-
-        Check whether the ref dictionary representing a request has only
-        mutable parameters included. If not, raise an exception. This method
-        checks only root-level keys from a ref dictionary.
-
-        :param ref: a dictionary representing deserialized request to be
-                    stored
-        :raises: :class:`keystone.exception.ImmutableAttributeError`
-
-        """
-        ref_keys = set(ref.keys())
-        blocked_keys = ref_keys.difference(cls._mutable_parameters)
-
-        if not blocked_keys:
-            #No immutable parameters changed
-            return
-
-        exception_args = {'target': cls.__name__,
-                          'attribute': blocked_keys.pop()}
-        raise exception.ImmutableAttributeError(**exception_args)
-
-    @classmethod
-    def filter_params(cls, ref):
-        """Remove unspecified parameters from the dictionary.
-
-        This function removes unspecified parameters from the dictionary. See
-        check_immutable_parameters for corresponding function that raises
-        exceptions. This method checks only root-level keys from a ref
-        dictionary.
-
-        :param ref: a dictionary representing deserialized response to be
-                    serialized
-        """
-        ref_keys = set(ref.keys())
-        blocked_keys = ref_keys - cls._public_parameters
-        for blocked_param in blocked_keys:
-            del ref[blocked_param]
-        return ref
+    """Base behaviors for federation controllers."""
 
     @classmethod
     def base_url(cls, path=None):
