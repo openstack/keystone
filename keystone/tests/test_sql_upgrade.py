@@ -1997,22 +1997,28 @@ class SqlUpgradeTests(SqlMigrateBase):
             check_assignment_type(refs,
                                   assignment_sql.AssignmentType.USER_DOMAIN)
 
-        session = self.Session()
         self.upgrade(37)
+        session = self.Session()
         self.assertTableDoesNotExist('assignment')
         base_data = create_base_data(session)
         populate_grants(session, base_data)
         check_grants(session, base_data)
+        session.commit()
+        session.close()
         self.upgrade(40)
+        session = self.Session()
         self.assertTableExists('assignment')
         self.assertTableDoesNotExist('user_project_metadata')
         self.assertTableDoesNotExist('group_project_metadata')
         self.assertTableDoesNotExist('user_domain_metadata')
         self.assertTableDoesNotExist('group_domain__metadata')
         check_assignments(session, base_data)
+        session.close()
         self.downgrade(37)
+        session = self.Session()
         self.assertTableDoesNotExist('assignment')
         check_grants(session, base_data)
+        session.close()
 
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):

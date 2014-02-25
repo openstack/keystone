@@ -205,6 +205,7 @@ def downgrade_assignment_table(meta, migrate_engine):
         update = build_update(meta, session, assignment)
         if update is not None:
             migrate_engine.execute(update)
+            session.commit()
 
     # Delete all the rows
     migrate_engine.execute(downgrade_table.delete())
