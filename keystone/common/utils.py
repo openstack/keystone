@@ -106,11 +106,8 @@ def hash_ldap_user_password(user):
 def hash_password(password):
     """Hash a password. Hard."""
     password_utf8 = trunc_password(password).encode('utf-8')
-    if passlib.hash.sha512_crypt.identify(password_utf8):
-        return password_utf8
-    h = passlib.hash.sha512_crypt.encrypt(password_utf8,
-                                          rounds=CONF.crypt_strength)
-    return h
+    return passlib.hash.sha512_crypt.encrypt(
+        password_utf8, rounds=CONF.crypt_strength)
 
 
 def ldap_hash_password(password):
