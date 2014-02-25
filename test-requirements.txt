@@ -25,7 +25,7 @@ WebTest>=2.0
 
 discover
 python-subunit>=0.0.18
-testrepository>=0.0.17
+testrepository>=0.0.18
 testtools>=0.9.34
 testscenarios>=0.4
 
