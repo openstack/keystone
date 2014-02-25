@@ -62,8 +62,8 @@ class DeprecatedTestCase(tests.TestCase):
         # Options in [sql] were moved to [database] in Icehouse for the change
         # to use oslo-incubator's db.sqlalchemy.sessions.
 
-        self.assertEqual(CONF.database.connection, 'sqlite://deprecated')
-        self.assertEqual(CONF.database.idle_timeout, 54321)
+        self.assertEqual('sqlite://deprecated', CONF.database.connection)
+        self.assertEqual(54321, CONF.database.idle_timeout)
 
 
 class DeprecatedOverrideTestCase(tests.TestCase):
@@ -78,5 +78,5 @@ class DeprecatedOverrideTestCase(tests.TestCase):
         # Options in [sql] were moved to [database] in Icehouse for the change
         # to use oslo-incubator's db.sqlalchemy.sessions.
 
-        self.assertEqual(CONF.database.connection, 'sqlite://new')
-        self.assertEqual(CONF.database.idle_timeout, 65432)
+        self.assertEqual('sqlite://new', CONF.database.connection)
+        self.assertEqual(65432, CONF.database.idle_timeout)

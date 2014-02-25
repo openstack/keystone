@@ -33,7 +33,7 @@ class TestSimpleCert(BaseTestCase):
                                 headers={'Accept': content_type},
                                 expected_status=200)
 
-        self.assertEqual(response.content_type.lower(), content_type)
+        self.assertEqual(content_type, response.content_type.lower())
         self.assertIn('---BEGIN', response.body)
 
         return response

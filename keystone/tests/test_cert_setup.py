@@ -115,10 +115,10 @@ class CertSetupTestCase(rest.RestfulTestCase):
                                    method='GET', expected_status=200)
 
         with open(CONF.signing.certfile) as f:
-            self.assertEqual(signing_resp.text, f.read())
+            self.assertEqual(f.read(), signing_resp.text)
 
         with open(CONF.signing.ca_certs) as f:
-            self.assertEqual(cacert_resp.text, f.read())
+            self.assertEqual(f.read(), cacert_resp.text)
 
         # NOTE(jamielennox): This is weird behaviour that we need to enforce.
         # It doesn't matter what you ask for it's always going to give text
@@ -131,7 +131,7 @@ class CertSetupTestCase(rest.RestfulTestCase):
                                     expected_status=200,
                                     headers=headers)
 
-                self.assertEqual(resp.content_type, 'text/html')
+                self.assertEqual('text/html', resp.content_type)
 
     def test_failure(self):
         for path in ['/v2.0/certificates/signing', '/v2.0/certificates/ca']:
