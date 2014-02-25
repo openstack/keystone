@@ -19,7 +19,8 @@ def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
     request_token_table = sql.Table('request_token', meta, autoload=True)
-    request_token_table.c.requested_roles.alter(name="role_ids", nullable=True)
+    request_token_table.c.requested_roles.alter(nullable=True)
+    request_token_table.c.requested_roles.alter(name="role_ids")
     access_token_table = sql.Table('access_token', meta, autoload=True)
     access_token_table.c.requested_roles.alter(name="role_ids")
 
@@ -28,7 +29,7 @@ def downgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
     request_token_table = sql.Table('request_token', meta, autoload=True)
-    request_token_table.c.role_ids.alter(name="requested_roles",
-                                         nullable=False)
+    request_token_table.c.role_ids.alter(nullable=False)
+    request_token_table.c.role_ids.alter(name="requested_roles")
     access_token_table = sql.Table('access_token', meta, autoload=True)
     access_token_table.c.role_ids.alter(name="requested_roles")
