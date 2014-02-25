@@ -119,13 +119,13 @@ class DbVersion(BaseApp):
                                   % package_name)
             try:
                 print(migration.db_version(
-                    migration_helpers.find_migrate_repo(package)), 0)
+                    migration_helpers.find_migrate_repo(package), 0))
             except exception.MigrationNotProvided as e:
                 print(e)
                 exit(0)
         else:
             print(migration.db_version(
-                migration_helpers.find_migrate_repo()), 0)
+                migration_helpers.find_migrate_repo(), 0))
 
 
 class BaseCertificateSetup(BaseApp):
