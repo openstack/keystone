@@ -162,7 +162,7 @@ class RestfulTestCase(tests.TestCase):
 
         if response.body is not None and response.body.strip():
             # if a body is provided, a Content-Type is also expected
-            header = response.headers.get('Content-Type', None)
+            header = response.headers.get('Content-Type')
             self.assertIn(content_type, header)
 
             if content_type == 'json':

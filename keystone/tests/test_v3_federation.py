@@ -62,7 +62,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def _fetch_attribute_from_response(self, resp, parameter,
                                        assert_is_not_none=True):
         """Fetch single attribute from TestResponse object."""
-        result = resp.result.get(parameter, None)
+        result = resp.result.get(parameter)
         if assert_is_not_none:
             self.assertIsNotNone(result)
         return result

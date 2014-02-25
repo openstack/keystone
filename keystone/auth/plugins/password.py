@@ -77,7 +77,7 @@ class UserAuthInfo(object):
         if not user_id and not user_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='user')
-        self.password = user_info.get('password', None)
+        self.password = user_info.get('password')
         try:
             if user_name:
                 if 'domain' not in user_info:
