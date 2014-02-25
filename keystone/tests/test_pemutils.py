@@ -256,7 +256,7 @@ class TestPEMParse(tests.TestCase):
         text += 'burfl blatz bingo\n'
 
         data = pemutils.get_pem_data(text)
-        self.assertEqual(None, data)
+        self.assertIsNone(data)
 
     def test_get_pem_data_invalid(self):
         p = PEM(pem_type='xxx',
