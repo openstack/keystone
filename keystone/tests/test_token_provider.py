@@ -648,7 +648,8 @@ def create_v2_token():
     return {
         "access": {
             "token": {
-                "expires": timeutils.isotime(CURRENT_DATE + FUTURE_DELTA),
+                "expires": timeutils.isotime(timeutils.utcnow() +
+                                             FUTURE_DELTA),
                 "issued_at": "2013-05-21T00:02:43.941473Z",
                 "tenant": {
                     "enabled": True,
@@ -679,7 +680,7 @@ def create_v3_token():
     return {
         "token": {
             'methods': [],
-            "expires_at": timeutils.isotime(CURRENT_DATE + FUTURE_DELTA),
+            "expires_at": timeutils.isotime(timeutils.utcnow() + FUTURE_DELTA),
             "issued_at": "2013-05-21T00:02:43.941473Z",
         }
     }
