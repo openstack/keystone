@@ -57,9 +57,6 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         """Applicable only to JSON."""
         return r.result['access']['token']['id']
 
-    def assertValidErrorResponse(self, response):
-        self.assertEqual(response.status_code, 400)
-
     def _endpoint_create(self, expected_status=200, service_id=SERVICE_FIXTURE,
                          publicurl='http://localhost:8080',
                          internalurl='http://localhost:8080',
