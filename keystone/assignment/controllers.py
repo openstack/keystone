@@ -45,7 +45,8 @@ class Tenant(controller.V2Controller):
                 context, context['query_string'].get('name'))
 
         self.assert_admin(context)
-        tenant_refs = self.assignment_api.list_projects()
+        tenant_refs = self.assignment_api.list_projects_in_domain(
+            CONF.identity.default_domain_id)
         for tenant_ref in tenant_refs:
             tenant_ref = self.filter_domain_id(tenant_ref)
         params = {
