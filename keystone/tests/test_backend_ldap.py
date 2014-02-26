@@ -260,15 +260,86 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                  'enabled': True}
         self.identity_api.create_user(user1['id'], user1)
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
-        self.assertEqual(0, len(user_projects))
+        self.assertThat(user_projects, matchers.HasLength(0))
+
+        # new grant(user1, role_member, tenant_bar)
         self.assignment_api.create_grant(user_id=user1['id'],
                                          project_id=self.tenant_bar['id'],
                                          role_id=self.role_member['id'])
+        # new grant(user1, role_member, tenant_baz)
         self.assignment_api.create_grant(user_id=user1['id'],
                                          project_id=self.tenant_baz['id'],
                                          role_id=self.role_member['id'])
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
-        self.assertEqual(2, len(user_projects))
+        self.assertThat(user_projects, matchers.HasLength(2))
+
+        # Now, check number of projects through groups
+        user2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
+                 'enabled': True}
+        self.identity_api.create_user(user2['id'], user2)
+
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group1['id'], group1)
+
+        self.identity_api.add_user_to_group(user2['id'], group1['id'])
+
+        # new grant(group1(user2), role_member, tenant_bar)
+        self.assignment_api.create_grant(group_id=group1['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_member['id'])
+        # new grant(group1(user2), role_member, tenant_baz)
+        self.assignment_api.create_grant(group_id=group1['id'],
+                                         project_id=self.tenant_baz['id'],
+                                         role_id=self.role_member['id'])
+        user_projects = self.assignment_api.list_projects_for_user(user2['id'])
+        self.assertThat(user_projects, matchers.HasLength(2))
+
+        # new grant(group1(user2), role_other, tenant_bar)
+        self.assignment_api.create_grant(group_id=group1['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_other['id'])
+        user_projects = self.assignment_api.list_projects_for_user(user2['id'])
+        self.assertThat(user_projects, matchers.HasLength(2))
+
+    def test_list_projects_for_user_and_groups(self):
+        domain = self._get_domain_fixture()
+        # Create user1
+        user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                 'password': uuid.uuid4().hex, 'domain_id': domain['id'],
+                 'enabled': True}
+        self.identity_api.create_user(user1['id'], user1)
+
+        # Create new group for user1
+        group1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'domain_id': domain['id']}
+        self.identity_api.create_group(group1['id'], group1)
+
+        # Add user1 to group1
+        self.identity_api.add_user_to_group(user1['id'], group1['id'])
+
+        # Now, add grant to user1 and group1 in tenant_bar
+        self.assignment_api.create_grant(user_id=user1['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_member['id'])
+        self.assignment_api.create_grant(group_id=group1['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_member['id'])
+
+        # The result is user1 has only one project granted
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertThat(user_projects, matchers.HasLength(1))
+
+        # Now, delete user1 grant into tenant_bar and check
+        self.assignment_api.delete_grant(user_id=user1['id'],
+                                         project_id=self.tenant_bar['id'],
+                                         role_id=self.role_member['id'])
+
+        # The result is user1 has only one project granted.
+        # Granted through group1.
+        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        self.assertThat(user_projects, matchers.HasLength(1))
 
     def test_list_projects_for_user_with_grants(self):
         domain = self._get_domain_fixture()
@@ -308,7 +379,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         user_projects = self.assignment_api.list_projects_for_user(
             new_user['id'])
-        self.assertEqual(2, len(user_projects))
+        self.assertEqual(3, len(user_projects))
 
     def test_create_duplicate_user_name_in_different_domains(self):
         self.skipTest('Blocked by bug 1101276')

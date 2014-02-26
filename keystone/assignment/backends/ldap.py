@@ -133,12 +133,16 @@ class Assignment(assignment.Driver):
         return self.role.get_all()
 
     def list_projects_for_user(self, user_id, group_ids, hints):
-        # NOTE(henry-nash): The LDAP backend is being deprecated, so no
-        # support is provided for projects that the user has a role on solely
-        # by virtue of group membership.
         user_dn = self.user._id_to_dn(user_id)
         associations = (self.role.list_project_roles_for_user
                         (user_dn, self.project.tree_dn))
+
+        for group_id in group_ids:
+            group_dn = self.group._id_to_dn(group_id)
+            for group_role in self.role.list_project_roles_for_group(
+                    group_dn, self.project.tree_dn):
+                associations.append(group_role)
+
         # Since the LDAP backend doesn't store the domain_id in the LDAP
         # records (and only supports the default domain), we fill in the
         # domain_id before we return the list.
@@ -588,6 +592,40 @@ class RoleApi(common_ldap.BaseLdap):
                 user_dn=user_dn,
                 role_dn=role_dn,
                 tenant_dn=tenant_dn))
+        return res
+
+    def list_project_roles_for_group(self, group_dn, project_subtree):
+        group_dn_esc = ldap.filter.escape_filter_chars(group_dn)
+        conn = self.get_connection()
+        query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
+                                                self.member_attribute,
+                                                group_dn_esc)
+        try:
+            roles = conn.search_s(project_subtree,
+                                  ldap.SCOPE_SUBTREE,
+                                  query,
+                                  attrlist=['1.1'])
+        except ldap.NO_SUCH_OBJECT:
+            # Return no roles rather than raise an exception if the project
+            # subtree entry doesn't exist because an empty subtree is not
+            # an error.
+            return []
+        finally:
+            conn.unbind_s()
+
+        res = []
+        for role_dn, _ in roles:
+            # ldap.dn.str2dn returns a list, where the first
+            # element is the first RDN.
+            # For a role assignment, this contains the role ID,
+            # the remainder is the DN of the project.
+            project = ldap.dn.str2dn(role_dn)
+            project.pop(0)
+            project_dn = ldap.dn.dn2str(project)
+            res.append(GroupRoleAssociation(
+                group_dn=group_dn,
+                role_dn=role_dn,
+                tenant_dn=project_dn))
         return res
 
     def roles_delete_subtree_by_project(self, tenant_dn):
