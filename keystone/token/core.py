@@ -18,10 +18,10 @@ import abc
 import copy
 import datetime
 
+from keystoneclient.common import cms
 import six
 
 from keystone.common import cache
-from keystone.common import cms
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config

@@ -15,8 +15,9 @@
 import json
 import uuid
 
+from keystoneclient.common import cms
+
 from keystone import auth
-from keystone.common import cms
 from keystone import config
 from keystone import exception
 from keystone import tests

@@ -20,6 +20,7 @@ from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone import token
+from keystone.token.providers import pki
 
 
 CONF = config.CONF
@@ -832,3 +833,56 @@ class TestTokenProvider(tests.TestCase):
         self.assertRaises(exception.Forbidden,
                           driver.issue_v3_token,
                           self.user_foo['id'], ['oauth1'])
+
+
+class TestPKIProvider(object):
+
+    def setUp(self):
+        super(TestPKIProvider, self).setUp()
+
+        from keystoneclient.common import cms
+        self.cms = cms
+
+        from keystone.common import environment
+        self.environment = environment
+
+        old_cms_subprocess = cms.subprocess
+        self.addCleanup(setattr, cms, 'subprocess', old_cms_subprocess)
+
+        old_env_subprocess = environment.subprocess
+        self.addCleanup(setattr, environment, 'subprocess', old_env_subprocess)
+
+        self.cms.subprocess = self.target_subprocess
+        self.environment.subprocess = self.target_subprocess
+
+        reload(pki)  # force module reload so the imports get re-evaluated
+
+    def test_get_token_id_error_handling(self):
+        # cause command-line failure
+        self.opt_in_group('signing', keyfile='--please-break-me')
+
+        provider = pki.Provider()
+        token_data = {}
+        self.assertRaises(exception.UnexpectedError,
+                          provider._get_token_id,
+                          token_data)
+
+
+class TestPKIProviderWithEventlet(TestPKIProvider, tests.TestCase):
+
+    def setUp(self):
+        # force keystoneclient.common.cms to use eventlet's subprocess
+        from eventlet.green import subprocess
+        self.target_subprocess = subprocess
+
+        super(TestPKIProviderWithEventlet, self).setUp()
+
+
+class TestPKIProviderWithStdlib(TestPKIProvider, tests.TestCase):
+
+    def setUp(self):
+        # force keystoneclient.common.cms to use the stdlib subprocess
+        import subprocess
+        self.target_subprocess = subprocess
+
+        super(TestPKIProviderWithStdlib, self).setUp()

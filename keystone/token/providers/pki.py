@@ -16,7 +16,8 @@
 
 import json
 
-from keystone.common import cms
+from keystoneclient.common import cms
+
 from keystone.common import environment
 from keystone import config
 from keystone import exception
