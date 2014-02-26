@@ -242,6 +242,7 @@ class EndpointV3(controller.V3Controller):
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         self._require_attribute(ref, 'service_id')
         self._require_attribute(ref, 'interface')
+        self._require_attribute(ref, 'url')
         self.catalog_api.get_service(ref['service_id'])
 
         ref = self.catalog_api.create_endpoint(ref['id'], ref)

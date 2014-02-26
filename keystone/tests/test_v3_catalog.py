@@ -140,6 +140,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         ref["region"] = "0" * 256
         self.post('/endpoints', body={'endpoint': ref}, expected_status=400)
 
+    def test_create_endpoint_with_empty_url(self):
+        """Call ``POST /endpoints``."""
+        ref = self.new_endpoint_ref(service_id=self.service_id)
+        del ref["url"]
+        self.post('/endpoints', body={'endpoint': ref}, expected_status=400)
+
     def test_get_endpoint(self):
         """Call ``GET /endpoints/{endpoint_id}``."""
         r = self.get(
