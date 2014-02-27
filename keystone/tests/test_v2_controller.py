@@ -23,7 +23,7 @@ from keystone import tests
 from keystone.tests import default_fixtures
 
 
-_ADMIN_CONTEXT = {'is_admin': True}
+_ADMIN_CONTEXT = {'is_admin': True, 'query_string': {}}
 
 
 class TenantTestCase(tests.TestCase):
@@ -32,6 +32,12 @@ class TenantTestCase(tests.TestCase):
     These tests exercise :class:`keystone.assignment.controllers.Tenant`.
 
     """
+    def setUp(self):
+        super(TenantTestCase, self).setUp()
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+        self.tenant_controller = controllers.Tenant()
+        self.role_controller = controllers.Role()
 
     def test_get_project_users_no_user(self):
         """get_project_users when user doesn't exist, raises UserNotFound.
@@ -41,21 +47,39 @@ class TenantTestCase(tests.TestCase):
         :class:`keystone.exception.UserNotFound`.
 
         """
-
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        tenant_controller = controllers.Tenant()
-        role_controller = controllers.Role()
-
         # Assign a role to a user that doesn't exist to the `bar` project.
 
         project_id = self.tenant_bar['id']
 
         user_id = uuid.uuid4().hex
-        role_controller.add_role_to_user(
+        self.role_controller.add_role_to_user(
             _ADMIN_CONTEXT, user_id, self.role_other['id'], project_id)
 
         self.assertRaisesRegexp(exception.UserNotFound,
                                 'Could not find user, %s' % user_id,
-                                tenant_controller.get_project_users,
+                                self.tenant_controller.get_project_users,
                                 _ADMIN_CONTEXT, project_id)
+
+    def test_list_projects_default_domain(self):
+        """Test that list projects only returns those in the default domain."""
+
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        self.assignment_api.create_domain(domain['id'], domain)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        # Check the real total number of projects, we should have the above
+        # plus those in the default features
+        refs = self.assignment_api.list_projects()
+        self.assertEqual(len(default_fixtures.TENANTS) + 1, len(refs))
+
+        # Now list all projects using the v2 API - we should only get
+        # back those in the default features, since only those are in the
+        # default domain.
+        refs = self.tenant_controller.get_all_projects(_ADMIN_CONTEXT)
+        self.assertEqual(len(default_fixtures.TENANTS), len(refs['tenants']))
+        for tenant in default_fixtures.TENANTS:
+            tenant_copy = tenant.copy()
+            tenant_copy.pop('domain_id')
+            self.assertIn(tenant_copy, refs['tenants'])
