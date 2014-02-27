@@ -84,6 +84,12 @@ class ValidationError(Error):
     title = 'Bad Request'
 
 
+class SchemaValidationError(ValidationError):
+    # NOTE(lbragstad): For whole OpenStack message consistency, this error
+    # message has been written in a format consistent with WSME.
+    message_format = _("%(detail)s")
+
+
 class ValidationTimeStampError(Error):
     message_format = _("Timestamp not in expected format."
                        " The server could not comply with the request"
