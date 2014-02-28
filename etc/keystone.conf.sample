@@ -610,11 +610,11 @@
 [database]
 
 #
-# Options defined in keystone.openstack.common.db.options
+# Options defined in oslo.db
 #
 
 # The file name to use with SQLite (string value)
-#sqlite_db=keystone.sqlite
+#sqlite_db=oslo.sqlite
 
 # If True, SQLite uses synchronous mode (boolean value)
 #sqlite_synchronous=true

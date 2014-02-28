@@ -34,6 +34,9 @@ import json
 import uuid
 
 from migrate.versioning import api as versioning_api
+from oslo.db import exception as db_exception
+from oslo.db.sqlalchemy import migration
+from oslo.db.sqlalchemy import session as db_session
 import sqlalchemy
 import sqlalchemy.exc
 
@@ -44,9 +47,6 @@ from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone.contrib import federation
 from keystone import exception
-from keystone.openstack.common.db import exception as db_exception
-from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database

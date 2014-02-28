@@ -22,6 +22,10 @@ import contextlib
 import functools
 
 from oslo.config import cfg
+from oslo.db import exception as db_exception
+from oslo.db import options as db_options
+from oslo.db.sqlalchemy import models
+from oslo.db.sqlalchemy import session as db_session
 import six
 import sqlalchemy as sql
 from sqlalchemy.ext import declarative
@@ -30,10 +34,6 @@ from sqlalchemy import types as sql_types
 
 from keystone.common import utils
 from keystone import exception
-from keystone.openstack.common.db import exception as db_exception
-from keystone.openstack.common.db import options as db_options
-from keystone.openstack.common.db.sqlalchemy import models
-from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils
 
@@ -68,7 +68,8 @@ def initialize():
     """Initialize the module."""
 
     db_options.set_defaults(
-        sql_connection="sqlite:///keystone.db",
+        CONF,
+        connection="sqlite:///keystone.db",
         sqlite_db="keystone.db")
 
 
@@ -171,8 +172,7 @@ def _get_engine_facade():
     global _engine_facade
 
     if not _engine_facade:
-        _engine_facade = db_session.EngineFacade.from_config(
-            CONF.database.connection, CONF)
+        _engine_facade = db_session.EngineFacade.from_config(CONF)
 
     return _engine_facade
 

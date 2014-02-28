@@ -16,6 +16,8 @@
 import uuid
 
 import mock
+from oslo.db import exception as db_exception
+from oslo.db import options
 import sqlalchemy
 from sqlalchemy import exc
 
@@ -23,8 +25,6 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
-from keystone.openstack.common.db import exception as db_exception
-from keystone.openstack.common.db import options
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -528,8 +528,10 @@ class SqlDecorators(tests.TestCase):
 
 class SqlModuleInitialization(tests.TestCase):
 
+    @mock.patch.object(sql.core, 'CONF')
     @mock.patch.object(options, 'set_defaults')
-    def test_initialize_module(self, set_defaults):
+    def test_initialize_module(self, set_defaults, CONF):
         sql.initialize()
-        set_defaults.assert_called_with(sql_connection='sqlite:///keystone.db',
+        set_defaults.assert_called_with(CONF,
+                                        connection='sqlite:///keystone.db',
                                         sqlite_db='keystone.db')
