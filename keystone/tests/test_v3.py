@@ -165,6 +165,9 @@ class RestfulTestCase(rest.RestfulTestCase):
         self.endpoint_id = uuid.uuid4().hex
         self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
         self.endpoint['id'] = self.endpoint_id
+        # FIXME(blk-u): Endpoints should default to enabled=True, so should be
+        # able to remove the next line. See bug 1282266.
+        self.endpoint['enabled'] = True
         self.catalog_api.create_endpoint(
             self.endpoint_id,
             self.endpoint.copy())
@@ -190,12 +193,14 @@ class RestfulTestCase(rest.RestfulTestCase):
         ref['type'] = uuid.uuid4().hex
         return ref
 
-    def new_endpoint_ref(self, service_id):
+    def new_endpoint_ref(self, service_id, **kwargs):
         ref = self.new_ref()
+        del ref['enabled']  # enabled is optional
         ref['interface'] = uuid.uuid4().hex[:8]
         ref['service_id'] = service_id
         ref['url'] = uuid.uuid4().hex
         ref['region'] = uuid.uuid4().hex
+        ref.update(kwargs)
         return ref
 
     def new_domain_ref(self):
