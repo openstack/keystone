@@ -2011,7 +2011,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('user_project_metadata')
         self.assertTableDoesNotExist('group_project_metadata')
         self.assertTableDoesNotExist('user_domain_metadata')
-        self.assertTableDoesNotExist('group_domain__metadata')
+        self.assertTableDoesNotExist('group_domain_metadata')
         check_assignments(session, base_data)
         session.close()
         self.downgrade(37)
