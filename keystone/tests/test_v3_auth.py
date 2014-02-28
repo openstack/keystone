@@ -1524,7 +1524,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         roles_ids = []
         for ref in token['roles']:
             roles_ids.append(ref['id'])
-        self.assertEqual(len(token['roles']), 2)
+        self.assertEqual(2, len(token['roles']))
         self.assertIn(role_list[1]['id'], roles_ids)
         self.assertIn(role_list[5]['id'], roles_ids)
 
@@ -1538,7 +1538,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         roles_ids = []
         for ref in token['roles']:
             roles_ids.append(ref['id'])
-        self.assertEqual(len(token['roles']), 2)
+        self.assertEqual(2, len(token['roles']))
         self.assertIn(role_list[0]['id'], roles_ids)
         self.assertIn(role_list[4]['id'], roles_ids)
 
@@ -1556,7 +1556,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         roles_ids = []
         for ref in token['roles']:
             roles_ids.append(ref['id'])
-        self.assertEqual(len(token['roles']), 3)
+        self.assertEqual(3, len(token['roles']))
         self.assertIn(role_list[1]['id'], roles_ids)
         self.assertIn(role_list[5]['id'], roles_ids)
         self.assertIn(role_list[7]['id'], roles_ids)
@@ -2401,19 +2401,19 @@ class TestTrustAuth(TestAuthInfo):
 
         r = self.get('/OS-TRUST/trusts', expected_status=200)
         trusts = r.result['trusts']
-        self.assertEqual(len(trusts), 3)
+        self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
 
         r = self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
                      self.user_id, expected_status=200)
         trusts = r.result['trusts']
-        self.assertEqual(len(trusts), 3)
+        self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
 
         r = self.get('/OS-TRUST/trusts?trustee_user_id=%s' %
                      self.user_id, expected_status=200)
         trusts = r.result['trusts']
-        self.assertEqual(len(trusts), 0)
+        self.assertEqual(0, len(trusts))
 
     def test_change_password_invalidates_trust_tokens(self):
         ref = self.new_trust_ref(
@@ -2504,4 +2504,4 @@ class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
                    'query_string': {},
                    'environment': {}}
         r = auth_controller.validate_token(context)
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(200, r.status_code)
