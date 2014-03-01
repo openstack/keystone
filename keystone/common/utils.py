@@ -86,14 +86,20 @@ class SmarterEncoder(json.JSONEncoder):
         return super(SmarterEncoder, self).default(obj)
 
 
-def trunc_password(password):
-    """Truncate passwords to the max_length."""
+def verify_length_and_trunc_password(password):
+    """Verify and truncate the provided password to the max_password_length."""
     max_length = CONF.identity.max_password_length
     try:
         if len(password) > max_length:
-            LOG.warning(
-                _('Truncating user password to %s characters.'), max_length)
-        return password[:max_length]
+            if CONF.strict_password_check:
+                raise exception.PasswordVerificationError(size=max_length)
+            else:
+                LOG.warning(
+                    _('Truncating user password to '
+                      '%d characters.'), max_length)
+                return password[:max_length]
+        else:
+            return password
     except TypeError:
         raise exception.ValidationError(attribute='string', target='password')
 
@@ -115,7 +121,7 @@ def hash_user_password(user):
 
 def hash_password(password):
     """Hash a password. Hard."""
-    password_utf8 = trunc_password(password).encode('utf-8')
+    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
     return passlib.hash.sha512_crypt.encrypt(
         password_utf8, rounds=CONF.crypt_strength)
 
@@ -129,7 +135,7 @@ def check_password(password, hashed):
     """
     if password is None or hashed is None:
         return False
-    password_utf8 = trunc_password(password).encode('utf-8')
+    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
     return passlib.hash.sha512_crypt.verify(password_utf8, hashed)
 
 

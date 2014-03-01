@@ -119,7 +119,13 @@ FILE_OPTIONS = {
                          'recommended if the scope of a domain admin is being '
                          'restricted by use of an appropriate policy file '
                          '(see policy.v3cloudsample as an example).'),
-    ],
+        cfg.BoolOpt('strict_password_check', default=False,
+                    help='If set to true, strict password length checking is '
+                         'performed for password manipulation.'
+                         'If a password exceeds the maximum length, '
+                         'the operation will fail with 403 Forbidden Error.'
+                         'If set to false, passwords are automatically '
+                         'truncated to the maximum length.')],
     'identity': [
         cfg.StrOpt('default_domain_id', default='default',
                    help='This references the domain to use for all '
