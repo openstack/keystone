@@ -23,6 +23,7 @@ from keystone.common import wsgi
 from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
@@ -142,6 +143,14 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
 class XmlBodyMiddleware(wsgi.Middleware):
     """De/serializes XML to/from JSON."""
+
+    @versionutils.deprecated(
+        what='keystone.middleware.core.XmlBodyMiddleware',
+        as_of=versionutils.deprecated.ICEHOUSE,
+        in_favor_of='support for "application/json" only',
+        remove_in=+2)
+    def __init__(self, *args, **kwargs):
+        super(XmlBodyMiddleware, self).__init__(*args, **kwargs)
 
     def process_request(self, request):
         """Transform the request from XML to JSON."""
