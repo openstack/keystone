@@ -958,6 +958,114 @@ class TokenExpirationTest(AuthTest):
         self._maintain_token_expiration()
 
 
+class AuthCatalog(AuthTest):
+    """Tests for the catalog provided in the auth response."""
+
+    def config(self, config_files):
+        # We need to use a backend that supports disabled endpoints, like the
+        # SQL backend.
+        config_files.append(tests.dirs.tests('backend_sql.conf'))
+        super(AuthCatalog, self).config(config_files)
+
+    def _create_endpoints(self):
+        def create_endpoint(service_id, region, **kwargs):
+            id_ = uuid.uuid4().hex
+            ref = {
+                'id': id_,
+                'interface': 'public',
+                'region': region,
+                'service_id': service_id,
+                'url': 'http://localhost/%s' % uuid.uuid4().hex,
+            }
+            ref.update(kwargs)
+            self.catalog_api.create_endpoint(id_, ref)
+            return ref
+
+        # Create a service for use with the endpoints.
+        service_id = uuid.uuid4().hex
+        service_ref = {
+            'id': service_id,
+            'name': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service_id, service_ref)
+
+        region = uuid.uuid4().hex
+
+        # Create endpoints
+        enabled_endpoint_ref = create_endpoint(service_id, region)
+        disabled_endpoint_ref = create_endpoint(
+            service_id, region, enabled=False, interface='internal')
+
+        return enabled_endpoint_ref, disabled_endpoint_ref
+
+    def test_auth_catalog_disabled(self):
+        """When authenticate, get back a catalog that includes both enabled and
+        disabled endpoints.
+        """
+
+        # FIXME(blk-u): disabled endpoints should not be included in the
+        # catalog, see bug 1273867
+
+        enabled_endpoint_ref, disabled_endpoint_ref = self._create_endpoints()
+
+        # Authenticate
+        body_dict = _build_user_auth(
+            username='FOO',
+            password='foo2',
+            tenant_name="BAR")
+
+        token = self.controller.authenticate({}, body_dict)
+
+        # Check the catalog
+        endpoint = token['access']['serviceCatalog'][0]['endpoints'][0]
+
+        exp_endpoint = {
+            'id': enabled_endpoint_ref['id'],
+            'internalURL': disabled_endpoint_ref['url'],
+            'publicURL': enabled_endpoint_ref['url'],
+            'region': enabled_endpoint_ref['region'],
+        }
+
+        self.assertEqual(exp_endpoint, endpoint)
+
+    def test_validate_catalog_disabled(self):
+        """When validate, get back a catalog that includes both enabled and
+        disabled endpoints.
+        """
+
+        # FIXME(blk-u): disabled endpoints should not be included in the
+        # catalog, see bug 1273867
+
+        enabled_endpoint_ref, disabled_endpoint_ref = self._create_endpoints()
+
+        # Authenticate
+        body_dict = _build_user_auth(
+            username='FOO',
+            password='foo2',
+            tenant_name="BAR")
+
+        token = self.controller.authenticate({}, body_dict)
+
+        # Validate
+        token_id = token['access']['token']['id']
+        validate_ref = self.controller.validate_token(
+            dict(is_admin=True, query_string={}),
+            token_id=token_id)
+
+        # Check the catalog
+        endpoint = validate_ref['access']['serviceCatalog'][0]['endpoints'][0]
+
+        exp_endpoint = {
+            'id': enabled_endpoint_ref['id'],
+            'internalURL': disabled_endpoint_ref['url'],
+            'publicURL': enabled_endpoint_ref['url'],
+            'region': enabled_endpoint_ref['region'],
+        }
+
+        self.assertEqual(exp_endpoint, endpoint)
+
+
 class NonDefaultAuthTest(tests.TestCase):
 
     def test_add_non_default_auth_method(self):

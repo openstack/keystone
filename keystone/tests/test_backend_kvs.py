@@ -192,6 +192,18 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertDictEqual(catalog_ref, self.catalog_foobar)
 
+    def test_get_catalog_endpoint_disabled(self):
+        # This test doesn't apply to KVS because with the KVS backend the
+        # application creates the catalog (including the endpoints) for each
+        # user and project. Whether endpoints are enabled or disabled isn't
+        # a consideration.
+        f = super(KvsCatalog, self).test_get_catalog_endpoint_disabled
+        self.assertRaises(exception.NotFound, f)
+
+    def test_get_v3_catalog_endpoint_disabled(self):
+        f = super(KvsCatalog, self).test_get_v3_catalog_endpoint_disabled
+        self.assertRaises(exception.NotImplemented, f)
+
 
 class KvsTokenCacheInvalidation(tests.TestCase,
                                 test_backend.TokenCacheInvalidation):

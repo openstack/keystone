@@ -3676,6 +3676,87 @@ class CatalogTests(object):
         }
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
+    def _create_endpoints(self):
+        # Creates a service and 2 endpoints for the service in the same region.
+        # The 'public' interface is enabled and the 'internal' interface is
+        # disabled.
+
+        def create_endpoint(service_id, region, **kwargs):
+            id_ = uuid.uuid4().hex
+            ref = {
+                'id': id_,
+                'interface': 'public',
+                'region': region,
+                'service_id': service_id,
+                'url': 'http://localhost/%s' % uuid.uuid4().hex,
+            }
+            ref.update(kwargs)
+            self.catalog_api.create_endpoint(id_, ref)
+            return ref
+
+        # Create a service for use with the endpoints.
+        service_id = uuid.uuid4().hex
+        service_ref = {
+            'id': service_id,
+            'name': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service_id, service_ref)
+
+        region = uuid.uuid4().hex
+
+        # Create endpoints
+        enabled_endpoint_ref = create_endpoint(service_id, region)
+        disabled_endpoint_ref = create_endpoint(
+            service_id, region, enabled=False, interface='internal')
+
+        return service_ref, enabled_endpoint_ref, disabled_endpoint_ref
+
+    def test_get_catalog_endpoint_disabled(self):
+        """Get back both enabled and disabled endpoints when get the v2
+        catalog.
+        """
+
+        # FIXME(blk-u): disabled endpoints should not be included in the
+        # catalog, see bug 1273867
+
+        service_ref, enabled_endpoint_ref, disabled_endpoint_ref = (
+            self._create_endpoints())
+
+        user_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+        catalog = self.catalog_api.get_catalog(user_id, project_id)
+
+        exp_entry = {
+            'id': enabled_endpoint_ref['id'],
+            'internalURL': disabled_endpoint_ref['url'],
+            'name': service_ref['name'],
+            'publicURL': enabled_endpoint_ref['url'],
+        }
+
+        region = enabled_endpoint_ref['region']
+        self.assertEqual(exp_entry, catalog[region][service_ref['type']])
+
+    def test_get_v3_catalog_endpoint_disabled(self):
+        """Get back both enabled and disabled endpoints when get the v3
+        catalog.
+        """
+
+        # FIXME(blk-u): disabled endpoints should not be included in the
+        # catalog, see bug 1273867
+
+        dummy_service_ref, enabled_endpoint_ref, disabled_endpoint_ref = (
+            self._create_endpoints())
+
+        user_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+        catalog = self.catalog_api.get_v3_catalog(user_id, project_id)
+
+        endpoint_ids = [x['id'] for x in catalog[0]['endpoints']]
+        self.assertIn(enabled_endpoint_ref['id'], endpoint_ids)
+        self.assertIn(disabled_endpoint_ref['id'], endpoint_ids)
+        self.assertEqual(2, len(endpoint_ids))
+
 
 class PolicyTests(object):
     def _new_policy_ref(self):
