@@ -41,6 +41,11 @@ EXTENSION_DATA = {
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
+FEDERATION = 'OS-FEDERATION'
+GROUPS = 'OS-FEDERATION:groups'
+IDENTITY_PROVIDER = 'OS-FEDERATION:identity_provider'
+PROTOCOL = 'OS-FEDERATION:protocol'
+
 
 @dependency.provider('federation_api')
 class Manager(manager.Manager):
@@ -191,6 +196,21 @@ class Driver(object):
 
         :param mapping_id: id of mapping to get
         :type mapping_ref: string
+        :returns: mapping_ref
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def get_mapping_from_idp_and_protocol(self, idp_id, protocol_id):
+        """Get mapping based on idp_id and protocol_id.
+
+        :param idp_id: id of the identity provider
+        :type idp_id: string
+        :param protocol_id: id of the protocol
+        :type protocol_id: string
+        :raises: keystone.exception.IdentityProviderNotFound,
+                 keystone.exception.FederatedProtocolNotFound,
         :returns: mapping_ref
 
         """

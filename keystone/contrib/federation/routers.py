@@ -55,6 +55,8 @@ class FederationExtension(wsgi.ExtensionRouter):
         idp_controller = controllers.IdentityProvider()
         protocol_controller = controllers.FederationProtocol()
         mapping_controller = controllers.MappingController()
+        project_controller = controllers.ProjectV3()
+        domain_controller = controllers.DomainV3()
 
         # Identity Provider CRUD operations
 
@@ -156,3 +158,15 @@ class FederationExtension(wsgi.ExtensionRouter):
             controller=mapping_controller,
             action='update_mapping',
             conditions=dict(method=['PATCH']))
+
+        mapper.connect(
+            self._construct_url('domains'),
+            controller=domain_controller,
+            action='list_domains_for_groups',
+            conditions=dict(method=['GET']))
+
+        mapper.connect(
+            self._construct_url('projects'),
+            controller=project_controller,
+            action='list_projects_for_groups',
+            conditions=dict(method=['GET']))

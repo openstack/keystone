@@ -143,6 +143,15 @@ class Assignment(assignment.Driver):
         return [self._set_default_domain(x) for x in
                 self.project.get_user_projects(user_dn, associations)]
 
+    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+        raise exception.NotImplemented()
+
+    def list_projects_for_groups(self, group_ids):
+        raise exception.NotImplemented()
+
+    def list_domains_for_groups(self, group_ids):
+        raise exception.NotImplemented()
+
     def list_user_ids_for_project(self, tenant_id):
         self.get_project(tenant_id)
         tenant_dn = self.project._id_to_dn(tenant_id)

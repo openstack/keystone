@@ -160,6 +160,15 @@ class Assignment(kvs.Base, assignment.Driver):
 
         return project_refs
 
+    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+        raise exception.NotImplemented()
+
+    def list_projects_for_groups(self, group_ids):
+        raise exception.NotImplemented()
+
+    def list_domains_for_groups(self, group_ids):
+        raise exception.NotImplemented()
+
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_project(tenant_id)
         self.get_role(role_id)

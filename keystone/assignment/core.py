@@ -829,6 +829,47 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
+    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+        """List all the roles assigned to groups on either domain or
+        project.
+
+        If the project_id is not None, this value will be used, no matter what
+        was specified in the domain_id.
+
+        :param group_ids: iterable with group ids
+        :param project_id: id of the project
+        :param domain_id: id of the domain
+
+        :raises: AttributeError: In case both project_id and domain_id are set
+                                 to None
+
+        :returns: a list of Role entities matching groups and
+                  project_id or domain_id
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def list_projects_for_groups(self, group_ids):
+        """List projects accessible to specified groups.
+
+        :param group_ids: List of group ids.
+        :returns: List of projects accessible to specified groups.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def list_domains_for_groups(self, group_ids):
+        """List domains accessible to specified groups.
+
+        :param group_ids: List of group ids.
+        :returns: List of domains accessible to specified groups.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
     def get_project(self, project_id):
         """Get a project by ID.
 
