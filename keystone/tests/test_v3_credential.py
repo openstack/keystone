@@ -287,10 +287,7 @@ class TestCredentialEc2(CredentialBaseTestCase):
             '/ec2tokens',
             body={'ec2Credentials': sig_ref},
             expected_status=200)
-        # FIXME(shardy): ec2tokens is available via both v3 and v2
-        # paths, but it returns a v2 token in both cases, so we can
-        # only do a sanity assertion here for now.
-        self.assertIsNotNone(r.result['access']['token']['id'])
+        self.assertValidTokenResponse(r)
 
     def test_ec2_credential_signature_validate(self):
         """Test signature validation with a v3 ec2 credential."""
@@ -320,3 +317,48 @@ class TestCredentialEc2(CredentialBaseTestCase):
         cred_blob = json.loads(cred_json)
         self._validate_signature(access=cred_blob['access'],
                                  secret=cred_blob['secret'])
+
+    def _get_ec2_cred_uri(self):
+        return '/users/%s/credentials/OS-EC2' % self.user_id
+
+    def _get_ec2_cred(self):
+        uri = self._get_ec2_cred_uri()
+        r = self.post(uri, body={'tenant_id': self.project_id})
+        return r.result['credential']
+
+    def test_ec2_create_credential(self):
+        """Test ec2 credential creation."""
+        ec2_cred = self._get_ec2_cred()
+        self.assertEqual(self.user_id, ec2_cred['user_id'])
+        self.assertEqual(self.project_id, ec2_cred['tenant_id'])
+        self.assertIsNone(ec2_cred['trust_id'])
+        self._validate_signature(access=ec2_cred['access'],
+                                 secret=ec2_cred['secret'])
+
+        return ec2_cred
+
+    def test_ec2_get_credential(self):
+        ec2_cred = self._get_ec2_cred()
+        uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
+        r = self.get(uri)
+        self.assertDictEqual(ec2_cred, r.result['credential'])
+
+    def test_ec2_list_credentials(self):
+        """Test ec2 credential listing."""
+        self._get_ec2_cred_uri()
+        uri = self._get_ec2_cred_uri()
+        r = self.get(uri)
+        cred_list = r.result
+        self.assertEqual(1, len(cred_list))
+
+    def test_ec2_delete_credential(self):
+        """Test ec2 credential deletion."""
+        ec2_cred = self._get_ec2_cred()
+        uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
+        cred_from_credential_api = self.credential_api.list_credentials(
+            user_id=self.user_id)
+        self.assertEqual(1, len(cred_from_credential_api))
+        self.delete(uri)
+        self.assertRaises(exception.CredentialNotFound,
+                          self.credential_api.get_credential,
+                          cred_from_credential_api[0]['id'])
