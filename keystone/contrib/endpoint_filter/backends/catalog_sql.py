@@ -41,6 +41,9 @@ class EndpointFilterCatalog(sql.Catalog):
         for entry in refs:
             try:
                 endpoint = self.get_endpoint(entry.endpoint_id)
+                if not endpoint['enabled']:
+                    # Skip disabled endpoints.
+                    continue
                 service_id = endpoint['service_id']
                 services.setdefault(
                     service_id,

@@ -3713,14 +3713,9 @@ class CatalogTests(object):
         return service_ref, enabled_endpoint_ref, disabled_endpoint_ref
 
     def test_get_catalog_endpoint_disabled(self):
-        """Get back both enabled and disabled endpoints when get the v2
-        catalog.
-        """
+        """Get back only enabled endpoints when get the v2 catalog."""
 
-        # FIXME(blk-u): disabled endpoints should not be included in the
-        # catalog, see bug 1273867
-
-        service_ref, enabled_endpoint_ref, disabled_endpoint_ref = (
+        service_ref, enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
             self._create_endpoints())
 
         user_id = uuid.uuid4().hex
@@ -3729,7 +3724,6 @@ class CatalogTests(object):
 
         exp_entry = {
             'id': enabled_endpoint_ref['id'],
-            'internalURL': disabled_endpoint_ref['url'],
             'name': service_ref['name'],
             'publicURL': enabled_endpoint_ref['url'],
         }
@@ -3738,24 +3732,16 @@ class CatalogTests(object):
         self.assertEqual(exp_entry, catalog[region][service_ref['type']])
 
     def test_get_v3_catalog_endpoint_disabled(self):
-        """Get back both enabled and disabled endpoints when get the v3
-        catalog.
-        """
+        """Get back only enabled endpoints when get the v3 catalog."""
 
-        # FIXME(blk-u): disabled endpoints should not be included in the
-        # catalog, see bug 1273867
-
-        dummy_service_ref, enabled_endpoint_ref, disabled_endpoint_ref = (
-            self._create_endpoints())
+        enabled_endpoint_ref = self._create_endpoints()[1]
 
         user_id = uuid.uuid4().hex
         project_id = uuid.uuid4().hex
         catalog = self.catalog_api.get_v3_catalog(user_id, project_id)
 
         endpoint_ids = [x['id'] for x in catalog[0]['endpoints']]
-        self.assertIn(enabled_endpoint_ref['id'], endpoint_ids)
-        self.assertIn(disabled_endpoint_ref['id'], endpoint_ids)
-        self.assertEqual(2, len(endpoint_ids))
+        self.assertEqual([enabled_endpoint_ref['id']], endpoint_ids)
 
 
 class PolicyTests(object):

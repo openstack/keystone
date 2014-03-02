@@ -253,7 +253,7 @@ class Catalog(catalog.Driver):
         session = db_session.get_session()
         endpoints = (session.query(Endpoint).
                      options(sql.joinedload(Endpoint.service)).
-                     all())
+                     filter(Endpoint.enabled == True).all())  # flake8: noqa
 
         catalog = {}
 
@@ -289,7 +289,7 @@ class Catalog(catalog.Driver):
             return endpoint
 
         catalog = [{'endpoints': [make_v3_endpoint(ep.to_dict())
-                                  for ep in svc.endpoints],
+                                  for ep in svc.endpoints if ep.enabled],
                     'id': svc.id,
                     'type': svc.type} for svc in services]
 
