@@ -27,10 +27,13 @@ class TestExtensionCase(test_v3.RestfulTestCase):
     EXTENSION_NAME = 'endpoint_filter'
     EXTENSION_TO_ADD = 'endpoint_filter_extension'
 
+    def config_files(self):
+        conf_files = super(TestExtensionCase, self).config_files()
+        conf_files.append(tests.dirs.tests(
+            'test_associate_project_endpoint_extension.conf'))
+        return conf_files
+
     def setup_database(self):
-        self.conf_files = super(TestExtensionCase, self).config_files()
-        self.conf_files.append(
-            tests.dirs.tests('test_associate_project_endpoint_extension.conf'))
         super(TestExtensionCase, self).setup_database()
         package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
         package = importutils.import_module(package_name)
