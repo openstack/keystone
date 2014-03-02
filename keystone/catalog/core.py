@@ -211,8 +211,12 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_services(self):
+    def list_services(self, hints):
         """List all services.
+
+        :param hints: contains the list of filters yet to be satisfied.
+                      Any filters satisfied here will be removed so that
+                      the caller will know if any filters remain.
 
         :returns: list of service_refs or an empty list.
 
@@ -269,8 +273,12 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def list_endpoints(self):
+    def list_endpoints(self, hints):
         """List all endpoints.
+
+        :param hints: contains the list of filters yet to be satisfied.
+                      Any filters satisfied here will be removed so that
+                      the caller will know if any filters remain.
 
         :returns: list of endpoint_refs or an empty list.
 
