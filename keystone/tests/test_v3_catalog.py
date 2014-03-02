@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import uuid
+
 from keystone.tests import test_v3
 
 
@@ -21,25 +23,70 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     # region crud tests
 
     def test_create_region_with_id(self):
-        """Call ``PUT /regions/{region_id}``."""
-        ref = dict(description="my region")
-        region_id = 'myregion'
+        """Call ``PUT /regions/{region_id}`` w/o an ID in the request body."""
+        ref = self.new_region_ref()
+        region_id = ref.pop('id')
         r = self.put(
-            '/regions/myregion',
-            body={'region': ref}, expected_status=200)
+            '/regions/%s' % region_id,
+            body={'region': ref},
+            expected_status=201)
         self.assertValidRegionResponse(r, ref)
         # Double-check that the region ID was kept as-is and not
-        # populated with a UUID, like is the case with POST /regions
-        entity = r.result.get("region")
-        self.assertEqual(region_id, entity['id'])
+        # populated with a UUID, as is the case with POST /v3/regions
+        self.assertEqual(region_id, r.json['region']['id'])
+
+    def test_create_region_with_matching_ids(self):
+        """Call ``PUT /regions/{region_id}`` with an ID in the request body."""
+        ref = self.new_region_ref()
+        region_id = ref['id']
+        r = self.put(
+            '/regions/%s' % region_id,
+            body={'region': ref},
+            expected_status=201)
+        self.assertValidRegionResponse(r, ref)
+        # Double-check that the region ID was kept as-is and not
+        # populated with a UUID, as is the case with POST /v3/regions
+        self.assertEqual(region_id, r.json['region']['id'])
 
     def test_create_region(self):
-        """Call ``POST /regions``."""
+        """Call ``POST /regions`` with an ID in the request body."""
+        # the ref will have an ID defined on it
         ref = self.new_region_ref()
         r = self.post(
             '/regions',
             body={'region': ref})
         self.assertValidRegionResponse(r, ref)
+
+        # we should be able to get the region, having defined the ID ourselves
+        r = self.get(
+            '/regions/%(region_id)s' % {
+                'region_id': ref['id']})
+        self.assertValidRegionResponse(r, ref)
+
+    def test_create_region_without_id(self):
+        """Call ``POST /regions`` without an ID in the request body."""
+        ref = self.new_region_ref()
+
+        # instead of defining the ID ourselves...
+        del ref['id']
+
+        # let the service define the ID
+        r = self.post(
+            '/regions',
+            body={'region': ref},
+            expected_status=201)
+        self.assertValidRegionResponse(r, ref)
+
+    def test_create_region_with_conflicting_ids(self):
+        """Call ``PUT /regions/{region_id}`` with conflicting region IDs."""
+        # the region ref is created with an ID
+        ref = self.new_region_ref()
+
+        # but instead of using that ID, make up a new, conflicting one
+        self.put(
+            '/regions/%s' % uuid.uuid4().hex,
+            body={'region': ref},
+            expected_status=400)
 
     def test_list_regions(self):
         """Call ``GET /regions``."""

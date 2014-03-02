@@ -19,6 +19,7 @@ import six
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import wsgi
 from keystone import exception
 
 
@@ -141,21 +142,34 @@ class RegionV3(controller.V3Controller):
     collection_name = 'regions'
     member_name = 'region'
 
-    @controller.protected()
     def create_region_with_id(self, context, region_id, region):
-        """Specialized route target for PUT /regions/{region_id}."""
-        ref = self._normalize_dict(region)
-        ref['id'] = region_id
-        ref = self.catalog_api.create_region(ref)
-        return RegionV3.wrap_member(context, ref)
+        """Create a region with a user-specified ID.
+
+        This method is unprotected because it depends on ``self.create_region``
+        to enforce policy.
+        """
+        if 'id' in region and region_id != region['id']:
+            raise exception.ValidationError(
+                _('Conflicting region IDs specified: '
+                  '"%(url_id)s" != "%(ref_id)s"') % {
+                      'url_id': region_id,
+                      'ref_id': region['id']})
+        region['id'] = region_id
+        return self.create_region(context, region)
 
     @controller.protected()
     def create_region(self, context, region):
-        ref = self._assign_unique_id(self._normalize_dict(region))
+        ref = self._normalize_dict(region)
+
+        if 'id' not in ref:
+            ref = self._assign_unique_id(ref)
 
         ref = self.catalog_api.create_region(ref)
-        return RegionV3.wrap_member(context, ref)
+        return wsgi.render_response(
+            RegionV3.wrap_member(context, ref),
+            status=(201, 'Created'))
 
+    @controller.protected()
     def list_regions(self, context):
         refs = self.catalog_api.list_regions()
         return RegionV3.wrap_collection(context, refs)

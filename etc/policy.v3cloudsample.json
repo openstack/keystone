@@ -17,6 +17,12 @@
 
     "default": "rule:admin_required",
 
+    "identity:get_region": "",
+    "identity:list_regions": "",
+    "identity:create_region": "rule:admin_or_cloud_admin",
+    "identity:update_region": "rule:admin_or_cloud_admin",
+    "identity:delete_region": "rule:admin_or_cloud_admin",
+
     "identity:get_service": "rule:admin_or_cloud_admin",
     "identity:list_services": "rule:admin_or_cloud_admin",
     "identity:create_service": "rule:cloud_admin",
