@@ -61,6 +61,7 @@ from keystone import exception
 from keystone import notifications
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.db.sqlalchemy import session
+from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone import service
@@ -329,6 +330,8 @@ class TestCase(testtools.TestCase):
 
         self.exit_patch = self.useFixture(mockpatch.PatchObject(sys, 'exit'))
         self.exit_patch.mock.side_effect = UnexpectedExit
+
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
         self.config([dirs.etc('keystone.conf.sample'),
                      dirs.tests('test_overrides.conf')])
