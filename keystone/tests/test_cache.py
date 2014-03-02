@@ -186,13 +186,13 @@ class CacheRegionTest(tests.TestCase):
 
         config_dict = cache.build_cache_config()
         self.assertEqual(
-            config_dict['test_prefix.backend'], CONF.cache.backend)
+            CONF.cache.backend, config_dict['test_prefix.backend'])
         self.assertEqual(
-            config_dict['test_prefix.expiration_time'],
-            CONF.cache.expiration_time)
-        self.assertEqual(config_dict['test_prefix.arguments.arg1'], 'test')
-        self.assertEqual(config_dict['test_prefix.arguments.arg2'],
-                         'test:test')
+            CONF.cache.expiration_time,
+            config_dict['test_prefix.expiration_time'])
+        self.assertEqual('test', config_dict['test_prefix.arguments.arg1'])
+        self.assertEqual('test:test',
+                         config_dict['test_prefix.arguments.arg2'])
         self.assertFalse('test_prefix.arguments.arg3' in config_dict)
 
     def test_cache_debug_proxy(self):

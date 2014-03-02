@@ -269,7 +269,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back one user, the one in DomainA
         id_list = self._get_id_list_from_ref_list(r.result.get('users'))
-        self.assertEqual(len(id_list), 1)
+        self.assertEqual(1, len(id_list))
         self.assertIn(self.user1['id'], id_list)
 
         # Now try for domainB, which should fail
@@ -299,7 +299,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         r = self.get(url_by_name, auth=self.auth)
         # We should only get back two groups, the ones in DomainA
         id_list = self._get_id_list_from_ref_list(r.result.get('groups'))
-        self.assertEqual(len(id_list), 2)
+        self.assertEqual(2, len(id_list))
         self.assertIn(self.group1['id'], id_list)
         self.assertIn(self.group2['id'], id_list)
 
@@ -332,7 +332,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         # We should only get back one user, the one in DomainA that matches
         # the name supplied
         id_list = self._get_id_list_from_ref_list(r.result.get('groups'))
-        self.assertEqual(len(id_list), 1)
+        self.assertEqual(1, len(id_list))
         self.assertIn(self.group2['id'], id_list)
 
 
