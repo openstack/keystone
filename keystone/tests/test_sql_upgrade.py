@@ -879,7 +879,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         # two uses with clashing name as we try to revert to a single global
         # name space.  This limitation is raised as Bug #1125046 and the delete
         # could be removed depending on how that bug is resolved.
-        cmd = this_table.delete(id=user['id'])
+        cmd = this_table.delete().where(this_table.c.id == user['id'])
         self.engine.execute(cmd)
 
         # Now, the Project table.
@@ -903,7 +903,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         # TODO(henry-nash): For now, we delete one of the projects for the same
         # reason as we delete one of the users (Bug #1125046). This delete
         # could be removed depending on that bug resolution.
-        cmd = this_table.delete(id=project['id'])
+        cmd = this_table.delete().where(this_table.c.id == project['id'])
         self.engine.execute(cmd)
 
     def test_upgrade_trusts(self):
