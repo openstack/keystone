@@ -466,7 +466,7 @@ class Auth(controller.V3Controller):
         return {'signed': signed_text}
 
 
-#FIXME(gyee): not sure if it belongs here or keystone.common. Park it here
+# FIXME(gyee): not sure if it belongs here or keystone.common. Park it here
 # for now.
 def render_token_data_response(token_id, token_data, created=False):
     """Render token data HTTP response.

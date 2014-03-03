@@ -16,8 +16,8 @@ import sqlalchemy
 
 
 def upgrade(migrate_engine):
-    #This migration is relevant only for mysql because for all other
-    #migrate engines these indexes were successfully dropped.
+    # This migration is relevant only for mysql because for all other
+    # migrate engines these indexes were successfully dropped.
     if migrate_engine.name != 'mysql':
         return
     meta = sqlalchemy.MetaData(bind=migrate_engine)

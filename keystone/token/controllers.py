@@ -156,7 +156,7 @@ class Auth(controller.V2Controller):
 
         wsgi.validate_token_bind(context, old_token_ref)
 
-        #A trust token cannot be used to get another token
+        # A trust token cannot be used to get another token
         if 'trust' in old_token_ref:
             raise exception.Forbidden()
         if 'trust_id' in old_token_ref['metadata']:
@@ -289,7 +289,7 @@ class Auth(controller.V2Controller):
         if 'REMOTE_USER' not in context.get('environment', {}):
             raise ExternalAuthNotApplicable()
 
-        #NOTE(jamielennox): xml and json differ and get confused about what
+        # NOTE(jamielennox): xml and json differ and get confused about what
         # empty auth should look like so just reset it.
         if not auth:
             auth = {}

@@ -73,7 +73,7 @@ class IdentityProvider(_ControllerBase):
         ref = cls.filter_params(ref)
         return {cls.member_name: ref}
 
-    #TODO(marek-denis): Implement, when mapping engine is ready
+    # TODO(marek-denis): Implement, when mapping engine is ready
     def _delete_tokens_issued_by_idp(self, idp_id):
         """Delete tokens created upon authentication from an IdP
 

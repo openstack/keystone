@@ -501,9 +501,9 @@ class LdapWrapper(object):
                    'tls_avail': ldap.TLS_AVAIL
                    })
 
-        #NOTE(topol)
-        #for extra debugging uncomment the following line
-        #ldap.set_option(ldap.OPT_DEBUG_LEVEL, 4095)
+        # NOTE(topol)
+        # for extra debugging uncomment the following line
+        # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 4095)
 
         using_ldaps = url.lower().startswith("ldaps")
 
@@ -515,24 +515,24 @@ class LdapWrapper(object):
                 raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
                                    'not available') % ldap.TLS_AVAIL)
             if tls_cacertfile:
-                #NOTE(topol)
-                #python ldap TLS does not verify CACERTFILE or CACERTDIR
-                #so we add some extra simple sanity check verification
-                #Also, setting these values globally (i.e. on the ldap object)
-                #works but these values are ignored when setting them on the
-                #connection
+                # NOTE(topol)
+                # python ldap TLS does not verify CACERTFILE or CACERTDIR
+                # so we add some extra simple sanity check verification
+                # Also, setting these values globally (i.e. on the ldap object)
+                # works but these values are ignored when setting them on the
+                # connection
                 if not os.path.isfile(tls_cacertfile):
                     raise IOError(_("tls_cacertfile %s not found "
                                     "or is not a file") %
                                   tls_cacertfile)
                 ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
             elif tls_cacertdir:
-                #NOTE(topol)
-                #python ldap TLS does not verify CACERTFILE or CACERTDIR
-                #so we add some extra simple sanity check verification
-                #Also, setting these values globally (i.e. on the ldap object)
-                #works but these values are ignored when setting them on the
-                #connection
+                # NOTE(topol)
+                # python ldap TLS does not verify CACERTFILE or CACERTDIR
+                # so we add some extra simple sanity check verification
+                # Also, setting these values globally (i.e. on the ldap object)
+                # works but these values are ignored when setting them on the
+                # connection
                 if not os.path.isdir(tls_cacertdir):
                     raise IOError(_("tls_cacertdir %s not found "
                                     "or is not a directory") %

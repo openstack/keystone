@@ -17,7 +17,7 @@ from sqlalchemy import Column, MetaData, String, Table, Text, types
 from sqlalchemy.orm import sessionmaker
 
 
-#sqlite doesn't support dropping columns. Copy to a new table instead
+# sqlite doesn't support dropping columns. Copy to a new table instead
 def downgrade_user_table_with_copy(meta, migrate_engine):
     maker = sessionmaker(bind=migrate_engine)
     session = maker()

@@ -254,7 +254,7 @@ class V3TokenDataHelper(object):
         if CONF.trust.enabled and trust:
             token_user_id = trust['trustor_user_id']
             token_project_id = trust['project_id']
-            #trusts do not support domains yet
+            # trusts do not support domains yet
             token_domain_id = None
         else:
             token_user_id = user_id

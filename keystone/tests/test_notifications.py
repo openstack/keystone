@@ -458,7 +458,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 'initiator': initiator,
                 # NOTE(stevemar): outcome has 2 stages, pending and success
                 # so we are ignoring it for now.
-                #'outcome': outcome,
+                # 'outcome': outcome,
                 'send_notification_called': True}
             self._notifications.append(note)
 

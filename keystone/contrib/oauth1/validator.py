@@ -29,14 +29,14 @@ LOG = log.getLogger(__name__)
 @dependency.requires('oauth_api')
 class OAuthValidator(oauth1.RequestValidator):
 
-    #TODO(mhu) set as option probably ?
+    # TODO(mhu) set as option probably?
     @property
     def enforce_ssl(self):
         return False
 
     @property
     def safe_characters(self):
-        #oauth tokens are generated from a uuid hex value
+        # oauth tokens are generated from a uuid hex value
         return set("abcdef0123456789")
 
     def _check_token(self, token):

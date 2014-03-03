@@ -808,4 +808,4 @@ class Driver(object):
         """Indicates if Driver supports domains."""
         raise exception.NotImplemented()
 
-    #end of identity
+    # end of identity

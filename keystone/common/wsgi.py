@@ -186,9 +186,9 @@ class Application(BaseApplication):
         context['headers'] = dict(six.iteritems(req.headers))
         context['path'] = req.environ['PATH_INFO']
         params = req.environ.get(PARAMS_ENV, {})
-        #authentication and authorization attributes are set as environment
-        #values by the container and processed by the pipeline.  the complete
-        #set is not yet know.
+        # authentication and authorization attributes are set as environment
+        # values by the container and processed by the pipeline.  the complete
+        # set is not yet know.
         context['environment'] = req.environ
         req.environ = None
 

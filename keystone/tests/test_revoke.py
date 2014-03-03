@@ -167,7 +167,7 @@ class RevokeTests(object):
         # 'synchronize' should now be exercised and remove old expired events
         mock_utcnow.return_value = now_plus_2h
         self.revoke_api.revoke_by_expiration(_new_id(), now_plus_2h)
-        #should no longer throw an exception
+        # should no longer throw an exception
         self.revoke_api.check_token(token_values)
 
 

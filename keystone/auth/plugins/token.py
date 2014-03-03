@@ -37,14 +37,14 @@ class Token(auth.AuthMethodHandler):
                                                 target=self.method)
             token_id = auth_payload['id']
             response = self.provider.validate_token(token_id)
-            #for V3 tokens, the essential data is under  the 'token' value.
-            #For V2, the comparable data was nested under 'access'
+            # For V3 tokens, the essential data is under the 'token' value.
+            # For V2, the comparable data was nested under 'access'.
             token_ref = response.get('token', response.get('access'))
 
-            #Do not allow tokens used for delegation to
-            #create another token, or perform any changes of
-            #state in Keystone. TO do so is to invite elevation of
-            #privilege attacks
+            # Do not allow tokens used for delegation to
+            # create another token, or perform any changes of
+            # state in Keystone. TO do so is to invite elevation of
+            # privilege attacks
             if 'OS-TRUST:trust' in token_ref:
                 raise exception.Forbidden()
             if 'trust' in token_ref:
@@ -56,10 +56,10 @@ class Token(auth.AuthMethodHandler):
 
             wsgi.validate_token_bind(context, token_ref)
 
-            #new tokens are not allowed to extend the expiration
-            #time of an old token, otherwise, they could be extened
-            #forever.   The expiration value was stored at different
-            #locations in v2 and v3 tokens.
+            # New tokens are not allowed to extend the expiration
+            # time of an old token, otherwise, they could be extened
+            # forever. The expiration value was stored at different
+            # locations in v2 and v3 tokens.
             expires_at = token_ref.get('expires_at')
             if not expires_at:
                 expires_at = token_ref.get('expires')
