@@ -210,7 +210,7 @@ class LocalizedResponseTest(tests.TestCase):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
-    def _set_expected_languages(self, all_locales=[], avail_locales=None):
+    def _set_expected_languages(self, all_locales, avail_locales=None):
         # Override localedata.locale_identifiers to return some locales.
         def returns_some_locales(*args, **kwargs):
             return all_locales
