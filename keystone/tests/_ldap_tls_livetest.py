@@ -54,7 +54,7 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
                 'tenants': ['bar']}
         self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual(user_ref['id'], 'fake1')
+        self.assertEqual('fake1', user_ref['id'])
 
         user['password'] = 'fakepass2'
         self.identity_api.update_user('fake1', user)
@@ -76,7 +76,7 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
                 'tenants': ['bar']}
         self.identity_api.create_user('fake1', user)
         user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual(user_ref['id'], 'fake1')
+        self.assertEqual('fake1', user_ref['id'])
 
         user['password'] = 'fakepass2'
         self.identity_api.update_user('fake1', user)
