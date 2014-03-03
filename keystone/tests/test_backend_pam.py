@@ -27,12 +27,15 @@ class PamIdentity(tests.TestCase):
     def setUp(self):
         super(PamIdentity, self).setUp()
         self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('backend_pam.conf')])
+                     tests.dirs.tests('test_overrides.conf')])
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.pam.PamIdentity')
+
         self.identity_api = identity_pam.PamIdentity()
         tenant_id = uuid.uuid4().hex
         self.tenant_in = {'id': tenant_id, 'name': tenant_id}
-        self.user_in = {'id': CONF.pam.userid, 'name': CONF.pam.userid}
+        self.user_in = {'id': 'fakeuser', 'name': 'fakeuser'}
 
     def test_get_project(self):
         tenant_out = self.identity_api.get_project(self.tenant_in['id'])

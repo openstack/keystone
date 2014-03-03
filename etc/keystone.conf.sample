@@ -1047,19 +1047,6 @@
 #enabled=false
 
 
-[pam]
-
-#
-# Options defined in keystone
-#
-
-#  (string value)
-#userid=<None>
-
-#  (string value)
-#password=<None>
-
-
 [paste_deploy]
 
 #

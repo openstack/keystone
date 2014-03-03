@@ -525,9 +525,6 @@ FILE_OPTIONS = {
         cfg.StrOpt('tls_req_cert', default='demand',
                    help='valid options for tls_req_cert are demand, never, '
                         'and allow')],
-    'pam': [
-        cfg.StrOpt('userid', default=None),
-        cfg.StrOpt('password', default=None)],
     'auth': [
         cfg.ListOpt('methods', default=_DEFAULT_AUTH_METHODS,
                     help='Default auth methods.'),
