@@ -18,8 +18,6 @@
 
 """Utility methods for working with WSGI servers."""
 
-import re
-
 import routes.middleware
 import six
 import webob.dec
@@ -44,10 +42,6 @@ CONTEXT_ENV = 'openstack.context'
 
 # Environment variable used to pass the request params
 PARAMS_ENV = 'openstack.params'
-
-
-_RE_PASS = re.compile(r'([\'"].*?password[\'"]\s*:\s*u?[\'"]).*?([\'"])',
-                      re.DOTALL)
 
 
 def validate_token_bind(context, token_ref):
