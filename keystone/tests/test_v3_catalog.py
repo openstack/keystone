@@ -464,21 +464,21 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # test the endpoint on v3
         r = self.get('/endpoints')
         endpoints = self.assertValidEndpointListResponse(r)
-        self.assertEqual(len(endpoints), 1)
+        self.assertEqual(1, len(endpoints))
         endpoint_v3 = endpoints.pop()
 
         # these attributes are identical between both APIs
-        self.assertEqual(endpoint_v3['region'], ref['region'])
-        self.assertEqual(endpoint_v3['service_id'], ref['service_id'])
-        self.assertEqual(endpoint_v3['description'], ref['description'])
+        self.assertEqual(ref['region'], endpoint_v3['region'])
+        self.assertEqual(ref['service_id'], endpoint_v3['service_id'])
+        self.assertEqual(ref['description'], endpoint_v3['description'])
 
         # a v2 endpoint is not quite the same concept as a v3 endpoint, so they
         # receive different identifiers
         self.assertNotEqual(endpoint_v2['id'], endpoint_v3['id'])
 
         # v2 has a publicurl; v3 has a url + interface type
-        self.assertEqual(endpoint_v3['url'], ref['publicurl'])
-        self.assertEqual(endpoint_v3['interface'], 'public')
+        self.assertEqual(ref['publicurl'], endpoint_v3['url'])
+        self.assertEqual('public', endpoint_v3['interface'])
 
         # tests for bug 1152632 -- these attributes were being returned by v3
         self.assertNotIn('publicurl', endpoint_v3)

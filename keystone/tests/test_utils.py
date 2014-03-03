@@ -189,11 +189,11 @@ class LimitingReaderTests(tests.TestCase):
         data = FakeData()
         utils.LimitingReader(data, 100)
 
-        self.assertEqual(data.read(), 'helloworld')
-        self.assertEqual(len(data.read_args), 0)
-        self.assertEqual(len(data.read_kwargs), 0)
+        self.assertEqual('helloworld', data.read())
+        self.assertEqual(0, len(data.read_args))
+        self.assertEqual(0, len(data.read_kwargs))
 
-        self.assertEqual(data.read(10), 'helloworld')
-        self.assertEqual(len(data.read_args), 1)
-        self.assertEqual(len(data.read_kwargs), 0)
-        self.assertEqual(data.read_args[0], 10)
+        self.assertEqual('helloworld', data.read(10))
+        self.assertEqual(1, len(data.read_args))
+        self.assertEqual(0, len(data.read_kwargs))
+        self.assertEqual(10, data.read_args[0])
