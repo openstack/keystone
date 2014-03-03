@@ -22,9 +22,3 @@ oauthlib>=0.6
 dogpile.cache>=0.5.0
 jsonschema>=2.0.0,<3.0.0
 pycadf>=0.1.9
-
-# KDS exclusive dependencies
-
-pecan>=0.4.5
-pycrypto>=2.6
-WSME>=0.6
