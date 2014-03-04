@@ -22,11 +22,11 @@ SYNOPSIS
                     [--log-config-append PATH] [--log-date-format DATE_FORMAT]
                     [--log-dir LOG_DIR] [--log-file PATH]
                     [--log-format FORMAT] [--nodebug] [--nostandard-threads]
-                    [--nouse-syslog] [--noverbose]
+                    [--nouse-syslog] [--nouse-syslog-rfc-format] [--noverbose]
                     [--pydev-debug-host PYDEV_DEBUG_HOST]
                     [--pydev-debug-port PYDEV_DEBUG_PORT] [--standard-threads]
                     [--syslog-log-facility SYSLOG_LOG_FACILITY] [--use-syslog]
-                    [--verbose] [--version]
+                    [--use-syslog-rfc-format] [--verbose] [--version]
 
 DESCRIPTION
 ===========
@@ -74,6 +74,8 @@ OPTIONS
   --nodebug             The inverse of --debug
   --nostandard-threads  The inverse of --standard-threads
   --nouse-syslog        The inverse of --use-syslog
+  --nouse-syslog-rfc-format
+                        The inverse of --use-syslog-rfc-format
   --noverbose           The inverse of --verbose
   --pydev-debug-host PYDEV_DEBUG_HOST
                         Host to connect to for remote debugger.
@@ -81,8 +83,15 @@ OPTIONS
                         Port to connect to for remote debugger.
   --standard-threads    Do not monkey-patch threading system modules.
   --syslog-log-facility SYSLOG_LOG_FACILITY
-                        syslog facility to receive log lines
-  --use-syslog          Use syslog for logging.
+                        Syslog facility to receive log lines
+  --use-syslog          Use syslog for logging. Existing syslog format is
+                        DEPRECATED during I, and then will be changed in J to
+                        honor RFC5424
+  --use-syslog-rfc-format
+                        (Optional) Use syslog rfc5424 format for logging. If
+                        enabled, will add APP-NAME (RFC5424) before the MSG
+                        part of the syslog message. The old format without
+                        APP-NAME is deprecated in I, and will be removed in J.
   --verbose, -v         Print more verbose output (set logging level to INFO
                         instead of default WARNING level).
   --version             show program's version number and exit

@@ -115,10 +115,21 @@ logging_cli_opts = [
                     '--log-file paths'),
     cfg.BoolOpt('use-syslog',
                 default=False,
-                help='Use syslog for logging.'),
+                help='Use syslog for logging. '
+                     'Existing syslog format is DEPRECATED during I, '
+                     'and then will be changed in J to honor RFC5424'),
+    cfg.BoolOpt('use-syslog-rfc-format',
+                # TODO(bogdando) remove or use True after existing
+                #    syslog format deprecation in J
+                default=False,
+                help='(Optional) Use syslog rfc5424 format for logging. '
+                     'If enabled, will add APP-NAME (RFC5424) before the '
+                     'MSG part of the syslog message.  The old format '
+                     'without APP-NAME is deprecated in I, '
+                     'and will be removed in J.'),
     cfg.StrOpt('syslog-log-facility',
                default='LOG_USER',
-               help='syslog facility to receive log lines')
+               help='Syslog facility to receive log lines')
 ]
 
 generic_log_opts = [
@@ -132,18 +143,18 @@ log_opts = [
                default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
                        '%(name)s [%(request_id)s %(user_identity)s] '
                        '%(instance)s%(message)s',
-               help='format string to use for log messages with context'),
+               help='Format string to use for log messages with context'),
     cfg.StrOpt('logging_default_format_string',
                default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
                        '%(name)s [-] %(instance)s%(message)s',
-               help='format string to use for log messages without context'),
+               help='Format string to use for log messages without context'),
     cfg.StrOpt('logging_debug_format_suffix',
                default='%(funcName)s %(pathname)s:%(lineno)d',
-               help='data to append to log format when level is DEBUG'),
+               help='Data to append to log format when level is DEBUG'),
     cfg.StrOpt('logging_exception_prefix',
                default='%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s '
                '%(instance)s',
-               help='prefix each line of exception output with this format'),
+               help='Prefix each line of exception output with this format'),
     cfg.ListOpt('default_log_levels',
                 default=[
                     'amqp=WARN',
@@ -153,14 +164,15 @@ log_opts = [
                     'sqlalchemy=WARN',
                     'suds=INFO',
                     'iso8601=WARN',
+                    'requests.packages.urllib3.connectionpool=WARN'
                 ],
-                help='list of logger=LEVEL pairs'),
+                help='List of logger=LEVEL pairs'),
     cfg.BoolOpt('publish_errors',
                 default=False,
-                help='publish error events'),
+                help='Publish error events'),
     cfg.BoolOpt('fatal_deprecations',
                 default=False,
-                help='make deprecations fatal'),
+                help='Make deprecations fatal'),
 
     # NOTE(mikal): there are two options here because sometimes we are handed
     # a full instance (and could include more information), and other times we
@@ -292,18 +304,39 @@ class ContextAdapter(BaseLoggerAdapter):
         self.logger = logger
         self.project = project_name
         self.version = version_string
+        self._deprecated_messages_sent = dict()
 
     @property
     def handlers(self):
         return self.logger.handlers
 
     def deprecated(self, msg, *args, **kwargs):
+        """Call this method when a deprecated feature is used.
+
+        If the system is configured for fatal deprecations then the message
+        is logged at the 'critical' level and :class:`DeprecatedConfig` will
+        be raised.
+
+        Otherwise, the message will be logged (once) at the 'warn' level.
+
+        :raises: :class:`DeprecatedConfig` if the system is configured for
+                 fatal deprecations.
+
+        """
         stdmsg = _("Deprecated: %s") % msg
         if CONF.fatal_deprecations:
             self.critical(stdmsg, *args, **kwargs)
             raise DeprecatedConfig(msg=stdmsg)
-        else:
-            self.warn(stdmsg, *args, **kwargs)
+
+        # Using a list because a tuple with dict can't be stored in a set.
+        sent_args = self._deprecated_messages_sent.setdefault(msg, list())
+
+        if args in sent_args:
+            # Already logged this message, so don't log it again.
+            return
+
+        sent_args.append(args)
+        self.warn(stdmsg, *args, **kwargs)
 
     def process(self, msg, kwargs):
         # NOTE(mrodden): catch any Message/other object and
@@ -420,12 +453,12 @@ def _load_log_config(log_config_append):
         raise LogConfigError(log_config_append, str(exc))
 
 
-def setup(product_name):
+def setup(product_name, version='unknown'):
     """Setup logging."""
     if CONF.log_config_append:
         _load_log_config(CONF.log_config_append)
     else:
-        _setup_logging_from_conf()
+        _setup_logging_from_conf(product_name, version)
     sys.excepthook = _create_logging_excepthook(product_name)
 
 
@@ -459,15 +492,32 @@ def _find_facility_from_conf():
     return facility
 
 
-def _setup_logging_from_conf():
+class RFCSysLogHandler(logging.handlers.SysLogHandler):
+    def __init__(self, *args, **kwargs):
+        self.binary_name = _get_binary_name()
+        super(RFCSysLogHandler, self).__init__(*args, **kwargs)
+
+    def format(self, record):
+        msg = super(RFCSysLogHandler, self).format(record)
+        msg = self.binary_name + ' ' + msg
+        return msg
+
+
+def _setup_logging_from_conf(project, version):
     log_root = getLogger(None).logger
     for handler in log_root.handlers:
         log_root.removeHandler(handler)
 
     if CONF.use_syslog:
         facility = _find_facility_from_conf()
-        syslog = logging.handlers.SysLogHandler(address='/dev/log',
-                                                facility=facility)
+        # TODO(bogdando) use the format provided by RFCSysLogHandler
+        #   after existing syslog format deprecation in J
+        if CONF.use_syslog_rfc_format:
+            syslog = RFCSysLogHandler(address='/dev/log',
+                                      facility=facility)
+        else:
+            syslog = logging.handlers.SysLogHandler(address='/dev/log',
+                                                    facility=facility)
         log_root.addHandler(syslog)
 
     logpath = _get_log_file_path()
@@ -501,7 +551,9 @@ def _setup_logging_from_conf():
             log_root.info('Deprecated: log_format is now deprecated and will '
                           'be removed in the next release')
         else:
-            handler.setFormatter(ContextFormatter(datefmt=datefmt))
+            handler.setFormatter(ContextFormatter(project=project,
+                                                  version=version,
+                                                  datefmt=datefmt))
 
     if CONF.debug:
         log_root.setLevel(logging.DEBUG)
@@ -559,10 +611,42 @@ class ContextFormatter(logging.Formatter):
     For information about what variables are available for the formatter see:
     http://docs.python.org/library/logging.html#formatter
 
+    If available, uses the context value stored in TLS - local.store.context
+
     """
+
+    def __init__(self, *args, **kwargs):
+        """Initialize ContextFormatter instance
+
+        Takes additional keyword arguments which can be used in the message
+        format string.
+
+        :keyword project: project name
+        :type project: string
+        :keyword version: project version
+        :type version: string
+
+        """
+
+        self.project = kwargs.pop('project', 'unknown')
+        self.version = kwargs.pop('version', 'unknown')
+
+        logging.Formatter.__init__(self, *args, **kwargs)
 
     def format(self, record):
         """Uses contextstring if request_id is set, otherwise default."""
+
+        # store project info
+        record.project = self.project
+        record.version = self.version
+
+        # store request info
+        context = getattr(local.store, 'context', None)
+        if context:
+            d = _dictify_context(context)
+            for k, v in d.items():
+                setattr(record, k, v)
+
         # NOTE(sdague): default the fancier formatting params
         # to an empty string so we don't throw an exception if
         # they get used
