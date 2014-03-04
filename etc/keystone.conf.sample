@@ -36,30 +36,31 @@
 
 # The base public endpoint URL for keystone that are
 # advertised to clients (NOTE: this does NOT affect how
-# keystone listens for connections) (string value)
+# keystone listens for connections). (string value)
 #public_endpoint=http://localhost:%(public_port)s/
 
 # The base admin endpoint URL for keystone that are advertised
 # to clients (NOTE: this does NOT affect how keystone listens
-# for connections) (string value)
+# for connections). (string value)
 #admin_endpoint=http://localhost:%(admin_port)s/
 
 # onready allows you to send a notification when the process
 # is ready to serve For example, to have it notify using
 # systemd, one could set shell command: "onready = systemd-
 # notify --ready" or a module with notify() method: "onready =
-# keystone.common.systemd" (string value)
+# keystone.common.systemd". (string value)
 #onready=<None>
 
 # enforced by optional sizelimit middleware
-# (keystone.middleware:RequestBodySizeLimiter) (integer value)
+# (keystone.middleware:RequestBodySizeLimiter). (integer
+# value)
 #max_request_body_size=114688
 
-# limit the sizes of user & tenant ID/names (integer value)
+# limit the sizes of user & tenant ID/names. (integer value)
 #max_param_size=64
 
 # similar to max_param_size, but provides an exception for
-# token values (integer value)
+# token values. (integer value)
 #max_token_size=8192
 
 # During a SQL upgrade member_role_id will be used to create a
@@ -82,7 +83,7 @@
 
 # Set this to True if you want to enable TCP_KEEPALIVE on
 # server sockets i.e. sockets used by the keystone wsgi server
-# for client connections (boolean value)
+# for client connections. (boolean value)
 #tcp_keepalive=false
 
 # Sets the value of TCP_KEEPIDLE in seconds for each server
@@ -94,7 +95,7 @@
 # collection can be set with list_limit, with no limit set by
 # default. This global limit may be then overridden for a
 # specific driver, by specifying a list_limit in the
-# appropriate section (e.g. [assignment] (integer value)
+# appropriate section (e.g. [assignment]). (integer value)
 #list_limit=<None>
 
 
@@ -109,40 +110,40 @@
 # Auto-delete queues in amqp. (boolean value)
 #amqp_auto_delete=false
 
-# Size of RPC connection pool. (integer value)
+# Size of RPC connection pool (integer value)
 #rpc_conn_pool_size=30
 
-# Modules of exceptions that are permitted to be recreated
-# upon receiving exception data from an rpc call. (list value)
+# Modules of exceptions that are permitted to be recreatedupon
+# receiving exception data from an rpc call. (list value)
 #allowed_rpc_exception_modules=oslo.messaging.exceptions,nova.exception,cinder.exception,exceptions
 
-# Qpid broker hostname. (string value)
+# Qpid broker hostname (string value)
 #qpid_hostname=localhost
 
-# Qpid broker port. (integer value)
+# Qpid broker port (integer value)
 #qpid_port=5672
 
-# Qpid HA cluster host:port pairs. (list value)
+# Qpid HA cluster host:port pairs (list value)
 #qpid_hosts=$qpid_hostname:$qpid_port
 
-# Username for Qpid connection. (string value)
+# Username for Qpid connection (string value)
 #qpid_username=
 
-# Password for Qpid connection. (string value)
+# Password for Qpid connection (string value)
 #qpid_password=
 
-# Space separated list of SASL mechanisms to use for auth.
+# Space separated list of SASL mechanisms to use for auth
 # (string value)
 #qpid_sasl_mechanisms=
 
-# Seconds between connection keepalive heartbeats. (integer
+# Seconds between connection keepalive heartbeats (integer
 # value)
 #qpid_heartbeat=60
 
-# Transport to use, either 'tcp' or 'ssl'. (string value)
+# Transport to use, either 'tcp' or 'ssl' (string value)
 #qpid_protocol=tcp
 
-# Whether to disable the Nagle algorithm. (boolean value)
+# Disable Nagle algorithm (boolean value)
 #qpid_tcp_nodelay=true
 
 # The qpid topology version to use.  Version 1 is what was
@@ -155,55 +156,52 @@
 
 # SSL version to use (valid only if SSL enabled). valid values
 # are TLSv1, SSLv23 and SSLv3. SSLv2 may be available on some
-# distributions. (string value)
+# distributions (string value)
 #kombu_ssl_version=
 
-# SSL key file (valid only if SSL enabled). (string value)
+# SSL key file (valid only if SSL enabled) (string value)
 #kombu_ssl_keyfile=
 
-# SSL cert file (valid only if SSL enabled). (string value)
+# SSL cert file (valid only if SSL enabled) (string value)
 #kombu_ssl_certfile=
 
-# SSL certification authority file (valid only if SSL
-# enabled). (string value)
+# SSL certification authority file (valid only if SSL enabled)
+# (string value)
 #kombu_ssl_ca_certs=
 
-# The RabbitMQ broker address where a single node is used.
+# The RabbitMQ broker address where a single node is used
 # (string value)
 #rabbit_host=localhost
 
-# The RabbitMQ broker port where a single node is used.
+# The RabbitMQ broker port where a single node is used
 # (integer value)
 #rabbit_port=5672
 
-# RabbitMQ HA cluster host:port pairs. (list value)
+# RabbitMQ HA cluster host:port pairs (list value)
 #rabbit_hosts=$rabbit_host:$rabbit_port
 
-# Connect over SSL for RabbitMQ. (boolean value)
+# Connect over SSL for RabbitMQ (boolean value)
 #rabbit_use_ssl=false
 
-# The RabbitMQ userid. (string value)
+# The RabbitMQ userid (string value)
 #rabbit_userid=guest
 
-# The RabbitMQ password. (string value)
+# The RabbitMQ password (string value)
 #rabbit_password=guest
 
-# the RabbitMQ login method (string value)
-#rabbit_login_method=AMQPLAIN
-
-# The RabbitMQ virtual host. (string value)
+# The RabbitMQ virtual host (string value)
 #rabbit_virtual_host=/
 
-# How frequently to retry connecting with RabbitMQ. (integer
+# How frequently to retry connecting with RabbitMQ (integer
 # value)
 #rabbit_retry_interval=1
 
 # How long to backoff for between retries when connecting to
-# RabbitMQ. (integer value)
+# RabbitMQ (integer value)
 #rabbit_retry_backoff=2
 
 # Maximum number of RabbitMQ connection retries. Default is 0
-# (infinite retry count). (integer value)
+# (infinite retry count) (integer value)
 #rabbit_max_retries=0
 
 # Use HA queues in RabbitMQ (x-ha-policy: all). If you change
@@ -211,7 +209,7 @@
 # value)
 #rabbit_ha_queues=false
 
-# If passed, use a fake RabbitMQ provider. (boolean value)
+# If passed, use a fake RabbitMQ provider (boolean value)
 #fake_rabbit=false
 
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet
@@ -219,20 +217,20 @@
 # to this address. (string value)
 #rpc_zmq_bind_address=*
 
-# MatchMaker driver. (string value)
+# MatchMaker driver (string value)
 #rpc_zmq_matchmaker=oslo.messaging._drivers.matchmaker.MatchMakerLocalhost
 
-# ZeroMQ receiver listening port. (integer value)
+# ZeroMQ receiver listening port (integer value)
 #rpc_zmq_port=9501
 
-# Number of ZeroMQ contexts, defaults to 1. (integer value)
+# Number of ZeroMQ contexts, defaults to 1 (integer value)
 #rpc_zmq_contexts=1
 
 # Maximum number of ingress messages to locally buffer per
 # topic. Default is unlimited. (integer value)
 #rpc_zmq_topic_backlog=<None>
 
-# Directory for holding IPC sockets. (string value)
+# Directory for holding IPC sockets (string value)
 #rpc_zmq_ipc_dir=/var/run/openstack
 
 # Name of this node. Must be a valid hostname, FQDN, or IP
@@ -244,33 +242,33 @@
 # by impl_zmq. (integer value)
 #rpc_cast_timeout=30
 
-# Heartbeat frequency. (integer value)
+# Heartbeat frequency (integer value)
 #matchmaker_heartbeat_freq=300
 
 # Heartbeat time-to-live. (integer value)
 #matchmaker_heartbeat_ttl=600
 
-# Host to locate redis. (string value)
+# Host to locate redis (string value)
 #host=127.0.0.1
 
 # Use this port to connect to redis host. (integer value)
 #port=6379
 
-# Password for Redis server (optional). (string value)
+# Password for Redis server. (optional) (string value)
 #password=<None>
 
-# Size of RPC greenthread pool. (integer value)
+# Size of RPC greenthread pool (integer value)
 #rpc_thread_pool_size=64
 
-# Driver or drivers to handle sending notifications. (multi
+# Driver or drivers to handle sending notifications (multi
 # valued)
 #notification_driver=
 
-# AMQP topic used for OpenStack notifications. (list value)
+# AMQP topic used for OpenStack notifications (list value)
 # Deprecated group/name - [rpc_notifier2]/topics
 #notification_topics=notifications
 
-# Seconds to wait for a response from a call. (integer value)
+# Seconds to wait for a response from a call (integer value)
 #rpc_response_timeout=60
 
 # A URL representing the messaging driver to use and its full
@@ -452,7 +450,7 @@
 # Options defined in keystone
 #
 
-# Keystone Assignment backend driver (string value)
+# Keystone Assignment backend driver. (string value)
 #driver=<None>
 
 # Toggle for assignment caching. This has no effect unless
@@ -464,7 +462,7 @@
 #cache_time=<None>
 
 # Maximum number of entities that will be returned in an
-# assignment collection (integer value)
+# assignment collection. (integer value)
 #list_limit=<None>
 
 
@@ -477,10 +475,10 @@
 # Default auth methods. (list value)
 #methods=external,password,token
 
-# The password auth plugin module (string value)
+# The password auth plugin module. (string value)
 #password=keystone.auth.plugins.password.Password
 
-# The token auth plugin module (string value)
+# The token auth plugin module. (string value)
 #token=keystone.auth.plugins.token.Token
 
 # The external (REMOTE_USER) auth plugin module. (string
@@ -497,7 +495,7 @@
 # Prefix for building the configuration dictionary for the
 # cache region. This should not need to be changed unless
 # there is another dogpile.cache region with the same
-# configuration name (string value)
+# configuration name. (string value)
 #config_prefix=cache.keystone
 
 # Default TTL, in seconds, for any cached item in the
@@ -521,18 +519,18 @@
 
 # Arguments supplied to the backend module. Specify this
 # option once per argument to be passed to the dogpile.cache
-# backend. Example format: <argname>:<value> (multi valued)
+# backend. Example format: "<argname>:<value>". (multi valued)
 #backend_argument=
 
 # Proxy Classes to import that will affect the way the
 # dogpile.cache backend functions. See the dogpile.cache
 # documentation on changing-backend-behavior. Comma delimited
-# list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2
+# list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2.
 # (list value)
 #proxies=
 
 # Global toggle for all caching using the should_cache_fn
-# mechanism (boolean value)
+# mechanism. (boolean value)
 #enabled=false
 
 # Extra debugging from the cache backend (cache keys,
@@ -553,11 +551,11 @@
 # backend. (string value)
 #template_file=default_catalog.templates
 
-# Keystone catalog backend driver (string value)
+# Keystone catalog backend driver. (string value)
 #driver=keystone.catalog.backends.sql.Catalog
 
 # Maximum number of entities that will be returned in a
-# catalog collection (integer value)
+# catalog collection. (integer value)
 #list_limit=<None>
 
 
@@ -567,7 +565,7 @@
 # Options defined in keystone
 #
 
-# Keystone Credential backend driver (string value)
+# Keystone Credential backend driver. (string value)
 #driver=keystone.credential.backends.sql.Credential
 
 
@@ -656,7 +654,7 @@
 # Options defined in keystone
 #
 
-# Keystone EC2Credential backend driver (string value)
+# Keystone EC2Credential backend driver. (string value)
 #driver=keystone.contrib.ec2.backends.kvs.Ec2
 
 
@@ -680,7 +678,7 @@
 # Options defined in keystone
 #
 
-# Keystone Federation backend driver (string value)
+# Keystone Federation backend driver. (string value)
 #driver=keystone.contrib.federation.backends.sql.Federation
 
 
@@ -713,7 +711,7 @@
 # set to true. (string value)
 #domain_config_dir=/etc/keystone/domains
 
-# Keystone Identity backend driver (string value)
+# Keystone Identity backend driver. (string value)
 #driver=keystone.identity.backends.sql.Identity
 
 # Maximum supported length for user passwords; decrease to
@@ -721,7 +719,7 @@
 #max_password_length=4096
 
 # Maximum number of entities that will be returned in an
-# identity collection (integer value)
+# identity collection. (integer value)
 #list_limit=<None>
 
 
@@ -732,13 +730,13 @@
 #
 
 # Extra dogpile.cache backend modules to register with the
-# dogpile.cache library (list value)
+# dogpile.cache library. (list value)
 #backends=
 
 # Prefix for building the configuration dictionary for the KVS
 # region. This should not need to be changed unless there is
 # another dogpile.cache region with the same configuration
-# name (string value)
+# name. (string value)
 #config_prefix=keystone.kvs
 
 # Toggle to disable using a key-mangling function to ensure
@@ -758,35 +756,38 @@
 # Options defined in keystone
 #
 
-# URL for connecting to the LDAP server (string value)
+# URL for connecting to the LDAP server. (string value)
 #url=ldap://localhost
 
-# User BindDN to query the LDAP server (string value)
+# User BindDN to query the LDAP server. (string value)
 #user=<None>
 
-# Password for the BindDN to query the LDAP server (string
+# Password for the BindDN to query the LDAP server. (string
 # value)
 #password=<None>
 
 # LDAP server suffix (string value)
 #suffix=cn=example,cn=com
 
-#  (boolean value)
+# If true, will add a dummy member to groups. This is required
+# if the objectclass for groups requires the "member"
+# attribute. (boolean value)
 #use_dumb_member=false
 
-#  (string value)
+# DN of the "dummy member" to use when "use_dumb_member" is
+# enabled. (string value)
 #dumb_member=cn=dumb,dc=nonexistent
 
-# allow deleting subtrees (boolean value)
+# allow deleting subtrees. (boolean value)
 #allow_subtree_delete=false
 
 # The LDAP scope for queries, this can be either "one"
-# (onelevel/singleLevel) or "sub" (subtree/wholeSubtree)
+# (onelevel/singleLevel) or "sub" (subtree/wholeSubtree).
 # (string value)
 #query_scope=one
 
 # Maximum results per page; a value of zero ("0") disables
-# paging (integer value)
+# paging. (integer value)
 #page_size=0
 
 # The LDAP dereferencing option for queries. This can be
@@ -795,57 +796,71 @@
 # dereferencing configured by your ldap.conf. (string value)
 #alias_dereferencing=default
 
-# Search base for users (string value)
+# Search base for users. (string value)
 #user_tree_dn=<None>
 
-# LDAP search filter for users (string value)
+# LDAP search filter for users. (string value)
 #user_filter=<None>
 
-# LDAP objectClass for users (string value)
+# LDAP objectClass for users. (string value)
 #user_objectclass=inetOrgPerson
 
-# LDAP attribute mapped to user id (string value)
+# LDAP attribute mapped to user id. (string value)
 #user_id_attribute=cn
 
-# LDAP attribute mapped to user name (string value)
+# LDAP attribute mapped to user name. (string value)
 #user_name_attribute=sn
 
-# LDAP attribute mapped to user email (string value)
+# LDAP attribute mapped to user email. (string value)
 #user_mail_attribute=email
 
-# LDAP attribute mapped to password (string value)
+# LDAP attribute mapped to password. (string value)
 #user_pass_attribute=userPassword
 
-# LDAP attribute mapped to user enabled flag (string value)
+# LDAP attribute mapped to user enabled flag. (string value)
 #user_enabled_attribute=enabled
 
-#  (integer value)
+# Bitmask integer to indicate the bit that the enabled value
+# is stored in if the LDAP server represents "enabled" as a
+# bit on an integer rather than a boolean. A value of "0"
+# indicates the mask is not used. If this is not set to "0"
+# the typical value is "2". This is typically used when
+# "user_enabled_attribute = userAccountControl". (integer
+# value)
 #user_enabled_mask=0
 
-#  (string value)
+# Default value to enable users. This should match an
+# appropriate int value if the LDAP server uses non-boolean
+# (bitmask) values to indicate if a user is enabled or
+# disabled. If this is not set to "True"the typical value is
+# "512". This is typically used when "user_enabled_attribute =
+# userAccountControl". (string value)
 #user_enabled_default=True
 
-# List of attributes stripped off the user on update (list
+# List of attributes stripped off the user on update. (list
 # value)
 #user_attribute_ignore=default_project_id,tenants
 
-# LDAP attribute mapped to default_project_id for users
+# LDAP attribute mapped to default_project_id for users.
 # (string value)
 #user_default_project_id_attribute=<None>
 
-# Allow user creation in LDAP backend (boolean value)
+# Allow user creation in LDAP backend. (boolean value)
 #user_allow_create=true
 
-# Allow user updates in LDAP backend (boolean value)
+# Allow user updates in LDAP backend. (boolean value)
 #user_allow_update=true
 
-# Allow user deletion in LDAP backend (boolean value)
+# Allow user deletion in LDAP backend. (boolean value)
 #user_allow_delete=true
 
-#  (boolean value)
+# If True, Keystone uses an alternative method to determine if
+# a user is enabled or not by checking if they are a member of
+# the "user_enabled_emulation_dn" group. (boolean value)
 #user_enabled_emulation=false
 
-#  (string value)
+# DN of the group entry to hold enabled users when using
+# enabled emulation. (string value)
 #user_enabled_emulation_dn=<None>
 
 # List of additional LDAP attributes used for mapping
@@ -858,48 +873,51 @@
 # Search base for projects (string value)
 #tenant_tree_dn=<None>
 
-# LDAP search filter for projects (string value)
+# LDAP search filter for projects. (string value)
 #tenant_filter=<None>
 
-# LDAP objectClass for projects (string value)
+# LDAP objectClass for projects. (string value)
 #tenant_objectclass=groupOfNames
 
-# LDAP attribute mapped to project id (string value)
+# LDAP attribute mapped to project id. (string value)
 #tenant_id_attribute=cn
 
-# LDAP attribute mapped to project membership for user (string
-# value)
+# LDAP attribute mapped to project membership for user.
+# (string value)
 #tenant_member_attribute=member
 
-# LDAP attribute mapped to project name (string value)
+# LDAP attribute mapped to project name. (string value)
 #tenant_name_attribute=ou
 
-# LDAP attribute mapped to project description (string value)
+# LDAP attribute mapped to project description. (string value)
 #tenant_desc_attribute=description
 
-# LDAP attribute mapped to project enabled (string value)
+# LDAP attribute mapped to project enabled. (string value)
 #tenant_enabled_attribute=enabled
 
-# LDAP attribute mapped to project domain_id (string value)
+# LDAP attribute mapped to project domain_id. (string value)
 #tenant_domain_id_attribute=businessCategory
 
-# List of attributes stripped off the project on update (list
+# List of attributes stripped off the project on update. (list
 # value)
 #tenant_attribute_ignore=
 
-# Allow tenant creation in LDAP backend (boolean value)
+# Allow tenant creation in LDAP backend. (boolean value)
 #tenant_allow_create=true
 
-# Allow tenant update in LDAP backend (boolean value)
+# Allow tenant update in LDAP backend. (boolean value)
 #tenant_allow_update=true
 
-# Allow tenant deletion in LDAP backend (boolean value)
+# Allow tenant deletion in LDAP backend. (boolean value)
 #tenant_allow_delete=true
 
-#  (boolean value)
+# If True, Keystone uses an alternative method to determine if
+# a project is enabled or not by checking if they are a member
+# of the "tenant_enabled_emulation_dn" group. (boolean value)
 #tenant_enabled_emulation=false
 
-#  (string value)
+# DN of the group entry to hold enabled projects when using
+# enabled emulation. (string value)
 #tenant_enabled_emulation_dn=<None>
 
 # Additional attribute mappings for projects. Attribute
@@ -908,35 +926,35 @@
 # Identity API attribute. (list value)
 #tenant_additional_attribute_mapping=
 
-# Search base for roles (string value)
+# Search base for roles. (string value)
 #role_tree_dn=<None>
 
-# LDAP search filter for roles (string value)
+# LDAP search filter for roles. (string value)
 #role_filter=<None>
 
-# LDAP objectClass for roles (string value)
+# LDAP objectClass for roles. (string value)
 #role_objectclass=organizationalRole
 
-# LDAP attribute mapped to role id (string value)
+# LDAP attribute mapped to role id. (string value)
 #role_id_attribute=cn
 
-# LDAP attribute mapped to role name (string value)
+# LDAP attribute mapped to role name. (string value)
 #role_name_attribute=ou
 
-#  (string value)
+# LDAP attribute mapped to role membership. (string value)
 #role_member_attribute=roleOccupant
 
-# List of attributes stripped off the role on update (list
+# List of attributes stripped off the role on update. (list
 # value)
 #role_attribute_ignore=
 
-# Allow role creation in LDAP backend (boolean value)
+# Allow role creation in LDAP backend. (boolean value)
 #role_allow_create=true
 
-# Allow role update in LDAP backend (boolean value)
+# Allow role update in LDAP backend. (boolean value)
 #role_allow_update=true
 
-# Allow role deletion in LDAP backend (boolean value)
+# Allow role deletion in LDAP backend. (boolean value)
 #role_allow_delete=true
 
 # Additional attribute mappings for roles. Attribute mapping
@@ -945,39 +963,39 @@
 # API attribute. (list value)
 #role_additional_attribute_mapping=
 
-# Search base for groups (string value)
+# Search base for groups. (string value)
 #group_tree_dn=<None>
 
-# LDAP search filter for groups (string value)
+# LDAP search filter for groups. (string value)
 #group_filter=<None>
 
-# LDAP objectClass for groups (string value)
+# LDAP objectClass for groups. (string value)
 #group_objectclass=groupOfNames
 
-# LDAP attribute mapped to group id (string value)
+# LDAP attribute mapped to group id. (string value)
 #group_id_attribute=cn
 
-# LDAP attribute mapped to group name (string value)
+# LDAP attribute mapped to group name. (string value)
 #group_name_attribute=ou
 
-# LDAP attribute mapped to show group membership (string
+# LDAP attribute mapped to show group membership. (string
 # value)
 #group_member_attribute=member
 
-# LDAP attribute mapped to group description (string value)
+# LDAP attribute mapped to group description. (string value)
 #group_desc_attribute=description
 
-# List of attributes stripped off the group on update (list
+# List of attributes stripped off the group on update. (list
 # value)
 #group_attribute_ignore=
 
-# Allow group creation in LDAP backend (boolean value)
+# Allow group creation in LDAP backend. (boolean value)
 #group_allow_create=true
 
-# Allow group update in LDAP backend (boolean value)
+# Allow group update in LDAP backend. (boolean value)
 #group_allow_update=true
 
-# Allow group deletion in LDAP backend (boolean value)
+# Allow group deletion in LDAP backend. (boolean value)
 #group_allow_delete=true
 
 # Additional attribute mappings for groups. Attribute mapping
@@ -986,19 +1004,19 @@
 # API attribute. (list value)
 #group_additional_attribute_mapping=
 
-# CA certificate file path for communicating with LDAP servers
-# (string value)
+# CA certificate file path for communicating with LDAP
+# servers. (string value)
 #tls_cacertfile=<None>
 
 # CA certificate directory path for communicating with LDAP
-# servers (string value)
+# servers. (string value)
 #tls_cacertdir=<None>
 
-# Enable TLS for communicating with LDAP servers (boolean
+# Enable TLS for communicating with LDAP servers. (boolean
 # value)
 #use_tls=false
 
-# valid options for tls_req_cert are demand, never, and allow
+# valid options for tls_req_cert are demand, never, and allow.
 # (string value)
 #tls_req_cert=demand
 
@@ -1009,7 +1027,7 @@
 # Options defined in oslo.messaging
 #
 
-# Matchmaker ring file (JSON). (string value)
+# Matchmaker ring file (JSON) (string value)
 # Deprecated group/name - [DEFAULT]/matchmaker_ringfile
 #ringfile=/etc/oslo/matchmaker_ring.json
 
@@ -1024,7 +1042,7 @@
 #servers=localhost:11211
 
 # Number of compare-and-set attempts to make when using
-# compare-and-set in the token memcache back end (integer
+# compare-and-set in the token memcache back end. (integer
 # value)
 #max_compare_and_set_retry=16
 
@@ -1035,14 +1053,14 @@
 # Options defined in keystone
 #
 
-# Keystone Credential backend driver (string value)
+# Keystone Credential backend driver. (string value)
 #driver=keystone.contrib.oauth1.backends.sql.OAuth1
 
-# Duration (in seconds) for the OAuth Request Token (integer
+# Duration (in seconds) for the OAuth Request Token. (integer
 # value)
 #request_token_duration=28800
 
-# Duration (in seconds) for the OAuth Access Token (integer
+# Duration (in seconds) for the OAuth Access Token. (integer
 # value)
 #access_token_duration=86400
 
@@ -1054,7 +1072,7 @@
 #
 
 # role-assignment inheritance to projects from owning domain
-# can be optionally enabled (boolean value)
+# can be optionally enabled. (boolean value)
 #enabled=false
 
 
@@ -1065,7 +1083,7 @@
 #
 
 # Name of the paste configuration file that defines the
-# available pipelines (string value)
+# available pipelines. (string value)
 #config_file=keystone-paste.ini
 
 
@@ -1075,11 +1093,11 @@
 # Options defined in keystone
 #
 
-# Keystone Policy backend driver (string value)
+# Keystone Policy backend driver. (string value)
 #driver=keystone.policy.backends.sql.Policy
 
 # Maximum number of entities that will be returned in a policy
-# collection (integer value)
+# collection. (integer value)
 #list_limit=<None>
 
 
@@ -1089,7 +1107,7 @@
 # Options defined in keystone
 #
 
-# Deprecated in favor of provider in the [token] section
+# Deprecated in favor of provider in the [token] section.
 # (string value)
 #token_format=<None>
 
@@ -1102,15 +1120,15 @@
 # Path of the CA for token signing. (string value)
 #ca_certs=/etc/keystone/ssl/certs/ca.pem
 
-# Path of the CA Key for token signing (string value)
+# Path of the CA Key for token signing. (string value)
 #ca_key=/etc/keystone/ssl/private/cakey.pem
 
 # Key Size (in bits) for token signing cert (auto generated
-# certificate) (integer value)
+# certificate). (integer value)
 #key_size=2048
 
 # Day the token signing cert is valid for (auto generated
-# certificate) (integer value)
+# certificate). (integer value)
 #valid_days=3650
 
 # Certificate Subject (auto generated certificate) for token
@@ -1137,23 +1155,40 @@
 # Path of the ca cert file for SSL. (string value)
 #ca_certs=/etc/keystone/ssl/certs/ca.pem
 
-# Path of the CA key file for SSL (string value)
+# Path of the CA key file for SSL. (string value)
 #ca_key=/etc/keystone/ssl/private/cakey.pem
 
-#  (boolean value)
+# Require client certificate. (boolean value)
 #cert_required=false
 
-# SSL Key Length (in bits) (auto generated certificate)
+# SSL Key Length (in bits) (auto generated certificate).
 # (integer value)
 #key_size=1024
 
 # Days the certificate is valid for once signed (auto
-# generated certificate) (integer value)
+# generated certificate). (integer value)
 #valid_days=3650
 
-# SSL Certificate Subject (auto generated certificate) (string
-# value)
+# SSL Certificate Subject (auto generated certificate).
+# (string value)
 #cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
+
+
+#
+# Options defined in keystone.openstack.common.sslutils
+#
+
+# CA certificate file to use to verify connecting clients
+# (string value)
+#ca_file=<None>
+
+# Certificate file to use when starting the server securely
+# (string value)
+#cert_file=<None>
+
+# Private key file to use when starting the server securely
+# (string value)
+#key_file=<None>
 
 
 [stats]
@@ -1162,7 +1197,7 @@
 # Options defined in keystone
 #
 
-# Keystone stats backend driver (string value)
+# Keystone stats backend driver. (string value)
 #driver=keystone.contrib.stats.backends.kvs.Stats
 
 
@@ -1173,7 +1208,7 @@
 #
 
 # External auth mechanisms that should add bind information to
-# token e.g. kerberos, x509 (list value)
+# token e.g. kerberos, x509. (list value)
 #bind=
 
 # Enforcement policy on tokens presented to keystone with bind
@@ -1182,16 +1217,17 @@
 # to require binding to that authentication. (string value)
 #enforce_token_bind=permissive
 
-# Amount of time a token should remain valid (in seconds)
+# Amount of time a token should remain valid (in seconds).
 # (integer value)
 #expiration=3600
 
 # Controls the token construction, validation, and revocation
 # operations. Core providers are
-# keystone.token.providers.[pki|uuid].Provider (string value)
+# "keystone.token.providers.[pki|uuid].Provider". (string
+# value)
 #provider=<None>
 
-# Keystone Token persistence backend driver (string value)
+# Keystone Token persistence backend driver. (string value)
 #driver=keystone.token.backends.sql.Token
 
 # Toggle for token system cacheing. This has no effect unless
@@ -1215,10 +1251,10 @@
 #
 
 # delegation and impersonation features can be optionally
-# disabled (boolean value)
+# disabled. (boolean value)
 #enabled=true
 
-# Keystone Trust backend driver (string value)
+# Keystone Trust backend driver. (string value)
 #driver=keystone.trust.backends.sql.Trust
 
 
