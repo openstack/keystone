@@ -28,13 +28,18 @@ def _filter_trust(ref):
         return None
     if ref.get('expires_at') and timeutils.utcnow() > ref['expires_at']:
         return None
+    remaining_uses = ref.get('remaining_uses')
+    # Do not return trusts that can't be used anymore
+    if remaining_uses is not None:
+        if remaining_uses <= 0:
+            return None
     ref = copy.deepcopy(ref)
     return ref
 
 
 class Trust(kvs.Base, trust.Driver):
     def create_trust(self, trust_id, trust, roles):
-        trust_ref = trust
+        trust_ref = copy.deepcopy(trust)
         trust_ref['id'] = trust_id
         trust_ref['deleted'] = False
         trust_ref['roles'] = roles
@@ -52,7 +57,23 @@ class Trust(kvs.Base, trust.Driver):
         trustor_list = self.db.get('trustor-%s' % trustor_user_id, [])
         trustor_list.append(trust_id)
         self.db.set('trustor-%s' % trustor_user_id, trustor_list)
-        return copy.deepcopy(trust_ref)
+        return trust_ref
+
+    def consume_use(self, trust_id):
+        try:
+            orig_ref = self.db.get('trust-%s' % trust_id)
+        except exception.NotFound:
+            raise exception.TrustNotFound(trust_id=trust_id)
+        remaining_uses = orig_ref.get('remaining_uses')
+        if remaining_uses is None:
+            # unlimited uses, do nothing
+            return
+        elif remaining_uses > 0:
+            ref = copy.deepcopy(orig_ref)
+            ref['remaining_uses'] -= 1
+            self.db.set('trust-%s' % trust_id, ref)
+        else:
+            raise exception.TrustUseLimitReached(trust_id=trust_id)
 
     def get_trust(self, trust_id):
         try:

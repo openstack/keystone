@@ -247,13 +247,14 @@ class RestfulTestCase(rest.RestfulTestCase):
 
     def new_trust_ref(self, trustor_user_id, trustee_user_id, project_id=None,
                       impersonation=None, expires=None, role_ids=None,
-                      role_names=None):
+                      role_names=None, remaining_uses=None):
         ref = self.new_ref()
 
         ref['trustor_user_id'] = trustor_user_id
         ref['trustee_user_id'] = trustee_user_id
         ref['impersonation'] = impersonation or False
         ref['project_id'] = project_id
+        ref['remaining_uses'] = remaining_uses
 
         if isinstance(expires, six.string_types):
             ref['expires_at'] = expires

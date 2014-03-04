@@ -236,6 +236,10 @@ class TrustNotFound(NotFound):
     message_format = _("Could not find trust, %(trust_id)s.")
 
 
+class TrustUseLimitReached(Forbidden):
+    message_format = _("No remaining uses for trust %(trust_id)s.")
+
+
 class CredentialNotFound(NotFound):
     message_format = _("Could not find credential, %(credential_id)s.")
 

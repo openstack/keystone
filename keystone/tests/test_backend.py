@@ -3367,7 +3367,7 @@ class TokenCacheInvalidation(object):
 
 
 class TrustTests(object):
-    def create_sample_trust(self, new_id):
+    def create_sample_trust(self, new_id, remaining_uses=None):
         self.trustor = self.user_foo
         self.trustee = self.user_two
         trust_data = (self.trust_api.create_trust
@@ -3377,7 +3377,8 @@ class TrustTests(object):
                         'project_id': self.tenant_bar['id'],
                         'expires_at': timeutils.
                         parse_isotime('2031-02-18T18:10:00Z'),
-                        'impersonation': True},
+                        'impersonation': True,
+                        'remaining_uses': remaining_uses},
                        roles=[{"id": "member"},
                               {"id": "other"},
                               {"id": "browser"}]))
@@ -3444,6 +3445,39 @@ class TrustTests(object):
             self.create_sample_trust(uuid.uuid4().hex)
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 3)
+
+    def test_trust_has_remaining_uses_positive(self):
+        # create a trust with limited uses, check that we have uses left
+        trust_data = self.create_sample_trust(uuid.uuid4().hex,
+                                              remaining_uses=5)
+        self.assertEqual(5, trust_data['remaining_uses'])
+        # create a trust with unlimited uses, check that we have uses left
+        trust_data = self.create_sample_trust(uuid.uuid4().hex)
+        self.assertIsNone(trust_data['remaining_uses'])
+
+    def test_trust_has_remaining_uses_negative(self):
+        # try to create a trust with no remaining uses, check that it fails
+        self.assertRaises(exception.ValidationError,
+                          self.create_sample_trust,
+                          uuid.uuid4().hex,
+                          remaining_uses=0)
+        # try to create a trust with negative remaining uses,
+        # check that it fails
+        self.assertRaises(exception.ValidationError,
+                          self.create_sample_trust,
+                          uuid.uuid4().hex,
+                          remaining_uses=-12)
+
+    def test_consume_use(self):
+        # consume a trust repeatedly until it has no uses anymore
+        trust_data = self.create_sample_trust(uuid.uuid4().hex,
+                                              remaining_uses=2)
+        self.trust_api.consume_use(trust_data['id'])
+        t = self.trust_api.get_trust(trust_data['id'])
+        self.assertEqual(1, t['remaining_uses'])
+        self.trust_api.consume_use(trust_data['id'])
+        # This was the last use, the trust isn't available anymore
+        self.assertIsNone(self.trust_api.get_trust(trust_data['id']))
 
 
 class CommonHelperTests(tests.TestCase):

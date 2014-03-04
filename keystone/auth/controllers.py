@@ -286,7 +286,7 @@ class AuthInfo(object):
 
 
 @dependency.requires('assignment_api', 'identity_api', 'token_api',
-                     'token_provider_api')
+                     'token_provider_api', 'trust_api')
 class Auth(controller.V3Controller):
 
     # Note(atiwari): From V3 auth controller code we are
@@ -318,6 +318,10 @@ class Auth(controller.V3Controller):
                 auth_info.set_scope(None, auth_context['project_id'], None)
             self._check_and_set_default_scoping(auth_info, auth_context)
             (domain_id, project_id, trust) = auth_info.get_scope()
+
+            if trust:
+                self.trust_api.consume_use(trust['id'])
+
             method_names = auth_info.get_method_names()
             method_names += auth_context.get('method_names', [])
             # make sure the list is unique
