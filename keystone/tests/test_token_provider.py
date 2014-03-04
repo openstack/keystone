@@ -821,11 +821,9 @@ class TestTokenProvider(tests.TestCase):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._is_valid_token,
                           SAMPLE_MALFORMED_TOKEN)
-        self.assertEqual(
-            None,
+        self.assertIsNone(
             self.token_provider_api._is_valid_token(create_v2_token()))
-        self.assertEqual(
-            None,
+        self.assertIsNone(
             self.token_provider_api._is_valid_token(create_v3_token()))
 
     def test_uuid_provider_no_oauth_fails_oauth(self):

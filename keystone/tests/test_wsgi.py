@@ -97,7 +97,7 @@ class ApplicationTest(BaseWSGITest):
         self.assertEqual(resp.status_int, 204)
         self.assertEqual(resp.body, '')
         self.assertEqual(resp.headers.get('Content-Length'), '0')
-        self.assertEqual(resp.headers.get('Content-Type'), None)
+        self.assertIsNone(resp.headers.get('Content-Type'))
 
     def test_application_local_config(self):
         class FakeApp(wsgi.Application):
