@@ -1647,6 +1647,33 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertEqual(r.result['token']['project']['id'],
                          self.project['id'])
 
+    def test_auth_catalog_attributes(self):
+        if self.content_type == 'xml':
+            self.skipTest('XML catalog parsing is just broken')
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+
+        catalog = r.result['token']['catalog']
+        self.assertEqual(1, len(catalog))
+        catalog = catalog[0]
+
+        self.assertEqual(self.service['id'], catalog['id'])
+        self.assertEqual(self.service['name'], catalog['name'])
+        self.assertEqual(self.service['type'], catalog['type'])
+
+        endpoint = catalog['endpoints']
+        self.assertEqual(1, len(endpoint))
+        endpoint = endpoint[0]
+
+        self.assertEqual(self.endpoint['id'], endpoint['id'])
+        self.assertEqual(self.endpoint['interface'], endpoint['interface'])
+        self.assertEqual(self.endpoint['region'], endpoint['region'])
+        self.assertEqual(self.endpoint['url'], endpoint['url'])
+
     def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):
         endpoints = catalog[0]['endpoints']
         endpoint_ids = [ep['id'] for ep in endpoints]
