@@ -118,7 +118,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
         if request.content_type not in ('application/json', ''):
             e = exception.ValidationError(attribute='application/json',
                                           target='Content-Type header')
-            return wsgi.render_exception(e)
+            return wsgi.render_exception(e, request=request)
 
         params_parsed = {}
         try:
@@ -126,7 +126,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
         except ValueError:
             e = exception.ValidationError(attribute='valid JSON',
                                           target='request body')
-            return wsgi.render_exception(e)
+            return wsgi.render_exception(e, request=request)
         finally:
             if not params_parsed:
                 params_parsed = {}
@@ -166,7 +166,7 @@ class XmlBodyMiddleware(wsgi.Middleware):
                 LOG.exception('Serializer failed')
                 e = exception.ValidationError(attribute='valid XML',
                                               target='request body')
-                return wsgi.render_exception(e)
+                return wsgi.render_exception(e, request=request)
 
     def process_response(self, request, response):
         """Transform the response from JSON to XML."""

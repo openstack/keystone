@@ -35,6 +35,8 @@ CONF = config.CONF
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
+HOST_URL = 'http://keystone:5001'
+
 
 def _build_user_auth(token=None, user_id=None, username=None,
                      password=None, tenant_id=None, tenant_name=None,
@@ -674,7 +676,8 @@ class AuthWithTrust(AuthTest):
         auth_context = authorization.token_to_auth_context(
             token_ref['token_data'])
         return {'environment': {authorization.AUTH_CONTEXT_ENV: auth_context},
-                'token_id': token_id}
+                'token_id': token_id,
+                'host_url': HOST_URL}
 
     def create_trust(self, expires_at=None, impersonation=True):
         username = self.trustor['name']
@@ -723,9 +726,9 @@ class AuthWithTrust(AuthTest):
         role_ids = [self.role_browser['id'], self.role_member['id']]
         self.assertTrue(timeutils.parse_strtime(self.new_trust['expires_at'],
                                                 fmt=TIME_FORMAT))
-        self.assertIn('http://localhost:5000/v3/OS-TRUST/',
+        self.assertIn('%s/v3/OS-TRUST/' % HOST_URL,
                       self.new_trust['links']['self'])
-        self.assertIn('http://localhost:5000/v3/OS-TRUST/',
+        self.assertIn('%s/v3/OS-TRUST/' % HOST_URL,
                       self.new_trust['roles_links']['self'])
 
         for role in self.new_trust['roles']:
@@ -743,7 +746,8 @@ class AuthWithTrust(AuthTest):
                           expires_at="Z")
 
     def test_get_trust(self):
-        context = {'token_id': self.unscoped_token['access']['token']['id']}
+        context = {'token_id': self.unscoped_token['access']['token']['id'],
+                   'host_url': HOST_URL}
         trust = self.trust_controller.get_trust(context,
                                                 self.new_trust['id'])['trust']
         self.assertEqual(self.trustor['id'], trust['trustor_user_id'])

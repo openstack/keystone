@@ -35,13 +35,13 @@ class ConsumerCrudV3(controller.V3Controller):
     member_name = 'consumer'
 
     @classmethod
-    def base_url(cls, path=None):
+    def base_url(cls, context, path=None):
         """Construct a path and pass it to V3Controller.base_url method."""
 
         # NOTE(stevemar): Overriding path to /OS-OAUTH1/consumers so that
         # V3Controller.base_url handles setting the self link correctly.
         path = '/OS-OAUTH1/' + cls.collection_name
-        return controller.V3Controller.base_url(path=path)
+        return controller.V3Controller.base_url(context, path=path)
 
     @controller.protected()
     def create_consumer(self, context, consumer):
@@ -90,13 +90,14 @@ class AccessTokenCrudV3(controller.V3Controller):
         access_token = self.oauth_api.get_access_token(access_token_id)
         if access_token['authorizing_user_id'] != user_id:
             raise exception.NotFound()
-        access_token = self._format_token_entity(access_token)
+        access_token = self._format_token_entity(context, access_token)
         return AccessTokenCrudV3.wrap_member(context, access_token)
 
     @controller.protected()
     def list_access_tokens(self, context, user_id):
         refs = self.oauth_api.list_access_tokens(user_id)
-        formatted_refs = ([self._format_token_entity(x) for x in refs])
+        formatted_refs = ([self._format_token_entity(context, x)
+                           for x in refs])
         return AccessTokenCrudV3.wrap_collection(context, formatted_refs)
 
     @controller.protected()
@@ -107,7 +108,7 @@ class AccessTokenCrudV3(controller.V3Controller):
         return self.oauth_api.delete_access_token(
             user_id, access_token_id)
 
-    def _format_token_entity(self, entity):
+    def _format_token_entity(self, context, entity):
 
         formatted_entity = entity.copy()
         access_token_id = formatted_entity['id']
@@ -124,7 +125,7 @@ class AccessTokenCrudV3(controller.V3Controller):
                            'access_token_id': access_token_id})
 
         formatted_entity.setdefault('links', {})
-        formatted_entity['links']['roles'] = (self.base_url(url))
+        formatted_entity['links']['roles'] = (self.base_url(context, url))
 
         return formatted_entity
 
@@ -185,7 +186,7 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.ValidationError(
                 attribute='requested_project_id', target='request')
 
-        url = oauth1.rebuild_url(context['path'])
+        url = self.base_url(context, context['path'])
 
         req_headers = {'Requested-Project-Id': requested_project_id}
         req_headers.update(headers)
@@ -250,7 +251,7 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
-        url = oauth1.rebuild_url(context['path'])
+        url = self.base_url(context, context['path'])
 
         access_verifier = oauth1.AccessTokenEndpoint(
             request_validator=validator.OAuthValidator(),

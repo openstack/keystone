@@ -106,17 +106,6 @@ def filter_token(access_token_ref):
     return access_token_ref
 
 
-def rebuild_url(path):
-    endpoint = CONF.public_endpoint % CONF
-
-    # allow a missing trailing slash in the config
-    if endpoint[-1] != '/':
-        endpoint += '/'
-
-    url = endpoint + 'v3'
-    return url + path
-
-
 def get_oauth_headers(headers):
     parameters = {}
 
