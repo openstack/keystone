@@ -2346,8 +2346,8 @@ class IdentityTests(object):
             group_refs = self.identity_api.list_groups_for_user(
                 positive_user['id'])
             self.assertEqual(after_count, len(group_refs))
-            #Make sure the group count for the unrelated user
-            #did not change
+            # Make sure the group count for the unrelated user
+            # did not change
             group_refs = self.identity_api.list_groups_for_user(
                 negative_user['id'])
             self.assertEqual(0, len(group_refs))
@@ -4199,7 +4199,7 @@ class FilterTests(filtering.FilterTests):
         self.assertEqual(2, len(users))
         self.assertEqual(user_list[7]['id'], users[0]['id'])
         self.assertEqual(user_list[10]['id'], users[1]['id'])
-        #TODO(henry-nash) Check inexact filter has been removed.
+        # TODO(henry-nash) Check inexact filter has been removed.
 
         # TODO(henry-nash): Add some case sensitive tests.  The issue
         # is that MySQL 0.7, by default, is installed in case
