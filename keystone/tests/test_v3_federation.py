@@ -69,18 +69,6 @@ class FederatedIdentityProviderTests(FederationTests):
             self.assertIsNotNone(result)
         return result
 
-    def _fetch_attributes_from_response(self, resp, parameters=[],
-                                        assert_is_not_none=True):
-        """Fetch parameters from the TestResponse object."""
-
-        result = dict()
-        kwargs = {'assert_is_not_none': assert_is_not_none}
-        for parameter in parameters:
-            value = self._fetch_attribute_from_response(resp, parameter,
-                                                        **kwargs)
-            result[parameter] = value
-        return result
-
     def _create_and_decapsulate_response(self, body=None):
         """Create IdP and fetch it's random id along with entity."""
         default_resp = self._create_default_idp(body=body)
