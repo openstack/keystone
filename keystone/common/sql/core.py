@@ -173,9 +173,8 @@ def _get_engine_facade():
     global _engine_facade
 
     if not _engine_facade:
-        _engine_facade = db_session.EngineFacade(
-            CONF.database.connection,
-            **dict(six.iteritems(CONF.database)))
+        _engine_facade = db_session.EngineFacade.from_config(
+            CONF.database.connection, CONF)
 
     return _engine_facade
 
