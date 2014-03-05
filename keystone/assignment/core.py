@@ -47,6 +47,7 @@ def calc_default_domain():
 
 
 @dependency.provider('assignment_api')
+@dependency.optional('revoke_api')
 @dependency.requires('credential_api', 'identity_api', 'token_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
@@ -264,6 +265,10 @@ class Manager(manager.Manager):
                 self.driver.remove_role_from_user_and_project(user_id,
                                                               tenant_id,
                                                               role_id)
+                if self.revoke_api:
+                    self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
+                                                    project_id=tenant_id)
+
             except exception.RoleNotFound:
                 LOG.debug(_("Removing role %s failed because it does not "
                             "exist."),
@@ -483,20 +488,34 @@ class Manager(manager.Manager):
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         self.driver.remove_role_from_user_and_project(user_id, tenant_id,
                                                       role_id)
-        self.token_api.delete_tokens_for_user(user_id)
+        if CONF.token.revoke_by_id:
+            self.token_api.delete_tokens_for_user(user_id)
+        if self.revoke_api:
+            self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
+                                            project_id=tenant_id)
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
         user_ids = []
-        if group_id is not None:
-            # NOTE(morganfainberg): The user ids are the important part for
-            # invalidating tokens below, so extract them here.
+        if group_id is None:
+            if self.revoke_api:
+                self.revoke_api.revoke_by_grant(user_id=user_id,
+                                                role_id=role_id,
+                                                domain_id=domain_id,
+                                                project_id=project_id)
+        else:
             try:
+                # NOTE(morganfainberg): The user ids are the important part
+                # for invalidating tokens below, so extract them here.
                 for user in self.identity_api.list_users_in_group(group_id,
                                                                   domain_id):
                     if user['id'] != user_id:
                         user_ids.append(user['id'])
+                        if self.revoke_api:
+                            self.revoke_api.revoke_by_grant(
+                                user_id=user['id'], role_id=role_id,
+                                domain_id=domain_id, project_id=project_id)
             except exception.GroupNotFound:
                 LOG.debug(_('Group %s not found, no tokens to invalidate.'),
                           group_id)

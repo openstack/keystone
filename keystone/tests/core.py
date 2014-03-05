@@ -14,6 +14,7 @@
 
 from __future__ import absolute_import
 import atexit
+import copy
 import functools
 import os
 import re
@@ -31,6 +32,7 @@ import testtools
 from testtools import testcase
 import webob
 
+from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
 
@@ -59,7 +61,6 @@ from keystone.common import utils as common_utils
 from keystone import config
 from keystone import exception
 from keystone import notifications
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.db.sqlalchemy import session
 from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common import log
@@ -156,7 +157,8 @@ def setup_database():
     if os.path.exists(db):
         os.unlink(db)
     if not os.path.exists(pristine):
-        migration.db_sync(migration_helpers.find_migrate_repo())
+        migration.db_sync((migration_helpers.find_migrate_repo()))
+        migration_helpers.sync_database_to_version(extension='revoke')
         shutil.copyfile(db, pristine)
     else:
         shutil.copyfile(pristine, db)
@@ -308,6 +310,13 @@ class NoModule(object):
 
 
 class TestCase(testtools.TestCase):
+
+    _config_file_list = [dirs.etc('keystone.conf.sample'),
+                         dirs.tests('test_overrides.conf')]
+
+    def config_files(self):
+        return copy.copy(self._config_file_list)
+
     def setUp(self):
         super(TestCase, self).setUp()
 
@@ -330,12 +339,8 @@ class TestCase(testtools.TestCase):
 
         self.exit_patch = self.useFixture(mockpatch.PatchObject(sys, 'exit'))
         self.exit_patch.mock.side_effect = UnexpectedExit
-
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
-
-        self.config([dirs.etc('keystone.conf.sample'),
-                     dirs.tests('test_overrides.conf')])
-
+        self.config(self.config_files())
         self.opt(policy_file=dirs.etc('policy.json'))
 
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))

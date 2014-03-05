@@ -15,12 +15,17 @@
 #    under the License.
 
 import os
+import sys
 
 import migrate
+from migrate import exceptions
 import sqlalchemy
 
 from keystone.common import sql
+from keystone import contrib
 from keystone import exception
+from keystone.openstack.common.db.sqlalchemy import migration
+from keystone.openstack.common import importutils
 
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
@@ -106,3 +111,46 @@ def find_migrate_repo(package=None, repo_name='migrate_repo'):
     if os.path.isdir(path):
         return path
     raise exception.MigrationNotProvided(package.__name__, path)
+
+
+def sync_database_to_version(extension=None, version=None):
+    if not extension:
+        abs_path = find_migrate_repo()
+    else:
+        try:
+            package_name = '.'.join((contrib.__name__, extension))
+            package = importutils.import_module(package_name)
+        except ImportError:
+            raise ImportError(_("%s extension does not exist.")
+                              % package_name)
+        try:
+            abs_path = find_migrate_repo(package)
+            try:
+                migration.db_version_control(abs_path)
+            # Register the repo with the version control API
+            # If it already knows about the repo, it will throw
+            # an exception that we can safely ignore
+            except exceptions.DatabaseAlreadyControlledError:
+                pass
+        except exception.MigrationNotProvided as e:
+            print(e)
+            sys.exit(1)
+    migration.db_sync(abs_path, version=version)
+
+
+def print_db_version(extension=None):
+    if not extension:
+        print(migration.db_version(find_migrate_repo(), 0))
+    else:
+        try:
+            package_name = '.'.join((contrib.__name__, extension))
+            package = importutils.import_module(package_name)
+        except ImportError:
+            raise ImportError(_("%s extension does not exist.")
+                              % package_name)
+        try:
+            print(migration.db_version(
+                find_migrate_repo(package), 0))
+        except exception.MigrationNotProvided as e:
+            print(e)
+            sys.exit(1)

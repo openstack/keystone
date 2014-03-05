@@ -299,6 +299,15 @@ class Token(token.Driver):
 
     def _list_tokens(self, user_id, tenant_id=None, trust_id=None,
                      consumer_id=None):
+        # This function is used to generate the list of tokens that should be
+        # revoked when revoking by token identifiers.  This approach will be
+        # deprecated soon, probably in the Juno release.  Setting revoke_by_id
+        # to False indicates that this kind of recording should not be
+        # performed.  In order to test the revocation events, tokens shouldn't
+        # be deleted from the backends.  This check ensures that tokens are
+        # still recorded.
+        if not CONF.token.revoke_by_id:
+            return []
         tokens = []
         user_key = self._prefix_user_id(user_id)
         token_list = self._get_user_token_list_with_expiry(user_key)

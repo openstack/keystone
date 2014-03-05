@@ -36,6 +36,7 @@ from keystone.contrib import endpoint_filter
 from keystone.contrib import example
 from keystone.contrib import federation
 from keystone.contrib import oauth1
+from keystone.contrib import revoke
 from keystone.tests import test_sql_upgrade
 
 
@@ -180,3 +181,27 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableDoesNotExist(self.identity_provider)
         self.assertTableDoesNotExist(self.federation_protocol)
         self.assertTableDoesNotExist(self.mapping)
+
+
+_REVOKE_COLUMN_NAMES = ['id', 'domain_id', 'project_id', 'user_id', 'role_id',
+                        'trust_id', 'consumer_id', 'access_token_id',
+                        'issued_before', 'expires_at', 'revoked_at']
+
+
+class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
+
+    def repo_package(self):
+        return revoke
+
+    def test_upgrade(self):
+        self.assertTableDoesNotExist('revocation_event')
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('revocation_event',
+                                _REVOKE_COLUMN_NAMES)
+
+    def test_downgrade(self):
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('revocation_event',
+                                _REVOKE_COLUMN_NAMES)
+        self.downgrade(0, repository=self.repo_path)
+        self.assertTableDoesNotExist('revocation_event')

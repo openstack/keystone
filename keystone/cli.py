@@ -16,8 +16,6 @@ from __future__ import absolute_import
 
 import os
 
-from migrate import exceptions
-
 from oslo.config import cfg
 import pbr.version
 
@@ -26,10 +24,6 @@ from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
-from keystone import contrib
-from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common import importutils
 from keystone import token
 
 CONF = config.CONF
@@ -70,28 +64,7 @@ class DbSync(BaseApp):
     def main():
         version = CONF.command.version
         extension = CONF.command.extension
-        if not extension:
-            abs_path = migration_helpers.find_migrate_repo()
-        else:
-            try:
-                package_name = '.'.join((contrib.__name__, extension))
-                package = importutils.import_module(package_name)
-            except ImportError:
-                raise ImportError(_("%s extension does not exist.")
-                                  % package_name)
-            try:
-                abs_path = migration_helpers.find_migrate_repo(package)
-                try:
-                    migration.db_version_control(abs_path)
-                # Register the repo with the version control API
-                # If it already knows about the repo, it will throw
-                # an exception that we can safely ignore
-                except exceptions.DatabaseAlreadyControlledError:
-                    pass
-            except exception.MigrationNotProvided as e:
-                print(e)
-                exit(0)
-        migration.db_sync(abs_path, version=version)
+        migration_helpers.sync_database_to_version(extension, version)
 
 
 class DbVersion(BaseApp):
@@ -110,22 +83,7 @@ class DbVersion(BaseApp):
     @staticmethod
     def main():
         extension = CONF.command.extension
-        if extension:
-            try:
-                package_name = '.'.join((contrib.__name__, extension))
-                package = importutils.import_module(package_name)
-            except ImportError:
-                raise ImportError(_("%s extension does not exist.")
-                                  % package_name)
-            try:
-                print(migration.db_version(
-                    migration_helpers.find_migrate_repo(package), 0))
-            except exception.MigrationNotProvided as e:
-                print(e)
-                exit(0)
-        else:
-            print(migration.db_version(
-                migration_helpers.find_migrate_repo(), 0))
+        migration_helpers.print_db_version(extension)
 
 
 class BaseCertificateSetup(BaseApp):

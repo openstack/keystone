@@ -1083,6 +1083,22 @@
 #list_limit=<None>
 
 
+[revoke]
+
+#
+# Options defined in keystone
+#
+
+# An implementation of the backend for persisting revocation
+# events. (string value)
+#driver=keystone.contrib.revoke.backends.kvs.Revoke
+
+# This value (calculated in seconds) is added to token
+# expiration before a revocation event may be removed from the
+# backend. (integer value)
+#expiration_buffer=1800
+
+
 [signing]
 
 #
@@ -1206,6 +1222,15 @@
 # Time to cache tokens (in seconds). This has no effect unless
 # global and token caching are enabled. (integer value)
 #cache_time=<None>
+
+# Revoke token by token identifier.  Setting revoke_by_id to
+# True enables various forms of enumerating tokens, e.g. `list
+# tokens for user`.  These enumerations are processed to
+# determine the list of tokens to revoke.   Only disable if
+# you are switching to using the Revoke extension with a
+# backend other than KVS, which stores events in memory.
+# (boolean value)
+#revoke_by_id=true
 
 
 [trust]

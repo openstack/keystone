@@ -391,6 +391,7 @@ class Auth(controller.V2Controller):
         Identical to ``validate_token``, except does not return a response.
 
         """
+        # TODO(ayoung) validate against revocation API
         belongs_to = context['query_string'].get('belongsTo')
         self.token_provider_api.check_v2_token(token_id, belongs_to)
 
@@ -405,6 +406,7 @@ class Auth(controller.V2Controller):
 
         """
         belongs_to = context['query_string'].get('belongsTo')
+        # TODO(ayoung) validate against revocation API
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
     @controller.v2_deprecated
@@ -412,11 +414,13 @@ class Auth(controller.V2Controller):
         """Delete a token, effectively invalidating it for authz."""
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-        self.token_api.delete_token(token_id)
+        self.token_provider_api.revoke_token(token_id)
 
     @controller.v2_deprecated
     @controller.protected()
     def revocation_list(self, context, auth=None):
+        if not CONF.token.revoke_by_id:
+            raise exception.Gone()
         tokens = self.token_api.list_revoked_tokens()
 
         for t in tokens:

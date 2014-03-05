@@ -356,7 +356,7 @@ class V3TokenDataHelper(object):
 
 @dependency.optional('oauth_api')
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'token_api', 'trust_api')
+                     'revoke_api', 'token_api', 'trust_api')
 class BaseProvider(provider.Provider):
     def __init__(self, *args, **kwargs):
         super(BaseProvider, self).__init__(*args, **kwargs)
@@ -525,7 +525,19 @@ class BaseProvider(provider.Provider):
         return token_ref
 
     def revoke_token(self, token_id):
-        self.token_api.delete_token(token_id=token_id)
+        token = self.token_api.get_token(token_id)
+        if self.revoke_api:
+            version = self.get_token_version(token)
+            if version == provider.V3:
+                user_id = token['user']['id']
+                expires_at = token['expires']
+            elif version == provider.V2:
+                user_id = token['user_id']
+                expires_at = token['expires']
+            self.revoke_api.revoke_by_expiration(user_id, expires_at)
+
+        if CONF.token.revoke_by_id:
+            self.token_api.delete_token(token_id=token_id)
 
     def _assert_default_domain(self, token_ref):
         """Make sure we are operating on default domain only."""
@@ -616,9 +628,8 @@ class BaseProvider(provider.Provider):
             token_ref = self._verify_token(token_id)
             token_data = self._validate_v3_token_ref(token_ref)
             return token_data
-        except (exception.ValidationError,
-                exception.UserNotFound):
-            LOG.exception(_('Failed to validate token'))
+        except (exception.ValidationError, exception.UserNotFound):
+            raise exception.TokenNotFound(token_id)
 
     def _validate_v3_token_ref(self, token_ref):
         # FIXME(gyee): performance or correctness? Should we return the

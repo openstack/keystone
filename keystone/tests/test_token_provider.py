@@ -678,6 +678,7 @@ SAMPLE_V2_TOKEN_EXPIRED = {
 def create_v3_token():
     return {
         "token": {
+            'methods': [],
             "expires_at": timeutils.isotime(CURRENT_DATE + FUTURE_DELTA),
             "issued_at": "2013-05-21T00:02:43.941473Z",
         }
