@@ -41,11 +41,10 @@ class Saml2(auth.AuthMethodHandler):
         :param auth_context: user authentication context, a dictionary
                              shared by all plugins.
 
-        In addition to ``user_id`` in ``auth_context``, the ``saml2`` plugin
-        also sets ``group_ids``, ``identity_provider`` and ``protocol``.
-        These values are required for issuing an unscoped federated token.
-        When scoping the federated tokens, the plugin sets
-        ``federated_token``, this entry stores the unscoped token.
+        In addition to ``user_id`` in ``auth_context``, the ``saml2``
+        plugin sets ``group_ids``. When handling unscoped tokens,
+        ``OS-FEDERATION:identity_provider`` and ``OS-FEDERATION:protocol``
+        are set as well.
 
         """
 

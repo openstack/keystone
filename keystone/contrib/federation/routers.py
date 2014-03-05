@@ -43,6 +43,9 @@ class FederationExtension(wsgi.ExtensionRouter):
         GET /OS-FEDERATION/mappings/$mapping_id
         DELETE /OS-FEDERATION/mappings/$mapping_id
 
+        GET /OS-FEDERATION/projects
+        GET /OS-FEDERATION/domains
+
     """
 
     def _construct_url(self, suffix):
