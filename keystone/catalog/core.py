@@ -78,6 +78,10 @@ class Manager(manager.Manager):
             msg = _('Duplicate ID, %s.') % region_ref['id']
             raise exception.Conflict(type='region', details=msg)
 
+        # NOTE(lbragstad): The description column of the region database
+        # can not be null. So if the user doesn't pass in a description then
+        # set it to an empty string.
+        region_ref.setdefault('description', '')
         try:
             return self.driver.create_region(region_ref)
         except exception.NotFound:
