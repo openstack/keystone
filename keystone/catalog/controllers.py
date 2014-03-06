@@ -251,8 +251,15 @@ class EndpointV3(controller.V3Controller):
         ref = cls.filter_endpoint(ref)
         return super(EndpointV3, cls).wrap_member(context, ref)
 
+    def _validate_endpoint(self, endpoint):
+        if 'enabled' in endpoint and not isinstance(endpoint['enabled'], bool):
+            msg = _('Enabled field must be a boolean')
+            raise exception.ValidationError(message=msg)
+
     @controller.protected()
     def create_endpoint(self, context, endpoint):
+        self._validate_endpoint(endpoint)
+
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         self._require_attribute(ref, 'service_id')
         self._require_attribute(ref, 'interface')
@@ -275,6 +282,7 @@ class EndpointV3(controller.V3Controller):
     @controller.protected()
     def update_endpoint(self, context, endpoint_id, endpoint):
         self._require_matching_id(endpoint_id, endpoint)
+        self._validate_endpoint(endpoint)
 
         if 'service_id' in endpoint:
             self.catalog_api.get_service(endpoint['service_id'])

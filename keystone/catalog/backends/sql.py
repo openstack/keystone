@@ -65,7 +65,7 @@ class Service(sql.ModelBase, sql.DictBase):
 class Endpoint(sql.ModelBase, sql.DictBase):
     __tablename__ = 'endpoint'
     attributes = ['id', 'interface', 'region', 'service_id', 'url',
-                  'legacy_endpoint_id']
+                  'legacy_endpoint_id', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     legacy_endpoint_id = sql.Column(sql.String(64))
     interface = sql.Column(sql.String(8), nullable=False)
@@ -74,6 +74,8 @@ class Endpoint(sql.ModelBase, sql.DictBase):
                             sql.ForeignKey('service.id'),
                             nullable=False)
     url = sql.Column(sql.Text(), nullable=False)
+    enabled = sql.Column(sql.Boolean, nullable=False, default=True,
+                         server_default='1')
     extra = sql.Column(sql.JsonBlob())
 
 
