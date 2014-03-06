@@ -416,6 +416,9 @@ FILE_OPTIONS = {
                         '"finding" or "default". The "default" option falls '
                         'back to using default dereferencing configured by '
                         'your ldap.conf.'),
+        cfg.BoolOpt('chase_referrals', default=None,
+                    help='Override the system\'s default referral chasing '
+                         'behavior for queries.'),
         cfg.StrOpt('user_tree_dn', default=None,
                    help='Search base for users.'),
         cfg.StrOpt('user_filter', default=None,
