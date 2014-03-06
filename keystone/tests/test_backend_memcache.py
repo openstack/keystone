@@ -26,6 +26,7 @@ from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 from keystone import tests
+from keystone.tests import default_fixtures
 from keystone.tests import test_backend
 from keystone.tests import test_utils
 from keystone import token
@@ -115,6 +116,7 @@ class MemcacheToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(MemcacheToken, self).setUp()
         self.load_backends()
+        self.load_fixtures(default_fixtures)
         fake_client = MemcacheClient()
         self.token_man = token.Manager()
         self.token_man.driver = token_memcache.Token(client=fake_client)

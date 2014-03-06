@@ -25,6 +25,7 @@ from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.token import provider
 
 
 CONF = config.CONF
@@ -2645,7 +2646,8 @@ class TokenTests(object):
                           self.token_api.delete_token, token_id)
 
     def create_token_sample_data(self, tenant_id=None, trust_id=None,
-                                 user_id="testuserid"):
+                                 user_id='testuserid',
+                                 trustee_user_id='testuserid2'):
         token_id = self._create_token_id()
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': user_id}}
@@ -2655,6 +2657,15 @@ class TokenTests(object):
             data['tenant'] = None
         if trust_id is not None:
             data['trust_id'] = trust_id
+            data.setdefault('access', {}).setdefault('trust', {})
+            # Testuserid2 is used here since a trustee will be different in
+            # the cases of impersonation and therefore should not match the
+            # token's user_id.
+            data['access']['trust']['trustee_user_id'] = trustee_user_id
+        data['token_version'] = provider.V2
+        # Issue token stores a copy of all token data at token['token_data'].
+        # This emulates that assumption as part of the test.
+        data['token_data'] = copy.deepcopy(data)
         new_token = self.token_api.create_token(token_id, data)
         return new_token['id']
 
@@ -2906,6 +2917,39 @@ class TokenTests(object):
         self.assertIn(token_id, revoked_ids)
         for t in self.token_api.list_revoked_tokens():
             self.assertIn('expires', t)
+
+    def test_token_in_trustee_and_trustor_token_list(self):
+        self.opt_in_group('trust',
+                          enabled=True)
+        trustor = self.user_foo
+        trustee = self.user_two
+        trust_id = uuid.uuid4().hex
+        trust_info = {'trustor_user_id': trustor['id'],
+                      'trustee_user_id': trustee['id'],
+                      'project_id': self.tenant_bar['id'],
+                      'expires_at': timeutils.
+                      parse_isotime('2031-02-18T18:10:00Z'),
+                      'impersonation': True}
+        self.trust_api.create_trust(trust_id, trust_info,
+                                    roles=[{'id': 'member'},
+                                           {'id': 'other'},
+                                           {'id': 'browser'}])
+
+        token_id = self.create_token_sample_data(
+            tenant_id=self.tenant_bar['id'],
+            trust_id=trust_id,
+            user_id=trustor['id'],
+            trustee_user_id=trustee['id'])
+
+        # Ensure the token id exists in both the trustor and trustee token
+        # lists
+
+        self.assertIn(token_id,
+                      self.token_api.list_tokens(self.user_two['id'],
+                                                 trust_id=trust_id))
+        self.assertIn(token_id,
+                      self.token_api.list_tokens(self.user_foo['id'],
+                                                 trust_id=trust_id))
 
 
 class TokenCacheInvalidation(object):

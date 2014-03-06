@@ -83,12 +83,33 @@ class Token(token.Driver):
             expires_ts = utils.unixtime(data_copy['expires'])
             kwargs['time'] = expires_ts
         self.client.set(ptk, data_copy, **kwargs)
-        if 'id' in data['user']:
-            user_id = data['user']['id']
-            user_key = self._prefix_user_id(user_id)
-            # Append the new token_id to the token-index-list stored in the
-            # user-key within memcache.
-            self._update_user_list_with_cas(user_key, token_id, data_copy)
+        user_id = data['user']['id']
+        user_key = self._prefix_user_id(user_id)
+        # Append the new token_id to the token-index-list stored in the
+        # user-key within memcache.
+        self._update_user_list_with_cas(user_key, token_id, data_copy)
+        if CONF.trust.enabled and data.get('trust_id'):
+            # NOTE(morganfainberg): If trusts are enabled and this is a trust
+            # scoped token, we add the token to the trustee list as well.  This
+            # allows password changes of the trustee to also expire the token.
+            # There is no harm in placing the token in multiple lists, as
+            # _list_tokens is smart enough to handle almost any case of
+            # valid/invalid/expired for a given token.
+            token_data = data_copy['token_data']
+            if data_copy['token_version'] == token.provider.V2:
+                trustee_user_id = token_data['access']['trust'][
+                    'trustee_user_id']
+            elif data_copy['token_version'] == token.provider.V3:
+                trustee_user_id = token_data['OS-TRUST:trust'][
+                    'trustee_user_id']
+            else:
+                raise token.provider.UnsupportedTokenVersionException(
+                    _('Unknown token version %s') %
+                    data_copy.get('token_version'))
+
+            trustee_key = self._prefix_user_id(trustee_user_id)
+            self._update_user_list_with_cas(trustee_key, token_id, data_copy)
+
         return copy.deepcopy(data_copy)
 
     def _convert_user_index_from_json(self, token_list, user_key):

@@ -70,6 +70,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         identity.CONF.identity.driver = (
             'keystone.identity.backends.kvs.Identity')
         self.load_backends()
+        self.load_fixtures(default_fixtures)
 
 
 class KvsTrust(tests.TestCase, test_backend.TrustTests):
