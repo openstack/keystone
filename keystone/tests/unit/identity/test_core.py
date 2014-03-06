@@ -16,7 +16,6 @@ import os
 import uuid
 
 import mock
-import testtools
 
 from keystone import config
 from keystone import exception
@@ -27,7 +26,7 @@ from keystone import tests
 CONF = config.CONF
 
 
-class TestDomainConfigs(testtools.TestCase):
+class TestDomainConfigs(tests.BaseTestCase):
 
     def setUp(self):
         super(TestDomainConfigs, self).setUp()
