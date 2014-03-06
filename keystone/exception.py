@@ -141,6 +141,11 @@ class AuthPluginException(Unauthorized):
         self.authentication = {}
 
 
+class MissingGroups(Unauthorized):
+    message_format = _("Unable to find valid groups while using "
+                       "mapping %(mapping_id)s")
+
+
 class AuthMethodNotSupported(AuthPluginException):
     message_format = _("Attempted to authenticate with an unsupported method.")
 
@@ -285,6 +290,11 @@ class CertificateFilesUnavailable(UnexpectedError):
 class MalformedEndpoint(UnexpectedError):
     message_format = _("Malformed endpoint URL (%(endpoint)s),"
                        " see ERROR log for details.")
+
+
+class MappedGroupNotFound(UnexpectedError):
+    message_format = _("Group %(group_id)s returned by mapping "
+                       "%(mapping_id)s was not found in the backend.")
 
 
 class NotImplemented(Error):
