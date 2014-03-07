@@ -33,13 +33,19 @@ CONF = config.CONF
 
 class PolicyFileTestCase(tests.TestCase):
     def setUp(self):
+        # self.tmpfilename should exist before setUp super is called
+        # this is to ensure it is available for the config_fixture in
+        # the config_overrides call.
+        _unused, self.tmpfilename = tempfile.mkstemp()
         super(PolicyFileTestCase, self).setUp()
 
         rules.reset()
         self.addCleanup(rules.reset)
-        _unused, self.tmpfilename = tempfile.mkstemp()
-        self.opt(policy_file=self.tmpfilename)
         self.target = {}
+
+    def config_overrides(self):
+        super(PolicyFileTestCase, self).config_overrides()
+        self.config_fixture.config(policy_file=self.tmpfilename)
 
     def test_modified_policy_reloads(self):
         action = "example:test"

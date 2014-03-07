@@ -726,9 +726,9 @@ class TestTokenProvider(tests.TestCase):
                           'bogus')
 
     def test_token_format_provider_mismatch(self):
-        self.opt_in_group('signing', token_format='UUID')
-        self.opt_in_group('token',
-                          provider=token.provider.PKI_PROVIDER)
+        self.config_fixture.config(group='signing', token_format='UUID')
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.PKI_PROVIDER)
         try:
             token.provider.Manager()
             raise Exception(
@@ -736,9 +736,9 @@ class TestTokenProvider(tests.TestCase):
         except exception.UnexpectedError:
             pass
 
-        self.opt_in_group('signing', token_format='PKI')
-        self.opt_in_group('token',
-                          provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(group='signing', token_format='PKI')
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.UUID_PROVIDER)
         try:
             token.provider.Manager()
             raise Exception(
@@ -747,14 +747,14 @@ class TestTokenProvider(tests.TestCase):
             pass
 
         # should be OK as token_format and provider aligns
-        self.opt_in_group('signing', token_format='PKI')
-        self.opt_in_group('token',
-                          provider=token.provider.PKI_PROVIDER)
+        self.config_fixture.config(group='signing', token_format='PKI')
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.PKI_PROVIDER)
         token.provider.Manager()
 
-        self.opt_in_group('signing', token_format='UUID')
-        self.opt_in_group('token',
-                          provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(group='signing', token_format='UUID')
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.UUID_PROVIDER)
         token.provider.Manager()
 
     def test_default_token_format(self):
@@ -762,50 +762,52 @@ class TestTokenProvider(tests.TestCase):
                          token.provider.PKI_PROVIDER)
 
     def test_uuid_token_format_and_no_provider(self):
-        self.opt_in_group('signing', token_format='UUID')
+        self.config_fixture.config(group='signing', token_format='UUID')
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.UUID_PROVIDER)
 
     def test_default_providers_without_token_format(self):
-        self.opt_in_group('token',
-                          provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.UUID_PROVIDER)
         token.provider.Manager()
 
-        self.opt_in_group('token',
-                          provider=token.provider.PKI_PROVIDER)
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.PKI_PROVIDER)
         token.provider.Manager()
 
     def test_unsupported_token_format(self):
-        self.opt_in_group('signing', token_format='CUSTOM')
+        self.config_fixture.config(group='signing', token_format='CUSTOM')
         self.assertRaises(exception.UnexpectedError,
                           token.provider.Manager.get_token_provider)
 
     def test_uuid_provider(self):
-        self.opt_in_group('token', provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.UUID_PROVIDER)
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.UUID_PROVIDER)
 
     def test_provider_override_token_format(self):
-        self.opt_in_group('token',
-                          provider='keystone.token.providers.pki.Test')
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Test')
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          'keystone.token.providers.pki.Test')
 
-        self.opt_in_group('signing', token_format='UUID')
-        self.opt_in_group('token',
-                          provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(group='signing', token_format='UUID')
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.UUID_PROVIDER)
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.UUID_PROVIDER)
 
-        self.opt_in_group('signing', token_format='PKI')
-        self.opt_in_group('token',
-                          provider=token.provider.PKI_PROVIDER)
+        self.config_fixture.config(group='signing', token_format='PKI')
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.PKI_PROVIDER)
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          token.provider.PKI_PROVIDER)
 
-        self.opt_in_group('signing', token_format='CUSTOM')
-        self.opt_in_group('token',
-                          provider='my.package.MyProvider')
+        self.config_fixture.config(group='signing', token_format='CUSTOM')
+        self.config_fixture.config(group='token',
+                                   provider='my.package.MyProvider')
         self.assertEqual(token.provider.Manager.get_token_provider(),
                          'my.package.MyProvider')
 
@@ -828,7 +830,8 @@ class TestTokenProvider(tests.TestCase):
 
     def test_uuid_provider_no_oauth_fails_oauth(self):
         self.load_fixtures(default_fixtures)
-        self.opt_in_group('token', provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(group='token',
+                                   provider=token.provider.UUID_PROVIDER)
         driver = token.provider.Manager().driver
         driver.oauth_api = None
         self.assertRaises(exception.Forbidden,
@@ -860,7 +863,8 @@ class TestPKIProvider(object):
 
     def test_get_token_id_error_handling(self):
         # cause command-line failure
-        self.opt_in_group('signing', keyfile='--please-break-me')
+        self.config_fixture.config(group='signing',
+                                   keyfile='--please-break-me')
 
         provider = pki.Provider()
         token_data = {}

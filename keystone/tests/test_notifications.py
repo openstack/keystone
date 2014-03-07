@@ -126,7 +126,8 @@ class NotificationsTestCase(tests.TestCase):
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
 
-        # these should use self.opt(), but they haven't been registered yet
+        # these should use self.config_fixture.config(), but they haven't
+        # been registered yet
         CONF.rpc_backend = 'fake'
         CONF.notification_driver = ['fake']
 

@@ -46,9 +46,9 @@ class TestSimpleCert(BaseTestCase):
 
     def test_missing_file(self):
         # these files do not exist
-        self.opt_in_group('signing',
-                          ca_certs=uuid.uuid4().hex,
-                          certfile=uuid.uuid4().hex)
+        self.config_fixture.config(group='signing',
+                                   ca_certs=uuid.uuid4().hex,
+                                   certfile=uuid.uuid4().hex)
 
         for path in [self.CA_PATH, self.CERT_PATH]:
             self.request(app=self.public_app,
@@ -59,11 +59,11 @@ class TestSimpleCert(BaseTestCase):
 
 class UUIDSimpleCertTests(BaseTestCase):
 
-    def setUp(self):
-        uuid_provider = 'keystone.token.providers.uuid.Provider'
-        self.opt_in_group('token', provider=uuid_provider)
-
-        super(UUIDSimpleCertTests, self).setUp()
+    def config_overrides(self):
+        super(UUIDSimpleCertTests, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.uuid.Provider')
 
     def test_using_uuid_controller(self):
         for path in [self.CA_PATH, self.CERT_PATH]:

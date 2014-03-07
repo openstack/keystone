@@ -347,7 +347,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             body={'domain': {'enabled': False}})
 
         # Change the default domain
-        self.opt_in_group('identity', default_domain_id=new_domain_id)
+        self.config_fixture.config(group='identity',
+                                   default_domain_id=new_domain_id)
 
         # Attempt to delete the new domain
 
@@ -371,7 +372,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             body={'domain': {'enabled': False}})
 
         # Change the default domain
-        self.opt_in_group('identity', default_domain_id=new_domain_id)
+        self.config_fixture.config(group='identity',
+                                   default_domain_id=new_domain_id)
 
         # Delete the old default domain
 
@@ -1288,9 +1290,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
     """Test inheritance crud and its effects."""
 
-    def setUp(self):
-        self.opt_in_group('os_inherit', enabled=True)
-        super(IdentityInheritanceTestCase, self).setUp()
+    def config_overrides(self):
+        super(IdentityInheritanceTestCase, self).config_overrides()
+        self.config_fixture.config(group='os_inherit', enabled=True)
 
     def test_crud_user_inherited_domain_role_grants(self):
         role_list = []
@@ -1500,7 +1502,7 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
 
         # Disable the extension and re-check the list, the role inherited
         # from the project should no longer show up
-        self.opt_in_group('os_inherit', enabled=False)
+        self.config_fixture.config(group='os_inherit', enabled=False)
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r)
         self.assertEqual(2, len(r.result.get('role_assignments')))
@@ -1715,9 +1717,9 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
 class IdentityInheritanceDisabledTestCase(test_v3.RestfulTestCase):
     """Test inheritance crud and its effects."""
 
-    def setUp(self):
-        self.opt_in_group('os_inherit', enabled=False)
-        super(IdentityInheritanceDisabledTestCase, self).setUp()
+    def config_overrides(self):
+        super(IdentityInheritanceDisabledTestCase, self).config_overrides()
+        self.config_fixture.config(group='os_inherit', enabled=False)
 
     def test_crud_inherited_role_grants_failed_if_disabled(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}

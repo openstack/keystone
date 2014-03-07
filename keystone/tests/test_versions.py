@@ -118,11 +118,13 @@ class VersionTestCase(tests.TestCase):
         self.public_app = self.loadapp('keystone', 'main')
         self.admin_app = self.loadapp('keystone', 'admin')
 
-        port = random.randint(10000, 30000)
-        self.opt(public_port=port, admin_port=port)
-
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
+
+    def config_overrides(self):
+        super(VersionTestCase, self).config_overrides()
+        port = random.randint(10000, 30000)
+        self.config_fixture.config(public_port=port, admin_port=port)
 
     def _paste_in_port(self, response, port):
         for link in response['links']:
@@ -328,11 +330,13 @@ vnd.openstack.identity-v3+xml"/>
         self.public_app = self.loadapp('keystone', 'main')
         self.admin_app = self.loadapp('keystone', 'admin')
 
-        port = random.randint(10000, 30000)
-        self.opt(public_port=port, admin_port=port)
-
         fixture = self.useFixture(moxstubout.MoxStubout())
         self.stubs = fixture.stubs
+
+    def config_overrides(self):
+        super(XmlVersionTestCase, self).config_overrides()
+        port = random.randint(10000, 30000)
+        self.config_fixture.config(public_port=port, admin_port=port)
 
     def test_public_versions(self):
         client = self.client(self.public_app)
