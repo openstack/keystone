@@ -52,9 +52,10 @@ keystone project, the line defining this token is::
     [DEFAULT]
     admin_token = ADMIN
 
-This configured token is a "shared secret" between keystone and other
-openstack services, and is used by the client to communicate with the API to
-create tenants, users, roles, etc.
+A "shared secret" that can be used to bootstrap Keystone. This token does not
+represent a user, and carries no explicit authorization.
+To disable in production (highly recommended), remove AdminTokenAuthMiddleware
+from your paste application pipelines (for example, in keystone-paste.ini)
 
 Setting up tenants, users, and roles
 ------------------------------------
