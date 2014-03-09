@@ -16,6 +16,8 @@ import copy
 import datetime
 import uuid
 
+import mock
+
 from keystone import assignment
 from keystone import auth
 from keystone.common import authorization
@@ -911,9 +913,12 @@ class AuthWithTrust(AuthTest):
 
 
 class TokenExpirationTest(AuthTest):
-    def _maintain_token_expiration(self):
+
+    @mock.patch.object(timeutils, 'utcnow')
+    def _maintain_token_expiration(self, mock_utcnow):
         """Token expiration should be maintained after re-auth & validation."""
-        timeutils.set_time_override()
+        now = datetime.datetime.utcnow()
+        mock_utcnow.return_value = now
 
         r = self.controller.authenticate(
             {},
@@ -926,14 +931,14 @@ class TokenExpirationTest(AuthTest):
         unscoped_token_id = r['access']['token']['id']
         original_expiration = r['access']['token']['expires']
 
-        timeutils.advance_time_seconds(1)
+        mock_utcnow.return_value = now + datetime.timedelta(seconds=1)
 
         r = self.controller.validate_token(
             dict(is_admin=True, query_string={}),
             token_id=unscoped_token_id)
         self.assertEqual(original_expiration, r['access']['token']['expires'])
 
-        timeutils.advance_time_seconds(1)
+        mock_utcnow.return_value = now + datetime.timedelta(seconds=2)
 
         r = self.controller.authenticate(
             {},
@@ -946,7 +951,7 @@ class TokenExpirationTest(AuthTest):
         scoped_token_id = r['access']['token']['id']
         self.assertEqual(original_expiration, r['access']['token']['expires'])
 
-        timeutils.advance_time_seconds(1)
+        mock_utcnow.return_value = now + datetime.timedelta(seconds=3)
 
         r = self.controller.validate_token(
             dict(is_admin=True, query_string={}),
