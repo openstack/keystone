@@ -14,7 +14,6 @@
 
 from keystone import auth
 from keystone.common import dependency
-from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import core as oauth
 from keystone.contrib.oauth1 import validator
 from keystone import exception
@@ -25,16 +24,17 @@ from keystone.openstack.common import timeutils
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('oauth_api')
+@dependency.optional('oauth_api')
 class OAuth(auth.AuthMethodHandler):
 
     method = 'oauth1'
 
-    def __init__(self):
-        self.oauth_api = oauth1.Manager()
-
     def authenticate(self, context, auth_info, auth_context):
         """Turn a signed request with an access key into a keystone token."""
+
+        if not self.oauth_api:
+            raise exception.Unauthorized(_('%s not supported') % self.method)
+
         headers = context['headers']
         oauth_headers = oauth.get_oauth_headers(headers)
         access_token_id = oauth_headers.get('oauth_token')
