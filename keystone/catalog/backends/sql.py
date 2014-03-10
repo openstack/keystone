@@ -130,7 +130,6 @@ class Catalog(catalog.Driver):
             self._delete_child_regions(session, region_id)
             session.query(Region).filter_by(id=region_id).delete()
             session.delete(ref)
-            session.flush()
 
     def create_region(self, region_ref):
         session = sql.get_session()
@@ -138,7 +137,6 @@ class Catalog(catalog.Driver):
             self._check_parent_region(session, region_ref)
             region = Region.from_dict(region_ref)
             session.add(region)
-            session.flush()
         return region.to_dict()
 
     def update_region(self, region_id, region_ref):
@@ -152,7 +150,6 @@ class Catalog(catalog.Driver):
             for attr in Region.attributes:
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_region, attr))
-            session.flush()
         return ref.to_dict()
 
     # Services
