@@ -829,11 +829,9 @@ class SqlUpgradeTests(SqlMigrateBase):
     def test_upgrade_default_roles(self):
         def count_member_roles():
             session = self.Session()
-            query_string = ("select count(*) as c from role "
-                            "where name='%s'" % config.CONF.member_role_name)
-            role_count = session.execute(query_string).fetchone()['c']
-            session.close()
-            return role_count
+            role_table = sqlalchemy.Table("role", self.metadata, autoload=True)
+            return session.query(role_table).filter_by(
+                name=config.CONF.member_role_name).count()
 
         self.upgrade(16)
         self.assertEqual(0, count_member_roles())
@@ -930,6 +928,12 @@ class SqlUpgradeTests(SqlMigrateBase):
                                  "trust_id", "user_id"])
 
     def test_fixup_role(self):
+        def count_role():
+            session = self.Session()
+            self.initialize_sql()
+            role_table = sqlalchemy.Table("role", self.metadata, autoload=True)
+            return session.query(role_table).filter_by(extra=None).count()
+
         session = self.Session()
         self.assertEqual(self.schema.version, 0, "DB is at version 0")
         self.upgrade(1)
@@ -938,14 +942,9 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.insert_dict(session, "role", {"id": "test2",
                                            "name": "test2",
                                            "extra": None})
-        r = session.execute('select count(*) as c from role '
-                            'where extra is null')
-        self.assertEqual(r.fetchone()['c'], 2)
-        session.commit()
+        self.assertEqual(count_role(), 2)
         self.upgrade(19)
-        r = session.execute('select count(*) as c from role '
-                            'where extra is null')
-        self.assertEqual(r.fetchone()['c'], 0)
+        self.assertEqual(count_role(), 0)
 
     def test_legacy_endpoint_id(self):
         session = self.Session()
