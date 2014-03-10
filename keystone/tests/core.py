@@ -81,7 +81,16 @@ TESTSDIR = os.path.dirname(os.path.abspath(__file__))
 ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
 ETCDIR = os.path.join(ROOTDIR, 'etc')
-TMPDIR = os.path.join(TESTSDIR, 'tmp')
+
+
+def _calc_tmpdir():
+    env_val = os.environ.get('KEYSTONE_TEST_TEMP_DIR')
+    if env_val:
+        return env_val
+    return os.path.join(TESTSDIR, 'tmp')
+
+
+TMPDIR = _calc_tmpdir()
 
 CONF = config.CONF
 

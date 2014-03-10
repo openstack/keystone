@@ -70,8 +70,12 @@ class TestAuthPlugin(tests.TestCase):
         return [tests.dirs.etc('keystone.conf.sample'),
                 tests.dirs.tests('test_overrides.conf'),
                 tests.dirs.tests('backend_sql.conf'),
-                tests.dirs.tests('backend_sql_disk.conf'),
                 tests.dirs.tests('test_auth_plugin.conf')]
+
+    def config(self, config_files):
+        super(TestAuthPlugin, self).config(config_files)
+        db_conn = 'sqlite:///%s' % tests.dirs.tmp('test.db')
+        self.config_fixture.config(group='database', connection=db_conn)
 
     def test_unsupported_auth_method(self):
         method_name = uuid.uuid4().hex
@@ -127,7 +131,6 @@ class TestByClassNameAuthMethodRegistration(TestAuthPlugin):
         return [tests.dirs.etc('keystone.conf.sample'),
                 tests.dirs.tests('test_overrides.conf'),
                 tests.dirs.tests('backend_sql.conf'),
-                tests.dirs.tests('backend_sql_disk.conf'),
                 tests.dirs.tests('test_auth_plugin_by_class_name.conf')]
 
 
