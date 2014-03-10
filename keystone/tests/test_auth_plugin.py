@@ -57,7 +57,6 @@ class NoMethodAuthPlugin(auth.AuthMethodHandler):
 class TestAuthPlugin(tests.TestCase):
     def setUp(self):
         super(TestAuthPlugin, self).setUp()
-        self.config(self.config_files())
         self.load_backends()
 
         # need to register the token provider first because auth controller
