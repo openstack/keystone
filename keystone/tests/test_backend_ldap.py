@@ -1108,12 +1108,6 @@ class LDAPIdentity(tests.TestCase, BaseLDAPIdentity):
         domain_ref = self.assignment_api.get_domain_by_name(domain['name'])
         self.assertEqual(domain_ref, domain)
 
-    def test_get_not_default_domain_by_name(self):
-        domain_name = 'foo'
-        self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain_by_name,
-                          domain_name)
-
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):
