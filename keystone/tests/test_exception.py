@@ -103,7 +103,7 @@ class ExceptionTestCase(tests.TestCase):
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
     def test_unauthorized_exposure(self):
-        self.opt(debug=False)
+        self.config_fixture.config(debug=False)
 
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
@@ -111,7 +111,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(risky_info, six.text_type(e))
 
     def test_unauthorized_exposure_in_debug(self):
-        self.opt(debug=True)
+        self.config_fixture.config(debug=True)
 
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
@@ -119,7 +119,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, six.text_type(e))
 
     def test_forbidden_exposure(self):
-        self.opt(debug=False)
+        self.config_fixture.config(debug=False)
 
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
@@ -127,7 +127,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(risky_info, six.text_type(e))
 
     def test_forbidden_exposure_in_debug(self):
-        self.opt(debug=True)
+        self.config_fixture.config(debug=True)
 
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
@@ -135,7 +135,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, six.text_type(e))
 
     def test_forbidden_action_exposure(self):
-        self.opt(debug=False)
+        self.config_fixture.config(debug=False)
 
         risky_info = uuid.uuid4().hex
         action = uuid.uuid4().hex
@@ -149,7 +149,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, six.text_type(e))
 
     def test_forbidden_action_exposure_in_debug(self):
-        self.opt(debug=True)
+        self.config_fixture.config(debug=True)
 
         risky_info = uuid.uuid4().hex
 
@@ -162,7 +162,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertIn(risky_info, six.text_type(e))
 
     def test_unicode_argument_message(self):
-        self.opt(debug=False)
+        self.config_fixture.config(debug=False)
 
         risky_info = u'\u7ee7\u7eed\u884c\u7f29\u8fdb\u6216'
         e = exception.Forbidden(message=risky_info)

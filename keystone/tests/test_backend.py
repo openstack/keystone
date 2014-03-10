@@ -3782,7 +3782,7 @@ class InheritanceTests(object):
           inherited should not show up
 
         """
-        self.opt_in_group('os_inherit', enabled=True)
+        self.config_fixture.config(group='os_inherit', enabled=True)
         role_list = []
         for _ in range(3):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -3857,7 +3857,7 @@ class InheritanceTests(object):
           direct and two by virtue of inherited group roles
 
         """
-        self.opt_in_group('os_inherit', enabled=True)
+        self.config_fixture.config(group='os_inherit', enabled=True)
         role_list = []
         for _ in range(4):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -3935,7 +3935,7 @@ class InheritanceTests(object):
         - Get a list of projects for user, should return all three projects
 
         """
-        self.opt_in_group('os_inherit', enabled=True)
+        self.config_fixture.config(group='os_inherit', enabled=True)
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assignment_api.create_domain(domain['id'], domain)
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
@@ -3979,7 +3979,7 @@ class InheritanceTests(object):
           from the domain, plus the one separate project
 
         """
-        self.opt_in_group('os_inherit', enabled=True)
+        self.config_fixture.config(group='os_inherit', enabled=True)
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assignment_api.create_domain(domain['id'], domain)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -4184,7 +4184,7 @@ class LimitTests(filtering.FilterTests):
         self._delete_test_data(entity, self.domain1_entity_lists[entity])
 
     def _test_list_entity_filtered_and_limited(self, entity):
-        self.opt(list_limit=10)
+        self.config_fixture.config(list_limit=10)
         # Should get back just 10 entities in domain1
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', self.domain1['id'])
@@ -4195,9 +4195,9 @@ class LimitTests(filtering.FilterTests):
 
         # Override with driver specific limit
         if entity == 'project':
-            self.opt_in_group('assignment', list_limit=5)
+            self.config_fixture.config(group='assignment', list_limit=5)
         else:
-            self.opt_in_group('identity', list_limit=5)
+            self.config_fixture.config(group='identity', list_limit=5)
 
         # Should get back just 5 users in domain1
         hints = driver_hints.Hints()

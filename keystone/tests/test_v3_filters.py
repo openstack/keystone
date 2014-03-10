@@ -41,7 +41,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.orig_policy_file = CONF.policy_file
         rules.reset()
         _unused, self.tmpfilename = tempfile.mkstemp()
-        self.opt(policy_file=self.tmpfilename)
+        self.config_fixture.config(policy_file=self.tmpfilename)
 
         #drop the policy rules
         self.addCleanup(rules.reset)
@@ -376,13 +376,13 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         else:
             plural = '%ss' % entity
 
-        self.opt(list_limit=5)
-        self.opt_in_group(driver, list_limit=None)
+        self.config_fixture.config(list_limit=5)
+        self.config_fixture.config(group=driver, list_limit=None)
         r = self.get('/%s' % plural, auth=self.auth)
         self.assertEqual(len(r.result.get(plural)), 5)
         self.assertIs(r.result.get('truncated'), True)
 
-        self.opt_in_group(driver, list_limit=4)
+        self.config_fixture.config(group=driver, list_limit=4)
         r = self.get('/%s' % plural, auth=self.auth)
         self.assertEqual(len(r.result.get(plural)), 4)
         self.assertIs(r.result.get('truncated'), True)
@@ -423,8 +423,8 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         # Test this by overriding the general limit with a higher
         # driver-specific limit (allowing all entities to be returned
         # in the collection), which should result in a non truncated list
-        self.opt(list_limit=5)
-        self.opt_in_group('catalog', list_limit=10)
+        self.config_fixture.config(list_limit=5)
+        self.config_fixture.config(group='catalog', list_limit=10)
         r = self.get('/services', auth=self.auth)
         self.assertEqual(len(r.result.get('services')), 10)
         self.assertIsNone(r.result.get('truncated'))

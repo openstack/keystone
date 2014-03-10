@@ -26,10 +26,11 @@ class ConfigTestCase(tests.TestCase):
     def test_paste_config(self):
         self.assertEqual(config.find_paste_config(),
                          tests.dirs.etc('keystone-paste.ini'))
-        self.opt_in_group('paste_deploy', config_file=uuid.uuid4().hex)
+        self.config_fixture.config(group='paste_deploy',
+                                   config_file=uuid.uuid4().hex)
         self.assertRaises(exception.ConfigFileNotFound,
                           config.find_paste_config)
-        self.opt_in_group('paste_deploy', config_file='')
+        self.config_fixture.config(group='paste_deploy', config_file='')
         self.assertEqual(config.find_paste_config(),
                          tests.dirs.etc('keystone.conf.sample'))
 

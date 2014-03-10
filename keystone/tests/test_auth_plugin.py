@@ -133,8 +133,8 @@ class TestByClassNameAuthMethodRegistration(TestAuthPlugin):
 
 class TestInvalidAuthMethodRegistration(tests.TestCase):
     def test_duplicate_auth_method_registration(self):
-        self.opt_in_group(
-            'auth',
+        self.config_fixture.config(
+            group='auth',
             methods=[
                 'keystone.tests.test_auth_plugin.SimpleChallengeResponse',
                 'keystone.tests.test_auth_plugin.DuplicateAuthPlugin'])
@@ -142,8 +142,8 @@ class TestInvalidAuthMethodRegistration(tests.TestCase):
         self.assertRaises(ValueError, auth.controllers.load_auth_methods)
 
     def test_no_method_attribute_auth_method_by_class_name_registration(self):
-        self.opt_in_group(
-            'auth',
+        self.config_fixture.config(
+            group='auth',
             methods=['keystone.tests.test_auth_plugin.NoMethodAuthPlugin'])
         self.clear_auth_plugin_registry()
         self.assertRaises(ValueError, auth.controllers.load_auth_methods)
@@ -162,9 +162,9 @@ class TestInvalidAuthMethodRegistration(tests.TestCase):
         # Guarantee we register the option we expect to unregister in cleanup
         config.CONF.register_opt(test_opt, 'auth')
 
-        self.opt_in_group('auth', methods=['test'])
-        self.opt_in_group(
-            'auth',
+        self.config_fixture.config(group='auth', methods=['test'])
+        self.config_fixture.config(
+            group='auth',
             test='keystone.tests.test_auth_plugin.MismatchedAuthPlugin')
 
         self.clear_auth_plugin_registry()

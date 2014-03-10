@@ -48,7 +48,8 @@ class BindTest(tests.TestCase):
                                           use_kerberos=val, success=success)
         else:
             context = {'environment': {}}
-            self.opt_in_group('token', enforce_token_bind=bind_level)
+            self.config_fixture.config(group='token',
+                                       enforce_token_bind=bind_level)
 
             if use_kerberos:
                 context['environment']['REMOTE_USER'] = KERBEROS_BIND

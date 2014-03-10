@@ -225,7 +225,7 @@ class KVSTest(tests.TestCase):
 
     def test_kvs_key_mangler_configuration_disabled(self):
         # Test that no key_mangler is set if enable_key_mangler is false
-        self.opt_in_group('kvs', enable_key_mangler=False)
+        self.config_fixture.config(group='kvs', enable_key_mangler=False)
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.Memory')
 
@@ -288,7 +288,7 @@ class KVSTest(tests.TestCase):
     def test_kvs_locking_context_handler(self):
         # Make sure we're creating the correct key/value pairs for the backend
         # distributed locking mutex.
-        self.opt_in_group('kvs', enable_key_mangler=False)
+        self.config_fixture.config(group='kvs', enable_key_mangler=False)
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.KVSBackendFixture')
 
@@ -303,7 +303,7 @@ class KVSTest(tests.TestCase):
     def test_kvs_locking_context_handler_locking_disabled(self):
         # Make sure no creation of key/value pairs for the backend
         # distributed locking mutex occurs if locking is disabled.
-        self.opt_in_group('kvs', enable_key_mangler=False)
+        self.config_fixture.config(group='kvs', enable_key_mangler=False)
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.KVSBackendFixture', locking=False)
         lock_key = '_lock' + self.key_foo
@@ -369,7 +369,7 @@ class KVSTest(tests.TestCase):
     def test_kvs_with_lock_action_context_manager(self):
         # Make sure we're creating the correct key/value pairs for the backend
         # distributed locking mutex.
-        self.opt_in_group('kvs', enable_key_mangler=False)
+        self.config_fixture.config(group='kvs', enable_key_mangler=False)
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.KVSBackendFixture')
 
@@ -386,7 +386,7 @@ class KVSTest(tests.TestCase):
     def test_kvs_with_lock_action_context_manager_no_lock(self):
         # Make sure we're not locking unless an actual lock is passed into the
         # context manager
-        self.opt_in_group('kvs', enable_key_mangler=False)
+        self.config_fixture.config(group='kvs', enable_key_mangler=False)
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.KVSBackendFixture')
 
@@ -472,7 +472,7 @@ class KVSTest(tests.TestCase):
         # Test the "set_arguments" (arguments passed on all set calls) logic
         # and the no-expiry-key modifications of set_arguments for the explicit
         # memcache TTL.
-        self.opt_in_group('kvs', enable_key_mangler=False)
+        self.config_fixture.config(group='kvs', enable_key_mangler=False)
         kvs = self._get_kvs_region()
         memcache_expire_time = 86400
 

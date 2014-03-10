@@ -317,6 +317,9 @@ class TestCase(testtools.TestCase):
     def config_files(self):
         return copy.copy(self._config_file_list)
 
+    def config_overrides(self):
+        self.config_fixture.config(policy_file=dirs.etc('policy.json'))
+
     def setUp(self):
         super(TestCase, self).setUp()
 
@@ -341,7 +344,8 @@ class TestCase(testtools.TestCase):
         self.exit_patch.mock.side_effect = UnexpectedExit
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config(self.config_files())
-        self.opt(policy_file=dirs.etc('policy.json'))
+
+        self.config_overrides()
 
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
         warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -362,14 +366,6 @@ class TestCase(testtools.TestCase):
 
     def config(self, config_files):
         CONF(args=[], project='keystone', default_config_files=config_files)
-
-    def opt_in_group(self, group, **kw):
-        for k, v in six.iteritems(kw):
-            CONF.set_override(k, v, group)
-
-    def opt(self, **kw):
-        for k, v in six.iteritems(kw):
-            CONF.set_override(k, v)
 
     def load_backends(self):
         """Initializes each manager and assigns them to an attribute."""

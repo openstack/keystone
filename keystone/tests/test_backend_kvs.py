@@ -26,11 +26,14 @@ from keystone.tests import test_backend
 class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
     def setUp(self):
         super(KvsIdentity, self).setUp()
-        self.opt_in_group(
-            'identity',
-            driver='keystone.identity.backends.kvs.Identity')
         self.load_backends()
         self.load_fixtures(default_fixtures)
+
+    def config_overrides(self):
+        super(KvsIdentity, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
 
     def test_list_projects_for_user_with_grants(self):
         self.skipTest('kvs backend is now deprecated')
@@ -66,10 +69,13 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
-        self.opt_in_group(
-            'identity',
-            driver='keystone.identity.backends.kvs.Identity')
         self.load_backends()
+
+    def config_overrides(self):
+        super(KvsToken, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
 
     def test_flush_expired_token(self):
         self.assertRaises(exception.NotImplemented,
@@ -142,33 +148,39 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
 class KvsTrust(tests.TestCase, test_backend.TrustTests):
     def setUp(self):
         super(KvsTrust, self).setUp()
-        self.opt_in_group(
-            'identity',
-            driver='keystone.identity.backends.kvs.Identity')
-        self.opt_in_group(
-            'trust',
-            driver='keystone.trust.backends.kvs.Trust')
-        self.opt_in_group(
-            'catalog',
-            driver='keystone.catalog.backends.kvs.Catalog')
         self.load_backends()
         self.load_fixtures(default_fixtures)
+
+    def config_overrides(self):
+        super(KvsTrust, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.config_fixture.config(
+            group='trust',
+            driver='keystone.trust.backends.kvs.Trust')
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.kvs.Catalog')
 
 
 class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(KvsCatalog, self).setUp()
-        self.opt_in_group(
-            'identity',
-            driver='keystone.identity.backends.kvs.Identity')
-        self.opt_in_group(
-            'trust',
-            driver='keystone.trust.backends.kvs.Trust')
-        self.opt_in_group(
-            'catalog',
-            driver='keystone.catalog.backends.kvs.Catalog')
         self.load_backends()
         self._load_fake_catalog()
+
+    def config_overrides(self):
+        super(KvsCatalog, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.config_fixture.config(
+            group='trust',
+            driver='keystone.trust.backends.kvs.Trust')
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.kvs.Catalog')
 
     def _load_fake_catalog(self):
         self.catalog_foobar = self.catalog_api.driver._create_catalog(
@@ -197,11 +209,14 @@ class KvsTokenCacheInvalidation(tests.TestCase,
                                 test_backend.TokenCacheInvalidation):
     def setUp(self):
         super(KvsTokenCacheInvalidation, self).setUp()
-        self.opt_in_group(
-            'identity',
-            driver='keystone.identity.backends.kvs.Identity')
-        self.opt_in_group(
-            'token',
-            driver='keystone.token.backends.kvs.Token')
         self.load_backends()
         self._create_test_data()
+
+    def config_overrides(self):
+        super(KvsTokenCacheInvalidation, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.config_fixture.config(
+            group='token',
+            driver='keystone.token.backends.kvs.Token')
