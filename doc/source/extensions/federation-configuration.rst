@@ -26,7 +26,14 @@ To enable the federation extension:
        [federation]
        driver = keystone.contrib.federation.backends.sql.Federation
 
-2. Add the ``federation_extension`` middleware to the ``api_v3`` pipeline in
+2. Add the ``saml2`` authentication method to the ``[auth]`` section in
+   ``keystone.conf``::
+
+       [auth]
+       methods = external,password,token,saml2
+       saml2 = keystone.auth.plugins.saml2.Saml2
+
+3. Add the ``federation_extension`` middleware to the ``api_v3`` pipeline in
    ``keystone-paste.ini``. For example::
 
        [pipeline:api_v3]
@@ -34,7 +41,7 @@ To enable the federation extension:
        xml_body json_body ec2_extension s3_extension federation_extension
        service_v3
 
-3. Create the federation extension tables if using the provided SQL backend.
+4. Create the federation extension tables if using the provided SQL backend.
    For example::
 
        ./bin/keystone-manage db_sync --extension federation
