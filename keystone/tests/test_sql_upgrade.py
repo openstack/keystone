@@ -2047,8 +2047,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         # downgrade
         self.upgrade(41)
         session = self.Session()
-        trust_table = sqlalchemy.Table(
-            'trust', self.metadata, autoload=True)
         limited_trust = {
             'id': uuid.uuid4().hex,
             'trustor_user_id': uuid.uuid4().hex,
