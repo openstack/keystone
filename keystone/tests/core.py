@@ -289,10 +289,15 @@ class NoModule(object):
         def cleanup_finders():
             for finder in self._finders:
                 sys.meta_path.remove(finder)
+            del self._finders
         self.addCleanup(cleanup_finders)
 
         self._cleared_modules = {}
-        self.addCleanup(sys.modules.update, self._cleared_modules)
+
+        def cleanup_modules():
+            sys.modules.update(self._cleared_modules)
+            del self._cleared_modules
+        self.addCleanup(cleanup_modules)
 
     def clear_module(self, module):
         cleared_modules = {}
@@ -356,6 +361,9 @@ class TestCase(BaseTestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
+        self.addCleanup(self.cleanup_instance(
+            '_paths', '_memo', '_overrides', '_group_overrides', 'maxDiff',
+            'exit_patch', 'config_fixture', 'logger'))
 
         self._paths = []
 
