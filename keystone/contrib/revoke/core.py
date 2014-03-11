@@ -76,7 +76,7 @@ class _Cache(object):
         with self._store.get_lock(_TREE_KEY):
             for e in self._current_events:
                 if e.revoked_at < cutoff:
-                    self.revoke_map.remove(e)
+                    self.revoke_map.remove_event(e)
                     self._current_events.remove(e)
                 else:
                     break

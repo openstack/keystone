@@ -14,9 +14,12 @@
 import datetime
 import uuid
 
+import mock
+
 from keystone.common import dependency
 from keystone import config
 from keystone.contrib.revoke import model
+from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import test_backend_sql
@@ -136,6 +139,36 @@ class RevokeTests(object):
         event.revoked_at = _past_time()
         self.revoke_api.revoke(event)
         self.assertEqual(1, len(self.revoke_api.get_events()))
+
+    @mock.patch.object(timeutils, 'utcnow')
+    def test_expired_events_removed_validate_token_success(self, mock_utcnow):
+        def _sample_token_values():
+            token = _sample_blank_token()
+            token['expires_at'] = timeutils.isotime(_future_time(),
+                                                    subsecond=True)
+            return token
+
+        now = datetime.datetime.utcnow()
+        now_plus_2h = now + datetime.timedelta(hours=2)
+        mock_utcnow.return_value = now
+
+        # Build a token and validate it. This will seed the cache for the
+        # future 'synchronize' call.
+        token_values = _sample_token_values()
+
+        user_id = _new_id()
+        self.revoke_api.revoke_by_user(user_id)
+        token_values['user_id'] = user_id
+        self.assertRaises(exception.TokenNotFound,
+                          self.revoke_api.check_token,
+                          token_values)
+
+        # Move our clock forward by 2h, build a new token and validate it.
+        # 'synchronize' should now be exercised and remove old expired events
+        mock_utcnow.return_value = now_plus_2h
+        self.revoke_api.revoke_by_expiration(_new_id(), now_plus_2h)
+        #should no longer throw an exception
+        self.revoke_api.check_token(token_values)
 
 
 class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
