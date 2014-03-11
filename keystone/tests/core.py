@@ -456,6 +456,10 @@ class TestCase(BaseTestCase):
         defined on `self`.
 
         """
+        # NOTE(dstanek): create a list of attribute names to be removed
+        # from this instance during cleanup
+        fixtures_to_cleanup = []
+
         # TODO(termie): doing something from json, probably based on Django's
         #               loaddata will be much preferred.
         if hasattr(self, 'identity_api') and hasattr(self, 'assignment_api'):
@@ -467,7 +471,9 @@ class TestCase(BaseTestCase):
                     rv = self.assignment_api.get_domain(domain['id'])
                 except exception.NotImplemented:
                     rv = domain
-                setattr(self, 'domain_%s' % domain['id'], rv)
+                attrname = 'domain_%s' % domain['id']
+                setattr(self, attrname, rv)
+                fixtures_to_cleanup.append(attrname)
 
             for tenant in fixtures.TENANTS:
                 try:
@@ -475,23 +481,24 @@ class TestCase(BaseTestCase):
                         tenant['id'], tenant)
                 except exception.Conflict:
                     rv = self.assignment_api.get_project(tenant['id'])
-                    pass
-                setattr(self, 'tenant_%s' % tenant['id'], rv)
+                attrname = 'tenant_%s' % tenant['id']
+                setattr(self, attrname, rv)
+                fixtures_to_cleanup.append(attrname)
 
             for role in fixtures.ROLES:
                 try:
                     rv = self.assignment_api.create_role(role['id'], role)
                 except exception.Conflict:
                     rv = self.assignment_api.get_role(role['id'])
-                    pass
-                setattr(self, 'role_%s' % role['id'], rv)
+                attrname = 'role_%s' % role['id']
+                setattr(self, attrname, rv)
+                fixtures_to_cleanup.append(attrname)
 
             for user in fixtures.USERS:
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
                 try:
-                    rv = self.identity_api.create_user(user['id'],
-                                                       user_copy.copy())
+                    self.identity_api.create_user(user['id'], user_copy)
                 except exception.Conflict:
                     pass
                 for tenant_id in tenants:
@@ -500,7 +507,11 @@ class TestCase(BaseTestCase):
                                                                 user['id'])
                     except exception.Conflict:
                         pass
-                setattr(self, 'user_%s' % user['id'], user_copy)
+                attrname = 'user_%s' % user['id']
+                setattr(self, attrname, user_copy)
+                fixtures_to_cleanup.append(attrname)
+
+            self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 
     def _paste_config(self, config):
         if not config.startswith('config:'):
