@@ -23,6 +23,15 @@ CONF = config.CONF
 
 
 class ConfigTestCase(tests.TestCase):
+
+    def config_files(self):
+        config_files = super(ConfigTestCase, self).config_files()
+        # Insert the keystone sample as the first config file to be loaded
+        # since it is used in one of the code paths to determine the paste-ini
+        # location.
+        config_files.insert(0, tests.dirs.etc('keystone.conf.sample'))
+        return config_files
+
     def test_paste_config(self):
         self.assertEqual(config.find_paste_config(),
                          tests.dirs.etc('keystone-paste.ini'))
@@ -46,8 +55,7 @@ class DeprecatedTestCase(tests.TestCase):
 
     def setUp(self):
         super(DeprecatedTestCase, self).setUp()
-        self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests('test_overrides.conf'),
+        self.config([tests.dirs.tests('test_overrides.conf'),
                      tests.dirs.tests('deprecated.conf'), ])
 
     def test_sql(self):
@@ -63,8 +71,7 @@ class DeprecatedOverrideTestCase(tests.TestCase):
 
     def setUp(self):
         super(DeprecatedOverrideTestCase, self).setUp()
-        self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests('test_overrides.conf'),
+        self.config([tests.dirs.tests('test_overrides.conf'),
                      tests.dirs.tests('deprecated_override.conf'), ])
 
     def test_sql(self):

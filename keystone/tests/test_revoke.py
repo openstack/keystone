@@ -174,17 +174,13 @@ class RevokeTests(object):
 class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
     def setUp(self):
         super(SqlRevokeTests, self).setUp()
-        self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests(
-                         'test_revoke_sql.conf')])
+        self.config([tests.dirs.tests('test_revoke_sql.conf')])
 
 
 class KvsRevokeTests(tests.TestCase, RevokeTests):
     def setUp(self):
         super(KvsRevokeTests, self).setUp()
-        self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests(
-                         'test_revoke_kvs.conf')])
+        self.config([tests.dirs.tests('test_revoke_kvs.conf')])
         self.load_backends()
 
 

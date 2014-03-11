@@ -59,8 +59,7 @@ class SqlMigrateBase(tests.TestCase):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
 
-    _config_file_list = [tests.dirs.etc('keystone.conf.sample'),
-                         tests.dirs.tests('test_overrides.conf'),
+    _config_file_list = [tests.dirs.tests('test_overrides.conf'),
                          tests.dirs.tests('backend_sql.conf')]
 
     #override this to specify the complete list of configuration files
