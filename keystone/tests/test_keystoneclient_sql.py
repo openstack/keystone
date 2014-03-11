@@ -35,6 +35,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
     def setUp(self):
         super(KcMasterSqlTestCase, self).setUp()
         self.default_client = self.get_client()
+        self.addCleanup(self.cleanup_instance('default_client'))
 
     def test_endpoint_crud(self):
         from keystoneclient import exceptions as client_exceptions
