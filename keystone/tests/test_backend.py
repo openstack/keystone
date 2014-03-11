@@ -4152,6 +4152,8 @@ class FilterTests(filtering.FilterTests):
 
 
 class LimitTests(filtering.FilterTests):
+    ENTITIES = ['user', 'group', 'project']
+
     def setUp(self):
         """Setup for Limit Test Cases."""
 
@@ -4162,13 +4164,12 @@ class LimitTests(filtering.FilterTests):
         self.entity_lists = {}
         self.domain1_entity_lists = {}
 
-        for entity in ['user', 'group', 'project']:
+        for entity in self.ENTITIES:
             # Create 20 entities, 14 of which are in domain1
             self.entity_lists[entity] = self._create_test_data(entity, 6)
             self.domain1_entity_lists[entity] = self._create_test_data(
                 entity, 14, self.domain1['id'])
-             # Make sure we clean up when finished
-            self.addCleanup(self.clean_up_entity, entity)
+        self.addCleanup(self.clean_up_entities)
 
     def clean_up_domain(self):
         """Clean up domain test data from Limit Test Cases."""
@@ -4176,12 +4177,15 @@ class LimitTests(filtering.FilterTests):
         self.domain1['enabled'] = False
         self.assignment_api.update_domain(self.domain1['id'], self.domain1)
         self.assignment_api.delete_domain(self.domain1['id'])
+        del self.domain1
 
-    def clean_up_entity(self, entity):
+    def clean_up_entities(self):
         """Clean up entity test data from Limit Test Cases."""
-
-        self._delete_test_data(entity, self.entity_lists[entity])
-        self._delete_test_data(entity, self.domain1_entity_lists[entity])
+        for entity in self.ENTITIES:
+            self._delete_test_data(entity, self.entity_lists[entity])
+            self._delete_test_data(entity, self.domain1_entity_lists[entity])
+        del self.entity_lists
+        del self.domain1_entity_lists
 
     def _test_list_entity_filtered_and_limited(self, entity):
         self.config_fixture.config(list_limit=10)
