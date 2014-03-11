@@ -24,13 +24,13 @@ library to work with nova.
 
 import re
 import shelve
-import six
 
 import ldap
+import six
+from six import moves
 
 from keystone.common import utils
 from keystone.openstack.common import log
-from six import moves
 
 
 SCOPE_NAMES = {
