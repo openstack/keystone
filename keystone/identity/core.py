@@ -38,6 +38,10 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
+DOMAIN_CONF_FHEAD = 'keystone.'
+DOMAIN_CONF_FTAIL = '.conf'
+
+
 def moved_to_assignment(f):
     name = f.__name__
     deprecated = versionutils.deprecated(versionutils.deprecated.ICEHOUSE,
@@ -131,12 +135,13 @@ class DomainConfigs(dict):
 
         for r, d, f in os.walk(conf_dir):
             for fname in f:
-                if fname.startswith('keystone.') and fname.endswith('.conf'):
-                    names = fname.split('.')
-                    if len(names) == 3:
+                if (fname.startswith(DOMAIN_CONF_FHEAD) and
+                        fname.endswith(DOMAIN_CONF_FTAIL)):
+                    if fname.count('.') >= 2:
                         self._load_config(assignment_api,
                                           [os.path.join(r, fname)],
-                                          names[1])
+                                          fname[len(DOMAIN_CONF_FHEAD):
+                                                -len(DOMAIN_CONF_FTAIL)])
                     else:
                         LOG.debug(_('Ignoring file (%s) while scanning domain '
                                     'config directory'),
