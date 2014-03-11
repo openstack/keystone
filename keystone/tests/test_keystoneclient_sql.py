@@ -26,10 +26,10 @@ CONF = config.CONF
 
 
 class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
-    def config(self, config_files):
-        super(KcMasterSqlTestCase, self).config([
-            tests.dirs.tests('test_overrides.conf'),
-            tests.dirs.tests('backend_sql.conf')])
+    def config_files(self):
+        config_files = super(KcMasterSqlTestCase, self).config_files()
+        config_files.append(tests.dirs.tests('backend_sql.conf'))
+        return config_files
 
     def setUp(self):
         super(KcMasterSqlTestCase, self).setUp()

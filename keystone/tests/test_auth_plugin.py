@@ -54,7 +54,7 @@ class NoMethodAuthPlugin(auth.AuthMethodHandler):
         pass
 
 
-class TestAuthPlugin(tests.TestCase):
+class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
     def setUp(self):
         super(TestAuthPlugin, self).setUp()
         self.load_backends()
@@ -66,14 +66,19 @@ class TestAuthPlugin(tests.TestCase):
         self.api = auth.controllers.Auth()
 
     def config_files(self):
-        return [tests.dirs.tests('test_overrides.conf'),
-                tests.dirs.tests('backend_sql.conf'),
-                tests.dirs.tests('test_auth_plugin.conf')]
+        config_files = super(TestAuthPlugin, self).config_files()
+        config_files.append(tests.dirs.tests('test_auth_plugin.conf'))
+        return config_files
 
-    def config(self, config_files):
-        super(TestAuthPlugin, self).config(config_files)
-        db_conn = 'sqlite:///%s' % tests.dirs.tmp('test.db')
-        self.config_fixture.config(group='database', connection=db_conn)
+    def config_overrides(self):
+        super(TestAuthPlugin, self).config_overrides()
+        self.config_fixture.config(
+            group='auth',
+            methods=[
+                'keystone.auth.plugins.external.DefaultDomain',
+                'keystone.auth.plugins.password.Password',
+                'keystone.auth.plugins.token.Token',
+                'keystone.tests.test_auth_plugin.SimpleChallengeResponse'])
 
     def test_unsupported_auth_method(self):
         method_name = uuid.uuid4().hex
@@ -124,11 +129,17 @@ class TestAuthPlugin(tests.TestCase):
                           auth_context)
 
 
-class TestByClassNameAuthMethodRegistration(TestAuthPlugin):
+class TestAuthPluginDynamicOptions(TestAuthPlugin):
+    def config_overrides(self):
+        super(TestAuthPluginDynamicOptions, self).config_overrides()
+        # Clear the override for the [auth] ``methods`` option so it is
+        # possible to load the options from the config file.
+        self.config_fixture.conf.clear_override('methods', group='auth')
+
     def config_files(self):
-        return [tests.dirs.tests('test_overrides.conf'),
-                tests.dirs.tests('backend_sql.conf'),
-                tests.dirs.tests('test_auth_plugin_by_class_name.conf')]
+        config_files = super(TestAuthPluginDynamicOptions, self).config_files()
+        config_files.append(tests.dirs.tests('test_auth_plugin.conf'))
+        return config_files
 
 
 class TestInvalidAuthMethodRegistration(tests.TestCase):

@@ -36,9 +36,16 @@ def create_object(dn, attrs):
 
 class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
 
-    def _set_config(self):
-        self.config([tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('backend_tls_liveldap.conf')])
+    def config_files(self):
+        config_files = super(LiveTLSLDAPIdentity, self).config_files()
+        config_files.append(tests.dirs.tests('backend_tls_liveldap.conf'))
+        return config_files
+
+    def config_overrides(self):
+        super(LiveTLSLDAPIdentity, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.ldap.Identity')
 
     def test_tls_certfile_demand_option(self):
         self.config_fixture.config(group='ldap',

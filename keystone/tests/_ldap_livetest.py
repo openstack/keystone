@@ -69,9 +69,16 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                       {'objectclass': 'organizationalUnit',
                        'ou': 'UserGroups'})
 
-    def _set_config(self):
-        self.config([tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('backend_liveldap.conf')])
+    def config_files(self):
+        config_files = super(LiveLDAPIdentity, self).config_files()
+        config_files.append(tests.dirs.tests('backend_liveldap.conf'))
+        return config_files
+
+    def config_overrides(self):
+        super(LiveLDAPIdentity, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.ldap.Identity')
 
     def test_build_tree(self):
         """Regression test for building the tree names
