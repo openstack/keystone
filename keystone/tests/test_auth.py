@@ -974,7 +974,7 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
         config_files = super(AuthCatalog, self).config_files()
         # We need to use a backend that supports disabled endpoints, like the
         # SQL backend.
-        config_files.append(tests.dirs.tests('backend_sql.conf'))
+        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def _create_endpoints(self):

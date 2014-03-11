@@ -25,7 +25,7 @@ class PostgresqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
-        files.append(tests.dirs.tests("backend_postgresql.conf"))
+        files.append(tests.dirs.tests_conf("backend_postgresql.conf"))
         return files
 
 
@@ -33,7 +33,7 @@ class MysqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
-        files.append(tests.dirs.tests("backend_mysql.conf"))
+        files.append(tests.dirs.tests_conf("backend_mysql.conf"))
         return files
 
 
@@ -42,7 +42,7 @@ class PostgresqlRevokeExtensionsTests(
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
-        files.append(tests.dirs.tests("backend_postgresql.conf"))
+        files.append(tests.dirs.tests_conf("backend_postgresql.conf"))
         return files
 
 
@@ -50,7 +50,7 @@ class MysqlRevokeExtensionsTests(test_sql_migrate_extensions.RevokeExtension):
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
-        files.append(tests.dirs.tests("backend_mysql.conf"))
+        files.append(tests.dirs.tests_conf("backend_mysql.conf"))
         return files
 
 
@@ -58,5 +58,5 @@ class Db2MigrateTests(test_sql_upgrade.SqlUpgradeTests):
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
-        files.append(tests.dirs.tests("backend_db2.conf"))
+        files.append(tests.dirs.tests_conf("backend_db2.conf"))
         return files

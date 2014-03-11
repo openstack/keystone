@@ -78,6 +78,7 @@ config.configure()
 
 LOG = log.getLogger(__name__)
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
+TESTCONF = os.path.join(TESTSDIR, 'config_files')
 ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))
 VENDOR = os.path.join(ROOTDIR, 'vendor')
 ETCDIR = os.path.join(ROOTDIR, 'etc')
@@ -113,6 +114,10 @@ class dirs:
     @staticmethod
     def tmp(*p):
         return os.path.join(TMPDIR, *p)
+
+    @staticmethod
+    def tests_conf(*p):
+        return os.path.join(TESTCONF, *p)
 
 
 # keystone.common.sql.initialize() for testing.

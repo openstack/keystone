@@ -71,7 +71,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def config_files(self):
         config_files = super(LiveLDAPIdentity, self).config_files()
-        config_files.append(tests.dirs.tests('backend_liveldap.conf'))
+        config_files.append(tests.dirs.tests_conf('backend_liveldap.conf'))
         return config_files
 
     def config_overrides(self):
