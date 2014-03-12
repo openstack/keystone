@@ -115,8 +115,8 @@ def _match(key, value, attrs):
         # for serviceId, the backend is returning a list of numbers
         # make sure we convert them to strings first before comparing
         # them
-        str_sids = [str(x) for x in attrs[key]]
-        return str(value) in str_sids
+        str_sids = [six.text_type(x) for x in attrs[key]]
+        return six.text_type(value) in str_sids
     if key != 'objectclass':
         return _process_attr(key, value)[0] in attrs[key]
     # it is an objectclass check, so check subclasses
@@ -169,6 +169,14 @@ class FakeLdap(object):
         else:
             self.db = shelve.open(url[7:])
 
+    def dn(self, dn):
+        # temporarily return input value,
+        # subsequent patch will add implementation
+        return dn
+
+    def key(self, dn):
+        return '%s%s' % (self.__prefix, self.dn(dn))
+
     def simple_bind_s(self, dn, password):
         """This method is ignored, but provided for compatibility."""
         if server_fail:
@@ -178,7 +186,7 @@ class FakeLdap(object):
             return
 
         try:
-            attrs = self.db['%s%s' % (self.__prefix, dn)]
+            attrs = self.db[self.key(dn)]
         except KeyError:
             LOG.debug('bind fail: dn=%s not found', dn)
             raise ldap.NO_SUCH_OBJECT
@@ -209,7 +217,7 @@ class FakeLdap(object):
             if k is None:
                 raise TypeError('must be string, not None. attrs=%s' % attrs)
 
-        key = '%s%s' % (self.__prefix, dn)
+        key = self.key(dn)
         LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
             'dn': dn, 'attrs': attrs})
         if key in self.db:
@@ -225,7 +233,7 @@ class FakeLdap(object):
         if server_fail:
             raise ldap.SERVER_DOWN
 
-        key = '%s%s' % (self.__prefix, dn)
+        key = self.key(dn)
         LOG.debug('delete item: dn=%s', dn)
         try:
             del self.db[key]
@@ -243,12 +251,14 @@ class FakeLdap(object):
             if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
                 LOG.debug('FakeLdap subtree_delete item: dn=%s', dn)
                 children = [k for k, v in six.iteritems(self.db)
-                            if re.match('%s.*,%s' % (self.__prefix, dn), k)]
+                            if re.match('%s.*,%s' % (
+                                        re.escape(self.__prefix),
+                                        re.escape(self.dn(dn))), k)]
                 for c in children:
                     del self.db[c]
 
+            key = self.key(dn)
             LOG.debug(_('FakeLdap delete item: dn=%s'), dn)
-            key = '%s%s' % (self.__prefix, dn)
             del self.db[key]
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.', dn)
@@ -265,7 +275,7 @@ class FakeLdap(object):
         if server_fail:
             raise ldap.SERVER_DOWN
 
-        key = '%s%s' % (self.__prefix, dn)
+        key = self.key(dn)
         LOG.debug('modify item: dn=%(dn)s attrs=%(attrs)s', {
             'dn': dn, 'attrs': attrs})
         try:
@@ -326,7 +336,7 @@ class FakeLdap(object):
             {'dn': dn, 'scope': SCOPE_NAMES.get(scope, scope), 'query': query})
         if scope == ldap.SCOPE_BASE:
             try:
-                item_dict = self.db['%s%s' % (self.__prefix, dn)]
+                item_dict = self.db[self.key(dn)]
             except KeyError:
                 LOG.debug('search fail: dn not found for SCOPE_BASE')
                 raise ldap.NO_SUCH_OBJECT
@@ -334,11 +344,14 @@ class FakeLdap(object):
         elif scope == ldap.SCOPE_SUBTREE:
             results = [(k[len(self.__prefix):], v)
                        for k, v in six.iteritems(self.db)
-                       if re.match('%s.*,%s' % (self.__prefix, dn), k)]
+                       if re.match('%s.*,%s' % (re.escape(self.__prefix),
+                                                re.escape(self.dn(dn))), k)]
         elif scope == ldap.SCOPE_ONELEVEL:
             results = [(k[len(self.__prefix):], v)
                        for k, v in six.iteritems(self.db)
-                       if re.match('%s\w+=[^,]+,%s' % (self.__prefix, dn), k)]
+                       if re.match('%s\w+=[^,]+,%s' % (
+                                   re.escape(self.__prefix),
+                                   re.escape(self.dn(dn))), k)]
         else:
             LOG.debug('search fail: unknown scope %s', scope)
             raise NotImplementedError('Search scope %s not implemented.'
