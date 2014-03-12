@@ -19,7 +19,6 @@
 import logging
 import re
 
-from migrate.changeset import UniqueConstraint
 import sqlalchemy
 from sqlalchemy import Boolean
 from sqlalchemy import CheckConstraint
@@ -302,6 +301,10 @@ def drop_unique_constraint(migrate_engine, table_name, uc_name, *columns,
                            **col_name_col_instance):
     """Drop unique constraint from table.
 
+    DEPRECATED: this function is deprecated and will be removed from keystone.db
+    in a few releases. Please use UniqueConstraint.drop() method directly for
+    sqlalchemy-migrate migration scripts.
+
     This method drops UC from table and works for mysql, postgresql and sqlite.
     In mysql and postgresql we are able to use "alter table" construction.
     Sqlalchemy doesn't support some sqlite column types and replaces their
@@ -317,6 +320,8 @@ def drop_unique_constraint(migrate_engine, table_name, uc_name, *columns,
                             are required only for columns that have unsupported
                             types by sqlite. For example BigInteger.
     """
+
+    from migrate.changeset import UniqueConstraint
 
     meta = MetaData()
     meta.bind = migrate_engine
