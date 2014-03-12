@@ -587,6 +587,11 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         self._test_grants('domains', self.domainA['id'])
 
+        # Check that with such a token we cannot modify grants on a
+        # different domain
+        self._test_grants('domains', self.domainB['id'],
+                          expected=exception.ForbiddenAction.code)
+
     def test_domain_grants_by_cloud_admin(self):
         # Test domain grants with a cloud admin. This user should be
         # able to manage roles on any domain.
