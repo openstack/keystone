@@ -40,8 +40,7 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 class RestfulTestCase(rest.RestfulTestCase):
     _config_file_list = [tests.dirs.etc('keystone.conf.sample'),
                          tests.dirs.tests('test_overrides.conf'),
-                         tests.dirs.tests('backend_sql.conf'),
-                         tests.dirs.tests('backend_sql_disk.conf')]
+                         tests.dirs.tests('backend_sql.conf')]
 
     #Subclasses can override this to specify the complete list of configuration
     #files.  The base version makes a copy of the original values, otherwise
@@ -89,6 +88,11 @@ class RestfulTestCase(rest.RestfulTestCase):
         self.addCleanup(rules.reset)
 
         self.addCleanup(self.teardown_database)
+
+    def config(self, config_files):
+        super(RestfulTestCase, self).config(config_files)
+        db_conn = 'sqlite:///%s' % tests.dirs.tmp('test.db')
+        self.config_fixture.config(group='database', connection=db_conn)
 
     def load_backends(self):
         self.setup_database()
