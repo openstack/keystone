@@ -29,9 +29,6 @@ LOG = log.getLogger(__name__)
 @dependency.requires('oauth_api')
 class OAuthValidator(oauth1.RequestValidator):
 
-    def __init__(self):
-        self.oauth_api = oauth1.Manager()
-
     #TODO(mhu) set as option probably ?
     @property
     def enforce_ssl(self):
