@@ -35,6 +35,7 @@ import uuid
 
 from migrate.versioning import api as versioning_api
 import sqlalchemy
+import sqlalchemy.exc
 
 from keystone.assignment.backends import sql as assignment_sql
 from keystone.common import sql
@@ -595,9 +596,13 @@ class SqlUpgradeTests(SqlMigrateBase):
         session.commit()
         session.close()
 
-    def insert_dict(self, session, table_name, d):
+    def insert_dict(self, session, table_name, d, table=None):
         """Naively inserts key-value pairs into a table, given a dictionary."""
-        this_table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
+        if table is None:
+            this_table = sqlalchemy.Table(table_name, self.metadata,
+                                          autoload=True)
+        else:
+            this_table = table
         insert = this_table.insert()
         insert.execute(d)
         session.commit()
@@ -2288,6 +2293,95 @@ class SqlUpgradeTests(SqlMigrateBase):
         for endpoint_id, exp_extra, msg in endpoints:
             extra = fetch_endpoint(endpoint_id)
             self.assertEqual(exp_extra, extra, msg)
+
+    def test_upgrade_region_non_unique_description(self):
+        """Test upgrade to migration 43.
+
+        This migration should occur with no unique constraint on the region
+        description column.
+
+        Create two regions with the same description.
+
+        """
+        session = self.Session()
+
+        def add_region():
+            region_uuid = uuid.uuid4().hex
+
+            region = {
+                'id': region_uuid,
+                'description': ''
+            }
+
+            self.insert_dict(session, 'region', region)
+            return region_uuid
+
+        self.upgrade(43)
+        # Write one region to the database
+        add_region()
+        # Write another region to the database with the same description
+        add_region()
+
+    def test_upgrade_region_unique_description(self):
+        """Test upgrade to migration 43.
+
+        This test models a migration where there is a unique constraint on the
+        description column.
+
+        Create two regions with the same description.
+
+        """
+        session = self.Session()
+
+        def add_region(table):
+            region_uuid = uuid.uuid4().hex
+
+            region = {
+                'id': region_uuid,
+                'description': ''
+            }
+
+            self.insert_dict(session, 'region', region, table=table)
+            return region_uuid
+
+        def get_metadata():
+            meta = sqlalchemy.MetaData()
+            meta.bind = self.engine
+            return meta
+
+        # Migrate to version 42
+        self.upgrade(42)
+        region_table = sqlalchemy.Table('region',
+                                        get_metadata(),
+                                        autoload=True)
+        # create the unique constraint and load the new version of the
+        # reflection cache
+        idx = sqlalchemy.Index('description', region_table.c.description,
+                               unique=True)
+        idx.create(self.engine)
+
+        region_unique_table = sqlalchemy.Table('region',
+                                               get_metadata(),
+                                               autoload=True)
+        add_region(region_unique_table)
+        self.assertEqual(1, session.query(region_unique_table).count())
+        # verify the unique constraint is enforced
+        self.assertRaises(sqlalchemy.exc.IntegrityError,
+                          add_region,
+                          table=region_unique_table)
+
+        # migrate to 43, unique constraint should be dropped
+        self.upgrade(43)
+
+        # reload the region table from the schema
+        region_nonunique = sqlalchemy.Table('region',
+                                            get_metadata(),
+                                            autoload=True)
+        self.assertEqual(1, session.query(region_nonunique).count())
+
+        # Write a second region to the database with the same description
+        add_region(region_nonunique)
+        self.assertEqual(2, session.query(region_nonunique).count())
 
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
