@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import datetime
 import json
 import uuid
@@ -1624,6 +1625,42 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertEqual(r.result['token']['project']['id'],
                          self.project['id'])
 
+    def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):
+        endpoints = catalog[0]['endpoints']
+        endpoint_ids = [ep['id'] for ep in endpoints]
+
+        self.assertEqual(2, len(endpoint_ids))
+        self.assertIn(self.endpoint_id, endpoint_ids)
+        self.assertIn(disabled_endpoint_id, endpoint_ids)
+
+    def test_auth_catalog_disabled_endpoint(self):
+        """When authenticate, get back a catalog that includes both enabled
+        and disabled endpoints.
+        """
+
+        # FIXME(blk-u): disabled endpoints should not be included in the
+        # catalog, see bug 1273867
+
+        # Create a disabled endpoint that's like the enabled one.
+        disabled_endpoint_ref = copy.copy(self.endpoint)
+        disabled_endpoint_id = uuid.uuid4().hex
+        disabled_endpoint_ref.update({
+            'id': disabled_endpoint_id,
+            'enabled': False,
+            'interface': 'internal'
+        })
+        self.catalog_api.create_endpoint(disabled_endpoint_id,
+                                         disabled_endpoint_ref)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+
+        self._check_disabled_endpoint_result(r.result['token']['catalog'],
+                                             disabled_endpoint_id)
+
     def test_project_id_scoped_token_with_user_id_401(self):
         project_id = uuid.uuid4().hex
         project = self.new_project_ref(domain_id=self.domain_id)
@@ -2201,6 +2238,19 @@ class TestAuthJSON(test_v3.RestfulTestCase):
 
 class TestAuthXML(TestAuthJSON):
     content_type = 'xml'
+
+    def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):
+        # FIXME(blk-u): As far as I can tell the catalog in the XML result is
+        # broken. Looks like it includes only one endpoint or the other, and
+        # which one is included is random.
+
+        endpoint = catalog['service']['endpoint']
+        if endpoint['id'] == self.endpoint_id:
+            pass
+        elif endpoint['id'] == disabled_endpoint_id:
+            pass
+        else:
+            self.fail("Didn't find either enabled or disabled endpoint!")
 
 
 class TestTrustOptional(test_v3.RestfulTestCase):
