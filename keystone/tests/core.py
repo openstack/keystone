@@ -318,7 +318,32 @@ class NoModule(object):
         sys.meta_path.insert(0, finder)
 
 
-class TestCase(testtools.TestCase):
+class BaseTestCase(testtools.TestCase):
+    """Light weight base test class.
+
+    This is a placeholder that will eventually go away once thc
+    setup/teardown in TestCase is properly trimmed down to the bare
+    essentials. This is really just a play to speed up the tests by
+    eliminating unnecessary work.
+    """
+
+    def cleanup_instance(self, *names):
+        """Create a function suitable for use with self.addCleanup.
+
+        :returns: a callable that uses a closure to delete instance attributes
+
+        """
+        def cleanup():
+            for name in names:
+                # TODO(dstanek): remove this 'if' statement once
+                # load_backend in test_backend_ldap is only called once
+                # per test
+                if hasattr(self, name):
+                    delattr(self, name)
+        return cleanup
+
+
+class TestCase(BaseTestCase):
 
     _config_file_list = [dirs.etc('keystone.conf.sample'),
                          dirs.tests('test_overrides.conf')]
@@ -405,11 +430,13 @@ class TestCase(testtools.TestCase):
 
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
+        self.addCleanup(self.cleanup_instance(*drivers.keys()))
 
         # The credential backend only supports SQL, so we always have to load
         # the tables.
         self.engine = sql.get_engine()
         self.addCleanup(sql.cleanup)
+        self.addCleanup(self.cleanup_instance('engine'))
 
         sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
