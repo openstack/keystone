@@ -464,3 +464,20 @@ BAD_TESTER_ASSERTION = {
     'LastName': 'Account',
     'orgPersonType': 'Tester;'
 }
+
+MALFORMED_TESTER_ASSERTION = {
+    'Email': 'testacct@example.com',
+    'UserName': 'testacct',
+    'FirstName': 'Test',
+    'LastName': 'Account',
+    'orgPersonType': 'Tester;',
+    'object': object(),
+    'dictionary': dict(zip('teststring', xrange(10))),
+    'tuple': tuple(xrange(5))
+}
+
+CONTRACTOR_MALFORMED_ASSERTION = {
+    'UserName': 'user',
+    'FirstName': object(),
+    'orgPersonType': 'Contractor'
+}

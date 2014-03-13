@@ -169,7 +169,8 @@ class RuleProcessor(object):
         # semi-colon to indicate multiple values, i.e. groups.
         # This will create a new dictionary where the values are arrays, and
         # any multiple values are stored in the arrays.
-        assertion = dict((n, v.split(';')) for n, v in assertion_data.items())
+        assertion = dict((n, v.split(';')) for n, v in assertion_data.items()
+                         if isinstance(v, six.string_types))
         identity_values = []
 
         for rule in self.rules:
