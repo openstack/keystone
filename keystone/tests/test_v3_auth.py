@@ -1628,18 +1628,12 @@ class TestAuthJSON(test_v3.RestfulTestCase):
     def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):
         endpoints = catalog[0]['endpoints']
         endpoint_ids = [ep['id'] for ep in endpoints]
-
-        self.assertEqual(2, len(endpoint_ids))
-        self.assertIn(self.endpoint_id, endpoint_ids)
-        self.assertIn(disabled_endpoint_id, endpoint_ids)
+        self.assertEqual([self.endpoint_id], endpoint_ids)
 
     def test_auth_catalog_disabled_endpoint(self):
-        """When authenticate, get back a catalog that includes both enabled
-        and disabled endpoints.
+        """When authenticate, get back a catalog that includes only enabled
+        endpoints.
         """
-
-        # FIXME(blk-u): disabled endpoints should not be included in the
-        # catalog, see bug 1273867
 
         # Create a disabled endpoint that's like the enabled one.
         disabled_endpoint_ref = copy.copy(self.endpoint)
@@ -2245,12 +2239,7 @@ class TestAuthXML(TestAuthJSON):
         # which one is included is random.
 
         endpoint = catalog['service']['endpoint']
-        if endpoint['id'] == self.endpoint_id:
-            pass
-        elif endpoint['id'] == disabled_endpoint_id:
-            pass
-        else:
-            self.fail("Didn't find either enabled or disabled endpoint!")
+        self.assertEqual(self.endpoint_id, endpoint['id'])
 
 
 class TestTrustOptional(test_v3.RestfulTestCase):

@@ -1009,14 +1009,12 @@ class AuthCatalog(AuthTest):
         return enabled_endpoint_ref, disabled_endpoint_ref
 
     def test_auth_catalog_disabled(self):
-        """When authenticate, get back a catalog that includes both enabled and
-        disabled endpoints.
+        """When authenticate, get back a catalog that includes only enabled
+        endpoints.
         """
 
-        # FIXME(blk-u): disabled endpoints should not be included in the
-        # catalog, see bug 1273867
-
-        enabled_endpoint_ref, disabled_endpoint_ref = self._create_endpoints()
+        enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
+            self._create_endpoints())
 
         # Authenticate
         body_dict = _build_user_auth(
@@ -1031,7 +1029,6 @@ class AuthCatalog(AuthTest):
 
         exp_endpoint = {
             'id': enabled_endpoint_ref['id'],
-            'internalURL': disabled_endpoint_ref['url'],
             'publicURL': enabled_endpoint_ref['url'],
             'region': enabled_endpoint_ref['region'],
         }
@@ -1039,14 +1036,12 @@ class AuthCatalog(AuthTest):
         self.assertEqual(exp_endpoint, endpoint)
 
     def test_validate_catalog_disabled(self):
-        """When validate, get back a catalog that includes both enabled and
-        disabled endpoints.
+        """When validate, get back a catalog that includes only enabled
+        endpoints.
         """
 
-        # FIXME(blk-u): disabled endpoints should not be included in the
-        # catalog, see bug 1273867
-
-        enabled_endpoint_ref, disabled_endpoint_ref = self._create_endpoints()
+        enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
+            self._create_endpoints())
 
         # Authenticate
         body_dict = _build_user_auth(
@@ -1067,7 +1062,6 @@ class AuthCatalog(AuthTest):
 
         exp_endpoint = {
             'id': enabled_endpoint_ref['id'],
-            'internalURL': disabled_endpoint_ref['url'],
             'publicURL': enabled_endpoint_ref['url'],
             'region': enabled_endpoint_ref['region'],
         }

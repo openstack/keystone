@@ -462,10 +462,7 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
                          self.project['id'])
 
     def test_disabled_endpoint(self):
-        """The catalog will contain both enabled and disabled endpoints."""
-
-        # FIXME(blk-u): disabled endpoints should not be included in the
-        # catalog, see bug 1273867
+        """The catalog contains only enabled endpoints."""
 
         # Add an enabled endpoint to the default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
@@ -502,6 +499,4 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
 
         endpoints = r.result['token']['catalog'][0]['endpoints']
         endpoint_ids = [ep['id'] for ep in endpoints]
-        self.assertEqual(2, len(endpoint_ids))
-        self.assertIn(self.endpoint_id, endpoint_ids)
-        self.assertIn(disabled_endpoint_id, endpoint_ids)
+        self.assertEqual([self.endpoint_id], endpoint_ids)
