@@ -33,6 +33,15 @@ class ConsumerCrudV3(controller.V3Controller):
     collection_name = 'consumers'
     member_name = 'consumer'
 
+    @classmethod
+    def base_url(cls, path=None):
+        """Construct a path and pass it to V3Controller.base_url method."""
+
+        # NOTE(stevemar): Overriding path to /OS-OAUTH1/consumers so that
+        # V3Controller.base_url handles setting the self link correctly.
+        path = '/OS-OAUTH1/' + cls.collection_name
+        return controller.V3Controller.base_url(path=path)
+
     @controller.protected()
     def create_consumer(self, context, consumer):
         ref = self._assign_unique_id(self._normalize_dict(consumer))

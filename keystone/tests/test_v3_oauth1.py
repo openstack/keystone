@@ -37,6 +37,8 @@ class OAuth1Tests(test_v3.RestfulTestCase):
     EXTENSION_NAME = 'oauth1'
     EXTENSION_TO_ADD = 'oauth1_extension'
 
+    CONSUMER_URL = '/OS-OAUTH1/consumers'
+
     def setup_database(self):
         super(OAuth1Tests, self).setup_database()
         package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
@@ -55,7 +57,7 @@ class OAuth1Tests(test_v3.RestfulTestCase):
     def _create_single_consumer(self):
         ref = {'description': uuid.uuid4().hex}
         resp = self.post(
-            '/OS-OAUTH1/consumers',
+            self.CONSUMER_URL,
             body={'consumer': ref})
         return resp.result['consumer']
 
@@ -112,7 +114,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         if kwargs:
             ref.update(kwargs)
         resp = self.post(
-            '/OS-OAUTH1/consumers',
+            self.CONSUMER_URL,
             body={'consumer': ref})
         consumer = resp.result['consumer']
         consumer_id = consumer['id']
@@ -144,19 +146,27 @@ class ConsumerCRUDTests(OAuth1Tests):
     def test_consumer_delete(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
-        resp = self.delete('/OS-OAUTH1/consumers/%s' % consumer_id)
+        resp = self.delete(self.CONSUMER_URL + '/%s' % consumer_id)
         self.assertResponseStatus(resp, 204)
 
     def test_consumer_get(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
-        resp = self.get('/OS-OAUTH1/consumers/%s' % consumer_id)
+        resp = self.get(self.CONSUMER_URL + '/%s' % consumer_id)
+        self_url = [CONF.public_endpoint % CONF, 'v3', self.CONSUMER_URL,
+                    '/', consumer_id]
+        self_url = ''.join(self_url)
+        self.assertEqual(resp.result['consumer']['links']['self'], self_url)
         self.assertEqual(resp.result['consumer']['id'], consumer_id)
 
     def test_consumer_list(self):
-        resp = self.get('/OS-OAUTH1/consumers')
+        self._consumer_create()
+        resp = self.get(self.CONSUMER_URL)
         entities = resp.result['consumers']
         self.assertIsNotNone(entities)
+        self_url = [CONF.public_endpoint % CONF, 'v3', self.CONSUMER_URL]
+        self_url = ''.join(self_url)
+        self.assertEqual(resp.result['links']['self'], self_url)
         self.assertValidListLinks(resp.result['links'])
 
     def test_consumer_update(self):
@@ -166,7 +176,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_description = original_description + '_new'
 
         update_ref = {'description': update_description}
-        update_resp = self.patch('/OS-OAUTH1/consumers/%s' % original_id,
+        update_resp = self.patch(self.CONSUMER_URL + '/%s' % original_id,
                                  body={'consumer': update_ref})
         consumer = update_resp.result['consumer']
         self.assertEqual(consumer['description'], update_description)
@@ -178,7 +188,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref = copy.deepcopy(consumer)
         update_ref['description'] = uuid.uuid4().hex
         update_ref['secret'] = uuid.uuid4().hex
-        self.patch('/OS-OAUTH1/consumers/%s' % original_id,
+        self.patch(self.CONSUMER_URL + '/%s' % original_id,
                    body={'consumer': update_ref},
                    expected_status=400)
 
@@ -191,7 +201,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref = copy.deepcopy(consumer)
         update_ref['description'] = update_description
         update_ref['id'] = update_description
-        self.patch('/OS-OAUTH1/consumers/%s' % original_id,
+        self.patch(self.CONSUMER_URL + '/%s' % original_id,
                    body={'consumer': update_ref},
                    expected_status=400)
 
@@ -213,7 +223,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref = {field1_name: field1_new_value,
                       field2_name: field2_value}
 
-        update_resp = self.patch('/OS-OAUTH1/consumers/%s' % consumer_id,
+        update_resp = self.patch(self.CONSUMER_URL + '/%s' % consumer_id,
                                  body={'consumer': update_ref})
         consumer = update_resp.result['consumer']
 
@@ -224,7 +234,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertEqual(field2_value, consumer[normalized_field2_name])
 
     def test_consumer_create_no_description(self):
-        resp = self.post('/OS-OAUTH1/consumers', body={'consumer': {}})
+        resp = self.post(self.CONSUMER_URL, body={'consumer': {}})
         consumer = resp.result['consumer']
         consumer_id = consumer['id']
         self.assertIsNone(consumer['description'])
@@ -232,7 +242,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertIsNotNone(consumer['secret'])
 
     def test_consumer_get_bad_id(self):
-        self.get('/OS-OAUTH1/consumers/%(consumer_id)s'
+        self.get(self.CONSUMER_URL + '/%(consumer_id)s'
                  % {'consumer_id': uuid.uuid4().hex},
                  expected_status=404)
 
