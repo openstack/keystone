@@ -685,6 +685,10 @@ class TestCase(BaseTestCase):
         if not self.ipv6_enabled:
             raise self.skipTest("IPv6 is not enabled in the system")
 
+    def skip_if_env_not_set(self, env_var):
+        if not os.environ.get(env_var):
+            self.skipTest('Env variable %s is not set.' % env_var)
+
     def assertSetEqual(self, set1, set2, msg=None):
         # TODO(morganfainberg): Remove this and self._assertSetEqual once
         # support for python 2.6 is no longer needed.

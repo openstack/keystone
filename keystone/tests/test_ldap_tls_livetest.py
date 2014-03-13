@@ -20,7 +20,7 @@ from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone import tests
-from keystone.tests import _ldap_livetest
+from keystone.tests import test_ldap_livetest
 
 
 CONF = config.CONF
@@ -34,7 +34,10 @@ def create_object(dn, attrs):
     conn.unbind_s()
 
 
-class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
+class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
+
+    def _ldap_skip_live(self):
+            self.skip_if_env_not_set('ENABLE_TLS_LDAP_LIVE_TEST')
 
     def config_files(self):
         config_files = super(LiveTLSLDAPIdentity, self).config_files()

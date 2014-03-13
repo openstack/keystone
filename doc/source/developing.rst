@@ -304,9 +304,13 @@ and set environment variables ``KEYSTONE_IDENTITY_BACKEND=ldap`` and
 ``KEYSTONE_CLEAR_LDAP=yes`` in your ``localrc`` file.
 
 The unit tests can be run against a live server with
-``keystone/tests/_ldap_livetest.py``.  The default password is ``test`` but if you have
+``keystone/tests/test_ldap_livetest.py``.  The default password is ``test`` but if you have
 installed devstack with a different LDAP password, modify the file
 ``keystone/tests/backend_liveldap.conf`` to reflect your password.
+
+.. NOTE::
+    To run the live tests you need to set the environment variable ``ENABLE_LDAP_LIVE_TEST``
+    to a non-negative value.
 
 
 Generating Updated Sample Config File
