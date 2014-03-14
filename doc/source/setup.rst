@@ -87,7 +87,7 @@ Ubuntu 12.04::
 
 Fedora 15::
 
-    $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap
+    $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel
 
 Mac OS X Lion (requires MacPorts_)::
 
