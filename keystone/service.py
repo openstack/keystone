@@ -24,7 +24,6 @@ from keystone.common import cache
 from keystone.common import wsgi
 from keystone import config
 from keystone.contrib import endpoint_filter
-from keystone.contrib import revoke
 from keystone import controllers
 from keystone import credential
 from keystone import identity
@@ -56,7 +55,6 @@ def load_backends():
         endpoint_filter_api=endpoint_filter.Manager(),
         identity_api=_IDENTITY_API,
         policy_api=policy.Manager(),
-        revoke_api=revoke.Manager(),
         token_api=token.Manager(),
         trust_api=trust.Manager(),
         token_provider_api=token.provider.Manager())

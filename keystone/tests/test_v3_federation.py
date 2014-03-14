@@ -14,6 +14,7 @@ import random
 import uuid
 
 from keystone.auth import controllers as auth_controllers
+from keystone.common import dependency
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone import config
@@ -36,6 +37,7 @@ def dummy_validator(*args, **kwargs):
     pass
 
 
+@dependency.requires('federation_api')
 class FederationTests(test_v3.RestfulTestCase):
 
     EXTENSION_NAME = 'federation'

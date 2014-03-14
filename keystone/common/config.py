@@ -180,7 +180,8 @@ FILE_OPTIONS = {
                     help='Toggle for token system cacheing. This has no '
                          'effect unless global caching is enabled.'),
         cfg.IntOpt('revocation_cache_time', default=3600,
-                   help='Time to cache the revocation list (in seconds). '
+                   help='Time to cache the revocation list and the revocation '
+                        'events if revoke extension is enabled (in seconds). '
                         'This has no effect unless global and token '
                         'caching are enabled.'),
         cfg.IntOpt('cache_time', default=None,
@@ -205,7 +206,9 @@ FILE_OPTIONS = {
                    help='This value (calculated in seconds) is added to token '
                         'expiration before a revocation event may be removed '
                         'from the backend.'),
-
+        cfg.BoolOpt('caching', default=True,
+                    help='Toggle for revocation event cacheing. This has no '
+                         'effect unless global caching is enabled.'),
     ],
     'cache': [
         cfg.StrOpt('config_prefix', default='cache.keystone',

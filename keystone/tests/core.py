@@ -348,6 +348,7 @@ class BaseTestCase(testtools.TestCase):
         return cleanup
 
 
+@dependency.optional('revoke_api')
 class TestCase(BaseTestCase):
 
     _config_file_list = [dirs.etc('keystone.conf.sample'),
@@ -426,15 +427,7 @@ class TestCase(BaseTestCase):
         self.clear_auth_plugin_registry()
         drivers = service.load_backends()
 
-        # TODO(stevemar): currently, load oauth1 driver as well, eventually
-        # we need to have this as optional.
-        from keystone.contrib import oauth1
-        drivers['oauth1_api'] = oauth1.Manager()
-
-        from keystone.contrib import federation
-        drivers['federation_api'] = federation.Manager()
-
-        dependency.resolve_future_dependencies()
+        drivers.update(dependency.resolve_future_dependencies())
 
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
