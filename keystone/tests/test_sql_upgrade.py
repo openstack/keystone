@@ -42,8 +42,10 @@ from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
+from keystone.contrib import federation
 from keystone import credential
 from keystone import exception
+from keystone.openstack.common.db import exception as db_exception
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone import tests
@@ -2503,3 +2505,56 @@ class SqlUpgradeTests(SqlMigrateBase):
                          "Non-InnoDB tables exist")
 
         connection.close()
+
+
+class VersionTests(SqlMigrateBase):
+    def test_core_initial(self):
+        """When get the version before migrated, it's 0."""
+        version = migration_helpers.get_db_version()
+        self.assertEqual(0, version)
+
+    def test_core_max(self):
+        """When get the version after upgrading, it's the new version."""
+        self.upgrade(self.max_version)
+        version = migration_helpers.get_db_version()
+        self.assertEqual(self.max_version, version)
+
+    def test_extension_not_controlled(self):
+        """When get the version before controlling, raises DbMigrationError."""
+        self.assertRaises(db_exception.DbMigrationError,
+                          migration_helpers.get_db_version,
+                          extension='federation')
+
+    def test_extension_initial(self):
+        """When get the initial version of an extension, it's 0."""
+        abs_path = migration_helpers.find_migrate_repo(federation)
+        migration.db_version_control(sql.get_engine(), abs_path)
+        version = migration_helpers.get_db_version(extension='federation')
+        self.assertEqual(0, version)
+
+    def test_extension_migrated(self):
+        """When get the version after migrating an extension, it's not 0."""
+        abs_path = migration_helpers.find_migrate_repo(federation)
+        migration.db_version_control(sql.get_engine(), abs_path)
+        migration.db_sync(sql.get_engine(), abs_path)
+        version = migration_helpers.get_db_version(extension='federation')
+        self.assertTrue(version > 0, "Version didn't change after migrated?")
+
+    def test_unexpected_extension(self):
+        """When get the version for an extension that doesn't exist, raises
+           ImportError.
+        """
+
+        extension_name = uuid.uuid4().hex
+        self.assertRaises(ImportError,
+                          migration_helpers.get_db_version,
+                          extension=extension_name)
+
+    def test_unversioned_extension(self):
+        """When get the version for an extension that doesn't provide
+           migrations, raises MigrationNotProvided.
+        """
+
+        self.assertRaises(exception.MigrationNotProvided,
+                          migration_helpers.get_db_version,
+                          extension='access')

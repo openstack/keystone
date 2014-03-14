@@ -138,19 +138,25 @@ def sync_database_to_version(extension=None, version=None):
     migration.db_sync(sql.get_engine(), abs_path, version=version)
 
 
-def print_db_version(extension=None):
+def get_db_version(extension=None):
     if not extension:
-        print(migration.db_version(find_migrate_repo(), 0))
-    else:
-        try:
-            package_name = '.'.join((contrib.__name__, extension))
-            package = importutils.import_module(package_name)
-        except ImportError:
-            raise ImportError(_("%s extension does not exist.")
-                              % package_name)
-        try:
-            print(migration.db_version(
-                find_migrate_repo(package), 0))
-        except exception.MigrationNotProvided as e:
-            print(e)
-            sys.exit(1)
+        return migration.db_version(sql.get_engine(), find_migrate_repo(), 0)
+
+    try:
+        package_name = '.'.join((contrib.__name__, extension))
+        package = importutils.import_module(package_name)
+    except ImportError:
+        raise ImportError(_("%s extension does not exist.")
+                          % package_name)
+
+    return migration.db_version(
+        sql.get_engine(), find_migrate_repo(package), 0)
+
+
+def print_db_version(extension=None):
+    try:
+        db_version = get_db_version(extension=extension)
+        print(db_version)
+    except exception.MigrationNotProvided as e:
+        print(e)
+        sys.exit(1)
