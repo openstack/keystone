@@ -515,6 +515,28 @@ class V3Controller(wsgi.Application):
         if 'id' in ref and ref['id'] != value:
             raise exception.ValidationError('Cannot change ID')
 
+    def _require_matching_domain_id(self, ref_id, ref, get_member):
+        """Ensure the current domain ID matches the reference one, if any.
+
+        Provided we want domain IDs to be immutable, check whether any
+        domain_id specified in the ref dictionary matches the existing
+        domain_id for this entity.
+
+        :param ref_id: the ID of the entity
+        :param ref: the dictionary of new values proposed for this entity
+        :param get_member: The member function to call to get the current
+                           entity
+        :raises: :class:`keystone.exception.ValidationError`
+
+        """
+        # TODO(henry-nash): It might be safer and more efficient to do this
+        # check in the managers affected, so look to migrate this check to
+        # there in the future.
+        if CONF.domain_id_immutable and 'domain_id' in ref:
+            existing_ref = get_member(ref_id)
+            if ref['domain_id'] != existing_ref['domain_id']:
+                raise exception.ValidationError(_('Cannot change Domain ID'))
+
     def _assign_unique_id(self, ref):
         """Generates and assigns a unique identifer to a reference."""
         ref = ref.copy()

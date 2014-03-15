@@ -419,7 +419,8 @@ class ProjectV3(controller.V3Controller):
     @controller.protected()
     def update_project(self, context, project_id, project):
         self._require_matching_id(project_id, project)
-
+        self._require_matching_domain_id(
+            project_id, project, self.assignment_api.get_project)
         ref = self.assignment_api.update_project(project_id, project)
         return ProjectV3.wrap_member(context, ref)
 
