@@ -412,8 +412,8 @@ class TestCase(BaseTestCase):
         self.addCleanup(kvs.INMEMDB.clear)
 
         # Ensure Notification subscriotions and resource types are empty
-        self.addCleanup(notifications.SUBSCRIBERS.clear)
-        self.addCleanup(notifications._reset_notifier)
+        self.addCleanup(notifications.clear_subscribers)
+        self.addCleanup(notifications.reset_notifier)
 
         # Reset the auth-plugin registry
         self.addCleanup(self.clear_auth_plugin_registry)
