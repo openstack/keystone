@@ -178,7 +178,8 @@ class Identity(identity.Driver):
             if x['id'] == user_id:
                 found = True
                 break
-        return found
+        if not found:
+            raise exception.NotFound(_('User not found in group'))
 
 
 # TODO(termie): turn this into a data object and move logic to driver
