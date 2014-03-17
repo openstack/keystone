@@ -218,12 +218,6 @@ class BaseLdap(object):
                     'Format must be <ldap_attribute>:<keystone_attribute>'),
                     item)
                 continue
-            if attr_map not in self.attribute_mapping:
-                LOG.warn(_('Invalid additional attribute mapping: "%(item)s". '
-                           'Value "%(attr_map)s" must use one of %(keys)s.'),
-                         {'item': item, 'attr_map': attr_map,
-                          'keys': ', '.join(self.attribute_mapping.keys())})
-                continue
             mapping[ldap_attr] = attr_map
         return mapping
 
@@ -394,10 +388,12 @@ class BaseLdap(object):
                                            self.ldap_filter or
                                            '', self.object_class)
         try:
+            attrs = list(set((self.attribute_mapping.values() +
+                              self.extra_attr_mapping.keys())))
             return conn.search_s(self.tree_dn,
                                  self.LDAP_SCOPE,
                                  query,
-                                 self.attribute_mapping.values())
+                                 attrs)
         except ldap.NO_SUCH_OBJECT:
             return []
         finally:
