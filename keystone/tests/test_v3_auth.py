@@ -20,6 +20,7 @@ import uuid
 from keystoneclient.common import cms
 
 from keystone import auth
+from keystone.common import dependency
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
@@ -567,6 +568,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
                     token=adminB_token)
 
 
+@dependency.requires('revoke_api')
 class TestTokenRevokeById(test_v3.RestfulTestCase):
     """Test token revocation on the v3 Identity API."""
 
@@ -1182,6 +1184,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.head(role_path, expected_status=404)
 
 
+@dependency.requires('revoke_api')
 class TestTokenRevokeApi(TestTokenRevokeById):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'
@@ -2259,6 +2262,7 @@ class TestTrustOptional(test_v3.RestfulTestCase):
         self.post('/auth/tokens', body=auth_data, expected_status=403)
 
 
+@dependency.requires('revoke_api')
 class TestTrustAuth(TestAuthInfo):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'

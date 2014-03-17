@@ -27,12 +27,14 @@ See also:
 import six
 
 from keystone import notifications
+from keystone.openstack.common.gettextutils import _ # flake8: noqa
 
 
 REGISTRY = {}
 
 _future_dependencies = {}
 _future_optionals = {}
+_factories = {}
 
 
 class UnresolvableDependencyException(Exception):
@@ -110,8 +112,8 @@ def provider(name):
             return __wrapped_init__
 
         cls.__init__ = wrapped(cls.__init__)
+        _factories[name] = cls
         return cls
-
     return wrapper
 
 
@@ -221,6 +223,7 @@ def resolve_future_dependencies(provider_name=None):
     the optional argument is used internally, and should be treated as an
     implementation detail.
     """
+    new_providers = dict()
     if provider_name:
         # A provider was registered, so take care of any objects depending on
         # it.
@@ -234,25 +237,37 @@ def resolve_future_dependencies(provider_name=None):
 
     # Resolve optional dependencies, sets the attribute to None if there's no
     # provider registered.
-    for dependency, targets in six.iteritems(_future_optionals):
+    for dependency, targets in six.iteritems(_future_optionals.copy()):
         provider = REGISTRY.get(dependency)
+        if provider is None:
+            factory = _factories.get(dependency)
+            if factory:
+                provider = factory()
+                REGISTRY[dependency] = provider
+                new_providers[dependency] = provider
         for target in targets:
             setattr(target, dependency, provider)
 
-    _future_optionals.clear()
-
-    # Resolve optional dependencies, raises UnresolvableDependencyException if
+    # Resolve future dependencies, raises UnresolvableDependencyException if
     # there's no provider registered.
     try:
-        for dependency, targets in six.iteritems(_future_dependencies):
+        for dependency, targets in six.iteritems(_future_dependencies.copy()):
             if dependency not in REGISTRY:
-                raise UnresolvableDependencyException(dependency)
+                # a Class was registered that could fulfill the dependency, but
+                # it has not yet been initialized.
+                factory = _factories.get(dependency)
+                if factory:
+                    provider = factory()
+                    REGISTRY[dependency] = provider
+                    new_providers[dependency] = provider
+                else:
+                    raise UnresolvableDependencyException(dependency)
 
             for target in targets:
                 setattr(target, dependency, REGISTRY[dependency])
     finally:
         _future_dependencies.clear()
-
+    return new_providers
 
 def reset():
     """Reset the registry of providers.

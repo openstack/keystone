@@ -1133,6 +1133,10 @@
 # backend. (integer value)
 #expiration_buffer=1800
 
+# Toggle for revocation event cacheing. This has no effect
+# unless global caching is enabled. (boolean value)
+#caching=true
+
 
 [signing]
 
@@ -1250,7 +1254,8 @@
 # global caching is enabled. (boolean value)
 #caching=true
 
-# Time to cache the revocation list (in seconds). This has no
+# Time to cache the revocation list and the revocation events
+# if revoke extension is enabled (in seconds). This has no
 # effect unless global and token caching are enabled. (integer
 # value)
 #revocation_cache_time=3600
