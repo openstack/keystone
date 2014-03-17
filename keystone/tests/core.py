@@ -350,8 +350,7 @@ class BaseTestCase(testtools.TestCase):
 
 class TestCase(BaseTestCase):
 
-    _config_file_list = [dirs.etc('keystone.conf.sample'),
-                         dirs.tests('test_overrides.conf')]
+    _config_file_list = [dirs.tests('test_overrides.conf')]
 
     def config_files(self):
         return copy.copy(self._config_file_list)

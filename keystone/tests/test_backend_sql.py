@@ -38,8 +38,7 @@ class SqlTests(tests.TestCase):
 
     def setUp(self):
         super(SqlTests, self).setUp()
-        self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests('test_overrides.conf'),
+        self.config([tests.dirs.tests('test_overrides.conf'),
                      tests.dirs.tests('backend_sql.conf')])
 
         self.load_backends()

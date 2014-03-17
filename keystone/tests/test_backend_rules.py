@@ -21,8 +21,7 @@ from keystone.tests import test_backend
 class RulesPolicy(tests.TestCase, test_backend.PolicyTests):
     def setUp(self):
         super(RulesPolicy, self).setUp()
-        self.config([tests.dirs.etc('keystone.conf.sample'),
-                     tests.dirs.tests('test_overrides.conf'),
+        self.config([tests.dirs.tests('test_overrides.conf'),
                      tests.dirs.tests('backend_rules.conf')])
 
         self.load_backends()
