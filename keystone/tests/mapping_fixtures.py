@@ -425,6 +425,14 @@ EMPLOYEE_ASSERTION = {
     'orgPersonType': 'Employee;BuildingX;'
 }
 
+EMPLOYEE_ASSERTION_PREFIXED = {
+    'PREFIX_Email': 'tim@example.com',
+    'PREFIX_UserName': 'tbo',
+    'PREFIX_FirstName': 'Tim',
+    'PREFIX_LastName': 'Bo',
+    'PREFIX_orgPersonType': 'SuperEmployee;BuildingX;'
+}
+
 CONTRACTOR_ASSERTION = {
     'Email': 'jill@example.com',
     'UserName': 'jsmith',

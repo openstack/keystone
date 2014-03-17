@@ -747,6 +747,7 @@ class FederatedTokenTests(FederationTests):
     PROTOCOL = 'saml2'
     AUTH_METHOD = 'saml2'
     USER = 'user@ORGANIZATION'
+    ASSERTION_PREFIX = 'PREFIX_'
 
     UNSCOPED_V3_SAML2_REQ = {
         "identity": {
@@ -1113,6 +1114,37 @@ class FederatedTokenTests(FederationTests):
                   body=scoped_token,
                   expected_status=500)
 
+    def test_assertion_prefix_parameter(self):
+        """Test parameters filtering based on the prefix.
+
+        With ``assertion_prefix`` set to fixed, non defailt value,
+        issue an unscoped token from assertion EMPLOYEE_ASSERTION_PREFIXED.
+        Expect server to return unscoped token.
+
+        """
+        self.config_fixture.config(group='federation',
+                                   assertion_prefix=self.ASSERTION_PREFIX)
+        r = self._issue_unscoped_token(assertion='EMPLOYEE_ASSERTION_PREFIXED')
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_assertion_prefix_parameter_expect_fail(self):
+        """Test parameters filtering based on the prefix.
+
+        With ``assertion_prefix`` default value set to empty string
+        issue an unscoped token from assertion EMPLOYEE_ASSERTION.
+        Next, configure ``assertion_prefix`` to value ``UserName``.
+        Try issuing unscoped token with EMPLOYEE_ASSERTION.
+        Expect server to raise exception.Unathorized exception.
+
+        """
+        r = self._issue_unscoped_token()
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+        self.config_fixture.config(group='federation',
+                                   assertion_prefix='UserName')
+
+        self.assertRaises(exception.Unauthorized,
+                          self._issue_unscoped_token)
+
     def load_federation_sample_data(self):
         """Inject additional data."""
 
@@ -1259,6 +1291,31 @@ class FederatedTokenTests(FederationTests):
                             'type': 'orgPersonType',
                             'any_one_of': [
                                 'Employee'
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'local': [
+                        {
+                            'group': {
+                                'id': self.group_employees['id']
+                            }
+                        },
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        }
+                    ],
+                    'remote': [
+                        {
+                            'type': self.ASSERTION_PREFIX + 'UserName'
+                        },
+                        {
+                            'type': self.ASSERTION_PREFIX + 'orgPersonType',
+                            'any_one_of': [
+                                'SuperEmployee'
                             ]
                         }
                     ]

@@ -72,7 +72,7 @@ class Saml2(auth.AuthMethodHandler):
         }
 
     def _handle_unscoped_token(self, context, auth_payload):
-        assertion = context['environment']
+        assertion = dict(self._get_assertion_params_from_env(context))
 
         identity_provider = auth_payload['identity_provider']
         protocol = auth_payload['protocol']
@@ -105,3 +105,9 @@ class Saml2(auth.AuthMethodHandler):
             except exception.GroupNotFound:
                 raise exception.MappedGroupNotFound(
                     group_id=group_id, mapping_id=mapping_id)
+
+    def _get_assertion_params_from_env(self, context):
+        prefix = CONF.federation.assertion_prefix
+        for k, v in context['environment'].items():
+            if k.startswith(prefix):
+                yield (k, v)
