@@ -743,12 +743,6 @@ class BaseLdap(object):
                     'Format must be <ldap_attribute>:<keystone_attribute>'),
                     item)
                 continue
-            if attr_map not in self.attribute_mapping:
-                LOG.warn(_('Invalid additional attribute mapping: "%(item)s". '
-                           'Value "%(attr_map)s" must use one of %(keys)s.'),
-                         {'item': item, 'attr_map': attr_map,
-                          'keys': ', '.join(self.attribute_mapping.keys())})
-                continue
             mapping[ldap_attr] = attr_map
         return mapping
 
