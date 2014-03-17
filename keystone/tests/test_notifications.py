@@ -16,109 +16,115 @@ import uuid
 
 import mock
 from oslo.config import cfg
+import testtools
 
 from keystone.common import dependency
 from keystone import notifications
 from keystone.openstack.common.fixture import mockpatch
-from keystone import tests
 from keystone.tests import test_v3
 
 
 CONF = cfg.CONF
 
 EXP_RESOURCE_TYPE = uuid.uuid4().hex
+CREATED_OPERATION = 'created'
+UPDATED_OPERATION = 'updated'
+DELETED_OPERATION = 'deleted'
 
 
 class ArbitraryException(Exception):
     pass
 
 
-class NotificationsWrapperTestCase(tests.TestCase):
-    def setUp(self):
-        super(NotificationsWrapperTestCase, self).setUp()
+def register_callback(operation, resource_type=EXP_RESOURCE_TYPE):
+    """Helper for creating and registering a mock callback.
 
-        self.exp_resource_id = None
-        self.exp_operation = None
-        self.send_notification_called = False
+    """
+    callback = mock.Mock(__name__='callback',
+                         im_class=mock.Mock(__name__='class'))
+    notifications.register_event_callback(operation, resource_type, callback)
+    return callback
 
-        def fake_notify(operation, resource_type, resource_id,
-                        public=True):
-            self.assertEqual(self.exp_operation, operation)
-            self.assertEqual(EXP_RESOURCE_TYPE, resource_type)
-            self.assertEqual(self.exp_resource_id, resource_id)
-            self.send_notification_called = True
 
-        self.useFixture(mockpatch.PatchObject(
-            notifications, '_send_notification', fake_notify))
+class NotificationsWrapperTestCase(testtools.TestCase):
+    def create_fake_ref(self):
+        resource_id = uuid.uuid4().hex
+        return resource_id, {
+            'id': resource_id,
+            'key': uuid.uuid4().hex
+        }
 
     @notifications.created(EXP_RESOURCE_TYPE)
     def create_resource(self, resource_id, data):
         return data
 
     def test_resource_created_notification(self):
-        self.exp_operation = 'created'
-        self.exp_resource_id = uuid.uuid4().hex
-        exp_resource_data = {
-            'id': self.exp_resource_id,
-            'key': uuid.uuid4().hex}
+        exp_resource_id, data = self.create_fake_ref()
+        callback = register_callback(CREATED_OPERATION)
 
-        self.create_resource(self.exp_resource_id, exp_resource_data)
-        self.assertTrue(self.send_notification_called)
+        self.create_resource(exp_resource_id, data)
+        callback.assert_called_with('identity', EXP_RESOURCE_TYPE,
+                                    CREATED_OPERATION,
+                                    {'resource_info': exp_resource_id})
 
     @notifications.updated(EXP_RESOURCE_TYPE)
     def update_resource(self, resource_id, data):
         return data
 
     def test_resource_updated_notification(self):
-        self.exp_operation = 'updated'
-        self.exp_resource_id = uuid.uuid4().hex
-        exp_resource_data = {
-            'id': self.exp_resource_id,
-            'key': uuid.uuid4().hex}
+        exp_resource_id, data = self.create_fake_ref()
+        callback = register_callback(UPDATED_OPERATION)
 
-        self.update_resource(self.exp_resource_id, exp_resource_data)
-        self.assertTrue(self.send_notification_called)
+        self.update_resource(exp_resource_id, data)
+        callback.assert_called_with('identity', EXP_RESOURCE_TYPE,
+                                    UPDATED_OPERATION,
+                                    {'resource_info': exp_resource_id})
 
     @notifications.deleted(EXP_RESOURCE_TYPE)
     def delete_resource(self, resource_id):
         pass
 
     def test_resource_deleted_notification(self):
-        self.exp_operation = 'deleted'
-        self.exp_resource_id = uuid.uuid4().hex
+        exp_resource_id = uuid.uuid4().hex
+        callback = register_callback(DELETED_OPERATION)
 
-        self.delete_resource(self.exp_resource_id)
-        self.assertTrue(self.send_notification_called)
+        self.delete_resource(exp_resource_id)
+        callback.assert_called_with('identity', EXP_RESOURCE_TYPE,
+                                    DELETED_OPERATION,
+                                    {'resource_info': exp_resource_id})
 
     @notifications.created(EXP_RESOURCE_TYPE)
     def create_exception(self, resource_id):
         raise ArbitraryException()
 
     def test_create_exception_without_notification(self):
+        callback = register_callback(CREATED_OPERATION)
         self.assertRaises(
             ArbitraryException, self.create_exception, uuid.uuid4().hex)
-        self.assertFalse(self.send_notification_called)
+        self.assertFalse(callback.called)
 
     @notifications.created(EXP_RESOURCE_TYPE)
     def update_exception(self, resource_id):
         raise ArbitraryException()
 
     def test_update_exception_without_notification(self):
+        callback = register_callback(UPDATED_OPERATION)
         self.assertRaises(
             ArbitraryException, self.update_exception, uuid.uuid4().hex)
-        self.assertFalse(self.send_notification_called)
+        self.assertFalse(callback.called)
 
     @notifications.deleted(EXP_RESOURCE_TYPE)
     def delete_exception(self, resource_id):
         raise ArbitraryException()
 
     def test_delete_exception_without_notification(self):
+        callback = register_callback(DELETED_OPERATION)
         self.assertRaises(
             ArbitraryException, self.delete_exception, uuid.uuid4().hex)
-        self.assertFalse(self.send_notification_called)
+        self.assertFalse(callback.called)
 
 
-class NotificationsTestCase(tests.TestCase):
+class NotificationsTestCase(testtools.TestCase):
     def setUp(self):
         super(NotificationsTestCase, self).setUp()
 
@@ -133,7 +139,7 @@ class NotificationsTestCase(tests.TestCase):
         """
         resource = uuid.uuid4().hex
         resource_type = EXP_RESOURCE_TYPE
-        operation = 'created'
+        operation = CREATED_OPERATION
 
         # NOTE(ldbragst): Even though notifications._send_notification doesn't
         # contain logic that creates cases, this is suppose to test that
@@ -154,8 +160,6 @@ class NotificationsTestCase(tests.TestCase):
             notifications._send_notification(operation, resource_type,
                                              resource)
             mocked.assert_called_once_with(*expected_args)
-
-        notifications._send_notification(operation, resource_type, resource)
 
 
 class NotificationsForEntities(test_v3.RestfulTestCase):
@@ -217,22 +221,23 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
     def test_create_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         self.identity_api.create_group(group_ref['id'], group_ref)
-        self._assertLastNotify(group_ref['id'], 'created', 'group')
+        self._assertLastNotify(group_ref['id'], CREATED_OPERATION, 'group')
 
     def test_create_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
-        self._assertLastNotify(project_ref['id'], 'created', 'project')
+        self._assertLastNotify(
+            project_ref['id'], CREATED_OPERATION, 'project')
 
     def test_create_role(self):
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
-        self._assertLastNotify(role_ref['id'], 'created', 'role')
+        self._assertLastNotify(role_ref['id'], CREATED_OPERATION, 'role')
 
     def test_create_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
         self.identity_api.create_user(user_ref['id'], user_ref)
-        self._assertLastNotify(user_ref['id'], 'created', 'user')
+        self._assertLastNotify(user_ref['id'], CREATED_OPERATION, 'user')
 
     def test_create_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
@@ -246,38 +251,40 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.create_trust(trust_ref['id'],
                                     trust_ref,
                                     [role_ref])
-        self._assertLastNotify(trust_ref['id'], 'created', 'OS-TRUST:trust')
+        self._assertLastNotify(
+            trust_ref['id'], CREATED_OPERATION, 'OS-TRUST:trust')
 
     def test_delete_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         self.identity_api.create_group(group_ref['id'], group_ref)
         self.identity_api.delete_group(group_ref['id'])
-        self._assertLastNotify(group_ref['id'], 'deleted', 'group')
+        self._assertLastNotify(group_ref['id'], DELETED_OPERATION, 'group')
 
     def test_delete_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         self.assignment_api.delete_project(project_ref['id'])
-        self._assertLastNotify(project_ref['id'], 'deleted', 'project')
+        self._assertLastNotify(
+            project_ref['id'], DELETED_OPERATION, 'project')
 
     def test_delete_role(self):
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
         self.assignment_api.delete_role(role_ref['id'])
-        self._assertLastNotify(role_ref['id'], 'deleted', 'role')
+        self._assertLastNotify(role_ref['id'], DELETED_OPERATION, 'role')
 
     def test_delete_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
         self.identity_api.create_user(user_ref['id'], user_ref)
         self.identity_api.delete_user(user_ref['id'])
-        self._assertLastNotify(user_ref['id'], 'deleted', 'user')
+        self._assertLastNotify(user_ref['id'], DELETED_OPERATION, 'user')
 
     def test_update_domain(self):
         domain_ref = self.new_domain_ref()
         self.assignment_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['description'] = uuid.uuid4().hex
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
-        self._assertLastNotify(domain_ref['id'], 'updated', 'domain')
+        self._assertLastNotify(domain_ref['id'], UPDATED_OPERATION, 'domain')
 
     def test_delete_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
@@ -290,7 +297,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
                                     trust_ref,
                                     [role_ref])
         self.trust_api.delete_trust(trust_ref['id'])
-        self._assertLastNotify(trust_ref['id'], 'deleted', 'OS-TRUST:trust')
+        self._assertLastNotify(
+            trust_ref['id'], DELETED_OPERATION, 'OS-TRUST:trust')
 
     def test_delete_domain(self):
         domain_ref = self.new_domain_ref()
@@ -298,7 +306,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         domain_ref['enabled'] = False
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
         self.assignment_api.delete_domain(domain_ref['id'])
-        self._assertLastNotify(domain_ref['id'], 'deleted', 'domain')
+        self._assertLastNotify(domain_ref['id'], DELETED_OPERATION, 'domain')
 
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()
@@ -312,14 +320,14 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         self.identity_api.create_group(group_ref['id'], group_ref)
         self.identity_api.update_group(group_ref['id'], group_ref)
-        self._assertLastNotify(group_ref['id'], 'updated', 'group')
+        self._assertLastNotify(group_ref['id'], UPDATED_OPERATION, 'group')
 
     def test_update_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         self.assignment_api.update_project(project_ref['id'], project_ref)
-        self._assertNotifySent(project_ref['id'], 'updated', 'project',
-                               public=True)
+        self._assertNotifySent(
+            project_ref['id'], UPDATED_OPERATION, 'project', public=True)
 
     def test_disable_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
@@ -334,20 +342,21 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assignment_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = True
         self.assignment_api.update_project(project_ref['id'], project_ref)
-        self._assertLastNotify(project_ref['id'], 'updated', 'project')
+        self._assertLastNotify(
+            project_ref['id'], UPDATED_OPERATION, 'project')
         self._assertNotifyNotSent(project_ref['id'], 'disabled', 'project')
 
     def test_update_role(self):
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
         self.assignment_api.update_role(role_ref['id'], role_ref)
-        self._assertLastNotify(role_ref['id'], 'updated', 'role')
+        self._assertLastNotify(role_ref['id'], UPDATED_OPERATION, 'role')
 
     def test_update_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
         self.identity_api.create_user(user_ref['id'], user_ref)
         self.identity_api.update_user(user_ref['id'], user_ref)
-        self._assertLastNotify(user_ref['id'], 'updated', 'user')
+        self._assertLastNotify(user_ref['id'], UPDATED_OPERATION, 'user')
 
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
@@ -366,19 +375,17 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         self.has_been_called = True
 
     def test_notification_received(self):
-        notifications.register_event_callback('created',
-                                              'project',
-                                              self._project_created_callback)
+        callback = register_callback(CREATED_OPERATION, 'project')
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
-        self.assertTrue(self.has_been_called)
+        self.assertTrue(callback.called)
 
     def test_notification_method_not_callable(self):
         fake_method = None
         notifications.SUBSCRIBERS = {}
         self.assertRaises(TypeError,
                           notifications.register_event_callback,
-                          'updated',
+                          UPDATED_OPERATION,
                           'project',
                           [fake_method])
 
@@ -392,23 +399,23 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
     def test_event_registration_for_unknown_resource_type(self):
         # Registration for unknown resource types should succeed.  If no event
         # is issued for that resource type, the callback wont be triggered.
-        notifications.register_event_callback('deleted',
+        notifications.register_event_callback(DELETED_OPERATION,
                                               uuid.uuid4().hex,
                                               self._project_deleted_callback)
         resource_type = uuid.uuid4().hex
-        notifications.register_event_callback('deleted',
+        notifications.register_event_callback(DELETED_OPERATION,
                                               resource_type,
                                               self._project_deleted_callback)
-        self.assertIn('deleted', notifications.SUBSCRIBERS)
-        self.assertIn(resource_type, notifications.SUBSCRIBERS['deleted'])
+        self.assertIn(DELETED_OPERATION, notifications.SUBSCRIBERS)
+        self.assertIn(resource_type,
+                      notifications.SUBSCRIBERS[DELETED_OPERATION])
 
     def test_provider_event_callbacks_subscription(self):
         @dependency.provider('foo_api')
         class Foo:
             def __init__(self):
                 self.event_callbacks = {
-                    'created': {
-                        'project': [self.foo_callback]}}
+                    CREATED_OPERATION: {'project': [self.foo_callback]}}
 
             def foo_callback(self, service, resource_type, operation,
                              payload):
@@ -416,7 +423,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
         notifications.SUBSCRIBERS = {}
         Foo()
-        self.assertIn('created', notifications.SUBSCRIBERS)
+        self.assertIn(CREATED_OPERATION, notifications.SUBSCRIBERS)
 
     def test_invalid_event_callbacks(self):
         @dependency.provider('foo_api')
@@ -431,7 +438,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         @dependency.provider('foo_api')
         class Foo:
             def __init__(self):
-                self.event_callbacks = {'created': 'bogus'}
+                self.event_callbacks = {CREATED_OPERATION: 'bogus'}
 
         notifications.SUBSCRIBERS = {}
         self.assertRaises(ValueError, Foo)
@@ -497,3 +504,91 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                                  password=password)
         self.post('/auth/tokens', body=data)
         self._assertLastNotify(self.ACTION, user_id)
+
+
+class TestCallbackRegistration(testtools.TestCase):
+    def setUp(self):
+        super(TestCallbackRegistration, self).setUp()
+        self.mock_log = mock.Mock()
+        # Force the callback logging to occur
+        self.mock_log.logger.getEffectiveLevel.return_value = 1
+
+    def verify_log_message(self, data):
+        """Tests that use this are a little brittle because adding more
+        logging can break them.
+
+        TODO(dstanek): remove the need for this in a future refactoring
+
+        """
+        self.assertEqual(len(data), self.mock_log.info.call_count)
+        for i, data in enumerate(data):
+            self.mock_log.info.assert_any_call(mock.ANY, data)
+
+    def test_a_function_callback(self):
+        def callback(*args, **kwargs):
+            pass
+
+        resource_type = 'thing'
+        with mock.patch('keystone.notifications.LOG', self.mock_log):
+            notifications.register_event_callback(
+                CREATED_OPERATION, resource_type, callback)
+
+        expected_log_data = {
+            'callback': 'keystone.tests.test_notifications.callback',
+            'event': 'identity.%s.created' % resource_type
+        }
+        self.verify_log_message([expected_log_data])
+
+    def test_a_method_callback(self):
+        class C(object):
+            def callback(self, *args, **kwargs):
+                pass
+
+        with mock.patch('keystone.notifications.LOG', self.mock_log):
+            notifications.register_event_callback(
+                CREATED_OPERATION, 'thing', C.callback)
+
+        expected_log_data = {
+            'callback': 'keystone.tests.test_notifications.C.callback',
+            'event': 'identity.thing.created'
+        }
+        self.verify_log_message([expected_log_data])
+
+    def test_a_list_of_callbacks(self):
+        def callback(*args, **kwargs):
+            pass
+
+        class C(object):
+            def callback(self, *args, **kwargs):
+                pass
+
+        with mock.patch('keystone.notifications.LOG', self.mock_log):
+            notifications.register_event_callback(
+                CREATED_OPERATION, 'thing', [callback, C.callback])
+
+        expected_log_data = [
+            {
+                'callback': 'keystone.tests.test_notifications.callback',
+                'event': 'identity.thing.created'
+            },
+            {
+                'callback': 'keystone.tests.test_notifications.C.callback',
+                'event': 'identity.thing.created'
+            },
+        ]
+        self.verify_log_message(expected_log_data)
+
+    def test_an_invalid_callback(self):
+        self.assertRaises(TypeError,
+                          notifications.register_event_callback,
+                          (CREATED_OPERATION, 'thing', object()))
+
+    def test_an_invalid_event(self):
+        def callback(*args, **kwargs):
+            pass
+
+        self.assertRaises(ValueError,
+                          notifications.register_event_callback,
+                          uuid.uuid4().hex,
+                          'thing',
+                          callback)
