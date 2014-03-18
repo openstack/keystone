@@ -604,10 +604,12 @@
 # Deprecated group/name - [sql]/connection
 #connection=<None>
 
-# The SQL mode to be used for MySQL sessions (default is
-# empty, meaning do not override any server-side SQL mode
-# setting) (string value)
-#mysql_sql_mode=<None>
+# The SQL mode to be used for MySQL sessions. This option,
+# including the default, overrides any server-set SQL mode. To
+# use whatever SQL mode is set by the server configuration,
+# set this to no value. Example: mysql_sql_mode= (string
+# value)
+#mysql_sql_mode=TRADITIONAL
 
 # Timeout before idle sql connections are reaped (integer
 # value)
