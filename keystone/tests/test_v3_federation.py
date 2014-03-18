@@ -683,18 +683,15 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual(name, user_name)
         self.assertIn(mapping_fixtures.EMPLOYEE_GROUP_ID, group_ids)
 
-    def test_rule_engine_regex_match_and_many_groups(self):
+    def _rule_engine_regex_match_and_many_groups(self, assertion):
         """Should return group DEVELOPER_GROUP_ID and TESTER_GROUP_ID.
 
-        The TESTER_ASSERTION should successfully have a match in
-        MAPPING_LARGE. This will test a successful regex match
-        for an `any_one_of` evaluation type, and will have many
-        groups returned.
+        A helper function injecting assertion passed as an argument.
+        Expect DEVELOPER_GROUP_ID and TESTER_GROUP_ID in the results.
 
         """
 
         mapping = mapping_fixtures.MAPPING_LARGE
-        assertion = mapping_fixtures.TESTER_ASSERTION
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         values = rp.process(assertion)
         user_name = assertion.get('UserName')
@@ -704,6 +701,44 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual(user_name, name)
         self.assertIn(mapping_fixtures.DEVELOPER_GROUP_ID, group_ids)
         self.assertIn(mapping_fixtures.TESTER_GROUP_ID, group_ids)
+
+    def test_rule_engine_regex_match_and_many_groups(self):
+        """Should return group DEVELOPER_GROUP_ID and TESTER_GROUP_ID.
+
+        The TESTER_ASSERTION should successfully have a match in
+        MAPPING_LARGE. This will test a successful regex match
+        for an `any_one_of` evaluation type, and will have many
+        groups returned.
+
+        """
+        self._rule_engine_regex_match_and_many_groups(
+            mapping_fixtures.TESTER_ASSERTION)
+
+    def test_rule_engine_discards_nonstring_objects(self):
+        """Check whether RuleProcessor discards non string objects.
+
+        Despite the fact that assertion is malformed and contains
+        non string objects, RuleProcessor should correctly discard them and
+        successfully have a match in MAPPING_LARGE.
+
+        """
+        self._rule_engine_regex_match_and_many_groups(
+            mapping_fixtures.MALFORMED_TESTER_ASSERTION)
+
+    def test_rule_engine_fails_after_discarding_nonstring(self):
+        """Check whether RuleProcessor discards non string objects.
+
+        Expect RuleProcessor to discard non string object, which
+        is required for a correct rule match. Since no rules are
+        matched expect RuleProcessor to raise exception.Unauthorized
+        exception.
+
+        """
+        mapping = mapping_fixtures.MAPPING_SMALL
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        assertion = mapping_fixtures.CONTRACTOR_MALFORMED_ASSERTION
+        self.assertRaises(exception.Unauthorized,
+                          rp.process, assertion)
 
 
 class FederatedTokenTests(FederationTests):
@@ -819,6 +854,28 @@ class FederatedTokenTests(FederationTests):
         self.assertRaises(exception.Unauthorized,
                           self._issue_unscoped_token,
                           assertion='BAD_TESTER_ASSERTION')
+
+    def test_issue_unscoped_token_malformed_environment(self):
+        """Test whether non string objects are filtered out.
+
+        Put non string objects into the environment, inject
+        correct assertion and try to get an unscoped token.
+        Expect server not to fail on using split() method on
+        non string objects and return token id in the HTTP header.
+
+        """
+        api = auth_controllers.Auth()
+        context = {
+            'environment': {
+                'malformed_object': object(),
+                'another_bad_idea': tuple(xrange(10)),
+                'yet_another_bad_param': dict(zip(uuid.uuid4().hex,
+                                                  range(32)))
+            }
+        }
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION')
+        r = api.authenticate_for_token(context, self.UNSCOPED_V3_SAML2_REQ)
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
 
     def test_scope_to_project_once(self):
         r = self.post(self.AUTH_URL,
