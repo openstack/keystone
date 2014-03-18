@@ -970,14 +970,15 @@ class TokenExpirationTest(AuthTest):
         self._maintain_token_expiration()
 
 
-class AuthCatalog(AuthTest):
+class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
     """Tests for the catalog provided in the auth response."""
 
-    def config(self, config_files):
+    def config_files(self):
+        config_files = super(AuthCatalog, self).config_files()
         # We need to use a backend that supports disabled endpoints, like the
         # SQL backend.
         config_files.append(tests.dirs.tests('backend_sql.conf'))
-        super(AuthCatalog, self).config(config_files)
+        return config_files
 
     def _create_endpoints(self):
         def create_endpoint(service_id, region, **kwargs):

@@ -382,10 +382,11 @@ class TokenAPITests(object):
 
 
 class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
-    def config_files(self):
-        conf_files = super(TestPKITokenAPIs, self).config_files()
-        conf_files.append(tests.dirs.tests('test_pki_token_provider.conf'))
-        return conf_files
+    def config_overrides(self):
+        super(TestPKITokenAPIs, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Provider')
 
     def setUp(self):
         super(TestPKITokenAPIs, self).setUp()
@@ -393,10 +394,11 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
 
 
 class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
-    def config_files(self):
-        conf_files = super(TestUUIDTokenAPIs, self).config_files()
-        conf_files.append(tests.dirs.tests('test_uuid_token_provider.conf'))
-        return conf_files
+    def config_overrides(self):
+        super(TestUUIDTokenAPIs, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.uuid.Provider')
 
     def setUp(self):
         super(TestUUIDTokenAPIs, self).setUp()
@@ -572,11 +574,15 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
 class TestTokenRevokeById(test_v3.RestfulTestCase):
     """Test token revocation on the v3 Identity API."""
 
-    def config_files(self):
-        conf_files = super(TestTokenRevokeById, self).config_files()
-        conf_files.append(tests.dirs.tests(
-            'test_revoke_kvs.conf'))
-        return conf_files
+    def config_overrides(self):
+        super(TestTokenRevokeById, self).config_overrides()
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Provider',
+            revoke_by_id=False)
 
     def setUp(self):
         """Setup for Token Revoking Test Cases.
@@ -1190,11 +1196,15 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     EXTENSION_TO_ADD = 'revoke_extension'
 
     """Test token revocation on the v3 Identity API."""
-    def config_files(self):
-        conf_files = super(TestTokenRevokeApi, self).config_files()
-        conf_files.append(tests.dirs.tests(
-            'test_revoke_kvs.conf'))
-        return conf_files
+    def config_overrides(self):
+        super(TestTokenRevokeApi, self).config_overrides()
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Provider',
+            revoke_by_id=False)
 
     def assertValidDeletedProjectResponse(self, events_response, project_id):
         events = events_response['events']
@@ -1375,10 +1385,12 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
 
 class TestAuthExternalDisabled(test_v3.RestfulTestCase):
-    def config_files(self):
-        cfg_list = self._config_file_list[:]
-        cfg_list.append(tests.dirs.tests('auth_plugin_external_disabled.conf'))
-        return cfg_list
+    def config_overrides(self):
+        super(TestAuthExternalDisabled, self).config_overrides()
+        self.config_fixture.config(
+            group='auth',
+            methods=['keystone.auth.plugins.password.Password',
+                     'keystone.auth.plugins.token.Token'])
 
     def test_remote_user_disabled(self):
         api = auth.controllers.Auth()
@@ -1395,11 +1407,13 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
 class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
-    def config_files(self):
-        cfg_list = self._config_file_list[:]
-        cfg_list.append(
-            tests.dirs.tests('auth_plugin_external_default_legacy.conf'))
-        return cfg_list
+    def config_overrides(self):
+        super(TestAuthExternalLegacyDefaultDomain, self).config_overrides()
+        self.config_fixture.config(
+            group='auth',
+            methods=['keystone.auth.plugins.external.LegacyDefaultDomain',
+                     'keystone.auth.plugins.password.Password',
+                     'keystone.auth.plugins.token.Token'])
 
     def test_remote_user_no_realm(self):
         CONF.auth.methods = 'external'
@@ -1424,11 +1438,13 @@ class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
 class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
-    def config_files(self):
-        cfg_list = self._config_file_list[:]
-        cfg_list.append(
-            tests.dirs.tests('auth_plugin_external_domain_legacy.conf'))
-        return cfg_list
+    def config_overrides(self):
+        super(TestAuthExternalLegacyDomain, self).config_overrides()
+        self.config_fixture.config(
+            group='auth',
+            methods=['keystone.auth.plugins.external.LegacyDomain',
+                     'keystone.auth.plugins.password.Password',
+                     'keystone.auth.plugins.token.Token'])
 
     def test_remote_user_with_realm(self):
         api = auth.controllers.Auth()
@@ -1475,10 +1491,13 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
 class TestAuthExternalDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
-    def config_files(self):
-        cfg_list = self._config_file_list[:]
-        cfg_list.append(tests.dirs.tests('auth_plugin_external_domain.conf'))
-        return cfg_list
+    def config_overrides(self):
+        super(TestAuthExternalDomain, self).config_overrides()
+        self.config_fixture.config(
+            group='auth',
+            methods=['keystone.auth.plugins.external.Domain',
+                     'keystone.auth.plugins.password.Password',
+                     'keystone.auth.plugins.token.Token'])
 
     def test_remote_user_with_realm(self):
         api = auth.controllers.Auth()
@@ -2267,11 +2286,16 @@ class TestTrustAuth(TestAuthInfo):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'
 
-    def config_files(self):
-        conf_files = super(TestTrustAuth, self).config_files()
-        conf_files.append(tests.dirs.tests(
-            'test_revoke_kvs.conf'))
-        return conf_files
+    def config_overrides(self):
+        super(TestTrustAuth, self).config_overrides()
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Provider',
+            revoke_by_id=False)
+        self.config_fixture.config(group='trust', enabled=True)
 
     def setUp(self):
         super(TestTrustAuth, self).setUp()
@@ -2281,10 +2305,6 @@ class TestTrustAuth(TestAuthInfo):
         self.trustee_user = self.new_user_ref(domain_id=self.domain_id)
         self.trustee_user['id'] = self.trustee_user_id
         self.identity_api.create_user(self.trustee_user_id, self.trustee_user)
-
-    def config_overrides(self):
-        super(TestTrustAuth, self).config_overrides()
-        self.config_fixture.config(group='trust', enabled=True)
 
     def test_create_trust_400(self):
         # The server returns a 403 Forbidden rather than a 400, see bug 1133435

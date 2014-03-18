@@ -34,19 +34,21 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlTests(tests.TestCase):
+class SqlTests(tests.SQLDriverOverrides, tests.TestCase):
 
     def setUp(self):
         super(SqlTests, self).setUp()
-        self.config([tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('backend_sql.conf')])
-
         self.load_backends()
 
         # populate the engine with tables & fixtures
         self.load_fixtures(default_fixtures)
         #defaulted by the data load
         self.user_foo['enabled'] = True
+
+    def config_files(self):
+        config_files = super(SqlTests, self).config_files()
+        config_files.append(tests.dirs.tests('backend_sql.conf'))
+        return config_files
 
 
 class SqlModels(SqlTests):

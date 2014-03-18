@@ -56,17 +56,15 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlMigrateBase(tests.TestCase):
+class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
     def initialize_sql(self):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
 
-    _config_file_list = [tests.dirs.tests('test_overrides.conf'),
-                         tests.dirs.tests('backend_sql.conf')]
-
-    #override this to specify the complete list of configuration files
     def config_files(self):
-        return self._config_file_list
+        config_files = super(SqlMigrateBase, self).config_files()
+        config_files.append(tests.dirs.tests('backend_sql.conf'))
+        return config_files
 
     def repo_package(self):
         return sql

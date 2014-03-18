@@ -53,10 +53,10 @@ class ConfigTestCase(tests.TestCase):
 class DeprecatedTestCase(tests.TestCase):
     """Test using the original (deprecated) name for renamed options."""
 
-    def setUp(self):
-        super(DeprecatedTestCase, self).setUp()
-        self.config([tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('deprecated.conf'), ])
+    def config_files(self):
+        config_files = super(DeprecatedTestCase, self).config_files()
+        config_files.append(tests.dirs.tests('deprecated.conf'))
+        return config_files
 
     def test_sql(self):
         # Options in [sql] were moved to [database] in Icehouse for the change
@@ -69,10 +69,10 @@ class DeprecatedTestCase(tests.TestCase):
 class DeprecatedOverrideTestCase(tests.TestCase):
     """Test using the deprecated AND new name for renamed options."""
 
-    def setUp(self):
-        super(DeprecatedOverrideTestCase, self).setUp()
-        self.config([tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('deprecated_override.conf'), ])
+    def config_files(self):
+        config_files = super(DeprecatedOverrideTestCase, self).config_files()
+        config_files.append(tests.dirs.tests('deprecated_override.conf'))
+        return config_files
 
     def test_sql(self):
         # Options in [sql] were moved to [database] in Icehouse for the change

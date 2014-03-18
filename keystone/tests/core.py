@@ -117,9 +117,12 @@ class dirs:
 
 # keystone.common.sql.initialize() for testing.
 def _initialize_sql_session():
+    # Make sure the DB is located in the correct location, in this case set
+    # the default value, as this should be able to be overridden in some
+    # test cases.
     db_file = dirs.tmp('test.db')
     db_options.set_defaults(
-        sql_connection="sqlite:///" + db_file,
+        sql_connection='sqlite:///%s' % db_file,
         sqlite_db=db_file)
 
 
@@ -351,13 +354,54 @@ class BaseTestCase(testtools.TestCase):
 @dependency.optional('revoke_api')
 class TestCase(BaseTestCase):
 
-    _config_file_list = [dirs.tests('test_overrides.conf')]
+    _config_file_list = []
 
     def config_files(self):
         return copy.copy(self._config_file_list)
 
     def config_overrides(self):
         self.config_fixture.config(policy_file=dirs.etc('policy.json'))
+        self.config_fixture.config(
+            group='auth',
+            methods=['keystone.auth.plugins.external.DefaultDomain',
+                     'keystone.auth.plugins.password.Password',
+                     'keystone.auth.plugins.token.Token',
+                     'keystone.auth.plugins.oauth1.OAuth',
+                     'keystone.auth.plugins.saml2.Saml2'])
+        self.config_fixture.config(
+            # TODO(morganfainberg): Make Cache Testing a separate test case
+            # in tempest, and move it out of the base unit tests.
+            group='cache',
+            backend='dogpile.cache.memory',
+            enabled=True,
+            debug_cache_backend=True,
+            proxies=['keystone.tests.test_cache.CacheIsolatingProxy'])
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.templated.Catalog',
+            template_file=dirs.tests('default_catalog.templates'))
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.config_fixture.config(
+            group='kvs',
+            backends=[
+                'keystone.tests.test_kvs.KVSBackendForcedKeyMangleFixture',
+                'keystone.tests.test_kvs.KVSBackendFixture'])
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(
+            group='signing',
+            certfile='examples/pki/certs/signing_cert.pem',
+            keyfile='examples/pki/private/signing_key.pem',
+            ca_certs='examples/pki/certs/cacert.pem')
+        self.config_fixture.config(
+            group='token',
+            driver='keystone.token.backends.kvs.Token')
+        self.config_fixture.config(
+            group='trust',
+            driver='keystone.trust.backends.kvs.Trust')
 
     def setUp(self):
         super(TestCase, self).setUp()
@@ -681,3 +725,31 @@ class TestCase(BaseTestCase):
 
         standardMsg = '\n'.join(lines)
         self.fail(self._formatMessage(msg, standardMsg))
+
+
+class SQLDriverOverrides(object):
+    """A mixin for consolidating sql-specific test overrides."""
+    def config_overrides(self):
+        super(SQLDriverOverrides, self).config_overrides()
+        # SQL specific driver overrides
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.sql.Catalog')
+        self.config_fixture.config(
+            group='ec2',
+            driver='keystone.contrib.ec2.backends.sql.Ec2')
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.sql.Identity')
+        self.config_fixture.config(
+            group='policy',
+            driver='keystone.policy.backends.sql.Policy')
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.sql.Revoke')
+        self.config_fixture.config(
+            group='token',
+            driver='keystone.token.backends.sql.Token')
+        self.config_fixture.config(
+            group='trust',
+            driver='keystone.trust.backends.sql.Trust')

@@ -20,7 +20,6 @@ from keystone.common.sql import migration_helpers
 from keystone import contrib
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common import importutils
-from keystone import tests
 from keystone.tests import test_v3
 
 
@@ -29,12 +28,6 @@ class TestExtensionCase(test_v3.RestfulTestCase):
     EXTENSION_NAME = 'endpoint_filter'
     EXTENSION_TO_ADD = 'endpoint_filter_extension'
 
-    def config_files(self):
-        conf_files = super(TestExtensionCase, self).config_files()
-        conf_files.append(tests.dirs.tests(
-            'test_associate_project_endpoint_extension.conf'))
-        return conf_files
-
     def setup_database(self):
         super(TestExtensionCase, self).setup_database()
         package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
@@ -42,6 +35,13 @@ class TestExtensionCase(test_v3.RestfulTestCase):
         abs_path = migration_helpers.find_migrate_repo(package)
         migration.db_version_control(sql.get_engine(), abs_path)
         migration.db_sync(sql.get_engine(), abs_path)
+
+    def config_overrides(self):
+        super(TestExtensionCase, self).config_overrides()
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.contrib.endpoint_filter.backends.catalog_sql.'
+                   'EndpointFilterCatalog')
 
     def setUp(self):
         super(TestExtensionCase, self).setUp()

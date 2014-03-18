@@ -21,10 +21,13 @@ from keystone.tests import test_backend
 class RulesPolicy(tests.TestCase, test_backend.PolicyTests):
     def setUp(self):
         super(RulesPolicy, self).setUp()
-        self.config([tests.dirs.tests('test_overrides.conf'),
-                     tests.dirs.tests('backend_rules.conf')])
-
         self.load_backends()
+
+    def config_overrides(self):
+        super(RulesPolicy, self).config_overrides()
+        self.config_fixture.config(
+            group='policy',
+            driver='keystone.policy.backends.rules.Policy')
 
     def test_create(self):
         self.assertRaises(exception.NotImplemented,

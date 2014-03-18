@@ -18,7 +18,6 @@ import six
 
 from keystone.common import extension
 from keystone import config
-from keystone import tests
 from keystone.tests import rest
 
 
@@ -1313,10 +1312,15 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
 
 class RevokeApiJsonTestCase(JsonTestCase):
-    def config_files(self):
-        cfg_list = self._config_file_list[:]
-        cfg_list.append(tests.dirs.tests('test_revoke_kvs.conf'))
-        return cfg_list
+    def config_overrides(self):
+        super(RevokeApiJsonTestCase, self).config_overrides()
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Provider',
+            revoke_by_id=False)
 
     def test_fetch_revocation_list_admin_200(self):
         self.skipTest('Revoke API disables revocation_list.')
