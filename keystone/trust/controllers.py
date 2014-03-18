@@ -134,6 +134,9 @@ class TrustV3(controller.V3Controller):
         if not trust:
             raise exception.ValidationError(attribute='trust',
                                             target='request')
+        if trust.get('project_id') and not trust.get('roles'):
+            raise exception.Forbidden(
+                _('At least one role should be specified.'))
         try:
             user_id = self._get_user_id(context)
             _trustor_only(context, trust, user_id)
