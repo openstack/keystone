@@ -888,7 +888,7 @@ class FederatedTokenTests(FederationTests):
         projects_ref = self.proj_employees
         self._check_projects_and_roles(token_resp, roles_ref, projects_ref)
 
-    def scope_to_bad_project(self):
+    def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
 
         self.post(self.AUTH_URL,
