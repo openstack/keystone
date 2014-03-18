@@ -507,9 +507,9 @@ class BaseProvider(provider.Provider):
             token_data['user'].update({
                 federation.FEDERATION: {
                     'identity_provider': {'id': idp},
-                    'protocol': {'id': protocol}
+                    'protocol': {'id': protocol},
+                    'groups': [{'id': x} for x in group_ids]
                 },
-                federation.GROUPS: [{'id': x} for x in group_ids]
             })
         return token_data
 
