@@ -14,6 +14,7 @@
 
 """Workflow Logic the Identity service."""
 
+import functools
 import inspect
 import six
 import uuid
@@ -300,6 +301,10 @@ class UserV3(controller.V3Controller):
 
     def _update_user(self, context, user_id, user, domain_scope):
         self._require_matching_id(user_id, user)
+        self._require_matching_domain_id(
+            user_id, user,
+            functools.partial(self.identity_api.get_user,
+                              domain_scope=domain_scope))
         ref = self.identity_api.update_user(
             user_id, user, domain_scope=domain_scope)
         return UserV3.wrap_member(context, ref)
@@ -401,10 +406,14 @@ class GroupV3(controller.V3Controller):
     @controller.protected()
     def update_group(self, context, group_id, group):
         self._require_matching_id(group_id, group)
-
+        domain_scope = self._get_domain_id_for_request(context)
+        self._require_matching_domain_id(
+            group_id, group,
+            functools.partial(self.identity_api.get_group,
+                              domain_scope=domain_scope))
         ref = self.identity_api.update_group(
             group_id, group,
-            domain_scope=self._get_domain_id_for_request(context))
+            domain_scope=domain_scope)
         return GroupV3.wrap_member(context, ref)
 
     @controller.protected()
