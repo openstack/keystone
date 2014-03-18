@@ -100,6 +100,54 @@ class ExceptionTestCase(tests.TestCase):
         self.assertIn('%(attribute)', e.message)
 
 
+class UnexpectedExceptionTestCase(ExceptionTestCase):
+    """Tests if internal info is exposed to the API user on UnexpectedError."""
+
+    class SubClassExc(exception.UnexpectedError):
+        debug_message_format = 'Debug Message: %(debug_info)s'
+
+    def setUp(self):
+        super(UnexpectedExceptionTestCase, self).setUp()
+        self.exc_str = uuid.uuid4().hex
+
+    def test_unexpected_error_no_debug(self):
+        self.config_fixture.config(debug=False)
+        e = exception.UnexpectedError(exception=self.exc_str)
+        self.assertNotIn(self.exc_str, six.text_type(e))
+
+    def test_unexpected_error_debug(self):
+        self.config_fixture.config(debug=True)
+        e = exception.UnexpectedError(exception=self.exc_str)
+        self.assertIn(self.exc_str, six.text_type(e))
+
+    def test_unexpected_error_subclass_no_debug(self):
+        self.config_fixture.config(debug=False)
+        e = UnexpectedExceptionTestCase.SubClassExc(
+            debug_info=self.exc_str)
+        self.assertEqual(exception.UnexpectedError._message_format,
+                         six.text_type(e))
+
+    def test_unexpected_error_subclass_debug(self):
+        self.config_fixture.config(debug=True)
+        subclass = self.SubClassExc
+
+        e = subclass(debug_info=self.exc_str)
+        expected = subclass.debug_message_format % {'debug_info': self.exc_str}
+        self.assertEqual(expected, six.text_type(e))
+
+    def test_unexpected_error_custom_message_no_debug(self):
+        self.config_fixture.config(debug=False)
+        e = exception.UnexpectedError(self.exc_str)
+        self.assertEqual(exception.UnexpectedError._message_format,
+                         six.text_type(e))
+
+    def test_unexpected_error_custom_message_debug(self):
+        self.config_fixture.config(debug=True)
+        e = exception.UnexpectedError(self.exc_str)
+        self.assertEqual(self.exc_str,
+                         six.text_type(e))
+
+
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
     def test_unauthorized_exposure(self):

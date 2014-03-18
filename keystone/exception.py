@@ -276,26 +276,47 @@ class RequestTooLarge(Error):
     title = 'Request is too large.'
 
 
-class UnexpectedError(Error):
-    message_format = _("An unexpected error prevented the server"
-                       " from fulfilling your request. %(exception)s")
+class UnexpectedError(SecurityError):
+    """Avoids exposing details of failures, unless in debug mode."""
+    _message_format = _("An unexpected error prevented the server "
+                        "from fulfilling your request.")
+
+    debug_message_format = _("An unexpected error prevented the server "
+                             "from fulfilling your request. %(exception)s")
+
+    @property
+    def message_format(self):
+        """Return the generic message format string unless debug is enabled."""
+        if CONF.debug:
+            return self.debug_message_format
+        return self._message_format
+
+    def _build_message(self, message, **kwargs):
+        if CONF.debug and 'exception' not in kwargs:
+            # Ensure that exception has a value to be extra defensive for
+            # substitutions and make sure the exception doesn't raise an
+            # exception.
+            kwargs['exception'] = ''
+        return super(UnexpectedError, self)._build_message(message, **kwargs)
+
     code = 500
     title = 'Internal Server Error'
 
 
 class CertificateFilesUnavailable(UnexpectedError):
-    message_format = _("Expected signing certificates are not available "
-                       "on the server. Please check Keystone configuration.")
+    debug_message_format = _("Expected signing certificates are not available "
+                             "on the server. Please check Keystone "
+                             "configuration.")
 
 
 class MalformedEndpoint(UnexpectedError):
-    message_format = _("Malformed endpoint URL (%(endpoint)s),"
-                       " see ERROR log for details.")
+    debug_message_format = _("Malformed endpoint URL (%(endpoint)s),"
+                             " see ERROR log for details.")
 
 
 class MappedGroupNotFound(UnexpectedError):
-    message_format = _("Group %(group_id)s returned by mapping "
-                       "%(mapping_id)s was not found in the backend.")
+    debug_message_format = _("Group %(group_id)s returned by mapping "
+                             "%(mapping_id)s was not found in the backend.")
 
 
 class NotImplemented(Error):
@@ -313,8 +334,8 @@ class Gone(Error):
 
 
 class ConfigFileNotFound(UnexpectedError):
-    message_format = _("The Keystone configuration file %(config_file)s could "
-                       "not be found.")
+    debug_message_format = _("The Keystone configuration file %(config_file)s "
+                             "could not be found.")
 
 
 class MigrationNotProvided(Exception):

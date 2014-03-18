@@ -68,7 +68,7 @@ def _register_backends():
 
 
 class LockTimeout(exception.UnexpectedError):
-    message_format = _('Lock Timeout occurred for key, %(target)s')
+    debug_message_format = _('Lock Timeout occurred for key, %(target)s')
 
 
 class KeyValueStore(object):
