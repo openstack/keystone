@@ -382,7 +382,7 @@ class SqlToken(SqlTests, test_backend.TokenTests):
 
 
 class SqlCatalog(SqlTests, test_backend.CatalogTests):
-    def test_malformed_catalog_throws_error(self):
+    def test_catalog_ignored_malformed_urls(self):
         service = {
             'id': uuid.uuid4().hex,
             'type': uuid.uuid4().hex,
@@ -401,10 +401,9 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         }
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
-        self.assertRaises(exception.MalformedEndpoint,
-                          self.catalog_api.get_catalog,
-                          'fake-user',
-                          'fake-tenant')
+        # NOTE(dstanek): there are no valid URLs, so nothing is in the catalog
+        catalog = self.catalog_api.get_catalog('fake-user', 'fake-tenant')
+        self.assertEqual({}, catalog)
 
     def test_get_catalog_with_empty_public_url(self):
         service = {

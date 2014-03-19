@@ -115,9 +115,13 @@ class Catalog(kvs.Catalog):
         for region, region_ref in six.iteritems(self.templates):
             o[region] = {}
             for service, service_ref in six.iteritems(region_ref):
-                o[region][service] = {}
-                for k, v in six.iteritems(service_ref):
-                    o[region][service][k] = core.format_url(v, d)
+                service_data = {}
+                try:
+                    for k, v in six.iteritems(service_ref):
+                        service_data[k] = core.format_url(v, d)
+                except exception.MalformedEndpoint:
+                    continue  # this failure is already logged in format_url()
+                o[region][service] = service_data
 
         return o
 
