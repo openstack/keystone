@@ -38,7 +38,7 @@ class LiveTLSLDAPIdentity(_ldap_livetest.LiveLDAPIdentity):
 
     def config_files(self):
         config_files = super(LiveTLSLDAPIdentity, self).config_files()
-        config_files.append(tests.dirs.tests('backend_tls_liveldap.conf'))
+        config_files.append(tests.dirs.tests_conf('backend_tls_liveldap.conf'))
         return config_files
 
     def config_overrides(self):

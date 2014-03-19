@@ -60,7 +60,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def config_files(self):
         config_files = super(BaseLDAPIdentity, self).config_files()
-        config_files.append(tests.dirs.tests('backend_ldap.conf'))
+        config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
     def test_build_tree(self):
@@ -1126,7 +1126,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
 
     def config_files(self):
         config_files = super(LDAPIdentityEnabledEmulation, self).config_files()
-        config_files.append(tests.dirs.tests('backend_ldap.conf'))
+        config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
     def config_overrides(self):
@@ -1199,7 +1199,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
 
     def config_files(self):
         config_files = super(LdapIdentitySqlAssignment, self).config_files()
-        config_files.append(tests.dirs.tests('backend_ldap_sql.conf'))
+        config_files.append(tests.dirs.tests_conf('backend_ldap_sql.conf'))
         return config_files
 
     def setUp(self):
@@ -1347,15 +1347,15 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         # test overrides are included.
         self.identity_api.domain_configs._load_config(
             self.identity_api.assignment_api,
-            [tests.dirs.tests('keystone.Default.conf')],
+            [tests.dirs.tests_conf('keystone.Default.conf')],
             'Default')
         self.identity_api.domain_configs._load_config(
             self.identity_api.assignment_api,
-            [tests.dirs.tests('keystone.domain1.conf')],
+            [tests.dirs.tests_conf('keystone.domain1.conf')],
             'domain1')
         self.identity_api.domain_configs._load_config(
             self.identity_api.assignment_api,
-            [tests.dirs.tests('keystone.domain2.conf')],
+            [tests.dirs.tests_conf('keystone.domain2.conf')],
             'domain2')
 
     def reload_backends(self, domain_id):

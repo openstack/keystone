@@ -55,7 +55,7 @@ class DeprecatedTestCase(tests.TestCase):
 
     def config_files(self):
         config_files = super(DeprecatedTestCase, self).config_files()
-        config_files.append(tests.dirs.tests('deprecated.conf'))
+        config_files.append(tests.dirs.tests_conf('deprecated.conf'))
         return config_files
 
     def test_sql(self):
@@ -71,7 +71,7 @@ class DeprecatedOverrideTestCase(tests.TestCase):
 
     def config_files(self):
         config_files = super(DeprecatedOverrideTestCase, self).config_files()
-        config_files.append(tests.dirs.tests('deprecated_override.conf'))
+        config_files.append(tests.dirs.tests_conf('deprecated_override.conf'))
         return config_files
 
     def test_sql(self):
