@@ -38,6 +38,13 @@ def create_object(dn, attrs):
 
 class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
+    def setUp(self):
+        self._ldap_skip_live()
+        super(LiveLDAPIdentity, self).setUp()
+
+    def _ldap_skip_live(self):
+            self.skip_if_env_not_set('ENABLE_LDAP_LIVE_TEST')
+
     def clear_database(self):
         devnull = open('/dev/null', 'w')
         subprocess.call(['ldapdelete',

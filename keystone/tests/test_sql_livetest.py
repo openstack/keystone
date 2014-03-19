@@ -22,6 +22,10 @@ CONF = config.CONF
 
 
 class PostgresqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
+    def setUp(self):
+        self.skip_if_env_not_set('ENABLE_LIVE_POSTGRES_TEST')
+        super(PostgresqlMigrateTests, self).setUp()
+
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
@@ -30,6 +34,10 @@ class PostgresqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
 
 
 class MysqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
+    def setUp(self):
+        self.skip_if_env_not_set('ENABLE_LIVE_MYSQL_TEST')
+        super(MysqlMigrateTests, self).setUp()
+
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
@@ -39,6 +47,10 @@ class MysqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
 
 class PostgresqlRevokeExtensionsTests(
         test_sql_migrate_extensions.RevokeExtension):
+    def setUp(self):
+        self.skip_if_env_not_set('ENABLE_LIVE_POSTGRES_TEST')
+        super(PostgresqlRevokeExtensionsTests, self).setUp()
+
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
@@ -47,6 +59,10 @@ class PostgresqlRevokeExtensionsTests(
 
 
 class MysqlRevokeExtensionsTests(test_sql_migrate_extensions.RevokeExtension):
+    def setUp(self):
+        self.skip_if_env_not_set('ENABLE_LIVE_MYSQL_TEST')
+        super(MysqlRevokeExtensionsTests, self).setUp()
+
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
@@ -55,6 +71,10 @@ class MysqlRevokeExtensionsTests(test_sql_migrate_extensions.RevokeExtension):
 
 
 class Db2MigrateTests(test_sql_upgrade.SqlUpgradeTests):
+    def setUp(self):
+        self.skip_if_env_not_set('ENABLE_LIVE_DB2_TEST')
+        super(Db2MigrateTests, self).setUp()
+
     def config_files(self):
         files = (test_sql_upgrade.SqlUpgradeTests.
                  _config_file_list[:])
