@@ -16,6 +16,7 @@ import sqlalchemy as sql
 
 from keystone.common import utils
 from keystone import exception
+from keystone.openstack.common.gettextutils import _
 
 
 def upgrade(migrate_engine):

@@ -34,6 +34,7 @@ from keystone.openstack.common.db import exception as db_exception
 from keystone.openstack.common.db import options as db_options
 from keystone.openstack.common.db.sqlalchemy import models
 from keystone.openstack.common.db.sqlalchemy import session as db_session
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils
 
 

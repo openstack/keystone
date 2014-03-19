@@ -35,15 +35,6 @@ import webob
 from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
 
-# NOTE(blk-u):
-# gettextutils.install() must run to set _ before importing any modules that
-# contain static translated strings.
-#
-# Configure gettextutils for deferred translation of messages
-# so that error messages in responses can be translated according to the
-# Accept-Language in the request rather than the Keystone server locale.
-gettextutils.install('keystone', lazy=True)
-
 # NOTE(ayoung)
 # environment.use_eventlet must run before any of the code that will
 # call the eventlet monkeypatching.
@@ -63,6 +54,7 @@ from keystone import notifications
 from keystone.openstack.common.db import options as db_options
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.fixture import config as config_fixture
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone import service
 from keystone.tests import fixtures as ksfixtures

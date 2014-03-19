@@ -25,6 +25,7 @@ from keystone.common import sql
 from keystone import contrib
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
 
 

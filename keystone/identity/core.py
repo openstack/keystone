@@ -28,6 +28,7 @@ from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone import notifications
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log
 from keystone.openstack.common import versionutils

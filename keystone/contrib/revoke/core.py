@@ -23,6 +23,7 @@ from keystone import config
 from keystone.contrib.revoke import model
 from keystone import exception
 from keystone import notifications
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 

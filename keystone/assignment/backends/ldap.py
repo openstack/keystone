@@ -25,6 +25,7 @@ from keystone.common import models
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import ldap as ldap_identity
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 
@@ -293,7 +294,7 @@ class Assignment(assignment.Driver):
                     conn = self.group.get_connection()
                     roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
                                           query, ['%s' % '1.1'])
-                    for role_dn, _ in roles:
+                    for role_dn, i in roles:
                         conn.delete_s(role_dn)
                 except ldap.NO_SUCH_OBJECT:
                     pass

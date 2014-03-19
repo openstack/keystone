@@ -25,6 +25,8 @@ import re
 
 import six
 
+from keystone.openstack.common.gettextutils import _
+
 
 DOCTYPE = '<?xml version="1.0" encoding="UTF-8"?>'
 XMLNS = 'http://docs.openstack.org/identity/api/v2.0'

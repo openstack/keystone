@@ -29,6 +29,7 @@ import six
 from keystone.common import config
 from keystone.common import environment
 from keystone import exception
+from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone.openstack.common import strutils
 from six import moves
