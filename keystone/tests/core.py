@@ -69,6 +69,7 @@ config.configure()
 
 
 LOG = log.getLogger(__name__)
+PID = six.text_type(os.getpid())
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
 TESTCONF = os.path.join(TESTSDIR, 'config_files')
 ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..'))
@@ -78,9 +79,9 @@ ETCDIR = os.path.join(ROOTDIR, 'etc')
 
 def _calc_tmpdir():
     env_val = os.environ.get('KEYSTONE_TEST_TEMP_DIR')
-    if env_val:
-        return env_val
-    return os.path.join(TESTSDIR, 'tmp')
+    if not env_val:
+        return os.path.join(TESTSDIR, 'tmp', PID)
+    return os.path.join(env_val, PID)
 
 
 TMPDIR = _calc_tmpdir()
@@ -88,6 +89,8 @@ TMPDIR = _calc_tmpdir()
 CONF = config.CONF
 
 exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
+os.mkdir(TMPDIR)
+atexit.register(shutil.rmtree, TMPDIR)
 
 
 class dirs:
@@ -113,11 +116,14 @@ class dirs:
 
 
 # keystone.common.sql.initialize() for testing.
+DEFAULT_TEST_DB_FILE = dirs.tmp('test.db')
+
+
 def _initialize_sql_session():
     # Make sure the DB is located in the correct location, in this case set
     # the default value, as this should be able to be overridden in some
     # test cases.
-    db_file = dirs.tmp('test.db')
+    db_file = DEFAULT_TEST_DB_FILE
     db_options.set_defaults(
         sql_connection='sqlite:///%s' % db_file,
         sqlite_db=db_file)

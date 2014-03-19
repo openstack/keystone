@@ -24,7 +24,7 @@ from keystone.tests import rest
 from keystone import token
 
 
-SSLDIR = tests.dirs.tests('ssl')
+SSLDIR = tests.dirs.tmp('ssl')
 CONF = tests.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
