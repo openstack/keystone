@@ -19,7 +19,7 @@ import ssl
 from keystone.common import environment
 from keystone import config
 from keystone import tests
-from keystone.tests.fixtures import appserver
+from keystone.tests.ksfixtures import appserver
 
 
 CONF = config.CONF

@@ -57,7 +57,7 @@ from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone import service
-from keystone.tests import fixtures as ksfixtures
+from keystone.tests import ksfixtures
 
 # NOTE(dstanek): Tests inheriting from TestCase depend on having the
 #   policy_file command-line option declared before setUp runs. Importing the
