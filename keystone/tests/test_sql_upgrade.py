@@ -43,7 +43,6 @@ from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
 from keystone.contrib import federation
-from keystone import credential
 from keystone import exception
 from keystone.openstack.common.db import exception as db_exception
 from keystone.openstack.common.db.sqlalchemy import migration
@@ -1406,11 +1405,9 @@ class SqlUpgradeTests(SqlMigrateBase):
             id=expected_credential_id).one()
         self.assertEqual(cred.user_id, ec2_credential['user_id'])
         self.assertEqual(cred.project_id, ec2_credential['tenant_id'])
-        # test list credential using credential manager.
-        credential_api = credential.Manager()
-        self.assertNotEmpty(credential_api.
-                            list_credentials(
-                                user_id=ec2_credential['user_id']))
+        credential_list = session.query(cred_table).filter_by(
+            user_id=ec2_credential['user_id']).all()
+        self.assertNotEmpty(credential_list)
         self.downgrade(32)
         session.commit()
         self.assertTableExists('ec2_credential')

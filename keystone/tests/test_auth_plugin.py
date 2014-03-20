@@ -18,7 +18,6 @@ from keystone import auth
 from keystone.common import config
 from keystone import exception
 from keystone import tests
-from keystone import token
 
 
 # for testing purposes only
@@ -58,10 +57,6 @@ class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
     def setUp(self):
         super(TestAuthPlugin, self).setUp()
         self.load_backends()
-
-        # need to register the token provider first because auth controller
-        # depends on it
-        token.provider.Manager()
 
         self.api = auth.controllers.Auth()
 

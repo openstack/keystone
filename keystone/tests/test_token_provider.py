@@ -729,22 +729,12 @@ class TestTokenProvider(tests.TestCase):
         self.config_fixture.config(group='signing', token_format='UUID')
         self.config_fixture.config(group='token',
                                    provider=token.provider.PKI_PROVIDER)
-        try:
-            token.provider.Manager()
-            raise Exception(
-                'expecting ValueError on token provider misconfiguration')
-        except exception.UnexpectedError:
-            pass
+        self.assertRaises(exception.UnexpectedError, token.provider.Manager)
 
         self.config_fixture.config(group='signing', token_format='PKI')
         self.config_fixture.config(group='token',
                                    provider=token.provider.UUID_PROVIDER)
-        try:
-            token.provider.Manager()
-            raise Exception(
-                'expecting ValueError on token provider misconfiguration')
-        except exception.UnexpectedError:
-            pass
+        self.assertRaises(exception.UnexpectedError, token.provider.Manager)
 
         # should be OK as token_format and provider aligns
         self.config_fixture.config(group='signing', token_format='PKI')
@@ -828,14 +818,22 @@ class TestTokenProvider(tests.TestCase):
             None,
             self.token_provider_api._is_valid_token(create_v3_token()))
 
-    def test_uuid_provider_no_oauth_fails_oauth(self):
-        self.load_fixtures(default_fixtures)
+
+class TestTokenProviderOAuth1(tests.TestCase):
+    def setUp(self):
+        super(TestTokenProviderOAuth1, self).setUp()
+        self.load_backends()
+
+    def config_overrides(self):
+        super(TestTokenProviderOAuth1, self).config_overrides()
         self.config_fixture.config(group='token',
                                    provider=token.provider.UUID_PROVIDER)
-        driver = token.provider.Manager().driver
-        driver.oauth_api = None
+
+    def test_uuid_provider_no_oauth_fails_oauth(self):
+        self.load_fixtures(default_fixtures)
+        self.token_provider_api.driver.oauth_api = None
         self.assertRaises(exception.Forbidden,
-                          driver.issue_v3_token,
+                          self.token_provider_api.driver.issue_v3_token,
                           self.user_foo['id'], ['oauth1'])
 
 

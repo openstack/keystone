@@ -13,22 +13,20 @@
 # under the License.
 
 from keystone import auth
+from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import exception
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
-from keystone.token import provider
 
 
 LOG = log.getLogger(__name__)
 
 
+@dependency.requires('token_provider_api')
 class Token(auth.AuthMethodHandler):
 
     method = 'token'
-
-    def __init__(self):
-        self.provider = provider.Manager()
 
     def authenticate(self, context, auth_payload, user_context):
         try:
@@ -36,7 +34,7 @@ class Token(auth.AuthMethodHandler):
                 raise exception.ValidationError(attribute='id',
                                                 target=self.method)
             token_id = auth_payload['id']
-            response = self.provider.validate_token(token_id)
+            response = self.token_provider_api.validate_token(token_id)
             # For V3 tokens, the essential data is under the 'token' value.
             # For V2, the comparable data was nested under 'access'.
             token_ref = response.get('token', response.get('access'))

@@ -25,7 +25,6 @@ from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone import token
 from keystone.token import provider
-from keystone import trust
 
 
 from keystone.openstack.common import log
@@ -136,8 +135,8 @@ class V2TokenDataHelper(object):
 class V3TokenDataHelper(object):
     """Token data helper."""
     def __init__(self):
-        if CONF.trust.enabled:
-            self.trust_api = trust.Manager()
+        # Keep __init__ around to ensure dependency injection works.
+        super(V3TokenDataHelper, self).__init__()
 
     def _get_filtered_domain(self, domain_id):
         domain_ref = self.assignment_api.get_domain(domain_id)
@@ -361,8 +360,6 @@ class V3TokenDataHelper(object):
 class BaseProvider(provider.Provider):
     def __init__(self, *args, **kwargs):
         super(BaseProvider, self).__init__(*args, **kwargs)
-        if CONF.trust.enabled:
-            self.trust_api = trust.Manager()
         self.v3_token_data_helper = V3TokenDataHelper()
         self.v2_token_data_helper = V2TokenDataHelper()
 
