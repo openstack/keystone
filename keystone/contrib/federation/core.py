@@ -42,7 +42,6 @@ extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 FEDERATION = 'OS-FEDERATION'
-GROUPS = 'OS-FEDERATION:groups'
 IDENTITY_PROVIDER = 'OS-FEDERATION:identity_provider'
 PROTOCOL = 'OS-FEDERATION:protocol'
 

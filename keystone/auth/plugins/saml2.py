@@ -58,11 +58,10 @@ class Saml2(auth.AuthMethodHandler):
     def _handle_scoped_token(self, auth_payload):
         token_ref = self.token_api.get_token(auth_payload['id'])
         self._validate_expiration(token_ref)
-        group_ids = [group['id'] for group in
-                     token_ref['user'][federation.GROUPS]]
         _federation = token_ref['user'][federation.FEDERATION]
         identity_provider = _federation['identity_provider']['id']
         protocol = _federation['protocol']['id']
+        group_ids = [group['id'] for group in _federation['groups']]
         mapping = self.federation_api.get_mapping_from_idp_and_protocol(
             identity_provider, protocol)
         self._validate_groups(group_ids, mapping['id'])
