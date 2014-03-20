@@ -1852,34 +1852,3 @@ msgstr ""
 msgid "remaining_uses must be a positive integer or null."
 msgstr ""
 
-#~ msgid "LDAP init: url=%s"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "LDAP init: use_tls=%(use_tls)s\n"
-#~ "tls_cacertfile=%(tls_cacertfile)s\n"
-#~ "tls_cacertdir=%(tls_cacertdir)s\n"
-#~ "tls_req_cert=%(tls_req_cert)s\n"
-#~ "tls_avail=%(tls_avail)s\n"
-#~ msgstr ""
-
-#~ msgid "LDAP bind: dn=%s"
-#~ msgstr ""
-
-#~ msgid "LDAP add: dn=%(dn)s, attrs=%(attrs)s"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "LDAP search: dn=%(dn)s, scope=%(scope)s, "
-#~ "query=%(query)s, attrs=%(attrlist)s"
-#~ msgstr ""
-
-#~ msgid "LDAP modify: dn=%(dn)s, modlist=%(modlist)s"
-#~ msgstr ""
-
-#~ msgid "LDAP delete: dn=%s"
-#~ msgstr ""
-
-#~ msgid "LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s"
-#~ msgstr ""
-
