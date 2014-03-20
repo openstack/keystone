@@ -500,7 +500,7 @@ class BaseProvider(provider.Provider):
 
         if project_id or domain_id:
             roles = self.v3_token_data_helper._populate_roles_for_groups(
-                group_ids, project_id, domain_id)
+                group_ids, project_id, domain_id, user_id)
             token_data.update({'roles': roles})
         else:
             idp = auth_context[federation.IDENTITY_PROVIDER]
