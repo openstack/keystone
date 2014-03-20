@@ -874,10 +874,61 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                                  tls_cacertdir=None,
                                  tls_cacertfile=None,
                                  tls_req_cert=2,
-                                 use_tls=False).AndReturn(conn)
+                                 use_tls=False,
+                                 chase_referrals=None).AndReturn(conn)
         self.mox.ReplayAll()
 
         user_api.get_connection(user=None, password=None)
+
+    def test_chase_referrals_off(self):
+        self.config_fixture.config(
+            group='ldap',
+            url='fake://memory',
+            chase_referrals=False)
+        user_api = identity.backends.ldap.UserApi(CONF)
+        self.stubs.Set(fakeldap, 'FakeLdap',
+                       self.mox.CreateMock(fakeldap.FakeLdap))
+        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        user = uuid.uuid4().hex
+        password = uuid.uuid4().hex
+        conn = self.mox.CreateMockAnything()
+        conn = fakeldap.FakeLdap(CONF.ldap.url,
+                                 0,
+                                 alias_dereferencing=None,
+                                 tls_cacertdir=None,
+                                 tls_cacertfile=None,
+                                 tls_req_cert=2,
+                                 use_tls=False,
+                                 chase_referrals=False).AndReturn(conn)
+        conn.simple_bind_s(user, password).AndReturn(None)
+        self.mox.ReplayAll()
+
+        user_api.get_connection(user=user, password=password)
+
+    def test_chase_referrals_on(self):
+        self.config_fixture.config(
+            group='ldap',
+            url='fake://memory',
+            chase_referrals=True)
+        user_api = identity.backends.ldap.UserApi(CONF)
+        self.stubs.Set(fakeldap, 'FakeLdap',
+                       self.mox.CreateMock(fakeldap.FakeLdap))
+        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        user = uuid.uuid4().hex
+        password = uuid.uuid4().hex
+        conn = self.mox.CreateMockAnything()
+        conn = fakeldap.FakeLdap(CONF.ldap.url,
+                                 0,
+                                 alias_dereferencing=None,
+                                 tls_cacertdir=None,
+                                 tls_cacertfile=None,
+                                 tls_req_cert=2,
+                                 use_tls=False,
+                                 chase_referrals=True).AndReturn(conn)
+        conn.simple_bind_s(user, password).AndReturn(None)
+        self.mox.ReplayAll()
+
+        user_api.get_connection(user=user, password=password)
 
     def test_wrong_ldap_scope(self):
         CONF.ldap.query_scope = uuid.uuid4().hex
