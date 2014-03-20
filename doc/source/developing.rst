@@ -214,6 +214,23 @@ you'll normally only want to run the test that hits your breakpoint::
 For reference, the ``debug`` tox environment implements the instructions
 here: https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
 
+Disabling Stream Capture
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The stdout, stderr and log messages generated during a test are captured and
+in the event of a test failure those streams will be printed to the terminal
+along with the traceback. The data is discarded for passing tests.
+
+Each stream has an environment variable that can be used to force captured
+data to be discarded even if the test fails: `OS_STDOUT_CAPTURE` for stdout,
+`OS_STDERR_CAPTURE` for stderr and `OS_LOG_CAPTURE` for logging. If the value
+of the environment variable is not one of (True, true, 1, yes) the stream will
+be discarded. All three variables default to 1.
+
+For example, to discard logging data during a test run::
+
+    $ OS_LOG_CAPTURE=0 tox -e py27
+
 Test Structure
 ==============
 
