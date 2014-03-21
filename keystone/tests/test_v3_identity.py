@@ -428,14 +428,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         project['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/projects/%(project_id)s' % {
             'project_id': project['id']},
-            body={'project': project})
-        self.assertValidProjectResponse(r, project)
-        self.config_fixture.config(domain_id_immutable=True)
+            body={'project': project},
+            expected_status=exception.ValidationError.code)
+        self.config_fixture.config(domain_id_immutable=False)
         project['domain_id'] = self.domain['id']
         r = self.patch('/projects/%(project_id)s' % {
             'project_id': project['id']},
-            body={'project': project},
-            expected_status=exception.ValidationError.code)
+            body={'project': project})
+        self.assertValidProjectResponse(r, project)
 
     def test_delete_project(self):
         """Call ``DELETE /projects/{project_id}``
@@ -600,14 +600,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         user['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/users/%(user_id)s' % {
             'user_id': user['id']},
-            body={'user': user})
-        self.assertValidUserResponse(r, user)
-        self.config_fixture.config(domain_id_immutable=True)
+            body={'user': user},
+            expected_status=exception.ValidationError.code)
+        self.config_fixture.config(domain_id_immutable=False)
         user['domain_id'] = self.domain['id']
         r = self.patch('/users/%(user_id)s' % {
             'user_id': user['id']},
-            body={'user': user},
-            expected_status=exception.ValidationError.code)
+            body={'user': user})
+        self.assertValidUserResponse(r, user)
 
     def test_delete_user(self):
         """Call ``DELETE /users/{user_id}``.
@@ -707,14 +707,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         group['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/groups/%(group_id)s' % {
             'group_id': group['id']},
-            body={'group': group})
-        self.assertValidGroupResponse(r, group)
-        self.config_fixture.config(domain_id_immutable=True)
+            body={'group': group},
+            expected_status=exception.ValidationError.code)
+        self.config_fixture.config(domain_id_immutable=False)
         group['domain_id'] = self.domain['id']
         r = self.patch('/groups/%(group_id)s' % {
             'group_id': group['id']},
-            body={'group': group},
-            expected_status=exception.ValidationError.code)
+            body={'group': group})
+        self.assertValidGroupResponse(r, group)
 
     def test_delete_group(self):
         """Call ``DELETE /groups/{group_id}``."""

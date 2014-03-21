@@ -109,14 +109,14 @@ FILE_OPTIONS = {
                         'global limit may be then overridden for a specific '
                         'driver, by specifying a list_limit in the '
                         'appropriate section (e.g. [assignment]).'),
-        cfg.BoolOpt('domain_id_immutable', default=False,
-                    help='Set this to true if you want to disable the '
+        cfg.BoolOpt('domain_id_immutable', default=True,
+                    help='Set this to false if you want to enable the '
                          'ability for user, group and project entities '
                          'to be moved between domains by updating their '
-                         'domain_id. This can be used to further restrict '
-                         'scope of a domain admin, in conjunction with an '
-                         'appropriate policy file (see policy.v3cloudsample '
-                         'as an example).')],
+                         'domain_id. Allowing such movement is not '
+                         'recommended if the scope of a domain admin is being '
+                         'restricted by use of an appropriate policy file '
+                         '(see policy.v3cloudsample as an example).')],
     'identity': [
         cfg.StrOpt('default_domain_id', default='default',
                    help='This references the domain to use for all '

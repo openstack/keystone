@@ -98,13 +98,13 @@
 # appropriate section (e.g. [assignment]). (integer value)
 #list_limit=<None>
 
-# Set this to true if you want to disable the ability for
+# Set this to false if you want to enable the ability for
 # user, group and project entities to be moved between domains
-# by updating their domain_id. This can be used to further
-# restrict scope of a domain admin, in conjunction with an
-# appropriate policy file (see policy.v3cloudsample as an
-# example). (boolean value)
-#domain_id_immutable=false
+# by updating their domain_id. Allowing such movement is not
+# recommended if the scope of a domain admin is being
+# restricted by use of an appropriate policy file (see
+# policy.v3cloudsample as an example). (boolean value)
+#domain_id_immutable=true
 
 
 #
