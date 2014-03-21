@@ -839,11 +839,12 @@
 # dereferencing configured by your ldap.conf. (string value)
 #alias_dereferencing=default
 
+# Override the system's default referral chasing behavior for
+# queries. (boolean value)
+#chase_referrals=<None>
+
 # Search base for users. (string value)
 #user_tree_dn=<None>
-
-# Override the system's default referral chasing behavior for queries.
-#chase_referrals=<None>
 
 # LDAP search filter for users. (string value)
 #user_filter=<None>
