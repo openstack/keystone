@@ -168,14 +168,26 @@ class MiddlewareTest(BaseWSGITest):
         self.assertEqual(resp.status_int, exception.ValidationError.code)
 
     def test_middleware_exception_error(self):
+
+        exception_str = 'EXCEPTIONERROR'
+
         class FakeMiddleware(wsgi.Middleware):
             def process_response(self, request, response):
-                raise exception.UnexpectedError("EXCEPTIONERROR")
+                raise exception.UnexpectedError(exception_str)
 
-        req = self._make_request()
-        resp = FakeMiddleware(self.app)(req)
-        self.assertEqual(resp.status_int, exception.UnexpectedError.code)
-        self.assertIn("EXCEPTIONERROR", resp.body)
+        def do_request():
+            req = self._make_request()
+            resp = FakeMiddleware(self.app)(req)
+            self.assertEqual(resp.status_int, exception.UnexpectedError.code)
+            return resp
+
+        # Exception data should not be in the message when debug is False
+        self.config_fixture.config(debug=False)
+        self.assertNotIn(exception_str, do_request().body)
+
+        # Exception data should be in the message when debug is True
+        self.config_fixture.config(debug=True)
+        self.assertIn(exception_str, do_request().body)
 
     def test_middleware_local_config(self):
         class FakeMiddleware(wsgi.Middleware):
