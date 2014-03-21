@@ -40,14 +40,20 @@ class OSRevokeTests(test_v3.RestfulTestCase):
 
     # The two values will be the same with the exception of
     # 'issued_before' which is set when the event is recorded.
-    def assertReporteEventMatchesRecorded(self, event, sample, before_time):
+    def assertReportedEventMatchesRecorded(self, event, sample, before_time):
         after_time = timeutils.utcnow()
         event_issued_before = timeutils.normalize_time(
             timeutils.parse_isotime(event['issued_before']))
-        self.assertTrue(before_time < event_issued_before,
-                        'invalid event issued_before time; Too early')
-        self.assertTrue(event_issued_before < after_time,
-                        'invalid event issued_before time; too late')
+        self.assertTrue(
+            before_time <= event_issued_before,
+            'invalid event issued_before time; %s is not later than %s.' % (
+                timeutils.isotime(event_issued_before, subsecond=True),
+                timeutils.isotime(before_time, subsecond=True)))
+        self.assertTrue(
+            event_issued_before <= after_time,
+            'invalid event issued_before time; %s is not earlier than %s.' % (
+                timeutils.isotime(event_issued_before, subsecond=True),
+                timeutils.isotime(after_time, subsecond=True)))
         del (event['issued_before'])
         self.assertEqual(sample, event)
 
@@ -63,7 +69,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
         self.assertEqual(len(events), 1)
-        self.assertReporteEventMatchesRecorded(events[0], sample, before_time)
+        self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_disabled_project_in_list(self):
         project_id = uuid.uuid4().hex
@@ -76,7 +82,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
         self.assertEqual(len(events), 1)
-        self.assertReporteEventMatchesRecorded(events[0], sample, before_time)
+        self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_disabled_domain_in_list(self):
         domain_id = uuid.uuid4().hex
@@ -89,7 +95,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
         self.assertEqual(len(events), 1)
-        self.assertReporteEventMatchesRecorded(events[0], sample, before_time)
+        self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_list_since_invalid(self):
         self.get('/OS-REVOKE/events?since=blah', expected_status=400)
