@@ -87,6 +87,10 @@ class Manager(manager.Manager):
         except exception.NotFound:
             raise exception.RegionNotFound(region_id=region_id)
 
+    def create_service(self, service_id, service_ref):
+        service_ref.setdefault('enabled', True)
+        return self.driver.create_service(service_id, service_ref)
+
     def get_service(self, service_id):
         try:
             return self.driver.get_service(service_id)
