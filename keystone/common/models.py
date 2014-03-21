@@ -161,7 +161,7 @@ class Trust(Model):
     """
 
     required_keys = ('id', 'trustor_user_id', 'trustee_user_id', 'project_id')
-    optional_keys = tuple('expires_at')
+    optional_keys = ('expires_at',)
 
 
 class Domain(Model):
