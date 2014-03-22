@@ -840,7 +840,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
             res = ldap_.search_s(user_dn,
                                  ldap.SCOPE_BASE,
-                                 query='(sn=fake1)')
+                                 '(sn=fake1)')
             return res[0][1][enabled_attr_name]
 
         user = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
@@ -895,14 +895,15 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # we have to track all calls on 'conn' to make sure that
         # conn.simple_bind_s is not called
         conn = self.mox.CreateMockAnything()
-        conn = fakeldap.FakeLdap(CONF.ldap.url,
-                                 0,
-                                 alias_dereferencing=None,
-                                 tls_cacertdir=None,
-                                 tls_cacertfile=None,
-                                 tls_req_cert=2,
-                                 use_tls=False,
-                                 chase_referrals=None).AndReturn(conn)
+        conn.connect(user_api.LDAP_URL,
+                     user_api.page_size,
+                     user_api.alias_dereferencing,
+                     user_api.use_tls,
+                     user_api.tls_cacertfile,
+                     user_api.tls_cacertdir,
+                     user_api.tls_req_cert,
+                     user_api.chase_referrals)
+        conn = fakeldap.FakeLdap().AndReturn(conn)
         self.mox.ReplayAll()
 
         user_api.get_connection(user=None, password=None)
@@ -919,15 +920,16 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         user = uuid.uuid4().hex
         password = uuid.uuid4().hex
         conn = self.mox.CreateMockAnything()
-        conn = fakeldap.FakeLdap(CONF.ldap.url,
-                                 0,
-                                 alias_dereferencing=None,
-                                 tls_cacertdir=None,
-                                 tls_cacertfile=None,
-                                 tls_req_cert=2,
-                                 use_tls=False,
-                                 chase_referrals=False).AndReturn(conn)
-        conn.simple_bind_s(user, password).AndReturn(None)
+        conn.connect(user_api.LDAP_URL,
+                     user_api.page_size,
+                     user_api.alias_dereferencing,
+                     user_api.use_tls,
+                     user_api.tls_cacertfile,
+                     user_api.tls_cacertdir,
+                     user_api.tls_req_cert,
+                     user_api.chase_referrals)
+        conn = fakeldap.FakeLdap().AndReturn(conn)
+        conn.simple_bind_s(user, password, None, None).AndReturn(None)
         self.mox.ReplayAll()
 
         user_api.get_connection(user=user, password=password)
@@ -944,15 +946,16 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         user = uuid.uuid4().hex
         password = uuid.uuid4().hex
         conn = self.mox.CreateMockAnything()
-        conn = fakeldap.FakeLdap(CONF.ldap.url,
-                                 0,
-                                 alias_dereferencing=None,
-                                 tls_cacertdir=None,
-                                 tls_cacertfile=None,
-                                 tls_req_cert=2,
-                                 use_tls=False,
-                                 chase_referrals=True).AndReturn(conn)
-        conn.simple_bind_s(user, password).AndReturn(None)
+        conn.connect(user_api.LDAP_URL,
+                     user_api.page_size,
+                     user_api.alias_dereferencing,
+                     user_api.use_tls,
+                     user_api.tls_cacertfile,
+                     user_api.tls_cacertdir,
+                     user_api.tls_req_cert,
+                     user_api.chase_referrals)
+        conn = fakeldap.FakeLdap().AndReturn(conn)
+        conn.simple_bind_s(user, password, None, None).AndReturn(None)
         self.mox.ReplayAll()
 
         user_api.get_connection(user=user, password=password)
@@ -1190,6 +1193,33 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
         domain_ref = self.assignment_api.get_domain_by_name(domain['name'])
         self.assertEqual(domain_ref, domain)
+
+    def test_base_ldap_connection_deref_option(self):
+        def get_conn(deref_name):
+            self.config_fixture.config(group='ldap',
+                                       alias_dereferencing=deref_name)
+            base_ldap = common_ldap.BaseLdap(CONF)
+            return base_ldap.get_connection()
+
+        conn = get_conn('default')
+        self.assertEqual(ldap.get_option(ldap.OPT_DEREF),
+                         conn.get_option(ldap.OPT_DEREF))
+
+        conn = get_conn('always')
+        self.assertEqual(ldap.DEREF_ALWAYS,
+                         conn.get_option(ldap.OPT_DEREF))
+
+        conn = get_conn('finding')
+        self.assertEqual(ldap.DEREF_FINDING,
+                         conn.get_option(ldap.OPT_DEREF))
+
+        conn = get_conn('never')
+        self.assertEqual(ldap.DEREF_NEVER,
+                         conn.get_option(ldap.OPT_DEREF))
+
+        conn = get_conn('searching')
+        self.assertEqual(ldap.DEREF_SEARCHING,
+                         conn.get_option(ldap.OPT_DEREF))
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):

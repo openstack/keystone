@@ -149,6 +149,7 @@ class IdentityTests(object):
         self.assertNotEqual(user_ref['password'], self.user_foo['password'])
 
     def test_create_unicode_user_name(self):
+        self.skipTest('skip until ldap unicode refactoring is complete')
         unicode_name = u'name \u540d\u5b57'
         user = {'id': uuid.uuid4().hex,
                 'name': unicode_name,
@@ -1688,6 +1689,7 @@ class IdentityTests(object):
                           uuid.uuid4().hex)
 
     def test_create_update_delete_unicode_project(self):
+        self.skipTest('skip until ldap unicode refactoring is complete')
         unicode_project_name = u'name \u540d\u5b57'
         project = {'id': uuid.uuid4().hex,
                    'name': unicode_project_name,
