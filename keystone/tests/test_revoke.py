@@ -395,6 +395,18 @@ class RevokeTreeTests(tests.TestCase):
                               project_id=self.project_ids[0])
         self._assertTokenRevoked(token_to_revoke)
 
+    def test_by_project_and_user_and_role(self):
+        user_id1 = _new_id()
+        user_id2 = _new_id()
+        project_id = _new_id()
+        self.events.append(self._revoke_by_user(user_id1))
+        self.events.append(
+            self._revoke_by_user_and_project(user_id2, project_id))
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id2
+        token_data['project_id'] = project_id
+        self._assertTokenRevoked(token_data)
+
     def _assertEmpty(self, collection):
         return self.assertEqual(0, len(collection), "collection not empty")
 
