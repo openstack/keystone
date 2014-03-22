@@ -226,7 +226,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             expected_status=400)
 
     def assertValidErrorResponse(self, response):
-        self.assertTrue(response.status_code in [400])
+        self.assertIn(response.status_code, [400])
 
     def test_create_endpoint_400(self):
         """Call ``POST /endpoints``."""
