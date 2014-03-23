@@ -12,6 +12,7 @@
 
 """Extensions supporting Federation."""
 
+from keystone.auth import controllers as auth_controllers
 from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
@@ -238,6 +239,28 @@ class MappingController(_ControllerBase):
         utils.validate_mapping_structure(mapping)
         mapping_ref = self.federation_api.update_mapping(mapping_id, mapping)
         return MappingController.wrap_member(context, mapping_ref)
+
+
+class Auth(auth_controllers.Auth):
+
+    def federated_authentication(self, context, identity_provider, protocol):
+        """Authenticate from dedicated url endpoint.
+
+        Build HTTP request body for federated authentication and inject
+        it into the ``authenticate_for_token`` function.
+
+        """
+        auth = {
+            'identity': {
+                'methods': ['saml2'],
+                'saml2': {
+                    'identity_provider': identity_provider,
+                    'protocol': protocol
+                }
+            }
+        }
+
+        return self.authenticate_for_token(context, auth=auth)
 
 
 @dependency.requires('assignment_api')
