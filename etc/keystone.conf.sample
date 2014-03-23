@@ -724,6 +724,10 @@
 # Keystone Federation backend driver. (string value)
 #driver=keystone.contrib.federation.backends.sql.Federation
 
+# Value to be used when filtering assertion parameters from
+# the environment. (string value)
+#assertion_prefix=
+
 
 [identity]
 
