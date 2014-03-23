@@ -89,14 +89,9 @@ class Revoke(revoke.Driver):
             RevocationEvent.revoked_at)
 
         if last_fetch:
-            query.filter(RevocationEvent.revoked_at >= last_fetch)
-            # While the query filter should handle this, it does not
-            # appear to be working. It might be a SQLite artifact.
-            events = [model.RevokeEvent(**e.to_dict())
-                      for e in query
-                      if e.revoked_at > last_fetch]
-        else:
-            events = [model.RevokeEvent(**e.to_dict()) for e in query]
+            query = query.filter(RevocationEvent.revoked_at > last_fetch)
+
+        events = [model.RevokeEvent(**e.to_dict()) for e in query]
 
         return events
 
