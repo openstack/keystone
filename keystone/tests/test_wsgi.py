@@ -12,10 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from babel import localedata
 import gettext
-import mock
 import socket
+
+from babel import localedata
+import mock
 import webob
 
 from keystone.common import environment
@@ -316,10 +317,16 @@ class ServerTest(tests.TestCase):
                                     port=self.port, keepalive=True,
                                     keepidle=1)
         server.start()
-        self.assertEqual(mock_sock.setsockopt.call_count, 2)
-        # Test the last set of call args i.e. for the keepidle
-        mock_sock.setsockopt.assert_called_with(socket.IPPROTO_TCP,
-                                                socket.TCP_KEEPIDLE,
-                                                1)
+
+        # keepidle isn't available in the OS X version of eventlet
+        if hasattr(socket, 'TCP_KEEPIDLE'):
+            self.assertEqual(mock_sock.setsockopt.call_count, 2)
+
+            # Test the last set of call args i.e. for the keepidle
+            mock_sock.setsockopt.assert_called_with(socket.IPPROTO_TCP,
+                                                    socket.TCP_KEEPIDLE,
+                                                    1)
+        else:
+            self.assertEqual(mock_sock.setsockopt.call_count, 1)
 
         self.assertTrue(mock_listen.called)
