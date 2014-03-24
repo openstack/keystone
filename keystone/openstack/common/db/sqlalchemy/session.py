@@ -505,13 +505,20 @@ def _ping_listener(engine, dbapi_conn, connection_rec, connection_proxy):
         if engine.dialect.is_disconnect(ex, dbapi_conn, cursor):
             msg = _LW('Database server has gone away: %s') % ex
             LOG.warning(msg)
+
+            # if the database server has gone away, all connections in the pool
+            # have become invalid and we can safely close all of them here,
+            # rather than waste time on checking of every single connection
+            engine.dispose()
+
+            # this will be handled by SQLAlchemy and will force it to create
+            # a new connection and retry the original action
             raise sqla_exc.DisconnectionError(msg)
         else:
             raise
 
 
-def _set_session_sql_mode(dbapi_con, connection_rec,
-                          connection_proxy, sql_mode=None):
+def _set_session_sql_mode(dbapi_con, connection_rec, sql_mode=None):
     """Set the sql_mode session variable.
 
     MySQL supports several server modes. The default is None, but sessions
@@ -566,7 +573,7 @@ def _mysql_set_mode_callback(engine, sql_mode):
     if sql_mode is not None:
         mode_callback = functools.partial(_set_session_sql_mode,
                                           sql_mode=sql_mode)
-        sqlalchemy.event.listen(engine, 'checkout', mode_callback)
+        sqlalchemy.event.listen(engine, 'connect', mode_callback)
     _mysql_check_effective_sql_mode(engine)
 
 
