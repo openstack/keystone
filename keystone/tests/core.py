@@ -89,7 +89,7 @@ TMPDIR = _calc_tmpdir()
 CONF = config.CONF
 
 exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
-os.mkdir(TMPDIR)
+os.makedirs(TMPDIR)
 atexit.register(shutil.rmtree, TMPDIR)
 
 
