@@ -71,12 +71,14 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
         conn_str = CONF.database.connection
-        if (conn_str.startswith('sqlite') and
+        if (conn_str != tests.IN_MEM_DB_CONN_STRING and
+                conn_str.startswith('sqlite') and
                 conn_str[10:] == tests.DEFAULT_TEST_DB_FILE):
             # Override the default with a DB that is specific to the migration
             # tests only if the DB Connection string is the same as the global
             # default. This is required so that no conflicts occur due to the
-            # global default DB already being under migrate control.
+            # global default DB already being under migrate control. This is
+            # only needed if the DB is not-in-memory
             db_file = tests.dirs.tmp('keystone_migrate_test.db')
             self.config_fixture.config(
                 group='database',
