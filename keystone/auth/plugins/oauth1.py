@@ -13,6 +13,7 @@
 # under the License.
 
 from keystone import auth
+from keystone.common import controller
 from keystone.common import dependency
 from keystone.contrib.oauth1 import core as oauth
 from keystone.contrib.oauth1 import validator
@@ -54,7 +55,7 @@ class OAuth(auth.AuthMethodHandler):
             if now > expires:
                 raise exception.Unauthorized(_('Access token is expired'))
 
-        url = oauth.rebuild_url(context['path'])
+        url = controller.V3Controller.base_url(context, context['path'])
         access_verifier = oauth.ResourceEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth.token_generator)

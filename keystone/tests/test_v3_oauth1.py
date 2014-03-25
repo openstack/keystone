@@ -51,7 +51,7 @@ class OAuth1Tests(test_v3.RestfulTestCase):
         super(OAuth1Tests, self).setUp()
 
         # Now that the app has been served, we can query CONF values
-        self.base_url = (CONF.public_endpoint % CONF) + "v3"
+        self.base_url = 'http://localhost/v3'
         self.controller = controllers.OAuthControllerV3()
 
     def _create_single_consumer(self):
@@ -153,7 +153,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
         resp = self.get(self.CONSUMER_URL + '/%s' % consumer_id)
-        self_url = [CONF.public_endpoint % CONF, 'v3', self.CONSUMER_URL,
+        self_url = ['http://localhost/v3', self.CONSUMER_URL,
                     '/', consumer_id]
         self_url = ''.join(self_url)
         self.assertEqual(resp.result['consumer']['links']['self'], self_url)
@@ -164,7 +164,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         resp = self.get(self.CONSUMER_URL)
         entities = resp.result['consumers']
         self.assertIsNotNone(entities)
-        self_url = [CONF.public_endpoint % CONF, 'v3', self.CONSUMER_URL]
+        self_url = ['http://localhost/v3', self.CONSUMER_URL]
         self_url = ''.join(self_url)
         self.assertEqual(resp.result['links']['self'], self_url)
         self.assertValidListLinks(resp.result['links'])

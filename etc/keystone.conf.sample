@@ -36,12 +36,24 @@
 
 # The base public endpoint URL for keystone that are
 # advertised to clients (NOTE: this does NOT affect how
-# keystone listens for connections). (string value)
+# keystone listens for connections) (string value).
+# Defaults to the base host URL of the request. Eg a
+# request to http://server:5000/v2.0/users will
+# default to http://server:5000. You should only need
+# to set this value if the base URL contains a path
+# (eg /prefix/v2.0) or the endpoint should be found on
+# a different server.
 #public_endpoint=http://localhost:%(public_port)s/
 
 # The base admin endpoint URL for keystone that are advertised
 # to clients (NOTE: this does NOT affect how keystone listens
-# for connections). (string value)
+# for connections) (string value).
+# Defaults to the base host URL of the request. Eg a
+# request to http://server:35357/v2.0/users will
+# default to http://server:35357. You should only need
+# to set this value if the base URL contains a path
+# (eg /prefix/v2.0) or the endpoint should be found on
+# a different server.
 #admin_endpoint=http://localhost:%(admin_port)s/
 
 # onready allows you to send a notification when the process

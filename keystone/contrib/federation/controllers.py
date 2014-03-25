@@ -29,11 +29,11 @@ class _ControllerBase(controller.V3Controller):
     """Base behaviors for federation controllers."""
 
     @classmethod
-    def base_url(cls, path=None):
+    def base_url(cls, context, path=None):
         """Construct a path and pass it to V3Controller.base_url method."""
 
         path = '/OS-FEDERATION/' + cls.collection_name
-        return controller.V3Controller.base_url(path=path)
+        return super(_ControllerBase, cls).base_url(context, path=path)
 
 
 @dependency.requires('federation_api')
@@ -46,7 +46,7 @@ class IdentityProvider(_ControllerBase):
     _public_parameters = frozenset(['id', 'enabled', 'description', 'links'])
 
     @classmethod
-    def _add_related_links(cls, ref):
+    def _add_related_links(cls, context, ref):
         """Add URLs for entities related with Identity Provider.
 
         Add URLs pointing to:
@@ -56,21 +56,22 @@ class IdentityProvider(_ControllerBase):
         ref.setdefault('links', {})
         base_path = ref['links'].get('self')
         if base_path is None:
-            base_path = '/'.join([IdentityProvider.base_url(), ref['id']])
+            base_path = '/'.join([IdentityProvider.base_url(context),
+                                  ref['id']])
         for name in ['protocols']:
             ref['links'][name] = '/'.join([base_path, name])
 
     @classmethod
-    def _add_self_referential_link(cls, ref):
+    def _add_self_referential_link(cls, context, ref):
         id = ref.get('id')
-        self_path = '/'.join([cls.base_url(), id])
+        self_path = '/'.join([cls.base_url(context), id])
         ref.setdefault('links', {})
         ref['links']['self'] = self_path
 
     @classmethod
     def wrap_member(cls, context, ref):
-        cls._add_self_referential_link(ref)
-        cls._add_related_links(ref)
+        cls._add_self_referential_link(context, ref)
+        cls._add_related_links(context, ref)
         ref = cls.filter_params(ref)
         return {cls.member_name: ref}
 
@@ -135,7 +136,7 @@ class FederationProtocol(_ControllerBase):
     _mutable_parameters = frozenset(['mapping_id'])
 
     @classmethod
-    def _add_self_referential_link(cls, ref):
+    def _add_self_referential_link(cls, context, ref):
         """Add 'links' entry to the response dictionary.
 
         Calls IdentityProvider.base_url() class method, as it constructs
@@ -147,14 +148,14 @@ class FederationProtocol(_ControllerBase):
         ref.setdefault('links', {})
         base_path = ref['links'].get('identity_provider')
         if base_path is None:
-            base_path = [IdentityProvider.base_url(), ref['idp_id']]
+            base_path = [IdentityProvider.base_url(context), ref['idp_id']]
             base_path = '/'.join(base_path)
         self_path = [base_path, 'protocols', ref['id']]
         self_path = '/'.join(self_path)
         ref['links']['self'] = self_path
 
     @classmethod
-    def _add_related_links(cls, ref):
+    def _add_related_links(cls, context, ref):
         """Add new entries to the 'links' subdictionary in the response.
 
         Adds 'identity_provider' key with URL pointing to related identity
@@ -164,13 +165,14 @@ class FederationProtocol(_ControllerBase):
 
         """
         ref.setdefault('links', {})
-        base_path = '/'.join([IdentityProvider.base_url(), ref['idp_id']])
+        base_path = '/'.join([IdentityProvider.base_url(context),
+                              ref['idp_id']])
         ref['links']['identity_provider'] = base_path
 
     @classmethod
     def wrap_member(cls, context, ref):
-        cls._add_related_links(ref)
-        cls._add_self_referential_link(ref)
+        cls._add_related_links(context, ref)
+        cls._add_self_referential_link(context, ref)
         ref = cls.filter_params(ref)
         return {cls.member_name: ref}
 

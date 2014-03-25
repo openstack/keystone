@@ -50,15 +50,25 @@ FILE_OPTIONS = {
                    help='The port number which the public service listens '
                         'on.'),
         cfg.StrOpt('public_endpoint',
-                   default='http://localhost:%(public_port)s/',
                    help='The base public endpoint URL for keystone that are '
                         'advertised to clients (NOTE: this does NOT affect '
-                        'how keystone listens for connections).'),
+                        'how keystone listens for connections). '
+                        'Defaults to the base host URL of the request. Eg a '
+                        'request to http://server:5000/v2.0/users will '
+                        'default to http://server:5000. You should only need '
+                        'to set this value if the base URL contains a path '
+                        '(eg /prefix/v2.0) or the endpoint should be found on '
+                        'a different server.'),
         cfg.StrOpt('admin_endpoint',
-                   default='http://localhost:%(admin_port)s/',
                    help='The base admin endpoint URL for keystone that are '
                         'advertised to clients (NOTE: this does NOT affect '
-                        'how keystone listens for connections).'),
+                        'how keystone listens for connections). '
+                        'Defaults to the base host URL of the request. Eg a '
+                        'request to http://server:35357/v2.0/users will '
+                        'default to http://server:35357. You should only need '
+                        'to set this value if the base URL contains a path '
+                        '(eg /prefix/v2.0) or the endpoint should be found on '
+                        'a different server.'),
         cfg.StrOpt('onready',
                    help='onready allows you to send a notification when the '
                         'process is ready to serve For example, to have it '
