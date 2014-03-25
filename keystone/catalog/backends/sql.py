@@ -257,6 +257,9 @@ class Catalog(catalog.Driver):
         catalog = {}
 
         for endpoint in endpoints:
+            if not endpoint.service['enabled']:
+                continue
+
             region = endpoint['region']
             service_type = endpoint.service['type']
             default_service = {
@@ -278,7 +281,7 @@ class Catalog(catalog.Driver):
                   'user_id': user_id})
 
         session = sql.get_session()
-        services = (session.query(Service).
+        services = (session.query(Service).filter(Service.enabled == True).
                     options(sql.joinedload(Service.endpoints)).
                     all())
 

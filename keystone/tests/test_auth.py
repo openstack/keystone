@@ -1011,6 +1011,7 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
             return ref
 
         enabled_service_ref = create_service(enabled=True)
+        disabled_service_ref = create_service(enabled=False)
 
         region = uuid.uuid4().hex
 
@@ -1020,6 +1021,8 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
         create_endpoint(
             enabled_service_ref['id'], region, enabled=False,
             interface='internal')
+        create_endpoint(
+            disabled_service_ref['id'], region)
 
         return enabled_endpoint_ref
 
@@ -1036,7 +1039,10 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
         token = self.controller.authenticate({}, body_dict)
 
         # Check the catalog
+        self.assertEqual(1, len(token['access']['serviceCatalog']))
         endpoint = token['access']['serviceCatalog'][0]['endpoints'][0]
+        self.assertEqual(
+            1, len(token['access']['serviceCatalog'][0]['endpoints']))
 
         exp_endpoint = {
             'id': endpoint_ref['id'],
@@ -1065,7 +1071,10 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
             token_id=token_id)
 
         # Check the catalog
+        self.assertEqual(1, len(token['access']['serviceCatalog']))
         endpoint = validate_ref['access']['serviceCatalog'][0]['endpoints'][0]
+        self.assertEqual(
+            1, len(token['access']['serviceCatalog'][0]['endpoints']))
 
         exp_endpoint = {
             'id': endpoint_ref['id'],
