@@ -1652,10 +1652,26 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         endpoint_ids = [ep['id'] for ep in endpoints]
         self.assertEqual([self.endpoint_id], endpoint_ids)
 
+    def test_auth_catalog_disabled_service(self):
+        """On authenticate, get a catalog that excludes disabled services."""
+        # although the child endpoint is enabled, the service is disabled
+        self.assertTrue(self.endpoint['enabled'])
+        self.catalog_api.update_service(
+            self.endpoint['service_id'], {'enabled': False})
+        service = self.catalog_api.get_service(self.endpoint['service_id'])
+        self.assertFalse(service['enabled'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+
+        # In JSON, this is an empty list. In XML, this is an empty string.
+        self.assertFalse(r.result['token']['catalog'])
+
     def test_auth_catalog_disabled_endpoint(self):
-        """When authenticate, get back a catalog that includes only enabled
-        endpoints.
-        """
+        """On authenticate, get a catalog that excludes disabled endpoints."""
 
         # Create a disabled endpoint that's like the enabled one.
         disabled_endpoint_ref = copy.copy(self.endpoint)
