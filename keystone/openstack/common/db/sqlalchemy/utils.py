@@ -32,7 +32,6 @@ from sqlalchemy import MetaData
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import literal_column
 from sqlalchemy.sql.expression import UpdateBase
-from sqlalchemy.sql import select
 from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.types import NullType
@@ -362,9 +361,9 @@ def drop_old_duplicate_entries_from_table(migrate_engine, table_name,
     columns_for_select = [func.max(table.c.id)]
     columns_for_select.extend(columns_for_group_by)
 
-    duplicated_rows_select = select(columns_for_select,
-                                    group_by=columns_for_group_by,
-                                    having=func.count(table.c.id) > 1)
+    duplicated_rows_select = sqlalchemy.sql.select(
+        columns_for_select, group_by=columns_for_group_by,
+        having=func.count(table.c.id) > 1)
 
     for row in migrate_engine.execute(duplicated_rows_select):
         # NOTE(boris-42): Do not remove row that has the biggest ID.
@@ -374,7 +373,8 @@ def drop_old_duplicate_entries_from_table(migrate_engine, table_name,
         for name in uc_column_names:
             delete_condition &= table.c[name] == row[name]
 
-        rows_to_delete_select = select([table.c.id]).where(delete_condition)
+        rows_to_delete_select = sqlalchemy.sql.select(
+            [table.c.id]).where(delete_condition)
         for row in migrate_engine.execute(rows_to_delete_select).fetchall():
             LOG.info(_LI("Deleting duplicated row with id: %(id)s from table: "
                          "%(table)s") % dict(id=row[0], table=table_name))
@@ -485,7 +485,7 @@ def _change_deleted_column_type_to_boolean_sqlite(migrate_engine, table_name,
         else:
             c_select.append(table.c.deleted == table.c.id)
 
-    ins = InsertFromSelect(new_table, select(c_select))
+    ins = InsertFromSelect(new_table, sqlalchemy.sql.select(c_select))
     migrate_engine.execute(ins)
 
     table.drop()
