@@ -377,7 +377,6 @@ class TestCase(BaseTestCase):
             group='cache',
             backend='dogpile.cache.memory',
             enabled=True,
-            debug_cache_backend=True,
             proxies=['keystone.tests.test_cache.CacheIsolatingProxy'])
         self.config_fixture.config(
             group='catalog',
