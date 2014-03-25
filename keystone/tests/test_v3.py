@@ -24,6 +24,7 @@ from keystone.common import authorization
 from keystone.common import cache
 from keystone.common import serializer
 from keystone import config
+from keystone import exception
 from keystone import middleware
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
@@ -43,8 +44,14 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
         config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
+    def get_extensions(self):
+        extensions = set(['revoke'])
+        if hasattr(self, 'EXTENSION_NAME'):
+            extensions.add(self.EXTENSION_NAME)
+        return extensions
+
     def setup_database(self):
-        tests.setup_database()
+        tests.setup_database(self.get_extensions())
 
     def teardown_database(self):
         tests.teardown_database()
@@ -95,7 +102,25 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
     def load_fixtures(self, fixtures):
         self.load_sample_data()
 
+    def _populate_default_domain(self):
+        if CONF.database.connection == tests.IN_MEM_DB_CONN_STRING:
+            # NOTE(morganfainberg): If an in-memory db is being used, be sure
+            # to populate the default domain, this is typically done by
+            # a migration, but the in-mem db uses model definitions  to create
+            # the schema (no migrations are run).
+            try:
+                self.assignment_api.get_domain(DEFAULT_DOMAIN_ID)
+            except exception.DomainNotFound:
+                domain = {'description': (u'Owns users and tenants (i.e. '
+                                          u'projects) available on Identity '
+                                          u'API v2.'),
+                          'enabled': True,
+                          'id': DEFAULT_DOMAIN_ID,
+                          'name': u'Default'}
+                self.assignment_api.create_domain(DEFAULT_DOMAIN_ID, domain)
+
     def load_sample_data(self):
+        self._populate_default_domain()
         self.domain_id = uuid.uuid4().hex
         self.domain = self.new_domain_ref()
         self.domain['id'] = self.domain_id

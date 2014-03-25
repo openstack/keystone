@@ -70,9 +70,6 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
 
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
-
-        self.config(self.config_files())
-
         conn_str = CONF.database.connection
         if (conn_str.startswith('sqlite') and
                 conn_str[10:] == tests.DEFAULT_TEST_DB_FILE):

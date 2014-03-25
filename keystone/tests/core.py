@@ -88,6 +88,8 @@ TMPDIR = _calc_tmpdir()
 
 CONF = config.CONF
 
+IN_MEM_DB_CONN_STRING = 'sqlite://'
+
 exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
 os.makedirs(TMPDIR)
 atexit.register(shutil.rmtree, TMPDIR)
@@ -125,7 +127,7 @@ def _initialize_sql_session():
     # test cases.
     db_file = DEFAULT_TEST_DB_FILE
     db_options.set_defaults(
-        sql_connection='sqlite:///%s' % db_file,
+        sql_connection=IN_MEM_DB_CONN_STRING,
         sqlite_db=db_file)
 
 
@@ -164,19 +166,21 @@ def checkout_vendor(repo, rev):
     return revdir
 
 
-def setup_database():
-    db = dirs.tmp('test.db')
-    pristine = dirs.tmp('test.db.pristine')
+def setup_database(extensions=None):
+    if CONF.database.connection != IN_MEM_DB_CONN_STRING:
+        db = dirs.tmp('test.db')
+        pristine = dirs.tmp('test.db.pristine')
 
-    if os.path.exists(db):
-        os.unlink(db)
-    if not os.path.exists(pristine):
-        migration.db_sync(sql.get_engine(),
-                          migration_helpers.find_migrate_repo())
-        migration_helpers.sync_database_to_version(extension='revoke')
-        shutil.copyfile(db, pristine)
-    else:
-        shutil.copyfile(pristine, db)
+        if os.path.exists(db):
+            os.unlink(db)
+        if not os.path.exists(pristine):
+            migration.db_sync(sql.get_engine(),
+                              migration_helpers.find_migrate_repo())
+            for extension in (extensions or []):
+                migration_helpers.sync_database_to_version(extension=extension)
+            shutil.copyfile(db, pristine)
+        else:
+            shutil.copyfile(pristine, db)
 
 
 def teardown_database():

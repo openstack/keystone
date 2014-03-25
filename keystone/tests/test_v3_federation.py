@@ -16,15 +16,10 @@ import uuid
 from keystone.auth import controllers as auth_controllers
 from keystone.common import dependency
 from keystone.common import serializer
-from keystone.common import sql
-from keystone.common.sql import migration_helpers
 from keystone import config
-from keystone import contrib
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.tests import mapping_fixtures
@@ -44,14 +39,6 @@ class FederationTests(test_v3.RestfulTestCase):
 
     EXTENSION_NAME = 'federation'
     EXTENSION_TO_ADD = 'federation_extension'
-
-    def setup_database(self):
-        super(FederationTests, self).setup_database()
-        package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
-        package = importutils.import_module(package_name)
-        abs_path = migration_helpers.find_migrate_repo(package)
-        migration.db_version_control(sql.get_engine(), abs_path)
-        migration.db_sync(sql.get_engine(), abs_path)
 
 
 class FederatedIdentityProviderTests(FederationTests):
@@ -763,9 +750,8 @@ class FederatedTokenTests(FederationTests):
 
     AUTH_URL = '/auth/tokens'
 
-    def setUp(self):
-        super(FederationTests, self).setUp()
-        self.load_sample_data()
+    def load_fixtures(self, fixtures):
+        super(FederationTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
 
     def idp_ref(self, id=None):

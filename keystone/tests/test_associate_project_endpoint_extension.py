@@ -15,11 +15,8 @@
 import copy
 import uuid
 
-from keystone.common import sql
-from keystone.common.sql import migration_helpers
-from keystone import contrib
-from keystone.openstack.common.db.sqlalchemy import migration
-from keystone.openstack.common import importutils
+# NOTE(morganfainberg): import endpoint filter to populate the SQL model
+from keystone.contrib import endpoint_filter  # flake8: noqa
 from keystone.tests import test_v3
 
 
@@ -27,14 +24,6 @@ class TestExtensionCase(test_v3.RestfulTestCase):
 
     EXTENSION_NAME = 'endpoint_filter'
     EXTENSION_TO_ADD = 'endpoint_filter_extension'
-
-    def setup_database(self):
-        super(TestExtensionCase, self).setup_database()
-        package_name = '.'.join((contrib.__name__, self.EXTENSION_NAME))
-        package = importutils.import_module(package_name)
-        abs_path = migration_helpers.find_migrate_repo(package)
-        migration.db_version_control(sql.get_engine(), abs_path)
-        migration.db_sync(sql.get_engine(), abs_path)
 
     def config_overrides(self):
         super(TestExtensionCase, self).config_overrides()

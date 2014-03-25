@@ -422,14 +422,15 @@ class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     """Test token revoke using v3 Identity API by token owner and admin."""
-    def setUp(self):
-        """Setup for Test Cases.
+    def load_sample_data(self):
+        """Load Sample Data for Test Cases.
         Two domains, domainA and domainB
         Two users in domainA, userNormalA and userAdminA
         One user in domainB, userAdminB
 
         """
-        super(TestTokenRevokeSelfAndAdmin, self).setUp()
+        super(TestTokenRevokeSelfAndAdmin, self).load_sample_data()
+        self._populate_default_domain()
         # DomainA setup
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
@@ -443,11 +444,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         self.userNormalA['password'] = uuid.uuid4().hex
         self.identity_api.create_user(self.userNormalA['id'], self.userNormalA)
 
-        self.role1 = self.new_role_ref()
-        self.role1['name'] = 'admin'
-        self.assignment_api.create_role(self.role1['id'], self.role1)
-
-        self.assignment_api.create_grant(self.role1['id'],
+        self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.userAdminA['id'],
                                          domain_id=self.domainA['id'])
 
@@ -543,7 +540,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         self.userAdminB = self.new_user_ref(domain_id=self.domainB['id'])
         self.userAdminB['password'] = uuid.uuid4().hex
         self.identity_api.create_user(self.userAdminB['id'], self.userAdminB)
-        self.assignment_api.create_grant(self.role1['id'],
+        self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.userAdminB['id'],
                                          domain_id=self.domainB['id'])
         r = self.post(

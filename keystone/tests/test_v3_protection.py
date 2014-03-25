@@ -65,6 +65,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
             password=self.user1['password'])
 
     def load_sample_data(self):
+        self._populate_default_domain()
         # Start by creating a couple of domains
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
@@ -372,6 +373,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
     def load_sample_data(self):
         # Start by creating a couple of domains
+        self._populate_default_domain()
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()

@@ -62,6 +62,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
         """
         # Start by creating a few domains
+        self._populate_default_domain()
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
