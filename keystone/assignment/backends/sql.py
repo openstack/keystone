@@ -13,6 +13,7 @@
 # under the License.
 
 import six
+import sqlalchemy
 
 from keystone import assignment
 from keystone import clean
@@ -291,7 +292,7 @@ class Assignment(assignment.Driver):
         else:
             raise AttributeError(_("Must specify either domain or project"))
 
-        sql_constraints = sql.and_(
+        sql_constraints = sqlalchemy.and_(
             RoleAssignment.type == assignment_type,
             RoleAssignment.target_id == target_id,
             Role.id == RoleAssignment.role_id,
@@ -309,7 +310,7 @@ class Assignment(assignment.Driver):
         else:
             assignment_type = AssignmentType.GROUP_PROJECT
 
-        group_sql_conditions = sql.and_(
+        group_sql_conditions = sqlalchemy.and_(
             RoleAssignment.type == assignment_type,
             entity.id == RoleAssignment.target_id,
             RoleAssignment.actor_id.in_(group_ids))

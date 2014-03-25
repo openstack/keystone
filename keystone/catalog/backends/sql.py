@@ -14,6 +14,7 @@
 # under the License.
 
 import six
+import sqlalchemy
 
 from keystone import catalog
 from keystone.catalog import core
@@ -60,7 +61,7 @@ class Service(sql.ModelBase, sql.DictBase):
     enabled = sql.Column(sql.Boolean, nullable=False, default=True,
                          server_default='1')
     extra = sql.Column(sql.JsonBlob())
-    endpoints = sql.relationship("Endpoint", backref="service")
+    endpoints = sqlalchemy.orm.relationship("Endpoint", backref="service")
 
 
 class Endpoint(sql.ModelBase, sql.DictBase):
