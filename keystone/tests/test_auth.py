@@ -110,9 +110,6 @@ class AuthTest(tests.TestCase):
 
 
 class AuthBadRequests(AuthTest):
-    def setUp(self):
-        super(AuthBadRequests, self).setUp()
-
     def test_no_external_auth(self):
         """Verify that _authenticate_external() raises exception if N/A."""
         self.assertRaises(
@@ -201,9 +198,6 @@ class AuthBadRequests(AuthTest):
 
 
 class AuthWithToken(AuthTest):
-    def setUp(self):
-        super(AuthWithToken, self).setUp()
-
     def test_unscoped_token(self):
         """Verify getting an unscoped token with password creds."""
         body_dict = _build_user_auth(username='FOO',
@@ -453,9 +447,6 @@ class AuthWithToken(AuthTest):
 
 
 class AuthWithPasswordCredentials(AuthTest):
-    def setUp(self):
-        super(AuthWithPasswordCredentials, self).setUp()
-
     def test_auth_invalid_user(self):
         """Verify exception is raised if invalid user."""
         body_dict = _build_user_auth(
@@ -561,9 +552,6 @@ class AuthWithPasswordCredentials(AuthTest):
 
 
 class AuthWithRemoteUser(AuthTest):
-    def setUp(self):
-        super(AuthWithRemoteUser, self).setUp()
-
     def test_unscoped_remote_authn(self):
         """Verify getting an unscoped token with external authn."""
         body_dict = _build_user_auth(
