@@ -20,6 +20,7 @@ from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import contrib
+from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
@@ -853,10 +854,10 @@ class FederatedTokenTests(FederationTests):
                                  "project or domain.")
 
     def _issue_unscoped_token(self, assertion='EMPLOYEE_ASSERTION'):
-        api = auth_controllers.Auth()
+        api = federation_controllers.Auth()
         context = {'environment': {}}
         self._inject_assertion(context, assertion)
-        r = api.authenticate_for_token(context, self.UNSCOPED_V3_SAML2_REQ)
+        r = api.federated_authentication(context, self.IDP, self.PROTOCOL)
         return r
 
     def test_issue_unscoped_token(self):
