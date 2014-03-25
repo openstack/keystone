@@ -999,30 +999,33 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
             return ref
 
         # Create a service for use with the endpoints.
-        service_id = uuid.uuid4().hex
-        service_ref = {
-            'id': service_id,
-            'name': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-        }
-        self.catalog_api.create_service(service_id, service_ref)
+        def create_service(**kwargs):
+            id_ = uuid.uuid4().hex
+            ref = {
+                'id': id_,
+                'name': uuid.uuid4().hex,
+                'type': uuid.uuid4().hex,
+            }
+            ref.update(kwargs)
+            self.catalog_api.create_service(id_, ref)
+            return ref
+
+        enabled_service_ref = create_service(enabled=True)
 
         region = uuid.uuid4().hex
 
         # Create endpoints
-        enabled_endpoint_ref = create_endpoint(service_id, region)
-        disabled_endpoint_ref = create_endpoint(
-            service_id, region, enabled=False, interface='internal')
+        enabled_endpoint_ref = create_endpoint(
+            enabled_service_ref['id'], region)
+        create_endpoint(
+            enabled_service_ref['id'], region, enabled=False,
+            interface='internal')
 
-        return enabled_endpoint_ref, disabled_endpoint_ref
+        return enabled_endpoint_ref
 
-    def test_auth_catalog_disabled(self):
-        """When authenticate, get back a catalog that includes only enabled
-        endpoints.
-        """
-
-        enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
-            self._create_endpoints())
+    def test_auth_catalog_disabled_endpoint(self):
+        """On authenticate, get a catalog that excludes disabled endpoints."""
+        endpoint_ref = self._create_endpoints()
 
         # Authenticate
         body_dict = _build_user_auth(
@@ -1036,20 +1039,16 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
         endpoint = token['access']['serviceCatalog'][0]['endpoints'][0]
 
         exp_endpoint = {
-            'id': enabled_endpoint_ref['id'],
-            'publicURL': enabled_endpoint_ref['url'],
-            'region': enabled_endpoint_ref['region'],
+            'id': endpoint_ref['id'],
+            'publicURL': endpoint_ref['url'],
+            'region': endpoint_ref['region'],
         }
 
         self.assertEqual(exp_endpoint, endpoint)
 
-    def test_validate_catalog_disabled(self):
-        """When validate, get back a catalog that includes only enabled
-        endpoints.
-        """
-
-        enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
-            self._create_endpoints())
+    def test_validate_catalog_disabled_endpoint(self):
+        """On validate, get back a catalog that excludes disabled endpoints."""
+        endpoint_ref = self._create_endpoints()
 
         # Authenticate
         body_dict = _build_user_auth(
@@ -1069,9 +1068,9 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
         endpoint = validate_ref['access']['serviceCatalog'][0]['endpoints'][0]
 
         exp_endpoint = {
-            'id': enabled_endpoint_ref['id'],
-            'publicURL': enabled_endpoint_ref['url'],
-            'region': enabled_endpoint_ref['region'],
+            'id': endpoint_ref['id'],
+            'publicURL': endpoint_ref['url'],
+            'region': endpoint_ref['region'],
         }
 
         self.assertEqual(exp_endpoint, endpoint)
