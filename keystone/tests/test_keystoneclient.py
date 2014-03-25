@@ -24,7 +24,7 @@ from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
-from keystone.tests.fixtures import appserver
+from keystone.tests.ksfixtures import appserver
 
 
 CONF = config.CONF
