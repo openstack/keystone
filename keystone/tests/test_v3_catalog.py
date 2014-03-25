@@ -129,6 +129,55 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             body={'service': ref})
         self.assertValidServiceResponse(r, ref)
 
+    def test_create_service_no_enabled(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        del ref['enabled']
+        r = self.post(
+            '/services',
+            body={'service': ref})
+        ref['enabled'] = True
+        self.assertValidServiceResponse(r, ref)
+        self.assertIs(True, r.result['service']['enabled'])
+
+    def test_create_service_enabled_false(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        ref['enabled'] = False
+        r = self.post(
+            '/services',
+            body={'service': ref})
+        self.assertValidServiceResponse(r, ref)
+        self.assertIs(False, r.result['service']['enabled'])
+
+    def test_create_service_enabled_true(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        ref['enabled'] = True
+        r = self.post(
+            '/services',
+            body={'service': ref})
+        self.assertValidServiceResponse(r, ref)
+        self.assertIs(True, r.result['service']['enabled'])
+
+    def test_create_service_enabled_str_true(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        ref['enabled'] = 'True'
+        self.post('/services', body={'service': ref}, expected_status=400)
+
+    def test_create_service_enabled_str_false(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        ref['enabled'] = 'False'
+        self.post('/services', body={'service': ref}, expected_status=400)
+
+    def test_create_service_enabled_str_random(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        ref['enabled'] = 'puppies'
+        self.post('/services', body={'service': ref}, expected_status=400)
+
     def test_list_services(self):
         """Call ``GET /services``."""
         r = self.get('/services')

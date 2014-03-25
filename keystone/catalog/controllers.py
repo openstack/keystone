@@ -201,8 +201,15 @@ class ServiceV3(controller.V3Controller):
         super(ServiceV3, self).__init__()
         self.get_member_from_driver = self.catalog_api.get_service
 
+    def _validate_service(self, service):
+        if 'enabled' in service and not isinstance(service['enabled'], bool):
+            msg = _('Enabled field must be a boolean')
+            raise exception.ValidationError(message=msg)
+
     @controller.protected()
     def create_service(self, context, service):
+        self._validate_service(service)
+
         ref = self._assign_unique_id(self._normalize_dict(service))
         self._require_attribute(ref, 'type')
 
@@ -223,6 +230,7 @@ class ServiceV3(controller.V3Controller):
     @controller.protected()
     def update_service(self, context, service_id, service):
         self._require_matching_id(service_id, service)
+        self._validate_service(service)
 
         ref = self.catalog_api.update_service(service_id, service)
         return ServiceV3.wrap_member(context, ref)

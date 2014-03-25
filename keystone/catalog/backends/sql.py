@@ -54,9 +54,11 @@ class Region(sql.ModelBase, sql.DictBase):
 
 class Service(sql.ModelBase, sql.DictBase):
     __tablename__ = 'service'
-    attributes = ['id', 'type']
+    attributes = ['id', 'type', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     type = sql.Column(sql.String(255))
+    enabled = sql.Column(sql.Boolean, nullable=False, default=True,
+                         server_default='1')
     extra = sql.Column(sql.JsonBlob())
     endpoints = sql.relationship("Endpoint", backref="service")
 

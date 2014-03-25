@@ -3584,7 +3584,8 @@ class CatalogTests(object):
         res = self.catalog_api.create_service(
             service_id,
             new_service.copy())
-        self.assertDictEqual(res, new_service)
+        new_service['enabled'] = True
+        self.assertDictEqual(new_service, res)
 
         # list
         services = self.catalog_api.list_services()

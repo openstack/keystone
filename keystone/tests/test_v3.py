@@ -660,6 +660,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
 
     def assertValidService(self, entity, ref=None):
         self.assertIsNotNone(entity.get('type'))
+        self.assertIsInstance(entity.get('enabled'), bool)
         if ref:
             self.assertEqual(ref['type'], entity['type'])
         return entity
