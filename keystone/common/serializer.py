@@ -326,10 +326,7 @@ class XmlSerializer(object):
 
             # NOTE(blk-u): For compatibility with Folsom, when serializing the
             # v2.0 version element also add the links to the base element.
-            if (value.get('id') == 'v2.0' and
-                    value.get('status') == 'deprecated' and
-                    value.get('updated') == '2014-04-17T00:00:00Z'):
-
+            if value.get('id') == 'v2.0':
                 for item in value['links']:
                     child = etree.Element('link')
                     self.populate_element(child, item)
