@@ -77,7 +77,7 @@ def upgrade(migrate_engine):
     region_table = sql.Table(_REGION_TABLE_NAME, meta, autoload=True)
     for idx in region_table.indexes:
         if ((idx.columns.get('description') == region_table.c.description) and
-                len(idx.columns.values()) is 1):
+                len(idx.columns) is 1):
             # Constraint was found, do the migration.
             _migrate_to_new_region_table(meta, migrate_engine, region_table)
             break
