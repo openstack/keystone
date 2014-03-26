@@ -55,7 +55,7 @@ v2_PDF_DESCRIPTION = {
 
 v2_EXPECTED_RESPONSE = {
     "id": "v2.0",
-    "status": "deprecated",
+    "status": "stable",
     "updated": "2014-04-17T00:00:00Z",
     "links": [
         {
@@ -318,7 +318,7 @@ class XmlVersionTestCase(tests.TestCase):
     XML_NAMESPACE_V3 = 'xmlns="http://docs.openstack.org/identity/api/v3"'
 
     v2_VERSION_DATA = """
-<version %(v2_namespace)s status="deprecated" updated="2014-04-17T00:00:00Z"
+<version %(v2_namespace)s status="stable" updated="2014-04-17T00:00:00Z"
          id="v2.0">
   <media-types>
     <media-type base="application/json" type="application/\

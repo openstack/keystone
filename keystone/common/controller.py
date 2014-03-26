@@ -24,15 +24,28 @@ from keystone import config
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
-from keystone.openstack.common import versionutils
 
 
 LOG = log.getLogger(__name__)
 CONF = config.CONF
 
-v2_deprecated = versionutils.deprecated(what='v2 API',
-                                        as_of=versionutils.deprecated.ICEHOUSE,
-                                        in_favor_of='v3 API')
+
+def v2_deprecated(f):
+    """No-op decorator in preparation for deprecating Identity API v2.
+
+    This is a placeholder for the pending deprecation of v2. The implementation
+    of this decorator can be replaced with::
+
+        from keystone.openstack.common import versionutils
+
+
+        v2_deprecated = versionutils.deprecated(
+            what='v2 API',
+            as_of=versionutils.deprecated.JUNO,
+            in_favor_of='v3 API')
+
+    """
+    return f
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):

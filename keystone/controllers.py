@@ -80,7 +80,7 @@ class Version(wsgi.Application):
         if 'v2.0' in _VERSIONS:
             versions['v2.0'] = {
                 'id': 'v2.0',
-                'status': 'deprecated',
+                'status': 'stable',
                 'updated': '2014-04-17T00:00:00Z',
                 'links': [
                     {
