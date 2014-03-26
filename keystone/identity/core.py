@@ -31,7 +31,6 @@ from keystone import notifications
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log
-from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -41,15 +40,6 @@ LOG = log.getLogger(__name__)
 
 DOMAIN_CONF_FHEAD = 'keystone.'
 DOMAIN_CONF_FTAIL = '.conf'
-
-
-def moved_to_assignment(f):
-    name = f.__name__
-    deprecated = versionutils.deprecated(versionutils.deprecated.ICEHOUSE,
-                                         what="identity_api." + name,
-                                         in_favor_of="assignment_api." + name,
-                                         remove_in=+1)
-    return deprecated(f)
 
 
 def filter_user(user_ref):
@@ -497,131 +487,6 @@ class Manager(manager.Manager):
 
         update_dict = {'password': new_password}
         self.update_user(user_id, update_dict, domain_scope=domain_scope)
-
-    # TODO(morganfainberg): Remove the following deprecated methods once
-    # Icehouse is released.  Maintain identity -> assignment proxy for 1
-    # release.
-    @moved_to_assignment
-    def get_domain_by_name(self, domain_name):
-        return self.assignment_api.get_domain_by_name(domain_name)
-
-    @moved_to_assignment
-    def get_domain(self, domain_id):
-        return self.assignment_api.get_domain(domain_id)
-
-    @moved_to_assignment
-    def update_domain(self, domain_id, domain):
-        return self.assignment_api.update_domain(domain_id, domain)
-
-    @moved_to_assignment
-    def list_domains(self, hints=None):
-        return self.assignment_api.list_domains(hints=hints)
-
-    @moved_to_assignment
-    def delete_domain(self, domain_id):
-        return self.assignment_api.delete_domain(domain_id)
-
-    @moved_to_assignment
-    def create_domain(self, domain_id, domain):
-        return self.assignment_api.create_domain(domain_id, domain)
-
-    @moved_to_assignment
-    def list_projects_for_user(self, user_id):
-        return self.assignment_api.list_projects_for_user(user_id)
-
-    @moved_to_assignment
-    def add_user_to_project(self, tenant_id, user_id):
-        return self.assignment_api.add_user_to_project(tenant_id, user_id)
-
-    @moved_to_assignment
-    def remove_user_from_project(self, tenant_id, user_id):
-        return self.assignment_api.remove_user_from_project(tenant_id, user_id)
-
-    @moved_to_assignment
-    def get_project(self, tenant_id):
-        return self.assignment_api.get_project(tenant_id)
-
-    @moved_to_assignment
-    def list_projects(self, hints=None):
-        return self.assignment_api.list_projects(hints=hints)
-
-    @moved_to_assignment
-    def get_role(self, role_id):
-        return self.assignment_api.get_role(role_id)
-
-    @moved_to_assignment
-    def list_roles(self, hints=None):
-        return self.assignment_api.list_roles(hints=hints)
-
-    @moved_to_assignment
-    def get_project_users(self, tenant_id):
-        return self.assignment_api.get_project_users(tenant_id)
-
-    @moved_to_assignment
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
-        return self.assignment_api.get_roles_for_user_and_project(
-            user_id, tenant_id)
-
-    @moved_to_assignment
-    def get_roles_for_user_and_domain(self, user_id, domain_id):
-        return (self.assignment_api.get_roles_for_user_and_domain
-                (user_id, domain_id))
-
-    @moved_to_assignment
-    def add_role_to_user_and_project(self, user_id,
-                                     tenant_id, role_id):
-        return (self.assignment_api.add_role_to_user_and_project
-                (user_id, tenant_id, role_id))
-
-    @moved_to_assignment
-    def create_role(self, role_id, role):
-        return self.assignment_api.create_role(role_id, role)
-
-    @moved_to_assignment
-    def delete_role(self, role_id):
-        return self.assignment_api.delete_role(role_id)
-
-    @moved_to_assignment
-    def remove_role_from_user_and_project(self, user_id,
-                                          tenant_id, role_id):
-        return (self.assignment_api.remove_role_from_user_and_project
-                (user_id, tenant_id, role_id))
-
-    @moved_to_assignment
-    def update_role(self, role_id, role):
-        return self.assignment_api.update_role(role_id, role)
-
-    @moved_to_assignment
-    def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
-        return (self.assignment_api.create_grant
-                (role_id, user_id, group_id, domain_id, project_id,
-                 inherited_to_projects))
-
-    @moved_to_assignment
-    def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None,
-                    inherited_to_projects=False):
-        return (self.assignment_api.list_grants
-                (user_id, group_id, domain_id, project_id,
-                 inherited_to_projects))
-
-    @moved_to_assignment
-    def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None,
-                  inherited_to_projects=False):
-        return (self.assignment_api.get_grant
-                (role_id, user_id, group_id, domain_id, project_id,
-                 inherited_to_projects))
-
-    @moved_to_assignment
-    def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
-        return (self.assignment_api.delete_grant
-                (role_id, user_id, group_id, domain_id, project_id,
-                 inherited_to_projects))
 
 
 @six.add_metaclass(abc.ABCMeta)
