@@ -23,7 +23,7 @@ from keystone.openstack.common.gettextutils import _
 
 # Import assignment sql to ensure that the models defined in there are
 # available for the reference from User and Group to Domain.id.
-from keystone.assignment.backends import sql as assignment_sql  # flake8: noqa
+from keystone.assignment.backends import sql as assignment_sql  # noqa
 
 
 class User(sql.ModelBase, sql.DictBase):

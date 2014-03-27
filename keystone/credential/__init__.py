@@ -1,5 +1,3 @@
-# flake8: noqa
-
 # Copyright 2013 OpenStack Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,6 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.credential import controllers
-from keystone.credential.core import *
-from keystone.credential import routers
+from keystone.credential import controllers  # noqa
+from keystone.credential.core import *  # noqa
+from keystone.credential import routers  # noqa
