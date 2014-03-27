@@ -46,13 +46,11 @@ from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
 from keystone.common import utils as common_utils
 from keystone import config
 from keystone import exception
 from keystone import notifications
 from keystone.openstack.common.db import options as db_options
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
@@ -164,27 +162,6 @@ def checkout_vendor(repo, rev):
         LOG.warning(_('Failed to checkout %s'), repo)
     os.chdir(working_dir)
     return revdir
-
-
-def setup_database(extensions=None):
-    if CONF.database.connection != IN_MEM_DB_CONN_STRING:
-        db = dirs.tmp('test.db')
-        pristine = dirs.tmp('test.db.pristine')
-
-        if os.path.exists(db):
-            os.unlink(db)
-        if not os.path.exists(pristine):
-            migration.db_sync(sql.get_engine(),
-                              migration_helpers.find_migrate_repo())
-            for extension in (extensions or []):
-                migration_helpers.sync_database_to_version(extension=extension)
-            shutil.copyfile(db, pristine)
-        else:
-            shutil.copyfile(pristine, db)
-
-
-def teardown_database():
-    sql.cleanup()
 
 
 @atexit.register

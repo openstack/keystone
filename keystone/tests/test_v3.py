@@ -13,6 +13,8 @@
 # under the License.
 
 import datetime
+import os
+import shutil
 import uuid
 
 from lxml import etree
@@ -23,9 +25,12 @@ from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
 from keystone.common import serializer
+from keystone.common import sql
+from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import exception
 from keystone import middleware
+from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common import timeutils
 from keystone.policy.backends import rules
 from keystone import tests
@@ -36,6 +41,27 @@ CONF = config.CONF
 DEFAULT_DOMAIN_ID = 'default'
 
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+
+
+def _setup_database(extensions=None):
+    if CONF.database.connection != tests.IN_MEM_DB_CONN_STRING:
+        db = tests.dirs.tmp('test.db')
+        pristine = tests.dirs.tmp('test.db.pristine')
+
+        if os.path.exists(db):
+            os.unlink(db)
+        if not os.path.exists(pristine):
+            migration.db_sync(sql.get_engine(),
+                              migration_helpers.find_migrate_repo())
+            for extension in (extensions or []):
+                migration_helpers.sync_database_to_version(extension=extension)
+            shutil.copyfile(db, pristine)
+        else:
+            shutil.copyfile(pristine, db)
+
+
+def _teardown_database():
+    sql.cleanup()
 
 
 class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
@@ -51,10 +77,10 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
         return extensions
 
     def setup_database(self):
-        tests.setup_database(self.get_extensions())
+        _setup_database(self.get_extensions())
 
     def teardown_database(self):
-        tests.teardown_database()
+        _teardown_database()
 
     def generate_paste_config(self):
         new_paste_file = None
