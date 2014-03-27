@@ -1516,7 +1516,7 @@ class IdentityTests(object):
         self.identity_api.get_user(user1['id'])
 
     def test_delete_domain_with_user_group_project_links(self):
-        #TODO(chungg):add test case once expected behaviour defined
+        # TODO(chungg):add test case once expected behaviour defined
         pass
 
     def test_role_crud(self):
@@ -2303,8 +2303,8 @@ class IdentityTests(object):
             self.identity_api.create_group(new_group['id'], new_group)
             test_groups.append(new_group)
 
-            #add the user to the group and ensure that the
-            #group count increases by one for each
+            # add the user to the group and ensure that the
+            # group count increases by one for each
             group_refs = self.identity_api.list_groups_for_user(
                 positive_user['id'])
             self.assertEqual(len(group_refs), before_count)
@@ -2315,14 +2315,13 @@ class IdentityTests(object):
                 positive_user['id'])
             self.assertEqual(len(group_refs), after_count)
 
-            #Make sure the group count for the unrelated user
-            #did not change
+            # Make sure the group count for the unrelated user did not change
             group_refs = self.identity_api.list_groups_for_user(
                 negative_user['id'])
             self.assertEqual(len(group_refs), 0)
 
-        #remove the user from each group and ensure that
-        #the group count reduces by one for each
+        # remove the user from each group and ensure that
+        # the group count reduces by one for each
         for x in range(0, 3):
             before_count = GROUP_COUNT - x
             after_count = GROUP_COUNT - x - 1
@@ -2335,8 +2334,8 @@ class IdentityTests(object):
             group_refs = self.identity_api.list_groups_for_user(
                 positive_user['id'])
             self.assertEqual(len(group_refs), after_count)
-            #Make sure the group count for the unrelated user
-            #did not change
+            # Make sure the group count for the unrelated user
+            # did not change
             group_refs = self.identity_api.list_groups_for_user(
                 negative_user['id'])
             self.assertEqual(len(group_refs), 0)
@@ -4159,7 +4158,7 @@ class FilterTests(filtering.FilterTests):
         self.assertEqual(len(users), 5)
         self._match_with_list(users, user_list,
                               list_start=6, list_end=11)
-        #TODO(henry-nash) Check inexact filter has been removed.
+        # TODO(henry-nash) Check inexact filter has been removed.
 
         hints = driver_hints.Hints()
         hints.add_filter('name', 'The', comparator='startswith')
@@ -4167,7 +4166,7 @@ class FilterTests(filtering.FilterTests):
         self.assertEqual(len(users), 6)
         self._match_with_list(users, user_list,
                               list_start=5, list_end=11)
-        #TODO(henry-nash) Check inexact filter has been removed.
+        # TODO(henry-nash) Check inexact filter has been removed.
 
         hints = driver_hints.Hints()
         hints.add_filter('name', 'of', comparator='endswith')
@@ -4175,7 +4174,7 @@ class FilterTests(filtering.FilterTests):
         self.assertEqual(len(users), 2)
         self.assertEqual(users[0]['id'], user_list[7]['id'])
         self.assertEqual(users[1]['id'], user_list[10]['id'])
-        #TODO(henry-nash) Check inexact filter has been removed.
+        # TODO(henry-nash) Check inexact filter has been removed.
 
         # TODO(henry-nash): Add some case sensitive tests.  The issue
         # is that MySQL 0.7, by default, is installed in case

@@ -245,7 +245,7 @@ class Manager(manager.Manager):
             role = {'id': CONF.member_role_id,
                     'name': CONF.member_role_name}
             self.driver.create_role(config.CONF.member_role_id, role)
-            #now that default role exists, the add should succeed
+            # now that default role exists, the add should succeed
             self.driver.add_role_to_user_and_project(
                 user_id,
                 tenant_id,
@@ -970,7 +970,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-#TODO(ayoung): determine what else these two functions raise
+# TODO(ayoung): determine what else these two functions raise
     @abc.abstractmethod
     def delete_user(self, user_id):
         """Deletes all assignments for a user.
@@ -989,9 +989,9 @@ class Driver(object):
         """
         raise exception.NotImplemented()
 
-    #domain management functions for backends that only allow a single domain.
-    #currently, this is only LDAP, but might be used by PAM or other backends
-    #as well.  This is used by both identity and assignment drivers.
+    # domain management functions for backends that only allow a single
+    # domain.  currently, this is only LDAP, but might be used by PAM or other
+    # backends as well.  This is used by both identity and assignment drivers.
     def _set_default_domain(self, ref):
         """If the domain ID has not been set, set it to the default."""
         if isinstance(ref, dict):

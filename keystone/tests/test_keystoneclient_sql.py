@@ -139,7 +139,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         resp, token = self._send_ec2_auth_request(credentials)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(trust_id, token['access']['trust']['id'])
-        #TODO(shardy) we really want to check the roles and trustee
+        # TODO(shardy) we really want to check the roles and trustee
         # but because of where the stubbing happens we don't seem to
         # hit the necessary code in controllers.py _authenticate_token
         # so although all is OK via a real request, it incorrect in

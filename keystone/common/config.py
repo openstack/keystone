@@ -615,7 +615,7 @@ FILE_OPTIONS = {
         cfg.StrOpt('token',
                    default='keystone.auth.plugins.token.Token',
                    help='The token auth plugin module.'),
-        #deals with REMOTE_USER authentication
+        # deals with REMOTE_USER authentication
         cfg.StrOpt('external',
                    default='keystone.auth.plugins.external.DefaultDomain',
                    help='The external (REMOTE_USER) auth plugin module.')],

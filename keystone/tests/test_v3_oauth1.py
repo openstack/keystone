@@ -466,7 +466,7 @@ class AuthTokenTests(OAuthFlowTests):
     def test_token_chaining_is_not_allowed(self):
         self.test_oauth_flow()
 
-        #attempt to re-authenticate (token chain) with the given token
+        # attempt to re-authenticate (token chain) with the given token
         path = '/v3/auth/tokens/'
         auth_data = self.build_authentication_request(
             token=self.keystone_token_id)

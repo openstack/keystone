@@ -43,7 +43,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         _unused, self.tmpfilename = tempfile.mkstemp()
         self.config_fixture.config(policy_file=self.tmpfilename)
 
-        #drop the policy rules
+        # drop the policy rules
         self.addCleanup(rules.reset)
 
     def load_sample_data(self):

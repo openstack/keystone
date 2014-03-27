@@ -90,7 +90,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
     def test_build_tree(self):
         """Regression test for building the tree names
         """
-        #logic is different from the fake backend.
+        # logic is different from the fake backend.
         user_api = identity_ldap.UserApi(CONF)
         self.assertTrue(user_api)
         self.assertEqual(user_api.tree_dn, CONF.ldap.user_tree_dn)
@@ -169,8 +169,8 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         self.assertEqual(ldap.DEREF_SEARCHING,
                          ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
 
-    #FakeLDAP does not correctly process filters, so this test can only be run
-    #against a live LDAP server
+    # FakeLDAP does not correctly process filters, so this test can only be
+    # run against a live LDAP server
     def test_list_groups_for_user_filtered(self):
         domain = self._get_domain_fixture()
         test_groups = []

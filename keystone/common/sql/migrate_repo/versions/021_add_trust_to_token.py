@@ -18,9 +18,9 @@ from sqlalchemy import exc
 
 def downgrade_token_table_with_column_drop(meta, migrate_engine):
     token_table = sqlalchemy.Table('token', meta, autoload=True)
-    #delete old tokens, as the format has changed.
-    #We don't guarantee that existing tokens will be
-    #usable after a migration
+    # delete old tokens, as the format has changed.
+    # We don't guarantee that existing tokens will be
+    # usable after a migration
     token_table.delete()
     token_table.drop_column(
         sqlalchemy.Column('trust_id',
@@ -37,19 +37,19 @@ def create_column_forgiving(migrate_engine, table, column):
     except exc.OperationalError as e:
         if (e.args[0].endswith('duplicate column name: %s' % column.name)
                 and migrate_engine.name == "sqlite"):
-                    #sqlite does not drop columns, so  if we have already
-                    #done a downgrade and are now upgrading,  we will hit
-                    #this: the SQLite driver previously reported success
-                    #dropping the columns but it hasn't.
+                    # sqlite does not drop columns, so  if we have already
+                    # done a downgrade and are now upgrading,  we will hit
+                    # this: the SQLite driver previously reported success
+                    # dropping the columns but it hasn't.
                     pass
         else:
             raise
 
 
 def upgrade_token_table(meta, migrate_engine):
-    #delete old tokens, as the format has changed.
-    #The existing tokens will not
-    #support some of the list functions
+    # delete old tokens, as the format has changed.
+    # The existing tokens will not
+    # support some of the list functions
 
     token_table = sqlalchemy.Table('token', meta, autoload=True)
     token_table.delete()

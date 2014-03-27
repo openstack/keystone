@@ -24,9 +24,9 @@ class TrustModel(sql.ModelBase, sql.DictBase):
                   'project_id', 'impersonation', 'expires_at',
                   'remaining_uses']
     id = sql.Column(sql.String(64), primary_key=True)
-    #user id Of owner
+    # user id of owner
     trustor_user_id = sql.Column(sql.String(64), nullable=False,)
-    #user_id of user allowed to consume this preauth
+    # user_id of user allowed to consume this preauth
     trustee_user_id = sql.Column(sql.String(64), nullable=False)
     project_id = sql.Column(sql.String(64))
     impersonation = sql.Column(sql.Boolean, nullable=False)

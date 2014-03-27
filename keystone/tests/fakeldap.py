@@ -40,7 +40,8 @@ SCOPE_NAMES = {
     ldap.SCOPE_SUBTREE: 'SCOPE_SUBTREE',
 }
 
-#http://msdn.microsoft.com/en-us/library/windows/desktop/aa366991(v=vs.85).aspx
+# http://msdn.microsoft.com\
+#     /en-us/library/windows/desktop/aa366991(v=vs.85).aspx
 CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
 
 LOG = log.getLogger(__name__)

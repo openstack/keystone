@@ -537,9 +537,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user1['id']})
 
-        #Scenarios below are written to test the default policy configuration
+        # Scenarios below are written to test the default policy configuration
 
-        #One should be allowed to list one's own groups
+        # One should be allowed to list one's own groups
         auth = self.build_authentication_request(
             user_id=self.user1['id'],
             password=self.user1['password'])
@@ -547,12 +547,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             'user_id': self.user1['id']}, auth=auth)
         self.assertValidGroupListResponse(r, ref=self.group)
 
-        #Administrator is allowed to list others' groups
+        # Administrator is allowed to list others' groups
         r = self.get('/users/%(user_id)s/groups' % {
             'user_id': self.user1['id']})
         self.assertValidGroupListResponse(r, ref=self.group)
 
-        #Ordinary users should not be allowed to list other's groups
+        # Ordinary users should not be allowed to list other's groups
         auth = self.build_authentication_request(
             user_id=self.user2['id'],
             password=self.user2['password'])
@@ -782,10 +782,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # FIXME(gyee): this test is no longer valid as user
         # have no role in the project. Can't get a scoped token
-        #self.delete(member_url)
-        #r = self.get(collection_url)
-        #self.assertValidRoleListResponse(r, expected_length=0)
-        #self.assertIn(collection_url, r.result['links']['self'])
+        # self.delete(member_url)
+        # r = self.get(collection_url)
+        # self.assertValidRoleListResponse(r, expected_length=0)
+        # self.assertIn(collection_url, r.result['links']['self'])
 
     def test_crud_user_project_role_grants_no_user(self):
         """Grant role on a project to a user that doesn't exist, 404 result.

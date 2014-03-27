@@ -41,9 +41,9 @@ class Assignment(assignment.Driver):
         self.LDAP_PASSWORD = CONF.ldap.password
         self.suffix = CONF.ldap.suffix
 
-        #These are the only deep dependency from assignment back
-        #to identity.  The assumption is that if you are using
-        #LDAP for assignments, you are using it for Id as well.
+        # These are the only deep dependency from assignment back
+        # to identity.  The assumption is that if you are using
+        # LDAP for assignments, you are using it for Id as well.
         self.user = ldap_identity.UserApi(CONF)
         self.group = ldap_identity.GroupApi(CONF)
 
@@ -264,7 +264,7 @@ class Assignment(assignment.Driver):
     def list_domains(self, hints):
         return [assignment.calc_default_domain()]
 
-#Bulk actions on User From identity
+# Bulk actions on User From identity
     def delete_user(self, user_id):
         user_dn = self.user._id_to_dn(user_id)
         for ref in self.role.list_global_roles_for_user(user_dn):
@@ -280,8 +280,8 @@ class Assignment(assignment.Driver):
             self.project.remove_user(user.tenant_id,
                                      self.user._id_to_dn(user_id))
 
-    #LDAP assignments only supports LDAP identity.  Assignments under identity
-    #are already deleted
+    # LDAP assignments only supports LDAP identity.  Assignments under
+    # identity are already deleted
     def delete_group(self, group_id):
         if not self.group.subtree_delete_enabled:
             # TODO(spzala): this is only placeholder for group and domain
@@ -447,8 +447,8 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             project_ids.add(self._dn_to_id(assoc.project_dn))
         projects = []
         for project_id in project_ids:
-            #slower to get them one at a time, but a huge list could blow out
-            #the connection.  This is the safer way
+            # slower to get them one at a time, but a huge list could blow out
+            # the connection.  This is the safer way
             projects.append(self.get(project_id))
         return projects
 
@@ -633,10 +633,10 @@ class RoleApi(common_ldap.BaseLdap):
 
         res = []
         for role_dn, _ in roles:
-            #ldap.dn.dn2str returns an array, where the first
-            #element is the first segment.
-            #For a role assignment, this contains the role ID,
-            #The remainder is the DN of the tenant.
+            # ldap.dn.dn2str returns an array, where the first
+            # element is the first segment.
+            # For a role assignment, this contains the role ID,
+            # The remainder is the DN of the tenant.
             tenant = ldap.dn.str2dn(role_dn)
             tenant.pop(0)
             tenant_dn = ldap.dn.dn2str(tenant)

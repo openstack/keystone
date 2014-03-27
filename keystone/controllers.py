@@ -31,7 +31,7 @@ _VERSIONS = []
 class Extensions(wsgi.Application):
     """Base extensions controller to be extended by public and admin API's."""
 
-    #extend in subclass to specify the set of extensions
+    # extend in subclass to specify the set of extensions
     @property
     def extensions(self):
         return None

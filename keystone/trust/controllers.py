@@ -141,7 +141,7 @@ class TrustV3(controller.V3Controller):
         try:
             user_id = self._get_user_id(context)
             _trustor_only(context, trust, user_id)
-            #confirm that the trustee exists
+            # confirm that the trustee exists
             self.identity_api.get_user(trust['trustee_user_id'])
             all_roles = self.assignment_api.list_roles()
             clean_roles = self._clean_role_list(context, trust, all_roles)
