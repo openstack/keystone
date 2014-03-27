@@ -27,7 +27,7 @@ See also:
 import six
 
 from keystone import notifications
-from keystone.openstack.common.gettextutils import _ # flake8: noqa
+from keystone.openstack.common.gettextutils import _
 
 
 REGISTRY = {}
@@ -268,6 +268,7 @@ def resolve_future_dependencies(provider_name=None):
     finally:
         _future_dependencies.clear()
     return new_providers
+
 
 def reset():
     """Reset the registry of providers.
