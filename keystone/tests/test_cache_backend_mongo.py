@@ -507,7 +507,7 @@ class MongoCache(tests.BaseTestCase):
 
         random_key = uuid.uuid4().hex
         region.set(random_key, None)
-        self.assertEqual(None, region.get(random_key))
+        self.assertIsNone(region.get(random_key))
 
     def test_backend_set_blank_as_data(self):
 
@@ -629,7 +629,7 @@ class MongoCache(tests.BaseTestCase):
         # should return NO_VALUE as key does not exist in cache
         self.assertEqual(api.NO_VALUE, region.get(random_key))
         self.assertEqual("dummyValue1", region.get(random_key1))
-        self.assertEqual(None, region.get(random_key2))
+        self.assertIsNone(region.get(random_key2))
         self.assertEqual("", region.get(random_key3))
         self.assertEqual("dummyValue4", region.get(random_key4))
 
@@ -639,7 +639,7 @@ class MongoCache(tests.BaseTestCase):
         # should return NO_VALUE as key does not exist in cache
         self.assertEqual(api.NO_VALUE, results[0])
         self.assertEqual("dummyValue1", results[1])
-        self.assertEqual(None, results[2])
+        self.assertIsNone(results[2])
         self.assertEqual("", results[3])
         self.assertEqual("dummyValue4", results[4])
 
