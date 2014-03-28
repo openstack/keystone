@@ -18,6 +18,7 @@ import hashlib
 import mock
 import uuid
 
+from keystoneclient.common import cms
 import six
 from testtools import matchers
 
@@ -31,6 +32,7 @@ from keystone.tests import default_fixtures
 from keystone.tests import filtering
 from keystone.tests import test_utils
 from keystone.token import provider
+
 
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
@@ -2906,12 +2908,13 @@ class IdentityTests(object):
 
 class TokenTests(object):
     def _create_token_id(self):
-        # Token must start with MII here otherwise it fails the asn1 test
-        # and is not hashed in a SQL backend.
-        token_id = "MII"
+        # Use a token signed by the cms module
+        token_id = ""
         for i in range(1, 20):
             token_id += uuid.uuid4().hex
-        return token_id
+        return cms.cms_sign_token(token_id,
+                                  CONF.signing.certfile,
+                                  CONF.signing.keyfile)
 
     def test_token_crud(self):
         token_id = self._create_token_id()
