@@ -17,15 +17,16 @@ import copy
 import uuid
 
 import ldap
+import mock
 
 from keystone import assignment
 from keystone.common import cache
 from keystone.common import ldap as common_ldap
+from keystone.common.ldap import core as common_ldap_core
 from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone.openstack.common.fixture import moxstubout
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import fakeldap
@@ -36,6 +37,17 @@ CONF = config.CONF
 
 
 class BaseLDAPIdentity(test_backend.IdentityTests):
+
+    def setUp(self):
+        super(BaseLDAPIdentity, self).setUp()
+        self.clear_database()
+
+        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+        self.addCleanup(common_ldap_core._HANDLERS.clear)
+
     def _get_domain_fixture(self):
         """Domains in LDAP are read-only, so just return the static one."""
         return self.assignment_api.get_domain(CONF.identity.default_domain_id)
@@ -546,18 +558,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
-    def setUp(self):
-        super(LDAPIdentity, self).setUp()
-        self.clear_database()
-
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-        fixture = self.useFixture(moxstubout.MoxStubout())
-        self.mox = fixture.mox
-        self.stubs = fixture.stubs
-
     def test_configurable_allowed_project_actions(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True}
         self.assignment_api.create_project('fake1', tenant)
@@ -884,81 +884,43 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertIs(user_ref['enabled'], True)
         self.assertNotIn('enabled_nomask', user_ref)
 
-    def test_user_api_get_connection_no_user_password(self):
+    @mock.patch.object(common_ldap_core.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_user_api_get_connection_no_user_password(self, mocked_method):
         """Don't bind in case the user and password are blank."""
         # Ensure the username/password are in-fact blank
         self.config_fixture.config(group='ldap', user=None, password=None)
         user_api = identity.backends.ldap.UserApi(CONF)
-        self.stubs.Set(fakeldap, 'FakeLdap',
-                       self.mox.CreateMock(fakeldap.FakeLdap))
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
-        # we have to track all calls on 'conn' to make sure that
-        # conn.simple_bind_s is not called
-        conn = self.mox.CreateMockAnything()
-        conn.connect(user_api.LDAP_URL,
-                     user_api.page_size,
-                     user_api.alias_dereferencing,
-                     user_api.use_tls,
-                     user_api.tls_cacertfile,
-                     user_api.tls_cacertdir,
-                     user_api.tls_req_cert,
-                     user_api.chase_referrals)
-        conn = fakeldap.FakeLdap().AndReturn(conn)
-        self.mox.ReplayAll()
-
         user_api.get_connection(user=None, password=None)
+        self.assertFalse(mocked_method.called,
+                         msg='`simple_bind_s` method was unexpectedly called')
 
-    def test_chase_referrals_off(self):
+    @mock.patch.object(common_ldap_core.KeystoneLDAPHandler, 'connect')
+    def test_chase_referrals_off(self, mocked_fakeldap):
         self.config_fixture.config(
             group='ldap',
             url='fake://memory',
             chase_referrals=False)
         user_api = identity.backends.ldap.UserApi(CONF)
-        self.stubs.Set(fakeldap, 'FakeLdap',
-                       self.mox.CreateMock(fakeldap.FakeLdap))
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
-        user = uuid.uuid4().hex
-        password = uuid.uuid4().hex
-        conn = self.mox.CreateMockAnything()
-        conn.connect(user_api.LDAP_URL,
-                     user_api.page_size,
-                     user_api.alias_dereferencing,
-                     user_api.use_tls,
-                     user_api.tls_cacertfile,
-                     user_api.tls_cacertdir,
-                     user_api.tls_req_cert,
-                     user_api.chase_referrals)
-        conn = fakeldap.FakeLdap().AndReturn(conn)
-        conn.simple_bind_s(user, password, None, None).AndReturn(None)
-        self.mox.ReplayAll()
+        user_api.get_connection(user=None, password=None)
 
-        user_api.get_connection(user=user, password=password)
+        # The last call_arg should be a dictionary and should contain
+        # chase_referrals. Check to make sure the value of chase_referrals
+        # is as expected.
+        self.assertFalse(mocked_fakeldap.call_args[-1]['chase_referrals'])
 
-    def test_chase_referrals_on(self):
+    @mock.patch.object(common_ldap_core.KeystoneLDAPHandler, 'connect')
+    def test_chase_referrals_on(self, mocked_fakeldap):
         self.config_fixture.config(
             group='ldap',
             url='fake://memory',
             chase_referrals=True)
         user_api = identity.backends.ldap.UserApi(CONF)
-        self.stubs.Set(fakeldap, 'FakeLdap',
-                       self.mox.CreateMock(fakeldap.FakeLdap))
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
-        user = uuid.uuid4().hex
-        password = uuid.uuid4().hex
-        conn = self.mox.CreateMockAnything()
-        conn.connect(user_api.LDAP_URL,
-                     user_api.page_size,
-                     user_api.alias_dereferencing,
-                     user_api.use_tls,
-                     user_api.tls_cacertfile,
-                     user_api.tls_cacertdir,
-                     user_api.tls_req_cert,
-                     user_api.chase_referrals)
-        conn = fakeldap.FakeLdap().AndReturn(conn)
-        conn.simple_bind_s(user, password, None, None).AndReturn(None)
-        self.mox.ReplayAll()
+        user_api.get_connection(user=None, password=None)
 
-        user_api.get_connection(user=user, password=password)
+        # The last call_arg should be a dictionary and should contain
+        # chase_referrals. Check to make sure the value of chase_referrals
+        # is as expected.
+        self.assertTrue(mocked_fakeldap.call_args[-1]['chase_referrals'])
 
     def test_wrong_ldap_scope(self):
         CONF.ldap.query_scope = uuid.uuid4().hex
