@@ -17,7 +17,6 @@ import ldap.modlist
 import subprocess
 import uuid
 
-from keystone.common import ldap as ldap_common
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap
@@ -132,42 +131,6 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         self.identity_api = identity_ldap.Identity()
         user_ref = self.identity_api.get_user('alt_fake1')
         self.assertEqual(user_ref['id'], 'alt_fake1')
-
-    def test_base_ldap_connection_deref_option(self):
-        deref = ldap_common.parse_deref('default')
-        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
-                                               CONF.ldap.page_size,
-                                               alias_dereferencing=deref)
-        self.assertEqual(ldap.get_option(ldap.OPT_DEREF),
-                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
-
-        deref = ldap_common.parse_deref('always')
-        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
-                                               CONF.ldap.page_size,
-                                               alias_dereferencing=deref)
-        self.assertEqual(ldap.DEREF_ALWAYS,
-                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
-
-        deref = ldap_common.parse_deref('finding')
-        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
-                                               CONF.ldap.page_size,
-                                               alias_dereferencing=deref)
-        self.assertEqual(ldap.DEREF_FINDING,
-                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
-
-        deref = ldap_common.parse_deref('never')
-        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
-                                               CONF.ldap.page_size,
-                                               alias_dereferencing=deref)
-        self.assertEqual(ldap.DEREF_NEVER,
-                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
-
-        deref = ldap_common.parse_deref('searching')
-        ldap_wrapper = ldap_common.LdapWrapper(CONF.ldap.url,
-                                               CONF.ldap.page_size,
-                                               alias_dereferencing=deref)
-        self.assertEqual(ldap.DEREF_SEARCHING,
-                         ldap_wrapper.conn.get_option(ldap.OPT_DEREF))
 
     # FakeLDAP does not correctly process filters, so this test can only be
     # run against a live LDAP server

@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import abc
 import os.path
 
 import ldap
@@ -101,6 +102,479 @@ def ldap_scope(scope):
                 'options': ', '.join(LDAP_SCOPES.keys())})
 
 
+@six.add_metaclass(abc.ABCMeta)
+class LDAPHandler(object):
+    '''Abstract class which defines methods for a LDAP API provider.
+
+    Native Keystone values cannot be passed directly into and from the
+    python-ldap API. Type conversion must occur at the LDAP API
+    boudary, examples of type conversions are:
+
+        * booleans map to the strings 'TRUE' and 'FALSE'
+
+        * integer values map to their string representation.
+
+        * unicode strings are encoded in UTF-8
+
+    In addition to handling type conversions at the API boundary we
+    have the requirement to support more than one LDAP API
+    provider. Currently we have:
+
+        * python-ldap, this is the standard LDAP API for Python, it
+          requres access to a live LDAP server.
+
+        * Fake LDAP which emulates python-ldap. This is used for
+          testing without requiring a live LDAP server.
+
+    To support these requirements we need a layer that performs type
+    conversions and then calls another LDAP API which is configurable
+    (e.g. either python-ldap or the fake emulation).
+
+    We have an addtional constraint at the time of this writing due to
+    limitations in the logging module. The logging module is not
+    capable of accepting UTF-8 encoded strings, it will throw an
+    encoding exception. Therefore all logging MUST be performed prior
+    to UTF-8 conversion. This means no logging can be performed in the
+    ldap APIs that implement the python-ldap API because those APIs
+    are defined to accept only UTF-8 strings. Thus the layer which
+    performs type conversions must also do the logging. We do the type
+    conversions in two steps, once to convert all Python types to
+    unicode strings, then log, then convert the unicode strings to
+    UTF-8.
+
+    There are a variety of ways one could accomplish this, we elect to
+    use a chaining technique whereby instances of this class simply
+    call the next member in the chain via the "conn" attribute. The
+    chain is constructed by passing in an existing instance of this
+    class as the conn attribute when the class is instantiated.
+
+    Here is a brief explanation of why other possible approaches were
+    not used:
+
+        subclassing
+
+            To perform the wrapping operations in the correct order
+            the type convesion class would have to subclass each of
+            the API providers. This is awkward, doubles the number of
+            classes, and does not scale well. It requires the type
+            conversion class to be aware of all possible API
+            providers.
+
+        decorators
+
+            Decorators provide an elegant solution to wrap methods and
+            would be an ideal way to perform type conversions before
+            calling the wrapped function and then converting the
+            values returned from the wrapped function. However
+            decorators need to be aware of the method signature, it
+            has to know what input parameters need conversion and how
+            to convert the result. For an API like python-ldap which
+            has a large number of different method signatures it would
+            require a large number of specialized
+            decorators. Experience has shown it's very easy to apply
+            the wrong decorator due to the inherent complexity and
+            tendency to cut-n-paste code. Another option is to
+            parameterize the decorator to make it "smart". Experience
+            has shown such decorators become insanely complicated and
+            difficult to understand and debug. Also decorators tend to
+            hide what's really going on when a method is called, the
+            operations being performed are not visible when looking at
+            the implemation of a decorated method, this too experience
+            has shown leads to mistakes.
+
+    Chaining simplifies both wrapping to perform type conversion as
+    well as the substitution of alternative API providers. One simply
+    creates a new instance of the API interface and insert it at the
+    front of the chain. Type conversions are explicit and obvious.
+
+    If a new method needs to be added to the API interface one adds it
+    to the abstract class definition. Should one miss adding the new
+    method to any derivations of the abstract class the code will fail
+    to load and run making it impossible to forget updating all the
+    derived classes.
+    '''
+    @abc.abstractmethod
+    def __init__(self, conn=None):
+        self.conn = conn
+
+    @abc.abstractmethod
+    def connect(self, url, page_size=0, alias_dereferencing=None,
+                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
+                tls_req_cert='demand', chase_referrals=None):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def set_option(self, option, invalue):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def get_option(self, option):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def simple_bind_s(self, who='', cred='',
+                      serverctrls=None, clientctrls=None):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def unbind_s(self):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def add_s(self, dn, modlist):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def search_s(self, base, scope,
+                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def search_ext(self, base, scope,
+                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
+                   serverctrls=None, clientctrls=None,
+                   timeout=-1, sizelimit=0):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
+                resp_ctrl_classes=None):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def modify_s(self, dn, modlist):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def delete_s(self, dn):
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
+        raise exception.NotImplemented()
+
+
+class PythonLDAPHandler(LDAPHandler):
+    '''Implementation of the LDAPHandler interface which calls the
+    python-ldap API.
+
+    Note, the python-ldap API requires all string values to be UTF-8
+    encoded. The KeystoneLDAPHandler enforces this prior to invoking
+    the methods in this class.
+    '''
+
+    def __init__(self, conn=None):
+        super(PythonLDAPHandler, self).__init__(conn=conn)
+
+    def connect(self, url, page_size=0, alias_dereferencing=None,
+                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
+                tls_req_cert='demand', chase_referrals=None):
+        LOG.debug("LDAP init: url=%s", url)
+        LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
+                  'tls_req_cert=%s tls_avail=%s',
+                  use_tls, tls_cacertfile, tls_cacertdir,
+                  tls_req_cert, ldap.TLS_AVAIL)
+
+        # NOTE(topol)
+        # for extra debugging uncomment the following line
+        # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 4095)
+
+        using_ldaps = url.lower().startswith("ldaps")
+
+        if use_tls and using_ldaps:
+            raise AssertionError(_('Invalid TLS / LDAPS combination'))
+
+        if use_tls:
+            if not ldap.TLS_AVAIL:
+                raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
+                                   'not available') % ldap.TLS_AVAIL)
+            if tls_cacertfile:
+                # NOTE(topol)
+                # python ldap TLS does not verify CACERTFILE or CACERTDIR
+                # so we add some extra simple sanity check verification
+                # Also, setting these values globally (i.e. on the ldap object)
+                # works but these values are ignored when setting them on the
+                # connection
+                if not os.path.isfile(tls_cacertfile):
+                    raise IOError(_("tls_cacertfile %s not found "
+                                    "or is not a file") %
+                                  tls_cacertfile)
+                ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
+            elif tls_cacertdir:
+                # NOTE(topol)
+                # python ldap TLS does not verify CACERTFILE or CACERTDIR
+                # so we add some extra simple sanity check verification
+                # Also, setting these values globally (i.e. on the ldap object)
+                # works but these values are ignored when setting them on the
+                # connection
+                if not os.path.isdir(tls_cacertdir):
+                    raise IOError(_("tls_cacertdir %s not found "
+                                    "or is not a directory") %
+                                  tls_cacertdir)
+                ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
+            if tls_req_cert in LDAP_TLS_CERTS.values():
+                ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
+            else:
+                LOG.debug(_("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"),
+                          tls_req_cert)
+
+        self.conn = ldap.initialize(url)
+        self.conn.protocol_version = ldap.VERSION3
+
+        if alias_dereferencing is not None:
+            self.conn.set_option(ldap.OPT_DEREF, alias_dereferencing)
+        self.page_size = page_size
+
+        if use_tls:
+            self.conn.start_tls_s()
+
+        if chase_referrals is not None:
+            self.conn.set_option(ldap.OPT_REFERRALS, int(chase_referrals))
+
+    def set_option(self, option, invalue):
+        return self.conn.set_option(option, invalue)
+
+    def get_option(self, option):
+        return self.conn.get_option(option)
+
+    def simple_bind_s(self, who='', cred='',
+                      serverctrls=None, clientctrls=None):
+        return self.conn.simple_bind_s(who, cred, serverctrls, clientctrls)
+
+    def unbind_s(self):
+        return self.conn.unbind_s()
+
+    def add_s(self, dn, modlist):
+        return self.conn.add_s(dn, modlist)
+
+    def search_s(self, base, scope,
+                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+        return self.conn.search_s(base, scope, filterstr,
+                                  attrlist, attrsonly)
+
+    def search_ext(self, base, scope,
+                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
+                   serverctrls=None, clientctrls=None,
+                   timeout=-1, sizelimit=0):
+        return self.conn.search_ext(base, scope,
+                                    filterstr, attrlist, attrsonly,
+                                    serverctrls, clientctrls,
+                                    timeout, sizelimit)
+
+    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
+                resp_ctrl_classes=None):
+        # The resp_ctrl_classes parameter is a recent addition to the
+        # API. It defaults to None. We do not anticipate using it.
+        # To run with older versions of python-ldap we do not pass it.
+        return self.conn.result3(msgid, all, timeout)
+
+    def modify_s(self, dn, modlist):
+        return self.conn.modify_s(dn, modlist)
+
+    def delete_s(self, dn):
+        return self.conn.delete_s(dn)
+
+    def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
+        return self.conn.delete_ext_s(dn, serverctrls, clientctrls)
+
+
+class KeystoneLDAPHandler(LDAPHandler):
+    '''Convert data types and perform logging.
+
+    This LDAP inteface wraps the python-ldap based interfaces. The
+    python-ldap interfaces require string values encoded in UTF-8. The
+    OpenStack logging framework at the time of this writing is not
+    capable of accepting strings encoded in UTF-8, the log functions
+    will throw decoding errors if a non-ascii character appears in a
+    string.
+
+    Prior to the call Python data types are converted to a string
+    representation as required by the LDAP APIs.
+
+    Then logging is performed so we can track what is being
+    sent/received from LDAP. Also the logging filters security
+    sensitive items (i.e. passwords).
+
+    Then the string values are encoded into UTF-8.
+
+    Then the LDAP API entry point is invoked.
+
+    Data returned from the LDAP call is converted back from UTF-8
+    encoded strings into the Python data type used internally in
+    OpenStack.
+    '''
+
+    def __init__(self, conn=None):
+        super(KeystoneLDAPHandler, self).__init__(conn=conn)
+        self.page_size = 0
+
+    def _disable_paging(self):
+        # Disable the pagination from now on
+        self.page_size = 0
+
+    def connect(self, url, page_size=0, alias_dereferencing=None,
+                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
+                tls_req_cert='demand', chase_referrals=None):
+        return self.conn.connect(url, page_size, alias_dereferencing,
+                                 use_tls, tls_cacertfile, tls_cacertdir,
+                                 tls_req_cert, chase_referrals)
+
+    def set_option(self, option, invalue):
+        return self.conn.set_option(option, invalue)
+
+    def get_option(self, option):
+        return self.conn.get_option(option)
+
+    def simple_bind_s(self, who='', cred='',
+                      serverctrls=None, clientctrls=None):
+        LOG.debug("LDAP bind: who=%s", who)
+        return self.conn.simple_bind_s(who, cred,
+                                       serverctrls, clientctrls)
+
+    def unbind_s(self):
+        LOG.debug("LDAP unbind")
+        return self.conn.unbind_s()
+
+    def add_s(self, dn, modlist):
+        ldap_attrs = [(kind, [py2ldap(x) for x in safe_iter(values)])
+                      for kind, values in modlist]
+        logging_attrs = [(kind, values
+                         if kind != 'userPassword'
+                         else ['****'])
+                         for kind, values in ldap_attrs]
+        LOG.debug('LDAP add: dn=%s attrs=%s',
+                  dn, logging_attrs)
+        return self.conn.add_s(dn, ldap_attrs)
+
+    def search_s(self, base, scope,
+                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+        # NOTE(morganfainberg): Remove "None" singletons from this list, which
+        # allows us to set mapped attributes to "None" as defaults in config.
+        # Without this filtering, the ldap query would raise a TypeError since
+        # attrlist is expected to be an iterable of strings.
+        if attrlist is not None:
+            attrlist = [attr for attr in attrlist if attr is not None]
+        LOG.debug('LDAP search: base=%s scope=%s filterstr=%s '
+                  'attrs=%s attrsonly=%s',
+                  base, scope, filterstr, attrlist, attrsonly)
+        if self.page_size:
+            ldap_result = self._paged_search_s(base, scope,
+                                               filterstr, attrlist)
+        else:
+            ldap_result = self.conn.search_s(base, scope,
+                                             filterstr,
+                                             attrlist, attrsonly)
+
+        py_result = []
+        at_least_one_referral = False
+        for dn, attrs in ldap_result:
+            if dn is None:
+                # this is a Referral object, rather than an Entry object
+                at_least_one_referral = True
+                continue
+
+            py_result.append((dn,
+                              dict((kind, [ldap2py(x) for x in values])
+                                   for kind, values in six.iteritems(attrs))))
+        if at_least_one_referral:
+            LOG.debug(_('Referrals were returned and ignored. Enable referral '
+                        'chasing in keystone.conf via [ldap] chase_referrals'))
+
+        return py_result
+
+    def search_ext(self, base, scope,
+                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
+                   serverctrls=None, clientctrls=None,
+                   timeout=-1, sizelimit=0):
+        if attrlist is not None:
+            attrlist = [attr for attr in attrlist if attr is not None]
+        LOG.debug('LDAP search_ext: base=%s scope=%s filterstr=%s '
+                  'attrs=%s attrsonly=%s'
+                  'serverctrls=%s clientctrls=%s timeout=%s sizelimit=%s',
+                  base, scope, filterstr, attrlist, attrsonly,
+                  serverctrls, clientctrls, timeout, sizelimit)
+        return self.conn.search_ext(base, scope,
+                                    filterstr, attrlist, attrsonly,
+                                    serverctrls, clientctrls,
+                                    timeout, sizelimit)
+
+    def _paged_search_s(self, base, scope, filterstr, attrlist=None):
+        res = []
+        lc = ldap.controls.SimplePagedResultsControl(
+            controlType=ldap.LDAP_CONTROL_PAGE_OID,
+            criticality=True,
+            controlValue=(self.page_size, ''))
+        if attrlist is not None:
+            attrlist = [attr for attr in attrlist if attr is not None]
+        msgid = self.conn.search_ext(base,
+                                     scope,
+                                     filterstr,
+                                     attrlist,
+                                     serverctrls=[lc])
+        # Endless loop request pages on ldap server until it has no data
+        while True:
+            # Request to the ldap server a page with 'page_size' entries
+            rtype, rdata, rmsgid, serverctrls = self.conn.result3(msgid)
+            # Receive the data
+            res.extend(rdata)
+            pctrls = [c for c in serverctrls
+                      if c.controlType == ldap.LDAP_CONTROL_PAGE_OID]
+            if pctrls:
+                # LDAP server supports pagination
+                est, cookie = pctrls[0].controlValue
+                if cookie:
+                    # There is more data still on the server
+                    # so we request another page
+                    lc.controlValue = (self.page_size, cookie)
+                    msgid = self.conn.search_ext(base,
+                                                 scope,
+                                                 filterstr,
+                                                 attrlist,
+                                                 serverctrls=[lc])
+                else:
+                    # Exit condition no more data on server
+                    break
+            else:
+                LOG.warning(_('LDAP Server does not support paging. '
+                              'Disable paging in keystone.conf to '
+                              'avoid this message.'))
+                self._disable_paging()
+                break
+        return res
+
+    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
+                resp_ctrl_classes=None):
+        ldap_result = self.conn.result3(msgid, all, timeout, resp_ctrl_classes)
+
+        LOG.debug('LDAP result3: msgid=%s all=%s timeout=%s '
+                  'resp_ctrl_classes=%s ldap_result=%s',
+                  msgid, all, timeout, resp_ctrl_classes, ldap_result)
+        return ldap_result
+
+    def modify_s(self, dn, modlist):
+        ldap_modlist = [
+            (op, kind, (None if values is None
+                        else [py2ldap(x) for x in safe_iter(values)]))
+            for op, kind, values in modlist]
+
+        logging_modlist = [(op, kind, (values if kind != 'userPassword'
+                           else ['****']))
+                           for op, kind, values in ldap_modlist]
+        LOG.debug('LDAP modify: dn=%s modlist=%s',
+                  dn, logging_modlist)
+
+        return self.conn.modify_s(dn, ldap_modlist)
+
+    def delete_s(self, dn):
+        LOG.debug("LDAP delete: dn=%s", dn)
+        return self.conn.delete_s(dn)
+
+    def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
+        LOG.debug('LDAP delete_ext: dn=%s serverctrls=%s clientctrls=%s',
+                  dn, serverctrls, clientctrls)
+        return self.conn.delete_ext_s(dn, serverctrls, clientctrls)
+
+
 _HANDLERS = {}
 
 
@@ -108,12 +582,12 @@ def register_handler(prefix, handler):
     _HANDLERS[prefix] = handler
 
 
-def get_handler(conn_url):
+def _get_connection(conn_url):
     for prefix, handler in six.iteritems(_HANDLERS):
         if conn_url.startswith(prefix):
-            return handler
+            return handler()
 
-    return LdapWrapper
+    return PythonLDAPHandler()
 
 
 class BaseLdap(object):
@@ -228,16 +702,18 @@ class BaseLdap(object):
         return mapping
 
     def get_connection(self, user=None, password=None):
-        handler = get_handler(self.LDAP_URL)
+        conn = _get_connection(self.LDAP_URL)
 
-        conn = handler(self.LDAP_URL,
-                       self.page_size,
-                       alias_dereferencing=self.alias_dereferencing,
-                       use_tls=self.use_tls,
-                       tls_cacertfile=self.tls_cacertfile,
-                       tls_cacertdir=self.tls_cacertdir,
-                       tls_req_cert=self.tls_req_cert,
-                       chase_referrals=self.chase_referrals)
+        conn = KeystoneLDAPHandler(conn=conn)
+
+        conn.connect(self.LDAP_URL,
+                     page_size=self.page_size,
+                     alias_dereferencing=self.alias_dereferencing,
+                     use_tls=self.use_tls,
+                     tls_cacertfile=self.tls_cacertfile,
+                     tls_cacertdir=self.tls_cacertdir,
+                     tls_req_cert=self.tls_req_cert,
+                     chase_referrals=self.chase_referrals)
 
         if user is None:
             user = self.LDAP_USER
@@ -482,205 +958,6 @@ class BaseLdap(object):
             raise self._not_found(object_id)
         finally:
             conn.unbind_s()
-
-
-class LdapWrapper(object):
-    def __init__(self, url, page_size, alias_dereferencing=None,
-                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                 tls_req_cert='demand', chase_referrals=None):
-        LOG.debug(_("LDAP init: url=%s"), url)
-        LOG.debug(_('LDAP init: use_tls=%(use_tls)s\n'
-                  'tls_cacertfile=%(tls_cacertfile)s\n'
-                  'tls_cacertdir=%(tls_cacertdir)s\n'
-                  'tls_req_cert=%(tls_req_cert)s\n'
-                  'tls_avail=%(tls_avail)s\n'),
-                  {'use_tls': use_tls,
-                   'tls_cacertfile': tls_cacertfile,
-                   'tls_cacertdir': tls_cacertdir,
-                   'tls_req_cert': tls_req_cert,
-                   'tls_avail': ldap.TLS_AVAIL
-                   })
-
-        # NOTE(topol)
-        # for extra debugging uncomment the following line
-        # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 4095)
-
-        using_ldaps = url.lower().startswith("ldaps")
-
-        if use_tls and using_ldaps:
-            raise AssertionError(_('Invalid TLS / LDAPS combination'))
-
-        if use_tls:
-            if not ldap.TLS_AVAIL:
-                raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
-                                   'not available') % ldap.TLS_AVAIL)
-            if tls_cacertfile:
-                # NOTE(topol)
-                # python ldap TLS does not verify CACERTFILE or CACERTDIR
-                # so we add some extra simple sanity check verification
-                # Also, setting these values globally (i.e. on the ldap object)
-                # works but these values are ignored when setting them on the
-                # connection
-                if not os.path.isfile(tls_cacertfile):
-                    raise IOError(_("tls_cacertfile %s not found "
-                                    "or is not a file") %
-                                  tls_cacertfile)
-                ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
-            elif tls_cacertdir:
-                # NOTE(topol)
-                # python ldap TLS does not verify CACERTFILE or CACERTDIR
-                # so we add some extra simple sanity check verification
-                # Also, setting these values globally (i.e. on the ldap object)
-                # works but these values are ignored when setting them on the
-                # connection
-                if not os.path.isdir(tls_cacertdir):
-                    raise IOError(_("tls_cacertdir %s not found "
-                                    "or is not a directory") %
-                                  tls_cacertdir)
-                ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
-            if tls_req_cert in LDAP_TLS_CERTS.values():
-                ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
-            else:
-                LOG.debug(_("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"),
-                          tls_req_cert)
-
-        self.conn = ldap.initialize(url)
-        self.conn.protocol_version = ldap.VERSION3
-
-        if alias_dereferencing is not None:
-            self.conn.set_option(ldap.OPT_DEREF, alias_dereferencing)
-        self.page_size = page_size
-
-        if use_tls:
-            self.conn.start_tls_s()
-
-        if chase_referrals is not None:
-            self.conn.set_option(ldap.OPT_REFERRALS, int(chase_referrals))
-
-    def simple_bind_s(self, user, password):
-        LOG.debug(_("LDAP bind: dn=%s"), user)
-        return self.conn.simple_bind_s(user, password)
-
-    def unbind_s(self):
-        LOG.debug("LDAP unbind")
-        return self.conn.unbind_s()
-
-    def add_s(self, dn, attrs):
-        ldap_attrs = [(kind, [py2ldap(x) for x in safe_iter(values)])
-                      for kind, values in attrs]
-        sane_attrs = [(kind, values
-                       if kind != 'userPassword'
-                       else ['****'])
-                      for kind, values in ldap_attrs]
-        LOG.debug(_('LDAP add: dn=%(dn)s, attrs=%(attrs)s'), {
-            'dn': dn, 'attrs': sane_attrs})
-        return self.conn.add_s(dn, ldap_attrs)
-
-    def search_s(self, dn, scope, query, attrlist=None):
-        # NOTE(morganfainberg): Remove "None" singletons from this list, which
-        # allows us to set mapped attributes to "None" as defaults in config.
-        # Without this filtering, the ldap query would raise a TypeError since
-        # attrlist is expected to be an iterable of strings.
-        if attrlist is not None:
-            attrlist = [attr for attr in attrlist if attr is not None]
-        LOG.debug(_(
-            'LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, '
-            'attrs=%(attrlist)s'), {
-                'dn': dn,
-                'scope': scope,
-                'query': query,
-                'attrlist': attrlist})
-        if self.page_size:
-            res = self.paged_search_s(dn, scope, query, attrlist)
-        else:
-            res = self.conn.search_s(dn, scope, query, attrlist)
-
-        o = []
-        at_least_one_referral = False
-        for dn, attrs in res:
-            if dn is None:
-                # this is a Referral object, rather than an Entry object
-                at_least_one_referral = True
-                continue
-
-            o.append((dn, dict((kind, [ldap2py(x) for x in values])
-                               for kind, values in six.iteritems(attrs))))
-
-        if at_least_one_referral:
-            LOG.debug(_('Referrals were returned and ignored. Enable referral '
-                        'chasing in keystone.conf via [ldap] chase_referrals'))
-
-        return o
-
-    def paged_search_s(self, dn, scope, query, attrlist=None):
-        res = []
-        lc = ldap.controls.SimplePagedResultsControl(
-            controlType=ldap.LDAP_CONTROL_PAGE_OID,
-            criticality=True,
-            controlValue=(self.page_size, ''))
-        msgid = self.conn.search_ext(dn,
-                                     scope,
-                                     query,
-                                     attrlist,
-                                     serverctrls=[lc])
-        # Endless loop request pages on ldap server until it has no data
-        while True:
-            # Request to the ldap server a page with 'page_size' entries
-            rtype, rdata, rmsgid, serverctrls = self.conn.result3(msgid)
-            # Receive the data
-            res.extend(rdata)
-            pctrls = [c for c in serverctrls
-                      if c.controlType == ldap.LDAP_CONTROL_PAGE_OID]
-            if pctrls:
-                # LDAP server supports pagination
-                est, cookie = pctrls[0].controlValue
-                if cookie:
-                    # There is more data still on the server
-                    # so we request another page
-                    lc.controlValue = (self.page_size, cookie)
-                    msgid = self.conn.search_ext(dn,
-                                                 scope,
-                                                 query,
-                                                 attrlist,
-                                                 serverctrls=[lc])
-                else:
-                    # Exit condition no more data on server
-                    break
-            else:
-                LOG.warning(_('LDAP Server does not support paging. '
-                              'Disable paging in keystone.conf to '
-                              'avoid this message.'))
-                self._disable_paging()
-                break
-        return res
-
-    def modify_s(self, dn, modlist):
-        ldap_modlist = [
-            (op, kind, (None if values is None
-                        else [py2ldap(x) for x in safe_iter(values)]))
-            for op, kind, values in modlist]
-
-        sane_modlist = [(op, kind, (values if kind != 'userPassword'
-                                    else ['****']))
-                        for op, kind, values in ldap_modlist]
-        LOG.debug(_('LDAP modify: dn=%(dn)s, modlist=%(modlist)s'), {
-            'dn': dn, 'modlist': sane_modlist})
-
-        return self.conn.modify_s(dn, ldap_modlist)
-
-    def delete_s(self, dn):
-        LOG.debug(_("LDAP delete: dn=%s"), dn)
-        return self.conn.delete_s(dn)
-
-    def delete_ext_s(self, dn, serverctrls):
-        LOG.debug(
-            _('LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s'), {
-                'dn': dn, 'serverctrls': serverctrls})
-        return self.conn.delete_ext_s(dn, serverctrls)
-
-    def _disable_paging(self):
-        # Disable the pagination from now on
-        self.page_size = 0
 
 
 class EnabledEmuMixIn(BaseLdap):

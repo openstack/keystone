@@ -29,7 +29,9 @@ import ldap
 import six
 from six import moves
 
+from keystone.common.ldap import core
 from keystone.common import utils
+from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
@@ -156,13 +158,31 @@ class FakeShelve(dict):
 FakeShelves = {}
 
 
-class FakeLdap(object):
-    """Fake LDAP connection."""
+class FakeLdap(core.LDAPHandler):
+    '''Emulate the python-ldap API.
+
+    The python-ldap API requires all strings to be UTF-8 encoded. This
+    is assured by the caller of this interface
+    (i.e. KeystoneLDAPHandler).
+
+    However, internally this emulation MUST process and store strings
+    in a canonical form which permits operations on
+    characters. Encoded strings do not provide the ability to operate
+    on characters. Therefore this emulation accepts UTF-8 encoded
+    strings, decodes them to unicode for operations internal to this
+    emulation, and encodes them back to UTF-8 when returning values
+    from the emulation.
+    '''
 
     __prefix = 'ldap:'
 
-    def __init__(self, url, *args, **kwargs):
-        LOG.debug('initialize url=%s', url)
+    def __init__(self, conn=None):
+        super(FakeLdap, self).__init__(conn=conn)
+        self._ldap_options = {ldap.OPT_DEREF: ldap.DEREF_NEVER}
+
+    def connect(self, url, page_size=0, alias_dereferencing=None,
+                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
+                tls_req_cert='demand', chase_referrals=None):
         if url.startswith('fake://memory'):
             if url not in FakeShelves:
                 FakeShelves[url] = FakeShelve()
@@ -170,37 +190,57 @@ class FakeLdap(object):
         else:
             self.db = shelve.open(url[7:])
 
+        using_ldaps = url.lower().startswith("ldaps")
+
+        if use_tls and using_ldaps:
+            raise AssertionError('Invalid TLS / LDAPS combination')
+
+        if use_tls:
+            if tls_cacertfile:
+                ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
+            elif tls_cacertdir:
+                ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
+            if tls_req_cert in core.LDAP_TLS_CERTS.values():
+                ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
+            else:
+                raise ValueError("invalid TLS_REQUIRE_CERT tls_req_cert=%s",
+                                 tls_req_cert)
+
+        if alias_dereferencing is not None:
+            self.set_option(ldap.OPT_DEREF, alias_dereferencing)
+        self.page_size = page_size
+
     def dn(self, dn):
-        # temporarily return input value,
-        # subsequent patch will add implementation
         return dn
 
     def key(self, dn):
         return '%s%s' % (self.__prefix, self.dn(dn))
 
-    def simple_bind_s(self, dn, password):
+    def simple_bind_s(self, who='', cred='',
+                      serverctrls=None, clientctrls=None):
         """This method is ignored, but provided for compatibility."""
         if server_fail:
             raise ldap.SERVER_DOWN
-        LOG.debug('bind dn=%s', dn)
-        if dn == 'cn=Admin' and password == 'password':
+        if who == 'cn=Admin' and cred == 'password':
             return
 
         try:
-            attrs = self.db[self.key(dn)]
+            attrs = self.db[self.key(who)]
         except KeyError:
-            LOG.debug('bind fail: dn=%s not found', dn)
+            LOG.debug('bind fail: who=%s not found', who)
             raise ldap.NO_SUCH_OBJECT
 
         db_password = None
         try:
             db_password = attrs['userPassword'][0]
         except (KeyError, IndexError):
-            LOG.debug('bind fail: password for dn=%s not found', dn)
+            LOG.debug('bind fail: password for who=%s not found',
+                      who)
             raise ldap.INAPPROPRIATE_AUTH
 
-        if not utils.ldap_check_password(password, db_password):
-            LOG.debug('bind fail: password for dn=%s does not match', dn)
+        if not utils.ldap_check_password(cred, db_password):
+            LOG.debug('bind fail: password for who=%s does not match',
+                      who)
             raise ldap.INVALID_CREDENTIALS
 
     def unbind_s(self):
@@ -208,25 +248,27 @@ class FakeLdap(object):
         if server_fail:
             raise ldap.SERVER_DOWN
 
-    def add_s(self, dn, attrs):
+    def add_s(self, dn, modlist):
         """Add an object with the specified attributes at dn."""
         if server_fail:
             raise ldap.SERVER_DOWN
 
         # The LDAP API raises a TypeError if attr name is None.
-        for k, dummy_v in attrs:
+        for k, dummy_v in modlist:
             if k is None:
-                raise TypeError('must be string, not None. attrs=%s' % attrs)
+                raise TypeError('must be string, not None. modlist=%s' %
+                                modlist)
 
         key = self.key(dn)
         LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
-            'dn': dn, 'attrs': attrs})
+            'dn': dn, 'attrs': modlist})
         if key in self.db:
-            LOG.debug('add item failed: dn=%s is already in store.', dn)
+            LOG.debug('add item failed: dn=%s is already in store.',
+                      dn)
             raise ldap.ALREADY_EXISTS(dn)
 
         self.db[key] = dict([(k, _process_attr(k, v))
-                             for k, v in attrs])
+                             for k, v in modlist])
         self.db.sync()
 
     def delete_s(self, dn):
@@ -239,18 +281,20 @@ class FakeLdap(object):
         try:
             del self.db[key]
         except KeyError:
-            LOG.debug('delete item failed: dn=%s not found.', dn)
+            LOG.debug('delete item failed: dn=%s not found.',
+                      dn)
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
-    def delete_ext_s(self, dn, serverctrls):
+    def delete_ext_s(self, dn, serverctrls, clientctrls=None):
         """Remove the ldap object at specified dn."""
         if server_fail:
             raise ldap.SERVER_DOWN
 
         try:
             if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
-                LOG.debug('FakeLdap subtree_delete item: dn=%s', dn)
+                LOG.debug('FakeLdap subtree_delete item: dn=%s',
+                          dn)
                 children = [k for k, v in six.iteritems(self.db)
                             if re.match('%s.*,%s' % (
                                         re.escape(self.__prefix),
@@ -262,15 +306,16 @@ class FakeLdap(object):
             LOG.debug(_('FakeLdap delete item: dn=%s'), dn)
             del self.db[key]
         except KeyError:
-            LOG.debug('delete item failed: dn=%s not found.', dn)
+            LOG.debug('delete item failed: dn=%s not found.',
+                      dn)
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
-    def modify_s(self, dn, attrs):
+    def modify_s(self, dn, modlist):
         """Modify the object at dn using the attribute list.
 
         :param dn: an LDAP DN
-        :param attrs: a list of tuples in the following form:
+        :param modlist: a list of tuples in the following form:
                       ([MOD_ADD | MOD_DELETE | MOD_REPACE], attribute, value)
         """
         if server_fail:
@@ -278,14 +323,15 @@ class FakeLdap(object):
 
         key = self.key(dn)
         LOG.debug('modify item: dn=%(dn)s attrs=%(attrs)s', {
-            'dn': dn, 'attrs': attrs})
+            'dn': dn, 'attrs': modlist})
         try:
             entry = self.db[key]
         except KeyError:
-            LOG.debug('modify item failed: dn=%s not found.', dn)
+            LOG.debug('modify item failed: dn=%s not found.',
+                      dn)
             raise ldap.NO_SUCH_OBJECT
 
-        for cmd, k, v in attrs:
+        for cmd, k, v in modlist:
             values = entry.setdefault(k, [])
             if cmd == ldap.MOD_ADD:
                 v = _process_attr(k, v)
@@ -319,40 +365,38 @@ class FakeLdap(object):
         self.db[key] = entry
         self.db.sync()
 
-    def search_s(self, dn, scope, query=None, fields=None):
-        """Search for all matching objects under dn using the query.
+    def search_s(self, base, scope,
+                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+        """Search for all matching objects under base using the query.
 
         Args:
-        dn -- dn to search under
+        base -- dn to search under
         scope -- only SCOPE_BASE and SCOPE_SUBTREE are supported
-        query -- query to filter objects by
-        fields -- fields to return. Returns all fields if not specified
+        filterstr -- filter objects by
+        attrlist -- attrs to return. Returns all attrs if not specified
 
         """
         if server_fail:
             raise ldap.SERVER_DOWN
 
-        LOG.debug(
-            'search at dn=%(dn)s scope=%(scope)s query=%(query)s',
-            {'dn': dn, 'scope': SCOPE_NAMES.get(scope, scope), 'query': query})
         if scope == ldap.SCOPE_BASE:
             try:
-                item_dict = self.db[self.key(dn)]
+                item_dict = self.db[self.key(base)]
             except KeyError:
                 LOG.debug('search fail: dn not found for SCOPE_BASE')
                 raise ldap.NO_SUCH_OBJECT
-            results = [(dn, item_dict)]
+            results = [(base, item_dict)]
         elif scope == ldap.SCOPE_SUBTREE:
             results = [(k[len(self.__prefix):], v)
                        for k, v in six.iteritems(self.db)
                        if re.match('%s.*,%s' % (re.escape(self.__prefix),
-                                                re.escape(self.dn(dn))), k)]
+                                                re.escape(self.dn(base))), k)]
         elif scope == ldap.SCOPE_ONELEVEL:
             results = [(k[len(self.__prefix):], v)
                        for k, v in six.iteritems(self.db)
                        if re.match('%s\w+=[^,]+,%s' % (
                                    re.escape(self.__prefix),
-                                   re.escape(self.dn(dn))), k)]
+                                   re.escape(self.dn(base))), k)]
         else:
             LOG.debug('search fail: unknown scope %s', scope)
             raise NotImplementedError('Search scope %s not implemented.'
@@ -360,15 +404,31 @@ class FakeLdap(object):
 
         objects = []
         for dn, attrs in results:
-            # filter the objects by query
+            # filter the objects by filterstr
             id_attr, id_val = dn.partition(',')[0].split('=', 1)
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
-            if not query or _match_query(query, match_attrs):
-                # filter the attributes by fields
+            if not filterstr or _match_query(filterstr, match_attrs):
+                # filter the attributes by attrlist
                 attrs = dict([(k, v) for k, v in six.iteritems(attrs)
-                              if not fields or k in fields])
+                              if not attrlist or k in attrlist])
                 objects.append((dn, attrs))
 
-        LOG.debug('search result: %s', objects)
         return objects
+
+    def set_option(self, option, invalue):
+        self._ldap_options[option] = invalue
+
+    def get_option(self, option):
+        value = self._ldap_options.get(option, None)
+        return value
+
+    def search_ext(self, base, scope,
+                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
+                   serverctrls=None, clientctrls=None,
+                   timeout=-1, sizelimit=0):
+        raise exception.NotImplemented()
+
+    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
+                resp_ctrl_classes=None):
+        raise exception.NotImplemented()
