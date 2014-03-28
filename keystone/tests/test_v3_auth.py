@@ -14,7 +14,6 @@
 
 import copy
 import datetime
-import json
 import uuid
 
 from keystoneclient.common import cms
@@ -125,7 +124,7 @@ class TokenAPITests(object):
         token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
 
-        expected_token_id = cms.cms_sign_token(json.dumps(token_data),
+        expected_token_id = cms.cms_sign_token(resp.body,
                                                CONF.signing.certfile,
                                                CONF.signing.keyfile)
         self.assertEqual(expected_token_id, token_id)
