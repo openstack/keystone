@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-03-26 06:00+0000\n"
+"POT-Creation-Date: 2014-03-28 06:00+0000\n"
 "PO-Revision-Date: 2013-11-27 07:37+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Urdu "
@@ -283,24 +283,24 @@ msgstr ""
 msgid "Callback: `%(callback)s` subscribed to event `%(event)s`."
 msgstr ""
 
-#: keystone/notifications.py:156
+#: keystone/notifications.py:155
 #, python-format
 msgid ""
 "Invoking callback %(cb_name)s for event %(service)s %(resource_type)s "
 "%(operation)s for%(payload)s"
 msgstr ""
 
-#: keystone/notifications.py:219
+#: keystone/notifications.py:218
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:290
+#: keystone/notifications.py:289
 #, python-format
 msgid "CADF Event: %s"
 msgstr ""
 
-#: keystone/notifications.py:303
+#: keystone/notifications.py:302
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
@@ -408,13 +408,13 @@ msgid ""
 "ignoring."
 msgstr ""
 
-#: keystone/assignment/core.py:1005 keystone/common/controller.py:269
+#: keystone/assignment/core.py:1005 keystone/common/controller.py:282
 #: keystone/identity/core.py:232
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/assignment/backends/kvs.py:202
+#: keystone/assignment/backends/kvs.py:199
 #: keystone/assignment/backends/ldap.py:581
 #: keystone/assignment/backends/sql.py:353
 #, python-format
@@ -426,13 +426,13 @@ msgid "Domain metadata not supported by LDAP"
 msgstr ""
 
 #: keystone/assignment/backends/ldap.py:200
-#: keystone/assignment/backends/ldap.py:248 keystone/common/ldap/core.py:334
+#: keystone/assignment/backends/ldap.py:248 keystone/common/ldap/core.py:810
 #: keystone/identity/backends/kvs.py:117 keystone/identity/backends/kvs.py:224
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:208 keystone/common/ldap/core.py:324
+#: keystone/assignment/backends/ldap.py:208 keystone/common/ldap/core.py:800
 #: keystone/identity/backends/kvs.py:125 keystone/identity/backends/kvs.py:152
 #: keystone/identity/backends/kvs.py:231 keystone/identity/backends/kvs.py:259
 #, python-format
@@ -662,43 +662,43 @@ msgstr ""
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr ""
 
-#: keystone/common/controller.py:39
+#: keystone/common/controller.py:52
 #, python-format
 msgid "RBAC: Authorizing %(action)s(%(kwargs)s)"
 msgstr ""
 
-#: keystone/common/controller.py:46
+#: keystone/common/controller.py:59
 msgid "RBAC: using auth context from the request environment"
 msgstr ""
 
-#: keystone/common/controller.py:51
+#: keystone/common/controller.py:64
 msgid "RBAC: building auth context from the incoming auth token"
 msgstr ""
 
-#: keystone/common/controller.py:62 keystone/middleware/core.py:266
+#: keystone/common/controller.py:75 keystone/middleware/core.py:266
 msgid "RBAC: Invalid token"
 msgstr ""
 
-#: keystone/common/controller.py:91 keystone/common/controller.py:182
-#: keystone/common/controller.py:585
+#: keystone/common/controller.py:104 keystone/common/controller.py:195
+#: keystone/common/controller.py:598
 msgid "RBAC: Bypassing authorization"
 msgstr ""
 
-#: keystone/common/controller.py:138 keystone/common/controller.py:180
-#: keystone/common/controller.py:603
+#: keystone/common/controller.py:151 keystone/common/controller.py:193
+#: keystone/common/controller.py:616
 msgid "RBAC: Authorization granted"
 msgstr ""
 
-#: keystone/common/controller.py:168
+#: keystone/common/controller.py:181
 #, python-format
 msgid "RBAC: Adding query filter params (%s)"
 msgstr ""
 
-#: keystone/common/controller.py:532
+#: keystone/common/controller.py:545
 msgid "Cannot change Domain ID"
 msgstr ""
 
-#: keystone/common/controller.py:556
+#: keystone/common/controller.py:569
 msgid "Invalid token in _get_domain_id_for_request"
 msgstr ""
 
@@ -723,24 +723,24 @@ msgid ""
 "%(valid_pem_headers)s"
 msgstr ""
 
-#: keystone/common/pemutils.py:300
+#: keystone/common/pemutils.py:298
 #, python-format
 msgid "failed to find end matching \"%s\""
 msgstr ""
 
-#: keystone/common/pemutils.py:304
+#: keystone/common/pemutils.py:302
 #, python-format
 msgid ""
 "beginning & end PEM headers do not match (%(begin_pem_header)s!= "
 "%(end_pem_header)s)"
 msgstr ""
 
-#: keystone/common/pemutils.py:379
+#: keystone/common/pemutils.py:377
 #, python-format
 msgid "unknown pem_type: \"%s\""
 msgstr ""
 
-#: keystone/common/pemutils.py:391
+#: keystone/common/pemutils.py:389
 #, python-format
 msgid ""
 "failed to base64 decode %(pem_type)s PEM at position%(position)d: "
@@ -1041,136 +1041,89 @@ msgstr ""
 msgid "`key_mangler` functions must be callable."
 msgstr ""
 
-#: keystone/common/ldap/core.py:77
+#: keystone/common/ldap/core.py:78
 #, python-format
 msgid "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:87
+#: keystone/common/ldap/core.py:88
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:99
+#: keystone/common/ldap/core.py:100
 #, python-format
 msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:216
+#: keystone/common/ldap/core.py:285
+msgid "Invalid TLS / LDAPS combination"
+msgstr ""
+
+#: keystone/common/ldap/core.py:289
+#, python-format
+msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
+msgstr ""
+
+#: keystone/common/ldap/core.py:299
+#, python-format
+msgid "tls_cacertfile %s not found or is not a file"
+msgstr ""
+
+#: keystone/common/ldap/core.py:311
+#, python-format
+msgid "tls_cacertdir %s not found or is not a directory"
+msgstr ""
+
+#: keystone/common/ldap/core.py:318
+#, python-format
+msgid "LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"
+msgstr ""
+
+#: keystone/common/ldap/core.py:480
+msgid ""
+"Referrals were returned and ignored. Enable referral chasing in "
+"keystone.conf via [ldap] chase_referrals"
+msgstr ""
+
+#: keystone/common/ldap/core.py:538
+msgid ""
+"LDAP Server does not support paging. Disable paging in keystone.conf to "
+"avoid this message."
+msgstr ""
+
+#: keystone/common/ldap/core.py:690
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
 "<ldap_attribute>:<keystone_attribute>"
 msgstr ""
 
-#: keystone/common/ldap/core.py:222
+#: keystone/common/ldap/core.py:696
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%(item)s\". Value "
 "\"%(attr_map)s\" must use one of %(keys)s."
 msgstr ""
 
-#: keystone/common/ldap/core.py:303
+#: keystone/common/ldap/core.py:779
 #, python-format
 msgid "LDAP %s create"
 msgstr ""
 
-#: keystone/common/ldap/core.py:308
+#: keystone/common/ldap/core.py:784
 #, python-format
 msgid "LDAP %s update"
 msgstr ""
 
-#: keystone/common/ldap/core.py:313
+#: keystone/common/ldap/core.py:789
 #, python-format
 msgid "LDAP %s delete"
 msgstr ""
 
-#: keystone/common/ldap/core.py:434
+#: keystone/common/ldap/core.py:910
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:491
-#, python-format
-msgid "LDAP init: url=%s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:492
-#, python-format
-msgid ""
-"LDAP init: use_tls=%(use_tls)s\n"
-"tls_cacertfile=%(tls_cacertfile)s\n"
-"tls_cacertdir=%(tls_cacertdir)s\n"
-"tls_req_cert=%(tls_req_cert)s\n"
-"tls_avail=%(tls_avail)s\n"
-msgstr ""
-
-#: keystone/common/ldap/core.py:511
-msgid "Invalid TLS / LDAPS combination"
-msgstr ""
-
-#: keystone/common/ldap/core.py:515
-#, python-format
-msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
-msgstr ""
-
-#: keystone/common/ldap/core.py:525
-#, python-format
-msgid "tls_cacertfile %s not found or is not a file"
-msgstr ""
-
-#: keystone/common/ldap/core.py:537
-#, python-format
-msgid "tls_cacertdir %s not found or is not a directory"
-msgstr ""
-
-#: keystone/common/ldap/core.py:544
-#, python-format
-msgid "LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:561
-#, python-format
-msgid "LDAP bind: dn=%s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:575
-#, python-format
-msgid "LDAP add: dn=%(dn)s, attrs=%(attrs)s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:586
-#, python-format
-msgid ""
-"LDAP search: dn=%(dn)s, scope=%(scope)s, query=%(query)s, "
-"attrs=%(attrlist)s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:610
-msgid ""
-"Referrals were returned and ignored. Enable referral chasing in "
-"keystone.conf via [ldap] chase_referrals"
-msgstr ""
-
-#: keystone/common/ldap/core.py:650
-msgid ""
-"LDAP Server does not support paging. Disable paging in keystone.conf to "
-"avoid this message."
-msgstr ""
-
-#: keystone/common/ldap/core.py:666
-#, python-format
-msgid "LDAP modify: dn=%(dn)s, modlist=%(modlist)s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:672
-#, python-format
-msgid "LDAP delete: dn=%s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:677
-#, python-format
-msgid "LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s"
 msgstr ""
 
 #: keystone/common/sql/core.py:219
@@ -1297,7 +1250,7 @@ msgstr ""
 
 #: keystone/contrib/revoke/core.py:173 keystone/token/provider.py:125
 #: keystone/token/provider.py:146 keystone/token/provider.py:224
-#: keystone/token/provider.py:231 keystone/token/providers/common.py:624
+#: keystone/token/provider.py:231 keystone/token/providers/common.py:621
 msgid "Failed to validate token"
 msgstr ""
 
@@ -1744,12 +1697,12 @@ msgstr ""
 msgid "enforce %(action)s: %(credentials)s"
 msgstr ""
 
-#: keystone/tests/core.py:162
+#: keystone/tests/core.py:164
 #, python-format
 msgid "Failed to checkout %s"
 msgstr ""
 
-#: keystone/tests/fakeldap.py:250
+#: keystone/tests/fakeldap.py:306
 #, python-format
 msgid "FakeLdap delete item: dn=%s"
 msgstr ""
@@ -1846,39 +1799,39 @@ msgstr ""
 msgid "Invalid expires time on token `%(token_id)s`: %(expires)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:183
-#: keystone/token/providers/common.py:286
+#: keystone/token/providers/common.py:182
+#: keystone/token/providers/common.py:285
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr ""
 
-#: keystone/token/providers/common.py:188
-#: keystone/token/providers/common.py:291
+#: keystone/token/providers/common.py:187
+#: keystone/token/providers/common.py:290
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr ""
 
-#: keystone/token/providers/common.py:213
+#: keystone/token/providers/common.py:212
 msgid "Trustor is disabled."
 msgstr ""
 
-#: keystone/token/providers/common.py:277
+#: keystone/token/providers/common.py:276
 msgid "Trustee has no delegated roles."
 msgstr ""
 
-#: keystone/token/providers/common.py:341
+#: keystone/token/providers/common.py:340
 msgid "User is not a trustee."
 msgstr ""
 
-#: keystone/token/providers/common.py:436
+#: keystone/token/providers/common.py:433
 msgid "Oauth is disabled."
 msgstr ""
 
-#: keystone/token/providers/common.py:549
+#: keystone/token/providers/common.py:546
 msgid "Non-default domain is not supported"
 msgstr ""
 
-#: keystone/token/providers/common.py:557
+#: keystone/token/providers/common.py:554
 msgid "Domain scoped token is not supported"
 msgstr ""
 
@@ -2303,14 +2256,6 @@ msgstr ""
 #~ msgid "Database server has gone away: %s"
 #~ msgstr ""
 
-#~ msgid ""
-#~ "This application has not enabled MySQL"
-#~ " traditional mode, which means silent "
-#~ "data corruption may occur. Please "
-#~ "encourage the application developers to "
-#~ "enable this mode."
-#~ msgstr ""
-
 #~ msgid "SQL connection failed. %s attempts left."
 #~ msgstr ""
 
@@ -2327,5 +2272,36 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "The token is malformed or expired."
+#~ msgstr ""
+
+#~ msgid "LDAP init: url=%s"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "LDAP init: use_tls=%(use_tls)s\n"
+#~ "tls_cacertfile=%(tls_cacertfile)s\n"
+#~ "tls_cacertdir=%(tls_cacertdir)s\n"
+#~ "tls_req_cert=%(tls_req_cert)s\n"
+#~ "tls_avail=%(tls_avail)s\n"
+#~ msgstr ""
+
+#~ msgid "LDAP bind: dn=%s"
+#~ msgstr ""
+
+#~ msgid "LDAP add: dn=%(dn)s, attrs=%(attrs)s"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "LDAP search: dn=%(dn)s, scope=%(scope)s, "
+#~ "query=%(query)s, attrs=%(attrlist)s"
+#~ msgstr ""
+
+#~ msgid "LDAP modify: dn=%(dn)s, modlist=%(modlist)s"
+#~ msgstr ""
+
+#~ msgid "LDAP delete: dn=%s"
+#~ msgstr ""
+
+#~ msgid "LDAP delete_ext: dn=%(dn)s, serverctrls=%(serverctrls)s"
 #~ msgstr ""
 
