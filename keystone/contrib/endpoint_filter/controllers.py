@@ -68,7 +68,8 @@ class EndpointFilterV3Controller(controller.V3Controller):
     @controller.protected()
     def list_projects_for_endpoint(self, context, endpoint_id):
         """Return a list of projects associated with the endpoint."""
-        refs = self.endpoint_filter_api.list_project_endpoints(endpoint_id)
+        self.catalog_api.get_endpoint(endpoint_id)
+        refs = self.endpoint_filter_api.list_projects_for_endpoint(endpoint_id)
 
         projects = [self.identity_api.get_project(
             ref.project_id) for ref in refs]
