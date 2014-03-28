@@ -26,9 +26,9 @@ import warnings
 
 import fixtures
 import logging
+import oslotest.base as oslotest
 from paste import deploy
 import six
-import testtools
 from testtools import testcase
 import webob
 
@@ -333,7 +333,7 @@ class NoModule(object):
         sys.meta_path.insert(0, finder)
 
 
-class BaseTestCase(testtools.TestCase):
+class BaseTestCase(oslotest.BaseTestCase):
     """Light weight base test class.
 
     This is a placeholder that will eventually go away once thc

@@ -20,10 +20,10 @@ import uuid
 from dogpile.cache import api
 from dogpile.cache import region as dp_region
 import six
-import testtools
 
 from keystone.common.cache.backends import mongo
 from keystone import exception
+from keystone import tests
 
 
 # Mock database structure sample where 'ks_cache' is database and
@@ -277,7 +277,7 @@ class MyTransformer(mongo.BaseTransform):
         return super(MyTransformer, self).transform_outgoing(son, collection)
 
 
-class MongoCache(testtools.TestCase):
+class MongoCache(tests.BaseTestCase):
     def setUp(self):
         super(MongoCache, self).setUp()
         global COLLECTIONS

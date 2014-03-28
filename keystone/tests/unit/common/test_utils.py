@@ -12,12 +12,11 @@
 
 import uuid
 
-import testtools
-
 from keystone.common import utils
+from keystone import tests
 
 
-class TestPasswordHashing(testtools.TestCase):
+class TestPasswordHashing(tests.BaseTestCase):
 
     def setUp(self):
         super(TestPasswordHashing, self).setUp()

@@ -12,14 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
-
 from keystoneclient.middleware import s3_token as ksc_s3_token
 
 from keystone.middleware import s3_token
+from keystone import tests
 
 
-class S3TokenMiddlewareTestBase(testtools.TestCase):
+class S3TokenMiddlewareTestBase(tests.BaseTestCase):
     def test_symbols(self):
         """Verify s3_token middleware symbols.
 
