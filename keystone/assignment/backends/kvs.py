@@ -67,7 +67,7 @@ class Assignment(kvs.Base, assignment.Driver):
     def list_projects_in_domain(self, domain_id):
         project_refs = self._build_project_refs()
         self.get_domain(domain_id)
-        return [ref for ref in project_refs if domain_id in ref['domain_id']]
+        return [ref for ref in project_refs if domain_id == ref['domain_id']]
 
     def get_project_by_name(self, tenant_name, domain_id):
         try:
