@@ -15,6 +15,7 @@
 import abc
 import os.path
 
+import codecs
 import ldap
 import ldap.filter
 import six
@@ -40,13 +41,32 @@ LDAP_TLS_CERTS = {'never': ldap.OPT_X_TLS_NEVER,
                   'allow': ldap.OPT_X_TLS_ALLOW}
 
 
-def py2ldap(val):
-    if isinstance(val, str):
-        return val
-    elif isinstance(val, bool):
-        return 'TRUE' if val else 'FALSE'
+_utf8_encoder = codecs.getencoder('utf-8')
+
+
+def utf8_encode(value):
+    if isinstance(value, six.text_type):
+        return _utf8_encoder(value)[0]
+    elif isinstance(value, six.binary_type):
+        return value
     else:
-        return str(val)
+        raise TypeError("value must be basestring, "
+                        "not %s" % value.__class__.__name__)
+
+_utf8_decoder = codecs.getdecoder('utf-8')
+
+
+def utf8_decode(value):
+    if isinstance(value, six.binary_type):
+        return _utf8_decoder(value)[0]
+    return six.text_type(value)
+
+
+def py2ldap(val):
+    if isinstance(val, bool):
+        return u'TRUE' if val else u'FALSE'
+    else:
+        return six.text_type(val)
 
 
 def ldap2py(val):
@@ -58,7 +78,26 @@ def ldap2py(val):
         return int(val)
     except ValueError:
         pass
-    return val
+    return utf8_decode(val)
+
+
+def convert_ldap_result(ldap_result):
+    py_result = []
+    at_least_one_referral = False
+    for dn, attrs in ldap_result:
+        if dn is None:
+            # this is a Referral object, rather than an Entry object
+            at_least_one_referral = True
+            continue
+
+        py_result.append((utf8_decode(dn),
+                          dict((kind, [ldap2py(x) for x in values])
+                               for kind, values in six.iteritems(attrs))))
+    if at_least_one_referral:
+        LOG.debug(_('Referrals were returned and ignored. Enable referral '
+                    'chasing in keystone.conf via [ldap] chase_referrals'))
+
+    return py_result
 
 
 def safe_iter(attrs):
@@ -428,7 +467,9 @@ class KeystoneLDAPHandler(LDAPHandler):
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
         LOG.debug("LDAP bind: who=%s", who)
-        return self.conn.simple_bind_s(who, cred,
+        who_utf8 = utf8_encode(who)
+        cred_utf8 = utf8_encode(cred)
+        return self.conn.simple_bind_s(who_utf8, cred_utf8,
                                        serverctrls, clientctrls)
 
     def unbind_s(self):
@@ -444,7 +485,10 @@ class KeystoneLDAPHandler(LDAPHandler):
                          for kind, values in ldap_attrs]
         LOG.debug('LDAP add: dn=%s attrs=%s',
                   dn, logging_attrs)
-        return self.conn.add_s(dn, ldap_attrs)
+        dn_utf8 = utf8_encode(dn)
+        ldap_attrs_utf8 = [(kind, [utf8_encode(x) for x in safe_iter(values)])
+                           for kind, values in ldap_attrs]
+        return self.conn.add_s(dn_utf8, ldap_attrs_utf8)
 
     def search_s(self, base, scope,
                  filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
@@ -461,24 +505,17 @@ class KeystoneLDAPHandler(LDAPHandler):
             ldap_result = self._paged_search_s(base, scope,
                                                filterstr, attrlist)
         else:
-            ldap_result = self.conn.search_s(base, scope,
-                                             filterstr,
-                                             attrlist, attrsonly)
+            base_utf8 = utf8_encode(base)
+            filterstr_utf8 = utf8_encode(filterstr)
+            if attrlist is None:
+                attrlist_utf8 = None
+            else:
+                attrlist_utf8 = map(utf8_encode, attrlist)
+            ldap_result = self.conn.search_s(base_utf8, scope,
+                                             filterstr_utf8,
+                                             attrlist_utf8, attrsonly)
 
-        py_result = []
-        at_least_one_referral = False
-        for dn, attrs in ldap_result:
-            if dn is None:
-                # this is a Referral object, rather than an Entry object
-                at_least_one_referral = True
-                continue
-
-            py_result.append((dn,
-                              dict((kind, [ldap2py(x) for x in values])
-                                   for kind, values in six.iteritems(attrs))))
-        if at_least_one_referral:
-            LOG.debug(_('Referrals were returned and ignored. Enable referral '
-                        'chasing in keystone.conf via [ldap] chase_referrals'))
+            py_result = convert_ldap_result(ldap_result)
 
         return py_result
 
@@ -504,12 +541,17 @@ class KeystoneLDAPHandler(LDAPHandler):
             controlType=ldap.LDAP_CONTROL_PAGE_OID,
             criticality=True,
             controlValue=(self.page_size, ''))
-        if attrlist is not None:
+        base_utf8 = utf8_encode(base)
+        filterstr_utf8 = utf8_encode(filterstr)
+        if attrlist is None:
+            attrlist_utf8 = None
+        else:
             attrlist = [attr for attr in attrlist if attr is not None]
-        msgid = self.conn.search_ext(base,
+            attrlist_utf8 = map(utf8_encode, attrlist)
+        msgid = self.conn.search_ext(base_utf8,
                                      scope,
-                                     filterstr,
-                                     attrlist,
+                                     filterstr_utf8,
+                                     attrlist_utf8,
                                      serverctrls=[lc])
         # Endless loop request pages on ldap server until it has no data
         while True:
@@ -526,10 +568,10 @@ class KeystoneLDAPHandler(LDAPHandler):
                     # There is more data still on the server
                     # so we request another page
                     lc.controlValue = (self.page_size, cookie)
-                    msgid = self.conn.search_ext(base,
+                    msgid = self.conn.search_ext(base_utf8,
                                                  scope,
-                                                 filterstr,
-                                                 attrlist,
+                                                 filterstr_utf8,
+                                                 attrlist_utf8,
                                                  serverctrls=[lc])
                 else:
                     # Exit condition no more data on server
@@ -549,7 +591,9 @@ class KeystoneLDAPHandler(LDAPHandler):
         LOG.debug('LDAP result3: msgid=%s all=%s timeout=%s '
                   'resp_ctrl_classes=%s ldap_result=%s',
                   msgid, all, timeout, resp_ctrl_classes, ldap_result)
-        return ldap_result
+
+        py_result = convert_ldap_result(ldap_result)
+        return py_result
 
     def modify_s(self, dn, modlist):
         ldap_modlist = [
@@ -563,16 +607,23 @@ class KeystoneLDAPHandler(LDAPHandler):
         LOG.debug('LDAP modify: dn=%s modlist=%s',
                   dn, logging_modlist)
 
-        return self.conn.modify_s(dn, ldap_modlist)
+        dn_utf8 = utf8_encode(dn)
+        ldap_modlist_utf8 = [
+            (op, kind, (None if values is None
+                        else [utf8_encode(x) for x in safe_iter(values)]))
+            for op, kind, values in ldap_modlist]
+        return self.conn.modify_s(dn_utf8, ldap_modlist_utf8)
 
     def delete_s(self, dn):
         LOG.debug("LDAP delete: dn=%s", dn)
-        return self.conn.delete_s(dn)
+        dn_utf8 = utf8_encode(dn)
+        return self.conn.delete_s(dn_utf8)
 
     def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
         LOG.debug('LDAP delete_ext: dn=%s serverctrls=%s clientctrls=%s',
                   dn, serverctrls, clientctrls)
-        return self.conn.delete_ext_s(dn, serverctrls, clientctrls)
+        dn_utf8 = utf8_encode(dn)
+        return self.conn.delete_ext_s(dn_utf8, serverctrls, clientctrls)
 
 
 _HANDLERS = {}
@@ -729,9 +780,10 @@ class BaseLdap(object):
         return conn
 
     def _id_to_dn_string(self, object_id):
-        return '%s=%s,%s' % (self.id_attr,
-                             ldap.dn.escape_dn_chars(str(object_id)),
-                             self.tree_dn)
+        return u'%s=%s,%s' % (self.id_attr,
+                              ldap.dn.escape_dn_chars(
+                                  six.text_type(object_id)),
+                              self.tree_dn)
 
     def _id_to_dn(self, object_id):
         if self.LDAP_SCOPE == ldap.SCOPE_ONELEVEL:
@@ -740,9 +792,10 @@ class BaseLdap(object):
         try:
             search_result = conn.search_s(
                 self.tree_dn, self.LDAP_SCOPE,
-                '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
+                u'(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
                 {'id_attr': self.id_attr,
-                 'id': ldap.filter.escape_filter_chars(str(object_id)),
+                 'id': ldap.filter.escape_filter_chars(
+                     six.text_type(object_id)),
                  'objclass': self.object_class})
         finally:
             conn.unbind_s()
@@ -754,7 +807,7 @@ class BaseLdap(object):
 
     @staticmethod
     def _dn_to_id(dn):
-        return ldap.dn.str2dn(dn)[0][0][1]
+        return utf8_decode(ldap.dn.str2dn(utf8_encode(dn))[0][0][1])
 
     def _ldap_res_to_model(self, res):
         obj = self.model(id=self._dn_to_id(res[0]))
@@ -838,11 +891,12 @@ class BaseLdap(object):
 
     def _ldap_get(self, object_id, ldap_filter=None):
         conn = self.get_connection()
-        query = ('(&(%(id_attr)s=%(id)s)'
-                 '%(filter)s'
-                 '(objectClass=%(object_class)s))'
+        query = (u'(&(%(id_attr)s=%(id)s)'
+                 u'%(filter)s'
+                 u'(objectClass=%(object_class)s))'
                  % {'id_attr': self.id_attr,
-                    'id': ldap.filter.escape_filter_chars(str(object_id)),
+                    'id': ldap.filter.escape_filter_chars(
+                        six.text_type(object_id)),
                     'filter': (ldap_filter or self.ldap_filter or ''),
                     'object_class': self.object_class})
         try:
@@ -860,9 +914,9 @@ class BaseLdap(object):
 
     def _ldap_get_all(self, ldap_filter=None):
         conn = self.get_connection()
-        query = '(&%s(objectClass=%s))' % (ldap_filter or
-                                           self.ldap_filter or
-                                           '', self.object_class)
+        query = u'(&%s(objectClass=%s))' % (ldap_filter or
+                                            self.ldap_filter or
+                                            '', self.object_class)
         try:
             return conn.search_s(self.tree_dn,
                                  self.LDAP_SCOPE,
@@ -881,8 +935,9 @@ class BaseLdap(object):
             return self._ldap_res_to_model(res)
 
     def get_by_name(self, name, ldap_filter=None):
-        query = ('(%s=%s)' % (self.attribute_mapping['name'],
-                              ldap.filter.escape_filter_chars(name)))
+        query = (u'(%s=%s)' % (self.attribute_mapping['name'],
+                               ldap.filter.escape_filter_chars(
+                                   six.text_type(name))))
         res = self.get_all(query)
         try:
             return res[0]

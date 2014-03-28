@@ -49,21 +49,26 @@ CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
 LOG = log.getLogger(__name__)
 
 
-def _process_attr(attr_name, value_or_values):
-    attr_fn = lambda x: x
+def _internal_attr(attr_name, value_or_values):
+    def normalize_value(value):
+        return core.utf8_decode(value)
 
     def normalize_dn(dn):
         # Capitalize the attribute names as an LDAP server might.
-        dn = ldap.dn.str2dn(dn)
+        dn = ldap.dn.str2dn(core.utf8_encode(dn))
         norm = []
         for part in dn:
             name, val, i = part[0]
+            name = core.utf8_decode(name)
             name = name.upper()
+            name = core.utf8_encode(name)
             norm.append([(name, val, i)])
-        return ldap.dn.dn2str(norm)
+        return core.utf8_decode(ldap.dn.dn2str(norm))
 
     if attr_name in ('member', 'roleOccupant'):
         attr_fn = normalize_dn
+    else:
+        attr_fn = normalize_value
 
     if isinstance(value_or_values, list):
         return [attr_fn(x) for x in value_or_values]
@@ -121,7 +126,7 @@ def _match(key, value, attrs):
         str_sids = [six.text_type(x) for x in attrs[key]]
         return six.text_type(value) in str_sids
     if key != 'objectclass':
-        return _process_attr(key, value)[0] in attrs[key]
+        return _internal_attr(key, value)[0] in attrs[key]
     # it is an objectclass check, so check subclasses
     values = _subs(value)
     for v in values:
@@ -211,7 +216,7 @@ class FakeLdap(core.LDAPHandler):
         self.page_size = page_size
 
     def dn(self, dn):
-        return dn
+        return core.utf8_decode(dn)
 
     def key(self, dn):
         return '%s%s' % (self.__prefix, self.dn(dn))
@@ -227,7 +232,7 @@ class FakeLdap(core.LDAPHandler):
         try:
             attrs = self.db[self.key(who)]
         except KeyError:
-            LOG.debug('bind fail: who=%s not found', who)
+            LOG.debug('bind fail: who=%s not found', core.utf8_decode(who))
             raise ldap.NO_SUCH_OBJECT
 
         db_password = None
@@ -235,12 +240,12 @@ class FakeLdap(core.LDAPHandler):
             db_password = attrs['userPassword'][0]
         except (KeyError, IndexError):
             LOG.debug('bind fail: password for who=%s not found',
-                      who)
+                      core.utf8_decode(who))
             raise ldap.INAPPROPRIATE_AUTH
 
         if not utils.ldap_check_password(cred, db_password):
             LOG.debug('bind fail: password for who=%s does not match',
-                      who)
+                      core.utf8_decode(who))
             raise ldap.INVALID_CREDENTIALS
 
     def unbind_s(self):
@@ -264,10 +269,10 @@ class FakeLdap(core.LDAPHandler):
             'dn': dn, 'attrs': modlist})
         if key in self.db:
             LOG.debug('add item failed: dn=%s is already in store.',
-                      dn)
+                      core.utf8_decode(dn))
             raise ldap.ALREADY_EXISTS(dn)
 
-        self.db[key] = dict([(k, _process_attr(k, v))
+        self.db[key] = dict([(k, _internal_attr(k, v))
                              for k, v in modlist])
         self.db.sync()
 
@@ -282,7 +287,7 @@ class FakeLdap(core.LDAPHandler):
             del self.db[key]
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.',
-                      dn)
+                      core.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
@@ -294,7 +299,7 @@ class FakeLdap(core.LDAPHandler):
         try:
             if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
                 LOG.debug('FakeLdap subtree_delete item: dn=%s',
-                          dn)
+                          core.utf8_decode(dn))
                 children = [k for k, v in six.iteritems(self.db)
                             if re.match('%s.*,%s' % (
                                         re.escape(self.__prefix),
@@ -307,7 +312,7 @@ class FakeLdap(core.LDAPHandler):
             del self.db[key]
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.',
-                      dn)
+                      core.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
@@ -328,19 +333,19 @@ class FakeLdap(core.LDAPHandler):
             entry = self.db[key]
         except KeyError:
             LOG.debug('modify item failed: dn=%s not found.',
-                      dn)
+                      core.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
 
         for cmd, k, v in modlist:
             values = entry.setdefault(k, [])
             if cmd == ldap.MOD_ADD:
-                v = _process_attr(k, v)
+                v = _internal_attr(k, v)
                 for x in v:
                     if x in values:
                         raise ldap.TYPE_OR_VALUE_EXISTS
                 values += v
             elif cmd == ldap.MOD_REPLACE:
-                values[:] = _process_attr(k, v)
+                values[:] = _internal_attr(k, v)
             elif cmd == ldap.MOD_DELETE:
                 if v is None:
                     if not values:
@@ -349,7 +354,7 @@ class FakeLdap(core.LDAPHandler):
                         raise ldap.NO_SUCH_ATTRIBUTE
                     values[:] = []
                 else:
-                    for val in _process_attr(k, v):
+                    for val in _internal_attr(k, v):
                         try:
                             values.remove(val)
                         except ValueError:
