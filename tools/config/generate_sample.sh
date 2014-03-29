@@ -65,7 +65,7 @@ then
     BASEDIR=$(cd "$BASEDIR" && pwd)
 fi
 
-PACKAGENAME=${PACKAGENAME:-${BASEDIR##*/}}
+PACKAGENAME=${PACKAGENAME:-$(python setup.py --name)}
 TARGETDIR=$BASEDIR/$PACKAGENAME
 if ! [ -d $TARGETDIR ]
 then

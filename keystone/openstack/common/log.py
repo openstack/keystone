@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Openstack logging handler.
+"""OpenStack logging handler.
 
 This module adds to logging functionality by adding the option to specify
 a context object when calling the various log methods.  If the context object
@@ -163,6 +163,7 @@ log_opts = [
                     'qpid=WARN',
                     'sqlalchemy=WARN',
                     'suds=INFO',
+                    'oslo.messaging=INFO',
                     'iso8601=WARN',
                     'requests.packages.urllib3.connectionpool=WARN'
                 ],
@@ -357,7 +358,7 @@ class ContextAdapter(BaseLoggerAdapter):
             extra.update(_dictify_context(context))
 
         instance = kwargs.pop('instance', None)
-        instance_uuid = (extra.get('instance_uuid', None) or
+        instance_uuid = (extra.get('instance_uuid') or
                          kwargs.pop('instance_uuid', None))
         instance_extra = ''
         if instance:
@@ -650,11 +651,11 @@ class ContextFormatter(logging.Formatter):
         # NOTE(sdague): default the fancier formatting params
         # to an empty string so we don't throw an exception if
         # they get used
-        for key in ('instance', 'color'):
+        for key in ('instance', 'color', 'user_identity'):
             if key not in record.__dict__:
                 record.__dict__[key] = ''
 
-        if record.__dict__.get('request_id', None):
+        if record.__dict__.get('request_id'):
             self._fmt = CONF.logging_context_format_string
         else:
             self._fmt = CONF.logging_default_format_string
