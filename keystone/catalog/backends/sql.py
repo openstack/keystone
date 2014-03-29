@@ -251,9 +251,10 @@ class Catalog(catalog.Driver):
                   'user_id': user_id})
 
         session = sql.get_session()
+        t = True  # variable for singleton for PEP8, E712.
         endpoints = (session.query(Endpoint).
                      options(sql.joinedload(Endpoint.service)).
-                     filter(Endpoint.enabled == True).all())  # flake8: noqa
+                     filter(Endpoint.enabled == t).all())
 
         catalog = {}
 
@@ -282,7 +283,8 @@ class Catalog(catalog.Driver):
                   'user_id': user_id})
 
         session = sql.get_session()
-        services = (session.query(Service).filter(Service.enabled == True).
+        t = True  # variable for singleton for PEP8, E712.
+        services = (session.query(Service).filter(Service.enabled == t).
                     options(sql.joinedload(Service.endpoints)).
                     all())
 

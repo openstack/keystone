@@ -16,8 +16,8 @@
 
 from dogpile.cache import region
 
-from keystone.common.kvs.core import *  # flake8: noqa
-from keystone.common.kvs.legacy import Base, DictKvs, INMEMDB  # flake8: noqa
+from keystone.common.kvs.core import *  # noqa
+from keystone.common.kvs.legacy import Base, DictKvs, INMEMDB  # noqa
 
 
 # NOTE(morganfainberg): Provided backends are registered here in the __init__

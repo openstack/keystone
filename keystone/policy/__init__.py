@@ -1,5 +1,3 @@
-# flake8: noqa
-
 # Copyright 2012 OpenStack Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,6 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.policy import controllers
-from keystone.policy.core import *
-from keystone.policy import routers
+from keystone.policy import controllers  # noqa
+from keystone.policy.core import *  # noqa
+from keystone.policy import routers  # noqa

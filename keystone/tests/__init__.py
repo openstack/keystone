@@ -20,4 +20,4 @@ from keystone.openstack.common import gettextutils as _gettextutils
 
 _gettextutils.enable_lazy()
 
-from keystone.tests.core import *  # flake8: noqa
+from keystone.tests.core import *  # noqa
