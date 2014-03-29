@@ -41,7 +41,7 @@ class Token(auth.AuthMethodHandler):
 
             # Do not allow tokens used for delegation to
             # create another token, or perform any changes of
-            # state in Keystone. TO do so is to invite elevation of
+            # state in Keystone. To do so is to invite elevation of
             # privilege attacks
             if 'OS-TRUST:trust' in token_ref:
                 raise exception.Forbidden()
