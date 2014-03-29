@@ -18,13 +18,13 @@ import uuid
 
 from babel import localedata
 import mock
+from oslotest import mockpatch
 from testtools import matchers
 import webob
 
 from keystone.common import environment
 from keystone.common import wsgi
 from keystone import exception
-from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils

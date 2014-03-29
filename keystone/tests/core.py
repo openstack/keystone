@@ -27,12 +27,12 @@ import warnings
 import fixtures
 import logging
 import oslotest.base as oslotest
+from oslotest import mockpatch
 from paste import deploy
 import six
 from testtools import testcase
 import webob
 
-from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
 
 # NOTE(ayoung)

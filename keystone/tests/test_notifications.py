@@ -16,11 +16,11 @@ import uuid
 
 import mock
 from oslo.config import cfg
+from oslotest import mockpatch
 import testtools
 
 from keystone.common import dependency
 from keystone import notifications
-from keystone.openstack.common.fixture import mockpatch
 from keystone.tests import test_v3
 
 
