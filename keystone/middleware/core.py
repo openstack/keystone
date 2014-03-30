@@ -220,13 +220,13 @@ class RequestBodySizeLimiter(wsgi.Middleware):
 
     @webob.dec.wsgify()
     def __call__(self, req):
-
-        if req.content_length > CONF.max_request_body_size:
+        if req.content_length is None:
+            if req.is_body_readable:
+                limiter = utils.LimitingReader(req.body_file,
+                                               CONF.max_request_body_size)
+                req.body_file = limiter
+        elif req.content_length > CONF.max_request_body_size:
             raise exception.RequestTooLarge()
-        if req.content_length is None and req.is_body_readable:
-            limiter = utils.LimitingReader(req.body_file,
-                                           CONF.max_request_body_size)
-            req.body_file = limiter
         return self.application
 
 

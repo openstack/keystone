@@ -38,19 +38,19 @@ class TestRequestBodySizeLimiter(tests.TestCase):
 
     def test_content_length_acceptable(self):
         self.request.headers['Content-Length'] = MAX_REQUEST_BODY_SIZE
-        self.request.body = "0" * MAX_REQUEST_BODY_SIZE
+        self.request.body = b"0" * MAX_REQUEST_BODY_SIZE
         response = self.request.get_response(self.middleware)
         self.assertEqual(200, response.status_int)
 
     def test_content_length_too_large(self):
         self.request.headers['Content-Length'] = MAX_REQUEST_BODY_SIZE + 1
-        self.request.body = "0" * (MAX_REQUEST_BODY_SIZE + 1)
+        self.request.body = b"0" * (MAX_REQUEST_BODY_SIZE + 1)
         self.assertRaises(exception.RequestTooLarge,
                           self.request.get_response,
                           self.middleware)
 
     def test_request_too_large_no_content_length(self):
-        self.request.body = "0" * (MAX_REQUEST_BODY_SIZE + 1)
+        self.request.body = b"0" * (MAX_REQUEST_BODY_SIZE + 1)
         self.request.headers['Content-Length'] = None
         self.assertRaises(exception.RequestTooLarge,
                           self.request.get_response,
