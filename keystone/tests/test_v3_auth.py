@@ -429,7 +429,6 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
 
         """
         super(TestTokenRevokeSelfAndAdmin, self).load_sample_data()
-        self._populate_default_domain()
         # DomainA setup
         self.domainA = self.new_domain_ref()
         self.assignment_api.create_domain(self.domainA['id'], self.domainA)
