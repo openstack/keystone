@@ -71,18 +71,18 @@ class TestValid(tests.TestCase):
 class TestBase64Padding(tests.TestCase):
 
     def test_filter(self):
-        self.assertEqual(base64utils.filter_formatting(''), '')
-        self.assertEqual(base64utils.filter_formatting(' '), '')
-        self.assertEqual(base64utils.filter_formatting('a'), 'a')
-        self.assertEqual(base64utils.filter_formatting(' a'), 'a')
-        self.assertEqual(base64utils.filter_formatting('a '), 'a')
-        self.assertEqual(base64utils.filter_formatting('ab'), 'ab')
-        self.assertEqual(base64utils.filter_formatting(' ab'), 'ab')
-        self.assertEqual(base64utils.filter_formatting('ab '), 'ab')
-        self.assertEqual(base64utils.filter_formatting('a b'), 'ab')
-        self.assertEqual(base64utils.filter_formatting(' a b'), 'ab')
-        self.assertEqual(base64utils.filter_formatting('a b '), 'ab')
-        self.assertEqual(base64utils.filter_formatting('a\nb\n '), 'ab')
+        self.assertEqual('', base64utils.filter_formatting(''))
+        self.assertEqual('', base64utils.filter_formatting(' '))
+        self.assertEqual('a', base64utils.filter_formatting('a'))
+        self.assertEqual('a', base64utils.filter_formatting(' a'))
+        self.assertEqual('a', base64utils.filter_formatting('a '))
+        self.assertEqual('ab', base64utils.filter_formatting('ab'))
+        self.assertEqual('ab', base64utils.filter_formatting(' ab'))
+        self.assertEqual('ab', base64utils.filter_formatting('ab '))
+        self.assertEqual('ab', base64utils.filter_formatting('a b'))
+        self.assertEqual('ab', base64utils.filter_formatting(' a b'))
+        self.assertEqual('ab', base64utils.filter_formatting('a b '))
+        self.assertEqual('ab', base64utils.filter_formatting('a\nb\n '))
 
         text = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                 'abcdefghijklmnopqrstuvwxyz'
@@ -150,29 +150,29 @@ class TestBase64Padding(tests.TestCase):
                           base64utils.base64_is_padded, 'ABCD=')
 
     def test_strip_padding(self):
-        self.assertEqual(base64utils.base64_strip_padding('ABCD'), 'ABCD')
-        self.assertEqual(base64utils.base64_strip_padding('ABC='), 'ABC')
-        self.assertEqual(base64utils.base64_strip_padding('AB=='), 'AB')
+        self.assertEqual('ABCD', base64utils.base64_strip_padding('ABCD'))
+        self.assertEqual('ABC', base64utils.base64_strip_padding('ABC='))
+        self.assertEqual('AB', base64utils.base64_strip_padding('AB=='))
 
     def test_assure_padding(self):
-        self.assertEqual(base64utils.base64_assure_padding('ABCD'), 'ABCD')
-        self.assertEqual(base64utils.base64_assure_padding('ABC'), 'ABC=')
-        self.assertEqual(base64utils.base64_assure_padding('ABC='), 'ABC=')
-        self.assertEqual(base64utils.base64_assure_padding('AB'), 'AB==')
-        self.assertEqual(base64utils.base64_assure_padding('AB=='), 'AB==')
+        self.assertEqual('ABCD', base64utils.base64_assure_padding('ABCD'))
+        self.assertEqual('ABC=', base64utils.base64_assure_padding('ABC'))
+        self.assertEqual('ABC=', base64utils.base64_assure_padding('ABC='))
+        self.assertEqual('AB==', base64utils.base64_assure_padding('AB'))
+        self.assertEqual('AB==', base64utils.base64_assure_padding('AB=='))
 
     def test_base64_percent_encoding(self):
-        self.assertEqual(base64utils.base64url_percent_encode('ABCD'), 'ABCD')
-        self.assertEqual(base64utils.base64url_percent_encode('ABC='),
-                         'ABC%3D')
-        self.assertEqual(base64utils.base64url_percent_encode('AB=='),
-                         'AB%3D%3D')
+        self.assertEqual('ABCD', base64utils.base64url_percent_encode('ABCD'))
+        self.assertEqual('ABC%3D',
+                         base64utils.base64url_percent_encode('ABC='))
+        self.assertEqual('AB%3D%3D',
+                         base64utils.base64url_percent_encode('AB=='))
 
-        self.assertEqual(base64utils.base64url_percent_decode('ABCD'), 'ABCD')
-        self.assertEqual(base64utils.base64url_percent_decode('ABC%3D'),
-                         'ABC=')
-        self.assertEqual(base64utils.base64url_percent_decode('AB%3D%3D'),
-                         'AB==')
+        self.assertEqual('ABCD', base64utils.base64url_percent_decode('ABCD'))
+        self.assertEqual('ABC=',
+                         base64utils.base64url_percent_decode('ABC%3D'))
+        self.assertEqual('AB==',
+                         base64utils.base64url_percent_decode('AB%3D%3D'))
 
 
 class TestTextWrap(tests.TestCase):
@@ -181,14 +181,14 @@ class TestTextWrap(tests.TestCase):
         raw_text = 'abcdefgh'
         wrapped_text = 'abc\ndef\ngh\n'
 
-        self.assertEqual(base64utils.base64_wrap(raw_text, width=3),
-                         wrapped_text)
+        self.assertEqual(wrapped_text,
+                         base64utils.base64_wrap(raw_text, width=3))
 
         t = '\n'.join(base64utils.base64_wrap_iter(raw_text, width=3)) + '\n'
-        self.assertEqual(t, wrapped_text)
+        self.assertEqual(wrapped_text, t)
 
         raw_text = 'abcdefgh'
         wrapped_text = 'abcd\nefgh\n'
 
-        self.assertEqual(base64utils.base64_wrap(raw_text, width=4),
-                         wrapped_text)
+        self.assertEqual(wrapped_text,
+                         base64utils.base64_wrap(raw_text, width=4))

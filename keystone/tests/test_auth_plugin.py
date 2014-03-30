@@ -108,7 +108,7 @@ class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
         auth_info = auth.controllers.AuthInfo.create(None, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.api.authenticate({'environment': {}}, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'], DEMO_USER_ID)
+        self.assertEqual(DEMO_USER_ID, auth_context['user_id'])
 
         # test incorrect response
         auth_data = {'methods': [METHOD_NAME]}
