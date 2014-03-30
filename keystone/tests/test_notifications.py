@@ -19,7 +19,7 @@ from oslo.config import cfg
 
 from keystone.common import dependency
 from keystone import notifications
-from keystone.openstack.common.fixture import moxstubout
+from keystone.openstack.common.fixture import mockpatch
 from keystone import tests
 from keystone.tests import test_v3
 
@@ -48,10 +48,8 @@ class NotificationsWrapperTestCase(tests.TestCase):
             self.assertEqual(self.exp_resource_id, resource_id)
             self.send_notification_called = True
 
-        fixture = self.useFixture(moxstubout.MoxStubout())
-        self.stubs = fixture.stubs
-
-        self.stubs.Set(notifications, '_send_notification', fake_notify)
+        self.useFixture(mockpatch.PatchObject(
+            notifications, '_send_notification', fake_notify))
 
     @notifications.created(EXP_RESOURCE_TYPE)
     def create_resource(self, resource_id, data):
@@ -123,8 +121,6 @@ class NotificationsWrapperTestCase(tests.TestCase):
 class NotificationsTestCase(tests.TestCase):
     def setUp(self):
         super(NotificationsTestCase, self).setUp()
-        fixture = self.useFixture(moxstubout.MoxStubout())
-        self.stubs = fixture.stubs
 
         # these should use self.config_fixture.config(), but they haven't
         # been registered yet
@@ -177,10 +173,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
                 'public': public}
             self._notifications.append(note)
 
-        fixture = self.useFixture(moxstubout.MoxStubout())
-        self.stubs = fixture.stubs
-
-        self.stubs.Set(notifications, '_send_notification', fake_notify)
+        self.useFixture(mockpatch.PatchObject(
+            notifications, '_send_notification', fake_notify))
 
     def _assertNotifySeen(self, resource_id, operation, resource_type):
         self.assertIn(operation, self.exp_operations)
@@ -462,11 +456,8 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 'send_notification_called': True}
             self._notifications.append(note)
 
-        # TODO(stevemar): Look into using mock instead of mox
-        fixture = self.useFixture(moxstubout.MoxStubout())
-        self.stubs = fixture.stubs
-        self.stubs.Set(notifications, '_send_audit_notification',
-                       fake_notify)
+        self.useFixture(mockpatch.PatchObject(
+            notifications, '_send_audit_notification', fake_notify))
 
     def _assertLastNotify(self, action, user_id):
         self.assertTrue(self._notifications)

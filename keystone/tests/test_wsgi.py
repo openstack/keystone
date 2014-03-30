@@ -23,7 +23,7 @@ import webob
 from keystone.common import environment
 from keystone.common import wsgi
 from keystone import exception
-from keystone.openstack.common.fixture import moxstubout
+from keystone.openstack.common.fixture import mockpatch
 from keystone.openstack.common import gettextutils
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils
@@ -216,15 +216,13 @@ class LocalizedResponseTest(tests.TestCase):
         gettextutils._AVAILABLE_LANGUAGES.clear()
         self.addCleanup(gettextutils._AVAILABLE_LANGUAGES.clear)
 
-        fixture = self.useFixture(moxstubout.MoxStubout())
-        self.stubs = fixture.stubs
-
     def _set_expected_languages(self, all_locales, avail_locales=None):
         # Override localedata.locale_identifiers to return some locales.
         def returns_some_locales(*args, **kwargs):
             return all_locales
 
-        self.stubs.Set(localedata, 'locale_identifiers', returns_some_locales)
+        self.useFixture(mockpatch.PatchObject(
+            localedata, 'locale_identifiers', returns_some_locales))
 
         # Override gettext.find to return other than None for some languages.
         def fake_gettext_find(lang_id, *args, **kwargs):
@@ -237,7 +235,8 @@ class LocalizedResponseTest(tests.TestCase):
                 return found_ret
             return None
 
-        self.stubs.Set(gettext, 'find', fake_gettext_find)
+        self.useFixture(mockpatch.PatchObject(
+            gettext, 'find', fake_gettext_find))
 
     def test_request_match_default(self):
         # The default language if no Accept-Language is provided is None
