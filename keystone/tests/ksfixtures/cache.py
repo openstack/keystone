@@ -29,7 +29,7 @@ class Cache(fixtures.Fixture):
 
         # NOTE(morganfainberg):  The only way to reconfigure the CacheRegion
         # object on each setUp() call is to remove the .backend property.
-        if hasattr(cache.REGION, 'backend'):
+        if cache.REGION.is_configured:
             del cache.REGION.backend
 
         # ensure the cache region instance is setup

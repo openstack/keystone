@@ -118,7 +118,7 @@ def configure_cache_region(region):
         raise exception.ValidationError(
             _('region not type dogpile.cache.CacheRegion'))
 
-    if 'backend' not in region.__dict__:
+    if not region.is_configured:
         # NOTE(morganfainberg): this is how you tell if a region is configured.
         # There is a request logged with dogpile.cache upstream to make this
         # easier / less ugly.
