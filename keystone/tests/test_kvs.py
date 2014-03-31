@@ -176,14 +176,14 @@ class KVSTest(tests.TestCase):
         kvs.configure('openstack.kvs.Memory')
 
         self.assertIsInstance(kvs._region.backend, inmemdb.MemoryBackend)
-        self.assertEqual(kvs._region.name, region_one)
+        self.assertEqual(region_one, kvs._region.name)
 
         kvs = self._get_kvs_region(region_two)
         kvs.configure('openstack.kvs.KVSBackendFixture',
                       test_arg=test_arg)
 
-        self.assertEqual(kvs._region.name, region_two)
-        self.assertEqual(kvs._region.backend.test_arg, test_arg)
+        self.assertEqual(region_two, kvs._region.name)
+        self.assertEqual(test_arg, kvs._region.backend.test_arg)
 
     def test_kvs_proxy_configuration(self):
         # Test that proxies are applied correctly and in the correct (reverse)
@@ -252,7 +252,7 @@ class KVSTest(tests.TestCase):
         kvs.set(self.key_bar, self.value_bar)
         returned_value = kvs.get(self.key_bar)
         # The returned value should be the same value as the value in .set
-        self.assertEqual(returned_value, self.value_bar)
+        self.assertEqual(self.value_bar, returned_value)
         # The value should not be the exact object used in .set
         self.assertIsNot(returned_value, self.value_bar)
         kvs.delete(self.key_bar)
@@ -267,7 +267,7 @@ class KVSTest(tests.TestCase):
                        self.key_bar: self.value_bar})
         # Returned value from get_multi should be a list of the values of the
         # keys
-        self.assertEqual(kvs.get_multi(keys), expected)
+        self.assertEqual(expected, kvs.get_multi(keys))
         # Delete both keys
         kvs.delete_multi(keys)
         # make sure that NotFound is properly raised when trying to get the now
@@ -501,11 +501,11 @@ class KVSTest(tests.TestCase):
         self.assertDictEqual(
             kvs._region.backend.driver.client.set_arguments_passed,
             expected_set_args)
-        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
-                         expected_foo_keys)
+        self.assertEqual(expected_foo_keys,
+                         kvs._region.backend.driver.client.keys_values.keys())
         self.assertEqual(
-            kvs._region.backend.driver.client.keys_values[self.key_foo][0],
-            self.value_foo)
+            self.value_foo,
+            kvs._region.backend.driver.client.keys_values[self.key_foo][0])
 
         # Set a key that would not have an expiry and verify the correct result
         # occurred and that the correct set_arguments were passed.
@@ -513,11 +513,11 @@ class KVSTest(tests.TestCase):
         self.assertDictEqual(
             kvs._region.backend.driver.client.set_arguments_passed,
             expected_no_expiry_args)
-        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
-                         expected_bar_keys)
+        self.assertEqual(expected_bar_keys,
+                         kvs._region.backend.driver.client.keys_values.keys())
         self.assertEqual(
-            kvs._region.backend.driver.client.keys_values[self.key_bar][0],
-            self.value_bar)
+            self.value_bar,
+            kvs._region.backend.driver.client.keys_values[self.key_bar][0])
 
         # set_multi a dict that would have an expiry and verify the correct
         # result occurred and that the correct set_arguments were passed.
@@ -525,11 +525,11 @@ class KVSTest(tests.TestCase):
         self.assertDictEqual(
             kvs._region.backend.driver.client.set_arguments_passed,
             expected_set_args)
-        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
-                         expected_foo_keys)
+        self.assertEqual(expected_foo_keys,
+                         kvs._region.backend.driver.client.keys_values.keys())
         self.assertEqual(
-            kvs._region.backend.driver.client.keys_values[self.key_foo][0],
-            self.value_foo)
+            self.value_foo,
+            kvs._region.backend.driver.client.keys_values[self.key_foo][0])
 
         # set_multi a dict that would not have an expiry and verify the correct
         # result occurred and that the correct set_arguments were passed.
@@ -537,11 +537,11 @@ class KVSTest(tests.TestCase):
         self.assertDictEqual(
             kvs._region.backend.driver.client.set_arguments_passed,
             expected_no_expiry_args)
-        self.assertEqual(kvs._region.backend.driver.client.keys_values.keys(),
-                         expected_bar_keys)
+        self.assertEqual(expected_bar_keys,
+                         kvs._region.backend.driver.client.keys_values.keys())
         self.assertEqual(
-            kvs._region.backend.driver.client.keys_values[self.key_bar][0],
-            self.value_bar)
+            self.value_bar,
+            kvs._region.backend.driver.client.keys_values[self.key_bar][0])
 
     def test_memcached_lock_max_lock_attempts(self):
         kvs = self._get_kvs_region()
@@ -552,8 +552,8 @@ class KVSTest(tests.TestCase):
                       memcached_backend='TestDriver',
                       max_lock_attempts=max_lock_attempts)
 
-        self.assertEqual(kvs._region.backend.max_lock_attempts,
-                         max_lock_attempts)
+        self.assertEqual(max_lock_attempts,
+                         kvs._region.backend.max_lock_attempts)
         # Simple Lock success test
         with kvs.get_lock(test_key) as lock:
             kvs.set(test_key, 'testing', lock)

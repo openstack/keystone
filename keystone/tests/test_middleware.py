@@ -47,7 +47,7 @@ class TokenAuthMiddlewareTest(tests.TestCase):
         req.headers[middleware.AUTH_TOKEN_HEADER] = 'MAGIC'
         middleware.TokenAuthMiddleware(None).process_request(req)
         context = req.environ[middleware.CONTEXT_ENV]
-        self.assertEqual(context['token_id'], 'MAGIC')
+        self.assertEqual('MAGIC', context['token_id'])
 
 
 class AdminTokenAuthMiddlewareTest(tests.TestCase):
@@ -71,7 +71,7 @@ class PostParamsMiddlewareTest(tests.TestCase):
         req = make_request(body="arg1=one", method='POST')
         middleware.PostParamsMiddleware(None).process_request(req)
         params = req.environ[middleware.PARAMS_ENV]
-        self.assertEqual(params, {"arg1": "one"})
+        self.assertEqual({"arg1": "one"}, params)
 
 
 class JsonBodyMiddlewareTest(tests.TestCase):
@@ -81,35 +81,35 @@ class JsonBodyMiddlewareTest(tests.TestCase):
                            method='POST')
         middleware.JsonBodyMiddleware(None).process_request(req)
         params = req.environ[middleware.PARAMS_ENV]
-        self.assertEqual(params, {"arg1": "one", "arg2": ["a"]})
+        self.assertEqual({"arg1": "one", "arg2": ["a"]}, params)
 
     def test_malformed_json(self):
         req = make_request(body='{"arg1": "on',
                            content_type='application/json',
                            method='POST')
         resp = middleware.JsonBodyMiddleware(None).process_request(req)
-        self.assertEqual(resp.status_int, 400)
+        self.assertEqual(400, resp.status_int)
 
     def test_no_content_type(self):
         req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
                            method='POST')
         middleware.JsonBodyMiddleware(None).process_request(req)
         params = req.environ[middleware.PARAMS_ENV]
-        self.assertEqual(params, {"arg1": "one", "arg2": ["a"]})
+        self.assertEqual({"arg1": "one", "arg2": ["a"]}, params)
 
     def test_unrecognized_content_type(self):
         req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
                            content_type='text/plain',
                            method='POST')
         resp = middleware.JsonBodyMiddleware(None).process_request(req)
-        self.assertEqual(resp.status_int, 400)
+        self.assertEqual(400, resp.status_int)
 
     def test_unrecognized_content_type_without_body(self):
         req = make_request(content_type='text/plain',
                            method='GET')
         middleware.JsonBodyMiddleware(None).process_request(req)
         params = req.environ.get(middleware.PARAMS_ENV, {})
-        self.assertEqual(params, {})
+        self.assertEqual({}, params)
 
 
 class XmlBodyMiddlewareTest(tests.TestCase):
@@ -120,7 +120,7 @@ class XmlBodyMiddlewareTest(tests.TestCase):
         middleware.XmlBodyMiddleware(None).process_request(req)
         resp = make_response(body=body)
         middleware.XmlBodyMiddleware(None).process_response(req, resp)
-        self.assertEqual(resp.content_type, 'application/xml')
+        self.assertEqual('application/xml', resp.content_type)
 
     def test_client_wants_json_back(self):
         """Clients requesting JSON should definitely not get XML back."""
@@ -147,7 +147,7 @@ class XmlBodyMiddlewareTest(tests.TestCase):
             content_type='application/xml',
             method='POST')
         middleware.XmlBodyMiddleware(None).process_request(req)
-        self.assertEqual(req.content_type, 'application/json')
+        self.assertEqual('application/json', req.content_type)
         self.assertTrue(jsonutils.loads(req.body))
 
     def test_json_unnaffected(self):
@@ -156,5 +156,5 @@ class XmlBodyMiddlewareTest(tests.TestCase):
         body = '{"container": {"attribute": "value"}}'
         req = make_request(body=body, content_type=content_type, method='POST')
         middleware.XmlBodyMiddleware(None).process_request(req)
-        self.assertEqual(req.body, body)
-        self.assertEqual(req.content_type, content_type)
+        self.assertEqual(body, req.body)
+        self.assertEqual(content_type, req.content_type)

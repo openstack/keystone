@@ -66,11 +66,11 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
                                            adminurl=endpoint_adminurl,
                                            internalurl=endpoint_internalurl)
 
-        self.assertEqual(endpoint.region, endpoint_region)
-        self.assertEqual(endpoint.service_id, service.id)
-        self.assertEqual(endpoint.publicurl, endpoint_publicurl)
-        self.assertEqual(endpoint.internalurl, endpoint_internalurl)
-        self.assertEqual(endpoint.adminurl, endpoint_adminurl)
+        self.assertEqual(endpoint_region, endpoint.region)
+        self.assertEqual(service.id, endpoint.service_id)
+        self.assertEqual(endpoint_publicurl, endpoint.publicurl)
+        self.assertEqual(endpoint_internalurl, endpoint.internalurl)
+        self.assertEqual(endpoint_adminurl, endpoint.adminurl)
 
         client.endpoints.delete(id=endpoint.id)
         self.assertRaises(client_exceptions.NotFound, client.endpoints.delete,
@@ -105,7 +105,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         credentials, signature = self._generate_default_user_ec2_credentials()
         credentials['signature'] = signature
         resp, token = self._send_ec2_auth_request(credentials)
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(200, resp.status_code)
         self.assertIn('access', token)
 
     def test_ec2_auth_success_trust(self):
@@ -137,7 +137,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
             cred.access, cred.secret)
         credentials['signature'] = signature
         resp, token = self._send_ec2_auth_request(credentials)
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(200, resp.status_code)
         self.assertEqual(trust_id, token['access']['trust']['id'])
         # TODO(shardy) we really want to check the roles and trustee
         # but because of where the stubbing happens we don't seem to
@@ -156,7 +156,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
 
     def test_ec2_credential_crud(self):
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEqual(creds, [])
+        self.assertEqual([], creds)
 
         cred = self.default_client.ec2.create(user_id=self.user_foo['id'],
                                               tenant_id=self.tenant_bar['id'])
@@ -169,12 +169,12 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         self.default_client.ec2.delete(user_id=self.user_foo['id'],
                                        access=cred.access)
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEqual(creds, [])
+        self.assertEqual([], creds)
 
     def test_ec2_credential_crud_non_admin(self):
         na_client = self.get_client(self.user_two)
         creds = na_client.ec2.list(user_id=self.user_two['id'])
-        self.assertEqual(creds, [])
+        self.assertEqual([], creds)
 
         cred = na_client.ec2.create(user_id=self.user_two['id'],
                                     tenant_id=self.tenant_baz['id'])
@@ -187,7 +187,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         na_client.ec2.delete(user_id=self.user_two['id'],
                              access=cred.access)
         creds = na_client.ec2.list(user_id=self.user_two['id'])
-        self.assertEqual(creds, [])
+        self.assertEqual([], creds)
 
     def test_ec2_list_credentials(self):
         cred_1 = self.default_client.ec2.create(
@@ -203,7 +203,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         cred_4 = two.ec2.create(user_id=self.user_two['id'],
                                 tenant_id=self.tenant_bar['id'])
         creds = self.default_client.ec2.list(user_id=self.user_foo['id'])
-        self.assertEqual(len(creds), 3)
+        self.assertEqual(3, len(creds))
         self.assertEqual(sorted([cred_1, cred_2, cred_3],
                                 key=lambda x: x.access),
                          sorted(creds, key=lambda x: x.access))
@@ -365,7 +365,7 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
             client.policies.get,
             policy=policy.id)
         policies = [x for x in client.policies.list() if x.id == policy.id]
-        self.assertEqual(len(policies), 0)
+        self.assertEqual(0, len(policies))
 
 
 class KcOptTestCase(KcMasterSqlTestCase):
