@@ -241,7 +241,13 @@ class AuthInfo(object):
         :returns: list of auth method names
 
         """
-        return self.auth['identity']['methods'] or []
+        # Sanitizes methods received in request's body
+        # Filters out duplicates, while keeping elements' order.
+        method_names = []
+        for method in self.auth['identity']['methods']:
+            if method not in method_names:
+                method_names.append(method)
+        return method_names
 
     def get_method_data(self, method):
         """Get the auth method payload.
