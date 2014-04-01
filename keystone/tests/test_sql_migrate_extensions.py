@@ -37,6 +37,7 @@ from keystone.contrib import example
 from keystone.contrib import federation
 from keystone.contrib import oauth1
 from keystone.contrib import revoke
+from keystone.openstack.common.db.sqlalchemy import utils
 from keystone.tests import test_sql_upgrade
 
 
@@ -168,14 +169,31 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableColumns(self.mapping,
                                 ['id', 'rules'])
 
+        federation_protocol = utils.get_table(
+            self.engine,
+            'federation_protocol')
+        with self.engine.begin() as conn:
+            conn.execute(federation_protocol.insert(), id=0, idp_id=1)
+            self.upgrade(3, repository=self.repo_path)
+            federation_protocol = utils.get_table(
+                self.engine,
+                'federation_protocol')
+            self.assertFalse(federation_protocol.c.mapping_id.nullable)
+
     def test_downgrade(self):
-        self.upgrade(2, repository=self.repo_path)
+        self.upgrade(3, repository=self.repo_path)
         self.assertTableColumns(self.identity_provider,
                                 ['id', 'enabled', 'description'])
         self.assertTableColumns(self.federation_protocol,
                                 ['id', 'idp_id', 'mapping_id'])
         self.assertTableColumns(self.mapping,
                                 ['id', 'rules'])
+
+        self.downgrade(2, repository=self.repo_path)
+        federation_protocol = utils.get_table(
+            self.engine,
+            'federation_protocol')
+        self.assertTrue(federation_protocol.c.mapping_id.nullable)
 
         self.downgrade(0, repository=self.repo_path)
         self.assertTableDoesNotExist(self.identity_provider)
