@@ -19,10 +19,8 @@ import sqlalchemy
 from keystone import catalog
 from keystone.catalog import core
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import migration
 
 
 CONF = config.CONF
@@ -82,10 +80,6 @@ class Endpoint(sql.ModelBase, sql.DictBase):
 
 
 class Catalog(catalog.Driver):
-    def db_sync(self, version=None):
-        migration.db_sync(
-            sql.get_engine(), migration_helpers.find_migrate_repo(),
-            version=version)
 
     # Regions
     def list_regions(self):
