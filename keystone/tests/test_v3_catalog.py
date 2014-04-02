@@ -49,6 +49,17 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # populated with a UUID, as is the case with POST /v3/regions
         self.assertEqual(region_id, r.json['region']['id'])
 
+    def test_create_region_with_duplicate_id(self):
+        """Call ``PUT /regions/{region_id}``."""
+        ref = dict(description="my region")
+        self.put(
+            '/regions/myregion',
+            body={'region': ref}, expected_status=201)
+        # Create region again with duplicate id
+        self.put(
+            '/regions/myregion',
+            body={'region': ref}, expected_status=409)
+
     def test_create_region(self):
         """Call ``POST /regions`` with an ID in the request body."""
         # the ref will have an ID defined on it
@@ -275,7 +286,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             expected_status=400)
 
     def assertValidErrorResponse(self, response):
-        self.assertTrue(response.status_code in [400])
+        self.assertTrue(response.status_code in [400, 409])
 
     def test_create_endpoint_400(self):
         """Call ``POST /endpoints``."""
