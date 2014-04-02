@@ -13,10 +13,7 @@
 # under the License.
 
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
-from keystone.contrib import endpoint_filter
 from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.gettextutils import _
 
 
@@ -33,11 +30,6 @@ class ProjectEndpoint(sql.ModelBase, sql.DictBase):
 
 
 class EndpointFilter(object):
-    # Internal interface to manage the database
-
-    def db_sync(self, version=None):
-        abs_path = migration_helpers.find_migrate_repo(endpoint_filter)
-        migration.db_sync(sql.get_engine(), abs_path, version=version)
 
     @sql.handle_conflicts(conflict_type='project_endpoint')
     def add_endpoint_to_project(self, endpoint_id, project_id):
