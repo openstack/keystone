@@ -323,7 +323,7 @@ class UserV3(controller.V3Controller):
 
     @controller.protected(callback=_check_user_and_group_protection)
     def check_user_in_group(self, context, user_id, group_id):
-        return self.identity_api.check_user_in_group(
+        self.identity_api.check_user_in_group(
             user_id, group_id,
             domain_scope=self._get_domain_id_for_request(context))
 
