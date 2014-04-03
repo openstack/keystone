@@ -84,6 +84,18 @@ class TestAuthInfo(test_v3.RestfulTestCase):
                           None,
                           auth_data)
 
+    def test_get_method_names_duplicates(self):
+        auth_data = self.build_authentication_request(
+            token='test',
+            user_id='test',
+            password='test')['auth']
+        auth_data['identity']['methods'] = ['password', 'token',
+                                            'password', 'password']
+        context = None
+        auth_info = auth.controllers.AuthInfo.create(context, auth_data)
+        self.assertEqual(auth_info.get_method_names(),
+                         ['password', 'token'])
+
     def test_get_method_data_invalid_method(self):
         auth_data = self.build_authentication_request(
             user_id='test',
