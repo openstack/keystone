@@ -50,6 +50,8 @@ class EndpointFilterCatalog(sql.Catalog):
                     self.get_service(service_id))
                 service = services[service_id]
                 del endpoint['service_id']
+                del endpoint['enabled']
+                del endpoint['legacy_endpoint_id']
                 endpoint['url'] = catalog_core.format_url(
                     endpoint['url'], d)
                 # populate filtered endpoints

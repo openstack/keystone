@@ -289,6 +289,9 @@ class Catalog(catalog.Driver):
 
         def make_v3_endpoint(endpoint):
             del endpoint['service_id']
+            del endpoint['legacy_endpoint_id']
+            del endpoint['enabled']
+
             endpoint['url'] = core.format_url(endpoint['url'], d)
             return endpoint
 
