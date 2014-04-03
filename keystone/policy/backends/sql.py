@@ -13,9 +13,7 @@
 # under the License.
 
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
 from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.policy.backends import rules
 
 
@@ -29,11 +27,6 @@ class PolicyModel(sql.ModelBase, sql.DictBase):
 
 
 class Policy(rules.Policy):
-    # Internal interface to manage the database
-    def db_sync(self, version=None):
-        migration.db_sync(
-            sql.get_engine(), migration_helpers.find_migrate_repo(),
-            version=version)
 
     @sql.handle_conflicts(conflict_type='policy')
     def create_policy(self, policy_id, policy):

@@ -14,11 +14,9 @@
 
 from keystone.common import dependency
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import exception
 from keystone import identity
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.gettextutils import _
 
 # Import assignment sql to ensure that the models defined in there are
@@ -78,12 +76,6 @@ class UserGroupMembership(sql.ModelBase, sql.DictBase):
 class Identity(identity.Driver):
     def default_assignment_driver(self):
         return "keystone.assignment.backends.sql.Assignment"
-
-    # Internal interface to manage the database
-    def db_sync(self, version=None):
-        migration.db_sync(
-            sql.get_engine(), migration_helpers.find_migrate_repo(),
-            version=version)
 
     def _check_password(self, password, user_ref):
         """Check the specified password against the data store.
