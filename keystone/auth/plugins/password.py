@@ -106,7 +106,7 @@ class Password(auth.AuthMethodHandler):
 
     method = METHOD_NAME
 
-    def authenticate(self, context, auth_payload, user_context):
+    def authenticate(self, context, auth_payload, auth_context):
         """Try to authenticate against the identity backend."""
         user_info = UserAuthInfo.create(auth_payload)
 
@@ -123,5 +123,4 @@ class Password(auth.AuthMethodHandler):
             msg = _('Invalid username or password')
             raise exception.Unauthorized(msg)
 
-        if 'user_id' not in user_context:
-            user_context['user_id'] = user_info.user_id
+        auth_context['user_id'] = user_info.user_id

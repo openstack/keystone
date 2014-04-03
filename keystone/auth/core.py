@@ -31,11 +31,12 @@ class AuthMethodHandler(object):
         """Authenticate user and return an authentication context.
 
         :param context: keystone's request context
-        :auth_payload: the content of the authentication for a given method
-        :auth_context: user authentication context, a dictionary shared
-                       by all plugins. It contains "method_names" and "extras"
-                       by default. "method_names" is a list and "extras" is
-                       a dictionary.
+        :param auth_payload: the content of the authentication for a given
+                             method
+        :param auth_context: user authentication context, a dictionary shared
+                             by all plugins. It contains "method_names" and
+                             "extras" by default. "method_names" is a list and
+                             "extras" is a dictionary.
 
         If successful, plugin must set ``user_id`` in ``auth_context``.
         ``method_name`` is used to convey any additional authentication methods
