@@ -197,7 +197,7 @@ class AuthInfo(object):
             trust_ref = self._lookup_trust(
                 self.auth['scope']['OS-TRUST:trust'])
             # TODO(ayoung): when trusts support domains, fill in domain data
-            if 'project_id' in trust_ref:
+            if trust_ref.get('project_id') is not None:
                 project_ref = self._lookup_project(
                     {'id': trust_ref['project_id']})
                 self._scope_data = (None, project_ref['id'], trust_ref)

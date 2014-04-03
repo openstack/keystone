@@ -729,6 +729,23 @@ class AuthWithTrust(AuthTest):
                           self.create_trust,
                           expires_at="Z")
 
+    def test_create_trust_without_project_id(self):
+        """Verify that trust can be created without project id and
+        token can be generated with that trust.
+        """
+        context = self._create_auth_context(
+            self.unscoped_token['access']['token']['id'])
+        self.sample_data['project_id'] = None
+        self.sample_data['roles'] = []
+        self.new_trust = self.trust_controller.create_trust(
+            context, trust=self.sample_data)['trust']
+        self.assertEqual(self.trustor['id'], self.new_trust['trustor_user_id'])
+        self.assertEqual(self.trustee['id'], self.new_trust['trustee_user_id'])
+        self.assertIs(self.new_trust['impersonation'], True)
+        auth_response = self.fetch_v2_token_from_trust()
+        token_user = auth_response['access']['user']
+        self.assertEqual(token_user['id'], self.new_trust['trustor_user_id'])
+
     def test_get_trust(self):
         context = {'token_id': self.unscoped_token['access']['token']['id'],
                    'host_url': HOST_URL}
