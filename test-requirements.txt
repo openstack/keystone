@@ -20,12 +20,15 @@ coverage>=3.6
 fixtures>=0.3.14
 # mock object framework
 mock>=1.0
-mox>=0.5.3
 oslotest
 # required to build documentation
 sphinx>=1.1.2,<1.2
 # test wsgi apps without starting an http server
 WebTest>=2.0
+
+# mox was removed in favor of mock. We should not re-enable this module. See
+# discussion: http://lists.openstack.org/pipermail/openstack-dev/2013-July/012484.html
+#mox>=0.5.3
 
 discover
 python-subunit>=0.0.18
