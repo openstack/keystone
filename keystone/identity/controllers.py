@@ -15,80 +15,18 @@
 """Workflow Logic the Identity service."""
 
 import functools
-import inspect
-import six
 import uuid
 
-from keystone.assignment import controllers as assignment_controllers
 from keystone.common import controller
 from keystone.common import dependency
 from keystone import config
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
-from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
-
-
-class DeprecatedMeta(type):
-    """Metaclass that ensures that the correct methods on the deprecated
-    classes are reported as deprecated on call.
-    """
-    @staticmethod
-    def moved_to_assignment(class_name):
-        # NOTE(morganfainberg): wrapper for versionutils.deprecated decorator
-        # with some values populated specifically for the migration for
-        # controllers from identity to assignment.
-        def inner(f):
-            subst = {'cls_name': class_name, 'meth_name': f.__name__}
-            what = 'identity.controllers.%(cls_name)s.%(meth_name)s' % subst
-            favor = 'assignment.controllers.%(cls_name)s.%(meth_name)s' % subst
-
-            deprecated = versionutils.deprecated(
-                versionutils.deprecated.ICEHOUSE,
-                what=what,
-                in_favor_of=favor,
-                remove_in=+1)
-            return deprecated(f)
-        return inner
-
-    @staticmethod
-    def _is_wrappable(item):
-        # NOTE(morganfainberg): Wrapping non-callables, non-methods, and
-        # builtins is not the point of the deprecation warnings. Simple test
-        # to ensure the item is one of the types that should be wrapped.
-        if (callable(item) and
-                inspect.ismethod(item) and
-                not inspect.isbuiltin(item)):
-            return True
-        return False
-
-    def __new__(mcs, class_name, bases, namespace):
-        def get_attribute(self, item):
-            # NOTE(morganfainberg): This implementation of __getattribute__
-            # is automatically added to any classes using the DeprecatedMeta
-            # metaclass. This will apply the moved_to_assignment wrapper to
-            # method calls (inherited or direct).
-            attr = super(bases[0], self).__getattribute__(item)
-            if DeprecatedMeta._is_wrappable(attr):
-                return DeprecatedMeta.moved_to_assignment(class_name)(attr)
-            return attr
-
-        namespace['__getattribute__'] = get_attribute
-        return type.__new__(mcs, class_name, bases, namespace)
-
-    def __getattribute__(cls, item):
-        # NOTE(morganfainberg): This implementation of __getattribute__ catches
-        # non-instantiated calls to @classmethods.
-        attr = type.__getattribute__(cls, item)
-        if DeprecatedMeta._is_wrappable(attr):
-            if (issubclass(cls, controller.V3Controller) and
-                    DeprecatedMeta._is_wrappable(attr)):
-                attr = DeprecatedMeta.moved_to_assignment(cls.__name__)(attr)
-        return attr
 
 
 @dependency.requires('assignment_api', 'identity_api')
@@ -421,34 +359,3 @@ class GroupV3(controller.V3Controller):
     def delete_group(self, context, group_id):
         domain_id = self._get_domain_id_for_request(context)
         self.identity_api.delete_group(group_id, domain_scope=domain_id)
-
-
-# TODO(morganfainberg): Remove proxy compat classes once Icehouse is released.
-@six.add_metaclass(DeprecatedMeta)
-class Tenant(assignment_controllers.Tenant):
-    pass
-
-
-@six.add_metaclass(DeprecatedMeta)
-class Role(assignment_controllers.Role):
-    pass
-
-
-@six.add_metaclass(DeprecatedMeta)
-class DomainV3(assignment_controllers.DomainV3):
-    pass
-
-
-@six.add_metaclass(DeprecatedMeta)
-class ProjectV3(assignment_controllers.ProjectV3):
-    pass
-
-
-@six.add_metaclass(DeprecatedMeta)
-class RoleV3(assignment_controllers.RoleV3):
-    pass
-
-
-@six.add_metaclass(DeprecatedMeta)
-class RoleAssignmentV3(assignment_controllers.RoleAssignmentV3):
-    pass
