@@ -608,9 +608,9 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertEqual(0, len(list))
 
     def test_configurable_forbidden_project_actions(self):
-        CONF.ldap.tenant_allow_create = False
-        CONF.ldap.tenant_allow_update = False
-        CONF.ldap.tenant_allow_delete = False
+        self.config_fixture.config(
+            group='ldap', tenant_allow_create=False, tenant_allow_update=False,
+            tenant_allow_delete=False)
         self.load_backends()
 
         tenant = {'id': u'fäké1', 'name': u'fäké1'}
@@ -643,9 +643,9 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                           u'fäké1')
 
     def test_configurable_forbidden_role_actions(self):
-        CONF.ldap.role_allow_create = False
-        CONF.ldap.role_allow_update = False
-        CONF.ldap.role_allow_delete = False
+        self.config_fixture.config(
+            group='ldap', role_allow_create=False, role_allow_update=False,
+            role_allow_delete=False)
         self.load_backends()
 
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -668,7 +668,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         tenant_ref = self.assignment_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
-        CONF.ldap.tenant_filter = '(CN=DOES_NOT_MATCH)'
+        self.config_fixture.config(group='ldap',
+                                   tenant_filter='(CN=DOES_NOT_MATCH)')
         self.load_backends()
         # NOTE(morganfainberg): CONF.ldap.tenant_filter  will not be
         # dynamically changed at runtime. This invalidate is a work-around for
@@ -689,7 +690,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         role_ref = self.assignment_api.get_role(self.role_member['id'])
         self.assertDictEqual(role_ref, self.role_member)
 
-        CONF.ldap.role_filter = '(CN=DOES_NOT_MATCH)'
+        self.config_fixture.config(group='ldap',
+                                   role_filter='(CN=DOES_NOT_MATCH)')
         self.load_backends()
         # NOTE(morganfainberg): CONF.ldap.role_filter will not be
         # dynamically changed at runtime. This invalidate is a work-around for
@@ -714,9 +716,10 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                           dumb_id)
 
     def test_project_attribute_mapping(self):
-        CONF.ldap.tenant_name_attribute = 'ou'
-        CONF.ldap.tenant_desc_attribute = 'description'
-        CONF.ldap.tenant_enabled_attribute = 'enabled'
+        self.config_fixture.config(
+            group='ldap', tenant_name_attribute='ou',
+            tenant_desc_attribute='description',
+            tenant_enabled_attribute='enabled')
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -738,8 +741,9 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             tenant_ref['description'])
         self.assertEqual(self.tenant_baz['enabled'], tenant_ref['enabled'])
 
-        CONF.ldap.tenant_name_attribute = 'description'
-        CONF.ldap.tenant_desc_attribute = 'ou'
+        self.config_fixture.config(group='ldap',
+                                   tenant_name_attribute='description',
+                                   tenant_desc_attribute='ou')
         self.load_backends()
         # NOTE(morganfainberg): CONF.ldap.tenant_name_attribute,
         # CONF.ldap.tenant_desc_attribute, and
@@ -758,9 +762,9 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertEqual(self.tenant_baz['enabled'], tenant_ref['enabled'])
 
     def test_project_attribute_ignore(self):
-        CONF.ldap.tenant_attribute_ignore = ['name',
-                                             'description',
-                                             'enabled']
+        self.config_fixture.config(
+            group='ldap',
+            tenant_attribute_ignore=['name', 'description', 'enabled'])
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -779,7 +783,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertNotIn('enabled', tenant_ref)
 
     def test_role_attribute_mapping(self):
-        CONF.ldap.role_name_attribute = 'ou'
+        self.config_fixture.config(group='ldap', role_name_attribute='ou')
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -795,7 +799,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertEqual(self.role_member['name'], role_ref['name'])
 
-        CONF.ldap.role_name_attribute = 'sn'
+        self.config_fixture.config(group='ldap', role_name_attribute='sn')
         self.load_backends()
         # NOTE(morganfainberg): CONF.ldap.role_name_attribute will not be
         # dynamically changed at runtime. This invalidate is a work-around for
@@ -810,7 +814,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertNotIn('name', role_ref)
 
     def test_role_attribute_ignore(self):
-        CONF.ldap.role_attribute_ignore = ['name']
+        self.config_fixture.config(group='ldap',
+                                   role_attribute_ignore=['name'])
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -827,8 +832,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertNotIn('name', role_ref)
 
     def test_user_enable_attribute_mask(self):
-        CONF.ldap.user_enabled_mask = 2
-        CONF.ldap.user_enabled_default = '512'
+        self.config_fixture.config(group='ldap', user_enabled_mask=2,
+                                   user_enabled_default='512')
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -924,21 +929,24 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertTrue(mocked_fakeldap.call_args[-1]['chase_referrals'])
 
     def test_wrong_ldap_scope(self):
-        CONF.ldap.query_scope = uuid.uuid4().hex
+        self.config_fixture.config(group='ldap', query_scope=uuid.uuid4().hex)
         self.assertRaisesRegexp(
             ValueError,
             'Invalid LDAP scope: %s. *' % CONF.ldap.query_scope,
             identity.backends.ldap.Identity)
 
     def test_wrong_alias_dereferencing(self):
-        CONF.ldap.alias_dereferencing = uuid.uuid4().hex
+        self.config_fixture.config(group='ldap',
+                                   alias_dereferencing=uuid.uuid4().hex)
         self.assertRaisesRegexp(
             ValueError,
             'Invalid LDAP deref option: %s\.' % CONF.ldap.alias_dereferencing,
             identity.backends.ldap.Identity)
 
     def test_user_extra_attribute_mapping(self):
-        CONF.ldap.user_additional_attribute_mapping = ['description:name']
+        self.config_fixture.config(
+            group='ldap',
+            user_additional_attribute_mapping=['description:name'])
         self.load_backends()
         user = {
             'id': 'extra_attributes',
