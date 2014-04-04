@@ -581,6 +581,15 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
 
         if require_catalog:
             self.assertIn('catalog', token)
+
+            if isinstance(token['catalog'], list):
+                # only test JSON
+                for service in token['catalog']:
+                    for endpoint in service['endpoints']:
+                        self.assertNotIn('enabled', endpoint)
+                        self.assertNotIn('legacy_endpoint_id', endpoint)
+                        self.assertNotIn('service_id', endpoint)
+
             # sub test for the OS-EP-FILTER extension enabled
             if endpoint_filter:
                 # verify the catalog hs no more than the endpoints
