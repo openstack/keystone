@@ -2448,6 +2448,34 @@ class TestTrustAuth(TestAuthInfo):
                   body={'trust': ref},
                   expected_status=400)
 
+    def test_invalid_trust_request_without_impersonation(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id])
+
+        del ref['id']
+        del ref['impersonation']
+
+        self.post('/OS-TRUST/trusts',
+                  body={'trust': ref},
+                  expected_status=400)
+
+    def test_invalid_trust_request_without_trustee(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id])
+
+        del ref['id']
+        del ref['trustee_user_id']
+
+        self.post('/OS-TRUST/trusts',
+                  body={'trust': ref},
+                  expected_status=400)
+
     def test_create_unlimited_use_trust(self):
         # by default trusts are unlimited in terms of tokens that can be
         # generated from them, this test creates such a trust explicitly
