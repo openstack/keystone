@@ -16,8 +16,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import collections
-
 from keystone.contrib import federation
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
@@ -41,23 +39,6 @@ It is a dictionary with the following attributes:
 """
 
 LOG = log.getLogger(__name__)
-
-
-def flatten(d, parent_key=''):
-    """Flatten a nested dictionary
-
-    Converts a dictionary with nested values to a single level flat
-    dictionary, with dotted notation for each key.
-
-    """
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + '.' + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
-            items.extend(flatten(v, new_key).items())
-        else:
-            items.append((new_key, v))
-    return dict(items)
 
 
 def is_v3_token(token):

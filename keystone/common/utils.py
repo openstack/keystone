@@ -17,6 +17,7 @@
 #    under the License.
 
 import calendar
+import collections
 import grp
 import hashlib
 import json
@@ -38,6 +39,23 @@ from six import moves
 CONF = config.CONF
 
 LOG = log.getLogger(__name__)
+
+
+def flatten_dict(d, parent_key=''):
+    """Flatten a nested dictionary
+
+    Converts a dictionary with nested values to a single level flat
+    dictionary, with dotted notation for each key.
+
+    """
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + '.' + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten_dict(v, new_key).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
 
 def read_cached_file(filename, cache_info, reload_func=None):

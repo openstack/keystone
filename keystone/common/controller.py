@@ -147,7 +147,7 @@ def protected(callback=None):
                 policy_dict.update(kwargs)
                 self.policy_api.enforce(creds,
                                         action,
-                                        authorization.flatten(policy_dict))
+                                        utils.flatten_dict(policy_dict))
                 LOG.debug(_('RBAC: Authorization granted'))
             return f(self, context, *args, **kwargs)
         return inner
@@ -188,7 +188,7 @@ def filterprotected(*filters):
 
                 self.policy_api.enforce(creds,
                                         action,
-                                        authorization.flatten(target))
+                                        utils.flatten_dict(target))
 
                 LOG.debug(_('RBAC: Authorization granted'))
             else:
@@ -452,7 +452,7 @@ class V3Controller(wsgi.Application):
                 attr = filter['name']
                 value = filter['value']
                 refs = [r for r in refs if _attr_match(
-                    authorization.flatten(r).get(attr), value)]
+                    utils.flatten_dict(r).get(attr), value)]
             else:
                 # It might be an inexact filter
                 refs = [r for r in refs if _inexact_attr_match(
@@ -612,7 +612,7 @@ class V3Controller(wsgi.Application):
             policy_dict.update(prep_info['input_attr'])
             self.policy_api.enforce(creds,
                                     action,
-                                    authorization.flatten(policy_dict))
+                                    utils.flatten_dict(policy_dict))
             LOG.debug(_('RBAC: Authorization granted'))
 
     @classmethod
