@@ -125,7 +125,8 @@ FILE_OPTIONS = {
                          'domain_id. Allowing such movement is not '
                          'recommended if the scope of a domain admin is being '
                          'restricted by use of an appropriate policy file '
-                         '(see policy.v3cloudsample as an example).')],
+                         '(see policy.v3cloudsample as an example).'),
+    ],
     'identity': [
         cfg.StrOpt('default_domain_id', default='default',
                    help='This references the domain to use for all '
@@ -161,7 +162,8 @@ FILE_OPTIONS = {
                         'decrease to improve performance.'),
         cfg.IntOpt('list_limit', default=None,
                    help='Maximum number of entities that will be returned in '
-                        'an identity collection.')],
+                        'an identity collection.'),
+    ],
     'trust': [
         cfg.BoolOpt('enabled', default=True,
                     help='Delegation and impersonation features can be '
@@ -172,7 +174,8 @@ FILE_OPTIONS = {
     'os_inherit': [
         cfg.BoolOpt('enabled', default=False,
                     help='role-assignment inheritance to projects from '
-                         'owning domain can be optionally enabled.')],
+                         'owning domain can be optionally enabled.'),
+    ],
     'token': [
         cfg.ListOpt('bind', default=[],
                     help='External auth mechanisms that should add bind '
@@ -212,7 +215,7 @@ FILE_OPTIONS = {
                     'These enumerations are processed to determine the '
                     'list of tokens to revoke. Only disable if you are '
                     'switching to using the Revoke extension with a '
-                    'backend other than KVS, which stores events in memory.')
+                    'backend other than KVS, which stores events in memory.'),
     ],
     'revoke': [
         cfg.StrOpt('driver',
@@ -277,7 +280,8 @@ FILE_OPTIONS = {
                          'really useful if you need to see the specific '
                          'cache-backend get/set/delete calls with the '
                          'keys/values.  Typically this should be left set '
-                         'to false.')],
+                         'to false.'),
+    ],
     'ssl': [
         cfg.BoolOpt('enable', default=False,
                     help='Toggle for SSL support on the Keystone '
@@ -305,7 +309,8 @@ FILE_OPTIONS = {
         cfg.StrOpt('cert_subject',
                    default='/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
                    help='SSL certificate subject (auto generated '
-                        'certificate).')],
+                        'certificate).'),
+    ],
     'signing': [
         cfg.StrOpt('token_format', default=None,
                    help='Deprecated in favor of provider in the '
@@ -332,7 +337,8 @@ FILE_OPTIONS = {
                    default=('/C=US/ST=Unset/L=Unset/O=Unset/'
                             'CN=www.example.com'),
                    help='Certificate subject (auto generated certificate) for '
-                        'token signing.')],
+                        'token signing.'),
+    ],
     'assignment': [
         # assignment has no default for backward compatibility reasons.
         # If assignment driver is not specified, the identity driver chooses
@@ -347,12 +353,14 @@ FILE_OPTIONS = {
                         'no effect unless global caching is enabled.'),
         cfg.IntOpt('list_limit', default=None,
                    help='Maximum number of entities that will be returned '
-                        'in an assignment collection.')],
+                        'in an assignment collection.'),
+    ],
     'credential': [
         cfg.StrOpt('driver',
                    default=('keystone.credential.backends'
                             '.sql.Credential'),
-                   help='Credential backend driver.')],
+                   help='Credential backend driver.'),
+    ],
     'oauth1': [
         cfg.StrOpt('driver',
                    default='keystone.contrib.oauth1.backends.sql.OAuth1',
@@ -360,8 +368,8 @@ FILE_OPTIONS = {
         cfg.IntOpt('request_token_duration', default=28800,
                    help='Duration (in seconds) for the OAuth Request Token.'),
         cfg.IntOpt('access_token_duration', default=86400,
-                   help='Duration (in seconds) for the OAuth Access Token.')],
-
+                   help='Duration (in seconds) for the OAuth Access Token.'),
+    ],
     'federation': [
         cfg.StrOpt('driver',
                    default='keystone.contrib.federation.'
@@ -369,18 +377,21 @@ FILE_OPTIONS = {
                    help='Federation backend driver.'),
         cfg.StrOpt('assertion_prefix', default='',
                    help='Value to be used when filtering assertion parameters '
-                        'from the environment.')],
+                        'from the environment.'),
+    ],
     'policy': [
         cfg.StrOpt('driver',
                    default='keystone.policy.backends.sql.Policy',
                    help='Policy backend driver.'),
         cfg.IntOpt('list_limit', default=None,
                    help='Maximum number of entities that will be returned '
-                        'in a policy collection.')],
+                        'in a policy collection.'),
+    ],
     'ec2': [
         cfg.StrOpt('driver',
                    default='keystone.contrib.ec2.backends.kvs.Ec2',
-                   help='EC2Credential backend driver.')],
+                   help='EC2Credential backend driver.'),
+    ],
     'endpoint_filter': [
         cfg.StrOpt('driver',
                    default='keystone.contrib.endpoint_filter.backends'
@@ -388,12 +399,14 @@ FILE_OPTIONS = {
                    help='Endpoint Filter backend driver'),
         cfg.BoolOpt('return_all_endpoints_if_no_filter', default=True,
                     help='Toggle to return all active endpoints if no filter '
-                         'exists.')],
+                         'exists.'),
+    ],
     'stats': [
         cfg.StrOpt('driver',
                    default=('keystone.contrib.stats.backends'
                             '.kvs.Stats'),
-                   help='Stats backend driver.')],
+                   help='Stats backend driver.'),
+    ],
     'ldap': [
         cfg.StrOpt('url', default='ldap://localhost',
                    help='URL for connecting to the LDAP server.'),
@@ -603,7 +616,8 @@ FILE_OPTIONS = {
                     help='Enable TLS for communicating with LDAP servers.'),
         cfg.StrOpt('tls_req_cert', default='demand',
                    help='Valid options for tls_req_cert are demand, never, '
-                        'and allow.')],
+                        'and allow.'),
+    ],
     'auth': [
         cfg.ListOpt('methods', default=_DEFAULT_AUTH_METHODS,
                     help='Default auth methods.'),
@@ -616,18 +630,21 @@ FILE_OPTIONS = {
         # deals with REMOTE_USER authentication
         cfg.StrOpt('external',
                    default='keystone.auth.plugins.external.DefaultDomain',
-                   help='The external (REMOTE_USER) auth plugin module.')],
+                   help='The external (REMOTE_USER) auth plugin module.'),
+    ],
     'paste_deploy': [
         cfg.StrOpt('config_file', default='keystone-paste.ini',
                    help='Name of the paste configuration file that defines '
-                        'the available pipelines.')],
+                        'the available pipelines.'),
+    ],
     'memcache': [
         cfg.ListOpt('servers', default=['localhost:11211'],
                     help='Memcache servers in the format of "host:port".'),
         cfg.IntOpt('max_compare_and_set_retry', default=16,
                    help='Number of compare-and-set attempts to make when '
                         'using compare-and-set in the token memcache back '
-                        'end.')],
+                        'end.'),
+    ],
     'catalog': [
         cfg.StrOpt('template_file',
                    default='default_catalog.templates',
@@ -638,7 +655,8 @@ FILE_OPTIONS = {
                    help='Catalog backend driver.'),
         cfg.IntOpt('list_limit', default=None,
                    help='Maximum number of entities that will be returned '
-                        'in a catalog collection.')],
+                        'in a catalog collection.'),
+    ],
     'kvs': [
         cfg.ListOpt('backends', default=[],
                     help='Extra dogpile.cache backend modules to register '
@@ -654,7 +672,9 @@ FILE_OPTIONS = {
                          'for debugging purposes, it is highly recommended '
                          'to always leave this set to true.'),
         cfg.IntOpt('default_lock_timeout', default=5,
-                   help='Default lock timeout for distributed locking.')]}
+                   help='Default lock timeout for distributed locking.'),
+    ],
+}
 
 
 CONF = cfg.CONF
