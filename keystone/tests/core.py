@@ -45,12 +45,10 @@ from keystone import auth
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
-from keystone.common import sql
 from keystone.common import utils as common_utils
 from keystone import config
 from keystone import exception
 from keystone import notifications
-from keystone.openstack.common.db import options as db_options
 from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
@@ -117,19 +115,6 @@ class dirs:
 
 # keystone.common.sql.initialize() for testing.
 DEFAULT_TEST_DB_FILE = dirs.tmp('test.db')
-
-
-def _initialize_sql_session():
-    # Make sure the DB is located in the correct location, in this case set
-    # the default value, as this should be able to be overridden in some
-    # test cases.
-    db_file = DEFAULT_TEST_DB_FILE
-    db_options.set_defaults(
-        sql_connection=IN_MEM_DB_CONN_STRING,
-        sqlite_db=db_file)
-
-
-_initialize_sql_session()
 
 
 def checkout_vendor(repo, rev):
@@ -458,15 +443,6 @@ class TestCase(BaseTestCase):
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
         self.addCleanup(self.cleanup_instance(*drivers.keys()))
-
-        # The credential backend only supports SQL, so we always have to load
-        # the tables.
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
-        self.addCleanup(self.cleanup_instance('engine'))
-
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.

@@ -26,6 +26,7 @@ from keystone.identity.backends import sql as identity_sql
 from keystone.openstack.common.db import exception as db_exception
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 from keystone.tests import test_backend
 from keystone.token.backends import sql as token_sql
 
@@ -38,6 +39,7 @@ class SqlTests(tests.SQLDriverOverrides, tests.TestCase):
 
     def setUp(self):
         super(SqlTests, self).setUp()
+        self.useFixture(database.Database())
         self.load_backends()
 
         # populate the engine with tables & fixtures
@@ -52,15 +54,10 @@ class SqlTests(tests.SQLDriverOverrides, tests.TestCase):
 
 
 class SqlModels(SqlTests):
-    def setUp(self):
-        super(SqlModels, self).setUp()
-
-        self.metadata = sql.ModelBase.metadata
-        self.metadata.bind = self.engine
 
     def select_table(self, name):
         table = sqlalchemy.Table(name,
-                                 self.metadata,
+                                 sql.ModelBase.metadata,
                                  autoload=True)
         s = sqlalchemy.select([table])
         return s
