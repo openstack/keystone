@@ -19,6 +19,7 @@ import uuid
 
 import ldap
 import mock
+from testtools import matchers
 
 from keystone import assignment
 from keystone.common import cache
@@ -556,6 +557,38 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_updated_arbitrary_attributes_are_returned_from_update_user(self):
         self.skipTest("Using arbitrary attributes doesn't work under LDAP")
+
+    def test_user_id_comma(self):
+        """Even if the user has a , in their ID, groups can be listed."""
+
+        # Create a user with a , in their ID
+        # NOTE(blk-u): the DN for this user is hard-coded in fakeldap!
+        user_id = u'Doe, John'
+        user = {
+            'id': user_id,
+            'name': self.getUniqueString(),
+            'password': self.getUniqueString(),
+            'domain_id': CONF.identity.default_domain_id,
+        }
+        self.identity_api.create_user(user_id, user)
+
+        # Create a group
+        group_id = uuid.uuid4().hex
+        group = {
+            'id': group_id,
+            'name': self.getUniqueString(prefix='tuidc'),
+            'description': self.getUniqueString(),
+            'domain_id': CONF.identity.default_domain_id,
+        }
+        self.identity_api.create_group(group_id, group)
+
+        # Put the user in the group
+        self.identity_api.add_user_to_group(user_id, group_id)
+
+        # List groups for user.
+        ref_list = self.identity_api.list_groups_for_user(user_id)
+
+        self.assertThat(ref_list, matchers.Equals([group]))
 
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):

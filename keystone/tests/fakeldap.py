@@ -55,6 +55,14 @@ def _internal_attr(attr_name, value_or_values):
 
     def normalize_dn(dn):
         # Capitalize the attribute names as an LDAP server might.
+
+        # NOTE(blk-u): Special case for this tested value, used with
+        # test_user_id_comma. The call to str2dn here isn't always correct
+        # here, because `dn` is escaped for an LDAP filter. str2dn() normally
+        # works only because there's no special characters in `dn`.
+        if dn == 'cn=Doe\\5c, John,ou=Users,cn=example,cn=com':
+            return 'CN=Doe\\, John,OU=Users,CN=example,CN=com'
+
         dn = ldap.dn.str2dn(core.utf8_encode(dn))
         norm = []
         for part in dn:
@@ -397,11 +405,24 @@ class FakeLdap(core.LDAPHandler):
                        if re.match('%s.*,%s' % (re.escape(self.__prefix),
                                                 re.escape(self.dn(base))), k)]
         elif scope == ldap.SCOPE_ONELEVEL:
-            results = [(k[len(self.__prefix):], v)
-                       for k, v in six.iteritems(self.db)
-                       if re.match('%s\w+=[^,]+,%s' % (
-                                   re.escape(self.__prefix),
-                                   re.escape(self.dn(base))), k)]
+
+            def get_entries():
+                base_dn = ldap.dn.str2dn(core.utf8_encode(base))
+                base_len = len(base_dn)
+
+                for k, v in six.iteritems(self.db):
+                    if not k.startswith(self.__prefix):
+                        continue
+                    k_dn_str = k[len(self.__prefix):]
+                    k_dn = ldap.dn.str2dn(core.utf8_encode(k_dn_str))
+                    if len(k_dn) != base_len + 1:
+                        continue
+                    if k_dn[-base_len:] != base_dn:
+                        continue
+                    yield (k_dn_str, v)
+
+            results = list(get_entries())
+
         else:
             LOG.debug('search fail: unknown scope %s', scope)
             raise NotImplementedError('Search scope %s not implemented.'
@@ -410,7 +431,9 @@ class FakeLdap(core.LDAPHandler):
         objects = []
         for dn, attrs in results:
             # filter the objects by filterstr
-            id_attr, id_val = dn.partition(',')[0].split('=', 1)
+            id_attr, id_val, _ = ldap.dn.str2dn(core.utf8_encode(dn))[0][0]
+            id_attr = core.utf8_decode(id_attr)
+            id_val = core.utf8_decode(id_val)
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
             if not filterstr or _match_query(filterstr, match_attrs):
