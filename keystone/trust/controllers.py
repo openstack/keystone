@@ -73,7 +73,7 @@ class TrustV3(controller.V3Controller):
         user_id = self._get_user_id(context)
         trust = self.trust_api.get_trust(trust_id)
         if not trust:
-            raise exception.TrustNotFound(trust_id)
+            raise exception.TrustNotFound(trust_id=trust_id)
         _trustor_trustee_only(trust, user_id)
         self._fill_in_roles(context, trust,
                             self.assignment_api.list_roles())
@@ -214,7 +214,7 @@ class TrustV3(controller.V3Controller):
     def delete_trust(self, context, trust_id):
         trust = self.trust_api.get_trust(trust_id)
         if not trust:
-            raise exception.TrustNotFound(trust_id)
+            raise exception.TrustNotFound(trust_id=trust_id)
 
         user_id = self._get_user_id(context)
         _admin_trustor_only(context, trust, user_id)
@@ -226,7 +226,7 @@ class TrustV3(controller.V3Controller):
     def list_roles_for_trust(self, context, trust_id):
         trust = self.get_trust(context, trust_id)['trust']
         if not trust:
-            raise exception.TrustNotFound(trust_id)
+            raise exception.TrustNotFound(trust_id=trust_id)
         user_id = self._get_user_id(context)
         _trustor_trustee_only(trust, user_id)
         return {'roles': trust['roles'],
@@ -237,7 +237,7 @@ class TrustV3(controller.V3Controller):
         """Checks if a role has been assigned to a trust."""
         trust = self.trust_api.get_trust(trust_id)
         if not trust:
-            raise exception.TrustNotFound(trust_id)
+            raise exception.TrustNotFound(trust_id=trust_id)
         user_id = self._get_user_id(context)
         _trustor_trustee_only(trust, user_id)
         if not any(role['id'] == role_id for role in trust['roles']):
