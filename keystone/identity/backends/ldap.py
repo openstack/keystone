@@ -279,7 +279,6 @@ class GroupApi(common_ldap.BaseLdap):
             # role support which will be added under bug 1101287
 
             query = '(objectClass=%s)' % self.object_class
-            dn = None
             dn = self._id_to_dn(group_id)
             if dn:
                 try:
