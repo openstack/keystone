@@ -585,16 +585,7 @@ class RoleApi(common_ldap.BaseLdap):
             conn.unbind_s()
 
     def get_role_assignments(self, tenant_dn):
-        conn = self.get_connection()
-        query = '(objectClass=%s)' % self.object_class
-
-        try:
-            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
-        except ldap.NO_SUCH_OBJECT:
-            return []
-        finally:
-            conn.unbind_s()
-
+        roles = self._ldap_get_list(tenant_dn, ldap.SCOPE_ONELEVEL)
         res = []
         for role_dn, attrs in roles:
             try:
@@ -618,19 +609,9 @@ class RoleApi(common_ldap.BaseLdap):
                 user_dn=user_dn) for role in roles]
 
     def list_project_roles_for_user(self, user_dn, project_subtree):
-        conn = self.get_connection()
-        query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
-                                                self.member_attribute,
-                                                user_dn)
-        try:
-            roles = conn.search_s(project_subtree,
-                                  ldap.SCOPE_SUBTREE,
-                                  query)
-        except ldap.NO_SUCH_OBJECT:
-            return []
-        finally:
-            conn.unbind_s()
-
+        roles = self._ldap_get_list(project_subtree, ldap.SCOPE_SUBTREE,
+                                    query_params={
+                                    self.member_attribute: user_dn})
         res = []
         for role_dn, _ in roles:
             # ldap.dn.dn2str returns an array, where the first
@@ -688,17 +669,7 @@ class RoleApi(common_ldap.BaseLdap):
         """Returns a list of all the role assignments linked to project_tree_dn
         attribute.
         """
-        conn = self.get_connection()
-        query = '(objectClass=%s)' % (self.object_class)
-        try:
-            roles = conn.search_s(project_tree_dn,
-                                  ldap.SCOPE_SUBTREE,
-                                  query)
-        except ldap.NO_SUCH_OBJECT:
-            return []
-        finally:
-            conn.unbind_s()
-
+        roles = self._ldap_get_list(project_tree_dn, ldap.SCOPE_SUBTREE)
         res = []
         for role_dn, role in roles:
             tenant = ldap.dn.str2dn(role_dn)
