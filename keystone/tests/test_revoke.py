@@ -444,8 +444,18 @@ class RevokeTreeTests(tests.TestCase):
         for i in range(0, 10):
             events.append(
                 self._revoke_by_user(_new_id()))
+
+            args = (_new_id(), _future_time())
             events.append(
-                self._revoke_by_expiration(_new_id(), _future_time()))
+                self._revoke_by_expiration(*args))
+
+            self.assertEqual(i + 2, len(self.tree.revoke_map
+                                        ['trust_id=*']
+                                        ['consumer_id=*']
+                                        ['access_token_id=*']),
+                             'adding %s to %s' % (args,
+                                                  self.tree.revoke_map))
+
             events.append(
                 self._revoke_by_project_role_assignment(_new_id(), _new_id()))
             events.append(
