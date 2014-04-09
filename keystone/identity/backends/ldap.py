@@ -294,32 +294,19 @@ class GroupApi(common_ldap.BaseLdap):
         return super(GroupApi, self).update(group_id, values, old_obj)
 
     def add_user(self, user_dn, group_id, user_id):
-        conn = self.get_connection()
         try:
-            conn.modify_s(
-                self._id_to_dn(group_id),
-                [(ldap.MOD_ADD,
-                  self.member_attribute,
-                  user_dn)])
-        except ldap.TYPE_OR_VALUE_EXISTS:
+            super(GroupApi, self).add_member(user_dn, self._id_to_dn(group_id))
+        except exception.Conflict:
             raise exception.Conflict(_(
                 'User %(user_id)s is already a member of group %(group_id)s') %
                 {'user_id': user_id, 'group_id': group_id})
-        finally:
-            conn.unbind_s()
 
     def remove_user(self, user_dn, group_id, user_id):
-        conn = self.get_connection()
         try:
-            conn.modify_s(
-                self._id_to_dn(group_id),
-                [(ldap.MOD_DELETE,
-                  self.member_attribute,
-                  user_dn)])
+            super(GroupApi, self).remove_member(user_dn,
+                                                self._id_to_dn(group_id))
         except ldap.NO_SUCH_ATTRIBUTE:
             raise exception.UserNotFound(user_id=user_id)
-        finally:
-            conn.unbind_s()
 
     def list_user_groups(self, user_dn):
         """Return a list of groups for which the user is a member."""

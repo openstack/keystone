@@ -711,6 +711,9 @@ class BaseLdap(object):
             allow_delete = '%s_allow_delete' % self.options_name
             self.allow_delete = getattr(conf.ldap, allow_delete)
 
+            member_attribute = '%s_member_attribute' % self.options_name
+            self.member_attribute = getattr(conf.ldap, member_attribute, None)
+
             self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
 
             if self.notfound_arg is None:
@@ -1028,6 +1031,49 @@ class BaseLdap(object):
                               serverctrls=[tree_delete_control])
         except ldap.NO_SUCH_OBJECT:
             raise self._not_found(object_id)
+        finally:
+            conn.unbind_s()
+
+    def add_member(self, member_dn, member_list_dn):
+        """Add member to the member list.
+
+        :param member_dn: DN of member to be added.
+        :param member_list_dn: DN of group to which the
+                               member will be added.
+
+        :raises: exception.Conflict: If the user was already a member.
+                 self.NotFound: If the group entry didn't exist.
+        """
+        conn = self.get_connection()
+        try:
+            mod = (ldap.MOD_ADD, self.member_attribute, member_dn)
+            conn.modify_s(member_list_dn, [mod])
+        except ldap.TYPE_OR_VALUE_EXISTS:
+            raise exception.Conflict(_('Member %(member)s is already a member'
+                                       ' of group %(group)s') % {
+                                     'member': member_dn,
+                                     'group': member_list_dn})
+        except ldap.NO_SUCH_OBJECT:
+            raise self._not_found(member_list_dn)
+        finally:
+            conn.unbind_s()
+
+    def remove_member(self, member_dn, member_list_dn):
+        """Remove member from the member list.
+
+        :param member_dn: DN of member to be removed.
+        :param member_list_dn: DN of group from which the
+                               member will be removed.
+
+        :raises: self.NotFound: If the group entry didn't exist.
+                 ldap.NO_SUCH_ATTRIBUTE: If the user wasn't a member.
+        """
+        conn = self.get_connection()
+        try:
+            mod = (ldap.MOD_DELETE, self.member_attribute, member_dn)
+            conn.modify_s(member_list_dn, [mod])
+        except ldap.NO_SUCH_OBJECT:
+            raise self._not_found(member_list_dn)
         finally:
             conn.unbind_s()
 
