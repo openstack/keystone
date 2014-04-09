@@ -515,7 +515,7 @@ class KeystoneLDAPHandler(LDAPHandler):
                                              filterstr_utf8,
                                              attrlist_utf8, attrsonly)
 
-            py_result = convert_ldap_result(ldap_result)
+        py_result = convert_ldap_result(ldap_result)
 
         return py_result
 
