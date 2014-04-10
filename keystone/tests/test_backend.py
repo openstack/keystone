@@ -3221,9 +3221,9 @@ class TokenTests(object):
         self.assertIn(token_id, revoked_tokens)
         self.assertIn(token2_id, revoked_tokens)
 
-    def test_predictable_revoked_pki_token_id(self):
+    def _test_predictable_revoked_pki_token_id(self, hash_fn):
         token_id = self._create_token_id()
-        token_id_hash = hashlib.md5(token_id).hexdigest()
+        token_id_hash = hash_fn(token_id).hexdigest()
         token = {'user': {'id': uuid.uuid4().hex}}
 
         self.token_api.create_token(token_id, token)
@@ -3234,6 +3234,13 @@ class TokenTests(object):
         self.assertNotIn(token_id, revoked_ids)
         for t in self.token_api.list_revoked_tokens():
             self.assertIn('expires', t)
+
+    def test_predictable_revoked_pki_token_id_default(self):
+        self._test_predictable_revoked_pki_token_id(hashlib.md5)
+
+    def test_predictable_revoked_pki_token_id_sha256(self):
+        self.config_fixture.config(group='token', hash_algorithm='sha256')
+        self._test_predictable_revoked_pki_token_id(hashlib.sha256)
 
     def test_predictable_revoked_uuid_token_id(self):
         token_id = uuid.uuid4().hex

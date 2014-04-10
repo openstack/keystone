@@ -1317,6 +1317,13 @@
 # value)
 #revoke_by_id=true
 
+# The hash algorithm to use for PKI tokens. This can be set to
+# any algorithm that hashlib supports. WARNING: Before
+# changing this value, the auth_token middleware must be
+# configured with the hash_algorithms, otherwise token
+# revocation will not be processed correctly. (string value)
+#hash_algorithm=md5
+
 
 [trust]
 
