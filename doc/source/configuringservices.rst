@@ -184,7 +184,7 @@ Auth-Token Middleware with Username and Password
 It is also possible to configure Keystone's auth_token middleware using the
 'admin_user' and 'admin_password' options. When using the 'admin_user' and
 'admin_password' options the 'admin_token' parameter is optional. If
-'admin_token' is specified it will by used only if the specified token is
+'admin_token' is specified it will be used only if the specified token is
 still valid.
 
 Here is an example paste config filter that makes use of the 'admin_user' and
