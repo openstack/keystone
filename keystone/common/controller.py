@@ -636,7 +636,7 @@ class V3Controller(wsgi.Application):
             return
 
         exception_args = {'target': cls.__name__,
-                          'attribute': blocked_keys.pop()}
+                          'attributes': ', '.join(blocked_keys)}
         raise exception.ImmutableAttributeError(**exception_args)
 
     @classmethod

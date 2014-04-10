@@ -176,8 +176,8 @@ class ForbiddenAction(Forbidden):
 
 
 class ImmutableAttributeError(Forbidden):
-    message_format = _("Could not change immutable attribute %(attribute)s"
-                       " in target %(target)s")
+    message_format = _("Could not change immutable attribute(s) "
+                       "'%(attributes)s' in target %(target)s")
 
 
 class NotFound(Error):
