@@ -17,9 +17,15 @@ import pep8
 import testtools
 
 from keystone.hacking import checks
+from keystone.tests.ksfixtures import hacking as hacking_fixtures
 
 
 class BaseStyleCheck(testtools.TestCase):
+
+    def setUp(self):
+        super(BaseStyleCheck, self).setUp()
+        self.code_ex = self.useFixture(hacking_fixtures.HackingCode())
+        self.addCleanup(delattr, self, 'code_ex')
 
     def get_checker(self):
         """Returns the checker to be used for tests in this class."""
@@ -50,38 +56,9 @@ class TestCheckForMutableDefaultArgs(BaseStyleCheck):
         return checks.CheckForMutableDefaultArgs
 
     def test(self):
-        code = """
-            def f():
-                pass
-
-            def f(a, b='', c=None):
-                pass
-
-            def f(bad=[]):
-                pass
-
-            def f(foo, bad=[], more_bad=[x for x in range(3)]):
-                pass
-
-            def f(foo, bad={}):
-                pass
-
-            def f(foo, bad={}, another_bad=[], fine=None):
-                pass
-
-            def f(bad=[]):  # noqa
-                pass
-
-        """
-        expected_errors = [
-            (7, 10, 'K001'),
-            (10, 15, 'K001'),
-            (10, 29, 'K001'),
-            (13, 15, 'K001'),
-            (16, 15, 'K001'),
-            (16, 31, 'K001'),
-        ]
-        self.assert_has_errors(code, expected_errors=expected_errors)
+        code = self.code_ex.mutable_default_args['code']
+        errors = self.code_ex.mutable_default_args['expected_errors']
+        self.assert_has_errors(code, expected_errors=errors)
 
 
 class TestBlockCommentsBeginWithASpace(BaseStyleCheck):
@@ -90,20 +67,9 @@ class TestBlockCommentsBeginWithASpace(BaseStyleCheck):
         return checks.block_comments_begin_with_a_space
 
     def test(self):
-        # NOTE(dstanek): The 'noqa' line below will stop the normal CI
-        # pep8 process from flaging an error when running against this code.
-        # The unit tests use pep8 directly and the 'noqa' has no effect so we
-        # can easilty test.
-        code = """
-            # This is a good comment
-
-            #This is a bad one        # flake8: noqa
-
-            # This is alright and can
-            #    be continued with extra indentation
-            #    if that's what the developer wants.
-        """
-        self.assert_has_errors(code, [(3, 0, 'K002')])
+        code = self.code_ex.comments_begin_with_space['code']
+        errors = self.code_ex.comments_begin_with_space['expected_errors']
+        self.assert_has_errors(code, expected_errors=errors)
 
 
 class TestAssertingNoneEquality(BaseStyleCheck):
@@ -112,22 +78,6 @@ class TestAssertingNoneEquality(BaseStyleCheck):
         return checks.CheckForAssertingNoneEquality
 
     def test(self):
-        code = """
-            class Test(object):
-
-                def test(self):
-                    self.assertEqual('', '')
-                    self.assertEqual('', None)
-                    self.assertEqual(None, '')
-                    self.assertNotEqual('', None)
-                    self.assertNotEqual(None, '')
-                    self.assertNotEqual('', None)  # noqa
-                    self.assertNotEqual(None, '')  # noqa
-        """
-        expected_errors = [
-            (5, 8, 'K003'),
-            (6, 8, 'K003'),
-            (7, 8, 'K004'),
-            (8, 8, 'K004'),
-        ]
-        self.assert_has_errors(code, expected_errors=expected_errors)
+        code = self.code_ex.asserting_none_equality['code']
+        errors = self.code_ex.asserting_none_equality['expected_errors']
+        self.assert_has_errors(code, expected_errors=errors)
