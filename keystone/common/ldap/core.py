@@ -811,12 +811,18 @@ class BaseLdap(object):
 
     def _ldap_res_to_model(self, res):
         obj = self.model(id=self._dn_to_id(res[0]))
+        # LDAP attribute names may be returned in a different case than
+        # they are defined in the mapping, so we need to check for keys
+        # in a case-insensitive way.  We use the case specified in the
+        # mapping for the model to ensure we have a predictable way of
+        # retrieving values later.
+        lower_res = dict((k.lower(), v) for k, v in six.iteritems(res[1]))
         for k in obj.known_keys:
             if k in self.attribute_ignore:
                 continue
 
             try:
-                v = res[1][self.attribute_mapping.get(k, k)]
+                v = lower_res[self.attribute_mapping.get(k, k).lower()]
             except KeyError:
                 pass
             else:
