@@ -14,17 +14,9 @@ from six.moves.urllib import parse
 
 from keystone import auth
 from keystone.common import dependency
-from keystone import config
 from keystone.contrib import federation
 from keystone.contrib.federation import utils
-from keystone import exception
 from keystone.openstack.common import jsonutils
-from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
-
-
-CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('federation_api', 'identity_api', 'token_api')
@@ -57,21 +49,21 @@ class Saml2(auth.AuthMethodHandler):
 
     def _handle_scoped_token(self, auth_payload):
         token_ref = self.token_api.get_token(auth_payload['id'])
-        self._validate_expiration(token_ref)
+        utils.validate_expiration(token_ref)
         _federation = token_ref['user'][federation.FEDERATION]
         identity_provider = _federation['identity_provider']['id']
         protocol = _federation['protocol']['id']
         group_ids = [group['id'] for group in _federation['groups']]
         mapping = self.federation_api.get_mapping_from_idp_and_protocol(
             identity_provider, protocol)
-        self._validate_groups(group_ids, mapping['id'])
+        utils.validate_groups(group_ids, mapping['id'], self.identity_api)
         return {
             'user_id': token_ref['user_id'],
             'group_ids': group_ids
         }
 
     def _handle_unscoped_token(self, context, auth_payload):
-        assertion = dict(self._get_assertion_params_from_env(context))
+        assertion = dict(utils.get_assertion_params_from_env(context))
 
         identity_provider = auth_payload['identity_provider']
         protocol = auth_payload['protocol']
@@ -81,7 +73,8 @@ class Saml2(auth.AuthMethodHandler):
         rules = jsonutils.loads(mapping['rules'])
         rule_processor = utils.RuleProcessor(rules)
         mapped_properties = rule_processor.process(assertion)
-        self._validate_groups(mapped_properties['group_ids'], mapping['id'])
+        utils.validate_groups(mapped_properties['group_ids'],
+                              mapping['id'], self.identity_api)
 
         return {
             'user_id': parse.quote(mapped_properties['name']),
@@ -89,24 +82,3 @@ class Saml2(auth.AuthMethodHandler):
             federation.IDENTITY_PROVIDER: identity_provider,
             federation.PROTOCOL: protocol
         }
-
-    def _validate_expiration(self, token_ref):
-        if timeutils.utcnow() > token_ref['expires']:
-            raise exception.Unauthorized(_('Federation token is expired'))
-
-    def _validate_groups(self, group_ids, mapping_id):
-        if not group_ids:
-            raise exception.MissingGroups(mapping_id=mapping_id)
-
-        for group_id in group_ids:
-            try:
-                self.identity_api.get_group(group_id)
-            except exception.GroupNotFound:
-                raise exception.MappedGroupNotFound(
-                    group_id=group_id, mapping_id=mapping_id)
-
-    def _get_assertion_params_from_env(self, context):
-        prefix = CONF.federation.assertion_prefix
-        for k, v in context['environment'].items():
-            if k.startswith(prefix):
-                yield (k, v)
