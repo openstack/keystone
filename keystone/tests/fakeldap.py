@@ -195,7 +195,7 @@ class FakeLdap(core.LDAPHandler):
 
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None):
+                tls_req_cert='demand', chase_referrals=None, debug_level=None):
         if url.startswith('fake://memory'):
             if url not in FakeShelves:
                 FakeShelves[url] = FakeShelve()

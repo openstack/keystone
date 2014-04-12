@@ -853,6 +853,12 @@
 # dereferencing configured by your ldap.conf. (string value)
 #alias_dereferencing=default
 
+# Sets the LDAP debugging level for LDAP calls. A value of 0
+# means that debugging is not enabled. This value is a
+# bitmask, consult your LDAP documentation for possible
+# values. (integer value)
+#debug_level=<None>
+
 # Override the system's default referral chasing behavior for
 # queries. (boolean value)
 #chase_referrals=<None>

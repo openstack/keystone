@@ -961,6 +961,21 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # is as expected.
         self.assertTrue(mocked_fakeldap.call_args[-1]['chase_referrals'])
 
+    @mock.patch.object(common_ldap_core.KeystoneLDAPHandler, 'connect')
+    def test_debug_level_set(self, mocked_fakeldap):
+        level = 12345
+        self.config_fixture.config(
+            group='ldap',
+            url='fake://memory',
+            debug_level=level)
+        user_api = identity.backends.ldap.UserApi(CONF)
+        user_api.get_connection(user=None, password=None)
+
+        # The last call_arg should be a dictionary and should contain
+        # debug_level. Check to make sure the value of debug_level
+        # is as expected.
+        self.assertEqual(level, mocked_fakeldap.call_args[-1]['debug_level'])
+
     def test_wrong_ldap_scope(self):
         self.config_fixture.config(group='ldap', query_scope=uuid.uuid4().hex)
         self.assertRaisesRegexp(
