@@ -29,8 +29,8 @@ CONF = config.CONF
 class ExceptionTestCase(tests.TestCase):
     def assertValidJsonRendering(self, e):
         resp = wsgi.render_exception(e)
-        self.assertEqual(resp.status_int, e.code)
-        self.assertEqual(resp.status, '%s %s' % (e.code, e.title))
+        self.assertEqual(e.code, resp.status_int)
+        self.assertEqual('%s %s' % (e.code, e.title), resp.status)
 
         j = jsonutils.loads(resp.body)
         self.assertIsNotNone(j.get('error'))
@@ -81,7 +81,7 @@ class ExceptionTestCase(tests.TestCase):
         e = exception.Error(message)
 
         try:
-            self.assertEqual(six.text_type(e), message)
+            self.assertEqual(message, six.text_type(e))
         except UnicodeEncodeError:
             self.fail("unicode error message not supported")
 

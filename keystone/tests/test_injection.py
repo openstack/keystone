@@ -144,14 +144,14 @@ class TestDependencyInjection(tests.BaseTestCase):
 
         # dependencies should be naturally inherited
         self.assertEqual(
-            ParentConsumer._dependencies,
-            set(['first_api']))
+            set(['first_api']),
+            ParentConsumer._dependencies)
         self.assertEqual(
-            ChildConsumer._dependencies,
-            set(['first_api', 'second_api']))
+            set(['first_api', 'second_api']),
+            ChildConsumer._dependencies)
         self.assertEqual(
-            consumer._dependencies,
-            set(['first_api', 'second_api']))
+            set(['first_api', 'second_api']),
+            consumer._dependencies)
 
         # the expected dependencies should be available to the consumer
         self.assertIs(consumer.first_api, first_api)

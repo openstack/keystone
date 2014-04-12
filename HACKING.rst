@@ -30,3 +30,9 @@ Use the common logging module, and ensure you ``getLogger``::
     LOG = log.getLogger(__name__)
 
     LOG.debug('Foobar')
+
+
+AssertEqual argument order
+--------------------------
+
+assertEqual method's arguments should be in ('expected', 'actual') order.
