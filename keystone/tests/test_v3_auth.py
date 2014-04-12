@@ -423,7 +423,7 @@ class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
         token_data = resp.result
         token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
-        self.assertFalse(cms.is_ans1_token(token_id))
+        self.assertFalse(cms.is_asn1_token(token_id))
 
     def test_v3_v2_hashed_pki_token_intermix(self):
         # this test is only applicable for PKI tokens
