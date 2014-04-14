@@ -22,11 +22,29 @@ from migrate import exceptions
 import sqlalchemy
 
 from keystone.common import sql
+from keystone import config
 from keystone import contrib
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
+from keystone.openstack.common import jsonutils
+
+
+DB_INIT_VERSION = 35
+CONF = config.CONF
+
+
+def get_default_domain():
+    # Return the reference used for the default domain structure during
+    # sql migrations.
+    return {
+        'id': CONF.identity.default_domain_id,
+        'name': 'Default',
+        'enabled': True,
+        'extra': jsonutils.dumps({'description': 'Owns users and tenants '
+                                                 '(i.e. projects) available '
+                                                 'on Identity API v2.'})}
 
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
@@ -117,7 +135,9 @@ def find_migrate_repo(package=None, repo_name='migrate_repo'):
 def sync_database_to_version(extension=None, version=None):
     if not extension:
         abs_path = find_migrate_repo()
+        init_version = DB_INIT_VERSION
     else:
+        init_version = 0
         try:
             package_name = '.'.join((contrib.__name__, extension))
             package = importutils.import_module(package_name)
@@ -136,7 +156,8 @@ def sync_database_to_version(extension=None, version=None):
         except exception.MigrationNotProvided as e:
             print(e)
             sys.exit(1)
-    migration.db_sync(sql.get_engine(), abs_path, version=version)
+    migration.db_sync(sql.get_engine(), abs_path, version=version,
+                      init_version=init_version)
 
 
 def get_db_version(extension=None):
