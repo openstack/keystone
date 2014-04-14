@@ -630,9 +630,14 @@ class RoleApi(common_ldap.BaseLdap):
         query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
                                                 self.id_attr, role_id)
         try:
+            # RFC 4511 (The LDAP Protocol) defines a list containing only the
+            # OID "1.1" as indicating that no attributes should be returned.
+            # The following code only needs the DN of the entries.
+            request_no_attributes = ['1.1']
             for role_dn, _ in conn.search_s(tenant_dn,
                                             ldap.SCOPE_SUBTREE,
-                                            query):
+                                            query,
+                                            attrlist=request_no_attributes):
                 conn.delete_s(role_dn)
         except ldap.NO_SUCH_OBJECT:
             pass
