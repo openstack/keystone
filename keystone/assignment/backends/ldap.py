@@ -564,10 +564,7 @@ class RoleApi(common_ldap.BaseLdap):
 
             if self.use_dumb_member:
                 attrs[1][1].append(self.dumb_member)
-            try:
-                conn.add_s(role_dn, attrs)
-            except Exception as inst:
-                    raise inst
+            conn.add_s(role_dn, attrs)
         finally:
             conn.unbind_s()
 
@@ -652,10 +649,7 @@ class RoleApi(common_ldap.BaseLdap):
         try:
             roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
             for role_dn, _ in roles:
-                try:
-                    conn.delete_s(role_dn)
-                except Exception as inst:
-                    raise inst
+                conn.delete_s(role_dn)
         except ldap.NO_SUCH_OBJECT:
             pass
         finally:
