@@ -27,6 +27,7 @@ from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 from keystone import token
 from keystone import trust
 
@@ -68,6 +69,7 @@ def _build_user_auth(token=None, user_id=None, username=None,
 
 class AuthTest(tests.TestCase):
     def setUp(self):
+        self.useFixture(database.Database())
         super(AuthTest, self).setUp()
 
         self.load_backends()

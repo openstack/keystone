@@ -25,6 +25,7 @@ from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import appserver
+from keystone.tests.ksfixtures import database
 
 
 CONF = config.CONF
@@ -43,6 +44,7 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
         # approach is to ensure we have the correct backing store. The
         # credential api makes some very SQL specific assumptions that should
         # be addressed allowing for non-SQL based testing to occur.
+        self.useFixture(database.Database())
         self.load_backends()
 
         self.load_fixtures(default_fixtures)
