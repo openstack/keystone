@@ -15,6 +15,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+##############################################################################
+##############################################################################
+##
+## DO NOT MODIFY THIS FILE
+##
+## This file is being graduated to the keystonetest library. Please make all
+## changes there, and only backport critical fixes here. - dhellmann
+##
+##############################################################################
+##############################################################################
+
 import fixtures
 import mock
 

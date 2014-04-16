@@ -20,6 +20,6 @@ tools/config/generate_sample.sh -b ./ -p ${PROJECT_NAME} -o ${TEMPDIR}
 if ! diff -u ${TEMPDIR}/${CFGFILE_NAME} ${CFGFILE}
 then
    echo "${0##*/}: ${PROJECT_NAME}.conf.sample is not up to date."
-   echo "${0##*/}: Please run 'tox -esample_config -r' (see doc/source/developing.rst for more info)"
+   echo "${0##*/}: Please run ${0%%${0##*/}}generate_sample.sh."
    exit 1
 fi

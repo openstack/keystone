@@ -21,3 +21,4 @@ oauthlib>=0.6
 dogpile.cache>=0.5.0
 jsonschema>=2.0.0,<3.0.0
 pycadf>=0.4.1
+posix_ipc
