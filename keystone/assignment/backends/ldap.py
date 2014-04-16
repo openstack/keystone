@@ -226,17 +226,13 @@ class Assignment(assignment.Driver):
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         return self.role.delete_user(role_dn,
-                                     self.user._id_to_dn(user_id),
-                                     self.project._id_to_dn(tenant_id),
-                                     user_id, role_id)
+                                     self.user._id_to_dn(user_id), role_id)
 
     def _remove_role_from_group_and_project(self, group_id, tenant_id,
                                             role_id):
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         return self.role.delete_user(role_dn,
-                                     self.group._id_to_dn(group_id),
-                                     self.project._id_to_dn(tenant_id),
-                                     group_id, role_id)
+                                     self.group._id_to_dn(group_id), role_id)
 
     def update_role(self, role_id, role):
         self.role.check_allow_update()
@@ -268,17 +264,12 @@ class Assignment(assignment.Driver):
     def delete_user(self, user_id):
         user_dn = self.user._id_to_dn(user_id)
         for ref in self.role.list_global_roles_for_user(user_dn):
-            self.role.delete_user(ref.role_dn, ref.user_dn, ref.project_dn,
-                                  user_id, self.role._dn_to_id(ref.role_dn))
+            self.role.delete_user(ref.role_dn, ref.user_dn,
+                                  self.role._dn_to_id(ref.role_dn))
         for ref in self.role.list_project_roles_for_user(user_dn,
                                                          self.project.tree_dn):
-            self.role.delete_user(ref.role_dn, ref.user_dn, ref.project_dn,
-                                  user_id, self.role._dn_to_id(ref.role_dn))
-
-        user = self.user.get(user_id)
-        if hasattr(user, 'tenant_id'):
-            self.project.remove_user(user.tenant_id,
-                                     self.user._id_to_dn(user_id))
+            self.role.delete_user(ref.role_dn, ref.user_dn,
+                                  self.role._dn_to_id(ref.role_dn))
 
     # LDAP assignments only supports LDAP identity.  Assignments under
     # identity are already deleted
@@ -452,34 +443,6 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             projects.append(self.get(project_id))
         return projects
 
-    def add_user(self, tenant_id, user_dn):
-        conn = self.get_connection()
-        try:
-            conn.modify_s(
-                self._id_to_dn(tenant_id),
-                [(ldap.MOD_ADD,
-                  self.member_attribute,
-                  user_dn)])
-        except ldap.TYPE_OR_VALUE_EXISTS:
-            # As adding a user to a tenant is done implicitly in several
-            # places, and is not part of the exposed API, it's easier for us to
-            # just ignore this instead of raising exception.Conflict.
-            pass
-        finally:
-            conn.unbind_s()
-
-    def remove_user(self, tenant_id, user_dn, user_id):
-        conn = self.get_connection()
-        try:
-            conn.modify_s(self._id_to_dn(tenant_id),
-                          [(ldap.MOD_DELETE,
-                            self.member_attribute,
-                            user_dn)])
-        except ldap.NO_SUCH_ATTRIBUTE:
-            raise exception.NotFound(user_id)
-        finally:
-            conn.unbind_s()
-
     def get_user_dns(self, tenant_id, rolegrants, role_dn=None):
         tenant = self._ldap_get(tenant_id)
         res = set()
@@ -571,8 +534,7 @@ class RoleApi(common_ldap.BaseLdap):
         finally:
             conn.unbind_s()
 
-    def delete_user(self, role_dn, user_dn, tenant_dn,
-                    user_id, role_id):
+    def delete_user(self, role_dn, user_dn, role_id):
         conn = self.get_connection()
         try:
             conn.modify_s(role_dn, [(ldap.MOD_DELETE,
