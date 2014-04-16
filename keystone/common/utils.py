@@ -113,34 +113,11 @@ def hash_user_password(user):
     return dict(user, password=hash_password(password))
 
 
-def hash_ldap_user_password(user):
-    """Hash a user dict's password without modifying the passed-in dict."""
-    password = user.get('password')
-    if password is None:
-        return user
-
-    return dict(user, password=ldap_hash_password(password))
-
-
 def hash_password(password):
     """Hash a password. Hard."""
     password_utf8 = trunc_password(password).encode('utf-8')
     return passlib.hash.sha512_crypt.encrypt(
         password_utf8, rounds=CONF.crypt_strength)
-
-
-def ldap_hash_password(password):
-    """Hash a password. Hard."""
-    password_utf8 = trunc_password(password).encode('utf-8')
-    h = passlib.hash.ldap_salted_sha1.encrypt(password_utf8)
-    return h
-
-
-def ldap_check_password(password, hashed):
-    if password is None:
-        return False
-    password_utf8 = trunc_password(password).encode('utf-8')
-    return passlib.hash.ldap_salted_sha1.verify(password_utf8, hashed)
 
 
 def check_password(password, hashed):

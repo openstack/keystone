@@ -99,7 +99,6 @@ class Identity(identity.Driver):
         if 'name' in user and old_obj.get('name') != user['name']:
             raise exception.Conflict(_('Cannot change user name'))
 
-        user = utils.hash_ldap_user_password(user)
         if self.user.enabled_mask:
             self.user.mask_enabled_attribute(user)
         self.user.update(user_id, user, old_obj)
@@ -224,7 +223,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         del values['enabled_nomask']
 
     def create(self, values):
-        values = utils.hash_ldap_user_password(values)
         if self.enabled_mask:
             orig_enabled = values['enabled']
             self.mask_enabled_attribute(values)

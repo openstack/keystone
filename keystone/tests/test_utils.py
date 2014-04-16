@@ -99,23 +99,6 @@ class UtilsTestCase(tests.TestCase):
         password_hashed = user_hashed['password']
         self.assertTrue(utils.check_password(password, password_hashed))
 
-    def test_hash_ldap_user_password_without_password(self):
-        user = self._create_test_user()
-        hashed = utils.hash_ldap_user_password(user)
-        self.assertEqual(user, hashed)
-
-    def test_hash_ldap_user_password_with_null_password(self):
-        user = self._create_test_user(password=None)
-        hashed = utils.hash_ldap_user_password(user)
-        self.assertEqual(user, hashed)
-
-    def test_hash_ldap_user_password_with_empty_password(self):
-        password = ''
-        user = self._create_test_user(password=password)
-        user_hashed = utils.hash_ldap_user_password(user)
-        password_hashed = user_hashed['password']
-        self.assertTrue(utils.ldap_check_password(password, password_hashed))
-
     def test_hash_edge_cases(self):
         hashed = utils.hash_password('secret')
         self.assertFalse(utils.check_password('', hashed))

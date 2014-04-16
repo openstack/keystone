@@ -253,6 +253,9 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_delete_group_with_user_project_domain_links(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
+    def test_password_hashed(self):
+        self.skipTest('N/A: hashing is left up to the LDAP server')
+
     def test_list_projects_for_user(self):
         domain = self._get_domain_fixture()
         user1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
