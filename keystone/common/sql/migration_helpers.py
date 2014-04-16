@@ -22,6 +22,7 @@ from migrate import exceptions
 import sqlalchemy
 
 from keystone.common import sql
+from keystone.common.sql import migrate_repo
 from keystone import config
 from keystone import contrib
 from keystone import exception
@@ -31,7 +32,6 @@ from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 
 
-DB_INIT_VERSION = 35
 CONF = config.CONF
 
 
@@ -135,7 +135,7 @@ def find_migrate_repo(package=None, repo_name='migrate_repo'):
 def sync_database_to_version(extension=None, version=None):
     if not extension:
         abs_path = find_migrate_repo()
-        init_version = DB_INIT_VERSION
+        init_version = migrate_repo.DB_INIT_VERSION
     else:
         init_version = 0
         try:
