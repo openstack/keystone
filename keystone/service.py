@@ -83,8 +83,6 @@ def fail_gracefully(f):
 @fail_gracefully
 def public_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
-    conf = global_conf.copy()
-    conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [assignment.routers.Public(),
                                  token.routers.Router(),
@@ -94,8 +92,6 @@ def public_app_factory(global_conf, **local_conf):
 
 @fail_gracefully
 def admin_app_factory(global_conf, **local_conf):
-    conf = global_conf.copy()
-    conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [identity.routers.Admin(),
                                  assignment.routers.Admin(),
@@ -106,16 +102,12 @@ def admin_app_factory(global_conf, **local_conf):
 
 @fail_gracefully
 def public_version_app_factory(global_conf, **local_conf):
-    conf = global_conf.copy()
-    conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [routers.Versions('public')])
 
 
 @fail_gracefully
 def admin_version_app_factory(global_conf, **local_conf):
-    conf = global_conf.copy()
-    conf.update(local_conf)
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [routers.Versions('admin')])
 
@@ -123,8 +115,6 @@ def admin_version_app_factory(global_conf, **local_conf):
 @fail_gracefully
 def v3_app_factory(global_conf, **local_conf):
     controllers.register_version('v3')
-    conf = global_conf.copy()
-    conf.update(local_conf)
     mapper = routes.Mapper()
     v3routers = []
     for module in [assignment, auth, catalog, credential, identity, policy]:
