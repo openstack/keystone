@@ -29,6 +29,10 @@ CONF = config.CONF
 
 
 def run_once(f):
+    """A decorator to ensure the decorated function is only executed once.
+
+    The decorated function cannot expect any arguments.
+    """
     @functools.wraps(f)
     def wrapper():
         if not wrapper.already_ran:
@@ -69,11 +73,17 @@ def _initialize_sql_session():
 def _load_sqlalchemy_models():
     """Find all modules containing SQLAlchemy models and import them.
 
-    This will create more consistent, deterministic test runs because the
-    database schema will be predictable. The schema is created based on the
-    models already imported. This can change during the course of a test run.
-    If all models are imported ahead of time then the schema will always be
-    the same.
+    This creates more consistent, deterministic test runs because tables
+    for all core and extension models are always created in the test
+    database. We ensure this by importing all modules that contain model
+    definitions.
+
+    The database schema during test runs is created using reflection.
+    Reflection is simply SQLAlchemy taking the model definitions for
+    all models currently imported and making tables for each of them.
+    The database schema created during test runs may vary between tests
+    as more models are imported. Importing all models at the start of
+    the test run avoids this problem.
 
     """
     keystone_root = os.path.normpath(os.path.join(

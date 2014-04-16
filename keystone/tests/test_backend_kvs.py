@@ -26,8 +26,8 @@ from keystone.tests import test_backend
 
 class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
     def setUp(self):
-        # NOTE(dstanek): setup the database for subsystems that do not have a
-        # KVS backend (like credentials)
+        # NOTE(dstanek): setup the database for subsystems that only have a
+        # SQL backend (like credentials)
         self.useFixture(database.Database())
 
         super(KvsIdentity, self).setUp()
