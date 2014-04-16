@@ -100,6 +100,7 @@ following the semantics below:
 .. code:: python
 
     from keystone.common import wsgi
+    from keystone import exception
 
     class MyMiddlewareAuth(wsgi.Middleware):
         def __init__(self, *args, **kwargs):
@@ -114,7 +115,7 @@ following the semantics below:
                 # Not applicable
                 return self.application
 
-            username = self.do_auth(request):
+            username = self.do_auth(request)
             if username is not None:
                 # User is authenticated
                 request.environ['REMOTE_USER'] = username
