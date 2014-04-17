@@ -40,6 +40,12 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
             group='identity',
             driver='keystone.identity.backends.kvs.Identity')
 
+    def test_password_hashed(self):
+        driver = self.identity_api._select_identity_driver(
+            self.user_foo['domain_id'])
+        user_ref = driver._get_user(self.user_foo['id'])
+        self.assertNotEqual(user_ref['password'], self.user_foo['password'])
+
     def test_list_projects_for_user_with_grants(self):
         self.skipTest('kvs backend is now deprecated')
 
