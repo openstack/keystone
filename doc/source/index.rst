@@ -44,6 +44,7 @@ Getting Started
     setup
     installing
     configuration
+    configure_federation
     configuringservices
     community
 
