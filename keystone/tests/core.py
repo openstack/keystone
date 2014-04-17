@@ -42,6 +42,7 @@ from keystone.common import environment
 environment.use_eventlet()
 
 from keystone import auth
+from keystone import backends
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
@@ -52,7 +53,6 @@ from keystone import notifications
 from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
-from keystone import service
 from keystone.tests import ksfixtures
 
 # NOTE(dstanek): Tests inheriting from TestCase depend on having the
@@ -436,7 +436,7 @@ class TestCase(BaseTestCase):
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
         self.clear_auth_plugin_registry()
-        drivers = service.load_backends()
+        drivers = backends.load_backends()
 
         drivers.update(dependency.resolve_future_dependencies())
 
