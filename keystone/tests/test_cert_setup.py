@@ -19,7 +19,6 @@ import shutil
 from keystone.common import openssl
 from keystone import exception
 from keystone import tests
-from keystone.tests import default_fixtures
 from keystone.tests import rest
 from keystone import token
 
@@ -37,9 +36,6 @@ class CertSetupTestCase(rest.RestfulTestCase):
 
     def setUp(self):
         super(CertSetupTestCase, self).setUp()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        self.controller = token.controllers.Auth()
 
         def cleanup_ssldir():
             try:
@@ -68,6 +64,8 @@ class CertSetupTestCase(rest.RestfulTestCase):
             keyfile=os.path.join(KEYDIR, 'keystonekey.pem'))
 
     def test_can_handle_missing_certs(self):
+        controller = token.controllers.Auth()
+
         self.config_fixture.config(group='signing', certfile='invalid')
         user = {
             'id': 'fake1',
@@ -83,7 +81,7 @@ class CertSetupTestCase(rest.RestfulTestCase):
         }
         self.identity_api.create_user(user['id'], user)
         self.assertRaises(exception.UnexpectedError,
-                          self.controller.authenticate,
+                          controller.authenticate,
                           {}, body_dict)
 
     def test_create_pki_certs(self):
