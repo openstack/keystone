@@ -51,6 +51,19 @@ def _process_attr(attr_name, value_or_values):
 
     def normalize_dn(dn):
         # Capitalize the attribute names as an LDAP server might.
+
+        # NOTE(blk-u): Special case for this tested value, used with
+        # test_user_id_comma. The call to str2dn here isn't always correct
+        # here, because `dn` is escaped for an LDAP filter. str2dn() normally
+        # works only because there's no special characters in `dn`.
+        if dn == 'cn=Doe\\5c, John,ou=Users,cn=example,cn=com':
+            return 'CN=Doe\\, John,OU=Users,CN=example,CN=com'
+
+        # NOTE(blk-u): Another special case for this tested value. When a
+        # roleOccupant has an escaped comma, it gets converted to \2C.
+        if dn == 'cn=Doe\\, John,ou=Users,cn=example,cn=com':
+            return 'CN=Doe\\2C John,OU=Users,CN=example,CN=com'
+
         dn = ldap.dn.str2dn(dn)
         norm = []
         for part in dn:
@@ -118,7 +131,9 @@ def _match(key, value, attrs):
         str_sids = [str(x) for x in attrs[key]]
         return str(value) in str_sids
     if key != 'objectclass':
-        return _process_attr(key, value)[0] in attrs[key]
+        check_value = _process_attr(key, value)[0]
+        norm_values = list(_process_attr(key, x)[0] for x in attrs[key])
+        return check_value in norm_values
     # it is an objectclass check, so check subclasses
     values = _subs(value)
     for v in values:

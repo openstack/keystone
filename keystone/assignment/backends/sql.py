@@ -86,6 +86,21 @@ class Assignment(assignment.Driver):
             session = sql.get_session()
 
         q = session.query(RoleAssignment)
+
+        def _calc_assignment_type():
+            # Figure out the assignment type we're checking for from the args.
+            if user_id:
+                if tenant_id:
+                    return AssignmentType.USER_PROJECT
+                else:
+                    return AssignmentType.USER_DOMAIN
+            else:
+                if tenant_id:
+                    return AssignmentType.GROUP_PROJECT
+                else:
+                    return AssignmentType.GROUP_DOMAIN
+
+        q = q.filter_by(type=_calc_assignment_type())
         q = q.filter_by(actor_id=user_id or group_id)
         q = q.filter_by(target_id=tenant_id or domain_id)
         refs = q.all()

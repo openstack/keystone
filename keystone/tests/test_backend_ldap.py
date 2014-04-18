@@ -546,6 +546,34 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_updated_arbitrary_attributes_are_returned_from_update_user(self):
         self.skipTest("Using arbitrary attributes doesn't work under LDAP")
 
+    def test_user_id_comma_grants(self):
+        """Even if the user has a , in their ID, can get user and group grants.
+        """
+
+        # Create a user with a , in their ID
+        # NOTE(blk-u): the DN for this user is hard-coded in fakeldap!
+        user_id = u'Doe, John'
+        user = {
+            'id': user_id,
+            'name': self.getUniqueString(),
+            'password': self.getUniqueString(),
+            'domain_id': CONF.identity.default_domain_id,
+        }
+        self.identity_api.create_user(user_id, user)
+
+        # Grant the user a role on a project.
+
+        role_id = 'member'
+        project_id = self.tenant_baz['id']
+
+        self.assignment_api.create_grant(role_id, user_id=user_id,
+                                         project_id=project_id)
+
+        role_ref = self.assignment_api.get_grant(role_id, user_id=user_id,
+                                                 project_id=project_id)
+
+        self.assertEqual(role_id, role_ref['id'])
+
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
     def setUp(self):
