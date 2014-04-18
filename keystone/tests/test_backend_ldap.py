@@ -1250,6 +1250,45 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             user1['id'], CONF.identity.default_domain_id)
         self.assertEqual(0, len(combined_role_list))
 
+    def test_get_roles_for_user_and_project_user_group_same_id(self):
+        """When a user has the same ID as a group,
+        get_roles_for_user_and_project returns the roles for the group.
+
+        Overriding this test for LDAP because it works differently. The role
+        for the group is returned. This is bug 1309228.
+        """
+
+        # Setup: create user, group with same ID, role, and project;
+        # assign the group the role on the project.
+
+        user_group_id = uuid.uuid4().hex
+
+        user1 = {'id': user_group_id, 'name': uuid.uuid4().hex,
+                 'domain_id': CONF.identity.default_domain_id, }
+        self.identity_api.create_user(user_group_id, user1)
+
+        group1 = {'id': user_group_id, 'name': uuid.uuid4().hex,
+                  'domain_id': CONF.identity.default_domain_id, }
+        self.identity_api.create_group(user_group_id, group1)
+
+        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role1['id'], role1)
+
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': CONF.identity.default_domain_id, }
+        self.assignment_api.create_project(project1['id'], project1)
+
+        self.assignment_api.create_grant(role1['id'],
+                                         group_id=user_group_id,
+                                         project_id=project1['id'])
+
+        # Check the roles, shouldn't be any since the user wasn't granted any.
+        roles = self.assignment_api.get_roles_for_user_and_project(
+            user_group_id, project1['id'])
+
+        self.assertEqual([role1['id']], roles,
+                         'role for group is %s' % role1['id'])
+
     def test_list_projects_for_alternate_domain(self):
         self.skipTest(
             'N/A: LDAP does not support multiple domains')

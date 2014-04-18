@@ -1405,6 +1405,43 @@ class IdentityTests(object):
         self.assertIn(role_list[1]['id'], combined_role_list)
         self.assertIn(role_list[2]['id'], combined_role_list)
 
+    def test_get_roles_for_user_and_project_user_group_same_id(self):
+        """When a user has the same ID as a group,
+        get_roles_for_user_and_project returns only the roles for the user and
+        not the group.
+
+        """
+
+        # Setup: create user, group with same ID, role, and project;
+        # assign the group the role on the project.
+
+        user_group_id = uuid.uuid4().hex
+
+        user1 = {'id': user_group_id, 'name': uuid.uuid4().hex,
+                 'domain_id': DEFAULT_DOMAIN_ID, }
+        self.identity_api.create_user(user_group_id, user1)
+
+        group1 = {'id': user_group_id, 'name': uuid.uuid4().hex,
+                  'domain_id': DEFAULT_DOMAIN_ID, }
+        self.identity_api.create_group(user_group_id, group1)
+
+        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role1['id'], role1)
+
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': DEFAULT_DOMAIN_ID, }
+        self.assignment_api.create_project(project1['id'], project1)
+
+        self.assignment_api.create_grant(role1['id'],
+                                         group_id=user_group_id,
+                                         project_id=project1['id'])
+
+        # Check the roles, shouldn't be any since the user wasn't granted any.
+        roles = self.assignment_api.get_roles_for_user_and_project(
+            user_group_id, project1['id'])
+
+        self.assertEqual([], roles, 'role for group is %s' % role1['id'])
+
     def test_delete_role_with_user_and_group_grants(self):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assignment_api.create_role(role1['id'], role1)
