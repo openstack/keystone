@@ -70,6 +70,7 @@ class Assignment(assignment.Driver):
             query = session.query(RoleAssignment.actor_id)
             query = query.filter_by(type=AssignmentType.USER_PROJECT)
             query = query.filter_by(target_id=tenant_id)
+            query = query.distinct('actor_id', 'target_id')
             assignments = query.all()
             return [assignment.actor_id for assignment in assignments]
 
