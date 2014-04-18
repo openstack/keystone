@@ -187,6 +187,38 @@ class IdentityTests(object):
         self.assertIn(self.user_two['id'], user_ids)
         self.assertIn(self.user_badguy['id'], user_ids)
 
+    def test_list_user_ids_for_project_no_duplicates(self):
+        # Create user
+        user_ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'password': uuid.uuid4().hex,
+            'enabled': True}
+        self.identity_api.create_user(user_ref['id'], user_ref)
+        # Create project
+        project_ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assignment_api.create_project(
+            project_ref['id'], project_ref)
+        # Create 2 roles and give user each role in project
+        for i in range(2):
+            role_ref = {
+                'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex}
+            self.assignment_api.create_role(role_ref['id'], role_ref)
+            self.assignment_api.add_role_to_user_and_project(
+                user_id=user_ref['id'],
+                tenant_id=project_ref['id'],
+                role_id=role_ref['id'])
+        # Get the list of user_ids in project
+        user_ids = self.assignment_api.list_user_ids_for_project(
+            project_ref['id'])
+        # Ensure the user is only returned once
+        self.assertEqual(1, len(user_ids))
+
     def test_get_project_user_ids_404(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.list_user_ids_for_project,
