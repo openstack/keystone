@@ -41,7 +41,7 @@ util_opts = [
                 help='Whether to disable inter-process locks'),
     cfg.StrOpt('lock_path',
                default=os.environ.get("KEYSTONE_LOCK_PATH"),
-               help=('Directory to use for lock files.'))
+               help='Directory to use for lock files.')
 ]
 
 

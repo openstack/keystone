@@ -274,13 +274,14 @@ class Message(six.text_type):
     def __radd__(self, other):
         return self.__add__(other)
 
-    def __str__(self):
-        # NOTE(luisg): Logging in python 2.6 tries to str() log records,
-        # and it expects specifically a UnicodeError in order to proceed.
-        msg = _('Message objects do not support str() because they may '
-                'contain non-ascii characters. '
-                'Please use unicode() or translate() instead.')
-        raise UnicodeError(msg)
+    if six.PY2:
+        def __str__(self):
+            # NOTE(luisg): Logging in python 2.6 tries to str() log records,
+            # and it expects specifically a UnicodeError in order to proceed.
+            msg = _('Message objects do not support str() because they may '
+                    'contain non-ascii characters. '
+                    'Please use unicode() or translate() instead.')
+            raise UnicodeError(msg)
 
 
 def get_available_languages(domain):

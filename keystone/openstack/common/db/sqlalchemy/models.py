@@ -70,7 +70,7 @@ class ModelBase(six.Iterator):
         return []
 
     def __iter__(self):
-        columns = dict(object_mapper(self).columns).keys()
+        columns = list(dict(object_mapper(self).columns).keys())
         # NOTE(russellb): Allow models to specify other keys that can be looked
         # up, beyond the actual db columns.  An example would be the 'name'
         # property for an Instance.

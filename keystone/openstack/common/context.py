@@ -25,7 +25,7 @@ import uuid
 
 
 def generate_request_id():
-    return 'req-%s' % str(uuid.uuid4())
+    return b'req-' + str(uuid.uuid4()).encode('ascii')
 
 
 class RequestContext(object):

@@ -254,6 +254,14 @@ def get_table(engine, name):
 
     Needed because the models don't work for us in migrations
     as models will be far out of sync with the current data.
+
+    .. warning::
+
+       Do not use this method when creating ForeignKeys in database migrations
+       because sqlalchemy needs the same MetaData object to hold information
+       about the parent table and the reference table in the ForeignKey. This
+       method uses a unique MetaData object per table object so it won't work
+       with ForeignKey creation.
     """
     metadata = MetaData()
     metadata.bind = engine
