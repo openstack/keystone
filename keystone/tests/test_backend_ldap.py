@@ -1045,7 +1045,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                        'fake:invalid', 'invalid1', 'invalid2:',
                        'description:name:something']
         mapping = self.identity_api.driver.user._parse_extra_attrs(option_list)
-        expected_dict = {'description': 'name', 'gecos': 'password'}
+        expected_dict = {'description': 'name', 'gecos': 'password',
+                         'fake': 'invalid', 'invalid2': ''}
         self.assertDictEqual(expected_dict, mapping)
 
 # TODO(henry-nash): These need to be removed when the full LDAP implementation
