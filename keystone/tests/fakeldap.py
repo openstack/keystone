@@ -30,7 +30,6 @@ import six
 from six import moves
 
 from keystone.common.ldap import core
-from keystone.common import utils
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
@@ -251,7 +250,7 @@ class FakeLdap(core.LDAPHandler):
                       core.utf8_decode(who))
             raise ldap.INAPPROPRIATE_AUTH
 
-        if not utils.ldap_check_password(cred, db_password):
+        if cred != db_password:
             LOG.debug('bind fail: password for who=%s does not match',
                       core.utf8_decode(who))
             raise ldap.INVALID_CREDENTIALS
