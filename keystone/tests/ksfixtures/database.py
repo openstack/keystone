@@ -56,7 +56,7 @@ def _setup_database(extensions=None):
 
 
 @run_once
-def _initialize_sql_session():
+def initialize_sql_session():
     # Make sure the DB is located in the correct location, in this case set
     # the default value, as this should be able to be overridden in some
     # test cases.
@@ -92,7 +92,7 @@ class Database(fixtures.Fixture):
     def __init__(self, extensions=None):
         super(Database, self).__init__()
         self._extensions = extensions
-        _initialize_sql_session()
+        initialize_sql_session()
         _load_sqlalchemy_models()
 
     def setUp(self):
