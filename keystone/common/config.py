@@ -251,7 +251,7 @@ FILE_OPTIONS = {
         # backend.
         cfg.StrOpt('backend', default='keystone.common.cache.noop',
                    help='Dogpile.cache backend module. It is recommended '
-                        'that Memcache (dogpile.cache.memcache) or Redis '
+                        'that Memcache (dogpile.cache.memcached) or Redis '
                         '(dogpile.cache.redis) be used in production '
                         'deployments.  Small workloads (single process) '
                         'like devstack can use the dogpile.cache.memory '
