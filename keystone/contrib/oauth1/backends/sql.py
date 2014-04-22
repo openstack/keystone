@@ -204,7 +204,8 @@ class OAuth1(object):
             token_ref = self._get_request_token(session, request_token_id)
             token_dict = token_ref.to_dict()
             token_dict['authorizing_user_id'] = user_id
-            token_dict['verifier'] = str(random.randint(1000, 9999))
+            token_dict['verifier'] = ''.join(random.sample(core.VERIFIER_CHARS,
+                                                           8))
             token_dict['role_ids'] = jsonutils.dumps(role_ids)
 
             new_token = RequestToken.from_dict(token_dict)

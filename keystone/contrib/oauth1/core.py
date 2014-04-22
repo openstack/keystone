@@ -17,6 +17,7 @@
 from __future__ import absolute_import
 
 import abc
+import string
 
 import oauthlib.common
 from oauthlib import oauth1
@@ -39,6 +40,11 @@ AuthorizationEndpoint = oauth1.AuthorizationEndpoint
 SIG_HMAC = oauth1.SIGNATURE_HMAC
 RequestTokenEndpoint = oauth1.RequestTokenEndpoint
 oRequest = oauthlib.common.Request
+# The characters used to generate verifiers are limited to alphanumerical
+# values for ease of manual entry. Commonly confused characters are omitted.
+VERIFIER_CHARS = string.ascii_letters + string.digits
+CONFUSED_CHARS = 'jiIl1oO0'
+VERIFIER_CHARS = ''.join(c for c in VERIFIER_CHARS if c not in CONFUSED_CHARS)
 
 
 class Token(object):

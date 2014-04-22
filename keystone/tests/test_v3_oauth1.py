@@ -20,6 +20,7 @@ from six.moves import urllib
 from keystone import config
 from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
+from keystone.contrib.oauth1 import core
 from keystone import exception
 from keystone.tests import test_v3
 
@@ -256,6 +257,8 @@ class OAuthFlowTests(OAuth1Tests):
         body = {'roles': [{'id': self.role_id}]}
         resp = self.put(url, body=body, expected_status=200)
         self.verifier = resp.result['token']['oauth_verifier']
+        self.assertTrue(all(i in core.VERIFIER_CHARS for i in self.verifier))
+        self.assertEqual(8, len(self.verifier))
 
         self.request_token.set_verifier(self.verifier)
         url, headers = self._create_access_token(self.consumer,

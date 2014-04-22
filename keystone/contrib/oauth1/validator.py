@@ -58,10 +58,8 @@ class OAuthValidator(oauth1.RequestValidator):
         return set(nonce) <= self.safe_characters
 
     def check_verifier(self, verifier):
-        try:
-            return 1000 <= int(verifier) <= 9999
-        except ValueError:
-            return False
+        return (all(i in oauth1.VERIFIER_CHARS for i in verifier) and
+                len(verifier) == 8)
 
     def get_client_secret(self, client_key, request):
         client = self.oauth_api.get_consumer_with_secret(client_key)
