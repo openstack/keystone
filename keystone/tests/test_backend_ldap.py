@@ -1003,18 +1003,20 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         dn, attrs = self.identity_api.driver.user._ldap_get(user['id'])
         self.assertTrue(user['name'] in attrs['description'])
 
-    def test_user_extra_attribute_mapping_description(self):
-        # Given a mapping like description:description, the description isn't
+    def test_user_extra_attribute_mapping_description_is_returned(self):
+        # Given a mapping like description:description, the description is
         # returned.
 
         self.config_fixture.config(
             group='ldap',
             user_additional_attribute_mapping=['description:description'])
         self.load_backends()
+
+        description = uuid.uuid4().hex
         user = {
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
+            'description': description,
             'password': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id
         }
@@ -1022,9 +1024,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         res = self.identity_api.driver.user.get_all()
 
         new_user = [u for u in res if u['id'] == user['id']][0]
-        # TODO(blk-u): The description should be returned, see bug #1293698.
-        self.assertThat(new_user,
-                        matchers.Not(matchers.Contains('description')))
+        self.assertThat(new_user['description'], matchers.Equals(description))
 
     @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
     def test_user_mixed_case_attribute(self, mock_ldap_get):

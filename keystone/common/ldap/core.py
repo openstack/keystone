@@ -918,10 +918,12 @@ class BaseLdap(object):
                                             self.ldap_filter or
                                             '', self.object_class)
         try:
+            attrs = list(set((self.attribute_mapping.values() +
+                              self.extra_attr_mapping.keys())))
             return conn.search_s(self.tree_dn,
                                  self.LDAP_SCOPE,
                                  query,
-                                 self.attribute_mapping.values())
+                                 attrs)
         except ldap.NO_SUCH_OBJECT:
             return []
         finally:
