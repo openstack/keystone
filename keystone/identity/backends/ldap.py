@@ -336,17 +336,9 @@ class GroupApi(common_ldap.BaseLdap):
 
     def list_group_users(self, group_id):
         """Return a list of user dns which are members of a group."""
-        query = '(objectClass=%s)' % self.object_class
-        conn = self.get_connection()
         group_dn = self._id_to_dn(group_id)
-        try:
-            attrs = conn.search_s(group_dn,
-                                  ldap.SCOPE_BASE,
-                                  query, ['%s' % self.member_attribute])
-        except ldap.NO_SUCH_OBJECT:
-            return []
-        finally:
-            conn.unbind_s()
+        attrs = self._ldap_get_list(group_dn, ldap.SCOPE_BASE,
+                                    attrlist=(self.member_attribute,))
         users = []
         for dn, member in attrs:
             user_dns = member.get(self.member_attribute, [])

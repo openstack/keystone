@@ -927,6 +927,21 @@ class BaseLdap(object):
         finally:
             conn.unbind_s()
 
+    def _ldap_get_list(self, search_base, scope, query_params=None,
+                       attrlist=None):
+        conn = self.get_connection()
+        query = u'(objectClass=%s)' % self.object_class
+        if query_params:
+            query = (u'(&%s%s)' %
+                     (query, ''.join(['(%s=%s)' % (k, v) for k, v in
+                                      six.iteritems(query_params)])))
+        try:
+            return conn.search_s(search_base, scope, query, attrlist)
+        except ldap.NO_SUCH_OBJECT:
+            return []
+        finally:
+            conn.unbind_s()
+
     def get(self, object_id, ldap_filter=None):
         res = self._ldap_get(object_id, ldap_filter)
         if res is None:
