@@ -12,9 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import uuid
 
+from keystoneclient.common import cms
 import six
+from testtools import matchers
 
 from keystone.common import extension
 from keystone import config
@@ -1209,6 +1212,54 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
     def assertValidRevocationListResponse(self, response):
         self.assertIsNotNone(response.result['signed'])
 
+    def _fetch_parse_revocation_list(self):
+
+        token1 = self.get_scoped_token()
+
+        token2 = self.get_scoped_token()
+        self.admin_request(method='DELETE',
+                           path='/v2.0/tokens/%s' % token2,
+                           token=token1)
+
+        r = self.admin_request(
+            method='GET',
+            path='/v2.0/tokens/revoked',
+            token=token1,
+            expected_status=200)
+        signed_text = r.result['signed']
+
+        data_json = cms.cms_verify(signed_text, CONF.signing.certfile,
+                                   CONF.signing.ca_certs)
+
+        data = json.loads(data_json)
+
+        return (data, token2)
+
+    def test_fetch_revocation_list_md5(self):
+        """If the server is configured for md5, then the revocation list has
+           tokens hashed with MD5.
+        """
+
+        # The default hash algorithm is md5.
+        hash_algorithm = 'md5'
+
+        (data, token) = self._fetch_parse_revocation_list()
+        token_hash = cms.cms_hash_token(token, mode=hash_algorithm)
+        self.assertThat(token_hash, matchers.Equals(data['revoked'][0]['id']))
+
+    def test_fetch_revocation_list_sha256(self):
+        """If the server is configured for sha256, then the revocation list has
+           tokens hashed with SHA256
+        """
+
+        hash_algorithm = 'sha256'
+        self.config_fixture.config(group='token',
+                                   hash_algorithm=hash_algorithm)
+
+        (data, token) = self._fetch_parse_revocation_list()
+        token_hash = cms.cms_hash_token(token, mode=hash_algorithm)
+        self.assertThat(token_hash, matchers.Equals(data['revoked'][0]['id']))
+
     def test_create_update_user_json_invalid_enabled_type(self):
         # Enforce usage of boolean for 'enabled' field in JSON
         token = self.get_scoped_token()
@@ -1332,6 +1383,12 @@ class RevokeApiJsonTestCase(JsonTestCase):
             revoke_by_id=False)
 
     def test_fetch_revocation_list_admin_200(self):
+        self.skipTest('Revoke API disables revocation_list.')
+
+    def test_fetch_revocation_list_md5(self):
+        self.skipTest('Revoke API disables revocation_list.')
+
+    def test_fetch_revocation_list_sha256(self):
         self.skipTest('Revoke API disables revocation_list.')
 
 
