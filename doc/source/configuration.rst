@@ -848,14 +848,14 @@ OAuth1.0a
 .. toctree::
    :maxdepth: 1
 
-   extensions/oauth1-configuration.rst
+   extensions/oauth1.rst
 
 Endpoint Filtering
 ------------------
 .. toctree::
    :maxdepth: 1
 
-   extensions/endpoint_filter-configuration.rst
+   extensions/endpoint_filter.rst
 
 Federation
 ----------
@@ -863,7 +863,7 @@ Federation
 .. toctree::
    :maxdepth: 1
 
-   extensions/federation-configuration.rst
+   extensions/federation.rst
 
 Revocation Events
 ------------------
@@ -871,7 +871,7 @@ Revocation Events
 .. toctree::
    :maxdepth: 1
 
-   extensions/revoke-configuration.rst
+   extensions/revoke.rst
 
 .. _`prepare your deployment`:
 
