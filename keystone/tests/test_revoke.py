@@ -549,11 +549,14 @@ class RevokeTreeTests(tests.TestCase):
     def test_cleanup(self):
         events = self.events
         self._assertEmpty(self.tree.revoke_map)
+        expiry_base_time = _future_time()
         for i in range(0, 10):
             events.append(
                 self._revoke_by_user(_new_id()))
+            args = (_new_id(),
+                    expiry_base_time + datetime.timedelta(seconds=i))
             events.append(
-                self._revoke_by_expiration(_new_id(), _future_time()))
+                self._revoke_by_expiration(*args))
             events.append(
                 self._revoke_by_project_role_assignment(_new_id(), _new_id()))
             events.append(
