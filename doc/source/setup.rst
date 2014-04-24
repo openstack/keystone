@@ -32,7 +32,7 @@ Prerequisites
 
 This document assumes you are using:
 
-- Ubuntu 12.04, Fedora 15, or Mac OS X Lion
+- Ubuntu, Fedora, or Mac OS X
 - `Python 2.7`_
 
 .. _`Python 2.7`: http://www.python.org/
@@ -89,11 +89,11 @@ Fedora 15::
 
     $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel
 
-Mac OS X Lion (requires MacPorts_)::
+Mac OS X 10.9 (requires Homebrew_)::
 
-    $ sudo port install py-ldap
+    $ brew install python openssl
 
-.. _MacPorts: http://www.macports.org/
+.. _Homebrew: http://brew.sh/
 
 PyPi Packages and VirtualEnv
 ----------------------------
