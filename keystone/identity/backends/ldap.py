@@ -174,12 +174,10 @@ class Identity(identity.Driver):
         self.get_user(user_id)
         self.get_group(group_id)
         user_refs = self.list_users_in_group(group_id, driver_hints.Hints())
-        found = False
         for x in user_refs:
             if x['id'] == user_id:
-                found = True
                 break
-        if not found:
+        else:
             raise exception.NotFound(_('User not found in group'))
 
 

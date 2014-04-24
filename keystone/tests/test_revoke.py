@@ -79,12 +79,10 @@ def _matches(event, token_values):
 
     # The token has two attributes that can match the domain_id
     if event.domain_id is not None:
-        dom_id_matched = False
         for attribute_name in ['user_domain_id', 'project_domain_id']:
             if event.domain_id == token_values[attribute_name]:
-                dom_id_matched = True
                 break
-        if not dom_id_matched:
+        else:
             return False
 
     # If any one check does not match, the while token does
@@ -102,12 +100,10 @@ def _matches(event, token_values):
 
     if event.role_id is not None:
         roles = token_values['roles']
-        role_found = False
         for role in roles:
             if event.role_id == role:
-                role_found = True
                 break
-        if not role_found:
+        else:
             return False
     if token_values['issued_at'] > event.issued_before:
         return False
