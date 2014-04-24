@@ -79,8 +79,16 @@ def _load_sqlalchemy_models():
     keystone_root = os.path.normpath(os.path.join(
         os.path.dirname(__file__), '..', '..'))
     for root, dirs, files in os.walk(keystone_root):
+        # NOTE(morganfainberg): Slice the keystone_root off the root to ensure
+        # we do not end up with a module name like:
+        # Users.home.openstack.keystone.assignment.backends.sql
+        root = root[len(keystone_root):]
         if root.endswith('backends') and 'sql.py' in files:
-            module_name = root.replace(os.sep, '.') + '.sql'
+            # The root will be prefixed with an instance of os.sep, which will
+            # make the root after replacement '.<root>', the 'keystone' part
+            # of the module path is always added to the front
+            module_name = ('keystone.%s.sql' %
+                           root.replace(os.sep, '.').lstrip('.'))
             __import__(module_name)
 
 
