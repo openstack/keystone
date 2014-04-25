@@ -18,6 +18,7 @@ import uuid
 
 from babel import localedata
 import mock
+from testtools import matchers
 import webob
 
 from keystone.common import environment
@@ -272,6 +273,66 @@ class LocalizedResponseTest(tests.TestCase):
         # are lazy-translated.
         self.assertIsInstance(_('The resource could not be found.'),
                               gettextutils.Message)
+
+    def test_get_localized_response(self):
+        # If the request has the Accept-Language set to a supported language
+        # and an exception is raised by the application that is translatable
+        # then the response will have the translated message.
+
+        language = uuid.uuid4().hex
+
+        self._set_expected_languages(all_locales=[language])
+
+        # The arguments for the xlated message format have to match the args
+        # for the chosen exception (exception.NotFound)
+        xlated_msg_fmt = "Xlated NotFound, %(target)s."
+
+        # Fake out gettext.translation() to return a translator for our
+        # expected language and a passthrough translator for other langs.
+
+        def fake_translation(*args, **kwargs):
+            class IdentityTranslator(object):
+                def ugettext(self, msgid):
+                    return msgid
+
+                gettext = ugettext
+
+            class LangTranslator(object):
+                def ugettext(self, msgid):
+                    if msgid == exception.NotFound.message_format:
+                        return xlated_msg_fmt
+                    return msgid
+
+                gettext = ugettext
+
+            if language in kwargs.get('languages', []):
+                return LangTranslator()
+            return IdentityTranslator()
+
+        with mock.patch.object(gettext, 'translation',
+                               side_effect=fake_translation) as xlation_mock:
+            target = uuid.uuid4().hex
+
+            # Fake app raises NotFound exception to simulate Keystone raising.
+
+            class FakeApp(wsgi.Application):
+                def index(self, context):
+                    raise exception.NotFound(target=target)
+
+            # Make the request with Accept-Language on the app, expect an error
+            # response with the translated message.
+
+            req = webob.Request.blank('/')
+            args = {'action': 'index', 'controller': None}
+            req.environ['wsgiorg.routing_args'] = [None, args]
+            req.headers['Accept-Language'] = language
+            resp = req.get_response(FakeApp())
+
+            # Assert that the translated message appears in the response.
+
+            exp_msg = xlated_msg_fmt % dict(target=target)
+            self.assertThat(resp.body, matchers.Contains(exp_msg))
+            self.assertThat(xlation_mock.called, matchers.Equals(True))
 
 
 class ServerTest(tests.TestCase):
