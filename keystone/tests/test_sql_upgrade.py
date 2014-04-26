@@ -48,6 +48,7 @@ from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.db.sqlalchemy import session as db_session
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 
 
 CONF = config.CONF
@@ -129,6 +130,7 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
 
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
+        database.initialize_sql_session()
         conn_str = CONF.database.connection
         if (conn_str != tests.IN_MEM_DB_CONN_STRING and
                 conn_str.startswith('sqlite') and
