@@ -144,12 +144,6 @@ class IdentityTests(object):
                           user_id=id_,
                           password='password')
 
-    def test_password_hashed(self):
-        driver = self.identity_api._select_identity_driver(
-            self.user_foo['domain_id'])
-        user_ref = driver._get_user(self.user_foo['id'])
-        self.assertNotEqual(user_ref['password'], self.user_foo['password'])
-
     def test_create_unicode_user_name(self):
         unicode_name = u'name \u540d\u5b57'
         user = {'id': uuid.uuid4().hex,
