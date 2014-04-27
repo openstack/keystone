@@ -287,6 +287,7 @@ def lock(name, lock_file_prefix=None, external=False, lock_path=None):
                 yield ext_lock
         else:
             yield int_lock
+    LOG.debug('Released semaphore "%(lock)s"', {'lock': name})
 
 
 def synchronized(name, lock_file_prefix=None, external=False, lock_path=None):
