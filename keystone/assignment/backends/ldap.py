@@ -509,16 +509,14 @@ class RoleApi(common_ldap.BaseLdap):
         return super(RoleApi, self).create(values)
 
     def add_user(self, role_id, role_dn, user_dn, user_id, tenant_id=None):
-        conn = self.get_connection()
         try:
-            conn.modify_s(role_dn, [(ldap.MOD_ADD,
-                                     self.member_attribute, user_dn)])
-        except ldap.TYPE_OR_VALUE_EXISTS:
+            super(RoleApi, self).add_member(user_dn, role_dn)
+        except exception.Conflict:
             msg = (_('User %(user_id)s already has role %(role_id)s in '
                      'tenant %(tenant_id)s') %
                    dict(user_id=user_id, role_id=role_id, tenant_id=tenant_id))
             raise exception.Conflict(type='role grant', details=msg)
-        except ldap.NO_SUCH_OBJECT:
+        except self.NotFound:
             if tenant_id is None or self.get(role_id) is None:
                 raise Exception(_("Role %s not found") % (role_id,))
 
@@ -527,21 +525,19 @@ class RoleApi(common_ldap.BaseLdap):
 
             if self.use_dumb_member:
                 attrs[1][1].append(self.dumb_member)
-            conn.add_s(role_dn, attrs)
-        finally:
-            conn.unbind_s()
+            conn = self.get_connection()
+            try:
+                conn.add_s(role_dn, attrs)
+            finally:
+                conn.unbind_s()
 
     def delete_user(self, role_dn, user_dn, role_id):
-        conn = self.get_connection()
         try:
-            conn.modify_s(role_dn, [(ldap.MOD_DELETE,
-                                     self.member_attribute, user_dn)])
-        except (ldap.NO_SUCH_OBJECT, ldap.NO_SUCH_ATTRIBUTE):
+            super(RoleApi, self).remove_member(user_dn, role_dn)
+        except (self.NotFound, ldap.NO_SUCH_ATTRIBUTE):
             raise exception.RoleNotFound(message=_(
                 'Cannot remove role that has not been granted, %s') %
                 role_id)
-        finally:
-            conn.unbind_s()
 
     def get_role_assignments(self, tenant_dn):
         roles = self._ldap_get_list(tenant_dn, ldap.SCOPE_ONELEVEL)
