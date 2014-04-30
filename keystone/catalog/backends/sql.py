@@ -30,7 +30,7 @@ class Region(sql.ModelBase, sql.DictBase):
     __tablename__ = 'region'
     attributes = ['id', 'description', 'parent_region_id']
     id = sql.Column(sql.String(64), primary_key=True)
-    description = sql.Column(sql.String(255))
+    description = sql.Column(sql.String(255), nullable=False)
     # NOTE(jaypipes): Right now, using an adjacency list model for
     #                 storing the hierarchy of regions is fine, since
     #                 the API does not support any kind of querying for
