@@ -39,6 +39,7 @@ import sqlalchemy.exc
 
 from keystone.assignment.backends import sql as assignment_sql
 from keystone.common import sql
+from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone.contrib import federation
@@ -231,18 +232,18 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
 
 class SqlUpgradeTests(SqlMigrateBase):
 
-    _initial_db_version = migration_helpers.DB_INIT_VERSION
+    _initial_db_version = migrate_repo.DB_INIT_VERSION
 
     def test_blank_db_to_start(self):
         self.assertTableDoesNotExist('user')
 
     def test_start_version_db_init_version(self):
         version = migration.db_version(sql.get_engine(), self.repo_path,
-                                       migration_helpers.DB_INIT_VERSION)
+                                       migrate_repo.DB_INIT_VERSION)
         self.assertEqual(
             version,
-            migration_helpers.DB_INIT_VERSION,
-            'DB is not at version %s' % migration_helpers.DB_INIT_VERSION)
+            migrate_repo.DB_INIT_VERSION,
+            'DB is not at version %s' % migrate_repo.DB_INIT_VERSION)
 
     def test_two_steps_forward_one_step_back(self):
         """You should be able to cleanly undo and re-apply all upgrades.
@@ -250,7 +251,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         Upgrades are run in the following order::
 
             Starting with the initial version defined at
-            keystone.common.migration_helpers.DB_INIT_VERSION
+            keystone.common.migrate_repo.DB_INIT_VERSION
 
             INIT +1 -> INIT +2 -> INIT +1 -> INIT +2 -> INIT +3 -> INIT +2 ...
             ^---------------------^          ^---------------------^
@@ -270,18 +271,18 @@ class SqlUpgradeTests(SqlMigrateBase):
         applied.
 
         """
-        for x in range(migration_helpers.DB_INIT_VERSION + 1,
+        for x in range(migrate_repo.DB_INIT_VERSION + 1,
                        self.max_version + 1):
             self.upgrade(x)
             downgrade_ver = x - 1
             # Don't actually downgrade to the init version. This will raise
             # a not-implemented error.
-            if downgrade_ver != migration_helpers.DB_INIT_VERSION:
+            if downgrade_ver != migrate_repo.DB_INIT_VERSION:
                 self.downgrade(x - 1)
             self.upgrade(x)
 
     def test_upgrade_add_initial_tables(self):
-        self.upgrade(migration_helpers.DB_INIT_VERSION + 1)
+        self.upgrade(migrate_repo.DB_INIT_VERSION + 1)
         self.check_initial_table_structure()
 
     def check_initial_table_structure(self):
@@ -310,7 +311,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         if self.engine.name == 'mysql':
             self._mysql_check_all_tables_innodb()
 
-        self.downgrade(migration_helpers.DB_INIT_VERSION + 1)
+        self.downgrade(migrate_repo.DB_INIT_VERSION + 1)
         self.check_initial_table_structure()
 
         meta = sqlalchemy.MetaData()
@@ -328,7 +329,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         # supported. A NotImplementedError should be raised when attempting to
         # downgrade.
         self.assertRaises(NotImplementedError, self.downgrade,
-                          migration_helpers.DB_INIT_VERSION)
+                          migrate_repo.DB_INIT_VERSION)
 
     def insert_dict(self, session, table_name, d, table=None):
         """Naively inserts key-value pairs into a table, given a dictionary."""
@@ -1326,12 +1327,12 @@ class SqlUpgradeTests(SqlMigrateBase):
 
 class VersionTests(SqlMigrateBase):
 
-    _initial_db_version = migration_helpers.DB_INIT_VERSION
+    _initial_db_version = migrate_repo.DB_INIT_VERSION
 
     def test_core_initial(self):
         """Get the version before migrated, it's the initial DB version."""
         version = migration_helpers.get_db_version()
-        self.assertEqual(migration_helpers.DB_INIT_VERSION, version)
+        self.assertEqual(migrate_repo.DB_INIT_VERSION, version)
 
     def test_core_max(self):
         """When get the version after upgrading, it's the new version."""
