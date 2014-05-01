@@ -319,7 +319,7 @@ def parse_pem(text, pem_type=None, max_items=None):
     """Scan text for PEM data, return list of PEM items
 
     The input text is scanned for PEM blocks, for each one found a
-    PEMParseResult is contructed and added to the return list.
+    PEMParseResult is constructed and added to the return list.
 
     pem_type operates as a filter on the type of PEM desired. If
     pem_type is specified only those PEM blocks which match will be

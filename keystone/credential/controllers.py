@@ -32,7 +32,7 @@ class CredentialV3(controller.V3Controller):
         self.get_member_from_driver = self.credential_api.get_credential
 
     def _assign_unique_id(self, ref, trust_id=None):
-        # Generates and assigns a unique identifer to
+        # Generates and assigns a unique identifier to
         # a credential reference.
         if ref.get('type', '').lower() == 'ec2':
             try:

@@ -32,7 +32,7 @@ class BaseASTChecker(ast.NodeVisitor):
     Subclasses should implement visit_* methods like any other AST visitor
     implementation. When they detect an error for a particular node the
     method should call ``self.add_error(offending_node)``. Details about
-    where in the code the error occured will be pulled from the node
+    where in the code the error occurred will be pulled from the node
     object.
 
     Subclasses should also provide a class variable named CHECK_DESC to

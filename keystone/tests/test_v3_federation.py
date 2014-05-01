@@ -71,7 +71,7 @@ class FederatedIdentityProviderTests(FederationTests):
         return (idp_id, idp)
 
     def _get_idp(self, idp_id):
-        """Fetch IdP entity based on it's id."""
+        """Fetch IdP entity based on its id."""
         url = self.base_url(suffix=idp_id)
         resp = self.get(url)
         return resp
@@ -862,7 +862,7 @@ class FederatedTokenTests(FederationTests):
         # Remove 'extras' if empty or None,
         # as JSON and XML (de)serializers treat
         # them differently, making dictionaries
-        # comparisions fail.
+        # comparisons fail.
         if not token_resp['token'].get('extras'):
             token_resp['token'].pop('extras')
         self._assertSerializeToXML(token_resp)

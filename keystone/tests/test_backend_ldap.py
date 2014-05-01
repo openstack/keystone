@@ -1647,7 +1647,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         # This should now be false, as is the default, since this is not
         # set in the standard primary config file
         self.assertFalse(conf.identity.domain_specific_drivers_enabled)
-        # ..and make sure a domain-specifc options is also set
+        # ..and make sure a domain-specific options is also set
         self.assertEqual('fake://memory1', conf.ldap.url)
 
     def test_add_role_grant_to_user_and_project_404(self):

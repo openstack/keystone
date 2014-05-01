@@ -291,7 +291,7 @@ class Application(BaseApplication):
         """Get the trust_id for a call.
 
         Retrieve the trust_id from the token
-        Returns None if token is is not trust scoped
+        Returns None if token is not trust scoped
         """
         if ('token_id' not in context or
                 context.get('token_id') == CONF.admin_token):
