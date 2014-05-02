@@ -92,6 +92,76 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             expected_status=201)
         self.assertValidRegionResponse(r, ref)
 
+    def test_create_region_without_description(self):
+        """Call ``POST /regions`` without description in the request body."""
+        ref = self.new_region_ref()
+
+        del ref['description']
+
+        r = self.post(
+            '/regions',
+            body={'region': ref},
+            expected_status=201)
+        # Create the description in the reference to compare to since the
+        # response should now have a description, even though we didn't send
+        # it with the original reference.
+        ref['description'] = ''
+        self.assertValidRegionResponse(r, ref)
+
+    def test_create_regions_with_same_description_string(self):
+        """Call ``POST /regions`` with same description in the request bodies.
+        """
+        # NOTE(lbragstad): Make sure we can create two regions that have the
+        # same description.
+        ref1 = self.new_region_ref()
+        ref2 = self.new_region_ref()
+
+        region_desc = 'Some Region Description'
+
+        ref1['description'] = region_desc
+        ref2['description'] = region_desc
+
+        resp1 = self.post(
+            '/regions',
+            body={'region': ref1},
+            expected_status=201)
+        self.assertValidRegionResponse(resp1, ref1)
+
+        resp2 = self.post(
+            '/regions',
+            body={'region': ref2},
+            expected_status=201)
+        self.assertValidRegionResponse(resp2, ref2)
+
+    def test_create_regions_without_descriptions(self):
+        """Call ``POST /regions`` with no description in the request bodies.
+        """
+        # NOTE(lbragstad): Make sure we can create two regions that have
+        # no description in the request body. The description should be
+        # populated by Catalog Manager.
+        ref1 = self.new_region_ref()
+        ref2 = self.new_region_ref()
+
+        del ref1['description']
+        del ref2['description']
+
+        resp1 = self.post(
+            '/regions',
+            body={'region': ref1},
+            expected_status=201)
+
+        resp2 = self.post(
+            '/regions',
+            body={'region': ref2},
+            expected_status=201)
+        # Create the descriptions in the references to compare to since the
+        # responses should now have descriptions, even though we didn't send
+        # a description with the original references.
+        ref1['description'] = ''
+        ref2['description'] = ''
+        self.assertValidRegionResponse(resp1, ref1)
+        self.assertValidRegionResponse(resp2, ref2)
+
     def test_create_region_with_conflicting_ids(self):
         """Call ``PUT /regions/{region_id}`` with conflicting region IDs."""
         # the region ref is created with an ID
