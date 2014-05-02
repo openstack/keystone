@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# Generate sample configuration for your project.
+#
+# Aside from the command line flags, it also respects a config file which
+# should be named oslo.config.generator.rc and be placed in the same directory.
+#
+# You can then export the following variables:
+# KEYSTONE_CONFIG_GENERATOR_EXTRA_MODULES: list of modules to interrogate for options.
+# KEYSTONE_CONFIG_GENERATOR_EXTRA_LIBRARIES: list of libraries to discover.
+# KEYSTONE_CONFIG_GENERATOR_EXCLUDED_FILES: list of files to remove from automatic listing.
+
 print_hint() {
     echo "Try \`${0##*/} --help' for more information." >&2
 }
@@ -94,6 +104,10 @@ if test -r "$RC_FILE"
 then
     source "$RC_FILE"
 fi
+
+for filename in ${KEYSTONE_CONFIG_GENERATOR_EXCLUDED_FILES}; do
+    FILES="${FILES[@]/$filename/}"
+done
 
 for mod in ${KEYSTONE_CONFIG_GENERATOR_EXTRA_MODULES}; do
     MODULES="$MODULES -m $mod"

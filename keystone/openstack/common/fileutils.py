@@ -105,7 +105,7 @@ def file_open(*args, **kwargs):
     be able to provide a stub module that doesn't alter system
     state at all (for unit tests)
     """
-    return file(*args, **kwargs)
+    return open(*args, **kwargs)
 
 
 def write_to_tempfile(content, path=None, suffix='', prefix='tmp'):

@@ -38,7 +38,7 @@ LOG = logging.getLogger(__name__)
 
 util_opts = [
     cfg.BoolOpt('disable_process_locking', default=False,
-                help='Whether to disable inter-process locks'),
+                help='Enables or disables inter-process locks.'),
     cfg.StrOpt('lock_path',
                default=os.environ.get("KEYSTONE_LOCK_PATH"),
                help='Directory to use for lock files.')
@@ -276,7 +276,7 @@ def lock(name, lock_file_prefix=None, external=False, lock_path=None):
 
     :param external: The external keyword argument denotes whether this lock
       should work across multiple processes. This means that if two different
-      workers both run a a method decorated with @synchronized('mylock',
+      workers both run a method decorated with @synchronized('mylock',
       external=True), only one of them will execute at a time.
     """
     int_lock = internal_lock(name)

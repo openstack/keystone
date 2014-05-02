@@ -78,7 +78,7 @@ def bool_from_string(subject, strict=False, default=False):
     Strings yielding False are 'f', 'false', 'off', 'n', 'no', or '0'.
     """
     if not isinstance(subject, six.string_types):
-        subject = str(subject)
+        subject = six.text_type(subject)
 
     lowered = subject.strip().lower()
 
