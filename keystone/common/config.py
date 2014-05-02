@@ -69,13 +69,6 @@ FILE_OPTIONS = {
                         'to set this value if the base URL contains a path '
                         '(e.g. /prefix/v2.0) or the endpoint should be found '
                         'on a different server.'),
-        cfg.StrOpt('onready',
-                   help='onready allows you to send a notification when the '
-                        'process is ready to serve. For example, to have it '
-                        'notify using systemd, one could set shell command: '
-                        '"onready = systemd-notify --ready" or a module '
-                        'with notify() method: '
-                        '"onready = keystone.common.systemd".'),
         # default max request size is 112k
         cfg.IntOpt('max_request_body_size', default=114688,
                    help='Enforced by optional sizelimit middleware '
