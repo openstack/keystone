@@ -231,7 +231,7 @@ became the default configuration option in the Grizzly release.
 Caching Layer
 -------------
 
-Keystone supports a caching layer that is above the configurable subsystems (e.g ``token``,
+Keystone supports a caching layer that is above the configurable subsystems (e.g. ``token``,
 ``identity``, etc).  Keystone uses the `dogpile.cache`_ library which allows for flexible
 cache backends. The majority of the caching configuration options are set in the ``[cache]``
 section.  However, each section that has the capability to be cached usually has a ``caching``

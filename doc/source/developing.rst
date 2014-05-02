@@ -135,7 +135,7 @@ The communication of the filter details between the controller level and its
 drivers is handled by the passing of a reference to a Hints object,
 which is a list of dicts describing the filters. A driver that satisfies a
 filter must delete the filter from the Hints object so that when it is returned
-back to the controller level, it knows to only execute any unsatisfied
+to the controller level, it knows to only execute any unsatisfied
 filters.
 
 The contract for a driver for ``list_{entity}`` methods is therefore:

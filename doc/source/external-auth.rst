@@ -45,7 +45,7 @@ Web servers like Apache HTTP support many methods of authentication. Keystone
 can profit from this feature and let the authentication be done in the web
 server, that will pass down the authenticated user to Keystone using the
 ``REMOTE_USER`` environment variable. This user must exist in advance in the
-identity backend so as to get a token from the controller.
+identity backend to get a token from the controller.
 
 To use this method, Keystone should be running on :doc:`HTTPD <apache-httpd>`.
 
