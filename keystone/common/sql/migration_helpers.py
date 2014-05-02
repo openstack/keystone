@@ -162,7 +162,8 @@ def sync_database_to_version(extension=None, version=None):
 
 def get_db_version(extension=None):
     if not extension:
-        return migration.db_version(sql.get_engine(), find_migrate_repo(), 0)
+        return migration.db_version(sql.get_engine(), find_migrate_repo(),
+                                    migrate_repo.DB_INIT_VERSION)
 
     try:
         package_name = '.'.join((contrib.__name__, extension))
