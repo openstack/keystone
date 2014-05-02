@@ -135,7 +135,7 @@ The communication of the filter details between the controller level and its
 drivers is handled by the passing of a reference to a Hints object,
 which is a list of dicts describing the filters. A driver that satisfies a
 filter must delete the filter from the Hints object so that when it is returned
-back to the controller level, it knows to only execute any unsatisfied
+to the controller level, it knows to only execute any unsatisfied
 filters.
 
 The contract for a driver for ``list_{entity}`` methods is therefore:
@@ -474,7 +474,7 @@ backend of the KVS system. The implementation allows for the use of any normal `
 cache backends to be used as a store. All interfacing to the KVS system happens via the
 ``KeyValueStore`` object located at ``keystone.common.kvs.KeyValueStore``.
 
-To utilize the KVS system an instantiation of the ``KeyValueStore`` class is needed. To accquire
+To utilize the KVS system an instantiation of the ``KeyValueStore`` class is needed. To acquire
 a KeyValueStore instantiation use the ``keystone.common.kvs.get_key_value_store`` factory
 function. This factory will either create a new ``KeyValueStore`` object or retrieve the
 already instantiated ``KeyValueStore`` object by the name passed as an argument. The object must

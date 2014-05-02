@@ -269,7 +269,7 @@ Example:
 
         def __init__(self):
             self.event_callbacks = {
-                # Here we add the the event_callbacks class attribute that
+                # Here we add the event_callbacks class attribute that
                 # calls project_deleted_callback when a project is deleted.
                 'deleted': {
                     'project': [

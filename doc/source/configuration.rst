@@ -231,7 +231,7 @@ became the default configuration option in the Grizzly release.
 Caching Layer
 -------------
 
-Keystone supports a caching layer that is above the configurable subsystems (e.g ``token``,
+Keystone supports a caching layer that is above the configurable subsystems (e.g. ``token``,
 ``identity``, etc).  Keystone uses the `dogpile.cache`_ library which allows for flexible
 cache backends. The majority of the caching configuration options are set in the ``[cache]``
 section.  However, each section that has the capability to be cached usually has a ``caching``
@@ -776,7 +776,7 @@ The following attributes are available
 
 * Attributes related to API call: Any parameters that are passed into the
   API call are available, along with any filters specified in the query
-  string. Attributes of objects passed can be refererenced using an
+  string. Attributes of objects passed can be referenced using an
   object.attribute syntax (e.g. user.domain_id). The target objects of an
   API are also available using a target.object.attribute syntax.  For instance:
 
@@ -829,12 +829,12 @@ provider wishes to allow adminsistration of the contents of a domain to
 be delegated, it is recommended that the supplied policy.v3cloudsample.json
 is used as a basis for creating a suitable production policy file. This
 example policy file also shows the use of an admin_domain to allow a cloud
-provider to enable cloud adminstrators to have wider access across the APIs.
+provider to enable cloud administrators to have wider access across the APIs.
 
 A clean installation would need to perhaps start with the standard policy
 file, to allow creation of the admin_domain with the first users within
 it. The domain_id of the admin domain would then be obtained and could be
-pasted into a modifed version of policy.v3cloudsample.json which could then
+pasted into a modified version of policy.v3cloudsample.json which could then
 be enabled as the main policy file.
 
 .. _`adding extensions`:

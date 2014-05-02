@@ -79,7 +79,7 @@ but all of the core OpenStack projects.
 
 .. _DEVSTACK: http://devstack.org/
 
-The script with the latest examples of intializing data in Keystone is a
+The script with the latest examples of initializing data in Keystone is a
 bash script called keystone_data.sh_
 
 .. _keystone_data.sh: https://github.com/openstack-dev/devstack/blob/master/files/keystone_data.sh

@@ -166,7 +166,7 @@ get more details of the middleware in :doc:`middlewarearchitecture`.
 Configuring Nova to use Keystone
 --------------------------------
 
-When configuring Nova, it is important to create a admin service token for
+When configuring Nova, it is important to create an admin service token for
 the service (from the Configuration step above) and include that as the key
 'admin_token' in Nova's api-paste.ini [filter:authtoken] section or in
 nova.conf [keystone_authtoken] section.
@@ -199,7 +199,7 @@ Here is an example paste config filter that makes use of the 'admin_user' and
     admin_password = keystone123
 
 It should be noted that when using this option an admin tenant/role
-relationship is required. The admin user is granted access to to the 'Admin'
+relationship is required. The admin user is granted access to the 'Admin'
 role to the 'admin' tenant.
 
 The auth_token middleware can also be configured in nova.conf
