@@ -42,6 +42,7 @@ And that you have the following tools available on your system:
 - git_
 - setuptools_
 - pip_
+- msgfmt (part of the gettext package)
 
 **Reminder**: If you're successfully using a different platform, or a
 different version of the above, please document your configuration here!
