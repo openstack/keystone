@@ -474,7 +474,7 @@ backend of the KVS system. The implementation allows for the use of any normal `
 cache backends to be used as a store. All interfacing to the KVS system happens via the
 ``KeyValueStore`` object located at ``keystone.common.kvs.KeyValueStore``.
 
-To utilize the KVS system an instantiation of the ``KeyValueStore`` class is needed. To accquire
+To utilize the KVS system an instantiation of the ``KeyValueStore`` class is needed. To acquire
 a KeyValueStore instantiation use the ``keystone.common.kvs.get_key_value_store`` factory
 function. This factory will either create a new ``KeyValueStore`` object or retrieve the
 already instantiated ``KeyValueStore`` object by the name passed as an argument. The object must

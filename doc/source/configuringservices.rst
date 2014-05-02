@@ -199,7 +199,7 @@ Here is an example paste config filter that makes use of the 'admin_user' and
     admin_password = keystone123
 
 It should be noted that when using this option an admin tenant/role
-relationship is required. The admin user is granted access to to the 'Admin'
+relationship is required. The admin user is granted access to the 'Admin'
 role to the 'admin' tenant.
 
 The auth_token middleware can also be configured in nova.conf

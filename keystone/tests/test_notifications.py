@@ -142,7 +142,7 @@ class NotificationsTestCase(testtools.TestCase):
         operation = CREATED_OPERATION
 
         # NOTE(ldbragst): Even though notifications._send_notification doesn't
-        # contain logic that creates cases, this is suppose to test that
+        # contain logic that creates cases, this is supposed to test that
         # context is always empty and that we ensure the resource ID of the
         # resource in the notification is contained in the payload. It was
         # agreed that context should be empty in Keystone's case, which is

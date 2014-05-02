@@ -1090,8 +1090,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         Check the various ways of specifying the 'effective'
         query parameter.  If the 'effective' query parameter
-        is included then this should always be treated as
-        as meaning 'True' unless it is specified as:
+        is included then this should always be treated as meaning 'True'
+        unless it is specified as:
 
         {url}?effective=0
 

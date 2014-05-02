@@ -160,7 +160,7 @@ class LDAPHandler(object):
     provider. Currently we have:
 
         * python-ldap, this is the standard LDAP API for Python, it
-          requres access to a live LDAP server.
+          requires access to a live LDAP server.
 
         * Fake LDAP which emulates python-ldap. This is used for
           testing without requiring a live LDAP server.

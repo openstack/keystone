@@ -528,7 +528,7 @@ class BaseTransform(AbstractManipulator):
 
     Note: Custom manipulator needs to always override ``transform_incoming``
     and ``transform_outgoing`` methods. MongoDB manipulator logic specifically
-    checks that overriden method in instance and its super are different.
+    checks that overridden method in instance and its super are different.
     """
 
     def transform_incoming(self, son, collection):

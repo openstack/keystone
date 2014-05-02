@@ -545,7 +545,7 @@ class V3Controller(wsgi.Application):
                 raise exception.ValidationError(_('Cannot change Domain ID'))
 
     def _assign_unique_id(self, ref):
-        """Generates and assigns a unique identifer to a reference."""
+        """Generates and assigns a unique identifier to a reference."""
         ref = ref.copy()
         ref['id'] = uuid.uuid4().hex
         return ref

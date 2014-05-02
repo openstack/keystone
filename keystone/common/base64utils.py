@@ -154,7 +154,7 @@ def base64_to_base64url(text):
             trailing pad character(s) for use in URL's it can be added back
             using the base64_assure_padding() function.
 
-        This function makes no decisions about which padding methodolgy to
+        This function makes no decisions about which padding methodology to
         use. One can either call base64_strip_padding() to remove any pad
         characters (restoring later with base64_assure_padding()) or call
         base64url_percent_encode() to percent-encode the pad characters.
@@ -296,11 +296,11 @@ def base64_assure_padding(text, pad='='):
     Base64 text is normally expected to be a multple of 4
     characters. Each 4 character base64 sequence produces 3 octets of
     binary data. If the binary data is not a multiple of 3 the base64
-    text is padded at the end with a pad character such that is is
+    text is padded at the end with a pad character such that it is
     always a multple of 4. Padding is ignored and does not alter the
     binary data nor it's length.
 
-    In some circumstances is is desirable to omit the padding
+    In some circumstances it is desirable to omit the padding
     character due to transport encoding conflicts. Base64 text can
     still be correctly decoded if the length of the base64 text
     (consisting only of characters in the desired base64 alphabet) is
