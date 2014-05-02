@@ -29,6 +29,7 @@ import ldap
 import six
 from six import moves
 
+from keystone.common.ldap import core
 from keystone.common import utils
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
@@ -64,13 +65,15 @@ def _process_attr(attr_name, value_or_values):
         if dn == 'cn=Doe\\, John,ou=Users,cn=example,cn=com':
             return 'CN=Doe\\2C John,OU=Users,CN=example,CN=com'
 
-        dn = ldap.dn.str2dn(dn)
+        dn = ldap.dn.str2dn(core.utf8_encode(dn))
         norm = []
         for part in dn:
             name, val, i = part[0]
+            name = core.utf8_decode(name)
             name = name.upper()
+            name = core.utf8_encode(name)
             norm.append([(name, val, i)])
-        return ldap.dn.dn2str(norm)
+        return core.utf8_decode(ldap.dn.dn2str(norm))
 
     if attr_name in ('member', 'roleOccupant'):
         attr_fn = normalize_dn
