@@ -139,7 +139,7 @@ class MockCollection(object):
                 if self._apply_filter(document, spec))
 
     def _apply_filter(self, document, query):
-        for key, search in query.iteritems():
+        for key, search in six.iteritems(query):
             doc_val = document.get(key)
             if isinstance(search, dict):
                 op_dict = {'$in': lambda dv, sv: dv in sv}
