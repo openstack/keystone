@@ -41,18 +41,9 @@ v2_MEDIA_TYPES = [
 v2_HTML_DESCRIPTION = {
     "rel": "describedby",
     "type": "text/html",
-    "href": "http://docs.openstack.org/api/"
-            "openstack-identity-service/2.0/"
-            "content/"
+    "href": "http://docs.openstack.org/"
 }
 
-v2_PDF_DESCRIPTION = {
-    "rel": "describedby",
-    "type": "application/pdf",
-    "href": "http://docs.openstack.org/api/"
-            "openstack-identity-service/2.0/"
-            "identity-dev-guide-2.0.pdf"
-}
 
 v2_EXPECTED_RESPONSE = {
     "id": "v2.0",
@@ -63,8 +54,7 @@ v2_EXPECTED_RESPONSE = {
             "rel": "self",
             "href": "",     # Will get filled in after initialization
         },
-        v2_HTML_DESCRIPTION,
-        v2_PDF_DESCRIPTION
+        v2_HTML_DESCRIPTION
     ],
     "media-types": v2_MEDIA_TYPES
 }
@@ -326,16 +316,12 @@ vnd.openstack.identity-v2.0+xml"/>
   </media-types>
   <links>
     <link href="http://localhost:%%(port)s/v2.0/" rel="self"/>
-    <link href="http://docs.openstack.org/api/openstack-identity-service/\
-2.0/content/" type="text/html" rel="describedby"/>
-    <link href="http://docs.openstack.org/api/openstack-identity-service/\
-2.0/identity-dev-guide-2.0.pdf" type="application/pdf" rel="describedby"/>
+    <link href="http://docs.openstack.org/" type="text/html" \
+rel="describedby"/>
   </links>
   <link href="http://localhost:%%(port)s/v2.0/" rel="self"/>
-  <link href="http://docs.openstack.org/api/openstack-identity-service/\
-2.0/content/" type="text/html" rel="describedby"/>
-  <link href="http://docs.openstack.org/api/openstack-identity-service/\
-2.0/identity-dev-guide-2.0.pdf" type="application/pdf" rel="describedby"/>
+  <link href="http://docs.openstack.org/" type="text/html" \
+rel="describedby"/>
 </version>
 """
 

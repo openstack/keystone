@@ -89,14 +89,7 @@ class Version(wsgi.Application):
                     }, {
                         'rel': 'describedby',
                         'type': 'text/html',
-                        'href': 'http://docs.openstack.org/api/openstack-'
-                                'identity-service/2.0/content/'
-                    }, {
-                        'rel': 'describedby',
-                        'type': 'application/pdf',
-                        'href': 'http://docs.openstack.org/api/openstack-'
-                                'identity-service/2.0/identity-dev-guide-'
-                                '2.0.pdf'
+                        'href': 'http://docs.openstack.org/'
                     }
                 ],
                 'media-types': [
