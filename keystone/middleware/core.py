@@ -131,6 +131,11 @@ class JsonBodyMiddleware(wsgi.Middleware):
             if not params_parsed:
                 params_parsed = {}
 
+        if not isinstance(params_parsed, dict):
+            e = exception.ValidationError(attribute='valid JSON object',
+                                          target='request body')
+            return wsgi.render_exception(e, request=request)
+
         params = {}
         for k, v in six.iteritems(params_parsed):
             if k in ('self', 'context'):

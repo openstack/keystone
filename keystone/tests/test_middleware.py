@@ -90,6 +90,14 @@ class JsonBodyMiddlewareTest(tests.TestCase):
         resp = middleware.JsonBodyMiddleware(None).process_request(req)
         self.assertEqual(400, resp.status_int)
 
+    def test_not_dict_body(self):
+        req = make_request(body='42',
+                           content_type='application/json',
+                           method='POST')
+        resp = middleware.JsonBodyMiddleware(None).process_request(req)
+        self.assertEqual(400, resp.status_int)
+        self.assertTrue('valid JSON object' in resp.json['error']['message'])
+
     def test_no_content_type(self):
         req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
                            method='POST')
