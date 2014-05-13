@@ -3009,6 +3009,50 @@ class IdentityTests(object):
                           self.assignment_api.get_domain_by_name,
                           domain_name)
 
+    def test_project_update_and_project_get_return_same_response(self):
+        project = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'description': uuid.uuid4().hex,
+            'enabled': True}
+
+        self.assignment_api.create_project(project['id'], project)
+
+        updated_project = {'enabled': False}
+        updated_project_ref = self.assignment_api.update_project(
+            project['id'], updated_project)
+
+        # SQL backend adds 'extra' field
+        updated_project_ref.pop('extra', None)
+
+        self.assertIs(False, updated_project_ref['enabled'])
+
+        project_ref = self.assignment_api.get_project(project['id'])
+        self.assertDictEqual(project_ref, updated_project_ref)
+
+    def test_user_update_and_user_get_return_same_response(self):
+        user = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'description': uuid.uuid4().hex,
+            'enabled': True}
+
+        self.identity_api.create_user(user['id'], user)
+
+        updated_user = {'enabled': False}
+        updated_user_ref = self.identity_api.update_user(
+            user['id'], updated_user)
+
+        # SQL backend adds 'extra' field
+        updated_user_ref.pop('extra', None)
+
+        self.assertIs(False, updated_user_ref['enabled'])
+
+        user_ref = self.identity_api.get_user(user['id'])
+        self.assertDictEqual(user_ref, updated_user_ref)
+
 
 class TokenTests(object):
     def _create_token_id(self):
