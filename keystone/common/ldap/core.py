@@ -952,8 +952,13 @@ class BaseLdap(object):
         conn = self.get_connection()
         query = u'(objectClass=%s)' % self.object_class
         if query_params:
+
+            def calc_filter(attrname, value):
+                val_esc = ldap.filter.escape_filter_chars(value)
+                return '(%s=%s)' % (attrname, val_esc)
+
             query = (u'(&%s%s)' %
-                     (query, ''.join(['(%s=%s)' % (k, v) for k, v in
+                     (query, ''.join([calc_filter(k, v) for k, v in
                                       six.iteritems(query_params)])))
         try:
             return conn.search_s(search_base, scope, query, attrlist)
