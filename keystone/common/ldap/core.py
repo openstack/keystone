@@ -239,7 +239,7 @@ class LDAPHandler(object):
     @abc.abstractmethod
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None):
+                tls_req_cert='demand', chase_referrals=None, debug_level=None):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
@@ -307,16 +307,15 @@ class PythonLDAPHandler(LDAPHandler):
 
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None):
+                tls_req_cert='demand', chase_referrals=None, debug_level=None):
         LOG.debug("LDAP init: url=%s", url)
         LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
                   'tls_req_cert=%s tls_avail=%s',
                   use_tls, tls_cacertfile, tls_cacertdir,
                   tls_req_cert, ldap.TLS_AVAIL)
 
-        # NOTE(topol)
-        # for extra debugging uncomment the following line
-        # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 4095)
+        if debug_level is not None:
+            ldap.set_option(ldap.OPT_DEBUG_LEVEL, debug_level)
 
         using_ldaps = url.lower().startswith("ldaps")
 
@@ -453,10 +452,11 @@ class KeystoneLDAPHandler(LDAPHandler):
 
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None):
+                tls_req_cert='demand', chase_referrals=None, debug_level=None):
         return self.conn.connect(url, page_size, alias_dereferencing,
                                  use_tls, tls_cacertfile, tls_cacertdir,
-                                 tls_req_cert, chase_referrals)
+                                 tls_req_cert, chase_referrals,
+                                 debug_level=debug_level)
 
     def set_option(self, option, invalue):
         return self.conn.set_option(option, invalue)
@@ -687,6 +687,7 @@ class BaseLdap(object):
         self.tls_req_cert = parse_tls_cert(conf.ldap.tls_req_cert)
         self.attribute_mapping = {}
         self.chase_referrals = conf.ldap.chase_referrals
+        self.debug_level = conf.ldap.debug_level
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
@@ -776,7 +777,8 @@ class BaseLdap(object):
                      tls_cacertfile=self.tls_cacertfile,
                      tls_cacertdir=self.tls_cacertdir,
                      tls_req_cert=self.tls_req_cert,
-                     chase_referrals=self.chase_referrals)
+                     chase_referrals=self.chase_referrals,
+                     debug_level=self.debug_level)
 
         if user is None:
             user = self.LDAP_USER

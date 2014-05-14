@@ -440,6 +440,11 @@ FILE_OPTIONS = {
                         '"finding" or "default". The "default" option falls '
                         'back to using default dereferencing configured by '
                         'your ldap.conf.'),
+        cfg.IntOpt('debug_level', default=None,
+                   help='Sets the LDAP debugging level for LDAP calls. '
+                        'A value of 0 means that debugging is not enabled. '
+                        'This value is a bitmask, consult your LDAP '
+                        'documentation for possible values.'),
         cfg.BoolOpt('chase_referrals', default=None,
                     help='Override the system\'s default referral chasing '
                          'behavior for queries.'),
