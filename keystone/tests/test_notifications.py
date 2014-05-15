@@ -416,8 +416,8 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
             def foo_callback(self, service, resource_type, operation,
                              payload):
-                callback_called.append(True)  # uses callback_called
-                                              # from the closure
+                # uses callback_called from the closure
+                callback_called.append(True)
 
         Foo()
         project_ref = self.new_project_ref(domain_id=self.domain_id)

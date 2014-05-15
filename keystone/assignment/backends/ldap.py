@@ -572,7 +572,7 @@ class RoleApi(common_ldap.BaseLdap):
         try:
             roles = self._ldap_get_list(project_subtree, ldap.SCOPE_SUBTREE,
                                         query_params={
-                                        self.member_attribute: user_dn})
+                                            self.member_attribute: user_dn})
         except ldap.NO_SUCH_OBJECT:
             roles = []
         res = []
