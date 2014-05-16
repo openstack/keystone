@@ -14,7 +14,7 @@
 # under the License.
 
 
-class Hints(list):
+class Hints(object):
     """Encapsulate driver hints for listing entities.
 
     Hints are modifiers that affect the return of entities from a
@@ -26,55 +26,40 @@ class Hints(list):
     but any filters that it does satisfy must be marked as such by calling
     removing the filter from the list.
 
-    A Hint object is a list of dicts, initially of type 'filter' or 'limit',
-    although other types may be added in the future. The list can be enumerated
-    directly, or by using the filters() method which will guarantee to only
-    return filters.
+    A Hint object contains filters, which is a list of dicts that can be
+    accessed publicly. Also it contains a dict called limit, which will
+    indicate the amount of data we want to limit our listing to.
+
+    Each filter term consists of:
+
+    * ``name``: the name of the attribute being matched
+    * ``value``: the value against which it is being matched
+    * ``comparator``: the operation, which can be one of ``equals``,
+                      ``startswith`` or ``endswith``
+    * ``case_sensitive``: whether any comparison should take account of
+                          case
+    * ``type``: will always be 'filter'
 
     """
+    def __init__(self):
+        self.limit = None
+        self.filters = list()
+
     def add_filter(self, name, value, comparator='equals',
                    case_sensitive=False):
-        self.append({'name': name, 'value': value, 'comparator': comparator,
-                     'case_sensitive': case_sensitive, 'type': 'filter'})
-
-    def filters(self):
-        """Iterate over all unsatisfied filters.
-
-        Each filter term consists of:
-
-        * ``name``: the name of the attribute being matched
-        * ``value``: the value against which it is being matched
-        * ``comparator``: the operation, which can be one of ``equals``,
-                          ``startswith`` or ``endswith``
-        * ``case_sensitive``: whether any comparison should take account of
-                              case
-        * ``type``: will always be 'filter'
-
-        """
-        return [x for x in self if x['type'] == 'filter']
+        """Adds a filter to the filters list, which is publicly accessible."""
+        self.filters.append({'name': name, 'value': value,
+                             'comparator': comparator,
+                             'case_sensitive': case_sensitive,
+                             'type': 'filter'})
 
     def get_exact_filter_by_name(self, name):
         """Return a filter key and value if exact filter exists for name."""
-        for entry in self:
+        for entry in self.filters:
             if (entry['type'] == 'filter' and entry['name'] == name and
                     entry['comparator'] == 'equals'):
                 return entry
 
     def set_limit(self, limit, truncated=False):
         """Set a limit to indicate the list should be truncated."""
-        # We only allow one limit entry in the list, so if it already exists
-        # we overwrite the old one
-        for x in self:
-            if x['type'] == 'limit':
-                x['limit'] = limit
-                x['truncated'] = truncated
-                break
-        else:
-            self.append({'limit': limit, 'type': 'limit',
-                         'truncated': truncated})
-
-    def get_limit(self):
-        """Get the limit to which the list should be truncated."""
-        for x in self:
-            if x['type'] == 'limit':
-                return x
+        self.limit = {'limit': limit, 'type': 'limit', 'truncated': truncated}
