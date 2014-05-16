@@ -360,6 +360,13 @@ class Auth(controller.V3Controller):
             msg = _('User not found')
             raise exception.Unauthorized(msg)
 
+        # NOTE(nkinder): We only log this message in Havana.  In Icehouse and
+        # later, we emit a CADF notification upon successful token issuance
+        # instead.
+        msg = _('Issued token for user %(u_id)s')
+        msg = msg % {'u_id': auth_context['user_id']}
+        LOG.info(msg)
+
     @controller.protected()
     def check_token(self, context):
         token_id = context.get('subject_token_id')
