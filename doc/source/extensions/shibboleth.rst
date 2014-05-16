@@ -151,6 +151,12 @@ environment)::
 
     </SPConfig>
 
+Keystone enforces `external <http://docs.openstack.org/developer/keystone/external-auth.html>`_
+authentiation when environment variable ``REMOTE_USER`` is present so
+make sure Shibboleth doesn't set the ``REMOTE_USER`` environment variable.
+To do so, scan through the ``/etc/shibboleth/shibboleth2.xml`` configuration
+file and remove the ``REMOTE_USER`` directives.
+
 Examine your attributes map file ``/etc/shibboleth/attributes-map.xml`` and adjust
 your requirements if needed. For more information see
 `attributes documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
