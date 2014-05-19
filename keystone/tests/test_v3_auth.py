@@ -2405,6 +2405,37 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         self.assertValidUnscopedTokenResponse(r)
 
+    def test_disabled_scope_project_domain_result_in_401(self):
+        # create a disabled domain
+        domain = self.new_domain_ref()
+        domain['enabled'] = False
+        self.assignment_api.create_domain(domain['id'], domain)
+
+        # create a project in the disabled domain
+        project = self.new_project_ref(domain_id=domain['id'])
+        self.assignment_api.create_project(project['id'], project)
+
+        # assign some role to self.user for the project in the disabled domain
+        self.assignment_api.add_role_to_user_and_project(
+            self.user['id'],
+            project['id'],
+            self.role_id)
+
+        # user should not be able to auth with project_id
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=project['id'])
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
+
+        # user should not be able to auth with project_name & domain
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_id=domain['id'])
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
+
 
 class TestAuthXML(TestAuthJSON):
     content_type = 'xml'
