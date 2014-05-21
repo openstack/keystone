@@ -193,7 +193,6 @@ MAPPING_LARGE = {
     ]
 }
 
-
 MAPPING_BAD_REQ = {
     "rules": [
         {
@@ -417,6 +416,43 @@ MAPPING_EXTRA_RULES_PROPS = {
     ]
 }
 
+MAPPING_TESTER_REGEX = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                }
+            ]
+        },
+        {
+            "local": [
+                {
+                    "group": {
+                        "id": TESTER_GROUP_ID
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        ".*Tester*"
+                    ],
+                    "regex": True
+                }
+            ]
+        }
+    ]
+}
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',
@@ -462,7 +498,7 @@ TESTER_ASSERTION = {
     'UserName': 'testacct',
     'FirstName': 'Test',
     'LastName': 'Account',
-    'orgPersonType': 'Tester;'
+    'orgPersonType': 'MadeupGroup;Tester;GroupX'
 }
 
 BAD_TESTER_ASSERTION = {

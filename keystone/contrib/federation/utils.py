@@ -403,7 +403,11 @@ class RuleProcessor(object):
             return False
 
         if regex:
-            return re.search(values[0], assertion_values[0])
+            for value in values:
+                for assertion_value in assertion_values:
+                    if re.search(value, assertion_value):
+                        return True
+            return False
 
         any_match = bool(set(values).intersection(set(assertion_values)))
         if any_match and eval_type == self._EvalType.ANY_ONE_OF:
