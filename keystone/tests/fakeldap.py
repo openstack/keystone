@@ -62,6 +62,11 @@ def _internal_attr(attr_name, value_or_values):
         if dn == 'cn=Doe\\5c, John,ou=Users,cn=example,cn=com':
             return 'CN=Doe\\, John,OU=Users,CN=example,CN=com'
 
+        # NOTE(blk-u): Another special case for this tested value. When a
+        # roleOccupant has an escaped comma, it gets converted to \2C.
+        if dn == 'cn=Doe\\, John,ou=Users,cn=example,cn=com':
+            return 'CN=Doe\\2C John,OU=Users,CN=example,CN=com'
+
         dn = ldap.dn.str2dn(core.utf8_encode(dn))
         norm = []
         for part in dn:
@@ -133,7 +138,9 @@ def _match(key, value, attrs):
         str_sids = [six.text_type(x) for x in attrs[key]]
         return six.text_type(value) in str_sids
     if key != 'objectclass':
-        return _internal_attr(key, value)[0] in attrs[key]
+        check_value = _internal_attr(key, value)[0]
+        norm_values = list(_internal_attr(key, x)[0] for x in attrs[key])
+        return check_value in norm_values
     # it is an objectclass check, so check subclasses
     values = _subs(value)
     for v in values:
