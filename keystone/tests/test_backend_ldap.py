@@ -1016,7 +1016,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         }
         self.identity_api.create_user(user['id'], user)
         dn, attrs = self.identity_api.driver.user._ldap_get(user['id'])
-        self.assertTrue(user['name'] in attrs['description'])
+        self.assertThat([user['name']], matchers.Equals(attrs['description']))
 
     def test_user_extra_attribute_mapping_description_is_returned(self):
         # Given a mapping like description:description, the description is
