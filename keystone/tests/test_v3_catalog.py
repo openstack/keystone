@@ -78,6 +78,17 @@ class CatalogTestCase(test_v3.RestfulTestCase):
                 'region_id': ref['id']})
         self.assertValidRegionResponse(r, ref)
 
+    def test_create_region_with_empty_id(self):
+        """Call ``POST /regions`` with an empty ID in the request body."""
+        ref = self.new_region_ref()
+        ref['id'] = ''
+
+        r = self.post(
+            '/regions',
+            body={'region': ref}, expected_status=201)
+        self.assertValidRegionResponse(r, ref)
+        self.assertNotEmpty(r.result['region'].get('id'))
+
     def test_create_region_without_id(self):
         """Call ``POST /regions`` without an ID in the request body."""
         ref = self.new_region_ref()
