@@ -594,6 +594,34 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         self.assertThat(ref_list, matchers.Equals([group]))
 
+    def test_user_id_comma_grants(self):
+        """Even if the user has a , in their ID, can get user and group grants.
+        """
+
+        # Create a user with a , in their ID
+        # NOTE(blk-u): the DN for this user is hard-coded in fakeldap!
+        user_id = u'Doe, John'
+        user = {
+            'id': user_id,
+            'name': self.getUniqueString(),
+            'password': self.getUniqueString(),
+            'domain_id': CONF.identity.default_domain_id,
+        }
+        self.identity_api.create_user(user_id, user)
+
+        # Grant the user a role on a project.
+
+        role_id = 'member'
+        project_id = self.tenant_baz['id']
+
+        self.assignment_api.create_grant(role_id, user_id=user_id,
+                                         project_id=project_id)
+
+        role_ref = self.assignment_api.get_grant(role_id, user_id=user_id,
+                                                 project_id=project_id)
+
+        self.assertEqual(role_id, role_ref['id'])
+
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
@@ -1249,45 +1277,6 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         combined_role_list = self.assignment_api.get_roles_for_user_and_domain(
             user1['id'], CONF.identity.default_domain_id)
         self.assertEqual(0, len(combined_role_list))
-
-    def test_get_roles_for_user_and_project_user_group_same_id(self):
-        """When a user has the same ID as a group,
-        get_roles_for_user_and_project returns the roles for the group.
-
-        Overriding this test for LDAP because it works differently. The role
-        for the group is returned. This is bug 1309228.
-        """
-
-        # Setup: create user, group with same ID, role, and project;
-        # assign the group the role on the project.
-
-        user_group_id = uuid.uuid4().hex
-
-        user1 = {'id': user_group_id, 'name': uuid.uuid4().hex,
-                 'domain_id': CONF.identity.default_domain_id, }
-        self.identity_api.create_user(user_group_id, user1)
-
-        group1 = {'id': user_group_id, 'name': uuid.uuid4().hex,
-                  'domain_id': CONF.identity.default_domain_id, }
-        self.identity_api.create_group(user_group_id, group1)
-
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role1['id'], role1)
-
-        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                    'domain_id': CONF.identity.default_domain_id, }
-        self.assignment_api.create_project(project1['id'], project1)
-
-        self.assignment_api.create_grant(role1['id'],
-                                         group_id=user_group_id,
-                                         project_id=project1['id'])
-
-        # Check the roles, shouldn't be any since the user wasn't granted any.
-        roles = self.assignment_api.get_roles_for_user_and_project(
-            user_group_id, project1['id'])
-
-        self.assertEqual([role1['id']], roles,
-                         'role for group is %s' % role1['id'])
 
     def test_list_projects_for_alternate_domain(self):
         self.skipTest(
