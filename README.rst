@@ -18,7 +18,7 @@ The API specification is available at:
 
 The API documentation is available at:
 
-    http://api.openstack.org/api-ref-identity.html
+    http://docs.openstack.org/api/openstack-identity-service/2.0/content/
 
 The canonical client library is available at:
 
