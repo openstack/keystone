@@ -64,7 +64,7 @@ class Identity(identity.Driver):
         conn = None
         try:
             conn = self.user.get_connection(user_ref['dn'],
-                                            password)
+                                            password, end_user_auth=True)
             if not conn:
                 raise AssertionError(_('Invalid user / password'))
         except Exception:

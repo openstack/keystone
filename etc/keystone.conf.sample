@@ -1149,6 +1149,38 @@
 # (string value)
 #tls_req_cert=demand
 
+# Enable LDAP connection pooling. (boolean value)
+#use_pool=false
+
+# Connection pool size. (integer value)
+#pool_size=10
+
+# Maximum count of reconnect trials. (integer value)
+#pool_retry_max=3
+
+# Time span in seconds to wait between two reconnect trials.
+# (floating point value)
+#pool_retry_delay=0.1
+
+# Connector timeout in seconds. Value -1 indicates indefinite
+# wait for response. (integer value)
+#pool_connection_timeout=-1
+
+# Connection lifetime in seconds. (integer value)
+#pool_connection_lifetime=600
+
+# Enable LDAP connection pooling for end user authentication.
+# If use_pool is disabled, then this setting is meaningless
+# and is not used at all. (boolean value)
+#use_auth_pool=false
+
+# End user auth connection pool size. (integer value)
+#auth_pool_size=100
+
+# End user auth connection lifetime in seconds. (integer
+# value)
+#auth_pool_connection_lifetime=60
+
 
 [matchmaker_ring]
 

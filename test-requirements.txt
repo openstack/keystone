@@ -13,6 +13,7 @@ pymongo>=2.5
 # Optional backend: LDAP
 # authenticate against an existing LDAP server
 python-ldap==2.3.13
+ldappool>=1.0
 
 # Testing
 # computes code coverage percentages

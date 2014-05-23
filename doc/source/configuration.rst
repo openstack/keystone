@@ -1603,3 +1603,67 @@ section::
   user_allow_create = False
   user_allow_update = False
   user_allow_delete = False
+
+Connection Pooling
+------------------
+
+Various LDAP backends in keystone use a common LDAP module to interact with
+LDAP data. By default, a new connection is established for LDAP operations.
+This can become highly expensive when TLS support is enabled which is a likely
+configuraton in enterprise setup. Re-using of connectors from a connection
+pool drastically reduces overhead of initiating a new connection for every
+LDAP operation.
+
+Keystone now provides connection pool support via configuration. This change
+will keep LDAP connectors alive and re-use for subsequent LDAP operations. A
+connection lifespan is going to be configurable with other pooling specific
+attributes. The change is made in LDAP handler layer logic which is primarily
+responsible for LDAP connection and shared common operations.
+
+In LDAP identity driver, Keystone authenticates end user by LDAP bind with user
+DN and provided password. These kind of auth binds can fill up the pool pretty
+quickly so a separate pool is provided for those end user auth bind calls.
+If a deployment does not want to use pool for those binds, then it can disable
+pooling selectively by ``use_auth_pool`` as false. If a deployment wants to
+use pool for those auth binds, then ``use_auth_pool`` needs to be true. For
+auth pool, a different pool size (``auth_pool_size``) and connection lifetime
+(``auth_pool_connection_lifetime``) can be specified. With enabled auth pool,
+its connection lifetime should be kept short so that pool frequently re-binds
+the connection with provided creds and works reliably in end user password
+change case. When ``use_pool`` is false (disabled), then auth pool
+configuration is also not used.
+
+Connection pool configuration is added in ``[ldap]`` configuration section::
+
+  [ldap]
+  # Enable LDAP connection pooling. (boolean value)
+  use_pool=false
+
+  # Connection pool size. (integer value)
+  pool_size=10
+
+  # Maximum count of reconnect trials. (integer value)
+  pool_retry_max=3
+
+  # Time span in seconds to wait between two reconnect trials.
+  # (floating point value)
+  pool_retry_delay=0.1
+
+  # Connector timeout in seconds. Value -1 indicates indefinite wait for
+  # response. (integer value)
+  pool_connection_timeout=-1
+
+  # Connection lifetime in seconds.  (integer value)
+  pool_connection_lifetime=600
+
+  # Enable LDAP connection pooling for end user authentication. If use_pool
+  # is disabled, then this setting is meaningless and is not used at all.
+  # (boolean value)
+  use_auth_pool=false
+
+  # End user auth connection pool size. (integer value)
+  auth_pool_size=100
+
+  # End user auth connection lifetime in seconds. (integer value)
+  auth_pool_connection_lifetime=60
+

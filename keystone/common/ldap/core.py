@@ -17,16 +17,19 @@ import os.path
 import re
 
 import codecs
+import functools
 import ldap
 import ldap.filter
+import ldappool
 import six
+import sys
+import weakref
 
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import log
 
 LOG = log.getLogger(__name__)
-
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}
 CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
@@ -404,7 +407,10 @@ class LDAPHandler(object):
     @abc.abstractmethod
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None, debug_level=None):
+                tls_req_cert='demand', chase_referrals=None, debug_level=None,
+                use_pool=None, pool_size=None, pool_retry_max=None,
+                pool_retry_delay=None, pool_conn_timeout=None,
+                pool_conn_lifetime=None):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
@@ -472,54 +478,17 @@ class PythonLDAPHandler(LDAPHandler):
 
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None, debug_level=None):
-        LOG.debug("LDAP init: url=%s", url)
-        LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
-                  'tls_req_cert=%s tls_avail=%s',
-                  use_tls, tls_cacertfile, tls_cacertdir,
-                  tls_req_cert, ldap.TLS_AVAIL)
+                tls_req_cert='demand', chase_referrals=None, debug_level=None,
+                use_pool=None, pool_size=None, pool_retry_max=None,
+                pool_retry_delay=None, pool_conn_timeout=None,
+                pool_conn_lifetime=None):
 
-        if debug_level is not None:
-            ldap.set_option(ldap.OPT_DEBUG_LEVEL, debug_level)
-
-        using_ldaps = url.lower().startswith("ldaps")
-
-        if use_tls and using_ldaps:
-            raise AssertionError(_('Invalid TLS / LDAPS combination'))
-
-        if use_tls:
-            if not ldap.TLS_AVAIL:
-                raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
-                                   'not available') % ldap.TLS_AVAIL)
-            if tls_cacertfile:
-                # NOTE(topol)
-                # python ldap TLS does not verify CACERTFILE or CACERTDIR
-                # so we add some extra simple sanity check verification
-                # Also, setting these values globally (i.e. on the ldap object)
-                # works but these values are ignored when setting them on the
-                # connection
-                if not os.path.isfile(tls_cacertfile):
-                    raise IOError(_("tls_cacertfile %s not found "
-                                    "or is not a file") %
-                                  tls_cacertfile)
-                ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
-            elif tls_cacertdir:
-                # NOTE(topol)
-                # python ldap TLS does not verify CACERTFILE or CACERTDIR
-                # so we add some extra simple sanity check verification
-                # Also, setting these values globally (i.e. on the ldap object)
-                # works but these values are ignored when setting them on the
-                # connection
-                if not os.path.isdir(tls_cacertdir):
-                    raise IOError(_("tls_cacertdir %s not found "
-                                    "or is not a directory") %
-                                  tls_cacertdir)
-                ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
-            if tls_req_cert in LDAP_TLS_CERTS.values():
-                ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
-            else:
-                LOG.debug("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s",
-                          tls_req_cert)
+        _common_ldap_initialization(url=url,
+                                    use_tls=use_tls,
+                                    tls_cacertfile=tls_cacertfile,
+                                    tls_cacertdir=tls_cacertdir,
+                                    tls_req_cert=tls_req_cert,
+                                    debug_level=debug_level)
 
         self.conn = ldap.initialize(url)
         self.conn.protocol_version = ldap.VERSION3
@@ -581,6 +550,269 @@ class PythonLDAPHandler(LDAPHandler):
         return self.conn.delete_ext_s(dn, serverctrls, clientctrls)
 
 
+def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
+                                tls_cacertdir=None, tls_req_cert=None,
+                                debug_level=None):
+    '''Method for common ldap initialization between PythonLDAPHandler and
+    PooledLDAPHandler.
+    '''
+
+    LOG.debug("LDAP init: url=%s", url)
+    LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
+              'tls_req_cert=%s tls_avail=%s',
+              use_tls, tls_cacertfile, tls_cacertdir,
+              tls_req_cert, ldap.TLS_AVAIL)
+
+    if debug_level is not None:
+        ldap.set_option(ldap.OPT_DEBUG_LEVEL, debug_level)
+
+    using_ldaps = url.lower().startswith("ldaps")
+
+    if use_tls and using_ldaps:
+        raise AssertionError(_('Invalid TLS / LDAPS combination'))
+
+    if use_tls:
+        if not ldap.TLS_AVAIL:
+            raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
+                               'not available') % ldap.TLS_AVAIL)
+        if tls_cacertfile:
+            # NOTE(topol)
+            # python ldap TLS does not verify CACERTFILE or CACERTDIR
+            # so we add some extra simple sanity check verification
+            # Also, setting these values globally (i.e. on the ldap object)
+            # works but these values are ignored when setting them on the
+            # connection
+            if not os.path.isfile(tls_cacertfile):
+                raise IOError(_("tls_cacertfile %s not found "
+                                "or is not a file") %
+                              tls_cacertfile)
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
+        elif tls_cacertdir:
+            # NOTE(topol)
+            # python ldap TLS does not verify CACERTFILE or CACERTDIR
+            # so we add some extra simple sanity check verification
+            # Also, setting these values globally (i.e. on the ldap object)
+            # works but these values are ignored when setting them on the
+            # connection
+            if not os.path.isdir(tls_cacertdir):
+                raise IOError(_("tls_cacertdir %s not found "
+                                "or is not a directory") %
+                              tls_cacertdir)
+            ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
+        if tls_req_cert in LDAP_TLS_CERTS.values():
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
+        else:
+            LOG.debug("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s",
+                      tls_req_cert)
+
+
+class MsgId(list):
+    '''Wrapper class to hold connection and msgid.'''
+    pass
+
+
+def use_conn_pool(func):
+    '''Use this only for connection pool specific ldap API.
+
+    This adds connection object to decorated API as next argument after self.
+    '''
+    def wrapper(self, *args, **kwargs):
+        # assert isinstance(self, PooledLDAPHandler)
+        with self._get_pool_connection() as conn:
+            self._apply_options(conn)
+            return func(self, conn, *args, **kwargs)
+    return wrapper
+
+
+class PooledLDAPHandler(LDAPHandler):
+    '''Implementation of the LDAPHandler interface which uses pooled
+    connection manager.
+
+    Pool specific configuration is defined in [ldap] section.
+    All other LDAP configuration is still used from [ldap] section
+
+    Keystone LDAP authentication logic authenticates an end user using its DN
+    and password via LDAP bind to establish supplied password is correct.
+    This can fill up the pool quickly (as pool re-uses existing connection
+    based on its bind data) and would not leave space in pool for connection
+    re-use for other LDAP operations.
+    Now a separate pool can be established for those requests when related flag
+    'use_auth_pool' is enabled. That pool can have its own size and
+    connection lifetime. Other pool attributes are shared between those pools.
+    If 'use_pool' is disabled, then 'use_auth_pool' does not matter.
+    If 'use_auth_pool' is not enabled, then connection pooling is not used for
+    those LDAP operations.
+
+    Note, the python-ldap API requires all string values to be UTF-8
+    encoded. The KeystoneLDAPHandler enforces this prior to invoking
+    the methods in this class.
+    '''
+
+    # Added here to allow override for testing
+    Connector = ldappool.StateConnector
+    auth_pool_prefix = 'auth_pool_'
+
+    connection_pools = {}  # static connector pool dict
+
+    def __init__(self, conn=None, use_auth_pool=False):
+        super(PooledLDAPHandler, self).__init__(conn=conn)
+        self.who = ''
+        self.cred = ''
+        self.conn_options = {}  # connection specific options
+        self.page_size = None
+        self.use_auth_pool = use_auth_pool
+        self.conn_pool = None
+
+    def connect(self, url, page_size=0, alias_dereferencing=None,
+                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
+                tls_req_cert='demand', chase_referrals=None, debug_level=None,
+                use_pool=None, pool_size=None, pool_retry_max=None,
+                pool_retry_delay=None, pool_conn_timeout=None,
+                pool_conn_lifetime=None):
+
+        _common_ldap_initialization(url=url,
+                                    use_tls=use_tls,
+                                    tls_cacertfile=tls_cacertfile,
+                                    tls_cacertdir=tls_cacertdir,
+                                    tls_req_cert=tls_req_cert,
+                                    debug_level=debug_level)
+
+        self.page_size = page_size
+
+        # Following two options are not added in common initialization as they
+        # need to follow a sequence in PythonLDAPHandler code.
+        if alias_dereferencing is not None:
+            self.set_option(ldap.OPT_DEREF, alias_dereferencing)
+        if chase_referrals is not None:
+            self.set_option(ldap.OPT_REFERRALS, int(chase_referrals))
+
+        if self.use_auth_pool:  # separate pool when use_auth_pool enabled
+            pool_url = self.auth_pool_prefix + url
+        else:
+            pool_url = url
+        try:
+            self.conn_pool = self.connection_pools[pool_url]
+        except KeyError:
+            self.conn_pool = ldappool.ConnectionManager(
+                url,
+                size=pool_size,
+                retry_max=pool_retry_max,
+                retry_delay=pool_retry_delay,
+                timeout=pool_conn_timeout,
+                connector_cls=self.Connector,
+                use_tls=use_tls,
+                max_lifetime=pool_conn_lifetime)
+            self.connection_pools[pool_url] = self.conn_pool
+
+    def set_option(self, option, invalue):
+        self.conn_options[option] = invalue
+
+    def get_option(self, option):
+        value = self.conn_options.get(option)
+        # if option was not specified explictly, then use connection default
+        # value for that option if there.
+        if value is None:
+            with self._get_pool_connection() as conn:
+                value = conn.get_option(option)
+        return value
+
+    def _apply_options(self, conn):
+        # if connection has a lifetime, then it already has options specified
+        if conn.get_lifetime() > 30:
+            return
+        for option, invalue in six.iteritems(self.conn_options):
+            conn.set_option(option, invalue)
+
+    def _get_pool_connection(self):
+        return self.conn_pool.connection(self.who, self.cred)
+
+    def simple_bind_s(self, who='', cred='',
+                      serverctrls=None, clientctrls=None):
+        '''Not using use_conn_pool decorator here as this API takes cred as
+        input.
+        '''
+        self.who = who
+        self.cred = cred
+        with self._get_pool_connection() as conn:
+            self._apply_options(conn)
+
+    def unbind_s(self):
+        # After connection generator is done `with` statement execution block
+        # connection is always released via finally block in ldappool.
+        # So this unbind is a no op.
+        pass
+
+    @use_conn_pool
+    def add_s(self, conn, dn, modlist):
+        return conn.add_s(dn, modlist)
+
+    @use_conn_pool
+    def search_s(self, conn, base, scope,
+                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+        return conn.search_s(base, scope, filterstr, attrlist,
+                             attrsonly)
+
+    def search_ext(self, base, scope,
+                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
+                   serverctrls=None, clientctrls=None,
+                   timeout=-1, sizelimit=0):
+        '''This API is asynchoronus API which returns MsgId instance to be used
+        in result3 call.
+
+        To work with result3 API in predicatable manner, same LDAP connection
+        is needed which provided msgid. So wrapping used connection and msgid
+        in MsgId class. The connection associated with search_ext is released
+        once last hard reference to MsgId object is freed. This will happen
+        when the method is done with returned MsgId usage.
+        '''
+
+        conn_ctxt = self._get_pool_connection()
+        conn = conn_ctxt.__enter__()
+        try:
+            msgid = conn.search_ext(base, scope,
+                                    filterstr, attrlist, attrsonly,
+                                    serverctrls, clientctrls,
+                                    timeout, sizelimit)
+        except Exception:
+            conn_ctxt.__exit__(*sys.exc_info())
+            raise
+        res = MsgId((conn, msgid))
+        weakref.ref(res, functools.partial(conn_ctxt.__exit__,
+                                           None, None, None))
+        return res
+
+    def result3(self, msgid, all=1, timeout=None,
+                resp_ctrl_classes=None):
+        '''This method is used to wait for and return the result of an
+        operation previously initiated by one of the LDAP asynchronous
+        operation routines (eg search_ext()) It returned an invocation
+        identifier (a message id) upon successful initiation of their
+        operation.
+
+        Input msgid is expected to be instance of class MsgId which has LDAP
+        session/connection used to execute search_ext and message idenfier.
+
+        The connection associated with search_ext is released once last hard
+        reference to MsgId object is freed. This will happen when function
+        which requested msgId and used it in result3 exits.
+        '''
+
+        conn, msg_id = msgid
+        return conn.result3(msg_id, all, timeout)
+
+    @use_conn_pool
+    def modify_s(self, conn, dn, modlist):
+        return conn.modify_s(dn, modlist)
+
+    @use_conn_pool
+    def delete_s(self, conn, dn):
+        return conn.delete_s(dn)
+
+    @use_conn_pool
+    def delete_ext_s(self, conn, dn, serverctrls=None, clientctrls=None):
+        return conn.delete_ext_s(dn, serverctrls, clientctrls)
+
+
 class KeystoneLDAPHandler(LDAPHandler):
     '''Convert data types and perform logging.
 
@@ -617,11 +849,21 @@ class KeystoneLDAPHandler(LDAPHandler):
 
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None, debug_level=None):
+                tls_req_cert='demand', chase_referrals=None, debug_level=None,
+                use_pool=None, pool_size=None,
+                pool_retry_max=None, pool_retry_delay=None,
+                pool_conn_timeout=None, pool_conn_lifetime=None):
+        self.page_size = page_size
         return self.conn.connect(url, page_size, alias_dereferencing,
                                  use_tls, tls_cacertfile, tls_cacertdir,
                                  tls_req_cert, chase_referrals,
-                                 debug_level=debug_level)
+                                 debug_level=debug_level,
+                                 use_pool=use_pool,
+                                 pool_size=pool_size,
+                                 pool_retry_max=pool_retry_max,
+                                 pool_retry_delay=pool_retry_delay,
+                                 pool_conn_timeout=pool_conn_timeout,
+                                 pool_conn_lifetime=pool_conn_lifetime)
 
     def set_option(self, option, invalue):
         return self.conn.set_option(option, invalue)
@@ -635,7 +877,8 @@ class KeystoneLDAPHandler(LDAPHandler):
         who_utf8 = utf8_encode(who)
         cred_utf8 = utf8_encode(cred)
         return self.conn.simple_bind_s(who_utf8, cred_utf8,
-                                       serverctrls, clientctrls)
+                                       serverctrls=serverctrls,
+                                       clientctrls=clientctrls)
 
     def unbind_s(self):
         LOG.debug("LDAP unbind")
@@ -798,12 +1041,15 @@ def register_handler(prefix, handler):
     _HANDLERS[prefix] = handler
 
 
-def _get_connection(conn_url):
+def _get_connection(conn_url, use_pool=False, use_auth_pool=False):
     for prefix, handler in six.iteritems(_HANDLERS):
         if conn_url.startswith(prefix):
             return handler()
 
-    return PythonLDAPHandler()
+    if use_pool:
+        return PooledLDAPHandler(use_auth_pool=use_auth_pool)
+    else:
+        return PythonLDAPHandler()
 
 
 def filter_entity(entity_ref):
@@ -853,6 +1099,19 @@ class BaseLdap(object):
         self.attribute_mapping = {}
         self.chase_referrals = conf.ldap.chase_referrals
         self.debug_level = conf.ldap.debug_level
+
+        # LDAP Pool specific attribute
+        self.use_pool = conf.ldap.use_pool
+        self.pool_size = conf.ldap.pool_size
+        self.pool_retry_max = conf.ldap.pool_retry_max
+        self.pool_retry_delay = conf.ldap.pool_retry_delay
+        self.pool_conn_timeout = conf.ldap.pool_connection_timeout
+        self.pool_conn_lifetime = conf.ldap.pool_connection_lifetime
+
+        # End user authentication pool specific config attributes
+        self.use_auth_pool = self.use_pool and conf.ldap.use_auth_pool
+        self.auth_pool_size = conf.ldap.auth_pool_size
+        self.auth_pool_conn_lifetime = conf.ldap.auth_pool_connection_lifetime
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
@@ -938,8 +1197,20 @@ class BaseLdap(object):
         return (self.use_dumb_member
                 and is_dn_equal(member_dn, self.dumb_member))
 
-    def get_connection(self, user=None, password=None):
-        conn = _get_connection(self.LDAP_URL)
+    def get_connection(self, user=None, password=None, end_user_auth=False):
+        use_pool = self.use_pool
+        pool_size = self.pool_size
+        pool_conn_lifetime = self.pool_conn_lifetime
+
+        if end_user_auth:
+            if not self.use_auth_pool:
+                use_pool = False
+            else:
+                pool_size = self.auth_pool_size
+                pool_conn_lifetime = self.auth_pool_conn_lifetime
+
+        conn = _get_connection(self.LDAP_URL, use_pool,
+                               use_auth_pool=end_user_auth)
 
         conn = KeystoneLDAPHandler(conn=conn)
 
@@ -951,7 +1222,14 @@ class BaseLdap(object):
                      tls_cacertdir=self.tls_cacertdir,
                      tls_req_cert=self.tls_req_cert,
                      chase_referrals=self.chase_referrals,
-                     debug_level=self.debug_level)
+                     debug_level=self.debug_level,
+                     use_pool=use_pool,
+                     pool_size=pool_size,
+                     pool_retry_max=self.pool_retry_max,
+                     pool_retry_delay=self.pool_retry_delay,
+                     pool_conn_timeout=self.pool_conn_timeout,
+                     pool_conn_lifetime=pool_conn_lifetime
+                     )
 
         if user is None:
             user = self.LDAP_USER

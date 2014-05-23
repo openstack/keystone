@@ -706,6 +706,28 @@ FILE_OPTIONS = {
         cfg.StrOpt('tls_req_cert', default='demand',
                    help='Valid options for tls_req_cert are demand, never, '
                         'and allow.'),
+        cfg.BoolOpt('use_pool', default=False,
+                    help='Enable LDAP connection pooling.'),
+        cfg.IntOpt('pool_size', default=10,
+                   help='Connection pool size.'),
+        cfg.IntOpt('pool_retry_max', default=3,
+                   help='Maximum count of reconnect trials.'),
+        cfg.FloatOpt('pool_retry_delay', default=0.1,
+                     help='Time span in seconds to wait between two '
+                          'reconnect trials.'),
+        cfg.IntOpt('pool_connection_timeout', default=-1,
+                   help='Connector timeout in seconds. Value -1 indicates '
+                        'indefinite wait for response.'),
+        cfg.IntOpt('pool_connection_lifetime', default=600,
+                   help='Connection lifetime in seconds.'),
+        cfg.BoolOpt('use_auth_pool', default=False,
+                    help='Enable LDAP connection pooling for end user '
+                         'authentication. If use_pool is disabled, then this '
+                         'setting is meaningless and is not used at all.'),
+        cfg.IntOpt('auth_pool_size', default=100,
+                   help='End user auth connection pool size.'),
+        cfg.IntOpt('auth_pool_connection_lifetime', default=60,
+                   help='End user auth connection lifetime in seconds.'),
     ],
     'auth': [
         cfg.ListOpt('methods', default=_DEFAULT_AUTH_METHODS,
