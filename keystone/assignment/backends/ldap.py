@@ -280,13 +280,12 @@ class Assignment(assignment.Driver):
             # TODO(spzala): this is only placeholder for group and domain
             # role support which will be added under bug 1101287
             query = '(objectClass=%s)' % self.group.object_class
-            dn = None
             dn = self.group._id_to_dn(group_id)
             if dn:
                 try:
                     conn = self.group.get_connection()
                     roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
-                                          query, ['%s' % '1.1'])
+                                          query, ['1.1'])
                     for role_dn, i in roles:
                         conn.delete_s(role_dn)
                 except ldap.NO_SUCH_OBJECT:
@@ -383,7 +382,7 @@ class Assignment(assignment.Driver):
         except exception.MetadataNotFound:
             metadata_ref = {}
 
-        return [self.get_role(x) for x in
+        return [self.get_role(role_id) for role_id in
                 self._roles_from_role_dicts(metadata_ref.get('roles', []),
                                             inherited_to_projects)]
 
