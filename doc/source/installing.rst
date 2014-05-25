@@ -43,25 +43,24 @@ Clone the keystone repository::
     git clone http://github.com/openstack/keystone.git
     cd keystone
 
-Install the dependencies to run keystone::
+Install the keystone web service::
 
-    sudo pip install -r requirements.txt
+    python setup.py install
 
-And at this point, you should have all the pieces you need to run keystone
-installed on your system. The following commands should be available on the
-commandline path:
+You should have all the pieces you need to run keystone installed on your
+system. The following commands should be available on the command-line path:
 
-* ``keystone`` the keystone client, used to configure keystone
+* ``keystone`` the keystone client, used to interact with keystone
 * ``keystone-manage`` used to bootstrap keystone data
 * ``keystone-all`` used to run the keystone services
 
-You will find sample configuration files in ``etc/``
+You will find sample configuration files in ``etc/``:
 
-* keystone.conf
-* keystone-paste.ini
-* logging.conf
-* policy.json
-* default_catalog.templates
+* ``keystone.conf``
+* ``keystone-paste.ini``
+* ``logging.conf``
+* ``policy.json``
+* ``default_catalog.templates``
 
 From here, refer to :doc:`configuration` to choose which backend drivers to
 enable and use. Once configured, you should be able to run keystone by issuing
@@ -69,9 +68,9 @@ the command::
 
     keystone-all
 
-which (by default) will show logging on the console from which it was started.
+By default, this will show logging on the console from which it was started.
 Once started, you can initialize data in keystone for use with the rest of
-openstack, as described in :doc:`configuringservices`.
+OpenStack, as described in :doc:`configuringservices`.
 
 An excellent reference implementation of setting up keystone is DEVSTACK_,
 most commonly used for development and testing setup of not only Keystone,
