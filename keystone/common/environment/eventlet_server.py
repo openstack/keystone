@@ -27,6 +27,8 @@ import eventlet.wsgi
 import greenlet
 
 from keystone.i18n import _
+from keystone.i18n import _LE
+from keystone.i18n import _LI
 from keystone.openstack.common import log
 
 
@@ -95,11 +97,11 @@ class Server(object):
             self.socket = eventlet.listen(info[-1], family=info[0],
                                           backlog=backlog)
         except EnvironmentError:
-            LOG.error(_("Could not bind to %(host)s:%(port)s"),
+            LOG.error(_LE("Could not bind to %(host)s:%(port)s"),
                       {'host': self.host, 'port': self.port})
             raise
 
-        LOG.info(_('Starting %(arg0)s on %(host)s:%(port)s'),
+        LOG.info(_LI('Starting %(arg0)s on %(host)s:%(port)s'),
                  {'arg0': sys.argv[0],
                   'host': self.host,
                   'port': self.port})
