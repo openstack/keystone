@@ -13,6 +13,8 @@
 import datetime
 import uuid
 
+import six
+
 from keystone.common import dependency
 from keystone.contrib.revoke import model
 from keystone.openstack.common import timeutils
@@ -61,9 +63,9 @@ class OSRevokeTests(test_v3.RestfulTestCase):
         user_id = uuid.uuid4().hex
         expires_at = token.default_expire_time()
         sample = self._blank_event()
-        sample['user_id'] = unicode(user_id)
-        sample['expires_at'] = unicode(timeutils.isotime(expires_at,
-                                                         subsecond=True))
+        sample['user_id'] = six.text_type(user_id)
+        sample['expires_at'] = six.text_type(timeutils.isotime(expires_at,
+                                                               subsecond=True))
         before_time = timeutils.utcnow()
         self.revoke_api.revoke_by_expiration(user_id, expires_at)
         resp = self.get('/OS-REVOKE/events')
@@ -74,7 +76,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
     def test_disabled_project_in_list(self):
         project_id = uuid.uuid4().hex
         sample = dict()
-        sample['project_id'] = unicode(project_id)
+        sample['project_id'] = six.text_type(project_id)
         before_time = timeutils.utcnow()
         self.revoke_api.revoke(
             model.RevokeEvent(project_id=project_id))
@@ -87,7 +89,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
     def test_disabled_domain_in_list(self):
         domain_id = uuid.uuid4().hex
         sample = dict()
-        sample['domain_id'] = unicode(domain_id)
+        sample['domain_id'] = six.text_type(domain_id)
         before_time = timeutils.utcnow()
         self.revoke_api.revoke(
             model.RevokeEvent(domain_id=domain_id))
@@ -108,7 +110,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
     def test_since_future_time_no_events(self):
         domain_id = uuid.uuid4().hex
         sample = dict()
-        sample['domain_id'] = unicode(domain_id)
+        sample['domain_id'] = six.text_type(domain_id)
 
         self.revoke_api.revoke(
             model.RevokeEvent(domain_id=domain_id))
