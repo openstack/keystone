@@ -287,7 +287,7 @@ def _send_audit_notification(action, initiator, outcome):
         action=action,
         initiator=initiator,
         target=resource.Resource(typeURI=taxonomy.ACCOUNT_USER),
-        observer=resource.Resource(typeURI='service/security'))
+        observer=resource.Resource(typeURI=taxonomy.SERVICE_SECURITY))
 
     context = {}
     payload = event.as_dict()
