@@ -39,7 +39,9 @@ def upgrade(migrate_engine):
         sql.Column('role_id', sql.String(64), sql.ForeignKey('role.id'),
                    nullable=False),
         sql.Column('inherited', sql.Boolean, default=False, nullable=False),
-        sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id', 'role_id'))
+        sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id', 'role_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
     assignment_table.create(migrate_engine, checkfirst=True)
 
 
