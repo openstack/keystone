@@ -63,7 +63,7 @@ it goes right before::
 Files
 -----
 
-Copy the file httpd/wsgi-keystone.conf to the appropriate location for your apache server, most likely::
+Copy the file httpd/wsgi-keystone.conf to the appropriate location for your Apache server, most likely::
 
     /etc/httpd/conf.d/wsgi-keystone.conf
 

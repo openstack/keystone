@@ -656,7 +656,7 @@ is similar to other dogpile caching backends as it implements the same dogpile A
 Building the Documentation
 --------------------------
 
-The documentation is generated with Sphinx uning the tox command.  To create HTML docs and man pages::
+The documentation is generated with Sphinx using the tox command.  To create HTML docs and man pages::
 
     $ tox -e docs
 

@@ -31,7 +31,7 @@ In general:
 * Clients making calls to the service will pass in an authentication token.
 * The Keystone middleware will look for and validate that token, taking the
   appropriate action.
-* It will also retrive additional information from the token such as user
+* It will also retrieve additional information from the token such as user
   name, id, tenant name, id, roles, etc...
 
 The middleware will pass those data down to the service as headers. More
