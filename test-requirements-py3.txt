@@ -1,4 +1,5 @@
 hacking>=0.8.0,<0.9
+bash8
 
 # pysqlite does not install on py3
 # Optional backend: SQL
@@ -11,6 +12,7 @@ hacking>=0.8.0,<0.9
 # Optional dogpile backend: MongoDB
 pymongo>=2.5
 
+# Optional backend: LDAP
 # python-ldap does not install on py3
 # authenticate against an existing LDAP server
 # python-ldap==2.3.13
