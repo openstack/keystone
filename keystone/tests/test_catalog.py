@@ -82,8 +82,8 @@ class V2CatalogTestCase(rest.RestfulTestCase):
 
     def test_endpoint_create(self):
         req_body, response = self._endpoint_create()
-        self.assertTrue('endpoint' in response.result)
-        self.assertTrue('id' in response.result['endpoint'])
+        self.assertIn('endpoint', response.result)
+        self.assertIn('id', response.result['endpoint'])
         for field, value in six.iteritems(req_body['endpoint']):
             self.assertEqual(response.result['endpoint'][field], value)
 

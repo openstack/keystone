@@ -95,10 +95,10 @@ class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
         try:
             self.api.authenticate({'environment': {}}, auth_info, auth_context)
         except exception.AdditionalAuthRequired as e:
-            self.assertTrue('methods' in e.authentication)
-            self.assertTrue(METHOD_NAME in e.authentication['methods'])
-            self.assertTrue(METHOD_NAME in e.authentication)
-            self.assertTrue('challenge' in e.authentication[METHOD_NAME])
+            self.assertIn('methods', e.authentication)
+            self.assertIn(METHOD_NAME, e.authentication['methods'])
+            self.assertIn(METHOD_NAME, e.authentication)
+            self.assertIn('challenge', e.authentication[METHOD_NAME])
 
         # test correct response
         auth_data = {'methods': [METHOD_NAME]}
