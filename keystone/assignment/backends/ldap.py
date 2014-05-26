@@ -450,7 +450,7 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         if not role_dn:
             # Get users who have default tenant mapping
             for user_dn in tenant[1].get(self.member_attribute, []):
-                if self.use_dumb_member and user_dn == self.dumb_member:
+                if self._is_dumb_member(user_dn):
                     continue
                 res.add(user_dn)
 
@@ -552,7 +552,7 @@ class RoleApi(common_ldap.BaseLdap):
             except KeyError:
                 continue
             for user_dn in user_dns:
-                if self.use_dumb_member and user_dn == self.dumb_member:
+                if self._is_dumb_member(user_dn):
                     continue
                 res.append(UserRoleAssociation(
                     user_dn=user_dn,
@@ -647,15 +647,7 @@ class RoleApi(common_ldap.BaseLdap):
             # object.
             tenant_dn = ldap.dn.dn2str(tenant)
             for user_dn in role[self.member_attribute]:
-                # NOTE(nkinder): Ideally, this comparison would be aware of the
-                # Distinguished Name LDAP syntax. Since Keystone is responsible
-                # for setting the dumb member DN, we are relatively sure that
-                # it is returned in the same form. We still need to do a case
-                # insensitive comparison since attribute names will be upper
-                # case for AD. We already do this elsewhere in the LDAP
-                # driver, so it's OK until we decide to become syntax aware.
-                if (self.use_dumb_member and
-                        user_dn.lower() == self.dumb_member.lower()):
+                if self._is_dumb_member(user_dn):
                     continue
                 res.append(UserRoleAssociation(
                            user_dn=user_dn,
