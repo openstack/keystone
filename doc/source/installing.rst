@@ -93,7 +93,7 @@ on Ubuntu::
 
 In using Ubuntu's packages, the packages will set up a user account for
 the Keystone service (`keystone`), and place default configurations in
-``/etc/keystone``. The debian installer will also ask you about configuration
+``/etc/keystone``. The Debian installer will also ask you about configuration
 options for setting up and running Keystone. As of this writing, the defaults
 for Keystone backends are all SQL based, stored locally in a sqlite.
 

@@ -128,7 +128,7 @@ implementations. The drivers for the services are:
 
 If you implement a backend driver for one of the keystone services, you're
 expected to subclass from these classes. The default response for the defined
-apis in these Drivers is to raise a :mod:`keystone.service.TokenController`.
+APIs in these Drivers is to raise a :mod:`keystone.service.TokenController`.
 
 
 SQL Backend
@@ -183,7 +183,7 @@ more data than they know what to do with and pass them on to a backend.
 There are a few main data types:
 
  * **User**: has account credentials, is associated with one or more tenants
- * **Tenant**: unit of ownership in openstack, contains one or more users
+ * **Tenant**: unit of ownership in OpenStack, contains one or more users
  * **Role**: a first-class piece of metadata associated with many user-tenant pairs.
  * **Token**: identifying credential associated with a user or user and tenant
  * **Extras**: bucket of key-value metadata associated with a user-tenant pair.
@@ -269,4 +269,4 @@ to which capabilities are allowed for that role. For example:
   policy_api.enforce(('action:nova:add_network',), credentials)
 
 In the backend this would look up the policy for 'action:nova:add_network' and
-then do what is effectively a 'Simple Match' style match against the creds.
+then do what is effectively a 'Simple Match' style match against the credentials.

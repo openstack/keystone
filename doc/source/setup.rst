@@ -100,7 +100,7 @@ PyPi Packages and VirtualEnv
 ----------------------------
 
 We recommend establishing a virtualenv to run keystone within. Virtualenv
-limits the python environment to just what you're installing as depdendencies,
+limits the python environment to just what you're installing as dependencies,
 useful to keep a clean environment for working on Keystone. The tools directory
 in keystone has a script already created to make this very simple::
 
