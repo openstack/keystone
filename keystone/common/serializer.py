@@ -101,8 +101,8 @@ class XmlDeserializer(object):
                 prefix = xmlns.get('prefix')
                 break
         if prefix is not None:
-            return '%(PREFIX)s:%(tag_name)s' \
-                % {'PREFIX': prefix, 'tag_name': tag_name}
+            return '%(PREFIX)s:%(tag_name)s' % {
+                'PREFIX': prefix, 'tag_name': tag_name}
         else:
             return tag_name
 
