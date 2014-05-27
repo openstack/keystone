@@ -135,7 +135,7 @@ class ApplicationTest(BaseWSGITest):
         validation = app.has_attributes(resp.body, ['a',
                                         'missing_attribute'])
         self.assertFalse(validation[0])
-        self.assertTrue('missing_attribute' in validation[1])
+        self.assertIn('missing_attribute', validation[1])
 
     def test_no_required_attributes_present(self):
         app = FakeAttributeCheckerApp()
@@ -144,8 +144,8 @@ class ApplicationTest(BaseWSGITest):
         validation = app.has_attributes(resp.body, ['missing_attribute1',
                                         'missing_attribute2'])
         self.assertFalse(validation[0])
-        self.assertTrue('missing_attribute1' in validation[1])
-        self.assertTrue('missing_attribute2' in validation[1])
+        self.assertIn('missing_attribute1', validation[1])
+        self.assertIn('missing_attribute2', validation[1])
 
     def test_render_response_custom_headers(self):
         resp = wsgi.render_response(headers=[('Custom-Header', 'Some-Value')])

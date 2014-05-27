@@ -870,7 +870,7 @@ class KeystoneClientTests(object):
                                    user=self.user_two['id'],
                                    role=self.role_other['id'])
         user_refs = client.tenants.list_users(tenant=self.tenant_bar['id'])
-        self.assertTrue(self.user_two['id'] in [x.id for x in user_refs])
+        self.assertIn(self.user_two['id'], [x.id for x in user_refs])
         client.roles.remove_user_role(tenant=self.tenant_bar['id'],
                                       user=self.user_two['id'],
                                       role=self.role_other['id'])

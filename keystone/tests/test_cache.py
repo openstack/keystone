@@ -186,7 +186,7 @@ class CacheRegionTest(tests.TestCase):
         self.assertEqual('test', config_dict['test_prefix.arguments.arg1'])
         self.assertEqual('test:test',
                          config_dict['test_prefix.arguments.arg2'])
-        self.assertFalse('test_prefix.arguments.arg3' in config_dict)
+        self.assertNotIn('test_prefix.arguments.arg3', config_dict)
 
     def test_cache_debug_proxy(self):
         single_value = 'Test Value'
