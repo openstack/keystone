@@ -14,6 +14,7 @@
 
 import uuid
 
+import six
 from testtools import matchers
 
 from keystone.common import controller
@@ -45,7 +46,7 @@ class V3ControllerTestCase(tests.TestCase):
 
         ex = self.assertRaises(exception.ImmutableAttributeError,
                                self.api.check_immutable_params, ref)
-        ex_msg = unicode(ex)
+        ex_msg = six.text_type(ex)
         self.assertThat(ex_msg, matchers.Contains(self.api.__class__.__name__))
         for key in ref.keys():
             self.assertThat(ex_msg, matchers.Contains(key))
