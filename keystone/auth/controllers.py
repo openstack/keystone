@@ -453,10 +453,19 @@ class Auth(controller.V3Controller):
     def authenticate(self, context, auth_info, auth_context):
         """Authenticate user."""
 
-        # user has been authenticated externally
+        # The 'external' method allows any 'REMOTE_USER' based authentication
         if 'REMOTE_USER' in context['environment']:
-            external = get_auth_method('external')
-            external.authenticate(context, auth_info, auth_context)
+            try:
+                external = get_auth_method('external')
+                external.authenticate(context, auth_info, auth_context)
+            except exception.AuthMethodNotSupported:
+                # This will happen there is no 'external' plugin registered
+                # and the container is performing authentication.
+                # The 'kerberos'  and 'saml' methods will be used this way.
+                # In those cases, it is correct to not register an
+                # 'external' plugin;  if there is both an 'external' and a
+                # 'kerberos' plugin, it would run the check on identity twice.
+                pass
 
         # need to aggregate the results in case two or more methods
         # are specified
