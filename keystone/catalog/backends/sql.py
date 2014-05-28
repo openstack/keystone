@@ -125,7 +125,6 @@ class Catalog(catalog.Driver):
         with session.begin():
             ref = self._get_region(session, region_id)
             self._delete_child_regions(session, region_id)
-            session.query(Region).filter_by(id=region_id).delete()
             session.delete(ref)
 
     @sql.handle_conflicts(conflict_type='region')

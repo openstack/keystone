@@ -99,9 +99,6 @@ class Federation(core.Driver):
         session = sql.get_session()
         with session.begin():
             idp_ref = self._get_idp(session, idp_id)
-            q = session.query(IdentityProviderModel)
-            q = q.filter_by(id=idp_id)
-            q.delete(synchronize_session=False)
             session.delete(idp_ref)
 
     def _get_idp(self, session, idp_id):
@@ -182,9 +179,6 @@ class Federation(core.Driver):
         session = sql.get_session()
         with session.begin():
             key_ref = self._get_protocol(session, idp_id, protocol_id)
-            q = session.query(FederationProtocolModel)
-            q = q.filter_by(id=protocol_id, idp_id=idp_id)
-            q.delete(synchronize_session=False)
             session.delete(key_ref)
 
     # Mapping CRUD

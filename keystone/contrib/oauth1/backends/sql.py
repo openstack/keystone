@@ -109,9 +109,6 @@ class OAuth1(object):
 
     def _delete_consumer(self, session, consumer_id):
         consumer_ref = self._get_consumer(session, consumer_id)
-        q = session.query(Consumer)
-        q = q.filter_by(id=consumer_id)
-        q.delete(False)
         session.delete(consumer_ref)
 
     def _delete_request_tokens(self, session, consumer_id):
@@ -120,9 +117,6 @@ class OAuth1(object):
         req_tokens_list = set([x.id for x in req_tokens])
         for token_id in req_tokens_list:
             token_ref = self._get_request_token(session, token_id)
-            q = session.query(RequestToken)
-            q = q.filter_by(id=token_id)
-            q.delete(False)
             session.delete(token_ref)
 
     def _delete_access_tokens(self, session, consumer_id):
@@ -131,9 +125,6 @@ class OAuth1(object):
         acc_tokens_list = set([x.id for x in acc_tokens])
         for token_id in acc_tokens_list:
             token_ref = self._get_access_token(session, token_id)
-            q = session.query(AccessToken)
-            q = q.filter_by(id=token_id)
-            q.delete(False)
             session.delete(token_ref)
 
     def delete_consumer(self, consumer_id):
@@ -246,9 +237,6 @@ class OAuth1(object):
             session.add(token_ref)
 
             # remove request token, it's been used
-            q = session.query(RequestToken)
-            q = q.filter_by(id=request_token_id)
-            q.delete(False)
             session.delete(req_token_ref)
 
         return token_ref.to_dict()
@@ -277,9 +265,5 @@ class OAuth1(object):
             token_dict = token_ref.to_dict()
             if token_dict['authorizing_user_id'] != user_id:
                 raise exception.Unauthorized(_('User IDs do not match'))
-
-            q = session.query(AccessToken)
-            q = q.filter_by(id=access_token_id)
-            q.delete(False)
 
             session.delete(token_ref)
