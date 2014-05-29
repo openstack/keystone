@@ -152,26 +152,3 @@ without issue::
 
 If you can import keystone successfully, you should be ready to move on to
 :doc:`developing`.
-
-Troubleshooting
-===============
-
-Eventlet segfaults on RedHat / Fedora
--------------------------------------
-
-[*If this is no longer an issue, please remove this section, thanks!*]
-
-On some OSes, specifically Fedora 15, the current versions of
-greenlet/eventlet segfault when running keystone. To fix this, install
-the development versions of greenlet and eventlet::
-
-    $ pip uninstall greenlet eventlet
-    $ cd <appropriate working directory>
-    $ hg clone https://bitbucket.org/ambroff/greenlet
-    $ cd greenlet
-    $ sudo python setup.py install
-
-    $ cd <appropriate working directory>
-    $ hg clone https://bitbucket.org/which_linden/eventlet
-    $ cd greenlet
-    $ sudo python setup.py install
