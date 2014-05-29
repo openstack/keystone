@@ -13,6 +13,8 @@
 # under the License.
 
 import copy
+import os
+import tempfile
 import uuid
 
 from six.moves import urllib
@@ -26,6 +28,7 @@ from keystone.contrib.oauth1 import controllers
 from keystone import exception
 from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common import importutils
+from keystone.openstack.common import jsonutils
 from keystone.tests import test_v3
 
 
@@ -485,6 +488,100 @@ class AuthTokenTests(OAuthFlowTests):
                                      consumer_id=self.consumer['key'])
         self.assertRaises(exception.TokenNotFound, self.token_api.get_token,
                           self.keystone_token_id)
+
+    def _create_trust_get_token(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            trust_id=trust['id'])
+        r = self.post('/auth/tokens', body=auth_data)
+
+        trust_token = r.headers['X-Subject-Token']
+        return trust_token
+
+    def _approve_request_token_url(self):
+        consumer = self._create_single_consumer()
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
+        self.consumer = {'key': consumer_id, 'secret': consumer_secret}
+        self.assertIsNotNone(self.consumer['secret'])
+
+        url, headers = self._create_request_token(self.consumer,
+                                                  self.project_id)
+        content = self.post(url, headers=headers)
+        credentials = urllib.parse.parse_qs(content.result)
+        request_key = credentials['oauth_token'][0]
+        request_secret = credentials['oauth_token_secret'][0]
+        self.request_token = oauth1.Token(request_key, request_secret)
+        self.assertIsNotNone(self.request_token.key)
+
+        url = self._authorize_request_token(request_key)
+
+        return url
+
+    def test_oauth_token_cannot_create_new_trust(self):
+        self.test_oauth_flow()
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+
+        self.post('/OS-TRUST/trusts',
+                  body={'trust': ref},
+                  token=self.keystone_token_id,
+                  expected_status=403)
+
+    def test_oauth_token_cannot_authorize_request_token(self):
+        self.test_oauth_flow()
+        url = self._approve_request_token_url()
+        body = {'roles': [{'id': self.role_id}]}
+        self.put(url, body=body, token=self.keystone_token_id,
+                 expected_status=403)
+
+    def test_oauth_token_cannot_list_request_tokens(self):
+        self._set_policy({"identity:list_access_tokens": [],
+                          "identity:create_consumer": [],
+                          "identity:authorize_request_token": []})
+        self.test_oauth_flow()
+        url = '/users/%s/OS-OAUTH1/access_tokens' % self.user_id
+        self.get(url, token=self.keystone_token_id,
+                 expected_status=403)
+
+    def _set_policy(self, new_policy):
+        _unused, self.tmpfilename = tempfile.mkstemp()
+        self.config_fixture.config(policy_file=self.tmpfilename)
+        with open(self.tmpfilename, "w") as policyfile:
+            policyfile.write(jsonutils.dumps(new_policy))
+        self.addCleanup(os.remove, self.tmpfilename)
+
+    def test_trust_token_cannot_authorize_request_token(self):
+        trust_token = self._create_trust_get_token()
+        url = self._approve_request_token_url()
+        body = {'roles': [{'id': self.role_id}]}
+        self.put(url, body=body, token=trust_token, expected_status=403)
+
+    def test_trust_token_cannot_list_request_tokens(self):
+        self._set_policy({"identity:list_access_tokens": [],
+                          "identity:create_trust": []})
+        trust_token = self._create_trust_get_token()
+        url = '/users/%s/OS-OAUTH1/access_tokens' % self.user_id
+        self.get(url, token=trust_token, expected_status=403)
 
 
 class MaliciousOAuth1Tests(OAuth1Tests):
