@@ -34,6 +34,7 @@ from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
+DEFAULT_EXTENSIONS = ['revoke']
 
 
 def get_default_domain():
@@ -150,31 +151,9 @@ def _fix_migration_37(engine):
         engine.execute('ALTER TABLE region CONVERT TO CHARACTER SET utf8')
 
 
-def sync_database_to_version(extension=None, version=None):
-    if not extension:
-        abs_path = find_migrate_repo()
-        init_version = migrate_repo.DB_INIT_VERSION
-    else:
-        init_version = 0
-        try:
-            package_name = '.'.join((contrib.__name__, extension))
-            package = importutils.import_module(package_name)
-        except ImportError:
-            raise ImportError(_("%s extension does not exist.")
-                              % package_name)
-        try:
-            abs_path = find_migrate_repo(package)
-            try:
-                migration.db_version_control(sql.get_engine(), abs_path)
-            # Register the repo with the version control API
-            # If it already knows about the repo, it will throw
-            # an exception that we can safely ignore
-            except exceptions.DatabaseAlreadyControlledError:
-                pass
-        except exception.MigrationNotProvided as e:
-            print(e)
-            sys.exit(1)
-
+def _sync_common_repo(version):
+    abs_path = find_migrate_repo()
+    init_version = migrate_repo.DB_INIT_VERSION
     engine = sql.get_engine()
     try:
         migration.db_sync(engine, abs_path, version=version,
@@ -186,8 +165,7 @@ def sync_database_to_version(extension=None, version=None):
         # when the migration was initially created. Bug #1334779 is a scenario
         # where the deployer can get wedged, unable to upgrade or downgrade.
         # This is a workaround to "fix" that table if we're under MySQL.
-        if (not extension and engine.name == 'mysql' and
-                six.text_type(get_db_version()) == '37'):
+        if engine.name == 'mysql' and six.text_type(get_db_version()) == '37':
             _fix_migration_37(engine)
             # Try the migration a second time now that we've done the
             # un-wedge work.
@@ -195,6 +173,42 @@ def sync_database_to_version(extension=None, version=None):
                               init_version=init_version)
         else:
             raise
+
+
+def _sync_extension_repo(extension, version):
+    init_version = 0
+    try:
+        package_name = '.'.join((contrib.__name__, extension))
+        package = importutils.import_module(package_name)
+    except ImportError:
+        raise ImportError(_("%s extension does not exist.")
+                          % package_name)
+    try:
+        abs_path = find_migrate_repo(package)
+        try:
+            migration.db_version_control(sql.get_engine(), abs_path)
+        # Register the repo with the version control API
+        # If it already knows about the repo, it will throw
+        # an exception that we can safely ignore
+        except exceptions.DatabaseAlreadyControlledError:
+            pass
+    except exception.MigrationNotProvided as e:
+        print(e)
+        sys.exit(1)
+    migration.db_sync(sql.get_engine(), abs_path, version=version,
+                      init_version=init_version)
+
+
+def sync_database_to_version(extension=None, version=None):
+    if not extension:
+        _sync_common_repo(version)
+        # If version is greater than 0, it is for the common
+        # repository only, and only that will be synchronized.
+        if version is None:
+            for default_extension in DEFAULT_EXTENSIONS:
+                _sync_extension_repo(default_extension, version)
+    else:
+        _sync_extension_repo(extension, version)
 
 
 def get_db_version(extension=None):
