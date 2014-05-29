@@ -18,6 +18,7 @@ import uuid
 
 import ldap
 import mock
+from testtools import matchers
 
 from keystone import assignment
 from keystone.common import cache
@@ -986,6 +987,29 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         dn, attrs = self.identity_api.driver.user._ldap_get(user['id'])
         self.assertTrue(user['name'] in attrs['description'])
 
+    def test_user_extra_attribute_mapping_description_is_returned(self):
+        # Given a mapping like description:description, the description is
+        # returned.
+
+        self.config_fixture.config(
+            group='ldap',
+            user_additional_attribute_mapping=['description:description'])
+        self.load_backends()
+
+        description = uuid.uuid4().hex
+        user = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': description,
+            'password': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id
+        }
+        self.identity_api.create_user(user['id'], user)
+        res = self.identity_api.driver.user.get_all()
+
+        new_user = [u for u in res if u['id'] == user['id']][0]
+        self.assertThat(new_user['description'], matchers.Equals(description))
+
     @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
     def test_user_mixed_case_attribute(self, mock_ldap_get):
         # Mock the search results to return attribute names
@@ -1008,7 +1032,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                        'fake:invalid', 'invalid1', 'invalid2:',
                        'description:name:something']
         mapping = self.identity_api.driver.user._parse_extra_attrs(option_list)
-        expected_dict = {'description': 'name', 'gecos': 'password'}
+        expected_dict = {'description': 'name', 'gecos': 'password',
+                         'fake': 'invalid', 'invalid2': ''}
         self.assertDictEqual(expected_dict, mapping)
 
 # TODO(henry-nash): These need to be removed when the full LDAP implementation
