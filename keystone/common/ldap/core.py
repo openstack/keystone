@@ -13,6 +13,7 @@
 # under the License.
 
 import os.path
+import re
 
 import ldap
 import ldap.filter
@@ -99,6 +100,115 @@ def ldap_scope(scope):
             _('Invalid LDAP scope: %(scope)s. Choose one of: %(options)s') % {
                 'scope': scope,
                 'options': ', '.join(LDAP_SCOPES.keys())})
+
+
+def prep_case_insensitive(value):
+    """Prepare a string for case-insensitive comparison.
+
+    This is defined in RFC4518. For simplicity, all this function does is
+    lowercase all the characters, strip leading and trailing whitespace,
+    and compress sequences of spaces to a single space.
+    """
+    value = re.sub(r'\s+', ' ', value.strip().lower())
+    return value
+
+
+def is_ava_value_equal(attribute_type, val1, val2):
+    """Returns True if and only if the AVAs are equal.
+
+    When comparing AVAs, the equality matching rule for the attribute type
+    should be taken into consideration. For simplicity, this implementation
+    does a case-insensitive comparison.
+
+    Note that this function uses prep_case_insenstive so the limitations of
+    that function apply here.
+
+    """
+
+    return prep_case_insensitive(val1) == prep_case_insensitive(val2)
+
+
+def is_rdn_equal(rdn1, rdn2):
+    """Returns True if and only if the RDNs are equal.
+
+    * RDNs must have the same number of AVAs.
+    * Each AVA of the RDNs must be the equal for the same attribute type. The
+      order isn't significant. Note that an attribute type will only be in one
+      AVA in an RDN, otherwise the DN wouldn't be valid.
+    * Attribute types aren't case sensitive. Note that attribute type
+      comparison is more complicated than implemented. This function only
+      compares case-insentive. The code should handle multiple names for an
+      attribute type (e.g., cn, commonName, and 2.5.4.3 are the same).
+
+    Note that this function uses is_ava_value_equal to compare AVAs so the
+    limitations of that function apply here.
+
+    """
+
+    if len(rdn1) != len(rdn2):
+        return False
+
+    for attr_type_1, val1, dummy in rdn1:
+        found = False
+        for attr_type_2, val2, dummy in rdn2:
+            if attr_type_1.lower() != attr_type_2.lower():
+                continue
+
+            found = True
+            if not is_ava_value_equal(attr_type_1, val1, val2):
+                return False
+            break
+        if not found:
+            return False
+
+    return True
+
+
+def is_dn_equal(dn1, dn2):
+    """Returns True if and only if the DNs are equal.
+
+    Two DNs are equal if they've got the same number of RDNs and if the RDNs
+    are the same at each position. See RFC4517.
+
+    Note that this function uses is_rdn_equal to compare RDNs so the
+    limitations of that function apply here.
+
+    :param dn1: Either a string DN or a DN parsed by ldap.dn.str2dn.
+    :param dn2: Either a string DN or a DN parsed by ldap.dn.str2dn.
+
+    """
+
+    if not isinstance(dn1, list):
+        dn1 = ldap.dn.str2dn(dn1)
+    if not isinstance(dn2, list):
+        dn2 = ldap.dn.str2dn(dn2)
+
+    if len(dn1) != len(dn2):
+        return False
+
+    for rdn1, rdn2 in zip(dn1, dn2):
+        if not is_rdn_equal(rdn1, rdn2):
+            return False
+    return True
+
+
+def dn_startswith(descendant_dn, dn):
+    """Returns True if and only if the descendant_dn is under the dn.
+
+    :param descendant_dn: Either a string DN or a DN parsed by ldap.dn.str2dn.
+    :param dn: Either a string DN or a DN parsed by ldap.dn.str2dn.
+
+    """
+
+    if not isinstance(descendant_dn, list):
+        descendant_dn = ldap.dn.str2dn(descendant_dn)
+    if not isinstance(dn, list):
+        dn = ldap.dn.str2dn(dn)
+
+    if len(descendant_dn) <= len(dn):
+        return False
+
+    return is_dn_equal(descendant_dn[len(dn):], dn)
 
 
 _HANDLERS = {}
