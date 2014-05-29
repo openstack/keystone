@@ -86,6 +86,12 @@ class AccessTokenCrudV3(controller.V3Controller):
 
     @controller.protected()
     def list_access_tokens(self, context, user_id):
+        auth_context = context.get('environment',
+                                   {}).get('KEYSTONE_AUTH_CONTEXT', {})
+        if auth_context.get('is_delegated_auth'):
+            raise exception.Forbidden(
+                _('Cannot list request tokens'
+                  ' with a token issued via delegation.'))
         refs = self.oauth_api.list_access_tokens(user_id)
         formatted_refs = ([self._format_token_entity(x) for x in refs])
         return AccessTokenCrudV3.wrap_collection(context, formatted_refs)
@@ -314,6 +320,12 @@ class OAuthControllerV3(controller.V3Controller):
         there is not another easy way to make sure the user knows which roles
         are being requested before authorizing.
         """
+        auth_context = context.get('environment',
+                                   {}).get('KEYSTONE_AUTH_CONTEXT', {})
+        if auth_context.get('is_delegated_auth'):
+            raise exception.Forbidden(
+                _('Cannot authorize a request token'
+                  ' with a token issued via delegation.'))
 
         req_token = self.oauth_api.get_request_token(request_token_id)
 

@@ -44,7 +44,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
     # it would otherwise need to reload the token_ref from backing store.
     wsgi.validate_token_bind(context, token_ref)
 
-    creds = {}
+    creds = {'is_delegated_auth': False}
     if 'token_data' in token_ref and 'token' in token_ref['token_data']:
         #V3 Tokens
         token_data = token_ref['token_data']['token']
@@ -66,9 +66,32 @@ def _build_policy_check_credentials(self, action, context, kwargs):
             creds['roles'] = []
             for role in token_data['roles']:
                 creds['roles'].append(role['name'])
+
+        trust = token_data.get('OS-TRUST:trust')
+        if trust is None:
+            creds['trust_id'] = None
+            creds['trustor_id'] = None
+            creds['trustee_id'] = None
+        else:
+            creds['trust_id'] = trust['id']
+            creds['trustor_id'] = trust['trustor_user']['id']
+            creds['trustee_id'] = trust['trustee_user']['id']
+            creds['is_delegated_auth'] = True
+
+        oauth1 = token_data.get('OS-OAUTH1')
+        if oauth1 is None:
+            creds['consumer_id'] = None
+            creds['access_token_id'] = None
+        else:
+            creds['consumer_id'] = oauth1['consumer_id']
+            creds['access_token_id'] = oauth1['access_token_id']
+            creds['is_delegated_auth'] = True
+
     else:
         #v2 Tokens
         creds = token_ref.get('metadata', {}).copy()
+        creds['is_delegated_auth'] = False
+
         try:
             creds['user_id'] = token_ref['user'].get('id')
         except AttributeError:
@@ -81,6 +104,16 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         # NOTE(vish): this is pretty inefficient
         creds['roles'] = [self.identity_api.get_role(role)['name']
                           for role in creds.get('roles', [])]
+        trust = token_ref.get('trust')
+        if trust is None:
+            creds['trust_id'] = None
+            creds['trustor_id'] = None
+            creds['trustee_id'] = None
+        else:
+            creds['trust_id'] = trust.get('id')
+            creds['trustor_id'] = trust.get('trustor_id')
+            creds['trustee_id'] = trust.get('trustee_id')
+            creds['is_delegated_auth'] = True
 
     return creds
 
@@ -155,6 +188,7 @@ def protected(callback=None):
                 policy_dict.update(kwargs)
                 self.policy_api.enforce(creds, action, flatten(policy_dict))
                 LOG.debug(_('RBAC: Authorization granted'))
+                context['environment'] = {'KEYSTONE_AUTH_CONTEXT': creds}
             return f(self, context, *args, **kwargs)
         return inner
     return wrapper
