@@ -288,7 +288,10 @@ FILE_OPTIONS = {
                          'eventlet servers.'),
         cfg.StrOpt('certfile',
                    default="/etc/keystone/ssl/certs/keystone.pem",
-                   help='Path of the certfile for SSL.'),
+                   help='Path of the certfile for SSL. For non-production '
+                        'environments, you may be interested in using '
+                        '`keystone-manage ssl_setup` to generate self-signed '
+                        'certificates.'),
         cfg.StrOpt('keyfile',
                    default='/etc/keystone/ssl/private/keystonekey.pem',
                    help='Path of the keyfile for SSL.'),
@@ -317,7 +320,10 @@ FILE_OPTIONS = {
                         '[token] section.'),
         cfg.StrOpt('certfile',
                    default='/etc/keystone/ssl/certs/signing_cert.pem',
-                   help='Path of the certfile for token signing.'),
+                   help='Path of the certfile for token signing. For '
+                        'non-production environments, you may be interested '
+                        'in using `keystone-manage pki_setup` to generate '
+                        'self-signed certificates.'),
         cfg.StrOpt('keyfile',
                    default='/etc/keystone/ssl/private/signing_key.pem',
                    help='Path of the keyfile for token signing.'),

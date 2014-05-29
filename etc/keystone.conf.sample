@@ -1176,7 +1176,10 @@
 # (string value)
 #token_format=<None>
 
-# Path of the certfile for token signing. (string value)
+# Path of the certfile for token signing. For non-production
+# environments, you may be interested in using `keystone-
+# manage pki_setup` to generate self-signed certificates.
+# (string value)
 #certfile=/etc/keystone/ssl/certs/signing_cert.pem
 
 # Path of the keyfile for token signing. (string value)
@@ -1211,7 +1214,10 @@
 # (boolean value)
 #enable=false
 
-# Path of the certfile for SSL. (string value)
+# Path of the certfile for SSL. For non-production
+# environments, you may be interested in using `keystone-
+# manage ssl_setup` to generate self-signed certificates.
+# (string value)
 #certfile=/etc/keystone/ssl/certs/keystone.pem
 
 # Path of the keyfile for SSL. (string value)
