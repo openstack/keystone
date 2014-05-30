@@ -14,10 +14,13 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+=======================
+API Examples using Curl
+=======================
 
-===============================
+-------------------------------
 Service API Examples Using Curl
-===============================
+-------------------------------
 
 The service API is defined to be a subset of the Admin API and, by
 default, runs on port 5000.
@@ -67,9 +70,9 @@ Returns::
         ]
     }
 
-=============================
+-----------------------------
 Admin API Examples Using Curl
-=============================
+-----------------------------
 
 These examples assume a default port value of 35357, and depend on the
 ``sampledata`` bundled with keystone.
