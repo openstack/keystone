@@ -875,6 +875,14 @@ class BaseLdap(object):
             mapping[ldap_attr] = attr_map
         return mapping
 
+    def _is_dumb_member(self, member_dn):
+        """Checks that member is a dumb member.
+
+        :param member_dn: DN of member to be checked.
+        """
+        return (self.use_dumb_member
+                and is_dn_equal(member_dn, self.dumb_member))
+
     def get_connection(self, user=None, password=None):
         conn = _get_connection(self.LDAP_URL)
 
