@@ -93,10 +93,11 @@ from keystone.openstack.common import log as logging
 policy_opts = [
     cfg.StrOpt('policy_file',
                default='policy.json',
-               help=_('JSON file containing policy')),
+               help=_('The JSON file that defines policies.')),
     cfg.StrOpt('policy_default_rule',
                default='default',
-               help=_('Rule enforced when requested rule is not found')),
+               help=_('Default rule. Enforced when a requested rule is not '
+                      'found.')),
 ]
 
 CONF = cfg.CONF
