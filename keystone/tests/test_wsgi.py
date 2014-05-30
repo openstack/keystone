@@ -40,21 +40,15 @@ class FakeAttributeCheckerApp(wsgi.Application):
     def index(self, context):
         return context['query_string']
 
-    def has_attribute(self, body, attr):
-        body_dict = jsonutils.loads(body)
-        try:
-            self._require_attribute(body_dict, attr)
-            return True
-        except exception.ValidationError as ex:
-            return (False, ex.message)
+    def assert_attribute(self, body, attr):
+        """Asserts that the given request has a certain attribute."""
+        ref = jsonutils.loads(body)
+        self._require_attribute(ref, attr)
 
-    def has_attributes(self, body, attr):
-        body_dict = jsonutils.loads(body)
-        try:
-            self._require_attributes(body_dict, attr)
-            return True
-        except exception.ValidationError as ex:
-            return (False, ex.message)
+    def assert_attributes(self, body, attr):
+        """Asserts that the given request has a certain set attributes."""
+        ref = jsonutils.loads(body)
+        self._require_attributes(ref, attr)
 
 
 class BaseWSGITest(tests.TestCase):
@@ -114,38 +108,40 @@ class ApplicationTest(BaseWSGITest):
         app = FakeAttributeCheckerApp()
         req = self._make_request(url='/?1=2')
         resp = req.get_response(app)
-        self.assertTrue(app.has_attribute(resp.body, '1'))
+        app.assert_attribute(resp.body, '1')
 
-    def test_require_attribute(self):
+    def test_require_attribute_fail_if_attribute_not_present(self):
         app = FakeAttributeCheckerApp()
         req = self._make_request(url='/?1=2')
         resp = req.get_response(app)
-        self.assertFalse(app.has_attribute(resp.body, 'a')[0])
+        self.assertRaises(exception.ValidationError,
+                          app.assert_attribute, resp.body, 'a')
 
     def test_successful_require_multiple_attributes(self):
         app = FakeAttributeCheckerApp()
         req = self._make_request(url='/?a=1&b=2')
         resp = req.get_response(app)
-        self.assertTrue(app.has_attributes(resp.body, ['a', 'b']))
+        app.assert_attributes(resp.body, ['a', 'b'])
 
     def test_attribute_missing_from_request(self):
         app = FakeAttributeCheckerApp()
         req = self._make_request(url='/?a=1&b=2')
         resp = req.get_response(app)
-        validation = app.has_attributes(resp.body, ['a',
-                                        'missing_attribute'])
-        self.assertFalse(validation[0])
-        self.assertIn('missing_attribute', validation[1])
+        ex = self.assertRaises(exception.ValidationError,
+                               app.assert_attributes,
+                               resp.body, ['a', 'missing_attribute'])
+        self.assertThat(ex.message, matchers.Contains('missing_attribute'))
 
     def test_no_required_attributes_present(self):
         app = FakeAttributeCheckerApp()
         req = self._make_request(url='/')
         resp = req.get_response(app)
-        validation = app.has_attributes(resp.body, ['missing_attribute1',
-                                        'missing_attribute2'])
-        self.assertFalse(validation[0])
-        self.assertIn('missing_attribute1', validation[1])
-        self.assertIn('missing_attribute2', validation[1])
+
+        ex = self.assertRaises(exception.ValidationError,
+                               app.assert_attributes, resp.body,
+                               ['missing_attribute1', 'missing_attribute2'])
+        self.assertThat(ex.message, matchers.Contains('missing_attribute1'))
+        self.assertThat(ex.message, matchers.Contains('missing_attribute2'))
 
     def test_render_response_custom_headers(self):
         resp = wsgi.render_response(headers=[('Custom-Header', 'Some-Value')])
