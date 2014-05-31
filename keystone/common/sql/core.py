@@ -213,17 +213,16 @@ def truncated(f):
     """
     @functools.wraps(f)
     def wrapper(self, hints, *args, **kwargs):
-        if not hasattr(hints, 'get_limit'):
+        if not hasattr(hints, 'limit'):
             raise exception.UnexpectedError(
                 _('Cannot truncate a driver call without hints list as '
                   'first parameter after self '))
 
-        limit_dict = hints.get_limit()
-        if limit_dict is None:
+        if hints.limit is None:
             return f(self, hints, *args, **kwargs)
 
         # A limit is set, so ask for one more entry than we need
-        list_limit = limit_dict['limit']
+        list_limit = hints.limit['limit']
         hints.set_limit(list_limit + 1)
         ref_list = f(self, hints, *args, **kwargs)
 
@@ -287,7 +286,7 @@ def _filter(model, query, hints):
             # work out if they need to do something with it.
             return query
 
-        hints.remove(filter_)
+        hints.filters.remove(filter_)
         return query.filter(query_term)
 
     def exact_filter(model, filter_, cumulative_filter_dict, hints):
@@ -311,12 +310,12 @@ def _filter(model, query, hints):
                 utils.attr_as_boolean(filter_['value']))
         else:
             cumulative_filter_dict[key] = filter_['value']
-        hints.remove(filter_)
+        hints.filters.remove(filter_)
         return cumulative_filter_dict
 
     filter_dict = {}
 
-    for filter_ in hints.filters():
+    for filter_ in hints.filters:
         # TODO(henry-nash): Check if name is valid column, if not skip
         if filter_['comparator'] == 'equals':
             filter_dict = exact_filter(model, filter_, filter_dict, hints)
@@ -343,9 +342,8 @@ def _limit(query, hints):
     # we would expand this method to support pagination and limiting.
 
     # If we satisfied all the filters, set an upper limit if supplied
-    list_limit = hints.get_limit()
-    if list_limit:
-        query = query.limit(list_limit['limit'])
+    if hints.limit:
+        query = query.limit(hints.limit['limit'])
     return query
 
 
@@ -376,7 +374,7 @@ def filter_limit_query(model, query, hints):
     # unsatisfied filters, we have to leave any limiting to the controller
     # as well.
 
-    if not hints.filters():
+    if not hints.filters:
         return _limit(query, hints)
     else:
         return query

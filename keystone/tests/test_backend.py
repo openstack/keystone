@@ -4432,8 +4432,8 @@ class LimitTests(filtering.FilterTests):
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', self.domain1['id'])
         entities = self._list_entities(entity)(hints=hints)
-        self.assertEqual(hints.get_limit()['limit'], len(entities))
-        self.assertTrue(hints.get_limit()['truncated'])
+        self.assertEqual(hints.limit['limit'], len(entities))
+        self.assertTrue(hints.limit['truncated'])
         self._match_with_list(entities, self.domain1_entity_lists[entity])
 
         # Override with driver specific limit
@@ -4446,7 +4446,7 @@ class LimitTests(filtering.FilterTests):
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', self.domain1['id'])
         entities = self._list_entities(entity)(hints=hints)
-        self.assertEqual(hints.get_limit()['limit'], len(entities))
+        self.assertEqual(hints.limit['limit'], len(entities))
         self._match_with_list(entities, self.domain1_entity_lists[entity])
 
         # Finally, let's pretend we want to get the full list of entities,

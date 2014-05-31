@@ -381,19 +381,18 @@ class V3Controller(wsgi.Application):
         NOT_LIMITED = False
         LIMITED = True
 
-        if hints is None or hints.get_limit() is None:
+        if hints is None or hints.limit is None:
             # No truncation was requested
             return NOT_LIMITED, refs
 
-        list_limit = hints.get_limit()
-        if list_limit.get('truncated', False):
+        if hints.limit.get('truncated', False):
             # The driver did truncate the list
             return LIMITED, refs
 
-        if len(refs) > list_limit['limit']:
+        if len(refs) > hints.limit['limit']:
             # The driver layer wasn't able to truncate it for us, so we must
             # do it here
-            return LIMITED, refs[:list_limit['limit']]
+            return LIMITED, refs[:hints.limit['limit']]
 
         return NOT_LIMITED, refs
 
@@ -447,7 +446,7 @@ class V3Controller(wsgi.Application):
 
             return False
 
-        for filter in hints.filters():
+        for filter in hints.filters:
             if filter['comparator'] == 'equals':
                 attr = filter['name']
                 value = filter['value']

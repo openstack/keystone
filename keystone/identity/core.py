@@ -258,10 +258,10 @@ class Manager(manager.Manager):
 
     def _mark_domain_id_filter_satisfied(self, hints):
         if hints:
-            for filter in hints.filters():
+            for filter in hints.filters:
                 if (filter['name'] == 'domain_id' and
                         filter['comparator'] == 'equals'):
-                    hints.remove(filter)
+                    hints.filters.remove(filter)
 
     # The actual driver calls - these are pre/post processed here as
     # part of the Manager layer to make sure we:
