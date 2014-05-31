@@ -46,8 +46,7 @@ class TrustRole(sql.ModelBase):
 class Trust(trust.Driver):
     @sql.handle_conflicts(conflict_type='trust')
     def create_trust(self, trust_id, trust, roles):
-        session = sql.get_session()
-        with session.begin():
+        with sql.transaction() as session:
             ref = TrustModel.from_dict(trust)
             ref['id'] = trust_id
             if ref.get('expires_at') and ref['expires_at'].tzinfo is not None:
@@ -72,8 +71,7 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def consume_use(self, trust_id):
-        session = sql.get_session()
-        with session.begin():
+        with sql.transaction() as session:
             ref = (session.query(TrustModel).
                    with_lockmode('update').
                    filter_by(deleted_at=None).
@@ -132,8 +130,7 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def delete_trust(self, trust_id):
-        session = sql.get_session()
-        with session.begin():
+        with sql.transaction() as session:
             trust_ref = session.query(TrustModel).get(trust_id)
             if not trust_ref:
                 raise exception.TrustNotFound(trust_id=trust_id)
