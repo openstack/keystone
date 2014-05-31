@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 from keystoneclient.common import cms
 import six
 
@@ -25,6 +23,7 @@ from keystone.contrib import federation
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
+from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 
@@ -468,7 +467,7 @@ class Auth(controller.V3Controller):
             if not (expires and isinstance(expires, six.text_type)):
                     t['expires'] = timeutils.isotime(expires)
         data = {'revoked': tokens}
-        json_data = json.dumps(data)
+        json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,
                                         CONF.signing.certfile,
                                         CONF.signing.keyfile)

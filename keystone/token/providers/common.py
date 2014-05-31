@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import sys
 
 import six
@@ -23,6 +22,7 @@ from keystone import config
 from keystone.contrib import federation
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common import jsonutils
 from keystone import token
 from keystone.token import provider
 
@@ -240,7 +240,7 @@ class V3TokenDataHelper(object):
 
         if access_token:
             filtered_roles = []
-            authed_role_ids = json.loads(access_token['role_ids'])
+            authed_role_ids = jsonutils.loads(access_token['role_ids'])
             all_roles = self.assignment_api.list_roles()
             for role in all_roles:
                 for authed_role in authed_role_ids:
