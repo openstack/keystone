@@ -70,7 +70,7 @@ Make sure you add two *<Location>* directives to the *wsgi-keystone.conf*::
         SetHandler shib
     </Location>
 
-    <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth>
+    <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/saml2/auth>
         ShibRequestSetting requireSession 1
         AuthType shibboleth
         ShibRequireSession On
@@ -78,6 +78,10 @@ Make sure you add two *<Location>* directives to the *wsgi-keystone.conf*::
         ShibExportAssertion Off
         Require valid-user
     </LocationMatch>
+
+.. NOTE::
+    ``saml2`` may be different in your deployment, but do not use a wildcard value.
+    Otherwise *every* federated protocol will be handled by Shibboleth.
 
 Enable the Keystone virtual host, for example:
 
