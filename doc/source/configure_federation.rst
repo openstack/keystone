@@ -56,7 +56,7 @@ example:
 
 .. code-block:: bash
 
-    $ apt-get libapache2-mod-shib2
+    $ apt-get install libapache2-mod-shib2
 
 Configure your Keystone virtual host and adjust the config to properly handle SAML2 workflow:
 
