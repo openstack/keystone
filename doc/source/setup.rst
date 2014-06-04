@@ -92,7 +92,7 @@ Fedora 15::
 
 Mac OS X 10.9 (requires Homebrew_)::
 
-    $ brew install python openssl
+    $ brew install python openssl gettext
 
 .. _Homebrew: http://brew.sh/
 
