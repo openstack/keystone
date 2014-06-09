@@ -629,16 +629,7 @@ class RoleApi(common_ldap.BaseLdap):
         return res
 
     def roles_delete_subtree_by_project(self, tenant_dn):
-        conn = self.get_connection()
-        query = '(objectClass=%s)' % self.object_class
-        try:
-            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
-            for role_dn, _ in roles:
-                conn.delete_s(role_dn)
-        except ldap.NO_SUCH_OBJECT:
-            pass
-        finally:
-            conn.unbind_s()
+        self._delete_tree_nodes(tenant_dn, ldap.SCOPE_ONELEVEL)
 
     def update(self, role_id, role):
         try:
@@ -649,24 +640,8 @@ class RoleApi(common_ldap.BaseLdap):
         return super(RoleApi, self).update(role_id, role)
 
     def delete(self, role_id, tenant_dn):
-        conn = self.get_connection()
-        role_id_esc = ldap.filter.escape_filter_chars(role_id)
-        query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
-                                                self.id_attr, role_id_esc)
-        try:
-            # RFC 4511 (The LDAP Protocol) defines a list containing only the
-            # OID "1.1" as indicating that no attributes should be returned.
-            # The following code only needs the DN of the entries.
-            request_no_attributes = ['1.1']
-            for role_dn, _ in conn.search_s(tenant_dn,
-                                            ldap.SCOPE_SUBTREE,
-                                            query,
-                                            attrlist=request_no_attributes):
-                conn.delete_s(role_dn)
-        except ldap.NO_SUCH_OBJECT:
-            pass
-        finally:
-            conn.unbind_s()
+        self._delete_tree_nodes(tenant_dn, ldap.SCOPE_SUBTREE, query_params={
+            self.id_attr: role_id})
         super(RoleApi, self).delete(role_id)
 
     def list_role_assignments(self, project_tree_dn):

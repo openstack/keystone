@@ -1215,6 +1215,42 @@ class BaseLdap(object):
         finally:
             conn.unbind_s()
 
+    def _delete_tree_nodes(self, search_base, scope, query_params=None):
+        conn = self.get_connection()
+        query = u'(objectClass=%s)' % self.object_class
+        if query_params:
+            query = (u'(&%s%s)' %
+                     (query, ''.join(['(%s=%s)'
+                                      % (k, ldap.filter.escape_filter_chars(v))
+                                      for k, v in
+                                      six.iteritems(query_params)])))
+        not_deleted_nodes = []
+        try:
+            # RFC 4511 (The LDAP Protocol) defines a list containing only the
+            # OID "1.1" as indicating that no attributes should be returned.
+            # The following code only needs the DN of the entries.
+            request_no_attributes = ['1.1']
+            nodes = conn.search_s(search_base, scope, query,
+                                  attrlist=request_no_attributes)
+        except ldap.NO_SUCH_OBJECT:
+            LOG.debug('Could not find entry with dn=%s', search_base)
+            raise self._not_found(self._dn_to_id(search_base))
+        else:
+            for node_dn, _t in nodes:
+                try:
+                    conn.delete_s(node_dn)
+                except ldap.NO_SUCH_OBJECT:
+                    not_deleted_nodes.append(node_dn)
+        finally:
+            conn.unbind_s()
+
+        if not_deleted_nodes:
+            LOG.warn(_("When deleting entries for %(search_base)s, could not"
+                       " delete nonexistent entries %(entries)s%(dots)s"),
+                     {'search_base': search_base,
+                      'entries': not_deleted_nodes[:3],
+                      'dots': '...' if len(not_deleted_nodes) > 3 else ''})
+
 
 class EnabledEmuMixIn(BaseLdap):
     """Emulates boolean 'enabled' attribute if turned on.
