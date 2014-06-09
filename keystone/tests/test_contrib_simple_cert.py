@@ -55,19 +55,3 @@ class TestSimpleCert(BaseTestCase):
                          method='GET',
                          path=path,
                          expected_status=500)
-
-
-class UUIDSimpleCertTests(BaseTestCase):
-
-    def config_overrides(self):
-        super(UUIDSimpleCertTests, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.uuid.Provider')
-
-    def test_using_uuid_controller(self):
-        for path in [self.CA_PATH, self.CERT_PATH]:
-            self.request(app=self.public_app,
-                         method='GET',
-                         path=path,
-                         expected_status=403)
