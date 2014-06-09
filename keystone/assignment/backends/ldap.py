@@ -98,12 +98,6 @@ class Assignment(assignment.Driver):
         def _get_roles_for_group_and_project(group_id, project_id):
             self.get_project(project_id)
             group_dn = self.group._id_to_dn(group_id)
-            # NOTE(marcos-fermin-lobo): In Active Directory, for functions
-            # such as "self.role.get_role_assignments", it returns
-            # the key "CN" or "OU" in uppercase.
-            # The group_dn var has "CN" and "OU" in lowercase.
-            # For this reason, it is necessary to use the "upper()"
-            # function so both are consistent.
             return [self.role._dn_to_id(a.role_dn)
                     for a in self.role.get_role_assignments
                     (self.project._id_to_dn(project_id))
