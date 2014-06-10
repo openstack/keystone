@@ -14,6 +14,7 @@
 
 import copy
 import datetime
+import operator
 import uuid
 
 from keystoneclient.common import cms
@@ -2137,9 +2138,9 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         # note that they do not have to match
         api = auth.controllers.Auth()
         auth_data = self.build_authentication_request(
-            user_domain_id=self.domain['id'],
-            username=self.user['name'],
-            password=self.user['password'])['auth']
+            user_domain_id=self.default_domain_user['domain_id'],
+            username=self.default_domain_user['name'],
+            password=self.default_domain_user['password'])['auth']
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'], auth_data=auth_data)
 
@@ -2184,7 +2185,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         remote_user = self.default_domain_user['name']
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
                                              'AUTH_TYPE': 'Negotiate'})
-        r = self.post('/auth/tokens', body=auth_data)
+        r = self.post('/auth/tokens', body=auth_data, noauth=True)
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertNotIn('bind', token)
 
@@ -2197,7 +2198,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
                                              'AUTH_TYPE': 'Negotiate'})
 
-        resp = self.post('/auth/tokens', body=auth_data)
+        resp = self.post('/auth/tokens', body=auth_data, noauth=True)
 
         token = resp.headers.get('X-Subject-Token')
         headers = {'X-Subject-Token': token}
@@ -2213,7 +2214,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         remote_user = self.default_domain_user['name']
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
                                              'AUTH_TYPE': 'Negotiate'})
-        r = self.post('/auth/tokens', body=auth_data)
+        r = self.post('/auth/tokens', body=auth_data, noauth=True)
 
         # the unscoped token should have bind information in it
         token = self.assertValidUnscopedTokenResponse(r)
@@ -2224,7 +2225,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         # using unscoped token with remote user succeeds
         auth_params = {'token': token, 'project_id': self.project_id}
         auth_data = self.build_authentication_request(**auth_params)
-        r = self.post('/auth/tokens', body=auth_data)
+        r = self.post('/auth/tokens', body=auth_data, noauth=True)
         token = self.assertValidProjectScopedTokenResponse(r)
 
         # the bind information should be carried over from the original token
@@ -2249,6 +2250,12 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertEqual(bind['kerberos'], self.default_domain_user['name'])
 
         v2_token_id = v2_token_data['access']['token']['id']
+        # NOTE(gyee): self.get() will try to obtain an auth token if one
+        # is not provided. When REMOTE_USER is present in the request
+        # environment, the external user auth plugin is used in conjunction
+        # with the password auth for the admin user. Therefore, we need to
+        # cleanup the REMOTE_USER information from the previous call.
+        del self.admin_app.extra_environ['REMOTE_USER']
         headers = {'X-Subject-Token': v2_token_id}
         resp = self.get('/auth/tokens', headers=headers)
         token_data = resp.result
@@ -2351,6 +2358,18 @@ class TestAuthJSON(test_v3.RestfulTestCase):
             password=self.user['password'],
             project_name=project['name'],
             project_domain_id=domain['id'])
+        self.post('/auth/tokens', body=auth_data, expected_status=401)
+
+    def test_auth_methods_with_different_identities_fails(self):
+        # get the token for a user. This is self.user which is different from
+        # self.default_domain_user.
+        token = self.get_scoped_token()
+        # try both password and token methods with different identities and it
+        # should fail
+        auth_data = self.build_authentication_request(
+            token=token,
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'])
         self.post('/auth/tokens', body=auth_data, expected_status=401)
 
 
@@ -3069,3 +3088,51 @@ class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
                    'environment': {}}
         r = auth_controller.validate_token(context)
         self.assertEqual(200, r.status_code)
+
+
+class TestAuthContext(tests.TestCase):
+    def setUp(self):
+        super(TestAuthContext, self).setUp()
+        self.auth_context = auth.controllers.AuthContext()
+
+    def test_pick_lowest_expires_at(self):
+        expires_at_1 = timeutils.isotime(timeutils.utcnow())
+        expires_at_2 = timeutils.isotime(timeutils.utcnow() +
+                                         datetime.timedelta(seconds=10))
+        # make sure auth_context picks the lowest value
+        self.auth_context['expires_at'] = expires_at_1
+        self.auth_context['expires_at'] = expires_at_2
+        self.assertEqual(expires_at_1, self.auth_context['expires_at'])
+
+    def test_identity_attribute_conflict(self):
+        for identity_attr in auth.controllers.AuthContext.IDENTITY_ATTRIBUTES:
+            self.auth_context[identity_attr] = uuid.uuid4().hex
+            if identity_attr == 'expires_at':
+                # 'expires_at' is a special case. Will test it in a separate
+                # test case.
+                continue
+            self.assertRaises(exception.Unauthorized,
+                              operator.setitem,
+                              self.auth_context,
+                              identity_attr,
+                              uuid.uuid4().hex)
+
+    def test_identity_attribute_conflict_with_none_value(self):
+        identity_attr = list(
+            auth.controllers.AuthContext.IDENTITY_ATTRIBUTES)[0]
+        self.auth_context[identity_attr] = None
+        self.assertRaises(exception.Unauthorized,
+                          operator.setitem,
+                          self.auth_context,
+                          identity_attr,
+                          uuid.uuid4().hex)
+
+    def test_non_identity_attribute_conflict_override(self):
+        # for attributes Keystone doesn't know about, make sure they can be
+        # freely manipulated
+        attr_name = uuid.uuid4().hex
+        attr_val_1 = uuid.uuid4().hex
+        attr_val_2 = uuid.uuid4().hex
+        self.auth_context[attr_name] = attr_val_1
+        self.auth_context[attr_name] = attr_val_2
+        self.assertEqual(attr_val_2, self.auth_context[attr_name])

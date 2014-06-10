@@ -84,6 +84,44 @@ def get_auth_method(method_name):
     return AUTH_METHODS[method_name]
 
 
+class AuthContext(dict):
+    """Retrofitting auth_context to reconcile identity attributes.
+
+    The identity attributes must not have conflicting values among the
+    auth plug-ins. The only exception is `expires_at`, which is set to its
+    earliest value.
+
+    """
+
+    # identity attributes need to be reconciled among the auth plugins
+    IDENTITY_ATTRIBUTES = frozenset(['user_id', 'project_id',
+                                     'access_token_id', 'domain_id',
+                                     'expires_at'])
+
+    def __setitem__(self, key, val):
+        if key in self.IDENTITY_ATTRIBUTES and key in self:
+            existing_val = self[key]
+            if key == 'expires_at':
+                # special treatment for 'expires_at', we are going to take
+                # the earliest expiration instead.
+                if existing_val != val:
+                    msg = _('"expires_at" has conflicting values %(existing)s '
+                            'and %(new)s.  Will use the earliest value.')
+                    LOG.info(msg, {'existing': existing_val, 'new': val})
+                if existing_val is None or val is None:
+                    val = existing_val or val
+                else:
+                    val = min(existing_val, val)
+            elif existing_val != val:
+                msg = _('Unable to reconcile identity attribute %(attribute)s '
+                        'as it has conflicting values %(new)s and %(old)s') % (
+                            {'attribute': key,
+                             'new': val,
+                             'old': existing_val})
+                raise exception.Unauthorized(msg)
+        return super(AuthContext, self).__setitem__(key, val)
+
+
 # TODO(blk-u): this class doesn't use identity_api directly, but makes it
 # available for consumers. Consumers should probably not be getting
 # identity_api from this since it's available in global registry, then
@@ -322,7 +360,9 @@ class Auth(controller.V3Controller):
 
         try:
             auth_info = AuthInfo.create(context, auth=auth)
-            auth_context = {'extras': {}, 'method_names': [], 'bind': {}}
+            auth_context = AuthContext(extras={},
+                                       method_names=[],
+                                       bind={})
             self.authenticate(context, auth_info, auth_context)
             if auth_context.get('access_token_id'):
                 auth_info.set_scope(None, auth_context['project_id'], None)
