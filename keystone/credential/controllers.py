@@ -13,13 +13,13 @@
 # under the License.
 
 import hashlib
-import json
 
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common import jsonutils
 
 
 @dependency.requires('credential_api')
@@ -36,7 +36,7 @@ class CredentialV3(controller.V3Controller):
         # a credential reference.
         if ref.get('type', '').lower() == 'ec2':
             try:
-                blob = json.loads(ref.get('blob'))
+                blob = jsonutils.loads(ref.get('blob'))
             except (ValueError, TypeError):
                 raise exception.ValidationError(
                     message=_('Invalid blob in credential'))
@@ -53,7 +53,7 @@ class CredentialV3(controller.V3Controller):
             # tokens when authentication via ec2tokens happens
             if trust_id is not None:
                 blob['trust_id'] = trust_id
-                ret_ref['blob'] = json.dumps(blob)
+                ret_ref['blob'] = jsonutils.dumps(blob)
             return ret_ref
         else:
             return super(CredentialV3, self)._assign_unique_id(ref)
@@ -73,7 +73,7 @@ class CredentialV3(controller.V3Controller):
         blob = ref.get('blob')
         if isinstance(blob, dict):
             new_ref = ref.copy()
-            new_ref['blob'] = json.dumps(blob)
+            new_ref['blob'] = jsonutils.dumps(blob)
             return new_ref
         else:
             return ref

@@ -20,20 +20,20 @@ import calendar
 import collections
 import grp
 import hashlib
-import json
 import os
 import pwd
 
 import passlib.hash
 import six
+from six import moves
 
 from keystone.common import config
 from keystone.common import environment
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.openstack.common import strutils
-from six import moves
 
 
 CONF = config.CONF
@@ -78,7 +78,7 @@ def read_cached_file(filename, cache_info, reload_func=None):
     return cache_info['data']
 
 
-class SmarterEncoder(json.JSONEncoder):
+class SmarterEncoder(jsonutils.json.JSONEncoder):
     """Help for JSON encoding dict-like objects."""
     def default(self, obj):
         if not isinstance(obj, dict) and hasattr(obj, 'iteritems'):
@@ -184,7 +184,7 @@ def check_output(*popenargs, **kwargs):
 
 def get_blob_from_credential(credential):
     try:
-        blob = json.loads(credential.blob)
+        blob = jsonutils.loads(credential.blob)
     except (ValueError, TypeError):
         raise exception.ValidationError(
             message=_('Invalid blob in credential'))
@@ -200,9 +200,9 @@ def convert_ec2_to_v3_credential(ec2credential):
     return {'id': hash_access_key(ec2credential.access),
             'user_id': ec2credential.user_id,
             'project_id': ec2credential.tenant_id,
-            'blob': json.dumps(blob),
+            'blob': jsonutils.dumps(blob),
             'type': 'ec2',
-            'extra': json.dumps({})}
+            'extra': jsonutils.dumps({})}
 
 
 def convert_v3_to_ec2_credential(credential):

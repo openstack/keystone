@@ -13,7 +13,6 @@
 #    under the License.
 
 import datetime
-import json
 
 from keystoneclient.common import cms
 import six
@@ -24,6 +23,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone.token import core
@@ -430,7 +430,7 @@ class Auth(controller.V2Controller):
             if expires and isinstance(expires, datetime.datetime):
                     t['expires'] = timeutils.isotime(expires)
         data = {'revoked': tokens}
-        json_data = json.dumps(data)
+        json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,
                                         CONF.signing.certfile,
                                         CONF.signing.keyfile)
