@@ -316,6 +316,16 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self._assertNotifySent(domain_ref['id'], 'disabled', 'domain',
                                public=False)
 
+    def test_disable_of_disabled_domain_does_not_notify(self):
+        domain_ref = self.new_domain_ref()
+        domain_ref['enabled'] = False
+        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        # The domain_ref above is not changed during the create process. We
+        # can use the same ref to perform the update.
+        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self._assertNotifyNotSent(domain_ref['id'], 'disabled', 'domain',
+                                  public=False)
+
     def test_update_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         self.identity_api.create_group(group_ref['id'], group_ref)
@@ -336,6 +346,16 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assignment_api.update_project(project_ref['id'], project_ref)
         self._assertNotifySent(project_ref['id'], 'disabled', 'project',
                                public=False)
+
+    def test_disable_of_disabled_project_does_not_notify(self):
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref['enabled'] = False
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        # The project_ref above is not changed during the create process. We
+        # can use the same ref to perform the update.
+        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self._assertNotifyNotSent(project_ref['id'], 'disabled', 'project',
+                                  public=False)
 
     def test_update_project_does_not_send_disable(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)

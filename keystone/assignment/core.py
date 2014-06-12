@@ -95,7 +95,8 @@ class Manager(manager.Manager):
         tenant = tenant.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        if not tenant.get('enabled', True):
+        if (original_tenant.get('enabled', True) and
+                not tenant.get('enabled', True)):
             self._disable_project(tenant_id)
         ret = self.driver.update_project(tenant_id, tenant)
         self.get_project.invalidate(self, tenant_id)
@@ -327,7 +328,8 @@ class Manager(manager.Manager):
         ret = self.driver.update_domain(domain_id, domain)
         # disable owned users & projects when the API user specifically set
         #     enabled=False
-        if not domain.get('enabled', True):
+        if (original_domain.get('enabled', True) and
+                not domain.get('enabled', True)):
             self._disable_domain(domain_id)
         self.get_domain.invalidate(self, domain_id)
         self.get_domain_by_name.invalidate(self, original_domain['name'])
