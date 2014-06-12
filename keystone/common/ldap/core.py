@@ -46,6 +46,15 @@ _utf8_encoder = codecs.getencoder('utf-8')
 
 
 def utf8_encode(value):
+    """Encode a basestring to UTF-8.
+
+    If the string is unicode encode it to UTF-8, if the string is
+    str then assume it's already encoded. Otherwise raise a TypeError.
+
+    :param value: A basestring
+    :returns: UTF-8 encoded version of value
+    :raises: TypeError if value is not basestring
+    """
     if isinstance(value, six.text_type):
         return _utf8_encoder(value)[0]
     elif isinstance(value, six.binary_type):
@@ -58,12 +67,32 @@ _utf8_decoder = codecs.getdecoder('utf-8')
 
 
 def utf8_decode(value):
+    """Decode a from UTF-8 into unicode.
+
+    If the value is a binary string assume it's UTF-8 encoded and decode
+    it into a unicode string. Otherwise convert the value from its
+    type into a unicode string.
+
+    :param value: value to be returned as unicode
+    :returns: value as unicode
+    :raises: UnicodeDecodeError for invalid UTF-8 encoding
+    """
     if isinstance(value, six.binary_type):
         return _utf8_decoder(value)[0]
     return six.text_type(value)
 
 
 def py2ldap(val):
+    """Type convert a Python value to a type accepted by LDAP (unicode).
+
+    The LDAP API only accepts strings for values therefore convert
+    the value's type to a unicode string. A subsequent type conversion
+    will encode the unicode as UTF-8 as required by the python-ldap API,
+    but for now we just want a string representation of the value.
+
+    :param val: The value to convert to a LDAP string representation
+    :returns: unicode string representation of value.
+    """
     if isinstance(val, bool):
         return u'TRUE' if val else u'FALSE'
     else:
@@ -71,6 +100,15 @@ def py2ldap(val):
 
 
 def ldap2py(val):
+    """Convert an LDAP formatted value to Python type used by OpenStack.
+
+    Virtually all LDAP values are stored as UTF-8 encoded strings.
+    OpenStack prefers values which are Python types, e.g. unicode,
+    boolean, integer, etc.
+
+    :param val: LDAP formatted value
+    :returns: val converted to preferred Python type
+    """
     try:
         return LDAP_VALUES[val]
     except KeyError:
@@ -83,6 +121,23 @@ def ldap2py(val):
 
 
 def convert_ldap_result(ldap_result):
+    """Convert LDAP search result to Python types used by OpenStack.
+
+    Each result tuple is of the form (dn, attrs), where dn is a string
+    containing the DN (distinguished name) of the entry, and attrs is
+    a dictionary containing the attributes associated with the
+    entry. The keys of attrs are strings, and the associated values
+    are lists of strings.
+
+    OpenStack wants to use Python types of its choosing. Strings will
+    be unicode, truth values boolean, whole numbers int's, etc. DN's will
+    also be decoded from UTF-8 to unicode.
+
+    :param ldap_result: LDAP search result
+    :returns: list of 2-tuples containing (dn, attrs) where dn is unicode
+              and attrs is a dict whose values are type converted to
+              OpenStack preferred types.
+    """
     py_result = []
     at_least_one_referral = False
     for dn, attrs in ldap_result:
