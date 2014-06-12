@@ -29,11 +29,15 @@ GET /
 =====
 
 This call is identical to that documented for the Admin API, except
-that it uses port 5000, instead of port 35357, by default::
+that it uses port 5000, instead of port 35357, by default:
+
+.. code-block:: bash
 
     $ curl http://0.0.0.0:5000
 
-or::
+or:
+
+.. code-block:: bash
 
     $ curl http://0.0.0.0:5000/v2.0/
 
@@ -52,11 +56,15 @@ This call is identical to that documented for the Admin API.
 GET /tenants
 ============
 
-List all of the tenants your token can access::
+List all of the tenants your token can access:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:887665443383838" http://localhost:5000/v2.0/tenants
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "tenants_links": [],
@@ -81,15 +89,21 @@ GET /
 =====
 
 Discover API version information, links to documentation (PDF, HTML, WADL),
-and supported media types::
+and supported media types:
+
+.. code-block:: bash
 
     $ curl http://0.0.0.0:35357
 
-or::
+or:
+
+.. code-block:: bash
 
     $ curl http://0.0.0.0:35357/v2.0/
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "version":{
@@ -123,11 +137,15 @@ Returns::
 GET /extensions
 ===============
 
-Discover the API extensions enabled at the endpoint::
+Discover the API extensions enabled at the endpoint:
+
+.. code-block:: bash
 
     $ curl http://localhost:35357/v2.0/extensions/
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "extensions":{
@@ -138,11 +156,15 @@ Returns::
 POST /tokens
 ============
 
-Authenticate by exchanging credentials for an access token::
+Authenticate by exchanging credentials for an access token:
+
+.. code-block:: bash
 
     $ curl -d '{"auth":{"tenantName": "customer-x", "passwordCredentials": {"username": "joeuser", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "access":{
@@ -205,11 +227,15 @@ GET /tokens/{token_id}
 
     This call refers to a token known to be valid, ``887665443383838`` in this case.
 
-Validate a token::
+Validate a token:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838
 
-If the token is valid, returns::
+If the token is valid, returns:
+
+.. code-block:: javascript
 
     {
         "access":{
@@ -241,7 +267,9 @@ HEAD /tokens/{token_id}
 =======================
 
 This is a high-performance variant of the GET call documented above, which
-by definition, returns no response body::
+by definition, returns no response body:
+
+.. code-block:: bash
 
     $ curl -I -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838
 
@@ -255,11 +283,15 @@ by definition, returns no response body::
 GET /tokens/{token_id}/endpoints
 ================================
 
-List all endpoints for a token::
+List all endpoints for a token:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838/endpoints
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "endpoints_links": [
@@ -325,11 +357,15 @@ Returns::
 GET /tenants
 ============
 
-List all of the tenants in the system (requires an Admin ``X-Auth-Token``)::
+List all of the tenants in the system (requires an Admin ``X-Auth-Token``):
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "tenants_links": [],
@@ -358,11 +394,15 @@ Returns::
 GET /tenants/{tenant_id}
 ========================
 
-Retrieve information about a tenant, by tenant ID::
+Retrieve information about a tenant, by tenant ID:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/1
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "tenant":{
@@ -376,11 +416,15 @@ Returns::
 GET /tenants/{tenant_id}/users/{user_id}/roles
 ==============================================
 
-List the roles a user has been granted on a tenant::
+List the roles a user has been granted on a tenant:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/1/users/1/roles
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "roles_links":[],
@@ -395,11 +439,15 @@ Returns::
 GET /users/{user_id}
 ====================
 
-Retrieve information about a user, by user ID::
+Retrieve information about a user, by user ID:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users/1
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "user":{
@@ -413,11 +461,15 @@ Returns::
 GET /users/{user_id}/roles
 ==========================
 
-Retrieve the roles granted to a user, given a user ID::
+Retrieve the roles granted to a user, given a user ID:
+
+.. code-block:: bash
 
     $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users/4/roles
 
-Returns::
+Returns:
+
+.. code-block:: javascript
 
     {
         "roles_links":[],
