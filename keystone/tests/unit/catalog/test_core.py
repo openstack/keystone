@@ -46,9 +46,10 @@ class FormatUrlTests(testtools.TestCase):
 
     def test_formatting_a_non_string(self):
         def _test(url_template):
-            expected_url = None
-            actual_url = core.format_url(url_template, {})
-            self.assertEqual(actual_url, expected_url)
+            self.assertRaises(exception.MalformedEndpoint,
+                              core.format_url,
+                              url_template,
+                              {})
 
         _test(None)
         _test(object())
