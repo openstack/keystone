@@ -124,6 +124,14 @@ class TrustV3(controller.V3Controller):
         The user creating the trust must be the trustor.
 
         """
+        # Explicitly prevent a trust token from creating a new trust.
+        auth_context = context.get('environment',
+                                   {}).get('KEYSTONE_AUTH_CONTEXT', {})
+        if auth_context.get('is_delegated_auth'):
+            raise exception.Forbidden(
+                _('Cannot create a trust'
+                  ' with a token issued via delegation.'))
+
         if not trust:
             raise exception.ValidationError(attribute='trust',
                                             target='request')
