@@ -22,6 +22,7 @@ from keystone import config
 from keystone.contrib import federation
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common.gettextutils import _LI  # noqa
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
@@ -105,9 +106,10 @@ class AuthContext(dict):
                 # special treatment for 'expires_at', we are going to take
                 # the earliest expiration instead.
                 if existing_val != val:
-                    msg = _('"expires_at" has conflicting values %(existing)s '
-                            'and %(new)s.  Will use the earliest value.')
-                    LOG.info(msg, {'existing': existing_val, 'new': val})
+                    LOG.info(_LI('"expires_at" has conflicting values '
+                                 '%(existing)s and %(new)s.  Will use the '
+                                 'earliest value.'),
+                             {'existing': existing_val, 'new': val})
                 if existing_val is None or val is None:
                     val = existing_val or val
                 else:
