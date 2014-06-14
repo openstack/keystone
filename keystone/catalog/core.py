@@ -44,10 +44,10 @@ def format_url(url, data):
                    "keyerror": e})
         raise exception.MalformedEndpoint(endpoint=url)
     except TypeError as e:
-        LOG.error(_("Malformed endpoint %(url)s - unknown key %(keyerror)s"
-                    "(are you missing brackets ?)"),
+        LOG.error(_("Malformed endpoint '%(url)s'. The following type error "
+                    "occurred during string substitution: %(typeerror)s"),
                   {"url": url,
-                   "keyerror": e})
+                   "typeerror": e})
         raise exception.MalformedEndpoint(endpoint=url)
     except ValueError as e:
         LOG.error(_("Malformed endpoint %s - incomplete format "
