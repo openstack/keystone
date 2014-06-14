@@ -80,3 +80,45 @@ This is an example of a notification sent for a newly created user::
         "publisher_id": "identity.host1234",
         "timestamp": "2013-08-29 19:03:45.960280"
     }
+
+Auditing with CADF
+==================
+
+Keystone has begun to add audit notification support for operations like
+authentication using the `DMTF Cloud Auditing Data Federation (CADF) Open
+Standard <http://docs.openstack.org/developer/pycadf/>`_
+
+This standard provides auditing capabilities for compliance with security,
+operational, and business processes and supports normalized and categorized
+event data for federation and aggregation.
+
+The following CADF example illustrates a Keystone event record whereby the
+user has failed to authenticate:
+
+.. code-block:: javascript
+
+    {
+        "typeURI": "http: //schemas.dmtf.org/cloud/audit/1.0/event",
+        "initiator": {
+            "typeURI": "service/security/account/user",
+            "host": {
+                "agent": "curl/7.22.0(x86_64-pc-linux-gnu)",
+                "address": "127.0.0.1"
+            },
+            "id": "openstack: 5ee22124-6f41-4d23-a9f7-862c13a53a66",
+            "name": "joeuser"
+        },
+        "target": {
+            "typeURI": "service/security/account/user",
+            "id": "openstack: 1c2fc591-facb-4479-a327-520dade1ea15"
+        },
+        "observer": {
+            "typeURI": "service/security",
+            "id": "openstack: 3d4a50a9-2b59-438b-bf19-c231f9c7625a"
+        },
+        "eventType": "activity",
+        "eventTime": "2014-02-14T01: 20: 47.932842+0000",
+        "action": "authenticate",
+        "outcome": "failure",
+        "id": "openstack: f5352d7b-bee6-4c22-8213-450e7b646e9f"
+    }
