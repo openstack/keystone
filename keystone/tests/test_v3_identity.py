@@ -1825,7 +1825,7 @@ class TestV3toV2Methods(tests.TestCase):
                               'username': self.user_id,
                               'tenantId': self.default_project_id}
 
-        # Expected result if the user is not meant ot have a tenantId element
+        # Expected result if the user is not meant to have a tenantId element
         self.expected_user_no_tenant_id = {'id': self.user_id,
                                            'name': self.user_id,
                                            'username': self.user_id}
