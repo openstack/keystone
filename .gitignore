@@ -24,6 +24,7 @@ build/
 dist/
 etc/keystone.conf
 etc/logging.conf
+etc/keystone/
 keystone/tests/tmp/
 .project
 .pydevproject
