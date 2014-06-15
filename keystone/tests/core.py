@@ -329,6 +329,9 @@ class TestCase(BaseTestCase):
         return copy.copy(self._config_file_list)
 
     def config_overrides(self):
+        # Exercise multiple worker process code paths
+        self.config_fixture.config(public_workers=2)
+        self.config_fixture.config(admin_workers=2)
         self.config_fixture.config(policy_file=dirs.etc('policy.json'))
         self.config_fixture.config(
             group='auth',

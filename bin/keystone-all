@@ -16,7 +16,6 @@
 
 import logging
 import os
-import signal
 import socket
 import sys
 
@@ -48,13 +47,31 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone import config
 from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common import service
 from keystone.openstack.common import systemd
 
 
 CONF = config.CONF
 
 
-def create_server(conf, name, host, port):
+class ServerWrapper(object):
+    """Wraps a Server with some launching info & capabilities."""
+
+    def __init__(self, server, workers):
+        self.server = server
+        self.workers = workers
+
+    def launch_with(self, launcher):
+        self.server.listen()
+        if self.workers > 1:
+            # Use multi-process launcher
+            launcher.launch_service(self.server, self.workers)
+        else:
+            # Use single process launcher
+            launcher.launch_service(self.server)
+
+
+def create_server(conf, name, host, port, workers):
     app = deploy.loadapp('config:%s' % conf, name=name)
     server = environment.Server(app, host=host, port=port,
                                 keepalive=CONF.tcp_keepalive,
@@ -62,21 +79,18 @@ def create_server(conf, name, host, port):
     if CONF.ssl.enable:
         server.set_ssl(CONF.ssl.certfile, CONF.ssl.keyfile,
                        CONF.ssl.ca_certs, CONF.ssl.cert_required)
-    return name, server
-
-
-def sigint_handler(signal, frame):
-    """Exits at SIGINT signal."""
-    logging.debug('SIGINT received, stopping servers.')
-    sys.exit(0)
+    return name, ServerWrapper(server, workers)
 
 
 def serve(*servers):
-    signal.signal(signal.SIGINT, sigint_handler)
+    if max([server[1].workers for server in servers]) > 1:
+        launcher = service.ProcessLauncher()
+    else:
+        launcher = service.ServiceLauncher()
 
     for name, server in servers:
         try:
-            server.start()
+            server.launch_with(launcher)
         except socket.error:
             logging.exception(_('Failed to start the %(name)s server') % {
                 'name': name})
@@ -86,7 +100,7 @@ def serve(*servers):
     systemd.notify_once()
 
     for name, server in servers:
-        server.wait()
+        launcher.wait()
 
 
 if __name__ == '__main__':
@@ -129,11 +143,13 @@ if __name__ == '__main__':
     servers.append(create_server(paste_config,
                                  'admin',
                                  CONF.admin_bind_host,
-                                 int(CONF.admin_port)))
+                                 int(CONF.admin_port),
+                                 CONF.admin_workers))
     servers.append(create_server(paste_config,
                                  'main',
                                  CONF.public_bind_host,
-                                 int(CONF.public_port)))
+                                 int(CONF.public_port),
+                                 CONF.public_workers))
 
     dependency.resolve_future_dependencies()
     serve(*servers)
