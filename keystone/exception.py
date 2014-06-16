@@ -109,6 +109,14 @@ class ValidationSizeError(Error):
     title = 'Bad Request'
 
 
+class PasswordVerificationError(Error):
+    message_format = _("The password length must be less than or equal "
+                       "to %(size)i. The server could not comply with the "
+                       "request because the password is invalid.")
+    code = 403
+    title = 'Forbidden'
+
+
 class PKITokenExpected(Error):
     message_format = _('The certificates you requested are not available. '
                        'It is likely that this server does not use PKI tokens '

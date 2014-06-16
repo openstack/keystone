@@ -109,6 +109,14 @@
 # policy.v3cloudsample as an example). (boolean value)
 #domain_id_immutable=true
 
+# If set to true, strict password length checking is performed
+# for password manipulation.
+# If a password exceeds the maximum length, the operation will
+# fail with 403 Forbidden Error.
+# If set to false, passwords are automatically truncated to
+# the maximum length.
+# strict_password_check=false
+
 
 #
 # Options defined in oslo.messaging
