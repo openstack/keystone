@@ -574,7 +574,7 @@ class RoleApi(common_ldap.BaseLdap):
         except ldap.NO_SUCH_OBJECT:
             roles = []
         res = []
-        for role_dn, _ in roles:
+        for role_dn, _role_attrs in roles:
             # ldap.dn.dn2str returns an array, where the first
             # element is the first segment.
             # For a role assignment, this contains the role ID,
@@ -608,7 +608,7 @@ class RoleApi(common_ldap.BaseLdap):
             conn.unbind_s()
 
         res = []
-        for role_dn, _ in roles:
+        for role_dn, _role_attrs in roles:
             # ldap.dn.str2dn returns a list, where the first
             # element is the first RDN.
             # For a role assignment, this contains the role ID,

@@ -20,7 +20,7 @@ import copy
 from keystone.common import kvs
 from keystone import exception
 from keystone.openstack.common import timeutils
-from keystone import trust
+from keystone import trust as keystone_trust
 
 
 def _filter_trust(ref):
@@ -37,7 +37,7 @@ def _filter_trust(ref):
     return ref
 
 
-class Trust(kvs.Base, trust.Driver):
+class Trust(kvs.Base, keystone_trust.Driver):
     def create_trust(self, trust_id, trust, roles):
         trust_ref = copy.deepcopy(trust)
         trust_ref['id'] = trust_id
