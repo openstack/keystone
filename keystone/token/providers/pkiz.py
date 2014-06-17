@@ -32,9 +32,13 @@ ERROR_MESSAGE = _('Unable to sign token.')
 class Provider(common.BaseProvider):
     def _get_token_id(self, token_data):
         try:
-            token_id = cms.pkiz_sign(jsonutils.dumps(token_data),
-                                     CONF.signing.certfile,
-                                     CONF.signing.keyfile)
+            # force conversion to a string as the keystone client cms code
+            # produces unicode. This can be removed if the client returns
+            # str()
+            # TODO(ayoung): Make to a byte_str for Python3
+            token_id = str(cms.pkiz_sign(jsonutils.dumps(token_data),
+                                         CONF.signing.certfile,
+                                         CONF.signing.keyfile))
             return token_id
         except environment.subprocess.CalledProcessError:
             LOG.exception(ERROR_MESSAGE)
