@@ -13,16 +13,20 @@
 # under the License.
 
 import copy
+import functools
 
 from keystone.common import sql
 from keystone import config
 from keystone import exception
+from keystone.i18n import _LI
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone import token
 from keystone.token import provider
 
 
 CONF = config.CONF
+LOG = log.getLogger(__name__)
 
 
 class TokenModel(sql.ModelBase, sql.DictBase):
@@ -38,6 +42,42 @@ class TokenModel(sql.ModelBase, sql.DictBase):
         sql.Index('ix_token_expires', 'expires'),
         sql.Index('ix_token_expires_valid', 'expires', 'valid')
     )
+
+
+def _expiry_range_batched(session, upper_bound_func, batch_size):
+    """Returns the stop point of the next batch for expiration.
+
+    Return the timestamp of the next token that is `batch_size` rows from
+    being the oldest expired token.
+    """
+
+    # This expiry strategy splits the tokens into roughly equal sized batches
+    # to be deleted.  It does this by finding the timestamp of a token
+    # `batch_size` rows from the oldest token and yielding that to the caller.
+    # It's expected that the caller will then delete all rows with a timestamp
+    # equal to or older than the one yielded.  This may delete slightly more
+    # tokens than the batch_size, but that should be ok in almost all cases.
+    LOG.info(_LI('Token expiration batch size: %d') % batch_size)
+    query = session.query(TokenModel.expires)
+    query = query.filter(TokenModel.expires < upper_bound_func())
+    query = query.order_by(TokenModel.expires)
+    query = query.offset(batch_size - 1)
+    query = query.limit(1)
+    while True:
+        try:
+            next_expiration = query.one()[0]
+        except sql.NotFound:
+            # There are less than `batch_size` rows remaining, so fall
+            # through to the normal delete
+            break
+        yield next_expiration
+    yield upper_bound_func()
+
+
+def _expiry_range_all(session, upper_bound_func):
+    """Expires all tokens in one pass."""
+
+    yield upper_bound_func()
 
 
 class Token(token.persistence.Driver):
@@ -192,41 +232,45 @@ class Token(token.persistence.Driver):
             tokens.append(record)
         return tokens
 
-    def token_flush_batch_size(self, dialect):
-        batch_size = 0
+    def _expiry_range_strategy(self, dialect):
+        """Choose a token range expiration strategy
+
+        Based on the DB dialect, select a expiry range callable that is
+        appropriate.
+        """
+
+        # DB2 and MySQL can both benefit from a batched strategy.  On DB2 the
+        # transaction log can fill up and on MySQL w/Galera, large
+        # transactions can exceed the maximum write set size.
         if dialect == 'ibm_db_sa':
-            # This functionality is limited to DB2, because
-            # it is necessary to prevent the tranaction log
-            # from filling up, whereas at least some of the
-            # other supported databases do not support update
-            # queries with LIMIT subqueries nor do they appear
-            # to require the use of such queries when deleting
-            # large numbers of records at once.
-            batch_size = 100
             # Limit of 100 is known to not fill a transaction log
             # of default maximum size while not significantly
             # impacting the performance of large token purges on
             # systems where the maximum transaction log size has
             # been increased beyond the default.
-        return batch_size
+            return functools.partial(_expiry_range_batched,
+                                     batch_size=100)
+        elif dialect == 'mysql':
+            # We want somewhat more than 100, since Galera replication delay is
+            # at least RTT*2.  This can be a significant amount of time if
+            # doing replication across a WAN.
+            return functools.partial(_expiry_range_batched,
+                                     batch_size=1000)
+        return _expiry_range_all
 
     def flush_expired_tokens(self):
         session = sql.get_session()
         dialect = session.bind.dialect.name
-        batch_size = self.token_flush_batch_size(dialect)
-        if batch_size > 0:
-            query = session.query(TokenModel.id)
-            query = query.filter(TokenModel.expires < timeutils.utcnow())
-            query = query.limit(batch_size).subquery()
-            delete_query = (session.query(TokenModel).
-                            filter(TokenModel.id.in_(query)))
-            while True:
-                rowcount = delete_query.delete(synchronize_session=False)
-                if rowcount == 0:
-                    break
-        else:
-            query = session.query(TokenModel)
-            query = query.filter(TokenModel.expires < timeutils.utcnow())
-            query.delete(synchronize_session=False)
+        expiry_range_func = self._expiry_range_strategy(dialect)
+        query = session.query(TokenModel.expires)
+        total_removed = 0
+        upper_bound_func = timeutils.utcnow
+        for expiry_time in expiry_range_func(session, upper_bound_func):
+            delete_query = query.filter(TokenModel.expires <
+                                        expiry_time)
+            row_count = delete_query.delete(synchronize_session=False)
+            total_removed += row_count
+            LOG.debug('Removed %d expired tokens', total_removed)
 
         session.flush()
+        LOG.info(_LI('Total expired tokens removed: %d'), total_removed)
