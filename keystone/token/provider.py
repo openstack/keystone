@@ -43,7 +43,15 @@ VERSIONS = frozenset([V2, V3])
 
 # default token providers
 PKI_PROVIDER = 'keystone.token.providers.pki.Provider'
+PKIZ_PROVIDER = 'keystone.token.providers.pkiz.Provider'
 UUID_PROVIDER = 'keystone.token.providers.uuid.Provider'
+
+_FORMAT_TO_PROVIDER = {
+    'PKI': PKI_PROVIDER,
+    # should not support new options, but PKIZ keeps the option consistent
+    'PKIZ': PKIZ_PROVIDER,
+    'UUID': UUID_PROVIDER
+}
 
 
 class UnsupportedTokenVersionException(Exception):
@@ -75,36 +83,24 @@ class Manager(manager.Manager):
         ``provider`` instead.
 
         """
-        if CONF.token.provider is not None:
-            # NOTE(gyee): we are deprecating CONF.signing.token_format. This
-            # code is to ensure the token provider configuration agrees with
-            # CONF.signing.token_format.
-            if (CONF.signing.token_format and
-                    ((CONF.token.provider == PKI_PROVIDER and
-                        CONF.signing.token_format != 'PKI') or
-                        (CONF.token.provider == UUID_PROVIDER and
-                            CONF.signing.token_format != 'UUID'))):
-                raise exception.UnexpectedError(
-                    _('keystone.conf [signing] token_format (deprecated) '
-                      'conflicts with keystone.conf [token] provider'))
-            return CONF.token.provider
-        else:
-            if not CONF.signing.token_format:
-                # No token provider and no format, so use default (PKI)
-                return PKI_PROVIDER
 
-            msg = _('keystone.conf [signing] token_format is deprecated in '
-                    'favor of keystone.conf [token] provider')
-            if CONF.signing.token_format == 'PKI':
-                LOG.warning(msg)
-                return PKI_PROVIDER
-            elif CONF.signing.token_format == 'UUID':
-                LOG.warning(msg)
-                return UUID_PROVIDER
-            else:
+        if CONF.signing.token_format:
+            LOG.warn(_('[signing] token_format is deprecated. '
+                       'Please change to setting the [token] provider '
+                       'configuration value instead'))
+            try:
+
+                mapped = _FORMAT_TO_PROVIDER[CONF.signing.token_format]
+            except KeyError:
                 raise exception.UnexpectedError(
                     _('Unrecognized keystone.conf [signing] token_format: '
                       'expected either \'UUID\' or \'PKI\''))
+            return mapped
+
+        if CONF.token.provider is None:
+            return PKIZ_PROVIDER
+        else:
+            return CONF.token.provider
 
     def __init__(self):
         super(Manager, self).__init__(self.get_token_provider())
