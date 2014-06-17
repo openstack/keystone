@@ -70,6 +70,16 @@ place::
 
 .. _`python-keystoneclient`: https://github.com/openstack/python-keystoneclient
 
+If the above commands result in a ``KeyError``, or they fail on a
+``.pyc`` file with the message, ``You can only have one Python script per
+version``, then it is possible that there are out-of-date compiled python
+bytecode files in the Keystone directory tree that are causing problems. This
+can occur if you have previously installed and ran older versions of Keystone.
+These out-of-date files can be easily removed by running a command like the
+following from the Keystone root project directory::
+
+    $ find . -name "*.pyc" -delete
+
 Database Schema Migrations
 --------------------------
 
