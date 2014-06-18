@@ -43,7 +43,7 @@ This step depends on your Identity Provider choice and is not covered here.
 Configure your Service Provider by editing ``/etc/shibboleth/shibboleth2.xml``
 file. You are advised to examine `Shibboleth Service Provider Configuration documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
 
-An example of your ``/etc/shibboleth2/shibboleth2.xml`` may look like
+An example of your ``/etc/shibboleth/shibboleth2.xml`` may look like
 (The example shown below is for reference only, not to be used in a production
 environment)::
 
@@ -152,7 +152,7 @@ environment)::
     </SPConfig>
 
 Keystone enforces `external <http://docs.openstack.org/developer/keystone/external-auth.html>`_
-authentiation when environment variable ``REMOTE_USER`` is present so
+authentication when environment variable ``REMOTE_USER`` is present so
 make sure Shibboleth doesn't set the ``REMOTE_USER`` environment variable.
 To do so, scan through the ``/etc/shibboleth/shibboleth2.xml`` configuration
 file and remove the ``REMOTE_USER`` directives.
@@ -161,7 +161,7 @@ Examine your attributes map file ``/etc/shibboleth/attributes-map.xml`` and adju
 your requirements if needed. For more information see
 `attributes documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
 
-Once you are done, restart your shibboleth daemon:
+Once you are done, restart your Shibboleth daemon:
 
 .. code-block:: bash
 
