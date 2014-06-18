@@ -266,9 +266,8 @@ class AuthWithToken(AuthTest):
         # Now create a group role for this user as well
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assignment_api.create_domain(domain1['id'], domain1)
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                     'name': uuid.uuid4().hex}
-        self.identity_api.create_group(new_group['id'], new_group)
+        new_group = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
+        new_group = self.identity_api.create_group(new_group)
         self.identity_api.add_user_to_group(self.user_foo['id'],
                                             new_group['id'])
         self.assignment_api.create_grant(
@@ -308,9 +307,8 @@ class AuthWithToken(AuthTest):
                                         role_group_domain1)
         self.assignment_api.add_user_to_project(project1['id'],
                                                 self.user_foo['id'])
-        new_group = {'id': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                     'name': uuid.uuid4().hex}
-        self.identity_api.create_group(new_group['id'], new_group)
+        new_group = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
+        new_group = self.identity_api.create_group(new_group)
         self.identity_api.add_user_to_group(self.user_foo['id'],
                                             new_group['id'])
         self.assignment_api.create_grant(
@@ -523,17 +521,15 @@ class AuthWithPasswordCredentials(AuthTest):
 
         # 2) Create user "foo" in new domain with different password than
         #    default-domain foo.
-        new_user_id = uuid.uuid4().hex
         new_user_password = uuid.uuid4().hex
         new_user = {
-            'id': new_user_id,
             'name': self.user_foo['name'],
             'domain_id': new_domain_id,
             'password': new_user_password,
             'email': 'foo@bar2.com',
         }
 
-        self.identity_api.create_user(new_user_id, new_user)
+        new_user = self.identity_api.create_user(new_user)
 
         # 3) Update the default_domain_id config option to the new domain
 

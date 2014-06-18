@@ -220,7 +220,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_create_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
-        self.identity_api.create_group(group_ref['id'], group_ref)
+        group_ref = self.identity_api.create_group(group_ref)
         self._assertLastNotify(group_ref['id'], CREATED_OPERATION, 'group')
 
     def test_create_project(self):
@@ -236,14 +236,14 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_create_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(user_ref['id'], user_ref)
+        user_ref = self.identity_api.create_user(user_ref)
         self._assertLastNotify(user_ref['id'], CREATED_OPERATION, 'user')
 
     def test_create_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(trustor['id'], trustor)
+        trustor = self.identity_api.create_user(trustor)
         trustee = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(trustee['id'], trustee)
+        trustee = self.identity_api.create_user(trustee)
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
         trust_ref = self.new_trust_ref(trustor['id'],
@@ -256,7 +256,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_delete_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
-        self.identity_api.create_group(group_ref['id'], group_ref)
+        group_ref = self.identity_api.create_group(group_ref)
         self.identity_api.delete_group(group_ref['id'])
         self._assertLastNotify(group_ref['id'], DELETED_OPERATION, 'group')
 
@@ -275,7 +275,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_delete_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(user_ref['id'], user_ref)
+        user_ref = self.identity_api.create_user(user_ref)
         self.identity_api.delete_user(user_ref['id'])
         self._assertLastNotify(user_ref['id'], DELETED_OPERATION, 'user')
 
@@ -288,9 +288,9 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_delete_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(trustor['id'], trustor)
+        trustor = self.identity_api.create_user(trustor)
         trustee = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(trustee['id'], trustee)
+        trustee = self.identity_api.create_user(trustee)
         role_ref = self.new_role_ref()
         trust_ref = self.new_trust_ref(trustor['id'], trustee['id'])
         self.trust_api.create_trust(trust_ref['id'],
@@ -318,7 +318,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_update_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
-        self.identity_api.create_group(group_ref['id'], group_ref)
+        group_ref = self.identity_api.create_group(group_ref)
         self.identity_api.update_group(group_ref['id'], group_ref)
         self._assertLastNotify(group_ref['id'], UPDATED_OPERATION, 'group')
 
@@ -354,7 +354,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_update_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
-        self.identity_api.create_user(user_ref['id'], user_ref)
+        user_ref = self.identity_api.create_user(user_ref)
         self.identity_api.update_user(user_ref['id'], user_ref)
         self._assertLastNotify(user_ref['id'], UPDATED_OPERATION, 'user')
 

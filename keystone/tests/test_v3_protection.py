@@ -77,25 +77,31 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         # Now create some users, one in domainA and two of them in domainB
         self.user1 = self.new_user_ref(domain_id=self.domainA['id'])
-        self.user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user1)
+        password = uuid.uuid4().hex
+        self.user1['password'] = password
+        self.user1 = self.identity_api.create_user(self.user1)
+        self.user1['password'] = password
 
         self.user2 = self.new_user_ref(domain_id=self.domainB['id'])
-        self.user2['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        password = uuid.uuid4().hex
+        self.user2['password'] = password
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
 
         self.user3 = self.new_user_ref(domain_id=self.domainB['id'])
-        self.user3['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user3['id'], self.user3)
+        password = uuid.uuid4().hex
+        self.user3['password'] = password
+        self.user3 = self.identity_api.create_user(self.user3)
+        self.user3['password'] = password
 
         self.group1 = self.new_group_ref(domain_id=self.domainA['id'])
-        self.identity_api.create_group(self.group1['id'], self.group1)
+        self.group1 = self.identity_api.create_group(self.group1)
 
         self.group2 = self.new_group_ref(domain_id=self.domainA['id'])
-        self.identity_api.create_group(self.group2['id'], self.group2)
+        self.group2 = self.identity_api.create_group(self.group2)
 
         self.group3 = self.new_group_ref(domain_id=self.domainB['id'])
-        self.identity_api.create_group(self.group3['id'], self.group3)
+        self.group3 = self.identity_api.create_group(self.group3)
 
         self.role = self.new_role_ref()
         self.assignment_api.create_role(self.role['id'], self.role)
@@ -385,22 +391,30 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         # And our users
         self.cloud_admin_user = self.new_user_ref(
             domain_id=self.admin_domain['id'])
-        self.cloud_admin_user['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.cloud_admin_user['id'],
-                                      self.cloud_admin_user)
+        password = uuid.uuid4().hex
+        self.cloud_admin_user['password'] = password
+        self.cloud_admin_user = (
+            self.identity_api.create_user(self.cloud_admin_user))
+        self.cloud_admin_user['password'] = password
         self.just_a_user = self.new_user_ref(domain_id=self.domainA['id'])
-        self.just_a_user['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.just_a_user['id'], self.just_a_user)
+        password = uuid.uuid4().hex
+        self.just_a_user['password'] = password
+        self.just_a_user = self.identity_api.create_user(self.just_a_user)
+        self.just_a_user['password'] = password
         self.domain_admin_user = self.new_user_ref(
             domain_id=self.domainA['id'])
-        self.domain_admin_user['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.domain_admin_user['id'],
-                                      self.domain_admin_user)
+        password = uuid.uuid4().hex
+        self.domain_admin_user['password'] = password
+        self.domain_admin_user = (
+            self.identity_api.create_user(self.domain_admin_user))
+        self.domain_admin_user['password'] = password
         self.project_admin_user = self.new_user_ref(
             domain_id=self.domainA['id'])
-        self.project_admin_user['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.project_admin_user['id'],
-                                      self.project_admin_user)
+        password = uuid.uuid4().hex
+        self.project_admin_user['password'] = password
+        self.project_admin_user = (
+            self.identity_api.create_user(self.project_admin_user))
+        self.project_admin_user['password'] = password
 
         # The admin role and another plain role
         self.admin_role = {'id': uuid.uuid4().hex, 'name': 'admin'}

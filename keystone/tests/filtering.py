@@ -58,10 +58,14 @@ class FilterTests(object):
         return f
 
     def _create_one_entity(self, entity_type, domain_id):
-        new_entity = {'id': '0000' + uuid.uuid4().hex,
-                      'name': uuid.uuid4().hex,
+        new_entity = {'name': uuid.uuid4().hex,
                       'domain_id': domain_id}
-        self._create_entity(entity_type)(new_entity['id'], new_entity)
+        if entity_type in ['user', 'group']:
+            # The manager layer creates the ID for users and groups
+            new_entity = self._create_entity(entity_type)(new_entity)
+        else:
+            new_entity['id'] = '0000' + uuid.uuid4().hex
+            self._create_entity(entity_type)(new_entity['id'], new_entity)
         return new_entity
 
     def _create_test_data(self, entity_type, number, domain_id=None):

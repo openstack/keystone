@@ -62,11 +62,12 @@ class ManagerNotificationWrapper(object):
 
     """
     def __init__(self, operation, resource_type, public=True,
-                 resource_id_arg_index=1):
+                 resource_id_arg_index=1, result_id_arg_attr=None):
         self.operation = operation
         self.resource_type = resource_type
         self.public = public
         self.resource_id_arg_index = resource_id_arg_index
+        self.result_id_arg_attr = result_id_arg_attr
 
     def __call__(self, f):
         def wrapper(*args, **kwargs):
@@ -76,7 +77,10 @@ class ManagerNotificationWrapper(object):
             except Exception:
                 raise
             else:
-                resource_id = args[self.resource_id_arg_index]
+                if self.result_id_arg_attr is not None:
+                    resource_id = result[self.result_id_arg_attr]
+                else:
+                    resource_id = args[self.resource_id_arg_index]
                 _send_notification(
                     self.operation,
                     self.resource_type,

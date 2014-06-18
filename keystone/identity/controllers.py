@@ -15,7 +15,6 @@
 """Workflow Logic the Identity service."""
 
 import functools
-import uuid
 
 from keystone.common import controller
 from keystone.common import dependency
@@ -78,15 +77,14 @@ class User(controller.V2Controller):
             self.assignment_api.get_project(default_project_id)
             user['default_project_id'] = default_project_id
 
-        user_id = uuid.uuid4().hex
+        # The manager layer will generate the unique ID for users
         user_ref = self._normalize_domain_id(context, user.copy())
-        user_ref['id'] = user_id
         new_user_ref = self.v3_to_v2_user(
-            self.identity_api.create_user(user_id, user_ref))
+            self.identity_api.create_user(user_ref))
 
         if default_project_id is not None:
             self.assignment_api.add_user_to_project(default_project_id,
-                                                    user_id)
+                                                    new_user_ref['id'])
         return {'user': new_user_ref}
 
     @controller.v2_deprecated
@@ -209,9 +207,10 @@ class UserV3(controller.V3Controller):
     def create_user(self, context, user):
         self._require_attribute(user, 'name')
 
-        ref = self._assign_unique_id(self._normalize_dict(user))
+        # The manager layer will generate the unique ID for users
+        ref = self._normalize_dict(user)
         ref = self._normalize_domain_id(context, ref)
-        ref = self.identity_api.create_user(ref['id'], ref)
+        ref = self.identity_api.create_user(ref)
         return UserV3.wrap_member(context, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
@@ -313,9 +312,10 @@ class GroupV3(controller.V3Controller):
     def create_group(self, context, group):
         self._require_attribute(group, 'name')
 
-        ref = self._assign_unique_id(self._normalize_dict(group))
+        # The manager layer will generate the unique ID for groups
+        ref = self._normalize_dict(group)
         ref = self._normalize_domain_id(context, ref)
-        ref = self.identity_api.create_group(ref['id'], ref)
+        ref = self.identity_api.create_group(ref)
         return GroupV3.wrap_member(context, ref)
 
     @controller.filterprotected('domain_id', 'name')
