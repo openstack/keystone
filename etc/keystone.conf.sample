@@ -54,6 +54,14 @@
 # server. (string value)
 #admin_endpoint=<None>
 
+# The number of worker processes to serve the public WSGI
+# application (integer value)
+#public_workers=1
+
+# The number of worker processes to serve the admin WSGI
+# application (integer value)
+#admin_workers=1
+
 # Enforced by optional sizelimit middleware
 # (keystone.middleware:RequestBodySizeLimiter). (integer
 # value)
@@ -346,10 +354,25 @@
 
 
 #
+# Options defined in keystone.openstack.common.eventlet_backdoor
+#
+
+# Enable eventlet backdoor.  Acceptable values are 0, <port>,
+# and <start>:<end>, where 0 results in listening on a random
+# tcp port number; <port> results in listening on the
+# specified port number (and not enabling backdoor if that
+# port is in use); and <start>:<end> results in listening on
+# the smallest unused port number within the specified range
+# of port numbers.  The chosen port is displayed in the
+# service's log file. (string value)
+#backdoor_port=<None>
+
+
+#
 # Options defined in keystone.openstack.common.lockutils
 #
 
-# Whether to disable inter-process locks (boolean value)
+# Enables or disables inter-process locks. (boolean value)
 #disable_process_locking=false
 
 # Directory to use for lock files. (string value)
@@ -368,47 +391,48 @@
 # of default WARNING level). (boolean value)
 #verbose=false
 
-# Log output to standard error (boolean value)
+# Log output to standard error. (boolean value)
 #use_stderr=true
 
-# Format string to use for log messages with context (string
+# Format string to use for log messages with context. (string
 # value)
 #logging_context_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
 
-# Format string to use for log messages without context
+# Format string to use for log messages without context.
 # (string value)
 #logging_default_format_string=%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
 
-# Data to append to log format when level is DEBUG (string
+# Data to append to log format when level is DEBUG. (string
 # value)
 #logging_debug_format_suffix=%(funcName)s %(pathname)s:%(lineno)d
 
-# Prefix each line of exception output with this format
+# Prefix each line of exception output with this format.
 # (string value)
 #logging_exception_prefix=%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
 
-# List of logger=LEVEL pairs (list value)
+# List of logger=LEVEL pairs. (list value)
 #default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN
 
-# Publish error events (boolean value)
+# Enables or disables publication of error events. (boolean
+# value)
 #publish_errors=false
 
-# Make deprecations fatal (boolean value)
+# Enables or disables fatal status of deprecations. (boolean
+# value)
 #fatal_deprecations=false
 
-# If an instance is passed with the log message, format it
-# like this (string value)
+# The format for an instance that is passed with the log
+# message.  (string value)
 #instance_format="[instance: %(uuid)s] "
 
-# If an instance UUID is passed with the log message, format
-# it like this (string value)
+# The format for an instance UUID that is passed with the log
+# message.  (string value)
 #instance_uuid_format="[instance: %(uuid)s] "
 
-# The name of logging configuration file. It does not disable
-# existing loggers, but just appends specified logging
-# configuration to any other existing logging options. Please
-# see the Python logging module documentation for details on
-# logging configuration files. (string value)
+# The name of a logging configuration file. This file is
+# appended to any existing logging configuration files. For
+# details about logging configuration files, see the Python
+# logging module documentation. (string value)
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append=<None>
 
@@ -420,7 +444,7 @@
 #log_format=<None>
 
 # Format string for %%(asctime)s in log records. Default:
-# %(default)s (string value)
+# %(default)s . (string value)
 #log_date_format=%Y-%m-%d %H:%M:%S
 
 # (Optional) Name of log file to output to. If no default is
@@ -429,22 +453,23 @@
 #log_file=<None>
 
 # (Optional) The base directory used for relative --log-file
-# paths (string value)
+# paths. (string value)
 # Deprecated group/name - [DEFAULT]/logdir
 #log_dir=<None>
 
 # Use syslog for logging. Existing syslog format is DEPRECATED
-# during I, and then will be changed in J to honor RFC5424
-# (boolean value)
+# during I, and will chang in J to honor RFC5424. (boolean
+# value)
 #use_syslog=false
 
-# (Optional) Use syslog rfc5424 format for logging. If
-# enabled, will add APP-NAME (RFC5424) before the MSG part of
-# the syslog message.  The old format without APP-NAME is
-# deprecated in I, and will be removed in J. (boolean value)
+# (Optional) Enables or disables syslog rfc5424 format for
+# logging. If enabled, prefixes the MSG part of the syslog
+# message with APP-NAME (RFC5424). The format without the APP-
+# NAME is deprecated in I, and will be removed in J. (boolean
+# value)
 #use_syslog_rfc_format=false
 
-# Syslog facility to receive log lines (string value)
+# Syslog facility to receive log lines. (string value)
 #syslog_log_facility=LOG_USER
 
 
@@ -452,11 +477,11 @@
 # Options defined in keystone.openstack.common.policy
 #
 
-# JSON file containing policy (string value)
+# The JSON file that defines policies. (string value)
 #policy_file=policy.json
 
-# Rule enforced when requested rule is not found (string
-# value)
+# Default rule. Enforced when a requested rule is not found.
+# (string value)
 #policy_default_rule=default
 
 
