@@ -7,14 +7,14 @@ netaddr>=0.7.6
 PasteDeploy>=1.5.0
 Paste
 Routes>=1.12.3
-six>=1.6.0
+six>=1.7.0
 SQLAlchemy>=0.7.8,<=0.9.99
 sqlalchemy-migrate>=0.9.1
 passlib
 lxml>=2.3
 iso8601>=0.1.9
 python-keystoneclient>=0.9.0
-oslo.config>=1.2.0
+oslo.config>=1.2.1
 oslo.messaging>=1.3.0
 Babel>=1.3
 oauthlib>=0.6
