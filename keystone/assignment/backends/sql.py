@@ -15,7 +15,7 @@
 import six
 import sqlalchemy
 
-from keystone import assignment
+from keystone import assignment as keystone_assignment
 from keystone import clean
 from keystone.common import sql
 from keystone import config
@@ -33,7 +33,7 @@ class AssignmentType:
     GROUP_DOMAIN = 'GroupDomain'
 
 
-class Assignment(assignment.Driver):
+class Assignment(keystone_assignment.Driver):
 
     def _get_project(self, session, project_id):
         project_ref = session.query(Project).get(project_id)

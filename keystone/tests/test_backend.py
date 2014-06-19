@@ -640,7 +640,7 @@ class IdentityTests(object):
             tenant_id=project_ref['id'])
 
         self.assertEqual(set(role_list),
-                         set([role_ref['id'] for role_ref in role_ref_list]))
+                         set([r['id'] for r in role_ref_list]))
 
     def test_get_role_by_user_and_project(self):
         roles_ref = self.assignment_api.get_roles_for_user_and_project(
