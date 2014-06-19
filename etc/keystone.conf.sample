@@ -110,12 +110,11 @@
 #domain_id_immutable=true
 
 # If set to true, strict password length checking is performed
-# for password manipulation.
-# If a password exceeds the maximum length, the operation will
-# fail with 403 Forbidden Error.
-# If set to false, passwords are automatically truncated to
-# the maximum length.
-# strict_password_check=false
+# for password manipulation. If a password exceeds the maximum
+# length, the operation will fail with an HTTP 403 Forbidden
+# error. If set to false, passwords are automatically
+# truncated to the maximum length. (boolean value)
+#strict_password_check=false
 
 
 #
@@ -137,7 +136,7 @@
 #allowed_rpc_exception_modules=oslo.messaging.exceptions,nova.exception,cinder.exception,exceptions
 
 # Qpid broker hostname. (string value)
-#qpid_hostname=keystone
+#qpid_hostname=localhost
 
 # Qpid broker port. (integer value)
 #qpid_port=5672
@@ -194,7 +193,7 @@
 
 # The RabbitMQ broker address where a single node is used.
 # (string value)
-#rabbit_host=keystone
+#rabbit_host=localhost
 
 # The RabbitMQ broker port where a single node is used.
 # (integer value)
@@ -798,7 +797,7 @@
 #
 
 # URL for connecting to the LDAP server. (string value)
-#url=ldap://keystone
+#url=ldap://localhost
 
 # User BindDN to query the LDAP server. (string value)
 #user=<None>
@@ -1244,7 +1243,7 @@
 
 # SSL certificate subject (auto generated certificate).
 # (string value)
-#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=keystone
+#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 
 [stats]
