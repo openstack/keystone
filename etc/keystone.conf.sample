@@ -1309,8 +1309,8 @@
 
 # Controls the token construction, validation, and revocation
 # operations. Core providers are
-# "keystone.token.providers.[pki|uuid].Provider". (string
-# value)
+# "keystone.token.providers.[pkiz|pki|uuid].Provider". The
+# default provider is pkiz. (string value)
 #provider=<None>
 
 # Token persistence backend driver. (string value)
