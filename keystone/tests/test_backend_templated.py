@@ -15,7 +15,6 @@
 import os
 import uuid
 
-from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import test_backend
@@ -61,14 +60,18 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertDictEqual(catalog_ref, self.DEFAULT_FIXTURE)
 
-    def test_malformed_catalog_throws_error(self):
+    def test_catalog_ignored_malformed_urls(self):
+        # both endpoints are in the catalog
+        catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
+        self.assertEqual(2, len(catalog_ref['RegionOne']))
+
         (self.catalog_api.driver.templates
          ['RegionOne']['compute']['adminURL']) = \
             'http://localhost:$(compute_port)s/v1.1/$(tenant)s'
-        self.assertRaises(exception.MalformedEndpoint,
-                          self.catalog_api.get_catalog,
-                          'fake-user',
-                          'fake-tenant')
+
+        # the malformed one has been removed
+        catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
+        self.assertEqual(1, len(catalog_ref['RegionOne']))
 
     def test_get_catalog_endpoint_disabled(self):
         self.skipTest("Templated backend doesn't have disabled endpoints")

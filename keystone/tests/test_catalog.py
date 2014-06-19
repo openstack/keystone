@@ -16,6 +16,9 @@ import uuid
 
 import six
 
+from keystone import catalog
+from keystone import tests
+from keystone.tests.ksfixtures import database
 from keystone.tests import rest
 
 
@@ -118,3 +121,61 @@ class V2CatalogTestCase(rest.RestfulTestCase):
 
     def test_endpoint_create_with_empty_service_id(self):
         self._endpoint_create(expected_status=400, service_id='')
+
+
+class TestV2CatalogAPISQL(tests.TestCase):
+
+    def setUp(self):
+        super(TestV2CatalogAPISQL, self).setUp()
+        self.useFixture(database.Database())
+        self.catalog_api = catalog.Manager()
+
+        self.service_id = uuid.uuid4().hex
+        service = {'id': self.service_id, 'name': uuid.uuid4().hex}
+        self.catalog_api.create_service(self.service_id, service)
+
+        endpoint = self.new_endpoint_ref(service_id=self.service_id)
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+    def config_overrides(self):
+        super(TestV2CatalogAPISQL, self).config_overrides()
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.sql.Catalog')
+
+    def new_endpoint_ref(self, service_id):
+        return {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'interface': uuid.uuid4().hex[:8],
+            'service_id': service_id,
+            'url': uuid.uuid4().hex,
+            'region': uuid.uuid4().hex,
+        }
+
+    def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
+        user_id = uuid.uuid4().hex
+        tenant_id = uuid.uuid4().hex
+
+        # the only endpoint in the catalog is the one created in setUp
+        catalog = self.catalog_api.get_catalog(user_id, tenant_id)
+        self.assertEqual(1, len(catalog))
+        # it's also the only endpoint in the backend
+        self.assertEqual(1, len(self.catalog_api.list_endpoints()))
+
+        # create a new, invalid endpoint - malformed type declaration
+        endpoint = self.new_endpoint_ref(self.service_id)
+        endpoint['url'] = 'http://keystone/%(tenant_id)'
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        # create a new, invalid endpoint - nonexistent key
+        endpoint = self.new_endpoint_ref(self.service_id)
+        endpoint['url'] = 'http://keystone/%(you_wont_find_me)s'
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        # verify that the invalid endpoints don't appear in the catalog
+        catalog = self.catalog_api.get_catalog(user_id, tenant_id)
+        self.assertEqual(1, len(catalog))
+        # all three endpoints appear in the backend
+        self.assertEqual(3, len(self.catalog_api.list_endpoints()))
