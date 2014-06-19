@@ -624,13 +624,15 @@ class AuthWithTrust(AuthTest):
         self.new_trust = self.trust_controller.create_trust(
             context, trust=trust_data)['trust']
 
-    def build_v2_token_request(self, username, password):
+    def build_v2_token_request(self, username, password, tenant_id=None):
+        if not tenant_id:
+            tenant_id = self.tenant_bar['id']
         body_dict = _build_user_auth(username=username, password=password)
         self.unscoped_token = self.controller.authenticate({}, body_dict)
         unscoped_token_id = self.unscoped_token['access']['token']['id']
         request_body = _build_user_auth(token={'id': unscoped_token_id},
                                         trust_id=self.new_trust['id'],
-                                        tenant_id=self.tenant_bar['id'])
+                                        tenant_id=tenant_id)
         return request_body
 
     def test_create_trust_bad_data_fails(self):
@@ -703,6 +705,15 @@ class AuthWithTrust(AuthTest):
         self.assertRaises(
             exception.Forbidden,
             self.controller.authenticate, {}, request_body)
+
+    def test_token_from_trust_wrong_project_fails(self):
+        for assigned_role in self.assigned_roles:
+            self.assignment_api.add_role_to_user_and_project(
+                self.trustor['id'], self.tenant_baz['id'], assigned_role)
+        request_body = self.build_v2_token_request('TWO', 'two2',
+                                                   self.tenant_baz['id'])
+        self.assertRaises(exception.Forbidden, self.controller.authenticate,
+                          {}, request_body)
 
     def fetch_v2_token_from_trust(self):
         request_body = self.build_v2_token_request('TWO', 'two2')
