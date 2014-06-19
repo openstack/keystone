@@ -91,6 +91,7 @@ class Manager(manager.Manager):
 
     @notifications.updated(_PROJECT)
     def update_project(self, tenant_id, tenant):
+        original_tenant = self.driver.get_project(tenant_id)
         tenant = tenant.copy()
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
@@ -98,8 +99,8 @@ class Manager(manager.Manager):
             self._disable_project(tenant_id)
         ret = self.driver.update_project(tenant_id, tenant)
         self.get_project.invalidate(self, tenant_id)
-        self.get_project_by_name.invalidate(self, ret['name'],
-                                            ret['domain_id'])
+        self.get_project_by_name.invalidate(self, original_tenant['name'],
+                                            original_tenant['domain_id'])
         return ret
 
     @notifications.deleted(_PROJECT)
@@ -320,6 +321,7 @@ class Manager(manager.Manager):
 
     @notifications.updated('domain')
     def update_domain(self, domain_id, domain):
+        original_domain = self.driver.get_domain(domain_id)
         if 'enabled' in domain:
             domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.update_domain(domain_id, domain)
@@ -328,7 +330,7 @@ class Manager(manager.Manager):
         if not domain.get('enabled', True):
             self._disable_domain(domain_id)
         self.get_domain.invalidate(self, domain_id)
-        self.get_domain_by_name.invalidate(self, ret['name'])
+        self.get_domain_by_name.invalidate(self, original_domain['name'])
         return ret
 
     @notifications.deleted('domain')

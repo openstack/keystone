@@ -2756,6 +2756,20 @@ class IdentityTests(object):
         self.assertEqual(len(user_projects), 3)
 
     @tests.skip_if_cache_disabled('assignment')
+    def test_domain_rename_invalidates_get_domain_by_name_cache(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        domain_id = domain['id']
+        domain_name = domain['name']
+        self.assignment_api.create_domain(domain_id, domain)
+        domain_ref = self.assignment_api.get_domain(domain_id)
+        domain_ref['name'] = uuid.uuid4().hex
+        self.assignment_api.update_domain(domain_id, domain_ref)
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.get_domain_by_name,
+                          domain_name)
+
+    @tests.skip_if_cache_disabled('assignment')
     def test_cache_layer_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
@@ -2809,6 +2823,25 @@ class IdentityTests(object):
         self.assertRaises(exception.DomainNotFound,
                           self.assignment_api.get_domain,
                           domain_id)
+
+    @tests.skip_if_cache_disabled('assignment')
+    def test_project_rename_invalidates_get_project_by_name_cache(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': domain['id']}
+        project_id = project['id']
+        project_name = project['name']
+        self.assignment_api.create_domain(domain['id'], domain)
+        # Create a project
+        self.assignment_api.create_project(project_id, project)
+        self.assignment_api.get_project(project_id)
+        project['name'] = uuid.uuid4().hex
+        self.assignment_api.update_project(project_id, project)
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project_by_name,
+                          project_name,
+                          domain['id'])
 
     @tests.skip_if_cache_disabled('assignment')
     def test_cache_layer_project_crud(self):
