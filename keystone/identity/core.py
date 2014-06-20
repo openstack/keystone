@@ -134,8 +134,8 @@ class DomainConfigs(dict):
                                           fname[len(DOMAIN_CONF_FHEAD):
                                                 -len(DOMAIN_CONF_FTAIL)])
                     else:
-                        LOG.debug(_('Ignoring file (%s) while scanning domain '
-                                    'config directory'),
+                        LOG.debug(('Ignoring file (%s) while scanning domain '
+                                   'config directory'),
                                   fname)
 
     def get_domain_driver(self, domain_id):

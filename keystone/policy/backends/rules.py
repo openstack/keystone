@@ -20,7 +20,6 @@ import os.path
 from keystone.common import utils
 from keystone import config
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone.openstack.common import policy as common_policy
 from keystone import policy
@@ -96,7 +95,7 @@ def enforce(credentials, action, target, do_raise=True):
 
 class Policy(policy.Driver):
     def enforce(self, credentials, action, target):
-        LOG.debug(_('enforce %(action)s: %(credentials)s'), {
+        LOG.debug('enforce %(action)s: %(credentials)s', {
             'action': action,
             'credentials': credentials})
         enforce(credentials, action, target)

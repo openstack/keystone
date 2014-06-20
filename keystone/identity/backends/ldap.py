@@ -160,9 +160,9 @@ class Identity(identity.Driver):
             try:
                 users.append(self.user.get_filtered(user_id))
             except exception.UserNotFound:
-                LOG.debug(_("Group member '%(user_dn)s' not found in"
-                            " '%(group_id)s'. The user should be removed"
-                            " from the group. The user will be ignored."),
+                LOG.debug(("Group member '%(user_dn)s' not found in"
+                           " '%(group_id)s'. The user should be removed"
+                           " from the group. The user will be ignored."),
                           dict(user_dn=user_dn, group_id=group_id))
         return users
 

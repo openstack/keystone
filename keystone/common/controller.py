@@ -49,20 +49,19 @@ def v2_deprecated(f):
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):
-    LOG.debug(_('RBAC: Authorizing %(action)s(%(kwargs)s)'), {
+    LOG.debug('RBAC: Authorizing %(action)s(%(kwargs)s)', {
         'action': action,
         'kwargs': ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])})
 
     # see if auth context has already been created. If so use it.
     if ('environment' in context and
             authorization.AUTH_CONTEXT_ENV in context['environment']):
-        LOG.debug(_('RBAC: using auth context from the request environment'))
+        LOG.debug('RBAC: using auth context from the request environment')
         return context['environment'].get(authorization.AUTH_CONTEXT_ENV)
 
     # now build the auth context from the incoming auth token
     try:
-        LOG.debug(_('RBAC: building auth context from the incoming '
-                    'auth token'))
+        LOG.debug('RBAC: building auth context from the incoming auth token')
         # TODO(ayoung): These two functions return the token in different
         # formats.  However, the call
         # to get_token hits the caching layer, and does not validate the
@@ -148,7 +147,7 @@ def protected(callback=None):
                 self.policy_api.enforce(creds,
                                         action,
                                         utils.flatten_dict(policy_dict))
-                LOG.debug(_('RBAC: Authorization granted'))
+                LOG.debug('RBAC: Authorization granted')
             return f(self, context, *args, **kwargs)
         return inner
     return wrapper
@@ -178,7 +177,7 @@ def filterprotected(*filters):
                         if item in context['query_string']:
                             target[item] = context['query_string'][item]
 
-                    LOG.debug(_('RBAC: Adding query filter params (%s)'), (
+                    LOG.debug('RBAC: Adding query filter params (%s)', (
                         ', '.join(['%s=%s' % (item, target[item])
                                   for item in target])))
 
@@ -190,7 +189,7 @@ def filterprotected(*filters):
                                         action,
                                         utils.flatten_dict(target))
 
-                LOG.debug(_('RBAC: Authorization granted'))
+                LOG.debug('RBAC: Authorization granted')
             else:
                 LOG.warning(_('RBAC: Bypassing authorization'))
             return f(self, context, filters, **kwargs)
@@ -612,7 +611,7 @@ class V3Controller(wsgi.Application):
             self.policy_api.enforce(creds,
                                     action,
                                     utils.flatten_dict(policy_dict))
-            LOG.debug(_('RBAC: Authorization granted'))
+            LOG.debug('RBAC: Authorization granted')
 
     @classmethod
     def check_immutable_params(cls, ref):

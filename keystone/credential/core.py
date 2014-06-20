@@ -22,7 +22,6 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 
@@ -117,5 +116,5 @@ class Driver(object):
                 try:
                     self.credential_api.delete_credential(cr['id'])
                 except exception.CredentialNotFound:
-                    LOG.debug(_('Deletion of credential is not required: %s'),
+                    LOG.debug('Deletion of credential is not required: %s',
                               cr['id'])

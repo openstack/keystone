@@ -85,8 +85,8 @@ def validate_token_bind(context, token_ref):
             LOG.info(_("Kerberos bind authentication successful"))
 
         elif bind_mode == 'permissive':
-            LOG.debug(_("Ignoring unknown bind for permissive mode: "
-                        "{%(bind_type)s: %(identifier)s}"),
+            LOG.debug(("Ignoring unknown bind for permissive mode: "
+                       "{%(bind_type)s: %(identifier)s}"),
                       {'bind_type': bind_type, 'identifier': identifier})
         else:
             LOG.info(_("Couldn't verify unknown bind: "
@@ -178,7 +178,7 @@ class Application(BaseApplication):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
         action = arg_dict.pop('action')
         del arg_dict['controller']
-        LOG.debug(_('arg_dict: %s'), arg_dict)
+        LOG.debug('arg_dict: %s', arg_dict)
 
         # allow middleware up the stack to provide context, params and headers.
         context = req.environ.get(CONTEXT_ENV, {})
@@ -316,8 +316,8 @@ class Application(BaseApplication):
         """
         if ('token_id' not in context or
                 context.get('token_id') == CONF.admin_token):
-            LOG.debug(_('will not lookup trust as the request auth token is '
-                        'either absent or it is the system admin token'))
+            LOG.debug(('will not lookup trust as the request auth token is '
+                       'either absent or it is the system admin token'))
             return None
 
         try:

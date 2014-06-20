@@ -150,8 +150,8 @@ def convert_ldap_result(ldap_result):
                           dict((kind, [ldap2py(x) for x in values])
                                for kind, values in six.iteritems(attrs))))
     if at_least_one_referral:
-        LOG.debug(_('Referrals were returned and ignored. Enable referral '
-                    'chasing in keystone.conf via [ldap] chase_referrals'))
+        LOG.debug(('Referrals were returned and ignored. Enable referral '
+                   'chasing in keystone.conf via [ldap] chase_referrals'))
 
     return py_result
 
@@ -518,7 +518,7 @@ class PythonLDAPHandler(LDAPHandler):
             if tls_req_cert in LDAP_TLS_CERTS.values():
                 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
             else:
-                LOG.debug(_("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s"),
+                LOG.debug("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s",
                           tls_req_cert)
 
         self.conn = ldap.initialize(url)
