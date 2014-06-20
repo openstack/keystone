@@ -35,16 +35,18 @@ from blueprint designs to documentation to testing to deployment scripts.
 .. _Launchpad: https://launchpad.net/keystone
 .. _wiki: http://wiki.openstack.org/
 
-#openstack on Freenode IRC Network
-----------------------------------
+#openstack-keystone on Freenode IRC Network
+-------------------------------------------
 
-There is a very active chat channel at `<irc://freenode.net/#openstack>`_. This
-is usually the best place to ask questions and find your way around. IRC stands
-for Internet Relay Chat and it is a way to chat online in real time. You can
-also ask a question and come back to the log files to read the answer later.
-Logs for the #openstack IRC channel are stored at
+You can find Keystone folks in `<irc://freenode.net/#openstack-keystone>`_.
+This is usually the best place to ask questions and find your way around. IRC
+stands for Internet Relay Chat and it is a way to chat online in real time.
+You can also ask a question and come back to the log files to read the answer
+later. Logs for the #openstack IRC channels are stored at
 `<http://eavesdrop.openstack.org/irclogs/>`_.
 
+For more information regarding OpenStack IRC channels please visit the
+`OpenStack IRC Wiki <https://wiki.openstack.org/wiki/IRC>`_.
 
 OpenStack Wiki
 --------------
