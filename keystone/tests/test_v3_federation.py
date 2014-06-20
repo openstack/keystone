@@ -1094,8 +1094,7 @@ class FederatedTokenTests(FederationTests):
         # create group and role
         group = self.new_group_ref(
             domain_id=self.domainA['id'])
-        self.identity_api.create_group(group['id'],
-                                       group)
+        group = self.identity_api.create_group(group)
         role = self.new_role_ref()
         self.assignment_api.create_role(role['id'],
                                         role)
@@ -1217,18 +1216,17 @@ class FederatedTokenTests(FederationTests):
         # Create and add groups
         self.group_employees = self.new_group_ref(
             domain_id=self.domainA['id'])
-        self.identity_api.create_group(self.group_employees['id'],
-                                       self.group_employees)
+        self.group_employees = (
+            self.identity_api.create_group(self.group_employees))
 
         self.group_customers = self.new_group_ref(
             domain_id=self.domainA['id'])
-        self.identity_api.create_group(self.group_customers['id'],
-                                       self.group_customers)
+        self.group_customers = (
+            self.identity_api.create_group(self.group_customers))
 
         self.group_admins = self.new_group_ref(
             domain_id=self.domainA['id'])
-        self.identity_api.create_group(self.group_admins['id'],
-                                       self.group_admins)
+        self.group_admins = self.identity_api.create_group(self.group_admins)
 
         # Create and add roles
         self.role_employee = self.new_role_ref()

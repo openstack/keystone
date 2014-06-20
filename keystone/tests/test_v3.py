@@ -125,10 +125,11 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
         self.project['id'] = self.project_id
         self.assignment_api.create_project(self.project_id, self.project)
 
-        self.user_id = uuid.uuid4().hex
         self.user = self.new_user_ref(domain_id=self.domain_id)
-        self.user['id'] = self.user_id
-        self.identity_api.create_user(self.user_id, self.user)
+        password = self.user['password']
+        self.user = self.identity_api.create_user(self.user)
+        self.user['password'] = password
+        self.user_id = self.user['id']
 
         self.default_domain_project_id = uuid.uuid4().hex
         self.default_domain_project = self.new_project_ref(
@@ -137,12 +138,13 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
         self.assignment_api.create_project(self.default_domain_project_id,
                                            self.default_domain_project)
 
-        self.default_domain_user_id = uuid.uuid4().hex
         self.default_domain_user = self.new_user_ref(
             domain_id=DEFAULT_DOMAIN_ID)
-        self.default_domain_user['id'] = self.default_domain_user_id
-        self.identity_api.create_user(self.default_domain_user_id,
-                                      self.default_domain_user)
+        password = self.default_domain_user['password']
+        self.default_domain_user = (
+            self.identity_api.create_user(self.default_domain_user))
+        self.default_domain_user['password'] = password
+        self.default_domain_user_id = self.default_domain_user['id']
 
         # create & grant policy.json's default role for admin_required
         self.role_id = uuid.uuid4().hex

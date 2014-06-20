@@ -57,20 +57,19 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
                                    tls_req_cert='demand')
         self.identity_api = identity.backends.ldap.Identity()
 
-        user = {'id': 'fake1',
-                'name': 'fake1',
+        user = {'name': 'fake1',
                 'password': 'fakepass1',
                 'tenants': ['bar']}
-        self.identity_api.create_user('fake1', user)
-        user_ref = self.identity_api.get_user('fake1')
-        self.assertEqual('fake1', user_ref['id'])
+        user = self.identity_api.create_user('user')
+        user_ref = self.identity_api.get_user(user['id'])
+        self.assertEqual(user['id'], user_ref['id'])
 
         user['password'] = 'fakepass2'
-        self.identity_api.update_user('fake1', user)
+        self.identity_api.update_user(user['id'], user)
 
-        self.identity_api.delete_user('fake1')
+        self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound, self.identity_api.get_user,
-                          'fake1')
+                          user['id'])
 
     def test_tls_certdir_demand_option(self):
         self.config_fixture.config(group='ldap',
@@ -103,11 +102,10 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
             tls_cacertdir=None)
         self.identity_api = identity.backends.ldap.Identity()
 
-        user = {'id': 'fake1',
-                'name': 'fake1',
+        user = {'name': 'fake1',
                 'password': 'fakepass1',
                 'tenants': ['bar']}
-        self.assertRaises(IOError, self.identity_api.create_user, 'fake', user)
+        self.assertRaises(IOError, self.identity_api.create_user, user)
 
     def test_tls_bad_certdir(self):
         self.config_fixture.config(
@@ -118,8 +116,7 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
             tls_cacertdir='/etc/keystone/ssl/mythicalcertdir')
         self.identity_api = identity.backends.ldap.Identity()
 
-        user = {'id': 'fake1',
-                'name': 'fake1',
+        user = {'name': 'fake1',
                 'password': 'fakepass1',
                 'tenants': ['bar']}
-        self.assertRaises(IOError, self.identity_api.create_user, 'fake', user)
+        self.assertRaises(IOError, self.identity_api.create_user, user)

@@ -96,7 +96,14 @@ class CompatTestCase(tests.NoModule, tests.TestCase):
             user_ref = self.user_foo
         if tenant_ref is None:
             for user in default_fixtures.USERS:
-                if user['id'] == user_ref['id']:
+                # The fixture ID is no longer used as the ID in the database
+                # The fixture ID, however, is still used as part of the
+                # attribute name when storing the created object on the test
+                # case. This means that we need to use the fixture ID below to
+                # find the actial object so that we can get the ID as stored
+                # in the database to compare against.
+                if (getattr(self, 'user_%s' % user['id'])['id'] ==
+                        user_ref['id']):
                     tenant_id = user['tenants'][0]
         else:
             tenant_id = tenant_ref['id']

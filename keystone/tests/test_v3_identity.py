@@ -84,11 +84,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(IdentityTestCase, self).setUp()
 
-        self.group_id = uuid.uuid4().hex
         self.group = self.new_group_ref(
             domain_id=self.domain_id)
-        self.group['id'] = self.group_id
-        self.identity_api.create_group(self.group_id, self.group)
+        self.group = self.identity_api.create_group(self.group)
+        self.group_id = self.group['id']
 
         self.credential_id = uuid.uuid4().hex
         self.credential = self.new_credential_ref(
@@ -169,7 +168,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.user2 = self.new_user_ref(
             domain_id=self.domain2['id'],
             project_id=self.project2['id'])
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        password = self.user2['password']
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
 
         self.assignment_api.add_user_to_project(self.project2['id'],
                                                 self.user2['id'])
@@ -268,11 +269,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.user2 = self.new_user_ref(
             domain_id=self.domain2['id'],
             project_id=self.project2['id'])
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        self.user2 = self.identity_api.create_user(self.user2)
 
         self.group2 = self.new_group_ref(
             domain_id=self.domain2['id'])
-        self.identity_api.create_group(self.group2['id'], self.group2)
+        self.group2 = self.identity_api.create_group(self.group2)
 
         self.credential2 = self.new_credential_ref(
             user_id=self.user2['id'],
@@ -495,7 +496,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_list_users_no_default_project(self):
         """Call ``GET /users`` making sure no default_project_id."""
         user = self.new_user_ref(self.domain_id)
-        self.identity_api.create_user(self.user_id, user)
+        user = self.identity_api.create_user(user)
         r = self.get('/users')
         self.assertValidUserListResponse(r, ref=user)
 
@@ -514,7 +515,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """Call ``GET /users/{user_id}`` making sure of default_project_id."""
         user = self.new_user_ref(domain_id=self.domain_id,
                                  project_id=self.project_id)
-        self.identity_api.create_user(self.user_id, user)
+        user = self.identity_api.create_user(user)
         r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
         self.assertValidUserResponse(r, user)
 
@@ -528,12 +529,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user1)
+        password = self.user1['password']
+        self.user1 = self.identity_api.create_user(self.user1)
+        self.user1['password'] = password
         self.user2 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user2['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user2)
+        password = self.user2['password']
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user1['id']})
 
@@ -596,7 +599,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_update_user_domain_id(self):
         """Call ``PATCH /users/{user_id}`` with domain_id."""
         user = self.new_user_ref(domain_id=self.domain['id'])
-        self.identity_api.create_user(user['id'], user)
+        user = self.identity_api.create_user(user)
         user['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/users/%(user_id)s' % {
             'user_id': user['id']},
@@ -625,7 +628,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.user2 = self.new_user_ref(
             domain_id=self.domain['id'],
             project_id=self.project['id'])
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        self.user2 = self.identity_api.create_user(self.user2)
         self.credential2 = self.new_credential_ref(
             user_id=self.user2['id'],
             project_id=self.project['id'])
@@ -703,7 +706,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_update_group_domain_id(self):
         """Call ``PATCH /groups/{group_id}`` with domain_id."""
         group = self.new_group_ref(domain_id=self.domain['id'])
-        self.identity_api.create_group(group['id'], group)
+        group = self.identity_api.create_group(group)
         group['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/groups/%(group_id)s' % {
             'group_id': group['id']},
@@ -957,8 +960,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # existing assignments
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user1)
+        self.user1 = self.identity_api.create_user(self.user1)
 
         collection_url = '/role_assignments'
         r = self.get(collection_url)
@@ -1040,12 +1042,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user1)
+        password = self.user1['password']
+        self.user1 = self.identity_api.create_user(self.user1)
+        self.user1['password'] = password
         self.user2 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user2['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        password = self.user2['password']
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
         self.identity_api.add_user_to_group(self.user1['id'], self.group['id'])
         self.identity_api.add_user_to_group(self.user2['id'], self.group['id'])
 
@@ -1113,12 +1117,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user1)
+        password = self.user1['password']
+        self.user1 = self.identity_api.create_user(self.user1)
+        self.user1['password'] = password
         self.user2 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user2['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        password = self.user2['password']
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
         self.identity_api.add_user_to_group(self.user1['id'], self.group['id'])
         self.identity_api.add_user_to_group(self.user2['id'], self.group['id'])
 
@@ -1193,15 +1199,17 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # existing assignments
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user1['id'], self.user1)
+        password = self.user1['password']
+        self.user1 = self.identity_api.create_user(self.user1)
+        self.user1['password'] = password
         self.user2 = self.new_user_ref(
             domain_id=self.domain['id'])
-        self.user2['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(self.user2['id'], self.user2)
+        password = self.user2['password']
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
         self.group1 = self.new_group_ref(
             domain_id=self.domain['id'])
-        self.identity_api.create_group(self.group1['id'], self.group1)
+        self.group1 = self.identity_api.create_group(self.group1)
         self.identity_api.add_user_to_group(self.user1['id'],
                                             self.group1['id'])
         self.identity_api.add_user_to_group(self.user2['id'],
@@ -1402,8 +1410,9 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
-        user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(user1['id'], user1)
+        password = user1['password']
+        user1 = self.identity_api.create_user(user1)
+        user1['password'] = password
         project1 = self.new_project_ref(
             domain_id=domain['id'])
         self.assignment_api.create_project(project1['id'], project1)
@@ -1495,8 +1504,9 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
-        user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(user1['id'], user1)
+        password = user1['password']
+        user1 = self.identity_api.create_user(user1)
+        user1['password'] = password
         project1 = self.new_project_ref(
             domain_id=domain['id'])
         self.assignment_api.create_project(project1['id'], project1)
@@ -1589,15 +1599,17 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
-        user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(user1['id'], user1)
+        password = user1['password']
+        user1 = self.identity_api.create_user(user1)
+        user1['password'] = password
         user2 = self.new_user_ref(
             domain_id=domain['id'])
-        user2['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(user2['id'], user2)
+        password = user2['password']
+        user2 = self.identity_api.create_user(user2)
+        user2['password'] = password
         group1 = self.new_group_ref(
             domain_id=domain['id'])
-        self.identity_api.create_group(group1['id'], group1)
+        group1 = self.identity_api.create_group(group1)
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
         self.identity_api.add_user_to_group(user2['id'],
@@ -1693,11 +1705,12 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         self.assignment_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
-        user1['password'] = uuid.uuid4().hex
-        self.identity_api.create_user(user1['id'], user1)
+        password = user1['password']
+        user1 = self.identity_api.create_user(user1)
+        user1['password'] = password
         group1 = self.new_group_ref(
             domain_id=domain['id'])
-        self.identity_api.create_group(group1['id'], group1)
+        group1 = self.identity_api.create_group(group1)
         project1 = self.new_project_ref(
             domain_id=domain['id'])
         self.assignment_api.create_project(project1['id'], project1)
@@ -1896,7 +1909,9 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(UserSelfServiceChangingPasswordsTestCase, self).setUp()
         self.user_ref = self.new_user_ref(domain_id=self.domain['id'])
-        self.identity_api.create_user(self.user_ref['id'], self.user_ref)
+        password = self.user_ref['password']
+        self.user_ref = self.identity_api.create_user(self.user_ref)
+        self.user_ref['password'] = password
         self.token = self.get_request_token(self.user_ref['password'], 201)
 
     def get_request_token(self, password, expected_status):

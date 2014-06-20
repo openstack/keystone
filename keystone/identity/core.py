@@ -17,6 +17,7 @@
 import abc
 import functools
 import os
+import uuid
 
 from oslo.config import cfg
 import six
@@ -278,9 +279,9 @@ class Manager(manager.Manager):
             ref = self._set_domain_id(ref, domain_id)
         return ref
 
-    @notifications.created(_USER)
+    @notifications.created(_USER, result_id_arg_attr='id')
     @domains_configured
-    def create_user(self, user_id, user_ref):
+    def create_user(self, user_ref):
         user = user_ref.copy()
         user['name'] = clean.user_name(user['name'])
         user.setdefault('enabled', True)
@@ -291,7 +292,8 @@ class Manager(manager.Manager):
         driver = self._select_identity_driver(domain_id)
         if not driver.is_domain_aware():
             user = self._clear_domain_id(user)
-        ref = driver.create_user(user_id, user)
+        user['id'] = uuid.uuid4().hex
+        ref = driver.create_user(user['id'], user)
         if not driver.is_domain_aware():
             ref = self._set_domain_id(ref, domain_id)
         return ref
@@ -354,9 +356,9 @@ class Manager(manager.Manager):
         self.credential_api.delete_credentials_for_user(user_id)
         self.token_api.delete_tokens_for_user(user_id)
 
-    @notifications.created(_GROUP)
+    @notifications.created(_GROUP, result_id_arg_attr='id')
     @domains_configured
-    def create_group(self, group_id, group_ref):
+    def create_group(self, group_ref):
         group = group_ref.copy()
         group.setdefault('description', '')
 
@@ -365,7 +367,8 @@ class Manager(manager.Manager):
         driver = self._select_identity_driver(domain_id)
         if not driver.is_domain_aware():
             group = self._clear_domain_id(group)
-        ref = driver.create_group(group_id, group)
+        group['id'] = uuid.uuid4().hex
+        ref = driver.create_group(group['id'], group)
         if not driver.is_domain_aware():
             ref = self._set_domain_id(ref, domain_id)
         return ref

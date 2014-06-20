@@ -209,10 +209,11 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
     def setUp(self):
         super(TestCredentialTrustScoped, self).setUp()
 
-        self.trustee_user_id = uuid.uuid4().hex
         self.trustee_user = self.new_user_ref(domain_id=self.domain_id)
-        self.trustee_user['id'] = self.trustee_user_id
-        self.identity_api.create_user(self.trustee_user_id, self.trustee_user)
+        password = self.trustee_user['password']
+        self.trustee_user = self.identity_api.create_user(self.trustee_user)
+        self.trustee_user['password'] = password
+        self.trustee_user_id = self.trustee_user['id']
 
     def config_overrides(self):
         super(TestCredentialTrustScoped, self).config_overrides()

@@ -479,6 +479,7 @@ class TestCase(BaseTestCase):
                         tenant['id'], tenant)
                 except exception.Conflict:
                     rv = self.assignment_api.get_project(tenant['id'])
+
                 attrname = 'tenant_%s' % tenant['id']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
@@ -496,15 +497,28 @@ class TestCase(BaseTestCase):
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
                 try:
-                    self.identity_api.create_user(user['id'], user_copy)
-                except exception.Conflict:
+                    existing_user = getattr(self, 'user_%s' % user['id'], None)
+                    if existing_user is not None:
+                        self.identity_api.delete_user(existing_user['id'])
+                except exception.UserNotFound:
                     pass
+
+                # For users, the manager layer will generate the ID
+                user_copy = self.identity_api.create_user(user_copy)
+                # Our tests expect that the password is still in the user
+                # record so that they can reference it, so put it back into
+                # the dict returned.
+                user_copy['password'] = user['password']
+
                 for tenant_id in tenants:
                     try:
-                        self.assignment_api.add_user_to_project(tenant_id,
-                                                                user['id'])
+                        self.assignment_api.add_user_to_project(
+                            tenant_id, user_copy['id'])
                     except exception.Conflict:
                         pass
+                # Use the ID from the fixture as the attribute name, so
+                # that our tests can easily reference each user dict, while
+                # the ID in the dict will be the real public ID.
                 attrname = 'user_%s' % user['id']
                 setattr(self, attrname, user_copy)
                 fixtures_to_cleanup.append(attrname)

@@ -142,11 +142,10 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         USER_COUNT = 2
 
         for x in range(0, USER_COUNT):
-            new_user = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                        'password': uuid.uuid4().hex, 'enabled': True,
-                        'domain_id': domain['id']}
+            new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                        'enabled': True, 'domain_id': domain['id']}
+            new_user = self.identity_api.create_user(new_user)
             test_users.append(new_user)
-            self.identity_api.create_user(new_user['id'], new_user)
         positive_user = test_users[0]
         negative_user = test_users[1]
 
@@ -156,10 +155,9 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
             self.assertEqual(len(group_refs), 0)
 
         for x in range(0, GROUP_COUNT):
-            new_group = {'id': uuid.uuid4().hex,
-                         'domain_id': domain['id'],
+            new_group = {'domain_id': domain['id'],
                          'name': uuid.uuid4().hex}
-            self.identity_api.create_group(new_group['id'], new_group)
+            new_group = self.identity_api.create_group(new_group)
             test_groups.append(new_group)
 
             group_refs = self.identity_api.list_groups_for_user(
