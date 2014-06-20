@@ -96,6 +96,18 @@ class Domain(Base):
         return user_ref
 
 
+@dependency.requires('assignment_api', 'identity_api')
+class KerberosDomain(Domain):
+    """Allows `kerberos` as a method."""
+    method = 'kerberos'
+
+    def _authenticate(self, remote_user, context):
+        auth_type = context['environment'].get('AUTH_TYPE')
+        if auth_type != 'Negotiate':
+            raise exception.Unauthorized(_("auth_type is not Negotiate"))
+        return super(KerberosDomain, self)._authenticate(remote_user, context)
+
+
 class ExternalDefault(DefaultDomain):
     """Deprecated. Please use keystone.auth.external.DefaultDomain instead."""
 

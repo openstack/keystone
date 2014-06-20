@@ -1115,7 +1115,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
     def build_authentication_request(self, token=None, user_id=None,
                                      username=None, user_domain_id=None,
                                      user_domain_name=None, password=None,
-                                     **kwargs):
+                                     kerberos=False, **kwargs):
         """Build auth dictionary.
 
         It will create an auth dictionary based on all the arguments
@@ -1123,6 +1123,9 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
         """
         auth_data = {}
         auth_data['identity'] = {'methods': []}
+        if kerberos:
+            auth_data['identity']['methods'].append('kerberos')
+            auth_data['identity']['kerberos'] = {}
         if token:
             auth_data['identity']['methods'].append('token')
             auth_data['identity']['token'] = self.build_token_auth(token)
@@ -1135,12 +1138,15 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
         return {'auth': auth_data}
 
     def build_external_auth_request(self, remote_user,
-                                    remote_domain=None, auth_data=None):
-        context = {'environment': {'REMOTE_USER': remote_user}}
+                                    remote_domain=None, auth_data=None,
+                                    kerberos=False):
+        context = {'environment': {'REMOTE_USER': remote_user,
+                                   'AUTH_TYPE': 'Negotiate'}}
         if remote_domain:
             context['environment']['REMOTE_DOMAIN'] = remote_domain
         if not auth_data:
-            auth_data = self.build_authentication_request()['auth']
+            auth_data = self.build_authentication_request(
+                kerberos=kerberos)['auth']
         no_context = None
         auth_info = auth.controllers.AuthInfo.create(no_context, auth_data)
         auth_context = {'extras': {}, 'method_names': []}

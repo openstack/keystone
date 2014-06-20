@@ -1522,6 +1522,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestAuthExternalDomain, self).config_overrides()
+        self.kerberos = False
         self.config_fixture.config(
             group='auth',
             methods=['keystone.auth.plugins.external.Domain',
@@ -1533,7 +1534,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         remote_user = self.user['name']
         remote_domain = self.domain['name']
         context, auth_info, auth_context = self.build_external_auth_request(
-            remote_user, remote_domain=remote_domain)
+            remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
 
         api.authenticate(context, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'], self.user['id'])
@@ -1544,7 +1545,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         self.identity_api.update_user(self.user['id'], user)
         remote_user = user['name']
         context, auth_info, auth_context = self.build_external_auth_request(
-            remote_user, remote_domain=remote_domain)
+            remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
 
         api.authenticate(context, auth_info, auth_context)
         self.assertEqual(auth_context['user_id'], self.user['id'])
@@ -1552,7 +1553,8 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
     def test_project_id_scoped_with_remote_user(self):
         CONF.token.bind = ['kerberos']
         auth_data = self.build_authentication_request(
-            project_id=self.project['id'])
+            project_id=self.project['id'],
+            kerberos=self.kerberos)
         remote_user = self.user['name']
         remote_domain = self.domain['name']
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
@@ -1564,7 +1566,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
 
     def test_unscoped_bind_with_remote_user(self):
         CONF.token.bind = ['kerberos']
-        auth_data = self.build_authentication_request()
+        auth_data = self.build_authentication_request(kerberos=self.kerberos)
         remote_user = self.user['name']
         remote_domain = self.domain['name']
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
@@ -1573,6 +1575,19 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens', body=auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertEqual(token['bind']['kerberos'], self.user['name'])
+
+
+class TestAuthKerberos(TestAuthExternalDomain):
+
+    def config_overrides(self):
+        super(TestAuthKerberos, self).config_overrides()
+        self.kerberos = True
+
+        self.config_fixture.config(
+            group='auth',
+            methods=['keystone.auth.plugins.external.KerberosDomain',
+                     'keystone.auth.plugins.password.Password',
+                     'keystone.auth.plugins.token.Token'])
 
 
 class TestAuthJSON(test_v3.RestfulTestCase):
