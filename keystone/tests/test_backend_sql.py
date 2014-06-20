@@ -24,6 +24,7 @@ from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
 from keystone.openstack.common.db import exception as db_exception
+from keystone.openstack.common.db import options
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -523,3 +524,12 @@ class SqlDecorators(tests.TestCase):
 
     def test_not_conflict_error(self):
         self.assertRaises(KeyError, FakeTable().lookup)
+
+
+class SqlModuleInitialization(tests.TestCase):
+
+    @mock.patch.object(options, 'set_defaults')
+    def test_initialize_module(self, set_defaults):
+        sql.initialize()
+        set_defaults.assert_called_with(sql_connection='sqlite:///keystone.db',
+                                        sqlite_db='keystone.db')
