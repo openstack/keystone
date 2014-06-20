@@ -533,5 +533,4 @@ class SqlModuleInitialization(tests.TestCase):
     def test_initialize_module(self, set_defaults, CONF):
         sql.initialize()
         set_defaults.assert_called_with(CONF,
-                                        connection='sqlite:///keystone.db',
-                                        sqlite_db='keystone.db')
+                                        connection='sqlite:///keystone.db')
