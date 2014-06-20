@@ -31,13 +31,13 @@ To run these tests against a live database:
    all data will be lost.
 """
 
+from oslo.db.sqlalchemy import utils
 
 from keystone.contrib import endpoint_filter
 from keystone.contrib import example
 from keystone.contrib import federation
 from keystone.contrib import oauth1
 from keystone.contrib import revoke
-from keystone.openstack.common.db.sqlalchemy import utils
 from keystone.tests import test_sql_upgrade
 
 

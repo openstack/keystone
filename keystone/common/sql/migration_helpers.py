@@ -19,6 +19,7 @@ import sys
 
 import migrate
 from migrate import exceptions
+from oslo.db.sqlalchemy import migration
 import sqlalchemy
 
 from keystone.common import sql
@@ -26,7 +27,6 @@ from keystone.common.sql import migrate_repo
 from keystone import config
 from keystone import contrib
 from keystone import exception
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils

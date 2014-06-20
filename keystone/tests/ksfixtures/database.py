@@ -16,12 +16,12 @@ import os
 import shutil
 
 import fixtures
+from oslo.db import options as db_options
+from oslo.db.sqlalchemy import migration
 
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone import config
-from keystone.openstack.common.db import options as db_options
-from keystone.openstack.common.db.sqlalchemy import migration
 from keystone import tests
 
 
@@ -59,13 +59,15 @@ def _setup_database(extensions=None):
             shutil.copyfile(pristine, db)
 
 
-@run_once
+# NOTE(I159): Every execution all the options will be cleared. The method must
+# be called at the every fixture initialization.
 def initialize_sql_session():
     # Make sure the DB is located in the correct location, in this case set
     # the default value, as this should be able to be overridden in some
     # test cases.
     db_options.set_defaults(
-        sql_connection=tests.IN_MEM_DB_CONN_STRING,
+        CONF,
+        connection=tests.IN_MEM_DB_CONN_STRING,
         sqlite_db=tests.DEFAULT_TEST_DB_FILE)
 
 
