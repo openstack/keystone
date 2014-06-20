@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2013 Metacloud, Inc.
 # Copyright 2012 OpenStack Foundation
 #
