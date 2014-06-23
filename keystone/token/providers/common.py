@@ -34,7 +34,8 @@ CONF = config.CONF
 class V2TokenDataHelper(object):
     """Creates V2 token data."""
     @classmethod
-    def format_token(cls, token_ref, roles_ref=None, catalog_ref=None):
+    def format_token(cls, token_ref, roles_ref=None, catalog_ref=None,
+                     trust_ref=None):
         audit_info = None
         user_ref = token_ref['user']
         metadata_ref = token_ref['metadata']
@@ -84,10 +85,14 @@ class V2TokenDataHelper(object):
                 o['access']['metadata'] = {'is_admin': 0}
         if 'roles' in metadata_ref:
             o['access']['metadata']['roles'] = metadata_ref['roles']
-        if CONF.trust.enabled and 'trust_id' in metadata_ref:
+        if CONF.trust.enabled and trust_ref:
             o['access']['trust'] = {'trustee_user_id':
-                                    metadata_ref['trustee_user_id'],
-                                    'id': metadata_ref['trust_id']
+                                    trust_ref['trustee_user_id'],
+                                    'id': trust_ref['id'],
+                                    'trustor_user_id':
+                                    trust_ref['trustor_user_id'],
+                                    'impersonation':
+                                    trust_ref['impersonation']
                                     }
         return o
 
@@ -401,8 +406,13 @@ class BaseProvider(provider.Provider):
 
     def issue_v2_token(self, token_ref, roles_ref=None,
                        catalog_ref=None):
+        metadata_ref = token_ref['metadata']
+        trust_ref = None
+        if CONF.trust.enabled and metadata_ref and 'trust_id' in metadata_ref:
+            trust_ref = self.trust_api.get_trust(metadata_ref['trust_id'])
+
         token_data = self.v2_token_data_helper.format_token(
-            token_ref, roles_ref, catalog_ref)
+            token_ref, roles_ref, catalog_ref, trust_ref)
         token_id = self._get_token_id(token_data)
         token_data['access']['token']['id'] = token_id
         return token_id, token_data
@@ -551,8 +561,14 @@ class BaseProvider(provider.Provider):
                         token_ref['user']['id'],
                         token_ref['tenant']['id'],
                         metadata_ref)
+
+                trust_ref = None
+                if CONF.trust.enabled and 'trust_id' in metadata_ref:
+                    trust_ref = self.trust_api.get_trust(
+                        metadata_ref['trust_id'])
+
                 token_data = self.v2_token_data_helper.format_token(
-                    token_ref, roles_ref, catalog_ref)
+                    token_ref, roles_ref, catalog_ref, trust_ref)
             return token_data
         except exception.ValidationError as e:
             LOG.exception(_('Failed to validate token'))
