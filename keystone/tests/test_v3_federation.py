@@ -770,8 +770,6 @@ class FederatedTokenTests(FederationTests):
         }
     }
 
-    AUTH_URL = '/auth/tokens'
-
     def load_fixtures(self, fixtures):
         super(FederationTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
@@ -917,8 +915,8 @@ class FederatedTokenTests(FederationTests):
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
 
     def test_scope_to_project_once(self):
-        r = self.post(self.AUTH_URL,
-                      body=self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
+        r = self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
         token_resp = r.result['token']
         project_id = token_resp['project']['id']
         self.assertEqual(project_id, self.proj_employees['id'])
@@ -930,9 +928,9 @@ class FederatedTokenTests(FederationTests):
     def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
 
-        self.post(self.AUTH_URL,
-                  body=self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
-                  expected_status=401)
+        self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
+            expected_status=401)
 
     def test_scope_to_project_multiple_times(self):
         """Try to scope the unscoped token multiple times.
@@ -949,7 +947,7 @@ class FederatedTokenTests(FederationTests):
         project_ids = (self.proj_employees['id'],
                        self.proj_customers['id'])
         for body, project_id_ref in zip(bodies, project_ids):
-            r = self.post(self.AUTH_URL, body=body)
+            r = self.v3_authenticate_token(body)
             token_resp = r.result['token']
             project_id = token_resp['project']['id']
             self.assertEqual(project_id, project_id_ref)
@@ -957,9 +955,9 @@ class FederatedTokenTests(FederationTests):
 
     def test_scope_token_from_nonexistent_unscoped_token(self):
         """Try to scope token from non-existent unscoped token."""
-        self.post(self.AUTH_URL,
-                  body=self.TOKEN_SCOPE_PROJECT_FROM_NONEXISTENT_TOKEN,
-                  expected_status=404)
+        self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_FROM_NONEXISTENT_TOKEN,
+            expected_status=404)
 
     def test_issue_token_from_rules_without_user(self):
         api = auth_controllers.Auth()
@@ -981,8 +979,7 @@ class FederatedTokenTests(FederationTests):
                           assertion='CONTRACTOR_ASSERTION')
 
     def test_scope_to_domain_once(self):
-        r = self.post(self.AUTH_URL,
-                      body=self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER)
+        r = self.v3_authenticate_token(self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER)
         token_resp = r.result['token']
         domain_id = token_resp['domain']['id']
         self.assertEqual(domain_id, self.domainA['id'])
@@ -1006,7 +1003,7 @@ class FederatedTokenTests(FederationTests):
                       self.domainC['id'])
 
         for body, domain_id_ref in zip(bodies, domain_ids):
-            r = self.post(self.AUTH_URL, body=body)
+            r = self.v3_authenticate_token(body)
             token_resp = r.result['token']
             domain_id = token_resp['domain']['id']
             self.assertEqual(domain_id, domain_id_ref)
@@ -1072,7 +1069,7 @@ class FederatedTokenTests(FederationTests):
         v3_scope_request = self._scope_request(employee_unscoped_token_id,
                                                'project', project['id'])
 
-        r = self.post(self.AUTH_URL, body=v3_scope_request)
+        r = self.v3_authenticate_token(v3_scope_request)
         token_resp = r.result['token']
         project_id = token_resp['project']['id']
         self.assertEqual(project_id, project['id'])
@@ -1147,9 +1144,7 @@ class FederatedTokenTests(FederationTests):
             token_id, 'project',
             self.project_all['id'])
 
-        self.post(self.AUTH_URL,
-                  body=scoped_token,
-                  expected_status=500)
+        self.v3_authenticate_token(scoped_token, expected_status=500)
 
     def test_assertion_prefix_parameter(self):
         """Test parameters filtering based on the prefix.

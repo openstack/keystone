@@ -238,7 +238,7 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
             user_id=self.trustee_user['id'],
             password=self.trustee_user['password'],
             trust_id=trust['id'])
-        r = self.post('/auth/tokens', body=auth_data)
+        r = self.v3_authenticate_token(auth_data)
         self.assertValidProjectTrustScopedTokenResponse(r, self.user)
         trust_id = r.result['token']['OS-TRUST:trust']['id']
         token_id = r.headers.get('X-Subject-Token')
