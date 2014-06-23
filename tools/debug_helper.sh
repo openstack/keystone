@@ -8,8 +8,7 @@ TESTS_TO_RUN=$TMP_DIR/ks_to_run
 
 python -m testtools.run discover -t ./ ./keystone/tests --list > $ALL_TESTS
 
-if [ "$1" ]
-then
+if [ "$1" ]; then
     grep "$1" < $ALL_TESTS > $TESTS_TO_RUN
 else
     mv $ALL_TESTS $TESTS_TO_RUN
