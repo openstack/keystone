@@ -89,15 +89,14 @@ FILE_OPTIONS = {
                    default='9fe2ff9ee4384b1894a90878d3e92bab',
                    help='During a SQL upgrade member_role_id will be used '
                         'to create a new role that will replace records in '
-                        'the user_tenant_membership table with explicit '
-                        'role grants. After migration, the member_role_id '
-                        'will be used in the API add_user_to_project.'),
+                        'the assignment table with explicit role grants. '
+                        'After migration, the member_role_id will be used in '
+                        'the API add_user_to_project.'),
         cfg.StrOpt('member_role_name', default='_member_',
                    help='During a SQL upgrade member_role_name will be used '
                         'to create a new role that will replace records in '
-                        'the user_tenant_membership table with explicit '
-                        'role grants. After migration, member_role_name will '
-                        'be ignored.'),
+                        'the assignment table with explicit role grants. '
+                        'After migration, member_role_name will be ignored.'),
         cfg.IntOpt('crypt_strength', default=40000,
                    help='The value passed as the keyword "rounds" to '
                         'passlib\'s encrypt method.'),
