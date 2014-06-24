@@ -467,7 +467,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertEqual(len(endpoints), 1)
         endpoint_v3 = endpoints.pop()
 
-        # these attributes are identical between both API's
+        # these attributes are identical between both APIs
         self.assertEqual(endpoint_v3['region'], ref['region'])
         self.assertEqual(endpoint_v3['service_id'], ref['service_id'])
         self.assertEqual(endpoint_v3['description'], ref['description'])

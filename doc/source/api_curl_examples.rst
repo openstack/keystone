@@ -412,7 +412,7 @@ List the services:
       -H "X-Auth-Token: $OS_TOKEN" \
       http://localhost:5000/v3/services | python -mjson.tool
 
-Example reponse:
+Example response:
 
 .. code-block:: javascript
 

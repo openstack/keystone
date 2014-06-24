@@ -75,7 +75,7 @@ following sections:
 * ``[sql]`` - optional storage backend configuration
 * ``[ec2]`` - Amazon EC2 authentication driver configuration
 * ``[s3]`` - Amazon S3 authentication driver configuration.
-* ``[oauth1]`` - Oauth 1.0a system driver configuration
+* ``[oauth1]`` - OAuth 1.0a system driver configuration
 * ``[identity]`` - identity system driver configuration
 * ``[catalog]`` - service catalog driver configuration
 * ``[token]`` - token driver & token provider configuration
@@ -402,10 +402,10 @@ When using signing certificate issued by an external CA, you do not need to
 specify ``key_size``, ``valid_days`` and ``ca_key`` as they
 will be ignored.
 
-The basic workflow for using a signing certificate issed by an external CA involves:
+The basic workflow for using a signing certificate issued by an external CA involves:
 
 1. `Request Signing Certificate from External CA`_
-2. convert certificate and private key to PEM if needed
+2. Convert certificate and private key to PEM if needed
 3. `Install External Signing Certificate`_
 
 
@@ -537,11 +537,11 @@ the ``[DEFAULT] use_syslog`` option.
 
 A sample ``log_config`` file is included with the project at
 ``etc/logging.conf.sample``. Like other OpenStack projects, Keystone uses the
-`python logging module`, which includes extensive configuration options for
+`Python logging module`, which includes extensive configuration options for
 choosing the output levels and formats.
 
 .. _Paste: http://pythonpaste.org/
-.. _`python logging module`: http://docs.python.org/library/logging.html
+.. _`Python logging module`: http://docs.python.org/library/logging.html
 
 Monitoring
 ----------
@@ -672,14 +672,14 @@ Each user can then change their own password with a HTTP PATCH ::
     -H "X_Auth_Token: <authtokenid>" -d '{"user": {"password": "ABCD", "original_password": "DCBA"}}'
 
 In addition to changing their password all of the users current tokens will be
-deleted (if the backend used is sql)
+deleted (if the backend used is SQL)
 
 
 Inherited Role Assignment Extension
 -----------------------------------
 
 Keystone provides an optional extension that adds the capability to assign roles to a domain that, rather than
-affect the domain itself, are instead inherited to all projects owned by theat domain.  This extension is disabled by
+affect the domain itself, are instead inherited to all projects owned by that domain.  This extension is disabled by
 default, but can be enabled by including the following in ``keystone.conf``::
 
     [os_inherit]
@@ -843,7 +843,7 @@ List of object attributes:
 The default policy.json file supplied provides a somewhat basic example of
 API protection, and does not assume any particular use of domains. For
 multi-domain configuration installations where, for example, a cloud
-provider wishes to allow adminsistration of the contents of a domain to
+provider wishes to allow administration of the contents of a domain to
 be delegated, it is recommended that the supplied policy.v3cloudsample.json
 is used as a basis for creating a suitable production policy file. This
 example policy file also shows the use of an admin_domain to allow a cloud
@@ -1296,7 +1296,7 @@ Configuring the LDAP Identity Provider
 
 As an alternative to the SQL Database backing store, Keystone can use a
 directory server to provide the Identity service.  An example Schema
-for openstack would look like this::
+for OpenStack would look like this::
 
   dn: dc=openstack,dc=org
   dc: openstack

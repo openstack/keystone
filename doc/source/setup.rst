@@ -71,7 +71,7 @@ Keystone maintains two lists of dependencies::
 
 The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of keystone itself.
 
-These dependencies can be installed from PyPi_ using the python tool pip_.
+These dependencies can be installed from PyPi_ using the Python tool pip_.
 
 .. _PyPi: http://pypi.python.org/
 .. _pip: http://pypi.python.org/pypi/pip
@@ -99,8 +99,8 @@ Mac OS X 10.9 (requires Homebrew_)::
 PyPi Packages and VirtualEnv
 ----------------------------
 
-We recommend establishing a virtualenv to run keystone within. Virtualenv
-limits the python environment to just what you're installing as dependencies,
+We recommend establishing a virtualenv to run keystone within. virtualenv
+limits the Python environment to just what you're installing as dependencies,
 useful to keep a clean environment for working on Keystone. The tools directory
 in keystone has a script already created to make this very simple::
 
@@ -130,7 +130,7 @@ dependencies directly into your system from the requires files::
     # Install the dependencies for developing, testing, and running keystone
     $ pip install -r test-requirements.txt
 
-    # Use python setup.py to link Keystone into python's site-packages
+    # Use 'python setup.py' to link Keystone into Python's site-packages
     $ python setup.py develop
 
 
@@ -138,7 +138,7 @@ Verifying Keystone is set up
 ============================
 
 Once set up, either directly or within a virtualenv, you should be able to
-invoke python and import the libraries. If you're using a virtualenv, don't
+invoke Python and import the libraries. If you're using a virtualenv, don't
 forget to activate it::
 
     $ source .venv/bin/activate
