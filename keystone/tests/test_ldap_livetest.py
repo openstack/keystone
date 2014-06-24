@@ -68,7 +68,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         create_object(CONF.ldap.role_tree_dn,
                       {'objectclass': 'organizationalUnit',
                        'ou': 'Roles'})
-        create_object(CONF.ldap.tenant_tree_dn,
+        create_object(CONF.ldap.project_tree_dn,
                       {'objectclass': 'organizationalUnit',
                        'ou': 'Projects'})
         create_object(CONF.ldap.group_tree_dn,

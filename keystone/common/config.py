@@ -527,44 +527,76 @@ FILE_OPTIONS = {
                          'ldap_attr is the attribute in the LDAP entry and '
                          'user_attr is the Identity API attribute.'),
 
-        cfg.StrOpt('tenant_tree_dn', default=None,
+        cfg.StrOpt('project_tree_dn', default=None,
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_tree_dn', group='ldap')],
                    help='Search base for projects'),
-        cfg.StrOpt('tenant_filter', default=None,
+        cfg.StrOpt('project_filter', default=None,
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_filter', group='ldap')],
                    help='LDAP search filter for projects.'),
-        cfg.StrOpt('tenant_objectclass', default='groupOfNames',
+        cfg.StrOpt('project_objectclass', default='groupOfNames',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_objectclass', group='ldap')],
                    help='LDAP objectclass for projects.'),
-        cfg.StrOpt('tenant_id_attribute', default='cn',
+        cfg.StrOpt('project_id_attribute', default='cn',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_id_attribute', group='ldap')],
                    help='LDAP attribute mapped to project id.'),
-        cfg.StrOpt('tenant_member_attribute', default='member',
+        cfg.StrOpt('project_member_attribute', default='member',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_member_attribute', group='ldap')],
                    help='LDAP attribute mapped to project membership for '
                         'user.'),
-        cfg.StrOpt('tenant_name_attribute', default='ou',
+        cfg.StrOpt('project_name_attribute', default='ou',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_name_attribute', group='ldap')],
                    help='LDAP attribute mapped to project name.'),
-        cfg.StrOpt('tenant_desc_attribute', default='description',
+        cfg.StrOpt('project_desc_attribute', default='description',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_desc_attribute', group='ldap')],
                    help='LDAP attribute mapped to project description.'),
-        cfg.StrOpt('tenant_enabled_attribute', default='enabled',
+        cfg.StrOpt('project_enabled_attribute', default='enabled',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_enabled_attribute', group='ldap')],
                    help='LDAP attribute mapped to project enabled.'),
-        cfg.StrOpt('tenant_domain_id_attribute',
+        cfg.StrOpt('project_domain_id_attribute',
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_domain_id_attribute', group='ldap')],
                    default='businessCategory',
                    help='LDAP attribute mapped to project domain_id.'),
-        cfg.ListOpt('tenant_attribute_ignore', default=[],
+        cfg.ListOpt('project_attribute_ignore', default=[],
+                    deprecated_opts=[cfg.DeprecatedOpt(
+                        'tenant_attribute_ignore', group='ldap')],
                     help='List of attributes stripped off the project on '
                          'update.'),
-        cfg.BoolOpt('tenant_allow_create', default=True,
+        cfg.BoolOpt('project_allow_create', default=True,
+                    deprecated_opts=[cfg.DeprecatedOpt(
+                        'tenant_allow_create', group='ldap')],
                     help='Allow project creation in LDAP backend.'),
-        cfg.BoolOpt('tenant_allow_update', default=True,
+        cfg.BoolOpt('project_allow_update', default=True,
+                    deprecated_opts=[cfg.DeprecatedOpt(
+                        'tenant_allow_update', group='ldap')],
                     help='Allow project update in LDAP backend.'),
-        cfg.BoolOpt('tenant_allow_delete', default=True,
+        cfg.BoolOpt('project_allow_delete', default=True,
+                    deprecated_opts=[cfg.DeprecatedOpt(
+                        'tenant_allow_delete', group='ldap')],
                     help='Allow project deletion in LDAP backend.'),
-        cfg.BoolOpt('tenant_enabled_emulation', default=False,
+        cfg.BoolOpt('project_enabled_emulation', default=False,
+                    deprecated_opts=[cfg.DeprecatedOpt(
+                        'tenant_enabled_emulation', group='ldap')],
                     help='If true, Keystone uses an alternative method to '
                          'determine if a project is enabled or not by '
                          'checking if they are a member of the '
-                         '"tenant_enabled_emulation_dn" group.'),
-        cfg.StrOpt('tenant_enabled_emulation_dn', default=None,
+                         '"project_enabled_emulation_dn" group.'),
+        cfg.StrOpt('project_enabled_emulation_dn', default=None,
+                   deprecated_opts=[cfg.DeprecatedOpt(
+                       'tenant_enabled_emulation_dn', group='ldap')],
                    help='DN of the group entry to hold enabled projects when '
                         'using enabled emulation.'),
-        cfg.ListOpt('tenant_additional_attribute_mapping',
+        cfg.ListOpt('project_additional_attribute_mapping',
+                    deprecated_opts=[cfg.DeprecatedOpt(
+                        'tenant_additional_attribute_mapping', group='ldap')],
                     default=[],
                     help='Additional attribute mappings for projects. '
                          'Attribute mapping format is '

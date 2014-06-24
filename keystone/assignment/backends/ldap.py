@@ -409,7 +409,7 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     DEFAULT_MEMBER_ATTRIBUTE = 'member'
     NotFound = exception.ProjectNotFound
     notfound_arg = 'project_id'  # NOTE(yorik-sar): while options_name = tenant
-    options_name = 'tenant'
+    options_name = 'project'
     attribute_options_names = {'name': 'name',
                                'description': 'desc',
                                'enabled': 'enabled',
@@ -419,7 +419,7 @@ class ProjectApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
 
     def __init__(self, conf):
         super(ProjectApi, self).__init__(conf)
-        self.member_attribute = (getattr(conf.ldap, 'tenant_member_attribute')
+        self.member_attribute = (getattr(conf.ldap, 'project_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
     def create(self, values):
