@@ -122,8 +122,8 @@ Keystone clients can use to automatically detect available API versions.
 
     {"versions": {"values": [ ... ]}}
 
-With an unversioned ``identity`` endpoints in the service catalog, you should
-be able to `authenticate with keystoneclient`_ successfully.
+With unversioned ``identity`` endpoints in the service catalog, you should be
+able to `authenticate with keystoneclient`_ successfully.
 
 .. _`latest sample configuration`: https://github.com/openstack/keystone/blob/master/etc/keystone-paste.ini
 .. _`authenticate with keystoneclient`: http://docs.openstack.org/developer/python-keystoneclient/using-api-v3.html#authenticating
