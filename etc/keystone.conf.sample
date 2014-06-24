@@ -948,60 +948,60 @@
 #user_additional_attribute_mapping=
 
 # Search base for projects (string value)
-#tenant_tree_dn=<None>
+#project_tree_dn=<None>
 
 # LDAP search filter for projects. (string value)
-#tenant_filter=<None>
+#project_filter=<None>
 
 # LDAP objectclass for projects. (string value)
-#tenant_objectclass=groupOfNames
+#project_objectclass=groupOfNames
 
 # LDAP attribute mapped to project id. (string value)
-#tenant_id_attribute=cn
+#project_id_attribute=cn
 
 # LDAP attribute mapped to project membership for user.
 # (string value)
-#tenant_member_attribute=member
+#project_member_attribute=member
 
 # LDAP attribute mapped to project name. (string value)
-#tenant_name_attribute=ou
+#project_name_attribute=ou
 
 # LDAP attribute mapped to project description. (string value)
-#tenant_desc_attribute=description
+#project_desc_attribute=description
 
 # LDAP attribute mapped to project enabled. (string value)
-#tenant_enabled_attribute=enabled
+#project_enabled_attribute=enabled
 
 # LDAP attribute mapped to project domain_id. (string value)
-#tenant_domain_id_attribute=businessCategory
+#project_domain_id_attribute=businessCategory
 
 # List of attributes stripped off the project on update. (list
 # value)
-#tenant_attribute_ignore=
+#project_attribute_ignore=
 
 # Allow project creation in LDAP backend. (boolean value)
-#tenant_allow_create=true
+#project_allow_create=true
 
 # Allow project update in LDAP backend. (boolean value)
-#tenant_allow_update=true
+#project_allow_update=true
 
 # Allow project deletion in LDAP backend. (boolean value)
-#tenant_allow_delete=true
+#project_allow_delete=true
 
 # If true, Keystone uses an alternative method to determine if
 # a project is enabled or not by checking if they are a member
-# of the "tenant_enabled_emulation_dn" group. (boolean value)
-#tenant_enabled_emulation=false
+# of the "project_enabled_emulation_dn" group. (boolean value)
+#project_enabled_emulation=false
 
 # DN of the group entry to hold enabled projects when using
 # enabled emulation. (string value)
-#tenant_enabled_emulation_dn=<None>
+#project_enabled_emulation_dn=<None>
 
 # Additional attribute mappings for projects. Attribute
 # mapping format is <ldap_attr>:<user_attr>, where ldap_attr
 # is the attribute in the LDAP entry and user_attr is the
 # Identity API attribute. (list value)
-#tenant_additional_attribute_mapping=
+#project_additional_attribute_mapping=
 
 # Search base for roles. (string value)
 #role_tree_dn=<None>

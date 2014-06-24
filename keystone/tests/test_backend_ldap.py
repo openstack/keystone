@@ -800,8 +800,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
     def test_configurable_forbidden_project_actions(self):
         self.config_fixture.config(
-            group='ldap', tenant_allow_create=False, tenant_allow_update=False,
-            tenant_allow_delete=False)
+            group='ldap', project_allow_create=False,
+            project_allow_update=False, project_allow_delete=False)
         self.load_backends()
 
         tenant = {'id': u'fäké1', 'name': u'fäké1'}
@@ -860,9 +860,9 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
         self.config_fixture.config(group='ldap',
-                                   tenant_filter='(CN=DOES_NOT_MATCH)')
+                                   project_filter='(CN=DOES_NOT_MATCH)')
         self.load_backends()
-        # NOTE(morganfainberg): CONF.ldap.tenant_filter  will not be
+        # NOTE(morganfainberg): CONF.ldap.project_filter  will not be
         # dynamically changed at runtime. This invalidate is a work-around for
         # the expectation that it is safe to change config values in tests that
         # could affect what the drivers would return up to the manager.  This
@@ -908,15 +908,15 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
     def test_project_attribute_mapping(self):
         self.config_fixture.config(
-            group='ldap', tenant_name_attribute='ou',
-            tenant_desc_attribute='description',
-            tenant_enabled_attribute='enabled')
+            group='ldap', project_name_attribute='ou',
+            project_desc_attribute='description',
+            project_enabled_attribute='enabled')
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
-        # NOTE(morganfainberg): CONF.ldap.tenant_name_attribute,
-        # CONF.ldap.tenant_desc_attribute, and
-        # CONF.ldap.tenant_enabled_attribute will not be
+        # NOTE(morganfainberg): CONF.ldap.project_name_attribute,
+        # CONF.ldap.project_desc_attribute, and
+        # CONF.ldap.project_enabled_attribute will not be
         # dynamically changed at runtime. This invalidate is a work-around for
         # the expectation that it is safe to change config values in tests that
         # could affect what the drivers would return up to the manager.  This
@@ -933,12 +933,12 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertEqual(self.tenant_baz['enabled'], tenant_ref['enabled'])
 
         self.config_fixture.config(group='ldap',
-                                   tenant_name_attribute='description',
-                                   tenant_desc_attribute='ou')
+                                   project_name_attribute='description',
+                                   project_desc_attribute='ou')
         self.load_backends()
-        # NOTE(morganfainberg): CONF.ldap.tenant_name_attribute,
-        # CONF.ldap.tenant_desc_attribute, and
-        # CONF.ldap.tenant_enabled_attribute will not be
+        # NOTE(morganfainberg): CONF.ldap.project_name_attribute,
+        # CONF.ldap.project_desc_attribute, and
+        # CONF.ldap.project_enabled_attribute will not be
         # dynamically changed at runtime. This invalidate is a work-around for
         # the expectation that it is safe to change config values in tests that
         # could affect what the drivers would return up to the manager.  This
@@ -955,11 +955,11 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
     def test_project_attribute_ignore(self):
         self.config_fixture.config(
             group='ldap',
-            tenant_attribute_ignore=['name', 'description', 'enabled'])
+            project_attribute_ignore=['name', 'description', 'enabled'])
         self.clear_database()
         self.load_backends()
         self.load_fixtures(default_fixtures)
-        # NOTE(morganfainberg): CONF.ldap.tenant_attribute_ignore will not be
+        # NOTE(morganfainberg): CONF.ldap.project_attribute_ignore will not be
         # dynamically changed at runtime. This invalidate is a work-around for
         # the expectation that it is safe to change configs values in tests
         # that could affect what the drivers would return up to the manager.
@@ -1551,7 +1551,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         super(LDAPIdentityEnabledEmulation, self).config_overrides()
         self.config_fixture.config(group='ldap',
                                    user_enabled_emulation=True,
-                                   tenant_enabled_emulation=True)
+                                   project_enabled_emulation=True)
 
     def test_project_crud(self):
         # NOTE(topol): LDAPIdentityEnabledEmulation will create an
