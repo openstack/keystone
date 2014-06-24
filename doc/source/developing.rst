@@ -57,7 +57,7 @@ Interacting with Keystone
 You can interact with Keystone through the command line using
 :doc:`man/keystone-manage` which allows you to initialize keystone, etc.
 
-You can also interact with Keystone through its REST API. There is a python
+You can also interact with Keystone through its REST API. There is a Python
 keystone client library `python-keystoneclient`_ which interacts exclusively
 through the REST API, and which keystone itself uses to provide its
 command-line interface.
@@ -72,7 +72,7 @@ place::
 
 If the above commands result in a ``KeyError``, or they fail on a
 ``.pyc`` file with the message, ``You can only have one Python script per
-version``, then it is possible that there are out-of-date compiled python
+version``, then it is possible that there are out-of-date compiled Python
 bytecode files in the Keystone directory tree that are causing problems. This
 can occur if you have previously installed and ran older versions of Keystone.
 These out-of-date files can be easily removed by running a command like the
