@@ -28,6 +28,7 @@ if six.PY3:
     # that use it will still have access. If we don't import it now then
     # it won't be available because of how I am patching oslo below.
     import oslo.config  # noqa: need this imported before the monkey patching
+    import oslo.db  # noqa: need this imported before the monkey patching
     sys.modules['eventlet'] = mock.Mock()
     sys.modules['eventlet.green'] = mock.Mock()
     sys.modules['eventlet.wsgi'] = mock.Mock()
