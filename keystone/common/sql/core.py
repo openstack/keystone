@@ -69,8 +69,7 @@ def initialize():
 
     db_options.set_defaults(
         CONF,
-        connection="sqlite:///keystone.db",
-        sqlite_db="keystone.db")
+        connection="sqlite:///keystone.db")
 
 
 def initialize_decorator(init):

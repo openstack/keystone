@@ -67,8 +67,7 @@ def initialize_sql_session():
     # test cases.
     db_options.set_defaults(
         CONF,
-        connection=tests.IN_MEM_DB_CONN_STRING,
-        sqlite_db=tests.DEFAULT_TEST_DB_FILE)
+        connection=tests.IN_MEM_DB_CONN_STRING)
 
 
 @run_once
