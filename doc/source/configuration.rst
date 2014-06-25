@@ -108,8 +108,9 @@ Domain-specific Drivers
 
 .. WARNING::
 
-    This feature is experimental and unsupported in Havana (with several known
-    issues that will not be fixed). Feedback welcome for Icehouse!
+    This feature is experimental and unsupported in Havana & Icehouse (with
+    several known issues that will not be fixed). Feedback welcome for
+    Juno!
 
 Keystone supports the option (disabled by default) to specify identity driver
 configurations on a domain by domain basis, allowing, for example, a specific
