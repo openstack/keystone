@@ -14,13 +14,6 @@
 from keystone.common import sql
 from keystone.identity.mapping_backends import sql as mapping_sql
 
-# NOTE(henry-nash): This function is defined in a separate file since it will
-# be used across multiple unit test files once the full support for cross
-# backend identifiers is implemented.
-#
-# TODO(henry-nash): Remove this comment once the full support mentioned above
-# has landed, since the reason for this separate file will be obvious.
-
 
 def list_id_mappings():
     """List all id_mappings for testing purposes."""

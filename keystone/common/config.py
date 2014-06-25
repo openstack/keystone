@@ -168,6 +168,40 @@ FILE_OPTIONS = {
                    help='Maximum number of entities that will be returned in '
                         'an identity collection.'),
     ],
+    'identity_mapping': [
+        cfg.StrOpt('driver',
+                   default=('keystone.identity.mapping_backends'
+                            '.sql.Mapping'),
+                   help='Keystone Identity Mapping backend driver.'),
+        cfg.StrOpt('generator',
+                   default=('keystone.identity.id_generators'
+                            '.sha256.Generator'),
+                   help='Public ID generator for user and group entities. '
+                        'The Keystone identity mapper only supports '
+                        'generators that produce no more than 64 characters.'),
+        cfg.BoolOpt('backward_compatible_ids',
+                    default=True,
+                    help='The format of user and group IDs changed '
+                         'in Juno for backends that do not generate UUIDs '
+                         '(e.g. LDAP), with keystone providing a hash mapping '
+                         'to the underlying attribute in LDAP. By default '
+                         'this mapping is disabled, which ensures that '
+                         'existing IDs will not change. Even when the '
+                         'mapping is enabled by using domain specific '
+                         'drivers, any users and groups from the default '
+                         'domain being handled by LDAP will still not be '
+                         'mapped to ensure their IDs remain backward '
+                         'compatible. Setting this value to False will '
+                         'enable the mapping for even the default LDAP '
+                         'driver. It is only safe to do this if you do not '
+                         'already have assignments for users and '
+                         'groups from the default LDAP domain, and it is '
+                         'acceptable for Keystone to provide the different '
+                         'IDs to clients than it did previously.  Typically '
+                         'this means that the only time you can set this '
+                         'value to False is when configuring a fresh '
+                         'installation.'),
+    ],
     'trust': [
         cfg.BoolOpt('enabled', default=True,
                     help='Delegation and impersonation features can be '

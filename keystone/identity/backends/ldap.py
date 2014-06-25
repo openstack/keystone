@@ -49,6 +49,9 @@ class Identity(identity.Driver):
     def is_domain_aware(self):
         return False
 
+    def generates_uuids(self):
+        return False
+
     # Identity interface
 
     def authenticate(self, user_id, password):
@@ -93,8 +96,6 @@ class Identity(identity.Driver):
 
     def update_user(self, user_id, user):
         self.user.check_allow_update()
-        if 'id' in user and user['id'] != user_id:
-            raise exception.ValidationError(_('Cannot change user ID'))
         old_obj = self.user.get(user_id)
         if 'name' in user and old_obj.get('name') != user['name']:
             raise exception.Conflict(_('Cannot change user name'))

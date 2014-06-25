@@ -379,9 +379,9 @@ class Manager(manager.Manager):
         Users: Reference domains for grants
 
         """
-        user_refs = self.identity_api.list_users()
+        user_refs = self.identity_api.list_users(domain_scope=domain_id)
         proj_refs = self.list_projects()
-        group_refs = self.identity_api.list_groups()
+        group_refs = self.identity_api.list_groups(domain_scope=domain_id)
 
         # First delete the projects themselves
         for project in proj_refs:
@@ -399,8 +399,7 @@ class Manager(manager.Manager):
             # Cleanup any existing groups.
             if group['domain_id'] == domain_id:
                 try:
-                    self.identity_api.delete_group(group['id'],
-                                                   domain_scope=domain_id)
+                    self.identity_api.delete_group(group['id'])
                 except exception.GroupNotFound:
                     LOG.debug(_('Group %(groupid)s not found when deleting '
                                 'domain contents for %(domainid)s, continuing '
@@ -411,8 +410,7 @@ class Manager(manager.Manager):
         for user in user_refs:
             if user['domain_id'] == domain_id:
                 try:
-                    self.identity_api.delete_user(user['id'],
-                                                  domain_scope=domain_id)
+                    self.identity_api.delete_user(user['id'])
                 except exception.UserNotFound:
                     LOG.debug(_('User %(userid)s not found when '
                                 'deleting domain contents for %(domainid)s, '

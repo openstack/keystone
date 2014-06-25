@@ -474,11 +474,14 @@ class TestCase(BaseTestCase):
                 fixtures_to_cleanup.append(attrname)
 
             for tenant in fixtures.TENANTS:
-                try:
-                    rv = self.assignment_api.create_project(
-                        tenant['id'], tenant)
-                except exception.Conflict:
-                    rv = self.assignment_api.get_project(tenant['id'])
+                if hasattr(self, 'tenant_%s' % tenant['id']):
+                    try:
+                        # This will clear out any roles on the project as well
+                        self.assignment_api.delete_project(tenant['id'])
+                    except exception.ProjectNotFound:
+                        pass
+                rv = self.assignment_api.create_project(
+                    tenant['id'], tenant)
 
                 attrname = 'tenant_%s' % tenant['id']
                 setattr(self, attrname, rv)

@@ -91,9 +91,6 @@ class Identity(identity.Driver):
         """
         return utils.check_password(password, user_ref.password)
 
-    def is_domain_aware(self):
-        return True
-
     # Identity interface
     def authenticate(self, user_id, password):
         session = sql.get_session()
@@ -148,8 +145,6 @@ class Identity(identity.Driver):
     @sql.handle_conflicts(conflict_type='user')
     def update_user(self, user_id, user):
         session = sql.get_session()
-        if 'id' in user and user_id != user['id']:
-            raise exception.ValidationError(_('Cannot change user ID'))
 
         with session.begin():
             user_ref = self._get_user(session, user_id)
