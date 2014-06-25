@@ -18,6 +18,7 @@ import uuid
 
 import mock
 from oslo import i18n
+import six
 from testtools import matchers
 import webob
 
@@ -87,7 +88,7 @@ class ApplicationTest(BaseWSGITest):
 
     def test_render_response(self):
         data = {'attribute': 'value'}
-        body = '{"attribute": "value"}'
+        body = b'{"attribute": "value"}'
 
         resp = wsgi.render_response(body=data)
         self.assertEqual(resp.status, '200 OK')
@@ -127,7 +128,8 @@ class ApplicationTest(BaseWSGITest):
         ex = self.assertRaises(exception.ValidationError,
                                app.assert_attributes,
                                resp.body, ['a', 'missing_attribute'])
-        self.assertThat(ex.message, matchers.Contains('missing_attribute'))
+        self.assertThat(six.text_type(ex),
+                        matchers.Contains('missing_attribute'))
 
     def test_no_required_attributes_present(self):
         app = FakeAttributeCheckerApp()
@@ -137,8 +139,10 @@ class ApplicationTest(BaseWSGITest):
         ex = self.assertRaises(exception.ValidationError,
                                app.assert_attributes, resp.body,
                                ['missing_attribute1', 'missing_attribute2'])
-        self.assertThat(ex.message, matchers.Contains('missing_attribute1'))
-        self.assertThat(ex.message, matchers.Contains('missing_attribute2'))
+        self.assertThat(six.text_type(ex),
+                        matchers.Contains('missing_attribute1'))
+        self.assertThat(six.text_type(ex),
+                        matchers.Contains('missing_attribute2'))
 
     def test_render_response_custom_headers(self):
         resp = wsgi.render_response(headers=[('Custom-Header', 'Some-Value')])
@@ -149,7 +153,7 @@ class ApplicationTest(BaseWSGITest):
         resp = wsgi.render_response()
         self.assertEqual(resp.status, '204 No Content')
         self.assertEqual(resp.status_int, 204)
-        self.assertEqual(resp.body, '')
+        self.assertEqual(resp.body, b'')
         self.assertEqual(resp.headers.get('Content-Length'), '0')
         self.assertIsNone(resp.headers.get('Content-Type'))
 
@@ -237,7 +241,7 @@ class MiddlewareTest(BaseWSGITest):
 
     def test_middleware_exception_error(self):
 
-        exception_str = 'EXCEPTIONERROR'
+        exception_str = b'EXCEPTIONERROR'
 
         class FakeMiddleware(wsgi.Middleware):
             def process_response(self, request, response):
@@ -302,7 +306,7 @@ class LocalizedResponseTest(tests.TestCase):
         # Statically created message strings are an object that can get
         # lazy-translated rather than a regular string.
         self.assertNotEqual(type(exception.Unauthorized.message_format),
-                            unicode)
+                            six.text_type)
 
     @mock.patch.object(i18n, 'get_available_languages')
     def test_get_localized_response(self, mock_gal):
@@ -361,7 +365,8 @@ class LocalizedResponseTest(tests.TestCase):
             # Assert that the translated message appears in the response.
 
             exp_msg = xlated_msg_fmt % dict(target=target)
-            self.assertThat(resp.body, matchers.Contains(exp_msg))
+            self.assertThat(resp.json['error']['message'],
+                            matchers.Equals(exp_msg))
             self.assertThat(xlation_mock.called, matchers.Equals(True))
 
 
