@@ -58,7 +58,9 @@ class TenantTestCase(tests.TestCase):
             _ADMIN_CONTEXT, project_id)
 
         # The new user isn't included in the result, so no change.
-        self.assertEqual(orig_project_users, new_project_users)
+        # asserting that the expected values appear in the list,
+        # without asserting the order of the results
+        self.assertEqual(sorted(orig_project_users), sorted(new_project_users))
 
     def test_list_projects_default_domain(self):
         """Test that list projects only returns those in the default domain."""
