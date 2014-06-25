@@ -37,6 +37,8 @@ def load_backends():
         catalog_api=catalog.Manager(),
         credential_api=credential.Manager(),
         endpoint_filter_api=endpoint_filter.Manager(),
+        id_generator_api=identity.generator.Manager(),
+        id_mapping_api=identity.MappingManager(),
         identity_api=_IDENTITY_API,
         policy_api=policy.Manager(),
         token_api=token.Manager(),

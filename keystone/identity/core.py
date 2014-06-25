@@ -682,3 +682,75 @@ class Driver(object):
         raise exception.NotImplemented()
 
     # end of identity
+
+
+@dependency.provider('id_mapping_api')
+class MappingManager(manager.Manager):
+    """Default pivot point for the ID Mapping backend."""
+
+    def __init__(self):
+        # TODO(henry-nash): Use a config option to select the mapping driver
+        super(MappingManager, self).__init__(
+            'keystone.identity.mapping_backends.sql.Mapping')
+
+
+@six.add_metaclass(abc.ABCMeta)
+class MappingDriver(object):
+    """Interface description for an ID Mapping driver."""
+
+    @abc.abstractmethod
+    def get_public_id(self, local_entity):
+        """Returns the public ID for the given local entity.
+
+        :param dict local_entity: Containing the entity domain, local ID and
+                                  type ('user' or 'group').
+        :returns: public ID, or None if no mapping is found.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def get_id_mapping(self, public_id):
+        """Returns the local mapping.
+
+        :param public_id: The public ID for the mapping required.
+        :returns dict: Containing the entity domain, local ID and type. If no
+                       mapping is found, it returns None.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def create_id_mapping(self, local_entity, public_id=None):
+        """Create and store a mapping to a public_id.
+
+        :param dict local_entity: Containing the entity domain, local ID and
+                                  type ('user' or 'group').
+        :param public_id: If specified, this will be the public ID.  If this
+                          is not specified, a public ID will be generated.
+        :returns: public ID
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def delete_id_mapping(self, public_id):
+        """Deletes an entry for the given public_id.
+
+        :param public_id: The public ID for the mapping to be deleted.
+
+        The method is silent if no mapping is found.
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def purge_mappings(self, purge_filter):
+        """Purge selected identity mappings.
+
+        :param dict purge_filter: Containing the attributes of the filter that
+                                  defines which entries to purge. An empty
+                                  filter means purge all mappings.
+
+        """
+        raise exception.NotImplemented()

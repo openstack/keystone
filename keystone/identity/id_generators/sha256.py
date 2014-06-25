@@ -1,4 +1,4 @@
-# Copyright 2012 OpenStack Foundation
+# Copyright 2014 IBM Corp.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -12,7 +12,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.identity import controllers  # noqa
-from keystone.identity.core import *  # noqa
-from keystone.identity import generator  # noqa
-from keystone.identity import routers  # noqa
+import hashlib
+
+import six
+
+from keystone.identity import generator
+
+
+class Generator(generator.IDGenerator):
+
+    def generate_public_ID(self, mapping):
+        m = hashlib.sha256()
+        for key in sorted(six.iterkeys(mapping)):
+            m.update(mapping[key])
+        return m.hexdigest()
