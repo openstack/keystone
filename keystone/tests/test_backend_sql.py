@@ -170,7 +170,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_create_null_role_name(self):
         role = {'id': uuid.uuid4().hex,
                 'name': None}
-        self.assertRaises(exception.Conflict,
+        self.assertRaises(exception.UnexpectedError,
                           self.assignment_api.create_role,
                           role['id'],
                           role)
@@ -507,7 +507,7 @@ class SqlDecorators(tests.TestCase):
 
     def test_conflict_happend(self):
         self.assertRaises(exception.Conflict, FakeTable().insert)
-        self.assertRaises(exception.Conflict, FakeTable().update)
+        self.assertRaises(exception.UnexpectedError, FakeTable().update)
 
     def test_not_conflict_error(self):
         self.assertRaises(KeyError, FakeTable().lookup)
