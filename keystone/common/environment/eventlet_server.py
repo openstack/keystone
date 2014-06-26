@@ -16,6 +16,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import errno
+import re
 import socket
 import ssl
 import sys
@@ -29,6 +31,27 @@ from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
+
+
+class EventletFilteringLogger(log.WritableLogger):
+    # NOTE(morganfainberg): This logger is designed to filter out specific
+    # Tracebacks to limit the amount of data that eventlet can log. In the
+    # case of broken sockets (EPIPE and ECONNRESET), we are seeing a huge
+    # volume of data being written to the logs due to ~14 lines+ per traceback.
+    # The traceback in these cases are, at best, useful for limited debugging
+    # cases.
+    def __init__(self, *args, **kwargs):
+        super(EventletFilteringLogger, self).__init__(*args, **kwargs)
+        self.regex = re.compile(r'errno (%d|%d)' %
+                                (errno.EPIPE, errno.ECONNRESET), re.IGNORECASE)
+
+    def write(self, msg):
+        m = self.regex.search(msg)
+        if m:
+            self.logger.log(log.logging.DEBUG, 'Error(%s) writing to socket.',
+                            m.group(1))
+        else:
+            self.logger.log(self.level, msg.rstrip())
 
 
 class Server(object):
@@ -139,7 +162,8 @@ class Server(object):
         logger = log.getLogger('eventlet.wsgi.server')
         try:
             eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                                 log=log.WritableLogger(logger), debug=False)
+                                 log=EventletFilteringLogger(logger),
+                                 debug=False)
         except greenlet.GreenletExit:
             # Wait until all servers have completed running
             pass
