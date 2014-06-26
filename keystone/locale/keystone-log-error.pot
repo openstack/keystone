@@ -1,0 +1,65 @@
+# Translations template for keystone.
+# Copyright (C) 2014 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: keystone 2014.2.dev85.gf82b887\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2014-06-26 06:01+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.3\n"
+
+#: keystone/openstack/common/excutils.py:76
+#, python-format
+msgid "Original exception being dropped: %s"
+msgstr ""
+
+#: keystone/openstack/common/excutils.py:105
+#, python-format
+msgid "Unexpected exception occurred %d time(s)... retrying."
+msgstr ""
+
+#: keystone/openstack/common/lockutils.py:120
+#, python-format
+msgid "Could not release the acquired lock `%s`"
+msgstr ""
+
+#: keystone/openstack/common/loopingcall.py:89
+msgid "in fixed duration looping call"
+msgstr ""
+
+#: keystone/openstack/common/loopingcall.py:131
+msgid "in dynamic looping call"
+msgstr ""
+
+#: keystone/openstack/common/policy.py:511
+#, python-format
+msgid "Failed to understand rule %s"
+msgstr ""
+
+#: keystone/openstack/common/policy.py:521
+#, python-format
+msgid "No handler for matches of kind %s"
+msgstr ""
+
+#: keystone/openstack/common/policy.py:791
+#, python-format
+msgid "Failed to understand rule %r"
+msgstr ""
+
+#: keystone/openstack/common/service.py:188
+msgid "Exception during rpc cleanup."
+msgstr ""
+
+#: keystone/openstack/common/service.py:277
+msgid "Unhandled exception"
+msgstr ""
+
