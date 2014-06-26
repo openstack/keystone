@@ -20,6 +20,7 @@ import sys
 import migrate
 from migrate import exceptions
 from oslo.db.sqlalchemy import migration
+import six
 import sqlalchemy
 
 from keystone.common import sql
@@ -132,6 +133,23 @@ def find_migrate_repo(package=None, repo_name='migrate_repo'):
     raise exception.MigrationNotProvided(package.__name__, path)
 
 
+def _fix_migration_37(engine):
+    """Fix the region table to be InnoDB and Charset UTF8.
+
+    This function is to work around bug #1334779. This has occurred because
+    the original migration 37 did not specify InnoDB and charset utf8. Due
+    to the sanity_check, a deployer can get wedged here and require manual
+    database changes to fix.
+    """
+    # NOTE(morganfainberg): Extra defensive here, check to make sure we really
+    # are mysql before trying to perform the alters.
+    if engine.name == 'mysql':
+        # * Make sure the engine is InnoDB
+        engine.execute('ALTER TABLE region Engine=InnoDB')
+        # * Make sure the character set is utf8
+        engine.execute('ALTER TABLE region CONVERT TO CHARACTER SET utf8')
+
+
 def sync_database_to_version(extension=None, version=None):
     if not extension:
         abs_path = find_migrate_repo()
@@ -156,8 +174,27 @@ def sync_database_to_version(extension=None, version=None):
         except exception.MigrationNotProvided as e:
             print(e)
             sys.exit(1)
-    migration.db_sync(sql.get_engine(), abs_path, version=version,
-                      init_version=init_version)
+
+    engine = sql.get_engine()
+    try:
+        migration.db_sync(engine, abs_path, version=version,
+                          init_version=init_version)
+    except ValueError:
+        # NOTE(morganfainberg): ValueError is raised from the sanity check (
+        # verifies that tables are utf8 under mysql). The region table was not
+        # initially built with InnoDB and utf8 as part of the table arguments
+        # when the migration was initially created. Bug #1334779 is a scenario
+        # where the deployer can get wedged, unable to upgrade or downgrade.
+        # This is a workaround to "fix" that table if we're under MySQL.
+        if (not extension and engine.name == 'mysql' and
+                six.text_type(get_db_version()) == '37'):
+            _fix_migration_37(engine)
+            # Try the migration a second time now that we've done the
+            # un-wedge work.
+            migration.db_sync(engine, abs_path, version=version,
+                              init_version=init_version)
+        else:
+            raise
 
 
 def get_db_version(extension=None):

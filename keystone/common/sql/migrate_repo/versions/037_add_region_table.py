@@ -25,7 +25,9 @@ def upgrade(migrate_engine):
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('description', sql.String(255), nullable=False),
         sql.Column('parent_region_id', sql.String(64), nullable=True),
-        sql.Column('extra', sql.Text()))
+        sql.Column('extra', sql.Text()),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
     region_table.create(migrate_engine, checkfirst=True)
 
 
