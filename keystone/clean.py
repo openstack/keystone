@@ -63,6 +63,10 @@ def domain_name(name):
     return check_name('Domain', name)
 
 
+def domain_enabled(enabled):
+    return check_enabled('Domain', enabled)
+
+
 def project_name(name):
     return check_name('Project', name)
 

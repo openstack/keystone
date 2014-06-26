@@ -302,6 +302,8 @@ class Manager(manager.Manager):
 
     @notifications.created('domain')
     def create_domain(self, domain_id, domain):
+        domain.setdefault('enabled', True)
+        domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.create_domain(domain_id, domain)
         if SHOULD_CACHE(ret):
             self.get_domain.set(ret, self, domain_id)
@@ -318,6 +320,8 @@ class Manager(manager.Manager):
 
     @notifications.updated('domain')
     def update_domain(self, domain_id, domain):
+        if 'enabled' in domain:
+            domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.update_domain(domain_id, domain)
         # disable owned users & projects when the API user specifically set
         #     enabled=False
