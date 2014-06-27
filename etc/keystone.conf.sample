@@ -22,8 +22,13 @@
 # Deprecated group/name - [DEFAULT]/bind_host
 #admin_bind_host=0.0.0.0
 
-# The port which the OpenStack Compute service listens on.
-# (integer value)
+# (Deprecated) The port which the OpenStack Compute service
+# listens on. This option was only used for string replacement
+# in the templated catalog backend. Templated catalogs should
+# replace the "$(compute_port)s" substitution with the static
+# port of the compute service. As of Juno, this option is
+# deprecated and will be removed in the L release. (integer
+# value)
 #compute_port=8774
 
 # The port number which the admin service listens on. (integer
@@ -143,7 +148,7 @@
 #allowed_rpc_exception_modules=oslo.messaging.exceptions,nova.exception,cinder.exception,exceptions
 
 # Qpid broker hostname. (string value)
-#qpid_hostname=keystone
+#qpid_hostname=localhost
 
 # Qpid broker port. (integer value)
 #qpid_port=5672
@@ -200,7 +205,7 @@
 
 # The RabbitMQ broker address where a single node is used.
 # (string value)
-#rabbit_host=keystone
+#rabbit_host=localhost
 
 # The RabbitMQ broker port where a single node is used.
 # (integer value)
@@ -826,7 +831,7 @@
 #
 
 # URL for connecting to the LDAP server. (string value)
-#url=ldap://keystone
+#url=ldap://localhost
 
 # User BindDN to query the LDAP server. (string value)
 #user=<None>
@@ -1294,7 +1299,7 @@
 
 # SSL certificate subject (auto generated certificate).
 # (string value)
-#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=keystone
+#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 
 [stats]

@@ -385,7 +385,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         }
         self.catalog_api.create_service(service['id'], service.copy())
 
-        malformed_url = "http://192.168.1.104:$(compute_port)s/v2/$(tenant)s"
+        malformed_url = "http://192.168.1.104:8774/v2/$(tenant)s"
         endpoint = {
             'id': uuid.uuid4().hex,
             'region': uuid.uuid4().hex,

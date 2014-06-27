@@ -7,8 +7,8 @@ catalog.RegionOne.identity.name = 'Identity Service'
 catalog.RegionOne.identity.id = 1
 
 # fake compute service for now to help novaclient tests work
-catalog.RegionOne.compute.publicURL = http://localhost:$(compute_port)s/v1.1/$(tenant_id)s
-catalog.RegionOne.compute.adminURL = http://localhost:$(compute_port)s/v1.1/$(tenant_id)s
-catalog.RegionOne.compute.internalURL = http://localhost:$(compute_port)s/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.publicURL = http://localhost:8774/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.adminURL = http://localhost:8774/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.internalURL = http://localhost:8774/v1.1/$(tenant_id)s
 catalog.RegionOne.compute.name = 'Compute Service'
 catalog.RegionOne.compute.id = 2
