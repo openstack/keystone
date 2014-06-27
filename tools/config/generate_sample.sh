@@ -125,6 +125,11 @@ DEFAULT_MODULEPATH=keystone.openstack.common.config.generator
 MODULEPATH=${MODULEPATH:-$DEFAULT_MODULEPATH}
 OUTPUTFILE=$OUTPUTDIR/$PACKAGENAME.conf.sample
 python -m $MODULEPATH $MODULES $LIBRARIES $FILES > $OUTPUTFILE
+if [ $? != 0 ]
+then
+    echo "Can not generate $OUTPUTFILE"
+    exit 1
+fi
 
 # Hook to allow projects to append custom config file snippets
 CONCAT_FILES=$(ls $BASEDIR/tools/config/*.conf.sample 2>/dev/null)

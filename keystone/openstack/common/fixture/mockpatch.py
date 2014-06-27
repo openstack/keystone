@@ -17,12 +17,12 @@
 
 ##############################################################################
 ##############################################################################
-##
-## DO NOT MODIFY THIS FILE
-##
-## This file is being graduated to the oslotest library. Please make all
-## changes there, and only backport critical fixes here. - dhellmann
-##
+#
+# DO NOT MODIFY THIS FILE
+#
+# This file is being graduated to the oslotest library. Please make all
+# changes there, and only backport critical fixes here. - dhellmann
+#
 ##############################################################################
 ##############################################################################
 

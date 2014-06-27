@@ -18,6 +18,7 @@ Helpers for comparing version strings.
 """
 
 import functools
+
 import pkg_resources
 
 from keystone.openstack.common.gettextutils import _

@@ -42,11 +42,11 @@
 """Display a subunit stream through a colorized unittest test runner."""
 
 import heapq
-import subunit
 import sys
 import unittest
 
 import six
+import subunit
 import testtools
 
 

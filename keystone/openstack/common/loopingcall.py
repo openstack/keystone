@@ -79,8 +79,9 @@ class FixedIntervalLoopingCall(LoopingCallBase):
                         break
                     delay = interval - timeutils.delta_seconds(start, end)
                     if delay <= 0:
-                        LOG.warn(_LW('task run outlasted interval by %s sec') %
-                                 -delay)
+                        LOG.warn(_LW('task %(func_name)s run outlasted '
+                                     'interval by %(delay)s sec'),
+                                 {'func_name': repr(self.f), 'delay': -delay})
                     greenthread.sleep(delay if delay > 0 else 0)
             except LoopingCallDone as e:
                 self.stop()
@@ -121,8 +122,9 @@ class DynamicLoopingCall(LoopingCallBase):
 
                     if periodic_interval_max is not None:
                         idle = min(idle, periodic_interval_max)
-                    LOG.debug('Dynamic looping call sleeping for %.02f '
-                              'seconds', idle)
+                    LOG.debug('Dynamic looping call %(func_name)s sleeping '
+                              'for %(idle).02f seconds',
+                              {'func_name': repr(self.f), 'idle': idle})
                     greenthread.sleep(idle)
             except LoopingCallDone as e:
                 self.stop()

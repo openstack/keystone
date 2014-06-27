@@ -391,9 +391,12 @@ class ProcessLauncher(object):
             while True:
                 self.handle_signal()
                 self._respawn_children()
-                if self.sigcaught:
-                    signame = _signo_to_signame(self.sigcaught)
-                    LOG.info(_LI('Caught %s, stopping children'), signame)
+                # No signal means that stop was called.  Don't clean up here.
+                if not self.sigcaught:
+                    return
+
+                signame = _signo_to_signame(self.sigcaught)
+                LOG.info(_LI('Caught %s, stopping children'), signame)
                 if not _is_sighup_and_daemon(self.sigcaught):
                     break
 
@@ -404,6 +407,11 @@ class ProcessLauncher(object):
         except eventlet.greenlet.GreenletExit:
             LOG.info(_LI("Wait called after thread killed.  Cleaning up."))
 
+        self.stop()
+
+    def stop(self):
+        """Terminate child processes and wait on each."""
+        self.running = False
         for pid in self.children:
             try:
                 os.kill(pid, signal.SIGTERM)
