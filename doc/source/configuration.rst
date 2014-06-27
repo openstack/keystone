@@ -296,10 +296,6 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
     back end and in the format of ``<argument name>:<argument value>``.
     e.g.: ``backend_argument = host:localhost``
 * ``proxies`` - comma delimited list of `ProxyBackends`_ e.g. ``my.example.Proxy, my.example.Proxy2``
-* ``use_key_mangler`` - Use a key-mangling function (sha1) to ensure fixed length cache-keys.
-    This is toggle-able for debugging purposes, it is highly recommended to always
-    leave this set to True.  If the cache backend provides a key-mangler, this
-    option has no effect.
 
 Current keystone systems that have caching capabilities:
     * ``token``

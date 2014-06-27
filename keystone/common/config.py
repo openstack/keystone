@@ -268,11 +268,6 @@ FILE_OPTIONS = {
                         'deployments.  Small workloads (single process) '
                         'like devstack can use the dogpile.cache.memory '
                         'backend.'),
-        cfg.BoolOpt('use_key_mangler', default=True,
-                    help='Use a key-mangling function (sha1) to ensure '
-                         'fixed length cache-keys. This is toggle-able for '
-                         'debugging purposes, it is highly recommended to '
-                         'always leave this set to true.'),
         cfg.MultiStrOpt('backend_argument', default=[],
                         help='Arguments supplied to the backend module. '
                              'Specify this option once per argument to be '

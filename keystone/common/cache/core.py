@@ -134,12 +134,9 @@ def configure_cache_region(region):
         # key_mangler, we should respect that key_mangler function.  If a
         # key_mangler is not defined by the backend, use the sha1_mangle_key
         # mangler provided by dogpile.cache. This ensures we always use a fixed
-        # size cache-key.  This is toggle-able for debug purposes; if disabled
-        # this could cause issues with certain backends (such as memcached) and
-        # its limited key-size.
+        # size cache-key.
         if region.key_mangler is None:
-            if CONF.cache.use_key_mangler:
-                region.key_mangler = util.sha1_mangle_key
+            region.key_mangler = util.sha1_mangle_key
 
         for class_path in CONF.cache.proxies:
             # NOTE(morganfainberg): if we have any proxy wrappers, we should
