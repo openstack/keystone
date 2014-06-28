@@ -37,7 +37,9 @@ def format_url(url, data):
     try:
         result = url.replace('$(', '%(') % data
     except AttributeError:
-        return None
+        LOG.error(_('Malformed endpoint - %(url)r is not a string'),
+                  {"url": url})
+        raise exception.MalformedEndpoint(endpoint=url)
     except KeyError as e:
         LOG.error(_("Malformed endpoint %(url)s - unknown key %(keyerror)s"),
                   {"url": url,
