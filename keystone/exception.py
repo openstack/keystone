@@ -332,6 +332,11 @@ class UnexpectedError(SecurityError):
     title = 'Internal Server Error'
 
 
+class TrustConsumeMaximumAttempt(UnexpectedError):
+    debug_message_format = _("Unable to consume trust %(trust_id)s, unable to "
+                             "acquire lock.")
+
+
 class CertificateFilesUnavailable(UnexpectedError):
     debug_message_format = _("Expected signing certificates are not available "
                              "on the server. Please check Keystone "
