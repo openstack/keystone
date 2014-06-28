@@ -1009,7 +1009,12 @@ class BaseLdap(object):
                 continue
 
             try:
-                v = lower_res[self.attribute_mapping.get(k, k).lower()]
+                map_attr = self.attribute_mapping.get(k, k)
+                if map_attr is None:
+                    # Ignore attributes that are mapped to None.
+                    continue
+
+                v = lower_res[map_attr.lower()]
             except KeyError:
                 pass
             else:
