@@ -12,10 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
+
 from keystone.common import sql
 from keystone import exception
+from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone import trust
+
+
+LOG = log.getLogger(__name__)
+# The maximum number of iterations that will be attempted for optimistic
+# locking on consuming a limited-use trust.
+MAXIMUM_CONSUME_ATTEMPTS = 10
 
 
 class TrustModel(sql.ModelBase, sql.DictBase):
@@ -72,21 +81,51 @@ class Trust(trust.Driver):
 
     @sql.handle_conflicts(conflict_type='trust')
     def consume_use(self, trust_id):
-        session = sql.get_session()
-        with session.begin():
-            ref = (session.query(TrustModel).
-                   with_lockmode('update').
-                   filter_by(deleted_at=None).
-                   filter_by(id=trust_id).first())
-            if ref is None:
-                raise exception.TrustNotFound(trust_id=trust_id)
-            if ref.remaining_uses is None:
-                # unlimited uses, do nothing
-                pass
-            elif ref.remaining_uses > 0:
-                ref.remaining_uses -= 1
-            else:
-                raise exception.TrustUseLimitReached(trust_id=trust_id)
+        for attempt in range(MAXIMUM_CONSUME_ATTEMPTS):
+            with sql.transaction() as session:
+                try:
+                    query_result = (session.query(TrustModel.remaining_uses).
+                                    filter_by(id=trust_id).
+                                    filter_by(deleted_at=None).one())
+                except sql.NotFound:
+                    raise exception.TrustNotFound(trust_id=trust_id)
+
+                remaining_uses = query_result.remaining_uses
+
+                if remaining_uses is None:
+                    # unlimited uses, do nothing
+                    break
+                elif remaining_uses > 0:
+                    # NOTE(morganfainberg): use an optimistic locking method
+                    # to ensure we only ever update a trust that has the
+                    # expected number of remaining uses.
+                    rows_affected = (
+                        session.query(TrustModel).
+                        filter_by(id=trust_id).
+                        filter_by(deleted_at=None).
+                        filter_by(remaining_uses=remaining_uses).
+                        update({'remaining_uses': (remaining_uses - 1)},
+                               synchronize_session=False))
+                    if rows_affected == 1:
+                        # Successfully consumed a single limited-use trust.
+                        # Since trust_id is the PK on the Trust table, there is
+                        # no case we should match more than 1 row in the
+                        # update. We either update 1 row or 0 rows.
+                        break
+                else:
+                    raise exception.TrustUseLimitReached(trust_id=trust_id)
+            # NOTE(morganfainberg): Ensure we have a yield point for eventlet
+            # here. This should cost us nothing otherwise. This can be removed
+            # if/when oslo.db cleanly handles yields on db calls.
+            time.sleep(0)
+        else:
+            # NOTE(morganfainberg): In the case the for loop is not prematurely
+            # broken out of, this else block is executed. This means the trust
+            # was not unlimited nor was it consumed (we hit the maximum
+            # iteration limit). This is just an indicator that we were unable
+            # to get the optimistic lock rather than silently failing or
+            # incorrectly indicating a trust was consumed.
+            raise exception.TrustConsumeMaximumAttempt(trust_id=trust_id)
 
     def get_trust(self, trust_id):
         session = sql.get_session()
