@@ -114,8 +114,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         expire_delta = datetime.timedelta(seconds=86400)
 
         # NOTE(morganfainberg): Directly access the data cache since we need to
-        # get expired tokens as well as valid tokens. token_api.list_tokens()
-        # will not return any expired tokens in the list.
+        # get expired tokens as well as valid tokens.
         user_key = self.token_api.driver._prefix_user_id(user_id)
         user_token_list = self.token_api.driver._store.get(user_key)
         valid_token_ref = self.token_api.get_token(valid_token_id)

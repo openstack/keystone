@@ -3109,11 +3109,6 @@ class TokenTests(object):
     def test_token_list(self):
         self._test_token_list(self.token_api._list_tokens)
 
-    def test_token_list_deprecated_public_interface(self):
-        # TODO(morganfainberg): Remove once token_api.list_tokens is removed
-        # (post Icehouse release)
-        self._test_token_list(self.token_api.list_tokens)
-
     def test_token_list_trust(self):
         trust_id = uuid.uuid4().hex
         token_id5, data = self.create_token_sample_data(trust_id=trust_id)
@@ -3298,10 +3293,6 @@ class TokenTests(object):
         user_id = six.text_type(uuid.uuid4().hex)
         token_id, data = self.create_token_sample_data(user_id=user_id)
         self.token_api.get_token(token_id)
-
-    def test_list_tokens_unicode_user_id(self):
-        user_id = six.text_type(uuid.uuid4().hex)
-        self.token_api.list_tokens(user_id)
 
     def test_token_expire_timezone(self):
 
