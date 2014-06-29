@@ -36,9 +36,11 @@ from keystone.common import utils
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils
+from keystone.openstack.common import log
 
 
 CONF = cfg.CONF
+LOG = log.getLogger(__name__)
 
 ModelBase = declarative.declarative_base()
 
@@ -381,20 +383,38 @@ def filter_limit_query(model, query, hints):
 
 def handle_conflicts(conflict_type='object'):
     """Converts select sqlalchemy exceptions into HTTP 409 Conflict."""
+    _conflict_msg = 'Conflict %(conflict_type)s: %(details)s'
+
     def decorator(method):
         @functools.wraps(method)
         def wrapper(*args, **kwargs):
             try:
                 return method(*args, **kwargs)
             except db_exception.DBDuplicateEntry as e:
+                # LOG the exception for debug purposes, do not send the
+                # exception details out with the raised Conflict exception
+                # as it can contain raw SQL.
+                LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
+                                          'details': six.text_type(e)})
                 raise exception.Conflict(type=conflict_type,
-                                         details=six.text_type(e))
+                                         details=_('Duplicate Entry'))
             except db_exception.DBError as e:
                 # TODO(blk-u): inspecting inner_exception breaks encapsulation;
                 # oslo.db should provide exception we need.
                 if isinstance(e.inner_exception, IntegrityError):
-                    raise exception.Conflict(type=conflict_type,
-                                             details=six.text_type(e))
+                    # LOG the exception for debug purposes, do not send the
+                    # exception details out with the raised Conflict exception
+                    # as it can contain raw SQL.
+                    LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
+                                              'details': six.text_type(e)})
+                    # NOTE(morganfainberg): This is really a case where the SQL
+                    # failed to store the data. This is not something that the
+                    # user has done wrong. Example would be a ForeignKey is
+                    # missing; the code that is executed before reaching the
+                    # SQL writing to the DB should catch the issue.
+                    raise exception.UnexpectedError(
+                        _('An unexpected error occurred when trying to '
+                          'store %s') % conflict_type)
                 raise
 
         return wrapper
