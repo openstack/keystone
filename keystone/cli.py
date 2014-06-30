@@ -24,7 +24,12 @@ from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
+from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common import log
 from keystone import token
+
+
+LOG = log.getLogger(__name__)
 
 CONF = config.CONF
 
@@ -121,24 +126,38 @@ class BaseCertificateSetup(BaseApp):
 
 
 class PKISetup(BaseCertificateSetup):
-    """Set up Key pairs and certificates for token signing and verification."""
+    """Set up Key pairs and certificates for token signing and verification.
+
+    This is NOT intended for production use, see Keystone Configuration
+    documentation for details.
+    """
 
     name = 'pki_setup'
 
     @classmethod
     def main(cls):
+        msg = _('keystone-manage pki_setup is not recommended for production '
+                'use.')
+        LOG.warn(msg)
         keystone_user_id, keystone_group_id = cls.get_user_group()
         conf_pki = openssl.ConfigurePKI(keystone_user_id, keystone_group_id)
         conf_pki.run()
 
 
 class SSLSetup(BaseCertificateSetup):
-    """Create key pairs and certificates for HTTPS connections."""
+    """Create key pairs and certificates for HTTPS connections.
+
+    This is NOT intended for production use, see Keystone Configuration
+    documentation for details.
+    """
 
     name = 'ssl_setup'
 
     @classmethod
     def main(cls):
+        msg = _('keystone-manage ssl_setup is not recommended for production '
+                'use.')
+        LOG.warn(msg)
         keystone_user_id, keystone_group_id = cls.get_user_group()
         conf_ssl = openssl.ConfigureSSL(keystone_user_id, keystone_group_id)
         conf_ssl.run()
