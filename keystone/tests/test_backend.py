@@ -2654,7 +2654,7 @@ class IdentityTests(object):
         domain_id = domain['id']
         domain_name = domain['name']
         self.assignment_api.create_domain(domain_id, domain)
-        domain_ref = self.assignment_api.get_domain(domain_id)
+        domain_ref = self.assignment_api.get_domain_by_name(domain_name)
         domain_ref['name'] = uuid.uuid4().hex
         self.assignment_api.update_domain(domain_id, domain_ref)
         self.assertRaises(exception.DomainNotFound,
@@ -2727,7 +2727,7 @@ class IdentityTests(object):
         self.assignment_api.create_domain(domain['id'], domain)
         # Create a project
         self.assignment_api.create_project(project_id, project)
-        self.assignment_api.get_project(project_id)
+        self.assignment_api.get_project_by_name(project_name, domain['id'])
         project['name'] = uuid.uuid4().hex
         self.assignment_api.update_project(project_id, project)
         self.assertRaises(exception.ProjectNotFound,
