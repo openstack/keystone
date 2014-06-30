@@ -380,9 +380,6 @@ class Auth(controller.V3Controller):
             self._check_and_set_default_scoping(auth_info, auth_context)
             (domain_id, project_id, trust) = auth_info.get_scope()
 
-            if trust:
-                self.trust_api.consume_use(trust['id'])
-
             method_names = auth_info.get_method_names()
             method_names += auth_context.get('method_names', [])
             # make sure the list is unique
@@ -395,6 +392,11 @@ class Auth(controller.V3Controller):
             (token_id, token_data) = self.token_provider_api.issue_v3_token(
                 auth_context['user_id'], method_names, expires_at, project_id,
                 domain_id, auth_context, trust, metadata_ref, include_catalog)
+
+            # NOTE(wanghong): We consume a trust use only when we are using
+            # trusts and have successfully issued a token.
+            if trust:
+                self.trust_api.consume_use(trust['id'])
 
             return render_token_data_response(token_id, token_data,
                                               created=True)

@@ -960,6 +960,26 @@ class AuthWithTrust(AuthTest):
             exception.Forbidden,
             self.controller.authenticate, {}, request_body)
 
+    def test_do_not_consume_remaining_uses_when_get_token_fails(self):
+        trust_data = copy.deepcopy(self.sample_data)
+        trust_data['remaining_uses'] = 3
+        new_trust = self.create_trust(trust_data, self.trustor['name'])
+
+        for assigned_role in self.assigned_roles:
+            self.assignment_api.remove_role_from_user_and_project(
+                self.trustor['id'], self.tenant_bar['id'], assigned_role)
+
+        request_body = self.build_v2_token_request('TWO', 'two2', new_trust)
+        self.assertRaises(exception.Forbidden,
+                          self.controller.authenticate, {}, request_body)
+
+        unscoped_token = self.get_unscoped_token(self.trustor['name'])
+        context = self._create_auth_context(
+            unscoped_token['access']['token']['id'])
+        trust = self.trust_controller.get_trust(context,
+                                                new_trust['id'])['trust']
+        self.assertEqual(3, trust['remaining_uses'])
+
 
 class TokenExpirationTest(AuthTest):
 
