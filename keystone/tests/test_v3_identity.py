@@ -643,7 +643,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # Confirm token is valid for now
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
 
         # Now delete the user
         self.delete('/users/%(user_id)s' % {

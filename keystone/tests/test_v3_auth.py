@@ -376,7 +376,7 @@ class TokenAPITests(object):
         self.assertEqual(expires, r.result['token']['expires_at'])
 
     def test_check_token(self):
-        self.head('/auth/tokens', headers=self.headers, expected_status=204)
+        self.head('/auth/tokens', headers=self.headers, expected_status=200)
 
     def test_validate_token(self):
         r = self.get('/auth/tokens', headers=self.headers)
@@ -493,9 +493,9 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
                 domain_name=self.domainA['name']))
         adminA_token = r.headers.get('X-Subject-Token')
 
-        self.head('/auth/tokens', headers=headers, expected_status=204,
+        self.head('/auth/tokens', headers=headers, expected_status=200,
                   token=adminA_token)
-        self.head('/auth/tokens', headers=headers, expected_status=204,
+        self.head('/auth/tokens', headers=headers, expected_status=200,
                   token=user_token)
         self.delete('/auth/tokens', headers=headers, expected_status=204,
                     token=user_token)
@@ -532,9 +532,9 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
                 domain_name=self.domainA['name']))
         adminA_token = r.headers.get('X-Subject-Token')
 
-        self.head('/auth/tokens', headers=headers, expected_status=204,
+        self.head('/auth/tokens', headers=headers, expected_status=200,
                   token=adminA_token)
-        self.head('/auth/tokens', headers=headers, expected_status=204,
+        self.head('/auth/tokens', headers=headers, expected_status=200,
                   token=user_token)
         self.delete('/auth/tokens', headers=headers, expected_status=204,
                     token=adminA_token)
@@ -705,10 +705,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # confirm both tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': scoped_token},
-                  expected_status=204)
+                  expected_status=200)
 
         # create a new role
         role = self.new_role_ref()
@@ -724,10 +724,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # both tokens should remain valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': scoped_token},
-                  expected_status=204)
+                  expected_status=200)
 
     def test_deleting_user_grant_revokes_token(self):
         """Test deleting a user grant revokes token.
@@ -748,7 +748,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
         # Delete the grant, which should invalidate the token
         grant_url = (
             '/projects/%(project_id)s/users/%(user_id)s/'
@@ -852,19 +852,19 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenA},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenB},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenC},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenD},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenE},
-                  expected_status=204)
+                  expected_status=200)
 
         # Delete the role, which should invalidate the tokens
         role_url = '/roles/%s' % self.role1['id']
@@ -887,7 +887,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # ...but the one using role2 is still valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenC},
-                  expected_status=204)
+                  expected_status=200)
 
     def test_domain_user_role_assignment_maintains_token(self):
         """Test user-domain role assignment maintains existing token.
@@ -908,7 +908,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
         # Assign a role, which should not affect the token
         grant_url = (
             '/domains/%(domain_id)s/users/%(user_id)s/'
@@ -919,7 +919,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.put(grant_url)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
 
     def test_disabling_project_revokes_token(self):
         resp = self.post(
@@ -933,7 +933,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
 
         # disable the project, which should invalidate the token
         self.patch(
@@ -964,7 +964,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
 
         # delete the project, which should invalidate the token
         self.delete(
@@ -1017,13 +1017,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token3},
-                  expected_status=204)
+                  expected_status=200)
         # Delete the group grant, which should invalidate the
         # tokens for user1 and user2
         grant_url = (
@@ -1042,7 +1042,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # But user3's token should still be valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token3},
-                  expected_status=204)
+                  expected_status=200)
 
     def test_domain_group_role_assignment_maintains_token(self):
         """Test domain-group role assignment maintains existing token.
@@ -1063,7 +1063,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
         # Delete the grant, which should invalidate the token
         grant_url = (
             '/domains/%(domain_id)s/groups/%(group_id)s/'
@@ -1074,7 +1074,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.put(grant_url)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=204)
+                  expected_status=200)
 
     def test_group_membership_changes_revokes_token(self):
         """Test add/removal to/from group revokes token.
@@ -1106,10 +1106,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
-                  expected_status=204)
+                  expected_status=200)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=204)
+                  expected_status=200)
         # Remove user1 from group1, which should invalidate
         # the token
         self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
@@ -1121,14 +1121,14 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # But user2's token should still be valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=204)
+                  expected_status=200)
         # Adding user2 to a group should not invalidate token
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group2['id'],
             'user_id': self.user2['id']})
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=204)
+                  expected_status=200)
 
     def test_removing_role_assignment_does_not_affect_other_users(self):
         """Revoking a role from one user should not affect other users."""
@@ -1175,7 +1175,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # authorization for the second user should still succeed
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': user3_token},
-                  expected_status=204)
+                  expected_status=200)
         self.post(
             '/auth/tokens',
             body=self.build_authentication_request(
@@ -1256,7 +1256,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     def test_revoke_token(self):
         scoped_token = self.get_scoped_token()
         headers = {'X-Subject-Token': scoped_token}
-        self.head('/auth/tokens', headers=headers, expected_status=204)
+        self.head('/auth/tokens', headers=headers, expected_status=200)
         self.delete('/auth/tokens', headers=headers, expected_status=204)
         self.head('/auth/tokens', headers=headers, expected_status=404)
         events_response = self.get('/OS-REVOKE/events',
@@ -1278,7 +1278,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     def test_revoke_v2_token(self):
         token = self.get_v2_token()
         headers = {'X-Subject-Token': token}
-        self.head('/auth/tokens', headers=headers, expected_status=204)
+        self.head('/auth/tokens', headers=headers, expected_status=200)
         self.delete('/auth/tokens', headers=headers, expected_status=204)
         self.head('/auth/tokens', headers=headers, expected_status=404)
         events_response = self.get('/OS-REVOKE/events',
@@ -1346,11 +1346,11 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         scoped_token = self.get_scoped_token()
         headers_unrevoked = {'X-Subject-Token': scoped_token}
 
-        self.head('/auth/tokens', headers=headers, expected_status=204)
-        self.head('/auth/tokens', headers=headers2, expected_status=204)
-        self.head('/auth/tokens', headers=headers3, expected_status=204)
+        self.head('/auth/tokens', headers=headers, expected_status=200)
+        self.head('/auth/tokens', headers=headers2, expected_status=200)
+        self.head('/auth/tokens', headers=headers3, expected_status=200)
         self.head('/auth/tokens', headers=headers_unrevoked,
-                  expected_status=204)
+                  expected_status=200)
 
         self.delete('/auth/tokens', headers=headers, expected_status=204)
         # NOTE(ayoung): not deleting token3, as it should be deleted
@@ -1367,7 +1367,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.head('/auth/tokens', headers=headers2, expected_status=404)
         self.head('/auth/tokens', headers=headers3, expected_status=404)
         self.head('/auth/tokens', headers=headers_unrevoked,
-                  expected_status=204)
+                  expected_status=200)
 
     def test_list_with_filter(self):
 
@@ -2483,7 +2483,7 @@ class TestTrustAuth(TestAuthInfo):
             '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
                 'trust_id': trust['id'],
                 'role_id': self.role['id']},
-            expected_status=204)
+            expected_status=200)
         r = self.get(
             '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
                 'trust_id': trust['id'],
@@ -2975,7 +2975,7 @@ class TestTrustAuth(TestAuthInfo):
                 'trust_id': trust['id'],
                 'role_id': self.role['id']},
             auth=auth_data,
-            expected_status=204)
+            expected_status=200)
 
         r = self.get(
             '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {

@@ -84,11 +84,11 @@ def append_v3_routers(mapper, routers):
     mapper.connect('/projects/{project_id}/users/{user_id}/roles/{role_id}',
                    controller=role_controller,
                    action='check_grant',
-                   conditions=dict(method=['HEAD']))
+                   conditions=dict(method=['GET', 'HEAD']))
     mapper.connect('/projects/{project_id}/groups/{group_id}/roles/{role_id}',
                    controller=role_controller,
                    action='check_grant',
-                   conditions=dict(method=['HEAD']))
+                   conditions=dict(method=['GET', 'HEAD']))
     mapper.connect('/projects/{project_id}/users/{user_id}/roles',
                    controller=role_controller,
                    action='list_grants',
@@ -116,11 +116,11 @@ def append_v3_routers(mapper, routers):
     mapper.connect('/domains/{domain_id}/users/{user_id}/roles/{role_id}',
                    controller=role_controller,
                    action='check_grant',
-                   conditions=dict(method=['HEAD']))
+                   conditions=dict(method=['GET', 'HEAD']))
     mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
                    controller=role_controller,
                    action='check_grant',
-                   conditions=dict(method=['HEAD']))
+                   conditions=dict(method=['GET', 'HEAD']))
     mapper.connect('/domains/{domain_id}/users/{user_id}/roles',
                    controller=role_controller,
                    action='list_grants',
@@ -153,12 +153,12 @@ def append_v3_routers(mapper, routers):
                         '/roles/{role_id}/inherited_to_projects'),
                        controller=role_controller,
                        action='check_grant',
-                       conditions=dict(method=['HEAD']))
+                       conditions=dict(method=['GET', 'HEAD']))
         mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
                         '/roles/{role_id}/inherited_to_projects'),
                        controller=role_controller,
                        action='check_grant',
-                       conditions=dict(method=['HEAD']))
+                       conditions=dict(method=['GET', 'HEAD']))
         mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
                         '/roles/inherited_to_projects'),
                        controller=role_controller,

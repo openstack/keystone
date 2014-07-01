@@ -200,6 +200,11 @@ class Application(BaseApplication):
         # TODO(termie): do some basic normalization on methods
         method = getattr(self, action)
 
+        # NOTE(morganfainberg): use the request method to normalize the
+        # response code between GET and HEAD requests. The HTTP status should
+        # be the same.
+        req_method = req.environ['REQUEST_METHOD'].upper()
+
         # NOTE(vish): make sure we have no unicode keys for py2.6.
         params = self._normalize_dict(params)
 
@@ -236,7 +241,8 @@ class Application(BaseApplication):
             return result
 
         response_code = self._get_response_code(req)
-        return render_response(body=result, status=response_code)
+        return render_response(body=result, status=response_code,
+                               method=req_method)
 
     def _get_response_code(self, req):
         req_method = req.environ['REQUEST_METHOD']
@@ -577,7 +583,7 @@ class ExtensionRouter(Router):
         return _factory
 
 
-def render_response(body=None, status=None, headers=None):
+def render_response(body=None, status=None, headers=None, method=None):
     """Forms a WSGI response."""
     headers = headers or []
     headers.append(('Vary', 'X-Auth-Token'))
@@ -590,9 +596,25 @@ def render_response(body=None, status=None, headers=None):
         headers.append(('Content-Type', 'application/json'))
         status = status or (200, 'OK')
 
-    return webob.Response(body=body,
+    resp = webob.Response(body=body,
                           status='%s %s' % status,
                           headerlist=headers)
+
+    if method == 'HEAD':
+        # NOTE(morganfainberg): HEAD requests should return the same status
+        # as a GET request and same headers (including content-type and
+        # content-length). The webob.Response object automatically changes
+        # content-length (and other headers) if the body is set to b''. Capture
+        # all headers and reset them on the response object after clearing the
+        # body. The body can only be set to a binary-type (not TextType or
+        # NoneType), so b'' is used here and should be compatible with
+        # both py2x and py3x.
+        stored_headers = resp.headers.copy()
+        resp.body = b''
+        for header, value in six.iteritems(stored_headers):
+            resp.headers[header] = value
+
+    return resp
 
 
 def render_exception(error, context=None, request=None, user_locale=None):
