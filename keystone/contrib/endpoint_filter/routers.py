@@ -34,7 +34,7 @@ class EndpointFilterExtension(wsgi.ExtensionRouter):
         mapper.connect(self.PATH_PREFIX + self.PATH_PROJECT_ENDPOINT,
                        controller=endpoint_filter_controller,
                        action='check_endpoint_in_project',
-                       conditions=dict(method=['HEAD']))
+                       conditions=dict(method=['GET', 'HEAD']))
         mapper.connect(self.PATH_PREFIX + '/projects/{project_id}/endpoints',
                        controller=endpoint_filter_controller,
                        action='list_endpoints_for_project',

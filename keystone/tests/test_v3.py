@@ -465,6 +465,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         r = self.v3_request(method='HEAD', path=path, **kwargs)
         if 'expected_status' not in kwargs:
             self.assertResponseStatus(r, 204)
+        self.assertEqual('', r.body)
         return r
 
     def post(self, path, **kwargs):

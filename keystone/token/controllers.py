@@ -396,10 +396,13 @@ class Auth(controller.V2Controller):
 
         Identical to ``validate_token``, except does not return a response.
 
+        The code in ``keystone.common.wsgi.render_response`` will remove
+        the content body.
+
         """
         # TODO(ayoung) validate against revocation API
         belongs_to = context['query_string'].get('belongsTo')
-        self.token_provider_api.check_v2_token(token_id, belongs_to)
+        return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
     @controller.v2_deprecated
     @controller.protected()
