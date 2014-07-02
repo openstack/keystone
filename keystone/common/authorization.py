@@ -18,7 +18,7 @@
 
 from keystone.contrib import federation
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 from keystone.openstack.common import log
 
 

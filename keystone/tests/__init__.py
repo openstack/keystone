@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo import i18n
 import six
 
 
@@ -37,13 +38,10 @@ if six.PY3:
     sys.modules['pycadf'] = mock.Mock()
     sys.modules['paste'] = mock.Mock()
 
-
-# NOTE(dstanek): gettextutils.enable_lazy() must be called before
-# gettextutils._() is called to ensure it has the desired lazy lookup
+# NOTE(dstanek): i18n.enable_lazy() must be called before
+# keystone.i18n._() is called to ensure it has the desired lazy lookup
 # behavior. This includes cases, like keystone.exceptions, where
-# gettextutils._() is called at import time.
-from keystone.openstack.common import gettextutils as _gettextutils
-
-_gettextutils.enable_lazy()
+# keystone.i18n._() is called at import time.
+i18n.enable_lazy()
 
 from keystone.tests.core import *  # noqa

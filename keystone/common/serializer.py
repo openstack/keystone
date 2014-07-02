@@ -25,7 +25,7 @@ import re
 
 import six
 
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 
 
 DOCTYPE = '<?xml version="1.0" encoding="UTF-8"?>'

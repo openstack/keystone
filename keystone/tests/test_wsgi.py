@@ -16,17 +16,14 @@ import gettext
 import socket
 import uuid
 
-from babel import localedata
 import mock
-from oslotest import mockpatch
+from oslo import i18n
 from testtools import matchers
 import webob
 
 from keystone.common import environment
 from keystone.common import wsgi
 from keystone import exception
-from keystone.openstack.common import gettextutils
-from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import jsonutils
 from keystone import tests
 
@@ -272,77 +269,49 @@ class MiddlewareTest(BaseWSGITest):
 
 
 class LocalizedResponseTest(tests.TestCase):
-    def setUp(self):
-        super(LocalizedResponseTest, self).setUp()
-
-        gettextutils._AVAILABLE_LANGUAGES.clear()
-        self.addCleanup(gettextutils._AVAILABLE_LANGUAGES.clear)
-
-    def _set_expected_languages(self, all_locales, avail_locales=None):
-        # Override localedata.locale_identifiers to return some locales.
-        def returns_some_locales(*args, **kwargs):
-            return all_locales
-
-        self.useFixture(mockpatch.PatchObject(
-            localedata, 'locale_identifiers', returns_some_locales))
-
-        # Override gettext.find to return other than None for some languages.
-        def fake_gettext_find(lang_id, *args, **kwargs):
-            found_ret = '/keystone/%s/LC_MESSAGES/keystone.mo' % lang_id
-            if avail_locales is None:
-                # All locales are available.
-                return found_ret
-            languages = kwargs['languages']
-            if languages[0] in avail_locales:
-                return found_ret
-            return None
-
-        self.useFixture(mockpatch.PatchObject(
-            gettext, 'find', fake_gettext_find))
-
     def test_request_match_default(self):
         # The default language if no Accept-Language is provided is None
         req = webob.Request.blank('/')
         self.assertIsNone(wsgi.best_match_language(req))
 
-    def test_request_match_language_expected(self):
+    @mock.patch.object(i18n, 'get_available_languages')
+    def test_request_match_language_expected(self, mock_gal):
         # If Accept-Language is a supported language, best_match_language()
         # returns it.
 
-        self._set_expected_languages(all_locales=['it'])
+        language = uuid.uuid4().hex
+        mock_gal.return_value = [language]
 
-        req = webob.Request.blank('/', headers={'Accept-Language': 'it'})
-        self.assertEqual(wsgi.best_match_language(req), 'it')
+        req = webob.Request.blank('/', headers={'Accept-Language': language})
+        self.assertEqual(wsgi.best_match_language(req), language)
 
-    def test_request_match_language_unexpected(self):
+    @mock.patch.object(i18n, 'get_available_languages')
+    def test_request_match_language_unexpected(self, mock_gal):
         # If Accept-Language is a language we do not support,
         # best_match_language() returns None.
 
-        self._set_expected_languages(all_locales=['it'])
+        supported_language = uuid.uuid4().hex
+        mock_gal.return_value = [supported_language]
 
-        req = webob.Request.blank('/', headers={'Accept-Language': 'zh'})
+        request_language = uuid.uuid4().hex
+        req = webob.Request.blank(
+            '/', headers={'Accept-Language': request_language})
         self.assertIsNone(wsgi.best_match_language(req))
 
-    def test_static_translated_string_is_Message(self):
-        # Statically created message strings are Message objects so that they
-        # are lazy-translated.
-        self.assertIsInstance(exception.Unauthorized.message_format,
-                              gettextutils.Message)
+    def test_static_translated_string_is_lazy_translatable(self):
+        # Statically created message strings are an object that can get
+        # lazy-translated rather than a regular string.
+        self.assertNotEqual(type(exception.Unauthorized.message_format),
+                            unicode)
 
-    def test_dynamic_translated_string_is_Message(self):
-        # Dynamically created message strings are Message objects so that they
-        # are lazy-translated.
-        self.assertIsInstance(_('The resource could not be found.'),
-                              gettextutils.Message)
-
-    def test_get_localized_response(self):
+    @mock.patch.object(i18n, 'get_available_languages')
+    def test_get_localized_response(self, mock_gal):
         # If the request has the Accept-Language set to a supported language
         # and an exception is raised by the application that is translatable
         # then the response will have the translated message.
 
         language = uuid.uuid4().hex
-
-        self._set_expected_languages(all_locales=[language])
+        mock_gal.return_value = [language]
 
         # The arguments for the xlated message format have to match the args
         # for the chosen exception (exception.NotFound)

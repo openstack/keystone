@@ -16,8 +16,8 @@ from keystone.common import dependency
 from keystone.common import sql
 from keystone.common import utils
 from keystone import exception
+from keystone.i18n import _
 from keystone import identity
-from keystone.openstack.common.gettextutils import _
 
 # Import assignment sql to ensure that the models defined in there are
 # available for the reference from User and Group to Domain.id.

@@ -26,8 +26,8 @@ See also:
 
 import six
 
+from keystone.i18n import _
 from keystone import notifications
-from keystone.openstack.common.gettextutils import _
 
 
 REGISTRY = {}

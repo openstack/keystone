@@ -95,10 +95,10 @@ class HackingCode(fixtures.Fixture):
         'code': """
             import logging
             import logging as stlib_logging
+            from keystone.i18n import _
+            from keystone.i18n import _ as oslog_i18n
             from keystone.openstack.common import log
             from keystone.openstack.common import log as oslo_logging
-            from keystone.openstack.common.gettextutils import _
-            from keystone.openstack.common.gettextutils import _ as oslog_i18n
 
             # stdlib logging
             L0 = logging.getLogger()
