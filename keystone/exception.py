@@ -76,8 +76,8 @@ class Error(Exception):
 
 
 class ValidationError(Error):
-    message_format = _("Expecting to find %(attribute)s in %(target)s."
-                       " The server could not comply with the request"
+    message_format = _("Expecting to find %(attribute)s in %(target)s -"
+                       " the server could not comply with the request"
                        " since it is either malformed or otherwise"
                        " incorrect. The client is assumed to be in error.")
     code = 400
@@ -183,7 +183,7 @@ class Forbidden(SecurityError):
 
 class ForbiddenAction(Forbidden):
     message_format = _("You are not authorized to perform the"
-                       " requested action, %(action)s.")
+                       " requested action: %(action)s")
 
 
 class ImmutableAttributeError(Forbidden):
@@ -192,13 +192,13 @@ class ImmutableAttributeError(Forbidden):
 
 
 class NotFound(Error):
-    message_format = _("Could not find, %(target)s.")
+    message_format = _("Could not find: %(target)s")
     code = 404
     title = 'Not Found'
 
 
 class EndpointNotFound(NotFound):
-    message_format = _("Could not find endpoint, %(endpoint_id)s.")
+    message_format = _("Could not find endpoint: %(endpoint_id)s")
 
 
 class MetadataNotFound(NotFound):
@@ -210,72 +210,72 @@ class MetadataNotFound(NotFound):
 
 
 class PolicyNotFound(NotFound):
-    message_format = _("Could not find policy, %(policy_id)s.")
+    message_format = _("Could not find policy: %(policy_id)s")
 
 
 class RoleNotFound(NotFound):
-    message_format = _("Could not find role, %(role_id)s.")
+    message_format = _("Could not find role: %(role_id)s")
 
 
 class RegionNotFound(NotFound):
-    message_format = _("Could not find region, %(region_id)s.")
+    message_format = _("Could not find region: %(region_id)s")
 
 
 class ServiceNotFound(NotFound):
-    message_format = _("Could not find service, %(service_id)s.")
+    message_format = _("Could not find service: %(service_id)s")
 
 
 class DomainNotFound(NotFound):
-    message_format = _("Could not find domain, %(domain_id)s.")
+    message_format = _("Could not find domain: %(domain_id)s")
 
 
 class ProjectNotFound(NotFound):
-    message_format = _("Could not find project, %(project_id)s.")
+    message_format = _("Could not find project: %(project_id)s")
 
 
 class TokenNotFound(NotFound):
-    message_format = _("Could not find token, %(token_id)s.")
+    message_format = _("Could not find token: %(token_id)s")
 
 
 class UserNotFound(NotFound):
-    message_format = _("Could not find user, %(user_id)s.")
+    message_format = _("Could not find user: %(user_id)s")
 
 
 class GroupNotFound(NotFound):
-    message_format = _("Could not find group, %(group_id)s.")
+    message_format = _("Could not find group: %(group_id)s")
 
 
 class MappingNotFound(NotFound):
-    message_format = _("Could not find mapping, %(mapping_id)s.")
+    message_format = _("Could not find mapping: %(mapping_id)s")
 
 
 class TrustNotFound(NotFound):
-    message_format = _("Could not find trust, %(trust_id)s.")
+    message_format = _("Could not find trust: %(trust_id)s")
 
 
 class TrustUseLimitReached(Forbidden):
-    message_format = _("No remaining uses for trust %(trust_id)s.")
+    message_format = _("No remaining uses for trust: %(trust_id)s")
 
 
 class CredentialNotFound(NotFound):
-    message_format = _("Could not find credential, %(credential_id)s.")
+    message_format = _("Could not find credential: %(credential_id)s")
 
 
 class VersionNotFound(NotFound):
-    message_format = _("Could not find version, %(version)s.")
+    message_format = _("Could not find version: %(version)s")
 
 
 class IdentityProviderNotFound(NotFound):
-    message_format = _("Could not find IdentityProvider, %(idp_id)s.")
+    message_format = _("Could not find Identity Provider: %(idp_id)s")
 
 
 class FederatedProtocolNotFound(NotFound):
     message_format = _("Could not find federated protocol %(protocol_id)s for"
-                       " IdentityProvider, %(idp_id)s")
+                       " Identity Provider: %(idp_id)s")
 
 
 class Conflict(Error):
-    message_format = _("Conflict occurred attempting to store %(type)s."
+    message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s")
     code = 409
     title = 'Conflict'
@@ -293,7 +293,7 @@ class UnexpectedError(SecurityError):
                         "from fulfilling your request.")
 
     debug_message_format = _("An unexpected error prevented the server "
-                             "from fulfilling your request. %(exception)s")
+                             "from fulfilling your request: %(exception)s")
 
     @property
     def message_format(self):
