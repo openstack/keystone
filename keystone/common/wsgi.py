@@ -600,15 +600,25 @@ class ExtensionRouter(Router):
 
 def render_response(body=None, status=None, headers=None):
     """Forms a WSGI response."""
-    headers = headers or []
+    if headers is None:
+        headers = []
+    else:
+        headers = list(headers)
     headers.append(('Vary', 'X-Auth-Token'))
 
     if body is None:
         body = ''
         status = status or (204, 'No Content')
     else:
-        body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
-        headers.append(('Content-Type', 'application/json'))
+        content_types = [v for h, v in headers if h == 'Content-Type']
+        if content_types:
+            content_type = content_types[0]
+        else:
+            content_type = None
+        if content_type is None or content_type == 'application/json':
+            body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
+            if content_type is None:
+                headers.append(('Content-Type', 'application/json'))
         status = status or (200, 'OK')
 
     return webob.Response(body=body,
