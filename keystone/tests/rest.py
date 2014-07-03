@@ -103,7 +103,7 @@ class RestfulTestCase(tests.TestCase):
 
         example::
 
-             self.assertResponseSuccessful(response, 203)
+             self.assertResponseSuccessful(response)
         """
         self.assertTrue(
             response.status_code >= 200 and response.status_code <= 299,
