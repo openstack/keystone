@@ -161,6 +161,12 @@
     "identity:delete_mapping": "rule:cloud_admin",
     "identity:update_mapping": "rule:cloud_admin",
 
+    "identity:create_service_provider": "rule:cloud_admin",
+    "identity:list_service_providers": "rule:cloud_admin",
+    "identity:get_service_provider": "rule:cloud_admin",
+    "identity:update_service_provider": "rule:cloud_admin",
+    "identity:delete_service_provider": "rule:cloud_admin",
+
     "identity:get_auth_catalog": "",
     "identity:get_auth_projects": "",
     "identity:get_auth_domains": "",

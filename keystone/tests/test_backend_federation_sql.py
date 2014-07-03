@@ -36,3 +36,11 @@ class SqlFederation(test_backend_sql.SqlModels):
         cols = (('id', sql.String, 64),
                 ('rules', sql.JsonBlob, None))
         self.assertExpectedSchema('mapping', cols)
+
+    def test_service_provider(self):
+        cols = (('auth_url', sql.String, 256),
+                ('id', sql.String, 64),
+                ('enabled', sql.Boolean, None),
+                ('description', sql.Text, None),
+                ('sp_url', sql.String, 256))
+        self.assertExpectedSchema('service_provider', cols)

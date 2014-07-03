@@ -148,6 +148,12 @@
     "identity:delete_mapping": "rule:admin_required",
     "identity:update_mapping": "rule:admin_required",
 
+    "identity:create_service_provider": "rule:admin_required",
+    "identity:list_service_providers": "rule:admin_required",
+    "identity:get_service_provider": "rule:admin_required",
+    "identity:update_service_provider": "rule:admin_required",
+    "identity:delete_service_provider": "rule:admin_required",
+
     "identity:get_auth_catalog": "",
     "identity:get_auth_projects": "",
     "identity:get_auth_domains": "",

@@ -337,6 +337,50 @@ class ProjectV3(controller.V3Controller):
         return ProjectV3.wrap_collection(context, projects)
 
 
+@dependency.requires('federation_api')
+class ServiceProvider(_ControllerBase):
+    """Service Provider representation."""
+
+    collection_name = 'service_providers'
+    member_name = 'service_provider'
+
+    _mutable_parameters = frozenset(['auth_url', 'description', 'enabled',
+                                     'sp_url'])
+    _public_parameters = frozenset(['auth_url', 'id', 'enabled', 'description',
+                                    'links', 'sp_url'])
+
+    @controller.protected()
+    def create_service_provider(self, context, sp_id, service_provider):
+        service_provider = self._normalize_dict(service_provider)
+        service_provider.setdefault('enabled', False)
+        ServiceProvider.check_immutable_params(service_provider)
+        sp_ref = self.federation_api.create_sp(sp_id, service_provider)
+        response = ServiceProvider.wrap_member(context, sp_ref)
+        return wsgi.render_response(body=response, status=('201', 'Created'))
+
+    @controller.protected()
+    def list_service_providers(self, context):
+        ref = self.federation_api.list_sps()
+        ref = [self.filter_params(x) for x in ref]
+        return ServiceProvider.wrap_collection(context, ref)
+
+    @controller.protected()
+    def get_service_provider(self, context, sp_id):
+        ref = self.federation_api.get_sp(sp_id)
+        return ServiceProvider.wrap_member(context, ref)
+
+    @controller.protected()
+    def delete_service_provider(self, context, sp_id):
+        self.federation_api.delete_sp(sp_id)
+
+    @controller.protected()
+    def update_service_provider(self, context, sp_id, service_provider):
+        service_provider = self._normalize_dict(service_provider)
+        ServiceProvider.check_immutable_params(service_provider)
+        sp_ref = self.federation_api.update_sp(sp_id, service_provider)
+        return ServiceProvider.wrap_member(context, sp_ref)
+
+
 class SAMLMetadataV3(_ControllerBase):
     member_name = 'metadata'
 

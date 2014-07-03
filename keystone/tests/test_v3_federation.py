@@ -2356,3 +2356,150 @@ class IdPMetadataGenerationTests(FederationTests):
 
         reference_file = _load_xml('idp_saml2_metadata.xml')
         self.assertEqual(reference_file, r.result)
+
+
+class ServiceProviderTests(FederationTests):
+    """A test class for Service Providers."""
+
+    MEMBER_NAME = 'service_provider'
+    COLLECTION_NAME = 'service_providers'
+    SERVICE_PROVIDER_ID = 'ACME'
+    SP_KEYS = ['auth_url', 'id', 'enabled', 'description', 'sp_url']
+
+    def setUp(self):
+        super(FederationTests, self).setUp()
+        # Add a Service Provider
+        url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
+        self.SP_REF = self.sp_ref()
+        self.SERVICE_PROVIDER = self.put(
+            url, body={'service_provider': self.SP_REF},
+            expected_status=201).result
+
+    def sp_ref(self):
+        ref = {
+            'auth_url': 8 * uuid.uuid4().hex,
+            'enabled': True,
+            'description': uuid.uuid4().hex,
+            'sp_url': 8 * uuid.uuid4().hex
+        }
+        return ref
+
+    def base_url(self, suffix=None):
+        if suffix is not None:
+            return '/OS-FEDERATION/service_providers/' + str(suffix)
+        return '/OS-FEDERATION/service_providers'
+
+    def test_get_service_provider(self):
+        url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
+        resp = self.get(url, expected_status=200)
+        self.assertValidEntity(resp.result['service_provider'],
+                               keys_to_check=self.SP_KEYS)
+
+    def test_get_service_provider_fail(self):
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        self.get(url, expected_status=404)
+
+    def test_create_service_provider(self):
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        sp = self.sp_ref()
+        resp = self.put(url, body={'service_provider': sp},
+                        expected_status=201)
+        self.assertValidEntity(resp.result['service_provider'],
+                               keys_to_check=self.SP_KEYS)
+
+    def test_create_service_provider_fail(self):
+        """Try adding SP object with unallowed attribute."""
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        sp = self.sp_ref()
+        sp[uuid.uuid4().hex] = uuid.uuid4().hex
+        self.put(url, body={'service_provider': sp},
+                 expected_status=403)
+
+    def test_list_service_providers(self):
+        """Test listing of service provider objects.
+
+        Add two new service providers. List all available service providers.
+        Expect to get list of three service providers (one created by setUp())
+        Test if attributes match.
+
+        """
+        ref_service_providers = {
+            uuid.uuid4().hex: self.sp_ref(),
+            uuid.uuid4().hex: self.sp_ref(),
+        }
+        for id, sp in ref_service_providers.items():
+            url = self.base_url(suffix=id)
+            self.put(url, body={'service_provider': sp}, expected_status=201)
+
+        # Insert ids into service provider object, we will compare it with
+        # responses from server and those include 'id' attribute.
+
+        ref_service_providers[self.SERVICE_PROVIDER_ID] = self.SP_REF
+        for id, sp in ref_service_providers.items():
+            sp['id'] = id
+
+        url = self.base_url()
+        resp = self.get(url)
+        service_providers = resp.result
+        for service_provider in service_providers['service_providers']:
+            id = service_provider['id']
+            self.assertValidEntity(
+                service_provider, ref=ref_service_providers[id],
+                keys_to_check=self.SP_KEYS)
+
+    def test_update_service_provider(self):
+        """Update existing service provider.
+
+        Update default existing service provider and make sure it has been
+        properly change.
+
+        """
+        new_sp_ref = self.sp_ref()
+        url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
+        resp = self.patch(url, body={'service_provider': new_sp_ref},
+                          expected_status=200)
+        patch_result = resp.result
+        new_sp_ref['id'] = self.SERVICE_PROVIDER_ID
+        self.assertValidEntity(patch_result['service_provider'],
+                               ref=new_sp_ref,
+                               keys_to_check=self.SP_KEYS)
+
+        resp = self.get(url, expected_status=200)
+        get_result = resp.result
+
+        self.assertDictEqual(patch_result['service_provider'],
+                             get_result['service_provider'])
+
+    def test_update_service_provider_immutable_parameters(self):
+        """Update immutable attributes in service provider.
+
+        In this particular case the test will try to change ``id`` attribute.
+        Expectet server to return error code
+
+        """
+        new_sp_ref = {'id': uuid.uuid4().hex}
+        url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
+        self.patch(url, body={'service_provider': new_sp_ref},
+                   expected_status=403)
+
+    def test_update_service_provider_unknown_parameter(self):
+        new_sp_ref = self.sp_ref()
+        new_sp_ref[uuid.uuid4().hex] = uuid.uuid4().hex
+        url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
+        self.patch(url, body={'service_provider': new_sp_ref},
+                   expected_status=403)
+
+    def test_update_service_provider_404(self):
+        new_sp_ref = self.sp_ref()
+        new_sp_ref['description'] = uuid.uuid4().hex
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        self.patch(url, body={'service_provider': new_sp_ref},
+                   expected_status=404)
+
+    def test_delete_service_provider(self):
+        url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
+        self.delete(url, expected_status=204)
+
+    def test_delete_service_provider_404(self):
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        self.delete(url, expected_status=404)

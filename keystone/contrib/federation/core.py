@@ -224,3 +224,70 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def create_sp(self, sp_id, sp):
+        """Create a service provider.
+
+        :param sp_id: id of the service provider
+        :type sp_id: string
+        :param sp: service prvider object
+        :type sp: dict
+
+        :returns: sp_ref
+        :rtype: dict
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_sp(self, sp_id):
+        """Delete a service provider.
+
+        :param sp_id: id of the service provider
+        :type sp_id: string
+
+        :raises: keystone.exception.ServiceProviderNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_sps(self):
+        """List all service providers.
+
+        :returns List of sp_ref objects
+        :rtype: list of dicts
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_sp(self, sp_id):
+        """Get a service provider.
+
+        :param sp_id: id of the service provider
+        :type sp_id: string
+
+        :returns: sp_ref
+        :raises: keystone.exception.ServiceProviderNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_sp(self, sp_id, sp):
+        """Update a service provider.
+
+        :param sp_id: id of the service provider
+        :type sp_id: string
+        :param sp: service prvider object
+        :type sp: dict
+
+        :returns: sp_ref
+        :rtype: dict
+
+        :raises: keystone.exception.ServiceProviderNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover

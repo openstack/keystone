@@ -29,6 +29,7 @@ build_parameter_relation = functools.partial(
 IDP_ID_PARAMETER_RELATION = build_parameter_relation(parameter_name='idp_id')
 PROTOCOL_ID_PARAMETER_RELATION = build_parameter_relation(
     parameter_name='protocol_id')
+SP_ID_PARAMETER_RELATION = build_parameter_relation(parameter_name='sp_id')
 
 
 class FederationExtension(wsgi.V3ExtensionRouter):
@@ -62,16 +63,19 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         GET /OS-FEDERATION/projects
         GET /OS-FEDERATION/domains
 
+        PUT /OS-FEDERATION/service_providers/$service_provider
+        GET /OS-FEDERATION/service_providers
+        GET /OS-FEDERATION/service_providers/$service_provider
+        DELETE /OS-FEDERATION/service_providers/$service_provider
+        PATCH /OS-FEDERATION/service_providers/$service_provider
+
         GET /OS-FEDERATION/identity_providers/$identity_provider/
             protocols/$protocol/auth
         POST /OS-FEDERATION/identity_providers/$identity_provider/
             protocols/$protocol/auth
 
-
         POST /auth/OS-FEDERATION/saml2
-
         GET /OS-FEDERATION/saml2/metadata
-
 
     """
     def _construct_url(self, suffix):
@@ -88,6 +92,7 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         project_controller = controllers.ProjectV3()
         domain_controller = controllers.DomainV3()
         saml_metadata_controller = controllers.SAMLMetadataV3()
+        sp_controller = controllers.ServiceProvider()
 
         # Identity Provider CRUD operations
 
@@ -153,6 +158,27 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             path=self._construct_url('mappings'),
             get_action='list_mappings',
             rel=build_resource_relation(resource_name='mappings'))
+
+        # Service Providers CRUD operations
+
+        self._add_resource(
+            mapper, sp_controller,
+            path=self._construct_url('service_providers/{sp_id}'),
+            get_action='get_service_provider',
+            put_action='create_service_provider',
+            patch_action='update_service_provider',
+            delete_action='delete_service_provider',
+            rel=build_resource_relation(resource_name='service_provider'),
+            path_vars={
+                'sp_id': SP_ID_PARAMETER_RELATION,
+            })
+
+        self._add_resource(
+            mapper, sp_controller,
+            path=self._construct_url('service_providers'),
+            get_action='list_service_providers',
+            rel=build_resource_relation(resource_name='service_providers'))
+
         self._add_resource(
             mapper, domain_controller,
             path=self._construct_url('domains'),
