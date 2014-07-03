@@ -31,7 +31,6 @@ from keystone.openstack.common import log
 
 notifier_opts = [
     cfg.StrOpt('default_publisher_id',
-               default=None,
                help='Default publisher_id for outgoing notifications'),
 ]
 
