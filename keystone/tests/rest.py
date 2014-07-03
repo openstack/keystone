@@ -118,7 +118,7 @@ class RestfulTestCase(tests.TestCase):
 
         example::
 
-            self.assertResponseStatus(response, 203)
+            self.assertResponseStatus(response, 204)
         """
         self.assertEqual(
             response.status_code,
