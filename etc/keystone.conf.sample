@@ -905,6 +905,15 @@
 # LDAP attribute mapped to user enabled flag. (string value)
 #user_enabled_attribute=enabled
 
+# Invert the meaning of the boolean enabled values. Some LDAP
+# servers use a boolean lock attribute where "true" means an
+# account is disabled. Setting "user_enabled_invert = true"
+# will allow these lock attributes to be used. This setting
+# will have no effect if "user_enabled_mask" or
+# "user_enabled_emulation" settings are in use. (boolean
+# value)
+#user_enabled_invert=false
+
 # Bitmask integer to indicate the bit that the enabled value
 # is stored in if the LDAP server represents "enabled" as a
 # bit on an integer rather than a boolean. A value of "0"

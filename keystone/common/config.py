@@ -516,6 +516,14 @@ FILE_OPTIONS = {
                    help='LDAP attribute mapped to password.'),
         cfg.StrOpt('user_enabled_attribute', default='enabled',
                    help='LDAP attribute mapped to user enabled flag.'),
+        cfg.BoolOpt('user_enabled_invert', default=False,
+                    help='Invert the meaning of the boolean enabled values. '
+                         'Some LDAP servers use a boolean lock attribute '
+                         'where "true" means an account is disabled. Setting '
+                         '"user_enabled_invert = true" will allow these lock '
+                         'attributes to be used. This setting will have no '
+                         'effect if "user_enabled_mask" or '
+                         '"user_enabled_emulation" settings are in use.'),
         cfg.IntOpt('user_enabled_mask', default=0,
                    help='Bitmask integer to indicate the bit that the enabled '
                         'value is stored in if the LDAP server represents '

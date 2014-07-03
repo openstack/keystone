@@ -102,6 +102,13 @@ class Identity(identity.Driver):
 
         if self.user.enabled_mask:
             self.user.mask_enabled_attribute(user)
+        elif self.user.enabled_invert and not self.user.enabled_emulation:
+            # We need to invert the enabled value for the old model object
+            # to prevent the LDAP update code from thinking that the enabled
+            # values are already equal.
+            user['enabled'] = not user['enabled']
+            old_obj['enabled'] = not old_obj['enabled']
+
         self.user.update(user_id, user, old_obj)
         return self.user.get_filtered(user_id)
 
@@ -203,6 +210,8 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         super(UserApi, self).__init__(conf)
         self.enabled_mask = conf.ldap.user_enabled_mask
         self.enabled_default = conf.ldap.user_enabled_default
+        self.enabled_invert = conf.ldap.user_enabled_invert
+        self.enabled_emulation = conf.ldap.user_enabled_emulation
 
     def _ldap_res_to_model(self, res):
         obj = super(UserApi, self)._ldap_res_to_model(res)
@@ -210,6 +219,9 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             enabled = int(obj.get('enabled', self.enabled_default))
             obj['enabled'] = ((enabled & self.enabled_mask) !=
                               self.enabled_mask)
+        elif self.enabled_invert and not self.enabled_emulation:
+            enabled = obj.get('enabled', self.enabled_default)
+            obj['enabled'] = not enabled
         obj['dn'] = res[0]
 
         return obj
@@ -227,8 +239,15 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         if self.enabled_mask:
             orig_enabled = values['enabled']
             self.mask_enabled_attribute(values)
+        elif self.enabled_invert and not self.enabled_emulation:
+            orig_enabled = values['enabled']
+            if orig_enabled is not None:
+                values['enabled'] = not orig_enabled
+            else:
+                values['enabled'] = self.enabled_default
         values = super(UserApi, self).create(values)
-        if self.enabled_mask:
+        if self.enabled_mask or (self.enabled_invert and
+                                 not self.enabled_emulation):
             values['enabled'] = orig_enabled
         return values
 
