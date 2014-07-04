@@ -33,3 +33,8 @@ class SqlFederation(test_backend_sql.SqlModels):
                 ('idp_id', sql.String, 64),
                 ('mapping_id', sql.String, 64))
         self.assertExpectedSchema('federation_protocol', cols)
+
+    def test_mapping(self):
+        cols = (('id', sql.String, 64),
+                ('rules', sql.JsonBlob, None))
+        self.assertExpectedSchema('mapping', cols)
