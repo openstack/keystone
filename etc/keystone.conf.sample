@@ -143,7 +143,7 @@
 #allowed_rpc_exception_modules=oslo.messaging.exceptions,nova.exception,cinder.exception,exceptions
 
 # Qpid broker hostname. (string value)
-#qpid_hostname=keystone
+#qpid_hostname=localhost
 
 # Qpid broker port. (integer value)
 #qpid_port=5672
@@ -200,7 +200,7 @@
 
 # The RabbitMQ broker address where a single node is used.
 # (string value)
-#rabbit_host=keystone
+#rabbit_host=localhost
 
 # The RabbitMQ broker port where a single node is used.
 # (integer value)
@@ -550,12 +550,6 @@
 # dogpile.cache.memory backend. (string value)
 #backend=keystone.common.cache.noop
 
-# Use a key-mangling function (sha1) to ensure fixed length
-# cache-keys. This is toggle-able for debugging purposes, it
-# is highly recommended to always leave this set to true.
-# (boolean value)
-#use_key_mangler=true
-
 # Arguments supplied to the backend module. Specify this
 # option once per argument to be passed to the dogpile.cache
 # backend. Example format: "<argname>:<value>". (multi valued)
@@ -826,7 +820,7 @@
 #
 
 # URL for connecting to the LDAP server. (string value)
-#url=ldap://keystone
+#url=ldap://localhost
 
 # User BindDN to query the LDAP server. (string value)
 #user=<None>
@@ -1294,7 +1288,7 @@
 
 # SSL certificate subject (auto generated certificate).
 # (string value)
-#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=keystone
+#cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 
 [stats]
