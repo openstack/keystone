@@ -169,9 +169,12 @@ class RestfulTestCase(tests.TestCase):
                 response.result = jsonutils.loads(response.body)
             elif content_type == 'xml':
                 response.result = etree.fromstring(response.body)
+            else:
+                response.result = response.body
 
     def restful_request(self, method='GET', headers=None, body=None,
-                        content_type=None, **kwargs):
+                        content_type=None, response_content_type=None,
+                        **kwargs):
         """Serializes/deserializes json/xml as request/response body.
 
         .. WARNING::
@@ -189,7 +192,8 @@ class RestfulTestCase(tests.TestCase):
         response = self.request(method=method, headers=headers, body=body,
                                 **kwargs)
 
-        self._from_content_type(response, content_type)
+        response_content_type = response_content_type or content_type
+        self._from_content_type(response, content_type=response_content_type)
 
         # we can save some code & improve coverage by always doing this
         if method != 'HEAD' and response.status_code >= 400:
