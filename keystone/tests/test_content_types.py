@@ -246,7 +246,7 @@ class CoreApiTests(object):
                 'token_id': token,
             },
             token=token,
-            expected_status=204)
+            expected_status=200)
 
     def test_endpoints(self):
         token = self.get_scoped_token()

@@ -490,7 +490,12 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def check_token(self, context):
         token_id = context.get('subject_token_id')
-        self.token_provider_api.check_v3_token(token_id)
+        token_data = self.token_provider_api.validate_v3_token(
+            token_id)
+        # NOTE(morganfainberg): The code in
+        # ``keystone.common.wsgi.render_response`` will remove the content
+        # body.
+        return render_token_data_response(token_id, token_data)
 
     @controller.protected()
     def revoke_token(self, context):

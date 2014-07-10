@@ -156,6 +156,13 @@ class ApplicationTest(BaseWSGITest):
         self.assertEqual(resp.headers.get('Content-Length'), '0')
         self.assertIsNone(resp.headers.get('Content-Type'))
 
+    def test_render_response_head_with_body(self):
+        resp = wsgi.render_response({'id': uuid.uuid4().hex}, method='HEAD')
+        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(resp.body, b'')
+        self.assertNotEqual(resp.headers.get('Content-Length'), '0')
+        self.assertEqual(resp.headers.get('Content-Type'), 'application/json')
+
     def test_application_local_config(self):
         class FakeApp(wsgi.Application):
             def __init__(self, *args, **kwargs):
