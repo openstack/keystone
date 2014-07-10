@@ -75,9 +75,13 @@ class Mapping(identity.MappingDriver):
 
     def delete_id_mapping(self, public_id):
         with sql.transaction() as session:
-            ref = session.query(IDMapping).get(public_id)
-            if ref:
-                session.delete(ref)
+            try:
+                session.query(IDMapping).filter(
+                    IDMapping.public_id == public_id).delete()
+            except sql.NotFound:
+                # NOTE(morganfainberg): There is nothing to delete and nothing
+                # to do.
+                pass
 
     def purge_mappings(self, purge_filter):
         session = sql.get_session()
