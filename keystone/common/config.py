@@ -41,8 +41,13 @@ FILE_OPTIONS = {
                    help='The IP address of the network interface for the '
                         'admin service to listen on.'),
         cfg.IntOpt('compute_port', default=8774,
-                   help='The port which the OpenStack Compute service '
-                        'listens on.'),
+                   help='(Deprecated) The port which the OpenStack Compute '
+                        'service listens on. This option was only used for '
+                        'string replacement in the templated catalog backend. '
+                        'Templated catalogs should replace the '
+                        '"$(compute_port)s" substitution with the static port '
+                        'of the compute service. As of Juno, this option is '
+                        'deprecated and will be removed in the L release.'),
         cfg.IntOpt('admin_port', default=35357,
                    help='The port number which the admin service listens '
                         'on.'),

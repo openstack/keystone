@@ -22,8 +22,13 @@
 # Deprecated group/name - [DEFAULT]/bind_host
 #admin_bind_host=0.0.0.0
 
-# The port which the OpenStack Compute service listens on.
-# (integer value)
+# (Deprecated) The port which the OpenStack Compute service
+# listens on. This option was only used for string replacement
+# in the templated catalog backend. Templated catalogs should
+# replace the "$(compute_port)s" substitution with the static
+# port of the compute service. As of Juno, this option is
+# deprecated and will be removed in the L release. (integer
+# value)
 #compute_port=8774
 
 # The port number which the admin service listens on. (integer

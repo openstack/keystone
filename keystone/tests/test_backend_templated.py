@@ -67,7 +67,7 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
 
         (self.catalog_api.driver.templates
          ['RegionOne']['compute']['adminURL']) = \
-            'http://localhost:$(compute_port)s/v1.1/$(tenant)s'
+            'http://localhost:8774/v1.1/$(tenant)s'
 
         # the malformed one has been removed
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
