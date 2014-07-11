@@ -20,7 +20,10 @@ import six
 
 from keystone.common import dependency
 from keystone.common import manager
+from keystone import config
 from keystone import exception
+
+CONF = config.CONF
 
 
 @dependency.provider('id_generator_api')
@@ -28,9 +31,7 @@ class Manager(manager.Manager):
     """Default pivot point for the identifier generator backend."""
 
     def __init__(self):
-        # TODO(henry-nash): Use a config option to select the generator driver
-        super(Manager, self).__init__(
-            'keystone.identity.id_generators.sha256.Generator')
+        super(Manager, self).__init__(CONF.identity_mapping.generator)
 
 
 @six.add_metaclass(abc.ABCMeta)
