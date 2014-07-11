@@ -20,25 +20,24 @@ Enabling Endpoint Filter Extension
 
 To enable the endpoint filter extension:
 
-1. add the endpoint filter extension catalog driver to the ``[catalog]`` section
-   in ``keystone.conf``. example::
+1. Add the endpoint filter extension catalog driver to the ``[catalog]`` section
+   in ``keystone.conf``. For example::
 
     [catalog]
     driver = keystone.contrib.endpoint_filter.backends.catalog_sql.EndpointFilterCatalog
 
-2. add the ``endpoint_filter_extension`` filter to the ``api_v3`` pipeline in
-   ``keystone-paste.ini``. example::
+2. Add the ``endpoint_filter_extension`` filter to the ``api_v3`` pipeline in
+   ``keystone-paste.ini``. For example::
 
     [pipeline:api_v3]
     pipeline = access_log sizelimit url_normalize token_auth admin_token_auth xml_body json_body ec2_extension s3_extension endpoint_filter_extension service_v3
 
-3. create the endpoint filter extension tables if using the provided sql backend. example::
+3. Create the endpoint filter extension tables if using the provided sql backend. For example::
 
     ./bin/keystone-manage db_sync --extension endpoint_filter
 
-4. optional: change ``return_all_endpoints_if_no_filter`` the ``[endpoint_filter]`` section
-   in ``keystone.conf`` to return an empty catalog if no associations are made. example::
+4. Optionally, change ``return_all_endpoints_if_no_filter`` the ``[endpoint_filter]`` section
+   in ``keystone.conf`` to return an empty catalog if no associations are made. For example::
 
     [endpoint_filter]
     return_all_endpoints_if_no_filter = False
-
