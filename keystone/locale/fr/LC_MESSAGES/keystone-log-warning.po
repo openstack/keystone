@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-06-26 06:01+0000\n"
+"POT-Creation-Date: 2014-07-11 06:00+0000\n"
 "PO-Revision-Date: 2014-06-20 20:10+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
@@ -21,10 +21,13 @@ msgstr ""
 
 #: keystone/openstack/common/loopingcall.py:82
 #, python-format
-msgid "task run outlasted interval by %s sec"
-msgstr "durée d'exécution de la tâche supérieure à %s sec"
+msgid "task %(func_name)s run outlasted interval by %(delay)s sec"
+msgstr ""
 
 #: keystone/openstack/common/service.py:364
 #, python-format
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
+
+#~ msgid "task run outlasted interval by %s sec"
+#~ msgstr "durée d'exécution de la tâche supérieure à %s sec"
