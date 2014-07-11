@@ -11,9 +11,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-================================
-Enabling the OS-REVOKE Extension
-================================
+=================================
+Enabling the Revocation Extension
+=================================
 
 .. WARNING::
 
@@ -28,7 +28,7 @@ To enable the ``OS-REVOKE`` extension:
     [revoke]
     driver = keystone.contrib.revoke.backends.kvs.Revoke
 
-For the SQL driver::
+   For the SQL driver::
 
     driver = keystone.contrib.revoke.backends.sql.Revoke
 
