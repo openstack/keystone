@@ -3,22 +3,21 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
-# Andrew_Melim <nokostya.translation@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
 "POT-Creation-Date: 2014-07-11 06:00+0000\n"
-"PO-Revision-Date: 2014-07-07 13:01+0000\n"
+"PO-Revision-Date: 2014-07-06 03:50+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
-"fr/)\n"
-"Language: fr\n"
+"Language-Team: Italian (http://www.transifex.com/projects/p/keystone/"
+"language/it/)\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: keystone/auth/controllers.py:109
 #, python-format
@@ -30,66 +29,66 @@ msgstr ""
 #: keystone/openstack/common/eventlet_backdoor.py:140
 #, python-format
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
-msgstr "Eventlet backdoor en écoute sur le port %(port)s for process %(pid)d"
+msgstr ""
 
 #: keystone/openstack/common/lockutils.py:83
 #, python-format
 msgid "Created lock path: %s"
-msgstr "Chemin de verrou créé: %s"
+msgstr "Preato percorso di blocco : %s"
 
 #: keystone/openstack/common/lockutils.py:251
 #, python-format
 msgid "Failed to remove file %(file)s"
-msgstr "Echec de la suppression du fichier %(file)s"
+msgstr "Tentativo fallito nella rimozione di %(file)s"
 
 #: keystone/openstack/common/service.py:176
 #, python-format
 msgid "Caught %s, exiting"
-msgstr "%s interceptée, sortie"
+msgstr "Rilevato %s, esistente"
 
 #: keystone/openstack/common/service.py:240
 msgid "Parent process has died unexpectedly, exiting"
-msgstr "Processus parent arrêté de manière inattendue, sortie"
+msgstr "Il processo principale è stato interrotto inaspettatamente, uscire"
 
 #: keystone/openstack/common/service.py:271
 #, python-format
 msgid "Child caught %s, exiting"
-msgstr ""
+msgstr "Cogliere Child %s, uscendo"
 
 #: keystone/openstack/common/service.py:310
 msgid "Forking too fast, sleeping"
-msgstr "Bifurcation trop rapide, pause"
+msgstr "Sblocco troppo veloce, attendere"
 
 #: keystone/openstack/common/service.py:329
 #, python-format
 msgid "Started child %d"
-msgstr "Enfant démarré %d"
+msgstr "Child avviato %d"
 
 #: keystone/openstack/common/service.py:339
 #, python-format
 msgid "Starting %d workers"
-msgstr "Démarrage des travailleurs %d"
+msgstr "Avvio %d operatori"
 
 #: keystone/openstack/common/service.py:356
 #, python-format
 msgid "Child %(pid)d killed by signal %(sig)d"
-msgstr "Enfant %(pid)d arrêté par le signal %(sig)d"
+msgstr "Child %(pid)d interrotto dal segnale %(sig)d"
 
 #: keystone/openstack/common/service.py:360
 #, python-format
 msgid "Child %(pid)s exited with status %(code)d"
-msgstr "Processus fils %(pid)s terminé avec le status %(code)d"
+msgstr "Child %(pid)s terminato con stato %(code)d"
 
 #: keystone/openstack/common/service.py:399
 #, python-format
 msgid "Caught %s, stopping children"
-msgstr "%s interceptée, arrêt de l'enfant"
+msgstr "Intercettato %s, arresto in corso dei children"
 
 #: keystone/openstack/common/service.py:408
 msgid "Wait called after thread killed.  Cleaning up."
-msgstr "Pause demandée après suppression de thread. Nettoyage."
+msgstr "Attendere la chiamata dopo l'uccisione de filo. Bonifica."
 
 #: keystone/openstack/common/service.py:424
 #, python-format
 msgid "Waiting on %d children to exit"
-msgstr "En attente %d enfants pour sortie"
+msgstr "In attesa %d degli elementi secondari per uscire"

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2014.2.dev85.gf82b887\n"
+"Project-Id-Version: keystone 2014.2.dev144.gb3f9a5f\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-06-26 06:01+0000\n"
+"POT-Creation-Date: 2014-07-11 06:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: keystone/openstack/common/loopingcall.py:82
 #, python-format
-msgid "task run outlasted interval by %s sec"
+msgid "task %(func_name)s run outlasted interval by %(delay)s sec"
 msgstr ""
 
 #: keystone/openstack/common/service.py:364
