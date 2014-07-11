@@ -90,3 +90,52 @@ class HackingCode(fixtures.Fixture):
             (7, 8, 'K004'),
             (8, 8, 'K004'),
         ]}
+
+    assert_no_translations_for_debug_logging = {
+        'code': """
+            import logging
+            import logging as stlib_logging
+            from keystone.openstack.common import log
+            from keystone.openstack.common import log as oslo_logging
+            from keystone.openstack.common.gettextutils import _
+            from keystone.openstack.common.gettextutils import _ as oslog_i18n
+
+            # stdlib logging
+            L0 = logging.getLogger()
+            L0.debug(_('text'))
+            class C:
+                def __init__(self):
+                    L0.debug(oslog_i18n('text', {}))
+
+            # stdlib logging w/ alias and specifying a logger
+            class C:
+                def __init__(self):
+                    self.L1 = logging.getLogger(__name__)
+                def m(self):
+                    self.L1.debug(
+                        _('text'), {}
+                    )
+
+            # oslo logging and specifying a logger
+            L2 = log.getLogger(__name__)
+            L2.debug(oslog_i18n('text'))
+
+            # oslo logging w/ alias
+            class C:
+                def __init__(self):
+                    self.L3 = oslo_logging.getLogger()
+                    self.L3.debug(_('text'))
+
+            # translation on a separate line
+            msg = _('text')
+            L2.debug(msg)
+        """,
+        'expected_errors': [
+            (10, 9, 'K005'),
+            (13, 17, 'K005'),
+            (21, 12, 'K005'),
+            (26, 9, 'K005'),
+            (32, 22, 'K005'),
+            (36, 9, 'K005'),
+        ]
+    }

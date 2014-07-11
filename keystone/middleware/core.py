@@ -273,8 +273,8 @@ class AuthContextMiddleware(wsgi.Middleware):
 
     def process_request(self, request):
         if AUTH_TOKEN_HEADER not in request.headers:
-            LOG.debug(_('Auth token not in the request header. '
-                        'Will not build auth context.'))
+            LOG.debug(('Auth token not in the request header. '
+                       'Will not build auth context.'))
             return
 
         if authorization.AUTH_CONTEXT_ENV in request.environ:
@@ -283,5 +283,5 @@ class AuthContextMiddleware(wsgi.Middleware):
             return
 
         auth_context = self._build_auth_context(request)
-        LOG.debug(_('RBAC: auth_context: %s'), auth_context)
+        LOG.debug('RBAC: auth_context: %s', auth_context)
         request.environ[authorization.AUTH_CONTEXT_ENV] = auth_context

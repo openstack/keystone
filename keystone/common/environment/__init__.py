@@ -16,7 +16,6 @@ import functools
 import os
 
 from keystone.common import config
-from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 CONF = config.CONF
@@ -49,7 +48,7 @@ def configure_once(name):
                     raise SystemError("Environment has already been "
                                       "configured as %s" % _configured)
 
-            LOG.debug(_("Environment configured as: %s"), name)
+            LOG.debug("Environment configured as: %s", name)
             _configured = name
             return func(*args, **kwargs)
 

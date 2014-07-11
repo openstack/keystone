@@ -58,7 +58,7 @@ def v3_token_to_auth_context(token):
     if 'project' in token_data:
         creds['project_id'] = token_data['project']['id']
     else:
-        LOG.debug(_('RBAC: Proceeding without project'))
+        LOG.debug('RBAC: Proceeding without project')
     if 'domain' in token_data:
         creds['domain_id'] = token_data['domain']['id']
     if 'roles' in token_data:
@@ -102,7 +102,7 @@ def v2_token_to_auth_context(token):
     if 'tenant' in token_data['token']:
         creds['project_id'] = token_data['token']['tenant']['id']
     else:
-        LOG.debug(_('RBAC: Proceeding without tenant'))
+        LOG.debug('RBAC: Proceeding without tenant')
     if 'roles' in token_data['user']:
         creds['roles'] = [role['name'] for
                           role in token_data['user']['roles']]

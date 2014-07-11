@@ -138,8 +138,8 @@ class Tenant(controller.V2Controller):
                 user_ref = self.identity_api.get_user(user_id)
             except exception.UserNotFound:
                 # Log that user is missing and continue on.
-                message = _("User %(user_id)s in project %(project_id)s "
-                            "doesn't exist.")
+                message = ("User %(user_id)s in project %(project_id)s "
+                           "doesn't exist.")
                 LOG.debug(message,
                           {'user_id': user_id, 'project_id': tenant_id})
             else:

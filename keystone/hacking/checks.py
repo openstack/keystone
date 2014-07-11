@@ -25,6 +25,8 @@ please see pep8.py.
 
 import ast
 
+import six
+
 
 class BaseASTChecker(ast.NodeVisitor):
     """Provides a simple framework for writing AST-based checks.
@@ -135,7 +137,141 @@ class CheckForAssertingNoneEquality(BaseASTChecker):
         super(CheckForAssertingNoneEquality, self).generic_visit(node)
 
 
+class CheckForTranslationsInDebugLogging(BaseASTChecker):
+
+    CHECK_DESC = 'K005 Using translated string in debug logging'
+    LOG_MODULES = ('logging', 'keystone.openstack.common.log')
+    I18N_MODULES = ('keystone.openstack.common.gettextutils._')
+
+    def __init__(self, tree, filename):
+        super(CheckForTranslationsInDebugLogging, self).__init__(
+            tree, filename)
+
+        self.logger_names = []
+        self.logger_module_names = []
+        self.i18n_names = []
+
+        # NOTE(dstanek): this kinda accounts for scopes when talking
+        # about only leaf node in the graph
+        self.assignments = []
+
+    def _filter_imports(self, module_name, alias):
+        """Keeps lists of logging and i18n imports
+
+        """
+        if module_name in self.LOG_MODULES:
+            self.logger_module_names.append(alias.asname or alias.name)
+        elif module_name in self.I18N_MODULES:
+            self.i18n_names.append(alias.asname or alias.name)
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            self._filter_imports(alias.name, alias)
+        super(CheckForTranslationsInDebugLogging, self).generic_visit(node)
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            full_name = '%s.%s' % (node.module, alias.name)
+            self._filter_imports(full_name, alias)
+        super(CheckForTranslationsInDebugLogging, self).generic_visit(node)
+
+    def _find_name(self, node):
+        """Return the fully qualified name or a Name or Attribute."""
+        if isinstance(node, ast.Name):
+            return node.id
+        elif (isinstance(node, ast.Attribute)
+                and isinstance(node.value, (ast.Name, ast.Attribute))):
+            method_name = node.attr
+            obj_name = self._find_name(node.value)
+            if obj_name is None:
+                return None
+            return obj_name + '.' + method_name
+        elif isinstance(node, six.string_types):
+            return node
+        else:  # could be Subscript, Call or many more
+            return None
+
+    def visit_Assign(self, node):
+        """Look for 'LOG = logging.getLogger'
+
+        This only handles the simple case:
+          name = [logging_module].getLogger(...)
+
+          - or -
+
+          name = [i18n_name](...)
+
+        """
+        attr_node_types = (ast.Name, ast.Attribute)
+
+        if (len(node.targets) != 1
+                or not isinstance(node.targets[0], attr_node_types)):
+            # say no to: "x, y = ..."
+            return
+
+        target_name = self._find_name(node.targets[0])
+
+        if not isinstance(node.value, ast.Call):
+            # node.value must be a call to getLogger
+            return
+
+        # is this a call to an i18n function?
+        if (isinstance(node.value.func, ast.Name)
+                and node.value.func.id in self.i18n_names):
+            self.assignments.append(target_name)
+            return
+
+        if (not isinstance(node.value.func, ast.Attribute)
+                or not isinstance(node.value.func.value, attr_node_types)):
+            # function must be an attribute on an object like
+            # logging.getLogger
+            return
+
+        object_name = self._find_name(node.value.func.value)
+        func_name = node.value.func.attr
+
+        if (object_name in self.logger_module_names
+                and func_name == 'getLogger'):
+            self.logger_names.append(target_name)
+
+    def visit_Call(self, node):
+        """Look for the 'LOG.debug' calls.
+
+        """
+
+        # obj.method
+        if isinstance(node.func, ast.Attribute):
+            obj_name = self._find_name(node.func.value)
+            if isinstance(node.func.value, ast.Name):
+                method_name = node.func.attr
+            elif isinstance(node.func.value, ast.Attribute):
+                obj_name = self._find_name(node.func.value)
+                method_name = node.func.attr
+            else:  # could be Subscript, Call or many more
+                return
+
+            # must be a logger instance and the debug method
+            if obj_name not in self.logger_names or method_name != 'debug':
+                return
+
+            # the call must have arguments
+            if not len(node.args):
+                return
+
+            # if first arg is a call to a i18n name
+            if (isinstance(node.args[0], ast.Call)
+                    and isinstance(node.args[0].func, ast.Name)
+                    and node.args[0].func.id in self.i18n_names):
+                self.add_error(node.args[0])
+
+            # if the first arg is a reference to a i18n call
+            elif (isinstance(node.args[0], ast.Name)
+                    and node.args[0].id in self.assignments):
+                self.add_error(node.args[0])
+
+
 def factory(register):
     register(CheckForMutableDefaultArgs)
     register(block_comments_begin_with_a_space)
     register(CheckForAssertingNoneEquality)
+    register(CheckForTranslationsInDebugLogging)

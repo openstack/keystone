@@ -51,31 +51,31 @@ class DebugProxy(proxy.ProxyBackend):
 
     def get(self, key):
         value = self.proxied.get(key)
-        LOG.debug(_('CACHE_GET: Key: "%(key)r" Value: "%(value)r"'),
+        LOG.debug('CACHE_GET: Key: "%(key)r" Value: "%(value)r"',
                   {'key': key, 'value': value})
         return value
 
     def get_multi(self, keys):
         values = self.proxied.get_multi(keys)
-        LOG.debug(_('CACHE_GET_MULTI: "%(keys)r" Values: "%(values)r"'),
+        LOG.debug('CACHE_GET_MULTI: "%(keys)r" Values: "%(values)r"',
                   {'keys': keys, 'values': values})
         return values
 
     def set(self, key, value):
-        LOG.debug(_('CACHE_SET: Key: "%(key)r" Value: "%(value)r"'),
+        LOG.debug('CACHE_SET: Key: "%(key)r" Value: "%(value)r"',
                   {'key': key, 'value': value})
         return self.proxied.set(key, value)
 
     def set_multi(self, keys):
-        LOG.debug(_('CACHE_SET_MULTI: "%r"'), keys)
+        LOG.debug('CACHE_SET_MULTI: "%r"', keys)
         self.proxied.set_multi(keys)
 
     def delete(self, key):
         self.proxied.delete(key)
-        LOG.debug(_('CACHE_DELETE: "%r"'), key)
+        LOG.debug('CACHE_DELETE: "%r"', key)
 
     def delete_multi(self, keys):
-        LOG.debug(_('CACHE_DELETE_MULTI: "%r"'), keys)
+        LOG.debug('CACHE_DELETE_MULTI: "%r"', keys)
         self.proxied.delete_multi(keys)
 
 
@@ -101,7 +101,7 @@ def build_cache_config():
         arg_key = '.'.join([prefix, 'arguments', argname])
         conf_dict[arg_key] = argvalue
 
-        LOG.debug(_('Keystone Cache Config: %s'), conf_dict)
+        LOG.debug('Keystone Cache Config: %s', conf_dict)
 
     return conf_dict
 
@@ -146,7 +146,7 @@ def configure_cache_region(region):
             # ProxyBackends work, see the dogpile.cache documents on
             # "changing-backend-behavior"
             cls = importutils.import_class(class_path)
-            LOG.debug(_("Adding cache-proxy '%s' to backend."), class_path)
+            LOG.debug("Adding cache-proxy '%s' to backend.", class_path)
             region.wrap(cls)
 
     return region

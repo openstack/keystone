@@ -165,8 +165,8 @@ class Token(token.Driver):
                     continue
 
                 if expires < current_time:
-                    LOG.debug(_('Token `%(token_id)s` is expired, removing '
-                                'from `%(user_key)s`.'),
+                    LOG.debug(('Token `%(token_id)s` is expired, removing '
+                               'from `%(user_key)s`.'),
                               {'token_id': item_id, 'user_key': user_key})
                     continue
 
@@ -174,8 +174,8 @@ class Token(token.Driver):
                     # NOTE(morganfainberg): If the token has been revoked, it
                     # can safely be removed from this list.  This helps to keep
                     # the user_token_list as reasonably small as possible.
-                    LOG.debug(_('Token `%(token_id)s` is revoked, removing '
-                                'from `%(user_key)s`.'),
+                    LOG.debug(('Token `%(token_id)s` is revoked, removing '
+                               'from `%(user_key)s`.'),
                               {'token_id': item_id, 'user_key': user_key})
                     continue
                 filtered_list.append(item)
@@ -264,8 +264,8 @@ class Token(token.Driver):
         try:
             token_id, expires = item
         except (TypeError, ValueError):
-            LOG.debug(_('Invalid token entry expected tuple of '
-                        '`(<token_id>, <expires>)` got: `%(item)r`'),
+            LOG.debug(('Invalid token entry expected tuple of '
+                       '`(<token_id>, <expires>)` got: `%(item)r`'),
                       dict(item=item))
             raise
 
@@ -273,8 +273,8 @@ class Token(token.Driver):
             expires = timeutils.normalize_time(
                 timeutils.parse_isotime(expires))
         except ValueError:
-            LOG.debug(_('Invalid expires time on token `%(token_id)s`:'
-                        ' %(expires)r'),
+            LOG.debug(('Invalid expires time on token `%(token_id)s`:'
+                       ' %(expires)r'),
                       dict(token_id=token_id, expires=expires))
             raise
         return token_id, expires

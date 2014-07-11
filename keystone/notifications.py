@@ -156,9 +156,9 @@ def notify_event_callbacks(service, resource_type, operation, payload):
                               'resource_type': resource_type,
                               'operation': operation,
                               'payload': payload}
-                LOG.debug(_('Invoking callback %(cb_name)s for event '
-                            '%(service)s %(resource_type)s %(operation)s for'
-                            '%(payload)s'), subst_dict)
+                LOG.debug(('Invoking callback %(cb_name)s for event '
+                           '%(service)s %(resource_type)s %(operation)s for'
+                           '%(payload)s'), subst_dict)
                 cb(service, resource_type, operation, payload)
 
 
@@ -293,7 +293,7 @@ def _send_audit_notification(action, initiator, outcome):
 
     context = {}
     payload = event.as_dict()
-    LOG.debug(_('CADF Event: %s'), payload)
+    LOG.debug('CADF Event: %s', payload)
     service = 'identity'
     event_type = '%(service)s.%(action)s' % {'service': service,
                                              'action': action}
