@@ -40,7 +40,9 @@ immutable from a Keystone perspective will not support update operations:
 - ``trust`` (immutable resource - no ``updated`` notification)
 
 The following message template is used to form a message when an operation on a
-resource completes successfully::
+resource completes successfully:
+
+.. code-block:: javascript
 
     {
         "event_type": "identity.<resource type>.<operation>",
@@ -68,7 +70,9 @@ normal exception paths.
 Notification Example
 ^^^^^^^^^^^^^^^^^^^^
 
-This is an example of a notification sent for a newly created user::
+This is an example of a notification sent for a newly created user:
+
+.. code-block:: javascript
 
     {
         "event_type": "identity.user.created",
