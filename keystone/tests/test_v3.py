@@ -725,6 +725,35 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
         return self.assertDictEqual(normalize(a), normalize(b))
 
+    # catalog validation
+
+    def assertValidCatalogResponse(self, resp, *args, **kwargs):
+        self.assertEqual(['catalog', 'links'], resp.json.keys())
+        self.assertValidCatalog(resp.json['catalog'])
+        self.assertIn('links', resp.json)
+        self.assertIsInstance(resp.json['links'], dict)
+        self.assertEqual(['self'], resp.json['links'].keys())
+        self.assertEqual(
+            'http://localhost/v3/catalog',
+            resp.json['links']['self'])
+
+    def assertValidCatalog(self, entity):
+        self.assertIsInstance(entity, list)
+        self.assertTrue(len(entity) > 0)
+        for service in entity:
+            self.assertIsNotNone(service.get('id'))
+            self.assertIsNotNone(service.get('name'))
+            self.assertIsNotNone(service.get('type'))
+            self.assertNotIn('enabled', service)
+            self.assertTrue(len(service['endpoints']) > 0)
+            for endpoint in service['endpoints']:
+                self.assertIsNotNone(endpoint.get('id'))
+                self.assertIsNotNone(endpoint.get('interface'))
+                self.assertIsNotNone(endpoint.get('url'))
+                self.assertNotIn('enabled', endpoint)
+                self.assertNotIn('legacy_endpoint_id', endpoint)
+                self.assertNotIn('service_id', endpoint)
+
     # region validation
 
     def assertValidRegionListResponse(self, resp, *args, **kwargs):
