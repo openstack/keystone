@@ -16,6 +16,7 @@
 
 import abc
 
+from keystoneclient.common import cms
 import six
 
 from keystone.common import cache
@@ -59,7 +60,6 @@ class UnsupportedTokenVersionException(Exception):
     pass
 
 
-@dependency.requires('token_api')
 @dependency.optional('revoke_api')
 @dependency.provider('token_provider_api')
 class Manager(manager.Manager):
@@ -105,8 +105,20 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(self.get_token_provider())
 
+    def unique_id(self, token_id):
+        """Return a unique ID for a token.
+
+        The returned value is useful as the primary key of a database table,
+        memcache store, or other lookup table.
+
+        :returns: Given a PKI token, returns it's hashed value. Otherwise,
+                  returns the passed-in value (such as a UUID token ID or an
+                  existing hash).
+        """
+        return cms.cms_hash_token(token_id, mode=CONF.token.hash_algorithm)
+
     def validate_token(self, token_id, belongs_to=None):
-        unique_id = self.token_api.unique_id(token_id)
+        unique_id = self.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         token = self._validate_token(unique_id)
@@ -126,7 +138,7 @@ class Manager(manager.Manager):
             self.revoke_api.check_token(token_values)
 
     def validate_v2_token(self, token_id, belongs_to=None):
-        unique_id = self.token_api.unique_id(token_id)
+        unique_id = self.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         token = self._validate_v2_token(unique_id)
@@ -152,7 +164,7 @@ class Manager(manager.Manager):
             return self.check_revocation_v3(token)
 
     def validate_v3_token(self, token_id):
-        unique_id = self.token_api.unique_id(token_id)
+        unique_id = self.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         token = self._validate_v3_token(unique_id)
@@ -169,7 +181,7 @@ class Manager(manager.Manager):
         """
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
-        unique_id = self.token_api.unique_id(token_id)
+        unique_id = self.unique_id(token_id)
         self.validate_v2_token(unique_id, belongs_to=belongs_to)
 
     def check_v3_token(self, token_id):
@@ -181,7 +193,7 @@ class Manager(manager.Manager):
         """
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
-        unique_id = self.token_api.unique_id(token_id)
+        unique_id = self.unique_id(token_id)
         self.validate_v3_token(unique_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
