@@ -55,16 +55,24 @@ class deprecated(object):
 
     """
 
+    # NOTE(morganfainberg): Bexar is used for unit test purposes, it is
+    # expected we maintain a gap between Bexar and Folsom in this list.
+    BEXAR = 'B'
     FOLSOM = 'F'
     GRIZZLY = 'G'
     HAVANA = 'H'
     ICEHOUSE = 'I'
+    JUNO = 'J'
 
     _RELEASES = {
+        # NOTE(morganfainberg): Bexar is used for unit test purposes, it is
+        # expected we maintain a gap between Bexar and Folsom in this list.
+        'B': 'Bexar',
         'F': 'Folsom',
         'G': 'Grizzly',
         'H': 'Havana',
         'I': 'Icehouse',
+        'J': 'Juno',
     }
 
     _deprecated_msg_with_alternative = _(

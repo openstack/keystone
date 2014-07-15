@@ -16,15 +16,20 @@
 #    under the License.
 
 import sys
+import time
 
 from eventlet import event
 from eventlet import greenthread
 
 from keystone.openstack.common.gettextutils import _LE, _LW
 from keystone.openstack.common import log as logging
-from keystone.openstack.common import timeutils
 
 LOG = logging.getLogger(__name__)
+
+# NOTE(zyluo): This lambda function was declared to avoid mocking collisions
+#              with time.time() called in the standard logging module
+#              during unittests.
+_ts = lambda: time.time()
 
 
 class LoopingCallDone(Exception):
@@ -72,17 +77,17 @@ class FixedIntervalLoopingCall(LoopingCallBase):
 
             try:
                 while self._running:
-                    start = timeutils.utcnow()
+                    start = _ts()
                     self.f(*self.args, **self.kw)
-                    end = timeutils.utcnow()
+                    end = _ts()
                     if not self._running:
                         break
-                    delay = interval - timeutils.delta_seconds(start, end)
-                    if delay <= 0:
+                    delay = end - start - interval
+                    if delay > 0:
                         LOG.warn(_LW('task %(func_name)s run outlasted '
-                                     'interval by %(delay)s sec'),
-                                 {'func_name': repr(self.f), 'delay': -delay})
-                    greenthread.sleep(delay if delay > 0 else 0)
+                                     'interval by %(delay).2f sec'),
+                                 {'func_name': repr(self.f), 'delay': delay})
+                    greenthread.sleep(-delay if delay < 0 else 0)
             except LoopingCallDone as e:
                 self.stop()
                 done.send(e.retvalue)
