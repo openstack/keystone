@@ -34,6 +34,8 @@ httplib2
 # replaces httplib2 in keystoneclient >=0.2.1
 requests>=1.1
 keyring>=1.6.1,<2.0
+# for keystoneclient Plugin loading from config objects
+stevedore>=0.10
 
 # For documentation
 oslo.sphinx
