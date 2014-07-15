@@ -15,6 +15,7 @@
 """Token provider interface."""
 
 import abc
+import datetime
 
 from keystoneclient.common import cms
 import six
@@ -58,6 +59,18 @@ _FORMAT_TO_PROVIDER = {
 class UnsupportedTokenVersionException(Exception):
     """Token version is unrecognizable or unsupported."""
     pass
+
+
+def default_expire_time():
+    """Determine when a fresh token should expire.
+
+    Expiration time varies based on configuration (see ``[token] expiration``).
+
+    :returns: a naive UTC datetime.datetime object
+
+    """
+    expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
+    return timeutils.utcnow() + expire_delta
 
 
 @dependency.optional('revoke_api')

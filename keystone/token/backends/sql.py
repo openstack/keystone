@@ -19,6 +19,7 @@ from keystone import config
 from keystone import exception
 from keystone.openstack.common import timeutils
 from keystone import token
+from keystone.token import provider
 
 
 CONF = config.CONF
@@ -53,7 +54,7 @@ class Token(token.Driver):
     def create_token(self, token_id, data):
         data_copy = copy.deepcopy(data)
         if not data_copy.get('expires'):
-            data_copy['expires'] = token.default_expire_time()
+            data_copy['expires'] = provider.default_expire_time()
         if not data_copy.get('user_id'):
             data_copy['user_id'] = data_copy['user']['id']
 
