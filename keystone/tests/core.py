@@ -373,6 +373,20 @@ class TestCase(BaseTestCase):
         self.config_fixture.config(
             group='trust',
             driver='keystone.trust.backends.kvs.Trust')
+        self.config_fixture.config(
+            default_log_levels=[
+                'amqp=WARN',
+                'amqplib=WARN',
+                'boto=WARN',
+                'qpid=WARN',
+                'sqlalchemy=WARN',
+                'suds=INFO',
+                'oslo.messaging=INFO',
+                'iso8601=WARN',
+                'requests.packages.urllib3.connectionpool=WARN',
+                'routes.middleware=INFO',
+                'stevedore.extension=INFO',
+            ])
 
     def setUp(self):
         super(TestCase, self).setUp()
@@ -405,6 +419,21 @@ class TestCase(BaseTestCase):
         self.config_overrides()
 
         self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+
+        # NOTE(morganfainberg): This code is a copy from the oslo-incubator
+        # log module. This is not in a function or otherwise available to use
+        # without having a CONF object to setup logging. This should help to
+        # reduce the log size by limiting what we log (similar to how Keystone
+        # would run under mod_wsgi or eventlet).
+        for pair in CONF.default_log_levels:
+            mod, _sep, level_name = pair.partition('=')
+            logger = logging.getLogger(mod)
+            if sys.version_info < (2, 7):
+                level = logging.getLevelName(level_name)
+                logger.setLevel(level)
+            else:
+                logger.setLevel(level_name)
+
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         self.useFixture(ksfixtures.Cache())
 
