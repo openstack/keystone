@@ -195,7 +195,15 @@ class Manager(manager.Manager):
         self.list_revoked_tokens.invalidate(self)
 
     def delete_tokens_for_domain(self, domain_id):
-        """Delete all tokens for a given domain."""
+        """Delete all tokens for a given domain.
+
+        It will delete all the project-scoped tokens for the projects
+        that are owned by the given domain, as well as any tokens issued
+        to users that are owned by this domain.
+
+        However, deletion of domain_scoped tokens will still need to be
+        implemented as stated in TODO below.
+        """
         if not CONF.token.revoke_by_id:
             return
         projects = self.assignment_api.list_projects()
@@ -205,6 +213,10 @@ class Manager(manager.Manager):
                         project['id']):
                     self.delete_tokens_for_user(user_id, project['id'])
         # TODO(morganfainberg): implement deletion of domain_scoped tokens.
+
+        users = self.identity_api.list_users(domain_id)
+        user_ids = (user['id'] for user in users)
+        self.delete_tokens_for_users(user_ids)
 
     def delete_tokens_for_user(self, user_id, project_id=None):
         """Delete all tokens for a given user or user-project combination.
