@@ -1228,6 +1228,46 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.downgrade(50)
         self.assertTableDoesNotExist('id_mapping')
 
+    def test_region_url_upgrade(self):
+        self.upgrade(52)
+        self.assertTableColumns('region',
+                                ['id', 'description', 'parent_region_id',
+                                 'extra', 'url'])
+
+    def test_region_url_downgrade(self):
+        self.upgrade(52)
+        self.downgrade(51)
+        self.assertTableColumns('region',
+                                ['id', 'description', 'parent_region_id',
+                                 'extra'])
+
+    def test_region_url_cleanup(self):
+        # make sure that the url field is dropped in the downgrade
+        self.upgrade(52)
+        session = self.Session()
+        beta = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'parent_region_id': uuid.uuid4().hex,
+            'url': uuid.uuid4().hex
+        }
+        acme = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'parent_region_id': uuid.uuid4().hex,
+            'url': None
+        }
+        self.insert_dict(session, 'region', beta)
+        self.insert_dict(session, 'region', acme)
+        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(2, session.query(region_table).count())
+        self.downgrade(51)
+        self.metadata.clear()
+        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(2, session.query(region_table).count())
+        region = session.query(region_table)[0]
+        self.assertRaises(AttributeError, getattr, region, 'url')
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
