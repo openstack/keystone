@@ -33,6 +33,7 @@ Glance to list images needed to perform the requested task.
 """
 
 import abc
+import sys
 import uuid
 
 import six
@@ -46,7 +47,6 @@ from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import jsonutils
-from keystone import token
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
@@ -125,7 +125,16 @@ class Ec2ControllerCommon(object):
             metadata_ref['trustee_user_id'] = user_ref['id']
 
         # Validate that the auth info is valid and nothing is disabled
-        token.validate_auth_info(self, user_ref, tenant_ref)
+        try:
+            self.identity_api.assert_user_enabled(
+                user_id=user_ref['id'], user=user_ref)
+            self.assignment_api.assert_domain_enabled(
+                domain_id=user_ref['domain_id'])
+            self.assignment_api.assert_project_enabled(
+                project_id=tenant_ref['id'], project=tenant_ref)
+        except AssertionError as e:
+            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
+                        sys.exc_info()[2])
 
         roles = metadata_ref.get('roles', [])
         if not roles:
