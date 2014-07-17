@@ -41,6 +41,8 @@ To enable the ``OS-REVOKE`` extension:
     [pipeline:api_v3]
     pipeline = access_log sizelimit url_normalize token_auth admin_token_auth xml_body json_body revoke_extension service_v3
 
-3. Create the extension tables if using the provided SQL backend::
+3. Optionally, create the extension tables if using the provided SQL backend::
 
     ./bin/keystone-manage db_sync --extension revoke
+
+   Note that as of the Juno release this extension is now migrated by default.
