@@ -284,9 +284,9 @@ class Manager(manager.Manager):
 
         """
         conf = CONF.identity
-        if (driver is self.driver and driver.generates_uuids() and
-                driver.is_domain_aware()):
-            # The default driver that needs no help, e.g. SQL
+
+        if not self._needs_post_processing(driver):
+            # a classic case would be when running with a single SQL driver
             return ref
 
         LOG.debug('ID Mapping - Domain ID: %(domain)s, '
@@ -300,50 +300,73 @@ class Manager(manager.Manager):
                    'compat': CONF.identity_mapping.backward_compatible_ids})
 
         if isinstance(ref, dict):
-            LOG.debug('Local ID: %s', ref['id'])
-            ref = ref.copy()
-            # If the driver can't handle domains, then we need to insert the
-            # domain_id into the entity being returned.  If the domain_id is
-            # None that means we are running in a single backend mode, so to
-            # remain backwardly compatible, we put in the default domain ID.
-            if not driver.is_domain_aware():
-                if domain_id is None:
-                    domain_id = conf.default_domain_id
-                ref['domain_id'] = domain_id
-
-            # There are two situations where we must now use the mapping:
-            # - this isn't the default driver (i.e. multiple backends), or
-            # - we have a single backend that doesn't use UUIDs
-            # The exception to the above is that we must honor backward
-            # compatibility if this is the default driver (e.g. to support
-            # current LDAP)
-            if (driver is not self.driver or
-                (not driver.generates_uuids() and
-                    not CONF.identity_mapping.backward_compatible_ids)):
-
-                local_entity = {'domain_id': ref['domain_id'],
-                                'local_id': ref['id'],
-                                'entity_type': entity_type}
-                public_id = self.id_mapping_api.get_public_id(local_entity)
-                if public_id:
-                    ref['id'] = public_id
-                    LOG.debug('Found existing mapping to public ID: %s',
-                              ref['id'])
-                else:
-                    # Need to create a mapping. If the driver generates UUIDs
-                    # then pass the local UUID in as the public ID to use.
-                    if driver.generates_uuids():
-                        public_id = ref['id']
-                    ref['id'] = self.id_mapping_api.create_id_mapping(
-                        local_entity, public_id)
-                    LOG.debug('Created new mapping to public ID: %s',
-                              ref['id'])
-            return ref
+            return self._set_domain_id_and_mapping_for_single_ref(
+                ref, domain_id, driver, entity_type, conf)
         elif isinstance(ref, list):
             return [self._set_domain_id_and_mapping(
                     x, domain_id, driver, entity_type) for x in ref]
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
+
+    def _needs_post_processing(self, driver):
+        """Returns whether entity from driver needs domain added or mapping."""
+        return (driver is not self.driver or not driver.generates_uuids() or
+                not driver.is_domain_aware())
+
+    def _set_domain_id_and_mapping_for_single_ref(self, ref, domain_id,
+                                                  driver, entity_type, conf):
+        LOG.debug('Local ID: %s', ref['id'])
+        ref = ref.copy()
+
+        self._insert_domain_id_if_needed(ref, driver, domain_id, conf)
+
+        if self._is_mapping_needed(driver):
+            local_entity = {'domain_id': ref['domain_id'],
+                            'local_id': ref['id'],
+                            'entity_type': entity_type}
+            public_id = self.id_mapping_api.get_public_id(local_entity)
+            if public_id:
+                ref['id'] = public_id
+                LOG.debug('Found existing mapping to public ID: %s',
+                          ref['id'])
+            else:
+                # Need to create a mapping. If the driver generates UUIDs
+                # then pass the local UUID in as the public ID to use.
+                if driver.generates_uuids():
+                    public_id = ref['id']
+                ref['id'] = self.id_mapping_api.create_id_mapping(
+                    local_entity, public_id)
+                LOG.debug('Created new mapping to public ID: %s',
+                          ref['id'])
+        return ref
+
+    def _insert_domain_id_if_needed(self, ref, driver, domain_id, conf):
+        """Inserts the domain ID into the ref, if required.
+
+        If the driver can't handle domains, then we need to insert the
+        domain_id into the entity being returned.  If the domain_id is
+        None that means we are running in a single backend mode, so to
+        remain backwardly compatible, we put in the default domain ID.
+        """
+        if not driver.is_domain_aware():
+            if domain_id is None:
+                domain_id = conf.default_domain_id
+            ref['domain_id'] = domain_id
+
+    def _is_mapping_needed(self, driver):
+        """Returns whether mapping is needed.
+
+        There are two situations where we must use the mapping:
+        - this isn't the default driver (i.e. multiple backends), or
+        - we have a single backend that doesn't use UUIDs
+        The exception to the above is that we must honor backward
+        compatibility if this is the default driver (e.g. to support
+        current LDAP)
+        """
+        is_not_default_driver = driver is not self.driver
+        return (is_not_default_driver or (
+            not driver.generates_uuids() and
+            not CONF.identity_mapping.backward_compatible_ids))
 
     def _clear_domain_id_if_domain_unaware(self, driver, ref):
         """Clear domain_id details if driver is not domain aware."""
