@@ -68,7 +68,7 @@ class Driver(object):
         :returns: idp_ref
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_idp(self, idp_id):
@@ -77,7 +77,7 @@ class Driver(object):
         :raises: keystone.exception.IdentityProviderNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_idps(self):
@@ -86,7 +86,7 @@ class Driver(object):
         :raises: keystone.exception.IdentityProviderNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_idp(self, idp_id):
@@ -95,7 +95,7 @@ class Driver(object):
         :raises: keystone.exception.IdentityProviderNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def update_idp(self, idp_id, idp):
@@ -104,7 +104,7 @@ class Driver(object):
         :raises: keystone.exception.IdentityProviderNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def create_protocol(self, idp_id, protocol_id, protocol):
@@ -113,7 +113,7 @@ class Driver(object):
         :raises: keystone.exception.IdentityProviderNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def update_protocol(self, idp_id, protocol_id, protocol):
@@ -123,7 +123,7 @@ class Driver(object):
                  keystone.exception.FederatedProtocolNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_protocol(self, idp_id, protocol_id):
@@ -133,7 +133,7 @@ class Driver(object):
                  keystone.exception.FederatedProtocolNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_protocols(self, idp_id):
@@ -142,7 +142,7 @@ class Driver(object):
         :raises: keystone.exception.IdentityProviderNotFound,
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_protocol(self, idp_id, protocol_id):
@@ -152,7 +152,7 @@ class Driver(object):
                  keystone.exception.FederatedProtocolNotFound,
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def create_mapping(self, mapping_ref):
@@ -163,7 +163,7 @@ class Driver(object):
         :returns: mapping_ref
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_mapping(self, mapping_id):
@@ -174,7 +174,7 @@ class Driver(object):
         :returns: None
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def update_mapping(self, mapping_id, mapping_ref):
@@ -187,7 +187,7 @@ class Driver(object):
         :returns: mapping_ref
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_mappings(self):
@@ -196,7 +196,7 @@ class Driver(object):
         returns: list of mappings
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_mapping(self, mapping_id):
@@ -208,7 +208,7 @@ class Driver(object):
         :returns: mapping_ref
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_mapping_from_idp_and_protocol(self, idp_id, protocol_id):
@@ -223,4 +223,4 @@ class Driver(object):
         :returns: mapping_ref
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover

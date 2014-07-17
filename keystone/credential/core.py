@@ -54,7 +54,7 @@ class Driver(object):
         :raises: keystone.exception.Conflict
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_credentials(self, **filters):
@@ -63,7 +63,7 @@ class Driver(object):
         :returns: a list of credential_refs or an empty list.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_credential(self, credential_id):
@@ -73,7 +73,7 @@ class Driver(object):
         :raises: keystone.exception.CredentialNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def update_credential(self, credential_id, credential):
@@ -83,7 +83,7 @@ class Driver(object):
                  keystone.exception.Conflict
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_credential(self, credential_id):
@@ -92,7 +92,7 @@ class Driver(object):
         :raises: keystone.exception.CredentialNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_credentials_for_project(self, project_id):

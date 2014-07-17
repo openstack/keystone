@@ -270,7 +270,7 @@ class Provider(object):
         :returns: token version string
         :raises: keystone.token.provider.UnsupportedTokenVersionException
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
@@ -284,7 +284,7 @@ class Provider(object):
         :type catalog_ref: dict
         :returns: (token_id, token_data)
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def issue_v3_token(self, user_id, method_names, expires_at=None,
@@ -310,7 +310,7 @@ class Provider(object):
         :type include_catalog: boolean
         :returns: (token_id, token_data)
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def revoke_token(self, token_id):
@@ -320,7 +320,7 @@ class Provider(object):
         :type token_id: string
         :returns: None.
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def validate_token(self, token_id):
@@ -333,7 +333,7 @@ class Provider(object):
         :returns: token_data
         :raises: keystone.exception.TokenNotFound
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def validate_v2_token(self, token_id):
@@ -347,7 +347,7 @@ class Provider(object):
         :raises: keystone.exception.TokenNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def validate_v3_token(self, token_id):
@@ -358,7 +358,7 @@ class Provider(object):
         :returns: token data
         :raises: keystone.exception.TokenNotFound
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def _get_token_id(self, token_data):
@@ -368,4 +368,4 @@ class Provider(object):
         :type token_data: dict
         returns: token identifier
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover

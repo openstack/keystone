@@ -76,7 +76,7 @@ class Driver(object):
         :returns: None.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def remove_endpoint_from_project(self, endpoint_id, project_id):
@@ -90,7 +90,7 @@ class Driver(object):
         :returns: None.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def check_endpoint_in_project(self, endpoint_id, project_id):
@@ -104,7 +104,7 @@ class Driver(object):
         :returns: None.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_endpoints_for_project(self, project_id):
@@ -115,7 +115,7 @@ class Driver(object):
         :returns: a list of identity endpoint ids or an empty list.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_projects_for_endpoint(self, endpoint_id):
@@ -126,4 +126,4 @@ class Driver(object):
         :returns: a list of projects or an empty list.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
