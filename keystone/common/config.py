@@ -238,7 +238,7 @@ FILE_OPTIONS = {
                         '"keystone.token.providers.[pkiz|pki|uuid].'
                         'Provider". The default provider is pkiz.'),
         cfg.StrOpt('driver',
-                   default='keystone.token.backends.sql.Token',
+                   default='keystone.token.persistence.backends.sql.Token',
                    help='Token persistence backend driver.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for token system cacheing. This has no '

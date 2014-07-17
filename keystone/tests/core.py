@@ -367,7 +367,7 @@ class TestCase(BaseTestCase):
             ca_certs='examples/pki/certs/cacert.pem')
         self.config_fixture.config(
             group='token',
-            driver='keystone.token.backends.kvs.Token')
+            driver='keystone.token.persistence.backends.kvs.Token')
         self.config_fixture.config(
             group='trust',
             driver='keystone.trust.backends.kvs.Trust')
@@ -759,7 +759,7 @@ class SQLDriverOverrides(object):
             driver='keystone.contrib.revoke.backends.sql.Revoke')
         self.config_fixture.config(
             group='token',
-            driver='keystone.token.backends.sql.Token')
+            driver='keystone.token.persistence.backends.sql.Token')
         self.config_fixture.config(
             group='trust',
             driver='keystone.trust.backends.sql.Trust')

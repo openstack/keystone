@@ -10,15 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.openstack.common import versionutils
-from keystone.token.persistence.backends import kvs
+from keystone.token.persistence.core import *  # noqa
 
 
-class Token(kvs.Token):
-    @versionutils.deprecated(
-        versionutils.deprecated.JUNO,
-        in_favor_of='keystone.token.persistence.backends.kvs.Token',
-        remove_in=+1,
-        what='keystone.token.backends.kvs.Token')
-    def __init__(self):
-        super(Token, self).__init__()
+__all__ = ['Manager', 'Driver', 'backends']

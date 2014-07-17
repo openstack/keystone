@@ -1,6 +1,3 @@
-# Copyright 2013 Metacloud, Inc.
-# Copyright 2012 OpenStack Foundation
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -13,18 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import config
-from keystone.token.backends import kvs
+from keystone.openstack.common import versionutils
+from keystone.token.persistence.backends import memcache
 
 
-CONF = config.CONF
-
-
-class Token(kvs.Token):
-    kvs_backend = 'openstack.kvs.Memcached'
-
-    def __init__(self, *args, **kwargs):
-        kwargs['no_expiry_keys'] = [self.revocation_key]
-        kwargs['memcached_expire_time'] = CONF.token.expiration
-        kwargs['url'] = CONF.memcache.servers
-        super(Token, self).__init__(*args, **kwargs)
+class Token(memcache.Token):
+    @versionutils.deprecated(
+        versionutils.deprecated.JUNO,
+        in_favor_of='keystone.token.persistence.backends.memcache.Token',
+        remove_in=+1,
+        what='keystone.token.backends.memcache.Token')
+    def __init__(self):
+        super(Token, self).__init__()
