@@ -29,6 +29,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -184,6 +185,11 @@ class Manager(manager.Manager):
         self._is_valid_token(token)
         return token
 
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.JUNO,
+        what='token_provider_api.check_v2_token',
+        in_favor_of='token_provider_api.validate_v2_token',
+        remove_in=+1)
     def check_v2_token(self, token_id, belongs_to=None):
         """Check the validity of the given V2 token.
 
@@ -197,6 +203,11 @@ class Manager(manager.Manager):
         unique_id = self.unique_id(token_id)
         self.validate_v2_token(unique_id, belongs_to=belongs_to)
 
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.JUNO,
+        what='token_provider_api.check_v3_token',
+        in_favor_of='token_provider_api.validate_v3_token',
+        remove_in=+1)
     def check_v3_token(self, token_id):
         """Check the validity of the given V3 token.
 
