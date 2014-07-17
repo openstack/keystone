@@ -15,7 +15,6 @@
 
 import contextlib
 import errno
-import fcntl
 import functools
 import os
 import shutil
@@ -195,6 +194,7 @@ if os.name == 'nt':
     FileLock = _WindowsLock
 else:
     import base64
+    import fcntl
     import hashlib
 
     import posix_ipc
