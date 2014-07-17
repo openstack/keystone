@@ -97,9 +97,9 @@ class TestPEMParse(tests.TestCase):
         text += 'burfl blatz bingo\n'
 
         parse_results = pemutils.parse_pem(text)
-        self.assertEqual(len(parse_results), 0)
+        self.assertEqual(0, len(parse_results))
 
-        self.assertEqual(pemutils.is_pem(text), False)
+        self.assertEqual(False, pemutils.is_pem(text))
 
     def test_parse_invalid(self):
         p = PEM(pem_type='xxx',
@@ -125,7 +125,7 @@ class TestPEMParse(tests.TestCase):
             text = p.pem_text
 
             parse_results = pemutils.parse_pem(text)
-            self.assertEqual(len(parse_results), 1)
+            self.assertEqual(1, len(parse_results))
 
             r = parse_results[0]
             self.assertEqual(p.pem_type, r.pem_type)
@@ -145,7 +145,7 @@ class TestPEMParse(tests.TestCase):
         text += 'burfl blatz bingo\n'
 
         parse_results = pemutils.parse_pem(text)
-        self.assertEqual(len(parse_results), 1)
+        self.assertEqual(1, len(parse_results))
 
         r = parse_results[0]
         self.assertEqual(p.pem_type, r.pem_type)
@@ -172,7 +172,7 @@ class TestPEMParse(tests.TestCase):
             text += pems[i].pem_text
 
         parse_results = pemutils.parse_pem(text)
-        self.assertEqual(len(parse_results), count)
+        self.assertEqual(count, len(parse_results))
 
         for i in moves.range(count):
             r = parse_results[i]
@@ -203,7 +203,7 @@ class TestPEMParse(tests.TestCase):
 
         for i in moves.range(count):
             parse_results = pemutils.parse_pem(text, pem_type=headers[i][0])
-            self.assertEqual(len(parse_results), 1)
+            self.assertEqual(1, len(parse_results))
 
             r = parse_results[0]
             p = pems[i]
@@ -235,7 +235,7 @@ class TestPEMParse(tests.TestCase):
             text += 'burfl blatz bingo\n'
 
         parse_results = pemutils.parse_pem(text)
-        self.assertEqual(len(parse_results), count)
+        self.assertEqual(count, len(parse_results))
 
         for i in moves.range(count):
             r = parse_results[i]

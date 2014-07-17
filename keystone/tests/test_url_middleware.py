@@ -44,10 +44,10 @@ class UrlMiddlewareTest(tests.TestCase):
         self.middleware(req1.environ, self.start_fake_response)
         self.middleware(req2.environ, self.start_fake_response)
         self.assertEqual(req1.path_url, req2.path_url)
-        self.assertEqual(req1.path_url, 'http://localhost/v2.0/tokens')
+        self.assertEqual('http://localhost/v2.0/tokens', req1.path_url)
 
     def test_rewrite_empty_path(self):
         """Tests empty path is rewritten to root."""
         req = webob.Request.blank('')
         self.middleware(req.environ, self.start_fake_response)
-        self.assertEqual(req.path_url, 'http://localhost/')
+        self.assertEqual('http://localhost/', req.path_url)
