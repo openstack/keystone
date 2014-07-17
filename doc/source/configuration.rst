@@ -1499,6 +1499,22 @@ specified classes in the LDAP module so you can configure them like::
   role_member_attribute     = roleOccupant
   role_attribute_ignore     =
 
+Debugging LDAP
+--------------
+
+For additional information on LDAP connections, performance (such as slow
+response time), or field mappings, setting ``debug_level`` in the [ldap]
+section is used to enable debugging::
+
+  debug_level = 4095
+
+This setting in turn sets OPT_DEBUG_LEVEL in the underlying python library.
+This field is a bit mask (integer), and the possible flags are documented
+in the OpenLDAP manpages. Commonly used values include 255 and 4095, with
+4095 being more verbose.
+
+.. WARNING::
+  Enabling ``debug_level`` will negatively impact performance.
 
 Enabled Emulation
 -----------------
