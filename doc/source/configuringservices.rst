@@ -47,7 +47,7 @@ Admin Token
 For a default installation of Keystone, before you can use the REST API, you
 need to define an authorization token. This is configured in ``keystone.conf``
 file under the section ``[DEFAULT]``. In the sample file provided with the
-keystone project, the line defining this token is::
+Keystone project, the line defining this token is::
 
     [DEFAULT]
     admin_token = ADMIN
@@ -62,10 +62,10 @@ Setting up tenants, users, and roles
 
 You need to minimally define a tenant, user, and role to link the tenant and
 user as the most basic set of details to get other services authenticating
-and authorizing with keystone.
+and authorizing with Keystone.
 
 You will also want to create service users for nova, glance, swift, etc. to
-be able to use to authenticate users against keystone. The ``auth_token``
+be able to use to authenticate users against Keystone. The ``auth_token``
 middleware supports using either the shared secret described above as
 `admin_token` or users for each service.
 
@@ -134,7 +134,7 @@ template, as described above - in which case everything is detailed in that
 template.
 
 The other is a SQL backend for the catalog service, in which case after
-keystone is online, you need to add the services to the catalog::
+Keystone is online, you need to add the services to the catalog::
 
     keystone service-create --name=nova \
                                    --type=compute \
@@ -174,7 +174,7 @@ nova.conf [keystone_authtoken] section.
 Configuring Swift to use Keystone
 ---------------------------------
 
-Similar to Nova, swift can be configured to use Keystone for authentication
+Similar to Nova, Swift can be configured to use Keystone for authentication
 rather than its built in 'tempauth'. Refer to the `overview_auth` documentation
 in Swift. 
 
