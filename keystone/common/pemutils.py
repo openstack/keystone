@@ -98,7 +98,7 @@ import re
 import six
 
 from keystone.common import base64utils
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 
 
 PEM_TYPE_TO_HEADER = {

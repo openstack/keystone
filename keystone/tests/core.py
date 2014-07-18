@@ -33,8 +33,6 @@ import six
 from testtools import testcase
 import webob
 
-from keystone.openstack.common import gettextutils
-
 # NOTE(ayoung)
 # environment.use_eventlet must run before any of the code that will
 # call the eventlet monkeypatching.
@@ -49,9 +47,9 @@ from keystone.common.kvs import core as kvs_core
 from keystone.common import utils as common_utils
 from keystone import config
 from keystone import exception
+from keystone.i18n import _
 from keystone import notifications
 from keystone.openstack.common.fixture import config as config_fixture
-from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 from keystone.tests import ksfixtures
 
@@ -607,11 +605,11 @@ class TestCase(BaseTestCase):
             if isinstance(expected_regexp, six.string_types):
                 expected_regexp = re.compile(expected_regexp)
 
-            if isinstance(exc_value.args[0], gettextutils.Message):
-                if not expected_regexp.search(six.text_type(exc_value)):
+            if isinstance(exc_value.args[0], unicode):
+                if not expected_regexp.search(unicode(exc_value)):
                     raise self.failureException(
                         '"%s" does not match "%s"' %
-                        (expected_regexp.pattern, six.text_type(exc_value)))
+                        (expected_regexp.pattern, unicode(exc_value)))
             else:
                 if not expected_regexp.search(str(exc_value)):
                     raise self.failureException(

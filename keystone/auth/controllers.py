@@ -21,8 +21,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone.contrib import federation
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
-from keystone.openstack.common.gettextutils import _LI  # noqa
+from keystone.i18n import _, _LI
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log

@@ -43,7 +43,7 @@ import string
 import six
 from six.moves import urllib
 
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 
 
 class InvalidBase64Error(ValueError):

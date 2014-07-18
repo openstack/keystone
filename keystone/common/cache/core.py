@@ -20,7 +20,7 @@ from dogpile.cache import util
 
 from keystone import config
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 from keystone.openstack.common import importutils
 from keystone.openstack.common import log
 

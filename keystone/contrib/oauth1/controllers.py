@@ -21,7 +21,7 @@ from keystone import config
 from keystone.contrib.oauth1 import core as oauth1
 from keystone.contrib.oauth1 import validator
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import timeutils
 

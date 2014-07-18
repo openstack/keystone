@@ -141,7 +141,7 @@ class CheckForTranslationsInDebugLogging(BaseASTChecker):
 
     CHECK_DESC = 'K005 Using translated string in debug logging'
     LOG_MODULES = ('logging', 'keystone.openstack.common.log')
-    I18N_MODULES = ('keystone.openstack.common.gettextutils._')
+    I18N_MODULES = ('keystone.i18n._')
 
     def __init__(self, tree, filename):
         super(CheckForTranslationsInDebugLogging, self).__init__(

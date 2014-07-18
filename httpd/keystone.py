@@ -15,14 +15,16 @@
 import logging
 import os
 
+from oslo import i18n
 from paste import deploy
 
-from keystone.openstack.common import gettextutils
-# NOTE(dstanek): gettextutils.enable_lazy() must be called before
-# gettextutils._() is called to ensure it has the desired lazy lookup
+
+# NOTE(dstanek): i18n.enable_lazy() must be called before
+# keystone.i18n._() is called to ensure it has the desired lazy lookup
 # behavior. This includes cases, like keystone.exceptions, where
-# gettextutils._() is called at import time.
-gettextutils.enable_lazy()
+# keystone.i18n._() is called at import time.
+i18n.enable_lazy()
+
 
 from keystone import backends
 from keystone.common import dependency

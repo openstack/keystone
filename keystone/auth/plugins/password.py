@@ -15,7 +15,7 @@
 from keystone import auth
 from keystone.common import dependency
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 from keystone.openstack.common import log
 
 METHOD_NAME = 'password'

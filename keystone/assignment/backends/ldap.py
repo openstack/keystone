@@ -25,8 +25,8 @@ from keystone.common import ldap as common_ldap
 from keystone.common import models
 from keystone import config
 from keystone import exception
+from keystone.i18n import _
 from keystone.identity.backends import ldap as ldap_identity
-from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log
 
 

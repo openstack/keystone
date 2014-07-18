@@ -25,7 +25,7 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone import config
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 from keystone.openstack.common import log
 
 

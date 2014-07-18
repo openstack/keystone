@@ -20,7 +20,7 @@ from keystone import clean
 from keystone.common import sql
 from keystone import config
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 
 
 CONF = config.CONF

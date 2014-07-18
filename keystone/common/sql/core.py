@@ -34,7 +34,7 @@ from sqlalchemy import types as sql_types
 
 from keystone.common import utils
 from keystone import exception
-from keystone.openstack.common.gettextutils import _
+from keystone.i18n import _
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 
