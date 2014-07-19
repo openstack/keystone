@@ -77,27 +77,27 @@ class Driver(object):
 
         :returns: a new trust
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_trust(self, trust_id):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_trusts(self):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_trusts_for_trustee(self, trustee):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_trusts_for_trustor(self, trustor):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_trust(self, trust_id):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def consume_use(self, trust_id):
@@ -107,4 +107,4 @@ class Driver(object):
         :raises: keystone.exception.TrustUseLimitReached,
                  keystone.exception.TrustNotFound
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover

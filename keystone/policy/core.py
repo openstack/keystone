@@ -80,7 +80,7 @@ class Driver(object):
         For more information on a full implementation of this see:
         `keystone.common.policy.enforce`.
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def create_policy(self, policy_id, policy):
@@ -89,12 +89,12 @@ class Driver(object):
         :raises: keystone.exception.Conflict
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_policies(self):
         """List all policies."""
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_policy(self, policy_id):
@@ -103,7 +103,7 @@ class Driver(object):
         :raises: keystone.exception.PolicyNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def update_policy(self, policy_id, policy):
@@ -112,7 +112,7 @@ class Driver(object):
         :raises: keystone.exception.PolicyNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_policy(self, policy_id):
@@ -121,4 +121,4 @@ class Driver(object):
         :raises: keystone.exception.PolicyNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover

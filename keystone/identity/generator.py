@@ -49,4 +49,4 @@ class IDGenerator(object):
         in the mapping dict.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover

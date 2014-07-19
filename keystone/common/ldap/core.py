@@ -405,57 +405,57 @@ class LDAPHandler(object):
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
                 tls_req_cert='demand', chase_referrals=None, debug_level=None):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def set_option(self, option, invalue):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_option(self, option):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def unbind_s(self):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def add_s(self, dn, modlist):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def search_s(self, base, scope,
                  filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def search_ext(self, base, scope,
                    filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
                    serverctrls=None, clientctrls=None,
                    timeout=-1, sizelimit=0):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
                 resp_ctrl_classes=None):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def modify_s(self, dn, modlist):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_s(self, dn):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
 
 class PythonLDAPHandler(LDAPHandler):

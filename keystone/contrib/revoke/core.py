@@ -192,7 +192,7 @@ class Driver(object):
                   for tokens issued after the expiration cutoff.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def revoke(self, event):
@@ -202,4 +202,4 @@ class Driver(object):
             keystone.contrib.revoke.model.RevocationEvent
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover

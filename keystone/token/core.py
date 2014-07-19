@@ -266,7 +266,7 @@ class Driver(object):
         :raises: keystone.exception.TokenNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def create_token(self, token_id, data):
@@ -290,7 +290,7 @@ class Driver(object):
         :returns: token_ref or None.
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_token(self, token_id):
@@ -302,7 +302,7 @@ class Driver(object):
         :raises: keystone.exception.TokenNotFound
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
@@ -363,7 +363,7 @@ class Driver(object):
         :returns: list of token_id's
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_revoked_tokens(self):
@@ -372,10 +372,10 @@ class Driver(object):
         :returns: list of token_id's
 
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def flush_expired_tokens(self):
         """Archive or delete tokens that have expired.
         """
-        raise exception.NotImplemented()
+        raise exception.NotImplemented()  # pragma: no cover
