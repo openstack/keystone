@@ -27,6 +27,7 @@ from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone.token import core
+from keystone.token import provider
 
 
 CONF = config.CONF
@@ -282,7 +283,7 @@ class Auth(controller.V2Controller):
         tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
             user_id, tenant_id)
 
-        expiry = core.default_expire_time()
+        expiry = provider.default_expire_time()
         return (user_ref, tenant_ref, metadata_ref, expiry, None)
 
     def _authenticate_external(self, context, auth):
@@ -311,7 +312,7 @@ class Auth(controller.V2Controller):
         tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
             user_id, tenant_id)
 
-        expiry = core.default_expire_time()
+        expiry = provider.default_expire_time()
         bind = None
         if ('kerberos' in CONF.token.bind and
                 context['environment'].

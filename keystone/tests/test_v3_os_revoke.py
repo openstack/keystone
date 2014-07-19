@@ -19,7 +19,7 @@ from keystone.common import dependency
 from keystone.contrib.revoke import model
 from keystone.openstack.common import timeutils
 from keystone.tests import test_v3
-from keystone import token
+from keystone.token import provider
 
 
 def _future_time_string():
@@ -61,7 +61,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
 
     def test_revoked_token_in_list(self):
         user_id = uuid.uuid4().hex
-        expires_at = token.default_expire_time()
+        expires_at = provider.default_expire_time()
         sample = self._blank_event()
         sample['user_id'] = six.text_type(user_id)
         sample['expires_at'] = six.text_type(timeutils.isotime(expires_at,

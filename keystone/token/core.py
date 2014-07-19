@@ -16,7 +16,6 @@
 
 import abc
 import copy
-import datetime
 
 import six
 
@@ -29,6 +28,7 @@ from keystone.i18n import _
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone.openstack.common import versionutils
+from keystone.token import provider
 
 
 CONF = config.CONF
@@ -40,16 +40,13 @@ EXPIRATION_TIME = lambda: CONF.token.cache_time
 REVOCATION_CACHE_EXPIRATION_TIME = lambda: CONF.token.revocation_cache_time
 
 
+@versionutils.deprecated(
+    as_of=versionutils.deprecated.JUNO,
+    in_favor_of='keystone.token.provider.default_expire_time',
+    what='keystone.token.default_expire_time',
+    remove_in=+1)
 def default_expire_time():
-    """Determine when a fresh token should expire.
-
-    Expiration time varies based on configuration (see ``[token] expiration``).
-
-    :returns: a naive UTC datetime.datetime object
-
-    """
-    expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
-    return timeutils.utcnow() + expire_delta
+    return provider.default_expire_time()
 
 
 def validate_auth_info(self, user_ref, tenant_ref):
