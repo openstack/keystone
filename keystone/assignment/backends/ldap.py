@@ -84,6 +84,18 @@ class Assignment(assignment.Driver):
             tenant['name'] = clean.project_name(tenant['name'])
         return self._set_default_domain(self.project.update(tenant_id, tenant))
 
+    def get_group_project_roles(self, groups, project_id, project_domain_id):
+        self.get_project(project_id)
+        group_dns = [self.group._id_to_dn(group_id) for group_id in groups]
+        role_list = [self.role._dn_to_id(role_assignment.role_dn)
+                     for role_assignment in self.role.get_role_assignments
+                     (self.project._id_to_dn(project_id))
+                     if role_assignment.user_dn.upper() in group_dns]
+        # NOTE(morganfainberg): Does not support OS-INHERIT as domain
+        # metadata/roles are not supported by LDAP backend. Skip OS-INHERIT
+        # logic.
+        return role_list
+
     def _get_metadata(self, user_id=None, tenant_id=None,
                       domain_id=None, group_id=None):
 

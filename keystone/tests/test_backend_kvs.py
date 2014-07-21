@@ -245,3 +245,14 @@ class KvsTokenCacheInvalidation(tests.TestCase,
         self.config_fixture.config(
             group='token',
             driver='keystone.token.backends.kvs.Token')
+
+
+class KvsInheritanceTests(tests.TestCase, test_backend.InheritanceTests):
+    def setUp(self):
+        # NOTE(dstanek): setup the database for subsystems that only have a
+        # SQL backend (like credentials)
+        self.useFixture(database.Database())
+
+        super(KvsInheritanceTests, self).setUp()
+        self.load_backends()
+        self.load_fixtures(default_fixtures)

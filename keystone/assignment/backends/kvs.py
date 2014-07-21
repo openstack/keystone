@@ -15,8 +15,12 @@
 from keystone import assignment
 from keystone import clean
 from keystone.common import kvs
+from keystone import config
 from keystone import exception
 from keystone.i18n import _
+
+
+CONF = config.CONF
 
 
 class Assignment(kvs.Base, assignment.Driver):
@@ -119,6 +123,31 @@ class Assignment(kvs.Base, assignment.Driver):
         except exception.NotFound:
             raise exception.RoleNotFound(role_id=role_id)
 
+    def get_group_project_roles(self, groups, project_id, project_domain_id):
+        role_list = []
+        for group_id in groups:
+            try:
+                metadata_ref = self._get_metadata(
+                    group_id=group_id, tenant_id=project_id)
+                role_list += self._roles_from_role_dicts(
+                    metadata_ref.get('roles', {}), False)
+            except exception.MetadataNotFound:
+                # no group assignment, skip
+                pass
+
+            if CONF.os_inherit.enabled:
+                # Now get any inherited group roles for the owning domain
+                try:
+                    metadata_ref = self._get_metadata(
+                        group_id=group_id,
+                        domain_id=project_domain_id)
+                    role_list += self._roles_from_role_dicts(
+                        metadata_ref.get('roles', {}), True)
+                except exception.MetadataNotFound:
+                    pass
+
+        return role_list
+
     def list_roles(self, hints):
         return self._list_roles()
 
@@ -127,25 +156,43 @@ class Assignment(kvs.Base, assignment.Driver):
         return [self.get_role(x) for x in role_ids]
 
     def list_projects_for_user(self, user_id, group_ids, hints):
-        # NOTE(henry-nash): The kvs backend is being deprecated, so no
-        # support is provided for projects that the user has a role on solely
-        # by virtue of group membership.
-
         project_ids = set()
+        all_projects = self.list_projects(hints=None)
 
         metadata_keys = (k for k in self.db.keys()
-                         if k.startswith('metadata_user-'))
+                         if (k.startswith('metadata_user-') or
+                             k.startswith('metadata_group-')))
         for key in metadata_keys:
-            i, meta_project_or_domain_id, meta_user_id = key.split('-')
+            i, meta_project_or_domain_id, meta_entity_id = key.split('-')
 
-            if meta_user_id != user_id:
-                # Not the user, so on to next metadata.
+            if meta_entity_id != user_id and meta_entity_id not in group_ids:
+                # Not the user not one of the groups, so on to next metadata.
                 continue
 
             try:
                 self.get_project(meta_project_or_domain_id)
             except exception.NotFound:
-                # target is not a project, so on to next metadata.
+                # target is not a project, could it be a domain
+                if not CONF.os_inherit.enabled:
+                    # Inheritance is disabled, skip domain handling
+                    continue
+                try:
+                    self.get_domain(meta_project_or_domain_id)
+                except exception.NotFound:
+                    # Not a domain, move on
+                    continue
+
+                data = self.db.get(key)
+                for role in data.get('roles', []):
+                    if role['inherited_to'] == 'projects':
+                        # Role is inherited
+                        for project in all_projects:
+                            # add all projects for the domain to the list
+                            # of ids
+                            if (project['domain_id'] ==
+                                    meta_project_or_domain_id):
+                                project_ids.add(project['id'])
+                        break
                 continue
 
             project_id = meta_project_or_domain_id
