@@ -372,7 +372,7 @@ class BaseProvider(provider.Provider):
             try:
                 self.token_api.get_token(token_id)
             except exception.TokenNotFound:
-                raise exc_info[0], exc_info[1], exc_info[2]
+                six.reraise(*exc_info)
 
     def get_token_version(self, token_data):
         if token_data and isinstance(token_data, dict):
