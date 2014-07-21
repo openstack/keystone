@@ -25,6 +25,8 @@
     "identity:update_endpoint": "rule:admin_required",
     "identity:delete_endpoint": "rule:admin_required",
 
+    "identity:get_catalog": "",
+
     "identity:get_domain": "rule:admin_required",
     "identity:list_domains": "rule:admin_required",
     "identity:create_domain": "rule:admin_required",
