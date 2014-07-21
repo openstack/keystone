@@ -25,6 +25,7 @@ from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
+from keystone import notifications
 from keystone.openstack.common import log
 
 
@@ -66,6 +67,7 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+    _ENDPOINT = 'endpoint'
 
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
@@ -129,6 +131,7 @@ class Manager(manager.Manager):
             service_id = endpoint_ref.get('service_id')
             raise exception.ServiceNotFound(service_id=service_id)
 
+    @notifications.deleted(_ENDPOINT, public=False)
     def delete_endpoint(self, endpoint_id):
         try:
             return self.driver.delete_endpoint(endpoint_id)

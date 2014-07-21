@@ -308,6 +308,13 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assignment_api.delete_domain(domain_ref['id'])
         self._assertLastNotify(domain_ref['id'], DELETED_OPERATION, 'domain')
 
+    def test_delete_endpoint(self):
+        endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
+        self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
+        self.catalog_api.delete_endpoint(endpoint_ref['id'])
+        self._assertNotifySent(endpoint_ref['id'], DELETED_OPERATION,
+                               'endpoint', public=False)
+
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()
         self.assignment_api.create_domain(domain_ref['id'], domain_ref)
