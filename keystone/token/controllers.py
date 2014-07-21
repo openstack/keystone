@@ -13,6 +13,7 @@
 #    under the License.
 
 import datetime
+import sys
 
 from keystoneclient.common import cms
 import six
@@ -26,7 +27,6 @@ from keystone.i18n import _
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
-from keystone.token import core
 from keystone.token import provider
 
 
@@ -99,7 +99,18 @@ class Auth(controller.V2Controller):
                     context, auth)
 
         user_ref, tenant_ref, metadata_ref, expiry, bind = auth_info
-        core.validate_auth_info(self, user_ref, tenant_ref)
+        # Validate that the auth info is valid and nothing is disabled
+        try:
+            self.identity_api.assert_user_enabled(
+                user_id=user_ref['id'], user=user_ref)
+            self.assignment_api.assert_domain_enabled(
+                domain_id=user_ref['domain_id'])
+            if tenant_ref:
+                self.assignment_api.assert_project_enabled(
+                    project_id=tenant_ref['id'], project=tenant_ref)
+        except AssertionError as e:
+            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
+                        sys.exc_info()[2])
         # NOTE(morganfainberg): Make sure the data is in correct form since it
         # might be consumed external to Keystone and this is a v2.0 controller.
         # The user_ref is encoded into the auth_token_data which is returned as

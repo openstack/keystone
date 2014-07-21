@@ -83,6 +83,27 @@ class Manager(manager.Manager):
                                          ret['domain_id'])
         return ret
 
+    def assert_domain_enabled(self, domain_id, domain=None):
+        """Assert the Domain is enabled.
+
+        :raise AssertionError if domain is disabled.
+        """
+        if domain is None:
+            domain = self.get_domain(domain_id)
+        if not domain.get('enabled', True):
+            raise AssertionError(_('Domain is disabled: %s') % domain_id)
+
+    def assert_project_enabled(self, project_id, project=None):
+        """Assert the project is enabled and its associated domain is enabled.
+
+        :raise AssertionError if the project or domain is disabled.
+        """
+        if project is None:
+            project = self.get_project(project_id)
+        self.assert_domain_enabled(domain_id=project['domain_id'])
+        if not project.get('enabled', True):
+            raise AssertionError(_('Project is disabled: %s') % project_id)
+
     @notifications.disabled(_PROJECT, public=False)
     def _disable_project(self, tenant_id):
         return self.token_api.delete_tokens_for_users(

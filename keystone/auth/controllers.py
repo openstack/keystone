@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sys
+
 from keystoneclient.common import cms
 import six
 
@@ -149,16 +151,24 @@ class AuthInfo(object):
 
     def _assert_project_is_enabled(self, project_ref):
         # ensure the project is enabled
-        if not project_ref.get('enabled', True):
-            msg = _('Project is disabled: %s') % project_ref['id']
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+        try:
+            self.assignment_api.assert_project_enabled(
+                project_id=project_ref['id'],
+                project=project_ref)
+        except AssertionError as e:
+            LOG.warning(e)
+            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
+                        sys.exc_info()[2])
 
     def _assert_domain_is_enabled(self, domain_ref):
-        if not domain_ref.get('enabled'):
-            msg = _('Domain is disabled: %s') % (domain_ref['id'])
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+        try:
+            self.assignment_api.assert_domain_enabled(
+                domain_id=domain_ref['id'],
+                domain=domain_ref)
+        except AssertionError as e:
+            LOG.warning(e)
+            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
+                        sys.exc_info()[2])
 
     def _lookup_domain(self, domain_info):
         domain_id = domain_info.get('id')

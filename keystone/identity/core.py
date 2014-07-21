@@ -538,6 +538,17 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
+    def assert_user_enabled(self, user_id, user=None):
+        """Assert the user and the user's domain are enabled.
+
+        :raise AssertionError if the user or the user's domain is disabled.
+        """
+        if user is None:
+            user = self.get_user(user_id)
+        self.assignment_api.assert_domain_enabled(user['domain_id'])
+        if not user.get('enabled', True):
+            raise AssertionError(_('User is disabled: %s') % user_id)
+
     @domains_configured
     @exception_translated('user')
     def get_user_by_name(self, user_name, domain_id):

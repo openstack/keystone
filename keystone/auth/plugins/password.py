@@ -12,6 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sys
+
+import six
+
 from keystone import auth
 from keystone.common import dependency
 from keystone import exception
@@ -37,16 +41,24 @@ class UserAuthInfo(object):
         self.user_ref = None
 
     def _assert_domain_is_enabled(self, domain_ref):
-        if not domain_ref.get('enabled'):
-            msg = _('Domain is disabled: %s') % (domain_ref['id'])
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+        try:
+            self.assignment_api.assert_domain_enabled(
+                domain_id=domain_ref['id'],
+                domain=domain_ref)
+        except AssertionError as e:
+            LOG.warning(e)
+            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
+                        sys.exc_info()[2])
 
     def _assert_user_is_enabled(self, user_ref):
-        if not user_ref.get('enabled', True):
-            msg = _('User is disabled: %s') % (user_ref['id'])
-            LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+        try:
+            self.identity_api.assert_user_enabled(
+                user_id=user_ref['id'],
+                user=user_ref)
+        except AssertionError as e:
+            LOG.warning(e)
+            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
+                        sys.exc_info()[2])
 
     def _lookup_domain(self, domain_info):
         domain_id = domain_info.get('id')

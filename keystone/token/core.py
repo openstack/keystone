@@ -49,6 +49,9 @@ def default_expire_time():
     return provider.default_expire_time()
 
 
+@versionutils.deprecated(as_of=versionutils.deprecated.JUNO,
+                         what='keystone.token.core.validate_auth_info',
+                         remove_in=+1)
 def validate_auth_info(self, user_ref, tenant_ref):
     """Validate user and tenant auth info.
 
