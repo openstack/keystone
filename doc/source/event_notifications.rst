@@ -68,7 +68,7 @@ notification will be sent.  Information about the error is handled through
 normal exception paths.
 
 Notification Example
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 This is an example of a notification sent for a newly created user:
 
@@ -84,6 +84,21 @@ This is an example of a notification sent for a newly created user:
         "publisher_id": "identity.host1234",
         "timestamp": "2013-08-29 19:03:45.960280"
     }
+
+Recommendations for consumers
+-----------------------------
+
+One of the most important notifications that Keystone emits is for project
+deletions (``event_type`` = ``identity.project.deleted``). This event should
+indicate to the rest of OpenStack that all resources (such as virtual machines)
+associated with the project should be deleted.
+
+Projects can also have update events (``event_type`` =
+``identity.project.updated``), wherein the project has been disabled. Keystone
+ensures this has an immediate impact on the accessibility of the project's
+resources by revoking tokens with authorization on the project, but should
+**not** have a direct impact on the projects resources (in other words, virtual
+machines should **not** be deleted).
 
 Auditing with CADF
 ==================
