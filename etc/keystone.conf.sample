@@ -414,7 +414,7 @@
 #logging_exception_prefix=%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
 
 # List of logger=LEVEL pairs. (list value)
-#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN
+#default_log_levels=amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN
 
 # Enables or disables publication of error events. (boolean
 # value)
@@ -425,11 +425,11 @@
 #fatal_deprecations=false
 
 # The format for an instance that is passed with the log
-# message.  (string value)
+# message. (string value)
 #instance_format="[instance: %(uuid)s] "
 
 # The format for an instance UUID that is passed with the log
-# message.  (string value)
+# message. (string value)
 #instance_uuid_format="[instance: %(uuid)s] "
 
 # The name of a logging configuration file. This file is
