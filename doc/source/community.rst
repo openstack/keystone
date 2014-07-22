@@ -58,7 +58,7 @@ blueprint, or collaborate with others.
 
 `OpenStack Wiki <http://wiki.openstack.org/>`_
 
-* `useful keystone project links <http://wiki.openstack.org/Keystone>`_
+* `useful Keystone project links <http://wiki.openstack.org/Keystone>`_
 
 Keystone on Launchpad
 ---------------------
