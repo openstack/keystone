@@ -126,7 +126,7 @@ class Token(token.persistence.Driver):
                 trustee_user_id = token_data['OS-TRUST:trust'][
                     'trustee_user_id']
             else:
-                raise token.provider.UnsupportedTokenVersionException(
+                raise exception.UnsupportedTokenVersionException(
                     _('Unknown token version %s') %
                     data_copy.get('token_version'))
 

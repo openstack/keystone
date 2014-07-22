@@ -24,9 +24,9 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
-
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
 from keystone.openstack.common import versionutils
@@ -40,9 +40,9 @@ SHOULD_CACHE = cache.should_cache_fn('token')
 EXPIRATION_TIME = lambda: CONF.token.cache_time
 
 # supported token versions
-V2 = 'v2.0'
-V3 = 'v3.0'
-VERSIONS = frozenset([V2, V3])
+V2 = token_model.V2
+V3 = token_model.V3
+VERSIONS = token_model.VERSIONS
 
 # default token providers
 PKI_PROVIDER = 'keystone.token.providers.pki.Provider'
@@ -55,11 +55,6 @@ _FORMAT_TO_PROVIDER = {
     'PKIZ': PKIZ_PROVIDER,
     'UUID': UUID_PROVIDER
 }
-
-
-class UnsupportedTokenVersionException(Exception):
-    """Token version is unrecognizable or unsupported."""
-    pass
 
 
 def default_expire_time():
@@ -83,6 +78,10 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+
+    V2 = V2
+    V3 = V3
+    VERSIONS = VERSIONS
 
     @classmethod
     def get_token_provider(cls):

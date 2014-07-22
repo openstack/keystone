@@ -722,7 +722,7 @@ class TestTokenProvider(tests.TestCase):
             token.provider.V3,
             self.token_provider_api.get_token_version(
                 SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION))
-        self.assertRaises(token.provider.UnsupportedTokenVersionException,
+        self.assertRaises(exception.UnsupportedTokenVersionException,
                           self.token_provider_api.get_token_version,
                           'bogus')
 
