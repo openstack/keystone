@@ -25,16 +25,10 @@ if six.PY3:
     import sys
     from unittest import mock  # noqa: our import detection is naive?
 
-    # NOTE(dstanek): oslo.config is imported there so that later module
-    # that use it will still have access. If we don't import it now then
-    # it won't be available because of how I am patching oslo below.
-    import oslo.config  # noqa: need this imported before the monkey patching
-    import oslo.db  # noqa: need this imported before the monkey patching
     sys.modules['eventlet'] = mock.Mock()
     sys.modules['eventlet.green'] = mock.Mock()
     sys.modules['eventlet.wsgi'] = mock.Mock()
-    sys.modules['oslo'] = mock.Mock()
-    sys.modules['oslo.messaging'] = mock.Mock()
+    sys.modules['oslo'].messaging = mock.Mock()
     sys.modules['pycadf'] = mock.Mock()
     sys.modules['paste'] = mock.Mock()
 
