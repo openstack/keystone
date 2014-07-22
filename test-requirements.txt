@@ -42,7 +42,7 @@ testscenarios>=0.4
 httplib2>=0.7.5
 # replaces httplib2 in keystoneclient >=0.2.1
 requests>=1.1
-keyring>=2.1
+keyring>=2.1,!=3.3
 
 # For documentation
 oslosphinx
