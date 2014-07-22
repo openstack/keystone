@@ -632,6 +632,25 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         # If this doesn't raise, then the test is successful.
         user = self.identity_api.create_user(user)
 
+    def test_unignored_user_none_mapping(self):
+        # Ensure that an attribute that maps to None that is not explicitly
+        # ignored in configuration is implicitly ignored without triggering
+        # an error.
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_attribute_ignore = ['enabled', 'email',
+                                           'tenants', 'tenantId']
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        user = {'name': u'fäké1',
+                'password': u'fäképass1',
+                'domain_id': CONF.identity.default_domain_id,
+                }
+
+        user_ref = self.identity_api.create_user(user)
+
+        # If this doesn't raise, then the test is successful.
+        self.identity_api.get_user(user_ref['id'])
+
     def test_update_user_name(self):
         """A user's name cannot be changed through the LDAP driver."""
         self.assertRaises(exception.Conflict,
