@@ -46,7 +46,8 @@ _entity_properties = {
     'description': validation.nullable(parameter_types.description),
     'enabled': parameter_types.boolean,
     'url': validation.nullable(parameter_types.url),
-    'email': validation.nullable(parameter_types.email)
+    'email': validation.nullable(parameter_types.email),
+    'id_string': validation.nullable(parameter_types.id_string)
 }
 
 entity_create = {
@@ -195,6 +196,37 @@ class EntityValidationTestCase(testtools.TestCase):
                           self.create_schema_validator.validate,
                           request_to_validate)
 
+    def test_create_entity_with_valid_id_strings(self):
+        """Validate acceptable id strings."""
+        valid_id_strings = [str(uuid.uuid4()), uuid.uuid4().hex, 'default']
+        for valid_id in valid_id_strings:
+            request_to_validate = {'name': self.resource_name,
+                                   'id_string': valid_id}
+            self.create_schema_validator.validate(request_to_validate)
+
+    def test_create_entity_with_invalid_id_strings(self):
+        """Exception raised when using invalid id strings."""
+        long_string = 'A' * 65
+        invalid_id_strings = ['', long_string, 'this,should,fail']
+        for invalid_id in invalid_id_strings:
+            request_to_validate = {'name': self.resource_name,
+                                   'id_string': invalid_id}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_schema_validator.validate,
+                              request_to_validate)
+
+    def test_create_entity_with_null_id_string(self):
+        """Validate that None is an acceptable optional string type."""
+        request_to_validate = {'name': self.resource_name,
+                               'id_string': None}
+        self.create_schema_validator.validate(request_to_validate)
+
+    def test_create_entity_with_null_string_succeeds(self):
+        """Exception raised when passing None on required id strings."""
+        request_to_validate = {'name': self.resource_name,
+                               'id_string': None}
+        self.create_schema_validator.validate(request_to_validate)
+
     def test_update_entity_with_no_parameters_fails(self):
         """At least one parameter needs to be present for an update."""
         request_to_validate = {}
@@ -341,6 +373,12 @@ class ProjectValidationTestCase(testtools.TestCase):
     def test_validate_project_update_request_with_name_too_short_fails(self):
         """Exception raised when updating a project with `name` too short."""
         request_to_validate = {'name': ''}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_project_validator.validate,
+                          request_to_validate)
+
+    def test_validate_project_update_request_with_null_domain_id_fails(self):
+        request_to_validate = {'domain_id': None}
         self.assertRaises(exception.SchemaValidationError,
                           self.update_project_validator.validate,
                           request_to_validate)
