@@ -89,15 +89,15 @@ class ExceptionTestCase(tests.TestCase):
         e = exception.ValidationError(attribute='xx',
                                       target='Long \xe2\x80\x93 Dash')
 
-        self.assertIn(u'\u2013', e.message)
+        self.assertIn(u'\u2013', six.text_type(e))
 
     def test_invalid_unicode_string(self):
         # NOTE(jamielennox): This is a complete failure case so what is
-        # returned in the e.message is not that important so long as there is
-        # an error with a message
+        # returned in the exception message is not that important so long
+        # as there is an error with a message
         e = exception.ValidationError(attribute='xx',
                                       target='\xe7a va')
-        self.assertIn('%(attribute)', e.message)
+        self.assertIn('%(attribute)', six.text_type(e))
 
 
 class UnexpectedExceptionTestCase(ExceptionTestCase):

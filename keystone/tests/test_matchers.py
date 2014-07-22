@@ -21,19 +21,19 @@ from keystone.tests import matchers
 
 
 class TestXMLEquals(tests.BaseTestCase, helpers.TestMatchersInterface):
-    matches_xml = """
+    matches_xml = b"""
         <?xml version="1.0" encoding="UTF-8"?>
         <test xmlns="http://docs.openstack.org/identity/api/v2.0">
             <success a="a" b="b"/>
         </test>
     """
-    equivalent_xml = """
+    equivalent_xml = b"""
         <?xml version="1.0" encoding="UTF-8"?>
         <test xmlns="http://docs.openstack.org/identity/api/v2.0">
             <success b="b" a="a"></success>
         </test>
     """
-    mismatches_xml = """
+    mismatches_xml = b"""
         <?xml version="1.0" encoding="UTF-8"?>
         <test xmlns="http://docs.openstack.org/identity/api/v2.0">
             <nope_it_fails/>
