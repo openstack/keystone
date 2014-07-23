@@ -57,7 +57,7 @@ class TokenPersistenceBackendSymbols(tests.TestCase):
         # CacheRegion objects and CacheRegion objects cannot be reconfigured.
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
-        manager = token.persistence.Manager()
+        manager = token.persistence.PersistenceManager()
         self.assertIsInstance(manager.driver, proxy_kvs.Token)
         self.assertIsInstance(manager.driver, kvs.Token)
 
@@ -73,7 +73,7 @@ class TokenPersistenceBackendSymbols(tests.TestCase):
         # reconfigured.
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
-        manager = token.persistence.Manager()
+        manager = token.persistence.PersistenceManager()
         self.assertIsInstance(manager.driver, proxy_memcache.Token)
         self.assertIsInstance(manager.driver, memcache.Token)
 
@@ -81,6 +81,6 @@ class TokenPersistenceBackendSymbols(tests.TestCase):
         self.config_fixture.config(
             group='token',
             driver='keystone.token.backends.sql.Token')
-        manager = token.persistence.Manager()
+        manager = token.persistence.PersistenceManager()
         self.assertIsInstance(manager.driver, proxy_sql.Token)
         self.assertIsInstance(manager.driver, sql.Token)
