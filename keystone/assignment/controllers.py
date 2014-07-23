@@ -26,6 +26,7 @@ from keystone.common import dependency
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
 from keystone.openstack.common import log
 
 
@@ -33,7 +34,7 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'token_api')
+@dependency.requires('assignment_api', 'identity_api', 'token_provider_api')
 class Tenant(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -65,14 +66,16 @@ class Tenant(controller.V2Controller):
 
         """
         try:
-            token_ref = self.token_api.get_token(context['token_id'])
+            token_data = self.token_provider_api.validate_token(
+                context['token_id'])
+            token_ref = token_model.KeystoneToken(token_id=context['token_id'],
+                                                  token_data=token_data)
         except exception.NotFound as e:
             LOG.warning(_('Authentication failed: %s'), e)
             raise exception.Unauthorized(e)
 
-        user_ref = token_ref['user']
         tenant_refs = (
-            self.assignment_api.list_projects_for_user(user_ref['id']))
+            self.assignment_api.list_projects_for_user(token_ref.user_id))
         tenant_refs = [self.filter_domain_id(ref) for ref in tenant_refs
                        if ref['domain_id'] == CONF.identity.default_domain_id]
         params = {
