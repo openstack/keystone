@@ -16,6 +16,8 @@ import hashlib
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import validation
+from keystone.credential import schema
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import jsonutils
@@ -58,6 +60,7 @@ class CredentialV3(controller.V3Controller):
             return super(CredentialV3, self)._assign_unique_id(ref)
 
     @controller.protected()
+    @validation.validated(schema.credential_create, 'credential')
     def create_credential(self, context, credential):
         trust_id = self._get_trust_id_for_request(context)
         ref = self._assign_unique_id(self._normalize_dict(credential),
@@ -92,6 +95,7 @@ class CredentialV3(controller.V3Controller):
         return CredentialV3.wrap_member(context, ret_ref)
 
     @controller.protected()
+    @validation.validated(schema.credential_update, 'credential')
     def update_credential(self, context, credential_id, credential):
         self._require_matching_id(credential_id, credential)
 
