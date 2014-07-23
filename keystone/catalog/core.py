@@ -19,6 +19,7 @@ import abc
 
 import six
 
+from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
@@ -30,6 +31,9 @@ from keystone.openstack.common import log
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
+SHOULD_CACHE = cache.should_cache_fn('catalog')
+
+EXPIRATION_TIME = lambda: CONF.catalog.cache_time
 
 
 def format_url(url, data):
@@ -90,6 +94,8 @@ class Manager(manager.Manager):
             parent_region_id = region_ref.get('parent_region_id')
             raise exception.RegionNotFound(region_id=parent_region_id)
 
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=EXPIRATION_TIME)
     def get_region(self, region_id):
         try:
             return self.driver.get_region(region_id)
@@ -98,7 +104,9 @@ class Manager(manager.Manager):
 
     def delete_region(self, region_id):
         try:
-            return self.driver.delete_region(region_id)
+            ret = self.driver.delete_region(region_id)
+            self.get_region.invalidate(self, region_id)
+            return ret
         except exception.NotFound:
             raise exception.RegionNotFound(region_id=region_id)
 
@@ -106,6 +114,8 @@ class Manager(manager.Manager):
         service_ref.setdefault('enabled', True)
         return self.driver.create_service(service_id, service_ref)
 
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=EXPIRATION_TIME)
     def get_service(self, service_id):
         try:
             return self.driver.get_service(service_id)
@@ -114,7 +124,13 @@ class Manager(manager.Manager):
 
     def delete_service(self, service_id):
         try:
-            return self.driver.delete_service(service_id)
+            endpoints = self.list_endpoints()
+            ret = self.driver.delete_service(service_id)
+            self.get_service.invalidate(self, service_id)
+            for endpoint in endpoints:
+                if endpoint['service_id'] == service_id:
+                    self.get_endpoint.invalidate(self, endpoint['id'])
+            return ret
         except exception.NotFound:
             raise exception.ServiceNotFound(service_id=service_id)
 
@@ -131,10 +147,14 @@ class Manager(manager.Manager):
 
     def delete_endpoint(self, endpoint_id):
         try:
-            return self.driver.delete_endpoint(endpoint_id)
+            ret = self.driver.delete_endpoint(endpoint_id)
+            self.get_endpoint.invalidate(self, endpoint_id)
+            return ret
         except exception.NotFound:
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=EXPIRATION_TIME)
     def get_endpoint(self, endpoint_id):
         try:
             return self.driver.get_endpoint(endpoint_id)
