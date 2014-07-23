@@ -23,7 +23,7 @@ nosexcover
 openstack.nose_plugin>=0.7
 nosehtmloutput>=0.0.3
 # required to build documentation
-sphinx>=1.1.2,<1.2
+sphinx>=1.1.2,<1.1.999
 testtools>=0.9.32
 # test wsgi apps without starting an http server
 WebTest>=2.0
