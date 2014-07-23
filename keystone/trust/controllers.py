@@ -20,10 +20,12 @@ import six
 from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone.openstack.common import log
+from keystone.trust import schema
 
 
 LOG = log.getLogger(__name__)
@@ -118,6 +120,7 @@ class TrustV3(controller.V3Controller):
         return trust_roles
 
     @controller.protected()
+    @validation.validated(schema.trust_create, 'trust')
     def create_trust(self, context, trust=None):
         """Create a new trust.
 
@@ -135,8 +138,6 @@ class TrustV3(controller.V3Controller):
         if not trust:
             raise exception.ValidationError(attribute='trust',
                                             target='request')
-        self._require_attributes(trust, ['impersonation', 'trustee_user_id',
-                                         'trustor_user_id'])
         if trust.get('project_id'):
             self._require_role(trust)
         self._require_user_is_trustor(context, trust)

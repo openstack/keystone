@@ -346,8 +346,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
     def new_trust_ref(self, trustor_user_id, trustee_user_id, project_id=None,
                       impersonation=None, expires=None, role_ids=None,
                       role_names=None, remaining_uses=None):
-        ref = self.new_ref()
-
+        ref = dict()
+        ref['id'] = uuid.uuid4().hex
         ref['trustor_user_id'] = trustor_user_id
         ref['trustee_user_id'] = trustee_user_id
         ref['impersonation'] = impersonation or False
@@ -1138,6 +1138,9 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             resp,
             'trusts',
             self.assertValidTrustSummary,
+            keys_to_check=['trustor_user_id',
+                           'trustee_user_id',
+                           'impersonation'],
             *args,
             **kwargs)
 
@@ -1146,6 +1149,9 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             resp,
             'trust',
             self.assertValidTrust,
+            keys_to_check=['trustor_user_id',
+                           'trustee_user_id',
+                           'impersonation'],
             *args,
             **kwargs)
 
