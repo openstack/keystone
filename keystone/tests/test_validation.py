@@ -16,6 +16,7 @@ import uuid
 import testtools
 
 from keystone.assignment import schema as assignment_schema
+from keystone.catalog import schema as catalog_schema
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 from keystone.common.validation import validators
@@ -699,3 +700,394 @@ class CredentialValidationTestCase(testtools.TestCase):
                                'type': 'ec2',
                                'user_id': uuid.uuid4().hex}
         self.update_credential_validator.validate(request_to_validate)
+
+
+class RegionValidationTestCase(testtools.TestCase):
+    """Test for V3 Region API validation."""
+
+    _valid_url_types = ['https://example.com', 'http://example.com',
+                        'http://localhost', 'http://127.0.0.1:5000']
+    _invalid_url_types = [False, 'this is not a URL', 1234, 'www.example.com',
+                          'localhost']
+
+    def setUp(self):
+        super(RegionValidationTestCase, self).setUp()
+
+        self.region_name = 'My Region'
+
+        create = catalog_schema.region_create
+        update = catalog_schema.region_update
+        self.create_region_validator = validators.SchemaValidator(create)
+        self.update_region_validator = validators.SchemaValidator(update)
+
+    def test_validate_region_request(self):
+        """Test that we validate a basic region request."""
+        # Create_region doesn't take any parameters in the request so let's
+        # make sure we cover that case.
+        request_to_validate = {}
+        self.create_region_validator.validate(request_to_validate)
+
+    def test_validate_region_create_request_with_parameters(self):
+        """Test that we validate a region request with parameters."""
+        request_to_validate = {'id': 'us-east',
+                               'description': 'US East Region',
+                               'parent_region_id': 'US Region'}
+        self.create_region_validator.validate(request_to_validate)
+
+    def test_validate_region_create_with_uuid(self):
+        """Test that we validate a region request with a UUID as the id."""
+        request_to_validate = {'id': uuid.uuid4().hex,
+                               'description': 'US East Region',
+                               'parent_region_id': uuid.uuid4().hex}
+        self.create_region_validator.validate(request_to_validate)
+
+    def test_validate_region_create_succeeds_with_extra_parameters(self):
+        """Validate create region request with extra values."""
+        request_to_validate = {'other_attr': uuid.uuid4().hex}
+        self.create_region_validator.validate(request_to_validate)
+
+    def test_validate_region_create_succeeds_with_url(self):
+        """Validate `url` attribute in region create request."""
+        for url in self._valid_url_types:
+            request_to_validate = {'url': url}
+            self.create_region_validator.validate(request_to_validate)
+
+    def test_validate_region_create_fails_with_invalid_url(self):
+        """Exception raised when passing invalid `url` in request."""
+        for url in self._invalid_url_types:
+            request_to_validate = {'url': url}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_region_validator.validate,
+                              request_to_validate)
+
+    def test_validate_region_update_succeeds(self):
+        """Test that we validate a region update request."""
+        request_to_validate = {'id': 'us-west',
+                               'description': 'US West Region',
+                               'parent_region_id': 'us-region'}
+        self.update_region_validator.validate(request_to_validate)
+
+    def test_validate_region_update_succeeds_with_extra_parameters(self):
+        """Validate extra attributes in the region update request."""
+        request_to_validate = {'other_attr': uuid.uuid4().hex}
+        self.update_region_validator.validate(request_to_validate)
+
+    def test_validate_region_update_fails_with_no_parameters(self):
+        """Exception raised when passing no parameters in a region update."""
+        # An update request should consist of at least one value to update
+        request_to_validate = {}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_region_validator.validate,
+                          request_to_validate)
+
+    def test_validate_region_update_succeeds_with_url(self):
+        """Validate `url` attribute in region update request."""
+        for url in self._valid_url_types:
+            request_to_validate = {'url': url}
+            self.update_region_validator.validate(request_to_validate)
+
+    def test_validate_region_update_fails_with_invalid_url(self):
+        """Exception raised when passing invalid `url` in request."""
+        for url in self._invalid_url_types:
+            request_to_validate = {'url': url}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_region_validator.validate,
+                              request_to_validate)
+
+
+class ServiceValidationTestCase(testtools.TestCase):
+    """Test for V3 Service API validation."""
+
+    def setUp(self):
+        super(ServiceValidationTestCase, self).setUp()
+
+        create = catalog_schema.service_create
+        update = catalog_schema.service_update
+        self.create_service_validator = validators.SchemaValidator(create)
+        self.update_service_validator = validators.SchemaValidator(update)
+
+    def test_validate_service_create_succeeds(self):
+        """Test that we validate a service create request."""
+        request_to_validate = {'name': 'Nova',
+                               'description': 'OpenStack Compute Service',
+                               'enabled': True,
+                               'type': 'compute'}
+        self.create_service_validator.validate(request_to_validate)
+
+    def test_validate_service_create_succeeds_with_required_parameters(self):
+        """Validate a service create request with the required parameters."""
+        # The only parameter type required for service creation is 'type'
+        request_to_validate = {'type': 'compute'}
+        self.create_service_validator.validate(request_to_validate)
+
+    def test_validate_service_create_fails_without_type(self):
+        """Exception raised when trying to create a service without `type`."""
+        request_to_validate = {'name': 'Nova'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_create_succeeds_with_extra_parameters(self):
+        """Test that extra parameters pass validation on create service."""
+        request_to_validate = {'other_attr': uuid.uuid4().hex,
+                               'type': uuid.uuid4().hex}
+        self.create_service_validator.validate(request_to_validate)
+
+    def test_validate_service_create_succeeds_with_valid_enabled(self):
+        """Validate boolean values as enabled values on service create."""
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': valid_enabled,
+                                   'type': uuid.uuid4().hex}
+            self.create_service_validator.validate(request_to_validate)
+
+    def test_validate_service_create_fails_with_invalid_enabled(self):
+        """Exception raised when boolean-like parameters as `enabled`
+
+        On service create, make sure an exception is raised if `enabled` is
+        not a boolean value.
+        """
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': invalid_enabled,
+                                   'type': uuid.uuid4().hex}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_service_validator.validate,
+                              request_to_validate)
+
+    def test_validate_service_create_fails_when_name_too_long(self):
+        """Exception raised when `name` is greater than 255 characters."""
+        long_name = 'a' * 256
+        request_to_validate = {'type': 'compute',
+                               'name': long_name}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_create_fails_when_name_too_short(self):
+        """Exception is raised when `name` is too short."""
+        request_to_validate = {'type': 'compute',
+                               'name': ''}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_create_fails_when_type_too_long(self):
+        """Exception is raised when `type` is too long."""
+        long_type_name = 'a' * 256
+        request_to_validate = {'type': long_type_name}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_create_fails_when_type_too_short(self):
+        """Exception is raised when `type` is too short."""
+        request_to_validate = {'type': ''}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_update_request_succeeds(self):
+        """Test that we validate a service update request."""
+        request_to_validate = {'name': 'Cinder',
+                               'type': 'volume',
+                               'description': 'OpenStack Block Storage',
+                               'enabled': False}
+        self.update_service_validator.validate(request_to_validate)
+
+    def test_validate_service_update_fails_with_no_parameters(self):
+        """Exception raised when updating a service without values."""
+        request_to_validate = {}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_update_succeeds_with_extra_parameters(self):
+        """Validate updating a service with extra parameters."""
+        request_to_validate = {'other_attr': uuid.uuid4().hex}
+        self.update_service_validator.validate(request_to_validate)
+
+    def test_validate_service_update_succeeds_with_valid_enabled(self):
+        """Validate boolean formats as `enabled` on service update."""
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': valid_enabled}
+            self.update_service_validator.validate(request_to_validate)
+
+    def test_validate_service_update_fails_with_invalid_enabled(self):
+        """Exception raised when boolean-like values as `enabled`."""
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': invalid_enabled}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_service_validator.validate,
+                              request_to_validate)
+
+    def test_validate_service_update_fails_with_name_too_long(self):
+        """Exception is raised when `name` is too long on update."""
+        long_name = 'a' * 256
+        request_to_validate = {'name': long_name}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_update_fails_with_name_too_short(self):
+        """Exception is raised when `name` is too short on update."""
+        request_to_validate = {'name': ''}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_update_fails_with_type_too_long(self):
+        """Exception is raised when `type` is too long on update."""
+        long_type_name = 'a' * 256
+        request_to_validate = {'type': long_type_name}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_service_validator.validate,
+                          request_to_validate)
+
+    def test_validate_service_update_fails_with_type_too_short(self):
+        """Exception is raised when `type` is too short on update."""
+        request_to_validate = {'type': ''}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_service_validator.validate,
+                          request_to_validate)
+
+
+class EndpointValidationTestCase(testtools.TestCase):
+    """Test for V3 Endpoint API validation."""
+
+    def setUp(self):
+        super(EndpointValidationTestCase, self).setUp()
+
+        create = catalog_schema.endpoint_create
+        update = catalog_schema.endpoint_update
+        self.create_endpoint_validator = validators.SchemaValidator(create)
+        self.update_endpoint_validator = validators.SchemaValidator(update)
+
+    def test_validate_endpoint_request_succeeds(self):
+        """Test that we validate an endpoint request."""
+        request_to_validate = {'enabled': True,
+                               'interface': 'admin',
+                               'region_id': uuid.uuid4().hex,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+        self.create_endpoint_validator.validate(request_to_validate)
+
+    def test_validate_endpoint_create_succeeds_with_required_parameters(self):
+        """Validate an endpoint request with only the required parameters."""
+        # According to the Identity V3 API endpoint creation requires
+        # 'service_id', 'interface', and 'url'
+        request_to_validate = {'service_id': uuid.uuid4().hex,
+                               'interface': 'public',
+                               'url': 'https://service.example.com:5000/'}
+        self.create_endpoint_validator.validate(request_to_validate)
+
+    def test_validate_endpoint_create_succeeds_with_valid_enabled(self):
+        """Validate an endpoint with boolean values.
+
+        Validate boolean values as `enabled` in endpoint create requests.
+        """
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': valid_enabled,
+                                   'service_id': uuid.uuid4().hex,
+                                   'interface': 'public',
+                                   'url': 'https://service.example.com:5000/'}
+            self.create_endpoint_validator.validate(request_to_validate)
+
+    def test_validate_create_endpoint_fails_with_invalid_enabled(self):
+        """Exception raised when boolean-like values as `enabled`."""
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': invalid_enabled,
+                                   'service_id': uuid.uuid4().hex,
+                                   'interface': 'public',
+                                   'url': 'https://service.example.com:5000/'}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_endpoint_validator.validate,
+                              request_to_validate)
+
+    def test_validate_endpoint_create_succeeds_with_extra_parameters(self):
+        """Test that extra parameters pass validation on create endpoint."""
+        request_to_validate = {'other_attr': uuid.uuid4().hex,
+                               'service_id': uuid.uuid4().hex,
+                               'interface': 'public',
+                               'url': 'https://service.example.com:5000/'}
+        self.create_endpoint_validator.validate(request_to_validate)
+
+    def test_validate_endpoint_create_fails_without_service_id(self):
+        """Exception raised when `service_id` isn't in endpoint request."""
+        request_to_validate = {'interface': 'public',
+                               'url': 'https://service.example.com:5000/'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_endpoint_validator.validate,
+                          request_to_validate)
+
+    def test_validate_endpoint_create_fails_without_interface(self):
+        """Exception raised when `interface` isn't in endpoint request."""
+        request_to_validate = {'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_endpoint_validator.validate,
+                          request_to_validate)
+
+    def test_validate_endpoint_create_fails_without_url(self):
+        """Exception raised when `url` isn't in endpoint request."""
+        request_to_validate = {'service_id': uuid.uuid4().hex,
+                               'interface': 'public'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_endpoint_validator.validate,
+                          request_to_validate)
+
+    def test_validate_endpoint_create_fails_with_invalid_interface(self):
+        """Exception raised with invalid `interface`."""
+        request_to_validate = {'interface': uuid.uuid4().hex,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_endpoint_validator.validate,
+                          request_to_validate)
+
+    def test_validate_endpoint_update_fails_with_invalid_enabled(self):
+        """Exception raised when `enabled` is boolean-like value."""
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': invalid_enabled}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_endpoint_validator.validate,
+                              request_to_validate)
+
+    def test_validate_endpoint_update_succeeds_with_valid_enabled(self):
+        """Validate `enabled` as boolean values."""
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request_to_validate = {'enabled': valid_enabled}
+            self.update_endpoint_validator.validate(request_to_validate)
+
+    def test_validate_endpoint_update_fails_with_invalid_interface(self):
+        """Exception raised when invalid `interface` on endpoint update."""
+        request_to_validate = {'interface': uuid.uuid4().hex,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_endpoint_validator.validate,
+                          request_to_validate)
+
+    def test_validate_endpoint_update_request_succeeds(self):
+        """Test that we validate an endpoint update request."""
+        request_to_validate = {'enabled': True,
+                               'interface': 'admin',
+                               'region_id': uuid.uuid4().hex,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+        self.update_endpoint_validator.validate(request_to_validate)
+
+    def test_validate_endpoint_update_fails_with_no_parameters(self):
+        """Exception raised when no parameters on endpoint update."""
+        request_to_validate = {}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_endpoint_validator.validate,
+                          request_to_validate)
+
+    def test_validate_endpoint_update_succeeds_with_extra_parameters(self):
+        """Test that extra parameters pass validation on update endpoint."""
+        request_to_validate = {'enabled': True,
+                               'interface': 'admin',
+                               'region_id': uuid.uuid4().hex,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/',
+                               'other_attr': uuid.uuid4().hex}
+        self.update_endpoint_validator.validate(request_to_validate)
