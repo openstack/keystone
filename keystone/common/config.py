@@ -141,6 +141,13 @@ FILE_OPTIONS = {
                    default=('keystone.identity.backends'
                             '.sql.Identity'),
                    help='Identity backend driver.'),
+        cfg.BoolOpt('caching', default=True,
+                    help='Toggle for identity caching. This has no '
+                         'effect unless global caching is enabled.'),
+        cfg.IntOpt('cache_time', default=600,
+                   help='Time to cache identity data (in seconds). This has '
+                        'no effect unless global and identity caching are '
+                        'enabled.'),
         cfg.IntOpt('max_password_length', default=4096,
                    help='Maximum supported length for user passwords; '
                         'decrease to improve performance.'),

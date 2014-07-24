@@ -236,6 +236,9 @@ class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
         def side_effect(arg):
             return arg
         mocked_method.side_effect = side_effect
+        # invalidate the cache to get utf8_encode function called.
+        self.identity_api.get_user.invalidate(self.identity_api,
+                                              self.user_foo['id'])
         self.identity_api.get_user(self.user_foo['id'])
         mocked_method.assert_any_call(CONF.ldap.user)
         mocked_method.assert_any_call(CONF.ldap.password)

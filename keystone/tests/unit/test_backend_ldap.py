@@ -168,6 +168,9 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         conf = self.get_config(user_ref['domain_id'])
         conf.ldap.user_filter = '(CN=DOES_NOT_MATCH)'
         self.reload_backends(user_ref['domain_id'])
+        # invalidate the cache if the result is cached.
+        self.identity_api.get_user.invalidate(self.identity_api,
+                                              self.user_foo['id'])
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           self.user_foo['id'])
@@ -649,6 +652,36 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
                           group['id'])
+
+    @tests.skip_if_cache_disabled('identity')
+    def test_cache_layer_group_crud(self):
+        group = {
+            'domain_id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex}
+        group = self.identity_api.create_group(group)
+        # cache the result
+        group_ref = self.identity_api.get_group(group['id'])
+        # delete the group bypassing identity api.
+        domain_id, driver, entity_id = (
+            self.identity_api._get_domain_driver_and_entity_id(group['id']))
+        driver.delete_group(entity_id)
+
+        self.assertEqual(group_ref,
+                         self.identity_api.get_group(group['id']))
+        self.identity_api.get_group.invalidate(self.identity_api, group['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group, group['id'])
+
+        group = {
+            'domain_id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex}
+        group = self.identity_api.create_group(group)
+        # cache the result
+        self.identity_api.get_group(group['id'])
+        group['description'] = uuid.uuid4().hex
+        group_ref = self.identity_api.update_group(group['id'], group)
+        self.assertDictContainsSubset(self.identity_api.get_group(group['id']),
+                                      group_ref)
 
     def test_create_user_none_mapping(self):
         # When create a user where an attribute maps to None, the entry is
