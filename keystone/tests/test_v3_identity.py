@@ -381,6 +381,50 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.delete(
             '/domains/%(domain_id)s' % {'domain_id': old_default_domain_id})
 
+    def test_token_revoked_once_domain_disabled(self):
+        """Test token from a disabled domain has been invalidated.
+
+        Test that a token that was valid for an enabled domain
+        becomes invalid once that domain is disabled.
+
+        """
+
+        self.domain = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domain['id'], self.domain)
+
+        self.user2 = self.new_user_ref(domain_id=self.domain['id'])
+        password = self.user2['password']
+        self.user2 = self.identity_api.create_user(self.user2)
+        self.user2['password'] = password
+
+        # build a request body
+        auth_body = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'])
+
+        # sends a request for the user's token
+        token_resp = self.post('/auth/tokens', body=auth_body)
+
+        subject_token = token_resp.headers.get('x-subject-token')
+
+        # validates the returned token and it should be valid.
+        self.head('/auth/tokens',
+                  headers={'x-subject-token': subject_token},
+                  expected_status=200)
+
+        # now disable the domain
+        self.domain['enabled'] = False
+        url = "/domains/%(domain_id)s" % {'domain_id': self.domain['id']}
+        self.patch(url,
+                   body={'domain': {'enabled': False}},
+                   expected_status=200)
+
+        # validates the same token again and it should be 'not found'
+        # as the domain has already been disabled.
+        self.head('/auth/tokens',
+                  headers={'x-subject-token': subject_token},
+                  expected_status=404)
+
     # project crud tests
 
     def test_list_projects(self):
