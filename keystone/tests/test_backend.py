@@ -2966,6 +2966,14 @@ class TokenTests(object):
                                   CONF.signing.certfile,
                                   CONF.signing.keyfile)
 
+    def _assert_revoked_token_list_matches_token_persistence(
+            self, revoked_token_id_list):
+        # Assert that the list passed in matches the list returned by the
+        # token persistence service, token_api
+        persistence_list = [x['id']
+                            for x in self.token_api.list_revoked_tokens()]
+        self.assertEqual(persistence_list, revoked_token_id_list)
+
     def test_token_crud(self):
         token_id = self._create_token_id()
         data = {'id': token_id, 'a': 'b',
@@ -3165,7 +3173,9 @@ class TokenTests(object):
         self.assertEqual(data_ref, new_data_ref)
 
     def check_list_revoked_tokens(self, token_ids):
-        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        revoked_ids = [x['id']
+                       for x in self.token_provider_api.list_revoked_tokens()]
+        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         for token_id in token_ids:
             self.assertIn(token_id, revoked_ids)
 
@@ -3186,7 +3196,9 @@ class TokenTests(object):
         return token_id
 
     def test_list_revoked_tokens_returns_empty_list(self):
-        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        revoked_ids = [x['id']
+                       for x in self.token_provider_api.list_revoked_tokens()]
+        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         self.assertEqual([], revoked_ids)
 
     def test_list_revoked_tokens_for_single_token(self):
@@ -3240,23 +3252,27 @@ class TokenTests(object):
         self.token_api.create_token(token2_id, token2_data)
         # Verify the revocation list is empty.
         self.assertEqual([], self.token_api.list_revoked_tokens())
+        self.assertEqual([], self.token_provider_api.list_revoked_tokens())
         # Delete a token directly, bypassing the manager.
         self.token_api.driver.delete_token(token_id)
         # Verify the revocation list is still empty.
         self.assertEqual([], self.token_api.list_revoked_tokens())
+        self.assertEqual([], self.token_provider_api.list_revoked_tokens())
         # Invalidate the revocation list.
         self.token_api.invalidate_revocation_list()
         # Verify the deleted token is in the revocation list.
-        revoked_tokens = [x['id']
-                          for x in self.token_api.list_revoked_tokens()]
-        self.assertIn(token_id, revoked_tokens)
+        revoked_ids = [x['id']
+                       for x in self.token_provider_api.list_revoked_tokens()]
+        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
+        self.assertIn(token_id, revoked_ids)
         # Delete the second token, through the manager
         self.token_api.delete_token(token2_id)
-        revoked_tokens = [x['id']
-                          for x in self.token_api.list_revoked_tokens()]
+        revoked_ids = [x['id']
+                       for x in self.token_provider_api.list_revoked_tokens()]
+        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         # Verify both tokens are in the revocation list.
-        self.assertIn(token_id, revoked_tokens)
-        self.assertIn(token2_id, revoked_tokens)
+        self.assertIn(token_id, revoked_ids)
+        self.assertIn(token2_id, revoked_ids)
 
     def _test_predictable_revoked_pki_token_id(self, hash_fn):
         token_id = self._create_token_id()
@@ -3266,7 +3282,9 @@ class TokenTests(object):
         self.token_api.create_token(token_id, token)
         self.token_api.delete_token(token_id)
 
-        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        revoked_ids = [x['id']
+                       for x in self.token_provider_api.list_revoked_tokens()]
+        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         self.assertIn(token_id_hash, revoked_ids)
         self.assertNotIn(token_id, revoked_ids)
         for t in self.token_api.list_revoked_tokens():
@@ -3286,9 +3304,11 @@ class TokenTests(object):
         self.token_api.create_token(token_id, token)
         self.token_api.delete_token(token_id)
 
-        revoked_ids = [x['id'] for x in self.token_api.list_revoked_tokens()]
+        revoked_tokens = self.token_provider_api.list_revoked_tokens()
+        revoked_ids = [x['id'] for x in revoked_tokens]
+        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         self.assertIn(token_id, revoked_ids)
-        for t in self.token_api.list_revoked_tokens():
+        for t in revoked_tokens:
             self.assertIn('expires', t)
 
     def test_create_unicode_token_id(self):
