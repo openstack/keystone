@@ -29,6 +29,7 @@ from keystone.common import dependency
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
@@ -171,7 +172,8 @@ class BaseApplication(object):
         raise NotImplementedError('You must implement __call__')
 
 
-@dependency.requires('assignment_api', 'policy_api', 'token_api')
+@dependency.requires('assignment_api', 'policy_api', 'token_api',
+                     'token_provider_api')
 class Application(BaseApplication):
     @webob.dec.wsgify()
     def __call__(self, req):
@@ -327,12 +329,15 @@ class Application(BaseApplication):
             return None
 
         try:
-            token_ref = self.token_api.get_token(context['token_id'])
+            token_data = self.token_provider_api.validate_token(
+                context['token_id'])
         except exception.TokenNotFound:
             LOG.warning(_('Invalid token in _get_trust_id_for_request'))
             raise exception.Unauthorized()
 
-        return token_ref.get('trust_id')
+        token_ref = token_model.KeystoneToken(token_id=context['token_id'],
+                                              token_data=token_data)
+        return token_ref.trust_id
 
     @classmethod
     def base_url(cls, context, endpoint_type):
