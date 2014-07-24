@@ -3583,6 +3583,34 @@ class CatalogTests(object):
                           self.catalog_api.get_region,
                           region_id)
 
+    @tests.skip_if_cache_disabled('catalog')
+    def test_cache_layer_region_crud(self):
+        region_id = uuid.uuid4().hex
+        new_region = {
+            'id': region_id,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_region(new_region.copy())
+        updated_region = copy.deepcopy(new_region)
+        updated_region['description'] = uuid.uuid4().hex
+        # cache the result
+        self.catalog_api.get_region(region_id)
+        # update the region bypassing catalog_api
+        self.catalog_api.driver.update_region(region_id, updated_region)
+        self.assertDictContainsSubset(new_region,
+                                      self.catalog_api.get_region(region_id))
+        self.catalog_api.get_region.invalidate(self.catalog_api, region_id)
+        self.assertDictContainsSubset(updated_region,
+                                      self.catalog_api.get_region(region_id))
+        # delete the region
+        self.catalog_api.driver.delete_region(region_id)
+        # still get the old region
+        self.assertDictContainsSubset(updated_region,
+                                      self.catalog_api.get_region(region_id))
+        self.catalog_api.get_region.invalidate(self.catalog_api, region_id)
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.get_region, region_id)
+
     def test_create_region_with_duplicate_id(self):
         region_id = uuid.uuid4().hex
         new_region = {
@@ -3644,6 +3672,42 @@ class CatalogTests(object):
                           self.catalog_api.get_service,
                           service_id)
 
+    @tests.skip_if_cache_disabled('catalog')
+    def test_cache_layer_service_crud(self):
+        service_id = uuid.uuid4().hex
+        new_service = {
+            'id': service_id,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        res = self.catalog_api.create_service(
+            service_id,
+            new_service.copy())
+        new_service['enabled'] = True
+        self.assertDictEqual(new_service, res)
+        self.catalog_api.get_service(service_id)
+        updated_service = copy.deepcopy(new_service)
+        updated_service['description'] = uuid.uuid4().hex
+        self.catalog_api.update_service(service_id, updated_service)
+        self.assertDictContainsSubset(new_service,
+                                      self.catalog_api.get_service(service_id))
+        self.catalog_api.get_service.invalidate(self.catalog_api, service_id)
+        self.assertDictContainsSubset(updated_service,
+                                      self.catalog_api.get_service(service_id))
+
+        # delete bypassing catalog api
+        self.catalog_api.driver.delete_service(service_id)
+        self.assertDictContainsSubset(updated_service,
+                                      self.catalog_api.get_service(service_id))
+        self.catalog_api.get_service.invalidate(self.catalog_api, service_id)
+        self.assertRaises(exception.ServiceNotFound,
+                          self.catalog_api.delete_service,
+                          service_id)
+        self.assertRaises(exception.ServiceNotFound,
+                          self.catalog_api.get_service,
+                          service_id)
+
     def test_delete_service_with_endpoint(self):
         # create a service
         service = {
@@ -3672,6 +3736,69 @@ class CatalogTests(object):
         self.assertRaises(exception.EndpointNotFound,
                           self.catalog_api.delete_endpoint,
                           endpoint['id'])
+
+    def test_cache_layer_delete_service_with_endpoint(self):
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service)
+
+        # create an endpoint attached to the service
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'region': uuid.uuid4().hex,
+            'interface': uuid.uuid4().hex[:8],
+            'url': uuid.uuid4().hex,
+            'service_id': service['id'],
+        }
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        # cache the result
+        self.catalog_api.get_service(service['id'])
+        self.catalog_api.get_endpoint(endpoint['id'])
+        # delete the service bypassing catalog api
+        self.catalog_api.driver.delete_service(service['id'])
+        self.assertDictContainsSubset(endpoint,
+                                      self.catalog_api.
+                                      get_endpoint(endpoint['id']))
+        self.assertDictContainsSubset(service,
+                                      self.catalog_api.
+                                      get_service(service['id']))
+        self.catalog_api.get_endpoint.invalidate(self.catalog_api,
+                                                 endpoint['id'])
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_api.get_endpoint,
+                          endpoint['id'])
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_api.delete_endpoint,
+                          endpoint['id'])
+        # multiple endpoints associated with a service
+        second_endpoint = {
+            'id': uuid.uuid4().hex,
+            'region': uuid.uuid4().hex,
+            'interface': uuid.uuid4().hex[:8],
+            'url': uuid.uuid4().hex,
+            'service_id': service['id'],
+        }
+        self.catalog_api.create_service(service['id'], service)
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        self.catalog_api.create_endpoint(second_endpoint['id'],
+                                         second_endpoint)
+        self.catalog_api.delete_service(service['id'])
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_api.get_endpoint,
+                          endpoint['id'])
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_api.delete_endpoint,
+                          endpoint['id'])
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_api.get_endpoint,
+                          second_endpoint['id'])
+        self.assertRaises(exception.EndpointNotFound,
+                          self.catalog_api.delete_endpoint,
+                          second_endpoint['id'])
 
     def test_get_service_404(self):
         self.assertRaises(exception.ServiceNotFound,
