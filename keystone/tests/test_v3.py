@@ -503,10 +503,13 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(resp['error'].get('message'))
         self.assertEqual(int(resp['error']['code']), r.status_code)
 
-    def assertValidListLinks(self, links):
+    def assertValidListLinks(self, links, resource_url=None):
         self.assertIsNotNone(links)
         self.assertIsNotNone(links.get('self'))
         self.assertThat(links['self'], matchers.StartsWith('http://localhost'))
+
+        if resource_url:
+            self.assertThat(links['self'], matchers.EndsWith(resource_url))
 
         self.assertIn('next', links)
         if links['next'] is not None:
@@ -519,7 +522,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
                             matchers.StartsWith('http://localhost'))
 
     def assertValidListResponse(self, resp, key, entity_validator, ref=None,
-                                expected_length=None, keys_to_check=None):
+                                expected_length=None, keys_to_check=None,
+                                resource_url=None):
         """Make assertions common to all API list responses.
 
         If a reference is provided, it's ID will be searched for in the
@@ -536,7 +540,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             self.assertNotEmpty(entities)
 
         # collections should have relational links
-        self.assertValidListLinks(resp.result.get('links'))
+        self.assertValidListLinks(resp.result.get('links'),
+                                  resource_url=resource_url)
 
         for entity in entities:
             self.assertIsNotNone(entity)
@@ -1003,7 +1008,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         return entity
 
     def assertValidRoleAssignmentListResponse(self, resp, ref=None,
-                                              expected_length=None):
+                                              expected_length=None,
+                                              resource_url=None):
 
         entities = resp.result.get('role_assignments')
 
@@ -1014,7 +1020,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             self.assertNotEmpty(entities)
 
         # collections should have relational links
-        self.assertValidListLinks(resp.result.get('links'))
+        self.assertValidListLinks(resp.result.get('links'),
+                                  resource_url=resource_url)
 
         for entity in entities:
             self.assertIsNotNone(entity)
