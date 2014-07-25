@@ -32,7 +32,7 @@ class TrustModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'trust'
     attributes = ['id', 'trustor_user_id', 'trustee_user_id',
                   'project_id', 'impersonation', 'expires_at',
-                  'remaining_uses']
+                  'remaining_uses', 'deleted_at']
     id = sql.Column(sql.String(64), primary_key=True)
     # user id of owner
     trustor_user_id = sql.Column(sql.String(64), nullable=False,)
@@ -128,19 +128,20 @@ class Trust(trust.Driver):
             # incorrectly indicating a trust was consumed.
             raise exception.TrustConsumeMaximumAttempt(trust_id=trust_id)
 
-    def get_trust(self, trust_id):
+    def get_trust(self, trust_id, deleted=False):
         session = sql.get_session()
-        ref = (session.query(TrustModel).
-               filter_by(deleted_at=None).
-               filter_by(id=trust_id).first())
+        query = session.query(TrustModel).filter_by(id=trust_id)
+        if not deleted:
+            query = query.filter_by(deleted_at=None)
+        ref = query.first()
         if ref is None:
             return None
-        if ref.expires_at is not None:
+        if ref.expires_at is not None and not deleted:
             now = timeutils.utcnow()
             if now > ref.expires_at:
                 return None
         # Do not return trusts that can't be used anymore
-        if ref.remaining_uses is not None:
+        if ref.remaining_uses is not None and not deleted:
             if ref.remaining_uses <= 0:
                 return None
         trust_dict = ref.to_dict()

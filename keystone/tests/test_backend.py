@@ -3479,6 +3479,19 @@ class TrustTests(object):
         self.assertIsNotNone(trust_data)
         trust_data = self.trust_api.get_trust(trust_id)
         self.assertEqual(new_id, trust_data['id'])
+        self.trust_api.delete_trust(trust_data['id'])
+
+    def test_get_deleted_trust(self):
+        new_id = uuid.uuid4().hex
+        trust_data = self.create_sample_trust(new_id)
+        self.assertIsNotNone(trust_data)
+        self.assertIsNone(trust_data['deleted_at'])
+        self.trust_api.delete_trust(new_id)
+        self.assertIsNone(self.trust_api.get_trust(new_id))
+        deleted_trust = self.trust_api.get_trust(trust_data['id'],
+                                                 deleted=True)
+        self.assertEqual(trust_data['id'], deleted_trust['id'])
+        self.assertIsNotNone(deleted_trust.get('deleted_at'))
 
     def test_create_trust(self):
         new_id = uuid.uuid4().hex
