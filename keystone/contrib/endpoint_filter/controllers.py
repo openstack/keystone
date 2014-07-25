@@ -17,10 +17,30 @@ from keystone import assignment
 from keystone.catalog import controllers as catalog_controllers
 from keystone.common import controller
 from keystone.common import dependency
+from keystone import notifications
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'endpoint_filter_api')
 class EndpointFilterV3Controller(controller.V3Controller):
+
+    def __init__(self):
+        super(EndpointFilterV3Controller, self).__init__()
+        notifications.register_event_callback(
+            'deleted', 'project',
+            self._on_project_or_endpoint_delete)
+        notifications.register_event_callback(
+            'deleted', 'endpoint',
+            self._on_project_or_endpoint_delete)
+
+    def _on_project_or_endpoint_delete(self, service, resource_type, operation,
+                                       payload):
+        project_or_endpoint_id = payload['resource_info']
+        if resource_type == 'project':
+            self.endpoint_filter_api.delete_association_by_project(
+                project_or_endpoint_id)
+        else:
+            self.endpoint_filter_api.delete_association_by_endpoint(
+                project_or_endpoint_id)
 
     @controller.protected()
     def add_endpoint_to_project(self, context, project_id, endpoint_id):
@@ -31,8 +51,6 @@ class EndpointFilterV3Controller(controller.V3Controller):
         # project as there are no security implications.
         self.catalog_api.get_endpoint(endpoint_id)
         self.assignment_api.get_project(project_id)
-        # NOTE(gyee): we may need to cleanup any existing project-endpoint
-        # associations here if either project or endpoint is not found.
         self.endpoint_filter_api.add_endpoint_to_project(endpoint_id,
                                                          project_id)
 
@@ -41,8 +59,6 @@ class EndpointFilterV3Controller(controller.V3Controller):
         """Verifies endpoint is currently associated with given project."""
         self.catalog_api.get_endpoint(endpoint_id)
         self.assignment_api.get_project(project_id)
-        # TODO(gyee): we may need to cleanup any existing project-endpoint
-        # associations here if either project or endpoint is not found.
         self.endpoint_filter_api.check_endpoint_in_project(endpoint_id,
                                                            project_id)
 
