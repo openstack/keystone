@@ -387,7 +387,7 @@ class BaseProvider(provider.Provider):
                 return token.provider.V2
             if 'token' in token_data and 'methods' in token_data['token']:
                 return token.provider.V3
-        raise token.provider.UnsupportedTokenVersionException()
+        raise exception.UnsupportedTokenVersionException()
 
     def issue_v2_token(self, token_ref, roles_ref=None,
                        catalog_ref=None):
@@ -649,4 +649,4 @@ class BaseProvider(provider.Provider):
             return self._validate_v3_token_ref(token_ref)
         elif version == token.provider.V2:
             return self._validate_v2_token_ref(token_ref)
-        raise token.provider.UnsupportedTokenVersionException()
+        raise exception.UnsupportedTokenVersionException()

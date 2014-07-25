@@ -373,3 +373,8 @@ class MigrationNotProvided(Exception):
             "%(mod_name)s doesn't provide database migrations. The migration"
             " repository path at %(path)s doesn't exist or isn't a directory."
         ) % {'mod_name': mod_name, 'path': path})
+
+
+class UnsupportedTokenVersionException(Exception):
+    """Token version is unrecognizable or unsupported."""
+    pass
