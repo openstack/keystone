@@ -29,7 +29,7 @@ from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
 from keystone.tests import test_backend
-from keystone.token.backends import sql as token_sql
+from keystone.token.persistence.backends import sql as token_sql
 
 
 CONF = config.CONF

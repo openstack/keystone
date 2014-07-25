@@ -41,7 +41,7 @@ def load_backends():
         id_mapping_api=identity.MappingManager(),
         identity_api=_IDENTITY_API,
         policy_api=policy.Manager(),
-        token_api=token.Manager(),
+        token_api=token.persistence.Manager(),
         trust_api=trust.Manager(),
         token_provider_api=token.provider.Manager())
 
