@@ -254,13 +254,13 @@ Example cURL
 
 .. code-block:: bash
 
-    $ curl -X GET http://localhost:5000/v3/OS-FEDERATION/projects
+    $ curl -X GET -H "X-Auth-Token: <unscoped token>" http://localhost:5000/v3/OS-FEDERATION/projects
 
 or
 
 .. code-block:: bash
 
-    $ curl -X GET http://localhost:5000/v3/OS-FEDERATION/domains
+    $ curl -X GET -H "X-Auth-Token: <unscoped token>" http://localhost:5000/v3/OS-FEDERATION/domains
 
 Get a scoped token
 ~~~~~~~~~~~~~~~~~~
