@@ -27,6 +27,10 @@ _NAMES = ['trust_id',
 # Additional arguments for creating a RevokeEvent
 _EVENT_ARGS = ['issued_before', 'revoked_at']
 
+# Names of attributes in the RevocationEvent, including "virtual" attributes.
+# Virtual attributes are those added based on other values.
+_EVENT_NAMES = _NAMES + ['domain_scope_id']
+
 # Values that will be in the token data but not in the event.
 # These will compared with event values that have different names.
 # For example: both trustor_id and trustee_id are compared against user_id
@@ -56,6 +60,15 @@ class RevokeEvent(object):
         for k in REVOKE_KEYS:
             v = kwargs.get(k, None)
             setattr(self, k, v)
+
+        if self.domain_id and self.expires_at:
+            # This is revoking a domain-scoped token.
+            self.domain_scope_id = self.domain_id
+            self.domain_id = None
+        else:
+            # This is revoking all tokens for a domain.
+            self.domain_scope_id = None
+
         if self.revoked_at is None:
             self.revoked_at = timeutils.utcnow()
         if self.issued_before is None:
@@ -65,7 +78,9 @@ class RevokeEvent(object):
         keys = ['user_id',
                 'role_id',
                 'domain_id',
-                'project_id']
+                'domain_scope_id',
+                'project_id',
+                ]
         event = dict((key, self.__dict__[key]) for key in keys
                      if self.__dict__[key] is not None)
         if self.trust_id is not None:
@@ -87,7 +102,7 @@ class RevokeEvent(object):
 
 
 def attr_keys(event):
-    return map(event.key_for_name, _NAMES)
+    return map(event.key_for_name, _EVENT_NAMES)
 
 
 class RevokeTree(object):
@@ -137,7 +152,7 @@ class RevokeTree(object):
         """
         stack = []
         revoke_map = self.revoke_map
-        for name in _NAMES:
+        for name in _EVENT_NAMES:
             key = event.key_for_name(name)
             nxt = revoke_map.get(key)
             if nxt is None:
@@ -176,11 +191,13 @@ class RevokeTree(object):
         alternatives = {
             'user_id': ['user_id', 'trustor_id', 'trustee_id'],
             'domain_id': ['identity_domain_id', 'assignment_domain_id'],
+            # For a domain-scoped token, the domain is in assignment_domain_id.
+            'domain_scope_id': ['assignment_domain_id', ],
         }
         # Contains current forest (collection of trees) to be checked.
         partial_matches = [self.revoke_map]
         # We iterate over every layer of our revoke tree (except the last one).
-        for name in _NAMES:
+        for name in _EVENT_NAMES:
             # bundle is the set of partial matches for the next level down
             # the tree
             bundle = []
