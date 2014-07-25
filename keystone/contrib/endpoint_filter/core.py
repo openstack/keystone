@@ -127,3 +127,25 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_association_by_endpoint(self, endpoint_id):
+        """Removes all the endpoints to project association with endpoint.
+
+        :param endpoint_id: identity of endpoint to check
+        :type endpoint_id: string
+        :returns: None
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def delete_association_by_project(self, project_id):
+        """Removes all the endpoints to project association with project.
+
+        :param project_id: identity of the project to check
+        :type project_id: string
+        :returns: None
+
+        """
+        raise exception.NotImplemented()
