@@ -285,7 +285,12 @@ def build_token_values(token_data):
         token_values['assignment_domain_id'] = project['domain']['id']
     else:
         token_values['project_id'] = None
-        token_values['assignment_domain_id'] = None
+
+        domain = token_data.get('domain')
+        if domain is not None:
+            token_values['assignment_domain_id'] = domain['id']
+        else:
+            token_values['assignment_domain_id'] = None
 
     role_list = []
     roles = token_data.get('roles')
