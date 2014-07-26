@@ -80,7 +80,7 @@ def _matches(event, token_values):
     # The token has two attributes that can match the domain_id
     if event.domain_id is not None:
         dom_id_matched = False
-        for attribute_name in ['user_domain_id', 'project_domain_id']:
+        for attribute_name in ['identity_domain_id', 'assignment_domain_id']:
             if event.domain_id == token_values[attribute_name]:
                 dom_id_matched = True
                 break
@@ -297,6 +297,10 @@ class RevokeTreeTests(tests.TestCase):
         self.events.append(event)
         return event
 
+    def _revoke_by_domain(self, domain_id):
+        event = self.tree.add_event(model.RevokeEvent(domain_id=domain_id))
+        self.events.append(event)
+
     def _user_field_test(self, field_name):
         user_id = _new_id()
         event = self._revoke_by_user(user_id)
@@ -406,6 +410,49 @@ class RevokeTreeTests(tests.TestCase):
         token_data['user_id'] = user_id2
         token_data['project_id'] = project_id
         self._assertTokenRevoked(token_data)
+
+    def test_by_domain_user(self):
+        # If revoke a domain, then a token for a user in the domain is revoked
+
+        user_id = _new_id()
+        domain_id = _new_id()
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id
+        token_data['identity_domain_id'] = domain_id
+
+        self._revoke_by_domain(domain_id)
+
+        self._assertTokenRevoked(token_data)
+
+    def test_by_domain_project(self):
+        # If revoke a domain, then a token scoped to a project in the domain
+        # is revoked.
+
+        user_id = _new_id()
+        user_domain_id = _new_id()
+
+        project_id = _new_id()
+        project_domain_id = _new_id()
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id
+        token_data['identity_domain_id'] = user_domain_id
+        token_data['project_id'] = project_id
+        token_data['assignment_domain_id'] = project_domain_id
+
+        self._revoke_by_domain(project_domain_id)
+
+        self._assertTokenRevoked(token_data)
+
+    def test_by_domain_domain(self):
+        # If revoke a domain, then a token scoped to the domain is revoked.
+
+        # FIXME(blk-u): The token translation code doesn't handle domain-scoped
+        # tokens at this point. See bug #1347318. Replace this with test code
+        # similar to test_by_domain_project().
+
+        pass
 
     def _assertEmpty(self, collection):
         return self.assertEqual(0, len(collection), "collection not empty")
