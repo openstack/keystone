@@ -444,11 +444,19 @@ class RevokeTreeTests(tests.TestCase):
     def test_by_domain_domain(self):
         # If revoke a domain, then a token scoped to the domain is revoked.
 
-        # FIXME(blk-u): The token translation code doesn't handle domain-scoped
-        # tokens at this point. See bug #1347318. Replace this with test code
-        # similar to test_by_domain_project().
+        user_id = _new_id()
+        user_domain_id = _new_id()
 
-        pass
+        domain_id = _new_id()
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id
+        token_data['identity_domain_id'] = user_domain_id
+        token_data['assignment_domain_id'] = domain_id
+
+        self._revoke_by_domain(domain_id)
+
+        self._assertTokenRevoked(token_data)
 
     def _assertEmpty(self, collection):
         return self.assertEqual(0, len(collection), "collection not empty")
