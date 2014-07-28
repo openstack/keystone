@@ -590,12 +590,13 @@
 # Catalog backend driver. (string value)
 #driver=keystone.catalog.backends.sql.Catalog
 
-# Toggle for catalog caching. This has no effect unless
-# global caching is enabled. (boolean value)
+# Toggle for catalog caching. This has no effect unless global
+# caching is enabled. (boolean value)
 #caching=true
 
-# TTL (in seconds) to cache catalog data. This has no
-# effect unless global caching is enabled. (integer value)
+# Time to cache catalog data (in seconds). This has no effect
+# unless global and catalog caching are enabled. (integer
+# value)
 #cache_time=<None>
 
 # Maximum number of entities that will be returned in a
@@ -1406,7 +1407,7 @@
 #provider=<None>
 
 # Token persistence backend driver. (string value)
-#driver=keystone.token.backends.sql.Token
+#driver=keystone.token.persistence.backends.sql.Token
 
 # Toggle for token system cacheing. This has no effect unless
 # global caching is enabled. (boolean value)
