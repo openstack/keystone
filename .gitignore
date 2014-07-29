@@ -30,3 +30,4 @@ keystone/tests/tmp/
 .pydevproject
 keystone/locale/*/LC_MESSAGES/*.mo
 .testrepository/
+*.db
