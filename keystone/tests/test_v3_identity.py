@@ -626,6 +626,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # which should fail
         r = self.get('/users', expected_status=exception.Unauthorized.code)
 
+    def test_list_users_with_static_admin_token_and_multiple_backends(self):
+        # domain-specific operations with the bootstrap ADMIN token is
+        # disallowed when domain-specific drivers are enabled
+        self.config_fixture.config(group='identity',
+                                   domain_specific_drivers_enabled=True)
+        self.get('/users', token=CONF.admin_token,
+                 expected_status=exception.Unauthorized.code)
+
     def test_list_users_no_default_project(self):
         """Call ``GET /users`` making sure no default_project_id."""
         user = self.new_user_ref(self.domain_id)
