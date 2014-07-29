@@ -310,18 +310,20 @@ class V3TokenDataHelper(object):
             # TODO(ayoung): Enforce Endpoints for trust
             token_data['catalog'] = service_catalog
 
-    def _populate_token_dates(self, token_data, expires=None, trust=None):
+    def _populate_token_dates(self, token_data, expires=None, trust=None,
+                              issued_at=None):
         if not expires:
             expires = provider.default_expire_time()
         if not isinstance(expires, six.string_types):
             expires = timeutils.isotime(expires, subsecond=True)
         token_data['expires_at'] = expires
-        token_data['issued_at'] = timeutils.isotime(subsecond=True)
+        token_data['issued_at'] = (issued_at or
+                                   timeutils.isotime(subsecond=True))
 
     def get_token_data(self, user_id, method_names, extras,
                        domain_id=None, project_id=None, expires=None,
                        trust=None, token=None, include_catalog=True,
-                       bind=None, access_token=None):
+                       bind=None, access_token=None, issued_at=None):
         token_data = {'methods': method_names,
                       'extras': extras}
 
@@ -345,7 +347,8 @@ class V3TokenDataHelper(object):
         if include_catalog:
             self._populate_service_catalog(token_data, user_id, domain_id,
                                            project_id, trust)
-        self._populate_token_dates(token_data, expires=expires, trust=trust)
+        self._populate_token_dates(token_data, expires=expires, trust=trust,
+                                   issued_at=issued_at)
         self._populate_oauth_section(token_data, access_token)
         return {'token': token_data}
 
@@ -633,13 +636,17 @@ class BaseProvider(provider.Provider):
             project_ref = token_ref.get('tenant')
             if project_ref:
                 project_id = project_ref['id']
+
+            issued_at = token_ref['token_data']['access']['token']['issued_at']
+
             token_data = self.v3_token_data_helper.get_token_data(
                 token_ref['user']['id'],
                 ['password', 'token'],
                 {},
                 project_id=project_id,
                 bind=token_ref.get('bind'),
-                expires=token_ref['expires'])
+                expires=token_ref['expires'],
+                issued_at=issued_at)
         return token_data
 
     def validate_token(self, token_id):
