@@ -18,93 +18,27 @@
 """
 Starting point for routing EC2 requests.
 
+The EC2 Token Middleware has been deprecated as of Juno. It has been moved into
+keystonemiddleware, `keystonemiddleware.ec2_token`.
+
 """
 
-from oslo.config import cfg
-import requests
-import webob.dec
-import webob.exc
+from keystonemiddleware import ec2_token
 
-from keystone.common import config
-from keystone.common import wsgi
-from keystone.openstack.common import jsonutils
-
-keystone_ec2_opts = [
-    cfg.StrOpt('keystone_ec2_url',
-               default='http://localhost:5000/v2.0/ec2tokens',
-               help='URL to get token from ec2 request.'),
-    cfg.StrOpt('keystone_ec2_keyfile', help='Required if EC2 server requires '
-               'client certificate.'),
-    cfg.StrOpt('keystone_ec2_certfile', help='Client certificate key '
-               'filename. Required if EC2 server requires client '
-               'certificate.'),
-    cfg.StrOpt('keystone_ec2_cafile', help='A PEM encoded certificate '
-               'authority to use when verifying HTTPS connections. Defaults '
-               'to the system CAs.'),
-    cfg.BoolOpt('keystone_ec2_insecure', default=False, help='Disable SSL '
-                'certificate verification.'),
-]
-
-CONF = config.CONF
-CONF.register_opts(keystone_ec2_opts)
+from keystone.openstack.common import versionutils
 
 
-class EC2Token(wsgi.Middleware):
-    """Authenticate an EC2 request with keystone and convert to token."""
+class EC2Token(ec2_token.EC2Token):
 
-    @webob.dec.wsgify()
-    def __call__(self, req):
-        # Read request signature and access id.
-        try:
-            signature = req.params['Signature']
-            access = req.params['AWSAccessKeyId']
-        except KeyError:
-            raise webob.exc.HTTPBadRequest()
+    @versionutils.deprecated(
+        versionutils.deprecated.JUNO,
+        in_favor_of='keystonemiddleware.ec2_token.EC2Token',
+        remove_in=+2,
+        what='keystone.middleware.ec2_token.EC2Token')
+    def __init__(self, *args, **kwargs):
+        super(EC2Token, self).__init__(*args, **kwargs)
 
-        # Make a copy of args for authentication and signature verification.
-        auth_params = dict(req.params)
-        # Not part of authentication args
-        auth_params.pop('Signature')
 
-        # Authenticate the request.
-        creds = {
-            'ec2Credentials': {
-                'access': access,
-                'signature': signature,
-                'host': req.host,
-                'verb': req.method,
-                'path': req.path,
-                'params': auth_params,
-            }
-        }
-        creds_json = jsonutils.dumps(creds)
-        headers = {'Content-Type': 'application/json'}
-
-        verify = True
-        if CONF.keystone_ec2_insecure:
-            verify = False
-        elif CONF.keystone_ec2_cafile:
-            verify = CONF.keystone_ec2_cafile
-
-        cert = None
-        if CONF.keystone_ec2_certfile and CONF.keystone_ec2_keyfile:
-            cert = (CONF.keystone_ec2_certfile, CONF.keystone_ec2_keyfile)
-        elif CONF.keystone_ec2_certfile:
-            cert = CONF.keystone_ec2_certfile
-
-        response = requests.post(CONF.keystone_ec2_url, data=creds_json,
-                                 headers=headers, verify=verify, cert=cert)
-
-        # NOTE(vish): We could save a call to keystone by
-        #             having keystone return token, tenant,
-        #             user, and roles from this call.
-
-        result = response.json()
-        try:
-            token_id = result['access']['token']['id']
-        except (AttributeError, KeyError):
-            raise webob.exc.HTTPBadRequest()
-
-        # Authenticated!
-        req.headers['X-Auth-Token'] = token_id
-        return self.application
+filter_factory = ec2_token.filter_factory
+app_factory = ec2_token.app_factory
+keystone_ec2_opts = ec2_token.keystone_ec2_opts
