@@ -312,6 +312,14 @@ class V3Controller(wsgi.Application):
         return '%s/%s/%s' % (endpoint, 'v3', path.lstrip('/'))
 
     @classmethod
+    def full_url(cls, context, path=None):
+        url = cls.base_url(context, path)
+        if context['environment'].get('QUERY_STRING'):
+            url = '%s?%s' % (url, context['environment']['QUERY_STRING'])
+
+        return url
+
+    @classmethod
     def _add_self_referential_link(cls, context, ref):
         ref.setdefault('links', {})
         ref['links']['self'] = cls.base_url(context) + '/' + ref['id']
@@ -354,7 +362,7 @@ class V3Controller(wsgi.Application):
         container = {cls.collection_name: refs}
         container['links'] = {
             'next': None,
-            'self': cls.base_url(context, path=context['path']),
+            'self': cls.full_url(context, path=context['path']),
             'previous': None}
 
         if list_limited:
