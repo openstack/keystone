@@ -30,11 +30,12 @@ def upgrade(migrate_engine):
 
     if migrate_engine.name == 'mysql':
         # In Folsom we explicitly converted migrate_version to UTF8.
-        sql_stmt = 'ALTER TABLE migrate_version CONVERT TO CHARACTER SET utf8;'
+        migrate_engine.execute(
+            'ALTER TABLE migrate_version CONVERT TO CHARACTER SET utf8')
         # Set default DB charset to UTF8.
-        sql_stmt += ('ALTER DATABASE %s DEFAULT CHARACTER SET utf8;' %
-                     migrate_engine.url.database)
-        migrate_engine.execute(sql_stmt)
+        migrate_engine.execute(
+            'ALTER DATABASE %s DEFAULT CHARACTER SET utf8' %
+            migrate_engine.url.database)
 
     credential = sql.Table(
         'credential', meta,
