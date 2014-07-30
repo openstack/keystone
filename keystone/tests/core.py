@@ -26,6 +26,7 @@ import warnings
 
 import fixtures
 import logging
+from oslo.config import fixture as config_fixture
 import oslotest.base as oslotest
 from oslotest import mockpatch
 from paste import deploy
@@ -49,7 +50,6 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
-from keystone.openstack.common.fixture import config as config_fixture
 from keystone.openstack.common import log
 from keystone.tests import ksfixtures
 
