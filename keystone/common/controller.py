@@ -565,7 +565,7 @@ class V3Controller(wsgi.Application):
         try:
             token_ref = self.token_api.get_token(context['token_id'])
             token = token_ref['token_data']['token']
-        except exception.KeyError:
+        except KeyError:
             raise exception.ValidationError(
                 _('domain_id is required as part of entity'))
         except exception.TokenNotFound:
@@ -595,7 +595,7 @@ class V3Controller(wsgi.Application):
         # worth the duplication of state
         try:
             token_ref = self.token_api.get_token(context['token_id'])
-        except exception.KeyError:
+        except KeyError:
             # This might happen if we use the Admin token, for instance
             raise exception.ValidationError(
                 _('A domain-scoped token must be used'))
