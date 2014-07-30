@@ -85,7 +85,6 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertEqual(
             [r['name'] for r in self.v3_sample_token['token']['roles']],
             token_data.role_names)
-        self.assertTrue(token_data.project_scoped)
         token_data.pop('project')
         self.assertFalse(token_data.project_scoped)
         self.assertFalse(token_data.scoped)
@@ -160,7 +159,6 @@ class TestKeystoneTokenModel(core.TestCase):
                           'domain_id')
         self.assertRaises(NotImplementedError, getattr, token_data,
                           'domain_name')
-        self.assertFalse(token_data.domain_scoped)
         token_data['domain'] = {'id': uuid.uuid4().hex,
                                 'name': uuid.uuid4().hex}
         self.assertRaises(NotImplementedError, getattr, token_data,
