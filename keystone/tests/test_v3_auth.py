@@ -3113,6 +3113,32 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             expected_status=200)
         self.assertValidRoleResponse(r, self.role)
 
+    def test_do_not_consume_remaining_uses_when_get_token_fails(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id],
+            remaining_uses=3)
+        del ref['id']
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        new_trust = r.result.get('trust')
+        trust_id = new_trust.get('id')
+        # Pass in another user's ID as the trustee, the result being a failed
+        # token authenticate and the remaining_uses of the trust should not be
+        # decremented.
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            trust_id=trust_id)
+        self.v3_authenticate_token(auth_data, expected_status=403)
+
+        r = self.get('/OS-TRUST/trusts/%s' % trust_id)
+        self.assertEqual(3, r.result.get('trust').get('remaining_uses'))
+
 
 class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
     def test_api_protection_with_no_auth_context_in_env(self):

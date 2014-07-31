@@ -141,6 +141,12 @@ class Auth(controller.V2Controller):
 
         (token_id, token_data) = self.token_provider_api.issue_v2_token(
             auth_token_data, roles_ref=roles_ref, catalog_ref=catalog_ref)
+
+        # NOTE(wanghong): We consume a trust use only when we are using trusts
+        # and have successfully issued a token.
+        if CONF.trust.enabled and 'trust_id' in auth:
+            self.trust_api.consume_use(auth['trust_id'])
+
         return token_data
 
     def _authenticate_token(self, context, auth):
@@ -202,7 +208,6 @@ class Auth(controller.V2Controller):
                 trust_ref['trustee_user_id'])
             if not trustee_user_ref['enabled']:
                 raise exception.Forbidden()()
-            self.trust_api.consume_use(auth['trust_id'])
 
             if trust_ref['impersonation'] is True:
                 current_user_ref = trustor_user_ref
