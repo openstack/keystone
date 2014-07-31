@@ -462,6 +462,27 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                           self.resource_api.get_project,
                           leaf_project['id'])
 
+    def test_create_federated_domain_name(self):
+        """Ensure user cannot create domain named Federated."""
+        domain = self.new_domain_ref()
+        domain['name'] = 'Federated'
+        self.assertRaises(AssertionError, self.assignment_api.create_domain,
+                          domain['id'], domain)
+
+    def test_create_federated_domain_id(self):
+        """Ensure user cannot create domain with ID Federated."""
+        domain = self.new_domain_ref()
+        domain['id'] = 'federated'
+        self.assertRaises(AssertionError, self.assignment_api.create_domain,
+                          domain['id'], domain)
+
+    def test_update_federated_domain_id(self):
+        """Ensure user cannot update a domain with the name Federated."""
+        domain = self.new_domain_ref()
+        domain['name'] = 'FEDERATED'
+        self.assertRaises(AssertionError, self.assignment_api.update_domain,
+                          domain['id'], domain)
+
     # Project CRUD tests
 
     def test_list_projects(self):
