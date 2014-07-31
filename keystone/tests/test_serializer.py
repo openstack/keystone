@@ -14,9 +14,12 @@
 
 import copy
 
+from lxml import etree
+import mock
 from testtools import matchers
 
 from keystone.common import serializer
+from keystone import exception
 from keystone import tests
 from keystone.tests import matchers as ksmatchers
 
@@ -314,3 +317,21 @@ identity-service/2.0/identity-dev-guide-2.0.pdf" type="application/pdf"/>
                     OS-KSADM:password="mypass"/>
         """ % dict(xmlns=xmlns)
         self.assertThat(serializer.from_xml(xml), matchers.Equals(expected))
+
+    @mock.patch('keystone.common.serializer.etree', new=etree)
+    def test_XmlDeserializer_with_installed_succeeds(self):
+        serializer.XmlDeserializer()
+
+    @mock.patch('keystone.common.serializer.etree', new=None)
+    def test_XmlDeserializer_without_etree_installed_fails(self):
+        self.assertRaises(exception.UnexpectedError,
+                          serializer.XmlDeserializer)
+
+    @mock.patch('keystone.common.serializer.etree', new=etree)
+    def test_XmlSerializer_with_installed_succeeds(self):
+        serializer.XmlSerializer()
+
+    @mock.patch('keystone.common.serializer.etree', new=None)
+    def test_XmlSerializer_without_etree_installed_fails(self):
+        self.assertRaises(exception.UnexpectedError,
+                          serializer.XmlSerializer)
