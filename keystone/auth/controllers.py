@@ -473,6 +473,10 @@ class Auth(controller.V3Controller):
                 # 'external' plugin;  if there is both an 'external' and a
                 # 'kerberos' plugin, it would run the check on identity twice.
                 pass
+            except exception.Unauthorized:
+                # If external fails then continue and attempt to determine
+                # user identity using remaining auth methods
+                pass
 
         # need to aggregate the results in case two or more methods
         # are specified
