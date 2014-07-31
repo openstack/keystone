@@ -223,7 +223,7 @@ class ServiceV3(controller.V3Controller):
         ref = self.catalog_api.create_service(ref['id'], ref)
         return ServiceV3.wrap_member(context, ref)
 
-    @controller.filterprotected('type')
+    @controller.filterprotected('type', 'name')
     def list_services(self, context, filters):
         hints = ServiceV3.build_driver_hints(context, filters)
         refs = self.catalog_api.list_services(hints=hints)

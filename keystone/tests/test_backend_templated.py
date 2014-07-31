@@ -116,3 +116,6 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
 
     def test_list_regions_filtered_by_parent_region_id(self):
         self.skipTest('Templated backend does not support hints')
+
+    def test_service_filtering(self):
+        self.skipTest("kvs backend doesn't support filtering")
