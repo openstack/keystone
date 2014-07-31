@@ -350,7 +350,7 @@ class RevokeTreeTests(tests.TestCase):
         event = self._revoke_by_expiration(user_id, future_time)
         token_data_1 = _sample_blank_token()
         token_data_1['user_id'] = user_id
-        token_data_1['expires_at'] = future_time
+        token_data_1['expires_at'] = future_time.replace(microsecond=0)
         self._assertTokenRevoked(token_data_1)
 
         token_data_2 = _sample_blank_token()
@@ -375,7 +375,7 @@ class RevokeTreeTests(tests.TestCase):
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id
         token_data['project_id'] = project_id
-        token_data['expires_at'] = future_time
+        token_data['expires_at'] = future_time.replace(microsecond=0)
 
         self._revoke_by_expiration(user_id, future_time, project_id=project_id)
         self._assertTokenRevoked(token_data)
@@ -392,7 +392,7 @@ class RevokeTreeTests(tests.TestCase):
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id
         token_data['assignment_domain_id'] = domain_id
-        token_data['expires_at'] = future_time
+        token_data['expires_at'] = future_time.replace(microsecond=0)
 
         self._revoke_by_expiration(user_id, future_time, domain_id=domain_id)
         self._assertTokenRevoked(token_data)

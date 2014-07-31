@@ -69,6 +69,11 @@ class RevokeEvent(object):
             # This is revoking all tokens for a domain.
             self.domain_scope_id = None
 
+        if self.expires_at is not None:
+            # Trim off the expiration time because MySQL timestamps are only
+            # accurate to the second.
+            self.expires_at = self.expires_at.replace(microsecond=0)
+
         if self.revoked_at is None:
             self.revoked_at = timeutils.utcnow()
         if self.issued_before is None:
@@ -90,8 +95,7 @@ class RevokeEvent(object):
         if self.consumer_id is not None:
             event['OS-OAUTH1:access_token_id'] = self.access_token_id
         if self.expires_at is not None:
-            event['expires_at'] = timeutils.isotime(self.expires_at,
-                                                    subsecond=True)
+            event['expires_at'] = timeutils.isotime(self.expires_at)
         if self.issued_before is not None:
             event['issued_before'] = timeutils.isotime(self.issued_before,
                                                        subsecond=True)
@@ -242,9 +246,15 @@ class RevokeTree(object):
 
 def build_token_values_v2(access, default_domain_id):
     token_data = access['token']
+
+    token_expires_at = timeutils.parse_isotime(token_data['expires'])
+
+    # Trim off the microseconds because the revocation event only has
+    # expirations accurate to the second.
+    token_expires_at = token_expires_at.replace(microsecond=0)
+
     token_values = {
-        'expires_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token_data['expires'])),
+        'expires_at': timeutils.normalize_time(token_expires_at),
         'issued_at': timeutils.normalize_time(
             timeutils.parse_isotime(token_data['issued_at']))}
 
@@ -282,9 +292,15 @@ def build_token_values_v2(access, default_domain_id):
 
 
 def build_token_values(token_data):
+
+    token_expires_at = timeutils.parse_isotime(token_data['expires_at'])
+
+    # Trim off the microseconds because the revocation event only has
+    # expirations accurate to the second.
+    token_expires_at = token_expires_at.replace(microsecond=0)
+
     token_values = {
-        'expires_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token_data['expires_at'])),
+        'expires_at': timeutils.normalize_time(token_expires_at),
         'issued_at': timeutils.normalize_time(
             timeutils.parse_isotime(token_data['issued_at']))}
 

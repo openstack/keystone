@@ -62,8 +62,7 @@ class OSRevokeTests(test_v3.RestfulTestCase):
         expires_at = token.default_expire_time()
         sample = self._blank_event()
         sample['user_id'] = unicode(user_id)
-        sample['expires_at'] = unicode(timeutils.isotime(expires_at,
-                                                         subsecond=True))
+        sample['expires_at'] = unicode(timeutils.isotime(expires_at))
         before_time = timeutils.utcnow()
         self.revoke_api.revoke_by_expiration(user_id, expires_at)
         resp = self.get('/OS-REVOKE/events')
