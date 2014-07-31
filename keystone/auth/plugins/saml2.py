@@ -59,7 +59,9 @@ class Saml2(auth.AuthMethodHandler):
         utils.validate_groups(group_ids, mapping['id'], self.identity_api)
         return {
             'user_id': token_ref['user_id'],
-            'group_ids': group_ids
+            'group_ids': group_ids,
+            federation.IDENTITY_PROVIDER: identity_provider,
+            federation.PROTOCOL: protocol
         }
 
     def _handle_unscoped_token(self, context, auth_payload):
