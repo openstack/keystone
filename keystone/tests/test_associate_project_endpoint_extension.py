@@ -41,12 +41,9 @@ class TestExtensionCase(test_v3.RestfulTestCase):
                 'endpoint_id': self.endpoint_id})
 
 
-class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
-    """Test OS-EP-FILTER endpoint to project associations extension."""
+class EndpointFilterCRUDTestCase(TestExtensionCase):
 
-    # endpoint-project associations crud tests
-    # PUT
-    def test_create_endpoint_project_assoc(self):
+    def test_create_endpoint_project_association(self):
         """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Valid endpoint and project id test case.
@@ -56,7 +53,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                  body='',
                  expected_status=204)
 
-    def test_create_endpoint_project_assoc_noproj(self):
+    def test_create_endpoint_project_association_with_invalid_project(self):
         """PUT OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Invalid project id test case.
@@ -69,7 +66,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                  body='',
                  expected_status=404)
 
-    def test_create_endpoint_project_assoc_noendp(self):
+    def test_create_endpoint_project_association_with_invalid_endpoint(self):
         """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Invalid endpoint id test case.
@@ -82,7 +79,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                  body='',
                  expected_status=404)
 
-    def test_create_endpoint_project_assoc_unexpected_body(self):
+    def test_create_endpoint_project_association_with_unexpected_body(self):
         """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Unexpected body in request. The body should be ignored.
@@ -92,8 +89,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                  body={'project_id': self.default_domain_project_id},
                  expected_status=204)
 
-    # HEAD
-    def test_check_endpoint_project_assoc(self):
+    def test_check_endpoint_project_association(self):
         """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Valid project and endpoint id test case.
@@ -108,7 +104,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                       'endpoint_id': self.endpoint_id},
                   expected_status=204)
 
-    def test_check_endpoint_project_assoc_noproj(self):
+    def test_check_endpoint_project_association_with_invalid_project(self):
         """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Invalid project id test case.
@@ -122,7 +118,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                   body='',
                   expected_status=404)
 
-    def test_check_endpoint_project_assoc_noendp(self):
+    def test_check_endpoint_project_association_with_invalid_endpoint(self):
         """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Invalid endpoint id test case.
@@ -136,26 +132,48 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                   body='',
                   expected_status=404)
 
-    # GET
-    def test_get_endpoint_project_assoc(self):
-        """GET /OS-EP-FILTER/projects/{project_id}/endpoints success."""
-        self.put(self.default_request_url)
-        r = self.get('/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
-                     'project_id': self.default_domain_project_id})
-        self.assertValidEndpointListResponse(r, self.endpoint)
+    def test_list_endpoints_associated_with_valid_project(self):
+        """GET /OS-EP-FILTER/projects/{project_id}/endpoints
 
-    def test_get_endpoint_project_assoc_noproj(self):
-        """GET /OS-EP-FILTER/projects/{project_id}/endpoints no project."""
+        Valid project and endpoint id test case.
+
+        """
+        self.put(self.default_request_url)
+        resource_url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
+                       'project_id': self.default_domain_project_id}
+        r = self.get(resource_url)
+        self.assertValidEndpointListResponse(r, self.endpoint,
+                                             resource_url=resource_url)
+
+    def test_list_endpoints_associated_with_invalid_project(self):
+        """GET /OS-EP-FILTER/projects/{project_id}/endpoints
+
+        Invalid project id test case.
+
+        """
         self.put(self.default_request_url)
         self.get('/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
                  'project_id': uuid.uuid4().hex},
                  body='',
                  expected_status=404)
 
-    def test_list_projects_for_endpoint_default(self):
-        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects success
+    def test_list_projects_associated_with_endpoint(self):
+        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
 
-        Don't associate project and endpoint, then get empty list.
+        Valid endpoint-project association test case.
+
+        """
+        self.put(self.default_request_url)
+        resource_url = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' % {
+                       'endpoint_id': self.endpoint_id}
+        r = self.get(resource_url)
+        self.assertValidProjectListResponse(r, self.default_domain_project,
+                                            resource_url=resource_url)
+
+    def test_list_projects_with_no_endpoint_project_association(self):
+        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
+
+        Valid endpoint id but no endpoint-project associations test case.
 
         """
         r = self.get('/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' %
@@ -163,7 +181,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                      expected_status=200)
         self.assertValidProjectListResponse(r, expected_length=0)
 
-    def test_list_projects_for_endpoint_noendpoint(self):
+    def test_list_projects_associated_with_invalid_endpoint(self):
         """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
 
         Invalid endpoint id test case.
@@ -173,20 +191,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                  {'endpoint_id': uuid.uuid4().hex},
                  expected_status=404)
 
-    def test_list_projects_for_endpoint_assoc(self):
-        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects success
-
-        Associate default project and endpoint, then get it.
-
-        """
-        self.put(self.default_request_url)
-        r = self.get('/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' %
-                     {'endpoint_id': self.endpoint_id},
-                     expected_status=200)
-        self.assertValidProjectListResponse(r, self.default_domain_project)
-
-    # DELETE
-    def test_remove_endpoint_project_assoc(self):
+    def test_remove_endpoint_project_association(self):
         """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Valid project id and endpoint id test case.
@@ -199,7 +204,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                         'endpoint_id': self.endpoint_id},
                     expected_status=204)
 
-    def test_remove_endpoint_project_assoc_noproj(self):
+    def test_remove_endpoint_project_association_with_invalid_project(self):
         """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Invalid project id test case.
@@ -213,7 +218,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                     body='',
                     expected_status=404)
 
-    def test_remove_endpoint_project_assoc_noendp(self):
+    def test_remove_endpoint_project_association_with_invalid_endpoint(self):
         """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
         Invalid endpoint id test case.
@@ -227,7 +232,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
                     body='',
                     expected_status=404)
 
-    def test_endpoint_project_assoc_removed_when_delete_project(self):
+    def test_endpoint_project_association_cleanup_when_project_deleted(self):
         self.put(self.default_request_url)
         association_url = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' % {
             'endpoint_id': self.endpoint_id}
@@ -240,7 +245,7 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         r = self.get(association_url, expected_status=200)
         self.assertValidProjectListResponse(r, expected_length=0)
 
-    def test_endpoint_project_assoc_removed_when_delete_endpoint(self):
+    def test_endpoint_project_association_cleanup_when_endpoint_deleted(self):
         self.put(self.default_request_url)
         association_url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
             'project_id': self.default_domain_project_id}
@@ -254,11 +259,11 @@ class AssociateEndpointProjectFilterCRUDTestCase(TestExtensionCase):
         self.assertValidEndpointListResponse(r, expected_length=0)
 
 
-class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
-    """Test OS-EP-FILTER catalog filtering extension."""
+class EndpointFilterTokenRequestTestCase(TestExtensionCase):
 
-    def test_default_project_id_scoped_token_with_user_id_ep_filter(self):
-        # create a second project to work with
+    def test_project_scoped_token_using_endpoint_filter(self):
+        """Verify endpoints from project scoped token filtered.""" 
+        # create a project to work with
         ref = self.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': ref})
         project = self.assertValidProjectResponse(r, ref)
@@ -297,9 +302,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
             ep_filter_assoc=1)
         self.assertEqual(r.result['token']['project']['id'], project['id'])
 
-    def test_implicit_project_id_scoped_token_with_user_id_ep_filter(self):
-        # attempt to authenticate without requesting a project
-
+    def test_default_scoped_token_using_endpoint_filter(self):
+        """Verify endpoints from default scoped token filtered."""
         # add one endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
@@ -321,8 +325,14 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         self.assertEqual(r.result['token']['project']['id'],
                          self.project['id'])
 
-    def test_default_project_id_scoped_token_ep_filter_no_catalog(self):
-        # create a second project to work with
+    def test_project_scoped_token_with_no_catalog_using_endpoint_filter(self): 
+        """Verify endpoint filter when project scoped token returns no catalog.
+
+        Test that the project scoped token response is valid for a given
+        endpoint-project association when no service catalog is returned.
+
+        """
+        # create a project to work with
         ref = self.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': ref})
         project = self.assertValidProjectResponse(r, ref)
@@ -361,9 +371,13 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
             ep_filter_assoc=1)
         self.assertEqual(r.result['token']['project']['id'], project['id'])
 
-    def test_implicit_project_id_scoped_token_ep_filter_no_catalog(self):
-        # attempt to authenticate without requesting a project
+    def test_default_scoped_token_with_no_catalog_using_endpoint_filter(self):
+        """Verify endpoint filter when default scoped token returns no catalog.
 
+        Test that the default project scoped token response is valid for a
+        given endpoint-project association when no service catalog is returned.
+
+        """
         # add one endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
@@ -385,8 +399,14 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         self.assertEqual(r.result['token']['project']['id'],
                          self.project['id'])
 
-    def test_default_project_id_scoped_token_ep_filter_full_catalog(self):
-        # create a second project to work with
+    def test_project_scoped_token_with_no_endpoint_project_association(self):
+        """Verify endpoint filter when no endpoint-project association.
+
+        Test that the project scoped token response is valid when there are
+        no endpoint-project associations defined.
+
+        """
+        # create a project to work with
         ref = self.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': ref})
         project = self.assertValidProjectResponse(r, ref)
@@ -416,9 +436,13 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
             endpoint_filter=True)
         self.assertEqual(r.result['token']['project']['id'], project['id'])
 
-    def test_implicit_project_id_scoped_token_ep_filter_full_catalog(self):
-        # attempt to authenticate without requesting a project
+    def test_default_scoped_token_with_no_endpoint_project_association(self):
+        """Verify endpoint filter when no endpoint-project association.
 
+        Test that the default project scoped token response is valid when
+        there are no endpoint-project associations defined.
+        
+        """
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'],
@@ -431,9 +455,8 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
         self.assertEqual(r.result['token']['project']['id'],
                          self.project['id'])
 
-    def test_implicit_project_id_scoped_token_handling_bad_reference(self):
-        # handling the case with an endpoint that is not associate with
-
+    def test_invalid_endpoint_project_association(self):
+        """Verify an invalid endpoint-project association is handled."""
         # add first endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
@@ -477,8 +500,7 @@ class AssociateProjectEndpointFilterTokenRequestTestCase(TestExtensionCase):
                          self.project['id'])
 
     def test_disabled_endpoint(self):
-        """The catalog contains only enabled endpoints."""
-
+        """Test that a disabled endpoint is handled."""
         # Add an enabled endpoint to the default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
