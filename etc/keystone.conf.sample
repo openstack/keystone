@@ -307,7 +307,7 @@
 # The default exchange under which topics are scoped. May be
 # overridden by an exchange name specified in the
 # transport_url option. (string value)
-#control_exchange=openstack
+#control_exchange=keystone
 
 
 #
