@@ -3583,6 +3583,29 @@ class CatalogTests(object):
                           self.catalog_api.get_region,
                           region_id)
 
+    def _create_region_with_parent_id(self, parent_id=None):
+        new_region = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'parent_region_id': parent_id
+        }
+        self.catalog_api.create_region(
+            new_region)
+        return new_region
+
+    def test_list_regions_filtered_by_parent_region_id(self):
+        new_region = self._create_region_with_parent_id()
+        parent_id = new_region['id']
+        new_region = self._create_region_with_parent_id(parent_id)
+        new_region = self._create_region_with_parent_id(parent_id)
+
+        # filter by parent_region_id
+        hints = driver_hints.Hints()
+        hints.add_filter('parent_region_id', parent_id)
+        regions = self.catalog_api.list_regions(hints)
+        for region in regions:
+            self.assertEqual(parent_id, region['parent_region_id'])
+
     @tests.skip_if_cache_disabled('catalog')
     def test_cache_layer_region_crud(self):
         region_id = uuid.uuid4().hex
