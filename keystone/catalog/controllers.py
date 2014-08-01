@@ -193,7 +193,7 @@ class RegionV3(controller.V3Controller):
     def create_region(self, context, region):
         ref = self._normalize_dict(region)
 
-        if 'id' not in ref:
+        if not ref.get('id'):
             ref = self._assign_unique_id(ref)
 
         ref = self.catalog_api.create_region(ref)
