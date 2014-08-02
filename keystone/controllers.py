@@ -62,8 +62,9 @@ def register_version(version):
 
 class Version(wsgi.Application):
 
-    def __init__(self, version_type):
+    def __init__(self, version_type, routers=None):
         self.endpoint_url_type = version_type
+        self._routers = routers
 
         super(Version, self).__init__()
 

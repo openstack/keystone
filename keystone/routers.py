@@ -57,11 +57,13 @@ class VersionV2(wsgi.ComposableRouter):
 
 
 class VersionV3(wsgi.ComposableRouter):
-    def __init__(self, description):
+    def __init__(self, description, routers):
         self.description = description
+        self._routers = routers
 
     def add_routes(self, mapper):
-        version_controller = controllers.Version(self.description)
+        version_controller = controllers.Version(self.description,
+                                                 routers=self._routers)
         mapper.connect('/',
                        controller=version_controller,
                        action='get_version_v3')
