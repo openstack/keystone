@@ -13,38 +13,41 @@
 # under the License.
 """WSGI Routers for the Identity service."""
 
+from keystone.common import wsgi
 from keystone.trust import controllers
 
 
-def append_v3_routers(mapper, routers):
-    trust_controller = controllers.TrustV3()
+class Routers(wsgi.RoutersBase):
 
-    mapper.connect('/OS-TRUST/trusts',
-                   controller=trust_controller,
-                   action='create_trust',
-                   conditions=dict(method=['POST']))
+    def append_v3_routers(self, mapper, routers):
+        trust_controller = controllers.TrustV3()
 
-    mapper.connect('/OS-TRUST/trusts',
-                   controller=trust_controller,
-                   action='list_trusts',
-                   conditions=dict(method=['GET']))
+        mapper.connect('/OS-TRUST/trusts',
+                       controller=trust_controller,
+                       action='create_trust',
+                       conditions=dict(method=['POST']))
 
-    mapper.connect('/OS-TRUST/trusts/{trust_id}',
-                   controller=trust_controller,
-                   action='delete_trust',
-                   conditions=dict(method=['DELETE']))
+        mapper.connect('/OS-TRUST/trusts',
+                       controller=trust_controller,
+                       action='list_trusts',
+                       conditions=dict(method=['GET']))
 
-    mapper.connect('/OS-TRUST/trusts/{trust_id}',
-                   controller=trust_controller,
-                   action='get_trust',
-                   conditions=dict(method=['GET']))
+        mapper.connect('/OS-TRUST/trusts/{trust_id}',
+                       controller=trust_controller,
+                       action='delete_trust',
+                       conditions=dict(method=['DELETE']))
 
-    mapper.connect('/OS-TRUST/trusts/{trust_id}/roles',
-                   controller=trust_controller,
-                   action='list_roles_for_trust',
-                   conditions=dict(method=['GET']))
+        mapper.connect('/OS-TRUST/trusts/{trust_id}',
+                       controller=trust_controller,
+                       action='get_trust',
+                       conditions=dict(method=['GET']))
 
-    mapper.connect('/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
-                   controller=trust_controller,
-                   action='get_role_for_trust',
-                   conditions=dict(method=['GET', 'HEAD']))
+        mapper.connect('/OS-TRUST/trusts/{trust_id}/roles',
+                       controller=trust_controller,
+                       action='list_roles_for_trust',
+                       conditions=dict(method=['GET']))
+
+        mapper.connect('/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
+                       controller=trust_controller,
+                       action='get_role_for_trust',
+                       conditions=dict(method=['GET', 'HEAD']))

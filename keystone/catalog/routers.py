@@ -14,27 +14,30 @@
 
 from keystone.catalog import controllers
 from keystone.common import router
+from keystone.common import wsgi
 
 
-def append_v3_routers(mapper, routers):
-    regions_controller = controllers.RegionV3()
-    routers.append(router.Router(regions_controller,
-                                 'regions', 'region'))
+class Routers(wsgi.RoutersBase):
 
-    # Need to add an additional route to support PUT /regions/{region_id}
-    mapper.connect(
-        '/regions/{region_id}',
-        controller=regions_controller,
-        action='create_region_with_id',
-        conditions=dict(method=['PUT']))
+    def append_v3_routers(self, mapper, routers):
+        regions_controller = controllers.RegionV3()
+        routers.append(router.Router(regions_controller,
+                                     'regions', 'region'))
 
-    routers.append(router.Router(controllers.ServiceV3(),
-                                 'services', 'service'))
-    routers.append(router.Router(controllers.EndpointV3(),
-                                 'endpoints', 'endpoint'))
+        # Need to add an additional route to support PUT /regions/{region_id}
+        mapper.connect(
+            '/regions/{region_id}',
+            controller=regions_controller,
+            action='create_region_with_id',
+            conditions=dict(method=['PUT']))
 
-    mapper.connect(
-        '/catalog',
-        controller=controllers.CatalogV3(),
-        action='get_catalog',
-        conditions=dict(method=['GET']))
+        routers.append(router.Router(controllers.ServiceV3(),
+                                     'services', 'service'))
+        routers.append(router.Router(controllers.EndpointV3(),
+                                     'endpoints', 'endpoint'))
+
+        mapper.connect(
+            '/catalog',
+            controller=controllers.CatalogV3(),
+            action='get_catalog',
+            conditions=dict(method=['GET']))

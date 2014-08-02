@@ -89,11 +89,14 @@ def v3_app_factory(global_conf, **local_conf):
     controllers.register_version('v3')
     mapper = routes.Mapper()
     v3routers = []
-    for module in [assignment, auth, catalog, credential, identity, policy]:
-        module.routers.append_v3_routers(mapper, v3routers)
 
+    router_modules = [assignment, auth, catalog, credential, identity, policy]
     if CONF.trust.enabled:
-        trust.routers.append_v3_routers(mapper, v3routers)
+        router_modules.append(trust)
+
+    for module in router_modules:
+        routers_instance = module.routers.Routers()
+        routers_instance.append_v3_routers(mapper, v3routers)
 
     # Add in the v3 version api
     v3routers.append(routers.VersionV3('admin'))

@@ -15,10 +15,13 @@
 """WSGI Routers for the Credentials service."""
 
 from keystone.common import router
+from keystone.common import wsgi
 from keystone.credential import controllers
 
 
-def append_v3_routers(mapper, routers):
-    routers.append(
-        router.Router(controllers.CredentialV3(),
-                      'credentials', 'credential'))
+class Routers(wsgi.RoutersBase):
+
+    def append_v3_routers(self, mapper, routers):
+        routers.append(
+            router.Router(controllers.CredentialV3(),
+                          'credentials', 'credential'))

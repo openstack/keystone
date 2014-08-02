@@ -27,41 +27,43 @@ class Admin(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
 
-def append_v3_routers(mapper, routers):
-    user_controller = controllers.UserV3()
-    routers.append(
-        router.Router(user_controller,
-                      'users', 'user'))
-    mapper.connect('/users/{user_id}/password',
-                   controller=user_controller,
-                   action='change_password',
-                   conditions=dict(method=['POST']))
+class Routers(wsgi.RoutersBase):
 
-    mapper.connect('/groups/{group_id}/users',
-                   controller=user_controller,
-                   action='list_users_in_group',
-                   conditions=dict(method=['GET']))
+    def append_v3_routers(self, mapper, routers):
+        user_controller = controllers.UserV3()
+        routers.append(
+            router.Router(user_controller,
+                          'users', 'user'))
+        mapper.connect('/users/{user_id}/password',
+                       controller=user_controller,
+                       action='change_password',
+                       conditions=dict(method=['POST']))
 
-    mapper.connect('/groups/{group_id}/users/{user_id}',
-                   controller=user_controller,
-                   action='add_user_to_group',
-                   conditions=dict(method=['PUT']))
+        mapper.connect('/groups/{group_id}/users',
+                       controller=user_controller,
+                       action='list_users_in_group',
+                       conditions=dict(method=['GET']))
 
-    mapper.connect('/groups/{group_id}/users/{user_id}',
-                   controller=user_controller,
-                   action='check_user_in_group',
-                   conditions=dict(method=['GET', 'HEAD']))
+        mapper.connect('/groups/{group_id}/users/{user_id}',
+                       controller=user_controller,
+                       action='add_user_to_group',
+                       conditions=dict(method=['PUT']))
 
-    mapper.connect('/groups/{group_id}/users/{user_id}',
-                   controller=user_controller,
-                   action='remove_user_from_group',
-                   conditions=dict(method=['DELETE']))
+        mapper.connect('/groups/{group_id}/users/{user_id}',
+                       controller=user_controller,
+                       action='check_user_in_group',
+                       conditions=dict(method=['GET', 'HEAD']))
 
-    group_controller = controllers.GroupV3()
-    routers.append(
-        router.Router(group_controller,
-                      'groups', 'group'))
-    mapper.connect('/users/{user_id}/groups',
-                   controller=group_controller,
-                   action='list_groups_for_user',
-                   conditions=dict(method=['GET']))
+        mapper.connect('/groups/{group_id}/users/{user_id}',
+                       controller=user_controller,
+                       action='remove_user_from_group',
+                       conditions=dict(method=['DELETE']))
+
+        group_controller = controllers.GroupV3()
+        routers.append(
+            router.Router(group_controller,
+                          'groups', 'group'))
+        mapper.connect('/users/{user_id}/groups',
+                       controller=group_controller,
+                       action='list_groups_for_user',
+                       conditions=dict(method=['GET']))
