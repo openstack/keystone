@@ -52,7 +52,7 @@ EXTENSION_DATA = {
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 
-class S3Extension(wsgi.ExtensionRouter):
+class S3Extension(wsgi.V3ExtensionRouter):
     def add_routes(self, mapper):
         controller = S3Controller()
         # validation

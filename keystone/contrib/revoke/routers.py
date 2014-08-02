@@ -14,7 +14,7 @@ from keystone.common import wsgi
 from keystone.contrib.revoke import controllers
 
 
-class RevokeExtension(wsgi.ExtensionRouter):
+class RevokeExtension(wsgi.V3ExtensionRouter):
 
     PATH_PREFIX = '/OS-REVOKE'
 

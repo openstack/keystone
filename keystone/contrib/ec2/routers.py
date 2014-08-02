@@ -49,7 +49,7 @@ class Ec2Extension(wsgi.ExtensionRouter):
             conditions=dict(method=['DELETE']))
 
 
-class Ec2ExtensionV3(wsgi.ExtensionRouter):
+class Ec2ExtensionV3(wsgi.V3ExtensionRouter):
 
     def add_routes(self, mapper):
         ec2_controller = controllers.Ec2ControllerV3()

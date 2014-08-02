@@ -645,6 +645,10 @@ class RoutersBase(object):
                            conditions=dict(method=['GET', 'POST']))
 
 
+class V3ExtensionRouter(ExtensionRouter):
+    """Base class for V3 extension router."""
+
+
 def render_response(body=None, status=None, headers=None, method=None):
     """Forms a WSGI response."""
     if headers is None:

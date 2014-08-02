@@ -16,7 +16,7 @@ from keystone.common import wsgi
 from keystone.contrib.endpoint_filter import controllers
 
 
-class EndpointFilterExtension(wsgi.ExtensionRouter):
+class EndpointFilterExtension(wsgi.V3ExtensionRouter):
 
     PATH_PREFIX = '/OS-EP-FILTER'
     PATH_PROJECT_ENDPOINT = '/projects/{project_id}/endpoints/{endpoint_id}'

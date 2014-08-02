@@ -14,7 +14,7 @@ from keystone.common import wsgi
 from keystone.contrib.simple_cert import controllers
 
 
-class SimpleCertExtension(wsgi.ExtensionRouter):
+class SimpleCertExtension(wsgi.V3ExtensionRouter):
 
     PREFIX = 'OS-SIMPLE-CERT'
 

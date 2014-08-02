@@ -16,7 +16,7 @@ from keystone.common import wsgi
 from keystone.contrib.example import controllers
 
 
-class ExampleRouter(wsgi.ExtensionRouter):
+class ExampleRouter(wsgi.V3ExtensionRouter):
 
     PATH_PREFIX = '/OS-EXAMPLE'
 
