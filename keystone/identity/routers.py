@@ -35,7 +35,8 @@ class Routers(wsgi.RoutersBase):
         user_controller = controllers.UserV3()
         routers.append(
             router.Router(user_controller,
-                          'users', 'user'))
+                          'users', 'user',
+                          resource_descriptions=self.v3_resources))
 
         self._add_resource(
             mapper, user_controller,
@@ -70,7 +71,8 @@ class Routers(wsgi.RoutersBase):
         group_controller = controllers.GroupV3()
         routers.append(
             router.Router(group_controller,
-                          'groups', 'group'))
+                          'groups', 'group',
+                          resource_descriptions=self.v3_resources))
 
         self._add_resource(
             mapper, group_controller,

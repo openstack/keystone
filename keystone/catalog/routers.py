@@ -22,7 +22,8 @@ class Routers(wsgi.RoutersBase):
     def append_v3_routers(self, mapper, routers):
         regions_controller = controllers.RegionV3()
         routers.append(router.Router(regions_controller,
-                                     'regions', 'region'))
+                                     'regions', 'region',
+                                     resource_descriptions=self.v3_resources))
 
         # Need to add an additional route to support PUT /regions/{region_id}
         mapper.connect(
@@ -32,6 +33,8 @@ class Routers(wsgi.RoutersBase):
             conditions=dict(method=['PUT']))
 
         routers.append(router.Router(controllers.ServiceV3(),
-                                     'services', 'service'))
+                                     'services', 'service',
+                                     resource_descriptions=self.v3_resources))
         routers.append(router.Router(controllers.EndpointV3(),
-                                     'endpoints', 'endpoint'))
+                                     'endpoints', 'endpoint',
+                                     resource_descriptions=self.v3_resources))

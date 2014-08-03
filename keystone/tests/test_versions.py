@@ -104,6 +104,9 @@ VERSIONS_RESPONSE = {
     }
 }
 
+REVOCATIONS_RELATION = json_home.build_v3_extension_resource_relation(
+    'OS-PKI', '1.0', 'revocations')
+
 _build_trust_relation = functools.partial(
     json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
     extension_version='1.0')
@@ -120,6 +123,16 @@ V3_JSON_HOME_RESOURCES = {
         'href': '/auth/projects'},
     json_home.build_v3_resource_relation('auth_domains'): {
         'href': '/auth/domains'},
+    json_home.build_v3_resource_relation('credential'): {
+        'href-template': '/credentials/{credential_id}',
+        'href-vars': {
+            'credential_id':
+            json_home.build_v3_parameter_relation('credential_id')}},
+    json_home.build_v3_resource_relation('credentials'): {
+        'href': '/credentials'},
+    json_home.build_v3_resource_relation('domain'): {
+        'href-template': '/domains/{domain_id}',
+        'href-vars': {'domain_id': json_home.Parameters.DOMAIN_ID, }},
     json_home.build_v3_resource_relation('domain_group_role'): {
         'href-template':
         '/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
@@ -144,8 +157,15 @@ V3_JSON_HOME_RESOURCES = {
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
             'user_id': json_home.Parameters.USER_ID, }},
-    json_home.build_v3_extension_resource_relation('OS-PKI', '1.0',
-                                                   'revocations'): {
+    json_home.build_v3_resource_relation('domains'): {'href': '/domains'},
+    json_home.build_v3_resource_relation('endpoint'): {
+        'href-template': '/endpoints/{endpoint_id}',
+        'href-vars': {
+            'endpoint_id':
+            json_home.build_v3_parameter_relation('endpoint_id'), }},
+    json_home.build_v3_resource_relation('endpoints'): {
+        'href': '/endpoints'},
+    REVOCATIONS_RELATION: {
         'href': '/auth/tokens/OS-PKI/revoked'},
     _build_trust_relation(resource_name='trust'):
     {
@@ -161,6 +181,10 @@ V3_JSON_HOME_RESOURCES = {
         'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
     _build_trust_relation(resource_name='trusts'): {
         'href': '/OS-TRUST/trusts'},
+    json_home.build_v3_resource_relation('group'): {
+        'href-template': '/groups/{group_id}',
+        'href-vars': {
+            'group_id': json_home.Parameters.GROUP_ID, }},
     json_home.build_v3_resource_relation('group_user'): {
         'href-template': '/groups/{group_id}/users/{user_id}',
         'href-vars': {
@@ -169,6 +193,18 @@ V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('group_users'): {
         'href-template': '/groups/{group_id}/users',
         'href-vars': {'group_id': json_home.Parameters.GROUP_ID, }},
+    json_home.build_v3_resource_relation('groups'): {'href': '/groups'},
+    json_home.build_v3_resource_relation('policies'): {
+        'href': '/policies'},
+    json_home.build_v3_resource_relation('policy'): {
+        'href-template': '/policies/{policy_id}',
+        'href-vars': {
+            'policy_id':
+            json_home.build_v3_parameter_relation('policy_id'), }},
+    json_home.build_v3_resource_relation('project'): {
+        'href-template': '/projects/{project_id}',
+        'href-vars': {
+            'project_id': json_home.Parameters.PROJECT_ID, }},
     json_home.build_v3_resource_relation('project_group_role'): {
         'href-template':
         '/projects/{project_id}/groups/{group_id}/roles/{role_id}',
@@ -193,6 +229,32 @@ V3_JSON_HOME_RESOURCES = {
         'href-vars': {
             'project_id': json_home.Parameters.PROJECT_ID,
             'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('projects'): {
+        'href': '/projects'},
+    json_home.build_v3_resource_relation('region'): {
+        'href-template': '/regions/{region_id}',
+        'href-vars': {
+            'region_id':
+            json_home.build_v3_parameter_relation('region_id'), }},
+    json_home.build_v3_resource_relation('regions'): {'href': '/regions'},
+    json_home.build_v3_resource_relation('role'): {
+        'href-template': '/roles/{role_id}',
+        'href-vars': {
+            'role_id': json_home.Parameters.ROLE_ID, }},
+    json_home.build_v3_resource_relation('role_assignments'): {
+        'href': '/role_assignments'},
+    json_home.build_v3_resource_relation('roles'): {'href': '/roles'},
+    json_home.build_v3_resource_relation('service'): {
+        'href-template': '/services/{service_id}',
+        'href-vars': {
+            'service_id':
+            json_home.build_v3_parameter_relation('service_id')}},
+    json_home.build_v3_resource_relation('services'): {
+        'href': '/services'},
+    json_home.build_v3_resource_relation('user'): {
+        'href-template': '/users/{user_id}',
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID, }},
     json_home.build_v3_resource_relation('user_change_password'): {
         'href-template': '/users/{user_id}/password',
         'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
@@ -202,6 +264,7 @@ V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('user_projects'): {
         'href-template': '/users/{user_id}/projects',
         'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('users'): {'href': '/users'},
 }
 
 
