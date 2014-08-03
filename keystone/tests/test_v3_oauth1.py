@@ -301,12 +301,15 @@ class AccessTokenCRUDTests(OAuthFlowTests):
 
     def test_get_single_access_token(self):
         self.test_oauth_flow()
-        resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
-                        % {'user_id': self.user_id,
-                           'key': self.access_token.key})
+        url = '/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s' % {
+              'user_id': self.user_id,
+              'key': self.access_token.key
+        }
+        resp = self.get(url)
         entity = resp.result['access_token']
         self.assertEqual(entity['id'], self.access_token.key)
         self.assertEqual(entity['consumer_id'], self.consumer['key'])
+        self.assertEqual('http://localhost/v3' + url, entity['links']['self'])
 
     def test_get_access_token_dne(self):
         self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
