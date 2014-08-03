@@ -1571,3 +1571,16 @@ class FederatedTokenTests(FederationTests):
         assertion = getattr(mapping_fixtures, variant)
         context['environment'].update(assertion)
         context['query_string'] = []
+
+
+class JsonHomeTests(FederationTests, test_v3.JsonHomeTestMixin):
+    JSON_HOME_DATA = {
+        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/'
+        '1.0/rel/identity_provider': {
+            'href-template': '/OS-FEDERATION/identity_providers/{idp_id}',
+            'href-vars': {
+                'idp_id': 'http://docs.openstack.org/api/openstack-identity/3/'
+                'ext/OS-FEDERATION/1.0/param/idp_id'
+            },
+        },
+    }

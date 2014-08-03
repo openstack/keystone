@@ -104,8 +104,16 @@ VERSIONS_RESPONSE = {
     }
 }
 
+_build_ec2tokens_relation = functools.partial(
+    json_home.build_v3_extension_resource_relation, extension_name='OS-EC2',
+    extension_version='1.0')
+
 REVOCATIONS_RELATION = json_home.build_v3_extension_resource_relation(
     'OS-PKI', '1.0', 'revocations')
+
+_build_simple_cert_relation = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-SIMPLE-CERT', extension_version='1.0')
 
 _build_trust_relation = functools.partial(
     json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
@@ -165,8 +173,27 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
             json_home.build_v3_parameter_relation('endpoint_id'), }},
     json_home.build_v3_resource_relation('endpoints'): {
         'href': '/endpoints'},
+    _build_ec2tokens_relation(resource_name='ec2tokens'): {
+        'href': '/ec2tokens'},
+    _build_ec2tokens_relation(resource_name='user_credential'): {
+        'href-template': '/users/{user_id}/credentials/OS-EC2/{credential_id}',
+        'href-vars': {
+            'credential_id': json_home.build_v3_extension_parameter_relation(
+                'OS-EC2', '1.0', 'credential_id'),
+            'user_id': json_home.Parameters.USER_ID, }},
+    _build_ec2tokens_relation(resource_name='user_credentials'): {
+        'href-template': '/users/{user_id}/credentials/OS-EC2',
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID, }},
     REVOCATIONS_RELATION: {
         'href': '/auth/tokens/OS-PKI/revoked'},
+    'http://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel/'
+    'events': {
+        'href': '/OS-REVOKE/events'},
+    _build_simple_cert_relation(resource_name='ca_certificate'): {
+        'href': '/OS-SIMPLE-CERT/ca'},
+    _build_simple_cert_relation(resource_name='certificates'): {
+        'href': '/OS-SIMPLE-CERT/certificates'},
     _build_trust_relation(resource_name='trust'):
     {
         'href-template': '/OS-TRUST/trusts/{trust_id}',
@@ -181,6 +208,9 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
         'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
     _build_trust_relation(resource_name='trusts'): {
         'href': '/OS-TRUST/trusts'},
+    'http://docs.openstack.org/api/openstack-identity/3/ext/s3tokens/1.0/rel/'
+    's3tokens': {
+        'href': '/s3tokens'},
     json_home.build_v3_resource_relation('group'): {
         'href-template': '/groups/{group_id}',
         'href-vars': {

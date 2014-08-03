@@ -27,6 +27,7 @@ from keystone.common import serializer
 from keystone import config
 from keystone import exception
 from keystone import middleware
+from keystone.openstack.common import jsonutils
 from keystone.policy.backends import rules
 from keystone import tests
 from keystone.tests.ksfixtures import database
@@ -1246,3 +1247,27 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         middleware.AuthContextMiddleware(application).process_request(req)
         self.assertDictEqual(req.environ.get(authorization.AUTH_CONTEXT_ENV),
                              {})
+
+
+class JsonHomeTestMixin(object):
+    """JSON Home test
+
+    Mixin this class to provide a test for the JSON-Home response for an
+    extension.
+
+    The base class must set JSON_HOME_DATA to a dict of relationship URLs
+    (rels) to the JSON-Home data for the relationship. The rels and associated
+    data must be in the response.
+
+    """
+    def test_get_json_home(self):
+        resp = self.get('/', convert=False,
+                        headers={'Accept': 'application/json-home'})
+        self.assertThat(resp.headers['Content-Type'],
+                        matchers.Equals('application/json-home'))
+        resp_data = jsonutils.loads(resp.body)
+
+        # Check that the example relationships are present.
+        for rel in self.JSON_HOME_DATA:
+            self.assertThat(resp_data['resources'][rel],
+                            matchers.Equals(self.JSON_HOME_DATA[rel]))

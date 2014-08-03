@@ -10,9 +10,25 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
+
+from keystone.common import json_home
 from keystone.common import wsgi
 from keystone.contrib import federation
 from keystone.contrib.federation import controllers
+
+
+build_resource_relation = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-FEDERATION', extension_version='1.0')
+
+build_parameter_relation = functools.partial(
+    json_home.build_v3_extension_parameter_relation,
+    extension_name='OS-FEDERATION', extension_version='1.0')
+
+IDP_ID_PARAMETER_RELATION = build_parameter_relation(parameter_name='idp_id')
+PROTOCOL_ID_PARAMETER_RELATION = build_parameter_relation(
+    parameter_name='protocol_id')
 
 
 class FederationExtension(wsgi.V3ExtensionRouter):
@@ -74,11 +90,16 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             get_action='get_identity_provider',
             put_action='create_identity_provider',
             patch_action='update_identity_provider',
-            delete_action='delete_identity_provider')
+            delete_action='delete_identity_provider',
+            rel=build_resource_relation(resource_name='identity_provider'),
+            path_vars={
+                'idp_id': IDP_ID_PARAMETER_RELATION,
+            })
         self._add_resource(
             mapper, idp_controller,
             path=self._construct_url('identity_providers'),
-            get_action='list_identity_providers')
+            get_action='list_identity_providers',
+            rel=build_resource_relation(resource_name='identity_providers'))
 
         # Protocol CRUD operations
 
@@ -89,11 +110,22 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             get_action='get_protocol',
             put_action='create_protocol',
             patch_action='update_protocol',
-            delete_action='delete_protocol')
+            delete_action='delete_protocol',
+            rel=build_resource_relation(
+                resource_name='identity_provider_protocol'),
+            path_vars={
+                'idp_id': IDP_ID_PARAMETER_RELATION,
+                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
+            })
         self._add_resource(
             mapper, protocol_controller,
             path=self._construct_url('identity_providers/{idp_id}/protocols'),
-            get_action='list_protocols')
+            get_action='list_protocols',
+            rel=build_resource_relation(
+                resource_name='identity_provider_protocols'),
+            path_vars={
+                'idp_id': IDP_ID_PARAMETER_RELATION,
+            })
 
         # Mapping CRUD operations
 
@@ -103,21 +135,35 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             get_action='get_mapping',
             put_action='create_mapping',
             patch_action='update_mapping',
-            delete_action='delete_mapping')
+            delete_action='delete_mapping',
+            rel=build_resource_relation(resource_name='mapping'),
+            path_vars={
+                'mapping_id': build_parameter_relation(
+                    parameter_name='mapping_id'),
+            })
         self._add_resource(
             mapper, mapping_controller,
             path=self._construct_url('mappings'),
-            get_action='list_mappings')
+            get_action='list_mappings',
+            rel=build_resource_relation(resource_name='mappings'))
         self._add_resource(
             mapper, domain_controller,
             path=self._construct_url('domains'),
-            get_action='list_domains_for_groups')
+            get_action='list_domains_for_groups',
+            rel=build_resource_relation(resource_name='domains'))
         self._add_resource(
             mapper, project_controller,
             path=self._construct_url('projects'),
-            get_action='list_projects_for_groups')
+            get_action='list_projects_for_groups',
+            rel=build_resource_relation(resource_name='projects'))
         self._add_resource(
             mapper, auth_controller,
             path=self._construct_url('identity_providers/{identity_provider}/'
                                      'protocols/{protocol}/auth'),
-            get_post_action='federated_authentication')
+            get_post_action='federated_authentication',
+            rel=build_resource_relation(
+                resource_name='identity_provider_protocol_auth'),
+            path_vars={
+                'identity_provider': IDP_ID_PARAMETER_RELATION,
+                'protocol': PROTOCOL_ID_PARAMETER_RELATION,
+            })
