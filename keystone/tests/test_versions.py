@@ -114,7 +114,7 @@ _build_trust_relation = functools.partial(
 TRUST_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
     'OS-TRUST', '1.0', 'trust_id')
 
-V3_JSON_HOME_RESOURCES = {
+V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
     json_home.build_v3_resource_relation('auth_tokens'): {
         'href': '/auth/tokens'},
     json_home.build_v3_resource_relation('auth_catalog'): {
@@ -266,6 +266,60 @@ V3_JSON_HOME_RESOURCES = {
         'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
     json_home.build_v3_resource_relation('users'): {'href': '/users'},
 }
+
+
+# with os-inherit enabled, there's some more resources.
+
+build_os_inherit_relation = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-INHERIT', extension_version='1.0')
+
+V3_JSON_HOME_RESOURCES_INHERIT_ENABLED = dict(
+    V3_JSON_HOME_RESOURCES_INHERIT_DISABLED)
+V3_JSON_HOME_RESOURCES_INHERIT_ENABLED.update((
+    (build_os_inherit_relation(
+        resource_name='domain_user_role_inherited_to_projects'),
+     {
+         'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
+         '{user_id}/roles/{role_id}/inherited_to_projects',
+         'href-vars': {
+             'domain_id': json_home.Parameters.DOMAIN_ID,
+             'role_id': json_home.Parameters.ROLE_ID,
+             'user_id': json_home.Parameters.USER_ID,
+         },
+    }),
+    (build_os_inherit_relation(
+        resource_name='domain_group_role_inherited_to_projects'),
+     {
+         'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
+         '{group_id}/roles/{role_id}/inherited_to_projects',
+         'href-vars': {
+             'domain_id': json_home.Parameters.DOMAIN_ID,
+             'group_id': json_home.Parameters.GROUP_ID,
+             'role_id': json_home.Parameters.ROLE_ID,
+         },
+    }),
+    (build_os_inherit_relation(
+        resource_name='domain_user_roles_inherited_to_projects'),
+     {
+         'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
+         '{user_id}/roles/inherited_to_projects',
+         'href-vars': {
+             'domain_id': json_home.Parameters.DOMAIN_ID,
+             'user_id': json_home.Parameters.USER_ID,
+         },
+    }),
+    (build_os_inherit_relation(
+        resource_name='domain_group_roles_inherited_to_projects'),
+     {
+         'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
+         '{group_id}/roles/inherited_to_projects',
+         'href-vars': {
+             'domain_id': json_home.Parameters.DOMAIN_ID,
+             'group_id': json_home.Parameters.GROUP_ID,
+         },
+    }),
+))
 
 
 class VersionTestCase(tests.TestCase):
@@ -474,7 +528,43 @@ class VersionTestCase(tests.TestCase):
                         tt_matchers.Equals('application/json-home'))
 
         exp_json_home_data = {
-            'resources': V3_JSON_HOME_RESOURCES}
+            'resources': V3_JSON_HOME_RESOURCES_INHERIT_DISABLED}
+
+        self.assertThat(jsonutils.loads(resp.body),
+                        tt_matchers.Equals(exp_json_home_data))
+
+
+class VersionInheritEnabledTestCase(tests.TestCase):
+    def setUp(self):
+        super(VersionInheritEnabledTestCase, self).setUp()
+        self.load_backends()
+        self.public_app = self.loadapp('keystone', 'main')
+        self.admin_app = self.loadapp('keystone', 'admin')
+
+        self.config_fixture.config(
+            public_endpoint='http://localhost:%(public_port)d',
+            admin_endpoint='http://localhost:%(admin_port)d')
+
+    def config_overrides(self):
+        super(VersionInheritEnabledTestCase, self).config_overrides()
+        port = random.randint(10000, 30000)
+        self.config_fixture.config(public_port=port, admin_port=port)
+
+        self.config_fixture.config(group='os_inherit', enabled=True)
+
+    def test_json_home_v3(self):
+        # If the request is /v3 and the Accept header is application/json-home
+        # then the server responds with a JSON Home document.
+
+        client = self.client(self.public_app)
+        resp = client.get('/v3/', headers={'Accept': 'application/json-home'})
+
+        self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
+        self.assertThat(resp.headers['Content-Type'],
+                        tt_matchers.Equals('application/json-home'))
+
+        exp_json_home_data = {
+            'resources': V3_JSON_HOME_RESOURCES_INHERIT_ENABLED}
 
         self.assertThat(jsonutils.loads(resp.body),
                         tt_matchers.Equals(exp_json_home_data))
