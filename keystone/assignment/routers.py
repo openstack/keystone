@@ -16,6 +16,7 @@
 """WSGI Routers for the Assignment service."""
 
 from keystone.assignment import controllers
+from keystone.common import json_home
 from keystone.common import router
 from keystone.common import wsgi
 from keystone import config
@@ -70,7 +71,11 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, project_controller,
             path='/users/{user_id}/projects',
-            get_action='list_user_projects')
+            get_action='list_user_projects',
+            rel=json_home.build_v3_resource_relation('user_projects'),
+            path_vars={
+                'user_id': json_home.Parameters.USER_ID,
+            })
 
         role_controller = controllers.RoleV3()
         routers.append(
@@ -81,41 +86,85 @@ class Routers(wsgi.RoutersBase):
             path='/projects/{project_id}/users/{user_id}/roles/{role_id}',
             get_head_action='check_grant',
             put_action='create_grant',
-            delete_action='revoke_grant')
+            delete_action='revoke_grant',
+            rel=json_home.build_v3_resource_relation('project_user_role'),
+            path_vars={
+                'project_id': json_home.Parameters.PROJECT_ID,
+                'role_id': json_home.Parameters.ROLE_ID,
+                'user_id': json_home.Parameters.USER_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/projects/{project_id}/groups/{group_id}/roles/{role_id}',
             get_head_action='check_grant',
             put_action='create_grant',
-            delete_action='revoke_grant')
+            delete_action='revoke_grant',
+            rel=json_home.build_v3_resource_relation('project_group_role'),
+            path_vars={
+                'group_id': json_home.Parameters.GROUP_ID,
+                'project_id': json_home.Parameters.PROJECT_ID,
+                'role_id': json_home.Parameters.ROLE_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/projects/{project_id}/users/{user_id}/roles',
-            get_action='list_grants')
+            get_action='list_grants',
+            rel=json_home.build_v3_resource_relation('project_user_roles'),
+            path_vars={
+                'project_id': json_home.Parameters.PROJECT_ID,
+                'user_id': json_home.Parameters.USER_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/projects/{project_id}/groups/{group_id}/roles',
-            get_action='list_grants')
+            get_action='list_grants',
+            rel=json_home.build_v3_resource_relation('project_group_roles'),
+            path_vars={
+                'group_id': json_home.Parameters.GROUP_ID,
+                'project_id': json_home.Parameters.PROJECT_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/domains/{domain_id}/users/{user_id}/roles/{role_id}',
             get_head_action='check_grant',
             put_action='create_grant',
-            delete_action='revoke_grant')
+            delete_action='revoke_grant',
+            rel=json_home.build_v3_resource_relation('domain_user_role'),
+            path_vars={
+                'domain_id': json_home.Parameters.DOMAIN_ID,
+                'role_id': json_home.Parameters.ROLE_ID,
+                'user_id': json_home.Parameters.USER_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
             get_head_action='check_grant',
             put_action='create_grant',
-            delete_action='revoke_grant')
+            delete_action='revoke_grant',
+            rel=json_home.build_v3_resource_relation('domain_group_role'),
+            path_vars={
+                'domain_id': json_home.Parameters.DOMAIN_ID,
+                'group_id': json_home.Parameters.GROUP_ID,
+                'role_id': json_home.Parameters.ROLE_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/domains/{domain_id}/users/{user_id}/roles',
-            get_action='list_grants')
+            get_action='list_grants',
+            rel=json_home.build_v3_resource_relation('domain_user_roles'),
+            path_vars={
+                'domain_id': json_home.Parameters.DOMAIN_ID,
+                'user_id': json_home.Parameters.USER_ID,
+            })
         self._add_resource(
             mapper, role_controller,
             path='/domains/{domain_id}/groups/{group_id}/roles',
-            get_action='list_grants')
+            get_action='list_grants',
+            rel=json_home.build_v3_resource_relation('domain_group_roles'),
+            path_vars={
+                'domain_id': json_home.Parameters.DOMAIN_ID,
+                'group_id': json_home.Parameters.GROUP_ID,
+            })
 
         routers.append(
             router.Router(controllers.RoleAssignmentV3(),

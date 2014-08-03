@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import random
 
 import mock
 from testtools import matchers as tt_matchers
 
+from keystone.common import json_home
 from keystone import config
 from keystone import controllers
 from keystone.openstack.common import jsonutils
@@ -102,7 +104,105 @@ VERSIONS_RESPONSE = {
     }
 }
 
-V3_JSON_HOME_RESOURCES = {}
+_build_trust_relation = functools.partial(
+    json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
+    extension_version='1.0')
+
+TRUST_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
+    'OS-TRUST', '1.0', 'trust_id')
+
+V3_JSON_HOME_RESOURCES = {
+    json_home.build_v3_resource_relation('auth_tokens'): {
+        'href': '/auth/tokens'},
+    json_home.build_v3_resource_relation('auth_catalog'): {
+        'href': '/auth/catalog'},
+    json_home.build_v3_resource_relation('auth_projects'): {
+        'href': '/auth/projects'},
+    json_home.build_v3_resource_relation('auth_domains'): {
+        'href': '/auth/domains'},
+    json_home.build_v3_resource_relation('domain_group_role'): {
+        'href-template':
+        '/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'group_id': json_home.Parameters.GROUP_ID,
+            'role_id': json_home.Parameters.ROLE_ID, }},
+    json_home.build_v3_resource_relation('domain_group_roles'): {
+        'href-template': '/domains/{domain_id}/groups/{group_id}/roles',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'group_id': json_home.Parameters.GROUP_ID}},
+    json_home.build_v3_resource_relation('domain_user_role'): {
+        'href-template':
+        '/domains/{domain_id}/users/{user_id}/roles/{role_id}',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'role_id': json_home.Parameters.ROLE_ID,
+            'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('domain_user_roles'): {
+        'href-template': '/domains/{domain_id}/users/{user_id}/roles',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_extension_resource_relation('OS-PKI', '1.0',
+                                                   'revocations'): {
+        'href': '/auth/tokens/OS-PKI/revoked'},
+    _build_trust_relation(resource_name='trust'):
+    {
+        'href-template': '/OS-TRUST/trusts/{trust_id}',
+        'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
+    _build_trust_relation(resource_name='trust_role'): {
+        'href-template': '/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
+        'href-vars': {
+            'role_id': json_home.Parameters.ROLE_ID,
+            'trust_id': TRUST_ID_PARAMETER_RELATION, }},
+    _build_trust_relation(resource_name='trust_roles'): {
+        'href-template': '/OS-TRUST/trusts/{trust_id}/roles',
+        'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
+    _build_trust_relation(resource_name='trusts'): {
+        'href': '/OS-TRUST/trusts'},
+    json_home.build_v3_resource_relation('group_user'): {
+        'href-template': '/groups/{group_id}/users/{user_id}',
+        'href-vars': {
+            'group_id': json_home.Parameters.GROUP_ID,
+            'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('group_users'): {
+        'href-template': '/groups/{group_id}/users',
+        'href-vars': {'group_id': json_home.Parameters.GROUP_ID, }},
+    json_home.build_v3_resource_relation('project_group_role'): {
+        'href-template':
+        '/projects/{project_id}/groups/{group_id}/roles/{role_id}',
+        'href-vars': {
+            'group_id': json_home.Parameters.GROUP_ID,
+            'project_id': json_home.Parameters.PROJECT_ID,
+            'role_id': json_home.Parameters.ROLE_ID, }},
+    json_home.build_v3_resource_relation('project_group_roles'): {
+        'href-template': '/projects/{project_id}/groups/{group_id}/roles',
+        'href-vars': {
+            'group_id': json_home.Parameters.GROUP_ID,
+            'project_id': json_home.Parameters.PROJECT_ID, }},
+    json_home.build_v3_resource_relation('project_user_role'): {
+        'href-template':
+        '/projects/{project_id}/users/{user_id}/roles/{role_id}',
+        'href-vars': {
+            'project_id': json_home.Parameters.PROJECT_ID,
+            'role_id': json_home.Parameters.ROLE_ID,
+            'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('project_user_roles'): {
+        'href-template': '/projects/{project_id}/users/{user_id}/roles',
+        'href-vars': {
+            'project_id': json_home.Parameters.PROJECT_ID,
+            'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('user_change_password'): {
+        'href-template': '/users/{user_id}/password',
+        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('user_groups'): {
+        'href-template': '/users/{user_id}/groups',
+        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+    json_home.build_v3_resource_relation('user_projects'): {
+        'href-template': '/users/{user_id}/projects',
+        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+}
 
 
 class VersionTestCase(tests.TestCase):
