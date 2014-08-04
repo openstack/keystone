@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2014.2.dev85.gf82b887\n"
+"Project-Id-Version: keystone 2014.2.dev64.g1ac4379\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-06-26 06:01+0000\n"
+"POT-Creation-Date: 2014-08-04 06:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: keystone/auth/controllers.py:109
+#: keystone/auth/controllers.py:110
 #, python-format
 msgid ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use"
@@ -29,12 +29,12 @@ msgstr ""
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
 msgstr ""
 
-#: keystone/openstack/common/lockutils.py:83
+#: keystone/openstack/common/lockutils.py:82
 #, python-format
 msgid "Created lock path: %s"
 msgstr ""
 
-#: keystone/openstack/common/lockutils.py:250
+#: keystone/openstack/common/lockutils.py:251
 #, python-format
 msgid "Failed to remove file %(file)s"
 msgstr ""
@@ -77,17 +77,27 @@ msgstr ""
 msgid "Child %(pid)s exited with status %(code)d"
 msgstr ""
 
-#: keystone/openstack/common/service.py:396
+#: keystone/openstack/common/service.py:399
 #, python-format
 msgid "Caught %s, stopping children"
 msgstr ""
 
-#: keystone/openstack/common/service.py:405
+#: keystone/openstack/common/service.py:408
 msgid "Wait called after thread killed.  Cleaning up."
 msgstr ""
 
-#: keystone/openstack/common/service.py:416
+#: keystone/openstack/common/service.py:424
 #, python-format
 msgid "Waiting on %d children to exit"
+msgstr ""
+
+#: keystone/token/persistence/backends/sql.py:60
+#, python-format
+msgid "Token expiration batch size: %d"
+msgstr ""
+
+#: keystone/token/persistence/backends/sql.py:276
+#, python-format
+msgid "Total expired tokens removed: %d"
 msgstr ""
 
