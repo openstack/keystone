@@ -143,10 +143,6 @@
 # Size of RPC connection pool. (integer value)
 #rpc_conn_pool_size=30
 
-# Modules of exceptions that are permitted to be recreated
-# upon receiving exception data from an rpc call. (list value)
-#allowed_rpc_exception_modules=oslo.messaging.exceptions,nova.exception,cinder.exception,exceptions
-
 # Qpid broker hostname. (string value)
 #qpid_hostname=localhost
 
@@ -285,15 +281,6 @@
 # Heartbeat time-to-live. (integer value)
 #matchmaker_heartbeat_ttl=600
 
-# Host to locate redis. (string value)
-#host=127.0.0.1
-
-# Use this port to connect to redis host. (integer value)
-#port=6379
-
-# Password for Redis server (optional). (string value)
-#password=<None>
-
 # Size of RPC greenthread pool. (integer value)
 #rpc_thread_pool_size=64
 
@@ -330,30 +317,6 @@
 # Default publisher_id for outgoing notifications (string
 # value)
 #default_publisher_id=<None>
-
-
-#
-# Options defined in keystone.middleware.ec2_token
-#
-
-# URL to get token from ec2 request. (string value)
-#keystone_ec2_url=http://localhost:5000/v2.0/ec2tokens
-
-# Required if EC2 server requires client certificate. (string
-# value)
-#keystone_ec2_keyfile=<None>
-
-# Client certificate key filename. Required if EC2 server
-# requires client certificate. (string value)
-#keystone_ec2_certfile=<None>
-
-# A PEM encoded certificate authority to use when verifying
-# HTTPS connections. Defaults to the system CAs. (string
-# value)
-#keystone_ec2_cafile=<None>
-
-# Disable SSL certificate verification. (boolean value)
-#keystone_ec2_insecure=false
 
 
 #
@@ -1189,6 +1152,22 @@
 # End user auth connection lifetime in seconds. (integer
 # value)
 #auth_pool_connection_lifetime=60
+
+
+[matchmaker_redis]
+
+#
+# Options defined in oslo.messaging
+#
+
+# Host to locate redis. (string value)
+#host=127.0.0.1
+
+# Use this port to connect to redis host. (integer value)
+#port=6379
+
+# Password for Redis server (optional). (string value)
+#password=<None>
 
 
 [matchmaker_ring]
