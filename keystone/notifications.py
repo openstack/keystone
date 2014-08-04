@@ -293,7 +293,6 @@ def _send_audit_notification(action, initiator, outcome):
 
     context = {}
     payload = event.as_dict()
-    LOG.debug('CADF Event: %s', payload)
     service = 'identity'
     event_type = '%(service)s.%(action)s' % {'service': service,
                                              'action': action}
