@@ -1462,6 +1462,50 @@ class SqlUpgradeTests(SqlMigrateBase):
         index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
         self.assertNotIn(('ix_actor_id', ['actor_id']), index_data)
 
+    def test_project_parent_id_upgrade(self):
+        self.upgrade(61)
+        self.assertTableColumns('project',
+                                ['id', 'name', 'extra', 'description',
+                                 'enabled', 'domain_id', 'parent_id'])
+
+    def test_project_parent_id_downgrade(self):
+        self.upgrade(61)
+        self.downgrade(60)
+        self.assertTableColumns('project',
+                                ['id', 'name', 'extra', 'description',
+                                 'enabled', 'domain_id'])
+
+    def test_project_parent_id_cleanup(self):
+        # make sure that the parent_id field is dropped in the downgrade
+        self.upgrade(61)
+        session = self.Session()
+        beta = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'domain_id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'parent_id': uuid.uuid4().hex
+        }
+        acme = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'domain_id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'parent_id': None
+        }
+        self.insert_dict(session, 'project', beta)
+        self.insert_dict(session, 'project', acme)
+        proj_table = sqlalchemy.Table('project', self.metadata, autoload=True)
+        self.assertEqual(2, session.query(proj_table).count())
+        session.close()
+        self.downgrade(60)
+        session = self.Session()
+        self.metadata.clear()
+        proj_table = sqlalchemy.Table('project', self.metadata, autoload=True)
+        self.assertEqual(2, session.query(proj_table).count())
+        project = session.query(proj_table)[0]
+        self.assertRaises(AttributeError, getattr, project, 'parent_id')
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

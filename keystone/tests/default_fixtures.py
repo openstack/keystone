@@ -24,24 +24,28 @@ TENANTS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'description': 'description',
         'enabled': True,
+        'parent_id': None,
     }, {
         'id': 'baz',
         'name': 'BAZ',
         'domain_id': DEFAULT_DOMAIN_ID,
         'description': 'description',
         'enabled': True,
+        'parent_id': None,
     }, {
         'id': 'mtu',
         'name': 'MTU',
         'description': 'description',
         'enabled': True,
-        'domain_id': DEFAULT_DOMAIN_ID
+        'domain_id': DEFAULT_DOMAIN_ID,
+        'parent_id': None,
     }, {
         'id': 'service',
         'name': 'service',
         'description': 'description',
         'enabled': True,
-        'domain_id': DEFAULT_DOMAIN_ID
+        'domain_id': DEFAULT_DOMAIN_ID,
+        'parent_id': None,
     }
 ]
 
