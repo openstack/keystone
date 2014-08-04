@@ -1546,6 +1546,15 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                           self.assignment_api.get_project,
                           project_id)
 
+    def test_check_leaf_projects(self):
+        self.skipTest('N/A: LDAP does not support hierarchical projects')
+
+    def test_list_projects_in_subtree(self):
+        self.skipTest('N/A: LDAP does not support hierarchical projects')
+
+    def test_list_project_parents(self):
+        self.skipTest('N/A: LDAP does not support hierarchical projects')
+
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
         # is defined in test_backend.py.  It omits both domain and

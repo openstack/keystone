@@ -79,6 +79,21 @@ class Assignment(assignment.Driver):
         # any domain specified
         return self.list_projects(driver_hints.Hints())
 
+    def list_projects_in_subtree(self, project_id):
+        # We don't support projects hierarchy within this driver, so a
+        # project will never have children
+        return []
+
+    def list_project_parents(self, project_id):
+        # We don't support projects hierarchy within this driver, so a
+        # project will never have parents
+        return []
+
+    def is_leaf_project(self, project_id):
+        # We don't support projects hierarchy within this driver, so a
+        # project will always be a root and a leaf at the same time
+        return True
+
     def get_project_by_name(self, tenant_name, domain_id):
         self._validate_default_domain_id(domain_id)
         return self._set_default_attributes(
