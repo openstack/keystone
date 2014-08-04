@@ -1195,9 +1195,18 @@ class SqlUpgradeTests(SqlMigrateBase):
         add_region(region_unique_table)
         self.assertEqual(1, session.query(region_unique_table).count())
         # verify the unique constraint is enforced
-        self.assertRaises(sqlalchemy.exc.IntegrityError,
-                          add_region,
-                          table=region_unique_table)
+        self.assertRaises(
+            # FIXME (I159): Since oslo.db wraps all the database exceptions
+            # into more specific exception objects, we should catch both of
+            # sqlalchemy and oslo.db exceptions. If an old oslo.db version
+            # is installed, IntegrityError is raised. If >=0.4.0 version of
+            # oslo.db is installed, DBDuplicateEntry is raised.
+            # When the global requirements is updated with
+            # the version fixes exceptions wrapping, IntegrityError must be
+            # removed from the tuple.
+            (sqlalchemy.exc.IntegrityError, db_exception.DBDuplicateEntry),
+            add_region,
+            table=region_unique_table)
 
         # migrate to 43, unique constraint should be dropped
         self.upgrade(43)
