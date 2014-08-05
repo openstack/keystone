@@ -15,6 +15,7 @@ import datetime
 import uuid
 
 import mock
+from testtools import matchers
 
 from keystone.common import dependency
 from keystone import config
@@ -83,6 +84,10 @@ def _matches(event, token_values):
             if event.domain_id == token_values[attribute_name]:
                 break
         else:
+            return False
+
+    if event.domain_scope_id is not None:
+        if event.domain_scope_id != token_values['assignment_domain_id']:
             return False
 
     # If any one check does not match, the while token does
@@ -165,6 +170,17 @@ class RevokeTests(object):
         self.revoke_api.revoke_by_expiration(_new_id(), now_plus_2h)
         # should no longer throw an exception
         self.revoke_api.check_token(token_values)
+
+    def test_revoke_by_expiration_project_and_domain_fails(self):
+        user_id = _new_id()
+        expires_at = timeutils.isotime(_future_time(), subsecond=True)
+        domain_id = _new_id()
+        project_id = _new_id()
+        self.assertThat(
+            lambda: self.revoke_api.revoke_by_expiration(
+                user_id, expires_at, domain_id=domain_id,
+                project_id=project_id),
+            matchers.raises(exception.UnexpectedError))
 
 
 class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
@@ -255,10 +271,13 @@ class RevokeTreeTests(tests.TestCase):
         return self.tree.add_event(
             model.RevokeEvent(user_id=user_id))
 
-    def _revoke_by_expiration(self, user_id, expires_at):
+    def _revoke_by_expiration(self, user_id, expires_at, project_id=None,
+                              domain_id=None):
         event = self.tree.add_event(
             model.RevokeEvent(user_id=user_id,
-                              expires_at=expires_at))
+                              expires_at=expires_at,
+                              project_id=project_id,
+                              domain_id=domain_id))
         self.events.append(event)
         return event
 
@@ -339,6 +358,40 @@ class RevokeTreeTests(tests.TestCase):
 
         self.removeEvent(event)
         self._assertTokenNotRevoked(token_data_1)
+
+    def test_by_user_project(self):
+        # When a user has a project-scoped token and the project-scoped token
+        # is revoked then the token is revoked.
+
+        user_id = _new_id()
+        project_id = _new_id()
+
+        future_time = _future_time()
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id
+        token_data['project_id'] = project_id
+        token_data['expires_at'] = future_time
+
+        self._revoke_by_expiration(user_id, future_time, project_id=project_id)
+        self._assertTokenRevoked(token_data)
+
+    def test_by_user_domain(self):
+        # When a user has a domain-scoped token and the domain-scoped token
+        # is revoked then the token is revoked.
+
+        user_id = _new_id()
+        domain_id = _new_id()
+
+        future_time = _future_time()
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id
+        token_data['assignment_domain_id'] = domain_id
+        token_data['expires_at'] = future_time
+
+        self._revoke_by_expiration(user_id, future_time, domain_id=domain_id)
+        self._assertTokenRevoked(token_data)
 
     def removeEvent(self, event):
         self.events.remove(event)

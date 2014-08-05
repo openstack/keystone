@@ -1220,9 +1220,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # the scoped token can be revoked, and the unscoped token remains
         # valid.
 
-        # FIXME(blk-u): This isn't working correctly. The unscoped token should
-        # remain valid. See bug 1347318.
-
         unscoped_token = self.get_requested_token(
             self.build_authentication_request(
                 user_id=self.user1['id'],
@@ -1253,12 +1250,12 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # The unscoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=404)  # FIXME(blk-u): This should be 200!
+                  expected_status=200)
 
         # The domain-scoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': domain_scoped_token},
-                  expected_status=404)  # FIXME(blk-u): This should be 200!
+                  expected_status=200)
 
         # revoke the domain-scoped token.
         self.delete('/auth/tokens',
@@ -1273,7 +1270,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # The unscoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=404)  # FIXME(blk-u): This should be 200!
+                  expected_status=200)
 
     def test_revoke_token_from_token_v2(self):
         # Test that a scoped token can be requested from an unscoped token,
@@ -1302,7 +1299,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # The unscoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=404)  # FIXME(blk-u): This should be 200!
+                  expected_status=200)
 
 
 @dependency.requires('revoke_api')
@@ -1343,17 +1340,24 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         expected_response = {'events': [{'domain_id': domain_id}]}
         self.assertEqual(expected_response, events_response)
 
-    def assertValidRevokedTokenResponse(self, events_response, user_id):
+    def assertValidRevokedTokenResponse(self, events_response, user_id,
+                                        project_id=None):
         events = events_response['events']
         self.assertEqual(1, len(events))
         self.assertEqual(user_id, events[0]['user_id'])
+        if project_id:
+            self.assertEqual(project_id, events[0]['project_id'])
         self.assertIsNotNone(events[0]['expires_at'])
         self.assertIsNotNone(events[0]['issued_before'])
         self.assertIsNotNone(events_response['links'])
         del (events_response['events'][0]['expires_at'])
         del (events_response['events'][0]['issued_before'])
         del (events_response['links'])
-        expected_response = {'events': [{'user_id': user_id}]}
+
+        expected_event_data = {'user_id': user_id}
+        if project_id:
+            expected_event_data['project_id'] = project_id
+        expected_response = {'events': [expected_event_data]}
         self.assertEqual(expected_response, events_response)
 
     def test_revoke_token(self):
@@ -1364,7 +1368,8 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.head('/auth/tokens', headers=headers, expected_status=404)
         events_response = self.get('/OS-REVOKE/events',
                                    expected_status=200).json_body
-        self.assertValidRevokedTokenResponse(events_response, self.user['id'])
+        self.assertValidRevokedTokenResponse(events_response, self.user['id'],
+                                             project_id=self.project['id'])
 
     def test_revoke_v2_token(self):
         token = self.get_v2_token()
@@ -1453,10 +1458,11 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.assertUserAndExpiryInList(events,
                                        token2['user']['id'],
                                        token2['expires_at'])
-        self.assertValidRevokedTokenResponse(events_response, self.user['id'])
+        self.assertValidRevokedTokenResponse(events_response, self.user['id'],
+                                             project_id=self.project['id'])
         self.head('/auth/tokens', headers=headers, expected_status=404)
-        self.head('/auth/tokens', headers=headers2, expected_status=404)
-        self.head('/auth/tokens', headers=headers3, expected_status=404)
+        self.head('/auth/tokens', headers=headers2, expected_status=200)
+        self.head('/auth/tokens', headers=headers3, expected_status=200)
         self.head('/auth/tokens', headers=headers_unrevoked,
                   expected_status=200)
 
