@@ -15,13 +15,13 @@ import datetime
 import uuid
 
 import mock
+from oslo.utils import timeutils
 from testtools import matchers
 
 from keystone.common import dependency
 from keystone import config
 from keystone.contrib.revoke import model
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import test_backend_sql
 

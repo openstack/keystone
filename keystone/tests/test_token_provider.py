@@ -14,9 +14,10 @@
 
 import datetime
 
+from oslo.utils import timeutils
+
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone import token

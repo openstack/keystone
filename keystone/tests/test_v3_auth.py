@@ -19,12 +19,12 @@ from testtools import testcase
 import uuid
 
 from keystoneclient.common import cms
+from oslo.utils import timeutils
 
 from keystone import auth
 from keystone.common import dependency
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import test_v3
 

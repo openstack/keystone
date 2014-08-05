@@ -15,13 +15,13 @@
 import re
 
 import jsonschema
+from oslo.utils import timeutils
 import six
 
 from keystone.common import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF

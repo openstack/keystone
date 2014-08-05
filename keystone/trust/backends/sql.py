@@ -14,10 +14,11 @@
 
 import time
 
+from oslo.utils import timeutils
+
 from keystone.common import sql
 from keystone import exception
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 from keystone import trust
 
 

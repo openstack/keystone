@@ -14,6 +14,8 @@
 
 """Extensions supporting OAuth1."""
 
+from oslo.utils import timeutils
+
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
@@ -23,7 +25,6 @@ from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import jsonutils
-from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF

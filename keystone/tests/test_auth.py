@@ -17,6 +17,7 @@ import datetime
 import uuid
 
 import mock
+from oslo.utils import timeutils
 
 from keystone import assignment
 from keystone import auth
@@ -24,7 +25,6 @@ from keystone.common import authorization
 from keystone.common import environment
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database

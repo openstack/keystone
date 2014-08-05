@@ -14,10 +14,10 @@
 import datetime
 import uuid
 
+from oslo.utils import timeutils
 import six
 
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database

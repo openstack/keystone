@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo.utils import timeutils
 import six
 from six.moves.urllib import parse
 
@@ -26,7 +27,6 @@ from keystone.token import provider
 
 
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 
 
 LOG = log.getLogger(__name__)

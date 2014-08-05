@@ -12,12 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo.utils import timeutils
+
 from keystone import auth
 from keystone.common import dependency
 from keystone.common import wsgi
 from keystone import exception
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 
 
 LOG = log.getLogger(__name__)

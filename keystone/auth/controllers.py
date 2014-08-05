@@ -15,6 +15,7 @@
 import sys
 
 from keystoneclient.common import cms
+from oslo.utils import timeutils
 import six
 
 from keystone.common import controller
@@ -27,7 +28,6 @@ from keystone.i18n import _, _LI
 from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 
 
 LOG = log.getLogger(__name__)

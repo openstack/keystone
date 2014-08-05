@@ -12,11 +12,12 @@
 
 import datetime
 
+from oslo.utils import timeutils
+
 from keystone.common import kvs
 from keystone import config
 from keystone.contrib import revoke
 from keystone import exception
-from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF

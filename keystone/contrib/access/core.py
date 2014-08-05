@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo.utils import timeutils
 import webob.dec
 
 from keystone.common import wsgi
 from keystone import config
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 from keystone.openstack.common import versionutils
 
 

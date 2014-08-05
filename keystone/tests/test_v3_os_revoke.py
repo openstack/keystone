@@ -13,11 +13,11 @@
 import datetime
 import uuid
 
+from oslo.utils import timeutils
 import six
 
 from keystone.common import dependency
 from keystone.contrib.revoke import model
-from keystone.openstack.common import timeutils
 from keystone.tests import test_v3
 from keystone.token import provider
 

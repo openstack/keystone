@@ -17,9 +17,10 @@ only to be used for testing purposes
 """
 import copy
 
+from oslo.utils import timeutils
+
 from keystone.common import kvs
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import trust as keystone_trust
 
 

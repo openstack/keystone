@@ -28,11 +28,11 @@ column.
 
 """
 
+from oslo.utils import strutils
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 
 from keystone.openstack.common import jsonutils
-from keystone.openstack.common import strutils
 
 
 def _migrate_enabled_from_extra(migrate_engine, endpoint_table):

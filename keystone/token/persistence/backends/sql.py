@@ -15,12 +15,13 @@
 import copy
 import functools
 
+from oslo.utils import timeutils
+
 from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.i18n import _LI
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 from keystone import token
 from keystone.token import provider
 

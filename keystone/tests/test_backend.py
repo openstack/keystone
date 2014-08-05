@@ -19,13 +19,13 @@ import mock
 import uuid
 
 from keystoneclient.common import cms
+from oslo.utils import timeutils
 import six
 from testtools import matchers
 
 from keystone.common import driver_hints
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import timeutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import filtering

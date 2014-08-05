@@ -10,7 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.openstack.common import timeutils
+from oslo.utils import timeutils
+
 
 # The set of attributes common between the RevokeEvent
 # and the dictionaries created from the token Data.

@@ -16,6 +16,7 @@ import datetime
 import sys
 
 from keystoneclient.common import cms
+from oslo.utils import timeutils
 import six
 
 from keystone.common import controller
@@ -26,7 +27,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 from keystone.token import provider
 
 

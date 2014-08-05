@@ -17,6 +17,7 @@
 import abc
 import copy
 
+from oslo.utils import timeutils
 import six
 
 from keystone.common import cache
@@ -25,7 +26,6 @@ from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 from keystone.openstack.common import versionutils
 
 

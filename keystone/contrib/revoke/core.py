@@ -13,6 +13,7 @@
 import abc
 import datetime
 
+from oslo.utils import timeutils
 import six
 
 from keystone.common import cache
@@ -25,7 +26,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.openstack.common import log
-from keystone.openstack.common import timeutils
 
 
 CONF = config.CONF
