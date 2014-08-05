@@ -35,7 +35,7 @@ To enable the federation extension:
 
 .. NOTE::
     The ``external`` method should be dropped to avoid any interference with
-    some Apache + Shibboleth SP setups, where a REMOTE_USER env variable is
+    some Apache + Shibboleth SP setups, where a ``REMOTE_USER`` env variable is
     always set, even as an empty value.
 
 3. Add the ``federation_extension`` middleware to the ``api_v3`` pipeline in
