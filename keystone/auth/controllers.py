@@ -465,7 +465,9 @@ class Auth(controller.V3Controller):
         """Authenticate user."""
 
         # The 'external' method allows any 'REMOTE_USER' based authentication
-        if 'REMOTE_USER' in context['environment']:
+        # In some cases the server can set REMOTE_USER as '' instead of
+        # dropping it, so this must be filtered out
+        if context['environment'].get('REMOTE_USER'):
             try:
                 external = get_auth_method('external')
                 external.authenticate(context, auth_info, auth_context)

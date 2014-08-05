@@ -859,15 +859,22 @@ class FederatedTokenTests(FederationTests):
             raise AssertionError("You must specify either"
                                  "project or domain.")
 
-    def _issue_unscoped_token(self, assertion='EMPLOYEE_ASSERTION'):
+    def _issue_unscoped_token(self,
+                              assertion='EMPLOYEE_ASSERTION',
+                              environment=None):
         api = federation_controllers.Auth()
-        context = {'environment': {}}
+        context = {'environment': environment or {}}
         self._inject_assertion(context, assertion)
         r = api.federated_authentication(context, self.IDP, self.PROTOCOL)
         return r
 
     def test_issue_unscoped_token(self):
         r = self._issue_unscoped_token()
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_issue_unscoped_token_with_remote_user_as_empty_string(self):
+        # make sure that REMOTE_USER set as the empty string won't interfere
+        r = self._issue_unscoped_token(environment={'REMOTE_USER': ''})
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
 
     def test_issue_unscoped_token_serialize_to_xml(self):
