@@ -132,6 +132,17 @@
     "identity:list_endpoints_for_project": "rule:admin_required",
     "identity:remove_endpoint_from_project": "rule:admin_required",
 
+    "identity:create_endpoint_group": "rule:admin_required",
+    "identity:list_endpoint_groups": "rule:admin_required",
+    "identity:get_endpoint_group": "rule:admin_required",
+    "identity:update_endpoint_group": "rule:admin_required",
+    "identity:delete_endpoint_group": "rule:admin_required",
+    "identity:list_projects_associated_with_endpoint_group": "rule:admin_required",
+    "identity:list_endpoints_associated_with_endpoint_group": "rule:admin_required",
+    "identity:list_endpoint_groups_for_project": "rule:admin_required",
+    "identity:add_endpoint_group_to_project": "rule:admin_required",
+    "identity:remove_endpoint_group_from_project": "rule:admin_required",
+
     "identity:create_identity_provider": "rule:admin_required",
     "identity:list_identity_providers": "rule:admin_required",
     "identity:get_identity_providers": "rule:admin_required",
