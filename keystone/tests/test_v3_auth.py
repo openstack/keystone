@@ -1416,6 +1416,11 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     def assertUserAndExpiryInList(self, events, user_id, expires_at):
         found = False
         for e in events:
+
+            # Timestamps in the event list are accurate to second.
+            expires_at = timeutils.parse_isotime(expires_at)
+            expires_at = timeutils.isotime(expires_at)
+
             if e['user_id'] == user_id and e['expires_at'] == expires_at:
                 found = True
         self.assertTrue(found,
@@ -1439,14 +1444,9 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         response.json_body['token']
         headers3 = {'X-Subject-Token': response.headers['X-Subject-Token']}
 
-        scoped_token = self.get_scoped_token()
-        headers_unrevoked = {'X-Subject-Token': scoped_token}
-
         self.head('/auth/tokens', headers=headers, expected_status=200)
         self.head('/auth/tokens', headers=headers2, expected_status=200)
         self.head('/auth/tokens', headers=headers3, expected_status=200)
-        self.head('/auth/tokens', headers=headers_unrevoked,
-                  expected_status=200)
 
         self.delete('/auth/tokens', headers=headers, expected_status=204)
         # NOTE(ayoung): not deleting token3, as it should be deleted
@@ -1463,8 +1463,6 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.head('/auth/tokens', headers=headers, expected_status=404)
         self.head('/auth/tokens', headers=headers2, expected_status=200)
         self.head('/auth/tokens', headers=headers3, expected_status=200)
-        self.head('/auth/tokens', headers=headers_unrevoked,
-                  expected_status=200)
 
     def test_list_with_filter(self):
 
