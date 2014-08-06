@@ -107,23 +107,22 @@ class Catalog(kvs.Catalog):
             raise
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
-        d = dict(six.iteritems(CONF))
-        d.update({'tenant_id': tenant_id,
-                  'user_id': user_id})
+        substitutions = dict(six.iteritems(CONF))
+        substitutions.update({'tenant_id': tenant_id, 'user_id': user_id})
 
-        o = {}
+        catalog = {}
         for region, region_ref in six.iteritems(self.templates):
-            o[region] = {}
+            catalog[region] = {}
             for service, service_ref in six.iteritems(region_ref):
                 service_data = {}
                 try:
                     for k, v in six.iteritems(service_ref):
-                        service_data[k] = core.format_url(v, d)
+                        service_data[k] = core.format_url(v, substitutions)
                 except exception.MalformedEndpoint:
                     continue  # this failure is already logged in format_url()
-                o[region][service] = service_data
+                catalog[region][service] = service_data
 
-        return o
+        return catalog
 
 
 @versionutils.deprecated(

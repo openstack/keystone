@@ -37,10 +37,16 @@ SHOULD_CACHE = cache.should_cache_fn('catalog')
 EXPIRATION_TIME = lambda: CONF.catalog.cache_time
 
 
-def format_url(url, data):
-    """Safely string formats a user-defined URL with the given data."""
+def format_url(url, substitutions):
+    """Formats a user-defined URL with the given substitutions.
+
+    :param string url: the URL to be formatted
+    :param dict substitutions: the dictionary used for substitution
+    :returns: a formatted URL
+
+    """
     try:
-        result = url.replace('$(', '%(') % data
+        result = url.replace('$(', '%(') % substitutions
     except AttributeError:
         LOG.error(_('Malformed endpoint - %(url)r is not a string'),
                   {"url": url})

@@ -240,9 +240,8 @@ class Catalog(catalog.Driver):
         return ref.to_dict()
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
-        d = dict(six.iteritems(CONF))
-        d.update({'tenant_id': tenant_id,
-                  'user_id': user_id})
+        substitutions = dict(six.iteritems(CONF))
+        substitutions.update({'tenant_id': tenant_id, 'user_id': user_id})
 
         session = sql.get_session()
         t = True  # variable for singleton for PEP8, E712.
@@ -256,7 +255,7 @@ class Catalog(catalog.Driver):
             if not endpoint.service['enabled']:
                 continue
             try:
-                url = core.format_url(endpoint['url'], d)
+                url = core.format_url(endpoint['url'], substitutions)
             except exception.MalformedEndpoint:
                 continue  # this failure is already logged in format_url()
 
