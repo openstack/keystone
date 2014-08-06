@@ -180,12 +180,6 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.useFixture(mockpatch.PatchObject(
             notifications, '_send_notification', fake_notify))
 
-    def _assertNotifySeen(self, resource_id, operation, resource_type):
-        self.assertIn(operation, self.exp_operations)
-        self.assertIn(resource_id, self.exp_resource_ids)
-        self.assertIn(resource_type, self.exp_resource_types)
-        self.assertTrue(self.send_notification_called)
-
     def _assertLastNotify(self, resource_id, operation, resource_type):
         self.assertTrue(len(self._notifications) > 0)
         note = self._notifications[-1]
