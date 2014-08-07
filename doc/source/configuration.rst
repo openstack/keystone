@@ -408,7 +408,7 @@ For more information about the different backends (and configuration options):
     * `dogpile.cache.backends.memcached`_
     * `dogpile.cache.backends.redis`_
     * `dogpile.cache.backends.file`_
-    * :mod:`keystone.common.cache.backends.mongo`
+    * :py:mod:`keystone.common.cache.backends.mongo`
 
 .. _`dogpile.cache`: http://dogpilecache.readthedocs.org/en/latest/
 .. _`python-memcached`: http://www.tummy.com/software/python-memcached/
