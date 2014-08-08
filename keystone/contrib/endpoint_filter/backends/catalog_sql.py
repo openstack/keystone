@@ -26,8 +26,8 @@ CONF = config.CONF
 @dependency.requires('endpoint_filter_api')
 class EndpointFilterCatalog(sql.Catalog):
     def get_v3_catalog(self, user_id, project_id, metadata=None):
-        d = dict(six.iteritems(CONF))
-        d.update({'tenant_id': project_id, 'user_id': user_id})
+        substitutions = dict(six.iteritems(CONF))
+        substitutions.update({'tenant_id': project_id, 'user_id': user_id})
 
         services = {}
 
@@ -53,7 +53,7 @@ class EndpointFilterCatalog(sql.Catalog):
                 del endpoint['enabled']
                 del endpoint['legacy_endpoint_id']
                 endpoint['url'] = catalog_core.format_url(
-                    endpoint['url'], d)
+                    endpoint['url'], substitutions)
                 # populate filtered endpoints
                 if 'endpoints' in services[service_id]:
                     service['endpoints'].append(endpoint)
