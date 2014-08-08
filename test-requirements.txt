@@ -20,6 +20,8 @@ ldappool>=1.0 # MPL
 coverage>=3.6
 # fixture stubbing
 fixtures>=0.3.14
+# xml parsing
+lxml>=2.3
 # mock object framework
 mock>=1.0
 oslotest
