@@ -3040,6 +3040,115 @@ class TestTrustAuth(test_v3.RestfulTestCase):
                   token=trust_token,
                   expected_status=403)
 
+    def test_trust_deleted_grant(self):
+        # create a new role
+        role = self.new_role_ref()
+        self.assignment_api.create_role(role['id'], role)
+
+        grant_url = (
+            '/projects/%(project_id)s/users/%(user_id)s/'
+            'roles/%(role_id)s' % {
+                'project_id': self.project_id,
+                'user_id': self.user_id,
+                'role_id': role['id']})
+
+        # assign a new role
+        self.put(grant_url)
+
+        # create a trust that delegates the new role
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[role['id']])
+        del ref['id']
+
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        # delete the grant
+        self.delete(grant_url)
+
+        # attempt to get a trust token with the deleted grant
+        # and ensure it's unauthorized
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        r = self.v3_authenticate_token(auth_data, expected_status=403)
+
+    def test_trust_chained(self):
+        """Test that a trust token can't be used to execute another trust.
+
+        To do this, we create an A->B->C hierarchy of trusts, then attempt to
+        execute the trusts in series (C->B->A).
+
+        """
+        # create a sub-trustee user
+        sub_trustee_user = self.new_user_ref(
+            domain_id=test_v3.DEFAULT_DOMAIN_ID)
+        password = sub_trustee_user['password']
+        sub_trustee_user = self.identity_api.create_user(sub_trustee_user)
+        sub_trustee_user['password'] = password
+        sub_trustee_user_id = sub_trustee_user['id']
+
+        # create a new role
+        role = self.new_role_ref()
+        self.assignment_api.create_role(role['id'], role)
+
+        # assign the new role to trustee
+        self.put(
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'project_id': self.project_id,
+                'user_id': self.trustee_user_id,
+                'role_id': role['id']})
+
+        # create a trust from trustor -> trustee
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+        del ref['id']
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust1 = self.assertValidTrustResponse(r)
+
+        # authenticate as trustee so we can create a second trust
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user_id,
+            password=self.trustee_user['password'],
+            project_id=self.project_id)
+        token = self.get_requested_token(auth_data)
+
+        # create a trust from trustee -> sub-trustee
+        ref = self.new_trust_ref(
+            trustor_user_id=self.trustee_user_id,
+            trustee_user_id=sub_trustee_user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            expires=dict(minutes=1),
+            role_ids=[role['id']])
+        del ref['id']
+        r = self.post('/OS-TRUST/trusts', token=token, body={'trust': ref})
+        trust2 = self.assertValidTrustResponse(r)
+
+        # authenticate as sub-trustee and get a trust token
+        auth_data = self.build_authentication_request(
+            user_id=sub_trustee_user['id'],
+            password=sub_trustee_user['password'],
+            trust_id=trust2['id'])
+        trust_token = self.get_requested_token(auth_data)
+
+        # attempt to get the second trust using a trust token
+        auth_data = self.build_authentication_request(
+            token=trust_token,
+            trust_id=trust1['id'])
+        r = self.v3_authenticate_token(auth_data, expected_status=403)
+
     def assertTrustTokensRevoked(self, trust_id):
         revocation_response = self.get('/OS-REVOKE/events',
                                        expected_status=200)
