@@ -20,14 +20,14 @@ by convention, with a few hardcoded exceptions.
 
 """
 
+import re
+
+import six
+
 try:
     from lxml import etree
 except ImportError:
     etree = None
-
-import re
-
-import six
 
 from keystone import exception
 from keystone.i18n import _
