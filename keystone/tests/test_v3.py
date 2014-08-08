@@ -325,6 +325,9 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
     def new_role_ref(self):
         ref = self.new_ref()
+        # Roles don't have a description or the enabled flag
+        del ref['description']
+        del ref['enabled']
         return ref
 
     def new_policy_ref(self):
@@ -1154,7 +1157,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         else:
             for role in entity['roles']:
                 self.assertIsNotNone(role)
-                self.assertValidEntity(role)
+                self.assertValidEntity(role, keys_to_check=['name'])
                 self.assertValidRole(role)
 
             self.assertValidListLinks(entity.get('roles_links'))
