@@ -12,9 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from keystone.common import router
+from keystone.common import wsgi
 from keystone.policy import controllers
 
 
-def append_v3_routers(mapper, routers):
-    policy_controller = controllers.PolicyV3()
-    routers.append(router.Router(policy_controller, 'policies', 'policy'))
+class Routers(wsgi.RoutersBase):
+
+    def append_v3_routers(self, mapper, routers):
+        policy_controller = controllers.PolicyV3()
+        routers.append(router.Router(policy_controller, 'policies', 'policy'))

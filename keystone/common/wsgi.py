@@ -604,6 +604,16 @@ class ExtensionRouter(Router):
         return _factory
 
 
+class RoutersBase(object):
+    """Base class for Routers."""
+
+    def append_v3_routers(self, mapper, routers):
+        """Append v3 routers.
+
+        Subclasses should override this method to map its routes.
+        """
+
+
 def render_response(body=None, status=None, headers=None, method=None):
     """Forms a WSGI response."""
     if headers is None:
