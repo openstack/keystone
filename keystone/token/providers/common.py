@@ -479,10 +479,16 @@ class BaseProvider(provider.Provider):
     def _handle_saml2_tokens(self, auth_context, project_id, domain_id):
         user_id = auth_context['user_id']
         group_ids = auth_context['group_ids']
+        idp = auth_context[federation.IDENTITY_PROVIDER]
+        protocol = auth_context[federation.PROTOCOL]
         token_data = {
             'user': {
                 'id': user_id,
-                'name': parse.unquote(user_id)
+                'name': parse.unquote(user_id),
+                federation.FEDERATION: {
+                    'identity_provider': {'id': idp},
+                    'protocol': {'id': protocol}
+                }
             }
         }
 
@@ -491,14 +497,8 @@ class BaseProvider(provider.Provider):
                 group_ids, project_id, domain_id, user_id)
             token_data.update({'roles': roles})
         else:
-            idp = auth_context[federation.IDENTITY_PROVIDER]
-            protocol = auth_context[federation.PROTOCOL]
-            token_data['user'].update({
-                federation.FEDERATION: {
-                    'identity_provider': {'id': idp},
-                    'protocol': {'id': protocol},
-                    'groups': [{'id': x} for x in group_ids]
-                },
+            token_data['user'][federation.FEDERATION].update({
+                'groups': [{'id': x} for x in group_ids]
             })
         return token_data
 

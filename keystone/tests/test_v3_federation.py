@@ -859,6 +859,11 @@ class FederatedTokenTests(FederationTests):
             raise AssertionError("You must specify either"
                                  "project or domain.")
 
+        self.assertIn('OS-FEDERATION', token['user'])
+        os_federation = token['user']['OS-FEDERATION']
+        self.assertEqual(self.IDP, os_federation['identity_provider']['id'])
+        self.assertEqual(self.PROTOCOL, os_federation['protocol']['id'])
+
     def _issue_unscoped_token(self,
                               assertion='EMPLOYEE_ASSERTION',
                               environment=None):
