@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sys
-
 import six
 from six.moves.urllib import parse
 
@@ -353,29 +351,14 @@ class V3TokenDataHelper(object):
         return {'token': token_data}
 
 
-@dependency.optional('oauth_api', 'revoke_api')
+@dependency.optional('oauth_api')
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'token_api', 'trust_api')
+                     'trust_api')
 class BaseProvider(provider.Provider):
     def __init__(self, *args, **kwargs):
         super(BaseProvider, self).__init__(*args, **kwargs)
         self.v3_token_data_helper = V3TokenDataHelper()
         self.v2_token_data_helper = V2TokenDataHelper()
-
-    def _create_token(self, token_id, token_data):
-        try:
-            if isinstance(token_data['expires'], six.string_types):
-                token_data['expires'] = timeutils.normalize_time(
-                    timeutils.parse_isotime(token_data['expires']))
-            self.token_api.create_token(token_id, token_data)
-        except Exception:
-            exc_info = sys.exc_info()
-            # an identical token may have been created already.
-            # if so, return the token_data as it is also identical
-            try:
-                self.token_api.get_token(token_id)
-            except exception.TokenNotFound:
-                six.reraise(*exc_info)
 
     def get_token_version(self, token_data):
         if token_data and isinstance(token_data, dict):
@@ -398,20 +381,7 @@ class BaseProvider(provider.Provider):
             token_ref, roles_ref, catalog_ref)
         token_id = self._get_token_id(token_data)
         token_data['access']['token']['id'] = token_id
-        expiry = token_data['access']['token']['expires']
-        data = dict(key=token_id,
-                    id=token_id,
-                    expires=expiry,
-                    user=token_ref['user'],
-                    tenant=token_ref['tenant'],
-                    metadata=token_ref['metadata'],
-                    token_data=token_data,
-                    bind=token_ref.get('bind'),
-                    trust_id=token_ref['metadata'].get('trust_id'),
-                    token_version=token.provider.V2)
-        self._create_token(token_id, data)
-
-        return (token_id, token_data)
+        return token_id, token_data
 
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
@@ -448,33 +418,7 @@ class BaseProvider(provider.Provider):
             access_token=access_token)
 
         token_id = self._get_token_id(token_data)
-
-        expiry = token_data['token']['expires_at']
-        # FIXME(gyee): is there really a need to store roles in metadata?
-        role_ids = []
-        if metadata_ref is None:
-            metadata_ref = {}
-        if 'project' in token_data['token']:
-            # project-scoped token, fill in the v2 token data
-            # all we care are the role IDs
-            role_ids = [r['id'] for r in token_data['token']['roles']]
-            metadata_ref = {'roles': role_ids}
-        if trust:
-            metadata_ref.setdefault('trust_id', trust['id'])
-            metadata_ref.setdefault('trustee_user_id',
-                                    trust['trustee_user_id'])
-        data = dict(key=token_id,
-                    id=token_id,
-                    expires=expiry,
-                    user=token_data['token']['user'],
-                    tenant=token_data['token'].get('project'),
-                    metadata=metadata_ref,
-                    token_data=token_data,
-                    trust_id=trust['id'] if trust else None,
-                    token_version=token.provider.V3)
-        self._create_token(token_id, data)
-
-        return (token_id, token_data)
+        return token_id, token_data
 
     def _handle_saml2_tokens(self, auth_context, project_id, domain_id):
         user_id = auth_context['user_id']
@@ -502,39 +446,11 @@ class BaseProvider(provider.Provider):
             })
         return token_data
 
-    def _verify_token(self, token_id):
-        """Verify the given token and return the token_ref."""
-        token_ref = self.token_api.get_token(token_id)
-        return self._verify_token_ref(token_ref)
-
     def _verify_token_ref(self, token_ref):
         """Verify and return the given token_ref."""
         if not token_ref:
             raise exception.Unauthorized()
         return token_ref
-
-    def revoke_token(self, token_id):
-        token = self.token_api.get_token(token_id)
-        if self.revoke_api:
-            version = self.get_token_version(token)
-            if version == provider.V3:
-                user_id = token['user']['id']
-                expires_at = token['expires']
-
-                token_data = token['token_data']['token']
-                project_id = token_data.get('project', {}).get('id')
-                domain_id = token_data.get('domain', {}).get('id')
-            elif version == provider.V2:
-                user_id = token['user_id']
-                expires_at = token['expires']
-                project_id = (token.get('tenant') or {}).get('id')
-                domain_id = None  # A V2 token can't be scoped to a domain.
-            self.revoke_api.revoke_by_expiration(user_id, expires_at,
-                                                 project_id=project_id,
-                                                 domain_id=domain_id)
-
-        if CONF.token.revoke_by_id:
-            self.token_api.delete_token(token_id=token_id)
 
     def _assert_default_domain(self, token_ref):
         """Make sure we are operating on default domain only."""
@@ -580,11 +496,7 @@ class BaseProvider(provider.Provider):
                         CONF.identity.default_domain_id):
                     raise exception.Unauthorized(msg)
 
-    def validate_v2_token(self, token_id):
-        token_ref = self._verify_token(token_id)
-        return self._validate_v2_token_ref(token_ref)
-
-    def _validate_v2_token_ref(self, token_ref):
+    def validate_v2_token(self, token_ref):
         try:
             self._assert_default_domain(token_ref)
             # FIXME(gyee): performance or correctness? Should we return the
@@ -620,15 +532,7 @@ class BaseProvider(provider.Provider):
             LOG.exception(_('Failed to validate token'))
             raise exception.TokenNotFound(e)
 
-    def validate_v3_token(self, token_id):
-        try:
-            token_ref = self._verify_token(token_id)
-            token_data = self._validate_v3_token_ref(token_ref)
-            return token_data
-        except (exception.ValidationError, exception.UserNotFound):
-            raise exception.TokenNotFound(token_id)
-
-    def _validate_v3_token_ref(self, token_ref):
+    def validate_v3_token(self, token_ref):
         # FIXME(gyee): performance or correctness? Should we return the
         # cached token or reconstruct it? Obviously if we are going with
         # the cached token, any role, project, or domain name changes
@@ -656,12 +560,3 @@ class BaseProvider(provider.Provider):
                 expires=token_ref['expires'],
                 issued_at=issued_at)
         return token_data
-
-    def validate_token(self, token_id):
-        token_ref = self._verify_token(token_id)
-        version = self.get_token_version(token_ref)
-        if version == token.provider.V3:
-            return self._validate_v3_token_ref(token_ref)
-        elif version == token.provider.V2:
-            return self._validate_v2_token_ref(token_ref)
-        raise exception.UnsupportedTokenVersionException()
