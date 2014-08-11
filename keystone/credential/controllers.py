@@ -16,7 +16,6 @@ import hashlib
 
 from keystone.common import controller
 from keystone.common import dependency
-from keystone.common import driver_hints
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import jsonutils
@@ -78,15 +77,13 @@ class CredentialV3(controller.V3Controller):
         else:
             return ref
 
-    @controller.protected()
-    def list_credentials(self, context):
-        # NOTE(henry-nash): Since there are no filters for credentials, we
-        # shouldn't limit the output, hence we don't pass a hints list into
-        # the driver.
-        refs = self.credential_api.list_credentials()
+    @controller.filterprotected('user_id')
+    def list_credentials(self, context, filters):
+        hints = CredentialV3.build_driver_hints(context, filters)
+        refs = self.credential_api.list_credentials(hints)
         ret_refs = [self._blob_to_json(r) for r in refs]
         return CredentialV3.wrap_collection(context, ret_refs,
-                                            driver_hints.Hints())
+                                            hints=hints)
 
     @controller.protected()
     def get_credential(self, context, credential_id):

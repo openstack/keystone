@@ -67,7 +67,7 @@
     "identity:add_user_to_group": "rule:cloud_admin or rule:admin_and_matching_target_group_domain_id",
 
     "identity:get_credential": "rule:admin_required",
-    "identity:list_credentials": "rule:admin_required",
+    "identity:list_credentials": "rule:admin_required or user_id:%(user_id)s",
     "identity:create_credential": "rule:admin_required",
     "identity:update_credential": "rule:admin_required",
     "identity:delete_credential": "rule:admin_required",
