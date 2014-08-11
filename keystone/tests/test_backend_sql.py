@@ -483,7 +483,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         malformed_url = "http://192.168.1.104:8774/v2/$(tenant)s"
         endpoint = {
             'id': uuid.uuid4().hex,
-            'region': uuid.uuid4().hex,
+            'region_id': None,
             'service_id': service['id'],
             'interface': 'public',
             'url': malformed_url,
@@ -505,7 +505,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
         endpoint = {
             'id': uuid.uuid4().hex,
-            'region': uuid.uuid4().hex,
+            'region_id': None,
             'interface': 'public',
             'url': '',
             'service_id': service['id'],
@@ -513,14 +513,14 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
         catalog = self.catalog_api.get_catalog('user', 'tenant')
-        catalog_endpoint = catalog[endpoint['region']][service['type']]
+        catalog_endpoint = catalog[endpoint['region_id']][service['type']]
         self.assertEqual(service['name'], catalog_endpoint['name'])
         self.assertEqual(endpoint['id'], catalog_endpoint['id'])
         self.assertEqual('', catalog_endpoint['publicURL'])
         self.assertIsNone(catalog_endpoint.get('adminURL'))
         self.assertIsNone(catalog_endpoint.get('internalURL'))
 
-    def test_create_endpoint_400(self):
+    def test_create_endpoint_region_404(self):
         service = {
             'id': uuid.uuid4().hex,
             'type': uuid.uuid4().hex,
@@ -531,16 +531,87 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
         endpoint = {
             'id': uuid.uuid4().hex,
-            'region': "0" * 256,
+            'region_id': uuid.uuid4().hex,
             'service_id': service['id'],
             'interface': 'public',
             'url': uuid.uuid4().hex,
         }
 
-        self.assertRaises(exception.StringLengthExceeded,
+        self.assertRaises(exception.ValidationError,
                           self.catalog_api.create_endpoint,
                           endpoint['id'],
                           endpoint.copy())
+
+    def test_create_region_invalid_id(self):
+        region = {
+            'id': '0' * 256,
+            'description': '',
+            'extra': {},
+        }
+
+        self.assertRaises(exception.StringLengthExceeded,
+                          self.catalog_api.create_region,
+                          region.copy())
+
+    def test_create_region_invalid_parent_id(self):
+        region = {
+            'id': uuid.uuid4().hex,
+            'parent_region_id': '0' * 256,
+        }
+
+        self.assertRaises(exception.RegionNotFound,
+                          self.catalog_api.create_region,
+                          region)
+
+    def test_delete_region_with_endpoint(self):
+        # create a region
+        region = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_region(region)
+
+        # create a child region
+        child_region = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'parent_id': region['id']
+        }
+        self.catalog_api.create_region(child_region)
+        # create a service
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service)
+
+        # create an endpoint attached to the service and child region
+        child_endpoint = {
+            'id': uuid.uuid4().hex,
+            'region_id': child_region['id'],
+            'interface': uuid.uuid4().hex[:8],
+            'url': uuid.uuid4().hex,
+            'service_id': service['id'],
+        }
+        self.catalog_api.create_endpoint(child_endpoint['id'], child_endpoint)
+        self.assertRaises(exception.RegionDeletionError,
+                          self.catalog_api.delete_region,
+                          child_region['id'])
+
+        # create an endpoint attached to the service and parent region
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'region_id': region['id'],
+            'interface': uuid.uuid4().hex[:8],
+            'url': uuid.uuid4().hex,
+            'service_id': service['id'],
+        }
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        self.assertRaises(exception.RegionDeletionError,
+                          self.catalog_api.delete_region,
+                          region['id'])
 
 
 class SqlPolicy(SqlTests, test_backend.PolicyTests):

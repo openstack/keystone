@@ -29,7 +29,7 @@ CONF = config.CONF
 class Region(sql.ModelBase, sql.DictBase):
     __tablename__ = 'region'
     attributes = ['id', 'description', 'parent_region_id', 'url']
-    id = sql.Column(sql.String(64), primary_key=True)
+    id = sql.Column(sql.String(255), primary_key=True)
     description = sql.Column(sql.String(255), nullable=False)
     url = sql.Column(sql.String(255), nullable=True)
     # NOTE(jaypipes): Right now, using an adjacency list model for
@@ -41,7 +41,7 @@ class Region(sql.ModelBase, sql.DictBase):
     #                 would be possible to add in columns to this model for
     #                 "left" and "right" and provide support for a nested set
     #                 model.
-    parent_region_id = sql.Column(sql.String(64), nullable=True)
+    parent_region_id = sql.Column(sql.String(255), nullable=True)
 
     # TODO(jaypipes): I think it's absolutely stupid that every single model
     #                 is required to have an "extra" column because of the
@@ -50,6 +50,7 @@ class Region(sql.ModelBase, sql.DictBase):
     #                 bad. Remove all of this extra JSON blob stuff.
     #                 See: https://bugs.launchpad.net/keystone/+bug/1265071
     extra = sql.Column(sql.JsonBlob())
+    endpoints = sqlalchemy.orm.relationship("Endpoint", backref="region")
 
 
 class Service(sql.ModelBase, sql.DictBase):
@@ -65,12 +66,16 @@ class Service(sql.ModelBase, sql.DictBase):
 
 class Endpoint(sql.ModelBase, sql.DictBase):
     __tablename__ = 'endpoint'
-    attributes = ['id', 'interface', 'region', 'service_id', 'url',
+    attributes = ['id', 'interface', 'region_id', 'service_id', 'url',
                   'legacy_endpoint_id', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     legacy_endpoint_id = sql.Column(sql.String(64))
     interface = sql.Column(sql.String(8), nullable=False)
-    region = sql.Column(sql.String(255))
+    region_id = sql.Column(sql.String(255),
+                           sql.ForeignKey('region.id',
+                                          ondelete='RESTRICT'),
+                           nullable=True,
+                           default=None)
     service_id = sql.Column(sql.String(64),
                             sql.ForeignKey('service.id'),
                             nullable=False)
@@ -81,7 +86,6 @@ class Endpoint(sql.ModelBase, sql.DictBase):
 
 
 class Catalog(catalog.Driver):
-
     # Regions
     def list_regions(self, hints):
         session = sql.get_session()
@@ -118,6 +122,17 @@ class Catalog(catalog.Driver):
             # which is the behavior we want.
             self._get_region(session, parent_region_id)
 
+    def _has_endpoints(self, session, region):
+        if region.endpoints is not None and len(region.endpoints) > 0:
+            return True
+
+        q = session.query(Region)
+        q = q.filter_by(parent_region_id=region.id)
+        for child in q.all():
+            if self._has_endpoints(session, child):
+                return True
+        return False
+
     def get_region(self, region_id):
         session = sql.get_session()
         return self._get_region(session, region_id).to_dict()
@@ -126,6 +141,8 @@ class Catalog(catalog.Driver):
         session = sql.get_session()
         with session.begin():
             ref = self._get_region(session, region_id)
+            if self._has_endpoints(session, ref):
+                raise exception.RegionDeletionError(region_id=region_id)
             self._delete_child_regions(session, region_id)
             session.delete(ref)
 
@@ -201,6 +218,12 @@ class Catalog(catalog.Driver):
         session = sql.get_session()
         self.get_service(endpoint_ref['service_id'])
         new_endpoint = Endpoint.from_dict(endpoint_ref)
+
+        # NOTE(henry-nash): We'd like to just let the foreign key constraint
+        # check for existence of the region, but this won't work with sqlite.
+        if endpoint_ref.get('region_id') is not None:
+            self.get_region(endpoint_ref['region_id'])
+
         with session.begin():
             session.add(new_endpoint)
         return new_endpoint.to_dict()
@@ -230,6 +253,11 @@ class Catalog(catalog.Driver):
 
     def update_endpoint(self, endpoint_id, endpoint_ref):
         session = sql.get_session()
+        # NOTE(henry-nash): We'd like to just let the foreign key constraint
+        # check for existence of the region, but this won't work with sqlite.
+        if endpoint_ref.get('region_id') is not None:
+            self.get_region(endpoint_ref['region_id'])
+
         with session.begin():
             ref = self._get_endpoint(session, endpoint_id)
             old_dict = ref.to_dict()
@@ -261,7 +289,7 @@ class Catalog(catalog.Driver):
             except exception.MalformedEndpoint:
                 continue  # this failure is already logged in format_url()
 
-            region = endpoint['region']
+            region = endpoint['region_id']
             service_type = endpoint.service['type']
             default_service = {
                 'id': endpoint['id'],
