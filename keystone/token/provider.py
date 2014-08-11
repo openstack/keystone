@@ -415,6 +415,9 @@ class Manager(manager.Manager):
         if CONF.token.revoke_by_id:
             self.persistence.delete_token(token_id=token_id)
 
+    def list_revoked_tokens(self):
+        return self.persistence.list_revoked_tokens()
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Provider(object):

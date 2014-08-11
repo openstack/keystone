@@ -447,7 +447,7 @@ class Auth(controller.V2Controller):
     def revocation_list(self, context, auth=None):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
-        tokens = self.token_api.list_revoked_tokens()
+        tokens = self.token_provider_api.list_revoked_tokens()
 
         for t in tokens:
             expires = t['expires']
