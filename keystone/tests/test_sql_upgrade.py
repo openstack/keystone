@@ -37,7 +37,6 @@ from migrate.versioning import api as versioning_api
 from oslo.db import exception as db_exception
 from oslo.db.sqlalchemy import migration
 from oslo.db.sqlalchemy import session as db_session
-import sqlalchemy
 import sqlalchemy.exc
 
 from keystone.assignment.backends import sql as assignment_sql
