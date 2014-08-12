@@ -15,10 +15,12 @@
 import copy
 import uuid
 
+from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import wsgi
 from keystone import exception
 from keystone import identity
+from keystone.models import token_model
 from keystone.openstack.common import log
 
 
@@ -44,15 +46,18 @@ extension.register_public_extension(
         ]})
 
 
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+                     'token_provider_api')
 class UserController(identity.controllers.User):
     def set_user_password(self, context, user_id, user):
         token_id = context.get('token_id')
         original_password = user.get('original_password')
 
-        token_ref = self.token_api.get_token(token_id)
-        user_id_from_token = token_ref['user']['id']
+        token_data = self.token_provider_api.validate_token(token_id)
+        token_ref = token_model.KeystoneToken(token_id=token_id,
+                                              token_data=token_data)
 
-        if user_id_from_token != user_id:
+        if token_ref.user_id != user_id:
             raise exception.Forbidden('Token belongs to another user')
         if original_password is None:
             raise exception.ValidationError(target='user',
@@ -61,7 +66,7 @@ class UserController(identity.controllers.User):
         try:
             user_ref = self.identity_api.authenticate(
                 context,
-                user_id=user_id_from_token,
+                user_id=token_ref.user_id,
                 password=original_password)
             if not user_ref.get('enabled', True):
                 # NOTE(dolph): why can't you set a disabled user's password?
@@ -77,12 +82,43 @@ class UserController(identity.controllers.User):
                                                       user_id,
                                                       update_dict)
 
-        token_id = uuid.uuid4().hex
-        new_token_ref = copy.copy(token_ref)
-        new_token_ref['id'] = token_id
-        self.token_api.create_token(token_id, new_token_ref)
-        LOG.debug('TOKEN_REF %s', new_token_ref)
-        return {'access': {'token': new_token_ref}}
+        # Issue a new token based upon the original token data. This will
+        # always be a V2.0 token.
+
+        # TODO(morganfainberg): Add a mechanism to issue a new token directly
+        # from a token model so that this code can go away. This is likely
+        # not the norm as most cases do not need to yank apart a token to
+        # issue a new one.
+        new_token_ref = {}
+        metadata_ref = {}
+        roles_ref = None
+
+        new_token_ref['user'] = user_ref
+        if token_ref.bind:
+            new_token_ref['bind'] = token_ref.bind
+        if token_ref.project_id:
+            new_token_ref['tenant'] = self.assignment_api.get_project(
+                token_ref.project_id)
+        if token_ref.role_names:
+            roles_ref = [dict(name=value)
+                         for value in token_ref.role_names]
+        if token_ref.role_ids:
+            metadata_ref['roles'] = token_ref.role_ids
+        if token_ref.trust_id:
+            metadata_ref['trust'] = {
+                'id': token_ref.trust_id,
+                'trustee_user_id': token_ref.trustee_user_id}
+        new_token_ref['metadata'] = metadata_ref
+        new_token_ref['id'] = uuid.uuid4().hex
+
+        catalog_ref = self.catalog_api.get_catalog(user_id,
+                                                   token_ref.project_id)
+
+        new_token_id, new_token_data = self.token_provider_api.issue_v2_token(
+            token_ref=new_token_ref, roles_ref=roles_ref,
+            catalog_ref=catalog_ref)
+        LOG.debug('TOKEN_REF %s', new_token_data)
+        return new_token_data
 
 
 class CrudExtension(wsgi.ExtensionRouter):
