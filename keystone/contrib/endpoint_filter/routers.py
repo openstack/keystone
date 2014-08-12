@@ -23,23 +23,18 @@ class EndpointFilterExtension(wsgi.V3ExtensionRouter):
 
     def add_routes(self, mapper):
         endpoint_filter_controller = controllers.EndpointFilterV3Controller()
-        mapper.connect(self.PATH_PREFIX + '/endpoints/{endpoint_id}/projects',
-                       controller=endpoint_filter_controller,
-                       action='list_projects_for_endpoint',
-                       conditions=dict(method=['GET']))
-        mapper.connect(self.PATH_PREFIX + self.PATH_PROJECT_ENDPOINT,
-                       controller=endpoint_filter_controller,
-                       action='add_endpoint_to_project',
-                       conditions=dict(method=['PUT']))
-        mapper.connect(self.PATH_PREFIX + self.PATH_PROJECT_ENDPOINT,
-                       controller=endpoint_filter_controller,
-                       action='check_endpoint_in_project',
-                       conditions=dict(method=['GET', 'HEAD']))
-        mapper.connect(self.PATH_PREFIX + '/projects/{project_id}/endpoints',
-                       controller=endpoint_filter_controller,
-                       action='list_endpoints_for_project',
-                       conditions=dict(method=['GET']))
-        mapper.connect(self.PATH_PREFIX + self.PATH_PROJECT_ENDPOINT,
-                       controller=endpoint_filter_controller,
-                       action='remove_endpoint_from_project',
-                       conditions=dict(method=['DELETE']))
+
+        self._add_resource(
+            mapper, endpoint_filter_controller,
+            path=self.PATH_PREFIX + '/endpoints/{endpoint_id}/projects',
+            get_action='list_projects_for_endpoint')
+        self._add_resource(
+            mapper, endpoint_filter_controller,
+            path=self.PATH_PREFIX + self.PATH_PROJECT_ENDPOINT,
+            get_head_action='check_endpoint_in_project',
+            put_action='add_endpoint_to_project',
+            delete_action='remove_endpoint_from_project')
+        self._add_resource(
+            mapper, endpoint_filter_controller,
+            path=self.PATH_PREFIX + '/projects/{project_id}/endpoints',
+            get_action='list_endpoints_for_project')

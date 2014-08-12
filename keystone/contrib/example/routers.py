@@ -22,7 +22,8 @@ class ExampleRouter(wsgi.V3ExtensionRouter):
 
     def add_routes(self, mapper):
         example_controller = controllers.ExampleV3Controller()
-        mapper.connect(self.PATH_PREFIX + '/example',
-                       controller=example_controller,
-                       action='do_something',
-                       conditions=dict(method=['GET']))
+
+        self._add_resource(
+            mapper, example_controller,
+            path=self.PATH_PREFIX + '/example',
+            get_action='do_something')

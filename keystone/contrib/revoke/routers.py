@@ -20,7 +20,7 @@ class RevokeExtension(wsgi.V3ExtensionRouter):
 
     def add_routes(self, mapper):
         revoke_controller = controllers.RevokeController()
-        mapper.connect(self.PATH_PREFIX + '/events',
-                       controller=revoke_controller,
-                       action='list_revoke_events',
-                       conditions=dict(method=['GET']))
+        self._add_resource(
+            mapper, revoke_controller,
+            path=self.PATH_PREFIX + '/events',
+            get_action='list_revoke_events')

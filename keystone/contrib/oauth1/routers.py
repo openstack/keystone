@@ -59,73 +59,49 @@ class OAuth1Extension(wsgi.V3ExtensionRouter):
         oauth_controller = controllers.OAuthControllerV3()
 
         # basic admin-only consumer crud
-        mapper.connect(
-            '/OS-OAUTH1/consumers',
-            controller=consumer_controller,
-            action='create_consumer',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/OS-OAUTH1/consumers/{consumer_id}',
-            controller=consumer_controller,
-            action='get_consumer',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/OS-OAUTH1/consumers/{consumer_id}',
-            controller=consumer_controller,
-            action='update_consumer',
-            conditions=dict(method=['PATCH']))
-        mapper.connect(
-            '/OS-OAUTH1/consumers/{consumer_id}',
-            controller=consumer_controller,
-            action='delete_consumer',
-            conditions=dict(method=['DELETE']))
-        mapper.connect(
-            '/OS-OAUTH1/consumers',
-            controller=consumer_controller,
-            action='list_consumers',
-            conditions=dict(method=['GET']))
+        self._add_resource(
+            mapper, consumer_controller,
+            path='/OS-OAUTH1/consumers',
+            get_action='list_consumers',
+            post_action='create_consumer')
+        self._add_resource(
+            mapper, consumer_controller,
+            path='/OS-OAUTH1/consumers/{consumer_id}',
+            get_action='get_consumer',
+            patch_action='update_consumer',
+            delete_action='delete_consumer')
 
         # user accesss token crud
-        mapper.connect(
-            '/users/{user_id}/OS-OAUTH1/access_tokens',
-            controller=access_token_controller,
-            action='list_access_tokens',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}',
-            controller=access_token_controller,
-            action='get_access_token',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}',
-            controller=access_token_controller,
-            action='delete_access_token',
-            conditions=dict(method=['DELETE']))
-        mapper.connect(
-            '/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/roles',
-            controller=access_token_roles_controller,
-            action='list_access_token_roles',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users/{user_id}/OS-OAUTH1/access_tokens/'
-            '{access_token_id}/roles/{role_id}',
-            controller=access_token_roles_controller,
-            action='get_access_token_role',
-            conditions=dict(method=['GET']))
+        self._add_resource(
+            mapper, access_token_controller,
+            path='/users/{user_id}/OS-OAUTH1/access_tokens',
+            get_action='list_access_tokens')
+        self._add_resource(
+            mapper, access_token_controller,
+            path='/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}',
+            get_action='get_access_token',
+            delete_action='delete_access_token')
+        self._add_resource(
+            mapper, access_token_roles_controller,
+            path='/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/'
+            'roles',
+            get_action='list_access_token_roles')
+        self._add_resource(
+            mapper, access_token_roles_controller,
+            path='/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/'
+            'roles/{role_id}',
+            get_action='get_access_token_role')
 
         # oauth flow calls
-        mapper.connect(
-            '/OS-OAUTH1/request_token',
-            controller=oauth_controller,
-            action='create_request_token',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/OS-OAUTH1/access_token',
-            controller=oauth_controller,
-            action='create_access_token',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/OS-OAUTH1/authorize/{request_token_id}',
-            controller=oauth_controller,
-            action='authorize_request_token',
-            conditions=dict(method=['PUT']))
+        self._add_resource(
+            mapper, oauth_controller,
+            path='/OS-OAUTH1/request_token',
+            post_action='create_request_token')
+        self._add_resource(
+            mapper, oauth_controller,
+            path='/OS-OAUTH1/access_token',
+            post_action='create_access_token')
+        self._add_resource(
+            mapper, oauth_controller,
+            path='/OS-OAUTH1/authorize/{request_token_id}',
+            put_action='authorize_request_token')

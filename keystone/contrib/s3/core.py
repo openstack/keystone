@@ -56,10 +56,10 @@ class S3Extension(wsgi.V3ExtensionRouter):
     def add_routes(self, mapper):
         controller = S3Controller()
         # validation
-        mapper.connect('/s3tokens',
-                       controller=controller,
-                       action='authenticate',
-                       conditions=dict(method=['POST']))
+        self._add_resource(
+            mapper, controller,
+            path='/s3tokens',
+            post_action='authenticate')
 
 
 class S3Controller(controllers.Ec2Controller):
