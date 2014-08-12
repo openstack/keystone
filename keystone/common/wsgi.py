@@ -616,7 +616,38 @@ class RoutersBase(object):
         """Append v3 routers.
 
         Subclasses should override this method to map its routes.
+
+        Use self._add_resource() to map routes for a resource.
         """
+
+    def _add_resource(self, mapper, controller, path,
+                      get_action=None, head_action=None, get_head_action=None,
+                      put_action=None, post_action=None, patch_action=None,
+                      delete_action=None, get_post_action=None):
+        if get_head_action:
+            mapper.connect(path, controller=controller, action=get_head_action,
+                           conditions=dict(method=['GET', 'HEAD']))
+        if get_action:
+            mapper.connect(path, controller=controller, action=get_action,
+                           conditions=dict(method=['GET']))
+        if head_action:
+            mapper.connect(path, controller=controller, action=head_action,
+                           conditions=dict(method=['HEAD']))
+        if put_action:
+            mapper.connect(path, controller=controller, action=put_action,
+                           conditions=dict(method=['PUT']))
+        if post_action:
+            mapper.connect(path, controller=controller, action=post_action,
+                           conditions=dict(method=['POST']))
+        if patch_action:
+            mapper.connect(path, controller=controller, action=patch_action,
+                           conditions=dict(method=['PATCH']))
+        if delete_action:
+            mapper.connect(path, controller=controller, action=delete_action,
+                           conditions=dict(method=['DELETE']))
+        if get_post_action:
+            mapper.connect(path, controller=controller, action=get_post_action,
+                           conditions=dict(method=['GET', 'POST']))
 
 
 def render_response(body=None, status=None, headers=None, method=None):
