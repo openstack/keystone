@@ -61,6 +61,14 @@ class KeystoneToken(dict):
             raise exception.UnexpectedError(_('Found invalid token: scoped to '
                                               'both project and domain.'))
 
+    def __repr__(self):
+        desc = ('<%(type)s (audit_id=%(audit_id)s, '
+                'audit_chain_id=%(audit_chain_id)s) at %(loc)s>')
+        return desc % {'type': self.__class__.__name__,
+                       'audit_id': self.audit_id,
+                       'audit_chain_id': self.audit_chain_id,
+                       'loc': hex(id(self))}
+
     @property
     def expires(self):
         if self.version is V3:
