@@ -47,6 +47,7 @@ XMLNS_LIST = [
         'value': 'http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0',
     },
 ]
+E_LXML_NOT_INSTALLED = _('lxml is not installed.')
 
 
 def from_xml(xml):
@@ -71,8 +72,8 @@ class XmlDeserializer(object):
 
     def __init__(self):
         if etree is None:
-            LOG.warning('lxml not installed')
-            raise exception.UnexpectedError()
+            LOG.warning(E_LXML_NOT_INSTALLED)
+            raise exception.UnexpectedError(E_LXML_NOT_INSTALLED)
 
         self.parser = etree.XMLParser(resolve_entities=False,
                                       remove_comments=True,
@@ -195,8 +196,8 @@ class XmlSerializer(object):
 
     def __init__(self):
         if etree is None:
-            LOG.warning('lxml not installed')
-            raise exception.UnexpectedError()
+            LOG.warning(E_LXML_NOT_INSTALLED)
+            raise exception.UnexpectedError(E_LXML_NOT_INSTALLED)
 
     def __call__(self, d, xmlns=None):
         """Returns an xml etree populated by the given dictionary.
