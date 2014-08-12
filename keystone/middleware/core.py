@@ -239,7 +239,7 @@ class AuthContextMiddleware(wsgi.Middleware):
     """Build the authentication context from the request auth token."""
 
     def _build_auth_context(self, request):
-        token_id = request.headers.get(AUTH_TOKEN_HEADER)
+        token_id = request.headers.get(AUTH_TOKEN_HEADER).strip()
 
         if token_id == CONF.admin_token:
             # NOTE(gyee): no need to proceed any further as the special admin
