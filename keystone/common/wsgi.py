@@ -650,7 +650,7 @@ class RoutersBase(object):
                            conditions=dict(method=['GET', 'POST']))
 
 
-class V3ExtensionRouter(ExtensionRouter):
+class V3ExtensionRouter(ExtensionRouter, RoutersBase):
     """Base class for V3 extension router."""
 
 
