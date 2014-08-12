@@ -66,128 +66,83 @@ class Routers(wsgi.RoutersBase):
         routers.append(
             router.Router(project_controller,
                           'projects', 'project'))
-        mapper.connect('/users/{user_id}/projects',
-                       controller=project_controller,
-                       action='list_user_projects',
-                       conditions=dict(method=['GET']))
+
+        self._add_resource(
+            mapper, project_controller,
+            path='/users/{user_id}/projects',
+            get_action='list_user_projects')
 
         role_controller = controllers.RoleV3()
-        routers.append(router.Router(role_controller, 'roles', 'role'))
-        mapper.connect('/projects/{project_id}/users/{user_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='create_grant',
-                       conditions=dict(method=['PUT']))
-        mapper.connect('/projects/{project_id}/groups/{group_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='create_grant',
-                       conditions=dict(method=['PUT']))
-        mapper.connect('/projects/{project_id}/users/{user_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='check_grant',
-                       conditions=dict(method=['GET', 'HEAD']))
-        mapper.connect('/projects/{project_id}/groups/{group_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='check_grant',
-                       conditions=dict(method=['GET', 'HEAD']))
-        mapper.connect('/projects/{project_id}/users/{user_id}/roles',
-                       controller=role_controller,
-                       action='list_grants',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/projects/{project_id}/groups/{group_id}/roles',
-                       controller=role_controller,
-                       action='list_grants',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/projects/{project_id}/users/{user_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='revoke_grant',
-                       conditions=dict(method=['DELETE']))
-        mapper.connect('/projects/{project_id}/groups/{group_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='revoke_grant',
-                       conditions=dict(method=['DELETE']))
-        mapper.connect('/domains/{domain_id}/users/{user_id}/roles/{role_id}',
-                       controller=role_controller,
-                       action='create_grant',
-                       conditions=dict(method=['PUT']))
-        mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='create_grant',
-                       conditions=dict(method=['PUT']))
-        mapper.connect('/domains/{domain_id}/users/{user_id}/roles/{role_id}',
-                       controller=role_controller,
-                       action='check_grant',
-                       conditions=dict(method=['GET', 'HEAD']))
-        mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='check_grant',
-                       conditions=dict(method=['GET', 'HEAD']))
-        mapper.connect('/domains/{domain_id}/users/{user_id}/roles',
-                       controller=role_controller,
-                       action='list_grants',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/domains/{domain_id}/groups/{group_id}/roles',
-                       controller=role_controller,
-                       action='list_grants',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/domains/{domain_id}/users/{user_id}/roles/{role_id}',
-                       controller=role_controller,
-                       action='revoke_grant',
-                       conditions=dict(method=['DELETE']))
-        mapper.connect('/domains/{domain_id}/groups/{group_id}/roles/'
-                       '{role_id}',
-                       controller=role_controller,
-                       action='revoke_grant',
-                       conditions=dict(method=['DELETE']))
+        routers.append(
+            router.Router(role_controller, 'roles', 'role'))
 
-        if config.CONF.os_inherit.enabled:
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
-                            '/roles/{role_id}/inherited_to_projects'),
-                           controller=role_controller,
-                           action='create_grant',
-                           conditions=dict(method=['PUT']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
-                            '/roles/{role_id}/inherited_to_projects'),
-                           controller=role_controller,
-                           action='create_grant',
-                           conditions=dict(method=['PUT']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
-                            '/roles/{role_id}/inherited_to_projects'),
-                           controller=role_controller,
-                           action='check_grant',
-                           conditions=dict(method=['GET', 'HEAD']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
-                            '/roles/{role_id}/inherited_to_projects'),
-                           controller=role_controller,
-                           action='check_grant',
-                           conditions=dict(method=['GET', 'HEAD']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
-                            '/roles/inherited_to_projects'),
-                           controller=role_controller,
-                           action='list_grants',
-                           conditions=dict(method=['GET']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
-                            '/roles/inherited_to_projects'),
-                           controller=role_controller,
-                           action='list_grants',
-                           conditions=dict(method=['GET']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/users/{user_id}'
-                            '/roles/{role_id}/inherited_to_projects'),
-                           controller=role_controller,
-                           action='revoke_grant',
-                           conditions=dict(method=['DELETE']))
-            mapper.connect(('/OS-INHERIT/domains/{domain_id}/groups/{group_id}'
-                            '/roles/{role_id}/inherited_to_projects'),
-                           controller=role_controller,
-                           action='revoke_grant',
-                           conditions=dict(method=['DELETE']))
+        self._add_resource(
+            mapper, role_controller,
+            path='/projects/{project_id}/users/{user_id}/roles/{role_id}',
+            get_head_action='check_grant',
+            put_action='create_grant',
+            delete_action='revoke_grant')
+        self._add_resource(
+            mapper, role_controller,
+            path='/projects/{project_id}/groups/{group_id}/roles/{role_id}',
+            get_head_action='check_grant',
+            put_action='create_grant',
+            delete_action='revoke_grant')
+        self._add_resource(
+            mapper, role_controller,
+            path='/projects/{project_id}/users/{user_id}/roles',
+            get_action='list_grants')
+        self._add_resource(
+            mapper, role_controller,
+            path='/projects/{project_id}/groups/{group_id}/roles',
+            get_action='list_grants')
+        self._add_resource(
+            mapper, role_controller,
+            path='/domains/{domain_id}/users/{user_id}/roles/{role_id}',
+            get_head_action='check_grant',
+            put_action='create_grant',
+            delete_action='revoke_grant')
+        self._add_resource(
+            mapper, role_controller,
+            path='/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
+            get_head_action='check_grant',
+            put_action='create_grant',
+            delete_action='revoke_grant')
+        self._add_resource(
+            mapper, role_controller,
+            path='/domains/{domain_id}/users/{user_id}/roles',
+            get_action='list_grants')
+        self._add_resource(
+            mapper, role_controller,
+            path='/domains/{domain_id}/groups/{group_id}/roles',
+            get_action='list_grants')
+
         routers.append(
             router.Router(controllers.RoleAssignmentV3(),
                           'role_assignments', 'role_assignment'))
+
+        if config.CONF.os_inherit.enabled:
+            self._add_resource(
+                mapper, role_controller,
+                path='/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'
+                '{role_id}/inherited_to_projects',
+                get_head_action='check_grant',
+                put_action='create_grant',
+                delete_action='revoke_grant')
+            self._add_resource(
+                mapper, role_controller,
+                path='/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/'
+                '{role_id}/inherited_to_projects',
+                get_head_action='check_grant',
+                put_action='create_grant',
+                delete_action='revoke_grant')
+            self._add_resource(
+                mapper, role_controller,
+                path='/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/'
+                'inherited_to_projects',
+                get_action='list_grants')
+            self._add_resource(
+                mapper, role_controller,
+                path='/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'
+                'inherited_to_projects',
+                get_action='list_grants')

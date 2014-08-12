@@ -21,27 +21,19 @@ class Routers(wsgi.RoutersBase):
     def append_v3_routers(self, mapper, routers):
         auth_controller = controllers.Auth()
 
-        mapper.connect('/auth/tokens',
-                       controller=auth_controller,
-                       action='authenticate_for_token',
-                       conditions=dict(method=['POST']))
         # NOTE(morganfainberg): For policy enforcement reasons, the
         # ``validate_token_head`` method is still used for HEAD requests.
         # The controller method makes the same call as the validate_token
         # call and lets wsgi.render_response remove the body data.
-        mapper.connect('/auth/tokens',
-                       controller=auth_controller,
-                       action='check_token',
-                       conditions=dict(method=['HEAD']))
-        mapper.connect('/auth/tokens',
-                       controller=auth_controller,
-                       action='revoke_token',
-                       conditions=dict(method=['DELETE']))
-        mapper.connect('/auth/tokens',
-                       controller=auth_controller,
-                       action='validate_token',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/auth/tokens/OS-PKI/revoked',
-                       controller=auth_controller,
-                       action='revocation_list',
-                       conditions=dict(method=['GET']))
+        self._add_resource(
+            mapper, auth_controller,
+            path='/auth/tokens',
+            get_action='validate_token',
+            head_action='check_token',
+            post_action='authenticate_for_token',
+            delete_action='revoke_token')
+
+        self._add_resource(
+            mapper, auth_controller,
+            path='/auth/tokens/OS-PKI/revoked',
+            get_action='revocation_list')

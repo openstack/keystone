@@ -34,36 +34,30 @@ class Routers(wsgi.RoutersBase):
         routers.append(
             router.Router(user_controller,
                           'users', 'user'))
-        mapper.connect('/users/{user_id}/password',
-                       controller=user_controller,
-                       action='change_password',
-                       conditions=dict(method=['POST']))
 
-        mapper.connect('/groups/{group_id}/users',
-                       controller=user_controller,
-                       action='list_users_in_group',
-                       conditions=dict(method=['GET']))
+        self._add_resource(
+            mapper, user_controller,
+            path='/users/{user_id}/password',
+            post_action='change_password')
 
-        mapper.connect('/groups/{group_id}/users/{user_id}',
-                       controller=user_controller,
-                       action='add_user_to_group',
-                       conditions=dict(method=['PUT']))
+        self._add_resource(
+            mapper, user_controller,
+            path='/groups/{group_id}/users',
+            get_action='list_users_in_group')
 
-        mapper.connect('/groups/{group_id}/users/{user_id}',
-                       controller=user_controller,
-                       action='check_user_in_group',
-                       conditions=dict(method=['GET', 'HEAD']))
-
-        mapper.connect('/groups/{group_id}/users/{user_id}',
-                       controller=user_controller,
-                       action='remove_user_from_group',
-                       conditions=dict(method=['DELETE']))
+        self._add_resource(
+            mapper, user_controller,
+            path='/groups/{group_id}/users/{user_id}',
+            put_action='add_user_to_group',
+            get_head_action='check_user_in_group',
+            delete_action='remove_user_from_group')
 
         group_controller = controllers.GroupV3()
         routers.append(
             router.Router(group_controller,
                           'groups', 'group'))
-        mapper.connect('/users/{user_id}/groups',
-                       controller=group_controller,
-                       action='list_groups_for_user',
-                       conditions=dict(method=['GET']))
+
+        self._add_resource(
+            mapper, group_controller,
+            path='/users/{user_id}/groups',
+            get_action='list_groups_for_user')
