@@ -17,7 +17,7 @@ from keystone.contrib import oauth1
 from keystone.contrib.oauth1 import controllers
 
 
-class OAuth1Extension(wsgi.ExtensionRouter):
+class OAuth1Extension(wsgi.V3ExtensionRouter):
     """API Endpoints for the OAuth1 extension.
 
     The goal of this extension is to allow third-party service providers

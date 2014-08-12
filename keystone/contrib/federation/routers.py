@@ -15,7 +15,7 @@ from keystone.contrib import federation
 from keystone.contrib.federation import controllers
 
 
-class _BaseFederationExtension(wsgi.ExtensionRouter):
+class _BaseFederationExtension(wsgi.V3ExtensionRouter):
     """Base class for Federation Extension classes.
 
     All generic methods should be stored here so
