@@ -1,5 +1,5 @@
 hacking>=0.8.0,<0.9
-bash8
+bashate >= 0.2
 
 # pysqlite does not install on py3
 # Optional backend: SQL

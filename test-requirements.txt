@@ -1,5 +1,5 @@
 hacking>=0.8.0,<0.9
-bash8
+bashate >= 0.2
 
 # Optional backend: SQL
 pysqlite
