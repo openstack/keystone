@@ -13,10 +13,7 @@
 # under the License.
 
 from keystone.common import sql
-from keystone import config
 from keystone.tests import test_backend_sql
-
-CONF = config.CONF
 
 
 class SqlFederation(test_backend_sql.SqlModels):

@@ -17,12 +17,8 @@ import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 
-from keystone import config
 from keystone import tests
 from keystone.tests import test_keystoneclient
-
-
-CONF = config.CONF
 
 
 class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):

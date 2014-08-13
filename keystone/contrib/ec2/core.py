@@ -13,9 +13,6 @@
 # under the License.
 
 from keystone.common import extension
-from keystone import config
-
-CONF = config.CONF
 
 
 EXTENSION_DATA = {

@@ -17,13 +17,9 @@ import uuid
 import six
 
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone import tests
-
-
-CONF = config.CONF
 
 
 class ExceptionTestCase(tests.TestCase):

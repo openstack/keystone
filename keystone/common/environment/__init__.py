@@ -15,10 +15,8 @@
 import functools
 import os
 
-from keystone.common import config
 from keystone.openstack.common import log
 
-CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 

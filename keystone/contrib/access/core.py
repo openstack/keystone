@@ -16,12 +16,10 @@ from oslo.utils import timeutils
 import webob.dec
 
 from keystone.common import wsgi
-from keystone import config
 from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
 
 
-CONF = config.CONF
 LOG = log.getLogger('access')
 APACHE_TIME_FORMAT = '%d/%b/%Y:%H:%M:%S'
 APACHE_LOG_FORMAT = (

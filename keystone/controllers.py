@@ -14,13 +14,11 @@
 
 from keystone.common import extension
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
 from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
-CONF = config.CONF
 
 MEDIA_TYPE_JSON = 'application/vnd.openstack.identity-%s+json'
 MEDIA_TYPE_XML = 'application/vnd.openstack.identity-%s+xml'

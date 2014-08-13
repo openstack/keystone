@@ -17,11 +17,7 @@ from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
-from keystone import config
 from keystone.contrib.federation import utils
-
-
-CONF = config.CONF
 
 
 class _ControllerBase(controller.V3Controller):
