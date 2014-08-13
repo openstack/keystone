@@ -16,7 +16,7 @@ pymongo>=2.5
 # python-ldap does not install on py3
 # authenticate against an existing LDAP server
 # python-ldap==2.3.13
-# ldappool>=1.0
+# ldappool>=1.0 # MPL
 
 # Testing
 # computes code coverage percentages
