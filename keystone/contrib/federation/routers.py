@@ -15,18 +15,7 @@ from keystone.contrib import federation
 from keystone.contrib.federation import controllers
 
 
-class _BaseFederationExtension(wsgi.V3ExtensionRouter):
-    """Base class for Federation Extension classes.
-
-    All generic methods should be stored here so
-    inheriting classes don't need to reimplement them.
-
-    """
-    def _construct_url(self, suffix):
-        return "/OS-FEDERATION/%s" % suffix
-
-
-class FederationExtension(_BaseFederationExtension):
+class FederationExtension(wsgi.V3ExtensionRouter):
     """API Endpoints for the Federation extension.
 
     The API looks like::
@@ -63,6 +52,9 @@ class FederationExtension(_BaseFederationExtension):
             protocols/$protocol/auth
 
     """
+    def _construct_url(self, suffix):
+        return "/OS-FEDERATION/%s" % suffix
+
     def add_routes(self, mapper):
         # This is needed for dependency injection
         # it loads the Federation driver which registers it as a dependency.
