@@ -1,4 +1,0 @@
-# Environmental Variables that affect the automatic sample config generation.
-# Additions to any of these variables are space delimited. See the "generate_sample.sh"
-# script for the variables that can be used.
-KEYSTONE_CONFIG_GENERATOR_EXTRA_LIBRARIES='keystone oslo.messaging oslo.db'

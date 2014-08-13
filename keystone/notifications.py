@@ -37,6 +37,9 @@ notifier_opts = [
                help='Default publisher_id for outgoing notifications'),
 ]
 
+config_section = None
+list_opts = lambda: [(config_section, notifier_opts), ]
+
 LOG = log.getLogger(__name__)
 # NOTE(gyee): actions that can be notified. One must update this list whenever
 # a new action is supported.
