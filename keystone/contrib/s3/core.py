@@ -28,11 +28,8 @@ import hmac
 from keystone.common import extension
 from keystone.common import utils
 from keystone.common import wsgi
-from keystone import config
 from keystone.contrib.ec2 import controllers
 from keystone import exception
-
-CONF = config.CONF
 
 EXTENSION_DATA = {
     'name': 'OpenStack S3 API',

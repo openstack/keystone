@@ -12,13 +12,9 @@
 
 import uuid
 
-from keystone.common import config
 from keystone.common import sql
 from keystone.contrib import revoke
 from keystone.contrib.revoke import model
-
-
-CONF = config.CONF
 
 
 class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):

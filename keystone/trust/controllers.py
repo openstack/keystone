@@ -20,14 +20,12 @@ import six
 from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
-CONF = config.CONF
 
 
 def _trustor_trustee_only(trust, user_id):

@@ -12,13 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import config
 from keystone import tests
 from keystone.tests import test_sql_migrate_extensions
 from keystone.tests import test_sql_upgrade
-
-
-CONF = config.CONF
 
 
 class PostgresqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
