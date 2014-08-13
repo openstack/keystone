@@ -201,10 +201,11 @@ class RegionV3(controller.V3Controller):
             RegionV3.wrap_member(context, ref),
             status=(201, 'Created'))
 
-    @controller.protected()
-    def list_regions(self, context):
-        refs = self.catalog_api.list_regions()
-        return RegionV3.wrap_collection(context, refs)
+    @controller.filterprotected('parent_region_id')
+    def list_regions(self, context, filters):
+        hints = RegionV3.build_driver_hints(context, filters)
+        refs = self.catalog_api.list_regions(hints)
+        return RegionV3.wrap_collection(context, refs, hints=hints)
 
     @controller.protected()
     def get_region(self, context, region_id):

@@ -118,6 +118,10 @@ class Manager(manager.Manager):
         except exception.NotFound:
             raise exception.RegionNotFound(region_id=region_id)
 
+    @manager.response_truncated
+    def list_regions(self, hints=None):
+        return self.driver.list_regions(hints or driver_hints.Hints())
+
     def create_service(self, service_id, service_ref):
         service_ref.setdefault('enabled', True)
         return self.driver.create_service(service_id, service_ref)
@@ -199,8 +203,12 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_regions(self):
+    def list_regions(self, hints):
         """List all regions.
+
+        :param hints: contains the list of filters yet to be satisfied.
+                      Any filters satisfied here will be removed so that
+                      the caller will know if any filters remain.
 
         :returns: list of region_refs or an empty list.
 

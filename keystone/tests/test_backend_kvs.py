@@ -229,6 +229,9 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
         f = super(KvsCatalog, self).test_get_v3_catalog_endpoint_disabled
         self.assertRaises(exception.NotFound, f)
 
+    def test_list_regions_filtered_by_parent_region_id(self):
+        self.skipTest('KVS backend does not support hints')
+
 
 class KvsTokenCacheInvalidation(tests.TestCase,
                                 test_backend.TokenCacheInvalidation):

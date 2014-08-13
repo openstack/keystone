@@ -82,9 +82,10 @@ class Endpoint(sql.ModelBase, sql.DictBase):
 class Catalog(catalog.Driver):
 
     # Regions
-    def list_regions(self):
+    def list_regions(self, hints):
         session = sql.get_session()
-        regions = session.query(Region).all()
+        regions = session.query(Region)
+        regions = sql.filter_limit_query(Region, regions, hints)
         return [s.to_dict() for s in list(regions)]
 
     def _get_region(self, session, region_id):
