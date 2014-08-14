@@ -13,6 +13,8 @@
 import random
 import uuid
 
+from oslotest import mockpatch
+
 from keystone.auth import controllers as auth_controllers
 from keystone.common import dependency
 from keystone.common import serializer
@@ -20,6 +22,7 @@ from keystone import config
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
+from keystone import notifications
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.tests import mapping_fixtures
@@ -754,6 +757,26 @@ class MappingRuleEngineTests(FederationTests):
 
 class FederatedTokenTests(FederationTests):
 
+    def setUp(self):
+        super(FederatedTokenTests, self).setUp()
+        self._notifications = []
+
+        def fake_saml_notify(action, context, user_id, group_ids,
+                             identity_provider, protocol, token_id, outcome):
+            note = {
+                'action': action,
+                'user_id': user_id,
+                'identity_provider': identity_provider,
+                'protocol': protocol,
+                'send_notification_called': True}
+            self._notifications.append(note)
+
+        self.useFixture(mockpatch.PatchObject(
+            notifications,
+            'send_saml_audit_notification',
+            fake_saml_notify))
+
+    ACTION = 'authenticate'
     IDP = 'ORG_IDP'
     PROTOCOL = 'saml2'
     AUTH_METHOD = 'saml2'
@@ -769,6 +792,17 @@ class FederatedTokenTests(FederationTests):
             }
         }
     }
+
+    def _assert_last_notify(self, action, identity_provider, protocol,
+                            user_id=None):
+        self.assertTrue(self._notifications)
+        note = self._notifications[-1]
+        if user_id:
+            self.assertEqual(note['user_id'], user_id)
+        self.assertEqual(note['action'], action)
+        self.assertEqual(note['identity_provider'], identity_provider)
+        self.assertEqual(note['protocol'], protocol)
+        self.assertTrue(note['send_notification_called'])
 
     def load_fixtures(self, fixtures):
         super(FederationTests, self).load_fixtures(fixtures)
@@ -873,6 +907,10 @@ class FederatedTokenTests(FederationTests):
         r = api.federated_authentication(context, self.IDP, self.PROTOCOL)
         return r
 
+    def test_issue_unscoped_token_notify(self):
+        self._issue_unscoped_token()
+        self._assert_last_notify(self.ACTION, self.IDP, self.PROTOCOL)
+
     def test_issue_unscoped_token(self):
         r = self._issue_unscoped_token()
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
@@ -925,6 +963,12 @@ class FederatedTokenTests(FederationTests):
         self._inject_assertion(context, 'EMPLOYEE_ASSERTION')
         r = api.authenticate_for_token(context, self.UNSCOPED_V3_SAML2_REQ)
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_scope_to_project_once_notify(self):
+        r = self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
+        user_id = r.json['token']['user']['id']
+        self._assert_last_notify(self.ACTION, self.IDP, self.PROTOCOL, user_id)
 
     def test_scope_to_project_once(self):
         r = self.v3_authenticate_token(

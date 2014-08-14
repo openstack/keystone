@@ -24,6 +24,7 @@ from oslo import messaging
 import pycadf
 from pycadf import cadftaxonomy as taxonomy
 from pycadf import cadftype
+from pycadf import credential
 from pycadf import eventfactory
 from pycadf import resource
 
@@ -45,6 +46,7 @@ _ACTIONS = collections.namedtuple(
 ACTIONS = _ACTIONS(created='created', deleted='deleted', disabled='disabled',
                    updated='updated', internal='internal')
 
+SAML_AUDIT_TYPE = 'http://docs.oasis-open.org/security/saml/v2.0'
 # resource types that can be notified
 _SUBSCRIBERS = {}
 _notifier = None
@@ -400,6 +402,21 @@ class CadfRoleAssignmentNotificationWrapper(object):
                 return result
 
         return wrapper
+
+
+def send_saml_audit_notification(action, context, user_id, group_ids,
+                                 identity_provider, protocol, token_id,
+                                 outcome):
+    initiator = _get_request_audit_info(context)
+    audit_type = SAML_AUDIT_TYPE
+    user_id = user_id or taxonomy.UNKNOWN
+    token_id = token_id or taxonomy.UNKNOWN
+    group_ids = group_ids or []
+    cred = credential.FederatedCredential(token=token_id, type=audit_type,
+                                          identity_provider=identity_provider,
+                                          user=user_id, groups=group_ids)
+    initiator.credential = cred
+    _send_audit_notification(action, initiator, outcome)
 
 
 def _send_audit_notification(action, initiator, outcome, **kwargs):
