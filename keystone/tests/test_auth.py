@@ -18,6 +18,7 @@ import uuid
 
 import mock
 from oslo.utils import timeutils
+from testtools import matchers
 
 from keystone import assignment
 from keystone import auth
@@ -87,7 +88,7 @@ class AuthTest(tests.TestCase):
         # tests in this file are run alone, API calls return unauthorized.
         environment.use_eventlet(monkeypatch_thread=False)
 
-    def assertEqualTokens(self, a, b):
+    def assertEqualTokens(self, a, b, enforce_audit_ids=True):
         """Assert that two tokens are equal.
 
         Compare two tokens except for their ids. This also truncates
@@ -97,6 +98,7 @@ class AuthTest(tests.TestCase):
             token['access']['token']['id'] = 'dummy'
             del token['access']['token']['expires']
             del token['access']['token']['issued_at']
+            del token['access']['token']['audit_ids']
             return token
 
         self.assertCloseEnoughForGovernmentWork(
@@ -105,6 +107,14 @@ class AuthTest(tests.TestCase):
         self.assertCloseEnoughForGovernmentWork(
             timeutils.parse_isotime(a['access']['token']['issued_at']),
             timeutils.parse_isotime(b['access']['token']['issued_at']))
+        if enforce_audit_ids:
+            self.assertIn(a['access']['token']['audit_ids'][0],
+                          b['access']['token']['audit_ids'])
+            self.assertThat(len(a['access']['token']['audit_ids']),
+                            matchers.LessThan(3))
+            self.assertThat(len(b['access']['token']['audit_ids']),
+                            matchers.LessThan(3))
+
         return self.assertDictEqual(normalize(a), normalize(b))
 
 
@@ -452,6 +462,33 @@ class AuthWithToken(AuthTest):
             dict(is_admin=True, query_string={}),
             token_id=token_id)
 
+    def test_only_original_audit_id_is_kept(self):
+        context = {}
+
+        def get_audit_ids(token):
+            return token['access']['token']['audit_ids']
+
+        # get a token
+        body_dict = _build_user_auth(username='FOO', password='foo2')
+        unscoped_token = self.controller.authenticate(context, body_dict)
+        starting_audit_id = get_audit_ids(unscoped_token)[0]
+        self.assertIsNotNone(starting_audit_id)
+
+        # get another token to ensure the correct parent audit_id is set
+        body_dict = _build_user_auth(token=unscoped_token["access"]["token"])
+        unscoped_token_2 = self.controller.authenticate(context, body_dict)
+        audit_ids = get_audit_ids(unscoped_token_2)
+        self.assertThat(audit_ids, matchers.HasLength(2))
+        self.assertThat(audit_ids[-1], matchers.Equals(starting_audit_id))
+
+        # get another token from token 2 and ensure the correct parent
+        # audit_id is set
+        body_dict = _build_user_auth(token=unscoped_token_2["access"]["token"])
+        unscoped_token_3 = self.controller.authenticate(context, body_dict)
+        audit_ids = get_audit_ids(unscoped_token_3)
+        self.assertThat(audit_ids, matchers.HasLength(2))
+        self.assertThat(audit_ids[-1], matchers.Equals(starting_audit_id))
+
 
 class AuthWithPasswordCredentials(AuthTest):
     def test_auth_invalid_user(self):
@@ -569,7 +606,8 @@ class AuthWithRemoteUser(AuthTest):
         remote_token = self.controller.authenticate(
             self.context_with_remote_user, body_dict)
 
-        self.assertEqualTokens(local_token, remote_token)
+        self.assertEqualTokens(local_token, remote_token,
+                               enforce_audit_ids=False)
 
     def test_unscoped_remote_authn_jsonless(self):
         """Verify that external auth with invalid request fails."""
@@ -593,7 +631,8 @@ class AuthWithRemoteUser(AuthTest):
         remote_token = self.controller.authenticate(
             self.context_with_remote_user, body_dict)
 
-        self.assertEqualTokens(local_token, remote_token)
+        self.assertEqualTokens(local_token, remote_token,
+                               enforce_audit_ids=False)
 
     def test_scoped_nometa_remote_authn(self):
         """Verify getting a token with external authn and no metadata."""
@@ -608,7 +647,8 @@ class AuthWithRemoteUser(AuthTest):
         remote_token = self.controller.authenticate(
             {'environment': {'REMOTE_USER': 'TWO'}}, body_dict)
 
-        self.assertEqualTokens(local_token, remote_token)
+        self.assertEqualTokens(local_token, remote_token,
+                               enforce_audit_ids=False)
 
     def test_scoped_remote_authn_invalid_user(self):
         """Verify that external auth with invalid user fails."""

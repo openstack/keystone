@@ -35,6 +35,7 @@ class V2TokenDataHelper(object):
     """Creates V2 token data."""
     @classmethod
     def format_token(cls, token_ref, roles_ref=None, catalog_ref=None):
+        audit_info = None
         user_ref = token_ref['user']
         metadata_ref = token_ref['metadata']
         if roles_ref is None:
@@ -43,9 +44,20 @@ class V2TokenDataHelper(object):
         if expires is not None:
             if not isinstance(expires, six.text_type):
                 expires = timeutils.isotime(expires)
+
+        token_data = token_ref.get('token_data')
+        if token_data:
+            token_audit = token_data.get(
+                'access', token_data).get('token', {}).get('audit_ids')
+            audit_info = token_audit
+
+        if audit_info is None:
+            audit_info = provider.audit_info(token_ref.get('parent_audit_id'))
+
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,
-                                  'issued_at': timeutils.strtime()
+                                  'issued_at': timeutils.strtime(),
+                                  'audit_ids': audit_info
                                   },
                         'user': {'id': user_ref['id'],
                                  'name': user_ref['name'],
@@ -316,10 +328,22 @@ class V3TokenDataHelper(object):
         token_data['issued_at'] = (issued_at or
                                    timeutils.isotime(subsecond=True))
 
+    def _populate_audit_info(self, token_data, audit_info=None):
+        if audit_info is None or isinstance(audit_info, six.string_types):
+            token_data['audit_ids'] = provider.audit_info(audit_info)
+        elif isinstance(audit_info, list):
+            token_data['audit_ids'] = audit_info
+        else:
+            msg = _('Invalid audit info data type: %(data)s (%(type)s)')
+            msg_subst = {'data': audit_info, 'type': type(audit_info)}
+            LOG.error(msg, msg_subst)
+            raise exception.UnexpectedError(msg % msg_subst)
+
     def get_token_data(self, user_id, method_names, extras,
                        domain_id=None, project_id=None, expires=None,
                        trust=None, token=None, include_catalog=True,
-                       bind=None, access_token=None, issued_at=None):
+                       bind=None, access_token=None, issued_at=None,
+                       audit_info=None):
         token_data = {'methods': method_names,
                       'extras': extras}
 
@@ -340,6 +364,8 @@ class V3TokenDataHelper(object):
         self._populate_user(token_data, user_id, trust)
         self._populate_roles(token_data, user_id, domain_id, project_id, trust,
                              access_token)
+        self._populate_audit_info(token_data, audit_info)
+
         if include_catalog:
             self._populate_service_catalog(token_data, user_id, domain_id,
                                            project_id, trust)
@@ -383,7 +409,8 @@ class BaseProvider(provider.Provider):
 
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
-                       trust=None, metadata_ref=None, include_catalog=True):
+                       trust=None, metadata_ref=None, include_catalog=True,
+                       parent_audit_id=None):
         # for V2, trust is stashed in metadata_ref
         if (CONF.trust.enabled and not trust and metadata_ref and
                 'trust_id' in metadata_ref):
@@ -413,7 +440,8 @@ class BaseProvider(provider.Provider):
             bind=auth_context.get('bind') if auth_context else None,
             token=token_ref,
             include_catalog=include_catalog,
-            access_token=access_token)
+            access_token=access_token,
+            audit_info=parent_audit_id)
 
         token_id = self._get_token_id(token_data)
         return token_id, token_data
@@ -548,6 +576,7 @@ class BaseProvider(provider.Provider):
                 project_id = project_ref['id']
 
             issued_at = token_ref['token_data']['access']['token']['issued_at']
+            audit = token_ref['token_data']['access']['token'].get('audit_ids')
 
             token_data = self.v3_token_data_helper.get_token_data(
                 token_ref['user']['id'],
@@ -556,5 +585,6 @@ class BaseProvider(provider.Provider):
                 project_id=project_id,
                 bind=token_ref.get('bind'),
                 expires=token_ref['expires'],
-                issued_at=issued_at)
+                issued_at=issued_at,
+                audit_info=audit)
         return token_data

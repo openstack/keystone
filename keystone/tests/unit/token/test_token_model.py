@@ -102,6 +102,18 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertEqual(domain_name, token_data.domain_name)
         self.assertTrue(token_data.domain_scoped)
 
+        token_data['audit_ids'] = [uuid.uuid4().hex]
+        self.assertEqual(token_data.audit_id,
+                         token_data['audit_ids'][0])
+        self.assertEqual(token_data.audit_chain_id,
+                         token_data['audit_ids'][0])
+        token_data['audit_ids'].append(uuid.uuid4().hex)
+        self.assertEqual(token_data.audit_chain_id,
+                         token_data['audit_ids'][1])
+        del token_data['audit_ids']
+        self.assertIsNone(token_data.audit_id)
+        self.assertIsNone(token_data.audit_chain_id)
+
     def test_token_model_v2(self):
         token_data = token_model.KeystoneToken(uuid.uuid4().hex,
                                                self.v2_sample_token)
@@ -167,6 +179,18 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertRaises(NotImplementedError, getattr, token_data,
                           'domain_name')
         self.assertFalse(token_data.domain_scoped)
+
+        token_data['token']['audit_ids'] = [uuid.uuid4().hex]
+        self.assertEqual(token_data.audit_chain_id,
+                         token_data['token']['audit_ids'][0])
+        token_data['token']['audit_ids'].append(uuid.uuid4().hex)
+        self.assertEqual(token_data.audit_chain_id,
+                         token_data['token']['audit_ids'][1])
+        self.assertEqual(token_data.audit_id,
+                         token_data['token']['audit_ids'][0])
+        del token_data['token']['audit_ids']
+        self.assertIsNone(token_data.audit_id)
+        self.assertIsNone(token_data.audit_chain_id)
 
     def test_token_model_unknown(self):
         self.assertRaises(exception.UnsupportedTokenVersionException,
