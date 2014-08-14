@@ -58,24 +58,18 @@ def load_auth_methods():
                 raise ValueError(_('Cannot load an auth-plugin by class-name '
                                    'without a "method" attribute defined: %s'),
                                  plugin_class)
+
+            LOG.info(_LI('Loading auth-plugins by class-name is deprecated.'))
+            plugin_name = driver.method
         else:
+            plugin_name = plugin
             plugin_class = CONF.auth.get(plugin)
             driver = importutils.import_object(plugin_class)
-            if hasattr(driver, 'method'):
-                if driver.method != plugin:
-                    raise ValueError(_('Driver requested method %(req)s does '
-                                       'not match plugin name %(plugin)s.') %
-                                     {'req': driver.method,
-                                      'plugin': plugin})
-            else:
-                LOG.warning(_('Auth Plugin %s does not have a "method" '
-                              'attribute.'), plugin)
-                setattr(driver, 'method', plugin)
-        if driver.method in AUTH_METHODS:
+        if plugin_name in AUTH_METHODS:
             raise ValueError(_('Auth plugin %(plugin)s is requesting '
                                'previously registered method %(method)s') %
                              {'plugin': plugin_class, 'method': driver.method})
-        AUTH_METHODS[driver.method] = driver
+        AUTH_METHODS[plugin_name] = driver
     AUTH_PLUGINS_LOADED = True
 
 
