@@ -18,11 +18,11 @@ from __future__ import absolute_import
 
 import abc
 import string
+import uuid
 
 import oauthlib.common
 from oauthlib import oauth1
 import six
-import uuid
 
 from keystone.common import dependency
 from keystone.common import extension

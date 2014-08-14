@@ -16,6 +16,7 @@ from __future__ import absolute_import
 import atexit
 import copy
 import functools
+import logging
 import os
 import re
 import shutil
@@ -25,7 +26,6 @@ import time
 import warnings
 
 import fixtures
-import logging
 from oslo.config import fixture as config_fixture
 import oslotest.base as oslotest
 from oslotest import mockpatch
@@ -37,7 +37,7 @@ import webob
 # NOTE(ayoung)
 # environment.use_eventlet must run before any of the code that will
 # call the eventlet monkeypatching.
-from keystone.common import environment
+from keystone.common import environment  # noqa
 environment.use_eventlet()
 
 from keystone import auth
@@ -60,7 +60,6 @@ from keystone.openstack.common import policy as common_policy  # noqa
 
 
 config.configure()
-
 
 LOG = log.getLogger(__name__)
 PID = six.text_type(os.getpid())

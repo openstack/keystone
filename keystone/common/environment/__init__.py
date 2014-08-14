@@ -66,6 +66,7 @@ def use_eventlet(monkeypatch_thread=None):
     import eventlet
     from eventlet.green import httplib as _httplib
     from eventlet.green import subprocess as _subprocess
+
     from keystone.common.environment import eventlet_server
 
     if monkeypatch_thread is None:

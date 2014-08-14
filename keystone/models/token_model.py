@@ -105,7 +105,7 @@ class KeystoneToken(dict):
             elif 'user' in self:
                 return CONF.identity.default_domain_id
         except KeyError:
-        # Do not raise KeyError, raise UnexpectedError
+            # Do not raise KeyError, raise UnexpectedError
             pass
         raise exception.UnexpectedError()
 

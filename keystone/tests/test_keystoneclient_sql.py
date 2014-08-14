@@ -291,13 +291,14 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
                           id=uuid.uuid4().hex)
 
     def test_policy_crud(self):
+        from keystoneclient import exceptions as client_exceptions
+
         # FIXME(dolph): this test was written prior to the v3 implementation of
         #               the client and essentially refers to a non-existent
         #               policy manager in the v2 client. this test needs to be
         #               moved to a test suite running against the v3 api
         self.skipTest('Written prior to v3 client; needs refactor')
 
-        from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
 
         policy_blob = uuid.uuid4().hex

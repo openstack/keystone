@@ -15,10 +15,10 @@
 import datetime
 import os
 import uuid
-import webob
 
 import mock
 from oslo.utils import timeutils
+import webob
 
 from keystone import config
 from keystone.openstack.common import jsonutils

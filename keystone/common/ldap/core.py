@@ -13,17 +13,17 @@
 # under the License.
 
 import abc
-import os.path
-import re
-
 import codecs
 import functools
+import os.path
+import re
+import sys
+import weakref
+
 import ldap
 import ldap.filter
 import ldappool
 import six
-import sys
-import weakref
 
 from keystone import exception
 from keystone.i18n import _

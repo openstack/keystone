@@ -12,9 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
 import sys
 
-import functools
 import routes
 
 from keystone import assignment

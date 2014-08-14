@@ -12,9 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.contrib import stats
-
 from keystone import config
+from keystone.contrib import stats
 from keystone import tests
 
 

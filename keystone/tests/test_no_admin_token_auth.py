@@ -13,6 +13,7 @@
 #    under the License.
 
 import os
+
 import webtest
 
 from keystone import tests

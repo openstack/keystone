@@ -15,10 +15,10 @@
 import copy
 import datetime
 import hashlib
-import mock
 import uuid
 
 from keystoneclient.common import cms
+import mock
 from oslo.utils import timeutils
 import six
 from testtools import matchers

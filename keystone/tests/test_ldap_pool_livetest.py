@@ -12,8 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import ldappool
 import uuid
+
+import ldappool
 
 from keystone.common.ldap import core as ldap_core
 from keystone import config
