@@ -56,7 +56,7 @@ class AppServer(fixtures.Fixture):
         self.port = self.server.socket_info['socket'][1]
         self._update_config_opt()
 
-        self.addCleanup(self.server.kill)
+        self.addCleanup(self.server.stop)
 
     def _setup_SSL_if_requested(self):
         # TODO(dstanek): fix environment.Server to take a SSLOpts instance
