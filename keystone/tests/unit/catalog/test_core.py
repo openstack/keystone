@@ -10,13 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
-
 from keystone.catalog import core
+from keystone import config
 from keystone import exception
+from keystone import tests
 
 
-class FormatUrlTests(testtools.TestCase):
+CONF = config.CONF
+
+
+class FormatUrlTests(tests.TestCase):
+
+    def setUp(self):
+        super(FormatUrlTests, self).setUp()
+        whitelist = ['host', 'port', 'part1', 'part2']
+        CONF.catalog.endpoint_substitution_whitelist = whitelist
 
     def test_successful_formatting(self):
         url_template = 'http://%(host)s:%(port)d/%(part1)s/%(part2)s'
@@ -53,3 +61,12 @@ class FormatUrlTests(testtools.TestCase):
 
         _test(None)
         _test(object())
+
+    def test_substitution_with_key_not_whitelisted(self):
+        url_template = 'http://%(host)s:%(port)d/%(part1)s/%(part2)s/%(part3)s'
+        values = {'host': 'server', 'port': 9090,
+                  'part1': 'A', 'part2': 'B', 'part3': 'C'}
+        self.assertRaises(exception.MalformedEndpoint,
+                          core.format_url,
+                          url_template,
+                          values)

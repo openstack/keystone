@@ -640,7 +640,17 @@ FILE_OPTIONS = {
                    help='Keystone catalog backend driver.'),
         cfg.IntOpt('list_limit', default=None,
                    help='Maximum number of entities that will be returned '
-                        'in a catalog collection.')],
+                        'in a catalog collection.'),
+        cfg.ListOpt('endpoint_substitution_whitelist',
+                    default=['tenant_id', 'user_id', 'public_bind_host',
+                             'admin_bind_host', 'compute_host', 'compute_port',
+                             'admin_port', 'public_port', 'public_endpoint',
+                             'admin_endpoint'],
+                    help='List of possible substitutions for use in '
+                         'formatting endpoints. Use caution when modifying '
+                         'this list. It will give users with permission to '
+                         'create endpoints the ability to see those values '
+                         'in your configuration file.')],
     'kvs': [
         cfg.ListOpt('backends', default=[],
                     help='Extra dogpile.cache backend modules to register '

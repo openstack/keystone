@@ -22,6 +22,7 @@ import six
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.openstack.common.gettextutils import _
@@ -34,6 +35,9 @@ LOG = log.getLogger(__name__)
 
 def format_url(url, data):
     """Safely string formats a user-defined URL with the given data."""
+    data = utils.WhiteListedFormatter(
+        CONF.catalog.endpoint_substitution_whitelist,
+        data)
     try:
         result = url.replace('$(', '%(') % data
     except AttributeError:
