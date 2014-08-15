@@ -190,6 +190,13 @@
 
 # template_file = default_catalog.templates
 
+# (Deprecated) List of possible substitutions for use in
+# formatting endpoints. Use caution when modifying this list.
+# It will give users with permission to create endpoints the
+# ability to see those values in your configuration file. This
+# option will be removed in Juno. (list value)
+#endpoint_substitution_whitelist=tenant_id,user_id,public_bind_host,admin_bind_hostompute_hostompute_port,admin_port,public_port,public_endpoint,admin_endpoint
+
 [endpoint_filter]
 # extension for creating associations between project and endpoints in order to
 # provide a tailored catalog for project-scoped token requests.

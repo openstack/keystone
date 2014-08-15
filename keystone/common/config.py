@@ -260,8 +260,18 @@ FILE_OPTIONS = {
         cfg.StrOpt('template_file',
                    default='default_catalog.templates'),
         cfg.StrOpt('driver',
-                   default='keystone.catalog.backends.sql.Catalog')]}
-
+                   default='keystone.catalog.backends.sql.Catalog'),
+        cfg.ListOpt('endpoint_substitution_whitelist',
+                    default=['tenant_id', 'user_id', 'public_bind_host',
+                             'admin_bind_host', 'compute_host', 'compute_port',
+                             'admin_port', 'public_port', 'public_endpoint',
+                             'admin_endpoint'],
+                    help='(Deprecated) List of possible substitutions for use '
+                         'in formatting endpoints. Use caution when modifying '
+                         'this list. It will give users with permission to '
+                         'create endpoints the ability to see those values '
+                         'in your configuration file. This option will be '
+                         'removed in Juno.')]}
 
 CONF = cfg.CONF
 

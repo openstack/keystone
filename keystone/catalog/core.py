@@ -19,6 +19,7 @@
 
 from keystone.common import dependency
 from keystone.common import manager
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.openstack.common import log as logging
@@ -30,6 +31,9 @@ LOG = logging.getLogger(__name__)
 
 def format_url(url, data):
     """Safely string formats a user-defined URL with the given data."""
+    data = utils.WhiteListedItemFilter(
+        CONF.catalog.endpoint_substitution_whitelist,
+        data)
     try:
         result = url.replace('$(', '%(') % data
     except AttributeError:
