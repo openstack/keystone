@@ -19,6 +19,7 @@ import abc
 import six
 
 from keystone.common import dependency
+from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import config
 from keystone import exception
@@ -42,6 +43,10 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.credential.driver)
 
+    @manager.response_truncated
+    def list_credentials(self, hints=None):
+        return self.driver.list_credentials(hints or driver_hints.Hints())
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Driver(object):
@@ -57,8 +62,23 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_credentials(self, **filters):
-        """List all credentials in the system applying filters.
+    def list_credentials(self, hints):
+        """List all credentials.
+
+        :param hints: contains the list of filters yet to be satisfied.
+                      Any filters satisfied here will be removed so that
+                      the caller will know if any filters remain.
+
+        :returns: a list of credential_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_credentials_for_user(self, user_id):
+        """List credentials for a user.
+
+        :param user_id: ID of a user to filter credentials by.
 
         :returns: a list of credential_refs or an empty list.
 

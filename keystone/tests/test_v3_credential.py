@@ -372,8 +372,9 @@ class TestCredentialEc2(CredentialBaseTestCase):
         """Test ec2 credential deletion."""
         ec2_cred = self._get_ec2_cred()
         uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
-        cred_from_credential_api = self.credential_api.list_credentials(
-            user_id=self.user_id)
+        cred_from_credential_api = (
+            self.credential_api
+            .list_credentials_for_user(self.user_id))
         self.assertEqual(1, len(cred_from_credential_api))
         self.delete(uri)
         self.assertRaises(exception.CredentialNotFound,

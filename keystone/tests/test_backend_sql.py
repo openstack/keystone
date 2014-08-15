@@ -23,6 +23,7 @@ import sqlalchemy
 from sqlalchemy import exc
 from testtools import matchers
 
+from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import config
 from keystone import exception
@@ -555,3 +556,52 @@ class SqlModuleInitialization(tests.TestCase):
         sql.initialize()
         set_defaults.assert_called_with(CONF,
                                         connection='sqlite:///keystone.db')
+
+
+class SqlCredential(SqlTests):
+
+    def _create_credential_with_user_id(self, user_id=uuid.uuid4().hex):
+        credential_id = uuid.uuid4().hex
+        new_credential = {
+            'id': credential_id,
+            'user_id': user_id,
+            'project_id': uuid.uuid4().hex,
+            'blob': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'extra': uuid.uuid4().hex
+        }
+        self.credential_api.create_credential(credential_id, new_credential)
+        return new_credential
+
+    def _validateCredentialList(self, retrieved_credentials,
+                                expected_credentials):
+        self.assertEqual(len(retrieved_credentials), len(expected_credentials))
+        retrived_ids = [c['id'] for c in retrieved_credentials]
+        for cred in expected_credentials:
+            self.assertIn(cred['id'], retrived_ids)
+
+    def setUp(self):
+        super(SqlCredential, self).setUp()
+        self.credentials = []
+        for _ in range(3):
+            self.credentials.append(
+                self._create_credential_with_user_id())
+        self.user_credentials = []
+        for _ in range(3):
+            cred = self._create_credential_with_user_id(self.user_foo['id'])
+            self.user_credentials.append(cred)
+            self.credentials.append(cred)
+
+    def test_list_credentials(self):
+        credentials = self.credential_api.list_credentials()
+        self._validateCredentialList(credentials, self.credentials)
+        # test filtering using hints
+        hints = driver_hints.Hints()
+        hints.add_filter('user_id', self.user_foo['id'])
+        credentials = self.credential_api.list_credentials(hints)
+        self._validateCredentialList(credentials, self.user_credentials)
+
+    def test_list_credentials_for_user(self):
+        credentials = self.credential_api.list_credentials_for_user(
+            self.user_foo['id'])
+        self._validateCredentialList(credentials, self.user_credentials)

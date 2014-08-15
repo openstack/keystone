@@ -185,8 +185,8 @@ class Ec2ControllerCommon(object):
         """
 
         self.identity_api.get_user(user_id)
-        credential_refs = self.credential_api.list_credentials(
-            user_id=user_id)
+        credential_refs = self.credential_api.list_credentials_for_user(
+            user_id)
         return {'credentials':
                 [self._convert_v3_to_ec2_credential(credential)
                     for credential in credential_refs]}

@@ -41,12 +41,18 @@ class Credential(credential.Driver):
             session.add(ref)
         return ref.to_dict()
 
-    def list_credentials(self, **filters):
+    @sql.truncated
+    def list_credentials(self, hints):
+        session = sql.get_session()
+        credentials = session.query(CredentialModel)
+        credentials = sql.filter_limit_query(CredentialModel,
+                                             credentials, hints)
+        return [s.to_dict() for s in credentials]
+
+    def list_credentials_for_user(self, user_id):
         session = sql.get_session()
         query = session.query(CredentialModel)
-        if 'user_id' in filters:
-            query = query.filter_by(user_id=filters.get('user_id'))
-        refs = query.all()
+        refs = query.filter_by(user_id=user_id).all()
         return [ref.to_dict() for ref in refs]
 
     def _get_credential(self, session, credential_id):
