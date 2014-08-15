@@ -23,6 +23,7 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
+from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
@@ -46,6 +47,9 @@ def format_url(url, substitutions):
     :returns: a formatted URL
 
     """
+    substitutions = utils.WhiteListedItemFilter(
+        CONF.catalog.endpoint_substitution_whitelist,
+        substitutions)
     try:
         result = url.replace('$(', '%(') % substitutions
     except AttributeError:
