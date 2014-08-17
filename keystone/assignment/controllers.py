@@ -520,7 +520,7 @@ class RoleV3(controller.V3Controller):
 
         self.assignment_api.create_grant(
             role_id, user_id, group_id, domain_id, project_id,
-            self._check_if_inherited(context))
+            self._check_if_inherited(context), context)
 
     @controller.protected(callback=_check_grant_protection)
     def list_grants(self, context, user_id=None,
@@ -554,7 +554,7 @@ class RoleV3(controller.V3Controller):
 
         self.assignment_api.delete_grant(
             role_id, user_id, group_id, domain_id, project_id,
-            self._check_if_inherited(context))
+            self._check_if_inherited(context), context)
 
 
 @dependency.requires('assignment_api', 'identity_api')
