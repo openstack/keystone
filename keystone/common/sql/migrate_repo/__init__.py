@@ -14,4 +14,4 @@
 # under the License.
 
 
-DB_INIT_VERSION = 34
+DB_INIT_VERSION = 33
