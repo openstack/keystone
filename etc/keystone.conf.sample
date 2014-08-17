@@ -1294,6 +1294,52 @@
 # contain a comma. (string value)
 #keyfile=/etc/keystone/ssl/private/signing_key.pem
 
+# Entity ID value for unique Identity Provider identification.
+# Usually FQDN is set with a suffix. A value is required to
+# generate IDP Metadata. For example:
+# https://keystone.example.com/v3/OS-FEDERATION/saml2/idp
+# (string value)
+#idp_entity_id=<None>
+
+# Identity Provider Single-Sign-On service value, required in
+# the Identity Provider's metadata. A value is required to
+# generate IDP Metadata. For example:
+# https://keystone.example.com/v3/OS-FEDERATION/saml2/sso
+# (string value)
+#idp_sso_endpoint=<None>
+
+# Language used by the organization. (string value)
+#idp_lang=en
+
+# Organization name the installation belongs to. (string
+# value)
+#idp_organization_name=<None>
+
+# Organization name to be displayed. (string value)
+#idp_organization_display_name=<None>
+
+# URL of the organization. (string value)
+#idp_organization_url=<None>
+
+# Company of contact person. (string value)
+#idp_contact_company=<None>
+
+# Given name of contact person (string value)
+#idp_contact_name=<None>
+
+# Surname of contact person. (string value)
+#idp_contact_surname=<None>
+
+# Email address of contact person. (string value)
+#idp_contact_email=<None>
+
+# Telephone number of contact person. (string value)
+#idp_contact_telephone=<None>
+
+# Contact type. Allowed values are: technical, support,
+# administrative billing, and other (string value)
+#idp_contact_type=other
+
 
 [signing]
 
