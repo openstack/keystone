@@ -289,6 +289,28 @@ class Assignment(keystone_assignment.Driver):
 
             return _project_ids_to_dicts(session, project_ids)
 
+    def list_domains_for_user(self, user_id, group_ids, hints):
+        with sql.transaction() as session:
+            query = session.query(Domain)
+            query = query.join(RoleAssignment,
+                               Domain.id == RoleAssignment.target_id)
+            filters = []
+
+            if user_id:
+                filters.append(sqlalchemy.and_(
+                    RoleAssignment.actor_id == user_id,
+                    RoleAssignment.type == AssignmentType.USER_DOMAIN))
+            if group_ids:
+                filters.append(sqlalchemy.and_(
+                    RoleAssignment.actor_id.in_(group_ids),
+                    RoleAssignment.type == AssignmentType.GROUP_DOMAIN))
+
+            if not filters:
+                return []
+
+            query = query.filter(sqlalchemy.or_(*filters))
+            return [ref.to_dict() for ref in query.all()]
+
     def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
 
         if project_id is not None:

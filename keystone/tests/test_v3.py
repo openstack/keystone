@@ -742,7 +742,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsInstance(resp.json['links'], dict)
         self.assertEqual(['self'], resp.json['links'].keys())
         self.assertEqual(
-            'http://localhost/v3/catalog',
+            'http://localhost/v3/auth/catalog',
             resp.json['links']['self'])
 
     def assertValidCatalog(self, entity):

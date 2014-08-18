@@ -311,6 +311,66 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.assertNotIn('default_project_id', user_ref)
         session.close()
 
+    def test_list_domains_for_user(self):
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain['id'], domain)
+        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                'domain_id': domain['id'], 'enabled': True}
+
+        test_domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(test_domain1['id'], test_domain1)
+        test_domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(test_domain2['id'], test_domain2)
+
+        user = self.identity_api.create_user(user)
+        user_domains = self.assignment_api.list_domains_for_user(user['id'])
+        self.assertEqual(0, len(user_domains))
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         domain_id=test_domain1['id'],
+                                         role_id=self.role_member['id'])
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         domain_id=test_domain2['id'],
+                                         role_id=self.role_member['id'])
+        user_domains = self.assignment_api.list_domains_for_user(user['id'])
+        self.assertThat(user_domains, matchers.HasLength(2))
+
+    def test_list_domains_for_user_with_grants(self):
+        # Create two groups each with a role on a different domain, and
+        # make user1 a member of both groups.  Both these new domains
+        # should now be included, along with any direct user grants.
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain['id'], domain)
+        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                'domain_id': domain['id'], 'enabled': True}
+        user = self.identity_api.create_user(user)
+        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = self.identity_api.create_group(group1)
+        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group2 = self.identity_api.create_group(group2)
+
+        test_domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(test_domain1['id'], test_domain1)
+        test_domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(test_domain2['id'], test_domain2)
+        test_domain3 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(test_domain3['id'], test_domain3)
+
+        self.identity_api.add_user_to_group(user['id'], group1['id'])
+        self.identity_api.add_user_to_group(user['id'], group2['id'])
+
+        # Create 3 grants, one user grant, the other two as group grants
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         domain_id=test_domain1['id'],
+                                         role_id=self.role_member['id'])
+        self.assignment_api.create_grant(group_id=group1['id'],
+                                         domain_id=test_domain2['id'],
+                                         role_id=self.role_admin['id'])
+        self.assignment_api.create_grant(group_id=group2['id'],
+                                         domain_id=test_domain3['id'],
+                                         role_id=self.role_admin['id'])
+        user_domains = self.assignment_api.list_domains_for_user(user['id'])
+        self.assertThat(user_domains, matchers.HasLength(3))
+
 
 class SqlTrust(SqlTests, test_backend.TrustTests):
     pass

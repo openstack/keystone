@@ -37,3 +37,18 @@ class Routers(wsgi.RoutersBase):
             mapper, auth_controller,
             path='/auth/tokens/OS-PKI/revoked',
             get_action='revocation_list')
+
+        self._add_resource(
+            mapper, auth_controller,
+            path='/auth/catalog',
+            get_action='get_auth_catalog')
+
+        self._add_resource(
+            mapper, auth_controller,
+            path='/auth/projects',
+            get_action='get_auth_projects')
+
+        self._add_resource(
+            mapper, auth_controller,
+            path='/auth/domains',
+            get_action='get_auth_domains')
