@@ -1278,13 +1278,13 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             'cn=junk,dc=example,dc=com',
             {
                 'sN': [uuid.uuid4().hex],
-                'eMaIl': [uuid.uuid4().hex]
+                'MaIl': [uuid.uuid4().hex]
             }
         )
         user = self.identity_api.get_user('junk')
         self.assertEqual(mock_ldap_get.return_value[1]['sN'][0],
                          user['name'])
-        self.assertEqual(mock_ldap_get.return_value[1]['eMaIl'][0],
+        self.assertEqual(mock_ldap_get.return_value[1]['MaIl'][0],
                          user['email'])
 
     def test_parse_extra_attribute_mapping(self):
