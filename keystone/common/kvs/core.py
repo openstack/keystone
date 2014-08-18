@@ -96,7 +96,7 @@ class KeyValueStore(object):
                                    backend for configuration
         :return:
         """
-        if 'backend' in self._region.__dict__:
+        if self.is_configured:
             # NOTE(morganfainberg): It is a bad idea to reconfigure a backend,
             # there are a lot of pitfalls and potential memory leaks that could
             # occur.  By far the best approach is to re-create the KVS object
@@ -110,6 +110,10 @@ class KeyValueStore(object):
         self._configure_region(backing_store, **region_config_args)
         self._set_key_mangler(key_mangler)
         self._apply_region_proxy(proxy_list)
+
+    @property
+    def is_configured(self):
+        return 'backend' in self._region.__dict__
 
     def _apply_region_proxy(self, proxy_list):
         if isinstance(proxy_list, list):

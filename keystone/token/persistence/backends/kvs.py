@@ -48,7 +48,9 @@ class Token(token.persistence.Driver):
         self._store = kvs.get_key_value_store('token-driver')
         if backing_store is not None:
             self.kvs_backend = backing_store
-        self._store.configure(backing_store=self.kvs_backend, **kwargs)
+        if not self._store.is_configured:
+            # Do not re-configure the backend if the store has been initialized
+            self._store.configure(backing_store=self.kvs_backend, **kwargs)
         if self.__class__ == Token:
             # NOTE(morganfainberg): Only warn if the base KVS implementation
             # is instantiated.

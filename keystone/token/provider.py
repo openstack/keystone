@@ -152,7 +152,12 @@ class Manager(manager.Manager):
         # This is used by the @dependency.provider decorator to register the
         # provider (token_provider_api) manager to listen for trust deletions.
         self.event_callbacks = {
-            'deleted': {'OS-TRUST:trust': [self._trust_deleted_event_callback]}
+            'deleted': {'OS-TRUST:trust': [self._trust_deleted_event_callback],
+                        'user': [self._delete_user_tokens_callback]},
+            'disabled': {'user': [self._delete_user_tokens_callback]},
+            'updated': {'user_password': [self._delete_user_tokens_callback],
+                        'user_removed_from_group': [
+                            self._delete_user_tokens_callback]}
         }
 
     @property
@@ -467,6 +472,11 @@ class Manager(manager.Manager):
         trust = self.trust_api.get_trust(trust_id, deleted=True)
         self.persistence.delete_tokens(user_id=trust['trustor_user_id'],
                                        trust_id=trust_id)
+
+    def _delete_user_tokens_callback(self, service, resource_type, operation,
+                                     payload):
+        user_id = payload['resource_info']
+        self.persistence.delete_tokens_for_user(user_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
