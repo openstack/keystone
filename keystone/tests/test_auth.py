@@ -1050,7 +1050,7 @@ class AuthWithTrust(AuthTest):
                          " only get the two roles specified in the trust.")
 
     def assert_token_count_for_trust(self, trust, expected_value):
-        tokens = self.trust_controller.token_api._list_tokens(
+        tokens = self.token_api._list_tokens(
             self.trustee['id'], trust_id=trust['id'])
         token_count = len(tokens)
         self.assertEqual(expected_value, token_count)
