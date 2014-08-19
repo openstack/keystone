@@ -49,7 +49,7 @@ def calc_default_domain():
 
 @dependency.provider('assignment_api')
 @dependency.optional('revoke_api')
-@dependency.requires('credential_api', 'identity_api', 'token_api')
+@dependency.requires('credential_api', 'identity_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
@@ -60,6 +60,8 @@ class Manager(manager.Manager):
     api object by both managers.
     """
     _PROJECT = 'project'
+    _ROLE_REMOVED_FROM_USER = 'role_removed_from_user'
+    _INVALIDATION_USER_PROJECT_TOKENS = 'invalidate_user_project_tokens'
 
     def __init__(self):
         assignment_driver = CONF.assignment.driver
@@ -112,9 +114,9 @@ class Manager(manager.Manager):
 
     @notifications.disabled(_PROJECT, public=False)
     def _disable_project(self, tenant_id):
-        return self.token_api.delete_tokens_for_users(
-            self.list_user_ids_for_project(tenant_id),
-            project_id=tenant_id)
+        # Simply emit the notification so that the callback system can do the
+        # right thing.
+        pass
 
     @notifications.updated(_PROJECT)
     def update_project(self, tenant_id, tenant):
@@ -134,8 +136,10 @@ class Manager(manager.Manager):
     @notifications.deleted(_PROJECT)
     def delete_project(self, tenant_id):
         project = self.driver.get_project(tenant_id)
-        user_ids = self.list_user_ids_for_project(tenant_id)
-        self.token_api.delete_tokens_for_users(user_ids, project_id=tenant_id)
+        project_user_ids = self.list_user_ids_for_project(tenant_id)
+        for user_id in project_user_ids:
+            payload = {'user_id': user_id, 'project_id': tenant_id}
+            self._emit_invalidate_user_project_tokens_notification(payload)
         ret = self.driver.delete_project(tenant_id)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, project['name'],
@@ -335,7 +339,9 @@ class Manager(manager.Manager):
 
     @notifications.disabled('domain', public=False)
     def _disable_domain(self, domain_id):
-        self.token_api.delete_tokens_for_domain(domain_id)
+        # Simply emit the notification so that the callback system can do the
+        # right thing.
+        pass
 
     @notifications.updated('domain')
     def update_domain(self, domain_id, domain):
@@ -512,11 +518,14 @@ class Manager(manager.Manager):
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         self.driver.remove_role_from_user_and_project(user_id, tenant_id,
                                                       role_id)
-        if CONF.token.revoke_by_id:
-            self.token_api.delete_tokens_for_user(user_id)
+        self.identity_api.emit_invalidate_user_token_persistence(user_id)
         if self.revoke_api:
             self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
                                             project_id=tenant_id)
+
+    @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
+    def _emit_invalidate_user_token_persistence(self, user_id):
+        self.identity_api.emit_invalidate_user_token_persistence(user_id)
 
     @notifications.role_assignment('created')
     def create_grant(self, role_id, user_id=None, group_id=None,
@@ -529,7 +538,6 @@ class Manager(manager.Manager):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
-        user_ids = []
         if group_id is None:
             if self.revoke_api:
                 self.revoke_api.revoke_by_grant(user_id=user_id,
@@ -543,7 +551,9 @@ class Manager(manager.Manager):
                 for user in self.identity_api.list_users_in_group(group_id,
                                                                   domain_id):
                     if user['id'] != user_id:
-                        user_ids.append(user['id'])
+                        if user_id:
+                            self._emit_invalidate_user_token_persistence(
+                                user_id)
                         if self.revoke_api:
                             self.revoke_api.revoke_by_grant(
                                 user_id=user['id'], role_id=role_id,
@@ -555,8 +565,7 @@ class Manager(manager.Manager):
         self.driver.delete_grant(role_id, user_id, group_id, domain_id,
                                  project_id, inherited_to_projects)
         if user_id is not None:
-            user_ids.append(user_id)
-        self.token_api.delete_tokens_for_users(user_ids)
+            self._emit_invalidate_user_token_persistence(user_id)
 
     def _delete_tokens_for_role(self, role_id):
         assignments = self.list_role_assignments_for_role(role_id=role_id)
@@ -577,7 +586,8 @@ class Manager(manager.Manager):
                     user_and_project_ids.append(
                         (assignment['user_id'], assignment['project_id']))
                 elif 'domain_id' in assignment:
-                    user_ids.add(assignment['user_id'])
+                    self._emit_invalidate_user_token_persistence(
+                        assignment['user_id'])
             elif 'group_id' in assignment:
                 # Add in any users for this group, being tolerant of any
                 # cross-driver database integrity errors.
@@ -604,7 +614,8 @@ class Manager(manager.Manager):
                             (user['id'], assignment['project_id']))
                 elif 'domain_id' in assignment:
                     for user in users:
-                        user_ids.add(user['id'])
+                        self._emit_invalidate_user_token_persistence(
+                            user['id'])
 
         # Now process the built up lists.  Before issuing calls to delete any
         # tokens, let's try and minimize the number of calls by pruning out
@@ -615,9 +626,18 @@ class Manager(manager.Manager):
             if user_and_project_id[0] not in user_ids:
                 user_and_project_ids_to_action.append(user_and_project_id)
 
-        self.token_api.delete_tokens_for_users(user_ids)
         for user_id, project_id in user_and_project_ids_to_action:
-            self.token_api.delete_tokens_for_user(user_id, project_id)
+            self._emit_invalidate_user_project_tokens_notification(
+                {'user_id': user_id,
+                 'project_id': project_id})
+
+    @notifications.internal(
+        notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE)
+    def _emit_invalidate_user_project_tokens_notification(self, payload):
+        # This notification's payload is a dict of user_id and
+        # project_id so the token provider can invalidate the tokens
+        # from persistence if persistence is enabled.
+        pass
 
 
 @six.add_metaclass(abc.ABCMeta)

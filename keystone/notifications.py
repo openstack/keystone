@@ -78,6 +78,7 @@ except AttributeError:  # Python 2.6 support
 # NOTE(morganfainberg): Special case notifications that are only used
 # internally for handling token persistence token deletions
 INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
+INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE = 'invalidate_user_project_tokens'
 
 
 class ManagerNotificationWrapper(object):

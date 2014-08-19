@@ -627,7 +627,7 @@ class Manager(manager.Manager):
         enabled_change = ((user.get('enabled') is False) and
                           user['enabled'] != old_user_ref.get('enabled'))
         if enabled_change or user.get('password') is not None:
-            self._emit_invalidate_user_token_persistence(user_id)
+            self.emit_invalidate_user_token_persistence(user_id)
 
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
@@ -695,7 +695,7 @@ class Manager(manager.Manager):
         driver.delete_group(entity_id)
         self.id_mapping_api.delete_id_mapping(group_id)
         for uid in user_ids:
-            self._emit_invalidate_user_token_persistence(uid)
+            self.emit_invalidate_user_token_persistence(uid)
 
     @domains_configured
     @exception_translated('group')
@@ -734,10 +734,10 @@ class Manager(manager.Manager):
             user_entity_id, user_driver, group_entity_id, group_driver)
 
         group_driver.remove_user_from_group(user_entity_id, group_entity_id)
-        self._emit_invalidate_user_token_persistence(user_id)
+        self.emit_invalidate_user_token_persistence(user_id)
 
     @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
-    def _emit_invalidate_user_token_persistence(self, user_id):
+    def emit_invalidate_user_token_persistence(self, user_id):
         # Simply emit that the user has been removed from a group so the
         # callback system can do the right thing.
         pass

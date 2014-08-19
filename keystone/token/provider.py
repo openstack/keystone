@@ -112,7 +112,8 @@ class Manager(manager.Manager):
     V2 = V2
     V3 = V3
     VERSIONS = VERSIONS
-
+    INVALIDATE_PROJECT_TOKEN_PERSISTENCE = 'invalidate_project_tokens'
+    INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
     _persistence_manager = None
 
     @classmethod
@@ -155,12 +156,17 @@ class Manager(manager.Manager):
         self.event_callbacks = {
             notifications.DELETED: {
                 'OS-TRUST:trust': [self._trust_deleted_event_callback],
-                'user': [self._delete_user_tokens_callback]},
+                'user': [self._delete_user_tokens_callback],
+                'domain': [self._delete_domain_tokens_callback]},
             notifications.DISABLED: {
-                'user': [self._delete_user_tokens_callback]},
+                'user': [self._delete_user_tokens_callback],
+                'domain': [self._delete_domain_tokens_callback],
+                'project': [self._delete_project_tokens_callback]},
             notifications.INTERNAL: {
                 notifications.INVALIDATE_USER_TOKEN_PERSISTENCE: [
-                    self._delete_user_tokens_callback]}
+                    self._delete_user_tokens_callback],
+                notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE: [
+                    self._delete_user_project_tokens_callback]}
         }
 
     @property
@@ -471,15 +477,39 @@ class Manager(manager.Manager):
 
     def _trust_deleted_event_callback(self, service, resource_type, operation,
                                       payload):
-        trust_id = payload['resource_info']
-        trust = self.trust_api.get_trust(trust_id, deleted=True)
-        self.persistence.delete_tokens(user_id=trust['trustor_user_id'],
-                                       trust_id=trust_id)
+        if CONF.token.revoke_by_id:
+            trust_id = payload['resource_info']
+            trust = self.trust_api.get_trust(trust_id, deleted=True)
+            self.persistence.delete_tokens(user_id=trust['trustor_user_id'],
+                                           trust_id=trust_id)
 
     def _delete_user_tokens_callback(self, service, resource_type, operation,
                                      payload):
-        user_id = payload['resource_info']
-        self.persistence.delete_tokens_for_user(user_id)
+        if CONF.token.revoke_by_id:
+            user_id = payload['resource_info']
+            self.persistence.delete_tokens_for_user(user_id)
+
+    def _delete_domain_tokens_callback(self, service, resource_type,
+                                       operation, payload):
+        if CONF.token.revoke_by_id:
+            domain_id = payload['resource_info']
+            self.persistence.delete_tokens_for_domain(domain_id=domain_id)
+
+    def _delete_user_project_tokens_callback(self, service, resource_type,
+                                             operation, payload):
+        if CONF.token.revoke_by_id:
+            user_id = payload['resource_info']['user_id']
+            project_id = payload['resource_info']['project_id']
+            self.persistence.delete_tokens_for_user(user_id=user_id,
+                                                    project_id=project_id)
+
+    def _delete_project_tokens_callback(self, service, resource_type,
+                                        operation, payload):
+        if CONF.token.revoke_by_id:
+            project_id = payload['resource_info']
+            self.persistence.delete_tokens_for_users(
+                self.assignment_api.list_user_ids_for_project(project_id),
+                project_id=project_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
