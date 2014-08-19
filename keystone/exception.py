@@ -210,6 +210,12 @@ class CrossBackendNotAllowed(Forbidden):
                        "user is %(user_id)s")
 
 
+class InvalidPolicyAssociation(Forbidden):
+    message_format = _("Invalid mix of entities for policy association - "
+                       "Endpoint: %(endpoint_id)s, Service: %(service_id)s, "
+                       "Region: %(region_id)s")
+
+
 class NotFound(Error):
     message_format = _("Could not find: %(target)s")
     code = 404
@@ -230,6 +236,10 @@ class MetadataNotFound(NotFound):
 
 class PolicyNotFound(NotFound):
     message_format = _("Could not find policy: %(policy_id)s")
+
+
+class PolicyAssociationNotFound(NotFound):
+    message_format = _("Could not find policy association")
 
 
 class RoleNotFound(NotFound):

@@ -454,6 +454,12 @@ FILE_OPTIONS = {
                     help='Toggle to return all active endpoints if no filter '
                          'exists.'),
     ],
+    'endpoint_policy': [
+        cfg.StrOpt('driver',
+                   default='keystone.contrib.endpoint_policy.backends'
+                           '.sql.EndpointPolicy',
+                   help='Endpoint policy backend driver'),
+    ],
     'stats': [
         cfg.StrOpt('driver',
                    default=('keystone.contrib.stats.backends'
