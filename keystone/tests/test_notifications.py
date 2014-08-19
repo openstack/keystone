@@ -180,7 +180,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.useFixture(mockpatch.PatchObject(
             notifications, '_send_notification', fake_notify))
 
-    def _assertLastNotify(self, resource_id, operation, resource_type):
+    def _assert_last_note(self, resource_id, operation, resource_type):
         self.assertTrue(len(self._notifications) > 0)
         note = self._notifications[-1]
         self.assertEqual(note['operation'], operation)
@@ -188,8 +188,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assertEqual(note['resource_type'], resource_type)
         self.assertTrue(note['send_notification_called'])
 
-    def _assertNotifyNotSent(self, resource_id, operation, resource_type,
-                             public=True):
+    def _assert_notify_not_sent(self, resource_id, operation, resource_type,
+                                public=True):
         unexpected = {
             'resource_id': resource_id,
             'operation': operation,
@@ -199,7 +199,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         for note in self._notifications:
             self.assertNotEqual(unexpected, note)
 
-    def _assertNotifySent(self, resource_id, operation, resource_type, public):
+    def _assert_notify_sent(self, resource_id, operation, resource_type,
+                            public):
         expected = {
             'resource_id': resource_id,
             'operation': operation,
@@ -215,23 +216,23 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
     def test_create_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         group_ref = self.identity_api.create_group(group_ref)
-        self._assertLastNotify(group_ref['id'], CREATED_OPERATION, 'group')
+        self._assert_last_note(group_ref['id'], CREATED_OPERATION, 'group')
 
     def test_create_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
-        self._assertLastNotify(
+        self._assert_last_note(
             project_ref['id'], CREATED_OPERATION, 'project')
 
     def test_create_role(self):
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
-        self._assertLastNotify(role_ref['id'], CREATED_OPERATION, 'role')
+        self._assert_last_note(role_ref['id'], CREATED_OPERATION, 'role')
 
     def test_create_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
         user_ref = self.identity_api.create_user(user_ref)
-        self._assertLastNotify(user_ref['id'], CREATED_OPERATION, 'user')
+        self._assert_last_note(user_ref['id'], CREATED_OPERATION, 'user')
 
     def test_create_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
@@ -245,40 +246,40 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.create_trust(trust_ref['id'],
                                     trust_ref,
                                     [role_ref])
-        self._assertLastNotify(
+        self._assert_last_note(
             trust_ref['id'], CREATED_OPERATION, 'OS-TRUST:trust')
 
     def test_delete_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         group_ref = self.identity_api.create_group(group_ref)
         self.identity_api.delete_group(group_ref['id'])
-        self._assertLastNotify(group_ref['id'], DELETED_OPERATION, 'group')
+        self._assert_last_note(group_ref['id'], DELETED_OPERATION, 'group')
 
     def test_delete_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         self.assignment_api.delete_project(project_ref['id'])
-        self._assertLastNotify(
+        self._assert_last_note(
             project_ref['id'], DELETED_OPERATION, 'project')
 
     def test_delete_role(self):
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
         self.assignment_api.delete_role(role_ref['id'])
-        self._assertLastNotify(role_ref['id'], DELETED_OPERATION, 'role')
+        self._assert_last_note(role_ref['id'], DELETED_OPERATION, 'role')
 
     def test_delete_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
         user_ref = self.identity_api.create_user(user_ref)
         self.identity_api.delete_user(user_ref['id'])
-        self._assertLastNotify(user_ref['id'], DELETED_OPERATION, 'user')
+        self._assert_last_note(user_ref['id'], DELETED_OPERATION, 'user')
 
     def test_update_domain(self):
         domain_ref = self.new_domain_ref()
         self.assignment_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['description'] = uuid.uuid4().hex
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
-        self._assertLastNotify(domain_ref['id'], UPDATED_OPERATION, 'domain')
+        self._assert_last_note(domain_ref['id'], UPDATED_OPERATION, 'domain')
 
     def test_delete_trust(self):
         trustor = self.new_user_ref(domain_id=self.domain_id)
@@ -291,7 +292,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
                                     trust_ref,
                                     [role_ref])
         self.trust_api.delete_trust(trust_ref['id'])
-        self._assertLastNotify(
+        self._assert_last_note(
             trust_ref['id'], DELETED_OPERATION, 'OS-TRUST:trust')
 
     def test_delete_domain(self):
@@ -300,22 +301,22 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         domain_ref['enabled'] = False
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
         self.assignment_api.delete_domain(domain_ref['id'])
-        self._assertLastNotify(domain_ref['id'], DELETED_OPERATION, 'domain')
+        self._assert_last_note(domain_ref['id'], DELETED_OPERATION, 'domain')
 
     def test_delete_endpoint(self):
         endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
         self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
         self.catalog_api.delete_endpoint(endpoint_ref['id'])
-        self._assertNotifySent(endpoint_ref['id'], DELETED_OPERATION,
-                               'endpoint', public=False)
+        self._assert_notify_sent(endpoint_ref['id'], DELETED_OPERATION,
+                                 'endpoint', public=False)
 
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()
         self.assignment_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['enabled'] = False
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
-        self._assertNotifySent(domain_ref['id'], 'disabled', 'domain',
-                               public=False)
+        self._assert_notify_sent(domain_ref['id'], 'disabled', 'domain',
+                                 public=False)
 
     def test_disable_of_disabled_domain_does_not_notify(self):
         domain_ref = self.new_domain_ref()
@@ -324,20 +325,20 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         # The domain_ref above is not changed during the create process. We
         # can use the same ref to perform the update.
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
-        self._assertNotifyNotSent(domain_ref['id'], 'disabled', 'domain',
-                                  public=False)
+        self._assert_notify_not_sent(domain_ref['id'], 'disabled', 'domain',
+                                     public=False)
 
     def test_update_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
         group_ref = self.identity_api.create_group(group_ref)
         self.identity_api.update_group(group_ref['id'], group_ref)
-        self._assertLastNotify(group_ref['id'], UPDATED_OPERATION, 'group')
+        self._assert_last_note(group_ref['id'], UPDATED_OPERATION, 'group')
 
     def test_update_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         self.assignment_api.update_project(project_ref['id'], project_ref)
-        self._assertNotifySent(
+        self._assert_notify_sent(
             project_ref['id'], UPDATED_OPERATION, 'project', public=True)
 
     def test_disable_project(self):
@@ -345,8 +346,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assignment_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = False
         self.assignment_api.update_project(project_ref['id'], project_ref)
-        self._assertNotifySent(project_ref['id'], 'disabled', 'project',
-                               public=False)
+        self._assert_notify_sent(project_ref['id'], 'disabled', 'project',
+                                 public=False)
 
     def test_disable_of_disabled_project_does_not_notify(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
@@ -355,29 +356,29 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         # The project_ref above is not changed during the create process. We
         # can use the same ref to perform the update.
         self.assignment_api.update_project(project_ref['id'], project_ref)
-        self._assertNotifyNotSent(project_ref['id'], 'disabled', 'project',
-                                  public=False)
+        self._assert_notify_not_sent(project_ref['id'], 'disabled', 'project',
+                                     public=False)
 
     def test_update_project_does_not_send_disable(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = True
         self.assignment_api.update_project(project_ref['id'], project_ref)
-        self._assertLastNotify(
+        self._assert_last_note(
             project_ref['id'], UPDATED_OPERATION, 'project')
-        self._assertNotifyNotSent(project_ref['id'], 'disabled', 'project')
+        self._assert_notify_not_sent(project_ref['id'], 'disabled', 'project')
 
     def test_update_role(self):
         role_ref = self.new_role_ref()
         self.assignment_api.create_role(role_ref['id'], role_ref)
         self.assignment_api.update_role(role_ref['id'], role_ref)
-        self._assertLastNotify(role_ref['id'], UPDATED_OPERATION, 'role')
+        self._assert_last_note(role_ref['id'], UPDATED_OPERATION, 'role')
 
     def test_update_user(self):
         user_ref = self.new_user_ref(domain_id=self.domain_id)
         user_ref = self.identity_api.create_user(user_ref)
         self.identity_api.update_user(user_ref['id'], user_ref)
-        self._assertLastNotify(user_ref['id'], UPDATED_OPERATION, 'user')
+        self._assert_last_note(user_ref['id'], UPDATED_OPERATION, 'user')
 
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
@@ -484,7 +485,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self.useFixture(mockpatch.PatchObject(
             notifications, '_send_audit_notification', fake_notify))
 
-    def _assertLastNotify(self, action, user_id):
+    def _assert_last_note(self, action, user_id):
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
         self.assertEqual(note['action'], action)
@@ -502,7 +503,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                                  user_domain_id=domain_id,
                                                  password=password)
         self.post('/auth/tokens', body=data)
-        self._assertLastNotify(self.ACTION, user_id)
+        self._assert_last_note(self.ACTION, user_id)
 
     def test_v3_authenticate_user_id(self):
         user_id = self.user_id
@@ -510,7 +511,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         data = self.build_authentication_request(user_id=user_id,
                                                  password=password)
         self.post('/auth/tokens', body=data)
-        self._assertLastNotify(self.ACTION, user_id)
+        self._assert_last_note(self.ACTION, user_id)
 
     def test_v3_authenticate_user_name_and_domain_name(self):
         user_id = self.user_id
@@ -521,7 +522,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                                  user_domain_name=domain_name,
                                                  password=password)
         self.post('/auth/tokens', body=data)
-        self._assertLastNotify(self.ACTION, user_id)
+        self._assert_last_note(self.ACTION, user_id)
 
 
 class TestCallbackRegistration(testtools.TestCase):
