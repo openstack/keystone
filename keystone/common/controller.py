@@ -93,7 +93,7 @@ def protected(callback=None):
     entities) should pass in a callback function, that will be subsequently
     called to check protection for these multiple entities. This callback
     function should gather the appropriate entities needed and then call
-    check_proetction() in the V3Controller class.
+    check_protection() in the V3Controller class.
 
     """
     def wrapper(f):
