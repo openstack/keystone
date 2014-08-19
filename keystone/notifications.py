@@ -38,7 +38,13 @@ notifier_opts = [
 LOG = log.getLogger(__name__)
 # NOTE(gyee): actions that can be notified. One must update this list whenever
 # a new action is supported.
-ACTIONS = frozenset(['created', 'deleted', 'disabled', 'updated'])
+CREATED = 'created'
+DELETED = 'deleted'
+DISABLED = 'disabled'
+UPDATED = 'updated'
+INTERNAL = 'internal'
+
+ACTIONS = frozenset([CREATED, DELETED, DISABLED, UPDATED, INTERNAL])
 # resource types that can be notified
 _SUBSCRIBERS = {}
 _notifier = None
@@ -68,6 +74,10 @@ except AttributeError:  # Python 2.6 support
             callargs[argspec.args[n]] = arg
 
         return callargs
+
+# NOTE(morganfainberg): Special case notifications that are only used
+# internally for handling token persistence token deletions
+INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
 
 
 class ManagerNotificationWrapper(object):
@@ -115,22 +125,28 @@ class ManagerNotificationWrapper(object):
 
 def created(*args, **kwargs):
     """Decorator to send notifications for ``Manager.create_*`` methods."""
-    return ManagerNotificationWrapper('created', *args, **kwargs)
+    return ManagerNotificationWrapper(CREATED, *args, **kwargs)
 
 
 def updated(*args, **kwargs):
     """Decorator to send notifications for ``Manager.update_*`` methods."""
-    return ManagerNotificationWrapper('updated', *args, **kwargs)
+    return ManagerNotificationWrapper(UPDATED, *args, **kwargs)
 
 
 def disabled(*args, **kwargs):
     """Decorator to send notifications when an object is disabled."""
-    return ManagerNotificationWrapper('disabled', *args, **kwargs)
+    return ManagerNotificationWrapper(DISABLED, *args, **kwargs)
 
 
 def deleted(*args, **kwargs):
     """Decorator to send notifications for ``Manager.delete_*`` methods."""
-    return ManagerNotificationWrapper('deleted', *args, **kwargs)
+    return ManagerNotificationWrapper(DELETED, *args, **kwargs)
+
+
+def internal(*args, **kwargs):
+    """Decorator to send notifications for internal notifications only."""
+    kwargs['public'] = False
+    return ManagerNotificationWrapper(INTERNAL, *args, **kwargs)
 
 
 def _get_callback_info(callback):

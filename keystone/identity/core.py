@@ -624,26 +624,13 @@ class Manager(manager.Manager):
         user = self._clear_domain_id_if_domain_unaware(driver, user)
         ref = driver.update_user(entity_id, user)
 
-        if ((user.get('enabled') is False) and
-                user['enabled'] != old_user_ref.get('enabled')):
-            self._emit_disable_user_notify(user_id)
-        elif user.get('password') is not None:
-            self._emit_user_password_notify(user_id)
+        enabled_change = ((user.get('enabled') is False) and
+                          user['enabled'] != old_user_ref.get('enabled'))
+        if enabled_change or user.get('password') is not None:
+            self._emit_invalidate_user_token_persistence(user_id)
 
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
-
-    @notifications.disabled(_USER, public=False)
-    def _emit_disable_user_notify(self, user_id):
-        # Simply emit that the user has been disabled so the callback system
-        # can do the right thing.
-        pass
-
-    @notifications.updated(_USER_PASSWORD, public=False)
-    def _emit_user_password_notify(self, user_id):
-        # Simply emit that the user's password has been updated so the callback
-        # system can do the right thing.
-        pass
 
     @notifications.deleted(_USER)
     @domains_configured
@@ -708,7 +695,7 @@ class Manager(manager.Manager):
         driver.delete_group(entity_id)
         self.id_mapping_api.delete_id_mapping(group_id)
         for uid in user_ids:
-            self._emit_user_removed_from_group_notification(uid)
+            self._emit_invalidate_user_token_persistence(uid)
 
     @domains_configured
     @exception_translated('group')
@@ -747,10 +734,10 @@ class Manager(manager.Manager):
             user_entity_id, user_driver, group_entity_id, group_driver)
 
         group_driver.remove_user_from_group(user_entity_id, group_entity_id)
-        self._emit_user_removed_from_group_notification(user_id)
+        self._emit_invalidate_user_token_persistence(user_id)
 
-    @notifications.updated(_USER_REMOVED_FROM_GROUP, public=False)
-    def _emit_user_removed_from_group_notification(self, user_id):
+    @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
+    def _emit_invalidate_user_token_persistence(self, user_id):
         # Simply emit that the user has been removed from a group so the
         # callback system can do the right thing.
         pass

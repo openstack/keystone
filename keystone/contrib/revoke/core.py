@@ -118,21 +118,30 @@ class Manager(manager.Manager):
             self.revoke(model.RevokeEvent(user_id=uid))
 
     def _register_listeners(self):
-        callbacks = [
-            ['deleted', 'OS-TRUST:trust', self._trust_callback],
-            ['deleted', 'OS-OAUTH1:consumer', self._consumer_callback],
-            ['deleted', 'OS-OAUTH1:access_token',
-             self._access_token_callback],
-            ['deleted', 'role', self._role_callback],
-            ['deleted', 'user', self._user_callback],
-            ['disabled', 'user', self._user_callback],
-            ['updated', 'user_password', self._user_callback],
-            ['updated', 'user_removed_from_group', self._user_callback],
-            ['deleted', 'project', self._project_callback],
-            ['disabled', 'project', self._project_callback],
-            ['disabled', 'domain', self._domain_callback]]
-        for cb in callbacks:
-            notifications.register_event_callback(*cb)
+        callbacks = {
+            notifications.DELETED: [
+                ['OS-TRUST:trust', self._trust_callback],
+                ['OS-OAUTH1:consumer', self._consumer_callback],
+                ['OS-OAUTH1:access_token', self._access_token_callback],
+                ['role', self._role_callback],
+                ['user', self._user_callback],
+                ['project', self._project_callback],
+            ],
+            notifications.DISABLED: [
+                ['user', self._user_callback],
+                ['project', self._project_callback],
+                ['domain', self._domain_callback]
+            ],
+            notifications.INTERNAL: [
+                [notifications.INVALIDATE_USER_TOKEN_PERSISTENCE,
+                 self._user_callback]
+            ]
+        }
+
+        for event, cb_info in six.iteritems(callbacks):
+            for resource_type, callback_fns in cb_info:
+                notifications.register_event_callback(event, resource_type,
+                                                      callback_fns)
 
     def revoke_by_user(self, user_id):
         return self.revoke(model.RevokeEvent(user_id=user_id))
