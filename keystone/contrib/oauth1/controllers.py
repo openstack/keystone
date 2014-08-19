@@ -24,13 +24,25 @@ from keystone.contrib.oauth1 import core as oauth1
 from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
+from keystone import notifications
 from keystone.openstack.common import jsonutils
 
 
 CONF = config.CONF
 
 
-@dependency.requires('oauth_api', 'token_api')
+@notifications.internal(notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
+                        resource_id_arg_index=0)
+def _emit_user_oauth_consumer_token_invalidate(payload):
+    # This is a special case notification that expect the payload to be a dict
+    # containing the user_id and the consumer_id. This is so that the token
+    # provider can invalidate any tokens in the token persistence if
+    # token persistence is enabled
+    pass
+
+
+@dependency.requires('oauth_api', 'token_provider_api')
 class ConsumerCrudV3(controller.V3Controller):
     collection_name = 'consumers'
     member_name = 'consumer'
@@ -70,9 +82,13 @@ class ConsumerCrudV3(controller.V3Controller):
 
     @controller.protected()
     def delete_consumer(self, context, consumer_id):
-        user_token_ref = self.token_api.get_token(context['token_id'])
-        user_id = user_token_ref['user'].get('id')
-        self.token_api.delete_tokens(user_id, consumer_id=consumer_id)
+        user_token_ref = token_model.KeystoneToken(
+            token_id=context['token_id'],
+            token_data=self.token_provider_api.validate_token(
+                context['token_id']))
+        payload = {'user_id': user_token_ref.user_id,
+                   'consumer_id': consumer_id}
+        _emit_user_oauth_consumer_token_invalidate(payload)
         self.oauth_api.delete_consumer(consumer_id)
 
     def _validate_consumer_ref(self, consumer):
@@ -81,7 +97,7 @@ class ConsumerCrudV3(controller.V3Controller):
             raise exception.ValidationError(message=msg)
 
 
-@dependency.requires('oauth_api', 'token_api')
+@dependency.requires('oauth_api')
 class AccessTokenCrudV3(controller.V3Controller):
     collection_name = 'access_tokens'
     member_name = 'access_token'
@@ -120,7 +136,8 @@ class AccessTokenCrudV3(controller.V3Controller):
     def delete_access_token(self, context, user_id, access_token_id):
         access_token = self.oauth_api.get_access_token(access_token_id)
         consumer_id = access_token['consumer_id']
-        self.token_api.delete_tokens(user_id, consumer_id=consumer_id)
+        payload = {'user_id': user_id, 'consumer_id': consumer_id}
+        _emit_user_oauth_consumer_token_invalidate(payload)
         return self.oauth_api.delete_access_token(
             user_id, access_token_id)
 
@@ -187,7 +204,7 @@ class AccessTokenRolesV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('assignment_api', 'oauth_api', 'token_api')
+@dependency.requires('assignment_api', 'oauth_api', 'token_provider_api')
 class OAuthControllerV3(controller.V3Controller):
     collection_name = 'not_used'
     member_name = 'not_used'
@@ -351,8 +368,11 @@ class OAuthControllerV3(controller.V3Controller):
             authed_roles.add(role['id'])
 
         # verify the authorizing user has the roles
-        user_token = self.token_api.get_token(context['token_id'])
-        user_id = user_token['user'].get('id')
+        user_token = token_model.KeystoneToken(
+            token_id=context['token_id'],
+            token_data=self.token_provider_api.validate_token(
+                context['token_id']))
+        user_id = user_token.user_id
         project_id = req_token['requested_project_id']
         user_roles = self.assignment_api.get_roles_for_user_and_project(
             user_id, project_id)

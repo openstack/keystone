@@ -79,6 +79,7 @@ except AttributeError:  # Python 2.6 support
 # internally for handling token persistence token deletions
 INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
 INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE = 'invalidate_user_project_tokens'
+INVALIDATE_USER_OAUTH_CONSUMER_TOKENS = 'invalidate_user_consumer_tokens'
 
 
 class ManagerNotificationWrapper(object):
