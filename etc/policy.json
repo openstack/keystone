@@ -144,5 +144,17 @@
     "identity:list_projects_for_groups": "",
     "identity:list_domains_for_groups": "",
 
-    "identity:list_revoke_events": ""
+    "identity:list_revoke_events": "",
+
+    "identity:create_policy_association_for_endpoint": "rule:admin_required",
+    "identity:check_policy_association_for_endpoint": "rule:admin_required",
+    "identity:delete_policy_association_for_endpoint": "rule:admin_required",
+    "identity:create_policy_association_for_service": "rule:admin_required",
+    "identity:check_policy_association_for_service": "rule:admin_required",
+    "identity:delete_policy_association_for_service": "rule:admin_required",
+    "identity:create_policy_association_for_region_and_service": "rule:admin_required",
+    "identity:check_policy_association_for_region_and_service": "rule:admin_required",
+    "identity:delete_policy_association_for_region_and_service": "rule:admin_required",
+    "identity:get_policy_for_endpoint": "rule:admin_required",
+    "identity:list_endpoints_for_policy": "rule:admin_required"
 }
