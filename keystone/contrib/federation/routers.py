@@ -67,7 +67,11 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         POST /OS-FEDERATION/identity_providers/$identity_provider/
             protocols/$protocol/auth
 
+
         POST /auth/OS-FEDERATION/saml2
+
+        GET /OS-FEDERATION/saml2/metadata
+
 
     """
     def _construct_url(self, suffix):
@@ -83,6 +87,7 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         mapping_controller = controllers.MappingController()
         project_controller = controllers.ProjectV3()
         domain_controller = controllers.DomainV3()
+        saml_metadata_controller = controllers.SAMLMetadataV3()
 
         # Identity Provider CRUD operations
 
@@ -176,3 +181,10 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             path='/auth' + self._construct_url('saml2'),
             post_action='create_saml_assertion',
             rel=build_resource_relation(resource_name='saml2'))
+
+        # Keystone-Identity-Provider metadata endpoint
+        self._add_resource(
+            mapper, saml_metadata_controller,
+            path=self._construct_url('saml2/metadata'),
+            get_action='get_metadata',
+            rel=build_resource_relation(resource_name='metadata'))

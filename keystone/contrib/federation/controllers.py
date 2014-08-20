@@ -22,6 +22,7 @@ from keystone import config
 from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import schema
 from keystone.contrib.federation import utils
+from keystone import exception
 from keystone.models import token_model
 
 
@@ -332,3 +333,18 @@ class ProjectV3(controller.V3Controller):
         projects = self.assignment_api.list_projects_for_groups(
             auth_context['group_ids'])
         return ProjectV3.wrap_collection(context, projects)
+
+
+class SAMLMetadataV3(_ControllerBase):
+    member_name = 'metadata'
+
+    def get_metadata(self, context):
+        metadata_path = CONF.federation.idp_metadata_path
+        try:
+            with open(metadata_path, 'r') as metadata_handler:
+                metadata = metadata_handler.read()
+        except IOError as e:
+            # Raise HTTP 500 in case Metadata file cannot be read.
+            raise exception.MetadataFileError(reason=e)
+        return wsgi.render_response(body=metadata, status=('200', 'OK'),
+                                    headers=[('Content-Type', 'text/xml')])

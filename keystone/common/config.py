@@ -858,6 +858,11 @@ FILE_OPTIONS = {
                    help='Contact type. Allowed values are: '
                         'technical, support, administrative '
                         'billing, and other'),
+        cfg.StrOpt('idp_metadata_path',
+                   default='/etc/keystone/saml2_idp_metadata.xml',
+                   help='Path to the Identity Provider Metadata file. '
+                        'This file should be generated with the '
+                        'keystone-manage saml_idp_metadata command.'),
     ],
 }
 
