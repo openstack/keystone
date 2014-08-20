@@ -563,6 +563,48 @@ class VersionTestCase(tests.TestCase):
         self.assertThat(jsonutils.loads(resp.body),
                         tt_matchers.Equals(exp_json_home_data))
 
+    def test_accept_type_handling(self):
+        # Accept headers with multiple types and qvalues are handled.
+
+        def make_request(accept_types=None):
+            client = self.client(self.public_app)
+            headers = None
+            if accept_types:
+                headers = {'Accept': accept_types}
+            resp = client.get('/v3', headers=headers)
+            self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
+            return resp.headers['Content-Type']
+
+        JSON = controllers.MimeTypes.JSON
+        JSON_HOME = controllers.MimeTypes.JSON_HOME
+
+        JSON_MATCHER = tt_matchers.Equals(JSON)
+        JSON_HOME_MATCHER = tt_matchers.Equals(JSON_HOME)
+
+        # Default is JSON.
+        self.assertThat(make_request(), JSON_MATCHER)
+
+        # Can request JSON and get JSON.
+        self.assertThat(make_request(JSON), JSON_MATCHER)
+
+        # Can request JSONHome and get JSONHome.
+        self.assertThat(make_request(JSON_HOME), JSON_HOME_MATCHER)
+
+        # If request JSON, JSON Home get JSON.
+        accept_types = '%s, %s' % (JSON, JSON_HOME)
+        self.assertThat(make_request(accept_types), JSON_MATCHER)
+
+        # If request JSON Home, JSON get JSON.
+        accept_types = '%s, %s' % (JSON_HOME, JSON)
+        self.assertThat(make_request(accept_types), JSON_MATCHER)
+
+        # If request JSON Home, JSON;q=0.5 get JSON Home.
+        accept_types = '%s, %s;q=0.5' % (JSON_HOME, JSON)
+        self.assertThat(make_request(accept_types), JSON_HOME_MATCHER)
+
+        # If request some unknown mime-type, get JSON.
+        self.assertThat(make_request(self.getUniqueString()), JSON_MATCHER)
+
 
 class VersionInheritEnabledTestCase(tests.TestCase):
     def setUp(self):
