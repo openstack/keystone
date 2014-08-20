@@ -318,7 +318,9 @@ def build_token_values(token_data):
     user = token_data.get('user')
     if user is not None:
         token_values['user_id'] = user['id']
-        token_values['identity_domain_id'] = user['domain']['id']
+        # Federated users do not have a domain, be defensive and get the user
+        # domain set to None in the federated user case.
+        token_values['identity_domain_id'] = user.get('domain', {}).get('id')
     else:
         token_values['user_id'] = None
         token_values['identity_domain_id'] = None

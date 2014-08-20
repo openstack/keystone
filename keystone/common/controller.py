@@ -23,6 +23,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
 from keystone.openstack.common import log
 
 
@@ -59,26 +60,24 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         LOG.debug('RBAC: using auth context from the request environment')
         return context['environment'].get(authorization.AUTH_CONTEXT_ENV)
 
-    # now build the auth context from the incoming auth token
+    # There is no current auth context, build it from the incoming token.
+    # TODO(morganfainberg): Collapse this logic with AuthContextMiddleware
+    # in sane manner as this just mirrors the logic in AuthContextMiddleware
     try:
         LOG.debug('RBAC: building auth context from the incoming auth token')
-        # TODO(ayoung): These two functions return the token in different
-        # formats.  However, the call
-        # to get_token hits the caching layer, and does not validate the
-        # token.  This should be reduced to one call
-        if not CONF.token.revoke_by_id:
-            self.token_api.token_provider_api.validate_token(
-                context['token_id'])
-        token_ref = self.token_api.get_token(context['token_id'])
+        token_ref = token_model.KeystoneToken(
+            token_id=context['token_id'],
+            token_data=self.token_provider_api.validate_token(
+                context['token_id']))
+        # NOTE(jamielennox): whilst this maybe shouldn't be within this
+        # function it would otherwise need to reload the token_ref from
+        # backing store.
+        wsgi.validate_token_bind(context, token_ref)
     except exception.TokenNotFound:
         LOG.warning(_('RBAC: Invalid token'))
         raise exception.Unauthorized()
 
-    # NOTE(jamielennox): whilst this maybe shouldn't be within this function
-    # it would otherwise need to reload the token_ref from backing store.
-    wsgi.validate_token_bind(context, token_ref)
-
-    auth_context = authorization.token_to_auth_context(token_ref['token_data'])
+    auth_context = authorization.token_to_auth_context(token_ref)
 
     return auth_context
 

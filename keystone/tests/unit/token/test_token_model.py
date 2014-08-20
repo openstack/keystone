@@ -114,6 +114,49 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertIsNone(token_data.audit_id)
         self.assertIsNone(token_data.audit_chain_id)
 
+    def test_token_model_v3_federated_user(self):
+        token_data = token_model.KeystoneToken(token_id=uuid.uuid4().hex,
+                                               token_data=self.v3_sample_token)
+        federation_data = {'identity_provider': {'id': uuid.uuid4().hex},
+                           'protocol': {'id': 'saml2'},
+                           'groups': [{'id': uuid.uuid4().hex}
+                                      for x in range(1, 5)]}
+
+        self.assertFalse(token_data.is_federated_user)
+        self.assertEqual([], token_data.federation_group_ids)
+        self.assertIsNone(token_data.federation_protocol_id)
+        self.assertIsNone(token_data.federation_idp_id)
+
+        token_data['user'][token_model.federation.FEDERATION] = federation_data
+
+        self.assertTrue(token_data.is_federated_user)
+        self.assertEqual([x['id'] for x in federation_data['groups']],
+                         token_data.federation_group_ids)
+        self.assertEqual(federation_data['protocol']['id'],
+                         token_data.federation_protocol_id)
+        self.assertEqual(federation_data['identity_provider']['id'],
+                         token_data.federation_idp_id)
+
+    def test_token_model_v2_federated_user(self):
+        token_data = token_model.KeystoneToken(token_id=uuid.uuid4().hex,
+                                               token_data=self.v2_sample_token)
+        federation_data = {'identity_provider': {'id': uuid.uuid4().hex},
+                           'protocol': {'id': 'saml2'},
+                           'groups': [{'id': uuid.uuid4().hex}
+                                      for x in range(1, 5)]}
+        self.assertFalse(token_data.is_federated_user)
+        self.assertEqual([], token_data.federation_group_ids)
+        self.assertIsNone(token_data.federation_protocol_id)
+        self.assertIsNone(token_data.federation_idp_id)
+
+        token_data['user'][token_model.federation.FEDERATION] = federation_data
+
+        # Federated users should not exist in V2, the data should remain empty
+        self.assertFalse(token_data.is_federated_user)
+        self.assertEqual([], token_data.federation_group_ids)
+        self.assertIsNone(token_data.federation_protocol_id)
+        self.assertIsNone(token_data.federation_idp_id)
+
     def test_token_model_v2(self):
         token_data = token_model.KeystoneToken(uuid.uuid4().hex,
                                                self.v2_sample_token)

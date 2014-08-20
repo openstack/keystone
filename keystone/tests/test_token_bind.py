@@ -12,20 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+import uuid
+
 from keystone.common import wsgi
 from keystone import exception
+from keystone.models import token_model
 from keystone import tests
+from keystone.tests import test_token_provider
 
 
 KERBEROS_BIND = 'USER@REALM'
-
-# the only thing the function checks for is the presence of bind
-TOKEN_BIND_KERB = {'bind': {'kerberos': KERBEROS_BIND}}
-TOKEN_BIND_UNKNOWN = {'bind': {'FOO': 'BAR'}}
-TOKEN_BIND_NONE = {}
-
 ANY = 'any'
-ALL_TOKENS = [TOKEN_BIND_KERB, TOKEN_BIND_UNKNOWN, TOKEN_BIND_NONE]
 
 
 class BindTest(tests.TestCase):
@@ -34,6 +32,20 @@ class BindTest(tests.TestCase):
     Even though everything in this file references kerberos the same concepts
     will apply to all future binding mechanisms.
     """
+
+    def setUp(self):
+        super(BindTest, self).setUp()
+        self.TOKEN_BIND_KERB = copy.deepcopy(
+            test_token_provider.SAMPLE_V3_TOKEN)
+        self.TOKEN_BIND_KERB['token']['bind'] = {'kerberos': KERBEROS_BIND}
+        self.TOKEN_BIND_UNKNOWN = copy.deepcopy(
+            test_token_provider.SAMPLE_V3_TOKEN)
+        self.TOKEN_BIND_UNKNOWN['token']['bind'] = {'FOO': 'BAR'}
+        self.TOKEN_BIND_NONE = copy.deepcopy(
+            test_token_provider.SAMPLE_V3_TOKEN)
+
+        self.ALL_TOKENS = [self.TOKEN_BIND_KERB, self.TOKEN_BIND_UNKNOWN,
+                           self.TOKEN_BIND_NONE]
 
     def assert_kerberos_bind(self, tokens, bind_level,
                              use_kerberos=True, success=True):
@@ -55,17 +67,22 @@ class BindTest(tests.TestCase):
                 context['environment']['REMOTE_USER'] = KERBEROS_BIND
                 context['environment']['AUTH_TYPE'] = 'Negotiate'
 
+            # NOTE(morganfainberg): This assumes a V3 token.
+            token_ref = token_model.KeystoneToken(
+                token_id=uuid.uuid4().hex,
+                token_data=tokens)
+
             if not success:
                 self.assertRaises(exception.Unauthorized,
                                   wsgi.validate_token_bind,
-                                  context, tokens)
+                                  context, token_ref)
             else:
-                wsgi.validate_token_bind(context, tokens)
+                wsgi.validate_token_bind(context, token_ref)
 
     # DISABLED
 
     def test_bind_disabled_with_kerb_user(self):
-        self.assert_kerberos_bind(ALL_TOKENS,
+        self.assert_kerberos_bind(self.ALL_TOKENS,
                                   bind_level='disabled',
                                   use_kerberos=ANY,
                                   success=True)
@@ -73,25 +90,25 @@ class BindTest(tests.TestCase):
     # PERMISSIVE
 
     def test_bind_permissive_with_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='permissive',
                                   use_kerberos=True,
                                   success=True)
 
     def test_bind_permissive_with_regular_token(self):
-        self.assert_kerberos_bind(TOKEN_BIND_NONE,
+        self.assert_kerberos_bind(self.TOKEN_BIND_NONE,
                                   bind_level='permissive',
                                   use_kerberos=ANY,
                                   success=True)
 
     def test_bind_permissive_without_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='permissive',
                                   use_kerberos=False,
                                   success=False)
 
     def test_bind_permissive_with_unknown_bind(self):
-        self.assert_kerberos_bind(TOKEN_BIND_UNKNOWN,
+        self.assert_kerberos_bind(self.TOKEN_BIND_UNKNOWN,
                                   bind_level='permissive',
                                   use_kerberos=ANY,
                                   success=True)
@@ -99,25 +116,25 @@ class BindTest(tests.TestCase):
     # STRICT
 
     def test_bind_strict_with_regular_token(self):
-        self.assert_kerberos_bind(TOKEN_BIND_NONE,
+        self.assert_kerberos_bind(self.TOKEN_BIND_NONE,
                                   bind_level='strict',
                                   use_kerberos=ANY,
                                   success=True)
 
     def test_bind_strict_with_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='strict',
                                   use_kerberos=True,
                                   success=True)
 
     def test_bind_strict_without_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='strict',
                                   use_kerberos=False,
                                   success=False)
 
     def test_bind_strict_with_unknown_bind(self):
-        self.assert_kerberos_bind(TOKEN_BIND_UNKNOWN,
+        self.assert_kerberos_bind(self.TOKEN_BIND_UNKNOWN,
                                   bind_level='strict',
                                   use_kerberos=ANY,
                                   success=False)
@@ -125,25 +142,25 @@ class BindTest(tests.TestCase):
     # REQUIRED
 
     def test_bind_required_with_regular_token(self):
-        self.assert_kerberos_bind(TOKEN_BIND_NONE,
+        self.assert_kerberos_bind(self.TOKEN_BIND_NONE,
                                   bind_level='required',
                                   use_kerberos=ANY,
                                   success=False)
 
     def test_bind_required_with_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='required',
                                   use_kerberos=True,
                                   success=True)
 
     def test_bind_required_without_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='required',
                                   use_kerberos=False,
                                   success=False)
 
     def test_bind_required_with_unknown_bind(self):
-        self.assert_kerberos_bind(TOKEN_BIND_UNKNOWN,
+        self.assert_kerberos_bind(self.TOKEN_BIND_UNKNOWN,
                                   bind_level='required',
                                   use_kerberos=ANY,
                                   success=False)
@@ -151,31 +168,31 @@ class BindTest(tests.TestCase):
     # NAMED
 
     def test_bind_named_with_regular_token(self):
-        self.assert_kerberos_bind(TOKEN_BIND_NONE,
+        self.assert_kerberos_bind(self.TOKEN_BIND_NONE,
                                   bind_level='kerberos',
                                   use_kerberos=ANY,
                                   success=False)
 
     def test_bind_named_with_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='kerberos',
                                   use_kerberos=True,
                                   success=True)
 
     def test_bind_named_without_kerb_user(self):
-        self.assert_kerberos_bind(TOKEN_BIND_KERB,
+        self.assert_kerberos_bind(self.TOKEN_BIND_KERB,
                                   bind_level='kerberos',
                                   use_kerberos=False,
                                   success=False)
 
     def test_bind_named_with_unknown_bind(self):
-        self.assert_kerberos_bind(TOKEN_BIND_UNKNOWN,
+        self.assert_kerberos_bind(self.TOKEN_BIND_UNKNOWN,
                                   bind_level='kerberos',
                                   use_kerberos=ANY,
                                   success=False)
 
     def test_bind_named_with_unknown_scheme(self):
-        self.assert_kerberos_bind(ALL_TOKENS,
+        self.assert_kerberos_bind(self.ALL_TOKENS,
                                   bind_level='unknown',
                                   use_kerberos=ANY,
                                   success=False)

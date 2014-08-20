@@ -13,6 +13,7 @@
 # under the License.
 
 import json
+import time
 import uuid
 
 from keystoneclient.common import cms
@@ -1216,7 +1217,19 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
         token1 = self.get_scoped_token()
 
+        # TODO(morganfainberg): Because this is making a restful call to the
+        # app a change to UTCNOW via mock.patch will not affect the returned
+        # token. The only surefire way to ensure there is not a transient bug
+        # based upon when the second token is issued is with a sleep. This
+        # issue all stems from the limited resolution (no microseconds) on the
+        # expiry time of tokens and the way revocation events utilizes token
+        # expiry to revoke individual tokens. This is a stop-gap until all
+        # associated issues with resolution on expiration and revocation events
+        # are resolved.
+        time.sleep(1)
+
         token2 = self.get_scoped_token()
+
         self.admin_request(method='DELETE',
                            path='/v2.0/tokens/%s' % token2,
                            token=token1)

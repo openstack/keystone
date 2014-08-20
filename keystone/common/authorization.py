@@ -16,9 +16,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
 from keystone.openstack.common import log
 
 
@@ -41,89 +41,46 @@ It is a dictionary with the following attributes:
 LOG = log.getLogger(__name__)
 
 
-def is_v3_token(token):
-    # V3 token data are encapsulated into "token" key while
-    # V2 token data are encapsulated into "access" key.
-    return 'token' in token
-
-
-def v3_token_to_auth_context(token):
-    creds = {'is_delegated_auth': False}
-    token_data = token['token']
-    try:
-        creds['user_id'] = token_data['user']['id']
-    except AttributeError:
-        LOG.warning(_('RBAC: Invalid user data in v3 token'))
-        raise exception.Unauthorized()
-    if 'project' in token_data:
-        creds['project_id'] = token_data['project']['id']
-    else:
-        LOG.debug('RBAC: Proceeding without project')
-    if 'domain' in token_data:
-        creds['domain_id'] = token_data['domain']['id']
-    if 'roles' in token_data:
-        creds['roles'] = []
-        for role in token_data['roles']:
-            creds['roles'].append(role['name'])
-    creds['group_ids'] = [
-        g['id'] for g in token_data['user'].get(federation.FEDERATION, {}).get(
-            'groups', [])]
-
-    trust = token_data.get('OS-TRUST:trust')
-    if trust is None:
-        creds['trust_id'] = None
-        creds['trustor_id'] = None
-        creds['trustee_id'] = None
-    else:
-        creds['trust_id'] = trust['id']
-        creds['trustor_id'] = trust['trustor_user']['id']
-        creds['trustee_id'] = trust['trustee_user']['id']
-        creds['is_delegated_auth'] = True
-
-    oauth1 = token_data.get('OS-OAUTH1')
-    if oauth1 is None:
-        creds['consumer_id'] = None
-        creds['access_token_id'] = None
-    else:
-        creds['consumer_id'] = oauth1['consumer_id']
-        creds['access_token_id'] = oauth1['access_token_id']
-        creds['is_delegated_auth'] = True
-    return creds
-
-
-def v2_token_to_auth_context(token):
-    creds = {'is_delegated_auth': False}
-    token_data = token['access']
-    try:
-        creds['user_id'] = token_data['user']['id']
-    except AttributeError:
-        LOG.warning(_('RBAC: Invalid user data in v2 token'))
-        raise exception.Unauthorized()
-    if 'tenant' in token_data['token']:
-        creds['project_id'] = token_data['token']['tenant']['id']
-    else:
-        LOG.debug('RBAC: Proceeding without tenant')
-    if 'roles' in token_data['user']:
-        creds['roles'] = [role['name'] for
-                          role in token_data['user']['roles']]
-
-    trust = token_data.get('trust')
-    if trust is None:
-        creds['trust_id'] = None
-        creds['trustor_id'] = None
-        creds['trustee_id'] = None
-    else:
-        creds['trust_id'] = trust.get('id')
-        creds['trustor_id'] = trust.get('trustor_id')
-        creds['trustee_id'] = trust.get('trustee_id')
-        creds['is_delegated_auth'] = True
-
-    return creds
-
-
 def token_to_auth_context(token):
-    if is_v3_token(token):
-        creds = v3_token_to_auth_context(token)
+    if not isinstance(token, token_model.KeystoneToken):
+        raise exception.UnexpectedError(_('token reference must be a '
+                                          'KeystoneToken type, got: %s') %
+                                        type(token))
+    auth_context = {'token': token,
+                    'is_delegated_auth': False}
+    try:
+        auth_context['user_id'] = token.user_id
+    except KeyError:
+        LOG.warning(_('RBAC: Invalid user data in token'))
+        raise exception.Unauthorized()
+
+    if token.project_scoped:
+        auth_context['project_id'] = token.project_id
+    elif token.domain_scoped:
+        auth_context['domain_id'] = token.domain_id
     else:
-        creds = v2_token_to_auth_context(token)
-    return creds
+        LOG.debug('RBAC: Proceeding without project or domain scope')
+
+    if token.trust_scoped:
+        auth_context['is_delegated_auth'] = True
+        auth_context['trust_id'] = token.trust_id
+        auth_context['trustor_id'] = token.trustor_user_id
+        auth_context['trustee_id'] = token.trustee_user_id
+    else:
+        auth_context['trust_id'] = None
+        auth_context['trustor_id'] = None
+        auth_context['trustee_id'] = None
+
+    roles = token.role_names
+    if roles:
+        auth_context['roles'] = roles
+
+    if token.oauth_scoped:
+        auth_context['is_delegated_auth'] = True
+    auth_context['consumer_id'] = token.oauth_consumer_id
+    auth_context['access_token_id'] = token.oauth_access_token_id
+
+    if token.is_federated_user:
+        auth_context['group_ids'] = token.federation_group_ids
+
+    return auth_context
