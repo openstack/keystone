@@ -303,12 +303,85 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assignment_api.delete_domain(domain_ref['id'])
         self._assert_last_note(domain_ref['id'], DELETED_OPERATION, 'domain')
 
+    def test_create_endpoint(self):
+        endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
+        self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
+        self._assert_notify_sent(endpoint_ref['id'], CREATED_OPERATION,
+                                 'endpoint', public=False)
+
+    def test_update_endpoint(self):
+        endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
+        self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
+        self.catalog_api.update_endpoint(endpoint_ref['id'], endpoint_ref)
+        self._assert_notify_sent(endpoint_ref['id'], UPDATED_OPERATION,
+                                 'endpoint', public=False)
+
     def test_delete_endpoint(self):
         endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
         self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
         self.catalog_api.delete_endpoint(endpoint_ref['id'])
         self._assert_notify_sent(endpoint_ref['id'], DELETED_OPERATION,
                                  'endpoint', public=False)
+
+    def test_create_service(self):
+        service_ref = self.new_service_ref()
+        self.catalog_api.create_service(service_ref['id'], service_ref)
+        self._assert_notify_sent(service_ref['id'], CREATED_OPERATION,
+                                 'service', public=False)
+
+    def test_update_service(self):
+        service_ref = self.new_service_ref()
+        self.catalog_api.create_service(service_ref['id'], service_ref)
+        self.catalog_api.update_service(service_ref['id'], service_ref)
+        self._assert_notify_sent(service_ref['id'], UPDATED_OPERATION,
+                                 'service', public=False)
+
+    def test_delete_service(self):
+        service_ref = self.new_service_ref()
+        self.catalog_api.create_service(service_ref['id'], service_ref)
+        self.catalog_api.delete_service(service_ref['id'])
+        self._assert_notify_sent(service_ref['id'], DELETED_OPERATION,
+                                 'service', public=False)
+
+    def test_create_region(self):
+        region_ref = self.new_region_ref()
+        self.catalog_api.create_region(region_ref)
+        self._assert_notify_sent(region_ref['id'], CREATED_OPERATION,
+                                 'region', public=False)
+
+    def test_update_region(self):
+        region_ref = self.new_region_ref()
+        self.catalog_api.create_region(region_ref)
+        self.catalog_api.update_region(region_ref['id'], region_ref)
+        self._assert_notify_sent(region_ref['id'], UPDATED_OPERATION,
+                                 'region', public=False)
+
+    def test_delete_region(self):
+        region_ref = self.new_region_ref()
+        self.catalog_api.create_region(region_ref)
+        self.catalog_api.delete_region(region_ref['id'])
+        self._assert_notify_sent(region_ref['id'], DELETED_OPERATION,
+                                 'region', public=False)
+
+    def test_create_policy(self):
+        policy_ref = self.new_policy_ref()
+        self.policy_api.create_policy(policy_ref['id'], policy_ref)
+        self._assert_notify_sent(policy_ref['id'], CREATED_OPERATION,
+                                 'policy', public=False)
+
+    def test_update_policy(self):
+        policy_ref = self.new_policy_ref()
+        self.policy_api.create_policy(policy_ref['id'], policy_ref)
+        self.policy_api.update_policy(policy_ref['id'], policy_ref)
+        self._assert_notify_sent(policy_ref['id'], UPDATED_OPERATION,
+                                 'policy', public=False)
+
+    def test_delete_policy(self):
+        policy_ref = self.new_policy_ref()
+        self.policy_api.create_policy(policy_ref['id'], policy_ref)
+        self.policy_api.delete_policy(policy_ref['id'])
+        self._assert_notify_sent(policy_ref['id'], DELETED_OPERATION,
+                                 'policy', public=False)
 
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()

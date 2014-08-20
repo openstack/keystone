@@ -38,6 +38,10 @@ immutable from a Keystone perspective will not support update operations:
 - ``role``
 - ``user``
 - ``trust`` (immutable resource - no ``updated`` notification)
+- ``region``
+- ``endpoint``
+- ``service``
+- ``policy``
 
 The following message template is used to form a message when an operation on a
 resource completes successfully:
