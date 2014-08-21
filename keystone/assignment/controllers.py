@@ -683,19 +683,24 @@ class RoleAssignmentV3(controller.V3Controller):
                 # The group is missing, which should not happen since
                 # group deletion should remove any related assignments, so
                 # log a warning
-                if 'domain' in ref:
-                    target = 'Domain: %s' % ref['domain'].get('domain_id')
-                elif 'project' in ref:
-                    target = 'Project: %s' % ref['project'].get('project_id')
-                else:
-                    # Should always be a domain or project, but since to get
-                    # here things have gone astray, let's be cautious.
-                    target = 'Unknown'
+                target = 'Unknown'
+                # Should always be a domain or project, but since to get
+                # here things have gone astray, let's be cautious.
+                if 'scope' in ref:
+                    if 'domain' in ref['scope']:
+                        dom_id = ref['scope']['domain'].get('id', 'Unknown')
+                        target = 'Domain: %s' % dom_id
+                    elif 'project' in ref['scope']:
+                        proj_id = ref['scope']['project'].get('id', 'Unknown')
+                        target = 'Project: %s' % proj_id
+                role_id = 'Unknown'
+                if 'role' in ref and 'id' in ref['role']:
+                    role_id = ref['role']['id']
                 LOG.warning(
                     _('Group %(group)s not found for role-assignment - '
                       '%(target)s with Role: %(role)s'), {
-                          'group': ref['group_id'], 'target': target,
-                          'role': ref.get('role_id')})
+                          'group': ref['group']['id'], 'target': target,
+                          'role': role_id})
             return members
 
         def _build_user_assignment_equivalent_of_group(
