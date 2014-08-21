@@ -245,7 +245,7 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def update_region(self, region_id):
+    def update_region(self, region_id, region_ref):
         """Update region by id.
 
         :returns: region_ref dict
@@ -296,7 +296,7 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def update_service(self, service_id):
+    def update_service(self, service_id, service_ref):
         """Update service by id.
 
         :returns: service_ref dict
