@@ -18,6 +18,8 @@ from keystoneclient.common import cms
 from oslo.utils import timeutils
 import six
 
+from keystone.assignment import controllers as assignment_controllers
+from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
@@ -338,8 +340,8 @@ class AuthInfo(object):
         self._scope_data = (domain_id, project_id, trust)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'token_provider_api',
-                     'trust_api')
+@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+                     'token_provider_api', 'trust_api')
 class Auth(controller.V3Controller):
 
     # Note(atiwari): From V3 auth controller code we are
@@ -536,6 +538,84 @@ class Auth(controller.V3Controller):
                                         CONF.signing.keyfile)
 
         return {'signed': signed_text}
+
+    def get_auth_context(self, context):
+        # TODO(dolphm): this method of accessing the auth context is terrible,
+        # but context needs to be refactored to always have reasonable values.
+        env_context = context.get('environment', {})
+        return env_context.get(authorization.AUTH_CONTEXT_ENV, {})
+
+    def _combine_lists_uniquely(self, a, b):
+        # it's most likely that only one of these will be filled so avoid
+        # the combination if possible.
+        if a and b:
+            return dict((x['id'], x) for x in a + b).values()
+        else:
+            return a or b
+
+    @controller.protected()
+    def get_auth_projects(self, context):
+        auth_context = self.get_auth_context(context)
+
+        user_id = auth_context.get('user_id')
+        user_refs = []
+        if user_id:
+            try:
+                user_refs = self.assignment_api.list_projects_for_user(user_id)
+            except exception.UserNotFound:
+                # federated users have an id but they don't link to anything
+                pass
+
+        group_ids = auth_context.get('group_ids')
+        grp_refs = []
+        if group_ids:
+            grp_refs = self.assignment_api.list_projects_for_groups(group_ids)
+
+        refs = self._combine_lists_uniquely(user_refs, grp_refs)
+        return assignment_controllers.ProjectV3.wrap_collection(context, refs)
+
+    @controller.protected()
+    def get_auth_domains(self, context):
+        auth_context = self.get_auth_context(context)
+
+        user_id = auth_context.get('user_id')
+        user_refs = []
+        if user_id:
+            try:
+                user_refs = self.assignment_api.list_domains_for_user(user_id)
+            except exception.UserNotFound:
+                # federated users have an id but they don't link to anything
+                pass
+
+        group_ids = auth_context.get('group_ids')
+        grp_refs = []
+        if group_ids:
+            grp_refs = self.assignment_api.list_domains_for_groups(group_ids)
+
+        refs = self._combine_lists_uniquely(user_refs, grp_refs)
+        return assignment_controllers.DomainV3.wrap_collection(context, refs)
+
+    @controller.protected()
+    def get_auth_catalog(self, context):
+        auth_context = self.get_auth_context(context)
+        user_id = auth_context.get('user_id')
+        project_id = auth_context.get('project_id')
+
+        if not project_id:
+            raise exception.Forbidden(
+                _('A project-scoped token is required to produce a service '
+                  'catalog.'))
+
+        # The V3Controller base methods mostly assume that you're returning
+        # either a collection or a single element from a collection, neither of
+        # which apply to the catalog. Because this is a special case, this
+        # re-implements a tiny bit of work done by the base controller (such as
+        # self-referential link building) to avoid overriding or refactoring
+        # several private methods.
+        return {
+            'catalog': self.catalog_api.get_v3_catalog(user_id, project_id),
+            'links': {'self': self.base_url(context, path='auth/catalog')}
+        }
 
 
 # FIXME(gyee): not sure if it belongs here or keystone.common. Park it here

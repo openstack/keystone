@@ -162,6 +162,9 @@ class Assignment(assignment.Driver):
     def list_projects_for_groups(self, group_ids):
         raise exception.NotImplemented()
 
+    def list_domains_for_user(self, user_id, group_ids, hints):
+        raise exception.NotImplemented()
+
     def list_domains_for_groups(self, group_ids):
         raise exception.NotImplemented()
 

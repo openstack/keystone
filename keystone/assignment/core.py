@@ -70,6 +70,12 @@ class Manager(manager.Manager):
 
         super(Manager, self).__init__(assignment_driver)
 
+    def _get_group_ids_for_user_id(self, user_id):
+        # TODO(morganfainberg): Implement a way to get only group_ids
+        # instead of the more expensive to_dict() call for each record.
+        return [x['id'] for
+                x in self.identity_api.list_groups_for_user(user_id)]
+
     @notifications.created(_PROJECT)
     def create_project(self, tenant_id, tenant):
         tenant = tenant.copy()
@@ -151,10 +157,7 @@ class Manager(manager.Manager):
 
         """
         def _get_group_project_roles(user_id, project_ref):
-            # TODO(morganfainberg): Implement a way to get only group_ids
-            # instead of the more expensive to_dict() call for each record.
-            group_ids = [group['id'] for group in
-                         self.identity_api.list_groups_for_user(user_id)]
+            group_ids = self._get_group_ids_for_user_id(user_id)
             return self.driver.get_group_project_roles(
                 group_ids,
                 project_ref['id'],
@@ -199,10 +202,10 @@ class Manager(manager.Manager):
 
         def _get_group_domain_roles(user_id, domain_id):
             role_list = []
-            group_refs = self.identity_api.list_groups_for_user(user_id)
-            for x in group_refs:
+            group_ids = self._get_group_ids_for_user_id(user_id)
+            for group_id in group_ids:
                 try:
-                    metadata_ref = self._get_metadata(group_id=x['id'],
+                    metadata_ref = self._get_metadata(group_id=group_id,
                                                       domain_id=domain_id)
                     role_list += self._roles_from_role_dicts(
                         metadata_ref.get('roles', {}), False)
@@ -289,9 +292,7 @@ class Manager(manager.Manager):
         # list here and pass it in. The rest of the detailed logic of listing
         # projects for a user is pushed down into the driver to enable
         # optimization with the various backend technologies (SQL, LDAP etc.).
-
-        group_ids = [x['id'] for
-                     x in self.identity_api.list_groups_for_user(user_id)]
+        group_ids = self._get_group_ids_for_user_id(user_id)
         return self.driver.list_projects_for_user(
             user_id, group_ids, hints or driver_hints.Hints())
 
@@ -318,6 +319,19 @@ class Manager(manager.Manager):
     @manager.response_truncated
     def list_domains(self, hints=None):
         return self.driver.list_domains(hints or driver_hints.Hints())
+
+    # TODO(henry-nash): We might want to consider list limiting this at some
+    # point in the future.
+    def list_domains_for_user(self, user_id, hints=None):
+        # NOTE(henry-nash): In order to get a complete list of user domains,
+        # the driver will need to look at group assignments.  To avoid cross
+        # calling between the assignment and identity driver we get the group
+        # list here and pass it in. The rest of the detailed logic of listing
+        # projects for a user is pushed down into the driver to enable
+        # optimization with the various backend technologies (SQL, LDAP etc.).
+        group_ids = self._get_group_ids_for_user_id(user_id)
+        return self.driver.list_domains_for_user(
+            user_id, group_ids, hints or driver_hints.Hints())
 
     @notifications.disabled('domain', public=False)
     def _disable_domain(self, domain_id):
@@ -890,6 +904,22 @@ class Driver(object):
 
         :param group_ids: List of group ids.
         :returns: List of projects accessible to specified groups.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_domains_for_user(self, user_id, group_ids, hints):
+        """List all domains associated with a given user.
+
+        :param user_id: the user in question
+        :param group_ids: the groups this user is a member of.  This list is
+                          built in the Manager, so that the driver itself
+                          does not have to call across to identity.
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of domain_refs or an empty list.
 
         """
         raise exception.NotImplemented()  # pragma: no cover

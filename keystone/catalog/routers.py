@@ -35,8 +35,3 @@ class Routers(wsgi.RoutersBase):
                                      'services', 'service'))
         routers.append(router.Router(controllers.EndpointV3(),
                                      'endpoints', 'endpoint'))
-
-        self._add_resource(
-            mapper, controllers.CatalogV3(),
-            path='/catalog',
-            get_action='get_catalog')

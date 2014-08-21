@@ -25,8 +25,6 @@
     "identity:update_endpoint": "rule:admin_required",
     "identity:delete_endpoint": "rule:admin_required",
 
-    "identity:get_catalog": "",
-
     "identity:get_domain": "rule:admin_required",
     "identity:list_domains": "rule:admin_required",
     "identity:create_domain": "rule:admin_required",
@@ -138,6 +136,10 @@
     "identity:list_mappings": "rule:admin_required",
     "identity:delete_mapping": "rule:admin_required",
     "identity:update_mapping": "rule:admin_required",
+
+    "identity:get_auth_catalog": "",
+    "identity:get_auth_projects": "",
+    "identity:get_auth_domains": "",
 
     "identity:list_projects_for_groups": "",
     "identity:list_domains_for_groups": "",

@@ -1022,7 +1022,7 @@ class FederatedTokenTests(FederationTests):
             self._check_scoped_token_attributes(token_resp)
 
     def test_list_projects(self):
-        url = '/OS-FEDERATION/projects'
+        urls = ('/OS-FEDERATION/projects', '/auth/projects')
 
         token = (self.tokens['CUSTOMER_ASSERTION'],
                  self.tokens['EMPLOYEE_ASSERTION'],
@@ -1036,13 +1036,15 @@ class FederatedTokenTests(FederationTests):
                               self.proj_customers['id']]))
 
         for token, projects_ref in zip(token, projects_refs):
-            r = self.get(url, token=token)
-            projects_resp = r.result['projects']
-            projects = set(p['id'] for p in projects_resp)
-            self.assertEqual(projects, projects_ref)
+            for url in urls:
+                r = self.get(url, token=token)
+                projects_resp = r.result['projects']
+                projects = set(p['id'] for p in projects_resp)
+                self.assertEqual(projects, projects_ref,
+                                 'match failed for url %s' % url)
 
     def test_list_domains(self):
-        url = '/OS-FEDERATION/domains'
+        urls = ('/OS-FEDERATION/domains', '/auth/domains')
 
         tokens = (self.tokens['CUSTOMER_ASSERTION'],
                   self.tokens['EMPLOYEE_ASSERTION'],
@@ -1056,10 +1058,12 @@ class FederatedTokenTests(FederationTests):
                             self.domainC['id']]))
 
         for token, domains_ref in zip(tokens, domain_refs):
-            r = self.get(url, token=token)
-            domains_resp = r.result['domains']
-            domains = set(p['id'] for p in domains_resp)
-            self.assertEqual(domains, domains_ref)
+            for url in urls:
+                r = self.get(url, token=token)
+                domains_resp = r.result['domains']
+                domains = set(p['id'] for p in domains_resp)
+                self.assertEqual(domains, domains_ref,
+                                 'match failed for url %s' % url)
 
     def test_full_workflow(self):
         """Test 'standard' workflow for granting access tokens.

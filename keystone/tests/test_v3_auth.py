@@ -19,6 +19,7 @@ import uuid
 
 from keystoneclient.common import cms
 from oslo.utils import timeutils
+from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
@@ -3412,3 +3413,56 @@ class TestAuthContext(tests.TestCase):
         self.auth_context[attr_name] = attr_val_1
         self.auth_context[attr_name] = attr_val_2
         self.assertEqual(attr_val_2, self.auth_context[attr_name])
+
+
+class TestAuthSpecificData(test_v3.RestfulTestCase):
+
+    def test_get_catalog_project_scoped_token(self):
+        """Call ``GET /auth/catalog`` with a project-scoped token."""
+        r = self.get(
+            '/auth/catalog',
+            expected_status=200)
+        self.assertValidCatalogResponse(r)
+
+    def test_get_catalog_domain_scoped_token(self):
+        """Call ``GET /auth/catalog`` with a domain-scoped token."""
+        # grant a domain role to a user
+        self.put(path='/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id']))
+
+        self.get(
+            '/auth/catalog',
+            auth=self.build_authentication_request(
+                user_id=self.user['id'],
+                password=self.user['password'],
+                domain_id=self.domain['id']),
+            expected_status=403)
+
+    def test_get_catalog_unscoped_token(self):
+        """Call ``GET /auth/catalog`` with an unscoped token."""
+        self.get(
+            '/auth/catalog',
+            auth=self.build_authentication_request(
+                user_id=self.default_domain_user['id'],
+                password=self.default_domain_user['password']),
+            expected_status=403)
+
+    def test_get_catalog_no_token(self):
+        """Call ``GET /auth/catalog`` without a token."""
+        self.get(
+            '/auth/catalog',
+            noauth=True,
+            expected_status=401)
+
+    def test_get_projects_project_scoped_token(self):
+        r = self.get('/auth/projects', expected_status=200)
+        self.assertThat(r.json['projects'], matchers.HasLength(1))
+        self.assertValidProjectListResponse(r)
+
+    def test_get_domains_project_scoped_token(self):
+        self.put(path='/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id']))
+
+        r = self.get('/auth/domains', expected_status=200)
+        self.assertThat(r.json['domains'], matchers.HasLength(1))
+        self.assertValidDomainListResponse(r)
