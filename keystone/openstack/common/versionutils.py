@@ -18,8 +18,10 @@ Helpers for comparing version strings.
 """
 
 import functools
+import inspect
 
 import pkg_resources
+import six
 
 from keystone.openstack.common.gettextutils import _
 from keystone.openstack.common import log as logging
@@ -53,6 +55,14 @@ class deprecated(object):
     >>> @deprecated(as_of=deprecated.ICEHOUSE, remove_in=+1)
     ... def c(): pass
 
+    4. Specifying the deprecated functionality will not be removed:
+    >>> @deprecated(as_of=deprecated.ICEHOUSE, remove_in=0)
+    ... def d(): pass
+
+    5. Specifying a replacement, deprecated functionality will not be removed:
+    >>> @deprecated(as_of=deprecated.ICEHOUSE, in_favor_of='f()', remove_in=0)
+    ... def e(): pass
+
     """
 
     # NOTE(morganfainberg): Bexar is used for unit test purposes, it is
@@ -63,6 +73,7 @@ class deprecated(object):
     HAVANA = 'H'
     ICEHOUSE = 'I'
     JUNO = 'J'
+    KILO = 'K'
 
     _RELEASES = {
         # NOTE(morganfainberg): Bexar is used for unit test purposes, it is
@@ -73,6 +84,7 @@ class deprecated(object):
         'H': 'Havana',
         'I': 'Icehouse',
         'J': 'Juno',
+        'K': 'Kilo',
     }
 
     _deprecated_msg_with_alternative = _(
@@ -82,6 +94,12 @@ class deprecated(object):
     _deprecated_msg_no_alternative = _(
         '%(what)s is deprecated as of %(as_of)s and may be '
         'removed in %(remove_in)s. It will not be superseded.')
+
+    _deprecated_msg_with_alternative_no_removal = _(
+        '%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s.')
+
+    _deprecated_msg_with_no_alternative_no_removal = _(
+        '%(what)s is deprecated as of %(as_of)s. It will not be superseded.')
 
     def __init__(self, as_of, in_favor_of=None, remove_in=2, what=None):
         """Initialize decorator
@@ -100,16 +118,34 @@ class deprecated(object):
         self.remove_in = remove_in
         self.what = what
 
-    def __call__(self, func):
+    def __call__(self, func_or_cls):
         if not self.what:
-            self.what = func.__name__ + '()'
+            self.what = func_or_cls.__name__ + '()'
+        msg, details = self._build_message()
 
-        @functools.wraps(func)
-        def wrapped(*args, **kwargs):
-            msg, details = self._build_message()
-            LOG.deprecated(msg, details)
-            return func(*args, **kwargs)
-        return wrapped
+        if inspect.isfunction(func_or_cls):
+
+            @six.wraps(func_or_cls)
+            def wrapped(*args, **kwargs):
+                LOG.deprecated(msg, details)
+                return func_or_cls(*args, **kwargs)
+            return wrapped
+        elif inspect.isclass(func_or_cls):
+            orig_init = func_or_cls.__init__
+
+            # TODO(tsufiev): change `functools` module to `six` as
+            # soon as six 1.7.4 (with fix for passing `assigned`
+            # argument to underlying `functools.wraps`) is released
+            # and added to the keystone-incubator requrements
+            @functools.wraps(orig_init, assigned=('__name__', '__doc__'))
+            def new_init(self, *args, **kwargs):
+                LOG.deprecated(msg, details)
+                orig_init(self, *args, **kwargs)
+            func_or_cls.__init__ = new_init
+            return func_or_cls
+        else:
+            raise TypeError('deprecated can be used only with functions or '
+                            'classes')
 
     def _get_safe_to_remove_release(self, release):
         # TODO(dstanek): this method will have to be reimplemented once
@@ -128,9 +164,19 @@ class deprecated(object):
 
         if self.in_favor_of:
             details['in_favor_of'] = self.in_favor_of
-            msg = self._deprecated_msg_with_alternative
+            if self.remove_in > 0:
+                msg = self._deprecated_msg_with_alternative
+            else:
+                # There are no plans to remove this function, but it is
+                # now deprecated.
+                msg = self._deprecated_msg_with_alternative_no_removal
         else:
-            msg = self._deprecated_msg_no_alternative
+            if self.remove_in > 0:
+                msg = self._deprecated_msg_no_alternative
+            else:
+                # There are no plans to remove this function, but it is
+                # now deprecated.
+                msg = self._deprecated_msg_with_no_alternative_no_removal
         return msg, details
 
 

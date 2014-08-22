@@ -216,6 +216,7 @@ class Enforcer(object):
     def clear(self):
         """Clears Enforcer rules, policy's cache and policy's path."""
         self.set_rules({})
+        fileutils.delete_cached_file(self.policy_path)
         self.default_rule = None
         self.policy_path = None
 
