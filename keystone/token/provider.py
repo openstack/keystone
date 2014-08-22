@@ -15,8 +15,10 @@
 """Token provider interface."""
 
 import abc
+import codecs
 import datetime
 import sys
+import uuid
 
 from keystoneclient.common import cms
 from oslo.utils import timeutils
@@ -73,6 +75,27 @@ def default_expire_time():
     """
     expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
     return timeutils.utcnow() + expire_delta
+
+
+def audit_info(parent_audit_id):
+    """Build the audit data for a token.
+
+    If ``parent_audit_id`` is None, the list will be one element in length
+    containing a newly generated audit_id.
+
+    If ``parent_audit_id`` is supplied, the list will be two elements in length
+    containing a newly generated audit_id and the ``parent_audit_id``. The
+    ``parent_audit_id`` will always be element index 1 in the resulting
+    list.
+
+    :param parent_audit_id: the audit of the original token in the chain
+    :type parent_audit_id: str
+    :returns: Keystone token audit data
+    """
+    audit_id = codecs.encode(uuid.uuid4().bytes, 'base64')[:-3]
+    if parent_audit_id is not None:
+        return [audit_id, parent_audit_id]
+    return [audit_id]
 
 
 @dependency.optional('revoke_api')
@@ -338,10 +361,12 @@ class Manager(manager.Manager):
 
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
-                       trust=None, metadata_ref=None, include_catalog=True):
+                       trust=None, metadata_ref=None, include_catalog=True,
+                       parent_audit_id=None):
         token_id, token_data = self.driver.issue_v3_token(
             user_id, method_names, expires_at, project_id, domain_id,
-            auth_context, trust, metadata_ref, include_catalog)
+            auth_context, trust, metadata_ref, include_catalog,
+            parent_audit_id)
 
         if metadata_ref is None:
             metadata_ref = {}
@@ -454,7 +479,8 @@ class Provider(object):
     @abc.abstractmethod
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
-                       trust=None, metadata_ref=None, include_catalog=True):
+                       trust=None, metadata_ref=None, include_catalog=True,
+                       parent_audit_id=None):
         """Issue a V3 Token.
 
         :param user_id: identity of the user
@@ -475,6 +501,8 @@ class Provider(object):
         :type metadata_ref: dict
         :param include_catalog: optional, include the catalog in token data
         :type include_catalog: boolean
+        :param parent_audit_id: optional, the audit id of the parent token
+        :type parent_audit_id: string
         :returns: (token_id, token_data)
         """
         raise exception.NotImplemented()  # pragma: no cover

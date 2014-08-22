@@ -385,9 +385,12 @@ class Auth(controller.V3Controller):
             # argument is during the issue_v3_token provider call.
             metadata_ref = None
 
+            token_audit_id = auth_context.get('audit_id')
+
             (token_id, token_data) = self.token_provider_api.issue_v3_token(
                 auth_context['user_id'], method_names, expires_at, project_id,
-                domain_id, auth_context, trust, metadata_ref, include_catalog)
+                domain_id, auth_context, trust, metadata_ref, include_catalog,
+                parent_audit_id=token_audit_id)
 
             # NOTE(wanghong): We consume a trust use only when we are using
             # trusts and have successfully issued a token.

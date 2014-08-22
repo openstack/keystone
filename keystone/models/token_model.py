@@ -74,6 +74,18 @@ class KeystoneToken(dict):
         return _parse_and_normalize_time(issued_at)
 
     @property
+    def audit_id(self):
+        if self.version is V3:
+            return self.get('audit_ids', [None])[0]
+        return self['token'].get('audit_ids', [None])[0]
+
+    @property
+    def audit_chain_id(self):
+        if self.version is V3:
+            return self.get('audit_ids', [None])[-1]
+        return self['token'].get('audit_ids', [None])[-1]
+
+    @property
     def auth_token(self):
         return self.token_id
 

@@ -98,7 +98,7 @@ class Auth(controller.V2Controller):
                 auth_info = self._authenticate_local(
                     context, auth)
 
-        user_ref, tenant_ref, metadata_ref, expiry, bind = auth_info
+        user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id = auth_info
         # Validate that the auth info is valid and nothing is disabled
         try:
             self.identity_api.assert_user_enabled(
@@ -122,7 +122,8 @@ class Auth(controller.V2Controller):
         auth_token_data = self._get_auth_token_data(user_ref,
                                                     tenant_ref,
                                                     metadata_ref,
-                                                    expiry)
+                                                    expiry,
+                                                    audit_id)
 
         if tenant_ref:
             catalog_ref = self.catalog_api.get_catalog(
@@ -241,8 +242,31 @@ class Auth(controller.V2Controller):
             metadata_ref['trust_id'] = trust_id
 
         bind = old_token_ref.get('bind')
+        # TODO(morganfainberg): Convert this over to using the KeystoneToken
+        # model when removing dependency on token_api.
+        token_data = old_token_ref.get('token_data')
+        audit_id = None
+        if token_data:
+            # NOTE(morganfainberg): The token audit field will always contain
+            # the token's direct audit id at index 0, index 1 will exist and
+            # contain the audit chain id (audit id of the original token in
+            # the chain), so always lookup the last element of the audit field
+            # to determine the id to pass on.
+            try:
+                if 'access' in token_data:
+                    audit_id = token_data['access']['token'].get(
+                        'audit_ids', [])[-1]
+                else:
+                    audit_id = token_data['token'].get('audit_ids', [])[-1]
+            except IndexError:
+                # NOTE(morganfainberg): When transitioning from tokens without
+                # audit_ids to tokens with audit ids it some tokens may not
+                # have an audit_id, and the lookup will cause an IndexError
+                # to be raised.
+                pass
 
-        return (current_user_ref, tenant_ref, metadata_ref, expiry, bind)
+        return (current_user_ref, tenant_ref, metadata_ref, expiry, bind,
+                audit_id)
 
     def _authenticate_local(self, context, auth):
         """Try to authenticate against the identity backend.
@@ -300,7 +324,9 @@ class Auth(controller.V2Controller):
             user_id, tenant_id)
 
         expiry = provider.default_expire_time()
-        return (user_ref, tenant_ref, metadata_ref, expiry, None)
+        bind = None
+        audit_id = None
+        return (user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id)
 
     def _authenticate_external(self, context, auth):
         """Try to authenticate an external user via REMOTE_USER variable.
@@ -334,14 +360,16 @@ class Auth(controller.V2Controller):
         if ('kerberos' in CONF.token.bind and
                 environment.get('AUTH_TYPE', '').lower() == 'negotiate'):
             bind = {'kerberos': username}
+        audit_id = None
 
-        return (user_ref, tenant_ref, metadata_ref, expiry, bind)
+        return (user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id)
 
-    def _get_auth_token_data(self, user, tenant, metadata, expiry):
+    def _get_auth_token_data(self, user, tenant, metadata, expiry, audit_id):
         return dict(user=user,
                     tenant=tenant,
                     metadata=metadata,
-                    expires=expiry)
+                    expires=expiry,
+                    parent_audit_id=audit_id)
 
     def _get_project_id_from_auth(self, auth):
         """Extract tenant information from auth dict.

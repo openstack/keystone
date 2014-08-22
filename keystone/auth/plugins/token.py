@@ -55,6 +55,19 @@ class Token(auth.AuthMethodHandler):
 
             wsgi.validate_token_bind(context, token_ref)
 
+            # New tokens maintain the audit_id of the original token in the
+            # chain (if possible) as the second element in the audit data
+            # structure. Look for the last element in the audit data structure
+            # which will be either the audit_id of the token (in the case of
+            # a token that has not been rescoped) or the audit_chain id (in
+            # the case of a token that has been rescoped).
+            try:
+                token_audit_id = token_ref.get('audit_ids', [])[-1]
+            except IndexError:
+                # NOTE(morganfainberg): In the case this is a token that was
+                # issued prior to audit id existing, the chain is not tracked.
+                token_audit_id = None
+
             # New tokens are not allowed to extend the expiration
             # time of an old token, otherwise, they could be extened
             # forever. The expiration value was stored at different
@@ -67,6 +80,7 @@ class Token(auth.AuthMethodHandler):
                     timeutils.parse_isotime(token_ref['token']['expires']))
 
             user_context.setdefault('expires_at', expires_at)
+            user_context['audit_id'] = token_audit_id
             user_context.setdefault('user_id', token_ref['user']['id'])
             user_context['extras'].update(token_ref.get('extras', {}))
             user_context['method_names'].extend(token_ref.get('methods', []))
