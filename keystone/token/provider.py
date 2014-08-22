@@ -15,7 +15,7 @@
 """Token provider interface."""
 
 import abc
-import codecs
+import base64
 import datetime
 import sys
 import uuid
@@ -92,7 +92,7 @@ def audit_info(parent_audit_id):
     :type parent_audit_id: str
     :returns: Keystone token audit data
     """
-    audit_id = codecs.encode(uuid.uuid4().bytes, 'base64')[:-3]
+    audit_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
     if parent_audit_id is not None:
         return [audit_id, parent_audit_id]
     return [audit_id]

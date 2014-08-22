@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import codecs
+import base64
 import uuid
 
 from testtools import matchers
@@ -28,7 +28,7 @@ class TestTokenDataHelper(tests.TestCase):
 
     def test_v3_token_data_helper_populate_audit_info_string(self):
         token_data = {}
-        audit_info = codecs.encode(uuid.uuid4().bytes, 'base64')[:-3]
+        audit_info = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
         self.v3_data_helper._populate_audit_info(token_data, audit_info)
         self.assertIn(audit_info, token_data['audit_ids'])
         self.assertThat(token_data['audit_ids'], matchers.HasLength(2))
@@ -41,8 +41,8 @@ class TestTokenDataHelper(tests.TestCase):
 
     def test_v3_token_data_helper_populate_audit_info_list(self):
         token_data = {}
-        audit_info = [uuid.uuid4().bytes.encode('base64')[:-3],
-                      uuid.uuid4().bytes.encode('base64')[:-3]]
+        audit_info = [base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
+                      base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]]
         self.v3_data_helper._populate_audit_info(token_data, audit_info)
         self.assertEqual(audit_info, token_data['audit_ids'])
 
