@@ -21,7 +21,6 @@ import uuid
 import six
 from testtools import matchers
 
-from keystone.catalog import core
 from keystone.common import driver_hints
 from keystone import config
 from keystone import exception
@@ -3590,26 +3589,6 @@ class TrustTests(object):
         self.trust_api.consume_use(trust_data['id'])
         # This was the last use, the trust isn't available anymore
         self.assertIsNone(self.trust_api.get_trust(trust_data['id']))
-
-
-class CommonHelperTests(tests.TestCase):
-    def test_format_helper_raises_malformed_on_missing_key(self):
-        self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
-                          "http://%(foo)s/%(bar)s",
-                          {"foo": "1"})
-
-    def test_format_helper_raises_malformed_on_wrong_type(self):
-        self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
-                          "http://%foo%s",
-                          {"foo": "1"})
-
-    def test_format_helper_raises_malformed_on_incomplete_format(self):
-        self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
-                          "http://%(foo)",
-                          {"foo": "1"})
 
 
 class CatalogTests(object):
