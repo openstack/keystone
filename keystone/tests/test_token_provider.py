@@ -20,6 +20,7 @@ from keystone import config
 from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 from keystone import token
 from keystone.token.providers import pki
 
@@ -706,6 +707,7 @@ SAMPLE_MALFORMED_TOKEN = {
 class TestTokenProvider(tests.TestCase):
     def setUp(self):
         super(TestTokenProvider, self).setUp()
+        self.useFixture(database.Database())
         self.load_backends()
 
     def test_get_token_version(self):
@@ -804,6 +806,7 @@ class TestTokenProvider(tests.TestCase):
 class TestTokenProviderOAuth1(tests.TestCase):
     def setUp(self):
         super(TestTokenProviderOAuth1, self).setUp()
+        self.useFixture(database.Database())
         self.load_backends()
 
     def config_overrides(self):

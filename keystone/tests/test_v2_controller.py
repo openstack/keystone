@@ -18,6 +18,7 @@ import uuid
 from keystone.assignment import controllers
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 
 
 _ADMIN_CONTEXT = {'is_admin': True, 'query_string': {}}
@@ -31,6 +32,7 @@ class TenantTestCase(tests.TestCase):
     """
     def setUp(self):
         super(TenantTestCase, self).setUp()
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
         self.tenant_controller = controllers.Tenant()

@@ -1987,6 +1987,77 @@ class TestAuthJSON(test_v3.RestfulTestCase):
         self.assertIn(role_list[5]['id'], roles_ids)
         self.assertIn(role_list[7]['id'], roles_ids)
 
+    def test_auth_token_cross_domain_group_and_project(self):
+        """Verify getting a token in cross domain group/project roles."""
+        # create domain, project and group and grant roles to user
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain1['id'], domain1)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        user_foo = self.new_user_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID)
+        password = user_foo['password']
+        user_foo = self.identity_api.create_user(user_foo)
+        user_foo['password'] = password
+        role_member = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role_member['id'],
+                                        role_member)
+        role_admin = {'id': uuid.uuid4().hex,
+                      'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role_admin['id'],
+                                        role_admin)
+        role_foo_domain1 = {'id': uuid.uuid4().hex,
+                            'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role_foo_domain1['id'],
+                                        role_foo_domain1)
+        role_group_domain1 = {'id': uuid.uuid4().hex,
+                              'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role_group_domain1['id'],
+                                        role_group_domain1)
+        self.assignment_api.add_user_to_project(project1['id'],
+                                                user_foo['id'])
+        new_group = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
+        new_group = self.identity_api.create_group(new_group)
+        self.identity_api.add_user_to_group(user_foo['id'],
+                                            new_group['id'])
+        self.assignment_api.create_grant(
+            user_id=user_foo['id'],
+            project_id=project1['id'],
+            role_id=role_member['id'])
+        self.assignment_api.create_grant(
+            group_id=new_group['id'],
+            project_id=project1['id'],
+            role_id=role_admin['id'])
+        self.assignment_api.create_grant(
+            user_id=user_foo['id'],
+            domain_id=domain1['id'],
+            role_id=role_foo_domain1['id'])
+        self.assignment_api.create_grant(
+            group_id=new_group['id'],
+            domain_id=domain1['id'],
+            role_id=role_group_domain1['id'])
+
+        # Get a scoped token for the project
+        auth_data = self.build_authentication_request(
+            username=user_foo['name'],
+            user_domain_id=test_v3.DEFAULT_DOMAIN_ID,
+            password=user_foo['password'],
+            project_name=project1['name'],
+            project_domain_id=domain1['id'])
+
+        r = self.v3_authenticate_token(auth_data)
+        scoped_token = self.assertValidScopedTokenResponse(r)
+        project = scoped_token["project"]
+        roles_ids = []
+        for ref in scoped_token['roles']:
+            roles_ids.append(ref['id'])
+        self.assertEqual(project1['id'], project["id"])
+        self.assertIn(role_member['id'], roles_ids)
+        self.assertIn(role_admin['id'], roles_ids)
+        self.assertNotIn(role_foo_domain1['id'], roles_ids)
+        self.assertNotIn(role_group_domain1['id'], roles_ids)
+
     def test_project_id_scoped_token_with_user_domain_id(self):
         auth_data = self.build_authentication_request(
             username=self.user['name'],

@@ -350,7 +350,7 @@ class TestCase(BaseTestCase):
             template_file=dirs.tests('default_catalog.templates'))
         self.config_fixture.config(
             group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
+            driver='keystone.identity.backends.sql.Identity')
         self.config_fixture.config(
             group='kvs',
             backends=[

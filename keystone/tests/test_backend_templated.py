@@ -17,6 +17,7 @@ import uuid
 
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 from keystone.tests import test_backend
 
 
@@ -48,6 +49,7 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
 
     def setUp(self):
         super(TestTemplatedCatalog, self).setUp()
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
