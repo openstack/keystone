@@ -612,6 +612,9 @@ class ExtensionRouter(Router):
 class RoutersBase(object):
     """Base class for Routers."""
 
+    def __init__(self):
+        self.v3_resources = []
+
     def append_v3_routers(self, mapper, routers):
         """Append v3 routers.
 
@@ -623,7 +626,8 @@ class RoutersBase(object):
     def _add_resource(self, mapper, controller, path,
                       get_action=None, head_action=None, get_head_action=None,
                       put_action=None, post_action=None, patch_action=None,
-                      delete_action=None, get_post_action=None):
+                      delete_action=None, get_post_action=None, rel=None,
+                      path_vars=None):
         if get_head_action:
             mapper.connect(path, controller=controller, action=get_head_action,
                            conditions=dict(method=['GET', 'HEAD']))
@@ -648,6 +652,17 @@ class RoutersBase(object):
         if get_post_action:
             mapper.connect(path, controller=controller, action=get_post_action,
                            conditions=dict(method=['GET', 'POST']))
+
+        if rel:
+            resource_data = dict()
+
+            if path_vars:
+                resource_data['href-template'] = path
+                resource_data['href-vars'] = path_vars
+            else:
+                resource_data['href'] = path
+
+            self.v3_resources.append((rel, resource_data))
 
 
 class V3ExtensionRouter(ExtensionRouter, RoutersBase):
