@@ -16,10 +16,11 @@ from keystone import auth
 from keystone.common import dependency
 from keystone.contrib import federation
 from keystone.contrib.federation import utils
+from keystone.models import token_model
 from keystone.openstack.common import jsonutils
 
 
-@dependency.requires('federation_api', 'identity_api', 'token_api')
+@dependency.requires('federation_api', 'identity_api', 'token_provider_api')
 class Mapped(auth.AuthMethodHandler):
 
     def authenticate(self, context, auth_payload, auth_context):
@@ -44,20 +45,20 @@ class Mapped(auth.AuthMethodHandler):
         auth_context.update(fields)
 
     def _handle_scoped_token(self, auth_payload):
-        token_ref = self.token_api.get_token(auth_payload['id'])
+        token_ref = token_model.KeystoneToken(
+            token_id=auth_payload['id'],
+            token_data=self.token_provider_api.validate_token(
+                auth_payload['id']))
         utils.validate_expiration(token_ref)
-        _federation = token_ref['user'][federation.FEDERATION]
-        identity_provider = _federation['identity_provider']['id']
-        protocol = _federation['protocol']['id']
-        group_ids = [group['id'] for group in _federation['groups']]
         mapping = self.federation_api.get_mapping_from_idp_and_protocol(
-            identity_provider, protocol)
-        utils.validate_groups(group_ids, mapping['id'], self.identity_api)
+            token_ref.federation_idp_id, token_ref.federation_protocol_id)
+        utils.validate_groups(token_ref.federation_group_ids,
+                              mapping['id'], self.identity_api)
         return {
-            'user_id': token_ref['user_id'],
-            'group_ids': group_ids,
-            federation.IDENTITY_PROVIDER: identity_provider,
-            federation.PROTOCOL: protocol
+            'user_id': token_ref.user_id,
+            'group_ids': token_ref.federation_group_ids,
+            federation.IDENTITY_PROVIDER: token_ref.federation_idp_id,
+            federation.PROTOCOL: token_ref.federation_protocol_id
         }
 
     def _handle_unscoped_token(self, context, auth_payload):
