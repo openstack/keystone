@@ -14,6 +14,7 @@
 
 """Notifications module for OpenStack Identity Service resources"""
 
+import inspect
 import logging
 import socket
 
@@ -45,6 +46,28 @@ _notifier = None
 
 CONF = cfg.CONF
 CONF.register_opts(notifier_opts)
+
+try:  # Python 2.7+
+    getcallargs = inspect.getcallargs
+except AttributeError:  # Python 2.6 support
+    def getcallargs(f, *positional, **named):
+        """A very simplified version of inspect.getcallargs.
+
+        It will work in our specific case where we are using decorators
+        around methods.
+
+        """
+        argspec = inspect.getargspec(f)
+
+        # setup the defaults
+        callargs = dict(zip(argspec.args[-len(argspec.defaults):],
+                            argspec.defaults))
+
+        callargs.update(named)
+        for n, arg in enumerate(positional):
+            callargs[argspec.args[n]] = arg
+
+        return callargs
 
 
 class ManagerNotificationWrapper(object):
@@ -227,6 +250,24 @@ def _send_notification(operation, resource_type, resource_id, public=True):
                     {'res_id': resource_id, 'event_type': event_type})
 
 
+def _get_request_audit_info(context, user_id=None):
+    remote_addr = None
+    http_user_agent = None
+
+    if context and 'environment' in context and context['environment']:
+        environment = context['environment']
+        remote_addr = environment.get('REMOTE_ADDR')
+        http_user_agent = environment.get('HTTP_USER_AGENT')
+        if not user_id:
+            user_id = environment.get('KEYSTONE_AUTH_CONTEXT',
+                                      {}).get('user_id')
+
+    host = pycadf.host.Host(address=remote_addr, agent=http_user_agent)
+    initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
+                                  name=user_id, host=host)
+    return initiator
+
+
 class CadfNotificationWrapper(object):
     """Send CADF event notifications for various methods.
 
@@ -242,18 +283,7 @@ class CadfNotificationWrapper(object):
         def wrapper(wrapped_self, context, user_id, *args, **kwargs):
             """Always send a notification."""
 
-            remote_addr = None
-            http_user_agent = None
-            environment = context.get('environment')
-
-            if environment:
-                remote_addr = environment.get('REMOTE_ADDR')
-                http_user_agent = environment.get('HTTP_USER_AGENT')
-
-            host = pycadf.host.Host(address=remote_addr, agent=http_user_agent)
-            initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
-                                          name=user_id, host=host)
-
+            initiator = _get_request_audit_info(context, user_id)
             _send_audit_notification(self.action, initiator,
                                      taxonomy.OUTCOME_PENDING)
             try:
@@ -271,7 +301,89 @@ class CadfNotificationWrapper(object):
         return wrapper
 
 
-def _send_audit_notification(action, initiator, outcome):
+class CadfRoleAssignmentNotificationWrapper(object):
+    """Send CADF notifications for ``role_assignment`` methods.
+
+    Sends a CADF notification if the wrapped method does not raise an
+    ``Exception`` (such as ``keystone.exception.NotFound``).
+
+    :param operation: one of the values from ACTIONS (create or delete)
+    """
+
+    ROLE_ASSIGNMENT = 'role_assignment'
+
+    def __init__(self, operation):
+        self.operation = "%s.%s" % (operation, self.ROLE_ASSIGNMENT)
+
+    def __call__(self, f):
+        def wrapper(wrapped_self, role_id, *args, **kwargs):
+            """Send a notification if the wrapped callable is successful."""
+
+            """ NOTE(stevemar): The reason we go through checking kwargs
+            and args for possible target and actor values is because the
+            create_grant() (and delete_grant()) method are called
+            differently in various tests.
+            Using named arguments, i.e.:
+                create_grant(user_id=user['id'], domain_id=domain['id'],
+                             role_id=role['id'])
+
+            Or, using positional arguments, i.e.:
+                create_grant(role_id['id'], user['id'], None,
+                             domain_id=domain['id'], None)
+
+            Or, both, i.e.:
+                create_grant(role_id['id'], user_id=user['id'],
+                             domain_id=domain['id'])
+
+            Checking the values for kwargs is easy enough, since it comes
+            in as a dictionary
+
+            The actual method signature is
+                create_grant(role_id, user_id=None, group_id=None,
+                             domain_id=None, project_id=None,
+                             inherited_to_projects=False)
+
+            So, if the values of actor or target are still None after
+            checking kwargs, we can check the positional arguments,
+            based on the method signature.
+            """
+            call_args = getcallargs(f, wrapped_self, role_id, *args, **kwargs)
+            inherited = call_args['inherited_to_projects']
+            context = call_args['context']
+
+            initiator = _get_request_audit_info(context)
+
+            audit_kwargs = {}
+            if call_args['project_id']:
+                audit_kwargs['project'] = call_args['project_id']
+            elif call_args['domain_id']:
+                audit_kwargs['domain'] = call_args['domain_id']
+
+            if call_args['user_id']:
+                audit_kwargs['user'] = call_args['user_id']
+            elif call_args['group_id']:
+                audit_kwargs['group'] = call_args['group_id']
+
+            audit_kwargs['inherited_to_projects'] = inherited
+            audit_kwargs['role'] = role_id
+
+            try:
+                result = f(wrapped_self, role_id, *args, **kwargs)
+            except Exception:
+                _send_audit_notification(self.operation, initiator,
+                                         taxonomy.OUTCOME_FAILURE,
+                                         **audit_kwargs)
+                raise
+            else:
+                _send_audit_notification(self.operation, initiator,
+                                         taxonomy.OUTCOME_SUCCESS,
+                                         **audit_kwargs)
+                return result
+
+        return wrapper
+
+
+def _send_audit_notification(action, initiator, outcome, **kwargs):
     """Send CADF notification to inform observers about the affected resource.
 
     This method logs an exception when sending the notification fails.
@@ -290,6 +402,9 @@ def _send_audit_notification(action, initiator, outcome):
         initiator=initiator,
         target=resource.Resource(typeURI=taxonomy.ACCOUNT_USER),
         observer=resource.Resource(typeURI=taxonomy.SERVICE_SECURITY))
+
+    for key, value in kwargs.items():
+        setattr(event, key, value)
 
     context = {}
     payload = event.as_dict()
@@ -311,3 +426,6 @@ def _send_audit_notification(action, initiator, outcome):
 
 
 emit_event = CadfNotificationWrapper
+
+
+role_assignment = CadfRoleAssignmentNotificationWrapper
