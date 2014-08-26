@@ -23,6 +23,7 @@ from keystone.contrib.revoke import model
 from keystone import exception
 from keystone import tests
 from keystone.tests import test_backend_sql
+from keystone.token import provider
 
 
 def _new_id():
@@ -92,7 +93,7 @@ def _matches(event, token_values):
     # rest of the logic.
     attribute_names = ['project_id',
                        'expires_at', 'trust_id', 'consumer_id',
-                       'access_token_id']
+                       'access_token_id', 'audit_id', 'audit_chain_id']
     for attribute_name in attribute_names:
         if getattr(event, attribute_name) is not None:
             if (getattr(event, attribute_name) !=
@@ -267,6 +268,22 @@ class RevokeTreeTests(tests.TestCase):
         return self.tree.add_event(
             model.RevokeEvent(user_id=user_id))
 
+    def _revoke_by_audit_id(self, audit_id):
+        event = self.tree.add_event(
+            model.RevokeEvent(audit_id=audit_id))
+        self.events.append(event)
+        return event
+
+    def _revoke_by_audit_chain_id(self, audit_chain_id, project_id=None,
+                                  domain_id=None):
+        event = self.tree.add_event(
+            model.RevokeEvent(audit_chain_id=audit_chain_id,
+                              project_id=project_id,
+                              domain_id=domain_id)
+        )
+        self.events.append(event)
+        return event
+
     def _revoke_by_expiration(self, user_id, expires_at, project_id=None,
                               domain_id=None):
         event = self.tree.add_event(
@@ -354,6 +371,45 @@ class RevokeTreeTests(tests.TestCase):
 
         self.removeEvent(event)
         self._assertTokenNotRevoked(token_data_1)
+
+    def test_revoke_by_audit_id(self):
+        audit_id = provider.audit_info(parent_audit_id=None)[0]
+        token_data_1 = _sample_blank_token()
+        # Audit ID and Audit Chain ID are populated with the same value
+        # if the token is an original token
+        token_data_1['audit_id'] = audit_id
+        token_data_1['audit_chain_id'] = audit_id
+        event = self._revoke_by_audit_id(audit_id)
+        self._assertTokenRevoked(token_data_1)
+
+        audit_id_2 = provider.audit_info(parent_audit_id=audit_id)[0]
+        token_data_2 = _sample_blank_token()
+        token_data_2['audit_id'] = audit_id_2
+        token_data_2['audit_chain_id'] = audit_id
+        self._assertTokenNotRevoked(token_data_2)
+
+        self.removeEvent(event)
+        self._assertTokenNotRevoked(token_data_1)
+
+    def test_revoke_by_audit_chain_id(self):
+        audit_id = provider.audit_info(parent_audit_id=None)[0]
+        token_data_1 = _sample_blank_token()
+        # Audit ID and Audit Chain ID are populated with the same value
+        # if the token is an original token
+        token_data_1['audit_id'] = audit_id
+        token_data_1['audit_chain_id'] = audit_id
+        event = self._revoke_by_audit_chain_id(audit_id)
+        self._assertTokenRevoked(token_data_1)
+
+        audit_id_2 = provider.audit_info(parent_audit_id=audit_id)[0]
+        token_data_2 = _sample_blank_token()
+        token_data_2['audit_id'] = audit_id_2
+        token_data_2['audit_chain_id'] = audit_id
+        self._assertTokenRevoked(token_data_2)
+
+        self.removeEvent(event)
+        self._assertTokenNotRevoked(token_data_1)
+        self._assertTokenNotRevoked(token_data_2)
 
     def test_by_user_project(self):
         # When a user has a project-scoped token and the project-scoped token
@@ -515,18 +571,24 @@ class RevokeTreeTests(tests.TestCase):
         self.assertEqual(turn + 1, len(self.tree.revoke_map
                                        ['trust_id=*']
                                        ['consumer_id=*']
-                                       ['access_token_id=*']))
+                                       ['access_token_id=*']
+                                       ['audit_id=*']
+                                       ['audit_chain_id=*']))
         # two different functions add  domain_ids, +1 for None
         self.assertEqual(2 * turn + 1, len(self.tree.revoke_map
                                            ['trust_id=*']
                                            ['consumer_id=*']
                                            ['access_token_id=*']
+                                           ['audit_id=*']
+                                           ['audit_chain_id=*']
                                            ['expires_at=*']))
         # two different functions add  project_ids, +1 for None
         self.assertEqual(2 * turn + 1, len(self.tree.revoke_map
                                            ['trust_id=*']
                                            ['consumer_id=*']
                                            ['access_token_id=*']
+                                           ['audit_id=*']
+                                           ['audit_chain_id=*']
                                            ['expires_at=*']
                                            ['domain_id=*']))
         # 10 users added
@@ -534,6 +596,8 @@ class RevokeTreeTests(tests.TestCase):
                                    ['trust_id=*']
                                    ['consumer_id=*']
                                    ['access_token_id=*']
+                                   ['audit_id=*']
+                                   ['audit_chain_id=*']
                                    ['expires_at=*']
                                    ['domain_id=*']
                                    ['project_id=*']))
@@ -554,7 +618,9 @@ class RevokeTreeTests(tests.TestCase):
             self.assertEqual(i + 2, len(self.tree.revoke_map
                                         ['trust_id=*']
                                         ['consumer_id=*']
-                                        ['access_token_id=*']),
+                                        ['access_token_id=*']
+                                        ['audit_id=*']
+                                        ['audit_chain_id=*']),
                              'adding %s to %s' % (args,
                                                   self.tree.revoke_map))
 

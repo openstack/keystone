@@ -26,6 +26,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -128,6 +129,8 @@ class Manager(manager.Manager):
     def revoke_by_user(self, user_id):
         return self.revoke(model.RevokeEvent(user_id=user_id))
 
+    @versionutils.deprecated(as_of=versionutils.deprecated.JUNO,
+                             remove_in=0)
     def revoke_by_expiration(self, user_id, expires_at,
                              domain_id=None, project_id=None):
 
@@ -143,6 +146,15 @@ class Manager(manager.Manager):
                               expires_at=expires_at,
                               domain_id=domain_id,
                               project_id=project_id))
+
+    def revoke_by_audit_id(self, audit_id):
+        self.revoke(model.RevokeEvent(audit_id=audit_id))
+
+    def revoke_by_audit_chain_id(self, audit_chain_id, project_id=None,
+                                 domain_id=None):
+        self.revoke(model.RevokeEvent(audit_chain_id=audit_chain_id,
+                                      domain_id=domain_id,
+                                      project_id=project_id))
 
     def revoke_by_grant(self, role_id, user_id=None,
                         domain_id=None, project_id=None):

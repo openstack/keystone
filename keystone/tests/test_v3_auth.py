@@ -19,6 +19,7 @@ import uuid
 
 from keystoneclient.common import cms
 from oslo.utils import timeutils
+import six
 from testtools import matchers
 from testtools import testcase
 
@@ -1341,48 +1342,45 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         expected_response = {'events': [{'domain_id': domain_id}]}
         self.assertEqual(expected_response, events_response)
 
-    def assertValidRevokedTokenResponse(self, events_response, user_id,
-                                        project_id=None):
+    def assertValidRevokedTokenResponse(self, events_response, **kwargs):
         events = events_response['events']
         self.assertEqual(1, len(events))
-        self.assertEqual(user_id, events[0]['user_id'])
-        if project_id:
-            self.assertEqual(project_id, events[0]['project_id'])
-        self.assertIsNotNone(events[0]['expires_at'])
+        for k, v in six.iteritems(kwargs):
+            self.assertEqual(v, events[0].get(k))
         self.assertIsNotNone(events[0]['issued_before'])
         self.assertIsNotNone(events_response['links'])
-        del (events_response['events'][0]['expires_at'])
         del (events_response['events'][0]['issued_before'])
         del (events_response['links'])
 
-        expected_event_data = {'user_id': user_id}
-        if project_id:
-            expected_event_data['project_id'] = project_id
-        expected_response = {'events': [expected_event_data]}
+        expected_response = {'events': [kwargs]}
         self.assertEqual(expected_response, events_response)
 
     def test_revoke_token(self):
         scoped_token = self.get_scoped_token()
         headers = {'X-Subject-Token': scoped_token}
-        self.head('/auth/tokens', headers=headers, expected_status=200)
+        response = self.get('/auth/tokens', headers=headers,
+                            expected_status=200).json_body['token']
+
         self.delete('/auth/tokens', headers=headers, expected_status=204)
         self.head('/auth/tokens', headers=headers, expected_status=404)
         events_response = self.get('/OS-REVOKE/events',
                                    expected_status=200).json_body
-        self.assertValidRevokedTokenResponse(events_response, self.user['id'],
-                                             project_id=self.project['id'])
+        self.assertValidRevokedTokenResponse(events_response,
+                                             audit_id=response['audit_ids'][0])
 
     def test_revoke_v2_token(self):
         token = self.get_v2_token()
         headers = {'X-Subject-Token': token}
-        self.head('/auth/tokens', headers=headers, expected_status=200)
+        response = self.get('/auth/tokens', headers=headers,
+                            expected_status=200).json_body['token']
         self.delete('/auth/tokens', headers=headers, expected_status=204)
         self.head('/auth/tokens', headers=headers, expected_status=404)
         events_response = self.get('/OS-REVOKE/events',
                                    expected_status=200).json_body
 
-        self.assertValidRevokedTokenResponse(events_response,
-                                             self.default_domain_user['id'])
+        self.assertValidRevokedTokenResponse(
+            events_response,
+            audit_id=response['audit_ids'][0])
 
     def test_revoke_by_id_false_410(self):
         self.get('/auth/tokens/OS-PKI/revoked', expected_status=410)
@@ -1414,19 +1412,30 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
         self.assertDomainInList(events, self.domainA['id'])
 
-    def assertUserAndExpiryInList(self, events, user_id, expires_at):
+    def assertEventDataInList(self, events, **kwargs):
         found = False
         for e in events:
-
-            # Timestamps in the event list are accurate to second.
-            expires_at = timeutils.parse_isotime(expires_at)
-            expires_at = timeutils.isotime(expires_at)
-
-            if e['user_id'] == user_id and e['expires_at'] == expires_at:
+            for key, value in six.iteritems(kwargs):
+                try:
+                    if e[key] != value:
+                        break
+                except KeyError:
+                    # Break the loop and present a nice error instead of
+                    # KeyError
+                    break
+            else:
+                # If the value of the event[key] matches the value of the kwarg
+                # for each item in kwargs, the event was fully matched and
+                # the assertTrue below should succeed.
                 found = True
         self.assertTrue(found,
-                        'event with correct user_id %s and expires_at value '
-                        'not in list' % user_id)
+                        'event with correct values not in list, expected to '
+                        'find event with key-value pairs. Expected: '
+                        '"%(expected)s" Events: "%(events)s"' %
+                        {'expected': ','.join(
+                            ["'%s=%s'" % (k, v) for k, v in six.iteritems(
+                                kwargs)]),
+                         'events': events})
 
     def test_list_delete_token_shows_in_event_list(self):
         self.role_data_fixtures()
@@ -1456,11 +1465,9 @@ class TestTokenRevokeApi(TestTokenRevokeById):
                                    expected_status=200).json_body
         events = events_response['events']
         self.assertEqual(1, len(events))
-        self.assertUserAndExpiryInList(events,
-                                       token2['user']['id'],
-                                       token2['expires_at'])
-        self.assertValidRevokedTokenResponse(events_response, self.user['id'],
-                                             project_id=self.project['id'])
+        self.assertEventDataInList(
+            events,
+            audit_id=token2['audit_ids'][1])
         self.head('/auth/tokens', headers=headers, expected_status=404)
         self.head('/auth/tokens', headers=headers2, expected_status=200)
         self.head('/auth/tokens', headers=headers3, expected_status=200)

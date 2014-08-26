@@ -37,6 +37,7 @@ from migrate.versioning import api as versioning_api
 from oslo.db import exception as db_exception
 from oslo.db.sqlalchemy import migration
 from oslo.db.sqlalchemy import session as db_session
+import six
 import sqlalchemy.exc
 
 from keystone.assignment.backends import sql as assignment_sql
@@ -45,6 +46,7 @@ from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
 from keystone import config
 from keystone.contrib import federation
+from keystone.contrib import revoke
 from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
@@ -119,9 +121,13 @@ INITIAL_EXTENSION_TABLE_STRUCTURE = {
     'revocation_event': [
         'id', 'domain_id', 'project_id', 'user_id', 'role_id',
         'trust_id', 'consumer_id', 'access_token_id',
-        'issued_before', 'expires_at', 'revoked_at',
+        'issued_before', 'expires_at', 'revoked_at', 'audit_id',
+        'audit_chain_id',
     ],
 }
+
+EXTENSIONS = {'federation': federation,
+              'revoke': revoke}
 
 
 class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
@@ -1413,18 +1419,38 @@ class VersionTests(SqlMigrateBase):
 
     def test_extension_initial(self):
         """When get the initial version of an extension, it's 0."""
-        abs_path = migration_helpers.find_migrate_repo(federation)
-        migration.db_version_control(sql.get_engine(), abs_path)
-        version = migration_helpers.get_db_version(extension='federation')
-        self.assertEqual(0, version)
+        for name, extension in six.iteritems(EXTENSIONS):
+            abs_path = migration_helpers.find_migrate_repo(extension)
+            migration.db_version_control(sql.get_engine(), abs_path)
+            version = migration_helpers.get_db_version(extension=name)
+            self.assertEqual(0, version,
+                             'Migrate version for %s is not 0' % name)
 
     def test_extension_migrated(self):
         """When get the version after migrating an extension, it's not 0."""
-        abs_path = migration_helpers.find_migrate_repo(federation)
-        migration.db_version_control(sql.get_engine(), abs_path)
-        migration.db_sync(sql.get_engine(), abs_path)
-        version = migration_helpers.get_db_version(extension='federation')
-        self.assertTrue(version > 0, "Version didn't change after migrated?")
+        for name, extension in six.iteritems(EXTENSIONS):
+            abs_path = migration_helpers.find_migrate_repo(extension)
+            migration.db_version_control(sql.get_engine(), abs_path)
+            migration.db_sync(sql.get_engine(), abs_path)
+            version = migration_helpers.get_db_version(extension=name)
+            self.assertTrue(
+                version > 0,
+                "Version for %s didn't change after migrated?" % name)
+
+    def test_extension_downgraded(self):
+        """When get the version after downgrading an extension, it is 0."""
+        for name, extension in six.iteritems(EXTENSIONS):
+            abs_path = migration_helpers.find_migrate_repo(extension)
+            migration.db_version_control(sql.get_engine(), abs_path)
+            migration.db_sync(sql.get_engine(), abs_path)
+            version = migration_helpers.get_db_version(extension=name)
+            self.assertTrue(
+                version > 0,
+                "Version for %s didn't change after migrated?" % name)
+            migration.db_sync(sql.get_engine(), abs_path, version=0)
+            version = migration_helpers.get_db_version(extension=name)
+            self.assertEqual(0, version,
+                             'Migrate version for %s is not 0' % name)
 
     def test_unexpected_extension(self):
         """The version for an extension that doesn't exist raises ImportError.
