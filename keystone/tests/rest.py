@@ -23,6 +23,7 @@ from keystone.common import serializer
 from keystone.openstack.common import jsonutils
 from keystone import tests
 from keystone.tests import default_fixtures
+from keystone.tests.ksfixtures import database
 
 
 class RestfulTestCase(tests.TestCase):
@@ -61,6 +62,7 @@ class RestfulTestCase(tests.TestCase):
         # Will need to reset the plug-ins
         self.addCleanup(setattr, auth_controllers, 'AUTH_METHODS', {})
 
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
