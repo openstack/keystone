@@ -16,6 +16,7 @@
 import random
 
 import mock
+from testtools import matchers as tt_matchers
 
 from keystone import config
 from keystone import controllers
@@ -100,6 +101,8 @@ VERSIONS_RESPONSE = {
         ]
     }
 }
+
+V3_JSON_HOME_RESOURCES = {}
 
 
 class VersionTestCase(tests.TestCase):
@@ -295,6 +298,23 @@ class VersionTestCase(tests.TestCase):
         self.assertEqual(resp.status_int, 300)
         data = jsonutils.loads(resp.body)
         self.assertEqual(data, v2_only_response)
+
+    def test_json_home_v3(self):
+        # If the request is /v3 and the Accept header is application/json-home
+        # then the server responds with a JSON Home document.
+
+        client = self.client(self.public_app)
+        resp = client.get('/v3', headers={'Accept': 'application/json-home'})
+
+        self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
+        self.assertThat(resp.headers['Content-Type'],
+                        tt_matchers.Equals('application/json-home'))
+
+        exp_json_home_data = {
+            'resources': V3_JSON_HOME_RESOURCES}
+
+        self.assertThat(jsonutils.loads(resp.body),
+                        tt_matchers.Equals(exp_json_home_data))
 
 
 class XmlVersionTestCase(tests.TestCase):

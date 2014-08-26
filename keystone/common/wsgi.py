@@ -686,7 +686,10 @@ def render_response(body=None, status=None, headers=None, method=None):
             content_type = content_types[0]
         else:
             content_type = None
-        if content_type is None or content_type == 'application/json':
+
+        JSON_ENCODE_CONTENT_TYPES = ('application/json',
+                                     'application/json-home',)
+        if content_type is None or content_type in JSON_ENCODE_CONTENT_TYPES:
             body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
             if content_type is None:
                 headers.append(('Content-Type', 'application/json'))
