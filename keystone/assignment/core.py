@@ -320,6 +320,9 @@ class Manager(manager.Manager):
 
     @notifications.created('domain')
     def create_domain(self, domain_id, domain):
+        if (not self.identity_api.multiple_domains_supported and
+                domain_id != CONF.identity.default_domain_id):
+            raise exception.Forbidden(_('Multiple domains are not supported'))
         domain.setdefault('enabled', True)
         domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.create_domain(domain_id, domain)
