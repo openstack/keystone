@@ -228,7 +228,7 @@ class Manager(object):
     def __getattr__(self, item):
         """Forward calls to the `token_provider_api` persistence manager."""
 
-        f = getattr(self.token_provider_api.persistence, item)
+        f = getattr(self.token_provider_api._persistence, item)
         LOG.warning(_LW('`token_api.%s` is deprecated as of Juno in favor of '
                         'utilizing methods on `token_provider_api` and may be '
                         'removed in Kilo.'), item)
