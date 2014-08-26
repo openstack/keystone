@@ -263,6 +263,12 @@ class Manager(manager.Manager):
                         metadata_ref.get('roles', {}), True)
                 except (exception.MetadataNotFound, exception.NotImplemented):
                     pass
+                # As well inherited roles from parent projects
+                for p in self.list_project_parents(project_ref['id']):
+                    p_roles = self.list_grants(
+                        user_id=user_id, project_id=p['id'],
+                        inherited_to_projects=True)
+                    role_list += [x['id'] for x in p_roles]
 
             return role_list
 

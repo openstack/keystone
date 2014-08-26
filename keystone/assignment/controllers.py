@@ -661,7 +661,13 @@ class RoleAssignmentV3(controller.V3Controller):
         if 'project_id' in entity:
             formatted_entity['scope'] = (
                 {'project': {'id': entity['project_id']}})
-            target_link = '/projects/%s' % entity['project_id']
+            if 'inherited_to_projects' in entity:
+                formatted_entity['scope']['OS-INHERIT:inherited_to'] = (
+                    'projects')
+                target_link = '/OS-INHERIT/projects/%s' % entity['project_id']
+                suffix = '/inherited_to_projects'
+            else:
+                target_link = '/projects/%s' % entity['project_id']
         if 'domain_id' in entity:
             formatted_entity['scope'] = (
                 {'domain': {'id': entity['domain_id']}})
@@ -752,8 +758,8 @@ class RoleAssignmentV3(controller.V3Controller):
                               (group_id, user['id'])))
             return user_entry
 
-        def _build_project_equivalent_of_user_domain_role(
-                project_id, domain_id, template):
+        def _build_project_equivalent_of_user_target_role(
+                project_id, target_id, target_type, template):
             """Create a user project assignment equivalent to the domain one.
 
             The template has had the 'domain' entity removed, so
@@ -766,14 +772,15 @@ class RoleAssignmentV3(controller.V3Controller):
             project_entry['links']['assignment'] = (
                 self.base_url(
                     context,
-                    '/OS-INHERIT/domains/%s/users/%s/roles/%s'
+                    '/OS-INHERIT/%s/%s/users/%s/roles/%s'
                     '/inherited_to_projects' % (
-                        domain_id, project_entry['user']['id'],
+                        target_type, target_id, project_entry['user']['id'],
                         project_entry['role']['id'])))
             return project_entry
 
-        def _build_project_equivalent_of_group_domain_role(
-                user_id, group_id, project_id, domain_id, template):
+        def _build_project_equivalent_of_group_target_role(
+                user_id, group_id, project_id,
+                target_id, target_type, template):
             """Create a user project equivalent to the domain group one.
 
             The template has had the 'domain' and 'group' entities removed, so
@@ -786,9 +793,9 @@ class RoleAssignmentV3(controller.V3Controller):
             project_entry['scope']['project'] = {'id': project_id}
             project_entry['links']['assignment'] = (
                 self.base_url(context,
-                              '/OS-INHERIT/domains/%s/groups/%s/roles/%s'
+                              '/OS-INHERIT/%s/%s/groups/%s/roles/%s'
                               '/inherited_to_projects' % (
-                                  domain_id, group_id,
+                                  target_type, target_id, group_id,
                                   project_entry['role']['id'])))
             project_entry['links']['membership'] = (
                 self.base_url(context, '/groups/%s/users/%s' %
@@ -812,16 +819,30 @@ class RoleAssignmentV3(controller.V3Controller):
         new_refs = []
         for r in refs:
             if 'OS-INHERIT:inherited_to' in r['scope']:
-                # It's an inherited domain role - so get the list of projects
-                # owned by this domain. A domain scope is guaranteed since we
-                # checked this when we built the refs list
-                project_ids = (
-                    [x['id'] for x in
-                        self.assignment_api.list_projects_in_domain(
-                            r['scope']['domain']['id'])])
-                base_entry = copy.deepcopy(r)
-                domain_id = base_entry['scope']['domain']['id']
-                base_entry['scope'].pop('domain')
+                if 'domain' in r['scope']:
+                    # It's an inherited domain role - so get the list of
+                    # projects owned by this domain.
+                    project_ids = (
+                        [x['id'] for x in
+                            self.assignment_api.list_projects_in_domain(
+                                r['scope']['domain']['id'])])
+                    base_entry = copy.deepcopy(r)
+                    target_type = 'domains'
+                    target_id = base_entry['scope']['domain']['id']
+                    base_entry['scope'].pop('domain')
+                else:
+                    # It's an inherited project role - so get the list of
+                    # projects in this project subtree.
+                    project_id = r['scope']['project']['id']
+                    project_ids = (
+                        [x['id'] for x in
+                            self.assignment_api.list_projects_in_subtree(
+                                project_id)])
+                    base_entry = copy.deepcopy(r)
+                    target_type = 'projects'
+                    target_id = base_entry['scope']['project']['id']
+                    base_entry['scope'].pop('project')
+
                 # For each project, create an equivalent role assignment
                 for p in project_ids:
                     # If it's a group assignment, then create equivalent user
@@ -833,14 +854,14 @@ class RoleAssignmentV3(controller.V3Controller):
                         sub_entry.pop('group')
                         for m in members:
                             new_entry = (
-                                _build_project_equivalent_of_group_domain_role(
+                                _build_project_equivalent_of_group_target_role(
                                     m['id'], group_id, p,
-                                    domain_id, sub_entry))
+                                    target_id, target_type, sub_entry))
                             new_refs.append(new_entry)
                     else:
                         new_entry = (
-                            _build_project_equivalent_of_user_domain_role(
-                                p, domain_id, base_entry))
+                            _build_project_equivalent_of_user_target_role(
+                                p, target_id, target_type, base_entry))
                         new_refs.append(new_entry)
             elif 'group' in r:
                 # It's a non-inherited group role assignment, so get the list
@@ -864,7 +885,7 @@ class RoleAssignmentV3(controller.V3Controller):
     def _filter_inherited(self, entry):
         if ('inherited_to_projects' in entry and
                 not CONF.os_inherit.enabled):
-                    return False
+            return False
         else:
             return True
 

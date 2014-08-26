@@ -5040,6 +5040,64 @@ class InheritanceTests(object):
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEqual(3, len(user_projects))
 
+    def test_list_projects_for_user_with_inherited_user_project_grants(self):
+        """Test inherited role assignments for users on nested projects.
+
+        Test Plan:
+
+        - Enable OS-INHERIT extension
+        - Create a hierarchy of projects with one root and one leaf project
+        - Assign an inherited user role on root project
+        - Assign a non-inherited user role on root project
+        - Get a list of projects for user, should return both projects
+        - Disable OS-INHERIT extension
+        - Get a list of projects for user, should return only root project
+
+        """
+        # Enable OS-INHERIT extension
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        root_project = {'id': uuid.uuid4().hex,
+                        'description': '',
+                        'domain_id': DEFAULT_DOMAIN_ID,
+                        'enabled': True,
+                        'name': uuid.uuid4().hex,
+                        'parent_id': None}
+        self.assignment_api.create_project(root_project['id'], root_project)
+        leaf_project = {'id': uuid.uuid4().hex,
+                        'description': '',
+                        'domain_id': DEFAULT_DOMAIN_ID,
+                        'enabled': True,
+                        'name': uuid.uuid4().hex,
+                        'parent_id': root_project['id']}
+        self.assignment_api.create_project(leaf_project['id'], leaf_project)
+
+        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
+        user = self.identity_api.create_user(user)
+
+        # Grant inherited user role
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         project_id=root_project['id'],
+                                         role_id=self.role_admin['id'],
+                                         inherited_to_projects=True)
+        # Grant non-inherited user role
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         project_id=root_project['id'],
+                                         role_id=self.role_member['id'])
+        # Should get back both projects: because the direct role assignment for
+        # the root project and inherited role assignment for leaf project
+        user_projects = self.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual(2, len(user_projects))
+        self.assertIn(root_project, user_projects)
+        self.assertIn(leaf_project, user_projects)
+
+        # Disable OS-INHERIT extension
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        # Should get back just root project - due the direct role assignment
+        user_projects = self.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual(1, len(user_projects))
+        self.assertIn(root_project, user_projects)
+
     def test_list_projects_for_user_with_inherited_group_grants(self):
         """Test inherited group roles.
 
@@ -5103,6 +5161,67 @@ class InheritanceTests(object):
         # project3 (since it has both a direct user role and an inherited role)
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEqual(5, len(user_projects))
+
+    def test_list_projects_for_user_with_inherited_group_project_grants(self):
+        """Test inherited role assignments for groups on nested projects.
+
+        Test Plan:
+
+        - Enable OS-INHERIT extension
+        - Create a hierarchy of projects with one root and one leaf project
+        - Assign an inherited group role on root project
+        - Assign a non-inherited group role on root project
+        - Get a list of projects for user, should return both projects
+        - Disable OS-INHERIT extension
+        - Get a list of projects for user, should return only root project
+
+        """
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        root_project = {'id': uuid.uuid4().hex,
+                        'description': '',
+                        'domain_id': DEFAULT_DOMAIN_ID,
+                        'enabled': True,
+                        'name': uuid.uuid4().hex,
+                        'parent_id': None}
+        self.assignment_api.create_project(root_project['id'], root_project)
+        leaf_project = {'id': uuid.uuid4().hex,
+                        'description': '',
+                        'domain_id': DEFAULT_DOMAIN_ID,
+                        'enabled': True,
+                        'name': uuid.uuid4().hex,
+                        'parent_id': root_project['id']}
+        self.assignment_api.create_project(leaf_project['id'], leaf_project)
+
+        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
+        user = self.identity_api.create_user(user)
+
+        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = self.identity_api.create_group(group)
+        self.identity_api.add_user_to_group(user['id'], group['id'])
+
+        # Grant inherited group role
+        self.assignment_api.create_grant(group_id=group['id'],
+                                         project_id=root_project['id'],
+                                         role_id=self.role_admin['id'],
+                                         inherited_to_projects=True)
+        # Grant non-inherited group role
+        self.assignment_api.create_grant(group_id=group['id'],
+                                         project_id=root_project['id'],
+                                         role_id=self.role_member['id'])
+        # Should get back both projects: because the direct role assignment for
+        # the root project and inherited role assignment for leaf project
+        user_projects = self.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual(2, len(user_projects))
+        self.assertIn(root_project, user_projects)
+        self.assertIn(leaf_project, user_projects)
+
+        # Disable OS-INHERIT extension
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        # Should get back just root project - due the direct role assignment
+        user_projects = self.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual(1, len(user_projects))
+        self.assertIn(root_project, user_projects)
 
 
 class FilterTests(filtering.FilterTests):
