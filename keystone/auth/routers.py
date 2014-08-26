@@ -13,6 +13,7 @@
 # under the License.
 
 from keystone.auth import controllers
+from keystone.common import json_home
 from keystone.common import wsgi
 
 
@@ -31,24 +32,30 @@ class Routers(wsgi.RoutersBase):
             get_action='validate_token',
             head_action='check_token',
             post_action='authenticate_for_token',
-            delete_action='revoke_token')
+            delete_action='revoke_token',
+            rel=json_home.build_v3_resource_relation('auth_tokens'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/tokens/OS-PKI/revoked',
-            get_action='revocation_list')
+            get_action='revocation_list',
+            rel=json_home.build_v3_extension_resource_relation(
+                'OS-PKI', '1.0', 'revocations'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/catalog',
-            get_action='get_auth_catalog')
+            get_action='get_auth_catalog',
+            rel=json_home.build_v3_resource_relation('auth_catalog'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/projects',
-            get_action='get_auth_projects')
+            get_action='get_auth_projects',
+            rel=json_home.build_v3_resource_relation('auth_projects'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/domains',
-            get_action='get_auth_domains')
+            get_action='get_auth_domains',
+            rel=json_home.build_v3_resource_relation('auth_domains'))
