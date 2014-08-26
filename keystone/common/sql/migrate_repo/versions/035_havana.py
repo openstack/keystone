@@ -231,6 +231,7 @@ def upgrade(migrate_engine):
     sql.Index('ix_token_expires', token.c.expires).create()
     sql.Index('ix_token_expires_valid', token.c.expires,
               token.c.valid).create()
+    sql.Index('ix_token_valid', token.c.valid).create()
 
     fkeys = [
         {'columns': [user_project_metadata.c.project_id],
