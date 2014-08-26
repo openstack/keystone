@@ -93,7 +93,7 @@ Fedora 19+::
 
 Mac OS X 10.9 (requires Homebrew_)::
 
-    $ brew install python openssl gettext
+    $ brew install python openssl gettext libxmlsec1
 
 .. _Homebrew: http://brew.sh/
 
