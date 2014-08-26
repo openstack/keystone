@@ -229,8 +229,6 @@ def upgrade(migrate_engine):
 
     # Indexes
     sql.Index('ix_token_expires', token.c.expires).create()
-    sql.Index('ix_token_expires_valid', token.c.expires,
-              token.c.valid).create()
     sql.Index('ix_token_valid', token.c.valid).create()
 
     fkeys = [
