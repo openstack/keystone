@@ -125,6 +125,13 @@ class Auth(controller.V2Controller):
 
         (token_id, token_data) = self.token_provider_api.issue_v2_token(
             auth_token_data, roles_ref=roles_ref, catalog_ref=catalog_ref)
+
+        # NOTE(nkinder): We only log this message in Havana.  In Icehouse and
+        # later, we emit a CADF notification upon successful token issuance
+        # instead.
+        msg = _('Issued token for user %(u_id)s')
+        msg = msg % {'u_id': user_ref['id']}
+        LOG.info(msg)
         return token_data
 
     def _authenticate_token(self, context, auth):
