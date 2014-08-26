@@ -18,6 +18,8 @@ from oslo.utils import timeutils
 _NAMES = ['trust_id',
           'consumer_id',
           'access_token_id',
+          'audit_id',
+          'audit_chain_id',
           'expires_at',
           'domain_id',
           'project_id',
@@ -86,6 +88,8 @@ class RevokeEvent(object):
                 'domain_id',
                 'domain_scope_id',
                 'project_id',
+                'audit_id',
+                'audit_chain_id',
                 ]
         event = dict((key, self.__dict__[key]) for key in keys
                      if self.__dict__[key] is not None)
@@ -257,7 +261,10 @@ def build_token_values_v2(access, default_domain_id):
     token_values = {
         'expires_at': timeutils.normalize_time(token_expires_at),
         'issued_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token_data['issued_at']))}
+            timeutils.parse_isotime(token_data['issued_at'])),
+        'audit_id': token_data.get('audit_ids', [None])[0],
+        'audit_chain_id': token_data.get('audit_ids', [None])[-1],
+    }
 
     token_values['user_id'] = access.get('user', {}).get('id')
 
@@ -303,7 +310,10 @@ def build_token_values(token_data):
     token_values = {
         'expires_at': timeutils.normalize_time(token_expires_at),
         'issued_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token_data['issued_at']))}
+            timeutils.parse_isotime(token_data['issued_at'])),
+        'audit_id': token_data.get('audit_ids', [None])[0],
+        'audit_chain_id': token_data.get('audit_ids', [None])[-1],
+    }
 
     user = token_data.get('user')
     if user is not None:
