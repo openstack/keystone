@@ -89,11 +89,13 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
             driver='keystone.identity.backends.kvs.Identity')
 
     def test_flush_expired_token(self):
-        self.assertRaises(exception.NotImplemented,
-                          self.token_api.flush_expired_tokens)
+        self.assertRaises(
+            exception.NotImplemented,
+            self.token_provider_api._persistence.flush_expired_tokens)
 
     def _update_user_token_index_direct(self, user_key, token_id, new_data):
-        token_list = self.token_api.driver._get_user_token_list_with_expiry(
+        persistence = self.token_provider_api._persistence
+        token_list = persistence.driver._get_user_token_list_with_expiry(
             user_key)
         # Update the user-index so that the expires time is _actually_ expired
         # since we do not do an explicit get on the token, we only reference
@@ -103,7 +105,8 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
             if data[0] == token_id:
                 token_list[i] = new_data
                 break
-        self.token_api.driver._store.set(user_key, token_list)
+        self.token_provider_api._persistence.driver._store.set(user_key,
+                                                               token_list)
 
     def test_cleanup_user_index_on_create(self):
         user_id = six.text_type(uuid.uuid4().hex)
@@ -115,10 +118,11 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
 
         # NOTE(morganfainberg): Directly access the data cache since we need to
         # get expired tokens as well as valid tokens.
-        user_key = self.token_api.driver._prefix_user_id(user_id)
-        user_token_list = self.token_api.driver._store.get(user_key)
-        valid_token_ref = self.token_api.get_token(valid_token_id)
-        expired_token_ref = self.token_api.get_token(expired_token_id)
+        token_persistence = self.token_provider_api._persistence
+        user_key = token_persistence.driver._prefix_user_id(user_id)
+        user_token_list = token_persistence.driver._store.get(user_key)
+        valid_token_ref = token_persistence.get_token(valid_token_id)
+        expired_token_ref = token_persistence.get_token(expired_token_id)
         expected_user_token_list = [
             (valid_token_id, timeutils.isotime(valid_token_ref['expires'],
                                                subsecond=True)),
@@ -133,25 +137,25 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
                                              new_expired_data)
         valid_token_id_2, valid_data_2 = self.create_token_sample_data(
             user_id=user_id)
-        valid_token_ref_2 = self.token_api.get_token(valid_token_id_2)
+        valid_token_ref_2 = token_persistence.get_token(valid_token_id_2)
         expected_user_token_list = [
             (valid_token_id, timeutils.isotime(valid_token_ref['expires'],
                                                subsecond=True)),
             (valid_token_id_2, timeutils.isotime(valid_token_ref_2['expires'],
                                                  subsecond=True))]
-        user_token_list = self.token_api.driver._store.get(user_key)
+        user_token_list = token_persistence.driver._store.get(user_key)
         self.assertEqual(expected_user_token_list, user_token_list)
 
         # Test that revoked tokens are removed from the list on create.
-        self.token_api.delete_token(valid_token_id_2)
+        token_persistence.delete_token(valid_token_id_2)
         new_token_id, data = self.create_token_sample_data(user_id=user_id)
-        new_token_ref = self.token_api.get_token(new_token_id)
+        new_token_ref = token_persistence.get_token(new_token_id)
         expected_user_token_list = [
             (valid_token_id, timeutils.isotime(valid_token_ref['expires'],
                                                subsecond=True)),
             (new_token_id, timeutils.isotime(new_token_ref['expires'],
                                              subsecond=True))]
-        user_token_list = self.token_api.driver._store.get(user_key)
+        user_token_list = token_persistence.driver._store.get(user_key)
         self.assertEqual(expected_user_token_list, user_token_list)
 
 

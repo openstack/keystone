@@ -480,10 +480,12 @@ class AuthTokenTests(OAuthFlowTests):
 
     def test_delete_keystone_tokens_by_consumer_id(self):
         self.test_oauth_flow()
-        self.token_api.get_token(self.keystone_token_id)
-        self.token_api.delete_tokens(self.user_id,
-                                     consumer_id=self.consumer['key'])
-        self.assertRaises(exception.TokenNotFound, self.token_api.get_token,
+        self.token_provider_api._persistence.get_token(self.keystone_token_id)
+        self.token_provider_api._persistence.delete_tokens(
+            self.user_id,
+            consumer_id=self.consumer['key'])
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api._persistence.get_token,
                           self.keystone_token_id)
 
     def _create_trust_get_token(self):

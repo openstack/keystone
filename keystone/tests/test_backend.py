@@ -2969,9 +2969,11 @@ class TokenTests(object):
     def _assert_revoked_token_list_matches_token_persistence(
             self, revoked_token_id_list):
         # Assert that the list passed in matches the list returned by the
-        # token persistence service, token_api
-        persistence_list = [x['id']
-                            for x in self.token_api.list_revoked_tokens()]
+        # token persistence service
+        persistence_list = [
+            x['id']
+            for x in self.token_provider_api.list_revoked_tokens()
+        ]
         self.assertEqual(persistence_list, revoked_token_id_list)
 
     def test_token_crud(self):
@@ -2979,7 +2981,8 @@ class TokenTests(object):
         data = {'id': token_id, 'a': 'b',
                 'trust_id': None,
                 'user': {'id': 'testuserid'}}
-        data_ref = self.token_api.create_token(token_id, data)
+        data_ref = self.token_provider_api._persistence.create_token(token_id,
+                                                                     data)
         expires = data_ref.pop('expires')
         data_ref.pop('user_id')
         self.assertIsInstance(expires, datetime.datetime)
@@ -2987,7 +2990,7 @@ class TokenTests(object):
         data.pop('id')
         self.assertDictEqual(data_ref, data)
 
-        new_data_ref = self.token_api.get_token(token_id)
+        new_data_ref = self.token_provider_api._persistence.get_token(token_id)
         expires = new_data_ref.pop('expires')
         self.assertIsInstance(expires, datetime.datetime)
         new_data_ref.pop('user_id')
@@ -2995,11 +2998,13 @@ class TokenTests(object):
 
         self.assertEqual(data, new_data_ref)
 
-        self.token_api.delete_token(token_id)
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token, token_id)
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_api.delete_token, token_id)
+        self.token_provider_api._persistence.delete_token(token_id)
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.token_provider_api._persistence.get_token, token_id)
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.token_provider_api._persistence.delete_token, token_id)
 
     def create_token_sample_data(self, token_id=None, tenant_id=None,
                                  trust_id=None, user_id=None, expires=None):
@@ -3008,10 +3013,7 @@ class TokenTests(object):
         if user_id is None:
             user_id = 'testuserid'
         # FIXME(morganfainberg): These tokens look nothing like "Real" tokens.
-        # This should be updated when token_api is updated to merge in the
-        # issue_token logic from the providers (token issuance should be a
-        # pipeline).  The fix should be in implementation of blueprint:
-        # token-issuance-pipeline
+        # This should be fixed when token issuance is cleaned up.
         data = {'id': token_id, 'a': 'b',
                 'user': {'id': user_id}}
         if tenant_id is not None:
@@ -3031,11 +3033,13 @@ class TokenTests(object):
         # Issue token stores a copy of all token data at token['token_data'].
         # This emulates that assumption as part of the test.
         data['token_data'] = copy.deepcopy(data)
-        new_token = self.token_api.create_token(token_id, data)
+        new_token = self.token_provider_api._persistence.create_token(token_id,
+                                                                      data)
         return new_token['id'], data
 
     def test_delete_tokens(self):
-        tokens = self.token_api._list_tokens('testuserid')
+        tokens = self.token_provider_api._persistence._list_tokens(
+            'testuserid')
         self.assertEqual(0, len(tokens))
         token_id1, data = self.create_token_sample_data(
             tenant_id='testtenantid')
@@ -3044,23 +3048,29 @@ class TokenTests(object):
         token_id3, data = self.create_token_sample_data(
             tenant_id='testtenantid',
             user_id='testuserid1')
-        tokens = self.token_api._list_tokens('testuserid')
+        tokens = self.token_provider_api._persistence._list_tokens(
+            'testuserid')
         self.assertEqual(2, len(tokens))
         self.assertIn(token_id2, tokens)
         self.assertIn(token_id1, tokens)
-        self.token_api.delete_tokens(user_id='testuserid',
-                                     tenant_id='testtenantid')
-        tokens = self.token_api._list_tokens('testuserid')
+        self.token_provider_api._persistence.delete_tokens(
+            user_id='testuserid',
+            tenant_id='testtenantid')
+        tokens = self.token_provider_api._persistence._list_tokens(
+            'testuserid')
         self.assertEqual(0, len(tokens))
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token, token_id1)
+                          self.token_provider_api._persistence.get_token,
+                          token_id1)
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token, token_id2)
+                          self.token_provider_api._persistence.get_token,
+                          token_id2)
 
-        self.token_api.get_token(token_id3)
+        self.token_provider_api._persistence.get_token(token_id3)
 
     def test_delete_tokens_trust(self):
-        tokens = self.token_api._list_tokens(user_id='testuserid')
+        tokens = self.token_provider_api._persistence._list_tokens(
+            user_id='testuserid')
         self.assertEqual(0, len(tokens))
         token_id1, data = self.create_token_sample_data(
             tenant_id='testtenantid',
@@ -3069,15 +3079,18 @@ class TokenTests(object):
             tenant_id='testtenantid',
             user_id='testuserid1',
             trust_id='testtrustid1')
-        tokens = self.token_api._list_tokens('testuserid')
+        tokens = self.token_provider_api._persistence._list_tokens(
+            'testuserid')
         self.assertEqual(1, len(tokens))
         self.assertIn(token_id1, tokens)
-        self.token_api.delete_tokens(user_id='testuserid',
-                                     tenant_id='testtenantid',
-                                     trust_id='testtrustid')
+        self.token_provider_api._persistence.delete_tokens(
+            user_id='testuserid',
+            tenant_id='testtenantid',
+            trust_id='testtrustid')
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token, token_id1)
-        self.token_api.get_token(token_id2)
+                          self.token_provider_api._persistence.get_token,
+                          token_id1)
+        self.token_provider_api._persistence.get_token(token_id2)
 
     def _test_token_list(self, token_list_fn):
         tokens = token_list_fn('testuserid')
@@ -3091,11 +3104,11 @@ class TokenTests(object):
         self.assertEqual(2, len(tokens))
         self.assertIn(token_id2, tokens)
         self.assertIn(token_id1, tokens)
-        self.token_api.delete_token(token_id1)
+        self.token_provider_api._persistence.delete_token(token_id1)
         tokens = token_list_fn('testuserid')
         self.assertIn(token_id2, tokens)
         self.assertNotIn(token_id1, tokens)
-        self.token_api.delete_token(token_id2)
+        self.token_provider_api._persistence.delete_token(token_id2)
         tokens = token_list_fn('testuserid')
         self.assertNotIn(token_id2, tokens)
         self.assertNotIn(token_id1, tokens)
@@ -3122,26 +3135,28 @@ class TokenTests(object):
         self.assertIn(token_id4, tokens)
 
     def test_token_list(self):
-        self._test_token_list(self.token_api._list_tokens)
+        self._test_token_list(
+            self.token_provider_api._persistence._list_tokens)
 
     def test_token_list_trust(self):
         trust_id = uuid.uuid4().hex
         token_id5, data = self.create_token_sample_data(trust_id=trust_id)
-        tokens = self.token_api._list_tokens('testuserid', trust_id=trust_id)
+        tokens = self.token_provider_api._persistence._list_tokens(
+            'testuserid', trust_id=trust_id)
         self.assertEqual(1, len(tokens))
         self.assertIn(token_id5, tokens)
 
     def test_get_token_404(self):
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token,
+                          self.token_provider_api._persistence.get_token,
                           uuid.uuid4().hex)
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token,
+                          self.token_provider_api._persistence.get_token,
                           None)
 
     def test_delete_token_404(self):
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.delete_token,
+                          self.token_provider_api._persistence.delete_token,
                           uuid.uuid4().hex)
 
     def test_expired_token(self):
@@ -3151,19 +3166,22 @@ class TokenTests(object):
                 'expires': expire_time,
                 'trust_id': None,
                 'user': {'id': 'testuserid'}}
-        data_ref = self.token_api.create_token(token_id, data)
+        data_ref = self.token_provider_api._persistence.create_token(token_id,
+                                                                     data)
         data_ref.pop('user_id')
         self.assertDictEqual(data_ref, data)
         self.assertRaises(exception.TokenNotFound,
-                          self.token_api.get_token, token_id)
+                          self.token_provider_api._persistence.get_token,
+                          token_id)
 
     def test_null_expires_token(self):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'id_hash': token_id, 'a': 'b', 'expires': None,
                 'user': {'id': 'testuserid'}}
-        data_ref = self.token_api.create_token(token_id, data)
+        data_ref = self.token_provider_api._persistence.create_token(token_id,
+                                                                     data)
         self.assertIsNotNone(data_ref['expires'])
-        new_data_ref = self.token_api.get_token(token_id)
+        new_data_ref = self.token_provider_api._persistence.get_token(token_id)
 
         # MySQL doesn't store microseconds, so discard them before testing
         data_ref['expires'] = data_ref['expires'].replace(microsecond=0)
@@ -3183,15 +3201,16 @@ class TokenTests(object):
         token_id = uuid.uuid4().hex
         data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
                 'user': {'id': 'testuserid'}}
-        data_ref = self.token_api.create_token(token_id, data)
-        self.token_api.delete_token(token_id)
+        data_ref = self.token_provider_api._persistence.create_token(token_id,
+                                                                     data)
+        self.token_provider_api._persistence.delete_token(token_id)
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_api.get_token,
+            self.token_provider_api._persistence.get_token,
             data_ref['id'])
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_api.delete_token,
+            self.token_provider_api._persistence.delete_token,
             data_ref['id'])
         return token_id
 
@@ -3215,7 +3234,8 @@ class TokenTests(object):
                 'expires': expire_time,
                 'trust_id': None,
                 'user': {'id': 'testuserid'}}
-        data_ref = self.token_api.create_token(token_id, data)
+        data_ref = self.token_provider_api._persistence.create_token(token_id,
+                                                                     data)
         data_ref.pop('user_id')
         self.assertDictEqual(data_ref, data)
 
@@ -3225,12 +3245,14 @@ class TokenTests(object):
                 'expires': expire_time,
                 'trust_id': None,
                 'user': {'id': 'testuserid'}}
-        data_ref = self.token_api.create_token(token_id, data)
+        data_ref = self.token_provider_api._persistence.create_token(token_id,
+                                                                     data)
         data_ref.pop('user_id')
         self.assertDictEqual(data_ref, data)
 
-        self.token_api.flush_expired_tokens()
-        tokens = self.token_api._list_tokens('testuserid')
+        self.token_provider_api._persistence.flush_expired_tokens()
+        tokens = self.token_provider_api._persistence._list_tokens(
+            'testuserid')
         self.assertEqual(1, len(tokens))
         self.assertIn(token_id, tokens)
 
@@ -3248,25 +3270,29 @@ class TokenTests(object):
                        'trust_id': None,
                        'user': {'id': 'testuserid'}}
         # Create 2 Tokens.
-        self.token_api.create_token(token_id, token_data)
-        self.token_api.create_token(token2_id, token2_data)
+        self.token_provider_api._persistence.create_token(token_id,
+                                                          token_data)
+        self.token_provider_api._persistence.create_token(token2_id,
+                                                          token2_data)
         # Verify the revocation list is empty.
-        self.assertEqual([], self.token_api.list_revoked_tokens())
+        self.assertEqual(
+            [], self.token_provider_api._persistence.list_revoked_tokens())
         self.assertEqual([], self.token_provider_api.list_revoked_tokens())
         # Delete a token directly, bypassing the manager.
-        self.token_api.driver.delete_token(token_id)
+        self.token_provider_api._persistence.driver.delete_token(token_id)
         # Verify the revocation list is still empty.
-        self.assertEqual([], self.token_api.list_revoked_tokens())
+        self.assertEqual(
+            [], self.token_provider_api._persistence.list_revoked_tokens())
         self.assertEqual([], self.token_provider_api.list_revoked_tokens())
         # Invalidate the revocation list.
-        self.token_api.invalidate_revocation_list()
+        self.token_provider_api._persistence.invalidate_revocation_list()
         # Verify the deleted token is in the revocation list.
         revoked_ids = [x['id']
                        for x in self.token_provider_api.list_revoked_tokens()]
         self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         self.assertIn(token_id, revoked_ids)
         # Delete the second token, through the manager
-        self.token_api.delete_token(token2_id)
+        self.token_provider_api._persistence.delete_token(token2_id)
         revoked_ids = [x['id']
                        for x in self.token_provider_api.list_revoked_tokens()]
         self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
@@ -3279,15 +3305,15 @@ class TokenTests(object):
         token_id_hash = hash_fn(token_id).hexdigest()
         token = {'user': {'id': uuid.uuid4().hex}}
 
-        self.token_api.create_token(token_id, token)
-        self.token_api.delete_token(token_id)
+        self.token_provider_api._persistence.create_token(token_id, token)
+        self.token_provider_api._persistence.delete_token(token_id)
 
         revoked_ids = [x['id']
                        for x in self.token_provider_api.list_revoked_tokens()]
         self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
         self.assertIn(token_id_hash, revoked_ids)
         self.assertNotIn(token_id, revoked_ids)
-        for t in self.token_api.list_revoked_tokens():
+        for t in self.token_provider_api._persistence.list_revoked_tokens():
             self.assertIn('expires', t)
 
     def test_predictable_revoked_pki_token_id_default(self):
@@ -3301,8 +3327,8 @@ class TokenTests(object):
         token_id = uuid.uuid4().hex
         token = {'user': {'id': uuid.uuid4().hex}}
 
-        self.token_api.create_token(token_id, token)
-        self.token_api.delete_token(token_id)
+        self.token_provider_api._persistence.create_token(token_id, token)
+        self.token_provider_api._persistence.delete_token(token_id)
 
         revoked_tokens = self.token_provider_api.list_revoked_tokens()
         revoked_ids = [x['id'] for x in revoked_tokens]
@@ -3314,12 +3340,12 @@ class TokenTests(object):
     def test_create_unicode_token_id(self):
         token_id = six.text_type(self._create_token_id())
         self.create_token_sample_data(token_id=token_id)
-        self.token_api.get_token(token_id)
+        self.token_provider_api._persistence.get_token(token_id)
 
     def test_create_unicode_user_id(self):
         user_id = six.text_type(uuid.uuid4().hex)
         token_id, data = self.create_token_sample_data(user_id=user_id)
-        self.token_api.get_token(token_id)
+        self.token_provider_api._persistence.get_token(token_id)
 
     def test_token_expire_timezone(self):
 
@@ -3335,7 +3361,7 @@ class TokenTests(object):
             test_utils.TZ = 'UTC' + d
             expire_time = timeutils.utcnow() + datetime.timedelta(minutes=1)
             token_id, data_in = _create_token(expire_time)
-            data_get = self.token_api.get_token(token_id)
+            data_get = self.token_provider_api._persistence.get_token(token_id)
 
             self.assertEqual(data_in['id'], data_get['id'],
                              'TZ=%s' % test_utils.TZ)
@@ -3344,7 +3370,8 @@ class TokenTests(object):
                 timeutils.utcnow() + datetime.timedelta(minutes=-1))
             token_id, data_in = _create_token(expire_time_expired)
             self.assertRaises(exception.TokenNotFound,
-                              self.token_api.get_token, data_in['id'])
+                              self.token_provider_api._persistence.get_token,
+                              data_in['id'])
 
 
 class TokenCacheInvalidation(object):
@@ -3415,25 +3442,27 @@ class TokenCacheInvalidation(object):
         self.token_provider_api.validate_v2_token(self.unscoped_token_id)
 
     def test_delete_unscoped_token(self):
-        self.token_api.delete_token(self.unscoped_token_id)
+        self.token_provider_api._persistence.delete_token(
+            self.unscoped_token_id)
         self._check_unscoped_tokens_are_invalid()
         self._check_scoped_tokens_are_valid()
 
     def test_delete_scoped_token_by_id(self):
-        self.token_api.delete_token(self.scoped_token_id)
+        self.token_provider_api._persistence.delete_token(self.scoped_token_id)
         self._check_scoped_tokens_are_invalid()
         self._check_unscoped_tokens_are_valid()
 
     def test_delete_scoped_token_by_user(self):
-        self.token_api.delete_tokens(self.user['id'])
+        self.token_provider_api._persistence.delete_tokens(self.user['id'])
         # Since we are deleting all tokens for this user, they should all
         # now be invalid.
         self._check_scoped_tokens_are_invalid()
         self._check_unscoped_tokens_are_invalid()
 
     def test_delete_scoped_token_by_user_and_tenant(self):
-        self.token_api.delete_tokens(self.user['id'],
-                                     tenant_id=self.tenant['id'])
+        self.token_provider_api._persistence.delete_tokens(
+            self.user['id'],
+            tenant_id=self.tenant['id'])
         self._check_scoped_tokens_are_invalid()
         self._check_unscoped_tokens_are_valid()
 
