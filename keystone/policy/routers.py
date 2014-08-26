@@ -20,4 +20,5 @@ class Routers(wsgi.RoutersBase):
 
     def append_v3_routers(self, mapper, routers):
         policy_controller = controllers.PolicyV3()
-        routers.append(router.Router(policy_controller, 'policies', 'policy'))
+        routers.append(router.Router(policy_controller, 'policies', 'policy',
+                                     resource_descriptions=self.v3_resources))
