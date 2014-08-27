@@ -247,6 +247,12 @@ class FakeLdap(core.LDAPHandler):
     def dn(self, dn):
         return core.utf8_decode(dn)
 
+    def _dn_to_id_attr(self, dn):
+        return core.utf8_decode(ldap.dn.str2dn(core.utf8_encode(dn))[0][0][0])
+
+    def _dn_to_id_value(self, dn):
+        return core.utf8_decode(ldap.dn.str2dn(core.utf8_encode(dn))[0][0][1])
+
     def key(self, dn):
         return '%s%s' % (self.__prefix, self.dn(dn))
 
@@ -288,12 +294,25 @@ class FakeLdap(core.LDAPHandler):
         if server_fail:
             raise ldap.SERVER_DOWN
 
+        id_attr_in_modlist = False
+        id_attr = self._dn_to_id_attr(dn)
+        id_value = self._dn_to_id_value(dn)
+
         # The LDAP API raises a TypeError if attr name is None.
         for k, dummy_v in modlist:
             if k is None:
                 raise TypeError('must be string, not None. modlist=%s' %
                                 modlist)
 
+            if k == id_attr:
+                for val in dummy_v:
+                    if core.utf8_decode(val) == id_value:
+                        id_attr_in_modlist = True
+
+        if not id_attr_in_modlist:
+            LOG.debug('id_attribute=%(attr)s missing, attributes=%(attrs)s' %
+                      {'attr': id_attr, 'attrs': modlist})
+            raise ldap.NAMING_VIOLATION
         key = self.key(dn)
         LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
             'dn': core.utf8_decode(dn), 'attrs': modlist})
