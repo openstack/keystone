@@ -537,3 +537,17 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
         endpoints = r.result['token']['catalog'][0]['endpoints']
         endpoint_ids = [ep['id'] for ep in endpoints]
         self.assertEqual([self.endpoint_id], endpoint_ids)
+
+
+class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
+    JSON_HOME_DATA = {
+        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        '1.0/rel/endpoint_projects': {
+            'href-template': '/OS-EP-FILTER/endpoints/{endpoint_id}/projects',
+            'href-vars': {
+                'endpoint_id':
+                'http://docs.openstack.org/api/openstack-identity/3/param/'
+                'endpoint_id',
+            },
+        },
+    }

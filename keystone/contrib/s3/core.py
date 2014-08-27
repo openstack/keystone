@@ -26,6 +26,7 @@ import hashlib
 import hmac
 
 from keystone.common import extension
+from keystone.common import json_home
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone.contrib.ec2 import controllers
@@ -56,7 +57,9 @@ class S3Extension(wsgi.V3ExtensionRouter):
         self._add_resource(
             mapper, controller,
             path='/s3tokens',
-            post_action='authenticate')
+            post_action='authenticate',
+            rel=json_home.build_v3_extension_resource_relation(
+                's3tokens', '1.0', 's3tokens'))
 
 
 class S3Controller(controllers.Ec2Controller):

@@ -12,8 +12,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
+
+from keystone.common import json_home
 from keystone.common import wsgi
 from keystone.contrib.endpoint_filter import controllers
+
+
+build_resource_relation = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-EP-FILTER', extension_version='1.0')
 
 
 class EndpointFilterExtension(wsgi.V3ExtensionRouter):
@@ -27,14 +35,27 @@ class EndpointFilterExtension(wsgi.V3ExtensionRouter):
         self._add_resource(
             mapper, endpoint_filter_controller,
             path=self.PATH_PREFIX + '/endpoints/{endpoint_id}/projects',
-            get_action='list_projects_for_endpoint')
+            get_action='list_projects_for_endpoint',
+            rel=build_resource_relation(resource_name='endpoint_projects'),
+            path_vars={
+                'endpoint_id': json_home.Parameters.ENDPOINT_ID,
+            })
         self._add_resource(
             mapper, endpoint_filter_controller,
             path=self.PATH_PREFIX + self.PATH_PROJECT_ENDPOINT,
             get_head_action='check_endpoint_in_project',
             put_action='add_endpoint_to_project',
-            delete_action='remove_endpoint_from_project')
+            delete_action='remove_endpoint_from_project',
+            rel=build_resource_relation(resource_name='project_endpoint'),
+            path_vars={
+                'endpoint_id': json_home.Parameters.ENDPOINT_ID,
+                'project_id': json_home.Parameters.PROJECT_ID,
+            })
         self._add_resource(
             mapper, endpoint_filter_controller,
             path=self.PATH_PREFIX + '/projects/{project_id}/endpoints',
-            get_action='list_endpoints_for_project')
+            get_action='list_endpoints_for_project',
+            rel=build_resource_relation(resource_name='project_endpoints'),
+            path_vars={
+                'project_id': json_home.Parameters.PROJECT_ID,
+            })

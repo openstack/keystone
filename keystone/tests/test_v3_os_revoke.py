@@ -29,9 +29,16 @@ def _future_time_string():
 
 
 @dependency.requires('revoke_api')
-class OSRevokeTests(test_v3.RestfulTestCase):
+class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'
+
+    JSON_HOME_DATA = {
+        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/'
+        'rel/events': {
+            'href': '/OS-REVOKE/events',
+        },
+    }
 
     def test_get_empty_list(self):
         resp = self.get('/OS-REVOKE/events')

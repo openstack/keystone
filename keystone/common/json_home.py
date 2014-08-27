@@ -41,6 +41,7 @@ class Parameters(object):
     """Relationships for Common parameters."""
 
     DOMAIN_ID = build_v3_parameter_relation('domain_id')
+    ENDPOINT_ID = build_v3_parameter_relation('endpoint_id')
     GROUP_ID = build_v3_parameter_relation('group_id')
     PROJECT_ID = build_v3_parameter_relation('project_id')
     ROLE_ID = build_v3_parameter_relation('role_id')

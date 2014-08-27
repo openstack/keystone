@@ -711,3 +711,12 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers, body = self._get_oauth_token(self.consumer,
                                                    self.access_token)
         self.post(url, headers=headers, body=body, expected_status=401)
+
+
+class JsonHomeTests(OAuth1Tests, test_v3.JsonHomeTestMixin):
+    JSON_HOME_DATA = {
+        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/'
+        'rel/consumers': {
+            'href': '/OS-OAUTH1/consumers',
+        },
+    }
