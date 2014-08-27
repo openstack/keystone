@@ -17,6 +17,7 @@ from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
 from keystone import identity
+from keystone.openstack.common import versionutils
 
 
 class _UserIdToDomainId(object):
@@ -53,6 +54,11 @@ class _UserIdToDomainId(object):
 
 
 class Identity(kvs.Base, identity.Driver):
+
+    @versionutils.deprecated(versionutils.deprecated.JUNO,
+                             in_favor_of='keystone.identity.backends.sql',
+                             remove_in=+1,
+                             what='keystone.identity.backends.kvs')
     def __init__(self):
         super(Identity, self).__init__()
         self._user_id_to_domain_id = _UserIdToDomainId(self.db)

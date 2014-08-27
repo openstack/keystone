@@ -48,7 +48,7 @@ INMEMDB = DictKvs()
 class Base(object):
     @versionutils.deprecated(versionutils.deprecated.ICEHOUSE,
                              in_favor_of='keystone.common.kvs.KeyValueStore',
-                             remove_in=+1,
+                             remove_in=+2,
                              what='keystone.common.kvs.Base')
     def __init__(self, db=None):
         if db is None:
