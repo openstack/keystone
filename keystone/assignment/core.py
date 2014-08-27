@@ -113,9 +113,16 @@ class Manager(manager.Manager):
             raise AssertionError(_('Project is disabled: %s') % project_id)
 
     @notifications.disabled(_PROJECT, public=False)
-    def _disable_project(self, tenant_id):
-        # Simply emit the notification so that the callback system can do the
-        # right thing.
+    def _disable_project(self, project_id):
+        """Emit a notification to the callback system project is been disabled.
+
+        This method, and associated callback listeners, removes the need for
+        making direct calls to other managers to take action (e.g. revoking
+        project scoped tokens) when a project is disabled.
+
+        :param project_id: project identifier
+        :type project_id: string
+        """
         pass
 
     @notifications.updated(_PROJECT)
@@ -339,8 +346,15 @@ class Manager(manager.Manager):
 
     @notifications.disabled('domain', public=False)
     def _disable_domain(self, domain_id):
-        # Simply emit the notification so that the callback system can do the
-        # right thing.
+        """Emit a notification to the callback system domain is been disabled.
+
+        This method, and associated callback listeners, removes the need for
+        making direct calls to other managers to take action (e.g. revoking
+        domain scoped tokens) when a domain is disabled.
+
+        :param domain_id: domain identifier
+        :type domain_id: string
+        """
         pass
 
     @notifications.updated('domain')

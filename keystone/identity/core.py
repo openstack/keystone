@@ -738,8 +738,14 @@ class Manager(manager.Manager):
 
     @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
     def emit_invalidate_user_token_persistence(self, user_id):
-        # Simply emit that the user has been removed from a group so the
-        # callback system can do the right thing.
+        """Emit a notification to the callback system to revoke user tokens.
+
+        This method and associated callback listener removes the need for
+        making a direct call to another manager to delete and revoke tokens.
+
+        :param user_id: user identifier
+        :type user_id: string
+        """
         pass
 
     @manager.response_truncated
