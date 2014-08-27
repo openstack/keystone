@@ -31,6 +31,7 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
+from keystone import notifications
 from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
 from keystone.token import persistence
@@ -152,12 +153,14 @@ class Manager(manager.Manager):
         # This is used by the @dependency.provider decorator to register the
         # provider (token_provider_api) manager to listen for trust deletions.
         self.event_callbacks = {
-            'deleted': {'OS-TRUST:trust': [self._trust_deleted_event_callback],
-                        'user': [self._delete_user_tokens_callback]},
-            'disabled': {'user': [self._delete_user_tokens_callback]},
-            'updated': {'user_password': [self._delete_user_tokens_callback],
-                        'user_removed_from_group': [
-                            self._delete_user_tokens_callback]}
+            notifications.DELETED: {
+                'OS-TRUST:trust': [self._trust_deleted_event_callback],
+                'user': [self._delete_user_tokens_callback]},
+            notifications.DISABLED: {
+                'user': [self._delete_user_tokens_callback]},
+            notifications.INTERNAL: {
+                notifications.INVALIDATE_USER_TOKEN_PERSISTENCE: [
+                    self._delete_user_tokens_callback]}
         }
 
     @property
