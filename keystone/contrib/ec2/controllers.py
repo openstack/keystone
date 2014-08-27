@@ -49,11 +49,8 @@ from keystone.models import token_model
 from keystone.openstack.common import jsonutils
 
 
-# TODO(morganfainberg): Once the parent controllers and wsgi module no-longer
-# need the token_api, remove it from the @requires list here. Until those
-# modules no longer use token_api, it is needed here for the mix-in to work.
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
-                     'identity_api', 'token_api', 'token_provider_api')
+                     'identity_api', 'token_provider_api')
 @six.add_metaclass(abc.ABCMeta)
 class Ec2ControllerCommon(object):
     def check_signature(self, creds_ref, credentials):
