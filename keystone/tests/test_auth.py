@@ -26,6 +26,7 @@ from keystone.common import authorization
 from keystone.common import environment
 from keystone import config
 from keystone import exception
+from keystone.models import token_model
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -757,9 +758,10 @@ class AuthWithTrust(AuthTest):
         self.config_fixture.config(group='trust', enabled=True)
 
     def _create_auth_context(self, token_id):
-        token_ref = self.token_api.get_token(token_id)
-        auth_context = authorization.token_to_auth_context(
-            token_ref['token_data'])
+        token_ref = token_model.KeystoneToken(
+            token_id=token_id,
+            token_data=self.token_provider_api.validate_token(token_id))
+        auth_context = authorization.token_to_auth_context(token_ref)
         return {'environment': {authorization.AUTH_CONTEXT_ENV: auth_context},
                 'token_id': token_id,
                 'host_url': HOST_URL}

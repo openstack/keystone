@@ -25,6 +25,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
+from keystone.models import token_model
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.token import provider
@@ -40,7 +41,7 @@ class ExternalAuthNotApplicable(Exception):
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'token_api', 'token_provider_api', 'trust_api')
+                     'token_provider_api', 'trust_api')
 class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -169,20 +170,19 @@ class Auth(controller.V2Controller):
                                                 size=CONF.max_token_size)
 
         try:
-            old_token_ref = self.token_api.get_token(old_token)
+            token_model_ref = token_model.KeystoneToken(
+                token_id=old_token,
+                token_data=self.token_provider_api.validate_token(old_token))
         except exception.NotFound as e:
             raise exception.Unauthorized(e)
 
-        wsgi.validate_token_bind(context, old_token_ref)
+        wsgi.validate_token_bind(context, token_model_ref)
 
         # A trust token cannot be used to get another token
-        if 'trust' in old_token_ref:
-            raise exception.Forbidden()
-        if 'trust_id' in old_token_ref['metadata']:
+        if token_model_ref.trust_scoped:
             raise exception.Forbidden()
 
-        user_ref = old_token_ref['user']
-        user_id = user_ref['id']
+        user_id = token_model_ref.user_id
         tenant_id = self._get_project_id_from_auth(auth)
 
         if not CONF.trust.enabled and 'trust_id' in auth:
@@ -222,7 +222,7 @@ class Auth(controller.V2Controller):
         tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
             user_id, tenant_id)
 
-        expiry = old_token_ref['expires']
+        expiry = token_model_ref.expires
         if CONF.trust.enabled and 'trust_id' in auth:
             trust_id = auth['trust_id']
             trust_roles = []
@@ -241,29 +241,8 @@ class Auth(controller.V2Controller):
             metadata_ref['trustee_user_id'] = trust_ref['trustee_user_id']
             metadata_ref['trust_id'] = trust_id
 
-        bind = old_token_ref.get('bind')
-        # TODO(morganfainberg): Convert this over to using the KeystoneToken
-        # model when removing dependency on token_api.
-        token_data = old_token_ref.get('token_data')
-        audit_id = None
-        if token_data:
-            # NOTE(morganfainberg): The token audit field will always contain
-            # the token's direct audit id at index 0, index 1 will exist and
-            # contain the audit chain id (audit id of the original token in
-            # the chain), so always lookup the last element of the audit field
-            # to determine the id to pass on.
-            try:
-                if 'access' in token_data:
-                    audit_id = token_data['access']['token'].get(
-                        'audit_ids', [])[-1]
-                else:
-                    audit_id = token_data['token'].get('audit_ids', [])[-1]
-            except IndexError:
-                # NOTE(morganfainberg): When transitioning from tokens without
-                # audit_ids to tokens with audit ids it some tokens may not
-                # have an audit_id, and the lookup will cause an IndexError
-                # to be raised.
-                pass
+        bind = token_model_ref.bind
+        audit_id = token_model_ref.audit_chain_id
 
         return (current_user_ref, tenant_ref, metadata_ref, expiry, bind,
                 audit_id)
@@ -422,15 +401,17 @@ class Auth(controller.V2Controller):
         Optionally, limited to a token owned by a specific tenant.
 
         """
-        data = self.token_api.get_token(token_id)
+        token_ref = token_model.KeystoneToken(
+            token_id=token_id,
+            token_data=self.token_provider_api.validate_token(token_id))
         if belongs_to:
-            if data.get('tenant') is None:
+            if not token_ref.project_scoped:
                 raise exception.Unauthorized(
                     _('Token does not belong to specified tenant.'))
-            if data['tenant'].get('id') != belongs_to:
+            if token_ref.project_id != belongs_to:
                 raise exception.Unauthorized(
                     _('Token does not belong to specified tenant.'))
-        return data
+        return token_ref
 
     @controller.v2_deprecated
     @controller.protected()
@@ -497,11 +478,11 @@ class Auth(controller.V2Controller):
         token_ref = self._get_token_ref(token_id)
 
         catalog_ref = None
-        if token_ref.get('tenant'):
+        if token_ref.project_id:
             catalog_ref = self.catalog_api.get_catalog(
-                token_ref['user']['id'],
-                token_ref['tenant']['id'],
-                token_ref['metadata'])
+                token_ref.user_id,
+                token_ref.project_id,
+                token_ref.metadata)
 
         return Auth.format_endpoint_list(catalog_ref)
 

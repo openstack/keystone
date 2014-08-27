@@ -18,6 +18,8 @@
 
 """Utility methods for working with WSGI servers."""
 
+import copy
+
 from oslo import i18n
 import routes.middleware
 import six
@@ -52,7 +54,11 @@ def validate_token_bind(context, token_ref):
     if bind_mode == 'disabled':
         return
 
-    bind = token_ref.get('bind', {})
+    if not isinstance(token_ref, token_model.KeystoneToken):
+        raise exception.UnexpectedError(_('token reference must be a '
+                                          'KeystoneToken type, got: %s') %
+                                        type(token_ref))
+    bind = token_ref.bind
 
     # permissive and strict modes don't require there to be a bind
     permissive = bind_mode in ('permissive', 'strict')
@@ -264,28 +270,29 @@ class Application(BaseApplication):
     def assert_admin(self, context):
         if not context['is_admin']:
             try:
-                user_token_ref = self.token_api.get_token(context['token_id'])
+                user_token_ref = token_model.KeystoneToken(
+                    token_id=context['token_id'],
+                    token_data=self.token_provider_api.validate_token(
+                        context['token_id']))
             except exception.TokenNotFound as e:
                 raise exception.Unauthorized(e)
 
             validate_token_bind(context, user_token_ref)
-            creds = user_token_ref['metadata'].copy()
+            creds = copy.deepcopy(user_token_ref.metadata)
 
             try:
-                creds['user_id'] = user_token_ref['user'].get('id')
-            except AttributeError:
+                creds['user_id'] = user_token_ref.user_id
+            except exception.UnexpectedError:
                 LOG.debug('Invalid user')
                 raise exception.Unauthorized()
 
-            try:
-                creds['tenant_id'] = user_token_ref['tenant'].get('id')
-            except AttributeError:
+            if user_token_ref.project_scoped:
+                creds['tenant_id'] = user_token_ref.project_id
+            else:
                 LOG.debug('Invalid tenant')
                 raise exception.Unauthorized()
 
-            # NOTE(vish): this is pretty inefficient
-            creds['roles'] = [self.assignment_api.get_role(role)['name']
-                              for role in creds.get('roles', [])]
+            creds['roles'] = user_token_ref.role_names
             # Accept either is_admin or the admin role
             self.policy_api.enforce(creds, 'admin_required', {})
 

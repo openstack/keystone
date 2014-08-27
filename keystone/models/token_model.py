@@ -12,10 +12,12 @@
 
 """Unified in-memory token model."""
 
+from keystoneclient.common import cms
 from oslo.utils import timeutils
 import six
 
 from keystone.common import config
+from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _
 
@@ -52,6 +54,8 @@ class KeystoneToken(dict):
         else:
             raise exception.UnsupportedTokenVersionException()
         self.token_id = token_id
+        self.short_id = cms.cms_hash_token(token_id,
+                                           mode=CONF.token.hash_algorithm)
 
         if self.project_scoped and self.domain_scoped:
             raise exception.UnexpectedError(_('Found invalid token: scoped to '
@@ -239,15 +243,19 @@ class KeystoneToken(dict):
             return self.get('trust', {}).get('trustor_user_id')
 
     @property
+    def oauth_scoped(self):
+        return 'OS-OAUTH1' in self
+
+    @property
     def oauth_access_token_id(self):
-        if self.version is V3:
-            return self.get('OS-OAUTH1', {}).get('access_token_id')
+        if self.version is V3 and self.oauth_scoped:
+            return self['OS-OAUTH1']['access_token_id']
         return None
 
     @property
     def oauth_consumer_id(self):
-        if self.version is V3:
-            return self.get('OS-OAUTH1', {}).get('consumer_id')
+        if self.version is V3 and self.oauth_scoped:
+            return self['OS-OAUTH1']['consumer_id']
         return None
 
     @property
@@ -269,3 +277,44 @@ class KeystoneToken(dict):
         if self.version is V3:
             return self.get('bind')
         return self.get('token', {}).get('bind')
+
+    @property
+    def is_federated_user(self):
+        try:
+            return self.version is V3 and federation.FEDERATION in self['user']
+        except KeyError:
+            raise exception.UnexpectedError()
+
+    @property
+    def federation_group_ids(self):
+        if self.is_federated_user:
+            if self.version is V3:
+                try:
+                    groups = self['user'][federation.FEDERATION].get(
+                        'groups', [])
+                    return [g['id'] for g in groups]
+                except KeyError:
+                    raise exception.UnexpectedError()
+        return []
+
+    @property
+    def federation_idp_id(self):
+        if self.version is not V3 or not self.is_federated_user:
+            return None
+        return self['user'][federation.FEDERATION]['identity_provider']['id']
+
+    @property
+    def federation_protocol_id(self):
+        if self.version is V3 and self.is_federated_user:
+            return self['user'][federation.FEDERATION]['protocol']['id']
+        return None
+
+    @property
+    def metadata(self):
+        return self.get('metadata', {})
+
+    @property
+    def methods(self):
+        if self.version is V3:
+            return self.get('methods', [])
+        return []
