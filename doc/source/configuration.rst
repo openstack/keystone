@@ -159,6 +159,8 @@ continue to carry stale identity mappings in its table.  While benign, keystone
 provides an ability for operators to purge the mapping table of such stale
 entries using the keystone-manage command, for example:
 
+.. code-block:: bash
+
     $ keystone-manage mapping_purge --domain-name DOMAINA --local-id abc@de.com
 
 A typical usage would be for an operator to obtain a list of those entries
@@ -172,10 +174,14 @@ implementation**, then, if the details of those entries that have
 been deleted are not available, then it is safe to simply bulk purge
 identity mappings periodically, for example:
 
+.. code-block:: bash
+
     $ keystone-manage mapping_purge --domain-name DOMAINA
 
 will purge all the mappings for DOMAINA. The entire mapping table can be
 purged with the following command:
+
+.. code-block:: bash
 
     $ keystone-manage mapping_purge --all
 
@@ -1089,28 +1095,30 @@ Example usage
 ``keystone`` is set up to expect commands in the general form of
 ``keystone`` ``command`` ``argument``, followed by flag-like keyword arguments to
 provide additional (often optional) information. For example, the command
-``user-list`` and ``tenant-create`` can be invoked as follows::
+``user-list`` and ``tenant-create`` can be invoked as follows:
+
+.. code-block:: bash
 
     # Using token auth env variables
-    export OS_SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0/
-    export OS_SERVICE_TOKEN=secrete_token
-    keystone user-list
-    keystone tenant-create --name=demo
+    $ export OS_SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0/
+    $ export OS_SERVICE_TOKEN=secrete_token
+    $ keystone user-list
+    $ keystone tenant-create --name=demo
 
     # Using token auth flags
-    keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ user-list
-    keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ tenant-create --name=demo
+    $ keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ user-list
+    $ keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ tenant-create --name=demo
 
     # Using user + password + tenant_name env variables
-    export OS_USERNAME=admin
-    export OS_PASSWORD=secrete
-    export OS_TENANT_NAME=admin
-    keystone user-list
-    keystone tenant-create --name=demo
+    $ export OS_USERNAME=admin
+    $ export OS_PASSWORD=secrete
+    $ export OS_TENANT_NAME=admin
+    $ keystone user-list
+    $ keystone tenant-create --name=demo
 
     # Using user + password + tenant_name flags
-    keystone --os_username=admin --os_password=secrete --os_tenant_name=admin user-list
-    keystone --os_username=admin --os_password=secrete --os_tenant_name=admin tenant-create --name=demo
+    $ keystone --os_username=admin --os_password=secrete --os_tenant_name=admin user-list
+    $ keystone --os_username=admin --os_password=secrete --os_tenant_name=admin tenant-create --name=demo
 
 Tenants
 -------
