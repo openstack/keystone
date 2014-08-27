@@ -111,6 +111,12 @@ class Manager(manager.Manager):
         self.revoke(
             model.RevokeEvent(access_token_id=payload['resource_info']))
 
+    def _group_callback(self, service, resource_type, operation, payload):
+        user_ids = (u['id'] for u in self.identity_api.list_users_in_group(
+            payload['resource_info']))
+        for uid in user_ids:
+            self.revoke(model.RevokeEvent(user_id=uid))
+
     def _register_listeners(self):
         callbacks = [
             ['deleted', 'OS-TRUST:trust', self._trust_callback],
@@ -120,6 +126,8 @@ class Manager(manager.Manager):
             ['deleted', 'role', self._role_callback],
             ['deleted', 'user', self._user_callback],
             ['disabled', 'user', self._user_callback],
+            ['updated', 'user_password', self._user_callback],
+            ['updated', 'user_removed_from_group', self._user_callback],
             ['deleted', 'project', self._project_callback],
             ['disabled', 'project', self._project_callback],
             ['disabled', 'domain', self._domain_callback]]
