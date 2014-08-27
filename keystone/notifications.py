@@ -14,6 +14,7 @@
 
 """Notifications module for OpenStack Identity Service resources"""
 
+import collections
 import inspect
 import logging
 import socket
@@ -38,13 +39,12 @@ notifier_opts = [
 LOG = log.getLogger(__name__)
 # NOTE(gyee): actions that can be notified. One must update this list whenever
 # a new action is supported.
-CREATED = 'created'
-DELETED = 'deleted'
-DISABLED = 'disabled'
-UPDATED = 'updated'
-INTERNAL = 'internal'
+_ACTIONS = collections.namedtuple(
+    'NotificationActions',
+    'created, deleted, disabled, updated, internal')
+ACTIONS = _ACTIONS(created='created', deleted='deleted', disabled='disabled',
+                   updated='updated', internal='internal')
 
-ACTIONS = frozenset([CREATED, DELETED, DISABLED, UPDATED, INTERNAL])
 # resource types that can be notified
 _SUBSCRIBERS = {}
 _notifier = None
@@ -127,28 +127,28 @@ class ManagerNotificationWrapper(object):
 
 def created(*args, **kwargs):
     """Decorator to send notifications for ``Manager.create_*`` methods."""
-    return ManagerNotificationWrapper(CREATED, *args, **kwargs)
+    return ManagerNotificationWrapper(ACTIONS.created, *args, **kwargs)
 
 
 def updated(*args, **kwargs):
     """Decorator to send notifications for ``Manager.update_*`` methods."""
-    return ManagerNotificationWrapper(UPDATED, *args, **kwargs)
+    return ManagerNotificationWrapper(ACTIONS.updated, *args, **kwargs)
 
 
 def disabled(*args, **kwargs):
     """Decorator to send notifications when an object is disabled."""
-    return ManagerNotificationWrapper(DISABLED, *args, **kwargs)
+    return ManagerNotificationWrapper(ACTIONS.disabled, *args, **kwargs)
 
 
 def deleted(*args, **kwargs):
     """Decorator to send notifications for ``Manager.delete_*`` methods."""
-    return ManagerNotificationWrapper(DELETED, *args, **kwargs)
+    return ManagerNotificationWrapper(ACTIONS.deleted, *args, **kwargs)
 
 
 def internal(*args, **kwargs):
     """Decorator to send notifications for internal notifications only."""
     kwargs['public'] = False
-    return ManagerNotificationWrapper(INTERNAL, *args, **kwargs)
+    return ManagerNotificationWrapper(ACTIONS.internal, *args, **kwargs)
 
 
 def _get_callback_info(callback):
@@ -164,7 +164,8 @@ def register_event_callback(event, resource_type, callbacks):
     if event not in ACTIONS:
         raise ValueError(_('%(event)s is not a valid notification event, must '
                            'be one of: %(actions)s') %
-                         {'event': event, 'actions': ', '.join(ACTIONS)})
+                         {'event': event,
+                          'actions': ', '.join(str(a) for a in ACTIONS)})
 
     if not hasattr(callbacks, '__iter__'):
         callbacks = [callbacks]

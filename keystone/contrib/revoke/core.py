@@ -119,7 +119,7 @@ class Manager(manager.Manager):
 
     def _register_listeners(self):
         callbacks = {
-            notifications.DELETED: [
+            notifications.ACTIONS.deleted: [
                 ['OS-TRUST:trust', self._trust_callback],
                 ['OS-OAUTH1:consumer', self._consumer_callback],
                 ['OS-OAUTH1:access_token', self._access_token_callback],
@@ -127,12 +127,12 @@ class Manager(manager.Manager):
                 ['user', self._user_callback],
                 ['project', self._project_callback],
             ],
-            notifications.DISABLED: [
+            notifications.ACTIONS.disabled: [
                 ['user', self._user_callback],
                 ['project', self._project_callback],
                 ['domain', self._domain_callback]
             ],
-            notifications.INTERNAL: [
+            notifications.ACTIONS.internal: [
                 [notifications.INVALIDATE_USER_TOKEN_PERSISTENCE,
                  self._user_callback]
             ]
