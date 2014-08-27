@@ -199,6 +199,7 @@ class Application(BaseApplication):
         # values by the container and processed by the pipeline.  the complete
         # set is not yet know.
         context['environment'] = req.environ
+        context['accept_header'] = req.accept
         req.environ = None
 
         params.update(arg_dict)
