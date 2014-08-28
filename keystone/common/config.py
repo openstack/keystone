@@ -307,7 +307,8 @@ FILE_OPTIONS = {
         # backend.
         cfg.StrOpt('backend', default='keystone.common.cache.noop',
                    help='Dogpile.cache backend module. It is recommended '
-                        'that Memcache (dogpile.cache.memcached) or Redis '
+                        'that Memcache with pooling '
+                        '(keystone.cache.memcache_pool) or Redis '
                         '(dogpile.cache.redis) be used in production '
                         'deployments.  Small workloads (single process) '
                         'like devstack can use the dogpile.cache.memory '
@@ -332,6 +333,34 @@ FILE_OPTIONS = {
                          'cache-backend get/set/delete calls with the '
                          'keys/values.  Typically this should be left set '
                          'to false.'),
+        cfg.ListOpt('memcache_servers', default=['localhost:11211'],
+                    help='Memcache servers in the format of "host:port".'
+                    ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
+                    ' backends only)'),
+        cfg.IntOpt('memcache_dead_retry',
+                   default=5 * 60,
+                   help='Number of seconds memcached server is considered dead'
+                   ' before it is tried again. (dogpile.cache.memcache and'
+                   ' keystone.cache.memcache_pool backends only)'),
+        cfg.IntOpt('memcache_socket_timeout',
+                   default=3,
+                   help='Timeout in seconds for every call to a server.'
+                   ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
+                   ' backends only)'),
+        cfg.IntOpt('memcache_pool_maxsize',
+                   default=10,
+                   help='Max total number of open connections to every'
+                   ' memcached server. (keystone.cache.memcache_pool backend'
+                   ' only)'),
+        cfg.IntOpt('memcache_pool_unused_timeout',
+                   default=60,
+                   help='Number of seconds a connection to memcached is held'
+                   ' unused in the pool before it is closed.'
+                   ' (keystone.cache.memcache_pool backend only)'),
+        cfg.IntOpt('memcache_pool_connection_get_timeout',
+                   default=10,
+                   help='Number of seconds that an operation will wait to get '
+                        'a memcache client connection.'),
     ],
     'ssl': [
         cfg.BoolOpt('enable', default=False,
@@ -771,10 +800,35 @@ FILE_OPTIONS = {
     'memcache': [
         cfg.ListOpt('servers', default=['localhost:11211'],
                     help='Memcache servers in the format of "host:port".'),
-        cfg.IntOpt('max_compare_and_set_retry', default=16,
-                   help='Number of compare-and-set attempts to make when '
-                        'using compare-and-set in the token memcache back '
-                        'end.'),
+        cfg.IntOpt('dead_retry',
+                   default=5 * 60,
+                   help='Number of seconds memcached server is considered dead'
+                        ' before it is tried again. This is used by the key '
+                        'value store system (e.g. token '
+                        'pooled memcached persistence backend).'),
+        cfg.IntOpt('socket_timeout',
+                   default=3,
+                   help='Timeout in seconds for every call to a server. This '
+                        'is used by the key value store system (e.g. token '
+                        'pooled memcached persistence backend).'),
+        cfg.IntOpt('pool_maxsize',
+                   default=10,
+                   help='Max total number of open connections to every'
+                        ' memcached server. This is used by the key value '
+                        'store system (e.g. token pooled memcached '
+                        'persistence backend).'),
+        cfg.IntOpt('pool_unused_timeout',
+                   default=60,
+                   help='Number of seconds a connection to memcached is held'
+                        ' unused in the pool before it is closed. This is used'
+                        ' by the key value store system (e.g. token pooled '
+                        'memcached persistence backend).'),
+        cfg.IntOpt('pool_connection_get_timeout',
+                   default=10,
+                   help='Number of seconds that an operation will wait to get '
+                        'a memcache client connection. This is used by the '
+                        'key value store system (e.g. token pooled memcached '
+                        'persistence backend).'),
     ],
     'catalog': [
         cfg.StrOpt('template_file',

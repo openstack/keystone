@@ -40,6 +40,11 @@ dogpile.cache.register_backend(
     'keystone.common.cache.backends.mongo',
     'MongoCacheBackend')
 
+dogpile.cache.register_backend(
+    'keystone.cache.memcache_pool',
+    'keystone.common.cache.backends.memcache_pool',
+    'PooledMemcachedBackend')
+
 
 class DebugProxy(proxy.ProxyBackend):
     """Extra Logging ProxyBackend."""
@@ -102,6 +107,15 @@ def build_cache_config():
         conf_dict[arg_key] = argvalue
 
         LOG.debug('Keystone Cache Config: %s', conf_dict)
+    # NOTE(yorik-sar): these arguments will be used for memcache-related
+    # backends. Use setdefault for url to support old-style setting through
+    # backend_argument=url:127.0.0.1:11211
+    conf_dict.setdefault('%s.arguments.url' % prefix,
+                         CONF.cache.memcache_servers)
+    for arg in ('dead_retry', 'socket_timeout', 'pool_maxsize',
+                'pool_unused_timeout', 'pool_connection_get_timeout'):
+        value = getattr(CONF.cache, 'memcache_' + arg)
+        conf_dict['%s.arguments.%s' % (prefix, arg)] = value
 
     return conf_dict
 
