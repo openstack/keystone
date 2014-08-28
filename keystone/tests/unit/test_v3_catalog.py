@@ -154,7 +154,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         ref2 = self.new_region_ref()
 
         del ref1['description']
-        del ref2['description']
+        ref2['description'] = None
 
         resp1 = self.post(
             '/regions',
@@ -222,6 +222,39 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         r = self.patch('/regions/%(region_id)s' % {
             'region_id': self.region_id},
             body={'region': region})
+        self.assertValidRegionResponse(r, region)
+
+    def test_update_region_without_description_keeps_original(self):
+        """Call ``PATCH /regions/{region_id}``."""
+        region_ref = self.new_region_ref()
+
+        resp = self.post('/regions', body={'region': region_ref},
+                         expected_status=201)
+
+        region_updates = {
+            # update with something that's not the description
+            'parent_region_id': self.region_id,
+        }
+        resp = self.patch('/regions/%s' % region_ref['id'],
+                          body={'region': region_updates},
+                          expected_status=200)
+
+        # NOTE(dstanek): Keystone should keep the original description.
+        self.assertEqual(region_ref['description'],
+                         resp.result['region']['description'])
+
+    def test_update_region_with_null_description(self):
+        """Call ``PATCH /regions/{region_id}``."""
+        region = self.new_region_ref()
+        del region['id']
+        region['description'] = None
+        r = self.patch('/regions/%(region_id)s' % {
+            'region_id': self.region_id},
+            body={'region': region})
+
+        # NOTE(dstanek): Keystone should turn the provided None value into
+        # an empty string before storing in the backend.
+        region['description'] = ''
         self.assertValidRegionResponse(r, region)
 
     def test_delete_region(self):
