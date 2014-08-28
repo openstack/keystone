@@ -166,7 +166,9 @@ class Manager(manager.Manager):
                 notifications.INVALIDATE_USER_TOKEN_PERSISTENCE: [
                     self._delete_user_tokens_callback],
                 notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE: [
-                    self._delete_user_project_tokens_callback]}
+                    self._delete_user_project_tokens_callback],
+                notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS: [
+                    self._delete_user_oauth_consumer_tokens_callback]}
         }
 
     @property
@@ -510,6 +512,15 @@ class Manager(manager.Manager):
             self.persistence.delete_tokens_for_users(
                 self.assignment_api.list_user_ids_for_project(project_id),
                 project_id=project_id)
+
+    def _delete_user_oauth_consumer_tokens_callback(self, service,
+                                                    resource_type, operation,
+                                                    payload):
+        if CONF.token.revoke_by_id:
+            user_id = payload['resource_info']['user_id']
+            consumer_id = payload['resource_info']['consumer_id']
+            self.persistence.delete_tokens(user_id=user_id,
+                                           consumer_id=consumer_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
