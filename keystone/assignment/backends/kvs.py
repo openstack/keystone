@@ -18,6 +18,7 @@ from keystone.common import kvs
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -52,6 +53,13 @@ class Assignment(kvs.Base, assignment.Driver):
         {'roles': [{'id': role-id, ...}, ...]}
 
     """
+
+    @versionutils.deprecated(versionutils.deprecated.JUNO,
+                             in_favor_of='keystone.assignment.backends.sql',
+                             remove_in=+1,
+                             what='keystone.assignment.backends.kvs')
+    def __init__(self):
+        super(Assignment, self).__init__()
 
     # Public interface
 
