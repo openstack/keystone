@@ -1249,7 +1249,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             'cn=junk,dc=example,dc=com',
             {
                 'sn': [uuid.uuid4().hex],
-                'email': [uuid.uuid4().hex]
+                'email': [uuid.uuid4().hex],
+                'cn': ['junk']
             }
         )
 
@@ -1401,7 +1402,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             'cn=junk,dc=example,dc=com',
             {
                 'sN': [uuid.uuid4().hex],
-                'MaIl': [uuid.uuid4().hex]
+                'MaIl': [uuid.uuid4().hex],
+                'cn': ['junk']
             }
         )
         user = self.identity_api.get_user('junk')
@@ -1722,6 +1724,106 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         for group_ref in groups:
             self.assertNotIn('dn', group_ref)
         self.assertEqual(set(expected_group_ids), group_ids)
+
+    def test_user_id_attribute_in_create(self):
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_id_attribute = 'mail'
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        user = {'name': u'fäké1',
+                'password': u'fäképass1',
+                'domain_id': CONF.identity.default_domain_id}
+        user = self.identity_api.create_user(user)
+        user_ref = self.identity_api.get_user(user['id'])
+        # 'email' attribute should've created because it is also being used
+        # as user_id
+        self.assertEqual(user_ref['id'], user_ref['email'])
+
+    def test_user_id_attribute_map(self):
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_id_attribute = 'mail'
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        user_ref = self.identity_api.get_user(self.user_foo['email'])
+        # the user_id_attribute map should be honored, which means
+        # user_ref['id'] should contains the email attribute
+        self.assertEqual(self.user_foo['email'], user_ref['id'])
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_get_id_from_dn_for_multivalued_attribute_id(self, mock_ldap_get):
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_id_attribute = 'mail'
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        # make 'email' multivalued so we can test the error condition
+        email1 = uuid.uuid4().hex
+        email2 = uuid.uuid4().hex
+        mock_ldap_get.return_value = (
+            'cn=nobodycares,dc=example,dc=com',
+            {
+                'sn': [uuid.uuid4().hex],
+                'mail': [email1, email2],
+                'cn': 'nobodycares'
+            }
+        )
+
+        user_ref = self.identity_api.get_user(email1)
+        # make sure we get the ID from DN (old behavior) if the ID attribute
+        # has multiple values
+        self.assertEqual('nobodycares', user_ref['id'])
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_id_attribute_not_found(self, mock_ldap_get):
+        mock_ldap_get.return_value = (
+            'cn=nobodycares,dc=example,dc=com',
+            {
+                'sn': [uuid.uuid4().hex],
+            }
+        )
+
+        user_api = identity.backends.ldap.UserApi(CONF)
+        self.assertRaises(exception.NotFound,
+                          user_api.get,
+                          'nobodycares')
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_user_id_not_in_dn(self, mock_ldap_get):
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_id_attribute = 'uid'
+        conf.ldap.user_name_attribute = 'cn'
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        mock_ldap_get.return_value = (
+            'foo=bar,dc=example,dc=com',
+            {
+                'sn': [uuid.uuid4().hex],
+                'foo': ['bar'],
+                'cn': ['junk'],
+                'uid': ['crap']
+            }
+        )
+        user_ref = self.identity_api.get_user('crap')
+        self.assertEqual('crap', user_ref['id'])
+        self.assertEqual('junk', user_ref['name'])
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_user_name_in_dn(self, mock_ldap_get):
+        conf = self.get_config(CONF.identity.default_domain_id)
+        conf.ldap.user_id_attribute = 'sAMAccountName'
+        conf.ldap.user_name_attribute = 'cn'
+        self.reload_backends(CONF.identity.default_domain_id)
+
+        mock_ldap_get.return_value = (
+            'cn=Foo Bar,dc=example,dc=com',
+            {
+                'sn': [uuid.uuid4().hex],
+                'cn': ['Foo Bar'],
+                'SAMAccountName': ['crap']
+            }
+        )
+        user_ref = self.identity_api.get_user('crap')
+        self.assertEqual('crap', user_ref['id'])
+        self.assertEqual('Foo Bar', user_ref['name'])
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):

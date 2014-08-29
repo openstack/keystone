@@ -889,7 +889,8 @@
 # LDAP objectclass for users. (string value)
 #user_objectclass=inetOrgPerson
 
-# LDAP attribute mapped to user id. (string value)
+# LDAP attribute mapped to user id. WARNING: must not be a
+# multivalued attribute. (string value)
 #user_id_attribute=cn
 
 # LDAP attribute mapped to user name. (string value)

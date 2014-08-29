@@ -516,7 +516,8 @@ FILE_OPTIONS = {
         cfg.StrOpt('user_objectclass', default='inetOrgPerson',
                    help='LDAP objectclass for users.'),
         cfg.StrOpt('user_id_attribute', default='cn',
-                   help='LDAP attribute mapped to user id.'),
+                   help='LDAP attribute mapped to user id. '
+                        'WARNING: must not be a multivalued attribute.'),
         cfg.StrOpt('user_name_attribute', default='sn',
                    help='LDAP attribute mapped to user name.'),
         cfg.StrOpt('user_mail_attribute', default='mail',
