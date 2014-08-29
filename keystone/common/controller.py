@@ -62,7 +62,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
 
     # There is no current auth context, build it from the incoming token.
     # TODO(morganfainberg): Collapse this logic with AuthContextMiddleware
-    # in sane manner as this just mirrors the logic in AuthContextMiddleware
+    # in a sane manner as this just mirrors the logic in AuthContextMiddleware
     try:
         LOG.debug('RBAC: building auth context from the incoming auth token')
         token_ref = token_model.KeystoneToken(
