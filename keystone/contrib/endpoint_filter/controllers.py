@@ -26,10 +26,10 @@ class EndpointFilterV3Controller(controller.V3Controller):
     def __init__(self):
         super(EndpointFilterV3Controller, self).__init__()
         notifications.register_event_callback(
-            notifications.DELETED, 'project',
+            notifications.ACTIONS.deleted, 'project',
             self._on_project_or_endpoint_delete)
         notifications.register_event_callback(
-            notifications.DELETED, 'endpoint',
+            notifications.ACTIONS.deleted, 'endpoint',
             self._on_project_or_endpoint_delete)
 
     def _on_project_or_endpoint_delete(self, service, resource_type, operation,

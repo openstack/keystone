@@ -17,6 +17,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _
+from keystone import notifications
 from keystone.openstack.common import log
 
 
@@ -47,12 +48,13 @@ class ExampleManager(manager.Manager):
         # This information is used when the @dependency.provider decorator acts
         # on the class.
         self.event_callbacks = {
-            'deleted': {
-                'project': [
-                    self.project_deleted_callback]},
-            'created': {
-                'project': [
-                    self.project_created_callback]}}
+            notifications.ACTIONS.deleted: {
+                'project': [self.project_deleted_callback],
+            },
+            notifications.ACTIONS.created: {
+                'project': [self.project_created_callback],
+            },
+        }
         super(ExampleManager, self).__init__(
             'keystone.contrib.example.core.ExampleDriver')
 

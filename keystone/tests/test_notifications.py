@@ -31,9 +31,9 @@ from keystone.tests import test_v3
 CONF = cfg.CONF
 
 EXP_RESOURCE_TYPE = uuid.uuid4().hex
-CREATED_OPERATION = 'created'
-UPDATED_OPERATION = 'updated'
-DELETED_OPERATION = 'deleted'
+CREATED_OPERATION = notifications.ACTIONS.created
+UPDATED_OPERATION = notifications.ACTIONS.updated
+DELETED_OPERATION = notifications.ACTIONS.deleted
 
 
 class ArbitraryException(Exception):
