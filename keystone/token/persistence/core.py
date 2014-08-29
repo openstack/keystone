@@ -25,6 +25,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
+from keystone.i18n import _LW
 from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
 
@@ -226,9 +227,11 @@ class Manager(object):
 
     def __getattr__(self, item):
         """Forward calls to the `token_provider_api` persistence manager."""
-        # TODO(morganfainberg): Once the `token_api` is deprecated, apply a
-        # @versionutils.deprecated decorator to each item forwarded.
+
         f = getattr(self.token_provider_api.persistence, item)
+        LOG.warning(_LW('`token_api.%s` is deprecated as of Juno in favor of '
+                        'utilizing methods on `token_provider_api` and may be '
+                        'removed in Kilo.'), item)
         setattr(self, item, f)
         return f
 
