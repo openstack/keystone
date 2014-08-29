@@ -337,7 +337,7 @@ class LDAPHandler(object):
     conversions and then calls another LDAP API which is configurable
     (e.g. either python-ldap or the fake emulation).
 
-    We have an addtional constraint at the time of this writing due to
+    We have an additional constraint at the time of this writing due to
     limitations in the logging module. The logging module is not
     capable of accepting UTF-8 encoded strings, it will throw an
     encoding exception. Therefore all logging MUST be performed prior
@@ -709,7 +709,7 @@ class PooledLDAPHandler(LDAPHandler):
 
     def get_option(self, option):
         value = self.conn_options.get(option)
-        # if option was not specified explictly, then use connection default
+        # if option was not specified explicitly, then use connection default
         # value for that option if there.
         if value is None:
             with self._get_pool_connection() as conn:
