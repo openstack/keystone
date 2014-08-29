@@ -172,7 +172,7 @@ class TokenFlush(BaseApp):
 
     @classmethod
     def main(cls):
-        token_manager = token.persistence.Manager()
+        token_manager = token.persistence.PersistenceManager()
         token_manager.driver.flush_expired_tokens()
 
 
