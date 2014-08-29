@@ -996,7 +996,7 @@ class AuthWithTrust(AuthTest):
                          " only get the two roles specified in the trust.")
 
     def assert_token_count_for_trust(self, trust, expected_value):
-        tokens = self.token_api._list_tokens(
+        tokens = self.token_provider_api._persistence._list_tokens(
             self.trustee['id'], trust_id=trust['id'])
         token_count = len(tokens)
         self.assertEqual(expected_value, token_count)
@@ -1006,7 +1006,8 @@ class AuthWithTrust(AuthTest):
         self.assert_token_count_for_trust(new_trust, 0)
         self.fetch_v2_token_from_trust(new_trust)
         self.assert_token_count_for_trust(new_trust, 1)
-        self.token_api.delete_tokens_for_user(self.trustee['id'])
+        self.token_provider_api._persistence.delete_tokens_for_user(
+            self.trustee['id'])
         self.assert_token_count_for_trust(new_trust, 0)
 
     def test_token_from_trust_cant_get_another_token(self):
@@ -1026,12 +1027,14 @@ class AuthWithTrust(AuthTest):
             unscoped_token['access']['token']['id'])
         self.fetch_v2_token_from_trust(new_trust)
         trust_id = new_trust['id']
-        tokens = self.token_api._list_tokens(self.trustor['id'],
-                                             trust_id=trust_id)
+        tokens = self.token_provider_api._persistence._list_tokens(
+            self.trustor['id'],
+            trust_id=trust_id)
         self.assertEqual(1, len(tokens))
         self.trust_controller.delete_trust(context, trust_id=trust_id)
-        tokens = self.token_api._list_tokens(self.trustor['id'],
-                                             trust_id=trust_id)
+        tokens = self.token_provider_api._persistence._list_tokens(
+            self.trustor['id'],
+            trust_id=trust_id)
         self.assertEqual(0, len(tokens))
 
     def test_token_from_trust_with_no_role_fails(self):
