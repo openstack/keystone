@@ -146,17 +146,21 @@ class Manager(manager.Manager):
     def revoke_by_user(self, user_id):
         return self.revoke(model.RevokeEvent(user_id=user_id))
 
+    def _assert_not_domain_and_project_scoped(self, domain_id=None,
+                                              project_id=None):
+        if domain_id is not None and project_id is not None:
+            msg = _('The revoke call must not have both domain_id and '
+                    'project_id. This is a bug in the Keystone server. The '
+                    'current request is aborted.')
+            raise exception.UnexpectedError(exception=msg)
+
     @versionutils.deprecated(as_of=versionutils.deprecated.JUNO,
                              remove_in=0)
     def revoke_by_expiration(self, user_id, expires_at,
                              domain_id=None, project_id=None):
 
-        if domain_id is not None and project_id is not None:
-            msg = _('The call to keystone.contrib.revoke.Manager '
-                    'revoke_by_expiration() must not have both domain_id and '
-                    'project_id. This is a bug in the keystone server. The '
-                    'current request is aborted.')
-            raise exception.UnexpectedError(exception=msg)
+        self._assert_not_domain_and_project_scoped(domain_id=domain_id,
+                                                   project_id=project_id)
 
         self.revoke(
             model.RevokeEvent(user_id=user_id,
@@ -169,6 +173,10 @@ class Manager(manager.Manager):
 
     def revoke_by_audit_chain_id(self, audit_chain_id, project_id=None,
                                  domain_id=None):
+
+        self._assert_not_domain_and_project_scoped(domain_id=domain_id,
+                                                   project_id=project_id)
+
         self.revoke(model.RevokeEvent(audit_chain_id=audit_chain_id,
                                       domain_id=domain_id,
                                       project_id=project_id))
