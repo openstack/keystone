@@ -172,7 +172,7 @@ class Manager(manager.Manager):
         }
 
     @property
-    def persistence(self):
+    def _persistence(self):
         # NOTE(morganfainberg): This should not be handled via __init__ to
         # avoid dependency injection oddities circular dependencies (where
         # the provider manager requires the token persistence manager, which
@@ -198,13 +198,13 @@ class Manager(manager.Manager):
             if isinstance(token_data['expires'], six.string_types):
                 token_data['expires'] = timeutils.normalize_time(
                     timeutils.parse_isotime(token_data['expires']))
-            self.persistence.create_token(token_id, token_data)
+            self._persistence.create_token(token_id, token_data)
         except Exception:
             exc_info = sys.exc_info()
             # an identical token may have been created already.
             # if so, return the token_data as it is also identical
             try:
-                self.persistence.get_token(token_id)
+                self._persistence.get_token(token_id)
             except exception.TokenNotFound:
                 six.reraise(*exc_info)
 
@@ -232,7 +232,7 @@ class Manager(manager.Manager):
         unique_id = self.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
-        token_ref = self.persistence.get_token(unique_id)
+        token_ref = self._persistence.get_token(unique_id)
         token = self._validate_v2_token(token_ref)
         self.check_revocation_v2(token)
         self._token_belongs_to(token, belongs_to)
@@ -260,7 +260,7 @@ class Manager(manager.Manager):
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         try:
-            token_ref = self.persistence.get_token(unique_id)
+            token_ref = self._persistence.get_token(unique_id)
         except (exception.ValidationError, exception.UserNotFound):
             raise exception.TokenNotFound(token_id=token_id)
         token = self._validate_v3_token(token_ref)
@@ -305,7 +305,7 @@ class Manager(manager.Manager):
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=EXPIRATION_TIME)
     def _validate_token(self, token_id):
-        token_ref = self.persistence.get_token(token_id)
+        token_ref = self._persistence.get_token(token_id)
         version = self.driver.get_token_version(token_ref)
         if version == self.V3:
             return self.driver.validate_v3_token(token_ref)
@@ -472,44 +472,44 @@ class Manager(manager.Manager):
                 self.revoke_api.revoke_by_audit_id(audit_id)
 
         if CONF.token.revoke_by_id:
-            self.persistence.delete_token(token_id=token_id)
+            self._persistence.delete_token(token_id=token_id)
 
     def list_revoked_tokens(self):
-        return self.persistence.list_revoked_tokens()
+        return self._persistence.list_revoked_tokens()
 
     def _trust_deleted_event_callback(self, service, resource_type, operation,
                                       payload):
         if CONF.token.revoke_by_id:
             trust_id = payload['resource_info']
             trust = self.trust_api.get_trust(trust_id, deleted=True)
-            self.persistence.delete_tokens(user_id=trust['trustor_user_id'],
-                                           trust_id=trust_id)
+            self._persistence.delete_tokens(user_id=trust['trustor_user_id'],
+                                            trust_id=trust_id)
 
     def _delete_user_tokens_callback(self, service, resource_type, operation,
                                      payload):
         if CONF.token.revoke_by_id:
             user_id = payload['resource_info']
-            self.persistence.delete_tokens_for_user(user_id)
+            self._persistence.delete_tokens_for_user(user_id)
 
     def _delete_domain_tokens_callback(self, service, resource_type,
                                        operation, payload):
         if CONF.token.revoke_by_id:
             domain_id = payload['resource_info']
-            self.persistence.delete_tokens_for_domain(domain_id=domain_id)
+            self._persistence.delete_tokens_for_domain(domain_id=domain_id)
 
     def _delete_user_project_tokens_callback(self, service, resource_type,
                                              operation, payload):
         if CONF.token.revoke_by_id:
             user_id = payload['resource_info']['user_id']
             project_id = payload['resource_info']['project_id']
-            self.persistence.delete_tokens_for_user(user_id=user_id,
-                                                    project_id=project_id)
+            self._persistence.delete_tokens_for_user(user_id=user_id,
+                                                     project_id=project_id)
 
     def _delete_project_tokens_callback(self, service, resource_type,
                                         operation, payload):
         if CONF.token.revoke_by_id:
             project_id = payload['resource_info']
-            self.persistence.delete_tokens_for_users(
+            self._persistence.delete_tokens_for_users(
                 self.assignment_api.list_user_ids_for_project(project_id),
                 project_id=project_id)
 
@@ -519,8 +519,8 @@ class Manager(manager.Manager):
         if CONF.token.revoke_by_id:
             user_id = payload['resource_info']['user_id']
             consumer_id = payload['resource_info']['consumer_id']
-            self.persistence.delete_tokens(user_id=user_id,
-                                           consumer_id=consumer_id)
+            self._persistence.delete_tokens(user_id=user_id,
+                                            consumer_id=consumer_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
