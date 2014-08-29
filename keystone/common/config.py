@@ -77,6 +77,9 @@ FILE_OPTIONS = {
                         'to set this value if the base URL contains a path '
                         '(e.g. /prefix/v2.0) or the endpoint should be found '
                         'on a different server.'),
+        cfg.IntOpt('max_project_tree_depth', default=5,
+                   help='The maximum depth of projects hierarchy is limited '
+                        'for performance reasons'),
         cfg.IntOpt('public_workers',
                    help='The number of worker processes to serve the public '
                         'WSGI application. Defaults to number of CPUs '

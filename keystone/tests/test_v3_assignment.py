@@ -426,6 +426,41 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                   headers={'x-subject-token': subject_token},
                   expected_status=404)
 
+    def test_delete_domain_hierarchy(self):
+        """Call ``DELETE /domains/{domain_id}``."""
+        domain = self.new_domain_ref()
+        self.assignment_api.create_domain(domain['id'], domain)
+
+        root_project = self.new_project_ref(
+            domain_id=domain['id'])
+        self.assignment_api.create_project(root_project['id'], root_project)
+
+        leaf_project = self.new_project_ref(
+            domain_id=domain['id'],
+            parent_id=root_project['id'])
+        self.assignment_api.create_project(leaf_project['id'], leaf_project)
+
+        # Need to disable it first.
+        self.patch('/domains/%(domain_id)s' % {
+            'domain_id': domain['id']},
+            body={'domain': {'enabled': False}})
+
+        self.delete(
+            '/domains/%(domain_id)s' % {
+                'domain_id': domain['id']})
+
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.get_domain,
+                          domain['id'])
+
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          root_project['id'])
+
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.get_project,
+                          leaf_project['id'])
+
     # Project CRUD tests
 
     def test_list_projects(self):
@@ -454,12 +489,69 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """Call ``POST /projects``."""
         self.post('/projects', body={'project': {}}, expected_status=400)
 
+    def _create_projects_hierarchy(self, hierarchy_size=1):
+        """Creates a project hierarchy with specified size.
+
+        :param hierarchy_size: the desired hierarchy size, default is 1 -
+                               a project with one child.
+
+        :returns projects: a list of the projects in the created hierarchy.
+
+        """
+        resp = self.get(
+            '/projects/%(project_id)s' % {
+                'project_id': self.project_id})
+
+        projects = [resp.result]
+
+        for i in range(hierarchy_size):
+            new_ref = self.new_project_ref(
+                domain_id=self.domain_id,
+                parent_id=projects[i]['project']['id'])
+            resp = self.post('/projects',
+                             body={'project': new_ref})
+            self.assertValidProjectResponse(resp, new_ref)
+
+            projects.append(resp.result)
+
+        return projects
+
+    def test_create_hierarchical_project(self):
+        """Call ``POST /projects``."""
+        self._create_projects_hierarchy()
+
     def test_get_project(self):
         """Call ``GET /projects/{project_id}``."""
         r = self.get(
             '/projects/%(project_id)s' % {
                 'project_id': self.project_id})
         self.assertValidProjectResponse(r, self.project)
+
+    def test_get_project_with_parents_list(self):
+        """Call ``GET /projects/{project_id}?parents_as_list``."""
+        projects = self._create_projects_hierarchy(hierarchy_size=2)
+
+        r = self.get(
+            '/projects/%(project_id)s?parents_as_list' % {
+                'project_id': projects[1]['project']['id']})
+
+        self.assertEqual(1, len(r.result['project']['parents']))
+        self.assertValidProjectResponse(r, projects[1]['project'])
+        self.assertIn(projects[0], r.result['project']['parents'])
+        self.assertNotIn(projects[2], r.result['project']['parents'])
+
+    def test_get_project_with_subtree_list(self):
+        """Call ``GET /projects/{project_id}?subtree_as_list``."""
+        projects = self._create_projects_hierarchy(hierarchy_size=2)
+
+        r = self.get(
+            '/projects/%(project_id)s?subtree_as_list' % {
+                'project_id': projects[1]['project']['id']})
+
+        self.assertEqual(1, len(r.result['project']['subtree']))
+        self.assertValidProjectResponse(r, projects[1]['project'])
+        self.assertNotIn(projects[0], r.result['project']['subtree'])
+        self.assertIn(projects[2], r.result['project']['subtree'])
 
     def test_update_project(self):
         """Call ``PATCH /projects/{project_id}``."""
@@ -486,6 +578,40 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             'project_id': project['id']},
             body={'project': project})
         self.assertValidProjectResponse(r, project)
+
+    def test_update_project_parent_id(self):
+        """Call ``PATCH /projects/{project_id}``."""
+        projects = self._create_projects_hierarchy()
+        leaf_project = projects[1]['project']
+        leaf_project['parent_id'] = None
+        self.patch(
+            '/projects/%(project_id)s' % {
+                'project_id': leaf_project['id']},
+            body={'project': leaf_project},
+            expected_status=403)
+
+    def test_disable_leaf_project(self):
+        """Call ``PATCH /projects/{project_id}``."""
+        projects = self._create_projects_hierarchy()
+        leaf_project = projects[1]['project']
+        leaf_project['enabled'] = False
+        r = self.patch(
+            '/projects/%(project_id)s' % {
+                'project_id': leaf_project['id']},
+            body={'project': leaf_project})
+        self.assertEqual(
+            leaf_project['enabled'], r.result['project']['enabled'])
+
+    def test_disable_not_leaf_project(self):
+        """Call ``PATCH /projects/{project_id}``."""
+        projects = self._create_projects_hierarchy()
+        root_project = projects[0]['project']
+        root_project['enabled'] = False
+        self.patch(
+            '/projects/%(project_id)s' % {
+                'project_id': root_project['id']},
+            body={'project': root_project},
+            expected_status=403)
 
     def test_delete_project(self):
         """Call ``DELETE /projects/{project_id}``
@@ -522,6 +648,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # But the credential for project2 is unaffected
         r = self.credential_api.get_credential(self.credential2['id'])
         self.assertDictEqual(r, self.credential2)
+
+    def test_delete_not_leaf_project(self):
+        """Call ``DELETE /projects/{project_id}``."""
+        self._create_projects_hierarchy()
+        self.delete(
+            '/projects/%(project_id)s' % {
+                'project_id': self.project_id},
+            expected_status=403)
 
     # Role CRUD tests
 

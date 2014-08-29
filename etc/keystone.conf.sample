@@ -59,6 +59,11 @@
 # server. (string value)
 #admin_endpoint=<None>
 
+# Maximum depth of the project hierarchy. (integer value)
+# WARNING: setting it to a large value may adversely impact
+# performance.
+#max_project_tree_depth=5
+
 # The number of worker processes to serve the public WSGI
 # application. Defaults to number of CPUs (minimum of 2).
 # (integer value)
