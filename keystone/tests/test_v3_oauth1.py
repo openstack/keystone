@@ -13,8 +13,6 @@
 # under the License.
 
 import copy
-import os
-import tempfile
 import uuid
 
 from six.moves import urllib
@@ -25,6 +23,7 @@ from keystone.contrib.oauth1 import controllers
 from keystone.contrib.oauth1 import core
 from keystone import exception
 from keystone.openstack.common import jsonutils
+from keystone.tests.ksfixtures import temporaryfile
 from keystone.tests import test_v3
 
 
@@ -561,11 +560,11 @@ class AuthTokenTests(OAuthFlowTests):
                  expected_status=403)
 
     def _set_policy(self, new_policy):
-        _unused, self.tmpfilename = tempfile.mkstemp()
+        self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
+        self.tmpfilename = self.tempfile.file_name
         self.config_fixture.config(policy_file=self.tmpfilename)
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write(jsonutils.dumps(new_policy))
-        self.addCleanup(os.remove, self.tmpfilename)
 
     def test_trust_token_cannot_authorize_request_token(self):
         trust_token = self._create_trust_get_token()
