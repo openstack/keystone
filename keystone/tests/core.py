@@ -42,6 +42,7 @@ environment.use_eventlet()
 
 from keystone import auth
 from keystone import backends
+from keystone.common import config as common_cfg
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
@@ -331,13 +332,6 @@ class TestCase(BaseTestCase):
         self.config_fixture.config(admin_workers=2)
         self.config_fixture.config(policy_file=dirs.etc('policy.json'))
         self.config_fixture.config(
-            group='auth',
-            methods=['keystone.auth.plugins.external.DefaultDomain',
-                     'keystone.auth.plugins.password.Password',
-                     'keystone.auth.plugins.token.Token',
-                     'keystone.auth.plugins.oauth1.OAuth',
-                     'keystone.auth.plugins.saml2.Saml2'])
-        self.config_fixture.config(
             # TODO(morganfainberg): Make Cache Testing a separate test case
             # in tempest, and move it out of the base unit tests.
             group='cache',
@@ -384,6 +378,23 @@ class TestCase(BaseTestCase):
                 'routes.middleware=INFO',
                 'stevedore.extension=INFO',
             ])
+        self.auth_plugin_config_override()
+
+    def auth_plugin_config_override(self, methods=None, **method_classes):
+        if methods is None:
+            methods = ['external', 'password', 'token', 'oauth1', 'saml2']
+            if not method_classes:
+                method_classes = dict(
+                    external='keystone.auth.plugins.external.DefaultDomain',
+                    password='keystone.auth.plugins.password.Password',
+                    token='keystone.auth.plugins.token.Token',
+                    oauth1='keystone.auth.plugins.oauth1.OAuth',
+                    saml2='keystone.auth.plugins.saml2.Saml2',
+                )
+        self.config_fixture.config(group='auth', methods=methods)
+        common_cfg.setup_authentication()
+        if method_classes:
+            self.config_fixture.config(group='auth', **method_classes)
 
     def setUp(self):
         super(TestCase, self).setUp()
@@ -412,6 +423,15 @@ class TestCase(BaseTestCase):
         self.exit_patch.mock.side_effect = UnexpectedExit
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config(self.config_files())
+
+        # NOTE(morganfainberg): mock the auth plugin setup to use the config
+        # fixture which automatically unregisters options when performing
+        # cleanup.
+        def mocked_register_auth_plugin_opt(conf, opt):
+            self.config_fixture.register_opt(opt, group='auth')
+        self.register_auth_plugin_opt_patch = self.useFixture(
+            mockpatch.PatchObject(common_cfg, '_register_auth_plugin_opt',
+                                  new=mocked_register_auth_plugin_opt))
 
         self.config_overrides()
 

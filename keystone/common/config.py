@@ -808,13 +808,18 @@ CONF = cfg.CONF
 messaging.set_transport_defaults(control_exchange='keystone')
 
 
+def _register_auth_plugin_opt(conf, option):
+    conf.register_opt(option, group='auth')
+
+
 def setup_authentication(conf=None):
     # register any non-default auth methods here (used by extensions, etc)
     if conf is None:
         conf = CONF
     for method_name in conf.auth.methods:
         if method_name not in _DEFAULT_AUTH_METHODS:
-            conf.register_opt(cfg.StrOpt(method_name), group='auth')
+            option = cfg.StrOpt(method_name)
+            _register_auth_plugin_opt(conf, option)
 
 
 def configure(conf=None):
