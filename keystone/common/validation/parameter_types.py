@@ -36,7 +36,7 @@ hex_uuid = {
 }
 
 description = {
-    'type': ['string', 'null']
+    'type': 'string'
 }
 
 url = {
