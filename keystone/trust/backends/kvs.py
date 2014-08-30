@@ -21,6 +21,7 @@ from oslo.utils import timeutils
 
 from keystone.common import kvs
 from keystone import exception
+from keystone.openstack.common import versionutils
 from keystone import trust as keystone_trust
 
 
@@ -40,6 +41,14 @@ def _filter_trust(ref, deleted=False):
 
 
 class Trust(kvs.Base, keystone_trust.Driver):
+
+    @versionutils.deprecated(versionutils.deprecated.JUNO,
+                             in_favor_of='keystone.trust.backends.sql',
+                             remove_in=+1,
+                             what='keystone.trust.backends.kvs')
+    def __init__(self):
+        super(Trust, self).__init__()
+
     def create_trust(self, trust_id, trust, roles):
         trust_ref = copy.deepcopy(trust)
         trust_ref['id'] = trust_id
