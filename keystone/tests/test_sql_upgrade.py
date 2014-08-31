@@ -1386,6 +1386,20 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertEqual(1, session.query(endpoint_table).
                          filter_by(region=_small_region_name).count())
 
+    def test_add_actor_id_index(self):
+        self.upgrade(53)
+        self.upgrade(54)
+        table = sqlalchemy.Table('assignment', self.metadata, autoload=True)
+        index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
+        self.assertIn(('ix_actor_id', ['actor_id']), index_data)
+
+    def test_remove_actor_id_index(self):
+        self.upgrade(54)
+        self.downgrade(53)
+        table = sqlalchemy.Table('assignment', self.metadata, autoload=True)
+        index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
+        self.assertNotIn(('ix_actor_id', ['actor_id']), index_data)
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
