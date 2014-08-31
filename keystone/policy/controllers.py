@@ -14,6 +14,8 @@
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import validation
+from keystone.policy import schema
 
 
 @dependency.requires('policy_api')
@@ -22,10 +24,9 @@ class PolicyV3(controller.V3Controller):
     member_name = 'policy'
 
     @controller.protected()
+    @validation.validated(schema.policy_create, 'policy')
     def create_policy(self, context, policy):
         ref = self._assign_unique_id(self._normalize_dict(policy))
-        self._require_attribute(ref, 'blob')
-        self._require_attribute(ref, 'type')
 
         ref = self.policy_api.create_policy(ref['id'], ref)
         return PolicyV3.wrap_member(context, ref)
@@ -42,6 +43,7 @@ class PolicyV3(controller.V3Controller):
         return PolicyV3.wrap_member(context, ref)
 
     @controller.protected()
+    @validation.validated(schema.policy_update, 'policy')
     def update_policy(self, context, policy_id, policy):
         ref = self.policy_api.update_policy(policy_id, policy)
         return PolicyV3.wrap_member(context, ref)

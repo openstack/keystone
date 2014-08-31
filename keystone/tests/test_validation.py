@@ -20,6 +20,7 @@ from keystone.common import validation
 from keystone.common.validation import parameter_types
 from keystone.common.validation import validators
 from keystone import exception
+from keystone.policy import schema as policy_schema
 
 """Example model to validate create requests against. Assume that this is
 the only backend for the create and validate schemas. This is just an
@@ -534,3 +535,78 @@ class RoleValidationTestCase(testtools.TestCase):
         self.assertRaises(exception.SchemaValidationError,
                           self.update_role_validator.validate,
                           request_to_validate)
+
+
+class PolicyValidationTestCase(testtools.TestCase):
+    """Test for V3 Policy API validation."""
+
+    def setUp(self):
+        super(PolicyValidationTestCase, self).setUp()
+
+        create = policy_schema.policy_create
+        update = policy_schema.policy_update
+        self.create_policy_validator = validators.SchemaValidator(create)
+        self.update_policy_validator = validators.SchemaValidator(update)
+
+    def test_validate_policy_succeeds(self):
+        """Test that we validate a create policy request."""
+        request_to_validate = {'blob': 'some blob information',
+                               'type': 'application/json'}
+        self.create_policy_validator.validate(request_to_validate)
+
+    def test_validate_policy_without_blob_fails(self):
+        """Exception raised without `blob` in request."""
+        request_to_validate = {'type': 'application/json'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_policy_validator.validate,
+                          request_to_validate)
+
+    def test_validate_policy_without_type_fails(self):
+        """Exception raised without `type` in request."""
+        request_to_validate = {'blob': 'some blob information'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_policy_validator.validate,
+                          request_to_validate)
+
+    def test_validate_policy_create_with_extra_parameters_succeeds(self):
+        """Validate policy create with extra parameters."""
+        request_to_validate = {'blob': 'some blob information',
+                               'type': 'application/json',
+                               'extra': 'some extra stuff'}
+        self.create_policy_validator.validate(request_to_validate)
+
+    def test_validate_policy_create_with_invalid_type_fails(self):
+        """Exception raised when `blob` and `type` are boolean."""
+        for prop in ['blob', 'type']:
+            request_to_validate = {prop: False}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_policy_validator.validate,
+                              request_to_validate)
+
+    def test_validate_policy_update_without_parameters_fails(self):
+        """Exception raised when updating policy without parameters."""
+        request_to_validate = {}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_policy_validator.validate,
+                          request_to_validate)
+
+    def test_validate_policy_update_with_extra_parameters_succeeds(self):
+        """Validate policy update request with extra parameters."""
+        request_to_validate = {'blob': 'some blob information',
+                               'type': 'application/json',
+                               'extra': 'some extra stuff'}
+        self.update_policy_validator.validate(request_to_validate)
+
+    def test_validate_policy_update_succeeds(self):
+        """Test that we validate a policy update request."""
+        request_to_validate = {'blob': 'some blob information',
+                               'type': 'application/json'}
+        self.update_policy_validator.validate(request_to_validate)
+
+    def test_validate_policy_update_with_invalid_type_fails(self):
+        """Exception raised when invalid `type` on policy update."""
+        for prop in ['blob', 'type']:
+            request_to_validate = {prop: False}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_policy_validator.validate,
+                              request_to_validate)
