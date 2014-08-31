@@ -18,6 +18,7 @@ import os
 from keystone.common import environment
 from keystone.common import utils
 from keystone import config
+from keystone.i18n import _LI, _LE
 from keystone.openstack.common import log
 
 LOG = log.getLogger(__name__)
@@ -74,8 +75,28 @@ class BaseCertificateConfigure(object):
         to_exec = []
         for cmd_part in command:
             to_exec.append(cmd_part % self.ssl_dictionary)
-        LOG.info(' '.join(to_exec))
-        environment.subprocess.check_call(to_exec)
+        LOG.info(_LI('Running command - %s'), ' '.join(to_exec))
+        # NOTE(Jeffrey4l): Redirect both stdout and stderr to pipe, so the
+        # output can be captured.
+        # NOTE(Jeffrey4l): check_output is not compatible with Python 2.6.
+        # So use Popen instead.
+        process = environment.subprocess.Popen(
+            to_exec,
+            stdout=environment.subprocess.PIPE,
+            stderr=environment.subprocess.STDOUT)
+        output = process.communicate()[0]
+        retcode = process.poll()
+        if retcode:
+            LOG.error(_LE('Command %(to_exec)s exited with %(retcode)s'
+                          '- %(output)s'),
+                      {'to_exec': to_exec,
+                       'retcode': retcode,
+                       'output': output})
+            e = environment.subprocess.CalledProcessError(retcode, to_exec[0])
+            # NOTE(Jeffrey4l): Python 2.6 compatibility:
+            # CalledProcessError did not have output keyword argument
+            e.output = output
+            raise e
 
     def build_ssl_config_file(self):
         utils.make_dirs(os.path.dirname(self.ssl_config_file_name),
