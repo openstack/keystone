@@ -1798,7 +1798,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
 
         self.assertEqual(self.endpoint['id'], endpoint['id'])
         self.assertEqual(self.endpoint['interface'], endpoint['interface'])
-        self.assertEqual(self.endpoint['region'], endpoint['region'])
+        self.assertEqual(self.endpoint['region_id'], endpoint['region_id'])
         self.assertEqual(self.endpoint['url'], endpoint['url'])
 
     def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):

@@ -168,6 +168,9 @@ class Manager(manager.Manager):
     def create_endpoint(self, endpoint_id, endpoint_ref):
         try:
             return self.driver.create_endpoint(endpoint_id, endpoint_ref)
+        except exception.RegionNotFound:
+            raise exception.ValidationError(attribute='endpoint region_id',
+                                            target='region table')
         except exception.NotFound:
             service_id = endpoint_ref.get('service_id')
             raise exception.ServiceNotFound(service_id=service_id)

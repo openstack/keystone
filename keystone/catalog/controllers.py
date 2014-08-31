@@ -77,6 +77,7 @@ class Endpoint(controller.V2Controller):
                 legacy_ep['id'] = legacy_ep.pop('legacy_endpoint_id')
                 legacy_ep.pop('interface')
                 legacy_ep.pop('url')
+                legacy_ep['region'] = legacy_ep.pop('region_id')
 
                 legacy_endpoints[endpoint['legacy_endpoint_id']] = legacy_ep
             else:
@@ -95,6 +96,13 @@ class Endpoint(controller.V2Controller):
         self._require_attribute(endpoint, 'publicurl')
         # service_id is necessary
         self._require_attribute(endpoint, 'service_id')
+
+        if endpoint.get('region') is not None:
+            try:
+                self.catalog_api.get_region(endpoint['region'])
+            except exception.RegionNotFound:
+                region = dict(id=endpoint['region'])
+                self.catalog_api.create_region(region)
 
         legacy_endpoint_ref = endpoint.copy()
 
@@ -117,6 +125,7 @@ class Endpoint(controller.V2Controller):
             endpoint_ref['legacy_endpoint_id'] = legacy_endpoint_id
             endpoint_ref['interface'] = interface
             endpoint_ref['url'] = url
+            endpoint_ref['region_id'] = endpoint_ref.pop('region')
 
             self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
 
@@ -254,6 +263,7 @@ class EndpointV3(controller.V3Controller):
     def filter_endpoint(cls, ref):
         if 'legacy_endpoint_id' in ref:
             ref.pop('legacy_endpoint_id')
+        ref['region'] = ref['region_id']
         return ref
 
     @classmethod
@@ -266,6 +276,29 @@ class EndpointV3(controller.V3Controller):
             msg = _('Enabled field must be a boolean')
             raise exception.ValidationError(message=msg)
 
+    def _validate_endpoint_region(self, endpoint):
+        """Ensure the region for the endpoint exists.
+
+        If 'region_id' is used to specify the region, then we will let the
+        manager/driver take care of this.  If, however, 'region' is used,
+        then for backward compatibility, we will auto-create the region.
+
+        """
+        if (endpoint.get('region_id') is None and
+                endpoint.get('region') is not None):
+            # To maintain backward compatibility with clients that are
+            # using the v3 API in the same way as they used the v2 API,
+            # create the endpoint region, if that region does not exist
+            # in keystone.
+            endpoint['region_id'] = endpoint.pop('region')
+            try:
+                self.catalog_api.get_region(endpoint['region_id'])
+            except exception.RegionNotFound:
+                region = dict(id=endpoint['region_id'])
+                self.catalog_api.create_region(region)
+
+        return endpoint
+
     @controller.protected()
     def create_endpoint(self, context, endpoint):
         self._validate_endpoint(endpoint)
@@ -275,6 +308,7 @@ class EndpointV3(controller.V3Controller):
         self._require_attribute(ref, 'interface')
         self._require_attribute(ref, 'url')
         self.catalog_api.get_service(ref['service_id'])
+        ref = self._validate_endpoint_region(ref)
 
         ref = self.catalog_api.create_endpoint(ref['id'], ref)
         return EndpointV3.wrap_member(context, ref)
@@ -297,6 +331,7 @@ class EndpointV3(controller.V3Controller):
 
         if 'service_id' in endpoint:
             self.catalog_api.get_service(endpoint['service_id'])
+        endpoint = self._validate_endpoint_region(endpoint.copy())
 
         ref = self.catalog_api.update_endpoint(endpoint_id, endpoint)
         return EndpointV3.wrap_member(context, ref)

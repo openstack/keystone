@@ -1274,6 +1274,118 @@ class SqlUpgradeTests(SqlMigrateBase):
         region = session.query(region_table)[0]
         self.assertRaises(AttributeError, getattr, region, 'url')
 
+    def test_endpoint_region_upgrade_columns(self):
+        self.upgrade(53)
+        self.assertTableColumns('endpoint',
+                                ['id', 'legacy_endpoint_id', 'interface',
+                                 'service_id', 'url', 'extra', 'enabled',
+                                 'region_id'])
+        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(region_table.c.id.type.length, 255)
+        self.assertEqual(region_table.c.parent_region_id.type.length, 255)
+        endpoint_table = sqlalchemy.Table('endpoint',
+                                          self.metadata,
+                                          autoload=True)
+        self.assertEqual(endpoint_table.c.region_id.type.length, 255)
+
+    def test_endpoint_region_downgrade_columns(self):
+        self.upgrade(53)
+        self.downgrade(52)
+        self.assertTableColumns('endpoint',
+                                ['id', 'legacy_endpoint_id', 'interface',
+                                 'service_id', 'url', 'extra', 'enabled',
+                                 'region'])
+        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(region_table.c.id.type.length, 64)
+        self.assertEqual(region_table.c.parent_region_id.type.length, 64)
+        endpoint_table = sqlalchemy.Table('endpoint',
+                                          self.metadata,
+                                          autoload=True)
+        self.assertEqual(endpoint_table.c.region.type.length, 255)
+
+    def test_endpoint_region_migration(self):
+        self.upgrade(52)
+        session = self.Session()
+        _small_region_name = '0' * 30
+        _long_region_name = '0' * 255
+        _clashing_region_name = '0' * 70
+
+        def add_service():
+            service_id = uuid.uuid4().hex
+
+            service = {
+                'id': service_id,
+                'type': uuid.uuid4().hex
+            }
+
+            self.insert_dict(session, 'service', service)
+
+            return service_id
+
+        def add_endpoint(service_id, region):
+            endpoint_id = uuid.uuid4().hex
+
+            endpoint = {
+                'id': endpoint_id,
+                'interface': uuid.uuid4().hex[:8],
+                'service_id': service_id,
+                'url': uuid.uuid4().hex,
+                'region': region
+            }
+            self.insert_dict(session, 'endpoint', endpoint)
+
+            return endpoint_id
+
+        _service_id_ = add_service()
+        add_endpoint(_service_id_, region=_long_region_name)
+        add_endpoint(_service_id_, region=_long_region_name)
+        add_endpoint(_service_id_, region=_clashing_region_name)
+        add_endpoint(_service_id_, region=_small_region_name)
+        add_endpoint(_service_id_, region=None)
+
+        # upgrade to 53
+        self.upgrade(53)
+        self.metadata.clear()
+
+        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(1, session.query(region_table).
+                         filter_by(id=_long_region_name).count())
+        self.assertEqual(1, session.query(region_table).
+                         filter_by(id=_clashing_region_name).count())
+        self.assertEqual(1, session.query(region_table).
+                         filter_by(id=_small_region_name).count())
+
+        endpoint_table = sqlalchemy.Table('endpoint',
+                                          self.metadata,
+                                          autoload=True)
+        self.assertEqual(5, session.query(endpoint_table).count())
+        self.assertEqual(2, session.query(endpoint_table).
+                         filter_by(region_id=_long_region_name).count())
+        self.assertEqual(1, session.query(endpoint_table).
+                         filter_by(region_id=_clashing_region_name).count())
+        self.assertEqual(1, session.query(endpoint_table).
+                         filter_by(region_id=_small_region_name).count())
+
+        # downgrade to 52
+        self.downgrade(52)
+        self.metadata.clear()
+
+        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(1, session.query(region_table).count())
+        self.assertEqual(1, session.query(region_table).
+                         filter_by(id=_small_region_name).count())
+
+        endpoint_table = sqlalchemy.Table('endpoint',
+                                          self.metadata,
+                                          autoload=True)
+        self.assertEqual(5, session.query(endpoint_table).count())
+        self.assertEqual(2, session.query(endpoint_table).
+                         filter_by(region=_long_region_name).count())
+        self.assertEqual(1, session.query(endpoint_table).
+                         filter_by(region=_clashing_region_name).count())
+        self.assertEqual(1, session.query(endpoint_table).
+                         filter_by(region=_small_region_name).count())
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

@@ -231,8 +231,15 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_delete_region(self):
         """Call ``DELETE /regions/{region_id}``."""
+
+        ref = self.new_region_ref()
+        r = self.post(
+            '/regions',
+            body={'region': ref})
+        self.assertValidRegionResponse(r, ref)
+
         self.delete('/regions/%(region_id)s' % {
-            'region_id': self.region_id})
+            'region_id': ref['id']})
 
     def test_create_region_with_url(self):
         """Call ``POST /regions`` with a custom url field."""
@@ -431,11 +438,29 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             body={'endpoint': ref},
             expected_status=400)
 
-    def test_create_endpoint_400(self):
+    def test_create_endpoint_with_invalid_region_id(self):
         """Call ``POST /endpoints``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
-        ref["region"] = "0" * 256
+        ref["region_id"] = uuid.uuid4().hex
         self.post('/endpoints', body={'endpoint': ref}, expected_status=400)
+
+    def test_create_endpoint_with_region(self):
+        """EndpointV3 creates the region before creating the endpoint, if
+        endpoint is provided with 'region' and no 'region_id'
+        """
+        ref = self.new_endpoint_ref(service_id=self.service_id)
+        ref["region"] = uuid.uuid4().hex
+        ref.pop('region_id')
+        self.post('/endpoints', body={'endpoint': ref}, expected_status=201)
+        # Make sure the region is created
+        self.get('/regions/%(region_id)s' % {
+            'region_id': ref["region"]})
+
+    def test_create_endpoint_with_no_region(self):
+        """EndpointV3 allows to creates the endpoint without region."""
+        ref = self.new_endpoint_ref(service_id=self.service_id)
+        ref.pop('region_id')
+        self.post('/endpoints', body={'endpoint': ref}, expected_status=201)
 
     def test_create_endpoint_with_empty_url(self):
         """Call ``POST /endpoints``."""
@@ -521,6 +546,8 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         del ref['interface']
         ref['publicurl'] = ref.pop('url')
         ref['internalurl'] = None
+        ref['region'] = ref['region_id']
+        del ref['region_id']
         # don't set adminurl to ensure it's absence is handled like internalurl
 
         # create the endpoint on v2 (using a v3 token)
@@ -538,7 +565,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         endpoint_v3 = endpoints.pop()
 
         # these attributes are identical between both APIs
-        self.assertEqual(ref['region'], endpoint_v3['region'])
+        self.assertEqual(ref['region'], endpoint_v3['region_id'])
         self.assertEqual(ref['service_id'], endpoint_v3['service_id'])
         self.assertEqual(ref['description'], endpoint_v3['description'])
 
@@ -557,6 +584,8 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
         # test for bug 1152635 -- this attribute was being returned by v3
         self.assertNotIn('legacy_endpoint_id', endpoint_v3)
+
+        self.assertEqual(endpoint_v2['region'], endpoint_v3['region_id'])
 
 
 class TestCatalogAPISQL(tests.TestCase):
