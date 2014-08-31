@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import logging
 import uuid
 
 import mock
@@ -696,7 +697,7 @@ class TestCallbackRegistration(testtools.TestCase):
         super(TestCallbackRegistration, self).setUp()
         self.mock_log = mock.Mock()
         # Force the callback logging to occur
-        self.mock_log.logger.getEffectiveLevel.return_value = 1
+        self.mock_log.logger.getEffectiveLevel.return_value = logging.DEBUG
 
     def verify_log_message(self, data):
         """Tests that use this are a little brittle because adding more
@@ -705,9 +706,10 @@ class TestCallbackRegistration(testtools.TestCase):
         TODO(dstanek): remove the need for this in a future refactoring
 
         """
-        self.assertEqual(len(data), self.mock_log.info.call_count)
-        for i, data in enumerate(data):
-            self.mock_log.info.assert_any_call(mock.ANY, data)
+        log_fn = self.mock_log.debug
+        self.assertEqual(len(data), log_fn.call_count)
+        for datum in data:
+            log_fn.assert_any_call(mock.ANY, datum)
 
     def test_a_function_callback(self):
         def callback(*args, **kwargs):

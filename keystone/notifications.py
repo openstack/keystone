@@ -180,14 +180,13 @@ def register_event_callback(event, resource_type, callbacks):
         _SUBSCRIBERS.setdefault(event, {}).setdefault(resource_type, set())
         _SUBSCRIBERS[event][resource_type].add(callback)
 
-        if LOG.logger.getEffectiveLevel() <= logging.INFO:
+        if LOG.logger.getEffectiveLevel() <= logging.DEBUG:
             # Do this only if its going to appear in the logs.
-            msg = _('Callback: `%(callback)s` subscribed to event '
-                    '`%(event)s`.')
+            msg = 'Callback: `%(callback)s` subscribed to event `%(event)s`.'
             callback_info = _get_callback_info(callback)
             callback_str = '.'.join(i for i in callback_info if i is not None)
             event_str = '.'.join(['identity', resource_type, event])
-            LOG.info(msg, {'callback': callback_str, 'event': event_str})
+            LOG.debug(msg, {'callback': callback_str, 'event': event_str})
 
 
 def notify_event_callbacks(service, resource_type, operation, payload):
