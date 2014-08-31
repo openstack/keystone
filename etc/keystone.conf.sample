@@ -697,6 +697,16 @@
 #return_all_endpoints_if_no_filter=true
 
 
+[endpoint_policy]
+
+#
+# Options defined in keystone
+#
+
+# Endpoint Policy backend driver (string value)
+#driver=keystone.contrib.endpoint_policy.backends.sql.EndpointPolicy
+
+
 [federation]
 
 #

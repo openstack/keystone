@@ -34,6 +34,7 @@ To run these tests against a live database:
 from oslo.db.sqlalchemy import utils
 
 from keystone.contrib import endpoint_filter
+from keystone.contrib import endpoint_policy
 from keystone.contrib import example
 from keystone.contrib import federation
 from keystone.contrib import oauth1
@@ -135,6 +136,26 @@ class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
                                 ['endpoint_id', 'project_id'])
         self.downgrade(0, repository=self.repo_path)
         self.assertTableDoesNotExist('project_endpoint')
+
+
+class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):
+    def repo_package(self):
+        return endpoint_policy
+
+    def test_upgrade(self):
+        self.assertTableDoesNotExist('policy_association')
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('policy_association',
+                                ['id', 'policy_id', 'endpoint_id',
+                                 'service_id', 'region_id'])
+
+    def test_downgrade(self):
+        self.upgrade(1, repository=self.repo_path)
+        self.assertTableColumns('policy_association',
+                                ['id', 'policy_id', 'endpoint_id',
+                                 'service_id', 'region_id'])
+        self.downgrade(0, repository=self.repo_path)
+        self.assertTableDoesNotExist('policy_association')
 
 
 class FederationExtension(test_sql_upgrade.SqlMigrateBase):
