@@ -20,7 +20,7 @@ from keystone.catalog.backends import kvs
 from keystone.catalog import core
 from keystone import config
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _LC
 from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
 
@@ -103,7 +103,7 @@ class Catalog(kvs.Catalog):
         try:
             self.templates = parse_templates(open(template_file))
         except IOError:
-            LOG.critical(_('Unable to open template file %s'), template_file)
+            LOG.critical(_LC('Unable to open template file %s'), template_file)
             raise
 
     def get_catalog(self, user_id, tenant_id, metadata=None):
