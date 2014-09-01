@@ -268,11 +268,6 @@ class EndpointV3(controller.V3Controller):
         ref = cls.filter_endpoint(ref)
         return super(EndpointV3, cls).wrap_member(context, ref)
 
-    def _validate_endpoint(self, endpoint):
-        if 'enabled' in endpoint and not isinstance(endpoint['enabled'], bool):
-            msg = _('Enabled field must be a boolean')
-            raise exception.ValidationError(message=msg)
-
     def _validate_endpoint_region(self, endpoint):
         """Ensure the region for the endpoint exists.
 
