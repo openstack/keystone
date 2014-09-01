@@ -295,16 +295,14 @@ class Assignment(assignment.Driver):
             query = '(objectClass=%s)' % self.group.object_class
             dn = self.group._id_to_dn(group_id)
             if dn:
-                try:
-                    conn = self.group.get_connection()
-                    roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
-                                          query, common_ldap.DN_ONLY)
-                    for role_dn, i in roles:
-                        conn.delete_s(role_dn)
-                except ldap.NO_SUCH_OBJECT:
-                    pass
-                finally:
-                    conn.unbind_s()
+                with self.group.get_connection() as conn:
+                    try:
+                        roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
+                                              query, common_ldap.DN_ONLY)
+                        for role_dn, i in roles:
+                            conn.delete_s(role_dn)
+                    except ldap.NO_SUCH_OBJECT:
+                        pass
 
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
@@ -547,11 +545,8 @@ class RoleApi(common_ldap.BaseLdap):
 
             if self.use_dumb_member:
                 attrs[1][1].append(self.dumb_member)
-            conn = self.get_connection()
-            try:
+            with self.get_connection() as conn:
                 conn.add_s(role_dn, attrs)
-            finally:
-                conn.unbind_s()
 
     def delete_user(self, role_dn, user_dn, role_id):
         try:
@@ -615,22 +610,20 @@ class RoleApi(common_ldap.BaseLdap):
 
     def list_project_roles_for_group(self, group_dn, project_subtree):
         group_dn_esc = ldap.filter.escape_filter_chars(group_dn)
-        conn = self.get_connection()
         query = '(&(objectClass=%s)(%s=%s))' % (self.object_class,
                                                 self.member_attribute,
                                                 group_dn_esc)
-        try:
-            roles = conn.search_s(project_subtree,
-                                  ldap.SCOPE_SUBTREE,
-                                  query,
-                                  attrlist=common_ldap.DN_ONLY)
-        except ldap.NO_SUCH_OBJECT:
-            # Return no roles rather than raise an exception if the project
-            # subtree entry doesn't exist because an empty subtree is not
-            # an error.
-            return []
-        finally:
-            conn.unbind_s()
+        with self.get_connection() as conn:
+            try:
+                roles = conn.search_s(project_subtree,
+                                      ldap.SCOPE_SUBTREE,
+                                      query,
+                                      attrlist=common_ldap.DN_ONLY)
+            except ldap.NO_SUCH_OBJECT:
+                # Return no roles rather than raise an exception if the project
+                # subtree entry doesn't exist because an empty subtree is not
+                # an error.
+                return []
 
         res = []
         for role_dn, _role_attrs in roles:
