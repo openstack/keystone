@@ -26,23 +26,6 @@ from keystone.openstack.common import log
 CONF = config.CONF
 LOG = log.getLogger(__name__)
 
-extension_data = {
-    'name': 'OpenStack Keystone Endpoint Policy API',
-    'namespace': 'http://docs.openstack.org/identity/api/ext/'
-                 'OS-ENDPOINT-POLICY/v1.0',
-    'alias': 'OS-ENDPOINT-POLICY',
-    'updated': '2014-08-18T12:00:0-00:00',
-    'description': 'OpenStack Keystone Endpoint Policy API.',
-    'links': [
-        {
-            'rel': 'describedby',
-            'type': 'text/html',
-            'href': 'https://github.com/openstack/identity-api/blob/master'
-                    '/openstack-identity-api/v3/src/markdown/'
-                    'identity-api-v3-os-endpoint-policy-ext.md',
-        }
-    ]}
-
 
 @dependency.provider('endpoint_policy_api')
 @dependency.requires('catalog_api', 'policy_api')
@@ -223,28 +206,28 @@ class Manager(manager.Manager):
             the region tree to find one.
 
             """
-            next_region_id = endpoint['region_id']
+            region_id = endpoint['region_id']
             regions_examined = []
-            while next_region_id is not None:
+            while region_id is not None:
                 try:
                     ref = self.driver.get_policy_association(
                         service_id=endpoint['service_id'],
-                        region_id=next_region_id)
+                        region_id=region_id)
                     return ref['policy_id']
                 except exception.PolicyAssociationNotFound:
                     pass
 
                 # There wasn't one for that region & service, let's
                 # chase up the region tree
-                regions_examined.append(next_region_id)
-                region = self.catalog_api.get_region(next_region_id)
-                next_region_id = None
+                regions_examined.append(region_id)
+                region = self.catalog_api.get_region(region_id)
+                region_id = None
                 if region.get('parent_region_id') is not None:
-                    next_region_id = region['parent_region_id']
-                    if next_region_id in regions_examined:
+                    region_id = region['parent_region_id']
+                    if region_id in regions_examined:
                         msg = _LE('Circular reference or a repeated entry '
                                   'found in region tree - %(region_id)s.')
-                        LOG.error(msg, {'region_id': next_region_id})
+                        LOG.error(msg, {'region_id': region_id})
                         break
 
         # First let's see if there is a policy explicitly defined for
@@ -256,7 +239,7 @@ class Manager(manager.Manager):
         except exception.PolicyAssociationNotFound:
             pass
 
-        # So there wasn't a policy explicitly defined for this endpoint, so
+        # There wasn't a policy explicitly defined for this endpoint, so
         # now let's see if there is one for the Region & Service.
 
         endpoint = self.catalog_api.get_endpoint(endpoint_id)
@@ -318,7 +301,7 @@ class Driver(object):
         :type service_id: string
         :param region_id: identity of the region to associate
         :type region_id: string
-        :raises: keystone.exception.PolicyAssociationNotFound if the is no
+        :raises: keystone.exception.PolicyAssociationNotFound if there is no
                  match for the specified association
         :returns: None
 
@@ -357,7 +340,7 @@ class Driver(object):
         :type service_id: string
         :param region_id: identity of the region
         :type region_id: string
-        :raises: keystone.exception.PolicyAssociationNotFound if the is no
+        :raises: keystone.exception.PolicyAssociationNotFound if there is no
                  match for the specified association
         :returns: dict containing policy_id
 
