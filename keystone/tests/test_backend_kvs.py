@@ -263,3 +263,12 @@ class KvsInheritanceTests(tests.TestCase, test_backend.InheritanceTests):
         super(KvsInheritanceTests, self).setUp()
         self.load_backends()
         self.load_fixtures(default_fixtures)
+
+    def config_overrides(self):
+        super(KvsInheritanceTests, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.kvs.Identity')
+        self.config_fixture.config(
+            group='assignment',
+            driver='keystone.assignment.backends.kvs.Assignment')
