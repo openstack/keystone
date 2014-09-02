@@ -703,7 +703,7 @@
 # Options defined in keystone
 #
 
-# Endpoint Policy backend driver (string value)
+# Endpoint policy backend driver (string value)
 #driver=keystone.contrib.endpoint_policy.backends.sql.EndpointPolicy
 
 
