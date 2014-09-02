@@ -20,7 +20,6 @@ import socket
 import sys
 
 from oslo import i18n
-from paste import deploy
 import pbr.version
 
 
@@ -50,6 +49,7 @@ from keystone import config
 from keystone.i18n import _
 from keystone.openstack.common import service
 from keystone.openstack.common import systemd
+from keystone import service as keystone_service
 
 
 CONF = config.CONF
@@ -73,7 +73,7 @@ class ServerWrapper(object):
 
 
 def create_server(conf, name, host, port, workers):
-    app = deploy.loadapp('config:%s' % conf, name=name)
+    app = keystone_service.loadapp('config:%s' % conf, name)
     server = environment.Server(app, host=host, port=port,
                                 keepalive=CONF.tcp_keepalive,
                                 keepidle=CONF.tcp_keepidle)

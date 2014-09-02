@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
 import functools
 import random
 
@@ -556,22 +557,35 @@ class VersionTestCase(tests.TestCase):
         data = jsonutils.loads(resp.body)
         self.assertEqual(data, v2_only_response)
 
-    def test_json_home_v3(self):
-        # If the request is /v3 and the Accept header is application/json-home
-        # then the server responds with a JSON Home document.
-
+    def _test_json_home(self, path, exp_json_home_data):
         client = self.client(self.public_app)
-        resp = client.get('/v3', headers={'Accept': 'application/json-home'})
+        resp = client.get(path, headers={'Accept': 'application/json-home'})
 
         self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
         self.assertThat(resp.headers['Content-Type'],
                         tt_matchers.Equals('application/json-home'))
 
+        self.assertThat(jsonutils.loads(resp.body),
+                        tt_matchers.Equals(exp_json_home_data))
+
+    def test_json_home_v3(self):
+        # If the request is /v3 and the Accept header is application/json-home
+        # then the server responds with a JSON Home document.
+
         exp_json_home_data = {
             'resources': V3_JSON_HOME_RESOURCES_INHERIT_DISABLED}
 
-        self.assertThat(jsonutils.loads(resp.body),
-                        tt_matchers.Equals(exp_json_home_data))
+        self._test_json_home('/v3', exp_json_home_data)
+
+    def test_json_home_root(self):
+        # If the request is / and the Accept header is application/json-home
+        # then the server responds with a JSON Home document.
+
+        exp_json_home_data = copy.deepcopy({
+            'resources': V3_JSON_HOME_RESOURCES_INHERIT_DISABLED})
+        json_home.translate_urls(exp_json_home_data, '/v3')
+
+        self._test_json_home('/', exp_json_home_data)
 
     def test_accept_type_handling(self):
         # Accept headers with multiple types and qvalues are handled.

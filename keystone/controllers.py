@@ -12,9 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import webob
+
 from keystone.common import extension
+from keystone.common import json_home
 from keystone.common import wsgi
 from keystone import exception
+from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 
 
@@ -24,6 +28,31 @@ MEDIA_TYPE_JSON = 'application/vnd.openstack.identity-%s+json'
 MEDIA_TYPE_XML = 'application/vnd.openstack.identity-%s+xml'
 
 _VERSIONS = []
+
+# NOTE(blk-u): latest_app will be set by keystone.service.loadapp(). It gets
+# set to the application that was just loaded. In the case of keystone-all,
+# loadapp() gets called twice, once for the public app and once for the admin
+# app. In the case of httpd/keystone, loadapp() gets called once for the public
+# app if this is the public instance or loadapp() gets called for the admin app
+# if it's the admin instance.
+# This is used to fetch the /v3 JSON Home response. The /v3 JSON Home response
+# is the same whether it's the admin or public service so either admin or
+# public works.
+latest_app = None
+
+
+def request_v3_json_home(new_prefix):
+    if 'v3' not in _VERSIONS:
+        # No V3 support, so return an empty JSON Home document.
+        return {'resources': {}}
+
+    req = webob.Request.blank(
+        '/v3', headers={'Accept': 'application/json-home'})
+    v3_json_home_str = req.get_response(latest_app).body
+    v3_json_home = jsonutils.loads(v3_json_home_str)
+    json_home.translate_urls(v3_json_home, new_prefix)
+
+    return v3_json_home
 
 
 class Extensions(wsgi.Application):
@@ -144,6 +173,14 @@ class Version(wsgi.Application):
         return versions
 
     def get_versions(self, context):
+
+        req_mime_type = v3_mime_type_best_match(context)
+        if req_mime_type == MimeTypes.JSON_HOME:
+            v3_json_home = request_v3_json_home('/v3')
+            return wsgi.render_response(
+                body=v3_json_home,
+                headers=(('Content-Type', MimeTypes.JSON_HOME),))
+
         versions = self._get_versions_list(context)
         return wsgi.render_response(status=(300, 'Multiple Choices'), body={
             'versions': {
