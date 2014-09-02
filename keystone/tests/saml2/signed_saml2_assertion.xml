@@ -1,0 +1,63 @@
+<ns0:Assertion xmlns:ns0="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="9a22528bfe194b2880edce5d60414d6a" IssueInstant="2014-08-19T10:53:57Z">
+  <ns0:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://acme.com/FIM/sps/openstack/saml20</ns0:Issuer>
+  <ns1:Signature>
+    <ns1:SignedInfo>
+      <ns1:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+      <ns1:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+      <ns1:Reference URI="#9a22528bfe194b2880edce5d60414d6a">
+        <ns1:Transforms>
+          <ns1:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+          <ns1:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+        </ns1:Transforms>
+        <ns1:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <ns1:DigestValue>Lem2TKyYt+/tJy2iSos1t0KxcJE=</ns1:DigestValue>
+      </ns1:Reference>
+    </ns1:SignedInfo>
+    <ns1:SignatureValue>b//GXtGeCIJPFsMAHrx4+3yjrL4smSpRLXG9PB3TLMJvU4fx8n2PzK7+VbtWNbZG
+vSgbvbQR52jq77iyaRfQ2iELuFEY+YietLRi7hsitkJCEayPmU+BDlNIGuCXZjAy
+7tmtGFkLlZZJaom1jAzHfZ5JPjZdM5hvQwrhCI2Kzyk=</ns1:SignatureValue>
+    <ns1:KeyInfo>
+      <ns1:X509Data>
+        <ns1:X509Certificate>MIICtjCCAh+gAwIBAgIJAJTeBUN2i9ZNMA0GCSqGSIb3DQEBBQUAME4xCzAJBgNV
+BAYTAkhSMQ8wDQYDVQQIEwZaYWdyZWIxITAfBgNVBAoTGE5la2Egb3JnYW5pemFj
+aWphIGQuby5vLjELMAkGA1UEAxMCQ0EwHhcNMTIxMjI4MTYwODA1WhcNMTQxMjI4
+MTYwODA1WjBvMQswCQYDVQQGEwJIUjEPMA0GA1UECBMGWmFncmViMQ8wDQYDVQQH
+EwZaYWdyZWIxITAfBgNVBAoTGE5la2Egb3JnYW5pemFjaWphIGQuby5vLjEbMBkG
+A1UEAxMSUHJvZ3JhbWVyc2thIGZpcm1hMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCB
+iQKBgQCgWApHV5cma0GY/v/vmwgciDQBgITcitx2rG0F+ghXtGiEJeK75VY7jQwE
+UFCbgV+AaOY2NQChK2FKec7Hss/5y+jbWfX2yVwX6TYcCwnOGXenz+cgx2Fwqpu3
+ncL6dYJMfdbKvojBaJQLJTaNjRJsZACButDsDtXDSH9QaRy+hQIDAQABo3sweTAJ
+BgNVHRMEAjAAMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0
+aWZpY2F0ZTAdBgNVHQ4EFgQUSo9ThP/MOg8QIRWxoPo8qKR8O2wwHwYDVR0jBBgw
+FoAUAelckr4bx8MwZ7y+VlHE46Mbo+cwDQYJKoZIhvcNAQEFBQADgYEAy19Z7Z5/
+/MlWkogu41s0RxL9ffG60QQ0Y8hhDTmgHNx1itj0wT8pB7M4KVMbZ4hjjSFsfRq4
+Vj7jm6LwU0WtZ3HGl8TygTh8AAJvbLROnTjLL5MqI9d9pKvIIfZ2Qs3xmJ7JEv4H
+UHeBXxQq/GmfBv3l+V5ObQ+EHKnyDodLHCk=</ns1:X509Certificate>
+      </ns1:X509Data>
+    </ns1:KeyInfo>
+  </ns1:Signature>
+  <ns0:Subject>
+    <ns0:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">test_user</ns0:NameID>
+    <ns0:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+      <ns0:SubjectConfirmationData NotOnOrAfter="2014-08-19T11:53:57.243106Z" Recipient="http://beta.com/Shibboleth.sso/SAML2/POST" />
+    </ns0:SubjectConfirmation>
+  </ns0:Subject>
+  <ns0:AuthnStatement AuthnInstant="2014-08-19T10:53:57Z" SessionIndex="4e3430a9f8b941e69c133293a7a960a1" SessionNotOnOrAfter="2014-08-19T11:53:57.243106Z">
+    <ns0:AuthnContext>
+      <ns0:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</ns0:AuthnContextClassRef>
+      <ns0:AuthenticatingAuthority>https://acme.com/FIM/sps/openstack/saml20</ns0:AuthenticatingAuthority>
+    </ns0:AuthnContext>
+  </ns0:AuthnStatement>
+  <ns0:AttributeStatement>
+    <ns0:Attribute FriendlyName="keystone_user" Name="user" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+      <ns0:AttributeValue xsi:type="xs:string">test_user</ns0:AttributeValue>
+    </ns0:Attribute>
+    <ns0:Attribute FriendlyName="keystone_roles" Name="roles" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+      <ns0:AttributeValue xsi:type="xs:string">admin</ns0:AttributeValue>
+      <ns0:AttributeValue xsi:type="xs:string">member</ns0:AttributeValue>
+    </ns0:Attribute>
+    <ns0:Attribute FriendlyName="keystone_project" Name="project" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+      <ns0:AttributeValue xsi:type="xs:string">development</ns0:AttributeValue>
+    </ns0:Attribute>
+  </ns0:AttributeStatement>
+</ns0:Assertion>

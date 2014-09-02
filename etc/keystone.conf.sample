@@ -1278,6 +1278,33 @@
 #caching=true
 
 
+[saml]
+
+#
+# Options defined in keystone
+#
+
+# Default TTL, in seconds, for any generated SAML assertion
+# created by Keystone. (integer value)
+#assertion_expiration_time=3600
+
+# Binary to be called for XML signing. Install the appropriate
+# package, specify absolute path or adjust your PATH
+# environment variable if the binary cannot be found. (string
+# value)
+#xmlsec1_binary=xmlsec1
+
+# Path of the certfile for SAML signing. For non-production
+# environments, you may be interested in using `keystone-
+# manage pki_setup` to generate self-signed certificates.
+# Note, the path cannot contain a comma. (string value)
+#certfile=/etc/keystone/ssl/certs/signing_cert.pem
+
+# Path of the keyfile for SAML signing. Note, the path cannot
+# contain a comma. (string value)
+#keyfile=/etc/keystone/ssl/private/signing_key.pem
+
+
 [signing]
 
 #
