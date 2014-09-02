@@ -17,8 +17,10 @@ import uuid
 
 import six
 
+from keystone.catalog import schema
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import validation
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
@@ -168,6 +170,7 @@ class RegionV3(controller.V3Controller):
         return self.create_region(context, region)
 
     @controller.protected()
+    @validation.validated(schema.region_create, 'region')
     def create_region(self, context, region):
         ref = self._normalize_dict(region)
 
@@ -191,6 +194,7 @@ class RegionV3(controller.V3Controller):
         return RegionV3.wrap_member(context, ref)
 
     @controller.protected()
+    @validation.validated(schema.region_update, 'region')
     def update_region(self, context, region_id, region):
         self._require_matching_id(region_id, region)
 
@@ -211,17 +215,10 @@ class ServiceV3(controller.V3Controller):
         super(ServiceV3, self).__init__()
         self.get_member_from_driver = self.catalog_api.get_service
 
-    def _validate_service(self, service):
-        if 'enabled' in service and not isinstance(service['enabled'], bool):
-            msg = _('Enabled field must be a boolean')
-            raise exception.ValidationError(message=msg)
-
     @controller.protected()
+    @validation.validated(schema.service_create, 'service')
     def create_service(self, context, service):
-        self._validate_service(service)
-
         ref = self._assign_unique_id(self._normalize_dict(service))
-        self._require_attribute(ref, 'type')
 
         ref = self.catalog_api.create_service(ref['id'], ref)
         return ServiceV3.wrap_member(context, ref)
@@ -238,9 +235,9 @@ class ServiceV3(controller.V3Controller):
         return ServiceV3.wrap_member(context, ref)
 
     @controller.protected()
+    @validation.validated(schema.service_update, 'service')
     def update_service(self, context, service_id, service):
         self._require_matching_id(service_id, service)
-        self._validate_service(service)
 
         ref = self.catalog_api.update_service(service_id, service)
         return ServiceV3.wrap_member(context, ref)
@@ -300,13 +297,9 @@ class EndpointV3(controller.V3Controller):
         return endpoint
 
     @controller.protected()
+    @validation.validated(schema.endpoint_create, 'endpoint')
     def create_endpoint(self, context, endpoint):
-        self._validate_endpoint(endpoint)
-
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
-        self._require_attribute(ref, 'service_id')
-        self._require_attribute(ref, 'interface')
-        self._require_attribute(ref, 'url')
         self.catalog_api.get_service(ref['service_id'])
         ref = self._validate_endpoint_region(ref)
 
@@ -325,9 +318,9 @@ class EndpointV3(controller.V3Controller):
         return EndpointV3.wrap_member(context, ref)
 
     @controller.protected()
+    @validation.validated(schema.endpoint_update, 'endpoint')
     def update_endpoint(self, context, endpoint_id, endpoint):
         self._require_matching_id(endpoint_id, endpoint)
-        self._validate_endpoint(endpoint)
 
         if 'service_id' in endpoint:
             self.catalog_api.get_service(endpoint['service_id'])
