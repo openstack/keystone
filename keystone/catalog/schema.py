@@ -15,11 +15,8 @@ from keystone.common.validation import parameter_types
 
 _region_properties = {
     'description': parameter_types.description,
-    # NOTE(lbragstad): If a user wants to create a region with a specific
-    # value as the 'id', it is done in the request URL, e.g.
-    # PUT /regions/us-east. This is not required and if an 'id' is not
-    # specified in the request, Keystone will assign a uuid as the 'id'
-    # for the region.
+    # NOTE(lbragstad): Regions use ID differently. The user can specify the ID
+    # or it will be generated automatically.
     'id': {
         'type': 'string'
     },
