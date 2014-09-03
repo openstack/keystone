@@ -319,6 +319,7 @@ class Catalog(catalog.Driver):
                 del endpoint['service_id']
                 del endpoint['legacy_endpoint_id']
                 del endpoint['enabled']
+                endpoint['region'] = endpoint['region_id']
                 try:
                     endpoint['url'] = core.format_url(endpoint['url'], d)
                 except exception.MalformedEndpoint:

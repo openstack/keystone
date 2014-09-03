@@ -647,3 +647,72 @@ class TestCatalogAPISQL(tests.TestCase):
         self.assertEqual(1, len(catalog[0]['endpoints']))
         # all three appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
+
+
+# TODO(dstanek): this needs refactoring with the test above, but we are in a
+# crunch so that will happen in a future patch.
+class TestCatalogAPISQLRegions(tests.TestCase):
+    """Tests for the catalog Manager against the SQL backend.
+
+    """
+
+    def setUp(self):
+        super(TestCatalogAPISQLRegions, self).setUp()
+        self.useFixture(database.Database())
+        self.catalog_api = catalog.Manager()
+
+    def config_overrides(self):
+        super(TestCatalogAPISQLRegions, self).config_overrides()
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.sql.Catalog')
+
+    def new_endpoint_ref(self, service_id):
+        return {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'interface': uuid.uuid4().hex[:8],
+            'service_id': service_id,
+            'url': uuid.uuid4().hex,
+            'region_id': uuid.uuid4().hex,
+        }
+
+    def test_get_catalog_returns_proper_endpoints_with_no_region(self):
+        service_id = uuid.uuid4().hex
+        service = {'id': service_id, 'name': uuid.uuid4().hex}
+        self.catalog_api.create_service(service_id, service)
+
+        endpoint = self.new_endpoint_ref(service_id=service_id)
+        del endpoint['region_id']
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        user_id = uuid.uuid4().hex
+        tenant_id = uuid.uuid4().hex
+
+        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        self.assertValidCatalogEndpoint(
+            catalog[0]['endpoints'][0], ref=endpoint)
+
+    def test_get_catalog_returns_proper_endpoints_with_region(self):
+        service_id = uuid.uuid4().hex
+        service = {'id': service_id, 'name': uuid.uuid4().hex}
+        self.catalog_api.create_service(service_id, service)
+
+        endpoint = self.new_endpoint_ref(service_id=service_id)
+        self.catalog_api.create_region({'id': endpoint['region_id']})
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        endpoint = self.catalog_api.get_endpoint(endpoint['id'])
+        user_id = uuid.uuid4().hex
+        tenant_id = uuid.uuid4().hex
+
+        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        self.assertValidCatalogEndpoint(
+            catalog[0]['endpoints'][0], ref=endpoint)
+
+    def assertValidCatalogEndpoint(self, entity, ref=None):
+        keys = ['description', 'id', 'interface', 'name', 'region_id', 'url']
+        for k in keys:
+            self.assertEqual(ref.get(k), entity[k], k)
+        self.assertEqual(entity['region_id'], entity['region'])
