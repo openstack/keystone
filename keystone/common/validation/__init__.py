@@ -49,3 +49,14 @@ def nullable(property_schema):
     new_schema = property_schema.copy()
     new_schema['type'] = [property_schema['type'], 'null']
     return new_schema
+
+
+def add_array_type(property_schema):
+    """Convert the parameter schema to be of type list.
+
+    :param dict property_schema: schema to add array type to
+    :returns: a new dict schema
+    """
+    new_schema = property_schema.copy()
+    new_schema['type'] = [property_schema['type'], 'array']
+    return new_schema

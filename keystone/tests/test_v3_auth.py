@@ -2624,7 +2624,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id)
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         self.assertValidTrustResponse(r, ref)
 
@@ -2633,7 +2632,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id)
-        del ref['id']
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=403)
 
     def _initialize_test_consume_trust(self, count):
@@ -2644,7 +2642,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             remaining_uses=count,
             role_ids=[self.role_id])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         # make sure the trust exists
         trust = self.assertValidTrustResponse(r, ref)
@@ -2703,7 +2700,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             remaining_uses=bad_value,
             role_ids=[self.role_id])
-        del ref['id']
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
                   expected_status=400)
@@ -2715,7 +2711,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             role_ids=[self.role_id])
 
-        del ref['id']
         del ref['impersonation']
 
         self.post('/OS-TRUST/trusts',
@@ -2729,7 +2724,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             role_ids=[self.role_id])
 
-        del ref['id']
         del ref['trustee_user_id']
 
         self.post('/OS-TRUST/trusts',
@@ -2745,7 +2739,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             remaining_uses=None,
             role_ids=[self.role_id])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r, ref)
 
@@ -2773,7 +2766,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             role_ids=[self.role_id])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r, ref)
 
@@ -2824,7 +2816,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustee_user_id=uuid.uuid4().hex,
             project_id=self.project_id,
             role_ids=[self.role_id])
-        del ref['id']
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_trust_trustor_trustee_backwards(self):
@@ -2833,7 +2824,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustee_user_id=self.user_id,
             project_id=self.project_id,
             role_ids=[self.role_id])
-        del ref['id']
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=403)
 
     def test_create_trust_project_404(self):
@@ -2842,7 +2832,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=uuid.uuid4().hex,
             role_ids=[self.role_id])
-        del ref['id']
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_trust_role_id_404(self):
@@ -2851,7 +2840,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             role_ids=[uuid.uuid4().hex])
-        del ref['id']
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_trust_role_name_404(self):
@@ -2860,7 +2848,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             role_names=[uuid.uuid4().hex])
-        del ref['id']
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
     def test_create_expired_trust(self):
@@ -2870,7 +2857,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             expires=dict(seconds=-1),
             role_ids=[self.role_id])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r, ref)
 
@@ -2892,7 +2878,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -2920,7 +2905,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         auth_data = self.build_authentication_request(
             user_id=self.default_domain_user['id'],
@@ -2960,7 +2944,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         auth_data = self.build_authentication_request(
             user_id=self.default_domain_user['id'],
@@ -3000,7 +2983,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
         auth_data = self.build_authentication_request(
             user_id=self.default_domain_user['id'],
             password=self.default_domain_user['password'],
@@ -3032,7 +3014,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -3064,7 +3045,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=True,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -3094,7 +3074,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=True,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -3114,7 +3093,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=True,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
@@ -3144,7 +3122,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[role['id']])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -3194,7 +3171,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=True,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust1 = self.assertValidTrustResponse(r)
 
@@ -3213,7 +3189,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=True,
             expires=dict(minutes=1),
             role_ids=[role['id']])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', token=token, body={'trust': ref})
         trust2 = self.assertValidTrustResponse(r)
 
@@ -3249,7 +3224,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
         trust_id = trust['id']
@@ -3276,7 +3250,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
 
@@ -3308,7 +3281,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         for i in range(3):
             r = self.post('/OS-TRUST/trusts', body={'trust': ref})
@@ -3338,7 +3310,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             impersonation=True,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -3372,7 +3343,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             project_id=self.project_id,
             impersonation=True,
             role_ids=[self.role_id])
-        del ref['id']
 
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
@@ -3411,7 +3381,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             expires=dict(minutes=1),
             role_ids=[self.role_id],
             remaining_uses=3)
-        del ref['id']
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
 
         new_trust = r.result.get('trust')
