@@ -103,5 +103,4 @@ def v3_app_factory(global_conf, **local_conf):
     # Add in the v3 version api
     sub_routers.append(routers.VersionV3('admin', _routers))
     sub_routers.append(routers.VersionV3('public', _routers))
-    # TODO(ayoung): put token routes here
     return wsgi.ComposingRouter(mapper, sub_routers)
