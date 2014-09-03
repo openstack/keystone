@@ -632,9 +632,9 @@ class VersionSingleAppTestCase(tests.TestCase):
             if link['rel'] == 'self':
                 link['href'] = port
 
-    def test_public(self):
-        public_app = self.loadapp('keystone', 'main')
-        client = self.client(public_app)
+    def _test_version(self, app_name):
+        app = self.loadapp('keystone', app_name)
+        client = self.client(app)
         resp = client.get('/')
         self.assertEqual(resp.status_int, 300)
         data = jsonutils.loads(resp.body)
@@ -648,27 +648,11 @@ class VersionSingleAppTestCase(tests.TestCase):
                     version, 'http://localhost:%s/v2.0/' % CONF.public_port)
         self.assertEqual(data, expected)
 
+    def test_public(self):
+        self._test_version('main')
+
     def test_admin(self):
-        admin_app = self.loadapp('keystone', 'admin')
-        client = self.client(admin_app)
-        resp = client.get('/')
-        self.assertEqual(resp.status_int, 300)
-
-        # FIXME(blk-u): This is returning the wrong result, the response should
-        # also include v2. See bug 1343579
-
-        data = jsonutils.loads(resp.body)
-        # only v3 information should be displayed by requests to /
-        v3_only_response = {
-            "versions": {
-                "values": [
-                    v3_EXPECTED_RESPONSE
-                ]
-            }
-        }
-        self._paste_in_port(v3_only_response['versions']['values'][0],
-                            'http://localhost:%s/v3/' % CONF.public_port)
-        self.assertEqual(data, v3_only_response)
+        self._test_version('admin')
 
 
 class VersionInheritEnabledTestCase(tests.TestCase):
