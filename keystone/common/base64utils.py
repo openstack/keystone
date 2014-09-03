@@ -140,7 +140,7 @@ def base64_to_base64url(text):
         percent-encode
             percent-encode the pad character (e.g. '=' becomes
             '%3D'). This makes the base64url text fully safe. But
-            percent-enconding has the downside of requiring
+            percent-encoding has the downside of requiring
             percent-decoding prior to feeding the base64url text into a
             base64url decoder since most base64url decoders do not
             recognize %3D as a pad character and most decoders require
@@ -293,11 +293,11 @@ def base64_strip_padding(text, pad='='):
 def base64_assure_padding(text, pad='='):
     """Assure the input text ends with padding.
 
-    Base64 text is normally expected to be a multple of 4
+    Base64 text is normally expected to be a multiple of 4
     characters. Each 4 character base64 sequence produces 3 octets of
     binary data. If the binary data is not a multiple of 3 the base64
     text is padded at the end with a pad character such that it is
-    always a multple of 4. Padding is ignored and does not alter the
+    always a multiple of 4. Padding is ignored and does not alter the
     binary data nor it's length.
 
     In some circumstances it is desirable to omit the padding
@@ -310,7 +310,7 @@ def base64_assure_padding(text, pad='='):
     format RFC compliant base64, this function performs this action.
 
     Input is assumed to consist only of members of a base64
-    alphabet (i.e no whitepace). Iteration yields a sequence of lines.
+    alphabet (i.e no whitespace). Iteration yields a sequence of lines.
     The line does NOT terminate with a line ending.
 
     Use the filter_formatting() function to assure the input text
@@ -347,7 +347,7 @@ def base64_wrap_iter(text, width=64):
     """Fold text into lines of text with max line length.
 
     Input is assumed to consist only of members of a base64
-    alphabet (i.e no whitepace). Iteration yields a sequence of lines.
+    alphabet (i.e no whitespace). Iteration yields a sequence of lines.
     The line does NOT terminate with a line ending.
 
     Use the filter_formatting() function to assure the input text
@@ -369,7 +369,7 @@ def base64_wrap(text, width=64):
     """Fold text into lines of text with max line length.
 
     Input is assumed to consist only of members of a base64
-    alphabet (i.e no whitepace). Fold the text into lines whose
+    alphabet (i.e no whitespace). Fold the text into lines whose
     line length is width chars long, terminate each line with line
     ending (default is '\\n'). Return the wrapped text as a single
     string.
