@@ -14,6 +14,8 @@
 
 import uuid
 
+import sqlalchemy
+
 from keystone.common import sql
 from keystone import exception
 
@@ -69,15 +71,17 @@ class EndpointPolicy(object):
 
     def check_policy_association(self, policy_id, endpoint_id=None,
                                  service_id=None, region_id=None):
+        sql_constraints = sqlalchemy.and_(
+            PolicyAssociation.policy_id == policy_id,
+            PolicyAssociation.endpoint_id == endpoint_id,
+            PolicyAssociation.service_id == service_id,
+            PolicyAssociation.region_id == region_id)
+
+        # NOTE(henry-nash): Getting a single value to save object
+        # management overhead.
         with sql.transaction() as session:
-            query = session.query(PolicyAssociation)
-            query = query.filter_by(policy_id=policy_id)
-            query = query.filter_by(endpoint_id=endpoint_id)
-            query = query.filter_by(service_id=service_id)
-            query = query.filter_by(region_id=region_id)
-            try:
-                query.one()
-            except sql.NotFound:
+            if session.query(PolicyAssociation.id).filter(
+                    sql_constraints).distinct().count() == 0:
                 raise exception.PolicyAssociationNotFound()
 
     def delete_policy_association(self, policy_id, endpoint_id=None,
@@ -92,17 +96,18 @@ class EndpointPolicy(object):
 
     def get_policy_association(self, endpoint_id=None,
                                service_id=None, region_id=None):
-        with sql.transaction() as session:
-            query = session.query(PolicyAssociation)
-            query = query.filter_by(endpoint_id=endpoint_id)
-            query = query.filter_by(service_id=service_id)
-            query = query.filter_by(region_id=region_id)
-            try:
-                ref = query.one()
-            except sql.NotFound:
-                raise exception.PolicyAssociationNotFound()
+        sql_constraints = sqlalchemy.and_(
+            PolicyAssociation.endpoint_id == endpoint_id,
+            PolicyAssociation.service_id == service_id,
+            PolicyAssociation.region_id == region_id)
 
-            return {'policy_id': ref.policy_id}
+        try:
+            with sql.transaction() as session:
+                policy_id = session.query(PolicyAssociation.policy_id).filter(
+                    sql_constraints).distinct().one()
+            return {'policy_id': policy_id}
+        except sql.NotFound:
+            raise exception.PolicyAssociationNotFound()
 
     def list_associations_for_policy(self, policy_id):
         with sql.transaction() as session:

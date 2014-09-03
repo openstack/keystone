@@ -212,8 +212,9 @@ class CrossBackendNotAllowed(Forbidden):
 
 class InvalidPolicyAssociation(Forbidden):
     message_format = _("Invalid mix of entities for policy association - "
-                       "Endpoint: %(endpoint_id)s, Service: %(service_id)s, "
-                       "Region: %(region_id)s")
+                       "only Endpoint, Service or Region+Service allowed. "
+                       "Request was - Endpoint: %(endpoint_id)s, "
+                       "Service: %(service_id)s, Region: %(region_id)s")
 
 
 class NotFound(Error):
