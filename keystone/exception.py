@@ -16,7 +16,7 @@ from oslo.utils import encodeutils
 import six
 
 from keystone.common import config
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 from keystone.openstack.common import log
 
 
@@ -46,7 +46,7 @@ class Error(Exception):
             if _FATAL_EXCEPTION_FORMAT_ERRORS:
                 raise
             else:
-                LOG.warning(_('missing exception kwargs (programmer error)'))
+                LOG.warning(_LW('missing exception kwargs (programmer error)'))
                 message = self.message_format
 
         super(Error, self).__init__(message)

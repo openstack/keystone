@@ -22,7 +22,7 @@ from keystone.common import serializer
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _LW
 from keystone.models import token_model
 from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
@@ -262,7 +262,7 @@ class AuthContextMiddleware(wsgi.Middleware):
             wsgi.validate_token_bind(context, token_ref)
             return authorization.token_to_auth_context(token_ref)
         except exception.TokenNotFound:
-            LOG.warning(_('RBAC: Invalid token'))
+            LOG.warning(_LW('RBAC: Invalid token'))
             raise exception.Unauthorized()
 
     def process_request(self, request):
@@ -272,7 +272,7 @@ class AuthContextMiddleware(wsgi.Middleware):
             return
 
         if authorization.AUTH_CONTEXT_ENV in request.environ:
-            msg = _('Auth context already exists in the request environment')
+            msg = _LW('Auth context already exists in the request environment')
             LOG.warning(msg)
             return
 

@@ -20,7 +20,7 @@ import six
 
 from keystone.common import config
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 from keystone.openstack.common import log
 
 
@@ -255,7 +255,7 @@ class RuleProcessor(object):
             if 'user' in identity_value:
                 # if a mapping outputs more than one user name, log it
                 if user_name is not None:
-                    LOG.warning(_('Ignoring user name %s'),
+                    LOG.warning(_LW('Ignoring user name %s'),
                                 identity_value['user']['name'])
                 else:
                     user_name = identity_value['user']['name']

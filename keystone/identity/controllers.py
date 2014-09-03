@@ -18,7 +18,7 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone import config
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 from keystone.openstack.common import log
 
 
@@ -134,8 +134,8 @@ class User(controller.V2Controller):
                         # old tenant.  This could occur if roles aren't found
                         # or if the project is invalid or if there are no roles
                         # for the user on that project.
-                        msg = _('Unable to remove user %(user)s from '
-                                '%(tenant)s.')
+                        msg = _LW('Unable to remove user %(user)s from '
+                                  '%(tenant)s.')
                         LOG.warning(msg, {'user': user_id,
                                           'tenant': old_user_ref['tenantId']})
 
@@ -153,7 +153,7 @@ class User(controller.V2Controller):
                         # that the project is invalid or roles are some how
                         # incorrect.  This shouldn't prevent the return of the
                         # new ref.
-                        msg = _('Unable to add user %(user)s to %(tenant)s.')
+                        msg = _LW('Unable to add user %(user)s to %(tenant)s.')
                         LOG.warning(msg, {'user': user_id,
                                           'tenant': user_ref['tenantId']})
 

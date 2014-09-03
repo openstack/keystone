@@ -26,9 +26,7 @@ import eventlet
 import eventlet.wsgi
 import greenlet
 
-from keystone.i18n import _
-from keystone.i18n import _LE
-from keystone.i18n import _LI
+from keystone.i18n import _LE, _LI
 from keystone.openstack.common import log
 
 
@@ -184,5 +182,5 @@ class Server(object):
             # Wait until all servers have completed running
             pass
         except Exception:
-            LOG.exception(_('Server error'))
+            LOG.exception(_LE('Server error'))
             raise

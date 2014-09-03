@@ -22,7 +22,7 @@ from oslo.utils import timeutils
 import six
 
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 from keystone.openstack.common import log
 
 
@@ -400,10 +400,10 @@ class MongoApi(object):
                 existing_value = index_data['expireAfterSeconds']
                 fld_present = 'doc_date' in index_data['key'][0]
                 if fld_present and existing_value > -1 and ttl_seconds < 1:
-                    msg = _('TTL index already exists on db collection '
-                            '<%(c_name)s>, remove index <%(indx_name)s> first'
-                            ' to make updated mongo_ttl_seconds value to be '
-                            ' effective')
+                    msg = _LW('TTL index already exists on db collection '
+                              '<%(c_name)s>, remove index <%(indx_name)s> '
+                              'first to make updated mongo_ttl_seconds value '
+                              'to be  effective')
                     LOG.warn(msg, {'c_name': coll_name,
                                    'indx_name': indx_name})
 

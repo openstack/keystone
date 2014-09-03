@@ -21,7 +21,7 @@ from keystone.common import dependency
 from keystone import config
 from keystone.contrib import federation
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LE
 from keystone.openstack.common import log
 from keystone import token
 from keystone.token import provider
@@ -341,10 +341,10 @@ class V3TokenDataHelper(object):
         elif isinstance(audit_info, list):
             token_data['audit_ids'] = audit_info
         else:
-            msg = _('Invalid audit info data type: %(data)s (%(type)s)')
-            msg_subst = {'data': audit_info, 'type': type(audit_info)}
-            LOG.error(msg, msg_subst)
-            raise exception.UnexpectedError(msg % msg_subst)
+            msg = (_('Invalid audit info data type: %(data)s (%(type)s)') %
+                   {'data': audit_info, 'type': type(audit_info)})
+            LOG.error(msg)
+            raise exception.UnexpectedError(msg)
 
     def get_token_data(self, user_id, method_names, extras,
                        domain_id=None, project_id=None, expires=None,
@@ -573,7 +573,7 @@ class BaseProvider(provider.Provider):
                     token_ref, roles_ref, catalog_ref, trust_ref)
             return token_data
         except exception.ValidationError as e:
-            LOG.exception(_('Failed to validate token'))
+            LOG.exception(_LE('Failed to validate token'))
             raise exception.TokenNotFound(e)
 
     def validate_v3_token(self, token_ref):

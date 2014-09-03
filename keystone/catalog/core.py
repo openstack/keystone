@@ -53,7 +53,7 @@ def format_url(url, substitutions):
     try:
         result = url.replace('$(', '%(') % substitutions
     except AttributeError:
-        LOG.error(_('Malformed endpoint - %(url)r is not a string'),
+        LOG.error(_LE('Malformed endpoint - %(url)r is not a string'),
                   {"url": url})
         raise exception.MalformedEndpoint(endpoint=url)
     except KeyError as e:
