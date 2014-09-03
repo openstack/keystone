@@ -71,23 +71,32 @@ driver-specific configuration parameters are in the primary configuration file
 ``keystone.conf``. The primary configuration file is organized into the
 following sections:
 
-* ``[DEFAULT]`` - general configuration
-* ``[sql]`` - optional storage backend configuration
-* ``[ec2]`` - Amazon EC2 authentication driver configuration
-* ``[s3]`` - Amazon S3 authentication driver configuration.
-* ``[oauth1]`` - OAuth 1.0a system driver configuration
-* ``[identity]`` - identity system driver configuration
-* ``[catalog]`` - service catalog driver configuration
-* ``[token]`` - token driver & token provider configuration
-* ``[cache]`` - caching layer configuration
-* ``[policy]`` - policy system driver configuration for RBAC
-* ``[signing]`` - cryptographic signatures for PKI based tokens
-* ``[ssl]`` - SSL configuration
+* ``[DEFAULT]`` - General configuration
+* ``[assignment]`` - Assignment system driver configuration
 * ``[auth]`` - Authentication plugin configuration
-* ``[os_inherit]`` - Inherited Role Assignment extension
-* ``[endpoint_filter]`` - Endpoint Filtering extension configuration
-* ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
+* ``[cache]`` - Caching layer configuration
+* ``[catalog]`` - Service catalog driver configuration
+* ``[credential]`` - Credential system driver configuration
+* ``[ec2]`` - Amazon EC2 authentication driver configuration
+* ``[endpoint_filter]`` - Endpoint filtering extension configuration
+* ``[endpoint_policy]`` - Endpoint policy extension configuration
 * ``[federation]`` - Federation driver configuration
+* ``[identity]`` - Identity system driver configuration
+* ``[identity_mapping]`` - Identity mapping system driver configuration
+* ``[kvs]`` - KVS storage backend configuration
+* ``[ldap]`` - LDAP configuration options
+* ``[memcache]`` - Memcache configuration options
+* ``[oauth1]`` - OAuth 1.0a system driver configuration
+* ``[os_inherit]`` - Inherited role assignment extension
+* ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
+* ``[policy]`` - Policy system driver configuration for RBAC
+* ``[revoke]`` - Revocation system driver configuration
+* ``[saml]`` - SAML configuration options
+* ``[signing]`` - Cryptographic signatures for PKI based tokens
+* ``[ssl]`` - SSL configuration
+* ``[stats]`` - Stats system driver configuration
+* ``[token]`` - Token driver & token provider configuration
+* ``[trust]`` - Trust extension configuration
 
 The Keystone primary configuration file is expected to be named ``keystone.conf``.
 When starting Keystone, you can specify a different configuration file to
