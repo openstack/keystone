@@ -606,6 +606,71 @@ class VersionTestCase(tests.TestCase):
         self.assertThat(make_request(self.getUniqueString()), JSON_MATCHER)
 
 
+class VersionSingleAppTestCase(tests.TestCase):
+    """Tests running with a single application loaded.
+
+    These are important because when Keystone is running in Apache httpd
+    there's only one application loaded for each instance.
+
+    """
+
+    def setUp(self):
+        super(VersionSingleAppTestCase, self).setUp()
+        self.load_backends()
+
+        self.config_fixture.config(
+            public_endpoint='http://localhost:%(public_port)d',
+            admin_endpoint='http://localhost:%(admin_port)d')
+
+    def config_overrides(self):
+        super(VersionSingleAppTestCase, self).config_overrides()
+        port = random.randint(10000, 30000)
+        self.config_fixture.config(public_port=port, admin_port=port)
+
+    def _paste_in_port(self, response, port):
+        for link in response['links']:
+            if link['rel'] == 'self':
+                link['href'] = port
+
+    def test_public(self):
+        public_app = self.loadapp('keystone', 'main')
+        client = self.client(public_app)
+        resp = client.get('/')
+        self.assertEqual(resp.status_int, 300)
+        data = jsonutils.loads(resp.body)
+        expected = VERSIONS_RESPONSE
+        for version in expected['versions']['values']:
+            if version['id'] == 'v3.0':
+                self._paste_in_port(
+                    version, 'http://localhost:%s/v3/' % CONF.public_port)
+            elif version['id'] == 'v2.0':
+                self._paste_in_port(
+                    version, 'http://localhost:%s/v2.0/' % CONF.public_port)
+        self.assertEqual(data, expected)
+
+    def test_admin(self):
+        admin_app = self.loadapp('keystone', 'admin')
+        client = self.client(admin_app)
+        resp = client.get('/')
+        self.assertEqual(resp.status_int, 300)
+
+        # FIXME(blk-u): This is returning the wrong result, the response should
+        # also include v2. See bug 1343579
+
+        data = jsonutils.loads(resp.body)
+        # only v3 information should be displayed by requests to /
+        v3_only_response = {
+            "versions": {
+                "values": [
+                    v3_EXPECTED_RESPONSE
+                ]
+            }
+        }
+        self._paste_in_port(v3_only_response['versions']['values'][0],
+                            'http://localhost:%s/v3/' % CONF.public_port)
+        self.assertEqual(data, v3_only_response)
+
+
 class VersionInheritEnabledTestCase(tests.TestCase):
     def setUp(self):
         super(VersionInheritEnabledTestCase, self).setUp()
