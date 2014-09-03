@@ -18,6 +18,7 @@ from keystone.common import kvs
 from keystone import config
 from keystone.contrib import revoke
 from keystone import exception
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -27,6 +28,12 @@ _KVS_BACKEND = 'openstack.kvs.Memory'
 
 
 class Revoke(revoke.Driver):
+
+    @versionutils.deprecated(
+        versionutils.deprecated.JUNO,
+        in_favor_of='keystone.contrib.revoke.backends.sql',
+        remove_in=+1,
+        what='keystone.contrib.revoke.backends.kvs')
     def __init__(self, **kwargs):
         super(Revoke, self).__init__()
         self._store = kvs.get_key_value_store('os-revoke-driver')
