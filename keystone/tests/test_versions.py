@@ -306,50 +306,60 @@ build_os_inherit_relation = functools.partial(
 
 V3_JSON_HOME_RESOURCES_INHERIT_ENABLED = dict(
     V3_JSON_HOME_RESOURCES_INHERIT_DISABLED)
-V3_JSON_HOME_RESOURCES_INHERIT_ENABLED.update((
-    (build_os_inherit_relation(
-        resource_name='domain_user_role_inherited_to_projects'),
-     {
-         'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
-         '{user_id}/roles/{role_id}/inherited_to_projects',
-         'href-vars': {
-             'domain_id': json_home.Parameters.DOMAIN_ID,
-             'role_id': json_home.Parameters.ROLE_ID,
-             'user_id': json_home.Parameters.USER_ID,
-         },
-    }),
-    (build_os_inherit_relation(
-        resource_name='domain_group_role_inherited_to_projects'),
-     {
-         'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
-         '{group_id}/roles/{role_id}/inherited_to_projects',
-         'href-vars': {
-             'domain_id': json_home.Parameters.DOMAIN_ID,
-             'group_id': json_home.Parameters.GROUP_ID,
-             'role_id': json_home.Parameters.ROLE_ID,
-         },
-    }),
-    (build_os_inherit_relation(
-        resource_name='domain_user_roles_inherited_to_projects'),
-     {
-         'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
-         '{user_id}/roles/inherited_to_projects',
-         'href-vars': {
-             'domain_id': json_home.Parameters.DOMAIN_ID,
-             'user_id': json_home.Parameters.USER_ID,
-         },
-    }),
-    (build_os_inherit_relation(
-        resource_name='domain_group_roles_inherited_to_projects'),
-     {
-         'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
-         '{group_id}/roles/inherited_to_projects',
-         'href-vars': {
-             'domain_id': json_home.Parameters.DOMAIN_ID,
-             'group_id': json_home.Parameters.GROUP_ID,
-         },
-    }),
-))
+V3_JSON_HOME_RESOURCES_INHERIT_ENABLED.update(
+    (
+        (
+            build_os_inherit_relation(
+                resource_name='domain_user_role_inherited_to_projects'),
+            {
+                'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
+                '{user_id}/roles/{role_id}/inherited_to_projects',
+                'href-vars': {
+                    'domain_id': json_home.Parameters.DOMAIN_ID,
+                    'role_id': json_home.Parameters.ROLE_ID,
+                    'user_id': json_home.Parameters.USER_ID,
+                },
+            }
+        ),
+        (
+            build_os_inherit_relation(
+                resource_name='domain_group_role_inherited_to_projects'),
+            {
+                'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
+                '{group_id}/roles/{role_id}/inherited_to_projects',
+                'href-vars': {
+                    'domain_id': json_home.Parameters.DOMAIN_ID,
+                    'group_id': json_home.Parameters.GROUP_ID,
+                    'role_id': json_home.Parameters.ROLE_ID,
+                },
+            }
+        ),
+        (
+            build_os_inherit_relation(
+                resource_name='domain_user_roles_inherited_to_projects'),
+            {
+                'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
+                '{user_id}/roles/inherited_to_projects',
+                'href-vars': {
+                    'domain_id': json_home.Parameters.DOMAIN_ID,
+                    'user_id': json_home.Parameters.USER_ID,
+                },
+            }
+        ),
+        (
+            build_os_inherit_relation(
+                resource_name='domain_group_roles_inherited_to_projects'),
+            {
+                'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
+                '{group_id}/roles/inherited_to_projects',
+                'href-vars': {
+                    'domain_id': json_home.Parameters.DOMAIN_ID,
+                    'group_id': json_home.Parameters.GROUP_ID,
+                },
+            }
+        ),
+    )
+)
 
 
 class VersionTestCase(tests.TestCase):
