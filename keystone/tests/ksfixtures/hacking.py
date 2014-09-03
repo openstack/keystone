@@ -129,6 +129,24 @@ class HackingCode(fixtures.Fixture):
             # translation on a separate line
             msg = _('text')
             L2.debug(msg)
+
+            # this should not fail
+            if True:
+                msg = _('message %s') % X
+                L2.error(msg)
+                raise TypeError(msg)
+            if True:
+                msg = 'message'
+                L2.debug(msg)
+
+            # this should not fail
+            if True:
+                if True:
+                    msg = _('message')
+                else:
+                    msg = _('message')
+                L2.debug(msg)
+                raise Exception(msg)
         """,
         'expected_errors': [
             (10, 9, 'K005'),
@@ -139,3 +157,207 @@ class HackingCode(fixtures.Fixture):
             (36, 9, 'K005'),
         ]
     }
+
+
+class HackingLogging(fixtures.Fixture):
+
+    shared_imports = """
+                import logging
+                import logging as stlib_logging
+                from keystone.i18n import _
+                from keystone.i18n import _ as oslo_i18n
+                from keystone.i18n import _LC
+                from keystone.i18n import _LE
+                from keystone.i18n import _LE as error_hint
+                from keystone.i18n import _LI
+                from keystone.i18n import _LW
+                from keystone.openstack.common import log
+                from keystone.openstack.common import log as oslo_logging
+    """
+
+    examples = [
+        {
+            'code': """
+                # stdlib logging
+                LOG = logging.getLogger()
+                LOG.info(_('text'))
+                class C:
+                    def __init__(self):
+                        LOG.warn(oslo_i18n('text', {}))
+                        LOG.warn(_LW('text', {}))
+            """,
+            'expected_errors': [
+                (3, 9, 'K006'),
+                (6, 17, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                # stdlib logging w/ alias and specifying a logger
+                class C:
+                    def __init__(self):
+                        self.L = logging.getLogger(__name__)
+                    def m(self):
+                        self.L.warning(
+                            _('text'), {}
+                        )
+                        self.L.warning(
+                            _LW('text'), {}
+                        )
+            """,
+            'expected_errors': [
+                (7, 12, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                # oslo logging and specifying a logger
+                L = log.getLogger(__name__)
+                L.error(oslo_i18n('text'))
+                L.error(error_hint('text'))
+            """,
+            'expected_errors': [
+                (3, 8, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                # oslo logging w/ alias
+                class C:
+                    def __init__(self):
+                        self.LOG = oslo_logging.getLogger()
+                        self.LOG.critical(_('text'))
+                        self.LOG.critical(_LC('text'))
+            """,
+            'expected_errors': [
+                (5, 26, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                # translation on a separate line
+                msg = _('text')
+                LOG.exception(msg)
+                msg = _LE('text')
+                LOG.exception(msg)
+            """,
+            'expected_errors': [
+                (4, 14, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                LOG = logging.getLogger()
+
+                # ensure the correct helper is being used
+                LOG.warn(_LI('this should cause an error'))
+
+                # debug should not allow any helpers either
+                LOG.debug(_LI('this should cause an error'))
+            """,
+            'expected_errors': [
+                (4, 9, 'K006'),
+                (7, 10, 'K005'),
+            ],
+        },
+        {
+            'code': """
+                # this should not be an error
+                L = log.getLogger(__name__)
+                msg = _('text')
+                L.warn(msg)
+                raise Exception(msg)
+            """,
+            'expected_errors': [],
+        },
+        {
+            'code': """
+                L = log.getLogger(__name__)
+                def f():
+                    msg = _('text')
+                    L2.warn(msg)
+                    something = True  # add an extra statement here
+                    raise Exception(msg)
+            """,
+            'expected_errors': [],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                def func():
+                    msg = _('text')
+                    LOG.warn(msg)
+                    raise Exception('some other message')
+            """,
+            'expected_errors': [
+                (4, 13, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                if True:
+                    msg = _('text')
+                else:
+                    msg = _('text')
+                LOG.warn(msg)
+                raise Exception(msg)
+            """,
+            'expected_errors': [
+            ],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                if True:
+                    msg = _('text')
+                else:
+                    msg = _('text')
+                LOG.warn(msg)
+            """,
+            'expected_errors': [
+                (6, 9, 'K006'),
+            ],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                msg = _LW('text')
+                LOG.warn(msg)
+                raise Exception(msg)
+            """,
+            'expected_errors': [
+                (3, 9, 'K007'),
+            ],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                msg = _LW('text')
+                LOG.warn(msg)
+                msg = _('something else')
+                raise Exception(msg)
+            """,
+            'expected_errors': [],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                msg = _LW('hello %s') % 'world'
+                LOG.warn(msg)
+                raise Exception(msg)
+            """,
+            'expected_errors': [
+                (3, 9, 'K007'),
+            ],
+        },
+        {
+            'code': """
+                LOG = log.getLogger(__name__)
+                msg = _LW('hello %s') % 'world'
+                LOG.warn(msg)
+            """,
+            'expected_errors': [],
+        },
+    ]
