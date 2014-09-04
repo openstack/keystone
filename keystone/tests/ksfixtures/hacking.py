@@ -96,7 +96,7 @@ class HackingCode(fixtures.Fixture):
             import logging
             import logging as stlib_logging
             from keystone.i18n import _
-            from keystone.i18n import _ as oslog_i18n
+            from keystone.i18n import _ as oslo_i18n
             from keystone.openstack.common import log
             from keystone.openstack.common import log as oslo_logging
 
@@ -105,7 +105,7 @@ class HackingCode(fixtures.Fixture):
             L0.debug(_('text'))
             class C:
                 def __init__(self):
-                    L0.debug(oslog_i18n('text', {}))
+                    L0.debug(oslo_i18n('text', {}))
 
             # stdlib logging w/ alias and specifying a logger
             class C:
@@ -118,7 +118,7 @@ class HackingCode(fixtures.Fixture):
 
             # oslo logging and specifying a logger
             L2 = log.getLogger(__name__)
-            L2.debug(oslog_i18n('text'))
+            L2.debug(oslo_i18n('text'))
 
             # oslo logging w/ alias
             class C:
