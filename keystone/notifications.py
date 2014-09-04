@@ -166,8 +166,7 @@ def register_event_callback(event, resource_type, callbacks):
     if event not in ACTIONS:
         raise ValueError(_('%(event)s is not a valid notification event, must '
                            'be one of: %(actions)s') %
-                         {'event': event,
-                          'actions': ', '.join(str(a) for a in ACTIONS)})
+                         {'event': event, 'actions': ', '.join(ACTIONS)})
 
     if not hasattr(callbacks, '__iter__'):
         callbacks = [callbacks]
