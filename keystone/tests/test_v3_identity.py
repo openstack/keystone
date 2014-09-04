@@ -1630,6 +1630,129 @@ class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
         super(IdentityInheritanceTestCase, self).config_overrides()
         self.config_fixture.config(group='os_inherit', enabled=True)
 
+    def test_get_token_from_inherited_user_domain_role_grants(self):
+        # Create a new user to ensure that no grant is loaded from sample data
+        user = self.new_user_ref(domain_id=self.domain_id)
+        password = user['password']
+        user = self.identity_api.create_user(user)
+        user['password'] = password
+
+        # Define domain and project authentication data
+        domain_auth_data = self.build_authentication_request(
+            user_id=user['id'],
+            password=user['password'],
+            domain_id=self.domain_id)
+        project_auth_data = self.build_authentication_request(
+            user_id=user['id'],
+            password=user['password'],
+            project_id=self.project_id)
+
+        # Check the user cannot get a domain nor a project token
+        self.v3_authenticate_token(domain_auth_data, expected_status=401)
+        self.v3_authenticate_token(project_auth_data, expected_status=401)
+
+        # Grant non-inherited role for user on domain
+        non_inher_ud_url, non_inher_ud_entity = (
+            _build_role_assignment_url_and_entity(domain_id=self.domain_id,
+                                                  user_id=user['id'],
+                                                  role_id=self.role_id))
+        self.put(non_inher_ud_url)
+
+        # Check the user can get only a domain token
+        self.v3_authenticate_token(domain_auth_data)
+        self.v3_authenticate_token(project_auth_data, expected_status=401)
+
+        # Create inherited role
+        inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
+        self.assignment_api.create_role(inherited_role['id'], inherited_role)
+
+        # Grant inherited role for user on domain
+        inher_ud_url, inher_ud_entity = _build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=user['id'],
+            role_id=inherited_role['id'], inherited_to_projects=True)
+        self.put(inher_ud_url)
+
+        # Check the user can get both a domain and a project token
+        self.v3_authenticate_token(domain_auth_data)
+        self.v3_authenticate_token(project_auth_data)
+
+        # Delete inherited grant
+        self.delete(inher_ud_url)
+
+        # Check the user can only get a domain token
+        self.v3_authenticate_token(domain_auth_data)
+        self.v3_authenticate_token(project_auth_data, expected_status=401)
+
+        # Delete non-inherited grant
+        self.delete(non_inher_ud_url)
+
+        # Check the user cannot get a domain token anymore
+        self.v3_authenticate_token(domain_auth_data, expected_status=401)
+
+    def test_get_token_from_inherited_group_domain_role_grants(self):
+        # Create a new group and put a new user in it to
+        # ensure that no grant is loaded from sample data
+        user = self.new_user_ref(domain_id=self.domain_id)
+        password = user['password']
+        user = self.identity_api.create_user(user)
+        user['password'] = password
+
+        group = self.new_group_ref(domain_id=self.domain['id'])
+        group = self.identity_api.create_group(group)
+        self.identity_api.add_user_to_group(user['id'], group['id'])
+
+        # Define domain and project authentication data
+        domain_auth_data = self.build_authentication_request(
+            user_id=user['id'],
+            password=user['password'],
+            domain_id=self.domain_id)
+        project_auth_data = self.build_authentication_request(
+            user_id=user['id'],
+            password=user['password'],
+            project_id=self.project_id)
+
+        # Check the user cannot get a domain nor a project token
+        self.v3_authenticate_token(domain_auth_data, expected_status=401)
+        self.v3_authenticate_token(project_auth_data, expected_status=401)
+
+        # Grant non-inherited role for user on domain
+        non_inher_gd_url, non_inher_gd_entity = (
+            _build_role_assignment_url_and_entity(domain_id=self.domain_id,
+                                                  user_id=user['id'],
+                                                  role_id=self.role_id))
+        self.put(non_inher_gd_url)
+
+        # Check the user can get only a domain token
+        self.v3_authenticate_token(domain_auth_data)
+        self.v3_authenticate_token(project_auth_data, expected_status=401)
+
+        # Create inherited role
+        inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
+        self.assignment_api.create_role(inherited_role['id'], inherited_role)
+
+        # Grant inherited role for user on domain
+        inher_gd_url, inher_gd_entity = _build_role_assignment_url_and_entity(
+            domain_id=self.domain_id, user_id=user['id'],
+            role_id=inherited_role['id'], inherited_to_projects=True)
+        self.put(inher_gd_url)
+
+        # Check the user can get both a domain and a project token
+        self.v3_authenticate_token(domain_auth_data)
+        self.v3_authenticate_token(project_auth_data)
+
+        # Delete inherited grant
+        self.delete(inher_gd_url)
+
+        # Check the user can only get a domain token
+        self.v3_authenticate_token(domain_auth_data)
+        self.v3_authenticate_token(project_auth_data, expected_status=401)
+
+        # Delete non-inherited grant
+        self.delete(non_inher_gd_url)
+
+        # Check the user cannot get a domain token anymore
+        self.v3_authenticate_token(domain_auth_data, expected_status=401)
+
     def test_crud_user_inherited_domain_role_grants(self):
         role_list = []
         for _ in range(2):
