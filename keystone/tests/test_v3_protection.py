@@ -13,7 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import tempfile
 import uuid
 
 from keystone import config
@@ -21,6 +20,7 @@ from keystone import exception
 from keystone.openstack.common import jsonutils
 from keystone.policy.backends import rules
 from keystone import tests
+from keystone.tests.ksfixtures import temporaryfile
 from keystone.tests import test_v3
 
 
@@ -56,7 +56,8 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         # file in each test to create the policies
         self.addCleanup(rules.reset)
         rules.reset()
-        _unused, self.tmpfilename = tempfile.mkstemp()
+        self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
+        self.tmpfilename = self.tempfile.file_name
         self.config_fixture.config(policy_file=self.tmpfilename)
 
         # A default auth request we can use - un-scoped user token
