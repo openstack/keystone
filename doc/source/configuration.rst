@@ -949,50 +949,6 @@ it. The domain_id of the admin domain would then be obtained and could be
 pasted into a modified version of policy.v3cloudsample.json which could then
 be enabled as the main policy file.
 
-.. _`adding extensions`:
-
-Adding Extensions
-=================
-
-OAuth1.0a
----------
-
-.. toctree::
-   :maxdepth: 1
-
-   extensions/oauth1.rst
-
-Endpoint Filtering
-------------------
-.. toctree::
-   :maxdepth: 1
-
-   extensions/endpoint_filter.rst
-
-Federation
-----------
-
-.. toctree::
-   :maxdepth: 1
-
-   extensions/federation.rst
-
-Revocation Events
-------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   extensions/revoke.rst
-
-Endpoint Policy
----------------
-
-.. toctree::
-   :maxdepth: 1
-
-   extensions/endpoint_policy.rst
-
 .. _`prepare your deployment`:
 
 Preparing your deployment
