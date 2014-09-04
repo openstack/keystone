@@ -78,9 +78,13 @@ one of the default locations described in :doc:`configuration`.
 SELinux
 -------
 
-If you are running with SELinux enabled (and you should be) make sure that the file has the appropriate SELinux context to access the linked file.  If you have the file in /var/www/cgi-bin,  you can do this by running::
+If you are running with SELinux enabled (and you should be) make sure that the
+file has the appropriate SELinux context to access the linked file. If you
+have the file in /var/www/cgi-bin,  you can do this by running:
 
-    sudo restorecon /var/www/cgi-bin
+.. code-block:: bash
+
+    $ sudo restorecon /var/www/cgi-bin
 
 Putting it somewhere else requires you set up your SELinux policy accordingly.
 

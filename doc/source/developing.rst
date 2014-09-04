@@ -31,7 +31,9 @@ Configuring Keystone
 --------------------
 
 Keystone requires a configuration file.  There is a sample configuration file
-that can be used to get started::
+that can be used to get started:
+
+.. code-block:: bash
 
     $ cp etc/keystone.conf.sample etc/keystone.conf
 
@@ -42,7 +44,9 @@ needed.
 Running Keystone
 ----------------
 
-To run the Keystone Admin and API server instances, use::
+To run the Keystone Admin and API server instances, use:
+
+.. code-block:: bash
 
     $ tools/with_venv.sh bin/keystone-all
 
@@ -64,7 +68,9 @@ command-line interface.
 
 When initially getting set up, after you've configured which databases to use,
 you're probably going to need to run the following to your database schema in
-place::
+place:
+
+.. code-block:: bash
 
     $ bin/keystone-manage db_sync
 
@@ -76,7 +82,9 @@ version``, then it is possible that there are out-of-date compiled Python
 bytecode files in the Keystone directory tree that are causing problems. This
 can occur if you have previously installed and ran older versions of Keystone.
 These out-of-date files can be easily removed by running a command like the
-following from the Keystone root project directory::
+following from the Keystone root project directory:
+
+.. code-block:: bash
 
     $ find . -name "*.pyc" -delete
 
@@ -110,7 +118,9 @@ The directory ``keystone/contrib/example`` contains a sample extension
 migration.
 
 Migrations must be explicitly run for each extension individually. To run a
-migration for a specific extension, simply run::
+migration for a specific extension, simply run:
+
+.. code-block:: bash
 
     $ keystone-manage db_sync --extension <name>
 
@@ -118,7 +128,9 @@ Initial Sample Data
 -------------------
 
 There is an included script which is helpful in setting up some initial sample
-data for use with keystone::
+data for use with keystone:
+
+.. code-block:: bash
 
     $ OS_SERVICE_TOKEN=ADMIN tools/with_venv.sh tools/sample_data.sh
 
@@ -127,7 +139,9 @@ authentication.  The default value "ADMIN" is from the ``admin_token``
 option in the ``[DEFAULT]`` section in ``etc/keystone.conf``.
 
 Once run, you can see the sample data that has been created by using the
-`python-keystoneclient`_ command-line interface::
+`python-keystoneclient`_ command-line interface:
+
+.. code-block:: bash
 
     $ tools/with_venv.sh keystone --os-token ADMIN --os-endpoint http://127.0.0.1:35357/v2.0/ user-list
 
@@ -200,7 +214,9 @@ Running Tests
 =============
 
 Before running tests, you should have ``tox`` installed and available in your
-environment (in addition to the other external dependencies in :doc:`setup`)::
+environment (in addition to the other external dependencies in :doc:`setup`):
+
+.. code-block:: bash
 
     $ pip install tox
 
@@ -210,7 +226,9 @@ environment (in addition to the other external dependencies in :doc:`setup`)::
     python virtualenv, or prefix the above command with ``sudo``, depending on
     your preference.
 
-To execute the full suite of tests maintained within Keystone, simply run::
+To execute the full suite of tests maintained within Keystone, simply run:
+
+.. code-block:: bash
 
     $ tox
 
@@ -226,7 +244,9 @@ other projects.
 
 To run tests for one or more specific test environments (for example, the most
 common configuration of Python 2.7 and PEP-8), list the environments with the
-``-e`` option, separated by spaces::
+``-e`` option, separated by spaces:
+
+.. code-block:: bash
 
     $ tox -e py27,pep8
 
@@ -240,7 +260,9 @@ just fail with a BdbQuit exception rather than stopping at the breakpoint.
 
 To run with PDB breakpoints during testing, use the ``debug`` tox environment
 rather than ``py27``. Here's an example, passing the name of a test since
-you'll normally only want to run the test that hits your breakpoint::
+you'll normally only want to run the test that hits your breakpoint:
+
+.. code-block:: bash
 
     $ tox -e debug keystone.tests.test_auth.AuthWithToken.test_belongs_to
 
@@ -260,7 +282,9 @@ data to be discarded even if the test fails: `OS_STDOUT_CAPTURE` for stdout,
 of the environment variable is not one of (True, true, 1, yes) the stream will
 be discarded. All three variables default to 1.
 
-For example, to discard logging data during a test run::
+For example, to discard logging data during a test run:
+
+.. code-block:: bash
 
     $ OS_LOG_CAPTURE=0 tox -e py27
 
@@ -304,10 +328,11 @@ built-in test runner, one migration at a time.
     This may leave your database in an inconsistent state; attempt this in non-production environments only!
 
 This is useful for testing the *next* migration in sequence (both forward &
-backward) in a database under version control::
+backward) in a database under version control:
 
+.. code-block:: bash
 
-    python keystone/common/sql/migrate_repo/manage.py test \
+    $ python keystone/common/sql/migrate_repo/manage.py test \
     --url=sqlite:///test.db \
     --repository=keystone/common/sql/migrate_repo/
 
@@ -374,7 +399,9 @@ are sourced from the many files around Keystone as well as some external librari
 
 If new options are added, primarily located in ``keystone.common.config``, a new
 sample configuration file needs to be generated. Generating a new sample configuration
-to be included in a commit run::
+to be included in a commit run:
+
+.. code-block:: bash
 
     $ tox -esample_config -r
 
@@ -393,18 +420,24 @@ the ``Accept-Language`` header of the request. In order to test this in your
 development environment, there's a couple of things you need to do.
 
 1. Build the message files. Run the following command in your keystone
-   directory::
+   directory:
+
+.. code-block:: bash
 
    $ python setup.py compile_catalog
 
 This will generate .mo files like keystone/locale/[lang]/LC_MESSAGES/[lang].mo
 
 2. When running Keystone, set the ``KEYSTONE_LOCALEDIR`` environment variable
-   to the keystone/locale directory. For example::
+   to the keystone/locale directory. For example:
+
+.. code-block:: bash
 
    $ KEYSTONE_LOCALEDIR=/opt/stack/keystone/keystone/locale keystone-all
 
-Now you can get a translated error response::
+Now you can get a translated error response:
+
+.. code-block:: bash
 
  $ curl -s -H "Accept-Language: zh" http://localhost:5000/notapath | python -mjson.tool
  {
@@ -440,7 +473,7 @@ which will provide a reference, to a function, that will consult the global cach
 
 Example use of cache and ``should_cache_fn`` (in this example, ``token`` is the manager):
 
-.. code:: python
+.. code-block:: python
 
     from keystone.common import cache
     SHOULD_CACHE = cache.should_cache_fn('token')
@@ -468,7 +501,7 @@ configuration section.
 
 Example of using a section specific ``cache_time`` (in this example, ``identity`` is the manager):
 
-.. code:: python
+.. code-block:: python
 
     from keystone.common import cache
     SHOULD_CACHE = cache.should_cache_fn('identity')
@@ -485,7 +518,7 @@ to the ``invalidate`` method as you would the normal function.
 
 Example (using the above cacheable_function):
 
-.. code:: python
+.. code-block:: python
 
     def invalidate_cache(arg1, arg2, arg3):
         cacheable_function.invalidate(arg1, arg2, arg3)
@@ -520,7 +553,7 @@ match the object to the name).
 
 Example Instantiation and Configuration:
 
-.. code:: python
+.. code-block:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure('openstack.kvs.Memory', ...)
@@ -537,7 +570,7 @@ By default the ``memcached`` backend is used.  Currently the Memcache URLs come 
 The following is an example showing how to configure the KVS system to use a
 KeyValueStore object named "TestKVSRegion" and a specific Memcached driver:
 
-.. code:: python
+.. code-block:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached')
@@ -549,7 +582,7 @@ will cause the ``time`` argument to be added to all ``set`` and ``set_multi`` ca
 the memcached client. ``memcached_expire_time`` is an argument exclusive to the memcached dogpile
 backend, and will be ignored if passed to another backend:
 
-.. code:: python
+.. code-block:: python
 
     kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached',
                         memcached_expire_time=86400)
@@ -559,7 +592,7 @@ exempt specific keys from receiving the TTL by passing the argument ``no_expiry_
 as a keyword argument to the ``configure`` method. ``no_expiry_keys`` should be supported by
 all OpenStack-specific dogpile backends (memcached) that have the ability to set an explicit TTL:
 
-.. code:: python
+.. code-block:: python
 
     kvs_store.configure('openstack.kvs.Memcached', memcached_backend='Memcached',
                     memcached_expire_time=86400, no_expiry_keys=['key', 'second_key', ...])
@@ -589,7 +622,7 @@ all OpenStack-specific dogpile backends (memcached) that have the ability to set
 Once a KVS object has been instantiated the method of interacting is the same as most memcache
 implementations:
 
-.. code:: python
+.. code-block:: python
 
     kvs_store = kvs.get_key_value_store('TestKVSRegion')
     kvs_store.configure(...)
@@ -644,7 +677,7 @@ use of TTL type collections, etc.
 
 Example of typical configuration for MongoDB backend:
 
-.. code:: python
+.. code-block:: python
 
     from dogpile.cache import region
 
@@ -691,7 +724,9 @@ is similar to other dogpile caching backends as it implements the same dogpile A
 Building the Documentation
 --------------------------
 
-The documentation is generated with Sphinx using the tox command.  To create HTML docs and man pages::
+The documentation is generated with Sphinx using the tox command.  To create HTML docs and man pages:
+
+.. code-block:: bash
 
     $ tox -e docs
 
