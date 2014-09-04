@@ -21,7 +21,7 @@ Setting up a Keystone development environment
 This document describes getting the source from keystone's `GitHub repository`_
 for development purposes.
 
-To install keystone from packaging, refer instead to Keystone's `User
+To install Keystone from packaging, refer instead to Keystone's `User
 Documentation`_.
 
 .. _`GitHub Repository`: http://github.com/openstack/keystone
@@ -70,7 +70,7 @@ Keystone maintains two lists of dependencies::
     requirements.txt
     test-requirements.txt
 
-The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of keystone itself.
+The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of Keystone itself.
 
 These dependencies can be installed from PyPi_ using the Python tool pip_.
 
@@ -100,10 +100,10 @@ Mac OS X 10.9 (requires Homebrew_)::
 PyPi Packages and VirtualEnv
 ----------------------------
 
-We recommend establishing a virtualenv to run keystone within. virtualenv
+We recommend establishing a virtualenv to run Keystone within. virtualenv
 limits the Python environment to just what you're installing as dependencies,
 useful to keep a clean environment for working on Keystone. The tools directory
-in keystone has a script already created to make this very simple::
+in Keystone has a script already created to make this very simple::
 
     $ python tools/install_venv.py
 
@@ -122,7 +122,7 @@ see virtualenv_.
 
 .. _virtualenv: http://www.virtualenv.org/
 
-If you want to run keystone outside of a virtualenv, you can install the
+If you want to run Keystone outside of a virtualenv, you can install the
 dependencies directly into your system from the requires files::
 
     # Install the dependencies for running keystone
@@ -151,5 +151,5 @@ without issue::
     >>> import keystone
     >>>
 
-If you can import keystone successfully, you should be ready to move on to
+If you can import Keystone successfully, you should be ready to move on to
 :doc:`developing`.

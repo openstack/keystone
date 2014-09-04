@@ -22,7 +22,7 @@ Setup
 -----
 
 Get your development environment set up according to :doc:`setup`. The
-instructions from here will assume that you have installed keystone into a
+instructions from here will assume that you have installed Keystone into a
 virtualenv. If you chose not to, simply exclude "tools/with_venv.sh" from the
 example commands below.
 
@@ -30,7 +30,7 @@ example commands below.
 Configuring Keystone
 --------------------
 
-keystone requires a configuration file.  There is a sample configuration file
+Keystone requires a configuration file.  There is a sample configuration file
 that can be used to get started::
 
     $ cp etc/keystone.conf.sample etc/keystone.conf
@@ -42,13 +42,13 @@ needed.
 Running Keystone
 ----------------
 
-To run the keystone Admin and API server instances, use::
+To run the Keystone Admin and API server instances, use::
 
     $ tools/with_venv.sh bin/keystone-all
 
-this runs keystone with the configuration the etc/ directory of the project.
+This runs Keystone with the configuration the etc/ directory of the project.
 See :doc:`configuration` for details on how Keystone is configured. By default,
-keystone is configured with SQL backends.
+Keystone is configured with SQL backends.
 
 
 Interacting with Keystone
@@ -58,8 +58,8 @@ You can interact with Keystone through the command line using
 :doc:`man/keystone-manage` which allows you to initialize keystone, etc.
 
 You can also interact with Keystone through its REST API. There is a Python
-keystone client library `python-keystoneclient`_ which interacts exclusively
-through the REST API, and which keystone itself uses to provide its
+Keystone client library `python-keystoneclient`_ which interacts exclusively
+through the REST API, and which Keystone itself uses to provide its
 command-line interface.
 
 When initially getting set up, after you've configured which databases to use,
@@ -331,7 +331,7 @@ configuration of the test class in ``setUp()``.
 Further Testing
 ===============
 
-devstack_ is the *best* way to quickly deploy keystone with the rest of the
+devstack_ is the *best* way to quickly deploy Keystone with the rest of the
 OpenStack universe and should be critical step in your development workflow!
 
 You may also be interested in either the
@@ -667,7 +667,7 @@ or retrieved from MongoDB. If the dogpile cached values contain built-in data ty
 custom classes, then the provided implementation class is sufficient. For further details, refer
 http://api.mongodb.org/python/current/examples/custom_type.html#automatic-encoding-and-decoding
 
-Similar to other backends, this backend can be added via keystone configuration in
+Similar to other backends, this backend can be added via Keystone configuration in
 ``keystone.conf``::
 
     [cache]
