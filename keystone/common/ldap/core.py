@@ -307,7 +307,8 @@ def dn_startswith(descendant_dn, dn):
     if len(descendant_dn) <= len(dn):
         return False
 
-    return is_dn_equal(descendant_dn[len(dn):], dn)
+    # Use the last len(dn) RDNs.
+    return is_dn_equal(descendant_dn[-len(dn):], dn)
 
 
 @six.add_metaclass(abc.ABCMeta)
