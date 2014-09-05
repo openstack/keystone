@@ -16,8 +16,16 @@ from keystone.auth import controllers as auth_controllers
 from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import validation
 from keystone.common import wsgi
+from keystone import config
+from keystone.contrib.federation import idp as keystone_idp
+from keystone.contrib.federation import schema
 from keystone.contrib.federation import utils
+from keystone.models import token_model
+
+
+CONF = config.CONF
 
 
 class _ControllerBase(controller.V3Controller):
@@ -244,6 +252,40 @@ class Auth(auth_controllers.Auth):
         }
 
         return self.authenticate_for_token(context, auth=auth)
+
+    @validation.validated(schema.saml_create, 'auth')
+    def create_saml_assertion(self, context, auth):
+        """Exchange a scoped token for a SAML assertion.
+
+        :param auth: Dictionary that contains a token id and region id
+        :returns: SAML Assertion based on properties from the token
+        """
+
+        issuer = wsgi.Application.base_url(context, 'public')
+
+        region_id = auth['scope']['region']['id']
+        region = self.catalog_api.get_region(region_id)
+        recipient = region['url']
+
+        token_id = auth['identity']['token']['id']
+        token_data = self.token_provider_api.validate_token(token_id)
+        token_ref = token_model.KeystoneToken(token_id, token_data)
+        subject = token_ref.user_name
+        roles = token_ref.role_names
+
+        if token_ref.project_scoped:
+            project = token_ref.project_name
+        else:
+            raise ValueError(_('Use a project scoped token when attempting to'
+                               'create a SAML assertion'))
+
+        generator = keystone_idp.SAMLGenerator()
+        response = generator.samlize_token(issuer, recipient, subject, roles,
+                                           project)
+
+        return wsgi.render_response(body=response.to_string(),
+                                    status=('200', 'OK'),
+                                    headers=[('Content-Type', 'text/xml')])
 
 
 @dependency.requires('assignment_api')

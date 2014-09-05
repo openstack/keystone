@@ -1658,6 +1658,7 @@ class SAMLGenerationTests(FederationTests):
     SUBJECT = 'test_user'
     ROLES = ['admin', 'member']
     PROJECT = 'development'
+    SAML_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2'
 
     def setUp(self):
         super(SAMLGenerationTests, self).setUp()
@@ -1761,3 +1762,136 @@ class SAMLGenerationTests(FederationTests):
         # match it with the key that we used.
         cert_text = cert_text.replace(os.linesep, '')
         self.assertEqual(idp_public_key, cert_text)
+
+    def _create_generate_saml_request(self, token_id, region_id):
+        return {
+            "auth": {
+                "identity": {
+                    "methods": [
+                        "token"
+                    ],
+                    "token": {
+                        "id": token_id
+                    }
+                },
+                "scope": {
+                    "region": {
+                        "id": region_id
+                    }
+                }
+            }
+        }
+
+    def _create_region_with_url(self):
+        ref = self.new_region_ref()
+        ref['url'] = self.RECIPIENT
+        r = self.post('/regions', body={'region': ref})
+        return r.json['region']['id']
+
+    def _fetch_valid_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        resp = self.v3_authenticate_token(auth_data)
+        token_id = resp.headers.get('X-Subject-Token')
+        return token_id
+
+    def test_generate_saml_route(self):
+        """Test that the SAML generation endpoint produces XML.
+
+        The SAML endpoint /v3/auth/OS-FEDERATION/saml2 should take as input,
+        a scoped token ID, and a region ID.
+        The controller should fetch details about the user from the token,
+        and details about the service provider from the region.
+        This should be enough information to invoke the SAML generator and
+        provide a valid SAML (XML) document back.
+
+        """
+
+        region_id = self._create_region_with_url()
+        token_id = self._fetch_valid_token()
+        body = self._create_generate_saml_request(token_id, region_id)
+
+        # NOTE(stevemar): The issuer is the identity provider, in this
+        # case, the host running Keystone.
+        real_issuer = 'http://localhost'
+
+        with mock.patch.object(keystone_idp, '_sign_assertion',
+                               return_value=self.signed_assertion):
+            http_response = self.post(self.SAML_GENERATION_ROUTE, body=body,
+                                      response_content_type='text/xml',
+                                      expected_status=200)
+
+        response = etree.fromstring(http_response.result)
+        issuer = response[0]
+        assertion = response[2]
+
+        self.assertEqual(self.RECIPIENT, response.get('Destination'))
+        self.assertEqual(real_issuer, issuer.text)
+
+        # NOTE(stevemar): We should test this against expected values,
+        # but the self.xyz attribute names are uuids, and we mock out
+        # the result. Ideally we should update the mocked result with
+        # some known data, and create the roles/project/user before
+        # these tests run.
+        user_attribute = assertion[4][0]
+        self.assertIsInstance(user_attribute[0].text, str)
+
+        role_attribute = assertion[4][1]
+        self.assertIsInstance(role_attribute[0].text, str)
+
+        project_attribute = assertion[4][2]
+        self.assertIsInstance(project_attribute[0].text, str)
+
+    def test_invalid_scope_body(self):
+        """Test that missing the scope in request body raises an exception.
+
+        Raises exception.SchemaValidationError() - error code 400
+
+        """
+
+        region_id = uuid.uuid4().hex
+        token_id = uuid.uuid4().hex
+        body = self._create_generate_saml_request(token_id, region_id)
+        del body['auth']['scope']
+
+        self.post(self.SAML_GENERATION_ROUTE, body=body, expected_status=400)
+
+    def test_invalid_token_body(self):
+        """Test that missing the token in request body raises an exception.
+
+        Raises exception.SchemaValidationError() - error code 400
+
+        """
+
+        region_id = uuid.uuid4().hex
+        token_id = uuid.uuid4().hex
+        body = self._create_generate_saml_request(token_id, region_id)
+        del body['auth']['identity']['token']
+
+        self.post(self.SAML_GENERATION_ROUTE, body=body, expected_status=400)
+
+    def test_region_not_found(self):
+        """Test that an invalid region in the request body raises an exception.
+
+        Raises exception.RegionNotFound() - error code 404
+
+        """
+
+        region_id = uuid.uuid4().hex
+        token_id = self._fetch_valid_token()
+        body = self._create_generate_saml_request(token_id, region_id)
+        self.post(self.SAML_GENERATION_ROUTE, body=body, expected_status=404)
+
+    def test_token_not_found(self):
+        """Test that an invalid token in the request body raises an exception.
+
+        Raises exception.TokenNotFound() - error code 404
+
+        """
+
+        region_id = self._create_region_with_url()
+        token_id = uuid.uuid4().hex
+        body = self._create_generate_saml_request(token_id, region_id)
+        self.post(self.SAML_GENERATION_ROUTE, body=body, expected_status=404)
