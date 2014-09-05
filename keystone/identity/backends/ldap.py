@@ -359,7 +359,7 @@ class GroupApi(common_ldap.BaseLdap):
 
         try:
             attrs = self._ldap_get_list(group_dn, ldap.SCOPE_BASE,
-                                        attrlist=(self.member_attribute,))
+                                        attrlist=[self.member_attribute])
         except ldap.NO_SUCH_OBJECT:
             raise self.NotFound(group_id=group_id)
 

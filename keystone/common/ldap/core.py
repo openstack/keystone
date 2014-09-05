@@ -145,14 +145,19 @@ def convert_ldap_result(ldap_result):
     py_result = []
     at_least_one_referral = False
     for dn, attrs in ldap_result:
+        ldap_attrs = {}
         if dn is None:
             # this is a Referral object, rather than an Entry object
             at_least_one_referral = True
             continue
 
-        py_result.append((utf8_decode(dn),
-                          dict((kind, [ldap2py(x) for x in values])
-                               for kind, values in six.iteritems(attrs))))
+        for kind, values in six.iteritems(attrs):
+            try:
+                ldap_attrs[kind] = [ldap2py(x) for x in values]
+            except UnicodeDecodeError:
+                LOG.debug('Unable to decode value for attribute %s ', kind)
+
+        py_result.append((utf8_decode(dn), ldap_attrs))
     if at_least_one_referral:
         LOG.debug(('Referrals were returned and ignored. Enable referral '
                    'chasing in keystone.conf via [ldap] chase_referrals'))
@@ -1262,7 +1267,8 @@ class BaseLdap(object):
                 {'id_attr': self.id_attr,
                  'id': ldap.filter.escape_filter_chars(
                      six.text_type(object_id)),
-                 'objclass': self.object_class})
+                 'objclass': self.object_class},
+                attrlist=['1.1'])
         finally:
             conn.unbind_s()
         if search_result:

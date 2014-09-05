@@ -555,7 +555,8 @@ class RoleApi(common_ldap.BaseLdap):
 
     def get_role_assignments(self, tenant_dn):
         try:
-            roles = self._ldap_get_list(tenant_dn, ldap.SCOPE_ONELEVEL)
+            roles = self._ldap_get_list(tenant_dn, ldap.SCOPE_ONELEVEL,
+                                        attrlist=[self.member_attribute])
         except ldap.NO_SUCH_OBJECT:
             roles = []
         res = []
@@ -585,7 +586,8 @@ class RoleApi(common_ldap.BaseLdap):
         try:
             roles = self._ldap_get_list(project_subtree, ldap.SCOPE_SUBTREE,
                                         query_params={
-                                            self.member_attribute: user_dn})
+                                            self.member_attribute: user_dn},
+                                        attrlist=['1.1'])
         except ldap.NO_SUCH_OBJECT:
             roles = []
         res = []
@@ -658,7 +660,8 @@ class RoleApi(common_ldap.BaseLdap):
         attribute.
         """
         try:
-            roles = self._ldap_get_list(project_tree_dn, ldap.SCOPE_SUBTREE)
+            roles = self._ldap_get_list(project_tree_dn, ldap.SCOPE_SUBTREE,
+                                        attrlist=[self.member_attribute])
         except ldap.NO_SUCH_OBJECT:
             roles = []
         res = []
