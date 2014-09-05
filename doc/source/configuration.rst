@@ -283,11 +283,11 @@ Token Provider
 
 Keystone supports customizable token provider and it is specified in the
 ``[token]`` section of the configuration file. Keystone provides both UUID and
-PKI token providers, with PKI token provider enabled as default. However, users
-may register their own token provider by configuring the following property.
+PKI token providers. However, users may register their own token provider by
+configuring the following property.
 
 * ``provider`` - token provider driver. Defaults to
-  ``keystone.token.providers.pki.Provider``
+  ``keystone.token.providers.uuid.Provider``
 
 Note that ``token_format`` in the ``[signing]`` section is deprecated but still
 being supported for backward compatibility. Therefore, if ``provider`` is set
@@ -322,8 +322,7 @@ additional attributes.
 
 The current architectural approaches for both UUID- and PKI-based tokens have
 pain points exposed by environments under heavy load (search bugs and
-blueprints for the latest details and potential solutions), although PKI tokens
-became the default configuration option in the Grizzly release.
+blueprints for the latest details and potential solutions).
 
 Caching Layer
 -------------

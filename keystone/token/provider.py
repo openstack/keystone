@@ -144,7 +144,7 @@ class Manager(manager.Manager):
             return mapped
 
         if CONF.token.provider is None:
-            return PKIZ_PROVIDER
+            return UUID_PROVIDER
         else:
             return CONF.token.provider
 
