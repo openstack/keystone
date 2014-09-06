@@ -255,11 +255,26 @@ class MappingPurge(BaseApp):
         mapping_manager.driver.purge_mappings(mapping)
 
 
+class SamlIdentityProviderMetadata(BaseApp):
+    """Generate Identity Provider metadata."""
+
+    name = 'saml_idp_metadata'
+
+    @staticmethod
+    def main():
+        # NOTE(marek-denis): Since federation is currently an extension import
+        # corresponding modules only when they are really going to be used.
+        from keystone.contrib.federation import idp
+        metadata = idp.MetadataGenerator().generate_metadata()
+        print(metadata.to_string())
+
+
 CMDS = [
     DbSync,
     DbVersion,
     MappingPurge,
     PKISetup,
+    SamlIdentityProviderMetadata,
     SSLSetup,
     TokenFlush,
 ]
