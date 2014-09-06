@@ -122,10 +122,6 @@ if __name__ == '__main__':
 
     config.setup_logging()
 
-    # Log the options used when starting if we're in debug mode...
-    if CONF.debug:
-        CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
-
     paste_config = config.find_paste_config()
 
     monkeypatch_thread = not CONF.standard_threads
