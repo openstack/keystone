@@ -100,7 +100,7 @@ subset is relevant to your deployment)::
                          --email=nova@nothing.com
 
 Repeat this for each service you want to enable. Email is a required field
-in keystone right now, but not used in relation to the service accounts. Each
+in Keystone right now, but not used in relation to the service accounts. Each
 of these commands will also return a UUID of the user. Keep those to assign
 the Admin role.
 

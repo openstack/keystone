@@ -83,7 +83,7 @@ link URLs to Controllers (a subclass of
 :mod:`keystone.common.wsgi.Application`). Within each Controller, one or more
 Managers are loaded (for example, see :mod:`keystone.catalog.core.Manager`),
 which are thin wrapper classes which load the appropriate service driver based
-on the keystone configuration.
+on the Keystone configuration.
 
 * Identity
 
@@ -126,7 +126,7 @@ implementations. The drivers for the services are:
 * :mod:`keystone.identity.core.Driver`
 * :mod:`keystone.token.core.Driver`
 
-If you implement a backend driver for one of the keystone services, you're
+If you implement a backend driver for one of the Keystone services, you're
 expected to subclass from these classes. The default response for the defined
 APIs in these Drivers is to raise a :mod:`keystone.service.TokenController`.
 

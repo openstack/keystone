@@ -74,7 +74,7 @@ Within launchpad, we use
 `blueprints <https://blueprints.launchpad.net/keystone>`_, to track feature
 work, and track `bugs <https://bugs.launchpad.net/keystone>`_ as well. If
 you are looking for a place to get started contributing to keystone, please
-look at any bugs for keystone that are tagged as `low-hanging-fruit
+look at any bugs for Keystone that are tagged as `low-hanging-fruit
 <https://bugs.launchpad.net/keystone/+bugs?field.tag=low-hanging-fruit>`_.
 
 OpenStack Blog
