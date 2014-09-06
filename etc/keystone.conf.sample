@@ -1350,6 +1350,11 @@
 # administrative billing, and other (string value)
 #idp_contact_type=other
 
+# Path to the Identity Provider Metadata file. This file
+# should be generated with the keystone-manage
+# saml_idp_metadata command. (string value)
+#idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
+
 
 [signing]
 

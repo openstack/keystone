@@ -1652,6 +1652,11 @@ def _is_xmlsec1_installed():
     return not bool(p.wait())
 
 
+def _load_xml(filename):
+    with open(os.path.join(XMLDIR, filename), 'r') as xml:
+        return xml.read()
+
+
 class SAMLGenerationTests(FederationTests):
 
     ISSUER = 'https://acme.com/FIM/sps/openstack/saml20'
@@ -1664,11 +1669,7 @@ class SAMLGenerationTests(FederationTests):
     def setUp(self):
         super(SAMLGenerationTests, self).setUp()
         self.signed_assertion = saml2.create_class_from_xml_string(
-            saml.Assertion, self._load_xml('signed_saml2_assertion.xml'))
-
-    def _load_xml(self, filename):
-        with open(os.path.join(XMLDIR, filename), 'r') as xml:
-            return xml.read()
+            saml.Assertion, _load_xml('signed_saml2_assertion.xml'))
 
     def test_samlize_token_values(self):
         """Test the SAML generator produces a SAML object.
@@ -1901,6 +1902,8 @@ class SAMLGenerationTests(FederationTests):
 class IdPMetadataGenerationTests(FederationTests):
     """A class for testing Identity Provider Metadata generation."""
 
+    METADATA_URL = '/OS-FEDERATION/saml2/metadata'
+
     def setUp(self):
         super(IdPMetadataGenerationTests, self).setUp()
         self.generator = keystone_idp.MetadataGenerator()
@@ -2011,3 +2014,15 @@ class IdPMetadataGenerationTests(FederationTests):
             idp_entity_id=None)
         self.assertRaises(exception.ValidationError,
                           self.generator.generate_metadata)
+
+    def test_get_metadata_with_no_metadata_file_configured(self):
+        self.get(self.METADATA_URL, expected_status=500)
+
+    def test_get_metadata(self):
+        CONF.federation.idp_metadata_path = XMLDIR + '/idp_saml2_metadata.xml'
+        r = self.get(self.METADATA_URL, response_content_type='text/xml',
+                     expected_status=200)
+        self.assertEqual('text/xml', r.headers.get('Content-Type'))
+
+        reference_file = _load_xml('idp_saml2_metadata.xml')
+        self.assertEqual(reference_file, r.result)

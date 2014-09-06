@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" entityID="k2k.com/v3/OS-FEDERATION/idp" validUntil="2014-08-19T21:24:17.411289Z">
+  <ns0:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <ns0:KeyDescriptor use="signing">
+      <ns1:KeyInfo>
+        <ns1:X509Data>
+          <ns1:X509Certificate>MIIDpTCCAo0CAREwDQYJKoZIhvcNAQEFBQAwgZ4xCjAIBgNVBAUTATUxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTESMBAGA1UEBxMJU3Vubnl2YWxlMRIwEAYDVQQKEwlPcGVuU3RhY2sxETAPBgNVBAsTCEtleXN0b25lMSUwIwYJKoZIhvcNAQkBFhZrZXlzdG9uZUBvcGVuc3RhY2sub3JnMRQwEgYDVQQDEwtTZWxmIFNpZ25lZDAgFw0xMzA3MDkxNjI1MDBaGA8yMDcyMDEwMTE2MjUwMFowgY8xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTESMBAGA1UEBxMJU3Vubnl2YWxlMRIwEAYDVQQKEwlPcGVuU3RhY2sxETAPBgNVBAsTCEtleXN0b25lMSUwIwYJKoZIhvcNAQkBFhZrZXlzdG9uZUBvcGVuc3RhY2sub3JnMREwDwYDVQQDEwhLZXlzdG9uZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMTC6IdNd9Cg1DshcrT5gRVRF36nEmjSA9QWdik7B925PK70U4F6j4pz/5JL7plIo/8rJ4jJz9ccE7m0iA+IuABtEhEwXkG9rj47Oy0J4ZyDGSh2K1Bl78PA9zxXSzysUTSjBKdAh29dPYbJY7cgZJ0uC3AtfVceYiAOIi14SdFeZ0LZLDXBuLaqUmSMrmKwJ9wAMOCb/jbBP9/3Ycd0GYjlvrSBU4Bqb8/NHasyO4DpPN68OAoyD5r5jUtV8QZN03UjIsoux8e0lrL6+MVtJo0OfWvlSrlzS5HKSryY+uqqQEuxtZKpJM2MV85ujvjc8eDSChh2shhDjBem3FIlHKUCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAed9fHgdJrk+gZcO5gsqq6uURfDOuYD66GsSdZw4BqHjYAcnyWq2da+iw7Uxkqu7iLf2k4+Hu3xjDFrce479OwZkSnbXmqB7XspTGOuM8MgT7jB/ypKTOZ6qaZKSWK1Hta995hMrVVlhUNBLh0MPGqoVWYA4d7mblujgH9vp+4mpCciJagHks8K5FBmI+pobB+uFdSYDoRzX9LTpStspK4e3IoY8baILuGcdKimRNBv6ItG4hMrntAe1/nWMJyUu5rDTGf2V/vAaS0S/faJBwQSz1o38QHMTWHNspfwIdX3yMqI9u7/vYlz3rLy5WdBdUgZrZ3/VLmJTiJVZu5Owq4Q==
+</ns1:X509Certificate>
+        </ns1:X509Data>
+      </ns1:KeyInfo>
+    </ns0:KeyDescriptor>
+  </ns0:IDPSSODescriptor>
+  <ns0:Organization>
+    <ns0:OrganizationName xml:lang="en">openstack</ns0:OrganizationName>
+    <ns0:OrganizationDisplayName xml:lang="en">openstack</ns0:OrganizationDisplayName>
+    <ns0:OrganizationURL xml:lang="en">openstack</ns0:OrganizationURL>
+  </ns0:Organization>
+  <ns0:ContactPerson contactType="technical">
+    <ns0:Company>openstack</ns0:Company>
+    <ns0:GivenName>first</ns0:GivenName>
+    <ns0:SurName>lastname</ns0:SurName>
+    <ns0:EmailAddress>admin@example.com</ns0:EmailAddress>
+    <ns0:TelephoneNumber>555-555-5555</ns0:TelephoneNumber>
+  </ns0:ContactPerson>
+</ns0:EntityDescriptor>
