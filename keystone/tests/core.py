@@ -328,8 +328,8 @@ class TestCase(BaseTestCase):
         return copy.copy(self._config_file_list)
 
     def config_overrides(self):
-        certfile = 'examples/pki/certs/signing_cert.pem'
-        keyfile = 'examples/pki/private/signing_key.pem'
+        signing_certfile = 'examples/pki/certs/signing_cert.pem'
+        signing_keyfile = 'examples/pki/private/signing_key.pem'
         # Exercise multiple worker process code paths
         self.config_fixture.config(public_workers=2)
         self.config_fixture.config(admin_workers=2)
@@ -357,7 +357,8 @@ class TestCase(BaseTestCase):
             group='revoke',
             driver='keystone.contrib.revoke.backends.kvs.Revoke')
         self.config_fixture.config(
-            group='signing', certfile=certfile, keyfile=keyfile,
+            group='signing', certfile=signing_certfile,
+            keyfile=signing_keyfile,
             ca_certs='examples/pki/certs/cacert.pem')
         self.config_fixture.config(
             group='token',
@@ -366,7 +367,7 @@ class TestCase(BaseTestCase):
             group='trust',
             driver='keystone.trust.backends.kvs.Trust')
         self.config_fixture.config(
-            group='saml', certfile=certfile, keyfile=keyfile)
+            group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
         self.config_fixture.config(
             default_log_levels=[
                 'amqp=WARN',
