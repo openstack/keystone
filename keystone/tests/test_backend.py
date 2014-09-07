@@ -35,7 +35,6 @@ from keystone.token import provider
 
 CONF = config.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
-TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 NULL_OBJECT = object()
 
 
