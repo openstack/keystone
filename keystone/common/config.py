@@ -244,7 +244,7 @@ FILE_OPTIONS = {
                    default='keystone.token.persistence.backends.sql.Token',
                    help='Token persistence backend driver.'),
         cfg.BoolOpt('caching', default=True,
-                    help='Toggle for token system cacheing. This has no '
+                    help='Toggle for token system caching. This has no '
                          'effect unless global caching is enabled.'),
         cfg.IntOpt('revocation_cache_time', default=3600,
                    help='Time to cache the revocation list and the revocation '
@@ -281,7 +281,7 @@ FILE_OPTIONS = {
                         'expiration before a revocation event may be removed '
                         'from the backend.'),
         cfg.BoolOpt('caching', default=True,
-                    help='Toggle for revocation event cacheing. This has no '
+                    help='Toggle for revocation event caching. This has no '
                          'effect unless global caching is enabled.'),
     ],
     'cache': [
