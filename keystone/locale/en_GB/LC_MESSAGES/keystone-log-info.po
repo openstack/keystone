@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-08-04 06:06+0000\n"
+"POT-Creation-Date: 2014-09-07 06:06+0000\n"
 "PO-Revision-Date: 2014-08-04 01:37+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/projects/p/"
@@ -20,7 +20,16 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: keystone/auth/controllers.py:110
+#: keystone/assignment/core.py:263
+#, python-format
+msgid "Creating the default role %s because it does not exist."
+msgstr ""
+
+#: keystone/auth/controllers.py:64
+msgid "Loading auth-plugins by class-name is deprecated."
+msgstr ""
+
+#: keystone/auth/controllers.py:106
 #, python-format
 msgid ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
@@ -29,20 +38,66 @@ msgstr ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
 "the earliest value."
 
+#: keystone/common/openssl.py:78
+#, python-format
+msgid "Running command - %s"
+msgstr ""
+
+#: keystone/common/wsgi.py:76
+msgid "No bind information present in token"
+msgstr ""
+
+#: keystone/common/wsgi.py:80
+#, python-format
+msgid "Named bind mode %s not in bind information"
+msgstr ""
+
+#: keystone/common/wsgi.py:87
+msgid "Kerberos credentials required and not present"
+msgstr ""
+
+#: keystone/common/wsgi.py:91
+msgid "Kerberos credentials do not match those in bind"
+msgstr ""
+
+#: keystone/common/wsgi.py:95
+msgid "Kerberos bind authentication successful"
+msgstr ""
+
+#: keystone/common/wsgi.py:102
+#, python-format
+msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
+msgstr ""
+
+#: keystone/common/environment/eventlet_server.py:104
+#, python-format
+msgid "Starting %(arg0)s on %(host)s:%(port)s"
+msgstr ""
+
+#: keystone/common/kvs/core.py:138
+#, python-format
+msgid "Adding proxy '%(proxy)s' to KVS %(name)s."
+msgstr ""
+
+#: keystone/common/kvs/core.py:188
+#, python-format
+msgid "Using %(func)s as KVS region %(name)s key_mangler"
+msgstr ""
+
+#: keystone/common/kvs/core.py:200
+#, python-format
+msgid "Using default dogpile sha1_mangle_key as KVS region %s key_mangler"
+msgstr ""
+
+#: keystone/common/kvs/core.py:210
+#, python-format
+msgid "KVS region %s key_mangler disabled."
+msgstr ""
+
 #: keystone/openstack/common/eventlet_backdoor.py:140
 #, python-format
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
 msgstr "Eventlet backdoor listening on %(port)s for process %(pid)d"
-
-#: keystone/openstack/common/lockutils.py:82
-#, python-format
-msgid "Created lock path: %s"
-msgstr "Created lock path: %s"
-
-#: keystone/openstack/common/lockutils.py:251
-#, python-format
-msgid "Failed to remove file %(file)s"
-msgstr "Failed to remove file %(file)s"
 
 #: keystone/openstack/common/service.py:176
 #, python-format
@@ -96,12 +151,12 @@ msgstr "Wait called after thread killed.  Cleaning up."
 msgid "Waiting on %d children to exit"
 msgstr "Waiting on %d children to exit"
 
-#: keystone/token/persistence/backends/sql.py:60
+#: keystone/token/persistence/backends/sql.py:61
 #, python-format
 msgid "Token expiration batch size: %d"
 msgstr ""
 
-#: keystone/token/persistence/backends/sql.py:276
+#: keystone/token/persistence/backends/sql.py:277
 #, python-format
 msgid "Total expired tokens removed: %d"
 msgstr ""
