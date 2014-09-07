@@ -639,6 +639,7 @@ class Manager(manager.Manager):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
         driver.delete_user(entity_id)
+        self.assignment_api.delete_user(user_id)
         self.credential_api.delete_credentials_for_user(user_id)
         self.id_mapping_api.delete_id_mapping(user_id)
 
@@ -694,6 +695,7 @@ class Manager(manager.Manager):
         user_ids = (u['id'] for u in self.list_users_in_group(group_id))
         driver.delete_group(entity_id)
         self.id_mapping_api.delete_id_mapping(group_id)
+        self.assignment_api.delete_group(group_id)
         for uid in user_ids:
             self.emit_invalidate_user_token_persistence(uid)
 

@@ -617,7 +617,8 @@ class Assignment(kvs.Base, assignment.Driver):
         :raises: keystone.exception.RoleNotFound
 
         """
-        raise exception.NotImplemented()
+        # KVS doesn't bother cleaning up role assignments for the user. I
+        # guess it's too difficult to implement or something.
 
     def delete_group(self, group_id):
         """Deletes all assignments for a group.
@@ -625,4 +626,5 @@ class Assignment(kvs.Base, assignment.Driver):
         :raises: keystone.exception.RoleNotFound
 
         """
-        raise exception.NotImplemented()
+        # KVS doesn't bother cleaning up role assignments for the group. I
+        # guess it's too difficult to implement or something.

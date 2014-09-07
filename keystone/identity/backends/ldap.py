@@ -18,7 +18,6 @@ import ldap
 import ldap.filter
 
 from keystone import clean
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
 from keystone.common import models
@@ -34,7 +33,6 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('assignment_api')
 class Identity(identity.Driver):
     def __init__(self, conf=None):
         super(Identity, self).__init__()
@@ -114,7 +112,6 @@ class Identity(identity.Driver):
 
     def delete_user(self, user_id):
         self.user.check_allow_delete()
-        self.assignment_api.delete_user(user_id)
         user = self.user.get(user_id)
         user_dn = user['dn']
         groups = self.group.list_user_groups(user_dn)
