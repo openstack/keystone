@@ -16,12 +16,17 @@ import uuid
 
 from oslo.utils import timeutils
 import six
+from testtools import matchers
 
+from keystone import config
 from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
 from keystone.tests import test_backend
+
+
+CONF = config.CONF
 
 
 class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
@@ -78,12 +83,46 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
 
     def test_delete_group_removes_role_assignments(self):
         # When a group is deleted any role assignments for the group are
-        # removed.
+        # supposed to be removed, but the KVS backend doesn't implement the
+        # funcationality so the assignments are left around.
 
-        # FIXME(blk-u): The KVS backend fails to remove the role assignments,
-        # see bug #1366211.
+        DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
+        MEMBER_ROLE_ID = 'member'
 
-        self._test_delete_group_removes_role_assignments(broken=True)
+        def get_member_assignments():
+            assignments = self.assignment_api.list_role_assignments()
+            return filter(lambda x: x['role_id'] == MEMBER_ROLE_ID,
+                          assignments)
+
+        # Create a group.
+        new_group = {
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'name': self.getUniqueString(prefix='tdgrra')}
+        new_group = self.identity_api.create_group(new_group)
+
+        # Create a project.
+        new_project = {
+            'id': uuid.uuid4().hex,
+            'name': self.getUniqueString(prefix='tdgrra'),
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assignment_api.create_project(new_project['id'], new_project)
+
+        # Assign a role to the group.
+        self.assignment_api.create_grant(
+            group_id=new_group['id'], project_id=new_project['id'],
+            role_id=MEMBER_ROLE_ID)
+
+        new_role_assignments = get_member_assignments()
+
+        # Delete the group.
+        self.identity_api.delete_group(new_group['id'])
+
+        # Check that the role assignment for the group is still there since
+        # kvs doesn't implement cleanup.
+        member_assignments = get_member_assignments()
+
+        self.assertThat(member_assignments,
+                        matchers.Equals(new_role_assignments))
 
 
 class KvsToken(tests.TestCase, test_backend.TokenTests):
