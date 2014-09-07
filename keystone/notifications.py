@@ -28,7 +28,7 @@ from pycadf import credential
 from pycadf import eventfactory
 from pycadf import resource
 
-from keystone.i18n import _
+from keystone.i18n import _, _LE
 from keystone.openstack.common import log
 
 
@@ -173,7 +173,7 @@ def register_event_callback(event, resource_type, callbacks):
 
     for callback in callbacks:
         if not callable(callback):
-            msg = _('Method not callable: %s') % callback
+            msg = _LE('Method not callable: %s') % callback
             LOG.error(msg)
             raise TypeError(msg)
         _SUBSCRIBERS.setdefault(event, {}).setdefault(resource_type, set())
@@ -198,9 +198,9 @@ def notify_event_callbacks(service, resource_type, operation, payload):
                               'resource_type': resource_type,
                               'operation': operation,
                               'payload': payload}
-                LOG.debug(('Invoking callback %(cb_name)s for event '
-                           '%(service)s %(resource_type)s %(operation)s for'
-                           '%(payload)s'), subst_dict)
+                LOG.debug('Invoking callback %(cb_name)s for event '
+                          '%(service)s %(resource_type)s %(operation)s for'
+                          '%(payload)s', subst_dict)
                 cb(service, resource_type, operation, payload)
 
 
@@ -220,7 +220,7 @@ def _get_notifier():
             transport = messaging.get_transport(CONF)
             _notifier = messaging.Notifier(transport, "identity.%s" % host)
         except Exception:
-            LOG.exception("Failed to construct notifier")
+            LOG.exception(_("Failed to construct notifier"))
             _notifier = False
 
     return _notifier
