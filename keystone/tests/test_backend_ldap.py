@@ -793,6 +793,17 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         result_unicode = common_ldap_core.utf8_decode(100)
         self.assertEqual(u'100', result_unicode)
 
+    def test_delete_group_removes_role_assignments(self):
+        # When a group is deleted any role assignments for the group are
+        # removed.
+
+        # FIXME(blk-u): The LDAP backend fails to remove the role assignments,
+        # see bug #1366211.
+        # Also, the SQL backend fails to remove role assignments because it's
+        # passed the local ID rather than the global ID.
+
+        self._test_delete_group_removes_role_assignments(broken=True)
+
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
