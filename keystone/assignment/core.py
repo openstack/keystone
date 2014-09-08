@@ -1089,9 +1089,9 @@ class Driver(object):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
-    # domain management functions for backends that only allow a single
-    # domain.  currently, this is only LDAP, but might be used by PAM or other
-    # backends as well.  This is used by both identity and assignment drivers.
+    # Domain management functions for backends that only allow a single
+    # domain.  Currently, this is only LDAP, but might be used by other
+    # backends in the future.
     def _set_default_domain(self, ref):
         """If the domain ID has not been set, set it to the default."""
         if isinstance(ref, dict):
