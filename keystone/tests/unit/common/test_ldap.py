@@ -11,7 +11,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import ldap
+import uuid
+
+import ldap.dn
 import mock
 from testtools import matchers
 
@@ -391,3 +393,45 @@ class LDAPPagedResultsTest(tests.TestCase):
         conn._paged_search_s('dc=example,dc=test',
                              ldap.SCOPE_SUBTREE,
                              'objectclass=*')
+
+
+class CommonLdapTestCase(tests.BaseTestCase):
+    """These test cases call functions in keystone.common.ldap."""
+
+    def test_binary_attribute_values(self):
+        result = [(
+            'cn=junk,dc=example,dc=com',
+            {
+                'cn': ['junk'],
+                'sn': [uuid.uuid4().hex],
+                'mail': [uuid.uuid4().hex],
+                'binary_attr': ['\x00\xFF\x00\xFF']
+            }
+        ), ]
+        py_result = ks_ldap.convert_ldap_result(result)
+        # The attribute containing the binary value should
+        # not be present in the converted result.
+        self.assertNotIn('binary_attr', py_result[0][1])
+
+    def test_utf8_conversion(self):
+        value_unicode = u'fäké1'
+        value_utf8 = value_unicode.encode('utf-8')
+
+        result_utf8 = ks_ldap.utf8_encode(value_unicode)
+        self.assertEqual(value_utf8, result_utf8)
+
+        result_utf8 = ks_ldap.utf8_encode(value_utf8)
+        self.assertEqual(value_utf8, result_utf8)
+
+        result_unicode = ks_ldap.utf8_decode(value_utf8)
+        self.assertEqual(value_unicode, result_unicode)
+
+        result_unicode = ks_ldap.utf8_decode(value_unicode)
+        self.assertEqual(value_unicode, result_unicode)
+
+        self.assertRaises(TypeError,
+                          ks_ldap.utf8_encode,
+                          100)
+
+        result_unicode = ks_ldap.utf8_decode(100)
+        self.assertEqual(u'100', result_unicode)
