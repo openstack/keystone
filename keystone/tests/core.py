@@ -232,6 +232,11 @@ class UnexpectedExit(Exception):
     pass
 
 
+class BadLog(Exception):
+    """Raised on invalid call to logging (parameter mismatch)."""
+    pass
+
+
 class TestClient(object):
     def __init__(self, app=None, token=None):
         self.app = app
@@ -440,6 +445,8 @@ class TestCase(BaseTestCase):
 
         self.exit_patch = self.useFixture(mockpatch.PatchObject(sys, 'exit'))
         self.exit_patch.mock.side_effect = UnexpectedExit
+        self.useFixture(mockpatch.PatchObject(logging.Handler, 'handleError',
+                                              side_effect=BadLog))
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config(self.config_files())
 
