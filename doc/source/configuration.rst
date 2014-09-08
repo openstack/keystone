@@ -969,6 +969,14 @@ Revocation Events
 
    extensions/revoke.rst
 
+Endpoint Policy
+---------------
+
+.. toctree::
+   :maxdepth: 1
+
+   extensions/endpoint_policy.rst
+
 .. _`prepare your deployment`:
 
 Preparing your deployment
