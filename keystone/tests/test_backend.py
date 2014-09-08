@@ -552,6 +552,46 @@ class IdentityTests(object):
              'role_id': 'admin'},
             assignment_list)
 
+    def test_list_group_role_assignment(self):
+        # When a group role assignment is created and the role assignments are
+        # listed then the group role assignment is included in the list.
+
+        MEMBER_ROLE_ID = 'member'
+
+        def get_member_assignments():
+            assignments = self.assignment_api.list_role_assignments()
+            return filter(lambda x: x['role_id'] == MEMBER_ROLE_ID,
+                          assignments)
+
+        orig_member_assignments = get_member_assignments()
+
+        # Create a group.
+        new_group = {
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'name': self.getUniqueString(prefix='tlgra')}
+        new_group = self.identity_api.create_group(new_group)
+
+        # Create a project.
+        new_project = {
+            'id': uuid.uuid4().hex,
+            'name': self.getUniqueString(prefix='tlgra'),
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assignment_api.create_project(new_project['id'], new_project)
+
+        # Assign a role to the group.
+        self.assignment_api.create_grant(
+            group_id=new_group['id'], project_id=new_project['id'],
+            role_id=MEMBER_ROLE_ID)
+
+        # List role assignments
+        new_member_assignments = get_member_assignments()
+
+        expected_member_assignments = orig_member_assignments + [{
+            'group_id': new_group['id'], 'project_id': new_project['id'],
+            'role_id': MEMBER_ROLE_ID}]
+        self.assertThat(new_member_assignments,
+                        matchers.Equals(expected_member_assignments))
+
     def test_list_role_assignments_bad_role(self):
         assignment_list = self.assignment_api.list_role_assignments_for_role(
             role_id=uuid.uuid4().hex)
