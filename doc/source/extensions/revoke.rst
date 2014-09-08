@@ -29,7 +29,9 @@ Enabling the Revocation Extension
     [revoke]
     driver = keystone.contrib.revoke.backends.sql.Revoke
 
-2. Add the required ``filter`` to the ``pipeline`` in ``keystone-paste.ini``::
+2. Add the required ``filter`` to the ``pipeline`` in ``keystone-paste.ini``.
+   This must be added after ``json_body`` and before the last entry in the
+   pipeline. For example::
 
     [filter:revoke_extension]
     paste.filter_factory = keystone.contrib.revoke.routers:RevokeExtension.factory

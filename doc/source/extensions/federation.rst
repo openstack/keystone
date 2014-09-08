@@ -39,7 +39,8 @@ To enable the federation extension:
     always set, even as an empty value.
 
 3. Add the ``federation_extension`` middleware to the ``api_v3`` pipeline in
-   ``keystone-paste.ini``. For example::
+   ``keystone-paste.ini``. This must be added after ``json_body`` and before
+   the last entry in the pipeline. For example::
 
        [pipeline:api_v3]
        pipeline = sizelimit url_normalize build_auth_context token_auth admin_token_auth xml_body_v3 json_body ec2_extension_v3 s3_extension simple_cert_extension revoke_extension federation_extension service_v3
