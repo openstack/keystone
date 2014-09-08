@@ -162,6 +162,10 @@ class DnCompareTest(tests.BaseTestCase):
         dn = 'ou=OpenStack,dc=example.com'
         self.assertTrue(ks_ldap.dn_startswith(descendant, dn))
 
+        descendant = 'uid=12345,ou=Users,dc=example,dc=com'
+        dn = 'ou=Users,dc=example,dc=com'
+        self.assertTrue(ks_ldap.dn_startswith(descendant, dn))
+
     def test_startswith_parsed_dns(self):
         # dn_startswith also accepts parsed DNs.
         descendant = ldap.dn.str2dn('cn=Babs Jansen,ou=OpenStack')
