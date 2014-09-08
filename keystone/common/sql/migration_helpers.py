@@ -62,7 +62,7 @@ def get_constraints_names(table, column_name):
 
 #  remove_constraints and add_constraints both accept a list of dictionaries
 #  that contain:
-#  {'table': a sqlalchemy table. The constraint is added to to dropped from
+#  {'table': a sqlalchemy table. The constraint is added to dropped from
 #           this table.
 #  'fk_column': the name of a column on the above table,  The constraint
 #               is added to or dropped from this column

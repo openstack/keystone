@@ -44,7 +44,7 @@ class IDGenerator(object):
 
         :param dict mapping: The items to be hashed.
 
-        The ID must be reproduceable and no more than 64 chars in length.
+        The ID must be reproducible and no more than 64 chars in length.
         The ID generated should be independent of the order of the items
         in the mapping dict.
 

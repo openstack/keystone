@@ -30,7 +30,7 @@ the only backend for the create and validate schemas. This is just an
 example to show how a backend can be used to construct a schema. In
 Keystone, schemas are built according to the Identity API and the backends
 available in Keystone. This example does not mean that all schema in
-Keystone were strictly based of the SQL backends.
+Keystone were strictly based on the SQL backends.
 
 class Entity(sql.ModelBase):
     __tablename__ = 'entity'
