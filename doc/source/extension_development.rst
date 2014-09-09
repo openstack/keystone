@@ -117,7 +117,7 @@ import what is necessary from the ``core.py`` module.
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
    from keystone.contrib.example.core import *
 
@@ -136,7 +136,7 @@ using the ``Manager``. A good practice is to call the dependency
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
     @dependency.provider('example_api')
     class Manager(manager.Manager):
@@ -150,7 +150,7 @@ the ``wsgi.ExtensionRouter``.
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
     from keystone.common import wsgi
     from keystone.contrib.example import controllers
@@ -177,7 +177,7 @@ the dependency injections required. ``Controllers`` are extending the
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
     @dependency.requires('identity_api', 'example_api')
     class ExampleV3Controller(controller.V3Controller):
@@ -200,7 +200,7 @@ documentation.
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
     class ExampleSQLBackend(sql.ModelBase, sql.DictBase):
         """example table description."""
@@ -223,9 +223,11 @@ repository.
 In order to create the Extension tables and their attributes, a ``db_sync``
 command must be executed.
 
-Example::
+Example:
 
-     ./bin/keystone-manage db_sync --extension example
+.. code-block:: bash
+
+     $ ./bin/keystone-manage db_sync --extension example
 
 Event Callbacks
 ---------------
@@ -252,7 +254,7 @@ class must also be a dependency provider.
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
     # Since this is a dependency provider. Any code module using this or any
     # other dependency provider (uses the dependency.provider decorator)
@@ -295,7 +297,7 @@ Current callback operations:
 
 Example:
 
-.. code:: python
+.. code-block:: python
 
       def project_deleted_callback(self, service, resource_type, operation,
                                    payload):

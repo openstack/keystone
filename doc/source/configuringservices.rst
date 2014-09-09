@@ -84,20 +84,25 @@ then assign those service users an Admin role on the service tenant. This
 allows them to validate tokens - and authenticate and authorize other user
 requests.
 
-Create a tenant for the services, typically named 'service' (however, the name can be whatever you choose)::
+Create a tenant for the services, typically named 'service' (however, the
+name can be whatever you choose):
 
-    keystone tenant-create --name=service
+.. code-block:: bash
+
+    $ keystone tenant-create --name=service
 
 This returns a UUID of the tenant - keep that, you'll need it when creating
 the users and specifying the roles.
 
 Create service users for nova, glance, swift, and neutron (or whatever
-subset is relevant to your deployment)::
+subset is relevant to your deployment):
 
-    keystone user-create --name=nova \
-                         --pass=Sekr3tPass \
-                         --tenant_id=[the uuid of the tenant] \
-                         --email=nova@nothing.com
+.. code-block:: bash
+
+    $ keystone user-create --name=nova \
+                           --pass=Sekr3tPass \
+                           --tenant_id=[the uuid of the tenant] \
+                           --email=nova@nothing.com
 
 Repeat this for each service you want to enable. Email is a required field
 in Keystone right now, but not used in relation to the service accounts. Each
@@ -106,17 +111,21 @@ the Admin role.
 
 For adding the Admin role to the service accounts, you'll need to know the UUID
 of the role you want to add. If you don't have them handy, you can look it
-up quickly with::
+up quickly with:
 
-    keystone role-list
+.. code-block:: bash
+
+    $ keystone role-list
 
 Once you have it, assign the service users to the Admin role. This is all
 assuming that you've already created the basic roles and settings as described
 in :doc:`configuration`:
 
-    keystone user-role-add --tenant_id=[uuid of the service tenant] \
-                           --user=[uuid of the service account] \
-                           --role=[uuid of the Admin role]
+.. code-block:: bash
+
+    $ keystone user-role-add --tenant_id=[uuid of the service tenant] \
+                             --user=[uuid of the service account] \
+                             --role=[uuid of the Admin role]
 
 Defining Services
 -----------------
@@ -134,23 +143,25 @@ template, as described above - in which case everything is detailed in that
 template.
 
 The other is a SQL backend for the catalog service, in which case after
-Keystone is online, you need to add the services to the catalog::
+Keystone is online, you need to add the services to the catalog:
 
-    keystone service-create --name=nova \
-                                   --type=compute \
-                                   --description="Nova Compute Service"
-    keystone service-create --name=ec2 \
-                                   --type=ec2 \
-                                   --description="EC2 Compatibility Layer"
-    keystone service-create --name=glance \
-                                   --type=image \
-                                   --description="Glance Image Service"
-    keystone service-create --name=keystone \
-                                   --type=identity \
-                                   --description="Keystone Identity Service"
-    keystone service-create --name=swift \
-                                   --type=object-store \
-                                   --description="Swift Service"
+.. code-block:: bash
+
+    $ keystone service-create --name=nova \
+                                     --type=compute \
+                                     --description="Nova Compute Service"
+    $ keystone service-create --name=ec2 \
+                                     --type=ec2 \
+                                     --description="EC2 Compatibility Layer"
+    $ keystone service-create --name=glance \
+                                     --type=image \
+                                     --description="Glance Image Service"
+    $ keystone service-create --name=keystone \
+                                     --type=identity \
+                                     --description="Keystone Identity Service"
+    $ keystone service-create --name=swift \
+                                     --type=object-store \
+                                     --description="Swift Service"
 
 
 Setting Up Middleware
