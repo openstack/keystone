@@ -92,7 +92,7 @@ class OAuth1Extension(wsgi.V3ExtensionRouter):
                 build_parameter_relation(parameter_name='consumer_id'),
             })
 
-        # user accesss token crud
+        # user access token crud
         self._add_resource(
             mapper, access_token_controller,
             path='/users/{user_id}/OS-OAUTH1/access_tokens',

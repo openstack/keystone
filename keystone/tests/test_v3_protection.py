@@ -436,7 +436,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
                                          user_id=self.just_a_user['id'],
                                          domain_id=self.domainA['id'])
 
-        # Create a assign roles to the project
+        # Create and assign roles to the project
         self.project = self.new_project_ref(domain_id=self.domainA['id'])
         self.assignment_api.create_project(self.project['id'], self.project)
         self.assignment_api.create_grant(self.admin_role['id'],

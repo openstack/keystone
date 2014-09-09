@@ -49,7 +49,7 @@ class ExceptionTestCase(tests.TestCase):
         """
         for cls in [x for x in exception.__dict__.values() if callable(x)]:
             if cls is not exception.Error and isinstance(cls, exception.Error):
-                self.assertValidJsonRendering(cls(message='Overriden.'))
+                self.assertValidJsonRendering(cls(message='Overridden.'))
 
     def test_validation_error(self):
         target = uuid.uuid4().hex

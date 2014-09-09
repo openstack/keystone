@@ -236,7 +236,7 @@ class Token(token.persistence.Driver):
     def _expiry_range_strategy(self, dialect):
         """Choose a token range expiration strategy
 
-        Based on the DB dialect, select a expiry range callable that is
+        Based on the DB dialect, select an expiry range callable that is
         appropriate.
         """
 
