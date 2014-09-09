@@ -303,8 +303,6 @@ class CadfNotificationWrapper(object):
             """Always send a notification."""
 
             initiator = _get_request_audit_info(context, user_id)
-            _send_audit_notification(self.action, initiator,
-                                     taxonomy.OUTCOME_PENDING)
             try:
                 result = f(wrapped_self, context, user_id, *args, **kwargs)
             except Exception:
