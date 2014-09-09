@@ -14,9 +14,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-==================================
-Enabling Endpoint Filter Extension
-==================================
+======================================
+Enabling the Endpoint Filter Extension
+======================================
 
 To enable the endpoint filter extension:
 
@@ -30,7 +30,7 @@ To enable the endpoint filter extension:
    ``keystone-paste.ini``. For example::
 
     [pipeline:api_v3]
-    pipeline = access_log sizelimit url_normalize token_auth admin_token_auth xml_body json_body ec2_extension s3_extension endpoint_filter_extension service_v3
+    pipeline = sizelimit url_normalize build_auth_context token_auth admin_token_auth xml_body_v3 json_body ec2_extension_v3 s3_extension simple_cert_extension revoke_extension endpoint_filter_extension service_v3
 
 3. Create the endpoint filter extension tables if using the provided sql backend. For example::
 
