@@ -224,12 +224,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                           project_id=self.tenant_bar['id'],
                           role_id='member')
 
-    def test_delete_user_grant_no_user(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_delete_group_grant_no_group(self):
-        self.skipTest('Blocked by bug 1101287')
-
     def test_get_and_remove_role_grant_by_group_and_domain(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
@@ -384,33 +378,33 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertEqual(3, len(user_projects))
 
     def test_create_duplicate_user_name_in_different_domains(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_create_duplicate_project_name_in_different_domains(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_create_duplicate_group_name_in_different_domains(self):
         self.skipTest(
             'N/A: LDAP does not support multiple domains')
 
     def test_move_user_between_domains(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_move_user_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_move_group_between_domains(self):
         self.skipTest(
             'N/A: LDAP does not support multiple domains')
 
     def test_move_group_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_move_project_between_domains(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Blocked by bug 1101276')
+        self.skipTest('Domains are read-only against LDAP')
 
     def test_get_roles_for_user_and_domain(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
@@ -485,9 +479,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
         self.assertNotIn(dumb_id, user_ids)
-
-    def test_list_role_assignments_bad_role(self):
-        self.skipTest('Blocked by bug 1221805')
 
     def test_multi_group_grants_on_project_domain(self):
         self.skipTest('Blocked by bug 1101287')
@@ -669,12 +660,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         """A user's name cannot be changed through the LDAP driver."""
         self.assertRaises(exception.Conflict,
                           super(BaseLDAPIdentity, self).test_update_user_name)
-
-    def test_attribute_update(self):
-        self.skipTest("Blank value in a required field is an error in LDAP")
-
-    def test_arbitrary_attributes_are_returned_from_create_user(self):
-        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
 
     def test_arbitrary_attributes_are_returned_from_get_user(self):
         self.skipTest("Using arbitrary attributes doesn't work under LDAP")
@@ -1633,12 +1618,6 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.skipTest(
             'N/A: LDAP does not support multiple domains')
 
-    def test_create_grant_no_user(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_create_grant_no_group(self):
-        self.skipTest('Blocked by bug 1101287')
-
     def test_get_default_domain_by_name(self):
         domain = self._get_domain_fixture()
 
@@ -1915,23 +1894,6 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         domains = self.assignment_api.list_domains()
 
         self.assertEqual(orig_default_domain_id, domains[0]['id'])
-
-    def test_project_filter(self):
-        self.skipTest(
-            'N/A: Not part of SQL backend')
-
-    def test_role_filter(self):
-        self.skipTest(
-            'N/A: Not part of SQL backend')
-
-    def test_add_role_grant_to_user_and_project_404(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_get_role_grants_for_user_and_project_404(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_list_projects_for_user_with_grants(self):
-        self.skipTest('Blocked by bug 1221805')
 
     def test_list_group_role_assignment(self):
         # When a group role assignment is created and the role assignments are
@@ -2369,27 +2331,6 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.assertFalse(conf.identity.domain_specific_drivers_enabled)
         # ..and make sure a domain-specific options is also set
         self.assertEqual('fake://memory1', conf.ldap.url)
-
-    def test_add_role_grant_to_user_and_project_404(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_get_role_grants_for_user_and_project_404(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_list_projects_for_user_with_grants(self):
-        self.skipTest('Blocked by bug 1221805')
-
-    def test_get_roles_for_user_and_project_user_group_same_id(self):
-        self.skipTest('N/A: We never generate the same ID for a user and '
-                      'group in our mapping table')
-
-    def test_user_id_comma(self):
-        self.skipTest('Only valid if it is guaranteed to be taling to '
-                      'the fakeldap backend')
-
-    def test_user_id_comma_grants(self):
-        self.skipTest('Only valid if it is guaranteed to be taling to '
-                      'the fakeldap backend')
 
     def test_list_group_role_assignment(self):
         # When a group role assignment is created and the role assignments are
