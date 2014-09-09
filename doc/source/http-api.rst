@@ -214,3 +214,14 @@ Note a few key differences when compared to the v2.0 API:
 - In v3, your token is returned to you in an ``X-Subject-Token`` header,
   instead of as part of the request body. You should still authenticate
   yourself to other services using the ``X-Auth-Token`` header.
+
+
+HTTP/1.1 Chunked Encoding
+=========================
+.. WARNING::
+
+    Running Keystone under HTTPD in the recommended (and tested) configuration does not support
+    the use of ``Transfer-Encoding: chunked``. This is due to a limitation with the WSGI spec
+    and the implementation used by ``mod_wsgi``. Support for chunked encoding under ``eventlet``
+    may or may not continue. It is recommended that all clients assume Keystone will not support
+    ``Transfer-Encoding: chunked``.

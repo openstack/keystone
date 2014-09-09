@@ -19,6 +19,13 @@
 Running Keystone in HTTPD
 =========================
 
+.. WARNING::
+
+    Running Keystone under HTTPD in the recommended (and tested) configuration does not support
+    the use of ``Transfer-Encoding: chunked``. This is due to a limitation with the WSGI spec
+    and the implementation used by ``mod_wsgi``. It is recommended that all clients assume Keystone
+    will not support ``Transfer-Encoding: chunked``.
+
 
 SSL
 ===
