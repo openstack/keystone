@@ -30,7 +30,7 @@ column.
 
 from oslo.utils import strutils
 import sqlalchemy as sql
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 
 from keystone.openstack.common import jsonutils
 
@@ -105,46 +105,51 @@ def upgrade(migrate_engine):
 def _downgrade_endpoint_table_with_copy(meta, migrate_engine):
     # Used with databases that don't support dropping a column (e.g., sqlite).
 
-    maker = sessionmaker(bind=migrate_engine)
-    session = maker()
+    session = Session(bind=migrate_engine)
+    with session.transaction:
 
-    session.execute('ALTER TABLE endpoint RENAME TO orig_endpoint;')
+        session.execute('ALTER TABLE endpoint RENAME TO orig_endpoint;')
 
-    # Need to load the metadata for the service table since it's used as
-    # foreign key.
-    sql.Table('service', meta, autoload=True)
+        # Need to load the metadata for the service table since it's used as
+        # foreign key.
+        sql.Table(
+            'service', meta, autoload=True,
+            autoload_with=session.connection())
 
-    endpoint_table = sql.Table(
-        'endpoint',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('legacy_endpoint_id', sql.String(64)),
-        sql.Column('interface', sql.String(8), nullable=False),
-        sql.Column('region', sql.String(255)),
-        sql.Column('service_id', sql.String(64), sql.ForeignKey('service.id'),
-                   nullable=False),
-        sql.Column('url', sql.Text(), nullable=False),
-        sql.Column('extra', sql.Text()))
-    endpoint_table.create(migrate_engine, checkfirst=True)
+        endpoint_table = sql.Table(
+            'endpoint',
+            meta,
+            sql.Column('id', sql.String(64), primary_key=True),
+            sql.Column('legacy_endpoint_id', sql.String(64)),
+            sql.Column('interface', sql.String(8), nullable=False),
+            sql.Column('region', sql.String(255)),
+            sql.Column(
+                'service_id', sql.String(64),
+                sql.ForeignKey('service.id'),
+                nullable=False),
+            sql.Column('url', sql.Text(), nullable=False),
+            sql.Column('extra', sql.Text()))
+        endpoint_table.create(migrate_engine, checkfirst=True)
 
-    orig_endpoint_table = sql.Table('orig_endpoint', meta, autoload=True)
-    for endpoint in session.query(orig_endpoint_table):
-        new_values = {
-            'id': endpoint.id,
-            'legacy_endpoint_id': endpoint.legacy_endpoint_id,
-            'interface': endpoint.interface,
-            'region': endpoint.region,
-            'service_id': endpoint.service_id,
-            'url': endpoint.url,
-            'extra': endpoint.extra,
-        }
-        session.execute('insert into endpoint (id, legacy_endpoint_id, '
-                        'interface, region, service_id, url, extra) '
-                        'values ( :id, :legacy_endpoint_id, :interface, '
-                        ':region, :service_id, :url, :extra);',
-                        new_values)
-    session.execute('drop table orig_endpoint;')
-    session.close()
+        orig_endpoint_table = sql.Table(
+            'orig_endpoint', meta, autoload=True,
+            autoload_with=session.connection())
+        for endpoint in session.query(orig_endpoint_table):
+            new_values = {
+                'id': endpoint.id,
+                'legacy_endpoint_id': endpoint.legacy_endpoint_id,
+                'interface': endpoint.interface,
+                'region': endpoint.region,
+                'service_id': endpoint.service_id,
+                'url': endpoint.url,
+                'extra': endpoint.extra,
+            }
+            session.execute('insert into endpoint (id, legacy_endpoint_id, '
+                            'interface, region, service_id, url, extra) '
+                            'values ( :id, :legacy_endpoint_id, :interface, '
+                            ':region, :service_id, :url, :extra);',
+                            new_values)
+        session.execute('drop table orig_endpoint;')
 
 
 def downgrade(migrate_engine):
