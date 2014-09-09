@@ -50,5 +50,5 @@ def downgrade(migrate_engine):
                    {'table': access_token_table,
                     'fk_column': 'consumer_id',
                     'ref_column': consumer_table.c.id}]
-    if meta.bind != 'sqlite':
+    if migrate_engine.name != 'sqlite':
         migration_helpers.remove_constraints(constraints)
