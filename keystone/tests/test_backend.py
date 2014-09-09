@@ -2014,6 +2014,7 @@ class IdentityTests(object):
         self.assertIn(self.tenant_mtu['id'], project_ids)
         self.assertIn(self.tenant_service['id'], project_ids)
 
+    @tests.skip_if_no_multiple_domains_support
     def test_list_projects_for_alternate_domain(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assignment_api.create_domain(domain1['id'], domain1)
@@ -2480,6 +2481,7 @@ class IdentityTests(object):
                           group1['id'],
                           group1)
 
+    @tests.skip_if_no_multiple_domains_support
     def test_project_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
@@ -2559,6 +2561,7 @@ class IdentityTests(object):
                           self.assignment_api.get_domain,
                           domain['id'])
 
+    @tests.skip_if_no_multiple_domains_support
     def test_create_domain_case_sensitivity(self):
         # create a ref with a lowercase name
         ref = {
@@ -2694,6 +2697,7 @@ class IdentityTests(object):
         self.assertEqual(3, len(user_projects))
 
     @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_no_multiple_domains_support
     def test_domain_rename_invalidates_get_domain_by_name_cache(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
@@ -2763,6 +2767,7 @@ class IdentityTests(object):
                           domain_id)
 
     @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_no_multiple_domains_support
     def test_project_rename_invalidates_get_project_by_name_cache(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
@@ -2782,6 +2787,7 @@ class IdentityTests(object):
                           domain['id'])
 
     @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_no_multiple_domains_support
     def test_cache_layer_project_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
@@ -2936,6 +2942,7 @@ class IdentityTests(object):
             group_id=uuid.uuid4().hex,
             project_id=self.tenant_bar['id'])
 
+    @tests.skip_if_no_multiple_domains_support
     def test_get_default_domain_by_name(self):
         domain_name = 'default'
 

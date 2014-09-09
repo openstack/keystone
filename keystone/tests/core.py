@@ -215,6 +215,19 @@ def skip_if_cache_disabled(*sections):
     return wrapper
 
 
+def skip_if_no_multiple_domains_support(f):
+    """This decorator is used to skip a test if an identity driver
+    does not support multiple domains.
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        test_obj = args[0]
+        if not test_obj.identity_api.multiple_domains_supported:
+                raise testcase.TestSkipped('No multiple domains support')
+        return f(*args, **kwargs)
+    return wrapper
+
+
 class UnexpectedExit(Exception):
     pass
 
