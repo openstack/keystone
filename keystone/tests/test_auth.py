@@ -1121,6 +1121,30 @@ class AuthWithTrust(AuthTest):
             new_trust['id'],
             validate_response['access']['trust']['id'])
 
+    def disable_user(self, user):
+        user['enabled'] = False
+        self.identity_api.update_user(user['id'], user)
+
+    def test_trust_get_token_fails_if_trustor_disabled(self):
+        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
+        request_body = self.build_v2_token_request(self.trustee['name'],
+                                                   self.trustee['password'],
+                                                   new_trust)
+        self.disable_user(self.trustor)
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, {}, request_body)
+
+    def test_trust_get_token_fails_if_trustee_disabled(self):
+        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
+        request_body = self.build_v2_token_request(self.trustee['name'],
+                                                   self.trustee['password'],
+                                                   new_trust)
+        self.disable_user(self.trustee)
+        self.assertRaises(
+            exception.Unauthorized,
+            self.controller.authenticate, {}, request_body)
+
 
 class TokenExpirationTest(AuthTest):
 

@@ -199,16 +199,16 @@ class Auth(controller.V2Controller):
             if ('expires' in trust_ref) and (trust_ref['expires']):
                 expiry = trust_ref['expires']
                 if expiry < timeutils.parse_isotime(timeutils.isotime()):
-                    raise exception.Forbidden()()
+                    raise exception.Forbidden()
             user_id = trust_ref['trustor_user_id']
             trustor_user_ref = self.identity_api.get_user(
                 trust_ref['trustor_user_id'])
             if not trustor_user_ref['enabled']:
-                raise exception.Forbidden()()
+                raise exception.Forbidden()
             trustee_user_ref = self.identity_api.get_user(
                 trust_ref['trustee_user_id'])
             if not trustee_user_ref['enabled']:
-                raise exception.Forbidden()()
+                raise exception.Forbidden()
 
             if trust_ref['impersonation'] is True:
                 current_user_ref = trustor_user_ref
