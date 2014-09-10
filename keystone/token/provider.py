@@ -467,7 +467,7 @@ class Manager(manager.Manager):
                 revoke_by_expires = True
 
             if audit_chain_id is None and revoke_chain:
-                LOG.debug('Received token with no audit_chain_id.', token_id)
+                LOG.debug('Received token with no audit_chain_id.')
                 revoke_by_expires = True
 
             if revoke_by_expires:
