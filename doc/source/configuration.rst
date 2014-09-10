@@ -147,6 +147,13 @@ configuration file.
     users and groups) from one backend to another, nor group membership across
     backend boundaries.
 
+.. NOTE::
+
+    Although Keystone supports multiple LDAP backends via domain specific
+    configuration files, it currently only supports one SQL backend. This
+    could be either the default driver or a single domain-specific backend,
+    perhaps for storing service users in a predominantly LDAP installation.
+
 Due to the need for user and group IDs to be unique across an OpenStack
 installation and for Keystone to be able to deduce which domain and backend to
 use from just a user or group ID, it dynamically builds a persistent identity

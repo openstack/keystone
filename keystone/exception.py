@@ -398,6 +398,12 @@ class ConfigFileNotFound(UnexpectedError):
                              "could not be found.")
 
 
+class MultipleSQLDriversInConfig(UnexpectedError):
+    message_format = _('The Keystone domain configuration file '
+                       '%(config_file)s defines an additional SQL driver - '
+                       'only one is permitted.')
+
+
 class MigrationNotProvided(Exception):
     def __init__(self, mod_name, path):
         super(MigrationNotProvided, self).__init__(_(
