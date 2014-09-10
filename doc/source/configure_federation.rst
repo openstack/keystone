@@ -15,13 +15,17 @@
 Configuring Keystone for Federation
 ===================================
 
+-----------
 Definitions
 -----------
-
 * `Service Provider (SP)`: provides a service to an end-user.
 * `Identity Provider (IdP)`: service that stores information about users and
   groups.
 * `SAML assertion`: contains information about a user as provided by an IdP.
+
+-----------------------------------
+Keystone as a Service Provider (SP)
+-----------------------------------
 
 Prerequisites
 -------------
@@ -281,3 +285,95 @@ Example cURL
 .. code-block:: bash
 
     $ curl -X POST -H "Content-Type: application/json" -d '{"auth":{"identity":{"methods":["saml2"],"saml2":{"id":"<unscoped_token_id>"}},"scope":{"project":{"domain": {"name": "Default"},"name":"service"}}}}' -D - http://localhost:5000/v3/auth/tokens
+
+--------------------------------------
+Keystone as an Identity Provider (IdP)
+--------------------------------------
+
+Configuration Options
+---------------------
+
+There are certain settings in ``keystone.conf`` that must be setup, prior to
+attempting to federate multiple Keystone deployments.
+
+Within ``keystone.conf``, assign values to the ``[saml]`` related fields, for
+example:
+
+.. code-block:: ini
+
+    [saml]
+    certfile=/etc/keystone/ssl/certs/ca.pem
+    keyfile=/etc/keystone/ssl/private/cakey.pem
+    idp_entity_id=https://keystone.example.com/v3/OS-FEDERATION/saml2/idp
+    idp_sso_endpoint=https://keystone.example.com/v3/OS-FEDERATION/saml2/sso
+    idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
+
+Though not necessary, the follow Organization configuration options should
+also be setup. It is recommended that these values be URL safe.
+
+.. code-block:: ini
+
+    idp_organization_name=example_company
+    idp_organization_display_name=Example Corp.
+    idp_organization_url=example.com
+
+As with the Organizaion options, the Contact options, are not necessary, but
+it's advisable to set these values too.
+
+.. code-block:: ini
+
+    idp_contact_company=example_company
+    idp_contact_name=John
+    idp_contact_surname=Smith
+    idp_contact_email=jsmith@example.com
+    idp_contact_telephone=555-55-5555
+    idp_contact_type=technical
+
+Generate Metadata
+-----------------
+
+In order to create a trust between the IdP and SP, metadata must be exchanged.
+To create metadata for your Keystone IdP, run the ``keystone-manage`` command
+and pipe the output to a file. For example:
+
+.. code-block:: bash
+
+    $ keystone-manage saml_idp_metadata > /etc/keystone/saml2_idp_metadata.xml
+
+.. NOTE::
+    The file location should match the value of the configuration option
+    ``idp_metadata_path`` that was assigned in the previous section.
+
+Create a region for the Service Provider (SP)
+---------------------------------------------
+
+Create a new region for the service provider, in this example, we are creating
+a new region with an ID of ``BETA``, and URL of
+``https://beta.com/Shibboleth.sso/SAML2/POST``. This URL will be used when
+creating a SAML assertion for ``BETA``, and signed by the current Keystone IdP.
+
+.. code-block:: bash
+
+    $ curl -s -X PUT \
+      -H "X-Auth-Token: $OS_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"region": {"url": "http://beta.com/Shibboleth.sso/SAML2/POST"}}' \
+      http://localhost:5000/v3/regions/BETA | python -mjson.tool
+
+Testing it all out
+------------------
+
+Lastly, if a scoped token and a Service Provider region are presented to
+Keystone, the result will be a full SAML Assertion, signed by the IdP
+Keystone, specifically intended for the Service Provider Keystone.
+
+.. code-block:: bash
+
+    $ curl -s -X POST \
+      -H "Content-Type: application/json" \
+      -d '{"auth": {"scope": {"region": {"id": "BETA"}}, "identity": {"token": {"id": "d793d935b9c343f783955cf39ee7dc3c"}, "methods": ["token"]}}}' \
+      http://localhost:5000/v3/auth/OS-FEDERATION/saml2
+
+At this point the SAML Assertion can be sent to the Service Provider Keystone,
+and a valid OpenStack token, issued by a Service Provider Keystone, will be
+returned.
