@@ -152,6 +152,14 @@ class AuthBadRequests(AuthTest):
             self.controller._authenticate_local,
             None, {})
 
+    def test_empty_username_and_userid_in_auth(self):
+        """Verify that empty username and userID raises ValidationError."""
+        self.assertRaises(
+            exception.ValidationError,
+            self.controller._authenticate_local,
+            None, {'passwordCredentials': {'password': 'abc',
+                                           'userId': '', 'username': ''}})
+
     def test_authenticate_blank_request_body(self):
         """Verify sending empty json dict raises the right exception."""
         self.assertRaises(exception.ValidationError,
