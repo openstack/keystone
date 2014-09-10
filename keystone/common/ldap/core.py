@@ -46,6 +46,10 @@ LDAP_TLS_CERTS = {'never': ldap.OPT_X_TLS_NEVER,
                   'allow': ldap.OPT_X_TLS_ALLOW}
 
 
+# RFC 4511 (The LDAP Protocol) defines a list containing only the OID '1.1' to
+# indicate that no attributes should be returned besides the DN.
+DN_ONLY = ['1.1']
+
 _utf8_encoder = codecs.getencoder('utf-8')
 
 
@@ -1269,7 +1273,7 @@ class BaseLdap(object):
                  'id': ldap.filter.escape_filter_chars(
                      six.text_type(object_id)),
                  'objclass': self.object_class},
-                attrlist=['1.1'])
+                attrlist=DN_ONLY)
         finally:
             conn.unbind_s()
         if search_result:
@@ -1572,12 +1576,8 @@ class BaseLdap(object):
                                       six.iteritems(query_params)])))
         not_deleted_nodes = []
         try:
-            # RFC 4511 (The LDAP Protocol) defines a list containing only the
-            # OID "1.1" as indicating that no attributes should be returned.
-            # The following code only needs the DN of the entries.
-            request_no_attributes = ['1.1']
             nodes = conn.search_s(search_base, scope, query,
-                                  attrlist=request_no_attributes)
+                                  attrlist=DN_ONLY)
         except ldap.NO_SUCH_OBJECT:
             LOG.debug('Could not find entry with dn=%s', search_base)
             raise self._not_found(self._dn_to_id(search_base))
