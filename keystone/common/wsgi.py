@@ -634,10 +634,10 @@ class RoutersBase(object):
         Use self._add_resource() to map routes for a resource.
         """
 
-    def _add_resource(self, mapper, controller, path,
+    def _add_resource(self, mapper, controller, path, rel,
                       get_action=None, head_action=None, get_head_action=None,
                       put_action=None, post_action=None, patch_action=None,
-                      delete_action=None, get_post_action=None, rel=None,
+                      delete_action=None, get_post_action=None,
                       path_vars=None):
         if get_head_action:
             mapper.connect(path, controller=controller, action=get_head_action,
@@ -664,16 +664,15 @@ class RoutersBase(object):
             mapper.connect(path, controller=controller, action=get_post_action,
                            conditions=dict(method=['GET', 'POST']))
 
-        if rel:
-            resource_data = dict()
+        resource_data = dict()
 
-            if path_vars:
-                resource_data['href-template'] = path
-                resource_data['href-vars'] = path_vars
-            else:
-                resource_data['href'] = path
+        if path_vars:
+            resource_data['href-template'] = path
+            resource_data['href-vars'] = path_vars
+        else:
+            resource_data['href'] = path
 
-            self.v3_resources.append((rel, resource_data))
+        self.v3_resources.append((rel, resource_data))
 
 
 class V3ExtensionRouter(ExtensionRouter, RoutersBase):
