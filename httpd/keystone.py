@@ -16,7 +16,6 @@ import logging
 import os
 
 from oslo import i18n
-from paste import deploy
 
 
 # NOTE(dstanek): i18n.enable_lazy() must be called before
@@ -32,6 +31,7 @@ from keystone.common import environment
 from keystone.common import sql
 from keystone import config
 from keystone.openstack.common import log
+from keystone import service
 
 
 CONF = config.CONF
@@ -55,7 +55,6 @@ drivers = backends.load_backends()
 # NOTE(ldbragst): 'application' is required in this context by WSGI spec.
 # The following is a reference to Python Paste Deploy documentation
 # http://pythonpaste.org/deploy/
-application = deploy.loadapp('config:%s' % config.find_paste_config(),
-                             name=name)
+application = service.loadapp('config:%s' % config.find_paste_config(), name)
 
 dependency.resolve_future_dependencies()

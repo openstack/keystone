@@ -13,6 +13,9 @@
 # under the License.
 
 
+import six
+
+
 def build_v3_resource_relation(resource_name):
     return ('http://docs.openstack.org/api/openstack-identity/3/rel/%s' %
             resource_name)
@@ -49,3 +52,13 @@ class Parameters(object):
     ROLE_ID = build_v3_parameter_relation('role_id')
     SERVICE_ID = build_v3_parameter_relation('service_id')
     USER_ID = build_v3_parameter_relation('user_id')
+
+
+def translate_urls(json_home, new_prefix):
+    """Given a JSON Home document, sticks new_prefix on each of the urls."""
+
+    for dummy_rel, resource in six.iteritems(json_home['resources']):
+        if 'href' in resource:
+            resource['href'] = new_prefix + resource['href']
+        elif 'href-template' in resource:
+            resource['href-template'] = new_prefix + resource['href-template']

@@ -29,7 +29,6 @@ import fixtures
 from oslo.config import fixture as config_fixture
 import oslotest.base as oslotest
 from oslotest import mockpatch
-from paste import deploy
 import six
 from testtools import testcase
 import webob
@@ -53,6 +52,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.openstack.common import log
+from keystone import service
 from keystone.tests import ksfixtures
 
 # NOTE(dstanek): Tests inheriting from TestCase depend on having the
@@ -603,7 +603,7 @@ class TestCase(BaseTestCase):
         return config
 
     def loadapp(self, config, name='main'):
-        return deploy.loadapp(self._paste_config(config), name=name)
+        return service.loadapp(self._paste_config(config), name=name)
 
     def client(self, app, *args, **kw):
         return TestClient(app, *args, **kw)

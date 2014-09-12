@@ -15,6 +15,7 @@
 import functools
 import sys
 
+from paste import deploy
 import routes
 
 from keystone import assignment
@@ -34,6 +35,14 @@ from keystone import trust
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
+
+
+def loadapp(conf, name):
+    # NOTE(blk-u): Save the application being loaded in the controllers module.
+    # This is similar to how public_app_factory() and v3_app_factory()
+    # register the version with the controllers module.
+    controllers.latest_app = deploy.loadapp(conf, name=name)
+    return controllers.latest_app
 
 
 def fail_gracefully(f):
