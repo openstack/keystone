@@ -317,7 +317,8 @@ def _filter(model, query, hints):
     filter_dict = {}
 
     for filter_ in hints.filters:
-        # TODO(henry-nash): Check if name is valid column, if not skip
+        if filter_['name'] not in model.attributes:
+            continue
         if filter_['comparator'] == 'equals':
             filter_dict = exact_filter(model, filter_, filter_dict, hints)
         else:

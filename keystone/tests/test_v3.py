@@ -281,6 +281,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
     def new_service_ref(self):
         ref = self.new_ref()
         ref['type'] = uuid.uuid4().hex
+        ref['name'] = uuid.uuid4().hex
         return ref
 
     def new_endpoint_ref(self, service_id, interface='public', **kwargs):

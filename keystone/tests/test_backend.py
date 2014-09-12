@@ -3806,6 +3806,50 @@ class CatalogTests(object):
                           self.catalog_api.get_service,
                           service_id)
 
+    def _create_random_service(self):
+        service_id = uuid.uuid4().hex
+        new_service = {
+            'id': service_id,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        return self.catalog_api.create_service(service_id, new_service.copy())
+
+    def test_service_filtering(self):
+        target_service = self._create_random_service()
+        unrelated_service1 = self._create_random_service()
+        unrelated_service2 = self._create_random_service()
+
+        # filter by type
+        hint_for_type = driver_hints.Hints()
+        hint_for_type.add_filter(name="type", value=target_service['type'])
+        services = self.catalog_api.list_services(hint_for_type)
+
+        self.assertEqual(1, len(services))
+        filtered_service = services[0]
+        self.assertEqual(target_service['type'], filtered_service['type'])
+        self.assertEqual(target_service['id'], filtered_service['id'])
+
+        # filter should have been removed, since it was already used by the
+        # backend
+        self.assertEqual(0, len(hint_for_type.filters))
+
+        # the backend shouldn't filter by name, since this is handled by the
+        # front end
+        hint_for_name = driver_hints.Hints()
+        hint_for_name.add_filter(name="name", value=target_service['name'])
+        services = self.catalog_api.list_services(hint_for_name)
+
+        self.assertEqual(3, len(services))
+
+        # filter should still be there, since it wasn't used by the backend
+        self.assertEqual(1, len(hint_for_name.filters))
+
+        self.catalog_api.delete_service(target_service['id'])
+        self.catalog_api.delete_service(unrelated_service1['id'])
+        self.catalog_api.delete_service(unrelated_service2['id'])
+
     @tests.skip_if_cache_disabled('catalog')
     def test_cache_layer_service_crud(self):
         service_id = uuid.uuid4().hex
