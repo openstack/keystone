@@ -44,7 +44,13 @@ if sys.version_info < (2, 7):
     # simplejson module if available
     try:
         import simplejson as json
-        is_simplejson = True
+        # NOTE(mriedem): Make sure we have a new enough version of simplejson
+        # to support the namedobject_as_tuple argument. This can be removed
+        # in the Kilo release when python 2.6 support is dropped.
+        if 'namedtuple_as_object' in inspect.getargspec(json.dumps).args:
+            is_simplejson = True
+        else:
+            import json
     except ImportError:
         import json
 else:
