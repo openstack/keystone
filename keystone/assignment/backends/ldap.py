@@ -298,7 +298,7 @@ class Assignment(assignment.Driver):
                 try:
                     conn = self.group.get_connection()
                     roles = conn.search_s(dn, ldap.SCOPE_ONELEVEL,
-                                          query, ['1.1'])
+                                          query, common_ldap.DN_ONLY)
                     for role_dn, i in roles:
                         conn.delete_s(role_dn)
                 except ldap.NO_SUCH_OBJECT:
@@ -587,7 +587,7 @@ class RoleApi(common_ldap.BaseLdap):
             roles = self._ldap_get_list(project_subtree, ldap.SCOPE_SUBTREE,
                                         query_params={
                                             self.member_attribute: user_dn},
-                                        attrlist=['1.1'])
+                                        attrlist=common_ldap.DN_ONLY)
         except ldap.NO_SUCH_OBJECT:
             roles = []
         res = []
@@ -615,7 +615,7 @@ class RoleApi(common_ldap.BaseLdap):
             roles = conn.search_s(project_subtree,
                                   ldap.SCOPE_SUBTREE,
                                   query,
-                                  attrlist=['1.1'])
+                                  attrlist=common_ldap.DN_ONLY)
         except ldap.NO_SUCH_OBJECT:
             # Return no roles rather than raise an exception if the project
             # subtree entry doesn't exist because an empty subtree is not
