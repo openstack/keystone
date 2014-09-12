@@ -582,7 +582,8 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
     if use_tls and using_ldaps:
         raise AssertionError(_('Invalid TLS / LDAPS combination'))
 
-    if use_tls:
+    # The certificate trust options apply for both LDAPS and TLS.
+    if use_tls or using_ldaps:
         if not ldap.TLS_AVAIL:
             raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
                                'not available') % ldap.TLS_AVAIL)
