@@ -49,7 +49,7 @@ class Assignment(assignment.Driver):
         self.group = ldap_identity.GroupApi(CONF)
 
         self.project = ProjectApi(CONF)
-        self.role = RoleApi(CONF)
+        self.role = RoleApi(CONF, self.user)
 
     def get_project(self, tenant_id):
         return self._set_default_domain(self.project.get(tenant_id))
@@ -408,9 +408,16 @@ class Assignment(assignment.Driver):
     def list_role_assignments(self):
         role_assignments = []
         for a in self.role.list_role_assignments(self.project.tree_dn):
-            assignment = {'role_id': self.role._dn_to_id(a.role_dn),
-                          'user_id': self.user._dn_to_id(a.user_dn),
-                          'project_id': self.project._dn_to_id(a.project_dn)}
+            if isinstance(a, UserRoleAssociation):
+                assignment = {
+                    'role_id': self.role._dn_to_id(a.role_dn),
+                    'user_id': self.user._dn_to_id(a.user_dn),
+                    'project_id': self.project._dn_to_id(a.project_dn)}
+            else:
+                assignment = {
+                    'role_id': self.role._dn_to_id(a.role_dn),
+                    'group_id': self.group._dn_to_id(a.group_dn),
+                    'project_id': self.project._dn_to_id(a.project_dn)}
             role_assignments.append(assignment)
         return role_assignments
 
@@ -510,10 +517,11 @@ class RoleApi(common_ldap.BaseLdap):
     immutable_attrs = ['id']
     model = models.Role
 
-    def __init__(self, conf):
+    def __init__(self, conf, user_api):
         super(RoleApi, self).__init__(conf)
         self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
+        self._user_api = user_api
 
     def get(self, role_id, role_filter=None):
         model = super(RoleApi, self).get(role_id, role_filter)
@@ -671,11 +679,19 @@ class RoleApi(common_ldap.BaseLdap):
             # It obtains the tenant DN to construct the UserRoleAssociation
             # object.
             tenant_dn = ldap.dn.dn2str(tenant)
-            for user_dn in role[self.member_attribute]:
-                if self._is_dumb_member(user_dn):
+            for occupant_dn in role[self.member_attribute]:
+                if self._is_dumb_member(occupant_dn):
                     continue
-                res.append(UserRoleAssociation(
-                           user_dn=user_dn,
-                           role_dn=role_dn,
-                           tenant_dn=tenant_dn))
+                if self._user_api.is_user(occupant_dn):
+                    association = UserRoleAssociation(
+                        user_dn=occupant_dn,
+                        role_dn=role_dn,
+                        tenant_dn=tenant_dn)
+                else:
+                    # occupant_dn is a group.
+                    association = GroupRoleAssociation(
+                        group_dn=occupant_dn,
+                        role_dn=role_dn,
+                        tenant_dn=tenant_dn)
+                res.append(association)
         return res
