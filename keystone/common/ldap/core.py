@@ -1287,13 +1287,36 @@ class BaseLdap(object):
         return utf8_decode(ldap.dn.str2dn(utf8_encode(dn))[0][0][1])
 
     def _ldap_res_to_model(self, res):
-        obj = self.model(id=self._dn_to_id(res[0]))
         # LDAP attribute names may be returned in a different case than
         # they are defined in the mapping, so we need to check for keys
         # in a case-insensitive way.  We use the case specified in the
         # mapping for the model to ensure we have a predictable way of
         # retrieving values later.
         lower_res = dict((k.lower(), v) for k, v in six.iteritems(res[1]))
+
+        id_attrs = lower_res.get(self.id_attr.lower())
+        if not id_attrs:
+            message = _('ID attribute %(id_attr)s not found in LDAP '
+                        'object %(dn)s') % ({'id_attr': self.id_attr,
+                                             'dn': res[0]})
+            raise exception.NotFound(message=message)
+        if len(id_attrs) > 1:
+            # FIXME(gyee): if this is a multi-value attribute and it has
+            # multiple values, we can't use it as ID. Retain the dn_to_id
+            # logic here so it does not potentially break existing
+            # deployments. We need to fix our read-write LDAP logic so
+            # it does not get the ID from DN.
+            message = _LW('ID attribute %(id_attr)s for LDAP object %(dn)s '
+                          'has multiple values and therefore cannot be used '
+                          'as an ID. Will get the ID from DN instead') % (
+                              {'id_attr': self.id_attr,
+                               'dn': res[0]})
+            LOG.warn(message)
+            id_val = self._dn_to_id(res[0])
+        else:
+            id_val = id_attrs[0]
+        obj = self.model(id=id_val)
+
         for k in obj.known_keys:
             if k in self.attribute_ignore:
                 continue
@@ -1357,9 +1380,13 @@ class BaseLdap(object):
         object_classes = self.structural_classes + [self.object_class]
         attrs = [('objectClass', object_classes)]
         for k, v in six.iteritems(values):
-            if k == 'id' or k in self.attribute_ignore:
+            if k in self.attribute_ignore:
                 continue
-            if v is not None:
+            if k == 'id':
+                # no need to check if v is None as 'id' will always have
+                # a value
+                attrs.append((self.id_attr, [v]))
+            elif v is not None:
                 attr_type = self.attribute_mapping.get(k, k)
                 if attr_type is not None:
                     attrs.append((attr_type, [v]))
@@ -1388,7 +1415,8 @@ class BaseLdap(object):
                     'filter': (ldap_filter or self.ldap_filter or ''),
                     'object_class': self.object_class})
         try:
-            attrs = list(set((self.attribute_mapping.values() +
+            attrs = list(set(([self.id_attr] +
+                              self.attribute_mapping.values() +
                               self.extra_attr_mapping.keys())))
             res = conn.search_s(self.tree_dn, self.LDAP_SCOPE, query, attrs)
         except ldap.NO_SUCH_OBJECT:
@@ -1406,7 +1434,8 @@ class BaseLdap(object):
                                             self.ldap_filter or
                                             '', self.object_class)
         try:
-            attrs = list(set((self.attribute_mapping.values() +
+            attrs = list(set(([self.id_attr] +
+                              self.attribute_mapping.values() +
                               self.extra_attr_mapping.keys())))
             return conn.search_s(self.tree_dn,
                                  self.LDAP_SCOPE,
