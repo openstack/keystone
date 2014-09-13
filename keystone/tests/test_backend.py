@@ -3001,6 +3001,62 @@ class IdentityTests(object):
         user_ref = self.identity_api.get_user(user['id'])
         self.assertDictEqual(user_ref, updated_user_ref)
 
+    def _test_delete_group_removes_role_assignments(self, broken=False):
+        # When a group is deleted any role assignments for the group are
+        # removed.
+
+        # FIXME(blk-u): Some of the backends fail to remove the role
+        # assignments, see bug #1366211.
+
+        MEMBER_ROLE_ID = 'member'
+
+        def get_member_assignments():
+            assignments = self.assignment_api.list_role_assignments()
+            return filter(lambda x: x['role_id'] == MEMBER_ROLE_ID,
+                          assignments)
+
+        orig_member_assignments = get_member_assignments()
+
+        # Create a group.
+        new_group = {
+            'domain_id': DEFAULT_DOMAIN_ID,
+            'name': self.getUniqueString(prefix='tdgrra')}
+        new_group = self.identity_api.create_group(new_group)
+
+        # Create a project.
+        new_project = {
+            'id': uuid.uuid4().hex,
+            'name': self.getUniqueString(prefix='tdgrra'),
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assignment_api.create_project(new_project['id'], new_project)
+
+        # Assign a role to the group.
+        self.assignment_api.create_grant(
+            group_id=new_group['id'], project_id=new_project['id'],
+            role_id=MEMBER_ROLE_ID)
+
+        if broken:
+            member_assignments_with_group = get_member_assignments()
+
+        # Delete the group.
+        self.identity_api.delete_group(new_group['id'])
+
+        # Check that the role assignment for the group is gone
+        member_assignments = get_member_assignments()
+
+        if broken:
+            exp_member_assignments = member_assignments_with_group
+        else:
+            exp_member_assignments = orig_member_assignments
+
+        self.assertThat(member_assignments,
+                        matchers.Equals(exp_member_assignments))
+
+    def test_delete_group_removes_role_assignments(self):
+        # When a group is deleted any role assignments for the group are
+        # removed.
+        self._test_delete_group_removes_role_assignments()
+
 
 class TokenTests(object):
     def _create_token_id(self):

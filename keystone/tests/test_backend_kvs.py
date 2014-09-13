@@ -76,6 +76,15 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
     def test_move_project_between_domains_with_clashing_names_fails(self):
         self.skipTest('Blocked by bug 1119770')
 
+    def test_delete_group_removes_role_assignments(self):
+        # When a group is deleted any role assignments for the group are
+        # removed.
+
+        # FIXME(blk-u): The KVS backend fails to remove the role assignments,
+        # see bug #1366211.
+
+        self._test_delete_group_removes_role_assignments(broken=True)
+
 
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
