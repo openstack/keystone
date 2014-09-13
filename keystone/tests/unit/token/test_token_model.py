@@ -180,7 +180,12 @@ class TestKeystoneTokenModel(core.TestCase):
                          token_data.project_domain_name)
         self.assertEqual(self.v2_sample_token['access']['trust']['id'],
                          token_data.trust_id)
-        self.assertIsNone(token_data.trustor_user_id)
+        self.assertEqual(
+            self.v2_sample_token['access']['trust']['trustor_user_id'],
+            token_data.trustor_user_id)
+        self.assertEqual(
+            self.v2_sample_token['access']['trust']['impersonation'],
+            token_data.trust_impersonation)
         self.assertEqual(
             self.v2_sample_token['access']['trust']['trustee_user_id'],
             token_data.trustee_user_id)
