@@ -308,18 +308,7 @@ class FakeLdap(core.LDAPHandler):
 
     def delete_s(self, dn):
         """Remove the ldap object at specified dn."""
-        if server_fail:
-            raise ldap.SERVER_DOWN
-
-        key = self.key(dn)
-        LOG.debug('delete item: dn=%s', core.utf8_decode(dn))
-        try:
-            del self.db[key]
-        except KeyError:
-            LOG.debug('delete item failed: dn=%s not found.',
-                      core.utf8_decode(dn))
-            raise ldap.NO_SUCH_OBJECT
-        self.db.sync()
+        return self.delete_ext_s(dn, serverctrls=[])
 
     def _getChildren(self, dn):
         return [k for k, v in six.iteritems(self.db)
@@ -549,9 +538,6 @@ class FakeLdapNoSubtreeDelete(FakeLdap):
     ldap.NOT_ALLOWED_ON_NONLEAF if there is an attempt to delete
     an entry that has children.
     """
-
-    def delete_s(self, dn):
-        self.delete_ext_s(dn, [], None)
 
     def delete_ext_s(self, dn, serverctrls, clientctrls=None):
         """Remove the ldap object at specified dn."""
