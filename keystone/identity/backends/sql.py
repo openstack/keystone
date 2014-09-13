@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import dependency
 from keystone.common import sql
 from keystone.common import utils
 from keystone import exception
@@ -72,7 +71,6 @@ class UserGroupMembership(sql.ModelBase, sql.DictBase):
                           primary_key=True)
 
 
-@dependency.requires('assignment_api')
 class Identity(identity.Driver):
     def default_assignment_driver(self):
         return "keystone.assignment.backends.sql.Assignment"
@@ -243,7 +241,6 @@ class Identity(identity.Driver):
             q.delete(False)
 
             session.delete(ref)
-        self.assignment_api.delete_user(user_id)
 
     # group crud
 
@@ -299,4 +296,3 @@ class Identity(identity.Driver):
             q.delete(False)
 
             session.delete(ref)
-        self.assignment_api.delete_group(group_id)
