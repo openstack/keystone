@@ -247,6 +247,16 @@ class ProjectEndpointGroupV3Controller(_ControllerBase):
 
     def __init__(self):
         super(ProjectEndpointGroupV3Controller, self).__init__()
+        notifications.register_event_callback(
+            notifications.ACTIONS.deleted, 'project',
+            self._on_project_delete)
+
+    def _on_project_delete(self, service, resource_type,
+                           operation, payload):
+        project_id = payload['resource_info']
+        (self.endpoint_filter_api.
+            delete_endpoint_group_association_by_project(
+                project_id))
 
     @controller.protected()
     def get_endpoint_group_in_project(self, context, endpoint_group_id,

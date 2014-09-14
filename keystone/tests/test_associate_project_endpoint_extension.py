@@ -972,6 +972,49 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(len(endpoints), 1)
 
+    def test_endpoint_group_project_cleanup_with_project(self):
+        # create endpoint group
+        endpoint_group_id = self._create_valid_endpoint_group(
+          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # create new project and associate with endpoint_group
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        r = self.post('/projects', body={'project': project_ref})
+        project = self.assertValidProjectResponse(r, project_ref)
+        url = self._get_project_endpoint_group_url(endpoint_group_id,
+                                                   project['id'])
+        self.put(url)
+
+        # check that we can recover the project endpoint group association
+        self.get(url)
+
+        # Now delete the project and then try and retrieve the project
+        # endpoint group association again
+        self.delete('/projects/%(project_id)s' % {
+            'project_id': project['id']})
+        self.get(url, expected_status=404)
+
+    def test_endpoint_group_project_cleanup_with_endpoint_group(self):
+        # create endpoint group
+        endpoint_group_id = self._create_valid_endpoint_group(
+          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # create new project and associate with endpoint_group
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        r = self.post('/projects', body={'project': project_ref})
+        project = self.assertValidProjectResponse(r, project_ref)
+        url = self._get_project_endpoint_group_url(endpoint_group_id,
+                                                   project['id'])
+        self.put(url)
+
+        # check that we can recover the project endpoint group association
+        self.get(url)
+
+        # now remove the project endpoint group association
+        self.delete('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
+            'endpoint_group_id': endpoint_group_id})
+        self.get(url, expected_status=404)
+
     def _create_valid_endpoint_group(self, url, body):
         r = self.post(url, body=body)
         return r.result['endpoint_group']['id']
@@ -979,11 +1022,17 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
     def _create_endpoint_group_project_association(self,
                                                    endpoint_group_id,
                                                    project_id):
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
+        url = self._get_project_endpoint_group_url(endpoint_group_id,
+                                                   project_id)
+        self.put(url)
+
+    def _get_project_endpoint_group_url(self,
+                                        endpoint_group_id,
+                                        project_id):
+        return ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
                  '/projects/%(project_id)s' % {
                      'endpoint_group_id': endpoint_group_id,
                      'project_id': project_id})
-        self.put(url)
 
     def _create_endpoint_and_associations(self, project_id, service_id=None):
         """Creates an endpoint associated with service and project."""
