@@ -394,6 +394,7 @@ class TestCase(BaseTestCase):
                 'requests.packages.urllib3.connectionpool=WARN',
                 'routes.middleware=INFO',
                 'stevedore.extension=INFO',
+                'keystone.notifications=INFO',
             ])
         self.auth_plugin_config_override()
 
