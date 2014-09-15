@@ -793,14 +793,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         result_unicode = common_ldap_core.utf8_decode(100)
         self.assertEqual(u'100', result_unicode)
 
-    def test_delete_group_removes_role_assignments(self):
-        # When a group is deleted any role assignments for the group are
-        # removed.
-
-        # FIXME(blk-u): The LDAP backend fails to remove the role assignments,
-        # see bug #1366211.
-        self._test_delete_group_removes_role_assignments(broken=True)
-
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
@@ -1970,14 +1962,6 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
                           domain['id'],
                           domain)
 
-    def test_delete_group_removes_role_assignments(self):
-        # When a group is deleted any role assignments for the group are
-        # removed.
-
-        # FIXME(blk-u): Override the super impl because this case works now,
-        # remove this once bug 1366211 is fixed.
-        self._test_delete_group_removes_role_assignments(broken=False)
-
 
 class LdapIdentitySqlAssignmentWithMapping(LdapIdentitySqlAssignment):
     """Class to test mapping of default LDAP backend.
@@ -2394,11 +2378,3 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.assertRaises(exception.DomainNotFound,
                           self.assignment_api.get_domain,
                           domain['id'])
-
-    def test_delete_group_removes_role_assignments(self):
-        # When a group is deleted any role assignments for the group are
-        # removed.
-
-        # FIXME(blk-u): Override the super impl because this case works now,
-        # remove this once bug 1366211 is fixed.
-        self._test_delete_group_removes_role_assignments(broken=False)

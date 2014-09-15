@@ -3001,12 +3001,9 @@ class IdentityTests(object):
         user_ref = self.identity_api.get_user(user['id'])
         self.assertDictEqual(user_ref, updated_user_ref)
 
-    def _test_delete_group_removes_role_assignments(self, broken=False):
+    def test_delete_group_removes_role_assignments(self):
         # When a group is deleted any role assignments for the group are
         # removed.
-
-        # FIXME(blk-u): Some of the backends fail to remove the role
-        # assignments, see bug #1366211.
 
         MEMBER_ROLE_ID = 'member'
 
@@ -3035,27 +3032,14 @@ class IdentityTests(object):
             group_id=new_group['id'], project_id=new_project['id'],
             role_id=MEMBER_ROLE_ID)
 
-        if broken:
-            member_assignments_with_group = get_member_assignments()
-
         # Delete the group.
         self.identity_api.delete_group(new_group['id'])
 
         # Check that the role assignment for the group is gone
         member_assignments = get_member_assignments()
 
-        if broken:
-            exp_member_assignments = member_assignments_with_group
-        else:
-            exp_member_assignments = orig_member_assignments
-
         self.assertThat(member_assignments,
-                        matchers.Equals(exp_member_assignments))
-
-    def test_delete_group_removes_role_assignments(self):
-        # When a group is deleted any role assignments for the group are
-        # removed.
-        self._test_delete_group_removes_role_assignments()
+                        matchers.Equals(orig_member_assignments))
 
 
 class TokenTests(object):
