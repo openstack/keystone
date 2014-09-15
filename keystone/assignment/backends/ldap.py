@@ -584,7 +584,8 @@ class RoleApi(common_ldap.BaseLdap):
         query = '(objectClass=%s)' % self.object_class
 
         try:
-            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
+            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query,
+                                  [self.member_attribute])
         except ldap.NO_SUCH_OBJECT:
             return []
         finally:
@@ -620,7 +621,7 @@ class RoleApi(common_ldap.BaseLdap):
         try:
             roles = conn.search_s(project_subtree,
                                   ldap.SCOPE_SUBTREE,
-                                  query)
+                                  query, ['1.1'])
         except ldap.NO_SUCH_OBJECT:
             return []
         finally:
@@ -645,7 +646,8 @@ class RoleApi(common_ldap.BaseLdap):
         conn = self.get_connection()
         query = '(objectClass=%s)' % self.object_class
         try:
-            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query)
+            roles = conn.search_s(tenant_dn, ldap.SCOPE_ONELEVEL, query,
+                                  ['1.1'])
             for role_dn, _ in roles:
                 try:
                     conn.delete_s(role_dn)
@@ -671,7 +673,8 @@ class RoleApi(common_ldap.BaseLdap):
         try:
             for role_dn, _ in conn.search_s(tenant_dn,
                                             ldap.SCOPE_SUBTREE,
-                                            query):
+                                            query,
+                                            ['1.1']):
                 conn.delete_s(role_dn)
         except ldap.NO_SUCH_OBJECT:
             pass
@@ -688,7 +691,8 @@ class RoleApi(common_ldap.BaseLdap):
         try:
             roles = conn.search_s(project_tree_dn,
                                   ldap.SCOPE_SUBTREE,
-                                  query)
+                                  query,
+                                  [self.member_attribute])
         except ldap.NO_SUCH_OBJECT:
             return []
         finally:
