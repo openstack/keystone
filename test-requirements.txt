@@ -19,7 +19,8 @@ pymongo>=2.5
 python-ldap==2.3.13
 ldappool>=1.0 # MPL
 
-# Required only for federating multiple Keystones
+# Required for federation extension (although used only for federating multiple
+# Keystones)
 pysaml2
 
 # Testing
