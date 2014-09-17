@@ -16,6 +16,7 @@
 """Workflow Logic the Assignment service."""
 
 import copy
+import functools
 import uuid
 
 import six
@@ -490,7 +491,8 @@ class RoleV3(controller.V3Controller):
 
     def _check_grant_protection(self, context, protection, role_id=None,
                                 user_id=None, group_id=None,
-                                domain_id=None, project_id=None):
+                                domain_id=None, project_id=None,
+                                allow_no_user=False):
         """Check protection for role grant APIs.
 
         The policy rule might want to inspect attributes of any of the entities
@@ -502,7 +504,11 @@ class RoleV3(controller.V3Controller):
         if role_id:
             ref['role'] = self.assignment_api.get_role(role_id)
         if user_id:
-            ref['user'] = self.identity_api.get_user(user_id)
+            try:
+                ref['user'] = self.identity_api.get_user(user_id)
+            except exception.UserNotFound:
+                if not allow_no_user:
+                    raise
         else:
             ref['group'] = self.identity_api.get_group(group_id)
 
@@ -547,7 +553,11 @@ class RoleV3(controller.V3Controller):
             role_id, user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
 
-    @controller.protected(callback=_check_grant_protection)
+    # NOTE(lbragstad): This will allow users to clean up role assignments
+    # from the backend in the event the user was removed prior to the role
+    # assignment being removed.
+    @controller.protected(callback=functools.partial(
+        _check_grant_protection, allow_no_user=True))
     def revoke_grant(self, context, role_id, user_id=None,
                      group_id=None, domain_id=None, project_id=None):
         """Revokes a role from user/group on either a domain or project."""
