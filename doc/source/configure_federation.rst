@@ -86,8 +86,13 @@ Make sure you add two *<Location>* directives to the *wsgi-keystone.conf*::
 .. NOTE::
     * ``saml2`` may be different in your deployment, but do not use a wildcard value.
       Otherwise *every* federated protocol will be handled by Shibboleth.
-    * The ``ShibRequireSession`` rule is invalid in Apache 2.4+ and should be dropped
-      in that specific setup.
+    * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
+      Apache 2.4+ and should be dropped in that specific setup.
+    * You are advised to carefully examine `Shibboleth Apache configuration
+      documentation
+      <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig>`_
+
+
 
 Enable the Keystone virtual host, for example:
 
