@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
+# Bruno Cornec <bruno.cornec@hp.com>, 2014
 # Andrew_Melim <nokostya.translation@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-07 06:06+0000\n"
-"PO-Revision-Date: 2014-08-04 01:37+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"POT-Creation-Date: 2014-09-19 06:36+0000\n"
+"PO-Revision-Date: 2014-09-17 17:50+0000\n"
+"Last-Translator: Bruno Cornec <bruno.cornec@hp.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
 "Language: fr\n"
@@ -23,11 +24,11 @@ msgstr ""
 #: keystone/assignment/core.py:263
 #, python-format
 msgid "Creating the default role %s because it does not exist."
-msgstr ""
+msgstr "Création du rôle par défaut %s, car il n'existe pas"
 
 #: keystone/auth/controllers.py:64
 msgid "Loading auth-plugins by class-name is deprecated."
-msgstr ""
+msgstr "Chargement de auth-plugins par class-name est déprécié"
 
 #: keystone/auth/controllers.py:106
 #, python-format
@@ -35,62 +36,69 @@ msgid ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
 "the earliest value."
 msgstr ""
+"\"expires_at\" a des valeurs conflictuelles %(existing)s et %(new)s. "
+"Utilsation de la première valeur."
 
 #: keystone/common/openssl.py:78
 #, python-format
 msgid "Running command - %s"
-msgstr ""
+msgstr "Exécution de la commande %s"
 
 #: keystone/common/wsgi.py:76
 msgid "No bind information present in token"
-msgstr ""
+msgstr "Aucune information d'attachement n'est présente dans le jeton"
 
 #: keystone/common/wsgi.py:80
 #, python-format
 msgid "Named bind mode %s not in bind information"
 msgstr ""
+"Le mode d'attachement nommé %s n'est pas dans l'information d'attachement"
 
 #: keystone/common/wsgi.py:87
 msgid "Kerberos credentials required and not present"
-msgstr ""
+msgstr "L'identitification Kerberos est requise mais non présente"
 
 #: keystone/common/wsgi.py:91
 msgid "Kerberos credentials do not match those in bind"
-msgstr ""
+msgstr "L'identification Kerberos ne correspond pas à celle de l'attachement"
 
 #: keystone/common/wsgi.py:95
 msgid "Kerberos bind authentication successful"
-msgstr ""
+msgstr "Attachement Kerberos identifié correctement"
 
 #: keystone/common/wsgi.py:102
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr ""
+"Impossible de vérifier l'attachement inconnu:  {%(bind_type)s: "
+"%(identifier)s}"
 
 #: keystone/common/environment/eventlet_server.py:104
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
-msgstr ""
+msgstr "Démarrage de %(arg0)s sur %(host)s:%(port)s"
 
 #: keystone/common/kvs/core.py:138
 #, python-format
 msgid "Adding proxy '%(proxy)s' to KVS %(name)s."
-msgstr ""
+msgstr "Ahour du mandataire '%(proxy)s' au KVS %(name)s."
 
 #: keystone/common/kvs/core.py:188
 #, python-format
 msgid "Using %(func)s as KVS region %(name)s key_mangler"
-msgstr ""
+msgstr "Utilise %(func)s comme région KVS %(name)s key_mangler"
 
 #: keystone/common/kvs/core.py:200
 #, python-format
 msgid "Using default dogpile sha1_mangle_key as KVS region %s key_mangler"
 msgstr ""
+"Utilisation du dogpile sha1_mangle_key par défaut comme région KVS %s "
+"key_mangler"
 
 #: keystone/common/kvs/core.py:210
 #, python-format
 msgid "KVS region %s key_mangler disabled."
-msgstr ""
+msgstr "Région KVS %s key_mangler désactivée"
 
 #: keystone/openstack/common/eventlet_backdoor.py:140
 #, python-format
@@ -109,7 +117,7 @@ msgstr "Processus parent arrêté de manière inattendue, sortie"
 #: keystone/openstack/common/service.py:271
 #, python-format
 msgid "Child caught %s, exiting"
-msgstr ""
+msgstr "L'enfant a reçu %s, sortie"
 
 #: keystone/openstack/common/service.py:310
 msgid "Forking too fast, sleeping"
@@ -152,9 +160,9 @@ msgstr "En attente %d enfants pour sortie"
 #: keystone/token/persistence/backends/sql.py:61
 #, python-format
 msgid "Token expiration batch size: %d"
-msgstr ""
+msgstr "Taille du batch du jeton d'expiration : %d"
 
 #: keystone/token/persistence/backends/sql.py:277
 #, python-format
 msgid "Total expired tokens removed: %d"
-msgstr ""
+msgstr "Total des jetons expirés effacés: %d"

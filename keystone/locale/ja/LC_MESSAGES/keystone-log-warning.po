@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-07 06:06+0000\n"
+"POT-Creation-Date: 2014-09-19 06:36+0000\n"
 "PO-Revision-Date: 2014-06-20 20:10+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/keystone/"
@@ -38,17 +38,24 @@ msgstr ""
 msgid "KVS lock released (timeout reached) for: %s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:989
+#: keystone/common/ldap/core.py:1002
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
 msgstr ""
 
-#: keystone/common/ldap/core.py:1185
+#: keystone/common/ldap/core.py:1201
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
 "<ldap_attribute>:<keystone_attribute>"
+msgstr ""
+
+#: keystone/common/ldap/core.py:1312
+#, python-format
+msgid ""
+"ID attribute %(id_attr)s for LDAP object %(dn)s has multiple values and "
+"therefore cannot be used as an ID. Will get the ID from DN instead"
 msgstr ""
 
 #: keystone/contrib/endpoint_policy/core.py:91
