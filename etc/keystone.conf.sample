@@ -60,12 +60,14 @@
 #admin_endpoint=<None>
 
 # The number of worker processes to serve the public WSGI
-# application (integer value)
-#public_workers=1
+# application. Defaults to number of CPUs (minimum of 2).
+# (integer value)
+#public_workers=<None>
 
 # The number of worker processes to serve the admin WSGI
-# application (integer value)
-#admin_workers=1
+# application. Defaults to number of CPUs (minimum of 2).
+# (integer value)
+#admin_workers=<None>
 
 # Enforced by optional sizelimit middleware
 # (keystone.middleware:RequestBodySizeLimiter). (integer
@@ -171,6 +173,10 @@
 
 # Whether to disable the Nagle algorithm. (boolean value)
 #qpid_tcp_nodelay=true
+
+# The number of prefetched messages held by receiver. (integer
+# value)
+#qpid_receiver_capacity=1
 
 # The qpid topology version to use.  Version 1 is what was
 # originally used by impl_qpid.  Version 2 includes some
@@ -1281,7 +1287,7 @@
 # backend. (integer value)
 #expiration_buffer=1800
 
-# Toggle for revocation event cacheing. This has no effect
+# Toggle for revocation event caching. This has no effect
 # unless global caching is enabled. (boolean value)
 #caching=true
 
@@ -1476,13 +1482,13 @@
 # Controls the token construction, validation, and revocation
 # operations. Core providers are
 # "keystone.token.providers.[pkiz|pki|uuid].Provider". The
-# default provider is pkiz. (string value)
+# default provider is uuid. (string value)
 #provider=<None>
 
 # Token persistence backend driver. (string value)
 #driver=keystone.token.persistence.backends.sql.Token
 
-# Toggle for token system cacheing. This has no effect unless
+# Toggle for token system caching. This has no effect unless
 # global caching is enabled. (boolean value)
 #caching=true
 

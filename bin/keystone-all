@@ -47,6 +47,7 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone import config
 from keystone.i18n import _
+from keystone.openstack.common import processutils
 from keystone.openstack.common import service
 from keystone.openstack.common import systemd
 from keystone import service as keystone_service
@@ -104,6 +105,15 @@ def serve(*servers):
         launcher.wait()
 
 
+def _get_workers(worker_type_config_opt):
+    # Get the value from config, if the config value is None (not set), return
+    # the number of cpus with a minimum of 2.
+    worker_count = CONF.get(worker_type_config_opt)
+    if not worker_count:
+        worker_count = max(2, processutils.get_worker_count())
+    return worker_count
+
+
 if __name__ == '__main__':
     dev_conf = os.path.join(possible_topdir,
                             'etc',
@@ -136,17 +146,20 @@ if __name__ == '__main__':
 
     backends.load_backends()
 
+    admin_worker_count = _get_workers('admin_workers')
+    public_worker_count = _get_workers('public_workers')
+
     servers = []
     servers.append(create_server(paste_config,
                                  'admin',
                                  CONF.admin_bind_host,
                                  int(CONF.admin_port),
-                                 CONF.admin_workers))
+                                 admin_worker_count))
     servers.append(create_server(paste_config,
                                  'main',
                                  CONF.public_bind_host,
                                  int(CONF.public_port),
-                                 CONF.public_workers))
+                                 public_worker_count))
 
     dependency.resolve_future_dependencies()
     serve(*servers)
