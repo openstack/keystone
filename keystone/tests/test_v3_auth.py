@@ -3242,6 +3242,64 @@ class TestTrustAuth(test_v3.RestfulTestCase):
         self.head('/auth/tokens', headers=headers, expected_status=404)
         self.assertTrustTokensRevoked(trust_id)
 
+    def disable_user(self, user):
+        user['enabled'] = False
+        self.identity_api.update_user(user['id'], user)
+
+    def test_trust_get_token_fails_if_trustor_disabled(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        trust = self.assertValidTrustResponse(r, ref)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        self.v3_authenticate_token(auth_data, expected_status=201)
+
+        self.disable_user(self.user)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        self.v3_authenticate_token(auth_data, expected_status=403)
+
+    def test_trust_get_token_fails_if_trustee_disabled(self):
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires=dict(minutes=1),
+            role_ids=[self.role_id])
+
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        trust = self.assertValidTrustResponse(r, ref)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        self.v3_authenticate_token(auth_data, expected_status=201)
+
+        self.disable_user(self.trustee_user)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        self.v3_authenticate_token(auth_data, expected_status=401)
+
     def test_delete_trust(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,

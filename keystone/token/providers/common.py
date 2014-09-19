@@ -221,7 +221,9 @@ class V3TokenDataHelper(object):
         if CONF.trust.enabled and trust and 'OS-TRUST:trust' not in token_data:
             trustor_user_ref = (self.identity_api.get_user(
                                 trust['trustor_user_id']))
-            if not trustor_user_ref['enabled']:
+            try:
+                self.identity_api.assert_user_enabled(trust['trustor_user_id'])
+            except AssertionError:
                 raise exception.Forbidden(_('Trustor is disabled.'))
             if trust['impersonation']:
                 user_ref = trustor_user_ref
