@@ -425,7 +425,7 @@ class SqlToken(SqlTests, test_backend.TokenTests):
 
             # The expiry strategy is only invoked once, the other calls are via
             # the yield return.
-            expiry_mock.assert_called_once()
+            self.assertEqual(1, expiry_mock.call_count)
             mock_delete = mock_sql.get_session().query().filter().delete
             self.assertThat(mock_delete.call_args_list,
                             matchers.HasLength(len(ITERS)))
