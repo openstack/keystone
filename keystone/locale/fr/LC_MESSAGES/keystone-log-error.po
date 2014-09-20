@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
+# Bruno Cornec <bruno.cornec@hp.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-07 06:06+0000\n"
-"PO-Revision-Date: 2014-06-20 20:11+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"POT-Creation-Date: 2014-09-19 06:36+0000\n"
+"PO-Revision-Date: 2014-09-17 17:40+0000\n"
+"Last-Translator: Bruno Cornec <bruno.cornec@hp.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
 "Language: fr\n"
@@ -22,35 +23,39 @@ msgstr ""
 #: keystone/notifications.py:176
 #, python-format
 msgid "Method not callable: %s"
-msgstr ""
+msgstr "Impossible d'appeler la méthode %s"
 
-#: keystone/catalog/core.py:56
+#: keystone/catalog/core.py:60
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
-msgstr ""
+msgstr "Noeud final incorrect %(url)s - clé inconnue %(keyerror)s"
 
-#: keystone/catalog/core.py:61
+#: keystone/catalog/core.py:65
 #, python-format
 msgid ""
 "Malformed endpoint '%(url)s'. The following type error occurred during "
 "string substitution: %(typeerror)s"
 msgstr ""
+"Noeud final incorrect '%(url)s'. L'erreur suivante est survenue pendant la "
+"substitution de chaine : %(typeerror)s"
 
-#: keystone/catalog/core.py:67
+#: keystone/catalog/core.py:71
 #, python-format
 msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
 msgstr ""
+"Noeud final incorrect '%s - Format incomplet (un type de notification manque-"
+"t-il ?)"
 
 #: keystone/common/openssl.py:90
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
-msgstr ""
+msgstr "La commande %(to_exec)s a retourné %(retcode)s- %(output)s"
 
 #: keystone/common/environment/eventlet_server.py:100
 #, python-format
 msgid "Could not bind to %(host)s:%(port)s"
-msgstr ""
+msgstr "Impossible de s'attacher à %(host)s:%(port)s"
 
 #: keystone/contrib/endpoint_policy/core.py:129
 #: keystone/contrib/endpoint_policy/core.py:228
@@ -58,11 +63,13 @@ msgstr ""
 msgid ""
 "Circular reference or a repeated entry found in region tree - %(region_id)s."
 msgstr ""
+"Référence circulaire ou entrée dupliquée trouvée dans l'arbre de la région - "
+"%(region_id)s."
 
 #: keystone/contrib/federation/idp.py:404
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
-msgstr ""
+msgstr "Erreur lors de la signature d'une assertion : %(reason)s"
 
 #: keystone/openstack/common/excutils.py:76
 #, python-format
