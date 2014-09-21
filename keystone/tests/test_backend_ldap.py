@@ -2261,8 +2261,8 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
                        self.domains['domain4']['id']]:
             check_user(self.users['user2'], domain, exception.UserNotFound)
 
-        # Domains 3 and 4 share the same backend, so you should be
-        # able to see user3 and 4 from either
+        # domain3 and domain4 share the same backend, so you should be
+        # able to see user3 and user4 from either.
 
         check_user(self.users['user3'], self.domains['domain3']['id'], 200)
         check_user(self.users['user3'], self.domains['domain4']['id'], 200)
@@ -2292,9 +2292,9 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
                 self.identity_api.list_users(domain_scope=domain),
                 matchers.HasLength(1))
 
-        # Domain3 has a user created before we switched on
-        # multiple backends, plus one created afterwards - and it's
-        # backend has not changed - so we should fined two.
+        # domain3 had a user created before we switched on
+        # multiple backends, plus one created afterwards - and its
+        # backend has not changed - so we should find two.
         self.assertThat(
             self.identity_api.list_users(
                 domain_scope=self.domains['domain3']['id']),
