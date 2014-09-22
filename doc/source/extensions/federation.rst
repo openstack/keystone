@@ -49,3 +49,10 @@ To enable the federation extension:
    For example::
 
        ./bin/keystone-manage db_sync --extension federation
+
+5. As of the Juno release, multiple Keystone deployments can now be federated.
+   To do so, the `pysaml2 <https://pypi.python.org/pypi/pysaml2>`_ library is
+   required. Since OS-FEDERATION is an extension, ``pysaml2`` is not installed
+   by default, it must be installed manually. For example::
+
+        pip install --upgrade $(grep pysaml2 test-requirements.txt)
