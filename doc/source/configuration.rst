@@ -296,6 +296,40 @@ disables external authentication.  For more details, refer to :doc:`External
 Authentication <external-auth>`.
 
 
+Token Persistence Driver
+------------------------
+
+Keystone supports customizable token persistence drivers. These can be specified
+in the ``[token]`` section of the configuration file. Keystone provides three
+non-test persistence backends. These can be set with the ``[token]\driver``
+configuration option.
+
+The drivers Keystone provides are:
+
+* ``keystone.token.persistence.backends.sql.Token`` - The SQL-based (default)
+  token persistence engine. This backend stores all token data in the same SQL
+  store that is used for Identity/Assignment/etc.
+
+* ``keystone.token.persistence.backends.memcache.Token`` - The memcached based
+  token persistence backend. This backend relies on ``dogpile.cache`` and stores
+  the token data in a set of memcached servers. The servers urls are specified
+  in the ``[memcache]\servers`` configuration option in the Keystone config.
+
+* ``keystone.token.persistence.backends.memcache_pool.Token`` - The pooled memcached
+  token persistence engine. This backend supports the concept of pooled memcache
+  client object (allowing for the re-use of the client objects). This backend has
+  a number of extra tunable options in the ``[memcache]`` section of the config.
+
+
+.. WARNING::
+    It is recommended you use the ``keystone.token.persistence.backend.memcache_pool.Token``
+    backend instead of ``keystone.token.persistence.backend.memcache.Token`` as the token
+    persistence driver if you are deploying Keystone under eventlet instead of
+    Apache + mod_wsgi. This recommendation are due to known issues with the use of
+    ``thread.local`` under eventlet that can allow the leaking of memcache client objects
+    and consumption of extra sockets.
+
+
 Token Provider
 --------------
 
@@ -372,6 +406,8 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
     * ``dogpile.cache.dbm`` - local DBM file backend
     * ``dogpile.cache.memory`` - in-memory cache
     * ``keystone.cache.mongo`` - MongoDB as caching backend
+    * ``keystone.cache.memcache_pool`` - An eventlet safe implementation of ``dogpile.cache.memcached``.
+                                         This implementation also provides client connection re-use.
 
         .. WARNING::
             ``dogpile.cache.memory`` is not suitable for use outside of unit testing
@@ -382,6 +418,12 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
             and cache invalidation will not be consistent or reliable
             when using ``Keystone`` and the ``dogpile.cache.memory`` backend under
             any real workload.
+
+        .. WARNING::
+            Do not use ``dogpile.cache.memcached`` backend if you are deploying
+            Keystone under eventlet. There are known issues with the use of ``thread.local``
+            under eventlet that can allow the leaking of memcache client objects and
+            consumption of extra sockets.
 
 * ``expiration_time`` - int, the default length of time to cache a specific value. A value of ``0``
     indicates to not cache anything.  It is recommended that the ``enabled`` option be used to disable
