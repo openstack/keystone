@@ -536,7 +536,8 @@ class RoleApi(common_ldap.BaseLdap):
                 raise Exception(_("Role %s not found") % (role_id,))
 
             attrs = [('objectClass', [self.object_class]),
-                     (self.member_attribute, [user_dn])]
+                     (self.member_attribute, [user_dn]),
+                     (self.id_attr, [role_id])]
 
             if self.use_dumb_member:
                 attrs[1][1].append(self.dumb_member)

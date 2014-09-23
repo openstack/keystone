@@ -1662,8 +1662,18 @@ class EnabledEmuMixIn(BaseLdap):
         enabled_emulation_dn = '%s_enabled_emulation_dn' % self.options_name
         self.enabled_emulation_dn = getattr(conf.ldap, enabled_emulation_dn)
         if not self.enabled_emulation_dn:
-            self.enabled_emulation_dn = ('cn=enabled_%ss,%s' %
-                                         (self.options_name, self.tree_dn))
+            naming_attr_name = 'cn'
+            naming_attr_value = 'enabled_%ss' % self.options_name
+            sub_vals = (naming_attr_name, naming_attr_value, self.tree_dn)
+            self.enabled_emulation_dn = '%s=%s,%s' % sub_vals
+            naming_attr = (naming_attr_name, [naming_attr_value])
+        else:
+            # Extract the attribute name and value from the configured DN.
+            naming_dn = utf8_decode(
+                ldap.dn.str2dn(utf8_encode(self.enabled_emulation_dn)))
+            naming_rdn = naming_dn[0][0]
+            naming_attr = (naming_rdn[0], [naming_rdn[1]])
+        self.enabled_emulation_naming_attr = naming_attr
 
     def _get_enabled(self, object_id):
         dn = self._id_to_dn(object_id)
@@ -1688,8 +1698,8 @@ class EnabledEmuMixIn(BaseLdap):
                     conn.modify_s(self.enabled_emulation_dn, modlist)
                 except ldap.NO_SUCH_OBJECT:
                     attr_list = [('objectClass', ['groupOfNames']),
-                                 ('member',
-                                     [self._id_to_dn(object_id)])]
+                                 ('member', [self._id_to_dn(object_id)]),
+                                 self.enabled_emulation_naming_attr]
                     if self.use_dumb_member:
                         attr_list[1][1].append(self.dumb_member)
                     conn.add_s(self.enabled_emulation_dn, attr_list)
