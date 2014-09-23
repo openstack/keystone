@@ -1962,6 +1962,47 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
                           domain['id'],
                           domain)
 
+    def test_get_and_remove_role_grant_by_group_and_domain(self):
+        # TODO(henry-nash): We should really rewrite the tests in test_backend
+        # to be more flexible as to where the domains are sourced from, so
+        # that we would not need to override such tests here. This is raised
+        # as bug 1373865.
+        new_domain = self._get_domain_fixture()
+        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group = self.identity_api.create_group(new_group)
+        new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
+                    'enabled': True, 'domain_id': new_domain['id']}
+        new_user = self.identity_api.create_user(new_user)
+        self.identity_api.add_user_to_group(new_user['id'],
+                                            new_group['id'])
+
+        roles_ref = self.assignment_api.list_grants(
+            group_id=new_group['id'],
+            domain_id=new_domain['id'])
+        self.assertEqual(0, len(roles_ref))
+
+        self.assignment_api.create_grant(group_id=new_group['id'],
+                                         domain_id=new_domain['id'],
+                                         role_id='member')
+
+        roles_ref = self.assignment_api.list_grants(
+            group_id=new_group['id'],
+            domain_id=new_domain['id'])
+        self.assertDictEqual(roles_ref[0], self.role_member)
+
+        self.assignment_api.delete_grant(group_id=new_group['id'],
+                                         domain_id=new_domain['id'],
+                                         role_id='member')
+        roles_ref = self.assignment_api.list_grants(
+            group_id=new_group['id'],
+            domain_id=new_domain['id'])
+        self.assertEqual(0, len(roles_ref))
+        self.assertRaises(exception.NotFound,
+                          self.assignment_api.delete_grant,
+                          group_id=new_group['id'],
+                          domain_id=new_domain['id'],
+                          role_id='member')
+
 
 class LdapIdentitySqlAssignmentWithMapping(LdapIdentitySqlAssignment):
     """Class to test mapping of default LDAP backend.

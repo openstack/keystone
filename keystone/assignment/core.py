@@ -566,8 +566,7 @@ class Manager(manager.Manager):
             try:
                 # NOTE(morganfainberg): The user ids are the important part
                 # for invalidating tokens below, so extract them here.
-                for user in self.identity_api.list_users_in_group(group_id,
-                                                                  domain_id):
+                for user in self.identity_api.list_users_in_group(group_id):
                     if user['id'] != user_id:
                         self._emit_invalidate_user_token_persistence(
                             user['id'])
