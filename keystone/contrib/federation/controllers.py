@@ -339,7 +339,7 @@ class SAMLMetadataV3(_ControllerBase):
     member_name = 'metadata'
 
     def get_metadata(self, context):
-        metadata_path = CONF.federation.idp_metadata_path
+        metadata_path = CONF.saml.idp_metadata_path
         try:
             with open(metadata_path, 'r') as metadata_handler:
                 metadata = metadata_handler.read()
