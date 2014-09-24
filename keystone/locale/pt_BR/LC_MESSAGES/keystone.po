@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-19 06:36+0000\n"
+"POT-Creation-Date: 2014-09-24 06:01+0000\n"
 "PO-Revision-Date: 2014-04-19 01:30+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
@@ -478,7 +478,7 @@ msgid "Expected dict or list: %s"
 msgstr "Esperado dict ou list: %s"
 
 #: keystone/assignment/backends/kvs.py:257
-#: keystone/assignment/backends/ldap.py:550
+#: keystone/assignment/backends/ldap.py:551
 #: keystone/assignment/backends/sql.py:405
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -490,13 +490,13 @@ msgstr ""
 
 #: keystone/assignment/backends/ldap.py:215
 #: keystone/assignment/backends/ldap.py:259 keystone/catalog/core.py:100
-#: keystone/common/ldap/core.py:1377 keystone/identity/backends/kvs.py:120
+#: keystone/common/ldap/core.py:1378 keystone/identity/backends/kvs.py:120
 #: keystone/identity/backends/kvs.py:225
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "ID duplicado, %s."
 
-#: keystone/assignment/backends/ldap.py:223 keystone/common/ldap/core.py:1367
+#: keystone/assignment/backends/ldap.py:223 keystone/common/ldap/core.py:1368
 #: keystone/identity/backends/kvs.py:128 keystone/identity/backends/kvs.py:155
 #: keystone/identity/backends/kvs.py:232 keystone/identity/backends/kvs.py:260
 #, python-format
@@ -524,7 +524,7 @@ msgstr ""
 msgid "Role %s not found"
 msgstr "Role %s não localizada"
 
-#: keystone/assignment/backends/ldap.py:644
+#: keystone/assignment/backends/ldap.py:645
 #, python-format
 msgid "Cannot duplicate name %s"
 msgstr ""
@@ -795,7 +795,12 @@ msgstr ""
 msgid "The resource could not be found."
 msgstr "O recurso não pôde ser localizado."
 
-#: keystone/common/cache/core.py:96
+#: keystone/common/cache/_memcache_pool.py:100
+#, python-format
+msgid "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
+msgstr ""
+
+#: keystone/common/cache/core.py:101
 #, python-format
 msgid ""
 "Unable to build cache config-key. Expected format \"<argname>:<value>\". "
@@ -804,7 +809,7 @@ msgstr ""
 "Não é possível construir chave de configuração do cache. Formato esperado"
 " \"<argname>:<value>\".  Pulando formato desconhecido: %s"
 
-#: keystone/common/cache/core.py:119
+#: keystone/common/cache/core.py:133
 msgid "region not type dogpile.cache.CacheRegion"
 msgstr "região não é do tipo dogpile.cache.CacheRegion"
 
@@ -883,19 +888,19 @@ msgstr ""
 msgid "Must be called within an active lock context."
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:70
+#: keystone/common/kvs/backends/memcached.py:73
 #, python-format
 msgid "Maximum lock attempts on %s occurred."
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:109
+#: keystone/common/kvs/backends/memcached.py:112
 #, python-format
 msgid ""
 "Backend `%(driver)s` is not a valid memcached backend. Valid drivers: "
 "%(driver_list)s"
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:180
+#: keystone/common/kvs/backends/memcached.py:183
 msgid "`key_mangler` functions must be callable."
 msgstr ""
 
@@ -920,52 +925,52 @@ msgstr "Escopo LDAP inválido: %(scope)s. Escolha um de: %(options)s"
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Combinação TLS / LADPS inválida"
 
-#: keystone/common/ldap/core.py:587
+#: keystone/common/ldap/core.py:588
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
 msgstr "Opção LDAP TLS_AVAIL inválida: %s. TLS não dsponível"
 
-#: keystone/common/ldap/core.py:597
+#: keystone/common/ldap/core.py:598
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
 
-#: keystone/common/ldap/core.py:609
+#: keystone/common/ldap/core.py:610
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
 
-#: keystone/common/ldap/core.py:1302
+#: keystone/common/ldap/core.py:1303
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:1346
+#: keystone/common/ldap/core.py:1347
 #, python-format
 msgid "LDAP %s create"
 msgstr "Criação de LDAP %s"
 
-#: keystone/common/ldap/core.py:1351
+#: keystone/common/ldap/core.py:1352
 #, python-format
 msgid "LDAP %s update"
 msgstr "Atualização de LDAP %s"
 
-#: keystone/common/ldap/core.py:1356
+#: keystone/common/ldap/core.py:1357
 #, python-format
 msgid "LDAP %s delete"
 msgstr "Exclusão de LDAP %s"
 
-#: keystone/common/ldap/core.py:1498
+#: keystone/common/ldap/core.py:1499
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
 msgstr "Não é possível alterar %(option_name)s %(attr)s"
 
-#: keystone/common/ldap/core.py:1585
+#: keystone/common/ldap/core.py:1586
 #, python-format
 msgid "Member %(member)s is already a member of group %(group)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:1634
+#: keystone/common/ldap/core.py:1635
 #, python-format
 msgid ""
 "When deleting entries for %(search_base)s, could not delete nonexistent "
