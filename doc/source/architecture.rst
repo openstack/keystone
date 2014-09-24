@@ -223,8 +223,9 @@ being checked for:
  * Require that the performing user matches the user being referenced.
 
 Other systems wishing to use the policy engine will require additional styles
-of checks and will possibly write completely custom backends. Backends included
-in Keystone are:
+of checks and will possibly write completely custom backends. By default,
+Keystone leverages Policy enforcement that is maintained in Oslo-Incubator,
+found in `keystone/openstack/common/policy.py`.
 
 
 Rules
