@@ -2019,7 +2019,7 @@ class IdPMetadataGenerationTests(FederationTests):
         self.get(self.METADATA_URL, expected_status=500)
 
     def test_get_metadata(self):
-        CONF.federation.idp_metadata_path = XMLDIR + '/idp_saml2_metadata.xml'
+        CONF.saml.idp_metadata_path = XMLDIR + '/idp_saml2_metadata.xml'
         r = self.get(self.METADATA_URL, response_content_type='text/xml',
                      expected_status=200)
         self.assertEqual('text/xml', r.headers.get('Content-Type'))
