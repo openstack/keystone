@@ -12,42 +12,45 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import textwrap
-
-import testtools
 from testtools.tests.matchers import helpers
 
+from keystone import tests
 from keystone.tests import matchers
 
 
-class TestXMLEquals(testtools.TestCase, helpers.TestMatchersInterface):
-    matches_xml = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <test xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <success a="a" b="b"/>
-        </test>
-    """
-    equivalent_xml = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <test xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <success b="b" a="a"></success>
-        </test>
-    """
-    mismatches_xml = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <test xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <nope_it_fails/>
-        </test>
-    """
-    mismatches_description = textwrap.dedent("""\
-        expected = <test xmlns="http://docs.openstack.org/identity/api/v2.0">
-          <success a="a" b="b"/>
-        </test>
+class TestXMLEquals(tests.BaseTestCase, helpers.TestMatchersInterface):
+    matches_xml = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<test xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <first z="0" y="1" x="2"/>
+    <second a="a" b="b"></second>
+</test>
+"""
+    equivalent_xml = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<test xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <second a="a" b="b"/>
+    <first z="0" y="1" x="2"></first>
+</test>
+"""
+    mismatches_xml = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<test xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <nope_it_fails/>
+</test>
+"""
+    mismatches_description = """\
+expected =
+<test xmlns="http://docs.openstack.org/identity/api/v2.0">
+  <first z="0" y="1" x="2"/>
+  <second a="a" b="b"/>
+</test>
 
-        actual = <test xmlns="http://docs.openstack.org/identity/api/v2.0">
-          <nope_it_fails/>
-        </test>
-    """).lstrip()
+actual =
+<test xmlns="http://docs.openstack.org/identity/api/v2.0">
+  <nope_it_fails/>
+</test>
+"""
 
     matches_matcher = matchers.XMLEquals(matches_xml)
     matches_matches = [matches_xml, equivalent_xml]
