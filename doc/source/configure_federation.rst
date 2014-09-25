@@ -295,6 +295,11 @@ Example cURL
 Keystone as an Identity Provider (IdP)
 --------------------------------------
 
+.. WARNING::
+
+    This feature is experimental and unsupported in Juno (with several known
+    issues that will not be fixed). Feedback welcome for Kilo!
+
 Configuration Options
 ---------------------
 
