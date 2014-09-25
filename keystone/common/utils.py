@@ -491,7 +491,7 @@ def set_permissions(path, mode=None, user=None, group=None, log=None):
 def make_dirs(path, mode=None, user=None, group=None, log=None):
     '''Assure directory exists, set ownership and permissions.
 
-    Assure the directory exists and optionally set it's ownership
+    Assure the directory exists and optionally set its ownership
     and permissions.
 
     Each of the mode, user and group are optional, if None then
