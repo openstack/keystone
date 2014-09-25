@@ -1,4 +1,4 @@
-<ns0:Assertion xmlns:ns0="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="9a22528bfe194b2880edce5d60414d6a" IssueInstant="2014-08-19T10:53:57Z">
+<ns0:Assertion xmlns:ns0="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="9a22528bfe194b2880edce5d60414d6a" IssueInstant="2014-08-19T10:53:57Z" Version="2.0">
   <ns0:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://acme.com/FIM/sps/openstack/saml20</ns0:Issuer>
   <ns1:Signature>
     <ns1:SignedInfo>

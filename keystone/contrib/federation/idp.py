@@ -262,6 +262,7 @@ class SAMLGenerator(object):
         assertion = saml.Assertion()
         assertion.id = self.assertion_id
         assertion.issue_instant = timeutils.isotime()
+        assertion.version = '2.0'
         assertion.issuer = issuer
         assertion.signature = signature
         assertion.subject = subject

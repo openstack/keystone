@@ -1665,6 +1665,7 @@ class SAMLGenerationTests(FederationTests):
     ROLES = ['admin', 'member']
     PROJECT = 'development'
     SAML_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2'
+    ASSERTION_VERSION = "2.0"
 
     def setUp(self):
         super(SAMLGenerationTests, self).setUp()
@@ -1703,6 +1704,22 @@ class SAMLGenerationTests(FederationTests):
         project_attribute = assertion.attribute_statement[0].attribute[2]
         self.assertEqual(self.PROJECT,
                          project_attribute.attribute_value[0].text)
+
+    def test_verify_assertion_object(self):
+        """Test if the Assertion object is build properly.
+
+        The Assertion doesn't need to be signed in this test, so
+        _sign_assertion method is patched and doesn't alter the assertion.
+
+        """
+        with mock.patch.object(keystone_idp, '_sign_assertion',
+                               side_effect=lambda x: x):
+            generator = keystone_idp.SAMLGenerator()
+            response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
+                                               self.SUBJECT, self.ROLES,
+                                               self.PROJECT)
+        assertion = response.assertion
+        self.assertEqual(self.ASSERTION_VERSION, assertion.version)
 
     def test_valid_saml_xml(self):
         """Test the generated SAML object can become valid XML.
