@@ -306,12 +306,8 @@ class V3TokenDataHelper(object):
         if CONF.trust.enabled and trust:
             user_id = trust['trustor_user_id']
         if project_id or domain_id:
-            try:
-                service_catalog = self.catalog_api.get_v3_catalog(
-                    user_id, project_id)
-            except exception.NotImplemented:
-                service_catalog = {}
-            # TODO(gyee): v3 service catalog is not quite completed yet
+            service_catalog = self.catalog_api.get_v3_catalog(
+                user_id, project_id)
             # TODO(ayoung): Enforce Endpoints for trust
             token_data['catalog'] = service_catalog
 
