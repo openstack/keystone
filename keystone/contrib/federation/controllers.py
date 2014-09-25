@@ -262,8 +262,7 @@ class Auth(auth_controllers.Auth):
         :returns: SAML Assertion based on properties from the token
         """
 
-        issuer = wsgi.Application.base_url(context, 'public')
-
+        issuer = CONF.saml.idp_entity_id
         region_id = auth['scope']['region']['id']
         region = self.catalog_api.get_region(region_id)
         recipient = region['url']
