@@ -228,6 +228,14 @@ class Manager(object):
     def __getattr__(self, item):
         """Forward calls to the `token_provider_api` persistence manager."""
 
+        # NOTE(morganfainberg): Prevent infinite recursion, raise an
+        # AttributeError for 'token_provider_api' ensuring that the dep
+        # injection doesn't infinitely try and lookup self.token_provider_api
+        # on _process_dependencies. This doesn't need an exception string as
+        # it should only ever be hit on instantiation.
+        if item == 'token_provider_api':
+            raise AttributeError()
+
         f = getattr(self.token_provider_api._persistence, item)
         LOG.warning(_LW('`token_api.%s` is deprecated as of Juno in favor of '
                         'utilizing methods on `token_provider_api` and may be '
