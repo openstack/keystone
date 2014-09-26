@@ -651,9 +651,9 @@ To build your service catalog using this driver, see the built-in help:
 
 .. code-block:: bash
 
-    $ keystone
-    $ keystone help service-create
-    $ keystone help endpoint-create
+    $ openstack --help
+    $ openstack help service create
+    $ openstack help endpoint create
 
 You can also refer to `an example in Keystone (tools/sample_data.sh)
 <https://github.com/openstack/keystone/blob/master/tools/sample_data.sh>`_.
@@ -667,8 +667,7 @@ service catalog will not change very much over time.
 
 .. NOTE::
 
-    Attempting to manage your service catalog using keystoneclient commands
-    (e.g. ``keystone endpoint-create``) against this driver will result in
+    Attempting to change your service catalog against this driver will result in
     ``HTTP 501 Not Implemented`` errors. This is the expected behavior. If you
     want to use these commands, you must instead use the SQL-based Service
     Catalog driver.
@@ -1080,23 +1079,19 @@ You should now be ready to initialize your new database without error, using:
     $ keystone-manage db_sync
 
 To test this, you should now be able to start ``keystone-all`` and use the
-Keystone Client to list your tenants (which should successfully return an
+OpenStack Client to list your projects (which should successfully return an
 empty list from your new database):
 
 .. code-block:: bash
 
-    $ keystone --os-token ADMIN --os-endpoint http://127.0.0.1:35357/v2.0/ tenant-list
-    +----+------+---------+
-    | id | name | enabled |
-    +----+------+---------+
-    +----+------+---------+
+    $ openstack --os-token ADMIN --os-url http://127.0.0.1:35357/v2.0/ project list
 
 .. NOTE::
 
-    We're providing the default OS_SERVICE_TOKEN and OS_SERVICE_ENDPOINT values
-    from ``keystone.conf`` to connect to the Keystone service. If you changed
-    those values, or deployed Keystone to a different endpoint, you will need
-    to change the provided command accordingly.
+    We're providing the default OS_TOKEN and OS_URL values from ``keystone.conf``
+    to connect to the Keystone service. If you changed those values, or deployed
+    Keystone to a different endpoint, you will need to change the provided
+    command accordingly.
 
 Initializing Keystone
 =====================
@@ -1121,12 +1116,29 @@ prevents unauthorized users from spuriously signing tokens.
 be running the Keystone service to ensure proper ownership for the private key
 file and the associated certificates.
 
-Adding Users, Tenants, and Roles with python-keystoneclient
-===========================================================
+Adding Users, Projects, and Roles via Command Line Interfaces
+=============================================================
 
-Users, tenants, and roles must be administered using admin credentials.
-There are two ways to configure ``python-keystoneclient`` to use admin
-credentials, using the either an existing token or password credentials.
+Keystone APIs are protected by the rules in the policy file. The default policy
+rules require admin credentials to administer ``users``, ``projects``, and
+``roles``. See section `Keystone API protection with Role Based Access Control (RBAC)`_
+for more details on policy files.
+
+The Keystone command line interface packaged in `python-keystoneclient`_ only
+supports the Identity v2.0 API. The OpenStack common command line interface
+packaged in `python-openstackclient`_  supports both v2.0 and v3 APIs.
+
+With both command line interfaces there are two ways to configure the client to
+use admin credentials, using either an existing token or password credentials.
+
+.. NOTE::
+
+    As of the Juno release, it is recommended to use ``python-openstackclient``,
+    as it supports both v2.0 and v3 APIs. For the purpose of backwards compatibility,
+    the CLI packaged in ``python-keystoneclient`` is not being removed.
+
+.. _`python-openstackclient`: http://docs.openstack.org/developer/python-openstackclient/
+.. _`python-keystoneclient`: http://docs.openstack.org/developer/python-keystoneclient/
 
 Authenticating with a Token
 ---------------------------
@@ -1136,11 +1148,11 @@ Authenticating with a Token
     If your Keystone deployment is brand new, you will need to use this
     authentication method, along with your ``[DEFAULT] admin_token``.
 
-To use Keystone with a token, set the following flags:
+To authenticate with Keystone using a token and ``python-openstackclient``, set
+the following flags.
 
-* ``--os-endpoint OS_SERVICE_ENDPOINT``: allows you to specify the Keystone endpoint
-  to communicate with. The default endpoint is ``http://localhost:35357/v2.0``
-* ``--os-token OS_SERVICE_TOKEN``: your service token
+* ``--os-url OS_URL``: Keystone endpoint the user communicates with
+* ``--os-token OS_TOKEN``: User's service token
 
 To administer a Keystone endpoint, your token should be either belong to a user
 with the ``admin`` role, or, if you haven't created one yet, should be equal to
@@ -1151,20 +1163,27 @@ to be passed as arguments each time:
 
 .. code-block:: bash
 
-    $ export OS_SERVICE_ENDPOINT=http://localhost:35357/v2.0
-    $ export OS_SERVICE_TOKEN=ADMIN
+    $ export OS_URL=http://localhost:35357/v2.0
+    $ export OS_TOKEN=ADMIN
+
+Instead of ``python-openstackclient``, if using ``python-keystoneclient``,
+set the following:
+
+* ``--os-endpoint OS_SERVICE_ENDPOINT``: equivalent to ``--os-url OS_URL``
+* ``--os-service-token OS_SERVICE_TOKEN``: equivalent to ``--os-token OS_TOKEN``
+
 
 Authenticating with a Password
 ------------------------------
 
-To administer a Keystone endpoint, the following user referenced below should
+To authenticate with Keystone using a password and ``python-openstackclient``, set
+the following flags, note that the following user referenced below should
 be granted the ``admin`` role.
 
-* ``--os_username OS_USERNAME``: Name of your user
-* ``--os_password OS_PASSWORD``: Password for your user
-* ``--os_tenant_name OS_TENANT_NAME``: Name of your tenant
-* ``--os_auth_url OS_AUTH_URL``: URL of your Keystone auth server, e.g.
-  ``http://localhost:35357/v2.0``
+* ``--os-username OS_USERNAME``: Name of your user
+* ``--os-password OS_PASSWORD``: Password for your user
+* ``--os-project-name OS_PROJECT_NAME``: Name of your project
+* ``--os-auth-url OS_AUTH_URL``: URL of the Keystone authentication server
 
 You can also set these variables in your environment so that they do not need
 to be passed as arguments each time:
@@ -1173,40 +1192,51 @@ to be passed as arguments each time:
 
     $ export OS_USERNAME=my_username
     $ export OS_PASSWORD=my_password
-    $ export OS_TENANT_NAME=my_tenant
+    $ export OS_PROJECT_NAME=my_project
+    $ export OS_AUTH_URL=http://localhost:35357/v2.0
+
+If using ``python-keystoneclient``, set the following instead:
+
+* ``--os-tenant-name OS_TENANT_NAME``: equivalent to ``--os-project-name OS_PROJECT_NAME``
+
 
 Example usage
 -------------
 
-``keystone`` is set up to expect commands in the general form of
-``keystone`` ``command`` ``argument``, followed by flag-like keyword arguments to
-provide additional (often optional) information. For example, the command
-``user-list`` and ``tenant-create`` can be invoked as follows:
+``python-openstackclient`` is set up to expect commands in the general form of:
 
 .. code-block:: bash
 
-    # Using token auth env variables
-    $ export OS_SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0/
-    $ export OS_SERVICE_TOKEN=secrete_token
-    $ keystone user-list
-    $ keystone tenant-create --name=demo
+  $ openstack [<global-options>] <object-1> <action> [<object-2>] [<command-arguments>]
 
-    # Using token auth flags
-    $ keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ user-list
-    $ keystone --os-token=secrete --os-endpoint=http://127.0.0.1:35357/v2.0/ tenant-create --name=demo
+For example, the commands ``user list`` and ``project create`` can be invoked
+as follows:
 
-    # Using user + password + tenant_name env variables
+.. code-block:: bash
+
+    # Using token authentication, with environment variables
+    $ export OS_URL=http://127.0.0.1:35357/v2.0/
+    $ export OS_TOKEN=secrete_token
+    $ openstack user list
+    $ openstack project create demo
+
+    # Using token authentication, with flags
+    $ openstack --os-token=secrete --os-url=http://127.0.0.1:35357/v2.0/ user list
+    $ openstack --os-token=secrete --os-url=http://127.0.0.1:35357/v2.0/ project create demo
+
+    # Using password authentication, with environment variables
     $ export OS_USERNAME=admin
     $ export OS_PASSWORD=secrete
-    $ export OS_TENANT_NAME=admin
-    $ keystone user-list
-    $ keystone tenant-create --name=demo
+    $ export OS_PROJECT_NAME=admin
+    $ export OS_AUTH_URL=http://localhost:35357/v2.0
+    $ openstack user list
+    $ openstack project create demo
 
-    # Using user + password + tenant_name flags
-    $ keystone --os_username=admin --os_password=secrete --os_tenant_name=admin user-list
-    $ keystone --os_username=admin --os_password=secrete --os_tenant_name=admin tenant-create --name=demo
+    # Using password authentication, with flags
+    $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 user list
+    $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 project create demo
 
-For additional examples refer to `CLI Examples`_.
+For additional examples using ``python-keystoneclient`` refer to `CLI Examples`_.
 
 .. _`CLI Examples`: cli_examples.html
 
