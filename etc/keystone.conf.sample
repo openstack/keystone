@@ -536,27 +536,27 @@
 
 # Memcache servers in the format of "host:port".
 # (dogpile.cache.memcache and keystone.cache.memcache_pool
-# backends only) (list value)
+# backends only). (list value)
 #memcache_servers=localhost:11211
 
 # Number of seconds memcached server is considered dead before
 # it is tried again. (dogpile.cache.memcache and
-# keystone.cache.memcache_pool backends only) (integer value)
+# keystone.cache.memcache_pool backends only). (integer value)
 #memcache_dead_retry=300
 
 # Timeout in seconds for every call to a server.
 # (dogpile.cache.memcache and keystone.cache.memcache_pool
-# backends only) (integer value)
+# backends only). (integer value)
 #memcache_socket_timeout=3
 
 # Max total number of open connections to every memcached
-# server. (keystone.cache.memcache_pool backend only) (integer
-# value)
+# server. (keystone.cache.memcache_pool backend only).
+# (integer value)
 #memcache_pool_maxsize=10
 
 # Number of seconds a connection to memcached is held unused
 # in the pool before it is closed.
-# (keystone.cache.memcache_pool backend only) (integer value)
+# (keystone.cache.memcache_pool backend only). (integer value)
 #memcache_pool_unused_timeout=60
 
 # Number of seconds that an operation will wait to get a

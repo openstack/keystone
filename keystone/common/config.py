@@ -336,27 +336,27 @@ FILE_OPTIONS = {
         cfg.ListOpt('memcache_servers', default=['localhost:11211'],
                     help='Memcache servers in the format of "host:port".'
                     ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
-                    ' backends only)'),
+                    ' backends only).'),
         cfg.IntOpt('memcache_dead_retry',
                    default=5 * 60,
                    help='Number of seconds memcached server is considered dead'
                    ' before it is tried again. (dogpile.cache.memcache and'
-                   ' keystone.cache.memcache_pool backends only)'),
+                   ' keystone.cache.memcache_pool backends only).'),
         cfg.IntOpt('memcache_socket_timeout',
                    default=3,
                    help='Timeout in seconds for every call to a server.'
                    ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
-                   ' backends only)'),
+                   ' backends only).'),
         cfg.IntOpt('memcache_pool_maxsize',
                    default=10,
                    help='Max total number of open connections to every'
                    ' memcached server. (keystone.cache.memcache_pool backend'
-                   ' only)'),
+                   ' only).'),
         cfg.IntOpt('memcache_pool_unused_timeout',
                    default=60,
                    help='Number of seconds a connection to memcached is held'
                    ' unused in the pool before it is closed.'
-                   ' (keystone.cache.memcache_pool backend only)'),
+                   ' (keystone.cache.memcache_pool backend only).'),
         cfg.IntOpt('memcache_pool_connection_get_timeout',
                    default=10,
                    help='Number of seconds that an operation will wait to get '
