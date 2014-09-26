@@ -1239,8 +1239,8 @@ as follows:
 For additional examples using ``python-keystoneclient`` refer to `python-keystoneclient examples`_,
 likewise, for additional examples using ``python-openstackclient``, refer to `python-openstackclient examples`_.
 
-.. _`python-keystoneclient examples`: cli_examples.html#using-python-keystoneclient
-.. _`python-openstackclient examples`: cli_examples.html#using-python-openstackclient
+.. _`python-keystoneclient examples`: cli_examples.html#using-python-keystoneclient-v2-0
+.. _`python-openstackclient examples`: cli_examples.html#using-python-openstackclient-v3
 
 
 Removing Expired Tokens
