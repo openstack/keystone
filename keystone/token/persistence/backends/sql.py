@@ -41,7 +41,9 @@ class TokenModel(sql.ModelBase, sql.DictBase):
     trust_id = sql.Column(sql.String(64))
     __table_args__ = (
         sql.Index('ix_token_expires', 'expires'),
-        sql.Index('ix_token_expires_valid', 'expires', 'valid')
+        sql.Index('ix_token_expires_valid', 'expires', 'valid'),
+        sql.Index('ix_token_user_id', 'user_id'),
+        sql.Index('ix_token_trust_id', 'trust_id')
     )
 
 
