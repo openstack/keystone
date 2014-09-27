@@ -29,7 +29,7 @@ GRANT_TABLES = [USER_PROJECT_TABLE, USER_DOMAIN_TABLE,
                 GROUP_PROJECT_TABLE, GROUP_DOMAIN_TABLE]
 
 
-def migrate_grant_table(meta, migrate_engine, session, table_name):
+def migrate_grant_table(meta, session, table_name):
 
     def extract_actor_and_target(table_name, composite_grant):
         if table_name == USER_PROJECT_TABLE:
@@ -79,10 +79,12 @@ def migrate_grant_table(meta, migrate_engine, session, table_name):
                 target_id=grant_role['target_id'],
                 role_id=grant_role['role_id'],
                 inherited=grant_role['inherited'])
-            migrate_engine.execute(new_entry)
+            session.execute(new_entry)
+            session.commit()
 
     # Delete all the rows
-    migrate_engine.execute(upgrade_table.delete())
+    session.execute(upgrade_table.delete())
+    session.commit()
 
 
 def downgrade_assignment_table(meta, migrate_engine):
@@ -204,11 +206,11 @@ def downgrade_assignment_table(meta, migrate_engine):
     for assignment in session.query(downgrade_table).all():
         update = build_update(meta, session, assignment)
         if update is not None:
-            migrate_engine.execute(update)
+            session.execute(update)
             session.commit()
 
     # Delete all the rows
-    migrate_engine.execute(downgrade_table.delete())
+    session.execute(downgrade_table.delete())
 
     session.commit()
     session.close()
@@ -220,8 +222,7 @@ def upgrade(migrate_engine):
 
     session = sql.orm.sessionmaker(bind=migrate_engine)()
     for table_name in GRANT_TABLES:
-        migrate_grant_table(meta, migrate_engine, session, table_name)
-    session.commit()
+        migrate_grant_table(meta, session, table_name)
     session.close()
 
 
