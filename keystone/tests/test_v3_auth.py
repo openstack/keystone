@@ -25,8 +25,8 @@ from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
-from keystone.common import dependency
 from keystone import config
+from keystone.contrib import revoke
 from keystone import exception
 from keystone import tests
 from keystone.tests import test_v3
@@ -591,9 +591,11 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
                     token=adminB_token)
 
 
-@dependency.requires('revoke_api')
 class TestTokenRevokeById(test_v3.RestfulTestCase):
     """Test token revocation on the v3 Identity API."""
+
+    def load_extra_backends(self):
+        return {'revoke_api': revoke.Manager()}
 
     def config_overrides(self):
         super(TestTokenRevokeById, self).config_overrides()
@@ -1306,7 +1308,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                   expected_status=200)
 
 
-@dependency.requires('revoke_api')
 class TestTokenRevokeApi(TestTokenRevokeById):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'
@@ -2575,10 +2576,12 @@ class TestTrustOptional(test_v3.RestfulTestCase):
         self.v3_authenticate_token(auth_data, expected_status=403)
 
 
-@dependency.requires('revoke_api')
 class TestTrustAuth(test_v3.RestfulTestCase):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'
+
+    def load_extra_backends(self):
+        return {'revoke_api': revoke.Manager()}
 
     def config_overrides(self):
         super(TestTrustAuth, self).config_overrides()

@@ -14,11 +14,9 @@
 
 from testtools import matchers
 
-from keystone.common import dependency
 from keystone.tests import test_v3
 
 
-@dependency.requires('endpoint_policy_api')
 class TestExtensionCase(test_v3.RestfulTestCase):
 
     EXTENSION_NAME = 'endpoint_policy'
