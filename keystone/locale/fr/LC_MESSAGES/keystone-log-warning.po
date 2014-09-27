@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
+# Bruno Cornec <bruno.cornec@hp.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-19 06:36+0000\n"
-"PO-Revision-Date: 2014-06-20 20:10+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"POT-Creation-Date: 2014-09-27 06:17+0000\n"
+"PO-Revision-Date: 2014-09-24 10:06+0000\n"
+"Last-Translator: Bruno Cornec <bruno.cornec@hp.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
 "Language: fr\n"
@@ -22,41 +23,48 @@ msgstr ""
 #: keystone/common/wsgi.py:226
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
-msgstr ""
+msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
 
 #: keystone/common/wsgi.py:346
 msgid "Invalid token in _get_trust_id_for_request"
-msgstr ""
+msgstr "Jeton invalide dans _get_trust_id_for_request"
 
 #: keystone/common/kvs/core.py:134
 #, python-format
 msgid "%s is not a dogpile.proxy.ProxyBackend"
-msgstr ""
+msgstr "%s n'est pas un dogpile.proxy.ProxyBackend"
 
 #: keystone/common/kvs/core.py:401
 #, python-format
 msgid "KVS lock released (timeout reached) for: %s"
-msgstr ""
+msgstr "Verrou KVS relaché (temps limite atteint) pour : %s"
 
-#: keystone/common/ldap/core.py:1002
+#: keystone/common/ldap/core.py:1003
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
 msgstr ""
+"Le serveur LDAP ne prend pas en charge la pagination. Désactivez la "
+"pagination dans keystone.conf pour éviter de recevoir ce message."
 
-#: keystone/common/ldap/core.py:1201
+#: keystone/common/ldap/core.py:1202
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
 "<ldap_attribute>:<keystone_attribute>"
 msgstr ""
+"Mauvais mappage d'attribut additionnel: \"%s\". Le format doit être "
+"<ldap_attribute>:<keystone_attribute>"
 
-#: keystone/common/ldap/core.py:1312
+#: keystone/common/ldap/core.py:1313
 #, python-format
 msgid ""
 "ID attribute %(id_attr)s for LDAP object %(dn)s has multiple values and "
 "therefore cannot be used as an ID. Will get the ID from DN instead"
 msgstr ""
+"L'attribut ID %(id_attr)s pour l'objet LDAP %(dn)s a de multiples valeurs et "
+"par conséquent ne peut être utilisé comme un ID. Obtention de l'ID depuis le "
+"DN à la place."
 
 #: keystone/contrib/endpoint_policy/core.py:91
 #, python-format
@@ -64,6 +72,8 @@ msgid ""
 "Endpoint %(endpoint_id)s referenced in association for policy %(policy_id)s "
 "not found."
 msgstr ""
+"Le point d'entrée %(endpoint_id)s référencé en association avec la politique "
+"%(policy_id)s est introuvable."
 
 #: keystone/contrib/endpoint_policy/core.py:179
 #, python-format
@@ -83,13 +93,15 @@ msgstr ""
 #, python-format
 msgid "task %(func_name)s run outlasted interval by %(delay).2f sec"
 msgstr ""
+"L'exécution de la tâche %(func_name)s a dépassé intervalle de %(delay).2f "
+"secondes "
 
 #: keystone/openstack/common/service.py:364
 #, python-format
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
 
-#: keystone/token/persistence/core.py:232
+#: keystone/token/persistence/core.py:240
 #, python-format
 msgid ""
 "`token_api.%s` is deprecated as of Juno in favor of utilizing methods on "
