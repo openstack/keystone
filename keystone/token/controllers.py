@@ -265,8 +265,8 @@ class Auth(controller.V2Controller):
             raise exception.ValidationSizeError(
                 attribute='password', size=CONF.identity.max_password_length)
 
-        if ("userId" not in auth['passwordCredentials'] and
-                "username" not in auth['passwordCredentials']):
+        if (not auth['passwordCredentials'].get("userId") and
+                not auth['passwordCredentials'].get("username")):
             raise exception.ValidationError(
                 attribute='username or userId',
                 target='passwordCredentials')
