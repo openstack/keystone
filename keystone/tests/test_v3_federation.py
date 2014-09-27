@@ -1810,14 +1810,10 @@ class SAMLGenerationTests(FederationTests):
         provide a valid SAML (XML) document back.
 
         """
-
+        CONF.saml.idp_entity_id = self.ISSUER
         region_id = self._create_region_with_url()
         token_id = self._fetch_valid_token()
         body = self._create_generate_saml_request(token_id, region_id)
-
-        # NOTE(stevemar): The issuer is the identity provider, in this
-        # case, the host running Keystone.
-        real_issuer = 'http://localhost'
 
         with mock.patch.object(keystone_idp, '_sign_assertion',
                                return_value=self.signed_assertion):
@@ -1830,7 +1826,7 @@ class SAMLGenerationTests(FederationTests):
         assertion = response[2]
 
         self.assertEqual(self.RECIPIENT, response.get('Destination'))
-        self.assertEqual(real_issuer, issuer.text)
+        self.assertEqual(self.ISSUER, issuer.text)
 
         # NOTE(stevemar): We should test this against expected values,
         # but the self.xyz attribute names are uuids, and we mock out
