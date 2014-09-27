@@ -17,6 +17,7 @@ import datetime
 from oslo_config import cfg
 from oslo_utils import timeutils
 
+from keystone.common import dependency
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
@@ -736,19 +737,24 @@ class TestTokenProvider(tests.TestCase):
 
     def test_supported_token_providers(self):
         # test default config
+
+        dependency.reset()
         self.assertIsInstance(token.provider.Manager().driver,
                               uuid.Provider)
 
+        dependency.reset()
         self.config_fixture.config(
             group='token',
             provider='keystone.token.providers.uuid.Provider')
         token.provider.Manager()
 
+        dependency.reset()
         self.config_fixture.config(
             group='token',
             provider='keystone.token.providers.pki.Provider')
         token.provider.Manager()
 
+        dependency.reset()
         self.config_fixture.config(
             group='token',
             provider='keystone.token.providers.pkiz.Provider')

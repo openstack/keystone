@@ -25,6 +25,8 @@ See also:
 
 """
 
+import traceback
+
 import six
 
 from keystone.i18n import _
@@ -39,7 +41,11 @@ _factories = {}
 
 
 def _set_provider(name, provider):
-    _REGISTRY[name] = provider
+    _original_provider, where_registered = _REGISTRY.get(name, (None, None))
+    if where_registered:
+        raise Exception('%s already has a registered provider, at\n%s' %
+                        (name, ''.join(where_registered)))
+    _REGISTRY[name] = (provider, traceback.format_stack())
 
 
 GET_REQUIRED = object()
@@ -48,8 +54,8 @@ GET_OPTIONAL = object()
 
 def get_provider(name, optional=GET_REQUIRED):
     if optional is GET_REQUIRED:
-        return _REGISTRY[name]
-    return _REGISTRY.get(name)
+        return _REGISTRY[name][0]
+    return _REGISTRY.get(name, (None, None))[0]
 
 
 class UnresolvableDependencyException(Exception):
