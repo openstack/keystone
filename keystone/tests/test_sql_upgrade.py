@@ -38,7 +38,9 @@ from oslo.db import exception as db_exception
 from oslo.db.sqlalchemy import migration
 from oslo.db.sqlalchemy import session as db_session
 import six
+from sqlalchemy.engine import reflection
 import sqlalchemy.exc
+from sqlalchemy import schema
 
 from keystone.assignment.backends import sql as assignment_sql
 from keystone.common import sql
@@ -179,9 +181,30 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
         meta = sqlalchemy.MetaData()
         meta.bind = self.engine
         meta.reflect(self.engine)
-        for table in list(meta.tables.keys()):
-            table = sqlalchemy.Table(table, meta, autoload=True)
-            table.drop(self.engine, checkfirst=True)
+
+        with self.engine.begin() as conn:
+            inspector = reflection.Inspector.from_engine(self.engine)
+            metadata = schema.MetaData()
+            tbs = []
+            all_fks = []
+
+            for table_name in inspector.get_table_names():
+                fks = []
+                for fk in inspector.get_foreign_keys(table_name):
+                    if not fk['name']:
+                        continue
+                    fks.append(
+                        schema.ForeignKeyConstraint((), (), name=fk['name']))
+                table = schema.Table(table_name, metadata, *fks)
+                tbs.append(table)
+                all_fks.extend(fks)
+
+            for fkc in all_fks:
+                conn.execute(schema.DropConstraint(fkc))
+
+            for table in tbs:
+                conn.execute(schema.DropTable(table))
+
         sql.cleanup()
         super(SqlMigrateBase, self).tearDown()
 
@@ -237,7 +260,10 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
         self.initialize_sql()
         table = self.select_table(table_name)
         actual_cols = [col.name for col in table.columns]
-        self.assertEqual(expected_cols, actual_cols, '%s table' % table_name)
+        # Check if the columns are equal, but allow for a different order,
+        # which might occur after an upgrade followed by a downgrade
+        self.assertEqual(expected_cols.sort(), actual_cols.sort(),
+                         '%s table' % table_name)
 
     @property
     def initial_db_version(self):
@@ -758,6 +784,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         # we should have 3 trusts in base
         self.assertEqual(3, session.query(trust_table).count())
 
+        session.close()
         self.downgrade(40)
         session = self.Session()
         trust_table = sqlalchemy.Table(
@@ -795,8 +822,6 @@ class SqlUpgradeTests(SqlMigrateBase):
     def test_upgrade_service_enabled_data(self):
         """Migration 44 has to migrate data from `extra` to `enabled`."""
 
-        session = self.Session()
-
         def add_service(**extra_data):
             service_id = uuid.uuid4().hex
 
@@ -811,6 +836,7 @@ class SqlUpgradeTests(SqlMigrateBase):
             return service_id
 
         self.upgrade(43)
+        session = self.Session()
 
         # Different services with expected enabled and extra values, and a
         # description.
@@ -839,7 +865,9 @@ class SqlUpgradeTests(SqlMigrateBase):
              (False, random_attr), random_attr_enabled_false_str),
         ]
 
+        session.close()
         self.upgrade(44)
+        session = self.Session()
 
         # Verify that the services have the expected values.
 
@@ -859,7 +887,7 @@ class SqlUpgradeTests(SqlMigrateBase):
 
             enabled, extra = fetch_service(service_id)
 
-            self.assertIs(exp_enabled, enabled, msg)
+            self.assertEqual(exp_enabled, enabled, msg)
             self.assertEqual(exp_extra, extra, msg)
 
     def test_downgrade_service_enabled_data(self):
@@ -869,8 +897,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         `extra`. Any disabled services have 'enabled': False put into 'extra'.
 
         """
-
-        session = self.Session()
 
         def add_service(enabled=True, **extra_data):
             service_id = uuid.uuid4().hex
@@ -887,6 +913,7 @@ class SqlUpgradeTests(SqlMigrateBase):
             return service_id
 
         self.upgrade(44)
+        session = self.Session()
 
         # Insert some services using the new format.
 
@@ -912,7 +939,9 @@ class SqlUpgradeTests(SqlMigrateBase):
              "enabled=False, something='whatever'"),
         ]
 
+        session.close()
         self.downgrade(43)
+        session = self.Session()
 
         # Verify that the services have the expected values.
 
@@ -959,8 +988,6 @@ class SqlUpgradeTests(SqlMigrateBase):
     def test_upgrade_endpoint_enabled_data(self):
         """Migration 42 has to migrate data from `extra` to `enabled`."""
 
-        session = self.Session()
-
         def add_service():
             service_id = uuid.uuid4().hex
 
@@ -988,6 +1015,7 @@ class SqlUpgradeTests(SqlMigrateBase):
             return endpoint_id
 
         self.upgrade(41)
+        session = self.Session()
 
         # Insert some endpoints using the old format where `enabled` is in
         # `extra` JSON.
@@ -1024,7 +1052,9 @@ class SqlUpgradeTests(SqlMigrateBase):
              (False, random_attr), random_attr_enabled_false_str),
         ]
 
+        session.close()
         self.upgrade(42)
+        session = self.Session()
 
         # Verify that the endpoints have the expected values.
 
@@ -1044,7 +1074,9 @@ class SqlUpgradeTests(SqlMigrateBase):
 
             enabled, extra = fetch_endpoint(endpoint_id)
 
-            self.assertIs(exp_enabled, enabled, msg)
+            # NOTE(henry-nash): Different databases may return enabled as a
+            # real boolean of 0/1 - so we use assertEqual not assertIs here.
+            self.assertEqual(exp_enabled, enabled, msg)
             self.assertEqual(exp_extra, extra, msg)
 
     def test_downgrade_endpoint_enabled_data(self):
@@ -1054,8 +1086,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         `extra`. Any disabled endpoints have 'enabled': False put into 'extra'.
 
         """
-
-        session = self.Session()
 
         def add_service():
             service_id = uuid.uuid4().hex
@@ -1085,6 +1115,7 @@ class SqlUpgradeTests(SqlMigrateBase):
             return endpoint_id
 
         self.upgrade(42)
+        session = self.Session()
 
         # Insert some endpoints using the new format.
 
@@ -1109,7 +1140,9 @@ class SqlUpgradeTests(SqlMigrateBase):
              "enabled=False, something='whatever'"),
         ]
 
+        session.close()
         self.downgrade(41)
+        session = self.Session()
 
         # Verify that the endpoints have the expected values.
 
@@ -1137,7 +1170,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         Create two regions with the same description.
 
         """
-        session = self.Session()
 
         def add_region():
             region_uuid = uuid.uuid4().hex
@@ -1151,6 +1183,7 @@ class SqlUpgradeTests(SqlMigrateBase):
             return region_uuid
 
         self.upgrade(43)
+        session = self.Session()
         # Write one region to the database
         add_region()
         # Write another region to the database with the same description
@@ -1165,7 +1198,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         Create two regions with the same description.
 
         """
-        session = self.Session()
 
         def add_region(table):
             region_uuid = uuid.uuid4().hex
@@ -1185,6 +1217,7 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         # Migrate to version 42
         self.upgrade(42)
+        session = self.Session()
         region_table = sqlalchemy.Table('region',
                                         get_metadata(),
                                         autoload=True)
@@ -1205,16 +1238,23 @@ class SqlUpgradeTests(SqlMigrateBase):
             # into more specific exception objects, we should catch both of
             # sqlalchemy and oslo.db exceptions. If an old oslo.db version
             # is installed, IntegrityError is raised. If >=0.4.0 version of
-            # oslo.db is installed, DBDuplicateEntry is raised.
+            # oslo.db is installed, DBError is raised.
             # When the global requirements is updated with
             # the version fixes exceptions wrapping, IntegrityError must be
             # removed from the tuple.
-            (sqlalchemy.exc.IntegrityError, db_exception.DBDuplicateEntry),
+
+            # NOTE(henry-nash): The above re-creation of the (now erased from
+            # history) unique constraint doesn't appear to work well with the
+            # Postgresql SQA driver, leading to it throwing a ValueError, so
+            # we also catch that here.
+            (sqlalchemy.exc.IntegrityError, db_exception.DBError, ValueError),
             add_region,
             table=region_unique_table)
 
         # migrate to 43, unique constraint should be dropped
+        session.close()
         self.upgrade(43)
+        session = self.Session()
 
         # reload the region table from the schema
         region_nonunique = sqlalchemy.Table('region',
@@ -1267,7 +1307,9 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.insert_dict(session, 'region', acme)
         region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
         self.assertEqual(2, session.query(region_table).count())
+        session.close()
         self.downgrade(51)
+        session = self.Session()
         self.metadata.clear()
         region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
         self.assertEqual(2, session.query(region_table).count())
@@ -1344,7 +1386,9 @@ class SqlUpgradeTests(SqlMigrateBase):
         add_endpoint(_service_id_, region=None)
 
         # upgrade to 53
+        session.close()
         self.upgrade(53)
+        session = self.Session()
         self.metadata.clear()
 
         region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
@@ -1367,7 +1411,9 @@ class SqlUpgradeTests(SqlMigrateBase):
                          filter_by(region_id=_small_region_name).count())
 
         # downgrade to 52
+        session.close()
         self.downgrade(52)
+        session = self.Session()
         self.metadata.clear()
 
         region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
