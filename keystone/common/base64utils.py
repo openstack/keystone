@@ -19,7 +19,7 @@ limited to encoding and decoding base64 and it's variants. It is often
 useful to be able to perform other operations on base64 text. This
 module is meant to be used in conjunction with the core base64 module.
 
-Standarized base64 is defined in
+Standardized base64 is defined in
 RFC-4648 "The Base16, Base32, and Base64 Data Encodings".
 
 This module provides the following base64 utility functionality:
@@ -120,7 +120,7 @@ def filter_formatting(text):
 def base64_to_base64url(text):
     """Convert base64 text to base64url text.
 
-    base64url text is designed to be safe for use in filenames and
+    base64url text is designed to be safe for use in file names and
     URL's. It is defined in RFC-4648 Section 5.
 
     base64url differs from base64 in the last two alphabet characters
