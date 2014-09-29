@@ -14,14 +14,15 @@
 
 """This module provides support for dependency injection.
 
-Providers are registered via the 'provider' decorator, and dependencies on them
-are registered with 'requires' or 'optional'. Providers are available to their
-consumers via an attribute. See the documentation for the individual functions
-for more detail.
+Providers are registered via the ``@provider()`` decorator, and dependencies on
+them are registered with ``@requires()`` or ``@optional()``. Providers are
+available to their consumers via an attribute. See the documentation for the
+individual functions for more detail.
 
 See also:
 
     https://en.wikipedia.org/wiki/Dependency_injection
+
 """
 
 import six
@@ -38,8 +39,10 @@ _factories = {}
 
 
 class UnresolvableDependencyException(Exception):
-    """An UnresolvableDependencyException is raised when a required dependency
-    is not resolvable; see 'resolve_future_dependencies'.
+    """Raised when a required dependency is not resolvable.
+
+    See ``resolve_future_dependencies()`` for more details.
+
     """
     def __init__(self, name):
         msg = 'Unregistered dependency: %s' % name
@@ -47,11 +50,11 @@ class UnresolvableDependencyException(Exception):
 
 
 def provider(name):
-    """'provider' is a class decorator used to register providers.
+    """A class decorator used to register providers.
 
-    When 'provider' is used to decorate a class, members of that class will
-    register themselves as providers for the named dependency. As an example,
-    In the code fragment::
+    When ``@provider()`` is used to decorate a class, members of that class
+    will register themselves as providers for the named dependency. As an
+    example, In the code fragment::
 
         @dependency.provider('foo_api')
         class Foo:
@@ -62,10 +65,11 @@ def provider(name):
 
         foo = Foo()
 
-    The object 'foo' will be registered as a provider for 'foo_api'. No more
-    than one such instance should be created; additional instances will replace
-    the previous ones, possibly resulting in different instances being used by
-    different consumers.
+    The object ``foo`` will be registered as a provider for ``foo_api``. No
+    more than one such instance should be created; additional instances will
+    replace the previous ones, possibly resulting in different instances being
+    used by different consumers.
+
     """
     def wrapper(cls):
         def wrapped(init):
@@ -107,7 +111,7 @@ def provider(name):
                 REGISTRY[name] = self
                 register_event_callbacks(self)
 
-                resolve_future_dependencies(name)
+                resolve_future_dependencies(__provider_name=name)
 
             return __wrapped_init__
 
@@ -136,11 +140,11 @@ def _process_dependencies(obj):
 
 
 def requires(*dependencies):
-    """'requires' is a class decorator used to inject providers into consumers.
+    """A class decorator used to inject providers into consumers.
 
     The required providers will be made available to instances of the decorated
-    class via an attribute with the same name as the provider. For example,
-    in the code fragment::
+    class via an attribute with the same name as the provider. For example, in
+    the code fragment::
 
         @dependency.requires('foo_api', 'bar_api')
         class FooBarClient:
@@ -151,15 +155,17 @@ def requires(*dependencies):
 
         client = FooBarClient()
 
-    The object 'client' will have attributes named 'foo_api' and 'bar_api',
-    which are instances of the named providers.
+    The object ``client`` will have attributes named ``foo_api`` and
+    ``bar_api``, which are instances of the named providers.
 
     Objects must not rely on the existence of these attributes until after
-    'resolve_future_dependencies' has been called; they may not exist
+    ``resolve_future_dependencies()`` has been called; they may not exist
     beforehand.
 
-    Dependencies registered via 'required' must have providers - if not, an
-    exception will be raised when 'resolve_future_dependencies' is called.
+    Dependencies registered via ``@required()`` must have providers; if not,
+    an ``UnresolvableDependencyException`` will be raised when
+    ``resolve_future_dependencies()`` is called.
+
     """
     def wrapper(self, *args, **kwargs):
         """Inject each dependency from the registry."""
@@ -171,6 +177,7 @@ def requires(*dependencies):
 
         The dependencies of the parent class are combined with that of the
         child class to create a new set of dependencies.
+
         """
         existing_dependencies = getattr(cls, '_dependencies', set())
         cls._dependencies = existing_dependencies.union(dependencies)
@@ -183,8 +190,10 @@ def requires(*dependencies):
 
 
 def optional(*dependencies):
-    """'optional' is the same as 'requires', except that the dependencies are
-    optional - if no provider is available, the attributes will be set to None.
+    """Similar to ``@requires()``, except that the dependencies are optional.
+
+    If no provider is available, the attributes will be set to ``None``.
+
     """
     def wrapper(self, *args, **kwargs):
         """Inject each dependency from the registry."""
@@ -196,8 +205,8 @@ def optional(*dependencies):
 
         The dependencies of the parent class are combined with that of the
         child class to create a new set of dependencies.
-        """
 
+        """
         existing_optionals = getattr(cls, '_optionals', set())
         cls._optionals = existing_optionals.union(dependencies)
         if not hasattr(cls, '__wrapped_init__'):
@@ -208,8 +217,8 @@ def optional(*dependencies):
     return wrapped
 
 
-def resolve_future_dependencies(provider_name=None):
-    """'resolve_future_dependencies' forces injection of all dependencies.
+def resolve_future_dependencies(__provider_name=None):
+    """Forces injection of all dependencies.
 
     Before this function is called, circular dependencies may not have been
     injected. This function should be called only once, after all global
@@ -217,21 +226,22 @@ def resolve_future_dependencies(provider_name=None):
     call, it must not have circular dependencies.
 
     If any required dependencies are unresolvable, this function will raise an
-    UnresolvableDependencyException.
+    ``UnresolvableDependencyException``.
 
     Outside of this module, this function should be called with no arguments;
-    the optional argument is used internally, and should be treated as an
-    implementation detail.
+    the optional argument, ``__provider_name`` is used internally, and should
+    be treated as an implementation detail.
+
     """
     new_providers = dict()
-    if provider_name:
+    if __provider_name:
         # A provider was registered, so take care of any objects depending on
         # it.
-        targets = _future_dependencies.pop(provider_name, [])
-        targets.extend(_future_optionals.pop(provider_name, []))
+        targets = _future_dependencies.pop(__provider_name, [])
+        targets.extend(_future_optionals.pop(__provider_name, []))
 
         for target in targets:
-            setattr(target, provider_name, REGISTRY[provider_name])
+            setattr(target, __provider_name, REGISTRY[__provider_name])
 
         return
 
