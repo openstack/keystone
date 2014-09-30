@@ -1670,10 +1670,10 @@ class EnabledEmuMixIn(BaseLdap):
             naming_attr = (naming_attr_name, [naming_attr_value])
         else:
             # Extract the attribute name and value from the configured DN.
-            naming_dn = utf8_decode(
-                ldap.dn.str2dn(utf8_encode(self.enabled_emulation_dn)))
+            naming_dn = ldap.dn.str2dn(utf8_encode(self.enabled_emulation_dn))
             naming_rdn = naming_dn[0][0]
-            naming_attr = (naming_rdn[0], [naming_rdn[1]])
+            naming_attr = (utf8_decode(naming_rdn[0]),
+                           utf8_decode(naming_rdn[1]))
         self.enabled_emulation_naming_attr = naming_attr
 
     def _get_enabled(self, object_id):
