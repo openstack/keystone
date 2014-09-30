@@ -287,9 +287,9 @@ def is_dn_equal(dn1, dn2):
     """
 
     if not isinstance(dn1, list):
-        dn1 = ldap.dn.str2dn(dn1)
+        dn1 = ldap.dn.str2dn(utf8_encode(dn1))
     if not isinstance(dn2, list):
-        dn2 = ldap.dn.str2dn(dn2)
+        dn2 = ldap.dn.str2dn(utf8_encode(dn2))
 
     if len(dn1) != len(dn2):
         return False
@@ -309,9 +309,9 @@ def dn_startswith(descendant_dn, dn):
     """
 
     if not isinstance(descendant_dn, list):
-        descendant_dn = ldap.dn.str2dn(descendant_dn)
+        descendant_dn = ldap.dn.str2dn(utf8_encode(descendant_dn))
     if not isinstance(dn, list):
-        dn = ldap.dn.str2dn(dn)
+        dn = ldap.dn.str2dn(utf8_encode(dn))
 
     if len(descendant_dn) <= len(dn):
         return False
