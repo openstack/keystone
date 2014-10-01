@@ -128,6 +128,9 @@ class TokenAPITests(object):
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
 
+    def verify_token(self, *args, **kwargs):
+        return cms.verify_token(*args, **kwargs)
+
     def test_v3_token_id(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -137,10 +140,13 @@ class TokenAPITests(object):
         token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
 
-        expected_token_id = cms.cms_sign_token(json.dumps(token_data),
-                                               CONF.signing.certfile,
-                                               CONF.signing.keyfile)
-        self.assertEqual(expected_token_id, token_id)
+        decoded_token = self.verify_token(token_id, CONF.signing.certfile,
+                                          CONF.signing.ca_certs)
+        decoded_token_dict = json.loads(decoded_token)
+
+        token_resp_dict = json.loads(resp.body)
+
+        self.assertEqual(decoded_token_dict, token_resp_dict)
         # should be able to validate hash PKI token as well
         hash_token_id = cms.cms_hash_token(token_id)
         headers = {'X-Subject-Token': hash_token_id}
