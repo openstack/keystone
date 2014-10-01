@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -125,6 +126,11 @@ class DnCompareTest(tests.BaseTestCase):
         dn = 'cn=Babs Jansen,ou=OpenStack'
         self.assertTrue(ks_ldap.is_dn_equal(dn, dn))
 
+    def test_dn_equal_unicode(self):
+        # is_dn_equal can accept unicode
+        dn = u'cn=fäké,ou=OpenStack'
+        self.assertTrue(ks_ldap.is_dn_equal(dn, dn))
+
     def test_dn_diff_length(self):
         # is_dn_equal returns False if the DNs don't have the same number of
         # RDNs
@@ -183,6 +189,12 @@ class DnCompareTest(tests.BaseTestCase):
         descendant = ldap.dn.str2dn('cn=Babs Jansen,ou=OpenStack')
         dn = ldap.dn.str2dn('ou=OpenStack')
         self.assertTrue(ks_ldap.dn_startswith(descendant, dn))
+
+    def test_startswith_unicode(self):
+        # dn_startswith accepts unicode.
+        child = u'cn=cn=fäké,ou=OpenStäck'
+        parent = 'ou=OpenStäck'
+        self.assertTrue(ks_ldap.dn_startswith(child, parent))
 
 
 class LDAPDeleteTreeTest(tests.TestCase):
