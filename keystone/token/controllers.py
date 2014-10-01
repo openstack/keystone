@@ -104,8 +104,6 @@ class Auth(controller.V2Controller):
         try:
             self.identity_api.assert_user_enabled(
                 user_id=user_ref['id'], user=user_ref)
-            self.assignment_api.assert_domain_enabled(
-                domain_id=user_ref['domain_id'])
             if tenant_ref:
                 self.assignment_api.assert_project_enabled(
                     project_id=tenant_ref['id'], project=tenant_ref)
