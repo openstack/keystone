@@ -1201,6 +1201,27 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # from the resource default.
         self.assertIs(not CONF.ldap.user_enabled_default, user_ref['enabled'])
 
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_user_enabled_invert_default_str_value(self, mock_ldap_get):
+        self.config_fixture.config(group='ldap', user_enabled_invert=True,
+                                   user_enabled_default='False')
+        # Mock the search results to return an entry with
+        # no enabled value.
+        mock_ldap_get.return_value = (
+            'cn=junk,dc=example,dc=com',
+            {
+                'sn': [uuid.uuid4().hex],
+                'email': [uuid.uuid4().hex],
+                'cn': ['junk']
+            }
+        )
+
+        user_api = identity.backends.ldap.UserApi(CONF)
+        user_ref = user_api.get('junk')
+        # Ensure that the model enabled attribute is inverted
+        # from the resource default.
+        self.assertIs(True, user_ref['enabled'])
+
     @mock.patch.object(common_ldap_core.KeystoneLDAPHandler, 'simple_bind_s')
     def test_user_api_get_connection_no_user_password(self, mocked_method):
         """Don't bind in case the user and password are blank."""
@@ -1894,6 +1915,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         self.assertIs(True, user_ref['enabled'])
 
     def test_user_enabled_invert_no_enabled_value(self):
+        self.skipTest(
+            "N/A: Covered by test_user_enabled_invert")
+
+    def test_user_enabled_invert_default_str_value(self):
         self.skipTest(
             "N/A: Covered by test_user_enabled_invert")
 
