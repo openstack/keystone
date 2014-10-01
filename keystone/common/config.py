@@ -92,16 +92,15 @@ FILE_OPTIONS = {
                         'exception for token values.'),
         cfg.StrOpt('member_role_id',
                    default='9fe2ff9ee4384b1894a90878d3e92bab',
-                   help='During a SQL upgrade member_role_id will be used '
-                        'to create a new role that will replace records in '
-                        'the assignment table with explicit role grants. '
-                        'After migration, the member_role_id will be used in '
-                        'the API add_user_to_project.'),
+                   help='Similar to the member_role_name option, this '
+                        'represents the default role ID used to associate '
+                        'users with their default projects in the v2 API. '
+                        'This will be used as the explicit role where one is '
+                        'not specified by the v2 API.'),
         cfg.StrOpt('member_role_name', default='_member_',
-                   help='During a SQL upgrade member_role_name will be used '
-                        'to create a new role that will replace records in '
-                        'the assignment table with explicit role grants. '
-                        'After migration, member_role_name will be ignored.'),
+                   help='This is the role name used in combination with the '
+                        'member_role_id option; see that option for more '
+                        'detail.'),
         cfg.IntOpt('crypt_strength', default=40000,
                    help='The value passed as the keyword "rounds" to '
                         'passlib\'s encrypt method.'),
