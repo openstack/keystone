@@ -1857,6 +1857,15 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
                           self.identity_api.get_user,
                           user['id'])
 
+    def test_user_auth_emulated(self):
+        self.config_fixture.config(group='ldap',
+                                   user_enabled_emulation_dn='cn=test,dc=test')
+        self.reload_backends(CONF.identity.default_domain_id)
+        self.identity_api.authenticate(
+            context={},
+            user_id=self.user_foo['id'],
+            password=self.user_foo['password'])
+
     def test_user_enable_attribute_mask(self):
         self.skipTest(
             "Enabled emulation conflicts with enabled mask")
