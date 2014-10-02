@@ -783,10 +783,6 @@ Returns:
             ],
             "media-types":[
                 {
-                    "base":"application/xml",
-                    "type":"application/vnd.openstack.identity-v2.0+xml"
-                },
-                {
                     "base":"application/json",
                     "type":"application/vnd.openstack.identity-v2.0+json"
                 }

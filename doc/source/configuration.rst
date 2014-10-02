@@ -830,7 +830,7 @@ and before the ``public_service`` app in the public_api WSGI pipeline in
     paste.filter_factory = keystone.contrib.user_crud:CrudExtension.factory
 
     [pipeline:public_api]
-    pipeline = url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
+    pipeline = url_normalize token_auth admin_token_auth json_body debug ec2_extension user_crud_extension public_service
 
 Each user can then change their own password with a HTTP PATCH :
 
