@@ -14,6 +14,7 @@
 
 import copy
 import datetime
+import json
 import operator
 import uuid
 
@@ -129,10 +130,8 @@ class TokenAPITests(object):
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
 
-    def sign_token(self, resp):
-        return cms.cms_sign_token(resp.body,
-                                  CONF.signing.certfile,
-                                  CONF.signing.keyfile)
+    def verify_token(self, *args, **kwargs):
+        return cms.verify_token(*args, **kwargs)
 
     def test_v3_token_id(self):
         auth_data = self.build_authentication_request(
@@ -143,8 +142,13 @@ class TokenAPITests(object):
         token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
 
-        expected_token_id = self.sign_token(resp)
-        self.assertEqual(expected_token_id, token_id)
+        decoded_token = self.verify_token(token_id, CONF.signing.certfile,
+                                          CONF.signing.ca_certs)
+        decoded_token_dict = json.loads(decoded_token)
+
+        token_resp_dict = json.loads(resp.body)
+
+        self.assertEqual(decoded_token_dict, token_resp_dict)
         # should be able to validate hash PKI token as well
         hash_token_id = cms.cms_hash_token(token_id)
         headers = {'X-Subject-Token': hash_token_id}
@@ -411,10 +415,8 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
 
 class TestPKIZTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
 
-    def sign_token(self, resp):
-        return cms.pkiz_sign(resp.body,
-                             CONF.signing.certfile,
-                             CONF.signing.keyfile)
+    def verify_token(self, *args, **kwargs):
+        return cms.pkiz_verify(*args, **kwargs)
 
     def config_overrides(self):
         super(TestPKIZTokenAPIs, self).config_overrides()
