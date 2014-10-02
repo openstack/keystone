@@ -14,7 +14,6 @@
 
 """Main entry point into the Token service."""
 
-from keystone.common import cache
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
@@ -26,11 +25,6 @@ from keystone.token import provider
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
-SHOULD_CACHE = cache.should_cache_fn('token')
-
-# NOTE(blk-u): The config options are not available at import time.
-EXPIRATION_TIME = lambda: CONF.token.cache_time
-REVOCATION_CACHE_EXPIRATION_TIME = lambda: CONF.token.revocation_cache_time
 
 
 @versionutils.deprecated(
