@@ -45,7 +45,9 @@ file. You are advised to examine `Shibboleth Service Provider Configuration docu
 
 An example of your ``/etc/shibboleth/shibboleth2.xml`` may look like
 (The example shown below is for reference only, not to be used in a production
-environment)::
+environment):
+
+.. code-block:: xml
 
     <!--
     File configuration courtesy of http://testshib.org
