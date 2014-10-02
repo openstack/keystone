@@ -1657,7 +1657,7 @@ class VersionTests(SqlMigrateBase):
 
         self.assertRaises(exception.MigrationNotProvided,
                           migration_helpers.get_db_version,
-                          extension='access')
+                          extension='admin_crud')
 
     def test_initial_with_extension_version_None(self):
         """When performing a default migration, also migrate extensions."""
