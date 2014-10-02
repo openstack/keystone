@@ -16,7 +16,6 @@ import uuid
 
 from oslo.utils import timeutils
 import six
-from testtools import matchers
 
 from keystone import config
 from keystone import exception
@@ -29,112 +28,10 @@ from keystone.tests import test_backend
 CONF = config.CONF
 
 
-class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
-    def setUp(self):
-        # NOTE(dstanek): setup the database for subsystems that only have a
-        # SQL backend (like credentials)
-        self.useFixture(database.Database())
-
-        super(KvsIdentity, self).setUp()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-    def config_overrides(self):
-        super(KvsIdentity, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
-
-    def test_password_hashed(self):
-        driver = self.identity_api._select_identity_driver(
-            self.user_foo['domain_id'])
-        user_ref = driver._get_user(self.user_foo['id'])
-        self.assertNotEqual(user_ref['password'], self.user_foo['password'])
-
-    def test_list_projects_for_user_with_grants(self):
-        self.skipTest('kvs backend is now deprecated')
-
-    def test_create_duplicate_group_name_in_different_domains(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_create_duplicate_user_name_in_different_domains(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_create_duplicate_project_name_in_different_domains(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_move_user_between_domains(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_move_user_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_move_group_between_domains(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_move_group_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_move_project_between_domains(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_move_project_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Blocked by bug 1119770')
-
-    def test_delete_group_removes_role_assignments(self):
-        # When a group is deleted any role assignments for the group are
-        # supposed to be removed, but the KVS backend doesn't implement the
-        # funcationality so the assignments are left around.
-
-        DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
-        MEMBER_ROLE_ID = 'member'
-
-        def get_member_assignments():
-            assignments = self.assignment_api.list_role_assignments()
-            return filter(lambda x: x['role_id'] == MEMBER_ROLE_ID,
-                          assignments)
-
-        # Create a group.
-        new_group = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': self.getUniqueString(prefix='tdgrra')}
-        new_group = self.identity_api.create_group(new_group)
-
-        # Create a project.
-        new_project = {
-            'id': uuid.uuid4().hex,
-            'name': self.getUniqueString(prefix='tdgrra'),
-            'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(new_project['id'], new_project)
-
-        # Assign a role to the group.
-        self.assignment_api.create_grant(
-            group_id=new_group['id'], project_id=new_project['id'],
-            role_id=MEMBER_ROLE_ID)
-
-        new_role_assignments = get_member_assignments()
-
-        # Delete the group.
-        self.identity_api.delete_group(new_group['id'])
-
-        # Check that the role assignment for the group is still there since
-        # kvs doesn't implement cleanup.
-        member_assignments = get_member_assignments()
-
-        self.assertThat(member_assignments,
-                        matchers.Equals(new_role_assignments))
-
-
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
         self.load_backends()
-
-    def config_overrides(self):
-        super(KvsToken, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
 
     def test_flush_expired_token(self):
         self.assertRaises(
@@ -210,14 +107,13 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
 class KvsTrust(tests.TestCase, test_backend.TrustTests):
     def setUp(self):
         super(KvsTrust, self).setUp()
+        # Need to load the SQL database support for the fixtures
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
     def config_overrides(self):
         super(KvsTrust, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
         self.config_fixture.config(
             group='trust',
             driver='keystone.trust.backends.kvs.Trust')
@@ -234,9 +130,6 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
 
     def config_overrides(self):
         super(KvsCatalog, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
         self.config_fixture.config(
             group='trust',
             driver='keystone.trust.backends.kvs.Trust')
@@ -298,28 +191,5 @@ class KvsTokenCacheInvalidation(tests.TestCase,
     def config_overrides(self):
         super(KvsTokenCacheInvalidation, self).config_overrides()
         self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
-        self.config_fixture.config(
             group='token',
             driver='keystone.token.backends.kvs.Token')
-
-
-class KvsInheritanceTests(tests.TestCase, test_backend.InheritanceTests):
-    def setUp(self):
-        # NOTE(dstanek): setup the database for subsystems that only have a
-        # SQL backend (like credentials)
-        self.useFixture(database.Database())
-
-        super(KvsInheritanceTests, self).setUp()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-    def config_overrides(self):
-        super(KvsInheritanceTests, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.kvs.Identity')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.kvs.Assignment')
