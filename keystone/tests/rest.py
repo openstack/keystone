@@ -14,13 +14,12 @@
 
 import io
 
-from lxml import etree
+
 from oslo.serialization import jsonutils
 import six
 import webtest
 
 from keystone.auth import controllers as auth_controllers
-from keystone.common import serializer
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -152,11 +151,6 @@ class RestfulTestCase(tests.TestCase):
             if body:
                 headers['Content-Type'] = 'application/json'
                 return jsonutils.dumps(body)
-        elif content_type == 'xml':
-            headers['Accept'] = 'application/xml'
-            if body:
-                headers['Content-Type'] = 'application/xml'
-                return serializer.to_xml(body)
 
     def _from_content_type(self, response, content_type=None):
         """Attempt to decode JSON and XML automatically, if detected."""
@@ -169,15 +163,13 @@ class RestfulTestCase(tests.TestCase):
 
             if content_type == 'json':
                 response.result = jsonutils.loads(response.body)
-            elif content_type == 'xml':
-                response.result = etree.fromstring(response.body)
             else:
                 response.result = response.body
 
     def restful_request(self, method='GET', headers=None, body=None,
                         content_type=None, response_content_type=None,
                         **kwargs):
-        """Serializes/deserializes json/xml as request/response body.
+        """Serializes/deserializes json as request/response body.
 
         .. WARNING::
 

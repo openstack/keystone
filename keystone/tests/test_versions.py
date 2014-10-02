@@ -25,7 +25,6 @@ from keystone.common import json_home
 from keystone import config
 from keystone import controllers
 from keystone import tests
-from keystone.tests import matchers
 
 
 CONF = config.CONF
@@ -35,10 +34,6 @@ v2_MEDIA_TYPES = [
         "base": "application/json",
         "type": "application/"
                 "vnd.openstack.identity-v2.0+json"
-    }, {
-        "base": "application/xml",
-        "type": "application/"
-                "vnd.openstack.identity-v2.0+xml"
     }
 ]
 
@@ -72,10 +67,6 @@ v3_MEDIA_TYPES = [
         "base": "application/json",
         "type": "application/"
                 "vnd.openstack.identity-v3+json"
-    }, {
-        "base": "application/xml",
-        "type": "application/"
-                "vnd.openstack.identity-v3+xml"
     }
 ]
 
@@ -629,6 +620,17 @@ class VersionTestCase(tests.TestCase):
         # If request some unknown mime-type, get JSON.
         self.assertThat(make_request(self.getUniqueString()), JSON_MATCHER)
 
+    @mock.patch.object(controllers, '_VERSIONS', [])
+    def test_no_json_home_document_returned_when_v3_disabled(self):
+        json_home_document = controllers.request_v3_json_home('some_prefix')
+        expected_document = {'resources': {}}
+        self.assertEqual(expected_document, json_home_document)
+
+    def test_extension_property_method_returns_none(self):
+        extension_obj = controllers.Extensions()
+        extensions_property = extension_obj.extensions
+        self.assertIsNone(extensions_property)
+
 
 class VersionSingleAppTestCase(tests.TestCase):
     """Tests running with a single application loaded.
@@ -713,189 +715,3 @@ class VersionInheritEnabledTestCase(tests.TestCase):
 
         self.assertThat(jsonutils.loads(resp.body),
                         tt_matchers.Equals(exp_json_home_data))
-
-
-class XmlVersionTestCase(tests.TestCase):
-
-    REQUEST_HEADERS = {'Accept': 'application/xml'}
-
-    DOC_INTRO = '<?xml version="1.0" encoding="UTF-8"?>'
-    XML_NAMESPACE_ATTR = 'xmlns="http://docs.openstack.org/identity/api/v2.0"'
-    XML_NAMESPACE_V3 = 'xmlns="http://docs.openstack.org/identity/api/v3"'
-
-    v2_VERSION_DATA = """
-<version %(v2_namespace)s status="stable" updated="2014-04-17T00:00:00Z"
-         id="v2.0">
-  <media-types>
-    <media-type base="application/json" type="application/\
-vnd.openstack.identity-v2.0+json"/>
-    <media-type base="application/xml" type="application/\
-vnd.openstack.identity-v2.0+xml"/>
-  </media-types>
-  <links>
-    <link href="http://localhost:%%(port)s/v2.0/" rel="self"/>
-    <link href="http://docs.openstack.org/" type="text/html" \
-rel="describedby"/>
-  </links>
-  <link href="http://localhost:%%(port)s/v2.0/" rel="self"/>
-  <link href="http://docs.openstack.org/" type="text/html" \
-rel="describedby"/>
-</version>
-"""
-
-    v2_VERSION_RESPONSE = ((DOC_INTRO + v2_VERSION_DATA) %
-                           dict(v2_namespace=XML_NAMESPACE_ATTR))
-
-    v3_VERSION_DATA = """
-<version %(v3_namespace)s status="stable" updated="2013-03-06T00:00:00Z"
-         id="v3.0">
-  <media-types>
-    <media-type base="application/json" type="application/\
-vnd.openstack.identity-v3+json"/>
-    <media-type base="application/xml" type="application/\
-vnd.openstack.identity-v3+xml"/>
-  </media-types>
-  <links>
-    <link href="http://localhost:%%(port)s/v3/" rel="self"/>
-  </links>
-</version>
-"""
-
-    v3_VERSION_RESPONSE = ((DOC_INTRO + v3_VERSION_DATA) %
-                           dict(v3_namespace=XML_NAMESPACE_V3))
-
-    VERSIONS_RESPONSE = ((DOC_INTRO + """
-<versions %(namespace)s>
-""" +
-                          v3_VERSION_DATA +
-                          v2_VERSION_DATA + """
-</versions>
-""") % dict(namespace=XML_NAMESPACE_ATTR, v3_namespace='', v2_namespace=''))
-
-    def setUp(self):
-        super(XmlVersionTestCase, self).setUp()
-        self.load_backends()
-        self.public_app = self.loadapp('keystone', 'main')
-        self.admin_app = self.loadapp('keystone', 'admin')
-
-        self.config_fixture.config(
-            public_endpoint='http://localhost:%(public_port)d',
-            admin_endpoint='http://localhost:%(admin_port)d')
-
-    def config_overrides(self):
-        super(XmlVersionTestCase, self).config_overrides()
-        port = random.randint(10000, 30000)
-        self.config_fixture.config(public_port=port, admin_port=port)
-
-    def test_public_versions(self):
-        client = self.client(self.public_app)
-        resp = client.get('/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 300)
-        data = resp.body
-        expected = self.VERSIONS_RESPONSE % dict(port=CONF.public_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    def test_admin_versions(self):
-        client = self.client(self.admin_app)
-        resp = client.get('/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 300)
-        data = resp.body
-        expected = self.VERSIONS_RESPONSE % dict(port=CONF.admin_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    def test_use_site_url_if_endpoint_unset(self):
-        client = self.client(self.public_app)
-        resp = client.get('/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 300)
-        data = resp.body
-        expected = self.VERSIONS_RESPONSE % dict(port=CONF.public_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    def test_public_version_v2(self):
-        client = self.client(self.public_app)
-        resp = client.get('/v2.0/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 200)
-        data = resp.body
-        expected = self.v2_VERSION_RESPONSE % dict(port=CONF.public_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    def test_admin_version_v2(self):
-        client = self.client(self.admin_app)
-        resp = client.get('/v2.0/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 200)
-        data = resp.body
-        expected = self.v2_VERSION_RESPONSE % dict(port=CONF.admin_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    def test_public_version_v3(self):
-        client = self.client(self.public_app)
-        resp = client.get('/v3/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 200)
-        data = resp.body
-        expected = self.v3_VERSION_RESPONSE % dict(port=CONF.public_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    def test_admin_version_v3(self):
-        client = self.client(self.public_app)
-        resp = client.get('/v3/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 200)
-        data = resp.body
-        expected = self.v3_VERSION_RESPONSE % dict(port=CONF.admin_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-    @mock.patch.object(controllers, '_VERSIONS', ['v3'])
-    def test_v2_disabled(self):
-        client = self.client(self.public_app)
-
-        # request to /v3 should pass
-        resp = client.get('/v3/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 200)
-        data = resp.body
-        expected = self.v3_VERSION_RESPONSE % dict(port=CONF.public_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-        # only v3 information should be displayed by requests to /
-        v3_only_response = ((self.DOC_INTRO + '<versions %(namespace)s>' +
-                             self.v3_VERSION_DATA + '</versions>') %
-                            dict(namespace=self.XML_NAMESPACE_ATTR,
-                                 v3_namespace='') %
-                            dict(port=CONF.public_port))
-
-        resp = client.get('/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 300)
-        data = resp.body
-        self.assertThat(data, matchers.XMLEquals(v3_only_response))
-
-    @mock.patch.object(controllers, '_VERSIONS', ['v2.0'])
-    def test_v3_disabled(self):
-        client = self.client(self.public_app)
-
-        # request to /v2.0 should pass
-        resp = client.get('/v2.0/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 200)
-        data = resp.body
-        expected = self.v2_VERSION_RESPONSE % dict(port=CONF.public_port)
-        self.assertThat(data, matchers.XMLEquals(expected))
-
-        # only v2 information should be displayed by requests to /
-        v2_only_response = ((self.DOC_INTRO + '<versions %(namespace)s>' +
-                             self.v2_VERSION_DATA + '</versions>') %
-                            dict(namespace=self.XML_NAMESPACE_ATTR,
-                                 v2_namespace='') %
-                            dict(port=CONF.public_port))
-
-        resp = client.get('/', headers=self.REQUEST_HEADERS)
-        self.assertEqual(resp.status_int, 300)
-        data = resp.body
-        self.assertThat(data, matchers.XMLEquals(v2_only_response))
-
-    @mock.patch.object(controllers, '_VERSIONS', [])
-    def test_no_json_home_document_returned_when_v3_disabled(self):
-        json_home_document = controllers.request_v3_json_home('some_prefix')
-        expected_document = {'resources': {}}
-        self.assertEqual(expected_document, json_home_document)
-
-    def test_extension_property_method_returns_none(self):
-        extension_obj = controllers.Extensions()
-        extensions_property = extension_obj.extensions
-        self.assertIsNone(extensions_property)

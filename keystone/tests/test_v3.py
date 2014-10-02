@@ -15,7 +15,6 @@
 import datetime
 import uuid
 
-from lxml import etree
 from oslo.serialization import jsonutils
 from oslo.utils import timeutils
 import six
@@ -24,7 +23,6 @@ from testtools import matchers
 from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
-from keystone.common import serializer
 from keystone import config
 from keystone import exception
 from keystone import middleware
@@ -400,8 +398,6 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
         """
         r = super(RestfulTestCase, self).admin_request(*args, **kwargs)
-        if r.headers.get('Content-Type') == 'application/xml':
-            r.result = serializer.from_xml(etree.tostring(r.result))
         return r
 
     def get_scoped_token(self):
@@ -505,10 +501,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         return r
 
     def assertValidErrorResponse(self, r):
-        if r.headers.get('Content-Type') == 'application/xml':
-            resp = serializer.from_xml(etree.tostring(r.result))
-        else:
-            resp = r.result
+        resp = r.result
         self.assertIsNotNone(resp.get('error'))
         self.assertIsNotNone(resp['error'].get('code'))
         self.assertIsNotNone(resp['error'].get('title'))

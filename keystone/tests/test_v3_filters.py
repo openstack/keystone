@@ -30,7 +30,6 @@ CONF = config.CONF
 class IdentityTestFilteredCase(filtering.FilterTests,
                                test_v3.RestfulTestCase):
     """Test filter enforcement on the v3 Identity API."""
-    content_type = 'json'
 
     def setUp(self):
         """Setup for Identity Filter Test Cases."""
@@ -435,11 +434,3 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         r = self.get('/services', auth=self.auth)
         self.assertEqual(len(r.result.get('services')), 10)
         self.assertIsNone(r.result.get('truncated'))
-
-
-class IdentityTestFilteredCaseXML(IdentityTestFilteredCase):
-    content_type = 'xml'
-
-
-class IdentityTestListLimitCaseXML(IdentityTestListLimitCase):
-    content_type = 'xml'

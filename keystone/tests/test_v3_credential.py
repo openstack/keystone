@@ -85,11 +85,6 @@ class CredentialTestCase(CredentialBaseTestCase):
         r = self.get('/credentials')
         self.assertValidCredentialListResponse(r, ref=self.credential)
 
-    def test_list_credentials_xml(self):
-        """Call ``GET /credentials`` (xml data)."""
-        r = self.get('/credentials', content_type='xml')
-        self.assertValidCredentialListResponse(r, ref=self.credential)
-
     def test_list_credentials_filtered_by_user_id(self):
         """Call ``GET  /credentials?user_id={user_id}``."""
         credential = self.new_credential_ref(
