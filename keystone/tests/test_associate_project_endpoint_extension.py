@@ -1015,6 +1015,20 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             'endpoint_group_id': endpoint_group_id})
         self.get(url, expected_status=404)
 
+    def test_removing_an_endpoint_group_project(self):
+        # create an endpoint group
+        endpoint_group_id = self._create_valid_endpoint_group(
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # create an endpoint_group project
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.default_domain_project_id)
+        self.put(url)
+
+        # remove the endpoint group project
+        self.delete(url)
+        self.get(url, expected_status=404)
+
     def _create_valid_endpoint_group(self, url, body):
         r = self.post(url, body=body)
         return r.result['endpoint_group']['id']
