@@ -16,6 +16,7 @@ import os
 
 import fixtures
 from oslo_db import options as db_options
+from oslo_db.sqlalchemy import enginefacade
 
 from keystone.common import sql
 import keystone.conf
@@ -42,13 +43,21 @@ def run_once(f):
 
 # NOTE(I159): Every execution all the options will be cleared. The method must
 # be called at the every fixture initialization.
-def initialize_sql_session(connection_str=unit.IN_MEM_DB_CONN_STRING):
+def initialize_sql_session(connection_str=unit.IN_MEM_DB_CONN_STRING,
+                           enforce_sqlite_fks=True):
     # Make sure the DB is located in the correct location, in this case set
     # the default value, as this should be able to be overridden in some
     # test cases.
     db_options.set_defaults(
         CONF,
         connection=connection_str)
+
+    # Enable the  Sqlite FKs for global engine by default.
+    facade = enginefacade.get_legacy_facade()
+    engine = facade.get_engine()
+    f_key = 'ON' if enforce_sqlite_fks else 'OFF'
+    if engine.name == 'sqlite':
+        engine.connect().execute('PRAGMA foreign_keys = ' + f_key)
 
 
 @run_once
@@ -94,10 +103,12 @@ def _load_sqlalchemy_models():
 class Database(fixtures.Fixture):
     """A fixture for setting up and tearing down a database."""
 
-    def __init__(self):
+    def __init__(self, enable_sqlite_foreign_key=False):
         super(Database, self).__init__()
         initialize_sql_session()
         _load_sqlalchemy_models()
+        if enable_sqlite_foreign_key:
+            sql.enable_sqlite_foreign_key()
 
     def setUp(self):
         super(Database, self).setUp()

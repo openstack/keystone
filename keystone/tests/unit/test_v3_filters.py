@@ -47,7 +47,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.tmpfilename = self.tempfile.file_name
         super(IdentityTestFilteredCase, self).setUp()
 
-    def load_sample_data(self):
+    def load_sample_data(self, enable_sqlite_foreign_key=False):
         """Create sample data for these tests.
 
         As well as the usual housekeeping, create a set of domains,
@@ -341,7 +341,7 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         super(IdentityPasswordExpiryFilteredTestCase, self).setUp()
 
-    def load_sample_data(self):
+    def load_sample_data(self, enable_sqlite_foreign_key=False):
         """Create sample data for password expiry tests.
 
         The test environment will consist of a single domain, containing

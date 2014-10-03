@@ -1887,7 +1887,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self.assertEqual(note['protocol'], protocol)
         self.assertTrue(note['send_notification_called'])
 
-    def load_fixtures(self, fixtures):
+    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
         super(FederatedTokenTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
 
@@ -2828,7 +2828,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     AUTH_METHOD = 'token'
 
-    def load_fixtures(self, fixtures):
+    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
         super(FernetFederatedTokenTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
 
@@ -2944,7 +2944,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         methods = ['saml2', 'token']
         super(FederatedUserTests, self).auth_plugin_config_override(methods)
 
-    def load_fixtures(self, fixtures):
+    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
         super(FederatedUserTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
 
@@ -3313,7 +3313,7 @@ class ShadowMappingTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         methods = ['saml2', 'token']
         super(ShadowMappingTests, self).auth_plugin_config_override(methods)
 
-    def load_fixtures(self, fixtures):
+    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
         super(ShadowMappingTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
 

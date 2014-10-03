@@ -998,7 +998,7 @@ class TestCatalogAPITemplatedProject(test_v3.RestfulTestCase):
         super(TestCatalogAPITemplatedProject, self).config_overrides()
         self.config_fixture.config(group='catalog', driver='templated')
 
-    def load_fixtures(self, fixtures):
+    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
         self.load_sample_data(create_region_and_endpoints=False)
 
     def test_project_delete(self):
