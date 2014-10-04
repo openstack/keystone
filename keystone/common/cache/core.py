@@ -17,11 +17,11 @@
 import dogpile.cache
 from dogpile.cache import proxy
 from dogpile.cache import util
+from oslo.utils import importutils
 
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import importutils
 from keystone.openstack.common import log
 
 
