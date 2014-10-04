@@ -17,6 +17,7 @@ import uuid
 
 from lxml import etree
 import mock
+from oslo.serialization import jsonutils
 from oslotest import mockpatch
 import saml2
 from saml2 import saml
@@ -32,7 +33,6 @@ from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
 from keystone import notifications
-from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.tests import federation_fixtures
 from keystone.tests import mapping_fixtures

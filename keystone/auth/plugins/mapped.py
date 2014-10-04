@@ -12,6 +12,7 @@
 
 import functools
 
+from oslo.serialization import jsonutils
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 
@@ -21,7 +22,6 @@ from keystone.contrib import federation
 from keystone.contrib.federation import utils
 from keystone.models import token_model
 from keystone import notifications
-from keystone.openstack.common import jsonutils
 
 
 @dependency.requires('federation_api', 'identity_api', 'token_provider_api')
