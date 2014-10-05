@@ -16,6 +16,7 @@
 
 import ldappool
 import mock
+from oslotest import mockpatch
 
 from keystone.common.ldap import core as ldap_core
 from keystone import config
@@ -213,21 +214,9 @@ class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
     sure it works without any error.
     '''
     def setUp(self):
-        # NOTE(dstanek): We need to patch the Connector before the
-        # parent setUp is executed. The patch cleanup needs to happen
-        # after the parent setUp runs because olsotest will try to
-        # automagically stop all patches and that will cause an
-        # exception. We could just not cleanup after ourselves since
-        # oslotest will do it, but that seems wrong. Once bug #1365678
-        # is fixed and released in oslotest we can start using
-        # oslotest.mockpatch.PatchObject instead.
-        patcher = mock.patch.object(ldap_core.PooledLDAPHandler, 'Connector',
-                                    fakeldap.FakeLdapPool)
-        patcher.start()
-        try:
-            super(LdapIdentitySqlAssignment, self).setUp()
-        finally:
-            self.addCleanup(patcher.stop)
+        self.useFixture(mockpatch.PatchObject(
+            ldap_core.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))
+        super(LdapIdentitySqlAssignment, self).setUp()
 
         self.addCleanup(self.cleanup_pools)
         # storing to local variable to avoid long references
