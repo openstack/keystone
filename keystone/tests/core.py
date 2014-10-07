@@ -378,7 +378,7 @@ class TestCase(BaseTestCase):
             driver='keystone.token.persistence.backends.kvs.Token')
         self.config_fixture.config(
             group='trust',
-            driver='keystone.trust.backends.kvs.Trust')
+            driver='keystone.trust.backends.sql.Trust')
         self.config_fixture.config(
             group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
         self.config_fixture.config(
