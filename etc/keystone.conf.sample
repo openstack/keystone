@@ -1501,16 +1501,6 @@
 #cert_subject=/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 
-[stats]
-
-#
-# Options defined in keystone
-#
-
-# Stats backend driver. (string value)
-#driver=keystone.contrib.stats.backends.kvs.Stats
-
-
 [token]
 
 #

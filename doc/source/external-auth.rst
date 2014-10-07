@@ -147,9 +147,9 @@ authentication.
 For example, if the original pipeline looks like this::
 
     [pipeline:public_api]
-    pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
+    pipeline = url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
 
 Your modified pipeline might then look like this::
 
     [pipeline:public_api]
-    pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body my_auth debug ec2_extension user_crud_extension public_service
+    pipeline = url_normalize token_auth admin_token_auth xml_body json_body my_auth debug ec2_extension user_crud_extension public_service

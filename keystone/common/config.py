@@ -493,12 +493,6 @@ FILE_OPTIONS = {
                            '.sql.EndpointPolicy',
                    help='Endpoint policy backend driver'),
     ],
-    'stats': [
-        cfg.StrOpt('driver',
-                   default=('keystone.contrib.stats.backends'
-                            '.kvs.Stats'),
-                   help='Stats backend driver.'),
-    ],
     'ldap': [
         cfg.StrOpt('url', default='ldap://localhost',
                    help='URL for connecting to the LDAP server.'),

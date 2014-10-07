@@ -640,27 +640,35 @@ class RoutersBase(object):
                       delete_action=None, get_post_action=None,
                       path_vars=None):
         if get_head_action:
+            getattr(controller, get_head_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=get_head_action,
                            conditions=dict(method=['GET', 'HEAD']))
         if get_action:
+            getattr(controller, get_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=get_action,
                            conditions=dict(method=['GET']))
         if head_action:
+            getattr(controller, head_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=head_action,
                            conditions=dict(method=['HEAD']))
         if put_action:
+            getattr(controller, put_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=put_action,
                            conditions=dict(method=['PUT']))
         if post_action:
+            getattr(controller, post_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=post_action,
                            conditions=dict(method=['POST']))
         if patch_action:
+            getattr(controller, patch_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=patch_action,
                            conditions=dict(method=['PATCH']))
         if delete_action:
+            getattr(controller, delete_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=delete_action,
                            conditions=dict(method=['DELETE']))
         if get_post_action:
+            getattr(controller, get_post_action)  # ensure the attribute exists
             mapper.connect(path, controller=controller, action=get_post_action,
                            conditions=dict(method=['GET', 'POST']))
 

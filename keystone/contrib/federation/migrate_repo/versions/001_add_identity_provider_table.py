@@ -41,7 +41,7 @@ def upgrade(migrate_engine):
 def downgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
-    tables = ['identity_provider', 'federation_protocol']
+    tables = ['federation_protocol', 'identity_provider']
     for table_name in tables:
         table = sql.Table(table_name, meta, autoload=True)
         table.drop()
