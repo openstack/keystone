@@ -56,13 +56,16 @@ class RestfulTestCase(tests.TestCase):
     # default content type to test
     content_type = 'json'
 
+    def get_extensions(self):
+        return None
+
     def setUp(self, app_conf='keystone'):
         super(RestfulTestCase, self).setUp()
 
         # Will need to reset the plug-ins
         self.addCleanup(setattr, auth_controllers, 'AUTH_METHODS', {})
 
-        self.useFixture(database.Database())
+        self.useFixture(database.Database(extensions=self.get_extensions()))
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
