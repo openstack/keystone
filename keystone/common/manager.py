@@ -14,7 +14,7 @@
 
 import functools
 
-from keystone.openstack.common import importutils
+from oslo.utils import importutils
 
 
 def response_truncated(f):

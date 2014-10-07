@@ -22,6 +22,7 @@ from dogpile.cache import proxy
 from dogpile.cache import region
 from dogpile.cache import util as dogpile_util
 from dogpile.core import nameregistry
+from oslo.utils import importutils
 import six
 
 from keystone.common import config
@@ -29,7 +30,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LI
 from keystone.i18n import _LW
-from keystone.openstack.common import importutils
 from keystone.openstack.common import log
 
 
