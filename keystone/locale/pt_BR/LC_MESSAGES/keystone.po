@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-24 06:01+0000\n"
+"POT-Creation-Date: 2014-10-07 06:05+0000\n"
 "PO-Revision-Date: 2014-04-19 01:30+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
@@ -40,23 +40,23 @@ msgstr "%(property_name)s não deve ter mais de %(max_length)s caracteres."
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr "%(property_name)s não é um %(display_expected_type)s"
 
-#: keystone/cli.py:141
+#: keystone/cli.py:144
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 
-#: keystone/cli.py:160
+#: keystone/cli.py:164
 msgid "keystone-manage ssl_setup is not recommended for production use."
 msgstr ""
 
-#: keystone/cli.py:218
+#: keystone/cli.py:223
 msgid "At least one option must be provided"
 msgstr ""
 
-#: keystone/cli.py:225
+#: keystone/cli.py:230
 msgid "--all option cannot be mixed with other options"
 msgstr ""
 
-#: keystone/cli.py:234
+#: keystone/cli.py:239
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr ""
@@ -434,8 +434,8 @@ msgstr ""
 "Grupo %(group)s não encontrado para a atribuição de role - %(target)s com"
 " Role: %(role)s"
 
-#: keystone/assignment/core.py:103 keystone/token/core.py:72
-#: keystone/token/core.py:88
+#: keystone/assignment/core.py:103 keystone/token/core.py:66
+#: keystone/token/core.py:82
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "O domínio está desativado: %s"
@@ -457,32 +457,25 @@ msgstr ""
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/assignment/core.py:617
+#: keystone/assignment/core.py:616
 #, python-format
 msgid "Project (%s)"
 msgstr "Projeto (%s)"
 
-#: keystone/assignment/core.py:619
+#: keystone/assignment/core.py:618
 #, python-format
 msgid "Domain (%s)"
 msgstr "Domínio (%s)"
 
-#: keystone/assignment/core.py:621
+#: keystone/assignment/core.py:620
 msgid "Unknown Target"
 msgstr "Alvo Desconhecido"
 
-#: keystone/assignment/core.py:1107 keystone/common/controller.py:286
+#: keystone/assignment/core.py:1106 keystone/common/controller.py:286
 #: keystone/identity/core.py:330
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Esperado dict ou list: %s"
-
-#: keystone/assignment/backends/kvs.py:257
-#: keystone/assignment/backends/ldap.py:551
-#: keystone/assignment/backends/sql.py:405
-#, python-format
-msgid "Cannot remove role that has not been granted, %s"
-msgstr "Não é possível remover role que não foi concedido, %s"
 
 #: keystone/assignment/backends/ldap.py:119
 msgid "Domain metadata not supported by LDAP"
@@ -490,15 +483,12 @@ msgstr ""
 
 #: keystone/assignment/backends/ldap.py:215
 #: keystone/assignment/backends/ldap.py:259 keystone/catalog/core.py:100
-#: keystone/common/ldap/core.py:1378 keystone/identity/backends/kvs.py:120
-#: keystone/identity/backends/kvs.py:225
+#: keystone/common/ldap/core.py:1378
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "ID duplicado, %s."
 
 #: keystone/assignment/backends/ldap.py:223 keystone/common/ldap/core.py:1368
-#: keystone/identity/backends/kvs.py:128 keystone/identity/backends/kvs.py:155
-#: keystone/identity/backends/kvs.py:232 keystone/identity/backends/kvs.py:260
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Nome duplicado, %s."
@@ -524,7 +514,13 @@ msgstr ""
 msgid "Role %s not found"
 msgstr "Role %s não localizada"
 
-#: keystone/assignment/backends/ldap.py:645
+#: keystone/assignment/backends/ldap.py:551
+#: keystone/assignment/backends/sql.py:405
+#, python-format
+msgid "Cannot remove role that has not been granted, %s"
+msgstr "Não é possível remover role que não foi concedido, %s"
+
+#: keystone/assignment/backends/ldap.py:647
 #, python-format
 msgid "Cannot duplicate name %s"
 msgstr ""
@@ -709,11 +705,11 @@ msgstr ""
 msgid "A domain-scoped token must be used"
 msgstr ""
 
-#: keystone/common/dependency.py:83
+#: keystone/common/dependency.py:87
 msgid "event_callbacks must be a dict"
 msgstr ""
 
-#: keystone/common/dependency.py:88
+#: keystone/common/dependency.py:92
 #, python-format
 msgid "event_callbacks[%s] must be a dict"
 msgstr ""
@@ -1032,24 +1028,24 @@ msgid ""
 "%(resource_type)s, operation %(operation)s payload %(payload)s"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:280
+#: keystone/contrib/federation/controllers.py:279
 msgid "Use a project scoped token when attempting tocreate a SAML assertion"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:448
+#: keystone/contrib/federation/idp.py:449
 #, python-format
 msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:515
+#: keystone/contrib/federation/idp.py:516
 msgid "Ensure configuration option idp_entity_id is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:518
+#: keystone/contrib/federation/idp.py:519
 msgid "Ensure configuration option idp_sso_endpoint is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:538
+#: keystone/contrib/federation/idp.py:539
 msgid ""
 "idp_contact_type must be one of: [technical, other, support, "
 "administrative or billing."
@@ -1189,15 +1185,14 @@ msgstr ""
 msgid "Unable to locate domain config directory: %s"
 msgstr "Não é possível localizar diretório de configuração de domínio: %s"
 
-#: keystone/identity/core.py:220 keystone/identity/backends/kvs.py:75
-#: keystone/identity/backends/kvs.py:77 keystone/identity/backends/ldap.py:59
+#: keystone/identity/core.py:220 keystone/identity/backends/ldap.py:59
 #: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
 #: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:112
 #: keystone/identity/backends/sql.py:114
 msgid "Invalid user / password"
 msgstr ""
 
-#: keystone/identity/core.py:594 keystone/token/core.py:64
+#: keystone/identity/core.py:594 keystone/token/core.py:58
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
@@ -1205,10 +1200,6 @@ msgstr "O usuário está desativado: %s"
 #: keystone/identity/core.py:636
 msgid "Cannot change user ID"
 msgstr ""
-
-#: keystone/identity/backends/kvs.py:179 keystone/identity/backends/kvs.py:188
-msgid "User not found in group"
-msgstr "Usuário não localizado no grupo"
 
 #: keystone/identity/backends/ldap.py:99
 msgid "Cannot change user name"
@@ -1220,7 +1211,7 @@ msgstr ""
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:330
+#: keystone/identity/backends/ldap.py:337
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "Usuário %(user_id)s já é membro do grupo %(group_id)s"
@@ -1370,16 +1361,16 @@ msgstr ""
 msgid "Failed to checkout %s"
 msgstr "Falha ao fazer check out %s"
 
-#: keystone/token/controllers.py:391
+#: keystone/token/controllers.py:389
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "Usuário %(u_id)s  não está autorizado para o tenant %(t_id)s"
 
-#: keystone/token/controllers.py:410 keystone/token/controllers.py:413
+#: keystone/token/controllers.py:408 keystone/token/controllers.py:411
 msgid "Token does not belong to specified tenant."
 msgstr "O token não pertence ao tenant especificado."
 
-#: keystone/token/core.py:79
+#: keystone/token/core.py:73
 #, python-format
 msgid "Tenant is disabled: %s"
 msgstr ""

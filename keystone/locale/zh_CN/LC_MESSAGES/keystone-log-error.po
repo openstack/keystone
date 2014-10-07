@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-07 06:06+0000\n"
+"POT-Creation-Date: 2014-10-07 06:05+0000\n"
 "PO-Revision-Date: 2014-06-20 20:11+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/keystone/"
@@ -24,27 +24,32 @@ msgstr ""
 msgid "Method not callable: %s"
 msgstr ""
 
-#: keystone/catalog/core.py:56
+#: keystone/catalog/core.py:60
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr ""
 
-#: keystone/catalog/core.py:61
+#: keystone/catalog/core.py:65
 #, python-format
 msgid ""
 "Malformed endpoint '%(url)s'. The following type error occurred during "
 "string substitution: %(typeerror)s"
 msgstr ""
 
-#: keystone/catalog/core.py:67
+#: keystone/catalog/core.py:71
 #, python-format
 msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
 msgstr ""
 
-#: keystone/common/openssl.py:90
+#: keystone/common/openssl.py:92
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
+msgstr ""
+
+#: keystone/common/openssl.py:120
+#, python-format
+msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr ""
 
 #: keystone/common/environment/eventlet_server.py:100
@@ -59,7 +64,7 @@ msgid ""
 "Circular reference or a repeated entry found in region tree - %(region_id)s."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:404
+#: keystone/contrib/federation/idp.py:405
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr ""
