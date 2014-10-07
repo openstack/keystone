@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2014.2.dev154.g1af2428\n"
+"Project-Id-Version: keystone 2014.2.dev11.g0b5fa82\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-24 06:01+0000\n"
+"POT-Creation-Date: 2014-10-07 14:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -442,21 +442,21 @@ msgstr ""
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/assignment/core.py:617
+#: keystone/assignment/core.py:616
 #, python-format
 msgid "Project (%s)"
 msgstr ""
 
-#: keystone/assignment/core.py:619
+#: keystone/assignment/core.py:618
 #, python-format
 msgid "Domain (%s)"
 msgstr ""
 
-#: keystone/assignment/core.py:621
+#: keystone/assignment/core.py:620
 msgid "Unknown Target"
 msgstr ""
 
-#: keystone/assignment/core.py:1107 keystone/common/controller.py:286
+#: keystone/assignment/core.py:1106 keystone/common/controller.py:286
 #: keystone/identity/core.py:330
 #, python-format
 msgid "Expected dict or list: %s"
@@ -509,7 +509,7 @@ msgstr ""
 msgid "Role %s not found"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:645
+#: keystone/assignment/backends/ldap.py:647
 #, python-format
 msgid "Cannot duplicate name %s"
 msgstr ""
@@ -694,11 +694,11 @@ msgstr ""
 msgid "A domain-scoped token must be used"
 msgstr ""
 
-#: keystone/common/dependency.py:83
+#: keystone/common/dependency.py:87
 msgid "event_callbacks must be a dict"
 msgstr ""
 
-#: keystone/common/dependency.py:88
+#: keystone/common/dependency.py:92
 #, python-format
 msgid "event_callbacks[%s] must be a dict"
 msgstr ""
@@ -1010,24 +1010,24 @@ msgid ""
 "%(resource_type)s, operation %(operation)s payload %(payload)s"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:280
+#: keystone/contrib/federation/controllers.py:279
 msgid "Use a project scoped token when attempting tocreate a SAML assertion"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:448
+#: keystone/contrib/federation/idp.py:449
 #, python-format
 msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:515
+#: keystone/contrib/federation/idp.py:516
 msgid "Ensure configuration option idp_entity_id is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:518
+#: keystone/contrib/federation/idp.py:519
 msgid "Ensure configuration option idp_sso_endpoint is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:538
+#: keystone/contrib/federation/idp.py:539
 msgid ""
 "idp_contact_type must be one of: [technical, other, support, "
 "administrative or billing."
@@ -1192,7 +1192,7 @@ msgstr ""
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:330
+#: keystone/identity/backends/ldap.py:337
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr ""
