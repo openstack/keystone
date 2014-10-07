@@ -20,8 +20,6 @@ import six
 from keystone import config
 from keystone import exception
 from keystone import tests
-from keystone.tests import default_fixtures
-from keystone.tests.ksfixtures import database
 from keystone.tests import test_backend
 
 
@@ -104,24 +102,6 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         self.assertEqual(expected_user_token_list, user_token_list)
 
 
-class KvsTrust(tests.TestCase, test_backend.TrustTests):
-    def setUp(self):
-        super(KvsTrust, self).setUp()
-        # Need to load the SQL database support for the fixtures
-        self.useFixture(database.Database())
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-    def config_overrides(self):
-        super(KvsTrust, self).config_overrides()
-        self.config_fixture.config(
-            group='trust',
-            driver='keystone.trust.backends.kvs.Trust')
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.kvs.Catalog')
-
-
 class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(KvsCatalog, self).setUp()
@@ -130,9 +110,6 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
 
     def config_overrides(self):
         super(KvsCatalog, self).config_overrides()
-        self.config_fixture.config(
-            group='trust',
-            driver='keystone.trust.backends.kvs.Trust')
         self.config_fixture.config(
             group='catalog',
             driver='keystone.catalog.backends.kvs.Catalog')
