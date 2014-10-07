@@ -14,18 +14,16 @@
 """
 To run these tests against a live database:
 
-1. Modify the file `tests/backend_sql.conf` to use the connection for your
-   live database
+1. Modify the file `keystone/tests/config_files/backend_sql.conf` to use
+   the connection for your live database.
 2. Set up a blank, live database.
-3. run the tests using
+3. Run the tests using::
 
-   ::
+    tox -e py27 -- keystone.tests.test_sql_migrate_extensions
 
-    ./run_tests.sh -N  test_sql_upgrade
+WARNING::
 
-   WARNING::
-
-       Your database will be wiped.
+   Your database will be wiped.
 
    Do not do this against a Database with valuable data as
    all data will be lost.
