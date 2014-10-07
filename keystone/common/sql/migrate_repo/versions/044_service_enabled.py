@@ -28,11 +28,10 @@ column.
 
 """
 
+from oslo.serialization import jsonutils
 from oslo.utils import strutils
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
-
-from keystone.openstack.common import jsonutils
 
 
 def _migrate_enabled_from_extra(migrate_engine, service_table):

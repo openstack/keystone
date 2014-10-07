@@ -16,6 +16,7 @@ import datetime
 import uuid
 
 from lxml import etree
+from oslo.serialization import jsonutils
 from oslo.utils import timeutils
 import six
 from testtools import matchers
@@ -27,7 +28,6 @@ from keystone.common import serializer
 from keystone import config
 from keystone import exception
 from keystone import middleware
-from keystone.openstack.common import jsonutils
 from keystone.policy.backends import rules
 from keystone import tests
 from keystone.tests.ksfixtures import database

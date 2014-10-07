@@ -18,12 +18,12 @@ import functools
 import random
 
 import mock
+from oslo.serialization import jsonutils
 from testtools import matchers as tt_matchers
 
 from keystone.common import json_home
 from keystone import config
 from keystone import controllers
-from keystone.openstack.common import jsonutils
 from keystone import tests
 from keystone.tests import matchers
 

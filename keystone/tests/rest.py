@@ -15,12 +15,12 @@
 import io
 
 from lxml import etree
+from oslo.serialization import jsonutils
 import six
 import webtest
 
 from keystone.auth import controllers as auth_controllers
 from keystone.common import serializer
-from keystone.openstack.common import jsonutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database

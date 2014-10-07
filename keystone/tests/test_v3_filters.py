@@ -15,8 +15,9 @@
 
 import uuid
 
+from oslo.serialization import jsonutils
+
 from keystone import config
-from keystone.openstack.common import jsonutils
 from keystone.policy.backends import rules
 from keystone.tests import filtering
 from keystone.tests.ksfixtures import temporaryfile

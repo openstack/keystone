@@ -14,13 +14,14 @@
 
 import hashlib
 
+from oslo.serialization import jsonutils
+
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
 from keystone.credential import schema
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import jsonutils
 
 
 @dependency.requires('credential_api')

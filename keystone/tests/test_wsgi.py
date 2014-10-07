@@ -18,6 +18,7 @@ import uuid
 
 import mock
 from oslo import i18n
+from oslo.serialization import jsonutils
 import six
 from testtools import matchers
 import webob
@@ -25,7 +26,6 @@ import webob
 from keystone.common import environment
 from keystone.common import wsgi
 from keystone import exception
-from keystone.openstack.common import jsonutils
 from keystone import tests
 
 

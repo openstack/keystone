@@ -12,11 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo.serialization import jsonutils
 import webob
 
 from keystone import config
 from keystone import middleware
-from keystone.openstack.common import jsonutils
 from keystone import tests
 
 

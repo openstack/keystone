@@ -17,11 +17,11 @@ import os
 import uuid
 
 import mock
+from oslo.serialization import jsonutils
 from oslo.utils import timeutils
 import webob
 
 from keystone import config
-from keystone.openstack.common import jsonutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import appserver
