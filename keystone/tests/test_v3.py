@@ -545,7 +545,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(entities)
 
         if expected_length is not None:
-            self.assertEqual(len(entities), expected_length)
+            self.assertEqual(expected_length, len(entities))
         elif ref is not None:
             # we're at least expecting the ref
             self.assertNotEmpty(entities)
@@ -1029,7 +1029,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         entities = resp.result.get('role_assignments')
 
         if expected_length is not None:
-            self.assertEqual(len(entities), expected_length)
+            self.assertEqual(expected_length, len(entities))
 
         # collections should have relational links
         self.assertValidListLinks(resp.result.get('links'),
@@ -1092,7 +1092,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
                 pass
             else:
                 found_count += 1
-        self.assertEqual(found_count, expected)
+        self.assertEqual(expected, found_count)
 
     def assertRoleAssignmentNotInListResponse(
             self, resp, ref, link_url=None):
@@ -1236,8 +1236,8 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         application = None
         middleware.AuthContextMiddleware(application).process_request(req)
         self.assertEqual(
-            req.environ.get(authorization.AUTH_CONTEXT_ENV)['user_id'],
-            self.user['id'])
+            self.user['id'],
+            req.environ.get(authorization.AUTH_CONTEXT_ENV)['user_id'])
 
     def test_auth_context_override(self):
         overridden_context = 'OVERRIDDEN_CONTEXT'
@@ -1248,8 +1248,8 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         application = None
         middleware.AuthContextMiddleware(application).process_request(req)
         # make sure overridden context take precedence
-        self.assertEqual(req.environ.get(authorization.AUTH_CONTEXT_ENV),
-                         overridden_context)
+        self.assertEqual(overridden_context,
+                         req.environ.get(authorization.AUTH_CONTEXT_ENV))
 
     def test_admin_token_auth_context(self):
         # test to make sure AuthContextMiddleware does not attempt to build
