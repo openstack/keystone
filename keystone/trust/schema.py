@@ -20,10 +20,18 @@ _trust_properties = {
     'impersonation': parameter_types.boolean,
     'project_id': validation.nullable(parameter_types.id_string),
     'remaining_uses': {
-        'type': ['integer', 'null']
+        'type': ['integer', 'null'],
+        'minimum': 1
     },
     'expires_at': {
         'type': ['null', 'string']
+    },
+    'allow_redelegation': {
+        'type': ['boolean', 'null']
+    },
+    'redelegation_count': {
+        'type': ['integer', 'null'],
+        'minimum': 0
     },
     # TODO(lbragstad): Need to find a better way to do this. We should be
     # checking that a role is a list of IDs and/or names.

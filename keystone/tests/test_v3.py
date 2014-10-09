@@ -342,7 +342,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
     def new_trust_ref(self, trustor_user_id, trustee_user_id, project_id=None,
                       impersonation=None, expires=None, role_ids=None,
-                      role_names=None, remaining_uses=None):
+                      role_names=None, remaining_uses=None,
+                      allow_redelegation=False):
         ref = dict()
         ref['id'] = uuid.uuid4().hex
         ref['trustor_user_id'] = trustor_user_id
@@ -350,6 +351,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         ref['impersonation'] = impersonation or False
         ref['project_id'] = project_id
         ref['remaining_uses'] = remaining_uses
+        ref['allow_redelegation'] = allow_redelegation
 
         if isinstance(expires, six.string_types):
             ref['expires_at'] = expires
