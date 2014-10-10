@@ -1010,6 +1010,13 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
             super(BaseLDAPIdentity, self).
             test_create_project_with_domain_id_mismatch_to_parent_domain)
 
+    def test_remove_foreign_assignments_when_deleting_a_domain(self):
+        """Multiple domains are not supported."""
+        self.assertRaises(
+            (exception.ValidationError, exception.DomainNotFound),
+            super(BaseLDAPIdentity,
+                  self).test_remove_foreign_assignments_when_deleting_a_domain)
+
 
 class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
@@ -2714,6 +2721,12 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # from BaseLDAPIdentity
         super(BaseLDAPIdentity, self).\
             test_create_project_with_domain_id_mismatch_to_parent_domain
+
+    def test_remove_foreign_assignments_when_deleting_a_domain(self):
+        # With multi LDAP this method should work, so override the override
+        # from BaseLDAPIdentity
+        base = super(BaseLDAPIdentity, self)
+        base.test_remove_foreign_assignments_when_deleting_a_domain()
 
 
 class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):

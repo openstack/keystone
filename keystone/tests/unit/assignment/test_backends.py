@@ -2419,6 +2419,51 @@ class AssignmentTests(AssignmentTestHelperMixin):
         for assignment in group_assignments:
             self.assertThat(assignment.keys(), matchers.Contains('user_id'))
 
+    def test_remove_foreign_assignments_when_deleting_a_domain(self):
+        # A user and a group are in default domain and have assigned a role on
+        # two new domains. This test makes sure that when one of the new
+        # domains is deleted, the role assignments for the user and the group
+        # from the default domain are deleted only on that domain.
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
+        group = self.identity_api.create_group(group)
+
+        role = unit.new_role_ref()
+        role = self.role_api.create_role(role['id'], role)
+
+        new_domains = [unit.new_domain_ref(), unit.new_domain_ref()]
+        for new_domain in new_domains:
+            self.resource_api.create_domain(new_domain['id'], new_domain)
+
+            self.assignment_api.create_grant(group_id=group['id'],
+                                             domain_id=new_domain['id'],
+                                             role_id=role['id'])
+            self.assignment_api.create_grant(user_id=self.user_two['id'],
+                                             domain_id=new_domain['id'],
+                                             role_id=role['id'])
+
+        # Check there are 4 role assignments for that role
+        role_assignments = self.assignment_api.list_role_assignments(
+            role_id=role['id'])
+        self.assertThat(role_assignments, matchers.HasLength(4))
+
+        # Delete first new domain and check only 2 assignments were left
+        self.resource_api.update_domain(new_domains[0]['id'],
+                                        {'enabled': False})
+        self.resource_api.delete_domain(new_domains[0]['id'])
+
+        role_assignments = self.assignment_api.list_role_assignments(
+            role_id=role['id'])
+        self.assertThat(role_assignments, matchers.HasLength(2))
+
+        # Delete second new domain and check no assignments were left
+        self.resource_api.update_domain(new_domains[1]['id'],
+                                        {'enabled': False})
+        self.resource_api.delete_domain(new_domains[1]['id'])
+
+        role_assignments = self.assignment_api.list_role_assignments(
+            role_id=role['id'])
+        self.assertEqual([], role_assignments)
+
 
 class InheritanceTests(AssignmentTestHelperMixin):
 
