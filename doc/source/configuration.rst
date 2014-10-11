@@ -1194,9 +1194,11 @@ as follows:
     $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 user list
     $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 project create demo
 
-For additional examples using ``python-keystoneclient`` refer to `CLI Examples`_.
+For additional examples using ``python-keystoneclient`` refer to `python-keystoneclient examples`_,
+likewise, for additional examples using ``python-openstackclient``, refer to `python-openstackclient examples`_.
 
-.. _`CLI Examples`: cli_examples.html
+.. _`python-keystoneclient examples`: cli_examples.html#using-python-keystoneclient
+.. _`python-openstackclient examples`: cli_examples.html#using-python-openstackclient
 
 
 Removing Expired Tokens
