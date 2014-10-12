@@ -1013,12 +1013,12 @@ Ensure that your ``keystone.conf`` is configured to use a SQL driver:
     [identity]
     driver = keystone.identity.backends.sql.Identity
 
-You may also want to configure your ``[sql]`` settings to better reflect your
+You may also want to configure your ``[database]`` settings to better reflect your
 environment:
 
 .. code-block:: ini
 
-    [sql]
+    [database]
     connection = sqlite:///keystone.db
     idle_timeout = 200
 
