@@ -35,11 +35,6 @@ from keystone.openstack.common import log
 
 LOG = log.getLogger(__name__)
 
-# NOTE(morganfainberg): This is used as the maximum number of seconds a get
-# of a new connection will wait for before raising an exception indicating
-# a serious / most likely non-recoverable delay has occurred.
-CONNECTION_GET_TIMEOUT = 120
-
 # This 'class' is taken from http://stackoverflow.com/a/22520633/238308
 # Don't inherit client from threading.local so that we can reuse clients in
 # different threads
@@ -78,9 +73,25 @@ class ConnectionPool(queue.Queue):
         self._acquired = 0
 
     def _create_connection(self):
+        """Returns a connection instance.
+
+        This is called when the pool needs another instance created.
+
+        :returns: a new connection instance
+
+        """
         raise NotImplementedError
 
     def _destroy_connection(self, conn):
+        """Destroy and cleanup a connection instance.
+
+        This is called when the pool wishes to get rid of an existing
+        connection. This is the opportunity for a subclass to free up
+        resources and cleaup after itself.
+
+        :param conn: the connection object to destroy
+
+        """
         raise NotImplementedError
 
     def _debug_logger(self, msg, *args, **kwargs):
@@ -110,6 +121,9 @@ class ConnectionPool(queue.Queue):
     def _qsize(self):
         return self.maxsize - self._acquired
 
+    # NOTE(dstanek): stdlib and eventlet Queue implementations
+    # have different names for the qsize method. This ensures
+    # that we override both of them.
     if not hasattr(queue.Queue, '_qsize'):
         qsize = _qsize
 
@@ -121,18 +135,24 @@ class ConnectionPool(queue.Queue):
         self._acquired += 1
         return conn
 
+    def _drop_expired_connections(self, conn):
+        """Drop all expired connections from the right end of the queue.
+
+        :param conn: connection object
+        """
+        now = time.time()
+        while self.queue and self.queue[0].ttl < now:
+            conn = self.queue.popleft().connection
+            self._debug_logger('Reaping connection %s', id(conn))
+            self._destroy_connection(conn)
+
     def _put(self, conn):
         self.queue.append(_PoolItem(
             ttl=time.time() + self._unused_timeout,
             connection=conn,
         ))
         self._acquired -= 1
-        # Drop all expired connections from the right end of the queue
-        now = time.time()
-        while self.queue and self.queue[0].ttl < now:
-            conn = self.queue.popleft().connection
-            self._debug_logger('Reaping connection %s', id(conn))
-            self._destroy_connection(conn)
+        self._drop_expired_connections(conn)
 
 
 class MemcacheClientPool(ConnectionPool):
@@ -173,9 +193,8 @@ class MemcacheClientPool(ConnectionPool):
             # If this client found that one of the hosts is dead, mark it as
             # such in our internal list
             now = time.time()
-            for i, deaduntil, host in zip(itertools.count(),
-                                          self._hosts_deaduntil,
-                                          conn.servers):
+            for i, host in zip(itertools.count(), conn.servers):
+                deaduntil = self._hosts_deaduntil[i]
                 # Do nothing if we already know this host is dead
                 if deaduntil <= now:
                     if host.deaduntil > now:

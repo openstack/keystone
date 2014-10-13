@@ -315,28 +315,27 @@ configuration option.
 
 The drivers Keystone provides are:
 
-* ``keystone.token.persistence.backends.sql.Token`` - The SQL-based (default)
-  token persistence engine. This backend stores all token data in the same SQL
-  store that is used for Identity/Assignment/etc.
-
-* ``keystone.token.persistence.backends.memcache.Token`` - The memcached based
-  token persistence backend. This backend relies on ``dogpile.cache`` and stores
-  the token data in a set of memcached servers. The servers urls are specified
-  in the ``[memcache]\servers`` configuration option in the Keystone config.
-
 * ``keystone.token.persistence.backends.memcache_pool.Token`` - The pooled memcached
   token persistence engine. This backend supports the concept of pooled memcache
   client object (allowing for the re-use of the client objects). This backend has
   a number of extra tunable options in the ``[memcache]`` section of the config.
+
+* ``keystone.token.persistence.backends.sql.Token`` - The SQL-based (default)
+  token persistence engine.
+
+* ``keystone.token.persistence.backends.memcache.Token`` - The memcached based
+  token persistence backend. This backend relies on ``dogpile.cache`` and stores
+  the token data in a set of memcached servers. The servers URLs are specified
+  in the ``[memcache]\servers`` configuration option in the Keystone config.
 
 
 .. WARNING::
     It is recommended you use the ``keystone.token.persistence.backend.memcache_pool.Token``
     backend instead of ``keystone.token.persistence.backend.memcache.Token`` as the token
     persistence driver if you are deploying Keystone under eventlet instead of
-    Apache + mod_wsgi. This recommendation are due to known issues with the use of
-    ``thread.local`` under eventlet that can allow the leaking of memcache client objects
-    and consumption of extra sockets.
+    Apache + mod_wsgi. This recommendation is due to known issues with the
+    use of ``thread.local`` under eventlet that can allow the leaking of
+    memcache client objects and consumption of extra sockets.
 
 
 Token Provider
