@@ -417,7 +417,7 @@ class FakeLdap(core.LDAPHandler):
 
         Args:
         base -- dn to search under
-        scope -- only SCOPE_BASE and SCOPE_SUBTREE are supported
+        scope -- search scope (base, subtree, onelevel)
         filterstr -- filter objects by
         attrlist -- attrs to return. Returns all attrs if not specified
 
@@ -472,9 +472,8 @@ class FakeLdap(core.LDAPHandler):
             results = list(get_entries())
 
         else:
-            LOG.debug('search fail: unknown scope %s', scope)
-            raise NotImplementedError('Search scope %s not implemented.'
-                                      % scope)
+            # openldap client/server raises PROTOCOL_ERROR for unexpected scope
+            raise ldap.PROTOCOL_ERROR
 
         objects = []
         for dn, attrs in results:
