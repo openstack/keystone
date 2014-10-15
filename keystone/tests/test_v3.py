@@ -1023,17 +1023,13 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             self.assertEqual(ref['name'], entity['name'])
         return entity
 
-    def assertValidRoleAssignmentListResponse(self, resp, ref=None,
-                                              expected_length=None,
+    def assertValidRoleAssignmentListResponse(self, resp, expected_length=None,
                                               resource_url=None):
 
         entities = resp.result.get('role_assignments')
 
         if expected_length is not None:
             self.assertEqual(len(entities), expected_length)
-        elif ref is not None:
-            # we're at least expecting the ref
-            self.assertNotEmpty(entities)
 
         # collections should have relational links
         self.assertValidListLinks(resp.result.get('links'),
@@ -1042,8 +1038,6 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         for entity in entities:
             self.assertIsNotNone(entity)
             self.assertValidRoleAssignment(entity)
-        if ref:
-            self.assertValidRoleAssignment(entity, ref)
         return entities
 
     def assertValidRoleAssignment(self, entity, ref=None, url=None):
