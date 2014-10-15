@@ -174,7 +174,7 @@ class Server(object):
         pass
 
     def _run(self, application, socket):
-        """Start a WSGI server in a new green thread."""
+        """Start a WSGI server with a new green thread pool."""
         logger = log.getLogger('eventlet.wsgi.server')
         try:
             eventlet.wsgi.server(socket, application, custom_pool=self.pool,
