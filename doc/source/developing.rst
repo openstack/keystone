@@ -390,6 +390,44 @@ file ``keystone/tests/config_files/backend_liveldap.conf`` and
     to a non-negative value.
 
 
+"Work in progress" Tests
+========================
+
+Work in progress (WIP) tests are very useful in a variety of situations
+including:
+
+* During a TDD process they can be used to add tests to a review while
+  they are not yet working and will not cause test failures. (They should
+  be removed before the final merge.)
+* Often bug reports include small snippets of code to show broken
+  behaviors. Some of these can be converted into WIP tests that can later
+  be worked on by a developer. This allows us to take code that can be
+  used to catch bug regressions and commit it before any code is
+  written.
+
+The ``keystone.tests.util.wip`` decorator can be used to mark a test as
+WIP. A WIP test will always be run. If the test fails then a TestSkipped
+exception is raised because we expect the test to fail. We do not pass
+the test in this case so that it doesn't count toward the number of
+successfully run tests. If the test passes an AssertionError exception is
+raised so that the developer knows they made the test pass. This is a
+reminder to remove the decorator.
+
+The ``wip`` decorator requires that the author provides a message. This
+message is important because it will tell other developers why this test
+is marked as a work in progress. Reviewers will require that these
+messages are descriptive and accurate.
+
+.. NOTE::
+    The ``wip`` decorator is not a replacement for skipping tests.
+
+.. code-block:: python
+
+    @wip('waiting on bug #000000')
+    def test():
+        pass
+
+
 Generating Updated Sample Config File
 -------------------------------------
 
