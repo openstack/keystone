@@ -91,9 +91,6 @@ class Identity(identity.Driver):
     def _check_password(self, password, user_ref):
         """Check the specified password against the data store.
 
-        This is modeled on ldap/core.py.  The idea is to make it easier to
-        subclass Identity so that you can still use it to store all the data,
-        but use some other means to check the password.
         Note that we'll pass in the entire user_ref in case the subclass
         needs things like user_ref.get('name')
         For further justification, please see the follow up suggestion at
