@@ -97,16 +97,15 @@ FILE_OPTIONS = {
                         'exception for token values.'),
         cfg.StrOpt('member_role_id',
                    default='9fe2ff9ee4384b1894a90878d3e92bab',
-                   help='During a SQL upgrade member_role_id will be used '
-                        'to create a new role that will replace records in '
-                        'the assignment table with explicit role grants. '
-                        'After migration, the member_role_id will be used in '
-                        'the API add_user_to_project.'),
+                   help='Similar to the member_role_name option, this '
+                        'represents the default role ID used to associate '
+                        'users with their default projects in the v2 API. '
+                        'This will be used as the explicit role where one is '
+                        'not specified by the v2 API.'),
         cfg.StrOpt('member_role_name', default='_member_',
-                   help='During a SQL upgrade member_role_name will be used '
-                        'to create a new role that will replace records in '
-                        'the assignment table with explicit role grants. '
-                        'After migration, member_role_name will be ignored.'),
+                   help='This is the role name used in combination with the '
+                        'member_role_id option; see that option for more '
+                        'detail.'),
         cfg.IntOpt('crypt_strength', default=40000,
                    help='The value passed as the keyword "rounds" to '
                         'passlib\'s encrypt method.'),
@@ -336,27 +335,27 @@ FILE_OPTIONS = {
         cfg.ListOpt('memcache_servers', default=['localhost:11211'],
                     help='Memcache servers in the format of "host:port".'
                     ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
-                    ' backends only)'),
+                    ' backends only).'),
         cfg.IntOpt('memcache_dead_retry',
                    default=5 * 60,
                    help='Number of seconds memcached server is considered dead'
                    ' before it is tried again. (dogpile.cache.memcache and'
-                   ' keystone.cache.memcache_pool backends only)'),
+                   ' keystone.cache.memcache_pool backends only).'),
         cfg.IntOpt('memcache_socket_timeout',
                    default=3,
                    help='Timeout in seconds for every call to a server.'
                    ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
-                   ' backends only)'),
+                   ' backends only).'),
         cfg.IntOpt('memcache_pool_maxsize',
                    default=10,
                    help='Max total number of open connections to every'
                    ' memcached server. (keystone.cache.memcache_pool backend'
-                   ' only)'),
+                   ' only).'),
         cfg.IntOpt('memcache_pool_unused_timeout',
                    default=60,
                    help='Number of seconds a connection to memcached is held'
                    ' unused in the pool before it is closed.'
-                   ' (keystone.cache.memcache_pool backend only)'),
+                   ' (keystone.cache.memcache_pool backend only).'),
         cfg.IntOpt('memcache_pool_connection_get_timeout',
                    default=10,
                    help='Number of seconds that an operation will wait to get '

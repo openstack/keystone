@@ -81,17 +81,16 @@
 # token values. (integer value)
 #max_token_size=8192
 
-# During a SQL upgrade member_role_id will be used to create a
-# new role that will replace records in the assignment table
-# with explicit role grants. After migration, the
-# member_role_id will be used in the API add_user_to_project.
-# (string value)
+# Similar to the member_role_name option, this represents the
+# default role ID used to associate users with their default
+# projects in the v2 API. This will be used as the explicit
+# role where one is not specified by the v2 API. (string
+# value)
 #member_role_id=9fe2ff9ee4384b1894a90878d3e92bab
 
-# During a SQL upgrade member_role_name will be used to create
-# a new role that will replace records in the assignment table
-# with explicit role grants. After migration, member_role_name
-# will be ignored. (string value)
+# This is the role name used in combination with the
+# member_role_id option; see that option for more detail.
+# (string value)
 #member_role_name=_member_
 
 # The value passed as the keyword "rounds" to passlib's
@@ -536,27 +535,27 @@
 
 # Memcache servers in the format of "host:port".
 # (dogpile.cache.memcache and keystone.cache.memcache_pool
-# backends only) (list value)
+# backends only). (list value)
 #memcache_servers=localhost:11211
 
 # Number of seconds memcached server is considered dead before
 # it is tried again. (dogpile.cache.memcache and
-# keystone.cache.memcache_pool backends only) (integer value)
+# keystone.cache.memcache_pool backends only). (integer value)
 #memcache_dead_retry=300
 
 # Timeout in seconds for every call to a server.
 # (dogpile.cache.memcache and keystone.cache.memcache_pool
-# backends only) (integer value)
+# backends only). (integer value)
 #memcache_socket_timeout=3
 
 # Max total number of open connections to every memcached
-# server. (keystone.cache.memcache_pool backend only) (integer
-# value)
+# server. (keystone.cache.memcache_pool backend only).
+# (integer value)
 #memcache_pool_maxsize=10
 
 # Number of seconds a connection to memcached is held unused
 # in the pool before it is closed.
-# (keystone.cache.memcache_pool backend only) (integer value)
+# (keystone.cache.memcache_pool backend only). (integer value)
 #memcache_pool_unused_timeout=60
 
 # Number of seconds that an operation will wait to get a

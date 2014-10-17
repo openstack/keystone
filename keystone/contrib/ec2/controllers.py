@@ -37,6 +37,7 @@ import sys
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
+from oslo.serialization import jsonutils
 import six
 
 from keystone.common import controller
@@ -46,7 +47,6 @@ from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
-from keystone.openstack.common import jsonutils
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',

@@ -327,18 +327,7 @@ class FakeLdap(core.LDAPHandler):
 
     def delete_s(self, dn):
         """Remove the ldap object at specified dn."""
-        if server_fail:
-            raise ldap.SERVER_DOWN
-
-        key = self.key(dn)
-        LOG.debug('delete item: dn=%s', core.utf8_decode(dn))
-        try:
-            del self.db[key]
-        except KeyError:
-            LOG.debug('delete item failed: dn=%s not found.',
-                      core.utf8_decode(dn))
-            raise ldap.NO_SUCH_OBJECT
-        self.db.sync()
+        return self.delete_ext_s(dn, serverctrls=[])
 
     def _getChildren(self, dn):
         return [k for k, v in six.iteritems(self.db)
@@ -428,7 +417,7 @@ class FakeLdap(core.LDAPHandler):
 
         Args:
         base -- dn to search under
-        scope -- only SCOPE_BASE and SCOPE_SUBTREE are supported
+        scope -- search scope (base, subtree, onelevel)
         filterstr -- filter objects by
         attrlist -- attrs to return. Returns all attrs if not specified
 
@@ -483,9 +472,8 @@ class FakeLdap(core.LDAPHandler):
             results = list(get_entries())
 
         else:
-            LOG.debug('search fail: unknown scope %s', scope)
-            raise NotImplementedError('Search scope %s not implemented.'
-                                      % scope)
+            # openldap client/server raises PROTOCOL_ERROR for unexpected scope
+            raise ldap.PROTOCOL_ERROR
 
         objects = []
         for dn, attrs in results:
@@ -568,9 +556,6 @@ class FakeLdapNoSubtreeDelete(FakeLdap):
     ldap.NOT_ALLOWED_ON_NONLEAF if there is an attempt to delete
     an entry that has children.
     """
-
-    def delete_s(self, dn):
-        self.delete_ext_s(dn, [], None)
 
     def delete_ext_s(self, dn, serverctrls, clientctrls=None):
         """Remove the ldap object at specified dn."""

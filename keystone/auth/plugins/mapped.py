@@ -12,6 +12,7 @@
 
 import functools
 
+from oslo.serialization import jsonutils
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 
@@ -21,7 +22,6 @@ from keystone.contrib import federation
 from keystone.contrib.federation import utils
 from keystone.models import token_model
 from keystone import notifications
-from keystone.openstack.common import jsonutils
 
 
 @dependency.requires('federation_api', 'identity_api', 'token_provider_api')
@@ -58,7 +58,7 @@ class Mapped(auth.AuthMethodHandler):
         token_audit_id = token_ref.audit_id
         identity_provider = token_ref.federation_idp_id
         protocol = token_ref.federation_protocol_id
-        user_id = token_ref['user']['id']
+        user_id = token_ref.user_id
         group_ids = token_ref.federation_group_ids
         send_notification = functools.partial(
             notifications.send_saml_audit_notification, 'authenticate',
@@ -92,8 +92,8 @@ class Mapped(auth.AuthMethodHandler):
         identity_provider = auth_payload['identity_provider']
         protocol = auth_payload['protocol']
         group_ids = None
-        # NOTE(topol): Since the user is coming in from an IdP with a SAML doc
-        # instead of from a token we set token_id to None
+        # NOTE(topol): The user is coming in from an IdP with a SAML assertion
+        # instead of from a token, so we set token_id to None
         token_id = None
 
         try:

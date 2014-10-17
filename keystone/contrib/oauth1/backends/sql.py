@@ -16,6 +16,7 @@ import datetime
 import random
 import uuid
 
+from oslo.serialization import jsonutils
 from oslo.utils import timeutils
 import six
 
@@ -23,7 +24,6 @@ from keystone.common import sql
 from keystone.contrib.oauth1 import core
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import jsonutils
 
 
 class Consumer(sql.ModelBase, sql.DictBase):
