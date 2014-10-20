@@ -349,3 +349,45 @@ class SslTlsTest(tests.TestCase):
 
         # Ensure the cert trust option is set.
         self.assertEqual(certdir, ldap.get_option(ldap.OPT_X_TLS_CACERTDIR))
+
+
+class LDAPPagedResultsTest(tests.TestCase):
+    """Tests the paged results functionality in keystone.common.ldap.core."""
+
+    def setUp(self):
+        super(LDAPPagedResultsTest, self).setUp()
+        self.clear_database()
+
+        ks_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        self.addCleanup(common_ldap_core._HANDLERS.clear)
+
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+    def clear_database(self):
+        for shelf in fakeldap.FakeShelves:
+            fakeldap.FakeShelves[shelf].clear()
+
+    def config_overrides(self):
+        super(LDAPPagedResultsTest, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.ldap.Identity')
+
+    def config_files(self):
+        config_files = super(LDAPPagedResultsTest, self).config_files()
+        config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
+        return config_files
+
+    @mock.patch.object(fakeldap.FakeLdap, 'search_ext')
+    @mock.patch.object(fakeldap.FakeLdap, 'result3')
+    def test_paged_results_control_api(self, mock_result3, mock_search_ext):
+        mock_result3.return_value = ('', [], 1, [])
+
+        self.config_fixture.config(group='ldap',
+                                   page_size=1)
+
+        conn = self.identity_api.user.get_connection()
+        conn._paged_search_s('dc=example,dc=test',
+                             ldap.SCOPE_SUBTREE,
+                             'objectclass=*')
