@@ -81,7 +81,6 @@ following sections:
 * ``[cache]`` - Caching layer configuration
 * ``[catalog]`` - Service catalog driver configuration
 * ``[credential]`` - Credential system driver configuration
-* ``[ec2]`` - Amazon EC2 authentication driver configuration
 * ``[endpoint_filter]`` - Endpoint filtering extension configuration
 * ``[endpoint_policy]`` - Endpoint policy extension configuration
 * ``[federation]`` - Federation driver configuration

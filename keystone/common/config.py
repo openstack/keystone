@@ -472,11 +472,6 @@ FILE_OPTIONS = {
                    help='Maximum number of entities that will be returned '
                         'in a policy collection.'),
     ],
-    'ec2': [
-        cfg.StrOpt('driver',
-                   default='keystone.contrib.ec2.backends.kvs.Ec2',
-                   help='EC2Credential backend driver.'),
-    ],
     'endpoint_filter': [
         cfg.StrOpt('driver',
                    default='keystone.contrib.endpoint_filter.backends'

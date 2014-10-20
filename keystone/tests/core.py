@@ -786,9 +786,6 @@ class SQLDriverOverrides(object):
             group='catalog',
             driver='keystone.catalog.backends.sql.Catalog')
         self.config_fixture.config(
-            group='ec2',
-            driver='keystone.contrib.ec2.backends.sql.Ec2')
-        self.config_fixture.config(
             group='identity',
             driver='keystone.identity.backends.sql.Identity')
         self.config_fixture.config(

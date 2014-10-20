@@ -714,16 +714,6 @@
 #db_max_retries=20
 
 
-[ec2]
-
-#
-# Options defined in keystone
-#
-
-# EC2Credential backend driver. (string value)
-#driver=keystone.contrib.ec2.backends.kvs.Ec2
-
-
 [endpoint_filter]
 
 #
