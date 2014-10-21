@@ -26,10 +26,14 @@ import eventlet
 import eventlet.wsgi
 import greenlet
 
+from keystone.common import config
 from keystone.i18n import _
 from keystone.i18n import _LE
 from keystone.i18n import _LI
 from keystone.openstack.common import log
+
+
+CONF = config.CONF
 
 
 LOG = log.getLogger(__name__)
@@ -176,10 +180,12 @@ class Server(object):
     def _run(self, application, socket):
         """Start a WSGI server in a new green thread."""
         logger = log.getLogger('eventlet.wsgi.server')
+        socket_timeout = CONF.client_socket_timeout or None
         try:
-            eventlet.wsgi.server(socket, application, custom_pool=self.pool,
-                                 log=EventletFilteringLogger(logger),
-                                 debug=False)
+            eventlet.wsgi.server(
+                socket, application, log=EventletFilteringLogger(logger),
+                debug=False, keepalive=CONF.wsgi_keep_alive,
+                socket_timeout=socket_timeout)
         except greenlet.GreenletExit:
             # Wait until all servers have completed running
             pass
