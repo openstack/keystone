@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-07 06:06+0000\n"
-"PO-Revision-Date: 2014-08-04 01:37+0000\n"
+"POT-Creation-Date: 2014-10-22 06:12+0000\n"
+"PO-Revision-Date: 2014-10-21 00:51+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/projects/p/"
 "keystone/language/en_GB/)\n"
@@ -38,7 +38,7 @@ msgstr ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
 "the earliest value."
 
-#: keystone/common/openssl.py:78
+#: keystone/common/openssl.py:80
 #, python-format
 msgid "Running command - %s"
 msgstr ""
@@ -151,12 +151,12 @@ msgstr "Wait called after thread killed.  Cleaning up."
 msgid "Waiting on %d children to exit"
 msgstr "Waiting on %d children to exit"
 
-#: keystone/token/persistence/backends/sql.py:61
+#: keystone/token/persistence/backends/sql.py:63
 #, python-format
 msgid "Token expiration batch size: %d"
-msgstr ""
+msgstr "Token expiration batch size: %d"
 
-#: keystone/token/persistence/backends/sql.py:277
+#: keystone/token/persistence/backends/sql.py:279
 #, python-format
 msgid "Total expired tokens removed: %d"
-msgstr ""
+msgstr "Total expired tokens removed: %d"

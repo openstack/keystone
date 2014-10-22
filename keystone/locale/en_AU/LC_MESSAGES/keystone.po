@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-10-07 06:05+0000\n"
-"PO-Revision-Date: 2014-04-19 01:30+0000\n"
+"POT-Creation-Date: 2014-10-22 06:12+0000\n"
+"PO-Revision-Date: 2014-10-16 09:10+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -480,12 +480,12 @@ msgstr ""
 
 #: keystone/assignment/backends/ldap.py:215
 #: keystone/assignment/backends/ldap.py:259 keystone/catalog/core.py:100
-#: keystone/common/ldap/core.py:1378
+#: keystone/common/ldap/core.py:1396
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "Duplicate ID, %s."
 
-#: keystone/assignment/backends/ldap.py:223 keystone/common/ldap/core.py:1368
+#: keystone/assignment/backends/ldap.py:223 keystone/common/ldap/core.py:1386
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Duplicate name, %s."
@@ -772,7 +772,7 @@ msgstr ""
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/utils.py:196 keystone/credential/controllers.py:43
+#: keystone/common/utils.py:196 keystone/credential/controllers.py:44
 msgid "Invalid blob in credential"
 msgstr "Invalid blob in credential"
 
@@ -800,7 +800,7 @@ msgstr ""
 msgid "The resource could not be found."
 msgstr "The resource could not be found."
 
-#: keystone/common/cache/_memcache_pool.py:100
+#: keystone/common/cache/_memcache_pool.py:111
 #, python-format
 msgid "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
 msgstr ""
@@ -943,37 +943,37 @@ msgstr "tls_cacertfile %s not found or is not a file"
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr "tls_cacertdir %s not found or is not a directory"
 
-#: keystone/common/ldap/core.py:1303
+#: keystone/common/ldap/core.py:1321
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:1347
+#: keystone/common/ldap/core.py:1365
 #, python-format
 msgid "LDAP %s create"
 msgstr "LDAP %s create"
 
-#: keystone/common/ldap/core.py:1352
+#: keystone/common/ldap/core.py:1370
 #, python-format
 msgid "LDAP %s update"
 msgstr "LDAP %s update"
 
-#: keystone/common/ldap/core.py:1357
+#: keystone/common/ldap/core.py:1375
 #, python-format
 msgid "LDAP %s delete"
 msgstr "LDAP %s delete"
 
-#: keystone/common/ldap/core.py:1499
+#: keystone/common/ldap/core.py:1517
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
 msgstr "Cannot change %(option_name)s %(attr)s"
 
-#: keystone/common/ldap/core.py:1586
+#: keystone/common/ldap/core.py:1604
 #, python-format
 msgid "Member %(member)s is already a member of group %(group)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:1635
+#: keystone/common/ldap/core.py:1653
 #, python-format
 msgid ""
 "When deleting entries for %(search_base)s, could not delete nonexistent "
@@ -1186,10 +1186,10 @@ msgstr "Invalid domain name (%s) found in config file name"
 msgid "Unable to locate domain config directory: %s"
 msgstr "Unable to locate domain config directory: %s"
 
-#: keystone/identity/core.py:220 keystone/identity/backends/ldap.py:59
-#: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
-#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:112
-#: keystone/identity/backends/sql.py:114
+#: keystone/identity/core.py:220 keystone/identity/backends/ldap.py:58
+#: keystone/identity/backends/ldap.py:60 keystone/identity/backends/ldap.py:66
+#: keystone/identity/backends/ldap.py:68 keystone/identity/backends/sql.py:109
+#: keystone/identity/backends/sql.py:111
 msgid "Invalid user / password"
 msgstr ""
 
@@ -1202,17 +1202,17 @@ msgstr "User is disabled: %s"
 msgid "Cannot change user ID"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:99
+#: keystone/identity/backends/ldap.py:98
 msgid "Cannot change user name"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:183 keystone/identity/backends/sql.py:196
-#: keystone/identity/backends/sql.py:214
+#: keystone/identity/backends/ldap.py:182 keystone/identity/backends/sql.py:193
+#: keystone/identity/backends/sql.py:211
 #, python-format
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:337
+#: keystone/identity/backends/ldap.py:332
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "User %(user_id)s is already a member of group %(group_id)s"
@@ -1301,20 +1301,20 @@ msgstr ""
 #: keystone/openstack/common/processutils.py:158
 #, python-format
 msgid "Running cmd (subprocess): %s"
-msgstr ""
+msgstr "Running cmd (subprocess): %s"
 
 #: keystone/openstack/common/processutils.py:206
 #, python-format
 msgid "%r failed. Retrying."
-msgstr ""
+msgstr "%r failed. Retrying."
 
 #: keystone/openstack/common/processutils.py:248
 msgid "Environment not supported over SSH"
-msgstr ""
+msgstr "Environment not supported over SSH"
 
 #: keystone/openstack/common/processutils.py:252
 msgid "process_input not supported over SSH"
-msgstr ""
+msgstr "process_input not supported over SSH"
 
 #: keystone/openstack/common/strutils.py:114
 #, python-format

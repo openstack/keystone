@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-10-07 06:05+0000\n"
-"PO-Revision-Date: 2014-07-16 14:42+0000\n"
+"POT-Creation-Date: 2014-10-22 06:12+0000\n"
+"PO-Revision-Date: 2014-10-21 00:51+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/keystone/language/"
 "de/)\n"
@@ -27,7 +27,7 @@ msgstr ""
 #: keystone/catalog/core.py:60
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
-msgstr ""
+msgstr "Fehlerhafter Endpunkt %(url)s - unbekannter Schlüssel %(keyerror)s"
 
 #: keystone/catalog/core.py:65
 #, python-format

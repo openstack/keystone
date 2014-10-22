@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-10-07 06:05+0000\n"
-"PO-Revision-Date: 2014-06-20 20:11+0000\n"
+"POT-Creation-Date: 2014-10-22 06:12+0000\n"
+"PO-Revision-Date: 2014-10-21 00:51+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Korean (Korea) (http://www.transifex.com/projects/p/keystone/"
 "language/ko_KR/)\n"
@@ -27,7 +27,7 @@ msgstr ""
 #: keystone/catalog/core.py:60
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
-msgstr ""
+msgstr "형식이 잘못된 엔드포인트 %(url)s - 알 수 없는 키 %(keyerror)s"
 
 #: keystone/catalog/core.py:65
 #, python-format
@@ -104,7 +104,7 @@ msgstr "룰 %r를 이해하지 못했습니다."
 
 #: keystone/openstack/common/service.py:188
 msgid "Exception during rpc cleanup."
-msgstr ""
+msgstr "RPC 정리하는 동안 예외입니다."
 
 #: keystone/openstack/common/service.py:277
 msgid "Unhandled exception"
