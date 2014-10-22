@@ -225,6 +225,22 @@ class Driver(object):
     def _get_list_limit(self):
         return CONF.catalog.list_limit or CONF.list_limit
 
+    def _ensure_no_circle_in_hierarchical_regions(self, region_ref):
+        if region_ref.get('parent_region_id') is None:
+            return
+
+        root_region_id = region_ref['id']
+        parent_region_id = region_ref['parent_region_id']
+
+        while parent_region_id:
+            # NOTE(wanghong): check before getting parent region can ensure no
+            # self circle
+            if parent_region_id == root_region_id:
+                raise exception.CircularRegionHierarchyError(
+                    parent_region_id=parent_region_id)
+            parent_region = self.get_region(parent_region_id)
+            parent_region_id = parent_region.get('parent_region_id')
+
     @abc.abstractmethod
     def create_region(self, region_ref):
         """Creates a new region.
