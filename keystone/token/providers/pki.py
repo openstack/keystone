@@ -47,3 +47,7 @@ class Provider(common.BaseProvider):
             LOG.exception(_LE('Unable to sign token'))
             raise exception.UnexpectedError(_(
                 'Unable to sign token.'))
+
+    def needs_persistence(self):
+        """Should the token be written to a backend."""
+        return True

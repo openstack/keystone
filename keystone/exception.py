@@ -424,6 +424,11 @@ class ConfigFileNotFound(UnexpectedError):
                              "could not be found.")
 
 
+class KeysNotFound(UnexpectedError):
+    message_format = _('No encryption keys found; run keystone-manage '
+                       'klwt_setup to bootstrap one.')
+
+
 class MultipleSQLDriversInConfig(UnexpectedError):
     message_format = _('The Keystone domain configuration file '
                        '%(config_file)s defines an additional SQL driver - '

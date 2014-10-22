@@ -29,6 +29,7 @@ from keystone import config
 from keystone.i18n import _, _LW
 from keystone import identity
 from keystone import token
+from keystone.token.providers.klwt import utils as klwt
 
 
 CONF = cfg.CONF
@@ -93,19 +94,16 @@ class DbVersion(BaseApp):
         migration_helpers.print_db_version(extension)
 
 
-class BaseCertificateSetup(BaseApp):
-    """Common user/group setup for PKI and SSL generation."""
+class BasePermissionsSetup(BaseApp):
+    """Common user/group setup for file permissions."""
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(BaseCertificateSetup,
+        parser = super(BasePermissionsSetup,
                        cls).add_argument_parser(subparsers)
         running_as_root = (os.geteuid() == 0)
         parser.add_argument('--keystone-user', required=running_as_root)
         parser.add_argument('--keystone-group', required=running_as_root)
-        parser.add_argument('--rebuild', default=False, action='store_true',
-                            help=('Rebuild certificate files: erase previous '
-                                  'files and regenerate them.'))
         return parser
 
     @staticmethod
@@ -128,6 +126,19 @@ class BaseCertificateSetup(BaseApp):
             raise ValueError("Unknown group '%s' in --keystone-group" % a)
 
         return keystone_user_id, keystone_group_id
+
+
+class BaseCertificateSetup(BasePermissionsSetup):
+    """Provides common options for certificate setup."""
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(BaseCertificateSetup,
+                       cls).add_argument_parser(subparsers)
+        parser.add_argument('--rebuild', default=False, action='store_true',
+                            help=('Rebuild certificate files: erase previous '
+                                  'files and regenerate them.'))
+        return parser
 
 
 class PKISetup(BaseCertificateSetup):
@@ -166,6 +177,52 @@ class SSLSetup(BaseCertificateSetup):
         conf_ssl = openssl.ConfigureSSL(keystone_user_id, keystone_group_id,
                                         rebuild=CONF.command.rebuild)
         conf_ssl.run()
+
+
+class KLWTSetup(BasePermissionsSetup):
+    """Setup a key repository for KLW tokens.
+
+    This also creates a primary key used for both creating and validating
+    Keystone Lightweight tokens. To improve security, you should rotate your
+    keys (using keystone-manage klwt_rotate, for example).
+
+    """
+
+    name = 'klwt_setup'
+
+    @classmethod
+    def main(cls):
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        klwt.create_key_directory(keystone_user_id, keystone_group_id)
+        if klwt.validate_key_repository():
+            klwt.initialize_key_repository(keystone_user_id, keystone_group_id)
+
+
+class KLWTRotate(BasePermissionsSetup):
+    """Rotate keys.
+
+    This assumes you have already run keystone-manage klwt_setup.
+
+    A new primary key is placed into rotation, which is used for new tokens.
+    The old primary key is demoted to secondary, which can then still be used
+    for validating tokens. Excess secondary keys (beyond [klw_tokens]
+    max_active_keys) are revoked. Revoked keys are permanently deleted. A new
+    staged key will be created and used to validate tokens. The next time key
+    rotation takes place, the staged key will be put into rotation as the
+    primary key.
+
+    Rotating keys too frequently, or with [klw_tokens] max_active_keys set too
+    low, will cause tokens to become invalid prior to their expiration.
+
+    """
+
+    name = 'klwt_rotate'
+
+    @classmethod
+    def main(cls):
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        if klwt.validate_key_repository():
+            klwt.rotate_keys(keystone_user_id, keystone_group_id)
 
 
 class TokenFlush(BaseApp):
@@ -275,6 +332,8 @@ class SamlIdentityProviderMetadata(BaseApp):
 CMDS = [
     DbSync,
     DbVersion,
+    KLWTRotate,
+    KLWTSetup,
     MappingPurge,
     PKISetup,
     SamlIdentityProviderMetadata,
