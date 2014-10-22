@@ -86,7 +86,7 @@ class Driver(object):
         """Verify that a user is authorized to perform action.
 
         For more information on a full implementation of this see:
-        `keystone.common.policy.enforce`.
+        `keystone.policy.backends.rules.Policy.enforce`
         """
         raise exception.NotImplemented()  # pragma: no cover
 
