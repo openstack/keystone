@@ -2,7 +2,7 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-hacking>=0.9.2,<0.10
+hacking>=0.10.0,<0.11
 bashate>=0.2 # Apache-2.0
 
 # pysqlite does not install on py3
@@ -19,8 +19,12 @@ pymongo>=2.5
 # Optional backend: LDAP
 # python-ldap does not install on py3
 # authenticate against an existing LDAP server
-# python-ldap==2.3.13
+# python-ldap>=2.4
 # ldappool>=1.0 # MPL
+
+# Required for federation extension (although used only for federating multiple
+# Keystones)
+pysaml2
 
 # Testing
 # computes code coverage percentages
