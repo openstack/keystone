@@ -361,6 +361,23 @@ class CoreApiTests(object):
             expected_status=400)
         self.assertValidErrorResponse(r)
 
+    def test_create_update_user_valid_enabled_type(self):
+        # Enforce usage of boolean for 'enabled' field
+        token = self.get_scoped_token()
+
+        # Test CREATE request
+        self.admin_request(method='POST',
+                           path='/v2.0/users',
+                           body={
+                               'user': {
+                                   'name': uuid.uuid4().hex,
+                                   'password': uuid.uuid4().hex,
+                                   'enabled': False,
+                               },
+                           },
+                           token=token,
+                           expected_status=200)
+
     def test_error_response(self):
         """This triggers assertValidErrorResponse by convention."""
         self.public_request(path='/v2.0/tenants', expected_status=401)
