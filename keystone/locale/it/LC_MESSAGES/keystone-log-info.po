@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-07 06:06+0000\n"
-"PO-Revision-Date: 2014-08-04 01:37+0000\n"
+"POT-Creation-Date: 2014-10-22 06:12+0000\n"
+"PO-Revision-Date: 2014-10-14 11:31+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/keystone/"
 "language/it/)\n"
@@ -35,7 +35,7 @@ msgid ""
 "the earliest value."
 msgstr ""
 
-#: keystone/common/openssl.py:78
+#: keystone/common/openssl.py:80
 #, python-format
 msgid "Running command - %s"
 msgstr ""
@@ -69,7 +69,7 @@ msgstr ""
 #: keystone/common/environment/eventlet_server.py:104
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
-msgstr ""
+msgstr "Avvio %(arg0)s in %(host)s:%(port)s"
 
 #: keystone/common/kvs/core.py:138
 #, python-format
@@ -148,12 +148,12 @@ msgstr "Attendere la chiamata dopo l'uccisione de filo. Bonifica."
 msgid "Waiting on %d children to exit"
 msgstr "In attesa %d degli elementi secondari per uscire"
 
-#: keystone/token/persistence/backends/sql.py:61
+#: keystone/token/persistence/backends/sql.py:63
 #, python-format
 msgid "Token expiration batch size: %d"
 msgstr ""
 
-#: keystone/token/persistence/backends/sql.py:277
+#: keystone/token/persistence/backends/sql.py:279
 #, python-format
 msgid "Total expired tokens removed: %d"
 msgstr ""
