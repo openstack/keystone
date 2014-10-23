@@ -38,7 +38,7 @@ class RevokeController(controller.V3Controller):
                         'next': None,
                         'self': RevokeController.base_url(
                             context,
-                            path=context['path']) + '/events',
+                            path=context['path']),
                         'previous': None}
                     }
         return response
