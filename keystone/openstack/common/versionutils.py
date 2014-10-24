@@ -23,7 +23,7 @@ import inspect
 import pkg_resources
 import six
 
-from keystone.openstack.common.gettextutils import _
+from keystone.openstack.common._i18n import _
 from keystone.openstack.common import log as logging
 
 

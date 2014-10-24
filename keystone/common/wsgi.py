@@ -23,6 +23,7 @@ import copy
 from oslo import i18n
 from oslo.serialization import jsonutils
 from oslo.utils import importutils
+from oslo.utils import strutils
 import routes.middleware
 import six
 import webob.dec
@@ -462,11 +463,11 @@ class Debug(Middleware):
             LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
             for key, value in req.environ.items():
                 LOG.debug('%s = %s', key,
-                          log.mask_password(value))
+                          strutils.mask_password(value))
             LOG.debug('')
             LOG.debug('%s %s %s', ('*' * 20), 'REQUEST BODY', ('*' * 20))
             for line in req.body_file:
-                LOG.debug('%s', log.mask_password(line))
+                LOG.debug('%s', strutils.mask_password(line))
             LOG.debug('')
 
         resp = req.get_response(self.application)

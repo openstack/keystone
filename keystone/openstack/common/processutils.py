@@ -27,10 +27,10 @@ import signal
 
 from eventlet.green import subprocess
 from eventlet import greenthread
+from oslo.utils import strutils
 import six
 
-from keystone.openstack.common.gettextutils import _
-from keystone.openstack.common import strutils
+from keystone.openstack.common._i18n import _
 
 
 LOG = logging.getLogger(__name__)

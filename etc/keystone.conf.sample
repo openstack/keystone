@@ -444,6 +444,10 @@
 # (string value)
 #policy_default_rule=default
 
+# Directories where policy configuration files are stored
+# (multi valued)
+#policy_dirs=policy.d
+
 
 [assignment]
 

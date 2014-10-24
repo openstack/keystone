@@ -18,7 +18,8 @@ import errno
 import os
 import tempfile
 
-from keystone.openstack.common import excutils
+from oslo.utils import excutils
+
 from keystone.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
