@@ -33,10 +33,11 @@ import os
 import time
 import uuid
 
+from oslo.serialization import jsonutils
+
 from keystone.common import utils
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import jsonutils
 from keystone import service
 from keystone import tests
 
