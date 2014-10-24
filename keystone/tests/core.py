@@ -45,7 +45,6 @@ from keystone.common import config as common_cfg
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
-from keystone.common import utils as common_utils
 from keystone import config
 from keystone import controllers
 from keystone import exception
@@ -54,6 +53,8 @@ from keystone import notifications
 from keystone.openstack.common import log
 from keystone import service
 from keystone.tests import ksfixtures
+from keystone.tests import utils
+
 
 # NOTE(dstanek): Tests inheriting from TestCase depend on having the
 #   policy_file command-line option declared before setUp runs. Importing the
@@ -132,12 +133,12 @@ def checkout_vendor(repo, rev):
                 return revdir
 
         if not os.path.exists(revdir):
-            common_utils.git('clone', repo, revdir)
+            utils.git('clone', repo, revdir)
 
         os.chdir(revdir)
-        common_utils.git('checkout', '-q', 'master')
-        common_utils.git('pull', '-q')
-        common_utils.git('checkout', '-q', rev)
+        utils.git('checkout', '-q', 'master')
+        utils.git('pull', '-q')
+        utils.git('checkout', '-q', rev)
 
         # write out a modified time
         with open(modcheck, 'w') as fd:
