@@ -36,6 +36,7 @@ import uuid
 from keystone.common import utils
 from keystone import config
 from keystone import exception
+from keystone.openstack.common import jsonutils
 from keystone import service
 from keystone import tests
 
@@ -164,6 +165,12 @@ class UtilsTestCase(tests.TestCase):
         for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
             TZ = 'UTC' + d
             _test_unixtime()
+
+    def test_pki_encoder(self):
+        data = {'field': 'value'}
+        json = jsonutils.dumps(data, cls=utils.PKIEncoder)
+        expected_json = b'{"field":"value"}'
+        self.assertEqual(expected_json, json)
 
 
 class ServiceHelperTests(tests.TestCase):
