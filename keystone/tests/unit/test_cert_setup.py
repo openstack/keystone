@@ -62,8 +62,10 @@ class CertSetupTestCase(rest.RestfulTestCase):
             keyfile=os.path.join(KEYDIR, 'signing_key.pem'))
         self.config_fixture.config(
             group='ssl',
+            ca_key=ca_key)
+        self.config_fixture.config(
+            group='eventlet_server_ssl',
             ca_certs=ca_certs,
-            ca_key=ca_key,
             certfile=os.path.join(CERTDIR, 'keystone.pem'),
             keyfile=os.path.join(KEYDIR, 'keystonekey.pem'))
         self.config_fixture.config(
@@ -101,9 +103,9 @@ class CertSetupTestCase(rest.RestfulTestCase):
     def test_create_ssl_certs(self, rebuild=False):
         ssl = openssl.ConfigureSSL(None, None, rebuild=rebuild)
         ssl.run()
-        self.assertTrue(os.path.exists(CONF.ssl.ca_certs))
-        self.assertTrue(os.path.exists(CONF.ssl.certfile))
-        self.assertTrue(os.path.exists(CONF.ssl.keyfile))
+        self.assertTrue(os.path.exists(CONF.eventlet_server_ssl.ca_certs))
+        self.assertTrue(os.path.exists(CONF.eventlet_server_ssl.certfile))
+        self.assertTrue(os.path.exists(CONF.eventlet_server_ssl.keyfile))
 
     def test_fetch_signing_cert(self, rebuild=False):
         pki = openssl.ConfigurePKI(None, None, rebuild=rebuild)
@@ -161,11 +163,11 @@ class CertSetupTestCase(rest.RestfulTestCase):
 
     def test_ssl_certs_rebuild(self):
         self.test_create_ssl_certs()
-        with open(CONF.ssl.certfile) as f:
+        with open(CONF.eventlet_server_ssl.certfile) as f:
             cert_file1 = f.read()
 
         self.test_create_ssl_certs(rebuild=True)
-        with open(CONF.ssl.certfile) as f:
+        with open(CONF.eventlet_server_ssl.certfile) as f:
             cert_file2 = f.read()
 
         self.assertNotEqual(cert_file1, cert_file2)
@@ -186,12 +188,12 @@ class CertSetupTestCase(rest.RestfulTestCase):
     @mock.patch.object(os, 'remove')
     def test_rebuild_ssl_certs_remove_error(self, mock_remove):
         self.test_create_ssl_certs()
-        with open(CONF.ssl.certfile) as f:
+        with open(CONF.eventlet_server_ssl.certfile) as f:
             cert_file1 = f.read()
 
         mock_remove.side_effect = OSError()
         self.test_create_ssl_certs(rebuild=True)
-        with open(CONF.ssl.certfile) as f:
+        with open(CONF.eventlet_server_ssl.certfile) as f:
             cert_file2 = f.read()
 
         self.assertEqual(cert_file1, cert_file2)
@@ -209,11 +211,11 @@ class CertSetupTestCase(rest.RestfulTestCase):
 
     def test_create_ssl_certs_twice_without_rebuild(self):
         self.test_create_ssl_certs()
-        with open(CONF.ssl.certfile) as f:
+        with open(CONF.eventlet_server_ssl.certfile) as f:
             cert_file1 = f.read()
 
         self.test_create_ssl_certs()
-        with open(CONF.ssl.certfile) as f:
+        with open(CONF.eventlet_server_ssl.certfile) as f:
             cert_file2 = f.read()
 
         self.assertEqual(cert_file1, cert_file2)

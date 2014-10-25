@@ -42,22 +42,22 @@ class BaseCertificateConfigure(object):
 
     """
 
-    def __init__(self, conf_obj, keystone_user, keystone_group,
-                 rebuild, **kwargs):
-        self.conf_dir = os.path.dirname(conf_obj.ca_certs)
+    def __init__(self, conf_obj, server_conf_obj, keystone_user,
+                 keystone_group, rebuild, **kwargs):
+        self.conf_dir = os.path.dirname(server_conf_obj.ca_certs)
         self.use_keystone_user = keystone_user
         self.use_keystone_group = keystone_group
         self.rebuild = rebuild
         self.ssl_config_file_name = os.path.join(self.conf_dir, "openssl.conf")
         self.request_file_name = os.path.join(self.conf_dir, "req.pem")
         self.ssl_dictionary = {'conf_dir': self.conf_dir,
-                               'ca_cert': conf_obj.ca_certs,
+                               'ca_cert': server_conf_obj.ca_certs,
                                'default_md': 'default',
                                'ssl_config': self.ssl_config_file_name,
                                'ca_private_key': conf_obj.ca_key,
                                'request_file': self.request_file_name,
-                               'signing_key': conf_obj.keyfile,
-                               'signing_cert': conf_obj.certfile,
+                               'signing_key': server_conf_obj.keyfile,
+                               'signing_cert': server_conf_obj.certfile,
                                'key_size': int(conf_obj.key_size),
                                'valid_days': int(conf_obj.valid_days),
                                'cert_subject': conf_obj.cert_subject}
@@ -259,7 +259,7 @@ class ConfigurePKI(BaseCertificateConfigure):
     """
 
     def __init__(self, keystone_user, keystone_group, rebuild=False):
-        super(ConfigurePKI, self).__init__(CONF.signing,
+        super(ConfigurePKI, self).__init__(CONF.signing, CONF.signing,
                                            keystone_user, keystone_group,
                                            rebuild=rebuild)
 
@@ -272,7 +272,7 @@ class ConfigureSSL(BaseCertificateConfigure):
     """
 
     def __init__(self, keystone_user, keystone_group, rebuild=False):
-        super(ConfigureSSL, self).__init__(CONF.ssl,
+        super(ConfigureSSL, self).__init__(CONF.ssl, CONF.eventlet_server_ssl,
                                            keystone_user, keystone_group,
                                            rebuild=rebuild)
 
