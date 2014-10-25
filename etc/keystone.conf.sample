@@ -1325,7 +1325,7 @@
 
 # An implementation of the backend for persisting revocation
 # events. (string value)
-#driver=keystone.contrib.revoke.backends.kvs.Revoke
+#driver=keystone.contrib.revoke.backends.sql.Revoke
 
 # This value (calculated in seconds) is added to token
 # expiration before a revocation event may be removed from the

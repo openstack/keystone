@@ -274,7 +274,7 @@ FILE_OPTIONS = {
     ],
     'revoke': [
         cfg.StrOpt('driver',
-                   default='keystone.contrib.revoke.backends.kvs.Revoke',
+                   default='keystone.contrib.revoke.backends.sql.Revoke',
                    help='An implementation of the backend for persisting '
                         'revocation events.'),
         cfg.IntOpt('expiration_buffer', default=1800,
