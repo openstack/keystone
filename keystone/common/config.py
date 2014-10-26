@@ -62,20 +62,20 @@ FILE_OPTIONS = {
                         'advertised to clients (NOTE: this does NOT affect '
                         'how Keystone listens for connections). '
                         'Defaults to the base host URL of the request. E.g. a '
-                        'request to http://server:5000/v2.0/users will '
+                        'request to http://server:5000/v3/users will '
                         'default to http://server:5000. You should only need '
                         'to set this value if the base URL contains a path '
-                        '(e.g. /prefix/v2.0) or the endpoint should be found '
+                        '(e.g. /prefix/v3) or the endpoint should be found '
                         'on a different server.'),
         cfg.StrOpt('admin_endpoint',
                    help='The base admin endpoint URL for Keystone that is '
                         'advertised to clients (NOTE: this does NOT affect '
                         'how Keystone listens for connections). '
                         'Defaults to the base host URL of the request. E.g. a '
-                        'request to http://server:35357/v2.0/users will '
+                        'request to http://server:35357/v3/users will '
                         'default to http://server:35357. You should only need '
                         'to set this value if the base URL contains a path '
-                        '(e.g. /prefix/v2.0) or the endpoint should be found '
+                        '(e.g. /prefix/v3) or the endpoint should be found '
                         'on a different server.'),
         cfg.IntOpt('public_workers',
                    help='The number of worker processes to serve the public '
