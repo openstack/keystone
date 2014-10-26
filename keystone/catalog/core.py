@@ -47,8 +47,14 @@ def format_url(url, substitutions):
     :returns: a formatted URL
 
     """
+
+    WHITELISTED_PROPERTIES = [
+        'tenant_id', 'user_id', 'public_bind_host', 'admin_bind_host',
+        'compute_host', 'compute_port', 'admin_port', 'public_port',
+        'public_endpoint', 'admin_endpoint', ]
+
     substitutions = utils.WhiteListedItemFilter(
-        CONF.catalog.endpoint_substitution_whitelist,
+        WHITELISTED_PROPERTIES,
         substitutions)
     try:
         result = url.replace('$(', '%(') % substitutions
