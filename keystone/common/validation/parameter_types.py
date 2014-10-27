@@ -45,18 +45,10 @@ url = {
     'type': 'string',
     'minLength': 0,
     'maxLength': 225,
-    # NOTE(lbragstad): Using a regular expression here instead of the
-    # FormatChecker object that is built into jsonschema. The FormatChecker
-    # can validate URI formats but it depends on rfc3987 to do that
-    # validation, and rfc3987 is GPL licensed. For our purposes here we will
-    # use a regex and not rely on rfc3987 to validate URIs.
-    'pattern': '^https?://'
-               '(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)'
-               '+[a-zA-Z]{2,6}\.?|'
-               'localhost|'
-               '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-               '(?::\d+)?'
-               '(?:/?|[/?]\S+)$'
+    # NOTE(edmondsw): we could do more to validate per various RFCs, but
+    # decision was made to err on the side of leniency. The following is based
+    # on rfc1738 section 2.1
+    'pattern': '[a-zA-Z0-9+.-]+:.+'
 }
 
 email = {
