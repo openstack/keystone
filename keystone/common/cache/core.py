@@ -87,7 +87,6 @@ class DebugProxy(proxy.ProxyBackend):
 def build_cache_config():
     """Build the cache region dictionary configuration.
 
-    :param conf: configuration object for keystone
     :returns: dict
     """
     prefix = CONF.cache.config_prefix
