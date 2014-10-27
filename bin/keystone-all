@@ -19,6 +19,7 @@ import os
 import socket
 import sys
 
+from oslo.concurrency import processutils
 from oslo import i18n
 import pbr.version
 
@@ -47,7 +48,6 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone import config
 from keystone.i18n import _
-from keystone.openstack.common import processutils
 from keystone.openstack.common import service
 from keystone.openstack.common import systemd
 from keystone import service as keystone_service
