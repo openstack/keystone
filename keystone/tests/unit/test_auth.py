@@ -19,6 +19,7 @@ import uuid
 import mock
 from oslo_config import cfg
 from oslo_utils import timeutils
+import six
 from testtools import matchers
 
 from keystone import assignment
@@ -280,6 +281,50 @@ class AuthWithToken(AuthTest):
         roles = scoped_token["access"]["metadata"]["roles"]
         self.assertEqual(self.tenant_bar['id'], tenant["id"])
         self.assertThat(roles, matchers.Contains(self.role_member['id']))
+
+    def test_auth_scoped_token_bad_project_with_debug(self):
+        """Authenticating with an invalid project fails."""
+        # Bug 1379952 reports poor user feedback, even in debug mode,
+        # when the user accidentally passes a project name as an ID.
+        # This test intentionally does exactly that.
+        body_dict = _build_user_auth(
+            username=self.user_foo['name'],
+            password=self.user_foo['password'],
+            tenant_id=self.tenant_bar['name'])
+
+        # with debug enabled, this produces a friendly exception.
+        self.config_fixture.config(debug=True)
+        e = self.assertRaises(
+            exception.Unauthorized,
+            self.controller.authenticate,
+            {}, body_dict)
+        # explicitly verify that the error message shows that a *name* is
+        # found where an *ID* is expected
+        self.assertIn(
+            'Project ID not found: %s' % self.tenant_bar['name'],
+            six.text_type(e))
+
+    def test_auth_scoped_token_bad_project_without_debug(self):
+        """Authenticating with an invalid project fails."""
+        # Bug 1379952 reports poor user feedback, even in debug mode,
+        # when the user accidentally passes a project name as an ID.
+        # This test intentionally does exactly that.
+        body_dict = _build_user_auth(
+            username=self.user_foo['name'],
+            password=self.user_foo['password'],
+            tenant_id=self.tenant_bar['name'])
+
+        # with debug disabled, authentication failure details are suppressed.
+        self.config_fixture.config(debug=False)
+        e = self.assertRaises(
+            exception.Unauthorized,
+            self.controller.authenticate,
+            {}, body_dict)
+        # explicitly verify that the error message details above have been
+        # suppressed.
+        self.assertNotIn(
+            'Project ID not found: %s' % self.tenant_bar['name'],
+            six.text_type(e))
 
     def test_auth_token_project_group_role(self):
         """Verify getting a token in a tenant with group roles."""
