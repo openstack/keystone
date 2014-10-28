@@ -60,4 +60,4 @@ oslosphinx>=2.2.0  # Apache-2.0
 # Used only by oslo
 kombu>=2.5.0
 lockfile>=0.8
-stevedore>=1.0.0  # Apache-2.0
+stevedore>=1.1.0  # Apache-2.0
