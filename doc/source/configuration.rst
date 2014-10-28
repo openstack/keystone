@@ -41,11 +41,18 @@ this would be accomplished by:
 
     $ sysctl -w 'sys.net.ipv4.ip_local_reserved_ports=35357'
 
-To make the above change persistent, `net.ipv4.ip_local_reserved_ports = 35357`
-should be added to ``/etc/sysctl.conf`` or to ``/etc/sysctl.d/keystone.conf``.
+To make the above change persistent,
+``net.ipv4.ip_local_reserved_ports = 35357`` should be added to
+``/etc/sysctl.conf`` or to ``/etc/sysctl.d/keystone.conf``.
 
-Starting and Stopping Keystone
-==============================
+Starting and Stopping Keystone under Eventlet
+=============================================
+
+Keystone can be run using either its built-in eventlet server or it can be run
+embedded in a web server. While the eventlet server is convenient and easy to
+use, it's lacking in security features that have been developed into Internet-
+based web servers over the years. As such, running the eventlet server as
+described in this section is not recommended.
 
 Start Keystone services using the command:
 
@@ -56,6 +63,15 @@ Start Keystone services using the command:
 Invoking this command starts up two ``wsgi.Server`` instances, ``admin`` (the
 administration API) and ``main`` (the primary/public API interface). Both
 services are configured to run in a single process.
+
+.. NOTE::
+
+    The separation into ``admin`` and ``main`` interfaces is an historical
+    anomaly. The new V3 API provides the same interface on both the admin and
+    main interfaces (this can be configured in ``keystone-paste.ini``, but the
+    default is to have both the same). The V2.0 API provides a limited public
+    API (getting and validating tokens) on ``main``, and an administrative API
+    (which can include creating users and such) on the ``admin`` interface.
 
 Stop the process using ``Control-C``.
 
@@ -354,7 +370,8 @@ to ``keystone.token.providers.pki.Provider``, ``token_format`` must be ``PKI``.
 Conversely, if ``provider`` is ``keystone.token.providers.uuid.Provider``,
 ``token_format`` must be ``UUID``.
 
-For a customized provider, ``token_format`` must not set to ``PKI`` or ``UUID``.
+For a customized provider, ``token_format`` must not be set to ``PKI`` or
+``UUID``.
 
 PKI or UUID?
 ^^^^^^^^^^^^
@@ -379,8 +396,9 @@ additional attributes.
     be protected from unnecessary disclosure to prevent unauthorized access.
 
 The current architectural approaches for both UUID and PKI-based tokens have
-pain points exposed by environments under heavy load (search bugs and
-blueprints for the latest details and potential solutions).
+pain points exposed by environments under heavy load or with a large service
+catalog (search bugs and blueprints for the latest details and potential
+solutions).
 
 Caching Layer
 -------------
@@ -388,7 +406,7 @@ Caching Layer
 Keystone supports a caching layer that is above the configurable subsystems (e.g. ``token``,
 ``identity``, etc).  Keystone uses the `dogpile.cache`_ library which allows for flexible
 cache backends. The majority of the caching configuration options are set in the ``[cache]``
-section.  However, each section that has the capability to be cached usually has a ``caching``
+section. However, each section that has the capability to be cached usually has a ``caching``
 boolean value that will toggle caching for that specific section.  The current default
 behavior is that subsystem caching is enabled, but the global toggle is set to disabled.
 
@@ -501,51 +519,30 @@ PKI stands for Public Key Infrastructure.  Tokens are documents,
 cryptographically signed using the X509 standard.  In order to work correctly
 token generation requires a public/private key pair.  The public key must be
 signed in an X509 certificate, and the certificate used to sign it must be
-available as Certificate Authority (CA) certificate.  These files can be
-generated either using the keystone-manage utility, or externally generated.
+available as Certificate Authority (CA) certificate.  These files can be either
+externally generated or generated using the ``keystone-manage`` utility.
 
-``keystone-manage pki_setup`` is a development tool. We recommend that you do
-not use ``keystone-manage pki_setup`` in a production environment. In
-production, an external CA should be used instead. This is because the CA
-secret key should generally be kept apart from the token signing secret keys
-so that a compromise of a node does not lead to an attacker being able to
-generate valid signed Keystone tokens. This is a low probability attack
-vector, as compromise of a Keystone service machine's filesystem security
-almost certainly means the attacker will be able to gain direct access to the
-token backend.
-
-The files need to be in the locations specified by the top level Keystone
-configuration file as specified in the above section.  Additionally, the
-private key should only be readable by the system user that will run Keystone.
-The values that specify where to read the certificates are under the
+The files used for signing and verifying certificates are set in the Keystone
+configuration file. The private key should only be readable by the system user
+that will run Keystone. The values that specify the certificates are under the
 ``[signing]`` section of the configuration file.  The configuration values are:
 
-* ``token_format`` - Determines the algorithm used to generate tokens.  Can be
-  either ``UUID`` or ``PKI``. Defaults to ``PKI``. This option must be used in
-  conjunction with ``provider`` configuration in the ``[token]`` section.
 * ``certfile`` - Location of certificate used to verify tokens.  Default is
   ``/etc/keystone/ssl/certs/signing_cert.pem``
 * ``keyfile`` - Location of private key used to sign tokens.  Default is
   ``/etc/keystone/ssl/private/signing_key.pem``
 * ``ca_certs`` - Location of certificate for the authority that issued the
   above certificate. Default is ``/etc/keystone/ssl/certs/ca.pem``
-* ``ca_key`` - Default is ``/etc/keystone/ssl/private/cakey.pem``
-* ``key_size`` - Default is ``2048``
-* ``valid_days`` - Default is ``3650``
 
 Signing Certificate Issued by External CA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You may use a signing certificate issued by an external CA instead of generated
-by keystone-manage. However, certificate issued by external CA must satisfy
+by ``keystone-manage``. However, certificate issued by external CA must satisfy
 the following conditions:
 
 * all certificate and key files must be in Privacy Enhanced Mail (PEM) format
 * private key files must not be protected by a password
-
-When using signing certificate issued by an external CA, you do not need to
-specify ``key_size``, ``valid_days`` and ``ca_key`` as they
-will be ignored.
 
 The basic workflow for using a signing certificate issued by an external CA involves:
 
@@ -582,7 +579,7 @@ First create a certificate request configuration file (e.g. ``cert_req.conf``):
     emailAddress            = keystone@openstack.org
 
 Then generate a CRS with OpenSSL CLI. **Do not encrypt the generated private
-key. Must use the -nodes option.**
+key. The -nodes option must be used.**
 
 For example:
 
@@ -621,6 +618,30 @@ Copy the above to your certificate directory. For example:
 If your certificate directory path is different from the default
 ``/etc/keystone/ssl/certs``, make sure it is reflected in the
 ``[signing]`` section of the configuration file.
+
+
+Generating a Signing Certificate using pki_setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``keystone-manage pki_setup`` is a development tool. We recommend that you do
+not use ``keystone-manage pki_setup`` in a production environment. In
+production, an external CA should be used instead. This is because the CA
+secret key should generally be kept apart from the token signing secret keys
+so that a compromise of a node does not lead to an attacker being able to
+generate valid signed Keystone tokens. This is a low probability attack
+vector, as compromise of a Keystone service machine's filesystem security
+almost certainly means the attacker will be able to gain direct access to the
+token backend.
+
+When using the ``keystone-manage pki_setup`` to generate the certificates, the
+following configuration options in the ``[signing]`` section are used:
+
+* ``ca_key`` - Default is ``/etc/keystone/ssl/private/cakey.pem``
+* ``key_size`` - Default is ``2048``
+* ``valid_days`` - Default is ``3650``
+
+If ``keystone-manage pki_setup`` is not used then these options don't need to
+be set.
 
 
 Service Catalog
@@ -758,7 +779,7 @@ When generating SSL certificates the following values are read
 Generating SSL certificates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Certificates for secure HTTP communication can be generated by:
+Certificates for encrypted HTTP communication can be generated by:
 
 .. code-block:: bash
 
@@ -774,12 +795,17 @@ and is only recommended for developments environment. We do not recommend using
 ``ssl_setup`` for production environments.
 
 
-User CRUD
----------
+User CRUD extension for the V2.0 API
+------------------------------------
 
-Keystone provides a user CRUD filter that can be added to the public_api
-pipeline. This user crud filter allows users to use a HTTP PATCH to change
-their own password. To enable this extension you should define a
+.. NOTE::
+
+    The core V3 API includes user operations so no extension needs to be
+    enabled for the V3 API.
+
+For the V2.0 API, Keystone provides a user CRUD filter that can be added to the
+public_api pipeline. This user crud filter allows users to use a HTTP PATCH to
+change their own password. To enable this extension you should define a
 user_crud_extension filter, insert it after the ``*_body`` middleware
 and before the ``public_service`` app in the public_api WSGI pipeline in
 ``keystone-paste.ini`` e.g.:
@@ -799,8 +825,8 @@ Each user can then change their own password with a HTTP PATCH :
     $ curl -X PATCH http://localhost:5000/v2.0/OS-KSCRUD/users/<userid> -H "Content-type: application/json"  \
     -H "X_Auth_Token: <authtokenid>" -d '{"user": {"password": "ABCD", "original_password": "DCBA"}}'
 
-In addition to changing their password all of the users current tokens will be
-deleted (if the backend used is SQL)
+In addition to changing their password all of the user's current tokens will be
+revoked.
 
 
 Inherited Role Assignment Extension
