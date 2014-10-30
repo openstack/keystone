@@ -169,4 +169,4 @@ class KvsTokenCacheInvalidation(tests.TestCase,
         super(KvsTokenCacheInvalidation, self).config_overrides()
         self.config_fixture.config(
             group='token',
-            driver='keystone.token.backends.kvs.Token')
+            driver='keystone.token.persistence.backends.kvs.Token')
