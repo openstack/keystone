@@ -56,9 +56,10 @@ class Token(token.persistence.Driver):
             # is instantiated.
             LOG.warn(_('It is recommended to only use the base '
                        'key-value-store implementation for the token driver '
-                       'for testing purposes.  '
-                       'Please use keystone.token.backends.memcache.Token '
-                       'or keystone.token.backends.sql.Token instead.'))
+                       'for testing purposes. Please use '
+                       'keystone.token.persistence.backends.memcache.Token '
+                       'or keystone.token.persistence.backends.sql.Token '
+                       'instead.'))
 
     def _prefix_token_id(self, token_id):
         return 'token-%s' % token_id.encode('utf-8')
