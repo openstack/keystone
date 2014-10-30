@@ -21,6 +21,7 @@ from keystone.common import dependency
 from keystone.contrib import federation
 from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
 from keystone.openstack.common import log
