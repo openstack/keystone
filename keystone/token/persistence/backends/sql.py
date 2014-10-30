@@ -269,7 +269,7 @@ class Token(token.persistence.Driver):
         total_removed = 0
         upper_bound_func = timeutils.utcnow
         for expiry_time in expiry_range_func(session, upper_bound_func):
-            delete_query = query.filter(TokenModel.expires <
+            delete_query = query.filter(TokenModel.expires <=
                                         expiry_time)
             row_count = delete_query.delete(synchronize_session=False)
             total_removed += row_count
