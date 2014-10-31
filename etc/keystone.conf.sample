@@ -1472,7 +1472,7 @@
 # Path of the keyfile for SSL. (string value)
 #keyfile=/etc/keystone/ssl/private/keystonekey.pem
 
-# Path of the ca cert file for SSL. (string value)
+# Path of the CA cert file for SSL. (string value)
 #ca_certs=/etc/keystone/ssl/certs/ca.pem
 
 # Path of the CA key file for SSL. (string value)
