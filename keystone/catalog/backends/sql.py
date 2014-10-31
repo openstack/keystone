@@ -15,6 +15,7 @@
 
 import six
 import sqlalchemy
+from sqlalchemy.sql import true
 
 from keystone import catalog
 from keystone.catalog import core
@@ -274,10 +275,9 @@ class Catalog(catalog.Driver):
         substitutions.update({'tenant_id': tenant_id, 'user_id': user_id})
 
         session = sql.get_session()
-        t = True  # variable for singleton for PEP8, E712.
         endpoints = (session.query(Endpoint).
                      options(sql.joinedload(Endpoint.service)).
-                     filter(Endpoint.enabled == t).all())
+                     filter(Endpoint.enabled == true()).all())
 
         catalog = {}
 
@@ -309,8 +309,7 @@ class Catalog(catalog.Driver):
                   'user_id': user_id})
 
         session = sql.get_session()
-        t = True  # variable for singleton for PEP8, E712.
-        services = (session.query(Service).filter(Service.enabled == t).
+        services = (session.query(Service).filter(Service.enabled == true()).
                     options(sql.joinedload(Service.endpoints)).
                     all())
 
