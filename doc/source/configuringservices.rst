@@ -35,8 +35,8 @@ In general:
   name, user id, project name, project id, roles, etc...
 
 The middleware will pass those data down to the service as headers. More
-details on the architecture of that setup is described in
-:doc:`middlewarearchitecture`
+details on the architecture of that setup is described in the
+`authentication middleware documentation`_.
 
 Setting up credentials
 ======================
@@ -150,70 +150,13 @@ Keystone is online, you need to add the services to the catalog:
                                      --description "Swift Service"
 
 
-Setting Up Middleware
-=====================
+Setting Up Auth-Token Middleware
+================================
 
-Keystone Auth-Token Middleware
---------------------------------
+The Keystone project provides the auth-token middleware which validates that
+the request is valid before passing it on to the application. This must be
+installed and configured in the applications (such as Nova, Glance, Swift,
+etc.). The `authentication middleware documentation`_ describes how to install
+and configure this middleware.
 
-The Keystone auth_token middleware is a WSGI component that can be inserted in
-the WSGI pipeline to handle authenticating tokens with Keystone. You can
-get more details of the middleware in :doc:`middlewarearchitecture`.
-
-Configuring Nova to use Keystone
---------------------------------
-
-When configuring Nova, it is important to create an admin service token for
-the service (from the Configuration step above) and include that as the key
-'admin_token' in Nova's api-paste.ini [filter:authtoken] section or in
-nova.conf [keystone_authtoken] section.
-
-Configuring Swift to use Keystone
----------------------------------
-
-Similar to Nova, Swift can be configured to use Keystone for authentication
-rather than its built in 'tempauth'. Refer to the `overview_auth` documentation
-in Swift. 
-
-Auth-Token Middleware with Username and Password
-------------------------------------------------
-
-It is also possible to configure Keystone's auth_token middleware using the
-'admin_user' and 'admin_password' options. When using the 'admin_user' and
-'admin_password' options the 'admin_token' parameter is optional. If
-'admin_token' is specified it will be used only if the specified token is
-still valid.
-
-Here is an example paste config filter that makes use of the 'admin_user' and
-'admin_password' parameters::
-
-    [filter:authtoken]
-    paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
-    auth_port = 35357
-    auth_host = 127.0.0.1
-    auth_token = 012345SECRET99TOKEN012345
-    admin_user = admin
-    admin_password = keystone123
-
-It should be noted that when using this option an admin project/role
-relationship is required. The admin user is granted access to the 'admin'
-role to the 'admin' project.
-
-The auth_token middleware can also be configured in nova.conf
-[keystone_authtoken] section to keep paste config clean of site-specific
-parameters::
-
-    [filter:authtoken]
-    paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
-
-and in nova.conf::
-
-    [DEFAULT]
-    ...
-    auth_strategy=keystone
-
-    [keystone_authtoken]
-    auth_port = 35357
-    auth_host = 127.0.0.1
-    admin_user = admin
-    admin_password = keystone123
+.. _`authentication middleware documentation`: http://docs.openstack.org/developer/keystonemiddleware/middlewarearchitecture.html
