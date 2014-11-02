@@ -36,27 +36,9 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'resource_api',
-                     'token_provider_api')
-class Tenant(controller.V2Controller):
-
-    @controller.v2_deprecated
-    def get_all_projects(self, context, **kw):
-        """Gets a list of all tenants for an admin user."""
-        if 'name' in context['query_string']:
-            return self.get_project_by_name(
-                context, context['query_string'].get('name'))
-
-        self.assert_admin(context)
-        tenant_refs = self.resource_api.list_projects_in_domain(
-            CONF.identity.default_domain_id)
-        for tenant_ref in tenant_refs:
-            tenant_ref = self.filter_domain_id(tenant_ref)
-        params = {
-            'limit': context['query_string'].get('limit'),
-            'marker': context['query_string'].get('marker'),
-        }
-        return self._format_project_list(tenant_refs, **params)
+@dependency.requires('assignment_api', 'identity_api', 'token_provider_api')
+class TenantAssignment(controller.V2Controller):
+    """The V2 Project APIs that are processing assignments."""
 
     @controller.v2_deprecated
     def get_projects_for_token(self, context, **kw):
@@ -85,54 +67,7 @@ class Tenant(controller.V2Controller):
             'limit': context['query_string'].get('limit'),
             'marker': context['query_string'].get('marker'),
         }
-        return self._format_project_list(tenant_refs, **params)
-
-    @controller.v2_deprecated
-    def get_project(self, context, tenant_id):
-        # TODO(termie): this stuff should probably be moved to middleware
-        self.assert_admin(context)
-        ref = self.resource_api.get_project(tenant_id)
-        return {'tenant': self.filter_domain_id(ref)}
-
-    @controller.v2_deprecated
-    def get_project_by_name(self, context, tenant_name):
-        self.assert_admin(context)
-        ref = self.resource_api.get_project_by_name(
-            tenant_name, CONF.identity.default_domain_id)
-        return {'tenant': self.filter_domain_id(ref)}
-
-    # CRUD Extension
-    @controller.v2_deprecated
-    def create_project(self, context, tenant):
-        tenant_ref = self._normalize_dict(tenant)
-
-        if 'name' not in tenant_ref or not tenant_ref['name']:
-            msg = _('Name field is required and cannot be empty')
-            raise exception.ValidationError(message=msg)
-
-        self.assert_admin(context)
-        tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
-        tenant = self.resource_api.create_project(
-            tenant_ref['id'],
-            self._normalize_domain_id(context, tenant_ref))
-        return {'tenant': self.filter_domain_id(tenant)}
-
-    @controller.v2_deprecated
-    def update_project(self, context, tenant_id, tenant):
-        self.assert_admin(context)
-        # Remove domain_id if specified - a v2 api caller should not
-        # be specifying that
-        clean_tenant = tenant.copy()
-        clean_tenant.pop('domain_id', None)
-
-        tenant_ref = self.resource_api.update_project(
-            tenant_id, clean_tenant)
-        return {'tenant': tenant_ref}
-
-    @controller.v2_deprecated
-    def delete_project(self, context, tenant_id):
-        self.assert_admin(context)
-        self.resource_api.delete_project(tenant_id)
+        return self.format_project_list(tenant_refs, **params)
 
     @controller.v2_deprecated
     def get_project_users(self, context, tenant_id, **kw):
@@ -152,60 +87,11 @@ class Tenant(controller.V2Controller):
                 user_refs.append(self.v3_to_v2_user(user_ref))
         return {'users': user_refs}
 
-    def _format_project_list(self, tenant_refs, **kwargs):
-        marker = kwargs.get('marker')
-        first_index = 0
-        if marker is not None:
-            for (marker_index, tenant) in enumerate(tenant_refs):
-                if tenant['id'] == marker:
-                    # we start pagination after the marker
-                    first_index = marker_index + 1
-                    break
-            else:
-                msg = _('Marker could not be found')
-                raise exception.ValidationError(message=msg)
-
-        limit = kwargs.get('limit')
-        last_index = None
-        if limit is not None:
-            try:
-                limit = int(limit)
-                if limit < 0:
-                    raise AssertionError()
-            except (ValueError, AssertionError):
-                msg = _('Invalid limit value')
-                raise exception.ValidationError(message=msg)
-            last_index = first_index + limit
-
-        tenant_refs = tenant_refs[first_index:last_index]
-
-        for x in tenant_refs:
-            if 'enabled' not in x:
-                x['enabled'] = True
-        o = {'tenants': tenant_refs,
-             'tenants_links': []}
-        return o
-
 
 @dependency.requires('assignment_api', 'role_api')
 class Role(controller.V2Controller):
+    """The Role management APIs."""
 
-    # COMPAT(essex-3)
-    @controller.v2_deprecated
-    def get_user_roles(self, context, user_id, tenant_id):
-        """Get the roles for a user and tenant pair.
-
-        Since we're trying to ignore the idea of user-only roles we're
-        not implementing them in hopes that the idea will die off.
-
-        """
-        self.assert_admin(context)
-        roles = self.assignment_api.get_roles_for_user_and_project(
-            user_id, tenant_id)
-        return {'roles': [self.role_api.get_role(x)
-                          for x in roles]}
-
-    # CRUD extension
     @controller.v2_deprecated
     def get_role(self, context, role_id):
         self.assert_admin(context)
@@ -234,6 +120,26 @@ class Role(controller.V2Controller):
     def get_roles(self, context):
         self.assert_admin(context)
         return {'roles': self.role_api.list_roles()}
+
+
+@dependency.requires('assignment_api', 'resource_api', 'role_api')
+class RoleAssignmentV2(controller.V2Controller):
+    """The V2 Role APIs that are processing assignments."""
+
+    # COMPAT(essex-3)
+    @controller.v2_deprecated
+    def get_user_roles(self, context, user_id, tenant_id=None):
+        """Get the roles for a user and tenant pair.
+
+        Since we're trying to ignore the idea of user-only roles we're
+        not implementing them in hopes that the idea will die off.
+
+        """
+        self.assert_admin(context)
+        roles = self.assignment_api.get_roles_for_user_and_project(
+            user_id, tenant_id)
+        return {'roles': [self.role_api.get_role(x)
+                          for x in roles]}
 
     @controller.v2_deprecated
     def add_role_to_user(self, context, user_id, role_id, tenant_id=None):
@@ -342,142 +248,29 @@ class Role(controller.V2Controller):
             user_id, tenant_id, role_id)
 
 
-@dependency.requires('resource_api')
-class DomainV3(controller.V3Controller):
-    collection_name = 'domains'
-    member_name = 'domain'
-
-    def __init__(self):
-        super(DomainV3, self).__init__()
-        self.get_member_from_driver = self.resource_api.get_domain
-
-    @controller.protected()
-    @validation.validated(schema.domain_create, 'domain')
-    def create_domain(self, context, domain):
-        ref = self._assign_unique_id(self._normalize_dict(domain))
-        ref = self.resource_api.create_domain(ref['id'], ref)
-        return DomainV3.wrap_member(context, ref)
-
-    @controller.filterprotected('enabled', 'name')
-    def list_domains(self, context, filters):
-        hints = DomainV3.build_driver_hints(context, filters)
-        refs = self.resource_api.list_domains(hints=hints)
-        return DomainV3.wrap_collection(context, refs, hints=hints)
-
-    @controller.protected()
-    def get_domain(self, context, domain_id):
-        ref = self.resource_api.get_domain(domain_id)
-        return DomainV3.wrap_member(context, ref)
-
-    @controller.protected()
-    @validation.validated(schema.domain_update, 'domain')
-    def update_domain(self, context, domain_id, domain):
-        self._require_matching_id(domain_id, domain)
-        ref = self.resource_api.update_domain(domain_id, domain)
-        return DomainV3.wrap_member(context, ref)
-
-    @controller.protected()
-    def delete_domain(self, context, domain_id):
-        return self.resource_api.delete_domain(domain_id)
-
-
 @dependency.requires('assignment_api', 'resource_api')
-class ProjectV3(controller.V3Controller):
+class ProjectAssignmentV3(controller.V3Controller):
+    """The V3 Project APIs that are processing assignments."""
+
     collection_name = 'projects'
     member_name = 'project'
 
     def __init__(self):
-        super(ProjectV3, self).__init__()
+        super(ProjectAssignmentV3, self).__init__()
         self.get_member_from_driver = self.resource_api.get_project
-
-    @controller.protected()
-    @validation.validated(schema.project_create, 'project')
-    def create_project(self, context, project):
-        ref = self._assign_unique_id(self._normalize_dict(project))
-        ref = self._normalize_domain_id(context, ref)
-        ref = self.resource_api.create_project(ref['id'], ref)
-        return ProjectV3.wrap_member(context, ref)
-
-    @controller.filterprotected('domain_id', 'enabled', 'name',
-                                'parent_id')
-    def list_projects(self, context, filters):
-        hints = ProjectV3.build_driver_hints(context, filters)
-        refs = self.resource_api.list_projects(hints=hints)
-        return ProjectV3.wrap_collection(context, refs, hints=hints)
 
     @controller.filterprotected('enabled', 'name')
     def list_user_projects(self, context, filters, user_id):
-        hints = ProjectV3.build_driver_hints(context, filters)
-        refs = self.assignment_api.list_projects_for_user(user_id, hints=hints)
-        return ProjectV3.wrap_collection(context, refs, hints=hints)
-
-    def _expand_project_ref(self, context, ref):
-        params = context['query_string']
-
-        parents_as_list = 'parents_as_list' in params and (
-            self.query_filter_is_true(params['parents_as_list']))
-        parents_as_ids = 'parents_as_ids' in params and (
-            self.query_filter_is_true(params['parents_as_ids']))
-
-        subtree_as_list = 'subtree_as_list' in params and (
-            self.query_filter_is_true(params['subtree_as_list']))
-        subtree_as_ids = 'subtree_as_ids' in params and (
-            self.query_filter_is_true(params['subtree_as_ids']))
-
-        # parents_as_list and parents_as_ids are mutually exclusive
-        if parents_as_list and parents_as_ids:
-            msg = _('Cannot use parents_as_list and parents_as_ids query '
-                    'params at the same time.')
-            raise exception.ValidationError(msg)
-
-        # subtree_as_list and subtree_as_ids are mutually exclusive
-        if subtree_as_list and subtree_as_ids:
-            msg = _('Cannot use subtree_as_list and subtree_as_ids query '
-                    'params at the same time.')
-            raise exception.ValidationError(msg)
-
-        user_id = self.get_auth_context(context).get('user_id')
-
-        if parents_as_list:
-            parents = self.resource_api.list_project_parents(
-                ref['id'], user_id)
-            ref['parents'] = [ProjectV3.wrap_member(context, p)
-                              for p in parents]
-        elif parents_as_ids:
-            ref['parents'] = self.resource_api.get_project_parents_as_ids(ref)
-
-        if subtree_as_list:
-            subtree = self.resource_api.list_projects_in_subtree(
-                ref['id'], user_id)
-            ref['subtree'] = [ProjectV3.wrap_member(context, p)
-                              for p in subtree]
-        elif subtree_as_ids:
-            ref['subtree'] = self.resource_api.get_projects_in_subtree_as_ids(
-                ref['id'])
-
-    @controller.protected()
-    def get_project(self, context, project_id):
-        ref = self.resource_api.get_project(project_id)
-        self._expand_project_ref(context, ref)
-        return ProjectV3.wrap_member(context, ref)
-
-    @controller.protected()
-    @validation.validated(schema.project_update, 'project')
-    def update_project(self, context, project_id, project):
-        self._require_matching_id(project_id, project)
-        self._require_matching_domain_id(
-            project_id, project, self.resource_api.get_project)
-        ref = self.resource_api.update_project(project_id, project)
-        return ProjectV3.wrap_member(context, ref)
-
-    @controller.protected()
-    def delete_project(self, context, project_id):
-        return self.resource_api.delete_project(project_id)
+        hints = ProjectAssignmentV3.build_driver_hints(context, filters)
+        refs = self.assignment_api.list_projects_for_user(user_id,
+                                                          hints=hints)
+        return ProjectAssignmentV3.wrap_collection(context, refs, hints=hints)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'resource_api',
-                     'role_api')
+@dependency.requires('role_api')
 class RoleV3(controller.V3Controller):
+    """The V3 Role CRUD APIs."""
+
     collection_name = 'roles'
     member_name = 'role'
 
@@ -515,6 +308,19 @@ class RoleV3(controller.V3Controller):
     @controller.protected()
     def delete_role(self, context, role_id):
         self.role_api.delete_role(role_id)
+
+
+@dependency.requires('assignment_api', 'identity_api', 'resource_api',
+                     'role_api')
+class GrantAssignmentV3(controller.V3Controller):
+    """The V3 Grant Assignment APIs."""
+
+    collection_name = 'roles'
+    member_name = 'role'
+
+    def __init__(self):
+        super(GrantAssignmentV3, self).__init__()
+        self.get_member_from_driver = self.role_api.get_role
 
     def _require_domain_xor_project(self, domain_id, project_id):
         if (domain_id and project_id) or (not domain_id and not project_id):
@@ -582,7 +388,7 @@ class RoleV3(controller.V3Controller):
         refs = self.assignment_api.list_grants(
             user_id, group_id, domain_id, project_id,
             self._check_if_inherited(context))
-        return RoleV3.wrap_collection(context, refs)
+        return GrantAssignmentV3.wrap_collection(context, refs)
 
     @controller.protected(callback=_check_grant_protection)
     def check_grant(self, context, role_id, user_id=None,
@@ -613,6 +419,7 @@ class RoleV3(controller.V3Controller):
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api')
 class RoleAssignmentV3(controller.V3Controller):
+    """The V3 Role Assignment APIs, really just list_role_assignment()."""
 
     # TODO(henry-nash): The current implementation does not provide a full
     # first class entity for role-assignment. There is no role_assignment_id

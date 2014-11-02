@@ -10,4 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.resource import controllers  # noqa
 from keystone.resource.core import *  # noqa
+from keystone.resource import routers  # noqa

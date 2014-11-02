@@ -14,12 +14,12 @@
 
 import six
 
-from keystone import assignment
 from keystone.catalog import controllers as catalog_controllers
 from keystone.common import controller
 from keystone.common import dependency
 from keystone import exception
 from keystone import notifications
+from keystone import resource
 
 
 @dependency.requires('catalog_api', 'endpoint_filter_api', 'resource_api')
@@ -135,8 +135,8 @@ class EndpointFilterV3Controller(_ControllerBase):
 
         projects = [self.resource_api.get_project(
             ref['project_id']) for ref in refs]
-        return assignment.controllers.ProjectV3.wrap_collection(context,
-                                                                projects)
+        return resource.controllers.ProjectV3.wrap_collection(context,
+                                                              projects)
 
 
 class EndpointGroupV3Controller(_ControllerBase):
@@ -226,8 +226,8 @@ class EndpointGroupV3Controller(_ControllerBase):
                 endpoint_group_ref['project_id'])
             if project:
                 projects.append(project)
-        return assignment.controllers.ProjectV3.wrap_collection(context,
-                                                                projects)
+        return resource.controllers.ProjectV3.wrap_collection(context,
+                                                              projects)
 
     @controller.protected()
     def list_endpoints_associated_with_endpoint_group(self,

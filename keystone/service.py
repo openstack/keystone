@@ -28,6 +28,7 @@ from keystone import credential
 from keystone import identity
 from keystone.openstack.common import log
 from keystone import policy
+from keystone import resource
 from keystone import routers
 from keystone import token
 from keystone import trust
@@ -78,6 +79,7 @@ def admin_app_factory(global_conf, **local_conf):
                                 [identity.routers.Admin(),
                                  assignment.routers.Admin(),
                                     token.routers.Router(),
+                                    resource.routers.Admin(),
                                     routers.VersionV2('admin'),
                                     routers.Extension()])
 
@@ -101,7 +103,8 @@ def v3_app_factory(global_conf, **local_conf):
     sub_routers = []
     _routers = []
 
-    router_modules = [assignment, auth, catalog, credential, identity, policy]
+    router_modules = [assignment, auth, catalog, credential, identity, policy,
+                      resource]
     if CONF.trust.enabled:
         router_modules.append(trust)
 

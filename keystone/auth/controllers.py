@@ -20,7 +20,6 @@ from oslo_utils import importutils
 from oslo_utils import timeutils
 import six
 
-from keystone.assignment import controllers as assignment_controllers
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
@@ -29,6 +28,7 @@ from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LI, _LW
 from keystone.openstack.common import log
+from keystone.resource import controllers as resource_controllers
 
 
 LOG = log.getLogger(__name__)
@@ -582,7 +582,7 @@ class Auth(controller.V3Controller):
             grp_refs = self.assignment_api.list_projects_for_groups(group_ids)
 
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
-        return assignment_controllers.ProjectV3.wrap_collection(context, refs)
+        return resource_controllers.ProjectV3.wrap_collection(context, refs)
 
     @controller.protected()
     def get_auth_domains(self, context):
@@ -603,7 +603,7 @@ class Auth(controller.V3Controller):
             grp_refs = self.assignment_api.list_domains_for_groups(group_ids)
 
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
-        return assignment_controllers.DomainV3.wrap_collection(context, refs)
+        return resource_controllers.DomainV3.wrap_collection(context, refs)
 
     @controller.protected()
     def get_auth_catalog(self, context):

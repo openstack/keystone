@@ -15,7 +15,8 @@
 
 import uuid
 
-from keystone.assignment import controllers
+from keystone.assignment import controllers as assignment_controllers
+from keystone.resource import controllers as resource_controllers
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -35,8 +36,11 @@ class TenantTestCase(tests.TestCase):
         self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
-        self.tenant_controller = controllers.Tenant()
-        self.role_controller = controllers.Role()
+        self.tenant_controller = resource_controllers.Tenant()
+        self.assignment_tenant_controller = (
+            assignment_controllers.TenantAssignment())
+        self.assignment_role_controller = (
+            assignment_controllers.RoleAssignmentV2())
 
     def test_get_project_users_no_user(self):
         """get_project_users when user doesn't exist.
@@ -47,17 +51,19 @@ class TenantTestCase(tests.TestCase):
         """
         project_id = self.tenant_bar['id']
 
-        orig_project_users = self.tenant_controller.get_project_users(
-            _ADMIN_CONTEXT, project_id)
+        orig_project_users = (
+            self.assignment_tenant_controller.get_project_users(_ADMIN_CONTEXT,
+                                                                project_id))
 
         # Assign a role to a user that doesn't exist to the `bar` project.
 
         user_id = uuid.uuid4().hex
-        self.role_controller.add_role_to_user(
+        self.assignment_role_controller.add_role_to_user(
             _ADMIN_CONTEXT, user_id, self.role_other['id'], project_id)
 
-        new_project_users = self.tenant_controller.get_project_users(
-            _ADMIN_CONTEXT, project_id)
+        new_project_users = (
+            self.assignment_tenant_controller.get_project_users(_ADMIN_CONTEXT,
+                                                                project_id))
 
         # The new user isn't included in the result, so no change.
         # asserting that the expected values appear in the list,

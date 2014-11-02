@@ -17,6 +17,7 @@ from keystone import catalog
 from keystone.common import extension
 from keystone.common import wsgi
 from keystone import identity
+from keystone import resource
 
 
 extension.register_admin_extension(
@@ -47,9 +48,12 @@ class CrudExtension(wsgi.ExtensionRouter):
     """
 
     def add_routes(self, mapper):
-        tenant_controller = assignment.controllers.Tenant()
+        tenant_controller = resource.controllers.Tenant()
+        assignment_tenant_controller = (
+            assignment.controllers.TenantAssignment())
         user_controller = identity.controllers.User()
         role_controller = assignment.controllers.Role()
+        assignment_role_controller = assignment.controllers.RoleAssignmentV2()
         service_controller = catalog.controllers.Service()
         endpoint_controller = catalog.controllers.Endpoint()
 
@@ -71,7 +75,7 @@ class CrudExtension(wsgi.ExtensionRouter):
             conditions=dict(method=['DELETE']))
         mapper.connect(
             '/tenants/{tenant_id}/users',
-            controller=tenant_controller,
+            controller=assignment_tenant_controller,
             action='get_project_users',
             conditions=dict(method=['GET']))
 
@@ -137,41 +141,41 @@ class CrudExtension(wsgi.ExtensionRouter):
         # User Roles
         mapper.connect(
             '/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='add_role_to_user',
             conditions=dict(method=['PUT']))
         mapper.connect(
             '/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='remove_role_from_user',
             conditions=dict(method=['DELETE']))
 
         # COMPAT(diablo): User Roles
         mapper.connect(
             '/users/{user_id}/roleRefs',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='get_role_refs',
             conditions=dict(method=['GET']))
         mapper.connect(
             '/users/{user_id}/roleRefs',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='create_role_ref',
             conditions=dict(method=['POST']))
         mapper.connect(
             '/users/{user_id}/roleRefs/{role_ref_id}',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='delete_role_ref',
             conditions=dict(method=['DELETE']))
 
         # User-Tenant Roles
         mapper.connect(
             '/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='add_role_to_user',
             conditions=dict(method=['PUT']))
         mapper.connect(
             '/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=role_controller,
+            controller=assignment_role_controller,
             action='remove_role_from_user',
             conditions=dict(method=['DELETE']))
 
