@@ -26,12 +26,13 @@ To enable the federation extension:
        [federation]
        driver = keystone.contrib.federation.backends.sql.Federation
 
-2. Add the ``saml2`` authentication method to the ``[auth]`` section in
-   ``keystone.conf``::
+2. Add the ``saml2`` and/or ``oidc`` authentication methods to the ``[auth]``
+   section in ``keystone.conf``::
 
        [auth]
-       methods = external,password,token,saml2
+       methods = external,password,token,saml2,oidc
        saml2 = keystone.auth.plugins.mapped.Mapped
+       oidc = keystone.auth.plugins.mapped.Mapped
 
 .. NOTE::
     The ``external`` method should be dropped to avoid any interference with
