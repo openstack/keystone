@@ -430,8 +430,8 @@ class BaseProvider(provider.Provider):
 
         token_ref = None
         if 'saml2' in method_names:
-            token_ref = self._handle_saml2_tokens(auth_context, project_id,
-                                                  domain_id)
+            token_ref = self._handle_federation_tokens(
+                auth_context, project_id, domain_id)
 
         access_token = None
         if 'oauth1' in method_names:
@@ -458,7 +458,7 @@ class BaseProvider(provider.Provider):
         token_id = self._get_token_id(token_data)
         return token_id, token_data
 
-    def _handle_saml2_tokens(self, auth_context, project_id, domain_id):
+    def _handle_federation_tokens(self, auth_context, project_id, domain_id):
         user_id = auth_context['user_id']
         group_ids = auth_context['group_ids']
         idp = auth_context[federation.IDENTITY_PROVIDER]
