@@ -23,6 +23,7 @@ from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import schema
 from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.i18n import _
 from keystone.models import token_model
 
 
