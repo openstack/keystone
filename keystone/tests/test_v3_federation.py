@@ -1077,6 +1077,16 @@ class FederatedTokenTests(FederationTests):
             self.assertEqual(domain_id, domain_id_ref)
             self._check_scoped_token_attributes(token_resp)
 
+    def test_scope_to_domain_with_only_inherited_roles_fails(self):
+        # TODO(henry-nash): The following *should* fail (since the only roles
+        # a customer has on domainD are inherited to projects within it.
+        # See bug #1385533
+        r = self.v3_authenticate_token(self.TOKEN_SCOPE_DOMAIN_D_FROM_CUSTOMER)
+        token_resp = r.result['token']
+        domain_id = token_resp['domain']['id']
+        self.assertEqual(domain_id, self.domainD['id'])
+        self._check_scoped_token_attributes(token_resp)
+
     def test_list_projects(self):
         urls = ('/OS-FEDERATION/projects', '/auth/projects')
 
@@ -1106,12 +1116,18 @@ class FederatedTokenTests(FederationTests):
                   self.tokens['EMPLOYEE_ASSERTION'],
                   self.tokens['ADMIN_ASSERTION'])
 
-        domain_refs = (set([self.domainA['id']]),
+        # TODO(henry-nash): The following *should* not include domainD
+        # for customer/admin since they only have a role that is inherited
+        # to projects within it. See bug #1385643
+
+        domain_refs = (set([self.domainA['id'],
+                            self.domainD['id']]),
                        set([self.domainA['id'],
                             self.domainB['id']]),
                        set([self.domainA['id'],
                             self.domainB['id'],
-                            self.domainC['id']]))
+                            self.domainC['id'],
+                            self.domainD['id']]))
 
         for token, domains_ref in zip(tokens, domain_refs):
             for url in urls:
@@ -1265,6 +1281,10 @@ class FederatedTokenTests(FederationTests):
         self.assignment_api.create_domain(self.domainC['id'],
                                           self.domainC)
 
+        self.domainD = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domainD['id'],
+                                          self.domainD)
+
         # Create and add projects
         self.proj_employees = self.new_project_ref(
             domain_id=self.domainA['id'])
@@ -1345,6 +1365,13 @@ class FederatedTokenTests(FederationTests):
         self.assignment_api.create_grant(self.role_customer['id'],
                                          group_id=self.group_customers['id'],
                                          domain_id=self.domainA['id'])
+
+        # Customers can access projects via inheritance:
+        # * domain D
+        self.assignment_api.create_grant(self.role_customer['id'],
+                                         group_id=self.group_customers['id'],
+                                         domain_id=self.domainD['id'],
+                                         inherited_to_projects=True)
 
         # Employees can access:
         # * domain A
@@ -1612,6 +1639,9 @@ class FederatedTokenTests(FederationTests):
         self.TOKEN_SCOPE_DOMAIN_B_FROM_CUSTOMER = self._scope_request(
             self.tokens['CUSTOMER_ASSERTION'], 'domain',
             self.domainB['id'])
+
+        self.TOKEN_SCOPE_DOMAIN_D_FROM_CUSTOMER = self._scope_request(
+            self.tokens['CUSTOMER_ASSERTION'], 'domain', self.domainD['id'])
 
         self.TOKEN_SCOPE_DOMAIN_A_FROM_ADMIN = self._scope_request(
             self.tokens['ADMIN_ASSERTION'], 'domain', self.domainA['id'])
