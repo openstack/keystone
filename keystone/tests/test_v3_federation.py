@@ -1078,14 +1078,10 @@ class FederatedTokenTests(FederationTests):
             self._check_scoped_token_attributes(token_resp)
 
     def test_scope_to_domain_with_only_inherited_roles_fails(self):
-        # TODO(henry-nash): The following *should* fail (since the only roles
-        # a customer has on domainD are inherited to projects within it.
-        # See bug #1385533
-        r = self.v3_authenticate_token(self.TOKEN_SCOPE_DOMAIN_D_FROM_CUSTOMER)
-        token_resp = r.result['token']
-        domain_id = token_resp['domain']['id']
-        self.assertEqual(domain_id, self.domainD['id'])
-        self._check_scoped_token_attributes(token_resp)
+        """Try to scope to a domain that has no direct roles."""
+        self.v3_authenticate_token(
+            self.TOKEN_SCOPE_DOMAIN_D_FROM_CUSTOMER,
+            expected_status=401)
 
     def test_list_projects(self):
         urls = ('/OS-FEDERATION/projects', '/auth/projects')
@@ -1116,18 +1112,16 @@ class FederatedTokenTests(FederationTests):
                   self.tokens['EMPLOYEE_ASSERTION'],
                   self.tokens['ADMIN_ASSERTION'])
 
-        # TODO(henry-nash): The following *should* not include domainD
-        # for customer/admin since they only have a role that is inherited
-        # to projects within it. See bug #1385643
+        # NOTE(henry-nash): domain D does not appear in the expected results
+        # since it only had inherited roles (which only apply to projects
+        # within the domain)
 
-        domain_refs = (set([self.domainA['id'],
-                            self.domainD['id']]),
+        domain_refs = (set([self.domainA['id']]),
                        set([self.domainA['id'],
                             self.domainB['id']]),
                        set([self.domainA['id'],
                             self.domainB['id'],
-                            self.domainC['id'],
-                            self.domainD['id']]))
+                            self.domainC['id']]))
 
         for token, domains_ref in zip(tokens, domain_refs):
             for url in urls:

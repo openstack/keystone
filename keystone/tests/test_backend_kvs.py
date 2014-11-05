@@ -124,6 +124,16 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
         self.assertThat(member_assignments,
                         matchers.Equals(new_role_assignments))
 
+    def test_get_roles_for_groups_on_domain(self):
+        self.assertRaises(
+            exception.NotImplemented,
+            super(KvsIdentity, self).test_get_roles_for_groups_on_domain)
+
+    def test_list_domains_for_groups(self):
+        self.assertRaises(
+            exception.NotImplemented,
+            super(KvsIdentity, self).test_list_domains_for_groups)
+
 
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
