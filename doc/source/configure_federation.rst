@@ -31,13 +31,14 @@ Prerequisites
 -------------
 
 This approach to federation supports Keystone as a Service Provider, consuming
-SAML assertions issued by an external Identity Provider.
+identity properties issued by an external Identity Provider, such as SAML
+assertions or OpenID Connect claims.
 
 Federated users are not mirrored in the Keystone identity backend
 (for example, using the SQL driver). The external Identity Provider is
 responsible for authenticating users, and communicates the result of
-authentication to Keystone using SAML assertions. Keystone maps the SAML
-assertions to Keystone user groups and assignments created in Keystone.
+authentication to Keystone using identity properties. Keystone maps these
+values to Keystone user groups and assignments created in Keystone.
 
 The following configuration steps were performed on a machine running
 Ubuntu 12.04 and Apache 2.2.22.
@@ -48,79 +49,14 @@ To enable federation, you'll need to:
 2. Configure Apache to use a federation capable authentication method.
 3. Enable ``OS-FEDERATION`` extension.
 
-Configure Apache HTTPD for mod_shibboleth
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Follow the steps outlined at: `Running Keystone in HTTPD`_.
-
-.. _`Running Keystone in HTTPD`: apache-httpd.html
-
-You'll also need to install `Shibboleth <https://wiki.shibboleth.net/confluence/display/SHIB2/Home>`_, for
-example:
-
-.. code-block:: bash
-
-    $ apt-get install libapache2-mod-shib2
-
-Configure your Keystone virtual host and adjust the config to properly handle SAML2 workflow:
-
-Add *WSGIScriptAlias* directive to your vhost configuration::
-
-    WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /var/www/keystone/main/$1
-
-Make sure you add two *<Location>* directives to the *wsgi-keystone.conf*::
-
-    <Location /Shibboleth.sso>
-        SetHandler shib
-    </Location>
-
-    <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/saml2/auth>
-        ShibRequestSetting requireSession 1
-        AuthType shibboleth
-        ShibRequireAll On
-        ShibRequireSession On
-        ShibExportAssertion Off
-        Require valid-user
-    </LocationMatch>
-
-.. NOTE::
-    * ``saml2`` may be different in your deployment, but do not use a wildcard value.
-      Otherwise *every* federated protocol will be handled by Shibboleth.
-    * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
-      Apache 2.4+ and should be dropped in that specific setup.
-    * You are advised to carefully examine `Shibboleth Apache configuration
-      documentation
-      <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig>`_
-
-
-
-Enable the Keystone virtual host, for example:
-
-.. code-block:: bash
-
-    $ a2ensite wsgi-keystone.conf
-
-Enable the ``ssl`` and ``shib2`` modules, for example:
-
-.. code-block:: bash
-
-    $ a2enmod ssl
-    $ a2enmod shib2
-
-Restart Apache, for example:
-
-.. code-block:: bash
-
-    $ service apache2 restart
-
 Configure Apache to use a federation capable authentication method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are many ways to configure Federation in the Apache HTTPD server.
 Using Shibboleth and OpenID Connect are documented so far.
 
-* Follow the steps outlined at: `Setup Shibboleth`_.
-* Follow the steps outlined at: `Setup OpenID Connect`_.
+* To use Shibboleth, follow the steps outlined at: `Setup Shibboleth`_.
+* To use OpenID Connect, follow the steps outlined at: `Setup OpenID Connect`_.
 
 .. _`Setup Shibboleth`: extensions/shibboleth.html
 .. _`Setup OpenID Connect`: extensions/openidc.html
