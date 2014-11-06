@@ -613,16 +613,16 @@ class MappingRuleEngineTests(FederationTests):
         This will not match since the email in the assertion will fail
         the regex test. It is set to match any @example.com address.
         But the incoming value is set to eviltester@example.org.
-        RuleProcessor should raise exception.Unauthorized exception.
+        RuleProcessor should return list of empty group_ids.
 
         """
 
         mapping = mapping_fixtures.MAPPING_LARGE
         assertion = mapping_fixtures.BAD_TESTER_ASSERTION
         rp = mapping_utils.RuleProcessor(mapping['rules'])
-
-        self.assertRaises(exception.Unauthorized,
-                          rp.process, assertion)
+        mapped_properties = rp.process(assertion)
+        self.assertIsNone(mapped_properties['name'])
+        self.assertListEqual(list(), mapped_properties['group_ids'])
 
     def test_rule_engine_regex_many_groups(self):
         """Should return group CONTRACTOR_GROUP_ID.
@@ -755,16 +755,16 @@ class MappingRuleEngineTests(FederationTests):
         """Check whether RuleProcessor discards non string objects.
 
         Expect RuleProcessor to discard non string object, which
-        is required for a correct rule match. Since no rules are
-        matched expect RuleProcessor to raise exception.Unauthorized
-        exception.
+        is required for a correct rule match. RuleProcessor will result with
+        empty list of groups.
 
         """
         mapping = mapping_fixtures.MAPPING_SMALL
         rp = mapping_utils.RuleProcessor(mapping['rules'])
         assertion = mapping_fixtures.CONTRACTOR_MALFORMED_ASSERTION
-        self.assertRaises(exception.Unauthorized,
-                          rp.process, assertion)
+        mapped_properties = rp.process(assertion)
+        self.assertIsNone(mapped_properties['name'])
+        self.assertListEqual(list(), mapped_properties['group_ids'])
 
 
 class FederatedTokenTests(FederationTests):
