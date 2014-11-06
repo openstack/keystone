@@ -67,9 +67,8 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertEqual(2, len(catalog_ref['RegionOne']))
 
-        (self.catalog_api.driver.templates
-         ['RegionOne']['compute']['adminURL']) = \
-            'http://localhost:8774/v1.1/$(tenant)s'
+        region = self.catalog_api.driver.templates['RegionOne']
+        region['compute']['adminURL'] = 'http://localhost:8774/v1.1/$(tenant)s'
 
         # the malformed one has been removed
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
