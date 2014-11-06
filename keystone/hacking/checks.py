@@ -78,7 +78,7 @@ class CheckForMutableDefaultArgs(BaseASTChecker):
 
     # TODO(dstanek): once we drop support for Python 2.6 we can add ast.Set,
     # ast.DictComp and ast.SetComp to MUTABLES. Don't forget the tests!
-    MUTABLES = (ast.List, ast.ListComp, ast.Dict)
+    MUTABLES = (ast.List, ast.ListComp, ast.Dict, ast.Call)
 
     def visit_FunctionDef(self, node):
         for arg in node.args.defaults:
