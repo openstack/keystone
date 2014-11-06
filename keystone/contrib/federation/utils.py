@@ -135,6 +135,7 @@ def validate_groups(group_ids, mapping_id, identity_api):
 
 
 def get_assertion_params_from_env(context):
+    LOG.debug('Environment variables: %s', context['environment'])
     prefix = CONF.federation.assertion_prefix
     for k, v in context['environment'].items():
         if k.startswith(prefix):
@@ -197,10 +198,13 @@ class RuleProcessor(object):
         # semi-colon to indicate multiple values, i.e. groups.
         # This will create a new dictionary where the values are arrays, and
         # any multiple values are stored in the arrays.
+        LOG.debug('assertion data: %s', assertion_data)
         assertion = dict((n, v.split(';')) for n, v in assertion_data.items()
                          if isinstance(v, six.string_types))
+        LOG.debug('assertion: %s', assertion)
         identity_values = []
 
+        LOG.debug('rules: %s', self.rules)
         for rule in self.rules:
             direct_maps = self._verify_all_requirements(rule['remote'],
                                                         assertion)
@@ -220,7 +224,9 @@ class RuleProcessor(object):
                     new_local = self._update_local_mapping(local, direct_maps)
                     identity_values.append(new_local)
 
+        LOG.debug('identity_values: %s', identity_values)
         mapped_properties = self._transform(identity_values)
+        LOG.debug('mapped_properties: %s', mapped_properties)
         if mapped_properties.get('name') is None:
             raise exception.Unauthorized(_("Could not map user"))
         return mapped_properties
@@ -284,6 +290,8 @@ class RuleProcessor(object):
 
         """
 
+        LOG.debug('direct_maps: %s', direct_maps)
+        LOG.debug('local: %s', local)
         new = {}
         for k, v in six.iteritems(local):
             if isinstance(v, dict):
@@ -370,6 +378,7 @@ class RuleProcessor(object):
             # within 'type'. Attempt to find that 'type' within the assertion.
             direct_map_values = assertion.get(requirement_type)
             if direct_map_values:
+                LOG.debug('updating a direct mapping: %s', direct_map_values)
                 direct_maps += direct_map_values
 
         return direct_maps
