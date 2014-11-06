@@ -1021,6 +1021,16 @@ class FederatedTokenTests(FederationTests):
             self.assertEqual(project_id, project_id_ref)
             self._check_scoped_token_attributes(token_resp)
 
+    def test_scope_to_project_with_only_inherited_roles(self):
+        """Try to scope token whose only roles are inherited."""
+
+        # TODO(henry-nash): This *should* work, but currently fails due
+        # to bug 1389752.
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_INHERITED_FROM_CUSTOMER,
+            expected_status=401)
+
     def test_scope_token_from_nonexistent_unscoped_token(self):
         """Try to scope token from non-existent unscoped token."""
         self.v3_authenticate_token(
@@ -1090,6 +1100,10 @@ class FederatedTokenTests(FederationTests):
                  self.tokens['EMPLOYEE_ASSERTION'],
                  self.tokens['ADMIN_ASSERTION'])
 
+        # TODO(henry-nash): The customer and admin assertions should both also
+        # get back project_inherited. This fails due to bug 1389752.
+
+        self.config_fixture.config(group='os_inherit', enabled=True)
         projects_refs = (set([self.proj_customers['id']]),
                          set([self.proj_employees['id'],
                               self.project_all['id']]),
@@ -1293,6 +1307,11 @@ class FederatedTokenTests(FederationTests):
             domain_id=self.domainA['id'])
         self.assignment_api.create_project(self.project_all['id'],
                                            self.project_all)
+
+        self.project_inherited = self.new_project_ref(
+            domain_id=self.domainD['id'])
+        self.assignment_api.create_project(self.project_inherited['id'],
+                                           self.project_inherited)
 
         # Create and add groups
         self.group_employees = self.new_group_ref(
@@ -1623,6 +1642,10 @@ class FederatedTokenTests(FederationTests):
         self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER = self._scope_request(
             self.tokens['CUSTOMER_ASSERTION'], 'project',
             self.proj_employees['id'])
+
+        self.TOKEN_SCOPE_PROJECT_INHERITED_FROM_CUSTOMER = self._scope_request(
+            self.tokens['CUSTOMER_ASSERTION'], 'project',
+            self.project_inherited['id'])
 
         self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER = self._scope_request(
             self.tokens['CUSTOMER_ASSERTION'], 'domain', self.domainA['id'])
