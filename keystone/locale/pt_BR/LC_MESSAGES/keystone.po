@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-10-22 06:12+0000\n"
-"PO-Revision-Date: 2014-10-16 09:10+0000\n"
+"POT-Creation-Date: 2014-11-06 06:07+0000\n"
+"PO-Revision-Date: 2014-10-30 05:25+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -386,6 +386,11 @@ msgstr ""
 msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
 msgstr ""
 
+#: keystone/notifications.py:176
+#, python-format
+msgid "Method not callable: %s"
+msgstr ""
+
 #: keystone/notifications.py:223
 msgid "Failed to construct notifier"
 msgstr ""
@@ -644,7 +649,7 @@ msgstr ""
 msgid "Malformed endpoint - %(url)r is not a string"
 msgstr ""
 
-#: keystone/common/authorization.py:46 keystone/common/wsgi.py:60
+#: keystone/common/authorization.py:46 keystone/common/wsgi.py:61
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
@@ -759,16 +764,16 @@ msgstr ""
 msgid "Multiple truncation attributes found"
 msgstr ""
 
-#: keystone/common/utils.py:98
+#: keystone/common/utils.py:104
 #, python-format
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/utils.py:196 keystone/credential/controllers.py:44
+#: keystone/common/utils.py:202 keystone/credential/controllers.py:44
 msgid "Invalid blob in credential"
 msgstr "BLOB inválido na credencial"
 
-#: keystone/common/utils.py:275
+#: keystone/common/utils.py:281
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
@@ -778,17 +783,17 @@ msgstr ""
 "possui o formato <host>:<port> e que o processo debugger está escutando "
 "nesta porta."
 
-#: keystone/common/wsgi.py:315
+#: keystone/common/wsgi.py:316
 #, python-format
 msgid "%s field is required and cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:327
+#: keystone/common/wsgi.py:328
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:544
+#: keystone/common/wsgi.py:545
 msgid "The resource could not be found."
 msgstr "O recurso não pôde ser localizado."
 
@@ -797,7 +802,7 @@ msgstr "O recurso não pôde ser localizado."
 msgid "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
 msgstr ""
 
-#: keystone/common/cache/core.py:101
+#: keystone/common/cache/core.py:100
 #, python-format
 msgid ""
 "Unable to build cache config-key. Expected format \"<argname>:<value>\". "
@@ -806,7 +811,7 @@ msgstr ""
 "Não é possível construir chave de configuração do cache. Formato esperado"
 " \"<argname>:<value>\".  Pulando formato desconhecido: %s"
 
-#: keystone/common/cache/core.py:133
+#: keystone/common/cache/core.py:132
 msgid "region not type dogpile.cache.CacheRegion"
 msgstr "região não é do tipo dogpile.cache.CacheRegion"
 
@@ -1235,99 +1240,47 @@ msgid ""
 "characters. Please use unicode() or translate() instead."
 msgstr ""
 
-#: keystone/openstack/common/log.py:290
+#: keystone/openstack/common/log.py:287
 #, python-format
 msgid "Deprecated: %s"
 msgstr "Deprecado: %s"
 
-#: keystone/openstack/common/log.py:398
+#: keystone/openstack/common/log.py:395
 #, python-format
 msgid "Error loading logging config %(log_config)s: %(err_msg)s"
 msgstr "Erro carregando configuração de logging: %(log_config)s: %(err_msg)s"
 
-#: keystone/openstack/common/log.py:459
+#: keystone/openstack/common/log.py:456
 #, python-format
 msgid "syslog facility must be one of: %s"
 msgstr "Recurso syslog deve ser um destes: %s"
 
-#: keystone/openstack/common/log.py:710
+#: keystone/openstack/common/log.py:707
 #, python-format
 msgid "Fatal call to deprecated config: %(msg)s"
 msgstr "Chamada fatal à configuração deprecada: %(msg)s"
 
-#: keystone/openstack/common/policy.py:96
+#: keystone/openstack/common/policy.py:97
 msgid "The JSON file that defines policies."
 msgstr ""
 
-#: keystone/openstack/common/policy.py:99
+#: keystone/openstack/common/policy.py:100
 msgid "Default rule. Enforced when a requested rule is not found."
 msgstr ""
 
-#: keystone/openstack/common/policy.py:114
+#: keystone/openstack/common/policy.py:104
+msgid "Directories where policy configuration files are stored"
+msgstr ""
+
+#: keystone/openstack/common/policy.py:119
 #, python-format
 msgid "Policy doesn't allow %s to be performed."
 msgstr "Política não permite a realização de %s."
 
-#: keystone/openstack/common/policy.py:208
+#: keystone/openstack/common/policy.py:213
 #, python-format
 msgid "Rules must be an instance of dict or Rules, got %s instead"
 msgstr "Regras devem ser uma instância de dict ou Rules, recebeu %s em seu lugar"
-
-#: keystone/openstack/common/processutils.py:59
-msgid "Unexpected error while running command."
-msgstr ""
-
-#: keystone/openstack/common/processutils.py:62
-#, python-format
-msgid ""
-"%(description)s\n"
-"Command: %(cmd)s\n"
-"Exit code: %(exit_code)s\n"
-"Stdout: %(stdout)r\n"
-"Stderr: %(stderr)r"
-msgstr ""
-
-#: keystone/openstack/common/processutils.py:143
-#, python-format
-msgid "Got unknown keyword args: %r"
-msgstr ""
-
-#: keystone/openstack/common/processutils.py:148
-msgid "Command requested root, but did not specify a root helper."
-msgstr ""
-
-#: keystone/openstack/common/processutils.py:158
-#, python-format
-msgid "Running cmd (subprocess): %s"
-msgstr "Executando comando (subprocesso): %s"
-
-#: keystone/openstack/common/processutils.py:206
-#, python-format
-msgid "%r failed. Retrying."
-msgstr "%r falhou. Tentando novamente."
-
-#: keystone/openstack/common/processutils.py:248
-msgid "Environment not supported over SSH"
-msgstr "Ambiente não suportado sobre SSH"
-
-#: keystone/openstack/common/processutils.py:252
-msgid "process_input not supported over SSH"
-msgstr "process_input não suportado sobre SSH"
-
-#: keystone/openstack/common/strutils.py:114
-#, python-format
-msgid "Unrecognized value '%(val)s', acceptable values are: %(acceptable)s"
-msgstr "Valor desconhecido '%(val)s', valores aceitáveis são: %(acceptable)s"
-
-#: keystone/openstack/common/strutils.py:219
-#, python-format
-msgid "Invalid unit system: \"%s\""
-msgstr ""
-
-#: keystone/openstack/common/strutils.py:228
-#, python-format
-msgid "Invalid string format: %s"
-msgstr "formato de string inválido: %s"
 
 #: keystone/openstack/common/versionutils.py:90
 #, python-format
@@ -1398,22 +1351,22 @@ msgstr "Erro inesperado ou token mal formado ao determinar validade do token: %s
 #: keystone/token/persistence/backends/kvs.py:57
 msgid ""
 "It is recommended to only use the base key-value-store implementation for"
-" the token driver for testing purposes.  Please use "
-"keystone.token.backends.memcache.Token or "
-"keystone.token.backends.sql.Token instead."
+" the token driver for testing purposes. Please use "
+"keystone.token.persistence.backends.memcache.Token or "
+"keystone.token.persistence.backends.sql.Token instead."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:132
+#: keystone/token/persistence/backends/kvs.py:133
 #, python-format
 msgid "Unknown token version %s"
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:205
+#: keystone/token/persistence/backends/kvs.py:206
 #, python-format
 msgid "Token `%s` is expired, not adding to the revocation list."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:225
+#: keystone/token/persistence/backends/kvs.py:226
 #, python-format
 msgid ""
 "Reinitializing revocation list due to error in loading revocation list "
@@ -1421,7 +1374,7 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:239
+#: keystone/token/persistence/backends/kvs.py:240
 #, python-format
 msgid ""
 "Removing `%s` from revocation list due to invalid expires data in "
@@ -1469,11 +1422,11 @@ msgstr "O domínio não padrão não é suportado"
 msgid "Domain scoped token is not supported"
 msgstr "O token de escopo de domínio não é suportado"
 
-#: keystone/token/providers/pki.py:45
+#: keystone/token/providers/pki.py:47
 msgid "Unable to sign token"
 msgstr ""
 
-#: keystone/token/providers/pki.py:46 keystone/token/providers/pkiz.py:29
+#: keystone/token/providers/pki.py:48 keystone/token/providers/pkiz.py:30
 msgid "Unable to sign token."
 msgstr "Não é possível assinar o token."
 

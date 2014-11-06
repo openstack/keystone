@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-10-07 06:05+0000\n"
-"PO-Revision-Date: 2014-07-16 14:42+0000\n"
+"POT-Creation-Date: 2014-11-06 06:07+0000\n"
+"PO-Revision-Date: 2014-10-27 18:28+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/projects/p/"
 "keystone/language/vi_VN/)\n"
@@ -18,11 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#: keystone/notifications.py:176
-#, python-format
-msgid "Method not callable: %s"
-msgstr ""
 
 #: keystone/catalog/core.py:60
 #, python-format
@@ -69,16 +64,6 @@ msgstr ""
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr ""
 
-#: keystone/openstack/common/excutils.py:76
-#, python-format
-msgid "Original exception being dropped: %s"
-msgstr "Ngoại lệ ban đầu được giảm xuống: %s"
-
-#: keystone/openstack/common/excutils.py:105
-#, python-format
-msgid "Unexpected exception occurred %d time(s)... retrying."
-msgstr "Ngoại lệ bất ngờ xảy ra %d thời gian(s) ... thử lại"
-
 #: keystone/openstack/common/loopingcall.py:95
 msgid "in fixed duration looping call"
 msgstr "trong cuộc gọi vòng lặp thời khoảng cố định "
@@ -87,25 +72,17 @@ msgstr "trong cuộc gọi vòng lặp thời khoảng cố định "
 msgid "in dynamic looping call"
 msgstr "trong cuộc gọi lặp động"
 
-#: keystone/openstack/common/policy.py:508
+#: keystone/openstack/common/policy.py:535
+#: keystone/openstack/common/policy.py:815
 #, python-format
 msgid "Failed to understand rule %s"
 msgstr "Không hiểu luật %s"
 
-#: keystone/openstack/common/policy.py:518
+#: keystone/openstack/common/policy.py:545
 #, python-format
 msgid "No handler for matches of kind %s"
 msgstr "Không có bộ xử lý thích ứng của loại %s"
 
-#: keystone/openstack/common/policy.py:788
-#, python-format
-msgid "Failed to understand rule %r"
-msgstr "Không hiểu luật %r"
-
-#: keystone/openstack/common/service.py:188
-msgid "Exception during rpc cleanup."
-msgstr "Ngoại lệ trong quá trình dọn dẹp RPC"
-
-#: keystone/openstack/common/service.py:277
+#: keystone/openstack/common/service.py:269
 msgid "Unhandled exception"
 msgstr "ngoại lệ không được quản lý"

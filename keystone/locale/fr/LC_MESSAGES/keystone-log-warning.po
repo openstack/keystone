@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-09-27 06:17+0000\n"
-"PO-Revision-Date: 2014-09-24 10:06+0000\n"
-"Last-Translator: Bruno Cornec <bruno.cornec@hp.com>\n"
+"POT-Creation-Date: 2014-11-06 06:07+0000\n"
+"PO-Revision-Date: 2014-10-27 09:51+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
 "Language: fr\n"
@@ -20,12 +20,12 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: keystone/common/wsgi.py:226
+#: keystone/common/wsgi.py:227
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
 
-#: keystone/common/wsgi.py:346
+#: keystone/common/wsgi.py:347
 msgid "Invalid token in _get_trust_id_for_request"
 msgstr "Jeton invalide dans _get_trust_id_for_request"
 
@@ -39,7 +39,7 @@ msgstr "%s n'est pas un dogpile.proxy.ProxyBackend"
 msgid "KVS lock released (timeout reached) for: %s"
 msgstr "Verrou KVS relaché (temps limite atteint) pour : %s"
 
-#: keystone/common/ldap/core.py:1003
+#: keystone/common/ldap/core.py:1021
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
@@ -47,7 +47,7 @@ msgstr ""
 "Le serveur LDAP ne prend pas en charge la pagination. Désactivez la "
 "pagination dans keystone.conf pour éviter de recevoir ce message."
 
-#: keystone/common/ldap/core.py:1202
+#: keystone/common/ldap/core.py:1220
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
@@ -56,7 +56,7 @@ msgstr ""
 "Mauvais mappage d'attribut additionnel: \"%s\". Le format doit être "
 "<ldap_attribute>:<keystone_attribute>"
 
-#: keystone/common/ldap/core.py:1313
+#: keystone/common/ldap/core.py:1331
 #, python-format
 msgid ""
 "ID attribute %(id_attr)s for LDAP object %(dn)s has multiple values and "
@@ -96,7 +96,12 @@ msgstr ""
 "L'exécution de la tâche %(func_name)s a dépassé intervalle de %(delay).2f "
 "secondes "
 
-#: keystone/openstack/common/service.py:364
+#: keystone/openstack/common/policy.py:248
+#, python-format
+msgid "Can not find policy directories %s"
+msgstr "Ne peut trouver les répertoires de la politique %s"
+
+#: keystone/openstack/common/service.py:356
 #, python-format
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
