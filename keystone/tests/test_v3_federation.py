@@ -1023,13 +1023,16 @@ class FederatedTokenTests(FederationTests):
 
     def test_scope_to_project_with_only_inherited_roles(self):
         """Try to scope token whose only roles are inherited."""
-
-        # TODO(henry-nash): This *should* work, but currently fails due
-        # to bug 1389752.
         self.config_fixture.config(group='os_inherit', enabled=True)
-        self.v3_authenticate_token(
-            self.TOKEN_SCOPE_PROJECT_INHERITED_FROM_CUSTOMER,
-            expected_status=401)
+        r = self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_INHERITED_FROM_CUSTOMER)
+        token_resp = r.result['token']
+        project_id = token_resp['project']['id']
+        self.assertEqual(project_id, self.project_inherited['id'])
+        self._check_scoped_token_attributes(token_resp)
+        roles_ref = [self.role_customer]
+        projects_ref = self.project_inherited
+        self._check_projects_and_roles(token_resp, roles_ref, projects_ref)
 
     def test_scope_token_from_nonexistent_unscoped_token(self):
         """Try to scope token from non-existent unscoped token."""
@@ -1100,16 +1103,15 @@ class FederatedTokenTests(FederationTests):
                  self.tokens['EMPLOYEE_ASSERTION'],
                  self.tokens['ADMIN_ASSERTION'])
 
-        # TODO(henry-nash): The customer and admin assertions should both also
-        # get back project_inherited. This fails due to bug 1389752.
-
         self.config_fixture.config(group='os_inherit', enabled=True)
-        projects_refs = (set([self.proj_customers['id']]),
+        projects_refs = (set([self.proj_customers['id'],
+                              self.project_inherited['id']]),
                          set([self.proj_employees['id'],
                               self.project_all['id']]),
                          set([self.proj_employees['id'],
                               self.project_all['id'],
-                              self.proj_customers['id']]))
+                              self.proj_customers['id'],
+                              self.project_inherited['id']]))
 
         for token, projects_ref in zip(token, projects_refs):
             for url in urls:
