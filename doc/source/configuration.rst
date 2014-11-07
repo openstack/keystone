@@ -329,8 +329,8 @@ The drivers Keystone provides are:
 
 
 .. WARNING::
-    It is recommended you use the ``keystone.token.persistence.backend.memcache_pool.Token``
-    backend instead of ``keystone.token.persistence.backend.memcache.Token`` as the token
+    It is recommended you use the ``keystone.token.persistence.backends.memcache_pool.Token``
+    backend instead of ``keystone.token.persistence.backends.memcache.Token`` as the token
     persistence driver if you are deploying Keystone under eventlet instead of
     Apache + mod_wsgi. This recommendation is due to known issues with the
     use of ``thread.local`` under eventlet that can allow the leaking of
