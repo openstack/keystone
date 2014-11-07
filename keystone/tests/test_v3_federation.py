@@ -1607,9 +1607,6 @@ class FederatedTokenTests(FederationTests):
             self.tokens['CUSTOMER_ASSERTION'], 'domain', self.domainA['id'])
 
         self.TOKEN_SCOPE_DOMAIN_B_FROM_CUSTOMER = self._scope_request(
-            self.tokens['CUSTOMER_ASSERTION'], 'domain', self.domainB['id'])
-
-        self.TOKEN_SCOPE_DOMAIN_B_FROM_CUSTOMER = self._scope_request(
             self.tokens['CUSTOMER_ASSERTION'], 'domain',
             self.domainB['id'])
 
