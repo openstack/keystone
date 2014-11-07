@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-11-06 06:07+0000\n"
-"PO-Revision-Date: 2014-10-30 05:25+0000\n"
+"POT-Creation-Date: 2014-11-07 06:07+0000\n"
+"PO-Revision-Date: 2014-11-06 14:50+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -1232,13 +1232,15 @@ msgstr ""
 
 #: keystone/openstack/common/gettextutils.py:301
 msgid "Message objects do not support addition."
-msgstr ""
+msgstr "Objetos mensagem não suportam adição."
 
 #: keystone/openstack/common/gettextutils.py:311
 msgid ""
 "Message objects do not support str() because they may contain non-ascii "
 "characters. Please use unicode() or translate() instead."
 msgstr ""
+"Objetos mensagem não suportam str() pois podem conter carácteres "
+"não-ascii. Use unicode() ou translate()."
 
 #: keystone/openstack/common/log.py:287
 #, python-format
