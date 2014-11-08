@@ -300,10 +300,12 @@ class Assignment(keystone_assignment.Driver):
             if user_id:
                 filters.append(sqlalchemy.and_(
                     RoleAssignment.actor_id == user_id,
+                    RoleAssignment.inherited == false(),
                     RoleAssignment.type == AssignmentType.USER_DOMAIN))
             if group_ids:
                 filters.append(sqlalchemy.and_(
                     RoleAssignment.actor_id.in_(group_ids),
+                    RoleAssignment.inherited == false(),
                     RoleAssignment.type == AssignmentType.GROUP_DOMAIN))
 
             if not filters:

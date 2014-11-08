@@ -407,10 +407,9 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                                          inherited_to_projects=True)
 
         user_domains = self.assignment_api.list_domains_for_user(user['id'])
-        # TODO(henry-nash): There *should* be no domains in the list since both
-        # grants were inherited (and hence only applied to projects within the
-        # domain). However, incorrectly, both are returned due to bug #1390640.
-        self.assertThat(user_domains, matchers.HasLength(2))
+        # No domains should be returned since both domains have only inherited
+        # roles assignments.
+        self.assertThat(user_domains, matchers.HasLength(0))
 
 
 class SqlTrust(SqlTests, test_backend.TrustTests):
