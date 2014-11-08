@@ -371,6 +371,47 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user_domains = self.assignment_api.list_domains_for_user(user['id'])
         self.assertThat(user_domains, matchers.HasLength(3))
 
+    def test_list_domains_for_user_with_inherited_grants(self):
+        """Test that inherited roles on the domain are excluded.
+
+        Test Plan:
+
+        - Create two domains, one user, group and role
+        - Domain1 is given an inherited user role, Domain2 an inherited
+          group role (for a group of which the user is a member)
+        - When listing domains for user, neither domain should be returned
+
+        """
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = self.assignment_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = self.assignment_api.create_domain(domain2['id'], domain2)
+        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                'domain_id': domain1['id'], 'enabled': True}
+        user = self.identity_api.create_user(user)
+        group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+        group = self.identity_api.create_group(group)
+        self.identity_api.add_user_to_group(user['id'], group['id'])
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role['id'], role)
+
+        # Create a grant on each domain, one user grant, one group grant,
+        # both inherited.
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         domain_id=domain1['id'],
+                                         role_id=role['id'],
+                                         inherited_to_projects=True)
+        self.assignment_api.create_grant(group_id=group['id'],
+                                         domain_id=domain2['id'],
+                                         role_id=role['id'],
+                                         inherited_to_projects=True)
+
+        user_domains = self.assignment_api.list_domains_for_user(user['id'])
+        # TODO(henry-nash): There *should* be no domains in the list since both
+        # grants were inherited (and hence only applied to projects within the
+        # domain). However, incorrectly, both are returned due to bug #1390640.
+        self.assertThat(user_domains, matchers.HasLength(2))
+
 
 class SqlTrust(SqlTests, test_backend.TrustTests):
     pass
