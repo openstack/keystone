@@ -50,7 +50,8 @@ from keystone.models import token_model
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
-                     'identity_api', 'role_api', 'token_provider_api')
+                     'identity_api', 'resource_api', 'role_api',
+                     'token_provider_api')
 @six.add_metaclass(abc.ABCMeta)
 class Ec2ControllerCommon(object):
     def check_signature(self, creds_ref, credentials):
@@ -112,7 +113,7 @@ class Ec2ControllerCommon(object):
 
         # TODO(termie): don't create new tokens every time
         # TODO(termie): this is copied from TokenController.authenticate
-        tenant_ref = self.assignment_api.get_project(creds_ref['tenant_id'])
+        tenant_ref = self.resource_api.get_project(creds_ref['tenant_id'])
         user_ref = self.identity_api.get_user(creds_ref['user_id'])
         metadata_ref = {}
         metadata_ref['roles'] = (
@@ -128,9 +129,9 @@ class Ec2ControllerCommon(object):
         try:
             self.identity_api.assert_user_enabled(
                 user_id=user_ref['id'], user=user_ref)
-            self.assignment_api.assert_domain_enabled(
+            self.resource_api.assert_domain_enabled(
                 domain_id=user_ref['domain_id'])
-            self.assignment_api.assert_project_enabled(
+            self.resource_api.assert_project_enabled(
                 project_id=tenant_ref['id'], project=tenant_ref)
         except AssertionError as e:
             six.reraise(exception.Unauthorized, exception.Unauthorized(e),
@@ -159,7 +160,7 @@ class Ec2ControllerCommon(object):
         """
 
         self.identity_api.get_user(user_id)
-        self.assignment_api.get_project(tenant_id)
+        self.resource_api.get_project(tenant_id)
         trust_id = self._get_trust_id_for_request(context)
         blob = {'access': uuid.uuid4().hex,
                 'secret': uuid.uuid4().hex,

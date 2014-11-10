@@ -91,7 +91,7 @@ class DomainConfigs(dict):
         return importutils.import_object(
             domain_config['cfg'].identity.driver, domain_config['cfg'])
 
-    def _load_config(self, assignment_api, file_list, domain_name):
+    def _load_config(self, resource_api, file_list, domain_name):
 
         def assert_no_more_than_one_sql_driver(new_config, config_file):
             """Ensure there is more than one sql driver.
@@ -109,7 +109,7 @@ class DomainConfigs(dict):
             self._any_sql = new_config['driver'].is_sql
 
         try:
-            domain_ref = assignment_api.get_domain_by_name(domain_name)
+            domain_ref = resource_api.get_domain_by_name(domain_name)
         except exception.DomainNotFound:
             LOG.warning(
                 _LW('Invalid domain name (%s) found in config file name'),
@@ -130,7 +130,7 @@ class DomainConfigs(dict):
         assert_no_more_than_one_sql_driver(domain_config, file_list)
         self[domain_ref['id']] = domain_config
 
-    def setup_domain_drivers(self, standard_driver, assignment_api):
+    def setup_domain_drivers(self, standard_driver, resource_api):
         # This is called by the api call wrapper
         self.configured = True
         self.driver = standard_driver
@@ -146,7 +146,7 @@ class DomainConfigs(dict):
                 if (fname.startswith(DOMAIN_CONF_FHEAD) and
                         fname.endswith(DOMAIN_CONF_FTAIL)):
                     if fname.count('.') >= 2:
-                        self._load_config(assignment_api,
+                        self._load_config(resource_api,
                                           [os.path.join(r, fname)],
                                           fname[len(DOMAIN_CONF_FHEAD):
                                                 -len(DOMAIN_CONF_FTAIL)])
@@ -193,7 +193,7 @@ def domains_configured(f):
         if (not self.domain_configs.configured and
                 CONF.identity.domain_specific_drivers_enabled):
             self.domain_configs.setup_domain_drivers(
-                self.driver, self.assignment_api)
+                self.driver, self.resource_api)
         return f(self, *args, **kwargs)
     return wrapper
 
@@ -221,7 +221,8 @@ def exception_translated(exception_type):
 
 @dependency.provider('identity_api')
 @dependency.optional('revoke_api')
-@dependency.requires('assignment_api', 'credential_api', 'id_mapping_api')
+@dependency.requires('assignment_api', 'credential_api', 'id_mapping_api',
+                     'resource_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
@@ -554,7 +555,7 @@ class Manager(manager.Manager):
         user.setdefault('enabled', True)
         user['enabled'] = clean.user_enabled(user['enabled'])
         domain_id = user['domain_id']
-        self.assignment_api.get_domain(domain_id)
+        self.resource_api.get_domain(domain_id)
 
         # For creating a user, the domain is in the object itself
         domain_id = user_ref['domain_id']
@@ -584,7 +585,7 @@ class Manager(manager.Manager):
         """
         if user is None:
             user = self.get_user(user_id)
-        self.assignment_api.assert_domain_enabled(user['domain_id'])
+        self.resource_api.assert_domain_enabled(user['domain_id'])
         if not user.get('enabled', True):
             raise AssertionError(_('User is disabled: %s') % user_id)
 
@@ -625,7 +626,7 @@ class Manager(manager.Manager):
         if 'enabled' in user:
             user['enabled'] = clean.user_enabled(user['enabled'])
         if 'domain_id' in user:
-            self.assignment_api.get_domain(user['domain_id'])
+            self.resource_api.get_domain(user['domain_id'])
         if 'id' in user:
             if user_id != user['id']:
                 raise exception.ValidationError(_('Cannot change user ID'))
@@ -665,7 +666,7 @@ class Manager(manager.Manager):
         group = group_ref.copy()
         group.setdefault('description', '')
         domain_id = group['domain_id']
-        self.assignment_api.get_domain(domain_id)
+        self.resource_api.get_domain(domain_id)
 
         # For creating a group, the domain is in the object itself
         domain_id = group_ref['domain_id']
@@ -701,7 +702,7 @@ class Manager(manager.Manager):
     @exception_translated('group')
     def update_group(self, group_id, group):
         if 'domain_id' in group:
-            self.assignment_api.get_domain(group['domain_id'])
+            self.resource_api.get_domain(group['domain_id'])
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
         group = self._clear_domain_id_if_domain_unaware(driver, group)

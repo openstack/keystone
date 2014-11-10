@@ -144,7 +144,7 @@ class V2TokenDataHelper(object):
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'role_api', 'trust_api')
+                     'resource_api', 'role_api', 'trust_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
     def __init__(self):
@@ -152,11 +152,11 @@ class V3TokenDataHelper(object):
         super(V3TokenDataHelper, self).__init__()
 
     def _get_filtered_domain(self, domain_id):
-        domain_ref = self.assignment_api.get_domain(domain_id)
+        domain_ref = self.resource_api.get_domain(domain_id)
         return {'id': domain_ref['id'], 'name': domain_ref['name']}
 
     def _get_filtered_project(self, project_id):
-        project_ref = self.assignment_api.get_project(project_id)
+        project_ref = self.resource_api.get_project(project_id)
         filtered_project = {
             'id': project_ref['id'],
             'name': project_ref['name']}
@@ -383,7 +383,7 @@ class V3TokenDataHelper(object):
 
 
 @dependency.optional('oauth_api')
-@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+@dependency.requires('catalog_api', 'identity_api', 'resource_api',
                      'role_api', 'trust_api')
 class BaseProvider(provider.Provider):
     def __init__(self, *args, **kwargs):
@@ -532,7 +532,7 @@ class BaseProvider(provider.Provider):
                 if (trustor_user_ref['domain_id'] !=
                         CONF.identity.default_domain_id):
                     raise exception.Unauthorized(msg)
-                project_ref = self.assignment_api.get_project(
+                project_ref = self.resource_api.get_project(
                     trust_ref['project_id'])
                 if (project_ref['domain_id'] !=
                         CONF.identity.default_domain_id):

@@ -39,8 +39,8 @@ EXPIRATION_TIME = lambda: CONF.token.cache_time
 REVOCATION_CACHE_EXPIRATION_TIME = lambda: CONF.token.revocation_cache_time
 
 
-@dependency.requires('assignment_api', 'identity_api', 'token_provider_api',
-                     'trust_api')
+@dependency.requires('assignment_api', 'identity_api', 'resource_api',
+                     'token_provider_api', 'trust_api')
 class PersistenceManager(manager.Manager):
     """Default pivot point for the Token backend.
 
@@ -142,7 +142,7 @@ class PersistenceManager(manager.Manager):
         """
         if not CONF.token.revoke_by_id:
             return
-        projects = self.assignment_api.list_projects()
+        projects = self.resource_api.list_projects()
         for project in projects:
             if project['domain_id'] == domain_id:
                 for user_id in self.assignment_api.list_user_ids_for_project(

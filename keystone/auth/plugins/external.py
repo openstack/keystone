@@ -74,7 +74,7 @@ class DefaultDomain(Base):
         return user_ref
 
 
-@dependency.requires('assignment_api', 'identity_api')
+@dependency.requires('identity_api', 'resource_api')
 class Domain(Base):
     def _authenticate(self, remote_user, context):
         """Use remote_user to look up the user in the identity backend.
@@ -89,7 +89,7 @@ class Domain(Base):
         except KeyError:
             domain_id = CONF.identity.default_domain_id
         else:
-            domain_ref = self.assignment_api.get_domain_by_name(domain_name)
+            domain_ref = self.resource_api.get_domain_by_name(domain_name)
             domain_id = domain_ref['id']
 
         user_ref = self.identity_api.get_user_by_name(username, domain_id)
@@ -156,7 +156,7 @@ class LegacyDefaultDomain(Base):
         return user_ref
 
 
-@dependency.requires('assignment_api', 'identity_api')
+@dependency.requires('identity_api', 'resource_api')
 class LegacyDomain(Base):
     """Deprecated. Please use keystone.auth.external.Domain instead."""
 
@@ -178,7 +178,7 @@ class LegacyDomain(Base):
         username = names.pop(0)
         if names:
             domain_name = names[0]
-            domain_ref = self.assignment_api.get_domain_by_name(domain_name)
+            domain_ref = self.resource_api.get_domain_by_name(domain_name)
             domain_id = domain_ref['id']
         else:
             domain_id = CONF.identity.default_domain_id

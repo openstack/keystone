@@ -289,14 +289,14 @@ class Auth(auth_controllers.Auth):
                                     headers=[('Content-Type', 'text/xml')])
 
 
-@dependency.requires('assignment_api')
+@dependency.requires('assignment_api', 'resource_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
 
     def __init__(self):
         super(DomainV3, self).__init__()
-        self.get_member_from_driver = self.assignment_api.get_domain
+        self.get_member_from_driver = self.resource_api.get_domain
 
     @controller.protected()
     def list_domains_for_groups(self, context):
@@ -312,14 +312,14 @@ class DomainV3(controller.V3Controller):
         return DomainV3.wrap_collection(context, domains)
 
 
-@dependency.requires('assignment_api')
+@dependency.requires('assignment_api', 'resource_api')
 class ProjectV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
 
     def __init__(self):
         super(ProjectV3, self).__init__()
-        self.get_member_from_driver = self.assignment_api.get_project
+        self.get_member_from_driver = self.resource_api.get_project
 
     @controller.protected()
     def list_projects_for_groups(self, context):
