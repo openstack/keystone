@@ -376,7 +376,7 @@ FILE_OPTIONS = {
                    help='Path of the keyfile for SSL.'),
         cfg.StrOpt('ca_certs',
                    default='/etc/keystone/ssl/certs/ca.pem',
-                   help='Path of the ca cert file for SSL.'),
+                   help='Path of the CA cert file for SSL.'),
         cfg.StrOpt('ca_key',
                    default='/etc/keystone/ssl/private/cakey.pem',
                    help='Path of the CA key file for SSL.'),
