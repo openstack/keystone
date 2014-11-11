@@ -720,8 +720,9 @@ class TestCallbackRegistration(testtools.TestCase):
             notifications.register_event_callback(
                 CREATED_OPERATION, resource_type, callback)
 
+        callback = 'keystone.tests.unit.common.test_notifications.callback'
         expected_log_data = {
-            'callback': 'keystone.tests.test_notifications.callback',
+            'callback': callback,
             'event': 'identity.%s.created' % resource_type
         }
         self.verify_log_message([expected_log_data])
@@ -735,8 +736,9 @@ class TestCallbackRegistration(testtools.TestCase):
             notifications.register_event_callback(
                 CREATED_OPERATION, 'thing', C.callback)
 
+        callback = 'keystone.tests.unit.common.test_notifications.C.callback'
         expected_log_data = {
-            'callback': 'keystone.tests.test_notifications.C.callback',
+            'callback': callback,
             'event': 'identity.thing.created'
         }
         self.verify_log_message([expected_log_data])
@@ -753,13 +755,15 @@ class TestCallbackRegistration(testtools.TestCase):
             notifications.register_event_callback(
                 CREATED_OPERATION, 'thing', [callback, C.callback])
 
+        callback_1 = 'keystone.tests.unit.common.test_notifications.callback'
+        callback_2 = 'keystone.tests.unit.common.test_notifications.C.callback'
         expected_log_data = [
             {
-                'callback': 'keystone.tests.test_notifications.callback',
+                'callback': callback_1,
                 'event': 'identity.thing.created'
             },
             {
-                'callback': 'keystone.tests.test_notifications.C.callback',
+                'callback': callback_2,
                 'event': 'identity.thing.created'
             },
         ]
