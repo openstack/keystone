@@ -159,7 +159,11 @@ class Assignment(keystone_assignment.Driver):
                     inherited_to_projects)
                 q.one()
             except sql.NotFound:
-                raise exception.RoleNotFound(role_id=role_id)
+                actor_id = user_id or group_id
+                target_id = domain_id or project_id
+                raise exception.RoleAssignmentNotFound(role_id=role_id,
+                                                       actor_id=actor_id,
+                                                       target_id=target_id)
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
@@ -169,7 +173,11 @@ class Assignment(keystone_assignment.Driver):
                 session, role_id, user_id, group_id, domain_id, project_id,
                 inherited_to_projects)
             if not q.delete(False):
-                raise exception.RoleNotFound(role_id=role_id)
+                actor_id = user_id or group_id
+                target_id = domain_id or project_id
+                raise exception.RoleAssignmentNotFound(role_id=role_id,
+                                                       actor_id=actor_id,
+                                                       target_id=target_id)
 
     def _list_project_ids_for_actor(self, actors, hints, inherited,
                                     group_only=False):
