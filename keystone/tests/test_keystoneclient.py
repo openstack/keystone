@@ -1097,8 +1097,8 @@ class KcOptTestCase(KcMasterTestCase):
     #
     # For example, to test your local keystoneclient,
     #
-    # KSCTEST_PATH=/opt/stack/python-keystoneclient \
-    #  tox -e py27 test_keystoneclient.KcOptTestCase
+    # KSCTEST_PATH=/opt/stack/python-keystoneclient;
+    # tox -e py27 test_keystoneclient.KcOptTestCase
 
     def setUp(self):
         self.checkout_info = os.environ.get('KSCTEST_PATH')

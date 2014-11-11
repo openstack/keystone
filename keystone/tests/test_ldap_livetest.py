@@ -206,8 +206,8 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         # The attribute used for the live LDAP tests is case insensitive.
 
         def call_super():
-            super(LiveLDAPIdentity, self).\
-                test_create_project_case_sensitivity()
+            (super(LiveLDAPIdentity, self).
+                test_create_project_case_sensitivity())
 
         self.assertRaises(exception.Conflict, call_super)
 
@@ -223,7 +223,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         # The description attribute doesn't allow an empty value.
 
         def call_super():
-            super(LiveLDAPIdentity, self).\
-                test_project_update_missing_attrs_with_a_falsey_value()
+            (super(LiveLDAPIdentity, self).
+                test_project_update_missing_attrs_with_a_falsey_value())
 
         self.assertRaises(ldap.INVALID_SYNTAX, call_super)
