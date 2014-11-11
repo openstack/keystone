@@ -349,7 +349,7 @@ class FakeLdap(core.LDAPHandler):
                     del self.db[c]
 
             key = self.key(dn)
-            LOG.debug('FakeLdap delete item: dn=%s', dn)
+            LOG.debug('FakeLdap delete item: dn=%s', core.utf8_decode(dn))
             del self.db[key]
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.',
