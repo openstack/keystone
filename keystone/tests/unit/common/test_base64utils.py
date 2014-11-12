@@ -149,10 +149,18 @@ class TestBase64Padding(tests.TestCase):
         self.assertRaises(base64utils.InvalidBase64Error,
                           base64utils.base64_is_padded, 'ABCD=')
 
+        self.assertRaises(ValueError, base64utils.base64_is_padded,
+                          'ABC', pad='==')
+        self.assertRaises(base64utils.InvalidBase64Error,
+                          base64utils.base64_is_padded, 'A=BC')
+
     def test_strip_padding(self):
         self.assertEqual('ABCD', base64utils.base64_strip_padding('ABCD'))
         self.assertEqual('ABC', base64utils.base64_strip_padding('ABC='))
         self.assertEqual('AB', base64utils.base64_strip_padding('AB=='))
+        self.assertRaises(ValueError, base64utils.base64_strip_padding,
+                          'ABC=', pad='==')
+        self.assertEqual('ABC', base64utils.base64_strip_padding('ABC'))
 
     def test_assure_padding(self):
         self.assertEqual('ABCD', base64utils.base64_assure_padding('ABCD'))
@@ -160,6 +168,8 @@ class TestBase64Padding(tests.TestCase):
         self.assertEqual('ABC=', base64utils.base64_assure_padding('ABC='))
         self.assertEqual('AB==', base64utils.base64_assure_padding('AB'))
         self.assertEqual('AB==', base64utils.base64_assure_padding('AB=='))
+        self.assertRaises(ValueError, base64utils.base64_assure_padding,
+                          'ABC', pad='==')
 
     def test_base64_percent_encoding(self):
         self.assertEqual('ABCD', base64utils.base64url_percent_encode('ABCD'))
@@ -173,6 +183,10 @@ class TestBase64Padding(tests.TestCase):
                          base64utils.base64url_percent_decode('ABC%3D'))
         self.assertEqual('AB==',
                          base64utils.base64url_percent_decode('AB%3D%3D'))
+        self.assertRaises(base64utils.InvalidBase64Error,
+                          base64utils.base64url_percent_encode, 'chars')
+        self.assertRaises(base64utils.InvalidBase64Error,
+                          base64utils.base64url_percent_decode, 'AB%3D%3')
 
 
 class TestTextWrap(tests.TestCase):

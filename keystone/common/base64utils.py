@@ -61,6 +61,11 @@ _base64_to_base64url_trans = string.maketrans('+/', '-_')
 _base64url_to_base64_trans = string.maketrans('-_', '+/')
 
 
+def _check_padding_length(pad):
+    if len(pad) != 1:
+        raise ValueError(_('pad must be single character'))
+
+
 def is_valid_base64(text):
     """Test if input text can be base64 decoded.
 
@@ -201,8 +206,7 @@ def base64_is_padded(text, pad='='):
     :raises: ValueError, InvalidBase64Error
     """
 
-    if len(pad) != 1:
-        raise ValueError(_('pad must be single character'))
+    _check_padding_length(pad)
 
     text_len = len(text)
     if text_len > 0 and text_len % 4 == 0:
@@ -274,8 +278,7 @@ def base64_strip_padding(text, pad='='):
     :returns: string -- base64 text without padding
     :raises: ValueError
     """
-    if len(pad) != 1:
-        raise ValueError(_('pad must be single character'))
+    _check_padding_length(pad)
 
     # Can't be padded if text is less than 4 characters.
     if len(text) < 4:
@@ -327,9 +330,7 @@ def base64_assure_padding(text, pad='='):
     :returns: string -- input base64 text with padding
     :raises: ValueError
     """
-
-    if len(pad) != 1:
-        raise ValueError(_('pad must be single character'))
+    _check_padding_length(pad)
 
     if text.endswith(pad):
         return text
