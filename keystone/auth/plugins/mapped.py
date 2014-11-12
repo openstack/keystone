@@ -22,6 +22,10 @@ from keystone.contrib import federation
 from keystone.contrib.federation import utils
 from keystone.models import token_model
 from keystone import notifications
+from keystone.openstack.common import log
+
+
+LOG = log.getLogger(__name__)
 
 
 @dependency.requires('federation_api', 'identity_api', 'token_provider_api')
@@ -140,6 +144,7 @@ class Mapped(auth.AuthMethodHandler):
         mapping = self.federation_api.get_mapping_from_idp_and_protocol(
             identity_provider, protocol)
         rules = jsonutils.loads(mapping['rules'])
+        LOG.debug('using the following rules: %s', rules)
         rule_processor = utils.RuleProcessor(rules)
         mapped_properties = rule_processor.process(assertion)
         utils.validate_groups(mapped_properties['group_ids'],
