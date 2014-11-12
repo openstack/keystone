@@ -107,8 +107,7 @@ class Mapped(auth.AuthMethodHandler):
             mapped_properties = self._apply_mapping_filter(identity_provider,
                                                            protocol,
                                                            assertion)
-            user_name, user_id = self._setup_username(context,
-                                                      mapped_properties)
+            user_id = self._setup_username(context, mapped_properties)
             group_ids = mapped_properties['group_ids']
 
         except Exception:
@@ -175,4 +174,4 @@ class Mapped(auth.AuthMethodHandler):
             if user_name is None:
                 raise exception.Unauthorized(_("Could not map user"))
         user_id = parse.quote(user_name)
-        return user_name, user_id
+        return user_id
