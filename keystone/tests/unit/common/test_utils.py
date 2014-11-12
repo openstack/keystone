@@ -10,27 +10,39 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import uuid
 
-from keystone.common import utils
+from oslo.serialization import jsonutils
+
+from keystone.common import utils as common_utils
+from keystone import config
+from keystone import exception
+from keystone import service
 from keystone import tests
+from keystone.tests import utils
 
 
-class TestPasswordHashing(tests.BaseTestCase):
+CONF = config.CONF
 
-    def setUp(self):
-        super(TestPasswordHashing, self).setUp()
-        self.password = uuid.uuid4().hex
-        self.hashed_password = utils.hash_password(self.password)
+TZ = utils.TZ
 
-    def test_that_we_can_verify_a_password_against_a_hash(self):
-        self.assertTrue(utils.check_password(self.password,
-                                             self.hashed_password))
 
-    def test_that_an_incorrect_password_fails_to_validate(self):
-        bad_password = uuid.uuid4().hex
-        self.assertFalse(utils.check_password(bad_password,
-                                              self.hashed_password))
+class UtilsTestCase(tests.TestCase):
+    OPTIONAL = object()
+
+    def test_hash(self):
+        password = 'right'
+        wrong = 'wrongwrong'  # Two wrongs don't make a right
+        hashed = common_utils.hash_password(password)
+        self.assertTrue(common_utils.check_password(password, hashed))
+        self.assertFalse(common_utils.check_password(wrong, hashed))
+
+    def test_verify_normal_password_strict(self):
+        self.config_fixture.config(strict_password_check=False)
+        password = uuid.uuid4().hex
+        verified = common_utils.verify_length_and_trunc_password(password)
+        self.assertEqual(password, verified)
 
     def test_that_a_hash_can_not_be_validated_against_a_hash(self):
         # NOTE(dstanek): Bug 1279849 reported a problem where passwords
@@ -38,6 +50,133 @@ class TestPasswordHashing(tests.BaseTestCase):
         # would allow someone to hash their password ahead of time
         # (potentially getting around password requirements, like
         # length) and then they could auth with their original password.
-        new_hashed_password = utils.hash_password(self.hashed_password)
-        self.assertFalse(utils.check_password(self.password,
-                                              new_hashed_password))
+        password = uuid.uuid4().hex
+        hashed_password = common_utils.hash_password(password)
+        new_hashed_password = common_utils.hash_password(hashed_password)
+        self.assertFalse(common_utils.check_password(password,
+                                                     new_hashed_password))
+
+    def test_verify_long_password_strict(self):
+        self.config_fixture.config(strict_password_check=False)
+        self.config_fixture.config(group='identity', max_password_length=5)
+        max_length = CONF.identity.max_password_length
+        invalid_password = 'passw0rd'
+        trunc = common_utils.verify_length_and_trunc_password(invalid_password)
+        self.assertEqual(invalid_password[:max_length], trunc)
+
+    def test_verify_long_password_strict_raises_exception(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(group='identity', max_password_length=5)
+        invalid_password = 'passw0rd'
+        self.assertRaises(exception.PasswordVerificationError,
+                          common_utils.verify_length_and_trunc_password,
+                          invalid_password)
+
+    def test_hash_long_password_truncation(self):
+        self.config_fixture.config(strict_password_check=False)
+        invalid_length_password = '0' * 9999999
+        hashed = common_utils.hash_password(invalid_length_password)
+        self.assertTrue(common_utils.check_password(invalid_length_password,
+                                                    hashed))
+
+    def test_hash_long_password_strict(self):
+        self.config_fixture.config(strict_password_check=True)
+        invalid_length_password = '0' * 9999999
+        self.assertRaises(exception.PasswordVerificationError,
+                          common_utils.hash_password,
+                          invalid_length_password)
+
+    def _create_test_user(self, password=OPTIONAL):
+        user = {"name": "hthtest"}
+        if password is not self.OPTIONAL:
+            user['password'] = password
+
+        return user
+
+    def test_hash_user_password_without_password(self):
+        user = self._create_test_user()
+        hashed = common_utils.hash_user_password(user)
+        self.assertEqual(user, hashed)
+
+    def test_hash_user_password_with_null_password(self):
+        user = self._create_test_user(password=None)
+        hashed = common_utils.hash_user_password(user)
+        self.assertEqual(user, hashed)
+
+    def test_hash_user_password_with_empty_password(self):
+        password = ''
+        user = self._create_test_user(password=password)
+        user_hashed = common_utils.hash_user_password(user)
+        password_hashed = user_hashed['password']
+        self.assertTrue(common_utils.check_password(password, password_hashed))
+
+    def test_hash_edge_cases(self):
+        hashed = common_utils.hash_password('secret')
+        self.assertFalse(common_utils.check_password('', hashed))
+        self.assertFalse(common_utils.check_password(None, hashed))
+
+    def test_hash_unicode(self):
+        password = u'Comment \xe7a va'
+        wrong = 'Comment ?a va'
+        hashed = common_utils.hash_password(password)
+        self.assertTrue(common_utils.check_password(password, hashed))
+        self.assertFalse(common_utils.check_password(wrong, hashed))
+
+    def test_auth_str_equal(self):
+        self.assertTrue(common_utils.auth_str_equal('abc123', 'abc123'))
+        self.assertFalse(common_utils.auth_str_equal('a', 'aaaaa'))
+        self.assertFalse(common_utils.auth_str_equal('aaaaa', 'a'))
+        self.assertFalse(common_utils.auth_str_equal('ABC123', 'abc123'))
+
+    def test_unixtime(self):
+        global TZ
+
+        @utils.timezone
+        def _test_unixtime():
+            epoch = common_utils.unixtime(dt)
+            self.assertEqual(epoch, epoch_ans, "TZ=%s" % TZ)
+
+        dt = datetime.datetime(1970, 1, 2, 3, 4, 56, 0)
+        epoch_ans = 56 + 4 * 60 + 3 * 3600 + 86400
+        for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
+            TZ = 'UTC' + d
+            _test_unixtime()
+
+    def test_pki_encoder(self):
+        data = {'field': 'value'}
+        json = jsonutils.dumps(data, cls=common_utils.PKIEncoder)
+        expected_json = b'{"field":"value"}'
+        self.assertEqual(expected_json, json)
+
+
+class ServiceHelperTests(tests.TestCase):
+
+    @service.fail_gracefully
+    def _do_test(self):
+        raise Exception("Test Exc")
+
+    def test_fail_gracefully(self):
+        self.assertRaises(tests.UnexpectedExit, self._do_test)
+
+
+class LimitingReaderTests(tests.TestCase):
+
+    def test_read_default_value(self):
+
+        class FakeData(object):
+            def read(self, *args, **kwargs):
+                self.read_args = args
+                self.read_kwargs = kwargs
+                return 'helloworld'
+
+        data = FakeData()
+        common_utils.LimitingReader(data, 100)
+
+        self.assertEqual('helloworld', data.read())
+        self.assertEqual(0, len(data.read_args))
+        self.assertEqual(0, len(data.read_kwargs))
+
+        self.assertEqual('helloworld', data.read(10))
+        self.assertEqual(1, len(data.read_args))
+        self.assertEqual(0, len(data.read_kwargs))
+        self.assertEqual(10, data.read_args[0])

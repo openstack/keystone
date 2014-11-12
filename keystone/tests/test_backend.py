@@ -29,7 +29,7 @@ from keystone import exception
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests import filtering
-from keystone.tests import test_utils
+from keystone.tests import utils as test_utils
 from keystone.token import provider
 
 

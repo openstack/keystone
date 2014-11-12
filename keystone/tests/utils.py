@@ -12,6 +12,9 @@
 
 """Useful utilities for tests."""
 
+import functools
+import os
+import time
 import uuid
 
 from keystone.common import environment
@@ -19,6 +22,28 @@ from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
+
+TZ = None
+
+
+def timezone(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        tz_original = os.environ.get('TZ')
+        try:
+            if TZ:
+                os.environ['TZ'] = TZ
+                time.tzset()
+            return func(*args, **kwargs)
+        finally:
+            if TZ:
+                if tz_original:
+                    os.environ['TZ'] = tz_original
+                else:
+                    if 'TZ' in os.environ:
+                        del os.environ['TZ']
+                time.tzset()
+    return wrapper
 
 
 def new_uuid():
