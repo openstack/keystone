@@ -888,3 +888,14 @@ vnd.openstack.identity-v3+xml"/>
         self.assertEqual(resp.status_int, 300)
         data = resp.body
         self.assertThat(data, matchers.XMLEquals(v2_only_response))
+
+    @mock.patch.object(controllers, '_VERSIONS', [])
+    def test_no_json_home_document_returned_when_v3_disabled(self):
+        json_home_document = controllers.request_v3_json_home('some_prefix')
+        expected_document = {'resources': {}}
+        self.assertEqual(expected_document, json_home_document)
+
+    def test_extension_property_method_returns_none(self):
+        extension_obj = controllers.Extensions()
+        extensions_property = extension_obj.extensions
+        self.assertIsNone(extensions_property)
