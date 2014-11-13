@@ -41,3 +41,10 @@ To enable the OAuth1 extension:
 4. Create the OAuth1 extension tables if using the provided SQL backend. For example::
 
     ./bin/keystone-manage db_sync --extension oauth1
+
+5. Optionally, if deploying under an HTTPD server (i.e. Apache), set the
+   `WSGIPassAuthorization` to allow the OAuth Authorization headers to
+   pass through `mod_wsgi`. For example, add the following to the Keystone
+   virtual host file::
+
+    WSGIPassAuthorization On
