@@ -302,16 +302,6 @@ class MiddlewareTest(BaseWSGITest):
         self.config_fixture.config(debug=True)
         self.assertIn(exception_str, do_request().body)
 
-    def test_middleware_local_config(self):
-        class FakeMiddleware(wsgi.Middleware):
-            def __init__(self, *args, **kwargs):
-                self.kwargs = kwargs
-
-        factory = FakeMiddleware.factory({}, testkey="test")
-        app = factory(self.app)
-        self.assertIn("testkey", app.kwargs)
-        self.assertEqual("test", app.kwargs["testkey"])
-
 
 class LocalizedResponseTest(unit.TestCase):
     def test_request_match_default(self):

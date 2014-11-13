@@ -26,6 +26,7 @@ from keystone import catalog
 from keystone.common import wsgi
 from keystone import credential
 from keystone import endpoint_policy
+from keystone.i18n import _LW
 from keystone import identity
 from keystone import policy
 from keystone import resource
@@ -63,7 +64,18 @@ def fail_gracefully(f):
     return wrapper
 
 
+def warn_local_conf(f):
+    @functools.wraps(f)
+    def wrapper(*args, **local_conf):
+        if local_conf:
+            LOG.warning(_LW('\'local conf\' from PasteDeploy INI is being '
+                            'ignored.'))
+        return f(*args, **local_conf)
+    return wrapper
+
+
 @fail_gracefully
+@warn_local_conf
 def public_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
     return wsgi.ComposingRouter(routes.Mapper(),
@@ -74,6 +86,7 @@ def public_app_factory(global_conf, **local_conf):
 
 
 @fail_gracefully
+@warn_local_conf
 def admin_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
     return wsgi.ComposingRouter(routes.Mapper(),
@@ -86,18 +99,21 @@ def admin_app_factory(global_conf, **local_conf):
 
 
 @fail_gracefully
+@warn_local_conf
 def public_version_app_factory(global_conf, **local_conf):
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [routers.Versions('public')])
 
 
 @fail_gracefully
+@warn_local_conf
 def admin_version_app_factory(global_conf, **local_conf):
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [routers.Versions('admin')])
 
 
 @fail_gracefully
+@warn_local_conf
 def v3_app_factory(global_conf, **local_conf):
     controllers.register_version('v3')
     mapper = routes.Mapper()
