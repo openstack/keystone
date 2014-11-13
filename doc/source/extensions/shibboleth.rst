@@ -17,7 +17,71 @@
 Setup Shibboleth
 ================
 
-Federate Keystone (SP) and an external IdP.
+Configure Apache HTTPD for mod_shibboleth
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Follow the steps outlined at: `Running Keystone in HTTPD`_.
+
+.. _`Running Keystone in HTTPD`: apache-httpd.html
+
+You'll also need to install `Shibboleth <https://wiki.shibboleth.net/confluence/display/SHIB2/Home>`_, for
+example:
+
+.. code-block:: bash
+
+    $ apt-get install libapache2-mod-shib2
+
+Configure your Keystone virtual host and adjust the config to properly handle SAML2 workflow:
+
+Add *WSGIScriptAlias* directive to your vhost configuration::
+
+    WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /var/www/keystone/main/$1
+
+Make sure you add two *<Location>* directives to the *wsgi-keystone.conf*::
+
+    <Location /Shibboleth.sso>
+        SetHandler shib
+    </Location>
+
+    <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/saml2/auth>
+        ShibRequestSetting requireSession 1
+        AuthType shibboleth
+        ShibRequireAll On
+        ShibRequireSession On
+        ShibExportAssertion Off
+        Require valid-user
+    </LocationMatch>
+
+.. NOTE::
+    * ``saml2`` may be different in your deployment, but do not use a wildcard value.
+      Otherwise *every* federated protocol will be handled by Shibboleth.
+    * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
+      Apache 2.4+ and should be dropped in that specific setup.
+    * You are advised to carefully examine `Shibboleth Apache configuration
+      documentation
+      <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig>`_
+
+Enable the Keystone virtual host, for example:
+
+.. code-block:: bash
+
+    $ a2ensite wsgi-keystone.conf
+
+Enable the ``ssl`` and ``shib2`` modules, for example:
+
+.. code-block:: bash
+
+    $ a2enmod ssl
+    $ a2enmod shib2
+
+Restart Apache, for example:
+
+.. code-block:: bash
+
+    $ service apache2 restart
+
+Configuring shibboleth2.xml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you have your Keystone vhost (virtual host) ready, it's then time to
 configure Shibboleth and upload your Metadata to the Identity Provider.
