@@ -588,6 +588,16 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         self._test_project_management(self.domainA['id'])
 
+    def test_project_management_by_cloud_admin(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            domain_id=self.admin_domain['id'])
+
+        # Check whether cloud admin can operate a domain
+        # other than its own domain or not
+        self._test_project_management(self.domainA['id'])
+
     def test_domain_grants(self):
         self.auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
