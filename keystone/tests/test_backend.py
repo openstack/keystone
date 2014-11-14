@@ -3089,6 +3089,90 @@ class IdentityTests(object):
         self.assertIn(role_list[0], role_refs)
         self.assertIn(role_list[1], role_refs)
 
+    def test_get_roles_for_groups_on_project(self):
+        """Test retrieving group project roles.
+
+        Test Plan:
+
+        - Create two domains, two projects, six groups and six roles
+        - Project1 is in Domain1, Project2 is in Domain2
+        - Domain2/Project2 are spoilers
+        - Assign a different direct group role to each project as well
+          as both an inherited and non-inherited role to each domain
+        - Get the group roles for Project 1 - depending on whether we have
+          enabled inheritance, we should either get back just the direct role
+          or both the direct one plus the inherited domain role from Domain 1
+
+        """
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain2['id'], domain2)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain2['id']}
+        self.assignment_api.create_project(project2['id'], project2)
+        group_list = []
+        group_id_list = []
+        role_list = []
+        for _ in range(6):
+            group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+            group = self.identity_api.create_group(group)
+            group_list.append(group)
+            group_id_list.append(group['id'])
+
+            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            self.assignment_api.create_role(role['id'], role)
+            role_list.append(role)
+
+        # Assign the roles - one inherited and one non-inherited on Domain1,
+        # plus one on Project1
+        self.assignment_api.create_grant(group_id=group_list[0]['id'],
+                                         domain_id=domain1['id'],
+                                         role_id=role_list[0]['id'])
+        self.assignment_api.create_grant(group_id=group_list[1]['id'],
+                                         domain_id=domain1['id'],
+                                         role_id=role_list[1]['id'],
+                                         inherited_to_projects=True)
+        self.assignment_api.create_grant(group_id=group_list[2]['id'],
+                                         project_id=project1['id'],
+                                         role_id=role_list[2]['id'])
+
+        # ...and a duplicate set of spoiler assignments to Domain2/Project2
+        self.assignment_api.create_grant(group_id=group_list[3]['id'],
+                                         domain_id=domain2['id'],
+                                         role_id=role_list[3]['id'])
+        self.assignment_api.create_grant(group_id=group_list[4]['id'],
+                                         domain_id=domain2['id'],
+                                         role_id=role_list[4]['id'],
+                                         inherited_to_projects=True)
+        self.assignment_api.create_grant(group_id=group_list[5]['id'],
+                                         project_id=project2['id'],
+                                         role_id=role_list[5]['id'])
+
+        # Now get the effective roles for all groups on the Project1. With
+        # inheritance off, we should only get back the direct role.
+
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        role_refs = self.assignment_api.get_roles_for_groups(
+            group_id_list, project_id=project1['id'])
+
+        self.assertThat(role_refs, matchers.HasLength(1))
+        self.assertIn(role_list[2], role_refs)
+
+        # With inheritance on, we should also get back the inherited role from
+        # its owning domain.
+
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        role_refs = self.assignment_api.get_roles_for_groups(
+            group_id_list, project_id=project1['id'])
+
+        self.assertThat(role_refs, matchers.HasLength(2))
+        self.assertIn(role_list[1], role_refs)
+        self.assertIn(role_list[2], role_refs)
+
     def test_list_domains_for_groups(self):
         """Test retrieving domains for a list of groups.
 
@@ -3137,6 +3221,104 @@ class IdentityTests(object):
         self.assertThat(domain_refs, matchers.HasLength(2))
         self.assertIn(domain_list[0], domain_refs)
         self.assertIn(domain_list[1], domain_refs)
+
+    def test_list_projects_for_groups(self):
+        """Test retrieving projects for a list of groups.
+
+        Test Plan:
+
+        - Create two domains, four projects, seven groups and seven roles
+        - Project1-3 are in Domain1, Project4 is in Domain2
+        - Domain2/Project4 are spoilers
+        - Project1 and 2 have direct group roles, Project3 has no direct
+          roles but should inherit a group role from Domain1
+        - Get the projects for the group roles that are assigned to Project1
+          Project2 and the inherited one on Domain1. Depending on whether we
+          have enabled inheritance, we should either get back just the projects
+          with direct roles (Project 1 and 2) or also Project3 due to its
+          inherited role from Domain1.
+
+        """
+        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain1['id'], domain1)
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.assignment_api.create_domain(domain2['id'], domain2)
+        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        project1 = self.assignment_api.create_project(project1['id'], project1)
+        project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        project2 = self.assignment_api.create_project(project2['id'], project2)
+        project3 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain1['id']}
+        project3 = self.assignment_api.create_project(project3['id'], project3)
+        project4 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                    'domain_id': domain2['id']}
+        project4 = self.assignment_api.create_project(project4['id'], project4)
+        group_list = []
+        role_list = []
+        for _ in range(7):
+            group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+            group = self.identity_api.create_group(group)
+            group_list.append(group)
+
+            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            self.assignment_api.create_role(role['id'], role)
+            role_list.append(role)
+
+        # Assign the roles - one inherited and one non-inherited on Domain1,
+        # plus one on Project1 and Project2
+        self.assignment_api.create_grant(group_id=group_list[0]['id'],
+                                         domain_id=domain1['id'],
+                                         role_id=role_list[0]['id'])
+        self.assignment_api.create_grant(group_id=group_list[1]['id'],
+                                         domain_id=domain1['id'],
+                                         role_id=role_list[1]['id'],
+                                         inherited_to_projects=True)
+        self.assignment_api.create_grant(group_id=group_list[2]['id'],
+                                         project_id=project1['id'],
+                                         role_id=role_list[2]['id'])
+        self.assignment_api.create_grant(group_id=group_list[3]['id'],
+                                         project_id=project2['id'],
+                                         role_id=role_list[3]['id'])
+
+        # ...and a few of spoiler assignments to Domain2/Project4
+        self.assignment_api.create_grant(group_id=group_list[4]['id'],
+                                         domain_id=domain2['id'],
+                                         role_id=role_list[4]['id'])
+        self.assignment_api.create_grant(group_id=group_list[5]['id'],
+                                         domain_id=domain2['id'],
+                                         role_id=role_list[5]['id'],
+                                         inherited_to_projects=True)
+        self.assignment_api.create_grant(group_id=group_list[6]['id'],
+                                         project_id=project4['id'],
+                                         role_id=role_list[6]['id'])
+
+        # Now get the projects for the groups that have roles on Project1,
+        # Project2 and the inherited role on Domain!. With inheritance off,
+        # we should only get back the projects with direct role.
+
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        group_id_list = [group_list[1]['id'], group_list[2]['id'],
+                         group_list[3]['id']]
+        project_refs = (
+            self.assignment_api.list_projects_for_groups(group_id_list))
+
+        self.assertThat(project_refs, matchers.HasLength(2))
+        self.assertIn(project1, project_refs)
+        self.assertIn(project2, project_refs)
+
+        # With inheritance on, we should also get back the Project3 due to the
+        # inherited role from its owning domain.
+
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        project_refs = (
+            self.assignment_api.list_projects_for_groups(group_id_list))
+
+        self.assertThat(project_refs, matchers.HasLength(3))
+        self.assertIn(project1, project_refs)
+        self.assertIn(project2, project_refs)
+        self.assertIn(project3, project_refs)
 
 
 class TokenTests(object):

@@ -412,8 +412,14 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_get_roles_for_groups_on_domain(self):
         self.skipTest('Blocked by bug: 1390125')
 
+    def test_get_roles_for_groups_on_project(self):
+        self.skipTest('Blocked by bug: 1390125')
+
     def test_list_domains_for_groups(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_list_projects_for_groups(self):
+        self.skipTest('Blocked by bug: 1390125')
 
     def test_list_role_assignments_unfiltered(self):
         new_domain = self._get_domain_fixture()
