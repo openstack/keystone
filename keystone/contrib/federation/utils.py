@@ -227,8 +227,6 @@ class RuleProcessor(object):
         LOG.debug('identity_values: %s', identity_values)
         mapped_properties = self._transform(identity_values)
         LOG.debug('mapped_properties: %s', mapped_properties)
-        if mapped_properties.get('name') is None:
-            raise exception.Unauthorized(_("Could not map user"))
         return mapped_properties
 
     def _transform(self, identity_values):
