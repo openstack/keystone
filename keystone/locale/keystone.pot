@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev114.g2ba7d67\n"
+"Project-Id-Version: keystone 2015.1.dev157.g4ec0c61\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-11-06 06:07+0000\n"
+"POT-Creation-Date: 2014-11-17 06:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -490,7 +490,7 @@ msgid "Domains are read-only against LDAP"
 msgstr ""
 
 #: keystone/assignment/backends/ldap.py:313
-#: keystone/assignment/backends/sql.py:145
+#: keystone/assignment/backends/sql.py:146
 msgid "Inherited roles can only be assigned to domains"
 msgstr ""
 
@@ -505,7 +505,7 @@ msgid "Role %s not found"
 msgstr ""
 
 #: keystone/assignment/backends/ldap.py:551
-#: keystone/assignment/backends/sql.py:405
+#: keystone/assignment/backends/sql.py:458
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr ""
@@ -515,18 +515,18 @@ msgstr ""
 msgid "Cannot duplicate name %s"
 msgstr ""
 
-#: keystone/assignment/backends/sql.py:132
+#: keystone/assignment/backends/sql.py:133
 #, python-format
 msgid ""
 "Unexpected combination of grant attributes - User, Group, Project, "
 "Domain: %s"
 msgstr ""
 
-#: keystone/assignment/backends/sql.py:323
+#: keystone/assignment/backends/sql.py:355
 msgid "Must specify either domain or project"
 msgstr ""
 
-#: keystone/assignment/backends/sql.py:426
+#: keystone/assignment/backends/sql.py:479
 #, python-format
 msgid "Unexpected assignment type encountered, %s"
 msgstr ""
@@ -604,6 +604,10 @@ msgstr ""
 
 #: keystone/auth/plugins/external.py:107
 msgid "auth_type is not Negotiate"
+msgstr ""
+
+#: keystone/auth/plugins/mapped.py:175
+msgid "Could not map user"
 msgstr ""
 
 #: keystone/auth/plugins/oauth1.py:39
@@ -1038,11 +1042,7 @@ msgstr ""
 msgid "Federation token is expired"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:225
-msgid "Could not map user"
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:254
+#: keystone/contrib/federation/utils.py:258
 #, python-format
 msgid "Ignoring user name %s"
 msgstr ""
