@@ -37,24 +37,29 @@ Add *WSGIScriptAlias* directive to your vhost configuration::
 
     WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /var/www/keystone/main/$1
 
-Make sure you add two *<Location>* directives to the *wsgi-keystone.conf*::
+Make sure the *wsgi-keystone.conf* contains a *<Location>* directive for the Shibboleth module and
+a *<Location>* directive for each identity provider::
 
     <Location /Shibboleth.sso>
         SetHandler shib
     </Location>
 
-    <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/saml2/auth>
+    <Location /v3/OS-FEDERATION/identity_providers/idp_1/protocols/saml2/auth>
         ShibRequestSetting requireSession 1
+        ShibRequestSetting applicationId idp_1
         AuthType shibboleth
         ShibRequireAll On
         ShibRequireSession On
         ShibExportAssertion Off
         Require valid-user
-    </LocationMatch>
+    </Location>
 
 .. NOTE::
     * ``saml2`` may be different in your deployment, but do not use a wildcard value.
       Otherwise *every* federated protocol will be handled by Shibboleth.
+    * ``idp_1`` has to be replaced with the name associated with the idp in Keystone.
+      The same name is used inside the shibboleth2.xml configuration file but they could
+      be different.
     * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
       Apache 2.4+ and should be dropped in that specific setup.
     * You are advised to carefully examine `Shibboleth Apache configuration
@@ -199,6 +204,43 @@ environment):
             -->
             <CredentialResolver type="File" key="sp-key.pem"
             certificate="sp-cert.pem"/>
+
+            <ApplicationOverride id="idp_1" entityID="https://<yourhosthere>/shibboleth">
+               <Sessions lifetime="28800" timeout="3600" checkAddress="false"
+               relayState="ss:mem" handlerSSL="false">
+
+                <!-- Triggers a login request directly to the TestShib IdP. -->
+                <SSO entityID="https://<idp_1-url>/idp/shibboleth" ECP="true">
+                    SAML2 SAML1
+                </SSO>
+
+                <Logout>SAML2 Local</Logout>
+               </Sessions>
+
+               <MetadataProvider type="XML" uri="<idp_1-metadata-file>"
+                 backingFilePath="<local idp_1 metadata>"
+                 reloadInterval="180000" />
+
+            </ApplicationOverride>
+
+            <ApplicationOverride id="idp_2" entityID="https://<yourhosthere>/shibboleth">
+               <Sessions lifetime="28800" timeout="3600" checkAddress="false"
+               relayState="ss:mem" handlerSSL="false">
+
+                <!-- Triggers a login request directly to the TestShib IdP. -->
+                <SSO entityID="https://<idp_2-url>/idp/shibboleth" ECP="true">
+                    SAML2 SAML1
+                </SSO>
+
+                <Logout>SAML2 Local</Logout>
+               </Sessions>
+
+               <MetadataProvider type="XML" uri="<idp_2-metadata-file>"
+                 backingFilePath="<local idp_2 metadata>"
+                 reloadInterval="180000" />
+
+            </ApplicationOverride>
+
         </ApplicationDefaults>
 
         <!--
