@@ -28,7 +28,7 @@ to existing authentication and authorization systems in use by existing
 environments.
 
 The auth_token middleware is no longer hosted in Keystone and has moved to the
-python-keystoneclient project. The `documentation regarding authentication
+keystonemiddleware project. The `documentation regarding authentication
 middleware`_ can be found there.
 
-.. _`documentation regarding authentication middleware`: http://docs.openstack.org/developer/python-keystoneclient/middlewarearchitecture.html
+.. _`documentation regarding authentication middleware`: http://docs.openstack.org/developer/keystonemiddleware/middlewarearchitecture.html
