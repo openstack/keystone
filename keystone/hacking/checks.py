@@ -75,10 +75,11 @@ class CheckForMutableDefaultArgs(BaseASTChecker):
     """
 
     CHECK_DESC = 'K001 Using mutable as a function/method default'
-
-    # TODO(dstanek): once we drop support for Python 2.6 we can add ast.Set,
-    # ast.DictComp and ast.SetComp to MUTABLES. Don't forget the tests!
-    MUTABLES = (ast.List, ast.ListComp, ast.Dict, ast.Call)
+    MUTABLES = (
+        ast.List, ast.ListComp,
+        ast.Dict, ast.DictComp,
+        ast.Set, ast.SetComp,
+        ast.Call)
 
     def visit_FunctionDef(self, node):
         for arg in node.args.defaults:
