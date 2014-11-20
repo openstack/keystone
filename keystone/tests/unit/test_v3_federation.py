@@ -24,6 +24,7 @@ from oslotest import mockpatch
 import saml2
 from saml2 import saml
 from saml2 import sigver
+from six.moves import urllib
 import xmldsig
 
 from keystone.auth import controllers as auth_controllers
@@ -32,6 +33,7 @@ from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
 from keystone import notifications
+from keystone.tests.unit import core
 from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
@@ -1937,10 +1939,10 @@ class FederatedTokenTests(FederationTests):
             self.tokens['ADMIN_ASSERTION'], 'domain',
             self.domainC['id'])
 
-    def _inject_assertion(self, context, variant):
+    def _inject_assertion(self, context, variant, query_string=None):
         assertion = getattr(mapping_fixtures, variant)
         context['environment'].update(assertion)
-        context['query_string'] = []
+        context['query_string'] = query_string or []
 
 
 class FederatedTokenTestsMethodToken(FederatedTokenTests):
@@ -2590,3 +2592,64 @@ class ServiceProviderTests(FederationTests):
     def test_delete_service_provider_404(self):
         url = self.base_url(suffix=uuid.uuid4().hex)
         self.delete(url, expected_status=404)
+
+
+class WebSSOTests(FederatedTokenTests):
+    """A class for testing Web SSO."""
+
+    SSO_URL = '/auth/OS-FEDERATION/websso/'
+    SSO_TEMPLATE_NAME = 'sso_callback_template.html'
+    SSO_TEMPLATE_PATH = os.path.join(core.dirs.etc(), SSO_TEMPLATE_NAME)
+    TRUSTED_DASHBOARD = 'http://horizon.com'
+    ORIGIN = urllib.parse.quote_plus(TRUSTED_DASHBOARD)
+
+    def setUp(self):
+        super(WebSSOTests, self).setUp()
+        self.api = federation_controllers.Auth()
+
+    def config_overrides(self):
+        super(WebSSOTests, self).config_overrides()
+        self.config_fixture.config(
+            group='federation',
+            trusted_dashboard=[self.TRUSTED_DASHBOARD],
+            sso_callback_template=self.SSO_TEMPLATE_PATH,
+            remote_id_attribute=self.REMOTE_ID_ATTR)
+
+    def test_render_callback_template(self):
+        token_id = uuid.uuid4().hex
+        resp = self.api.render_html_response(self.TRUSTED_DASHBOARD, token_id)
+        self.assertIn(token_id, resp.body)
+        self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
+
+    def test_federated_sso_auth(self):
+        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        context = {'environment': environment}
+        query_string = {'origin': self.ORIGIN}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        resp = self.api.federated_sso_auth(context, self.PROTOCOL)
+        self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
+
+    def test_federated_sso_missing_query(self):
+        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        context = {'environment': environment}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION')
+        self.assertRaises(exception.ValidationError,
+                          self.api.federated_sso_auth,
+                          context, self.PROTOCOL)
+
+    def test_federated_sso_untrusted_dashboard(self):
+        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        context = {'environment': environment}
+        query_string = {'origin': uuid.uuid4().hex}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        self.assertRaises(exception.Unauthorized,
+                          self.api.federated_sso_auth,
+                          context, self.PROTOCOL)
+
+    def test_federated_sso_missing_remote_id(self):
+        context = {'environment': {}}
+        query_string = {'origin': self.ORIGIN}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        self.assertRaises(exception.Unauthorized,
+                          self.api.federated_sso_auth,
+                          context, self.PROTOCOL)
