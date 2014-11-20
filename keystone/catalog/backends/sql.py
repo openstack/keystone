@@ -293,7 +293,7 @@ class Catalog(catalog.Driver):
             service_type = endpoint.service['type']
             default_service = {
                 'id': endpoint['id'],
-                'name': endpoint.service['name'],
+                'name': endpoint.service.extra.get('name', ''),
                 'publicURL': ''
             }
             catalog.setdefault(region, {})
@@ -329,9 +329,7 @@ class Catalog(catalog.Driver):
         def make_v3_service(svc):
             eps = list(make_v3_endpoints(svc.endpoints))
             service = {'endpoints': eps, 'id': svc.id, 'type': svc.type}
-            name = svc.extra.get('name')
-            if name:
-                service['name'] = name
+            service['name'] = svc.extra.get('name', '')
             return service
 
         return [make_v3_service(svc) for svc in services]
