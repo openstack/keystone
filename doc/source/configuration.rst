@@ -164,6 +164,13 @@ configuration file.
 
 .. NOTE::
 
+    It is important to notice that by enabling this configuration, the
+    operations of listing all users and listing all groups are not supported,
+    those calls will need that either a domain filter is specified or the usage
+    of a domain scoped token.
+
+.. NOTE::
+
     Keystone does not support moving the contents of a domain (i.e. "it's"
     users and groups) from one backend to another, nor group membership across
     backend boundaries.
