@@ -29,7 +29,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LE, _LW
 from keystone.models import token_model
 from keystone import notifications
 from keystone.openstack.common import log
@@ -131,9 +131,9 @@ class Manager(manager.Manager):
         """
 
         if CONF.signing.token_format:
-            LOG.warn(_('[signing] token_format is deprecated. '
-                       'Please change to setting the [token] provider '
-                       'configuration value instead'))
+            LOG.warn(_LW('[signing] token_format is deprecated. '
+                         'Please change to setting the [token] provider '
+                         'configuration value instead'))
             try:
 
                 mapped = _FORMAT_TO_PROVIDER[CONF.signing.token_format]
@@ -349,8 +349,8 @@ class Manager(manager.Manager):
             expiry = timeutils.normalize_time(
                 timeutils.parse_isotime(expires_at))
         except Exception:
-            LOG.exception(_('Unexpected error or malformed token determining '
-                            'token expiry: %s'), token)
+            LOG.exception(_LE('Unexpected error or malformed token '
+                              'determining token expiry: %s'), token)
             raise exception.TokenNotFound(_('Failed to validate token'))
 
         if current_time < expiry:

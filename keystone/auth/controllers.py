@@ -28,7 +28,7 @@ from keystone.common import wsgi
 from keystone import config
 from keystone.contrib import federation
 from keystone import exception
-from keystone.i18n import _, _LI
+from keystone.i18n import _, _LI, _LW
 from keystone.openstack.common import log
 
 
@@ -438,25 +438,26 @@ class Auth(controller.V3Controller):
                         user_ref['id'], default_project_id):
                     auth_info.set_scope(project_id=default_project_id)
                 else:
-                    msg = _("User %(user_id)s doesn't have access to"
-                            " default project %(project_id)s. The token will"
-                            " be unscoped rather than scoped to the project.")
+                    msg = _LW("User %(user_id)s doesn't have access to"
+                              " default project %(project_id)s. The token"
+                              " will be unscoped rather than scoped to the"
+                              " project.")
                     LOG.warning(msg,
                                 {'user_id': user_ref['id'],
                                  'project_id': default_project_id})
             else:
-                msg = _("User %(user_id)s's default project %(project_id)s is"
-                        " disabled. The token will be unscoped rather than"
-                        " scoped to the project.")
+                msg = _LW("User %(user_id)s's default project %(project_id)s"
+                          " is disabled. The token will be unscoped rather"
+                          " than scoped to the project.")
                 LOG.warning(msg,
                             {'user_id': user_ref['id'],
                              'project_id': default_project_id})
         except (exception.ProjectNotFound, exception.DomainNotFound):
             # default project or default project domain doesn't exist,
             # will issue unscoped token instead
-            msg = _("User %(user_id)s's default project %(project_id)s not"
-                    " found. The token will be unscoped rather than"
-                    " scoped to the project.")
+            msg = _LW("User %(user_id)s's default project %(project_id)s not"
+                      " found. The token will be unscoped rather than"
+                      " scoped to the project.")
             LOG.warning(msg, {'user_id': user_ref['id'],
                               'project_id': default_project_id})
 

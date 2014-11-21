@@ -22,7 +22,7 @@ import six
 from keystone.common import kvs
 from keystone import config
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LE, _LW
 from keystone.openstack.common import log
 from keystone import token
 from keystone.token import provider
@@ -54,12 +54,12 @@ class Token(token.persistence.Driver):
         if self.__class__ == Token:
             # NOTE(morganfainberg): Only warn if the base KVS implementation
             # is instantiated.
-            LOG.warn(_('It is recommended to only use the base '
-                       'key-value-store implementation for the token driver '
-                       'for testing purposes. Please use '
-                       'keystone.token.persistence.backends.memcache.Token '
-                       'or keystone.token.persistence.backends.sql.Token '
-                       'instead.'))
+            LOG.warn(_LW('It is recommended to only use the base '
+                         'key-value-store implementation for the token driver '
+                         'for testing purposes. Please use '
+                         'keystone.token.persistence.backends.memcache.Token '
+                         'or keystone.token.persistence.backends.sql.Token '
+                         'instead.'))
 
     def _prefix_token_id(self, token_id):
         return 'token-%s' % token_id.encode('utf-8')
@@ -203,8 +203,8 @@ class Token(token.persistence.Driver):
         expires = timeutils.normalize_time(expires)
 
         if expires < current_time:
-            LOG.warning(_('Token `%s` is expired, not adding to the '
-                          'revocation list.'), data['id'])
+            LOG.warning(_LW('Token `%s` is expired, not adding to the '
+                            'revocation list.'), data['id'])
             return
 
         revoked_token_data['expires'] = timeutils.isotime(expires,
@@ -223,10 +223,10 @@ class Token(token.persistence.Driver):
             # be recoverable. Keystone cannot control external applications
             # from changing a key in some backends, however, it is possible to
             # gracefully handle and notify of this event.
-            LOG.error(_('Reinitializing revocation list due to error '
-                        'in loading revocation list from backend.  '
-                        'Expected `list` type got `%(type)s`. Old '
-                        'revocation list data: %(list)r'),
+            LOG.error(_LE('Reinitializing revocation list due to error '
+                          'in loading revocation list from backend.  '
+                          'Expected `list` type got `%(type)s`. Old '
+                          'revocation list data: %(list)r'),
                       {'type': type(token_list), 'list': token_list})
             token_list = []
 
@@ -237,8 +237,8 @@ class Token(token.persistence.Driver):
                 expires_at = timeutils.normalize_time(
                     timeutils.parse_isotime(token_data['expires']))
             except ValueError:
-                LOG.warning(_('Removing `%s` from revocation list due to '
-                              'invalid expires data in revocation list.'),
+                LOG.warning(_LW('Removing `%s` from revocation list due to '
+                                'invalid expires data in revocation list.'),
                             token_data.get('id', 'INVALID_TOKEN_DATA'))
                 continue
             if expires_at > current_time:

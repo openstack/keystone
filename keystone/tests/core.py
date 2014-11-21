@@ -49,7 +49,7 @@ from keystone.common import utils as common_utils
 from keystone import config
 from keystone import controllers
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _LW
 from keystone import notifications
 from keystone.openstack.common import log
 from keystone import service
@@ -143,7 +143,7 @@ def checkout_vendor(repo, rev):
         with open(modcheck, 'w') as fd:
             fd.write('1')
     except environment.subprocess.CalledProcessError:
-        LOG.warning(_('Failed to checkout %s'), repo)
+        LOG.warning(_LW('Failed to checkout %s'), repo)
     os.chdir(working_dir)
     return revdir
 

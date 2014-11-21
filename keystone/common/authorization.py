@@ -17,7 +17,7 @@
 #    under the License.
 
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 from keystone.models import token_model
 from keystone.openstack.common import log
 
@@ -51,7 +51,7 @@ def token_to_auth_context(token):
     try:
         auth_context['user_id'] = token.user_id
     except KeyError:
-        LOG.warning(_('RBAC: Invalid user data in token'))
+        LOG.warning(_LW('RBAC: Invalid user data in token'))
         raise exception.Unauthorized()
 
     if token.project_scoped:

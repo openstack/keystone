@@ -16,7 +16,7 @@
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _LI
 from keystone import notifications
 from keystone.openstack.common import log
 
@@ -61,18 +61,18 @@ class ExampleManager(manager.Manager):
     def project_deleted_callback(self, service, resource_type, operation,
                                  payload):
         # The code below is merely an example.
-        msg = _('Received the following notification: service %(service)s, '
-                'resource_type: %(resource_type)s, operation %(operation)s '
-                'payload %(payload)s')
+        msg = _LI('Received the following notification: service %(service)s, '
+                  'resource_type: %(resource_type)s, operation %(operation)s '
+                  'payload %(payload)s')
         LOG.info(msg, {'service': service, 'resource_type': resource_type,
                        'operation': operation, 'payload': payload})
 
     def project_created_callback(self, service, resource_type, operation,
                                  payload):
         # The code below is merely an example.
-        msg = _('Received the following notification: service %(service)s, '
-                'resource_type: %(resource_type)s, operation %(operation)s '
-                'payload %(payload)s')
+        msg = _LI('Received the following notification: service %(service)s, '
+                  'resource_type: %(resource_type)s, operation %(operation)s '
+                  'payload %(payload)s')
         LOG.info(msg, {'service': service, 'resource_type': resource_type,
                        'operation': operation, 'payload': payload})
 

@@ -28,7 +28,7 @@ from pycadf import credential
 from pycadf import eventfactory
 from pycadf import resource
 
-from keystone.i18n import _
+from keystone.i18n import _, _LE
 from keystone.openstack.common import log
 
 
@@ -220,7 +220,7 @@ def _get_notifier():
             transport = messaging.get_transport(CONF)
             _notifier = messaging.Notifier(transport, "identity.%s" % host)
         except Exception:
-            LOG.exception(_("Failed to construct notifier"))
+            LOG.exception(_LE("Failed to construct notifier"))
             _notifier = False
 
     return _notifier
@@ -264,7 +264,7 @@ def _send_notification(operation, resource_type, resource_id, public=True):
             try:
                 notifier.info(context, event_type, payload)
             except Exception:
-                LOG.exception(_(
+                LOG.exception(_LE(
                     'Failed to send %(res_id)s %(event_type)s notification'),
                     {'res_id': resource_id, 'event_type': event_type})
 
@@ -452,7 +452,7 @@ def _send_audit_notification(action, initiator, outcome, **kwargs):
         except Exception:
             # diaper defense: any exception that occurs while emitting the
             # notification should not interfere with the API request
-            LOG.exception(_(
+            LOG.exception(_LE(
                 'Failed to send %(action)s %(event_type)s notification'),
                 {'action': action, 'event_type': event_type})
 

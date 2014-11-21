@@ -32,7 +32,7 @@ from six import moves
 from keystone.common import config
 from keystone.common import environment
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LE, _LW
 from keystone.openstack.common import log
 
 
@@ -101,8 +101,8 @@ def verify_length_and_trunc_password(password):
                 raise exception.PasswordVerificationError(size=max_length)
             else:
                 LOG.warning(
-                    _('Truncating user password to '
-                      '%d characters.'), max_length)
+                    _LW('Truncating user password to '
+                        '%d characters.'), max_length)
                 return password[:max_length]
         else:
             return password
@@ -278,7 +278,7 @@ def setup_remote_pydev_debug():
                             stderrToServer=True)
             return True
         except Exception:
-            LOG.exception(_(
+            LOG.exception(_LE(
                 'Error setting up the debug environment. Verify that the '
                 'option --debug-url has the format <host>:<port> and that a '
                 'debugger processes is listening on that port.'))

@@ -28,7 +28,7 @@ from keystone.common import dependency
 from keystone.common import validation
 from keystone import config
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 from keystone.models import token_model
 from keystone.openstack.common import log
 
@@ -74,7 +74,7 @@ class Tenant(controller.V2Controller):
             token_ref = token_model.KeystoneToken(token_id=context['token_id'],
                                                   token_data=token_data)
         except exception.NotFound as e:
-            LOG.warning(_('Authentication failed: %s'), e)
+            LOG.warning(_LW('Authentication failed: %s'), e)
             raise exception.Unauthorized(e)
 
         tenant_refs = (
@@ -709,10 +709,10 @@ class RoleAssignmentV3(controller.V3Controller):
                 if 'role' in ref and 'id' in ref['role']:
                     role_id = ref['role']['id']
                 LOG.warning(
-                    _('Group %(group)s not found for role-assignment - '
-                      '%(target)s with Role: %(role)s'), {
-                          'group': ref['group']['id'], 'target': target,
-                          'role': role_id})
+                    _LW('Group %(group)s not found for role-assignment - '
+                        '%(target)s with Role: %(role)s'), {
+                            'group': ref['group']['id'], 'target': target,
+                            'role': role_id})
             return members
 
         def _build_user_assignment_equivalent_of_group(
