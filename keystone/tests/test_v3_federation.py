@@ -1876,7 +1876,7 @@ class SAMLGenerationTests(FederationTests):
         provide a valid SAML (XML) document back.
 
         """
-        CONF.saml.idp_entity_id = self.ISSUER
+        self.config_fixture.config(group='saml', idp_entity_id=self.ISSUER)
         region_id = self._create_region_with_url()
         token_id = self._fetch_valid_token()
         body = self._create_generate_saml_request(token_id, region_id)
@@ -2081,7 +2081,8 @@ class IdPMetadataGenerationTests(FederationTests):
         self.get(self.METADATA_URL, expected_status=500)
 
     def test_get_metadata(self):
-        CONF.saml.idp_metadata_path = XMLDIR + '/idp_saml2_metadata.xml'
+        self.config_fixture.config(
+            group='saml', idp_metadata_path=XMLDIR + '/idp_saml2_metadata.xml')
         r = self.get(self.METADATA_URL, response_content_type='text/xml',
                      expected_status=200)
         self.assertEqual('text/xml', r.headers.get('Content-Type'))
