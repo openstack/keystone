@@ -1865,6 +1865,32 @@ class SAMLGenerationTests(FederationTests):
         token_id = resp.headers.get('X-Subject-Token')
         return token_id
 
+    def _fetch_domain_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'])
+        resp = self.v3_authenticate_token(auth_data)
+        token_id = resp.headers.get('X-Subject-Token')
+        return token_id
+
+    def test_not_project_scoped_token(self):
+        """Test that the SAML generation fails when passing tokens
+        not scoped by project.
+
+        """
+        self.config_fixture.config(group='saml', idp_entity_id=self.ISSUER)
+        region_id = self._create_region_with_url()
+        token_id = self._fetch_domain_scoped_token()
+        body = self._create_generate_saml_request(token_id, region_id)
+
+        with mock.patch.object(keystone_idp, '_sign_assertion',
+                               return_value=self.signed_assertion):
+            # NOTE(rodrigods): currently, sending a request using a domain
+            # scoped token returns 500 due bug #1395117
+            self.post(self.SAML_GENERATION_ROUTE, body=body,
+                      expected_status=500)
+
     def test_generate_saml_route(self):
         """Test that the SAML generation endpoint produces XML.
 
