@@ -650,7 +650,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                            body=body, expected_status=404)
 
     def test_expired_authorizing_request_token(self):
-        CONF.oauth1.request_token_duration = -1
+        self.config_fixture.config(group='oauth1', request_token_duration=-1)
 
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
@@ -674,7 +674,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.put(url, body=body, expected_status=401)
 
     def test_expired_creating_keystone_token(self):
-        CONF.oauth1.access_token_duration = -1
+        self.config_fixture.config(group='oauth1', access_token_duration=-1)
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
         consumer_secret = consumer['secret']

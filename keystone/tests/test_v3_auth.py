@@ -1531,7 +1531,7 @@ class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
             token='keystone.auth.plugins.token.Token')
 
     def test_remote_user_no_realm(self):
-        CONF.auth.methods = 'external'
+        self.config_fixture.config(group='auth', methods='external')
         api = auth.controllers.Auth()
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
@@ -1582,7 +1582,7 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
         self.assertEqual(auth_context['user_id'], self.user['id'])
 
     def test_project_id_scoped_with_remote_user(self):
-        CONF.token.bind = ['kerberos']
+        self.config_fixture.config(group='token', bind=['kerberos'])
         auth_data = self.build_authentication_request(
             project_id=self.project['id'])
         remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
@@ -1593,7 +1593,7 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
         self.assertEqual(token['bind']['kerberos'], self.user['name'])
 
     def test_unscoped_bind_with_remote_user(self):
-        CONF.token.bind = ['kerberos']
+        self.config_fixture.config(group='token', bind=['kerberos'])
         auth_data = self.build_authentication_request()
         remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
@@ -1637,7 +1637,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         self.assertEqual(auth_context['user_id'], self.user['id'])
 
     def test_project_id_scoped_with_remote_user(self):
-        CONF.token.bind = ['kerberos']
+        self.config_fixture.config(group='token', bind=['kerberos'])
         auth_data = self.build_authentication_request(
             project_id=self.project['id'],
             kerberos=self.kerberos)
@@ -1651,7 +1651,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         self.assertEqual(token['bind']['kerberos'], self.user['name'])
 
     def test_unscoped_bind_with_remote_user(self):
-        CONF.token.bind = ['kerberos']
+        self.config_fixture.config(group='token', bind=['kerberos'])
         auth_data = self.build_authentication_request(kerberos=self.kerberos)
         remote_user = self.user['name']
         remote_domain = self.domain['name']
@@ -2351,7 +2351,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
                           auth_context)
 
     def test_bind_not_set_with_remote_user(self):
-        CONF.token.bind = []
+        self.config_fixture.config(group='token', bind=[])
         auth_data = self.build_authentication_request()
         remote_user = self.default_domain_user['name']
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
@@ -2377,7 +2377,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
                          self.default_domain_user['name'])
 
     def test_auth_with_bind_token(self):
-        CONF.token.bind = ['kerberos']
+        self.config_fixture.config(group='token', bind=['kerberos'])
 
         auth_data = self.build_authentication_request()
         remote_user = self.default_domain_user['name']
