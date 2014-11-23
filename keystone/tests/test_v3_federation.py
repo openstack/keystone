@@ -1878,6 +1878,8 @@ class SAMLGenerationTests(FederationTests):
         """Test that the SAML generation fails when passing tokens
         not scoped by project.
 
+        The server should return a 403 Forbidden Action.
+
         """
         self.config_fixture.config(group='saml', idp_entity_id=self.ISSUER)
         region_id = self._create_region_with_url()
@@ -1886,10 +1888,8 @@ class SAMLGenerationTests(FederationTests):
 
         with mock.patch.object(keystone_idp, '_sign_assertion',
                                return_value=self.signed_assertion):
-            # NOTE(rodrigods): currently, sending a request using a domain
-            # scoped token returns 500 due bug #1395117
             self.post(self.SAML_GENERATION_ROUTE, body=body,
-                      expected_status=500)
+                      expected_status=403)
 
     def test_generate_saml_route(self):
         """Test that the SAML generation endpoint produces XML.
