@@ -45,7 +45,7 @@ class UnresolvableDependencyException(Exception):
 
     """
     def __init__(self, name):
-        msg = 'Unregistered dependency: %s' % name
+        msg = _('Unregistered dependency: %(name)s') % {'name': name}
         super(UnresolvableDependencyException, self).__init__(msg)
 
 
