@@ -57,20 +57,16 @@ class MemcachedLock(object):
 
     def acquire(self, wait=True):
         client = self.client_fn()
-        i = 0
-        while True:
+        for i in range(self.max_lock_attempts):
             if client.add(self.key, 1, self.lock_timeout):
                 return True
             elif not wait:
                 return False
             else:
-                sleep_time = (((i + 1) * random.random()) + 2 ** i) / 2.5
+                sleep_time = random.random()
                 time.sleep(sleep_time)
-            if i <= self.max_lock_attempts:
-                i += 1
-            else:
-                raise exception.UnexpectedError(
-                    _('Maximum lock attempts on %s occurred.') % self.key)
+        raise exception.UnexpectedError(
+            _('Maximum lock attempts on %s occurred.') % self.key)
 
     def release(self):
         client = self.client_fn()
