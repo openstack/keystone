@@ -12,29 +12,27 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
+from keystoneclient import exceptions as client_exceptions
 
 from keystone import tests
 from keystone.tests import test_keystoneclient
 
 
-class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
+class ClientDrivenSqlTestCase(test_keystoneclient.ClientDrivenTestCase):
     def config_files(self):
-        config_files = super(KcMasterSqlTestCase, self).config_files()
+        config_files = super(ClientDrivenSqlTestCase, self).config_files()
         config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def setUp(self):
-        super(KcMasterSqlTestCase, self).setUp()
+        super(ClientDrivenSqlTestCase, self).setUp()
         self.default_client = self.get_client()
         self.addCleanup(self.cleanup_instance('default_client'))
 
     def test_endpoint_crud(self):
-        from keystoneclient import exceptions as client_exceptions
-
         client = self.get_client(admin=True)
 
         service = client.services.create(name=uuid.uuid4().hex,
@@ -142,8 +140,6 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         # this test..
 
     def test_ec2_auth_failure(self):
-        from keystoneclient import exceptions as client_exceptions
-
         credentials, signature = self._generate_default_user_ec2_credentials()
         credentials['signature'] = uuid.uuid4().hex
         self.assertRaises(client_exceptions.Unauthorized,
@@ -206,7 +202,6 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
         self.assertNotIn(cred_4, creds)
 
     def test_ec2_credentials_create_404(self):
-        from keystoneclient import exceptions as client_exceptions
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.create,
                           user_id=uuid.uuid4().hex,
@@ -217,38 +212,28 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
                           tenant_id=uuid.uuid4().hex)
 
     def test_ec2_credentials_delete_404(self):
-        from keystoneclient import exceptions as client_exceptions
-
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.delete,
                           user_id=uuid.uuid4().hex,
                           access=uuid.uuid4().hex)
 
     def test_ec2_credentials_get_404(self):
-        from keystoneclient import exceptions as client_exceptions
-
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.get,
                           user_id=uuid.uuid4().hex,
                           access=uuid.uuid4().hex)
 
     def test_ec2_credentials_list_404(self):
-        from keystoneclient import exceptions as client_exceptions
-
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.list,
                           user_id=uuid.uuid4().hex)
 
     def test_ec2_credentials_list_user_forbidden(self):
-        from keystoneclient import exceptions as client_exceptions
-
         two = self.get_client(self.user_two)
         self.assertRaises(client_exceptions.Forbidden, two.ec2.list,
                           user_id=self.user_foo['id'])
 
     def test_ec2_credentials_get_user_forbidden(self):
-        from keystoneclient import exceptions as client_exceptions
-
         cred = self.default_client.ec2.create(user_id=self.user_foo['id'],
                                               tenant_id=self.tenant_bar['id'])
 
@@ -260,8 +245,6 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
                                        access=cred.access)
 
     def test_ec2_credentials_delete_user_forbidden(self):
-        from keystoneclient import exceptions as client_exceptions
-
         cred = self.default_client.ec2.create(user_id=self.user_foo['id'],
                                               tenant_id=self.tenant_bar['id'])
 
@@ -273,7 +256,6 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
                                        access=cred.access)
 
     def test_endpoint_create_404(self):
-        from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.endpoints.create,
@@ -284,15 +266,12 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
                           internalurl=uuid.uuid4().hex)
 
     def test_endpoint_delete_404(self):
-        from keystoneclient import exceptions as client_exceptions
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.endpoints.delete,
                           id=uuid.uuid4().hex)
 
     def test_policy_crud(self):
-        from keystoneclient import exceptions as client_exceptions
-
         # FIXME(dolph): this test was written prior to the v3 implementation of
         #               the client and essentially refers to a non-existent
         #               policy manager in the v2 client. this test needs to be
@@ -363,18 +342,3 @@ class KcMasterSqlTestCase(test_keystoneclient.KcMasterTestCase):
             policy=policy.id)
         policies = [x for x in client.policies.list() if x.id == policy.id]
         self.assertEqual(0, len(policies))
-
-
-class KcOptTestCase(KcMasterSqlTestCase):
-    # Set KSCTEST_PATH to the keystoneclient directory, then run this test.
-    #
-    # For example, to test your local keystoneclient,
-    #
-    # KSCTEST_PATH=/opt/stack/python-keystoneclient \
-    #  tox -e py27 test_keystoneclient_sql.KcOptTestCase
-
-    def setUp(self):
-        self.checkout_info = os.environ.get('KSCTEST_PATH')
-        if not self.checkout_info:
-            self.skip('Set KSCTEST_PATH env to test with local client')
-        super(KcOptTestCase, self).setUp()

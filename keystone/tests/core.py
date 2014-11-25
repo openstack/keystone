@@ -262,51 +262,6 @@ class TestClient(object):
         return self.request('PUT', path=path, headers=headers, body=body)
 
 
-class NoModule(object):
-    """A mixin class to provide support for unloading/disabling modules."""
-
-    def setUp(self):
-        super(NoModule, self).setUp()
-
-        self._finders = []
-
-        def cleanup_finders():
-            for finder in self._finders:
-                sys.meta_path.remove(finder)
-            del self._finders
-        self.addCleanup(cleanup_finders)
-
-        self._cleared_modules = {}
-
-        def cleanup_modules():
-            sys.modules.update(self._cleared_modules)
-            del self._cleared_modules
-        self.addCleanup(cleanup_modules)
-
-    def clear_module(self, module):
-        cleared_modules = {}
-        for fullname in sys.modules.keys():
-            if fullname == module or fullname.startswith(module + '.'):
-                cleared_modules[fullname] = sys.modules.pop(fullname)
-        return cleared_modules
-
-    def disable_module(self, module):
-        """Ensure ImportError for the specified module."""
-
-        # Clear 'module' references in sys.modules
-        self._cleared_modules.update(self.clear_module(module))
-
-        # Disallow further imports of 'module'
-        class NoModule(object):
-            def find_module(self, fullname, path):
-                if fullname == module or fullname.startswith(module + '.'):
-                    raise ImportError
-
-        finder = NoModule()
-        self._finders.append(finder)
-        sys.meta_path.insert(0, finder)
-
-
 class BaseTestCase(oslotest.BaseTestCase):
     """Light weight base test class.
 
