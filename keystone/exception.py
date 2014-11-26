@@ -263,6 +263,10 @@ class ProjectNotFound(NotFound):
     message_format = _("Could not find project: %(project_id)s")
 
 
+class InvalidParentProject(NotFound):
+    message_format = _("Cannot create project with parent: %(project_id)s")
+
+
 class TokenNotFound(NotFound):
     message_format = _("Could not find token: %(token_id)s")
 
