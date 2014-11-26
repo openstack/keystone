@@ -33,6 +33,7 @@ import json
 import uuid
 
 from migrate.versioning import api as versioning_api
+from migrate.versioning import repository
 import mock
 from oslo_config import cfg
 from oslo_db import exception as db_exception
@@ -44,7 +45,6 @@ from sqlalchemy import schema
 from testtools import matchers
 
 from keystone.common import sql
-from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
 from keystone import exception
 from keystone.tests import unit
@@ -119,7 +119,70 @@ INITIAL_TABLE_STRUCTURE = {
 }
 
 
+# Test migration_helpers.get_init_version separately to ensure it works before
+# using in the SqlUpgrade tests.
+class MigrationHelpersGetInitVersionTests(unit.TestCase):
+    @mock.patch.object(repository, 'Repository')
+    def test_get_init_version_no_path(self, repo):
+        migrate_versions = mock.MagicMock()
+        # make a version list starting with zero. `get_init_version` will
+        # return None for this value.
+        migrate_versions.versions.versions = list(range(0, 5))
+        repo.return_value = migrate_versions
+
+        # os.path.isdir() is called by `find_migrate_repo()`. Mock it to avoid
+        # an exception.
+        with mock.patch('os.path.isdir', return_value=True):
+            # since 0 is the smallest version expect None
+            version = migration_helpers.get_init_version()
+            self.assertIsNone(version)
+
+        # check that the default path was used as the first argument to the
+        # first invocation of repo. Cannot match the full path because it is
+        # based on where the test is run.
+        param = repo.call_args_list[0][0][0]
+        self.assertTrue(param.endswith('/sql/migrate_repo'))
+
+    @mock.patch.object(repository, 'Repository')
+    def test_get_init_version_with_path_initial_version_0(self, repo):
+        migrate_versions = mock.MagicMock()
+        # make a version list starting with zero. `get_init_version` will
+        # return None for this value.
+        migrate_versions.versions.versions = list(range(0, 5))
+        repo.return_value = migrate_versions
+
+        # os.path.isdir() is called by `find_migrate_repo()`. Mock it to avoid
+        # an exception.
+        with mock.patch('os.path.isdir', return_value=True):
+            path = '/keystone/migrate_repo/'
+
+            # since 0 is the smallest version expect None
+            version = migration_helpers.get_init_version(abs_path=path)
+            self.assertIsNone(version)
+
+    @mock.patch.object(repository, 'Repository')
+    def test_get_init_version_with_path(self, repo):
+        initial_version = 10
+
+        migrate_versions = mock.MagicMock()
+        migrate_versions.versions.versions = list(range(initial_version + 1,
+                                                        initial_version + 5))
+        repo.return_value = migrate_versions
+
+        # os.path.isdir() is called by `find_migrate_repo()`. Mock it to avoid
+        # an exception.
+        with mock.patch('os.path.isdir', return_value=True):
+            path = '/keystone/migrate_repo/'
+
+            version = migration_helpers.get_init_version(abs_path=path)
+            self.assertEqual(initial_version, version)
+
+
 class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
+    # override this in subclasses. The default of zero covers tests such
+    # as extensions upgrades.
+    _initial_db_version = 0
+
     def initialize_sql(self):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
@@ -163,7 +226,7 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
         self.schema = versioning_api.ControlledSchema.create(
             self.engine,
             self.repo_path,
-            self.initial_db_version)
+            self._initial_db_version)
 
         # auto-detect the highest available schema version in the migrate_repo
         self.max_version = self.schema.repository.version().version
@@ -273,14 +336,9 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
         self.assertItemsEqual(expected_cols, actual_cols,
                               '%s table' % table_name)
 
-    @property
-    def initial_db_version(self):
-        return getattr(self, '_initial_db_version', 0)
-
 
 class SqlUpgradeTests(SqlMigrateBase):
-
-    _initial_db_version = migrate_repo.DB_INIT_VERSION
+    _initial_db_version = migration_helpers.get_init_version()
 
     def test_blank_db_to_start(self):
         self.assertTableDoesNotExist('user')
@@ -288,14 +346,14 @@ class SqlUpgradeTests(SqlMigrateBase):
     def test_start_version_db_init_version(self):
         with sql.session_for_write() as session:
             version = migration.db_version(session.get_bind(), self.repo_path,
-                                           migrate_repo.DB_INIT_VERSION)
+                                           self._initial_db_version)
         self.assertEqual(
-            migrate_repo.DB_INIT_VERSION,
+            self._initial_db_version,
             version,
-            'DB is not at version %s' % migrate_repo.DB_INIT_VERSION)
+            'DB is not at version %s' % self._initial_db_version)
 
     def test_upgrade_add_initial_tables(self):
-        self.upgrade(migrate_repo.DB_INIT_VERSION + 1)
+        self.upgrade(self._initial_db_version + 1)
         self.check_initial_table_structure()
 
     def check_initial_table_structure(self):
@@ -988,12 +1046,12 @@ class SqlUpgradeTests(SqlMigrateBase):
 
 class VersionTests(SqlMigrateBase):
 
-    _initial_db_version = migrate_repo.DB_INIT_VERSION
+    _initial_db_version = migration_helpers.get_init_version()
 
     def test_core_initial(self):
         """Get the version before migrated, it's the initial DB version."""
         version = migration_helpers.get_db_version()
-        self.assertEqual(migrate_repo.DB_INIT_VERSION, version)
+        self.assertEqual(self._initial_db_version, version)
 
     def test_core_max(self):
         """When get the version after upgrading, it's the new version."""
