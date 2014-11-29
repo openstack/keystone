@@ -866,10 +866,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             role_id=self.role_id)
         self.put(gd_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 1,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 1,
+            resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
 
         ud_url, ud_entity = _build_role_assignment_url_and_entity(
@@ -877,10 +877,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             role_id=self.role_id)
         self.put(ud_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 2,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 2,
+            resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
 
         gp_url, gp_entity = _build_role_assignment_url_and_entity(
@@ -888,10 +888,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             role_id=self.role_id)
         self.put(gp_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 3,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 3,
+            resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
 
         up_url, up_entity = _build_role_assignment_url_and_entity(
@@ -899,10 +899,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             role_id=self.role_id)
         self.put(up_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 4,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 4,
+            resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
 
         # Now delete the four we added and make sure they are removed
@@ -913,10 +913,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.delete(gp_url)
         self.delete(up_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments,
+            resource_url=collection_url)
         self.assertRoleAssignmentNotInListResponse(r, gd_entity)
         self.assertRoleAssignmentNotInListResponse(r, ud_entity)
         self.assertRoleAssignmentNotInListResponse(r, gp_entity)
@@ -960,10 +960,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             role_id=self.role_id)
         self.put(gd_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 1,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 1,
+            resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
 
         # Now re-read the collection asking for effective roles - this
@@ -971,10 +971,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # member user assignments
         collection_url = '/role_assignments?effective'
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 2,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 2,
+            resource_url=collection_url)
         unused, ud_entity = _build_role_assignment_url_and_entity(
             domain_id=self.domain_id, user_id=self.user1['id'],
             role_id=self.role_id)
@@ -1037,10 +1037,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             role_id=self.role_id)
         self.put(gd_url)
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 1,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 1,
+            resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
 
         # Now re-read the collection asking for effective roles,
@@ -1049,35 +1049,35 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # member user assignments
         collection_url = '/role_assignments?effective'
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 2,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 2,
+            resource_url=collection_url)
         # Now set 'effective' to false explicitly - should get
         # back the regular roles
         collection_url = '/role_assignments?effective=0'
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 1,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 1,
+            resource_url=collection_url)
         # Now try setting  'effective' to 'False' explicitly- this is
         # NOT supported as a way of setting a query or filter
         # parameter to false by design. Hence we should get back
         # effective roles.
         collection_url = '/role_assignments?effective=False'
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 2,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 2,
+            resource_url=collection_url)
         # Now set 'effective' to True explicitly
         collection_url = '/role_assignments?effective=True'
         r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   resource_url=collection_url)
-        self.assertEqual(existing_assignments + 2,
-                         len(r.result.get('role_assignments')))
+        self.assertValidRoleAssignmentListResponse(
+            r,
+            expected_length=existing_assignments + 2,
+            resource_url=collection_url)
 
     def test_filtered_role_assignments(self):
         """Call ``GET /role_assignments?filters``.
@@ -1154,8 +1154,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                           self.project1['id'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
         self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
 
@@ -1163,32 +1163,32 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                           self.domain['id'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
 
         collection_url = '/role_assignments?user.id=%s' % self.user1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
         self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
 
         collection_url = '/role_assignments?group.id=%s' % self.group1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
         self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
 
         collection_url = '/role_assignments?role.id=%s' % self.role1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
         self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
 
@@ -1201,8 +1201,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                 'project_id': self.project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=1,
                                                    resource_url=collection_url)
-        self.assertEqual(1, len(r.result.get('role_assignments')))
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
 
         # Now for a harder one - filter for user with effective
@@ -1213,8 +1213,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                           self.user1['id'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=4,
                                                    resource_url=collection_url)
-        self.assertEqual(4, len(r.result.get('role_assignments')))
         # Should have the two direct roles...
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
         self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
@@ -1247,8 +1247,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                 'project_id': self.project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         # Should have one direct role and one from group membership...
         self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
         self.assertRoleAssignmentInListResponse(r, up1_entity,
@@ -1488,8 +1488,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                 'domain_id': domain['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=1,
                                                    resource_url=collection_url)
-        self.assertEqual(1, len(r.result.get('role_assignments')))
         ud_url, ud_entity = _build_role_assignment_url_and_entity(
             domain_id=domain['id'], user_id=user1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
@@ -1505,8 +1505,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                 'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=3,
                                                    resource_url=collection_url)
-        self.assertEqual(3, len(r.result.get('role_assignments')))
         # An effective role for an inherited role will be a project
         # entity, with a domain link to the inherited assignment
         unused, up_entity = _build_role_assignment_url_and_entity(
@@ -1585,8 +1585,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                 'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=3,
                                                    resource_url=collection_url)
-        self.assertEqual(3, len(r.result.get('role_assignments')))
 
         unused, up_entity = _build_role_assignment_url_and_entity(
             project_id=project1['id'], user_id=user1['id'],
@@ -1601,8 +1601,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.config_fixture.config(group='os_inherit', enabled=False)
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
 
         unused, up_entity = _build_role_assignment_url_and_entity(
             project_id=project1['id'], user_id=user1['id'],
@@ -1693,8 +1693,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                 'domain_id': domain['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=1,
                                                    resource_url=collection_url)
-        self.assertEqual(1, len(r.result.get('role_assignments')))
         gd_url, gd_entity = _build_role_assignment_url_and_entity(
             domain_id=domain['id'], group_id=group1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
@@ -1710,8 +1710,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                 'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=3,
                                                    resource_url=collection_url)
-        self.assertEqual(3, len(r.result.get('role_assignments')))
         # An effective role for an inherited role will be a project
         # entity, with a domain link to the inherited assignment
         unused, up_entity = _build_role_assignment_url_and_entity(
@@ -1805,8 +1805,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             '/role_assignments?scope.OS-INHERIT:inherited_to=projects')
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=2,
                                                    resource_url=collection_url)
-        self.assertEqual(2, len(r.result.get('role_assignments')))
         ud_url, ud_entity = _build_role_assignment_url_and_entity(
             domain_id=domain['id'], user_id=user1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
