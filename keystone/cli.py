@@ -83,9 +83,10 @@ class DbVersion(BaseApp):
     def add_argument_parser(cls, subparsers):
         parser = super(DbVersion, cls).add_argument_parser(subparsers)
         parser.add_argument('--extension', default=None,
-                            help=('Migrate the database for the specified '
-                                  'extension. If not provided, db_sync will '
-                                  'migrate the common repository.'))
+                            help=('Print the migration version of the '
+                                  'database for the specified extension. If '
+                                  'not provided, print it for the common '
+                                  'repository.'))
 
     @staticmethod
     def main():
