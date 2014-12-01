@@ -12,13 +12,9 @@ published at:
 
     http://keystone.openstack.org/
 
-The API specification is available at:
+The API specification and documentation are available at:
 
-    https://github.com/openstack/identity-api
-
-The API documentation is available at:
-
-    http://api.openstack.org/api-ref-identity.html
+    http://specs.openstack.org/openstack/keystone-specs/
 
 The canonical client library is available at:
 
@@ -42,7 +38,7 @@ Bugs and feature requests are tracked on Launchpad at:
 
 Future design work is tracked at:
 
-    https://github.com/openstack/keystone-specs
+    http://specs.openstack.org/openstack/keystone-specs/#identity-program-specifications
 
 Contributors are encouraged to join IRC (``#openstack-keystone`` on freenode):
 
