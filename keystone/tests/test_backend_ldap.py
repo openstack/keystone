@@ -1445,10 +1445,12 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # NOTE(topol): LDAP implementation does not currently support the
         #              updating of a project name so this method override
         #              provides a different update test
-        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
                    'domain_id': CONF.identity.default_domain_id,
-                   'description': uuid.uuid4().hex, 'enabled': True
-                   }
+                   'description': uuid.uuid4().hex,
+                   'enabled': True,
+                   'parent_id': None}
         self.assignment_api.create_project(project['id'], project)
         project_ref = self.assignment_api.get_project(project['id'])
 
@@ -1517,6 +1519,15 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.get_project,
                           project_id)
+
+    def test_check_leaf_projects(self):
+        self.skipTest('N/A: LDAP does not support hierarchical projects')
+
+    def test_list_projects_in_subtree(self):
+        self.skipTest('N/A: LDAP does not support hierarchical projects')
+
+    def test_list_project_parents(self):
+        self.skipTest('N/A: LDAP does not support hierarchical projects')
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
@@ -1786,7 +1797,8 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
-            'description': uuid.uuid4().hex}
+            'description': uuid.uuid4().hex,
+            'parent_id': None}
 
         self.assignment_api.create_project(project['id'], project)
         project_ref = self.assignment_api.get_project(project['id'])
@@ -2400,10 +2412,12 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
     def test_delete_domain_with_user_added(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
-        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
                    'domain_id': domain['id'],
-                   'description': uuid.uuid4().hex, 'enabled': True
-                   }
+                   'description': uuid.uuid4().hex,
+                   'parent_id': None,
+                   'enabled': True}
         self.assignment_api.create_domain(domain['id'], domain)
         self.assignment_api.create_project(project['id'], project)
         project_ref = self.assignment_api.get_project(project['id'])
