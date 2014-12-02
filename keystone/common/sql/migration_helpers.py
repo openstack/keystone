@@ -55,8 +55,8 @@ def get_default_domain():
 #  This fails on MySQL.
 def get_constraints_names(table, column_name):
     fkeys = [fk.name for fk in table.constraints
-             if (column_name in fk.columns and
-                 isinstance(fk, sqlalchemy.ForeignKeyConstraint))]
+             if (isinstance(fk, sqlalchemy.ForeignKeyConstraint) and
+                 column_name in fk.columns)]
     return fkeys
 
 
