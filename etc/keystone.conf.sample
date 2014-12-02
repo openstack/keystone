@@ -103,8 +103,8 @@
 #tcp_keepalive=false
 
 # Sets the value of TCP_KEEPIDLE in seconds for each server
-# socket. Only applies if tcp_keepalive is true. Not supported
-# on OS X. (integer value)
+# socket. Only applies if tcp_keepalive is true. (integer
+# value)
 #tcp_keepidle=600
 
 # The maximum number of entities that will be returned in a
@@ -664,8 +664,9 @@
 # Deprecated group/name - [DATABASE]/sql_max_pool_size
 #max_pool_size=<None>
 
-# Maximum db connection retries during startup. Set to -1 to
-# specify an infinite retry count. (integer value)
+# Maximum number of database connection retries during
+# startup. Set to -1 to specify an infinite retry count.
+# (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_retries
 # Deprecated group/name - [DATABASE]/sql_max_retries
 #max_retries=10

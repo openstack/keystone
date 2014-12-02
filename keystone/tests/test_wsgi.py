@@ -415,15 +415,11 @@ class ServerTest(tests.TestCase):
                                     keepidle=1)
         server.start()
 
-        # keepidle isn't available in the OS X version of eventlet
-        if hasattr(socket, 'TCP_KEEPIDLE'):
-            self.assertEqual(mock_sock_dup.setsockopt.call_count, 2)
+        self.assertEqual(mock_sock_dup.setsockopt.call_count, 2)
 
-            # Test the last set of call args i.e. for the keepidle
-            mock_sock_dup.setsockopt.assert_called_with(socket.IPPROTO_TCP,
-                                                        socket.TCP_KEEPIDLE,
-                                                        1)
-        else:
-            self.assertEqual(mock_sock_dup.setsockopt.call_count, 1)
+        # Test the last set of call args i.e. for the keepidle
+        mock_sock_dup.setsockopt.assert_called_with(socket.IPPROTO_TCP,
+                                                    socket.TCP_KEEPIDLE,
+                                                    1)
 
         self.assertTrue(mock_listen.called)
