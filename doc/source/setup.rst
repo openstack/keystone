@@ -32,7 +32,7 @@ Prerequisites
 
 This document assumes you are using:
 
-- Ubuntu, Fedora, or Mac OS X
+- Ubuntu or Fedora
 - `Python 2.7`_
 
 .. _`Python 2.7`: http://www.python.org/
@@ -98,14 +98,6 @@ Fedora 19+:
 .. code-block:: bash
 
     $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel python-devel libxslt-devel openssl-devel
-
-Mac OS X 10.9 (requires Homebrew_):
-
-.. code-block:: bash
-
-    $ brew install python openssl gettext libxmlsec1
-
-.. _Homebrew: http://brew.sh/
 
 PyPi Packages and VirtualEnv
 ----------------------------

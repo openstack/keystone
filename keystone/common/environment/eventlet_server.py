@@ -130,8 +130,7 @@ class Server(object):
         if self.keepalive:
             dup_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
 
-            # This option isn't available in the OS X version of eventlet
-            if hasattr(socket, 'TCP_KEEPIDLE') and self.keepidle is not None:
+            if self.keepidle is not None:
                 dup_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE,
                                       self.keepidle)
 

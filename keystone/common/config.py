@@ -118,7 +118,7 @@ FILE_OPTIONS = {
                    default=600,
                    help='Sets the value of TCP_KEEPIDLE in seconds for each '
                         'server socket. Only applies if tcp_keepalive is '
-                        'true. Not supported on OS X.'),
+                        'true.'),
         cfg.IntOpt('list_limit',
                    help='The maximum number of entities that will be '
                         'returned in a collection, with no limit set by '
