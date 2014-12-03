@@ -402,7 +402,8 @@ class ProjectV3(controller.V3Controller):
         ref = self.assignment_api.create_project(ref['id'], ref)
         return ProjectV3.wrap_member(context, ref)
 
-    @controller.filterprotected('domain_id', 'enabled', 'name')
+    @controller.filterprotected('domain_id', 'enabled', 'name',
+                                'parent_id')
     def list_projects(self, context, filters):
         hints = ProjectV3.build_driver_hints(context, filters)
         refs = self.assignment_api.list_projects(hints=hints)
