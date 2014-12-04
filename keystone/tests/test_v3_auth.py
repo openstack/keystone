@@ -3951,14 +3951,19 @@ class TestAuthContext(tests.TestCase):
                               uuid.uuid4().hex)
 
     def test_identity_attribute_conflict_with_none_value(self):
-        identity_attr = list(
-            auth.controllers.AuthContext.IDENTITY_ATTRIBUTES)[0]
-        self.auth_context[identity_attr] = None
-        self.assertRaises(exception.Unauthorized,
-                          operator.setitem,
-                          self.auth_context,
-                          identity_attr,
-                          uuid.uuid4().hex)
+        for identity_attr in auth.controllers.AuthContext.IDENTITY_ATTRIBUTES:
+            self.auth_context[identity_attr] = None
+
+            if identity_attr == 'expires_at':
+                # 'expires_at' is a special case and is tested above.
+                self.auth_context['expires_at'] = uuid.uuid4().hex
+                continue
+
+            self.assertRaises(exception.Unauthorized,
+                              operator.setitem,
+                              self.auth_context,
+                              identity_attr,
+                              uuid.uuid4().hex)
 
     def test_non_identity_attribute_conflict_override(self):
         # for attributes Keystone doesn't know about, make sure they can be
