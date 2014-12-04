@@ -693,6 +693,14 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.GROUP)
 
+    @domains_configured
+    @exception_translated('group')
+    def get_group_by_name(self, group_name, domain_id):
+        driver = self._select_identity_driver(domain_id)
+        ref = driver.get_group_by_name(group_name, domain_id)
+        return self._set_domain_id_and_mapping(
+            ref, domain_id, driver, mapping.EntityType.GROUP)
+
     @notifications.updated(_GROUP)
     @domains_configured
     @exception_translated('group')
@@ -1025,6 +1033,16 @@ class Driver(object):
     @abc.abstractmethod
     def get_group(self, group_id):
         """Get a group by ID.
+
+        :returns: group_ref
+        :raises: keystone.exception.GroupNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_group_by_name(self, group_name, domain_id):
+        """Get a group by name.
 
         :returns: group_ref
         :raises: keystone.exception.GroupNotFound

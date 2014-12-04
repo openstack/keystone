@@ -129,6 +129,11 @@ class Identity(identity.Driver):
     def get_group(self, group_id):
         return self.group.get_filtered(group_id)
 
+    def get_group_by_name(self, group_name, domain_id):
+        # domain_id will already have been handled in the Manager layer,
+        # parameter left in so this matches the Driver specification
+        return self.group.get_filtered_by_name(group_name)
+
     def update_group(self, group_id, group):
         self.group.check_allow_update()
         if 'name' in group:
@@ -383,6 +388,10 @@ class GroupApi(common_ldap.BaseLdap):
 
     def get_filtered(self, group_id):
         group = self.get(group_id)
+        return common_ldap.filter_entity(group)
+
+    def get_filtered_by_name(self, group_name):
+        group = self.get_by_name(group_name)
         return common_ldap.filter_entity(group)
 
     def get_all_filtered(self, query=None):

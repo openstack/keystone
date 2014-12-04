@@ -279,6 +279,17 @@ class Identity(identity.Driver):
         session = sql.get_session()
         return self._get_group(session, group_id).to_dict()
 
+    def get_group_by_name(self, group_name, domain_id):
+        session = sql.get_session()
+        query = session.query(Group)
+        query = query.filter_by(name=group_name)
+        query = query.filter_by(domain_id=domain_id)
+        try:
+            group_ref = query.one()
+        except sql.NotFound:
+            raise exception.GroupNotFound(group_id=group_name)
+        return group_ref.to_dict()
+
     @sql.handle_conflicts(conflict_type='group')
     def update_group(self, group_id, group):
         session = sql.get_session()

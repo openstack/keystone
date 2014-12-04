@@ -2548,6 +2548,23 @@ class IdentityTests(object):
                           self.identity_api.get_group,
                           group['id'])
 
+    def test_get_group_by_name(self):
+        group_name = uuid.uuid4().hex
+        group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': group_name}
+        group = self.identity_api.create_group(group)
+        spoiler = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        self.identity_api.create_group(spoiler)
+
+        group_ref = self.identity_api.get_group_by_name(
+            group_name, DEFAULT_DOMAIN_ID)
+        self.assertDictEqual(group_ref, group)
+
+    def test_get_group_by_name_404(self):
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group_by_name,
+                          uuid.uuid4().hex,
+                          DEFAULT_DOMAIN_ID)
+
     def test_create_duplicate_group_name_fails(self):
         group1 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
         group2 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': group1['name']}
