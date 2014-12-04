@@ -380,6 +380,24 @@ V3_JSON_HOME_RESOURCES_INHERIT_ENABLED.update(
 )
 
 
+class _VersionsEqual(tt_matchers.MatchesListwise):
+    def __init__(self, expected):
+        super(_VersionsEqual, self).__init__([
+            tt_matchers.KeysEqual(expected),
+            tt_matchers.KeysEqual(expected['versions']),
+            tt_matchers.HasLength(len(expected['versions']['values'])),
+            tt_matchers.ContainsAll(expected['versions']['values']),
+        ])
+
+    def match(self, other):
+        return super(_VersionsEqual, self).match([
+            other,
+            other['versions'],
+            other['versions']['values'],
+            other['versions']['values'],
+        ])
+
+
 class VersionTestCase(tests.TestCase):
     def setUp(self):
         super(VersionTestCase, self).setUp()
@@ -414,7 +432,7 @@ class VersionTestCase(tests.TestCase):
             elif version['id'] == 'v2.0':
                 self._paste_in_port(
                     version, 'http://localhost:%s/v2.0/' % CONF.public_port)
-        self.assertEqual(data, expected)
+        self.assertThat(data, _VersionsEqual(expected))
 
     def test_admin_versions(self):
         client = self.client(self.admin_app)
@@ -429,7 +447,7 @@ class VersionTestCase(tests.TestCase):
             elif version['id'] == 'v2.0':
                 self._paste_in_port(
                     version, 'http://localhost:%s/v2.0/' % CONF.admin_port)
-        self.assertEqual(data, expected)
+        self.assertThat(data, _VersionsEqual(expected))
 
     def test_use_site_url_if_endpoint_unset(self):
         self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
@@ -448,7 +466,7 @@ class VersionTestCase(tests.TestCase):
                 elif version['id'] == 'v2.0':
                     self._paste_in_port(
                         version, 'http://localhost/v2.0/')
-            self.assertEqual(data, expected)
+            self.assertThat(data, _VersionsEqual(expected))
 
     def test_public_version_v2(self):
         client = self.client(self.public_app)
@@ -698,7 +716,7 @@ class VersionSingleAppTestCase(tests.TestCase):
             elif version['id'] == 'v2.0':
                 self._paste_in_port(
                     version, 'http://localhost:%s/v2.0/' % CONF.public_port)
-        self.assertEqual(data, expected)
+        self.assertThat(data, _VersionsEqual(expected))
 
     def test_public(self):
         self._test_version('main')
