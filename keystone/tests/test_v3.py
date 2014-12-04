@@ -753,7 +753,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
     # catalog validation
 
     def assertValidCatalogResponse(self, resp, *args, **kwargs):
-        self.assertEqual(['catalog', 'links'], resp.json.keys())
+        self.assertEqual(set(['catalog', 'links']), set(resp.json.keys()))
         self.assertValidCatalog(resp.json['catalog'])
         self.assertIn('links', resp.json)
         self.assertIsInstance(resp.json['links'], dict)
