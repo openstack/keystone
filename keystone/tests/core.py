@@ -425,7 +425,7 @@ class TestCase(BaseTestCase):
         super(TestCase, self).setUp()
         self.addCleanup(self.cleanup_instance(
             '_paths', '_memo', '_overrides', '_group_overrides', 'maxDiff',
-            'exit_patch', 'config_fixture', 'logger'))
+            'config_fixture', 'logger'))
 
         self._paths = []
 
@@ -444,8 +444,8 @@ class TestCase(BaseTestCase):
 
         self.addCleanup(CONF.reset)
 
-        self.exit_patch = self.useFixture(mockpatch.PatchObject(sys, 'exit'))
-        self.exit_patch.mock.side_effect = UnexpectedExit
+        self.useFixture(mockpatch.PatchObject(sys, 'exit',
+                                              side_effect=UnexpectedExit))
         self.useFixture(mockpatch.PatchObject(logging.Handler, 'handleError',
                                               side_effect=BadLog))
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
