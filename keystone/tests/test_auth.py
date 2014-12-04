@@ -282,7 +282,7 @@ class AuthWithToken(AuthTest):
         tenant = scoped_token["access"]["token"]["tenant"]
         roles = scoped_token["access"]["metadata"]["roles"]
         self.assertEqual(self.tenant_bar['id'], tenant["id"])
-        self.assertEqual(self.role_member['id'], roles[0])
+        self.assertThat(roles, matchers.Contains(self.role_member['id']))
 
     def test_auth_token_project_group_role(self):
         """Verify getting a token in a tenant with group roles."""
