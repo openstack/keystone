@@ -30,7 +30,8 @@ from keystone.openstack.common import log
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('federation_api', 'identity_api', 'token_provider_api')
+@dependency.requires('assignment_api', 'federation_api', 'identity_api',
+                     'token_provider_api')
 class Mapped(auth.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
@@ -62,7 +63,7 @@ class Mapped(auth.AuthMethodHandler):
                                 self.token_provider_api)
         else:
             handle_unscoped_token(context, auth_payload, auth_context,
-                                  self.federation_api,
+                                  self.assignment_api, self.federation_api,
                                   self.identity_api)
 
 
@@ -99,8 +100,8 @@ def handle_scoped_token(context, auth_payload, auth_context, token_ref,
     auth_context[federation.PROTOCOL] = protocol
 
 
-def handle_unscoped_token(context, auth_payload, auth_context, federation_api,
-                          identity_api):
+def handle_unscoped_token(context, auth_payload, auth_context,
+                          assignment_api, federation_api, identity_api):
     assertion = extract_assertion_data(context)
     identity_provider = auth_payload['identity_provider']
     protocol = auth_payload['protocol']
@@ -115,8 +116,8 @@ def handle_unscoped_token(context, auth_payload, auth_context, federation_api,
 
     try:
         mapped_properties = apply_mapping_filter(identity_provider, protocol,
-                                                 assertion, federation_api,
-                                                 identity_api)
+                                                 assertion, assignment_api,
+                                                 federation_api, identity_api)
         user_id = setup_username(context, mapped_properties)
         group_ids = mapped_properties['group_ids']
 
@@ -151,15 +152,30 @@ def extract_assertion_data(context):
 
 
 def apply_mapping_filter(identity_provider, protocol, assertion,
-                         federation_api, identity_api):
+                         assignment_api, federation_api, identity_api):
     mapping = federation_api.get_mapping_from_idp_and_protocol(
         identity_provider, protocol)
     rules = jsonutils.loads(mapping['rules'])
     LOG.debug('using the following rules: %s', rules)
     rule_processor = utils.RuleProcessor(rules)
     mapped_properties = rule_processor.process(assertion)
-    utils.validate_groups(mapped_properties['group_ids'],
-                          mapping['id'], identity_api)
+
+    # NOTE(marek-denis): We update group_ids only here to avoid fetching
+    # groups identified by name/domain twice.
+    # NOTE(marek-denis): Groups are translated from name/domain to their
+    # corresponding ids in the auth plugin, as we need information what
+    # ``mapping_id`` was used as well as idenity_api and assignment_api
+    # objects.
+    group_ids = mapped_properties['group_ids']
+    utils.validate_groups_in_backend(group_ids,
+                                     mapping['id'],
+                                     identity_api)
+    group_ids.extend(
+        utils.transform_to_group_ids(
+            mapped_properties['group_names'], mapping['id'],
+            identity_api, assignment_api))
+    utils.validate_groups_cardinality(group_ids, mapping['id'])
+    mapped_properties['group_ids'] = list(set(group_ids))
     return mapped_properties
 
 

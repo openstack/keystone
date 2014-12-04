@@ -764,6 +764,38 @@ class MappingRuleEngineTests(FederationTests):
         self.assertIsNone(mapped_properties['name'])
         self.assertListEqual(list(), mapped_properties['group_ids'])
 
+    def test_rule_engine_returns_group_names(self):
+        """Check whether RuleProcessor returns group names with their domains.
+
+        RuleProcessor shold return 'group_names' entry with a list of
+        dictionaries with two entries 'name' and 'domain' identyfing group by
+        its name and domain.
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUP_NAMES
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+        reference = {
+            mapping_fixtures.DEVELOPER_GROUP_NAME:
+            {
+                "name": mapping_fixtures.DEVELOPER_GROUP_NAME,
+                "domain": {
+                    "name": mapping_fixtures.DEVELOPER_GROUP_DOMAIN_NAME
+                }
+            },
+            mapping_fixtures.TESTER_GROUP_NAME:
+            {
+                "name": mapping_fixtures.TESTER_GROUP_NAME,
+                "domain": {
+                    "id": mapping_fixtures.DEVELOPER_GROUP_DOMAIN_ID
+                }
+            }
+        }
+        for rule in mapped_properties['group_names']:
+            self.assertDictEqual(reference.get(rule.get('name')), rule)
+
 
 class FederatedTokenTests(FederationTests):
 
@@ -922,6 +954,19 @@ class FederatedTokenTests(FederationTests):
     def test_issue_unscoped_token(self):
         r = self._issue_unscoped_token()
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_issue_unscoped_token_group_names_in_mapping(self):
+        r = self._issue_unscoped_token(assertion='ANOTHER_CUSTOMER_ASSERTION')
+        ref_groups = set([self.group_customers['id'], self.group_admins['id']])
+        token_resp = r.json_body
+        token_groups = token_resp['token']['user']['OS-FEDERATION']['groups']
+        token_groups = set([group['id'] for group in token_groups])
+        self.assertEqual(ref_groups, token_groups)
+
+    def test_issue_unscoped_tokens_nonexisting_group(self):
+        self.assertRaises(exception.MappedGroupNotFound,
+                          self._issue_unscoped_token,
+                          assertion='ANOTHER_TESTER_ASSERTION')
 
     def test_issue_unscoped_token_with_remote_user_as_empty_string(self):
         # make sure that REMOTE_USER set as the empty string won't interfere
@@ -1569,8 +1614,87 @@ class FederatedTokenTests(FederationTests):
                         }
                     ]
                 },
-
-
+                # rules with local group names
+                {
+                    "local": [
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        },
+                        {
+                            "group": {
+                                "name": self.group_customers['name'],
+                                "domain": {
+                                    "name": self.domainA['name']
+                                }
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            'type': 'UserName',
+                        },
+                        {
+                            "type": "orgPersonType",
+                            "any_one_of": [
+                                "CEO",
+                                "CTO"
+                            ],
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            'user': {
+                                'name': '{0}'
+                            }
+                        },
+                        {
+                            "group": {
+                                "name": self.group_admins['name'],
+                                "domain": {
+                                    "id": self.domainA['id']
+                                }
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "UserName",
+                        },
+                        {
+                            "type": "orgPersonType",
+                            "any_one_of": [
+                                "Managers"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "group": {
+                                "name": "NON_EXISTING",
+                                "domain": {
+                                    "id": self.domainA['id']
+                                }
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "UserName",
+                        },
+                        {
+                            "type": "UserName",
+                            "any_one_of": [
+                                "IamTester"
+                            ]
+                        }
+                    ]
+                }
             ]
         }
 
