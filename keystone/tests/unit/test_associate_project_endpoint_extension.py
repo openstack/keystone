@@ -816,10 +816,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # associate endpoint group with project
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' %
-               {'endpoint_group_id': endpoint_group_id,
-                'project_id': 'abc'})
+        project_id = uuid.uuid4().hex
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, project_id)
         self.put(url, expected_status=404)
 
     def test_get_endpoint_group_in_project(self):
@@ -829,10 +828,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # associate endpoint group with project
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' %
-               {'endpoint_group_id': endpoint_group_id,
-                'project_id': self.project_id})
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.project_id)
         self.put(url)
         response = self.get(url)
         self.assertEqual(
@@ -844,10 +841,10 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
     def test_get_invalid_endpoint_group_in_project(self):
         """Test retrieving project endpoint group association."""
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' %
-               {'endpoint_group_id': 'foo',
-                'project_id': 'bar'})
+        endpoint_group_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, project_id)
         self.get(url, expected_status=404)
 
     def test_check_endpoint_group_to_project(self):
@@ -856,10 +853,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         self._create_endpoint_group_project_association(endpoint_group_id,
                                                         self.project_id)
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' %
-               {'endpoint_group_id': endpoint_group_id,
-                'project_id': self.project_id})
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.project_id)
         self.head(url, expected_status=200)
 
     def test_check_endpoint_group_to_project_with_invalid_project_id(self):
@@ -869,17 +864,14 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # create an endpoint group to project association
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' %
-               {'endpoint_group_id': endpoint_group_id,
-                'project_id': self.project_id})
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.project_id)
         self.put(url)
 
         # send a head request with an invalid project id
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' %
-               {'endpoint_group_id': endpoint_group_id,
-                'project_id': 'abc'})
+        project_id = uuid.uuid4().hex
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, project_id)
         self.head(url, expected_status=404)
 
     def test_list_endpoint_groups(self):
@@ -991,10 +983,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         self.assertEqual(len(endpoints), 2)
 
         # Now remove project endpoint group association
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' % {
-                   'endpoint_group_id': endpoint_group_id,
-                   'project_id': self.default_domain_project_id})
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.default_domain_project_id)
         self.delete(url)
 
         # Now remove endpoint group
