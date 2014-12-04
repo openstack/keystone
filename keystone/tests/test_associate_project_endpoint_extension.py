@@ -963,6 +963,13 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(len(endpoints), 2)
 
+        # Now remove project endpoint group association
+        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
+               '/projects/%(project_id)s' % {
+                   'endpoint_group_id': endpoint_group_id,
+                   'project_id': self.default_domain_project_id})
+        self.delete(url)
+
         # Now remove endpoint group
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
                  'endpoint_group_id': endpoint_group_id}
@@ -1011,8 +1018,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         self.get(url)
 
         # now remove the project endpoint group association
-        self.delete('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id})
+        self.delete(url)
         self.get(url, expected_status=404)
 
     def test_removing_an_endpoint_group_project(self):
