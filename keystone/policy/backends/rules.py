@@ -61,8 +61,11 @@ def init():
 def _set_rules(data):
     global _ENFORCER
     default_rule = CONF.policy_default_rule
-    _ENFORCER.set_rules(common_policy.Rules.load_json(
-        data, default_rule))
+    try:
+        _ENFORCER.set_rules(common_policy.Rules.load_json(
+            data, default_rule))
+    except ValueError:
+        raise exception.PolicyParsingError(policy_file=_POLICY_PATH)
 
 
 def enforce(credentials, action, target, do_raise=True):
