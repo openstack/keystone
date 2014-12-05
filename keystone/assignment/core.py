@@ -26,7 +26,7 @@ from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
-from keystone.i18n import _LI
+from keystone.i18n import _LE, _LI
 from keystone import notifications
 from keystone.openstack.common import log
 
@@ -79,12 +79,43 @@ class Manager(manager.Manager):
         return [x['id'] for
                 x in self.identity_api.list_groups_for_user(user_id)]
 
+    def _get_hierarchy_depth(self, parents_list):
+        return len(parents_list) + 1
+
+    def _assert_max_hierarchy_depth(self, project_id, parents_list=None):
+        if parents_list is None:
+            parents_list = self.list_project_parents(project_id)
+        max_depth = CONF.max_project_tree_depth
+        if self._get_hierarchy_depth(parents_list) > max_depth:
+            raise exception.ForbiddenAction(
+                action=_('max hierarchy depth reached for '
+                         '%s branch.') % project_id)
+
     @notifications.created(_PROJECT)
     def create_project(self, tenant_id, tenant):
         tenant = tenant.copy()
         tenant.setdefault('enabled', True)
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         tenant.setdefault('description', '')
+        tenant.setdefault('parent_id', None)
+
+        if tenant.get('parent_id') is not None:
+            parent_ref = self.get_project(tenant.get('parent_id'))
+            parents_list = self.list_project_parents(parent_ref['id'])
+            parents_list.append(parent_ref)
+            for ref in parents_list:
+                if ref.get('domain_id') != tenant.get('domain_id'):
+                    raise exception.ForbiddenAction(
+                        action=_('cannot create a project within a different '
+                                 'domain than its parents.'))
+                if not ref.get('enabled', True):
+                    raise exception.ForbiddenAction(
+                        action=_('cannot create a project in a '
+                                 'branch containing a disabled '
+                                 'project: %s') % ref['id'])
+            self._assert_max_hierarchy_depth(tenant.get('parent_id'),
+                                             parents_list)
+
         ret = self.driver.create_project(tenant_id, tenant)
         if SHOULD_CACHE(ret):
             self.get_project.set(ret, self, tenant_id)
@@ -126,15 +157,48 @@ class Manager(manager.Manager):
         """
         pass
 
+    def _assert_all_parents_are_enabled(self, project_id):
+        parents_list = self.list_project_parents(project_id)
+        for project in parents_list:
+            if not project.get('enabled', True):
+                raise exception.ForbiddenAction(
+                    action=_('cannot enable project %s since it has '
+                             'disabled parents') % project_id)
+
+    def _assert_whole_subtree_is_disabled(self, project_id):
+        subtree_list = self.driver.list_projects_in_subtree(project_id)
+        for ref in subtree_list:
+            if ref.get('enabled', True):
+                raise exception.ForbiddenAction(
+                    action=_('cannot disable project %s since '
+                             'its subtree contains enabled '
+                             'projects') % project_id)
+
     @notifications.updated(_PROJECT)
     def update_project(self, tenant_id, tenant):
         original_tenant = self.driver.get_project(tenant_id)
         tenant = tenant.copy()
+
+        parent_id = original_tenant.get('parent_id')
+        if 'parent_id' in tenant and tenant.get('parent_id') != parent_id:
+            raise exception.ForbiddenAction(
+                action=_('Update of `parent_id` is not allowed.'))
+
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        if (original_tenant.get('enabled', True) and
-                not tenant.get('enabled', True)):
+
+        # NOTE(rodrigods): for the current implementation we only allow to
+        # disable a project if all projects below it in the hierarchy are
+        # already disabled. This also means that we can not enable a
+        # project that has disabled parents.
+        original_tenant_enabled = original_tenant.get('enabled', True)
+        tenant_enabled = tenant.get('enabled', True)
+        if not original_tenant_enabled and tenant_enabled:
+            self._assert_all_parents_are_enabled(tenant_id)
+        if original_tenant_enabled and not tenant_enabled:
+            self._assert_whole_subtree_is_disabled(tenant_id)
             self._disable_project(tenant_id)
+
         ret = self.driver.update_project(tenant_id, tenant)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, original_tenant['name'],
@@ -143,6 +207,11 @@ class Manager(manager.Manager):
 
     @notifications.deleted(_PROJECT)
     def delete_project(self, tenant_id):
+        if not self.driver.is_leaf_project(tenant_id):
+            raise exception.ForbiddenAction(
+                action=_('cannot delete the project %s since it is not '
+                         'a leaf in the hierarchy.') % tenant_id)
+
         project = self.driver.get_project(tenant_id)
         project_user_ids = self.list_user_ids_for_project(tenant_id)
         for user_id in project_user_ids:
@@ -308,6 +377,29 @@ class Manager(manager.Manager):
         return self.driver.list_projects_for_user(
             user_id, group_ids, hints or driver_hints.Hints())
 
+    def _filter_projects_list(self, projects_list, user_id):
+        user_projects = self.list_projects_for_user(user_id)
+        user_projects_ids = set([proj['id'] for proj in user_projects])
+        # Keep only the projects present in user_projects
+        projects_list = [proj for proj in projects_list
+                         if proj['id'] in user_projects_ids]
+
+    def list_project_parents(self, project_id, user_id=None):
+        parents = self.driver.list_project_parents(project_id)
+        # If a user_id was provided, the returned list should be filtered
+        # against the projects this user has access to.
+        if user_id:
+            self._filter_projects_list(parents, user_id)
+        return parents
+
+    def list_projects_in_subtree(self, project_id, user_id=None):
+        subtree = self.driver.list_projects_in_subtree(project_id)
+        # If a user_id was provided, the returned list should be filtered
+        # against the projects this user has access to.
+        if user_id:
+            self._filter_projects_list(subtree, user_id)
+        return subtree
+
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=EXPIRATION_TIME)
     def get_domain(self, domain_id):
@@ -420,21 +512,38 @@ class Manager(manager.Manager):
         Users: Reference domains for grants
 
         """
+
+        def _delete_projects(project, projects, examined):
+            if project['id'] in examined:
+                msg = _LE('Circular reference or a repeated entry found '
+                          'projects hierarchy - %(project_id)s.')
+                LOG.error(msg, {'project_id': project['id']})
+                return
+
+            examined.add(project['id'])
+            children = [proj for proj in projects
+                        if proj.get('parent_id') == project['id']]
+            for proj in children:
+                _delete_projects(proj, projects, examined)
+
+            try:
+                self.delete_project(project['id'])
+            except exception.ProjectNotFound:
+                LOG.debug(('Project %(projectid)s not found when '
+                           'deleting domain contents for %(domainid)s, '
+                           'continuing with cleanup.'),
+                          {'projectid': project['id'],
+                           'domainid': domain_id})
+
         user_refs = self.identity_api.list_users(domain_scope=domain_id)
-        proj_refs = self.list_projects()
+        proj_refs = self.list_projects_in_domain(domain_id)
         group_refs = self.identity_api.list_groups(domain_scope=domain_id)
 
-        # First delete the projects themselves
-        for project in proj_refs:
-            if project['domain_id'] == domain_id:
-                try:
-                    self.delete_project(project['id'])
-                except exception.ProjectNotFound:
-                    LOG.debug(('Project %(projectid)s not found when '
-                               'deleting domain contents for %(domainid)s, '
-                               'continuing with cleanup.'),
-                              {'projectid': project['id'],
-                               'domainid': domain_id})
+        # Deleting projects recursively
+        roots = [x for x in proj_refs if x.get('parent_id') is None]
+        examined = set()
+        for project in roots:
+            _delete_projects(project, proj_refs, examined)
 
         for group in group_refs:
             # Cleanup any existing groups.

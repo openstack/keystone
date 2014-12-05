@@ -21,7 +21,6 @@ from oslo.utils import timeutils
 import six
 
 from keystone.assignment import controllers as assignment_controllers
-from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
@@ -546,12 +545,6 @@ class Auth(controller.V3Controller):
                                         CONF.signing.keyfile)
 
         return {'signed': signed_text}
-
-    def get_auth_context(self, context):
-        # TODO(dolphm): this method of accessing the auth context is terrible,
-        # but context needs to be refactored to always have reasonable values.
-        env_context = context.get('environment', {})
-        return env_context.get(authorization.AUTH_CONTEXT_ENV, {})
 
     def _combine_lists_uniquely(self, a, b):
         # it's most likely that only one of these will be filled so avoid
