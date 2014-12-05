@@ -62,6 +62,15 @@ class Assignment(assignment.Driver):
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
+    def _validate_parent_project_is_none(self, ref):
+        """If a parent_id different from None was given,
+           raises InvalidProjectException.
+
+        """
+        parent_id = ref.get('parent_id')
+        if parent_id is not None:
+            raise exception.InvalidParentProject(parent_id)
+
     def _set_default_attributes(self, project_ref):
         project_ref = self._set_default_domain(project_ref)
         return self._set_default_parent_project(project_ref)
@@ -102,6 +111,7 @@ class Assignment(assignment.Driver):
     def create_project(self, tenant_id, tenant):
         self.project.check_allow_create()
         tenant = self._validate_default_domain(tenant)
+        self._validate_parent_project_is_none(tenant)
         tenant['name'] = clean.project_name(tenant['name'])
         data = tenant.copy()
         if 'id' not in data or data['id'] is None:
