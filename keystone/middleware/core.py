@@ -100,10 +100,6 @@ class JsonBodyMiddleware(wsgi.Middleware):
     Accepting arguments as JSON is useful for accepting data that may be more
     complex than simple primitives.
 
-    In this case we accept it as urlencoded data under the key 'json' as in
-    json=<urlencoded_json> but this could be extended to accept raw JSON
-    in the POST body.
-
     Filters out the parameters `self`, `context` and anything beginning with
     an underscore.
 
