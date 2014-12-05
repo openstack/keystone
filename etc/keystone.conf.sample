@@ -59,9 +59,9 @@
 # server. (string value)
 #admin_endpoint=<None>
 
-# Maximum depth of the project hierarchy. (integer value)
-# WARNING: setting it to a large value may adversely impact
-# performance.
+# Maximum depth of the project hierarchy. WARNING: setting it
+# to a large value may adversely impact performance. (integer
+# value)
 #max_project_tree_depth=5
 
 # The number of worker processes to serve the public WSGI
@@ -139,11 +139,11 @@
 # Options defined in oslo.messaging
 #
 
-# Use durable queues in amqp. (boolean value)
+# Use durable queues in AMQP. (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_durable_queues
 #amqp_durable_queues=false
 
-# Auto-delete queues in amqp. (boolean value)
+# Auto-delete queues in AMQP. (boolean value)
 #amqp_auto_delete=false
 
 # Size of RPC connection pool. (integer value)
@@ -191,8 +191,8 @@
 #qpid_topology_version=1
 
 # SSL version to use (valid only if SSL enabled). valid values
-# are TLSv1, SSLv23 and SSLv3. SSLv2 may be available on some
-# distributions. (string value)
+# are TLSv1 and SSLv23. SSLv2 and SSLv3 may be available on
+# some distributions. (string value)
 #kombu_ssl_version=
 
 # SSL key file (valid only if SSL enabled). (string value)
@@ -229,7 +229,7 @@
 # The RabbitMQ password. (string value)
 #rabbit_password=guest
 
-# the RabbitMQ login method (string value)
+# The RabbitMQ login method. (string value)
 #rabbit_login_method=AMQPLAIN
 
 # The RabbitMQ virtual host. (string value)
@@ -252,7 +252,8 @@
 # value)
 #rabbit_ha_queues=false
 
-# If passed, use a fake RabbitMQ provider. (boolean value)
+# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake
+# (boolean value)
 #fake_rabbit=false
 
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet
@@ -1296,6 +1297,54 @@
 # role-assignment inheritance to projects from owning domain
 # can be optionally enabled. (boolean value)
 #enabled=false
+
+
+[oslo_messaging_amqp]
+
+#
+# Options defined in oslo.messaging
+#
+
+# address prefix used when sending to a specific server
+# (string value)
+#server_request_prefix=exclusive
+
+# address prefix used when broadcasting to all servers (string
+# value)
+#broadcast_prefix=broadcast
+
+# address prefix when sending to any server in group (string
+# value)
+#group_request_prefix=unicast
+
+# Name for the AMQP container (string value)
+#container_name=<None>
+
+# Timeout for inactive connections (in seconds) (integer
+# value)
+#idle_timeout=0
+
+# Debug: dump AMQP frames to stdout (boolean value)
+#trace=false
+
+# CA certificate PEM file for verifing server certificate
+# (string value)
+#ssl_ca_file=
+
+# Identifying certificate PEM file to present to clients
+# (string value)
+#ssl_cert_file=
+
+# Private key PEM file used to sign cert_file certificate
+# (string value)
+#ssl_key_file=
+
+# Password for decrypting ssl_key_file (if encrypted) (string
+# value)
+#ssl_key_password=<None>
+
+# Accept clients using either SSL or plain TCP (boolean value)
+#allow_insecure_clients=false
 
 
 [paste_deploy]
