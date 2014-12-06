@@ -19,8 +19,8 @@ import os
 import socket
 import sys
 
-from oslo.concurrency import processutils
 from oslo import i18n
+from oslo_concurrency import processutils
 import pbr.version
 
 
