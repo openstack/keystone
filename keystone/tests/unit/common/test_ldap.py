@@ -435,3 +435,52 @@ class CommonLdapTestCase(tests.BaseTestCase):
 
         result_unicode = ks_ldap.utf8_decode(100)
         self.assertEqual(u'100', result_unicode)
+
+    def test_user_id_begins_with_0(self):
+        user_id = '0123456'
+        result = [(
+            'cn=dummy,dc=example,dc=com',
+            {
+                'user_id': [user_id],
+                'enabled': ['TRUE']
+            }
+        ), ]
+        py_result = ks_ldap.convert_ldap_result(result)
+        # The user id should be 0123456, and the enabled
+        # flag should be True
+        self.assertIs(py_result[0][1]['enabled'][0], True)
+        self.assertEqual(user_id, py_result[0][1]['user_id'][0])
+
+    def test_user_id_begins_with_0_and_enabled_bit_mask(self):
+        user_id = '0123456'
+        bitmask = '225'
+        expected_bitmask = 225
+        result = [(
+            'cn=dummy,dc=example,dc=com',
+            {
+                'user_id': [user_id],
+                'enabled': [bitmask]
+            }
+        ), ]
+        py_result = ks_ldap.convert_ldap_result(result)
+        # The user id should be 0123456, and the enabled
+        # flag should be 225
+        self.assertEqual(expected_bitmask, py_result[0][1]['enabled'][0])
+        self.assertEqual(user_id, py_result[0][1]['user_id'][0])
+
+    def test_user_id_and_bitmask_begins_with_0(self):
+        user_id = '0123456'
+        bitmask = '0225'
+        expected_bitmask = 225
+        result = [(
+            'cn=dummy,dc=example,dc=com',
+            {
+                'user_id': [user_id],
+                'enabled': [bitmask]
+            }
+        ), ]
+        py_result = ks_ldap.convert_ldap_result(result)
+        # The user id should be 0123456, and the enabled
+        # flag should be 225, the 0 is dropped.
+        self.assertEqual(expected_bitmask, py_result[0][1]['enabled'][0])
+        self.assertEqual(user_id, py_result[0][1]['user_id'][0])
