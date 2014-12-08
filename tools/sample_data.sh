@@ -68,7 +68,15 @@ fi
 # Extract some info from Keystone's configuration file
 if [[ -r "$KEYSTONE_CONF" ]]; then
     CONFIG_SERVICE_TOKEN=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_token= | cut -d'=' -f2)
+    if [[ -z "${CONFIG_SERVICE_TOKEN}" ]]; then
+        # default config options are commented out, so lets try those
+        CONFIG_SERVICE_TOKEN=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^\#admin_token= | cut -d'=' -f2)
+    fi
     CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_port= | cut -d'=' -f2)
+    if [[ -z "${CONFIG_ADMIN_PORT}" ]]; then
+        # default config options are commented out, so lets try those
+        CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^\#admin_port= | cut -d'=' -f2)
+    fi
 fi
 
 export OS_SERVICE_TOKEN=${OS_SERVICE_TOKEN:-$CONFIG_SERVICE_TOKEN}
