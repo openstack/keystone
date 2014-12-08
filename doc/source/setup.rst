@@ -32,7 +32,7 @@ Prerequisites
 
 This document assumes you are using:
 
-- Ubuntu or Fedora
+- Ubuntu, Fedora or openSUSE (SLE)
 - `Python 2.7`_
 
 .. _`Python 2.7`: http://www.python.org/
@@ -98,6 +98,12 @@ Fedora 19+:
 .. code-block:: bash
 
     $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel python-devel libxslt-devel openssl-devel
+
+openSUSE 13.2 (SLE 12):
+
+.. code-block:: bash
+
+    $ sudo zypper install libxslt-devel openldap2-devel libopenssl-devel python-devel python-greenlet-devel python-ldap python-lxml python-pysqlite sqlite3-devel
 
 PyPi Packages and VirtualEnv
 ----------------------------
