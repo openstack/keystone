@@ -46,7 +46,7 @@ class EndpointPolicyV3Controller(controller.V3Controller):
             payload['resource_info'])
 
     def _on_policy_delete(self, service, resource_type, operation, payload):
-        self.endpoint_policy_api.delete_association_by_polcy(
+        self.endpoint_policy_api.delete_association_by_policy(
             payload['resource_info'])
 
     @controller.protected()

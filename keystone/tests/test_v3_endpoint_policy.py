@@ -178,6 +178,20 @@ class EndpointPolicyTestCase(TestExtensionCase):
         self.put(url, expected_status=204)
         self.get(url, expected_status=204)
 
+        self.delete('/policies/%(policy_id)s' % {
+            'policy_id': self.policy['id']})
+
+        self.head(url, expected_status=404)
+
+    def test_service_association_cleanup_when_policy_deleted(self):
+        url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
+               '/services/%(service_id)s') % {
+                   'policy_id': self.policy['id'],
+                   'service_id': self.service['id']}
+
+        self.put(url, expected_status=204)
+        self.get(url, expected_status=204)
+
         self.delete('/services/%(service_id)s' % {
             'service_id': self.service['id']})
 
