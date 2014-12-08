@@ -47,7 +47,26 @@ class EndpointPolicyTestCase(TestExtensionCase):
         self.region = self.new_region_ref()
         self.catalog_api.create_region(self.region)
 
+    def assert_head_and_get_return_same_response(self, url, expected_status):
+        self.get(url, expected_status=expected_status)
+        self.head(url, expected_status=expected_status)
+
     # endpoint policy crud tests
+    def _crud_test(self, url):
+        # Test when the resource does not exist also ensures
+        # that there is not a false negative after creation.
+
+        self.assert_head_and_get_return_same_response(url, expected_status=404)
+
+        self.put(url, expected_status=204)
+
+        # test that the new resource is accessible.
+        self.assert_head_and_get_return_same_response(url, expected_status=204)
+
+        self.delete(url, expected_status=204)
+
+        # test that the deleted resource is no longer accessible
+        self.assert_head_and_get_return_same_response(url, expected_status=404)
 
     def test_crud_for_policy_for_explicit_endpoint(self):
         """PUT, HEAD and DELETE for explicit endpoint policy."""
@@ -56,11 +75,7 @@ class EndpointPolicyTestCase(TestExtensionCase):
                '/endpoints/%(endpoint_id)s') % {
                    'policy_id': self.policy['id'],
                    'endpoint_id': self.endpoint['id']}
-
-        self.put(url, expected_status=204)
-        self.get(url, expected_status=204)
-        self.head(url, expected_status=204)
-        self.delete(url, expected_status=204)
+        self._crud_test(url)
 
     def test_crud_for_policy_for_service(self):
         """PUT, HEAD and DELETE for service endpoint policy."""
@@ -69,11 +84,7 @@ class EndpointPolicyTestCase(TestExtensionCase):
                '/services/%(service_id)s') % {
                    'policy_id': self.policy['id'],
                    'service_id': self.service['id']}
-
-        self.put(url, expected_status=204)
-        self.get(url, expected_status=204)
-        self.head(url, expected_status=204)
-        self.delete(url, expected_status=204)
+        self._crud_test(url)
 
     def test_crud_for_policy_for_region_and_service(self):
         """PUT, HEAD and DELETE for region and service endpoint policy."""
@@ -83,11 +94,7 @@ class EndpointPolicyTestCase(TestExtensionCase):
                    'policy_id': self.policy['id'],
                    'service_id': self.service['id'],
                    'region_id': self.region['id']}
-
-        self.put(url, expected_status=204)
-        self.get(url, expected_status=204)
-        self.head(url, expected_status=204)
-        self.delete(url, expected_status=204)
+        self._crud_test(url)
 
     def test_get_policy_for_endpoint(self):
         """GET /endpoints/{endpoint_id}/policy."""
