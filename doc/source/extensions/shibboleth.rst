@@ -22,7 +22,7 @@ Configure Apache HTTPD for mod_shibboleth
 
 Follow the steps outlined at: `Running Keystone in HTTPD`_.
 
-.. _`Running Keystone in HTTPD`: apache-httpd.html
+.. _`Running Keystone in HTTPD`: ../apache-httpd.html
 
 You'll also need to install `Shibboleth <https://wiki.shibboleth.net/confluence/display/SHIB2/Home>`_, for
 example:
@@ -259,17 +259,19 @@ environment):
 
     </SPConfig>
 
-Keystone enforces `external <http://docs.openstack.org/developer/keystone/external-auth.html>`_
-authentication when environment variable ``REMOTE_USER`` is present so
-make sure Shibboleth doesn't set the ``REMOTE_USER`` environment variable.
-To do so, scan through the ``/etc/shibboleth/shibboleth2.xml`` configuration
-file and remove the ``REMOTE_USER`` directives.
+Keystone enforces `external authentication`_ when the ``REMOTE_USER``
+environment variable is present so make sure Shibboleth doesn't set the
+``REMOTE_USER`` environment variable.  To do so, scan through the
+``/etc/shibboleth/shibboleth2.xml`` configuration file and remove the
+``REMOTE_USER`` directives.
 
 Examine your attributes map file ``/etc/shibboleth/attributes-map.xml`` and adjust
 your requirements if needed. For more information see
 `attributes documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
 
 Once you are done, restart your Shibboleth daemon:
+
+.. _`external authentication`: ../external-auth.html
 
 .. code-block:: bash
 
