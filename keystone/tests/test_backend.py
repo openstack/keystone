@@ -5002,7 +5002,7 @@ class InheritanceTests(object):
         self.assertIn(role_list[3]['id'], combined_list)
 
     def test_list_projects_for_user_with_inherited_grants(self):
-        """Test inherited group roles.
+        """Test inherited user roles.
 
         Test Plan:
 
