@@ -61,11 +61,6 @@ class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
 
         self.api = auth.controllers.Auth()
 
-    def config_files(self):
-        config_files = super(TestAuthPlugin, self).config_files()
-        config_files.append(tests.dirs.tests_conf('test_auth_plugin.conf'))
-        return config_files
-
     def config_overrides(self):
         super(TestAuthPlugin, self).config_overrides()
         method_opts = dict(
