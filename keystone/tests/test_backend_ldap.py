@@ -785,6 +785,79 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         self.assertEqual(role_id, role_ref['id'])
 
+    def test_user_enabled_ignored_disable(self):
+        # When the server is configured so that the enabled attribute is
+        # ignored for users and a user is disabled, the user remains enabled.
+        # FIXME(blk-u): An error should be raised when a client tries to
+        # disable a user and enabled is an ignored attribute. See bug 1241134.
+
+        self.config_fixture.config(group='ldap',
+                                   user_attribute_ignore=['enabled'])
+
+        # Need to re-load backends for the config change to take effect.
+        self.load_backends()
+
+        # Disable the user.
+        self.identity_api.update_user(self.user_foo['id'], {'enabled': False})
+
+        user_info = self.identity_api.get_user(self.user_foo['id'])
+
+        # If 'enabled' is ignored then 'enabled' isn't returned as part of the
+        # ref.
+        self.assertNotIn('enabled', user_info)
+
+    def test_group_enabled_ignored_disable(self):
+        # When the server is configured so that the enabled attribute is
+        # ignored for groups and a group is disabled, the group remains
+        # enabled.
+        # FIXME(blk-u): An error should be raised when a client tries to
+        # disable a group and enabled is an ignored attribute. See bug 1241134.
+
+        self.config_fixture.config(group='ldap',
+                                   group_attribute_ignore=['enabled'])
+
+        # Need to re-load backends for the config change to take effect.
+        self.load_backends()
+
+        # There's no group fixture so create a group.
+        new_domain = self._get_domain_fixture()
+        new_group = {'domain_id': new_domain['id'],
+                     'name': uuid.uuid4().hex}
+        new_group = self.identity_api.create_group(new_group)
+
+        # Disable the group.
+        self.identity_api.update_group(new_group['id'], {'enabled': False})
+
+        group_info = self.identity_api.get_group(new_group['id'])
+
+        # If 'enabled' is ignored then 'enabled' isn't returned as part of the
+        # ref.
+        self.assertNotIn('enabled', group_info)
+
+    def test_project_enabled_ignored_disable(self):
+        # When the server is configured so that the enabled attribute is
+        # ignored for projects and a project is disabled, the project remains
+        # enabled.
+        # FIXME(blk-u): An error should be raised when a client tries to
+        # disable a project and enabled is an ignored attribute. See
+        # bug 1241134.
+
+        self.config_fixture.config(group='ldap',
+                                   project_attribute_ignore=['enabled'])
+
+        # Need to re-load backends for the config change to take effect.
+        self.load_backends()
+
+        # Disable the project.
+        self.assignment_api.update_project(self.tenant_baz['id'],
+                                           {'enabled': False})
+
+        project_info = self.assignment_api.get_project(self.tenant_baz['id'])
+
+        # If 'enabled' is ignored then 'enabled' isn't returned as part of the
+        # ref.
+        self.assertNotIn('enabled', project_info)
+
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
@@ -2103,6 +2176,11 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
                           domain_id=new_domain['id'],
                           role_id='member')
 
+    def test_project_enabled_ignored_disable(self):
+        # Override
+        self.skipTest("Doesn't apply since LDAP configuration is ignored for "
+                      "SQL assignment backend.")
+
 
 class LdapIdentitySqlAssignmentWithMapping(LdapIdentitySqlAssignment):
     """Class to test mapping of default LDAP backend.
@@ -2516,6 +2594,21 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
                           self.assignment_api.get_domain,
                           domain['id'])
 
+    def test_user_enabled_ignored_disable(self):
+        # Override.
+        self.skipTest("Doesn't apply since LDAP config has no affect on the "
+                      "SQL identity backend.")
+
+    def test_group_enabled_ignored_disable(self):
+        # Override.
+        self.skipTest("Doesn't apply since LDAP config has no affect on the "
+                      "SQL identity backend.")
+
+    def test_project_enabled_ignored_disable(self):
+        # Override
+        self.skipTest("Doesn't apply since LDAP configuration is ignored for "
+                      "SQL assignment backend.")
+
 
 class DomainSpecificLDAPandSQLIdentity(
     BaseLDAPIdentity, tests.SQLDriverOverrides, tests.TestCase,
@@ -2662,6 +2755,21 @@ class DomainSpecificLDAPandSQLIdentity(
     def test_user_id_comma_grants(self):
         self.skipTest('Only valid if it is guaranteed to be talking to '
                       'the fakeldap backend')
+
+    def test_user_enabled_ignored_disable(self):
+        # Override.
+        self.skipTest("Doesn't apply since LDAP config has no affect on the "
+                      "SQL identity backend.")
+
+    def test_group_enabled_ignored_disable(self):
+        # Override.
+        self.skipTest("Doesn't apply since LDAP config has no affect on the "
+                      "SQL identity backend.")
+
+    def test_project_enabled_ignored_disable(self):
+        # Override
+        self.skipTest("Doesn't apply since LDAP configuration is ignored for "
+                      "SQL assignment backend.")
 
 
 class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
