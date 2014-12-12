@@ -374,7 +374,6 @@ class ServerTest(tests.TestCase):
 
     def setUp(self):
         super(ServerTest, self).setUp()
-        environment.use_eventlet()
         self.host = '127.0.0.1'
         self.port = '1234'
 
@@ -387,6 +386,7 @@ class ServerTest(tests.TestCase):
         server = environment.Server(mock.MagicMock(), host=self.host,
                                     port=self.port)
         server.start()
+        self.addCleanup(server.stop)
         self.assertTrue(mock_listen.called)
         self.assertFalse(mock_sock_dup.setsockopt.called)
 
@@ -399,6 +399,7 @@ class ServerTest(tests.TestCase):
         server = environment.Server(mock.MagicMock(), host=self.host,
                                     port=self.port, keepalive=True)
         server.start()
+        self.addCleanup(server.stop)
         mock_sock_dup.setsockopt.assert_called_once_with(socket.SOL_SOCKET,
                                                          socket.SO_KEEPALIVE,
                                                          1)
@@ -414,6 +415,7 @@ class ServerTest(tests.TestCase):
                                     port=self.port, keepalive=True,
                                     keepidle=1)
         server.start()
+        self.addCleanup(server.stop)
 
         self.assertEqual(mock_sock_dup.setsockopt.call_count, 2)
 
