@@ -35,6 +35,21 @@ class AssignmentType(object):
     USER_DOMAIN = 'UserDomain'
     GROUP_DOMAIN = 'GroupDomain'
 
+    @classmethod
+    def calculate_type(cls, user_id, group_id, project_id, domain_id):
+        if user_id:
+            if project_id:
+                return cls.USER_PROJECT
+            if domain_id:
+                return cls.USER_DOMAIN
+        if group_id:
+            if project_id:
+                return cls.GROUP_PROJECT
+            if domain_id:
+                return cls.GROUP_DOMAIN
+        # Invalid parameters combination
+        raise exception.AssignmentTypeCalculationError(**locals())
+
 
 class Assignment(keystone_assignment.Driver):
 
@@ -120,27 +135,12 @@ class Assignment(keystone_assignment.Driver):
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
 
-        def calculate_type(user_id, group_id, project_id, domain_id):
-            if user_id and project_id:
-                return AssignmentType.USER_PROJECT
-            elif user_id and domain_id:
-                return AssignmentType.USER_DOMAIN
-            elif group_id and project_id:
-                return AssignmentType.GROUP_PROJECT
-            elif group_id and domain_id:
-                return AssignmentType.GROUP_DOMAIN
-            else:
-                message_data = ', '.join(
-                    [user_id, group_id, project_id, domain_id])
-                raise exception.Error(message=_(
-                    'Unexpected combination of grant attributes - '
-                    'User, Group, Project, Domain: %s') % message_data)
-
-        type = calculate_type(user_id, group_id, project_id, domain_id)
+        assignment_type = AssignmentType.calculate_type(
+            user_id, group_id, project_id, domain_id)
         try:
             with sql.transaction() as session:
                 session.add(RoleAssignment(
-                    type=type,
+                    type=assignment_type,
                     actor_id=user_id or group_id,
                     target_id=project_id or domain_id,
                     role_id=role_id,

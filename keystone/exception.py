@@ -387,6 +387,13 @@ class MetadataFileError(UnexpectedError):
     message_format = _("Error while reading metadata file, %(reason)s")
 
 
+class AssignmentTypeCalculationError(UnexpectedError):
+    message_format = _(
+        'Unexpected combination of grant attributes - '
+        'User: %(user_id)s, Group: %(group_id)s, Project: %(project_id)s, '
+        'Domain: %(domain_id)s')
+
+
 class NotImplemented(Error):
     message_format = _("The action you have requested has not"
                        " been implemented.")
