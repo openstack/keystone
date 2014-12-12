@@ -1825,14 +1825,6 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertEqual('crap', user_ref['id'])
         self.assertEqual('Foo Bar', user_ref['name'])
 
-    def test_update_role_same_name(self):
-        # Override
-        # This test is failing using the LDAP assignment backend, see
-        # bug 1401721.
-        # FIXME(blk-u): This should work.
-        self.assertRaises(exception.Conflict,
-                          super(LDAPIdentity, self).test_update_role_same_name)
-
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):
