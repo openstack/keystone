@@ -108,9 +108,7 @@ class Assignment(keystone_assignment.Driver):
         for assignment in refs:
             role_ref = {}
             role_ref['id'] = assignment.role_id
-            if assignment.inherited and (
-                    assignment.type == AssignmentType.USER_DOMAIN or
-                    assignment.type == AssignmentType.GROUP_DOMAIN):
+            if assignment.inherited:
                 role_ref['inherited_to'] = 'projects'
             metadata_ref['roles'].append(role_ref)
 
@@ -143,10 +141,6 @@ class Assignment(keystone_assignment.Driver):
                 self._get_domain(session, domain_id)
             if project_id:
                 self._get_project(session, project_id)
-
-            if project_id and inherited_to_projects:
-                msg = _('Inherited roles can only be assigned to domains')
-                raise exception.Conflict(type='role grant', details=msg)
 
         type = calculate_type(user_id, group_id, project_id, domain_id)
         try:
@@ -263,16 +257,29 @@ class Assignment(keystone_assignment.Driver):
 
             project_ids = set()
             for assignment in assignments:
-                if (assignment.type == AssignmentType.USER_PROJECT or
-                        assignment.type == AssignmentType.GROUP_PROJECT):
+                # NOTE(rodrigods): First, we always include projects with
+                # non-inherited assignments
+                if ((assignment.type == AssignmentType.USER_PROJECT or
+                        assignment.type == AssignmentType.GROUP_PROJECT) and
+                        not assignment.inherited):
                     project_ids.add(assignment.target_id)
 
             if not CONF.os_inherit.enabled:
                 return self._project_ids_to_dicts(session, project_ids)
 
             # Inherited roles are enabled, so check to see if this user has any
-            # such roles (direct or group) on any domain, in which case we must
-            # add in all the projects in that domain.
+            # inherited role (direct or group) on any parent project, in which
+            # case we must add in all the projects in that parent's subtree.
+
+            for assignment in assignments:
+                if ((assignment.type == AssignmentType.USER_PROJECT or
+                        assignment.type == AssignmentType.GROUP_PROJECT) and
+                        assignment.inherited):
+                    project_ids.update(
+                        (x['id'] for x in
+                         self.list_projects_in_subtree(assignment.target_id)))
+
+            # Use the same logic above to domains
 
             domain_ids = set()
             for assignment in assignments:
@@ -411,16 +418,30 @@ class Assignment(keystone_assignment.Driver):
 
     def _get_group_project_roles(self, session, groups, project_id,
                                  project_domain_id):
+        # NOTE(rodrigods): First, we always include projects with
+        # non-inherited assignments
         sql_constraints = sqlalchemy.and_(
             RoleAssignment.type == AssignmentType.GROUP_PROJECT,
+            RoleAssignment.inherited == false(),
             RoleAssignment.target_id == project_id)
         if CONF.os_inherit.enabled:
+            # Inherited roles from domains
             sql_constraints = sqlalchemy.or_(
                 sql_constraints,
                 sqlalchemy.and_(
                     RoleAssignment.type == AssignmentType.GROUP_DOMAIN,
                     RoleAssignment.inherited,
                     RoleAssignment.target_id == project_domain_id))
+
+            # Inherited roles from projects
+            project_parents = [x['id']
+                               for x in self.list_project_parents(project_id)]
+            sql_constraints = sqlalchemy.or_(
+                sql_constraints,
+                sqlalchemy.and_(
+                    RoleAssignment.type == AssignmentType.GROUP_PROJECT,
+                    RoleAssignment.inherited,
+                    RoleAssignment.target_id.in_(project_parents)))
         sql_constraints = sqlalchemy.and_(sql_constraints,
                                           RoleAssignment.actor_id.in_(groups))
 
@@ -535,8 +556,7 @@ class Assignment(keystone_assignment.Driver):
                     'Unexpected assignment type encountered, %s') %
                     ref.type)
             assignment['role_id'] = ref.role_id
-            if ref.inherited and (ref.type == AssignmentType.USER_DOMAIN or
-                                  ref.type == AssignmentType.GROUP_DOMAIN):
+            if ref.inherited:
                 assignment['inherited_to_projects'] = 'projects'
             return assignment
 

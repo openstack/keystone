@@ -1077,6 +1077,9 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             if ref['scope'].get('domain'):
                 self.assertEqual(ref['scope']['domain']['id'],
                                  entity['scope']['domain']['id'])
+            if ref['scope'].get('OS-INHERIT:inherited_to'):
+                self.assertEqual(ref['scope']['OS-INHERIT:inherited_to'],
+                                 entity['scope']['OS-INHERIT:inherited_to'])
         if url:
             self.assertIn(url, entity['links']['assignment'])
 

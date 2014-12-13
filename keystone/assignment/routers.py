@@ -233,3 +233,31 @@ class Routers(wsgi.RoutersBase):
                     'domain_id': json_home.Parameters.DOMAIN_ID,
                     'user_id': json_home.Parameters.USER_ID,
                 })
+            self._add_resource(
+                mapper, role_controller,
+                path='/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/'
+                '{role_id}/inherited_to_projects',
+                get_head_action='check_grant',
+                put_action='create_grant',
+                delete_action='revoke_grant',
+                rel=build_os_inherit_relation(
+                    resource_name='project_user_role_inherited_to_projects'),
+                path_vars={
+                    'project_id': json_home.Parameters.PROJECT_ID,
+                    'user_id': json_home.Parameters.USER_ID,
+                    'role_id': json_home.Parameters.ROLE_ID,
+                })
+            self._add_resource(
+                mapper, role_controller,
+                path='/OS-INHERIT/projects/{project_id}/groups/{group_id}/'
+                'roles/{role_id}/inherited_to_projects',
+                get_head_action='check_grant',
+                put_action='create_grant',
+                delete_action='revoke_grant',
+                rel=build_os_inherit_relation(
+                    resource_name='project_group_role_inherited_to_projects'),
+                path_vars={
+                    'project_id': json_home.Parameters.PROJECT_ID,
+                    'group_id': json_home.Parameters.GROUP_ID,
+                    'role_id': json_home.Parameters.ROLE_ID,
+                })

@@ -354,10 +354,6 @@ class Assignment(assignment.Driver):
         if project_id:
             self.get_project(project_id)
 
-        if project_id and inherited_to_projects:
-            msg = _('Inherited roles can only be assigned to domains')
-            raise exception.Conflict(type='role grant', details=msg)
-
         try:
             metadata_ref = self._get_metadata(user_id, project_id,
                                               domain_id, group_id)
