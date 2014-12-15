@@ -33,7 +33,6 @@ from keystone.tests import unit as tests
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
-
 CONF = cfg.CONF
 
 
@@ -1109,7 +1108,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         - Delete the grant group1 has on ProjectA
         - Check tokens for user1 & user2 are no longer valid,
           since user1 and user2 are members of group1
-        - Check token for user3 is still valid
+        - Check token for user3 is invalid too
 
         """
         auth_data = self.build_authentication_request(
@@ -1152,10 +1151,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
                   expected_status=404)
-        # But user3's token should still be valid
+        # But user3's token should be invalid too as revocation is done for
+        # scope role & project
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token3},
-                  expected_status=200)
+                  expected_status=404)
 
     def test_domain_group_role_assignment_maintains_token(self):
         """Test domain-group role assignment maintains existing token.
@@ -1242,6 +1242,14 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def test_removing_role_assignment_does_not_affect_other_users(self):
         """Revoking a role from one user should not affect other users."""
+
+        # This group grant is not needed for the test
+        self.delete(
+            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s' %
+            {'project_id': self.projectA['id'],
+             'group_id': self.group1['id'],
+             'role_id': self.role1['id']})
+
         user1_token = self.get_requested_token(
             self.build_authentication_request(
                 user_id=self.user1['id'],
@@ -1260,12 +1268,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                 'project_id': self.projectA['id'],
                 'user_id': self.user1['id'],
                 'role_id': self.role1['id']})
-        self.delete(
-            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s' %
-            {'project_id': self.projectA['id'],
-             'group_id': self.group1['id'],
-             'role_id': self.role1['id']})
-
         # authorization for the first user should now fail
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': user1_token},
@@ -1422,6 +1424,58 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
                   expected_status=200)
+
+
+class TestTokenRevokeByAssignment(TestTokenRevokeById):
+
+    def config_overrides(self):
+        super(TestTokenRevokeById, self).config_overrides()
+        self.config_fixture.config(
+            group='revoke',
+            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.uuid.Provider',
+            revoke_by_id=True)
+
+    def test_removing_role_assignment_keeps_other_project_token_groups(self):
+        """Test assignment isolation.
+
+        Revoking a group role from one project should not invalidate all group
+        users' tokens
+        """
+        self.assignment_api.create_grant(self.role1['id'],
+                                         group_id=self.group1['id'],
+                                         project_id=self.projectB['id'])
+
+        project_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password'],
+                project_id=self.projectB['id']))
+
+        other_project_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password'],
+                project_id=self.projectA['id']))
+
+        self.assignment_api.delete_grant(self.role1['id'],
+                                         group_id=self.group1['id'],
+                                         project_id=self.projectB['id'])
+
+        # authorization for the projectA should still succeed
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': other_project_token},
+                  expected_status=200)
+        # while token for the projectB should not
+        self.head('/auth/tokens',
+                  headers={'X-Subject-Token': project_token},
+                  expected_status=404)
+        revoked_tokens = [
+            t['id'] for t in self.token_provider_api.list_revoked_tokens()]
+        # token is in token revocation list
+        self.assertIn(project_token, revoked_tokens)
 
 
 class TestTokenRevokeApi(TestTokenRevokeById):

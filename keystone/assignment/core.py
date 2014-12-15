@@ -423,6 +423,11 @@ class Manager(manager.Manager):
     def _emit_invalidate_user_token_persistence(self, user_id):
         self.identity_api.emit_invalidate_user_token_persistence(user_id)
 
+    def _emit_invalidate_grant_token_persistence(self, user_id, project_id):
+        self.identity_api.emit_invalidate_grant_token_persistence(
+            {'user_id': user_id, 'project_id': project_id}
+        )
+
     @notifications.role_assignment('created')
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
@@ -460,6 +465,10 @@ class Manager(manager.Manager):
         return self.role_api.list_roles_from_ids(grant_ids)
 
     @notifications.role_assignment('deleted')
+    def _emit_revoke_user_grant(self, role_id, user_id, domain_id, project_id,
+                                inherited_to_projects, context):
+        self._emit_invalidate_grant_token_persistence(user_id, project_id)
+
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
@@ -468,17 +477,29 @@ class Manager(manager.Manager):
                                             role_id=role_id,
                                             domain_id=domain_id,
                                             project_id=project_id)
+            self._emit_revoke_user_grant(
+                role_id, user_id, domain_id, project_id,
+                inherited_to_projects, context)
         else:
             try:
-                # NOTE(morganfainberg): The user ids are the important part
-                # for invalidating tokens below, so extract them here.
-                for user in self.identity_api.list_users_in_group(group_id):
-                    if user['id'] != user_id:
-                        self._emit_invalidate_user_token_persistence(
-                            user['id'])
-                        self.revoke_api.revoke_by_grant(
-                            user_id=user['id'], role_id=role_id,
-                            domain_id=domain_id, project_id=project_id)
+                # Group may contain a lot of users so revocation will be
+                # by role & domain/project
+                if domain_id is None:
+                    self.revoke_api.revoke_by_project_role_assignment(
+                        project_id, role_id
+                    )
+                else:
+                    self.revoke_api.revoke_by_domain_role_assignment(
+                        domain_id, role_id
+                    )
+                if CONF.token.revoke_by_id:
+                    # NOTE(morganfainberg): The user ids are the important part
+                    # for invalidating tokens below, so extract them here.
+                    for user in self.identity_api.list_users_in_group(
+                            group_id):
+                        self._emit_revoke_user_grant(
+                            role_id, user['id'], domain_id, project_id,
+                            inherited_to_projects, context)
             except exception.GroupNotFound:
                 LOG.debug('Group %s not found, no tokens to invalidate.',
                           group_id)
@@ -495,8 +516,6 @@ class Manager(manager.Manager):
             self.resource_api.get_project(project_id)
         self.driver.delete_grant(role_id, user_id, group_id, domain_id,
                                  project_id, inherited_to_projects)
-        if user_id is not None:
-            self._emit_invalidate_user_token_persistence(user_id)
 
     def delete_tokens_for_role_assignments(self, role_id):
         assignments = self.list_role_assignments_for_role(role_id=role_id)
