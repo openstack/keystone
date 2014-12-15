@@ -30,7 +30,6 @@ from keystone import exception
 from keystone import middleware
 from keystone.policy.backends import rules
 from keystone import tests
-from keystone.tests.ksfixtures import database
 from keystone.tests import rest
 
 
@@ -154,8 +153,6 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.addCleanup(self.remove_generated_paste_config)
         if new_paste_file:
             app_conf = 'config:%s' % (new_paste_file)
-
-        self.useFixture(database.Database(self.get_extensions()))
 
         super(RestfulTestCase, self).setUp(app_conf=app_conf)
 
