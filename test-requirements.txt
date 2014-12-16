@@ -29,7 +29,7 @@ WebTest>=2.0
 discover
 python-subunit>=0.0.18
 testrepository>=0.0.18
-testtools>=0.9.34
+testtools>=0.9.34,!=1.2.0,!=1.4.0
 testscenarios>=0.4
 
 # for python-keystoneclient
@@ -45,4 +45,4 @@ oslosphinx
 # Used only by oslo
 kombu>=2.4.8
 lockfile>=0.8
-stevedore>=0.14
+stevedore>=0.14,<1.2
