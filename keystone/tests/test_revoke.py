@@ -369,7 +369,7 @@ class RevokeTreeTests(tests.TestCase):
         token_data_2['expires_at'] = future_time
         self._assertTokenNotRevoked(token_data_2)
 
-        self.removeEvent(event)
+        self.remove_event(event)
         self._assertTokenNotRevoked(token_data_1)
 
     def test_revoke_by_audit_id(self):
@@ -388,7 +388,7 @@ class RevokeTreeTests(tests.TestCase):
         token_data_2['audit_chain_id'] = audit_id
         self._assertTokenNotRevoked(token_data_2)
 
-        self.removeEvent(event)
+        self.remove_event(event)
         self._assertTokenNotRevoked(token_data_1)
 
     def test_revoke_by_audit_chain_id(self):
@@ -407,7 +407,7 @@ class RevokeTreeTests(tests.TestCase):
         token_data_2['audit_chain_id'] = audit_id
         self._assertTokenRevoked(token_data_2)
 
-        self.removeEvent(event)
+        self.remove_event(event)
         self._assertTokenNotRevoked(token_data_1)
         self._assertTokenNotRevoked(token_data_2)
 
@@ -445,7 +445,7 @@ class RevokeTreeTests(tests.TestCase):
         self._revoke_by_expiration(user_id, future_time, domain_id=domain_id)
         self._assertTokenRevoked(token_data)
 
-    def removeEvent(self, event):
+    def remove_event(self, event):
         self.events.remove(event)
         self.tree.remove_event(event)
 
@@ -465,7 +465,7 @@ class RevokeTreeTests(tests.TestCase):
         for token in tokens:
             self._assertTokenNotRevoked(token)
 
-        self.removeEvent(event)
+        self.remove_event(event)
 
         self._assertTokenNotRevoked(token_to_revoke)
         for token in tokens:
@@ -479,14 +479,14 @@ class RevokeTreeTests(tests.TestCase):
                                       user_id=self.user_ids[0],
                                       project_id=self.project_ids[0])
         self._assertTokenRevoked(token_to_revoke)
-        self.removeEvent(event)
+        self.remove_event(event)
         self._assertTokenNotRevoked(token_to_revoke)
 
         event = self._revoke_by_grant(role_id=self.role_ids[1],
                                       user_id=self.user_ids[0],
                                       project_id=self.project_ids[0])
         self._assertTokenRevoked(token_to_revoke)
-        self.removeEvent(event)
+        self.remove_event(event)
         self._assertTokenNotRevoked(token_to_revoke)
 
         self._revoke_by_grant(role_id=self.role_ids[0],
