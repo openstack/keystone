@@ -20,7 +20,6 @@ import re
 import sys
 import weakref
 
-import ldap
 import ldap.filter
 import ldappool
 import six
