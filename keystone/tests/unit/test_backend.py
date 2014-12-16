@@ -4875,15 +4875,59 @@ class CatalogTests(object):
                           self.catalog_api.delete_service,
                           uuid.uuid4().hex)
 
-    def test_create_endpoint_404(self):
+    def test_create_endpoint_nonexistent_service(self):
         endpoint = {
             'id': uuid.uuid4().hex,
             'service_id': uuid.uuid4().hex,
         }
-        self.assertRaises(exception.ServiceNotFound,
+        self.assertRaises(exception.ValidationError,
                           self.catalog_api.create_endpoint,
                           endpoint['id'],
                           endpoint)
+
+    def test_update_endpoint_nonexistent_service(self):
+        dummy_service, enabled_endpoint, dummy_disabled_endpoint = (
+            self._create_endpoints())
+        new_endpoint = {
+            'service_id': uuid.uuid4().hex,
+        }
+        self.assertRaises(exception.ValidationError,
+                          self.catalog_api.update_endpoint,
+                          enabled_endpoint['id'],
+                          new_endpoint)
+
+    def test_create_endpoint_nonexistent_region(self):
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service.copy())
+
+        endpoint = {
+            'id': uuid.uuid4().hex,
+            'region_id': None,
+            'service_id': service['id'],
+            'interface': 'public',
+            'url': uuid.uuid4().hex,
+            'region_id': uuid.uuid4().hex,
+        }
+        self.assertRaises(exception.ValidationError,
+                          self.catalog_api.create_endpoint,
+                          endpoint['id'],
+                          endpoint)
+
+    def test_update_endpoint_nonexistent_region(self):
+        dummy_service, enabled_endpoint, dummy_disabled_endpoint = (
+            self._create_endpoints())
+        new_endpoint = {
+            'region_id': uuid.uuid4().hex,
+        }
+        self.assertRaises(exception.ValidationError,
+                          self.catalog_api.update_endpoint,
+                          enabled_endpoint['id'],
+                          new_endpoint)
 
     def test_get_endpoint_404(self):
         self.assertRaises(exception.EndpointNotFound,
@@ -4925,14 +4969,6 @@ class CatalogTests(object):
         if self._enabled_default_to_true_when_creating_endpoint:
             expected_endpoint['enabled'] = True
         self.assertDictEqual(expected_endpoint, res)
-
-    def test_update_endpoint_non_exist_region_id(self):
-        dummy_service_ref, endpoint_ref, dummy_disabled_endpoint_ref = (
-            self._create_endpoints())
-        self.assertRaises(exception.NotFound,
-                          self.catalog_api.update_endpoint,
-                          endpoint_ref['id'],
-                          {'region_id': uuid.uuid4().hex})
 
     def _create_endpoints(self):
         # Creates a service and 2 endpoints for the service in the same region.

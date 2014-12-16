@@ -121,7 +121,6 @@ class Catalog(kvs.Base, catalog.Driver):
     # endpoint crud
 
     def create_endpoint(self, endpoint_id, endpoint):
-        self.get_service(endpoint['service_id'])
         self.db.set('endpoint-%s' % endpoint_id, endpoint)
         endpoint_list = set(self.db.get('endpoint_list', []))
         endpoint_list.add(endpoint_id)

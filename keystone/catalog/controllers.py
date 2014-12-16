@@ -302,7 +302,6 @@ class EndpointV3(controller.V3Controller):
     @validation.validated(schema.endpoint_create, 'endpoint')
     def create_endpoint(self, context, endpoint):
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
-        self.catalog_api.get_service(ref['service_id'])
         ref = self._validate_endpoint_region(ref, context)
         initiator = notifications._get_request_audit_info(context)
         ref = self.catalog_api.create_endpoint(ref['id'], ref, initiator)
@@ -324,8 +323,6 @@ class EndpointV3(controller.V3Controller):
     def update_endpoint(self, context, endpoint_id, endpoint):
         self._require_matching_id(endpoint_id, endpoint)
 
-        if 'service_id' in endpoint:
-            self.catalog_api.get_service(endpoint['service_id'])
         endpoint = self._validate_endpoint_region(endpoint.copy(), context)
 
         initiator = notifications._get_request_audit_info(context)
