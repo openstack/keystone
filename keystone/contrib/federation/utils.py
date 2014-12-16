@@ -107,14 +107,14 @@ MAPPING_SCHEMA = {
 
 
 def validate_mapping_structure(ref):
-        v = jsonschema.Draft4Validator(MAPPING_SCHEMA)
+    v = jsonschema.Draft4Validator(MAPPING_SCHEMA)
 
-        messages = ''
-        for error in sorted(v.iter_errors(ref), key=str):
-            messages = messages + error.message + "\n"
+    messages = ''
+    for error in sorted(v.iter_errors(ref), key=str):
+        messages = messages + error.message + "\n"
 
-        if messages:
-            raise exception.ValidationError(messages)
+    if messages:
+        raise exception.ValidationError(messages)
 
 
 def validate_expiration(token_ref):
