@@ -449,3 +449,11 @@ class SAMLSigningError(UnexpectedError):
                              'installed, or this is the result of '
                              'misconfiguration. Reason %(reason)s')
     title = 'Error signing SAML assertion'
+
+
+class OAuthHeadersMissingError(UnexpectedError):
+    debug_message_format = _('No Authorization headers found, cannot proceed '
+                             'with OAuth related calls, if running under '
+                             'HTTPd or Apache, ensure WSGIPassAuthorization '
+                             'is set to On.')
+    title = 'Error retrieving OAuth headers'
