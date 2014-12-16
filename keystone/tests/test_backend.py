@@ -3663,6 +3663,14 @@ class IdentityTests(object):
         self.assertIn(project2, project_refs)
         self.assertIn(project3, project_refs)
 
+    def test_update_role_no_name(self):
+        # A user can update a role and not include the name.
+
+        # description is picked just because it's not name.
+        self.assignment_api.update_role(self.role_member['id'],
+                                        {'description': uuid.uuid4().hex})
+        # If the previous line didn't raise an exception then the test passes.
+
 
 class TokenTests(object):
     def _create_token_id(self):
