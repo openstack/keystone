@@ -1675,8 +1675,7 @@ class TestAuthKerberos(TestAuthExternalDomain):
             token='keystone.auth.plugins.token.Token')
 
 
-class TestAuthJSON(test_v3.RestfulTestCase):
-    content_type = 'json'
+class TestAuth(test_v3.RestfulTestCase):
 
     def test_unscoped_token_with_user_id(self):
         auth_data = self.build_authentication_request(
@@ -1777,9 +1776,6 @@ class TestAuthJSON(test_v3.RestfulTestCase):
                          self.project['id'])
 
     def test_auth_catalog_attributes(self):
-        if self.content_type == 'xml':
-            self.skipTest('XML catalog parsing is just broken')
-
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'],
@@ -1823,8 +1819,7 @@ class TestAuthJSON(test_v3.RestfulTestCase):
             project_id=self.project['id'])
         r = self.v3_authenticate_token(auth_data)
 
-        # In JSON, this is an empty list. In XML, this is an empty string.
-        self.assertFalse(r.result['token']['catalog'])
+        self.assertEqual([], r.result['token']['catalog'])
 
     def test_auth_catalog_disabled_endpoint(self):
         """On authenticate, get a catalog that excludes disabled endpoints."""
@@ -2561,18 +2556,6 @@ class TestAuthJSONExternal(test_v3.RestfulTestCase):
                           context,
                           auth_info,
                           auth_context)
-
-
-class TestAuthXML(TestAuthJSON):
-    content_type = 'xml'
-
-    def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):
-        # FIXME(blk-u): As far as I can tell the catalog in the XML result is
-        # broken. Looks like it includes only one endpoint or the other, and
-        # which one is included is random.
-
-        endpoint = catalog['service']['endpoint']
-        self.assertEqual(self.endpoint_id, endpoint['id'])
 
 
 class TestTrustOptional(test_v3.RestfulTestCase):

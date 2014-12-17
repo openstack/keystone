@@ -314,11 +314,6 @@ class Auth(controller.V2Controller):
         if not environment.get('REMOTE_USER'):
             raise ExternalAuthNotApplicable()
 
-        # NOTE(jamielennox): xml and json differ and get confused about what
-        # empty auth should look like so just reset it.
-        if not auth:
-            auth = {}
-
         username = environment['REMOTE_USER']
         try:
             user_ref = self.identity_api.get_user_by_name(

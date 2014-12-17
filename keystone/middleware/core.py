@@ -18,14 +18,12 @@ import webob.dec
 
 from keystone.common import authorization
 from keystone.common import config
-from keystone.common import serializer
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _LW
 from keystone.models import token_model
 from keystone.openstack.common import log
-from keystone.openstack.common import versionutils
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
@@ -145,59 +143,32 @@ class JsonBodyMiddleware(wsgi.Middleware):
 
 
 class XmlBodyMiddleware(wsgi.Middleware):
-    """De/serializes XML to/from JSON."""
+    """De/serialize XML to/from JSON."""
 
-    @versionutils.deprecated(
-        what='keystone.middleware.core.XmlBodyMiddleware',
-        as_of=versionutils.deprecated.ICEHOUSE,
-        in_favor_of='support for "application/json" only',
-        remove_in=+2)
+    def print_warning(self):
+        LOG.warning(_LW('XML support has been removed as of the Kilo release '
+                        'and should not be referenced or used in deployment. '
+                        'Please remove references to XmlBodyMiddleware from '
+                        'your configuration. This compatibility stub will be '
+                        'removed in the L release'))
+
     def __init__(self, *args, **kwargs):
         super(XmlBodyMiddleware, self).__init__(*args, **kwargs)
-        self.xmlns = None
-
-    def process_request(self, request):
-        """Transform the request from XML to JSON."""
-        incoming_xml = 'application/xml' in str(request.content_type)
-        if incoming_xml and request.body:
-            request.content_type = 'application/json'
-            try:
-                request.body = jsonutils.dumps(
-                    serializer.from_xml(request.body))
-            except Exception:
-                LOG.exception('Serializer failed')
-                e = exception.ValidationError(attribute='valid XML',
-                                              target='request body')
-                return wsgi.render_exception(e, request=request)
-
-    def process_response(self, request, response):
-        """Transform the response from JSON to XML."""
-        outgoing_xml = 'application/xml' in str(request.accept)
-        if outgoing_xml and response.body:
-            response.content_type = 'application/xml'
-            try:
-                body_obj = jsonutils.loads(response.body)
-                response.body = serializer.to_xml(body_obj, xmlns=self.xmlns)
-            except Exception:
-                LOG.exception('Serializer failed')
-                raise exception.Error(message=response.body)
-        return response
+        self.print_warning()
 
 
 class XmlBodyMiddlewareV2(XmlBodyMiddleware):
-    """De/serializes XML to/from JSON for v2.0 API."""
+    """De/serialize XML to/from JSON for v2.0 API."""
 
     def __init__(self, *args, **kwargs):
-        super(XmlBodyMiddlewareV2, self).__init__(*args, **kwargs)
-        self.xmlns = 'http://docs.openstack.org/identity/api/v2.0'
+        pass
 
 
 class XmlBodyMiddlewareV3(XmlBodyMiddleware):
-    """De/serializes XML to/from JSON for v3 API."""
+    """De/serialize XML to/from JSON for v3 API."""
 
     def __init__(self, *args, **kwargs):
-        super(XmlBodyMiddlewareV3, self).__init__(*args, **kwargs)
-        self.xmlns = 'http://docs.openstack.org/identity/api/v3'
+        pass
 
 
 class NormalizingFilter(wsgi.Middleware):

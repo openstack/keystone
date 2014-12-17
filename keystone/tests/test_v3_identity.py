@@ -177,13 +177,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidUserListResponse(r, ref=user,
                                          resource_url=resource_url)
 
-    def test_list_users_xml(self):
-        """Call ``GET /users`` (xml data)."""
-        resource_url = '/users'
-        r = self.get(resource_url, content_type='xml')
-        self.assertValidUserListResponse(r, ref=self.user,
-                                         resource_url=resource_url)
-
     def test_get_user(self):
         """Call ``GET /users/{user_id}``."""
         r = self.get('/users/%(user_id)s' % {
@@ -367,13 +360,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """Call ``GET /groups``."""
         resource_url = '/groups'
         r = self.get(resource_url)
-        self.assertValidGroupListResponse(r, ref=self.group,
-                                          resource_url=resource_url)
-
-    def test_list_groups_xml(self):
-        """Call ``GET /groups`` (xml data)."""
-        resource_url = '/groups'
-        r = self.get(resource_url, content_type='xml')
         self.assertValidGroupListResponse(r, ref=self.group,
                                           resource_url=resource_url)
 

@@ -209,11 +209,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         for region in r.result['regions']:
             self.assertEqual(parent_id, region['parent_region_id'])
 
-    def test_list_regions_xml(self):
-        """Call ``GET /regions (xml data)``."""
-        r = self.get('/regions', content_type='xml')
-        self.assertValidRegionListResponse(r, ref=self.region)
-
     def test_get_region(self):
         """Call ``GET /regions/{region_id}``."""
         r = self.get('/regions/%(region_id)s' % {
@@ -389,11 +384,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         filtered_service = filtered_service_list[0]
         self.assertEqual(target_ref['name'], filtered_service['name'])
 
-    def test_list_services_xml(self):
-        """Call ``GET /services (xml data)``."""
-        r = self.get('/services', content_type='xml')
-        self.assertValidServiceListResponse(r, ref=self.service)
-
     def test_get_service(self):
         """Call ``GET /services/{service_id}``."""
         r = self.get('/services/%(service_id)s' % {
@@ -419,11 +409,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_list_endpoints(self):
         """Call ``GET /endpoints``."""
         r = self.get('/endpoints')
-        self.assertValidEndpointListResponse(r, ref=self.endpoint)
-
-    def test_list_endpoints_xml(self):
-        """Call ``GET /endpoints`` (xml data)."""
-        r = self.get('/endpoints', content_type='xml')
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
 
     def test_create_endpoint_no_enabled(self):

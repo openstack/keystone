@@ -30,30 +30,17 @@ CONF = config.CONF
 
 class CoreApiTests(object):
     def assertValidError(self, error):
-        """Applicable to XML and JSON."""
         self.assertIsNotNone(error.get('code'))
         self.assertIsNotNone(error.get('title'))
         self.assertIsNotNone(error.get('message'))
 
     def assertValidVersion(self, version):
-        """Applicable to XML and JSON.
-
-        However, navigating links and media-types differs between content
-        types so they need to be validated separately.
-
-        """
         self.assertIsNotNone(version)
         self.assertIsNotNone(version.get('id'))
         self.assertIsNotNone(version.get('status'))
         self.assertIsNotNone(version.get('updated'))
 
     def assertValidExtension(self, extension):
-        """Applicable to XML and JSON.
-
-        However, navigating extension links differs between content types.
-        They need to be validated separately with assertValidExtensionLink.
-
-        """
         self.assertIsNotNone(extension)
         self.assertIsNotNone(extension.get('name'))
         self.assertIsNotNone(extension.get('namespace'))
@@ -61,23 +48,19 @@ class CoreApiTests(object):
         self.assertIsNotNone(extension.get('updated'))
 
     def assertValidExtensionLink(self, link):
-        """Applicable to XML and JSON."""
         self.assertIsNotNone(link.get('rel'))
         self.assertIsNotNone(link.get('type'))
         self.assertIsNotNone(link.get('href'))
 
     def assertValidTenant(self, tenant):
-        """Applicable to XML and JSON."""
         self.assertIsNotNone(tenant.get('id'))
         self.assertIsNotNone(tenant.get('name'))
 
     def assertValidUser(self, user):
-        """Applicable to XML and JSON."""
         self.assertIsNotNone(user.get('id'))
         self.assertIsNotNone(user.get('name'))
 
     def assertValidRole(self, tenant):
-        """Applicable to XML and JSON."""
         self.assertIsNotNone(tenant.get('id'))
         self.assertIsNotNone(tenant.get('name'))
 
@@ -315,7 +298,7 @@ class CoreApiTests(object):
         self.assertValidUserResponse(r)
 
     def test_create_update_user_invalid_enabled_type(self):
-        # Enforce usage of boolean for 'enabled' field in JSON and XML
+        # Enforce usage of boolean for 'enabled' field in JSON
         token = self.get_scoped_token()
 
         # Test CREATE request
@@ -326,7 +309,6 @@ class CoreApiTests(object):
                 'user': {
                     'name': uuid.uuid4().hex,
                     'password': uuid.uuid4().hex,
-                    # In XML, only "true|false" are converted to boolean.
                     'enabled': "False",
                 },
             },
@@ -359,7 +341,6 @@ class CoreApiTests(object):
             path=path,
             body={
                 'user': {
-                    # In XML, only "true|false" are converted to boolean.
                     'enabled': "False",
                 },
             },
@@ -1403,363 +1384,3 @@ class RevokeApiJsonTestCase(JsonTestCase):
 
     def test_fetch_revocation_list_sha256(self):
         self.skipTest('Revoke API disables revocation_list.')
-
-
-class XmlTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
-    xmlns = 'http://docs.openstack.org/identity/api/v2.0'
-    content_type = 'xml'
-
-    def _get_user_id(self, r):
-        return r.get('id')
-
-    def _get_role_name(self, r):
-        return r[0].get('name')
-
-    def _get_role_id(self, r):
-        return r[0].get('id')
-
-    def _get_project_id(self, r):
-        return r.get('id')
-
-    def assertNoRoles(self, r):
-        self.assertEqual(0, len(r))
-
-    def _get_token_id(self, r):
-        return r.result.find(self._tag('token')).get('id')
-
-    def _tag(self, tag_name, xmlns=None):
-        """Helper method to build an namespaced element name."""
-        return '{%(ns)s}%(tag)s' % {'ns': xmlns or self.xmlns, 'tag': tag_name}
-
-    def assertValidErrorResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('error'), xml.tag)
-
-        self.assertValidError(xml)
-        self.assertEqual(str(r.status_code), xml.get('code'))
-
-    def assertValidExtension(self, extension, expected):
-        super(XmlTestCase, self).assertValidExtension(extension)
-
-        self.assertIsNotNone(extension.find(self._tag('description')))
-        self.assertTrue(extension.find(self._tag('description')).text)
-        links = extension.find(self._tag('links'))
-        self.assertNotEmpty(links.findall(self._tag('link')))
-        descriptions = [ext['description'] for ext in six.itervalues(expected)]
-        description = extension.find(self._tag('description')).text
-        self.assertIn(description, descriptions)
-        for link in links.findall(self._tag('link')):
-            self.assertValidExtensionLink(link)
-
-    def assertValidExtensionListResponse(self, r, expected):
-        xml = r.result
-        self.assertEqual(self._tag('extensions'), xml.tag)
-        self.assertNotEmpty(xml.findall(self._tag('extension')))
-        for ext in xml.findall(self._tag('extension')):
-            self.assertValidExtension(ext, expected)
-
-    def assertValidExtensionResponse(self, r, expected):
-        xml = r.result
-        self.assertEqual(self._tag('extension'), xml.tag)
-
-        self.assertValidExtension(xml, expected)
-
-    def assertValidVersion(self, version):
-        super(XmlTestCase, self).assertValidVersion(version)
-
-        links = version.find(self._tag('links'))
-        self.assertIsNotNone(links)
-        self.assertNotEmpty(links.findall(self._tag('link')))
-        for link in links.findall(self._tag('link')):
-            self.assertIsNotNone(link.get('rel'))
-            self.assertIsNotNone(link.get('href'))
-
-        media_types = version.find(self._tag('media-types'))
-        self.assertIsNotNone(media_types)
-        self.assertNotEmpty(media_types.findall(self._tag('media-type')))
-        for media in media_types.findall(self._tag('media-type')):
-            self.assertIsNotNone(media.get('base'))
-            self.assertIsNotNone(media.get('type'))
-
-    def assertValidMultipleChoiceResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('versions'), xml.tag)
-
-        self.assertNotEmpty(xml.findall(self._tag('version')))
-        for version in xml.findall(self._tag('version')):
-            self.assertValidVersion(version)
-
-    def assertValidVersionResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('version'), xml.tag)
-
-        self.assertValidVersion(xml)
-
-    def assertValidEndpointListResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('endpoints'), xml.tag)
-
-        self.assertNotEmpty(xml.findall(self._tag('endpoint')))
-        for endpoint in xml.findall(self._tag('endpoint')):
-            self.assertIsNotNone(endpoint.get('id'))
-            self.assertIsNotNone(endpoint.get('name'))
-            self.assertIsNotNone(endpoint.get('type'))
-            self.assertIsNotNone(endpoint.get('publicURL'))
-            self.assertIsNotNone(endpoint.get('internalURL'))
-            self.assertIsNotNone(endpoint.get('adminURL'))
-
-    def assertValidTenantResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('tenant'), xml.tag)
-
-        self.assertValidTenant(xml)
-
-    def assertValidUserResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('user'), xml.tag)
-
-        self.assertValidUser(xml)
-
-    def assertValidRoleListResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('roles'), xml.tag)
-
-        self.assertNotEmpty(r.result.findall(self._tag('role')))
-        for role in r.result.findall(self._tag('role')):
-            self.assertValidRole(role)
-
-    def assertValidAuthenticationResponse(self, r,
-                                          require_service_catalog=False):
-        xml = r.result
-        self.assertEqual(self._tag('access'), xml.tag)
-
-        # validate token
-        token = xml.find(self._tag('token'))
-        self.assertIsNotNone(token)
-        self.assertIsNotNone(token.get('id'))
-        self.assertIsNotNone(token.get('expires'))
-        tenant = token.find(self._tag('tenant'))
-        if tenant is not None:
-            # validate tenant
-            self.assertValidTenant(tenant)
-            self.assertIn(tenant.get('enabled'), ['true', 'false'])
-
-        user = xml.find(self._tag('user'))
-        self.assertIsNotNone(user)
-        self.assertIsNotNone(user.get('id'))
-        self.assertIsNotNone(user.get('name'))
-
-        if require_service_catalog:
-            # roles are only provided with a service catalog
-            roles = user.findall(self._tag('role'))
-            self.assertNotEmpty(roles)
-            for role in roles:
-                self.assertIsNotNone(role.get('name'))
-
-        serviceCatalog = xml.find(self._tag('serviceCatalog'))
-        # validate the serviceCatalog
-        if require_service_catalog:
-            self.assertIsNotNone(serviceCatalog)
-        if serviceCatalog is not None:
-            services = serviceCatalog.findall(self._tag('service'))
-            if require_service_catalog:
-                self.assertNotEmpty(services)
-            for service in services:
-                # validate service
-                self.assertIsNotNone(service.get('name'))
-                self.assertIsNotNone(service.get('type'))
-
-                # services contain at least one endpoint
-                endpoints = service.findall(self._tag('endpoint'))
-                self.assertNotEmpty(endpoints)
-                for endpoint in endpoints:
-                    # validate service endpoint
-                    self.assertIsNotNone(endpoint.get('publicURL'))
-
-    def assertValidTenantListResponse(self, r):
-        xml = r.result
-        self.assertEqual(self._tag('tenants'), xml.tag)
-
-        self.assertNotEmpty(r.result)
-        for tenant in r.result.findall(self._tag('tenant')):
-            self.assertValidTenant(tenant)
-            self.assertIn(tenant.get('enabled'), ['true', 'false'])
-
-    def get_user_from_response(self, r):
-        return r.result
-
-    def get_user_attribute_from_response(self, r, attribute_name):
-        return r.result.get(attribute_name)
-
-    def test_authenticate_with_invalid_xml_in_password(self):
-        # public_request would auto escape the ampersand
-        self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            headers={
-                'Content-Type': 'application/xml'
-            },
-            body="""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <auth xmlns="http://docs.openstack.org/identity/api/v2.0"
-                        tenantId="bar">
-                     <passwordCredentials username="FOO" password="&"/>
-                </auth>
-            """,
-            expected_status=400,
-            convert=False)
-
-    def test_add_tenant_xml(self):
-        """Create a tenant without providing description field."""
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/tenants',
-            headers={
-                'Content-Type': 'application/xml',
-                'X-Auth-Token': token
-            },
-            body="""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <tenant xmlns="http://docs.openstack.org/identity/api/v2.0"
-                enabled="true" name="ACME Corp">
-                <description></description>
-                </tenant>
-            """,
-            convert=False)
-        self._from_content_type(r, 'json')
-        self.assertIsNotNone(r.result.get('tenant'))
-        self.assertValidTenant(r.result['tenant'])
-        self.assertEqual("", r.result['tenant'].get('description'))
-
-    def test_add_tenant_json(self):
-        """Create a tenant without providing description field."""
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/tenants',
-            headers={
-                'Content-Type': 'application/json',
-                'X-Auth-Token': token
-            },
-            body="""
-                {"tenant":{
-                    "name":"test1",
-                    "description":"",
-                    "enabled":true}
-                }
-            """,
-            convert=False)
-        self._from_content_type(r, 'json')
-        self.assertIsNotNone(r.result.get('tenant'))
-        self.assertValidTenant(r.result['tenant'])
-        self.assertEqual("", r.result['tenant'].get('description'))
-
-    def test_create_project_invalid_enabled_type_string(self):
-        # Forbidden usage of string for 'enabled' field in JSON and XML
-        token = self.get_scoped_token()
-
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/tenants',
-            body={
-                'tenant': {
-                    'name': uuid.uuid4().hex,
-                    # In XML, only "true|false" are converted to boolean.
-                    'enabled': "False",
-                },
-            },
-            token=token,
-            expected_status=400)
-        self.assertValidErrorResponse(r)
-
-    def test_update_project_invalid_enabled_type_string(self):
-        # Forbidden usage of string for 'enabled' field in JSON and XML
-        token = self.get_scoped_token()
-
-        path = '/v2.0/tenants/%(tenant_id)s' % {
-               'tenant_id': self.tenant_bar['id'],
-        }
-
-        r = self.admin_request(
-            method='PUT',
-            path=path,
-            body={
-                'tenant': {
-                    # In XML, only "true|false" are converted to boolean.
-                    'enabled': "False",
-                },
-            },
-            token=token,
-            expected_status=400)
-        self.assertValidErrorResponse(r)
-
-    def test_authenticating_a_user_with_an_OSKSADM_password(self):
-        token = self.get_scoped_token()
-
-        xmlns = "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-
-        username = uuid.uuid4().hex
-        password = uuid.uuid4().hex
-
-        # create the user
-        self.admin_request(
-            method='POST',
-            path='/v2.0/users',
-            headers={
-                'Content-Type': 'application/xml'
-            },
-            body="""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <user xmlns="http://docs.openstack.org/identity/api/v2.0"
-                        xmlns:OS-KSADM="%(xmlns)s"
-                        name="%(username)s"
-                        OS-KSADM:password="%(password)s"
-                        enabled="true"/>
-            """ % dict(username=username, password=password, xmlns=xmlns),
-            token=token,
-            expected_status=200,
-            convert=False)
-
-        # successfully authenticate
-        self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            headers={
-                'Content-Type': 'application/xml'
-            },
-            body="""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <auth xmlns="http://docs.openstack.org/identity/api/v2.0"
-                        xmlns:OS-KSADM="%(xmlns)s">
-                    <passwordCredentials
-                            username="%(username)s"
-                            password="%(password)s"/>
-                </auth>
-            """ % dict(username=username, password=password, xmlns=xmlns),
-            token=token,
-            expected_status=200,
-            convert=False)
-
-    def test_remove_role_revokes_token(self):
-        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'],
-            self.tenant_service['id'],
-            self.role_service['id'])
-
-        token = self.get_scoped_token(tenant_id='service')
-        r = self.admin_request(
-            path='/v2.0/tokens/%s' % token,
-            token=token)
-        self.assertValidAuthenticationResponse(r)
-
-        self.assignment_api.remove_role_from_user_and_project(
-            self.user_foo['id'],
-            self.tenant_service['id'],
-            self.role_service['id'])
-
-        # TODO(ayoung): test fails due to XML problem
-#        r = self.admin_request(
-#            path='/v2.0/tokens/%s' % token,
-#            token=token,
-#            expected_status=401)

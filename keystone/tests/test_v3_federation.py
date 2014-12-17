@@ -26,7 +26,6 @@ import xmldsig
 
 from keystone.auth import controllers as auth_controllers
 from keystone.common import dependency
-from keystone.common import serializer
 from keystone import config
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import idp as keystone_idp
@@ -841,17 +840,6 @@ class FederatedTokenTests(FederationTests):
             'rules': rules or self.rules['rules']
         }
 
-    def _assertSerializeToXML(self, json_body):
-        """Serialize JSON body to XML.
-
-        Serialize JSON body to XML, then deserialize to JSON
-        again. Expect both JSON dictionaries to be equal.
-
-        """
-        xml_body = serializer.to_xml(json_body)
-        json_deserialized = serializer.from_xml(xml_body)
-        self.assertDictEqual(json_deserialized, json_body)
-
     def _scope_request(self, unscoped_token_id, scope, scope_id):
         return {
             'auth': {
@@ -931,23 +919,6 @@ class FederatedTokenTests(FederationTests):
         # make sure that REMOTE_USER set as the empty string won't interfere
         r = self._issue_unscoped_token(environment={'REMOTE_USER': ''})
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
-
-    def test_issue_unscoped_token_serialize_to_xml(self):
-        """Issue unscoped token and serialize to XML.
-
-        Make sure common.serializer doesn't complain about
-        the response structure and tag names.
-
-        """
-        r = self._issue_unscoped_token()
-        token_resp = r.json_body
-        # Remove 'extras' if empty or None,
-        # as JSON and XML (de)serializers treat
-        # them differently, making dictionaries
-        # comparisons fail.
-        if not token_resp['token'].get('extras'):
-            token_resp['token'].pop('extras')
-        self._assertSerializeToXML(token_resp)
 
     def test_issue_unscoped_token_no_groups(self):
         self.assertRaises(exception.Unauthorized,
