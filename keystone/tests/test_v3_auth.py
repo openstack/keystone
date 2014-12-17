@@ -403,6 +403,85 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
 
 
+class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
+    def config_overrides(self):
+        super(AllowRescopeScopedTokenDisabledTests, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            allow_rescope_scoped_token=False)
+
+    def test_rescoping_v3_to_v3_disabled(self):
+        self.v3_authenticate_token(
+            self.build_authentication_request(
+                token=self.get_scoped_token(),
+                project_id=self.project_id),
+            expected_status=403)
+
+    def _v2_token(self):
+        body = {
+            'auth': {
+                "tenantId": self.project['id'],
+                'passwordCredentials': {
+                    'userId': self.user['id'],
+                    'password': self.user['password']
+                }
+            }}
+        resp = self.admin_request(path='/v2.0/tokens',
+                                  method='POST',
+                                  body=body)
+        v2_token_data = resp.result
+        return v2_token_data
+
+    def _v2_token_from_token(self, token):
+        body = {
+            'auth': {
+                "tenantId": self.project['id'],
+                "token": token
+            }}
+        self.admin_request(path='/v2.0/tokens',
+                           method='POST',
+                           body=body,
+                           expected_status=403)
+
+    def test_rescoping_v2_to_v3_disabled(self):
+        token = self._v2_token()
+        self.v3_authenticate_token(
+            self.build_authentication_request(
+                token=token['access']['token']['id'],
+                project_id=self.project_id),
+            expected_status=403)
+
+    def test_rescoping_v3_to_v2_disabled(self):
+        token = {'id': self.get_scoped_token()}
+        self._v2_token_from_token(token)
+
+    def test_rescoping_v2_to_v2_disabled(self):
+        token = self._v2_token()
+        self._v2_token_from_token(token['access']['token'])
+
+    def test_rescoped_domain_token_disabled(self):
+
+        self.domainA = self.new_domain_ref()
+        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domainA['id'])
+        unscoped_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.user['id'],
+                password=self.user['password']))
+        # Get a domain-scoped token from the unscoped token
+        domain_scoped_token = self.get_requested_token(
+            self.build_authentication_request(
+                token=unscoped_token,
+                domain_id=self.domainA['id']))
+        self.v3_authenticate_token(
+            self.build_authentication_request(
+                token=domain_scoped_token,
+                project_id=self.project_id),
+            expected_status=403)
+
+
 class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
     def config_overrides(self):
         super(TestPKITokenAPIs, self).config_overrides()
