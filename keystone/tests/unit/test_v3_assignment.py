@@ -20,7 +20,6 @@ from keystone.common import controller
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = cfg.CONF
@@ -2297,12 +2296,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.head(direct_url, expected_status=404)
         self.head(inherited_url, expected_status=404)
 
-    @test_utils.wip('Waiting on bug #1403539')
     def test_crud_inherited_and_direct_assignment_on_domains(self):
         self._test_crud_inherited_and_direct_assignment_on_target(
             '/domains/%s' % self.domain_id)
 
-    @test_utils.wip('Waiting on bug #1403539')
     def test_crud_inherited_and_direct_assignment_on_projects(self):
         self._test_crud_inherited_and_direct_assignment_on_target(
             '/projects/%s' % self.project_id)
