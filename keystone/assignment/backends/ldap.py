@@ -683,11 +683,14 @@ class RoleApi(common_ldap.BaseLdap):
         self._delete_tree_nodes(tenant_dn, ldap.SCOPE_ONELEVEL)
 
     def update(self, role_id, role):
-        try:
-            old_name = self.get_by_name(role['name'])
-            raise exception.Conflict(_('Cannot duplicate name %s') % old_name)
-        except exception.NotFound:
-            pass
+        new_name = role.get('name')
+        if new_name is not None:
+            try:
+                old_name = self.get_by_name(new_name)
+                raise exception.Conflict(
+                    _('Cannot duplicate name %s') % old_name)
+            except exception.NotFound:
+                pass
         return super(RoleApi, self).update(role_id, role)
 
     def delete(self, role_id, tenant_dn):
