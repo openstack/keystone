@@ -686,9 +686,10 @@ class RoleApi(common_ldap.BaseLdap):
         new_name = role.get('name')
         if new_name is not None:
             try:
-                old_name = self.get_by_name(new_name)
-                raise exception.Conflict(
-                    _('Cannot duplicate name %s') % old_name)
+                old_role = self.get_by_name(new_name)
+                if old_role['id'] != role_id:
+                    raise exception.Conflict(
+                        _('Cannot duplicate name %s') % old_role)
             except exception.NotFound:
                 pass
         return super(RoleApi, self).update(role_id, role)
