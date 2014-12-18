@@ -488,6 +488,11 @@ FILE_OPTIONS = {
         cfg.StrOpt('assertion_prefix', default='',
                    help='Value to be used when filtering assertion parameters '
                         'from the environment.'),
+        cfg.StrOpt('remote_id_attribute',
+                   help='Value to be used to obtain the entity ID of the '
+                        'Identity Provider from the environment (e.g. if '
+                        'using the mod_shib plugin this value is '
+                        '`Shib-Identity-Provider`).'),
     ],
     'policy': [
         cfg.StrOpt('driver',

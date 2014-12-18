@@ -47,8 +47,10 @@ class IdentityProvider(_ControllerBase):
     collection_name = 'identity_providers'
     member_name = 'identity_provider'
 
-    _mutable_parameters = frozenset(['description', 'enabled'])
-    _public_parameters = frozenset(['id', 'enabled', 'description', 'links'])
+    _mutable_parameters = frozenset(['description', 'enabled', 'remote_id'])
+    _public_parameters = frozenset(['id', 'enabled', 'description',
+                                    'remote_id', 'links'
+                                    ])
 
     @classmethod
     def _add_related_links(cls, context, ref):

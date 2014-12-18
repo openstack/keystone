@@ -135,6 +135,30 @@ def validate_groups_cardinality(group_ids, mapping_id):
         raise exception.MissingGroups(mapping_id=mapping_id)
 
 
+def validate_idp(idp, assertion):
+    """Check if the IdP providing the assertion is the one registered for
+       the mapping
+    """
+    remote_id_parameter = CONF.federation.remote_id_attribute
+    if not remote_id_parameter or not idp['remote_id']:
+        LOG.warning(_LW('Impossible to identify the IdP %s '),
+                    idp['id'])
+        # If nothing is defined, the administrator may want to
+        # allow the mapping of everyy IdP
+        return
+    try:
+        idp_remote_identifier = assertion[remote_id_parameter]
+    except KeyError:
+        msg = _('Could not find Identity Provider identifier in '
+                'environment, check [federation] remote_id_attribute '
+                'for details.')
+        raise exception.ValidationError(msg)
+    if idp_remote_identifier != idp['remote_id']:
+        msg = _('Incoming identity provider identifier not included '
+                'among the accepeted identifiers.')
+        raise exception.Forbidden(msg)
+
+
 def validate_groups_in_backend(group_ids, mapping_id, identity_api):
     """Iterate over group ids and make sure they are present in the backend/
 

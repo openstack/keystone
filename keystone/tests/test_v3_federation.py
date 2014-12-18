@@ -144,6 +144,19 @@ class FederatedIdentityProviderTests(FederationTests):
                                  keys_to_check=keys_to_check,
                                  ref=body)
 
+    def test_create_idp_remote(self):
+        """Creates the IdentityProvider entity associated to a remote_id."""
+
+        keys_to_check = list(self.idp_keys)
+        keys_to_check.append('remote_id')
+        body = self.default_body.copy()
+        body['description'] = uuid.uuid4().hex
+        body['remote_id'] = uuid.uuid4().hex
+        resp = self._create_default_idp(body=body)
+        self.assertValidResponse(resp, 'identity_provider', dummy_validator,
+                                 keys_to_check=keys_to_check,
+                                 ref=body)
+
     def test_list_idps(self, iterations=5):
         """Lists all available IdentityProviders.
 
@@ -247,7 +260,9 @@ class FederatedIdentityProviderTests(FederationTests):
         self.assertIsNotNone(idp_id)
 
         _enabled = not default_idp.get('enabled')
-        body = {'description': uuid.uuid4().hex, 'enabled': _enabled}
+        body = {'remote_id': uuid.uuid4().hex,
+                'description': uuid.uuid4().hex,
+                'enabled': _enabled}
 
         body = {'identity_provider': body}
         resp = self.patch(url, body=body)
@@ -833,6 +848,9 @@ class FederatedTokenTests(FederationTests):
     AUTH_METHOD = 'saml2'
     USER = 'user@ORGANIZATION'
     ASSERTION_PREFIX = 'PREFIX_'
+    IDP_WITH_REMOTE = 'ORG_IDP_REMOTE'
+    REMOTE_ID = 'entityID_IDP'
+    REMOTE_ID_ATTR = uuid.uuid4().hex
 
     UNSCOPED_V3_SAML2_REQ = {
         "identity": {
@@ -939,12 +957,15 @@ class FederatedTokenTests(FederationTests):
         self.assertEqual(self.PROTOCOL, os_federation['protocol']['id'])
 
     def _issue_unscoped_token(self,
+                              idp=None,
                               assertion='EMPLOYEE_ASSERTION',
                               environment=None):
         api = federation_controllers.Auth()
         context = {'environment': environment or {}}
         self._inject_assertion(context, assertion)
-        r = api.federated_authentication(context, self.IDP, self.PROTOCOL)
+        if idp is None:
+            idp = self.IDP
+        r = api.federated_authentication(context, idp, self.PROTOCOL)
         return r
 
     def test_issue_unscoped_token_notify(self):
@@ -967,6 +988,42 @@ class FederatedTokenTests(FederationTests):
         self.assertRaises(exception.MappedGroupNotFound,
                           self._issue_unscoped_token,
                           assertion='ANOTHER_TESTER_ASSERTION')
+
+    def test_issue_unscoped_token_with_remote_no_attribute(self):
+        r = self._issue_unscoped_token(idp=self.IDP_WITH_REMOTE,
+                                       environment={
+                                           self.REMOTE_ID_ATTR: self.REMOTE_ID
+                                       })
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_issue_unscoped_token_with_remote(self):
+        self.config_fixture.config(group='federation',
+                                   remote_id_attribute=self.REMOTE_ID_ATTR)
+        r = self._issue_unscoped_token(idp=self.IDP_WITH_REMOTE,
+                                       environment={
+                                           self.REMOTE_ID_ATTR: self.REMOTE_ID
+                                       })
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+
+    def test_issue_unscoped_token_with_remote_different(self):
+        self.config_fixture.config(group='federation',
+                                   remote_id_attribute=self.REMOTE_ID_ATTR)
+        self.assertRaises(exception.Forbidden,
+                          self._issue_unscoped_token,
+                          idp=self.IDP_WITH_REMOTE,
+                          environment={
+                              self.REMOTE_ID_ATTR: uuid.uuid4().hex
+                          })
+
+    def test_issue_unscoped_token_with_remote_unavailable(self):
+        self.config_fixture.config(group='federation',
+                                   remote_id_attribute=self.REMOTE_ID_ATTR)
+        self.assertRaises(exception.ValidationError,
+                          self._issue_unscoped_token,
+                          idp=self.IDP_WITH_REMOTE,
+                          environment={
+                              uuid.uuid4().hex: uuid.uuid4().hex
+                          })
 
     def test_issue_unscoped_token_with_remote_user_as_empty_string(self):
         # make sure that REMOTE_USER set as the empty string won't interfere
@@ -1702,7 +1759,11 @@ class FederatedTokenTests(FederationTests):
         self.idp = self.idp_ref(id=self.IDP)
         self.federation_api.create_idp(self.idp['id'],
                                        self.idp)
-
+        # Add IDP with remote
+        self.idp_with_remote = self.idp_ref(id=self.IDP_WITH_REMOTE)
+        self.idp_with_remote['remote_id'] = self.REMOTE_ID
+        self.federation_api.create_idp(self.idp_with_remote['id'],
+                                       self.idp_with_remote)
         # Add a mapping
         self.mapping = self.mapping_ref()
         self.federation_api.create_mapping(self.mapping['id'],
@@ -1711,6 +1772,10 @@ class FederatedTokenTests(FederationTests):
         self.proto_saml = self.proto_ref(mapping_id=self.mapping['id'])
         self.proto_saml['id'] = self.PROTOCOL
         self.federation_api.create_protocol(self.idp['id'],
+                                            self.proto_saml['id'],
+                                            self.proto_saml)
+        # Add protocols IDP with remote
+        self.federation_api.create_protocol(self.idp_with_remote['id'],
                                             self.proto_saml['id'],
                                             self.proto_saml)
         # Generate fake tokens
