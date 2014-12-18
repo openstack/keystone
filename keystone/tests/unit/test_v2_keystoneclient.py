@@ -707,6 +707,20 @@ class ClientDrivenTestCase(tests.TestCase):
                           client.roles.create,
                           name="")
 
+    def test_role_create_member_role(self):
+        # delete the member role so that we can recreate it
+        client = self.get_client(admin=True)
+        client.roles.delete(role=CONF.member_role_id)
+
+        # deleting the member role revokes our token, so re-authenticate
+        client = self.get_client(admin=True)
+
+        # specify only the role name on creation
+        role = client.roles.create(name=CONF.member_role_name)
+
+        # the ID should be set as defined in CONF
+        self.assertEqual(CONF.member_role_id, role.id)
+
     def test_role_get_404(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
