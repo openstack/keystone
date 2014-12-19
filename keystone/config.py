@@ -13,6 +13,7 @@
 # under the License.
 """Wrapper for keystone.common.config that configures itself on import."""
 
+import logging
 import os
 
 from keystone.common import config
@@ -55,6 +56,7 @@ def set_default_for_default_log_levels():
 def setup_logging():
     """Sets up logging for the keystone package."""
     log.setup('keystone')
+    logging.captureWarnings(True)
 
 
 def find_paste_config():
