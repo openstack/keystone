@@ -30,6 +30,7 @@ from oslo.config import fixture as config_fixture
 import oslotest.base as oslotest
 from oslotest import mockpatch
 import six
+from sqlalchemy import exc
 from testtools import testcase
 import webob
 
@@ -479,6 +480,9 @@ class TestCase(BaseTestCase):
                 logger.setLevel(level_name)
 
         warnings.filterwarnings('ignore', category=DeprecationWarning)
+        warnings.simplefilter('error', exc.SAWarning)
+        self.addCleanup(warnings.resetwarnings)
+
         self.useFixture(ksfixtures.Cache())
 
         # Clear the registry of providers so that providers from previous

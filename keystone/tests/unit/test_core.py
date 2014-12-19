@@ -13,7 +13,9 @@
 #   under the License.
 
 import sys
+import warnings
 
+from sqlalchemy import exc
 from testtools import matchers
 
 from keystone.openstack.common import log
@@ -35,3 +37,8 @@ class TestTestCase(tests.TestCase):
         self.assertThat(
             lambda: LOG.warn('String %(p1)s %(p2)s', {'p1': 'something'}),
             matchers.raises(tests.BadLog))
+
+    def test_sa_warning(self):
+        self.assertThat(
+            lambda: warnings.warn('test sa warning error', exc.SAWarning),
+            matchers.raises(exc.SAWarning))
