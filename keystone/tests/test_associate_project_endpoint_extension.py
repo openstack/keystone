@@ -15,6 +15,8 @@
 import copy
 import uuid
 
+from testtools import matchers
+
 # NOTE(morganfainberg): import endpoint filter to populate the SQL model
 from keystone.contrib import endpoint_filter  # noqa
 from keystone.tests import test_v3
@@ -629,6 +631,11 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         self.assertEqual(expected_filters,
                          r.result['endpoint_group']['filters'])
         self.assertEqual(expected_name, r.result['endpoint_group']['name'])
+        self.assertThat(
+            r.result['endpoint_group']['links']['self'],
+            matchers.EndsWith(
+                '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
+                    'endpoint_group_id': r.result['endpoint_group']['id']}))
 
     def test_create_invalid_endpoint_group(self):
         """POST /OS-EP-FILTER/endpoint_groups
@@ -663,6 +670,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
                          response.result['endpoint_group']['filters'])
         self.assertEqual(endpoint_group_name,
                          response.result['endpoint_group']['name'])
+        self.assertThat(response.result['endpoint_group']['links']['self'],
+                        matchers.EndsWith(url))
 
     def test_get_invalid_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -718,6 +727,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
                          r.result['endpoint_group']['id'])
         self.assertEqual(body['endpoint_group']['filters'],
                          r.result['endpoint_group']['filters'])
+        self.assertThat(r.result['endpoint_group']['links']['self'],
+                        matchers.EndsWith(url))
 
     def test_patch_nonexistent_endpoint_group(self):
         """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}

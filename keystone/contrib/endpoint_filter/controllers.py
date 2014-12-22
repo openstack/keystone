@@ -149,6 +149,14 @@ class EndpointGroupV3Controller(_ControllerBase):
     def __init__(self):
         super(EndpointGroupV3Controller, self).__init__()
 
+    @classmethod
+    def base_url(cls, context, path=None):
+        """Construct a path and pass it to V3Controller.base_url method."""
+
+        path = '/OS-EP-FILTER/' + cls.collection_name
+        return super(EndpointGroupV3Controller, cls).base_url(context,
+                                                              path=path)
+
     @controller.protected()
     def create_endpoint_group(self, context, endpoint_group):
         """Creates an Endpoint Group with the associated filters."""
