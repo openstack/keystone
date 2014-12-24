@@ -78,8 +78,7 @@ class RestfulTestCase(tests.TestCase):
     def request(self, app, path, body=None, headers=None, token=None,
                 expected_status=None, **kwargs):
         if headers:
-            headers = dict([(str(k), str(v)) for k, v
-                            in six.iteritems(headers)])
+            headers = {str(k): str(v) for k, v in six.iteritems(headers)}
         else:
             headers = {}
 

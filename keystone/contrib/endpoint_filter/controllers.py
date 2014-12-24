@@ -104,9 +104,9 @@ class EndpointFilterV3Controller(_ControllerBase):
         """List all endpoints currently associated with a given project."""
         self.resource_api.get_project(project_id)
         refs = self.endpoint_filter_api.list_endpoints_for_project(project_id)
-        filtered_endpoints = dict(
-            (ref['endpoint_id'], self.catalog_api.get_endpoint(
-                ref['endpoint_id'])) for ref in refs)
+        filtered_endpoints = {ref['endpoint_id']:
+                              self.catalog_api.get_endpoint(ref['endpoint_id'])
+                              for ref in refs}
 
         # need to recover endpoint_groups associated with project
         # then for each endpoint group return the endpoints.

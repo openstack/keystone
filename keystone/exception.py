@@ -62,8 +62,8 @@ class Error(Exception):
                 message = self.message_format % kwargs
             except UnicodeDecodeError:
                 try:
-                    kwargs = dict([(k, encodeutils.safe_decode(v)) for k, v in
-                                   six.iteritems(kwargs)])
+                    kwargs = {k: encodeutils.safe_decode(v)
+                              for k, v in six.iteritems(kwargs)}
                 except UnicodeDecodeError:
                     # NOTE(jamielennox): This is the complete failure case
                     # at least by showing the template we have some idea

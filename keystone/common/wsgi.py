@@ -283,8 +283,7 @@ class Application(BaseApplication):
         return arg.replace(':', '_').replace('-', '_')
 
     def _normalize_dict(self, d):
-        return dict([(self._normalize_arg(k), v)
-                     for (k, v) in six.iteritems(d)])
+        return {self._normalize_arg(k): v for (k, v) in six.iteritems(d)}
 
     def assert_admin(self, context):
         if not context['is_admin']:

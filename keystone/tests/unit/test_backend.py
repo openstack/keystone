@@ -2962,14 +2962,14 @@ class IdentityTests(object):
         user = self.identity_api.create_user(user_dict)
         user_ref = self.identity_api.get_user(user['id'])
         del user_dict['password']
-        user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
+        user_ref_dict = {x: user_ref[x] for x in user_ref}
         self.assertDictContainsSubset(user_dict, user_ref_dict)
 
         user_dict['password'] = uuid.uuid4().hex
         self.identity_api.update_user(user['id'], user_dict)
         user_ref = self.identity_api.get_user(user['id'])
         del user_dict['password']
-        user_ref_dict = dict((x, user_ref[x]) for x in user_ref)
+        user_ref_dict = {x: user_ref[x] for x in user_ref}
         self.assertDictContainsSubset(user_dict, user_ref_dict)
 
         self.identity_api.delete_user(user['id'])

@@ -42,7 +42,7 @@ class V3ControllerTestCase(tests.TestCase):
 
     def test_check_immutable_params_fail(self):
         """Pass invalid parameter to the method and expect failure."""
-        ref = dict([(uuid.uuid4().hex, uuid.uuid4().hex) for _ in range(3)])
+        ref = {uuid.uuid4().hex: uuid.uuid4().hex for _ in range(3)}
 
         ex = self.assertRaises(exception.ImmutableAttributeError,
                                self.api.check_immutable_params, ref)

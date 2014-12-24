@@ -418,14 +418,13 @@ class MongoApi(object):
 
     def get_multi(self, keys):
         db_results = self._get_results_as_dict(keys)
-        return dict((doc['_id'], doc['value']) for doc in
-                    six.itervalues(db_results))
+        return {doc['_id']: doc['value'] for doc in six.itervalues(db_results)}
 
     def _get_results_as_dict(self, keys):
         critieria = {'_id': {'$in': keys}}
         db_results = self.get_cache_collection().find(spec=critieria,
                                                       **self.meth_kwargs)
-        return dict((doc['_id'], doc) for doc in db_results)
+        return {doc['_id']: doc for doc in db_results}
 
     def set(self, key, value):
         doc_date = self._get_doc_date()

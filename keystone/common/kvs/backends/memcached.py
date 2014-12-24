@@ -142,22 +142,21 @@ class MemcachedBackend(manager.Manager):
             # all ``set`` and ``set_multi`` calls by the driver, by calling
             # the client directly it is possible to exclude the ``time``
             # argument to the memcached server.
-            new_mapping = dict((k, mapping[k]) for k in no_expiry_keys)
+            new_mapping = {k: mapping[k] for k in no_expiry_keys}
             set_arguments = self._get_set_arguments_driver_attr(
                 exclude_expiry=True)
             self.driver.client.set_multi(new_mapping, **set_arguments)
 
         if has_expiry_keys:
-            new_mapping = dict((k, mapping[k]) for k in has_expiry_keys)
+            new_mapping = {k: mapping[k] for k in has_expiry_keys}
             self.driver.set_multi(new_mapping)
 
     @classmethod
     def from_config_dict(cls, config_dict, prefix):
         prefix_len = len(prefix)
         return cls(
-            dict((key[prefix_len:], config_dict[key])
-                 for key in config_dict
-                 if key.startswith(prefix)))
+            {key[prefix_len:]: config_dict[key] for key in config_dict
+             if key.startswith(prefix)})
 
     @property
     def key_mangler(self):

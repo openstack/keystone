@@ -125,8 +125,8 @@ class DictBase(models.ModelBase):
     def from_dict(cls, d):
         new_d = d.copy()
 
-        new_d['extra'] = dict((k, new_d.pop(k)) for k in six.iterkeys(d)
-                              if k not in cls.attributes and k != 'extra')
+        new_d['extra'] = {k: new_d.pop(k) for k in six.iterkeys(d)
+                          if k not in cls.attributes and k != 'extra'}
 
         return cls(**new_d)
 
@@ -163,7 +163,7 @@ class ModelDictMixin(object):
     def to_dict(self):
         """Returns the model's attributes as a dictionary."""
         names = (column.name for column in self.__table__.columns)
-        return dict((name, getattr(self, name)) for name in names)
+        return {name: getattr(self, name) for name in names}
 
 
 _engine_facade = None
