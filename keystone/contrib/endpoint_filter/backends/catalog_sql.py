@@ -40,7 +40,7 @@ class EndpointFilterCatalog(sql.Catalog):
 
         for entry in refs:
             try:
-                endpoint = self.get_endpoint(entry.endpoint_id)
+                endpoint = self.get_endpoint(entry['endpoint_id'])
                 if not endpoint['enabled']:
                     # Skip disabled endpoints.
                     continue
@@ -62,7 +62,7 @@ class EndpointFilterCatalog(sql.Catalog):
             except exception.EndpointNotFound:
                 # remove bad reference from association
                 self.endpoint_filter_api.remove_endpoint_from_project(
-                    entry.endpoint_id, project_id)
+                    entry['endpoint_id'], project_id)
 
         # format catalog
         catalog = []
