@@ -53,6 +53,12 @@ class HackingCode(fixtures.Fixture):
                 def funcs(bad=something(), more_bad=some_object.something()):
                     "defaults from any functions"
 
+                def f(bad=set(), more_bad={x for x in range(3)},
+                       even_more_bad={1, 2, 3}):
+                    "set and set comprehession"
+
+                def f(bad={x: x for x in range(3)}):
+                    "dict comprehension"
             """,
         'expected_errors': [
             (7, 10, 'K001'),
@@ -66,6 +72,10 @@ class HackingCode(fixtures.Fixture):
             (22, 53, 'K001'),
             (25, 14, 'K001'),
             (25, 36, 'K001'),
+            (28, 10, 'K001'),
+            (28, 27, 'K001'),
+            (29, 21, 'K001'),
+            (32, 11, 'K001'),
         ]}
 
     comments_begin_with_space = {
