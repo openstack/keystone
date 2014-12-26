@@ -47,6 +47,12 @@ class HackingCode(fixtures.Fixture):
                 def f(bad=[]): # noqa
                     pass
 
+                def funcs(bad=dict(), more_bad=list(), even_more_bad=set()):
+                    "creating mutables through builtins"
+
+                def funcs(bad=something(), more_bad=some_object.something()):
+                    "defaults from any functions"
+
             """,
         'expected_errors': [
             (7, 10, 'K001'),
@@ -55,6 +61,11 @@ class HackingCode(fixtures.Fixture):
             (13, 15, 'K001'),
             (16, 15, 'K001'),
             (16, 31, 'K001'),
+            (22, 14, 'K001'),
+            (22, 31, 'K001'),
+            (22, 53, 'K001'),
+            (25, 14, 'K001'),
+            (25, 36, 'K001'),
         ]}
 
     comments_begin_with_space = {
