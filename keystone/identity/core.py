@@ -213,9 +213,9 @@ def exception_translated(exception_type):
                 return f(self, *args, **kwargs)
             except exception.PublicIDNotFound as e:
                 if exception_type == 'user':
-                    raise exception.UserNotFound(user_id=e.message)
+                    raise exception.UserNotFound(user_id=str(e))
                 elif exception_type == 'group':
-                    raise exception.GroupNotFound(group_id=e.message)
+                    raise exception.GroupNotFound(group_id=str(e))
                 elif exception_type == 'assertion':
                     raise AssertionError(_('Invalid user / password'))
                 else:
