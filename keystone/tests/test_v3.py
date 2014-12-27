@@ -658,9 +658,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
             # sub test for the OS-EP-FILTER extension enabled
             if endpoint_filter:
-                # verify the catalog hs no more than the endpoints
-                # associated in the catalog using the ep filter assoc
-                self.assertTrue(len(token['catalog']) < ep_filter_assoc + 1)
+                self.assertThat(token['catalog'],
+                                matchers.HasLength(ep_filter_assoc))
         else:
             self.assertNotIn('catalog', token)
 
