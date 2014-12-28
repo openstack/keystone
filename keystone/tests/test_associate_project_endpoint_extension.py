@@ -16,7 +16,7 @@ import copy
 import uuid
 
 # NOTE(morganfainberg): import endpoint filter to populate the SQL model
-from keystone.contrib import endpoint_filter  # flake8: noqa
+from keystone.contrib import endpoint_filter  # noqa
 from keystone.tests import test_v3
 
 
@@ -234,8 +234,8 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
 
     def test_endpoint_project_association_cleanup_when_project_deleted(self):
         self.put(self.default_request_url)
-        association_url = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' % {
-            'endpoint_id': self.endpoint_id}
+        association_url = ('/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' %
+                           {'endpoint_id': self.endpoint_id})
         r = self.get(association_url, expected_status=200)
         self.assertValidProjectListResponse(r, expected_length=1)
 
@@ -262,7 +262,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
 class EndpointFilterTokenRequestTestCase(TestExtensionCase):
 
     def test_project_scoped_token_using_endpoint_filter(self):
-        """Verify endpoints from project scoped token filtered.""" 
+        """Verify endpoints from project scoped token filtered."""
         # create a project to work with
         ref = self.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': ref})
@@ -325,7 +325,7 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
         self.assertEqual(r.result['token']['project']['id'],
                          self.project['id'])
 
-    def test_project_scoped_token_with_no_catalog_using_endpoint_filter(self): 
+    def test_project_scoped_token_with_no_catalog_using_endpoint_filter(self):
         """Verify endpoint filter when project scoped token returns no catalog.
 
         Test that the project scoped token response is valid for a given
@@ -441,7 +441,7 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
 
         Test that the default project scoped token response is valid when
         there are no endpoint-project associations defined.
-        
+
         """
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -557,7 +557,7 @@ class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
         'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoint_group': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
-                '{endpoint_group_id}',
+            '{endpoint_group_id}',
             'href-vars': {
                 'endpoint_group_id':
                 'http://docs.openstack.org/api/openstack-identity/3/'
@@ -567,7 +567,7 @@ class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
         'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoint_group_to_project_association': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
-                '{endpoint_group_id}/projects/{project_id}',
+            '{endpoint_group_id}/projects/{project_id}',
             'href-vars': {
                 'project_id':
                 'http://docs.openstack.org/api/openstack-identity/3/param/'
@@ -580,7 +580,7 @@ class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
         'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/projects_associated_with_endpoint_group': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
-                '{endpoint_group_id}/projects',
+            '{endpoint_group_id}/projects',
             'href-vars': {
                 'endpoint_group_id':
                 'http://docs.openstack.org/api/openstack-identity/3/'
@@ -590,7 +590,7 @@ class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
         'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoints_in_endpoint_group': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
-                '{endpoint_group_id}/endpoints',
+            '{endpoint_group_id}/endpoints',
             'href-vars': {
                 'endpoint_group_id':
                 'http://docs.openstack.org/api/openstack-identity/3/'
@@ -602,14 +602,15 @@ class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
 
 class EndpointGroupCRUDTestCase(TestExtensionCase):
 
-    DEFAULT_ENDPOINT_GROUP_BODY = {'endpoint_group': {
-                        'description': 'endpoint group description',
-                        'filters': {
-                            'interface': 'admin'
-                        },
-                        'name': 'endpoint_group_name'
-                    }
-                }
+    DEFAULT_ENDPOINT_GROUP_BODY = {
+        'endpoint_group': {
+            'description': 'endpoint group description',
+                           'filters': {
+                               'interface': 'admin'
+                           },
+            'name': 'endpoint_group_name'
+        }
+    }
 
     DEFAULT_ENDPOINT_GROUP_URL = '/OS-EP-FILTER/endpoint_groups'
 
@@ -622,9 +623,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         r = self.post(self.DEFAULT_ENDPOINT_GROUP_URL,
                       body=self.DEFAULT_ENDPOINT_GROUP_BODY)
         expected_filters = (self.DEFAULT_ENDPOINT_GROUP_BODY
-                              ['endpoint_group']['filters'])
+                            ['endpoint_group']['filters'])
         expected_name = (self.DEFAULT_ENDPOINT_GROUP_BODY
-                              ['endpoint_group']['name'])
+                         ['endpoint_group']['name'])
         self.assertEqual(expected_filters,
                          r.result['endpoint_group']['filters'])
         self.assertEqual(expected_name, r.result['endpoint_group']['name'])
@@ -638,8 +639,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         invalid_body = copy.deepcopy(self.DEFAULT_ENDPOINT_GROUP_BODY)
         invalid_body['endpoint_group']['filters'] = {'foobar': 'admin'}
         self.post(self.DEFAULT_ENDPOINT_GROUP_URL,
-                 body=invalid_body,
-                 expected_status=400)
+                  body=invalid_body,
+                  expected_status=400)
 
     def test_get_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -654,8 +655,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoint_group_filters = response.result['endpoint_group']['filters']
         endpoint_group_name = response.result['endpoint_group']['name']
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                       'endpoint_group_id': endpoint_group_id}
-        r = self.get(url)
+            'endpoint_group_id': endpoint_group_id}
+        self.get(url)
         self.assertEqual(endpoint_group_id,
                          response.result['endpoint_group']['id'])
         self.assertEqual(endpoint_group_filters,
@@ -671,7 +672,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """
         endpoint_group_id = 'foobar'
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         self.get(url, expected_status=404)
 
     def test_check_endpoint_group(self):
@@ -682,9 +683,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         self.head(url, expected_status=200)
 
     def test_check_invalid_endpoint_group(self):
@@ -695,7 +696,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """
         endpoint_group_id = 'foobar'
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         self.head(url, expected_status=404)
 
     def test_patch_endpoint_group(self):
@@ -709,9 +710,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         body['endpoint_group']['name'] = 'patch_test'
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         r = self.patch(url, body=body)
         self.assertEqual(endpoint_group_id,
                          r.result['endpoint_group']['id'])
@@ -724,13 +725,14 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         Invalid endpoint group patch test case.
 
         """
-        body = {'endpoint_group': {
-                        'name': 'patch_test'
-                    }
-                }
+        body = {
+            'endpoint_group': {
+                'name': 'patch_test'
+            }
+        }
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': 'ABC'}
-        r = self.patch(url, body=body, expected_status=404)
+            'endpoint_group_id': 'ABC'}
+        self.patch(url, body=body, expected_status=404)
 
     def test_patch_invalid_endpoint_group(self):
         """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -738,20 +740,21 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         Valid endpoint group patch test case.
 
         """
-        body = {'endpoint_group': {
-                        'description': 'endpoint group description',
-                        'filters': {
-                            'region': 'UK'
-                        },
-                        'name': 'patch_test'
-                    }
-                }
+        body = {
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'filters': {
+                    'region': 'UK'
+                },
+                'name': 'patch_test'
+            }
+        }
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
-        r = self.patch(url, body=body, expected_status=400)
+            'endpoint_group_id': endpoint_group_id}
+        self.patch(url, body=body, expected_status=400)
 
     def test_delete_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -761,9 +764,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         self.delete(url)
         self.get(url, expected_status=404)
 
@@ -775,13 +778,13 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """
         endpoint_group_id = 'foobar'
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         self.delete(url, expected_status=404)
 
     def test_add_endpoint_group_to_project(self):
         """Create a valid endpoint group and project association."""
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         self._create_endpoint_group_project_association(endpoint_group_id,
                                                         self.project_id)
 
@@ -789,40 +792,42 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """Create an invalid endpoint group and project association."""
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # associate endpoint group with project
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects/%(project_id)s' % {
-                 'endpoint_group_id': endpoint_group_id,
-                 'project_id': 'abc'})
+               '/projects/%(project_id)s' %
+               {'endpoint_group_id': endpoint_group_id,
+                'project_id': 'abc'})
         self.put(url, expected_status=404)
 
     def test_get_endpoint_group_in_project(self):
         """Test retrieving project endpoint group association."""
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # associate endpoint group with project
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects/%(project_id)s' % {
-                 'endpoint_group_id': endpoint_group_id,
-                 'project_id': self.project_id})
+               '/projects/%(project_id)s' %
+               {'endpoint_group_id': endpoint_group_id,
+                'project_id': self.project_id})
         self.put(url)
         response = self.get(url)
-        self.assertEqual(endpoint_group_id,
-                         response.result['project_endpoint_group']['endpoint_group_id'])
-        self.assertEqual(self.project_id,
-                         response.result['project_endpoint_group']['project_id'])
+        self.assertEqual(
+            endpoint_group_id,
+            response.result['project_endpoint_group']['endpoint_group_id'])
+        self.assertEqual(
+            self.project_id,
+            response.result['project_endpoint_group']['project_id'])
 
     def test_get_invalid_endpoint_group_in_project(self):
         """Test retrieving project endpoint group association."""
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects/%(project_id)s' % {
-                 'endpoint_group_id': 'foo',
-                 'project_id': 'bar'})
-        response = self.get(url, expected_status=404)
+               '/projects/%(project_id)s' %
+               {'endpoint_group_id': 'foo',
+                'project_id': 'bar'})
+        self.get(url, expected_status=404)
 
     def test_check_endpoint_group_to_project(self):
         """Test HEAD with a valid endpoint group and project association."""
@@ -831,42 +836,43 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         self._create_endpoint_group_project_association(endpoint_group_id,
                                                         self.project_id)
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects/%(project_id)s' % {
-                 'endpoint_group_id': endpoint_group_id,
-                 'project_id': self.project_id})
+               '/projects/%(project_id)s' %
+               {'endpoint_group_id': endpoint_group_id,
+                'project_id': self.project_id})
         self.head(url, expected_status=200)
 
     def test_check_endpoint_group_to_project_with_invalid_project_id(self):
         """Test HEAD with an invalid endpoint group and project association."""
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # create an endpoint group to project association
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects/%(project_id)s' % {
-                 'endpoint_group_id': endpoint_group_id,
-                 'project_id': self.project_id})
+               '/projects/%(project_id)s' %
+               {'endpoint_group_id': endpoint_group_id,
+                'project_id': self.project_id})
         self.put(url)
 
         # send a head request with an invalid project id
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects/%(project_id)s' % {
-                 'endpoint_group_id': endpoint_group_id,
-                 'project_id': 'abc'})
+               '/projects/%(project_id)s' %
+               {'endpoint_group_id': endpoint_group_id,
+                'project_id': 'abc'})
         self.head(url, expected_status=404)
 
     def test_list_endpoint_groups(self):
         """GET /OS-EP-FILTER/endpoint_groups."""
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # recover all endpoint groups
         url = '/OS-EP-FILTER/endpoint_groups'
         r = self.get(url)
         self.assertNotEmpty(r.result['endpoint_groups'])
-        self.assertEqual(endpoint_group_id, r.result['endpoint_groups'][0].get('id'))
+        self.assertEqual(endpoint_group_id,
+                         r.result['endpoint_groups'][0].get('id'))
 
     def test_list_projects_associated_with_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects
@@ -876,7 +882,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """
         # create an endpoint group to work with
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # associate endpoint group with project
         self._create_endpoint_group_project_association(endpoint_group_id,
@@ -884,8 +890,8 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         # recover list of projects associated with endpoint group
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/projects' % {
-                 'endpoint_group_id': endpoint_group_id})
+               '/projects' %
+               {'endpoint_group_id': endpoint_group_id})
         self.get(url)
 
     def test_list_endpoints_associated_with_endpoint_group(self):
@@ -913,7 +919,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         body = copy.deepcopy(self.DEFAULT_ENDPOINT_GROUP_BODY)
         body['endpoint_group']['filters'] = {'service_id': service_id}
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, body)
+            self.DEFAULT_ENDPOINT_GROUP_URL, body)
 
         # create association
         self._create_endpoint_group_project_association(endpoint_group_id,
@@ -921,7 +927,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         # recover list of endpoints associated with endpoint group
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-              '/endpoints' % {'endpoint_group_id': endpoint_group_id})
+               '/endpoints' % {'endpoint_group_id': endpoint_group_id})
         r = self.get(url)
         self.assertNotEmpty(r.result['endpoints'])
         self.assertEqual(endpoint_id, r.result['endpoints'][0].get('id'))
@@ -938,9 +944,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         service_id2 = response.result['service']['id']
 
         # create additional endpoints
-        endpoint_id2 = self._create_endpoint_and_associations(
+        self._create_endpoint_and_associations(
             self.default_domain_project_id, service_id2)
-        endpoint_id3 = self._create_endpoint_and_associations(
+        self._create_endpoint_and_associations(
             self.default_domain_project_id)
 
         # create project and endpoint association with default endpoint:
@@ -950,15 +956,15 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         body = copy.deepcopy(self.DEFAULT_ENDPOINT_GROUP_BODY)
         body['endpoint_group']['filters'] = {'service_id': service_id2}
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, body)
+            self.DEFAULT_ENDPOINT_GROUP_URL, body)
 
         # associate endpoint group with project
         self._create_endpoint_group_project_association(
-          endpoint_group_id, self.default_domain_project_id)
+            endpoint_group_id, self.default_domain_project_id)
 
         # Now get a list of the filtered endpoints
         endpoints_url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
-                       'project_id': self.default_domain_project_id}
+            'project_id': self.default_domain_project_id}
         r = self.get(endpoints_url)
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(len(endpoints), 2)
@@ -972,7 +978,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         # Now remove endpoint group
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-                 'endpoint_group_id': endpoint_group_id}
+            'endpoint_group_id': endpoint_group_id}
         self.delete(url)
 
         r = self.get(endpoints_url)
@@ -982,7 +988,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
     def test_endpoint_group_project_cleanup_with_project(self):
         # create endpoint group
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # create new project and associate with endpoint_group
         project_ref = self.new_project_ref(domain_id=self.domain_id)
@@ -1004,7 +1010,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
     def test_endpoint_group_project_cleanup_with_endpoint_group(self):
         # create endpoint group
         endpoint_group_id = self._create_valid_endpoint_group(
-          self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # create new project and associate with endpoint_group
         project_ref = self.new_project_ref(domain_id=self.domain_id)
@@ -1050,9 +1056,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
                                         endpoint_group_id,
                                         project_id):
         return ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-                 '/projects/%(project_id)s' % {
-                     'endpoint_group_id': endpoint_group_id,
-                     'project_id': project_id})
+                '/projects/%(project_id)s' %
+                {'endpoint_group_id': endpoint_group_id,
+                 'project_id': project_id})
 
     def _create_endpoint_and_associations(self, project_id, service_id=None):
         """Creates an endpoint associated with service and project."""
