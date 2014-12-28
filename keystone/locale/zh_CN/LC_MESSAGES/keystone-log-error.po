@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
+# Xiao Xi LIU <liuxx@cn.ibm.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-11-06 06:07+0000\n"
-"PO-Revision-Date: 2014-10-27 18:28+0000\n"
+"POT-Creation-Date: 2014-12-28 06:03+0000\n"
+"PO-Revision-Date: 2014-12-10 14:52+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/keystone/"
 "language/zh_CN/)\n"
@@ -19,50 +20,105 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: keystone/catalog/core.py:60
+#: keystone/notifications.py:223
+msgid "Failed to construct notifier"
+msgstr ""
+
+#: keystone/notifications.py:267
+#, python-format
+msgid "Failed to send %(res_id)s %(event_type)s notification"
+msgstr ""
+
+#: keystone/notifications.py:455
+#, python-format
+msgid "Failed to send %(action)s %(event_type)s notification"
+msgstr ""
+
+#: keystone/assignment/core.py:524
+#, python-format
+msgid ""
+"Circular reference or a repeated entry found projects hierarchy - "
+"%(project_id)s."
+msgstr ""
+
+#: keystone/assignment/backends/sql.py:342
+#: keystone/assignment/backends/sql.py:361
+#, python-format
+msgid ""
+"Circular reference or a repeated entry found in projects hierarchy - "
+"%(project_id)s."
+msgstr ""
+
+#: keystone/catalog/core.py:62
+#, python-format
+msgid "Malformed endpoint - %(url)r is not a string"
+msgstr ""
+
+#: keystone/catalog/core.py:66
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr "端点 %(url)s 的格式不正确 - 键 %(keyerror)s 未知"
 
-#: keystone/catalog/core.py:65
+#: keystone/catalog/core.py:71
 #, python-format
 msgid ""
 "Malformed endpoint '%(url)s'. The following type error occurred during "
 "string substitution: %(typeerror)s"
 msgstr ""
+"端点 '%(url)s' 的格式不正确。在字符串替换时发生以下类型错误：%(typeerror)s"
 
-#: keystone/catalog/core.py:71
+#: keystone/catalog/core.py:77
 #, python-format
 msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
-msgstr ""
+msgstr "端点 %s 的格式不完整 - (是否缺少了类型通告者?)"
 
 #: keystone/common/openssl.py:92
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
-msgstr ""
+msgstr "命令 %(to_exec)s 已退出，退出码及输出为 %(retcode)s- %(output)s"
 
 #: keystone/common/openssl.py:120
 #, python-format
 msgid "Failed to remove file %(file_path)r: %(error)s"
+msgstr "无法删除文件%(file_path)r: %(error)s"
+
+#: keystone/common/utils.py:239
+msgid ""
+"Error setting up the debug environment. Verify that the option --debug-url "
+"has the format <host>:<port> and that a debugger processes is listening on "
+"that port."
+msgstr ""
+"设置调试环境出错。请确保选项--debug-url 的格式是这样的<host>:<port> ，和确保"
+"有一个调试进程正在监听那个端口"
+
+#: keystone/common/cache/core.py:100
+#, python-format
+msgid ""
+"Unable to build cache config-key. Expected format \"<argname>:<value>\". "
+"Skipping unknown format: %s"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:100
+#: keystone/common/environment/eventlet_server.py:98
 #, python-format
 msgid "Could not bind to %(host)s:%(port)s"
-msgstr ""
+msgstr "无法绑定至 %(host)s:%(port)s"
+
+#: keystone/common/environment/eventlet_server.py:184
+msgid "Server error"
+msgstr "服务器报错"
 
 #: keystone/contrib/endpoint_policy/core.py:129
 #: keystone/contrib/endpoint_policy/core.py:228
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in region tree - %(region_id)s."
-msgstr ""
+msgstr "在域树- %(region_id)s 中发现循环引用或重复项。"
 
 #: keystone/contrib/federation/idp.py:405
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
-msgstr ""
+msgstr "对断言进行签名时出错，原因：%(reason)s"
 
 #: keystone/openstack/common/loopingcall.py:95
 msgid "in fixed duration looping call"
@@ -72,13 +128,13 @@ msgstr "在固定时段内循环调用"
 msgid "in dynamic looping call"
 msgstr "在动态循环调用中"
 
-#: keystone/openstack/common/policy.py:535
-#: keystone/openstack/common/policy.py:815
+#: keystone/openstack/common/policy.py:563
+#: keystone/openstack/common/policy.py:843
 #, python-format
 msgid "Failed to understand rule %s"
 msgstr "未能理解规则 %s"
 
-#: keystone/openstack/common/policy.py:545
+#: keystone/openstack/common/policy.py:573
 #, python-format
 msgid "No handler for matches of kind %s"
 msgstr "对于类型为 %s 的匹配项，不存在任何处理程序"
@@ -86,3 +142,24 @@ msgstr "对于类型为 %s 的匹配项，不存在任何处理程序"
 #: keystone/openstack/common/service.py:269
 msgid "Unhandled exception"
 msgstr "存在未处理的异常"
+
+#: keystone/token/provider.py:352
+#, python-format
+msgid "Unexpected error or malformed token determining token expiry: %s"
+msgstr ""
+
+#: keystone/token/persistence/backends/kvs.py:226
+#, python-format
+msgid ""
+"Reinitializing revocation list due to error in loading revocation list from "
+"backend.  Expected `list` type got `%(type)s`. Old revocation list data: "
+"%(list)r"
+msgstr ""
+
+#: keystone/token/providers/common.py:580
+msgid "Failed to validate token"
+msgstr "token验证失败"
+
+#: keystone/token/providers/pki.py:47
+msgid "Unable to sign token"
+msgstr ""

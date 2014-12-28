@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-10-22 06:12+0000\n"
-"PO-Revision-Date: 2014-10-21 00:51+0000\n"
+"POT-Creation-Date: 2014-12-28 06:03+0000\n"
+"PO-Revision-Date: 2014-12-23 12:43+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/projects/p/"
 "keystone/language/en_GB/)\n"
@@ -20,16 +20,16 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: keystone/assignment/core.py:263
+#: keystone/assignment/core.py:338
 #, python-format
 msgid "Creating the default role %s because it does not exist."
 msgstr ""
 
-#: keystone/auth/controllers.py:64
+#: keystone/auth/controllers.py:63
 msgid "Loading auth-plugins by class-name is deprecated."
 msgstr ""
 
-#: keystone/auth/controllers.py:106
+#: keystone/auth/controllers.py:105
 #, python-format
 msgid ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
@@ -43,33 +43,33 @@ msgstr ""
 msgid "Running command - %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:76
+#: keystone/common/wsgi.py:77
 msgid "No bind information present in token"
 msgstr ""
 
-#: keystone/common/wsgi.py:80
+#: keystone/common/wsgi.py:81
 #, python-format
 msgid "Named bind mode %s not in bind information"
 msgstr ""
 
-#: keystone/common/wsgi.py:87
+#: keystone/common/wsgi.py:88
 msgid "Kerberos credentials required and not present"
 msgstr ""
 
-#: keystone/common/wsgi.py:91
+#: keystone/common/wsgi.py:92
 msgid "Kerberos credentials do not match those in bind"
 msgstr ""
 
-#: keystone/common/wsgi.py:95
+#: keystone/common/wsgi.py:96
 msgid "Kerberos bind authentication successful"
 msgstr ""
 
-#: keystone/common/wsgi.py:102
+#: keystone/common/wsgi.py:103
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:104
+#: keystone/common/environment/eventlet_server.py:102
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr ""
@@ -94,59 +94,71 @@ msgstr ""
 msgid "KVS region %s key_mangler disabled."
 msgstr ""
 
-#: keystone/openstack/common/eventlet_backdoor.py:140
+#: keystone/contrib/example/core.py:64 keystone/contrib/example/core.py:73
+#, python-format
+msgid ""
+"Received the following notification: service %(service)s, resource_type: "
+"%(resource_type)s, operation %(operation)s payload %(payload)s"
+msgstr ""
+
+#: keystone/openstack/common/eventlet_backdoor.py:147
 #, python-format
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
 msgstr "Eventlet backdoor listening on %(port)s for process %(pid)d"
 
-#: keystone/openstack/common/service.py:176
+#: keystone/openstack/common/policy.py:275
+#, python-format
+msgid "Can not find policy directory: %s"
+msgstr ""
+
+#: keystone/openstack/common/service.py:174
 #, python-format
 msgid "Caught %s, exiting"
 msgstr "Caught %s, exiting"
 
-#: keystone/openstack/common/service.py:240
+#: keystone/openstack/common/service.py:232
 msgid "Parent process has died unexpectedly, exiting"
 msgstr "Parent process has died unexpectedly, exiting"
 
-#: keystone/openstack/common/service.py:271
+#: keystone/openstack/common/service.py:263
 #, python-format
 msgid "Child caught %s, exiting"
 msgstr "Child caught %s, exiting"
 
-#: keystone/openstack/common/service.py:310
+#: keystone/openstack/common/service.py:302
 msgid "Forking too fast, sleeping"
 msgstr "Forking too fast, sleeping"
 
-#: keystone/openstack/common/service.py:329
+#: keystone/openstack/common/service.py:321
 #, python-format
 msgid "Started child %d"
 msgstr "Started child %d"
 
-#: keystone/openstack/common/service.py:339
+#: keystone/openstack/common/service.py:331
 #, python-format
 msgid "Starting %d workers"
 msgstr "Starting %d workers"
 
-#: keystone/openstack/common/service.py:356
+#: keystone/openstack/common/service.py:348
 #, python-format
 msgid "Child %(pid)d killed by signal %(sig)d"
 msgstr "Child %(pid)d killed by signal %(sig)d"
 
-#: keystone/openstack/common/service.py:360
+#: keystone/openstack/common/service.py:352
 #, python-format
 msgid "Child %(pid)s exited with status %(code)d"
 msgstr "Child %(pid)s exited with status %(code)d"
 
-#: keystone/openstack/common/service.py:399
+#: keystone/openstack/common/service.py:391
 #, python-format
 msgid "Caught %s, stopping children"
 msgstr "Caught %s, stopping children"
 
-#: keystone/openstack/common/service.py:408
+#: keystone/openstack/common/service.py:400
 msgid "Wait called after thread killed.  Cleaning up."
 msgstr "Wait called after thread killed.  Cleaning up."
 
-#: keystone/openstack/common/service.py:424
+#: keystone/openstack/common/service.py:416
 #, python-format
 msgid "Waiting on %d children to exit"
 msgstr "Waiting on %d children to exit"
