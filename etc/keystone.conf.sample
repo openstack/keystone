@@ -1289,6 +1289,28 @@
 #caching = true
 
 
+[role]
+
+#
+# From keystone
+#
+
+# Role backend driver. (string value)
+#driver = <None>
+
+# Toggle for role caching. This has no effect unless global caching is enabled.
+# (boolean value)
+#caching = true
+
+# TTL (in seconds) to cache role data. This has no effect unless global caching
+# is enabled. (integer value)
+#cache_time = <None>
+
+# Maximum number of entities that will be returned in a role collection.
+# (integer value)
+#list_limit = <None>
+
+
 [saml]
 
 #

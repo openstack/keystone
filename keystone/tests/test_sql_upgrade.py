@@ -1506,6 +1506,23 @@ class SqlUpgradeTests(SqlMigrateBase):
         project = session.query(proj_table)[0]
         self.assertRaises(AttributeError, getattr, project, 'parent_id')
 
+    def test_drop_assignment_role_fk(self):
+        self.upgrade(61)
+        self.assertTrue(self.does_fk_exist('assignment', 'role_id'))
+        self.upgrade(62)
+        if self.engine.name != 'sqlite':
+            # sqlite does not support FK deletions (or enforcement)
+            self.assertFalse(self.does_fk_exist('assignment', 'role_id'))
+        self.downgrade(61)
+        self.assertTrue(self.does_fk_exist('assignment', 'role_id'))
+
+    def does_fk_exist(self, table, fk_column):
+        inspector = reflection.Inspector.from_engine(self.engine)
+        for fk in inspector.get_foreign_keys(table):
+            if fk_column in fk['constrained_columns']:
+                return True
+        return False
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

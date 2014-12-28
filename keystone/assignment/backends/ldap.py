@@ -19,6 +19,7 @@ import ldap as ldap
 import ldap.filter
 
 from keystone import assignment
+from keystone.assignment.role_backends import ldap as ldap_role
 from keystone import clean
 from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
@@ -50,6 +51,9 @@ class Assignment(assignment.Driver):
 
         self.project = ProjectApi(CONF)
         self.role = RoleApi(CONF, self.user)
+
+    def default_role_driver(self):
+        return 'keystone.assignment.role_backends.ldap.Role'
 
     def _set_default_parent_project(self, ref):
         """If the parent project ID has not been set, set it to None."""
@@ -129,7 +133,8 @@ class Assignment(assignment.Driver):
         return self._set_default_attributes(
             self.project.update(tenant_id, tenant))
 
-    def get_group_project_roles(self, groups, project_id, project_domain_id):
+    def list_role_ids_for_groups_on_project(
+            self, groups, project_id, project_domain_id):
         self.get_project(project_id)
         group_dns = [self.group._id_to_dn(group_id) for group_id in groups]
         role_list = [self.role._dn_to_id(role_assignment.role_dn)
@@ -178,12 +183,6 @@ class Assignment(assignment.Driver):
             return {}
         return {'roles': [self._role_to_dict(r, False) for r in metadata_ref]}
 
-    def get_role(self, role_id):
-        return self.role.get(role_id)
-
-    def list_roles(self, hints):
-        return self.role.get_all()
-
     def list_projects_for_user(self, user_id, group_ids, hints):
         user_dn = self.user._id_to_dn(user_id)
         associations = (self.role.list_project_roles_for_user
@@ -201,7 +200,8 @@ class Assignment(assignment.Driver):
         return [self._set_default_attributes(x) for x in
                 self.project.get_user_projects(user_dn, associations)]
 
-    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+    def list_role_ids_for_groups(
+            self, group_ids, project_id=None, domain_id=None):
         raise exception.NotImplemented()
 
     def list_projects_for_groups(self, group_ids):
@@ -230,7 +230,6 @@ class Assignment(assignment.Driver):
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.get_project(tenant_id)
-        self.get_role(role_id)
         user_dn = self.user._id_to_dn(user_id)
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         self.role.add_user(role_id, role_dn, user_dn, user_id, tenant_id)
@@ -241,7 +240,6 @@ class Assignment(assignment.Driver):
 
     def _add_role_to_group_and_project(self, group_id, tenant_id, role_id):
         self.get_project(tenant_id)
-        self.get_role(role_id)
         group_dn = self.group._id_to_dn(group_id)
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         self.role.add_user(role_id, role_dn, group_dn, group_id, tenant_id)
@@ -249,30 +247,6 @@ class Assignment(assignment.Driver):
         return GroupRoleAssociation(group_dn=group_dn,
                                     role_dn=role_dn,
                                     tenant_dn=tenant_dn)
-
-    def create_role(self, role_id, role):
-        self.role.check_allow_create()
-        try:
-            self.get_role(role_id)
-        except exception.NotFound:
-            pass
-        else:
-            msg = _('Duplicate ID, %s.') % role_id
-            raise exception.Conflict(type='role', details=msg)
-
-        try:
-            self.role.get_by_name(role['name'])
-        except exception.NotFound:
-            pass
-        else:
-            msg = _('Duplicate name, %s.') % role['name']
-            raise exception.Conflict(type='role', details=msg)
-
-        return self.role.create(role)
-
-    def delete_role(self, role_id):
-        self.role.check_allow_delete()
-        return self.role.delete(role_id, self.project.tree_dn)
 
     def delete_project(self, tenant_id):
         self.project.check_allow_delete()
@@ -293,11 +267,6 @@ class Assignment(assignment.Driver):
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         return self.role.delete_user(role_dn,
                                      self.group._id_to_dn(group_id), role_id)
-
-    def update_role(self, role_id, role):
-        self.role.check_allow_update()
-        self.get_role(role_id)
-        return self.role.update(role_id, role)
 
     def create_domain(self, domain_id, domain):
         if domain_id == CONF.identity.default_domain_id:
@@ -347,7 +316,6 @@ class Assignment(assignment.Driver):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        self.get_role(role_id)
 
         if domain_id:
             self.get_domain(domain_id)
@@ -367,10 +335,9 @@ class Assignment(assignment.Driver):
             metadata_ref['roles'] = self.add_role_to_user_and_project(
                 user_id, project_id, role_id)
 
-    def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None,
-                  inherited_to_projects=False):
-        role_ref = self.get_role(role_id)
+    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
 
         if domain_id:
             self.get_domain(domain_id)
@@ -386,12 +353,10 @@ class Assignment(assignment.Driver):
             metadata_ref.get('roles', []), inherited_to_projects))
         if role_id not in role_ids:
             raise exception.RoleNotFound(role_id=role_id)
-        return role_ref
 
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        self.get_role(role_id)
 
         if domain_id:
             self.get_domain(domain_id)
@@ -415,9 +380,9 @@ class Assignment(assignment.Driver):
         except KeyError:
             raise exception.RoleNotFound(role_id=role_id)
 
-    def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None,
-                    inherited_to_projects=False):
+    def list_grant_role_ids(self, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
         if domain_id:
             self.get_domain(domain_id)
         if project_id:
@@ -429,9 +394,8 @@ class Assignment(assignment.Driver):
         except exception.MetadataNotFound:
             metadata_ref = {}
 
-        return [self.get_role(role_id) for role_id in
-                self._roles_from_role_dicts(metadata_ref.get('roles', []),
-                                            inherited_to_projects)]
+        return self._roles_from_role_dicts(metadata_ref.get('roles', []),
+                                           inherited_to_projects)
 
     def get_domain_by_name(self, domain_name):
         default_domain = assignment.calc_default_domain()
@@ -454,6 +418,9 @@ class Assignment(assignment.Driver):
                     'project_id': self.project._dn_to_id(a.project_dn)}
             role_assignments.append(assignment)
         return role_assignments
+
+    def delete_role_assignments(self, role_id):
+        self.role.roles_delete_subtree_by_role(role_id, self.project.tree_dn)
 
 
 # TODO(termie): turn this into a data object and move logic to driver
@@ -540,29 +507,15 @@ class GroupRoleAssociation(object):
 
 
 # TODO(termie): turn this into a data object and move logic to driver
-class RoleApi(common_ldap.BaseLdap):
-    DEFAULT_OU = 'ou=Roles'
-    DEFAULT_STRUCTURAL_CLASSES = []
-    DEFAULT_OBJECTCLASS = 'organizationalRole'
-    DEFAULT_MEMBER_ATTRIBUTE = 'roleOccupant'
-    NotFound = exception.RoleNotFound
-    options_name = 'role'
-    attribute_options_names = {'name': 'name'}
-    immutable_attrs = ['id']
-    model = models.Role
+# NOTE(heny-nash): The RoleLdapStructureMixin class enables the sharing of the
+# LDAP structure between here and the role backend LDAP, no methods are shared.
+class RoleApi(ldap_role.RoleLdapStructureMixin, common_ldap.BaseLdap):
 
     def __init__(self, conf, user_api):
         super(RoleApi, self).__init__(conf)
         self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self._user_api = user_api
-
-    def get(self, role_id, role_filter=None):
-        model = super(RoleApi, self).get(role_id, role_filter)
-        return model
-
-    def create(self, values):
-        return super(RoleApi, self).create(values)
 
     def add_user(self, role_id, role_dn, user_dn, user_id, tenant_id=None):
         try:
@@ -682,22 +635,9 @@ class RoleApi(common_ldap.BaseLdap):
     def roles_delete_subtree_by_project(self, tenant_dn):
         self._delete_tree_nodes(tenant_dn, ldap.SCOPE_ONELEVEL)
 
-    def update(self, role_id, role):
-        new_name = role.get('name')
-        if new_name is not None:
-            try:
-                old_role = self.get_by_name(new_name)
-                if old_role['id'] != role_id:
-                    raise exception.Conflict(
-                        _('Cannot duplicate name %s') % old_role)
-            except exception.NotFound:
-                pass
-        return super(RoleApi, self).update(role_id, role)
-
-    def delete(self, role_id, tenant_dn):
-        self._delete_tree_nodes(tenant_dn, ldap.SCOPE_SUBTREE, query_params={
+    def roles_delete_subtree_by_role(self, role_id, tree_dn):
+        self._delete_tree_nodes(tree_dn, ldap.SCOPE_SUBTREE, query_params={
             self.id_attr: role_id})
-        super(RoleApi, self).delete(role_id)
 
     def list_role_assignments(self, project_tree_dn):
         """Returns a list of all the role assignments linked to project_tree_dn

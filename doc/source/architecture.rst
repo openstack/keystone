@@ -135,6 +135,7 @@ abstract base class for any implementations, identifying the expected service
 implementations. The drivers for the services are:
 
 * :mod:`keystone.assignment.core.Driver`
+* :mod:`keystone.assignment.core.RoleDriver`
 * :mod:`keystone.catalog.core.Driver`
 * :mod:`keystone.identity.core.Driver`
 * :mod:`keystone.policy.core.Driver`
