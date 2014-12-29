@@ -23,6 +23,7 @@ from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
 from keystone.token.providers import pki
+from keystone.token.providers import uuid
 
 
 CONF = config.CONF
@@ -733,63 +734,31 @@ class TestTokenProvider(tests.TestCase):
                           self.token_provider_api.get_token_version,
                           'bogus')
 
-    def test_default_token_format(self):
-        self.assertEqual(token.provider.UUID_PROVIDER,
-                         token.provider.Manager.get_token_provider())
+    def test_supported_token_providers(self):
+        # test default config
+        self.assertIsInstance(token.provider.Manager().driver,
+                              uuid.Provider)
 
-    def test_uuid_token_format_and_no_provider(self):
-        self.config_fixture.config(group='signing', token_format='UUID')
-        self.assertEqual(token.provider.UUID_PROVIDER,
-                         token.provider.Manager.get_token_provider())
-
-    def test_default_providers_without_token_format(self):
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.UUID_PROVIDER)
-        token.provider.Manager()
-
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.PKI_PROVIDER)
-        token.provider.Manager()
-
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.PKIZ_PROVIDER)
-        token.provider.Manager()
-
-    def test_unsupported_token_format(self):
-        self.config_fixture.config(group='signing', token_format='CUSTOM')
-        self.assertRaises(exception.UnexpectedError,
-                          token.provider.Manager.get_token_provider)
-
-    def test_uuid_provider(self):
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.UUID_PROVIDER)
-        self.assertEqual(token.provider.UUID_PROVIDER,
-                         token.provider.Manager.get_token_provider())
-
-    def test_provider_override_token_format(self):
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Test')
-        self.assertEqual('keystone.token.providers.pki.Test',
-                         token.provider.Manager.get_token_provider())
+            provider='keystone.token.providers.uuid.Provider')
+        token.provider.Manager()
 
-        self.config_fixture.config(group='signing', token_format='UUID')
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.UUID_PROVIDER)
-        self.assertEqual(token.provider.UUID_PROVIDER,
-                         token.provider.Manager.get_token_provider())
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pki.Provider')
+        token.provider.Manager()
 
-        self.config_fixture.config(group='signing', token_format='PKI')
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.PKI_PROVIDER)
-        self.assertEqual(token.provider.PKI_PROVIDER,
-                         token.provider.Manager.get_token_provider())
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.pkiz.Provider')
+        token.provider.Manager()
 
-        self.config_fixture.config(group='signing', token_format='CUSTOM')
+    def test_unsupported_token_provider(self):
         self.config_fixture.config(group='token',
                                    provider='my.package.MyProvider')
-        self.assertRaises(exception.UnexpectedError,
-                          token.provider.Manager.get_token_provider)
+        self.assertRaises(ImportError,
+                          token.provider.Manager)
 
     def test_provider_token_expiration_validation(self):
         self.assertRaises(exception.TokenNotFound,
@@ -815,8 +784,9 @@ class TestTokenProviderOAuth1(tests.TestCase):
 
     def config_overrides(self):
         super(TestTokenProviderOAuth1, self).config_overrides()
-        self.config_fixture.config(group='token',
-                                   provider=token.provider.UUID_PROVIDER)
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.uuid.Provider')
 
     def test_uuid_provider_no_oauth_fails_oauth(self):
         self.load_fixtures(default_fixtures)

@@ -29,7 +29,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import config
 from keystone import exception
-from keystone.i18n import _, _LE, _LW
+from keystone.i18n import _, _LE
 from keystone.models import token_model
 from keystone import notifications
 from keystone.openstack.common import log
@@ -52,18 +52,6 @@ EXPIRATION_TIME = lambda: CONF.token.cache_time
 V2 = token_model.V2
 V3 = token_model.V3
 VERSIONS = token_model.VERSIONS
-
-# default token providers
-PKI_PROVIDER = 'keystone.token.providers.pki.Provider'
-PKIZ_PROVIDER = 'keystone.token.providers.pkiz.Provider'
-UUID_PROVIDER = 'keystone.token.providers.uuid.Provider'
-
-_FORMAT_TO_PROVIDER = {
-    'PKI': PKI_PROVIDER,
-    # should not support new options, but PKIZ keeps the option consistent
-    'PKIZ': PKIZ_PROVIDER,
-    'UUID': UUID_PROVIDER
-}
 
 
 def default_expire_time():
@@ -117,40 +105,8 @@ class Manager(manager.Manager):
     INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
     _persistence_manager = None
 
-    @classmethod
-    def get_token_provider(cls):
-        """Return package path to the configured token provider.
-
-        The value should come from ``keystone.conf`` ``[token] provider``,
-        however this method ensures backwards compatibility for
-        ``keystone.conf`` ``[signing] token_format`` until Havana + 2.
-
-        Return the provider based on ``token_format`` if ``provider`` is not
-        set. Otherwise, ignore ``token_format`` and return the configured
-        ``provider`` instead.
-
-        """
-
-        if CONF.signing.token_format:
-            LOG.warn(_LW('[signing] token_format is deprecated. '
-                         'Please change to setting the [token] provider '
-                         'configuration value instead'))
-            try:
-
-                mapped = _FORMAT_TO_PROVIDER[CONF.signing.token_format]
-            except KeyError:
-                raise exception.UnexpectedError(
-                    _('Unrecognized keystone.conf [signing] token_format: '
-                      'expected either \'UUID\' or \'PKI\''))
-            return mapped
-
-        if CONF.token.provider is None:
-            return UUID_PROVIDER
-        else:
-            return CONF.token.provider
-
     def __init__(self):
-        super(Manager, self).__init__(self.get_token_provider())
+        super(Manager, self).__init__(CONF.token.provider)
         self._register_callback_listeners()
 
     def _register_callback_listeners(self):

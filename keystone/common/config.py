@@ -248,6 +248,7 @@ FILE_OPTIONS = {
                    help='Amount of time a token should remain valid '
                         '(in seconds).'),
         cfg.StrOpt('provider',
+                   default='keystone.token.providers.uuid.Provider',
                    help='Controls the token construction, validation, and '
                         'revocation operations. Core providers are '
                         '"keystone.token.providers.[pkiz|pki|uuid].'
@@ -409,9 +410,6 @@ FILE_OPTIONS = {
                         'certificate).'),
     ],
     'signing': [
-        cfg.StrOpt('token_format',
-                   help='Deprecated in favor of provider in the '
-                        '[token] section.'),
         cfg.StrOpt('certfile',
                    default=_CERTFILE,
                    help='Path of the certfile for token signing. For '
