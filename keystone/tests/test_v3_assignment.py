@@ -23,52 +23,64 @@ from keystone.tests import test_v3
 CONF = cfg.CONF
 
 
-def _build_role_assignment_url_and_entity(
-        role_id, user_id=None, group_id=None, domain_id=None,
-        project_id=None, inherited_to_projects=False,
-        effective=False):
+def _build_role_assignment_link(**attribs):
+    """Build and return a role assignment link with provided attributes.
 
-    if user_id and domain_id:
-        url = ('/domains/%(domain_id)s/users/%(user_id)s'
-               '/roles/%(role_id)s' % {
-                   'domain_id': domain_id,
-                   'user_id': user_id,
-                   'role_id': role_id})
-        entity = {'role': {'id': role_id},
-                  'user': {'id': user_id},
-                  'scope': {'domain': {'id': domain_id}}}
-    elif user_id and project_id:
-        url = ('/projects/%(project_id)s/users/%(user_id)s'
-               '/roles/%(role_id)s' % {
-                   'project_id': project_id,
-                   'user_id': user_id,
-                   'role_id': role_id})
-        entity = {'role': {'id': role_id},
-                  'user': {'id': user_id},
-                  'scope': {'project': {'id': project_id}}}
-    if group_id and domain_id:
-        url = ('/domains/%(domain_id)s/groups/%(group_id)s'
-               '/roles/%(role_id)s' % {
-                   'domain_id': domain_id,
-                   'group_id': group_id,
-                   'role_id': role_id})
-        entity = {'role': {'id': role_id},
-                  'group': {'id': group_id},
-                  'scope': {'domain': {'id': domain_id}}}
-    elif group_id and project_id:
-        url = ('/projects/%(project_id)s/groups/%(group_id)s'
-               '/roles/%(role_id)s' % {
-                   'project_id': project_id,
-                   'group_id': group_id,
-                   'role_id': role_id})
-        entity = {'role': {'id': role_id},
-                  'group': {'id': group_id},
-                  'scope': {'project': {'id': project_id}}}
-    if inherited_to_projects:
-        url = '/OS-INHERIT%s/inherited_to_projects' % url
-        if not effective:
-            entity['scope']['OS-INHERIT:inherited_to'] = 'projects'
-    return (url, entity)
+    Provided attributes are expected to contain: domain_id or project_id,
+    user_id or group_id, role_id and, optionally, inherited_to_projects.
+
+    """
+
+    if attribs.get('domain_id'):
+        link = '/domains/' + attribs['domain_id']
+    else:
+        link = '/projects/' + attribs['project_id']
+
+    if attribs.get('user_id'):
+        link += '/users/' + attribs['user_id']
+    else:
+        link += '/groups/' + attribs['group_id']
+
+    link += '/roles/' + attribs['role_id']
+
+    if attribs.get('inherited_to_projects'):
+        return '/OS-INHERIT%s/inherited_to_projects' % link
+
+    return link
+
+
+def _build_role_assignment_entity(link=None, **attribs):
+    """Build and return a role assignment entity with provided attributes.
+
+    Provided attributes are expected to contain: domain_id or project_id,
+    user_id or group_id, role_id and, optionally, inherited_to_projects.
+
+    """
+
+    entity = {'links': {'assignment': (
+        link or _build_role_assignment_link(**attribs))}}
+
+    if attribs.get('domain_id'):
+        entity['scope'] = {'domain': {'id': attribs['domain_id']}}
+    else:
+        entity['scope'] = {'project': {'id': attribs['project_id']}}
+
+    if attribs.get('user_id'):
+        entity['user'] = {'id': attribs['user_id']}
+
+        if attribs.get('group_id'):
+            entity['links']['membership'] = ('/groups/%s/users/%s' %
+                                             (attribs['group_id'],
+                                              attribs['user_id']))
+    else:
+        entity['group'] = {'id': attribs['group_id']}
+
+    entity['role'] = {'id': attribs['role_id']}
+
+    if attribs.get('inherited_to_projects'):
+        entity['scope']['OS-INHERIT:inherited_to'] = 'projects'
+
+    return entity
 
 
 class AssignmentTestCase(test_v3.RestfulTestCase):
@@ -970,57 +982,57 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
 
         # Now add one of each of the four types of assignment, making sure
         # that we get them all back.
-        gd_url, gd_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, group_id=self.group_id,
-            role_id=self.role_id)
-        self.put(gd_url)
+        gd_entity = _build_role_assignment_entity(domain_id=self.domain_id,
+                                                  group_id=self.group_id,
+                                                  role_id=self.role_id)
+        self.put(gd_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
             resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
 
-        ud_url, ud_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, user_id=self.user1['id'],
-            role_id=self.role_id)
-        self.put(ud_url)
+        ud_entity = _build_role_assignment_entity(domain_id=self.domain_id,
+                                                  user_id=self.user1['id'],
+                                                  role_id=self.role_id)
+        self.put(ud_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
             resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
 
-        gp_url, gp_entity = _build_role_assignment_url_and_entity(
-            project_id=self.project_id, group_id=self.group_id,
-            role_id=self.role_id)
-        self.put(gp_url)
+        gp_entity = _build_role_assignment_entity(project_id=self.project_id,
+                                                  group_id=self.group_id,
+                                                  role_id=self.role_id)
+        self.put(gp_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 3,
             resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+        self.assertRoleAssignmentInListResponse(r, gp_entity)
 
-        up_url, up_entity = _build_role_assignment_url_and_entity(
-            project_id=self.project_id, user_id=self.user1['id'],
-            role_id=self.role_id)
-        self.put(up_url)
+        up_entity = _build_role_assignment_entity(project_id=self.project_id,
+                                                  user_id=self.user1['id'],
+                                                  role_id=self.role_id)
+        self.put(up_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 4,
             resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
 
         # Now delete the four we added and make sure they are removed
         # from the collection.
 
-        self.delete(gd_url)
-        self.delete(ud_url)
-        self.delete(gp_url)
-        self.delete(up_url)
+        self.delete(gd_entity['links']['assignment'])
+        self.delete(ud_entity['links']['assignment'])
+        self.delete(gp_entity['links']['assignment'])
+        self.delete(up_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
@@ -1064,16 +1076,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
         existing_assignments = len(r.result.get('role_assignments'))
 
-        gd_url, gd_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, group_id=self.group_id,
-            role_id=self.role_id)
-        self.put(gd_url)
+        gd_entity = _build_role_assignment_entity(domain_id=self.domain_id,
+                                                  group_id=self.group_id,
+                                                  role_id=self.role_id)
+        self.put(gd_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
             resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
 
         # Now re-read the collection asking for effective roles - this
         # should mean the group assignment is translated into the two
@@ -1084,17 +1096,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             r,
             expected_length=existing_assignments + 2,
             resource_url=collection_url)
-        unused, ud_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, user_id=self.user1['id'],
-            role_id=self.role_id)
-        gd_url, unused = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, group_id=self.group['id'],
-            role_id=self.role_id)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=gd_url)
-        ud_url, ud_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, user_id=self.user2['id'],
-            role_id=self.role_id)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=gd_url)
+        ud_entity = _build_role_assignment_entity(
+            link=gd_entity['links']['assignment'], domain_id=self.domain_id,
+            user_id=self.user1['id'], role_id=self.role_id)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
+        ud_entity = _build_role_assignment_entity(
+            link=gd_entity['links']['assignment'], domain_id=self.domain_id,
+            user_id=self.user2['id'], role_id=self.role_id)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
 
     def test_check_effective_values_for_role_assignments(self):
         """Call ``GET /role_assignments?effective=value``.
@@ -1141,16 +1150,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
         existing_assignments = len(r.result.get('role_assignments'))
 
-        gd_url, gd_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, group_id=self.group_id,
-            role_id=self.role_id)
-        self.put(gd_url)
+        gd_entity = _build_role_assignment_entity(domain_id=self.domain_id,
+                                                  group_id=self.group_id,
+                                                  role_id=self.role_id)
+        self.put(gd_entity['links']['assignment'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
             resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
 
         # Now re-read the collection asking for effective roles,
         # using the most common way of defining "effective'. This
@@ -1237,25 +1246,25 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
 
         # Now add one of each of the four types of assignment
 
-        gd_url, gd_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, group_id=self.group1['id'],
-            role_id=self.role1['id'])
-        self.put(gd_url)
+        gd_entity = _build_role_assignment_entity(domain_id=self.domain_id,
+                                                  group_id=self.group1['id'],
+                                                  role_id=self.role1['id'])
+        self.put(gd_entity['links']['assignment'])
 
-        ud_url, ud_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, user_id=self.user1['id'],
-            role_id=self.role2['id'])
-        self.put(ud_url)
+        ud_entity = _build_role_assignment_entity(domain_id=self.domain_id,
+                                                  user_id=self.user1['id'],
+                                                  role_id=self.role2['id'])
+        self.put(ud_entity['links']['assignment'])
 
-        gp_url, gp_entity = _build_role_assignment_url_and_entity(
+        gp_entity = _build_role_assignment_entity(
             project_id=self.project1['id'], group_id=self.group1['id'],
             role_id=self.role1['id'])
-        self.put(gp_url)
+        self.put(gp_entity['links']['assignment'])
 
-        up_url, up_entity = _build_role_assignment_url_and_entity(
+        up_entity = _build_role_assignment_entity(
             project_id=self.project1['id'], user_id=self.user1['id'],
             role_id=self.role2['id'])
-        self.put(up_url)
+        self.put(up_entity['links']['assignment'])
 
         # Now list by various filters to make sure we get back the right ones
 
@@ -1265,8 +1274,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
-        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
+        self.assertRoleAssignmentInListResponse(r, gp_entity)
 
         collection_url = ('/role_assignments?scope.domain.id=%s' %
                           self.domain['id'])
@@ -1274,32 +1283,32 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
 
         collection_url = '/role_assignments?user.id=%s' % self.user1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
 
         collection_url = '/role_assignments?group.id=%s' % self.group1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
-        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
+        self.assertRoleAssignmentInListResponse(r, gp_entity)
 
         collection_url = '/role_assignments?role.id=%s' % self.role1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
-        self.assertRoleAssignmentInListResponse(r, gp_entity, link_url=gp_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
+        self.assertRoleAssignmentInListResponse(r, gp_entity)
 
         # Let's try combining two filers together....
 
@@ -1312,7 +1321,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=1,
                                                    resource_url=collection_url)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
 
         # Now for a harder one - filter for user with effective
         # roles - this should return role assignment that were directly
@@ -1325,25 +1334,24 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                                                    expected_length=4,
                                                    resource_url=collection_url)
         # Should have the two direct roles...
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
         # ...and the two via group membership...
-        unused, up1_entity = _build_role_assignment_url_and_entity(
-            project_id=self.project1['id'], user_id=self.user1['id'],
+        gp1_link = _build_role_assignment_link(project_id=self.project1['id'],
+                                               group_id=self.group1['id'],
+                                               role_id=self.role1['id'])
+        gd1_link = _build_role_assignment_link(domain_id=self.domain_id,
+                                               group_id=self.group1['id'],
+                                               role_id=self.role1['id'])
+
+        up1_entity = _build_role_assignment_entity(
+            link=gp1_link, project_id=self.project1['id'],
+            user_id=self.user1['id'], role_id=self.role1['id'])
+        ud1_entity = _build_role_assignment_entity(
+            link=gd1_link, domain_id=self.domain_id, user_id=self.user1['id'],
             role_id=self.role1['id'])
-        unused, ud1_entity = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, user_id=self.user1['id'],
-            role_id=self.role1['id'])
-        gp1_url, unused = _build_role_assignment_url_and_entity(
-            project_id=self.project1['id'], group_id=self.group1['id'],
-            role_id=self.role1['id'])
-        gd1_url, unused = _build_role_assignment_url_and_entity(
-            domain_id=self.domain_id, group_id=self.group1['id'],
-            role_id=self.role1['id'])
-        self.assertRoleAssignmentInListResponse(r, up1_entity,
-                                                link_url=gp1_url)
-        self.assertRoleAssignmentInListResponse(r, ud1_entity,
-                                                link_url=gd1_url)
+        self.assertRoleAssignmentInListResponse(r, up1_entity)
+        self.assertRoleAssignmentInListResponse(r, ud1_entity)
 
         # ...and for the grand-daddy of them all, simulate the request
         # that would generate the list of effective roles in a project
@@ -1359,9 +1367,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                                                    expected_length=2,
                                                    resource_url=collection_url)
         # Should have one direct role and one from group membership...
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=up_url)
-        self.assertRoleAssignmentInListResponse(r, up1_entity,
-                                                link_url=gp1_url)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
+        self.assertRoleAssignmentInListResponse(r, up1_entity)
 
 
 class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
@@ -1393,11 +1400,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.v3_authenticate_token(project_auth_data, expected_status=401)
 
         # Grant non-inherited role for user on domain
-        non_inher_ud_url, non_inher_ud_entity = (
-            _build_role_assignment_url_and_entity(domain_id=self.domain_id,
-                                                  user_id=user['id'],
-                                                  role_id=self.role_id))
-        self.put(non_inher_ud_url)
+        non_inher_ud_link = _build_role_assignment_link(
+            domain_id=self.domain_id, user_id=user['id'], role_id=self.role_id)
+        self.put(non_inher_ud_link)
 
         # Check the user can get only a domain token
         self.v3_authenticate_token(domain_auth_data)
@@ -1408,24 +1413,24 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
-        inher_ud_url, inher_ud_entity = _build_role_assignment_url_and_entity(
+        inher_ud_link = _build_role_assignment_link(
             domain_id=self.domain_id, user_id=user['id'],
             role_id=inherited_role['id'], inherited_to_projects=True)
-        self.put(inher_ud_url)
+        self.put(inher_ud_link)
 
         # Check the user can get both a domain and a project token
         self.v3_authenticate_token(domain_auth_data)
         self.v3_authenticate_token(project_auth_data)
 
         # Delete inherited grant
-        self.delete(inher_ud_url)
+        self.delete(inher_ud_link)
 
         # Check the user can only get a domain token
         self.v3_authenticate_token(domain_auth_data)
         self.v3_authenticate_token(project_auth_data, expected_status=401)
 
         # Delete non-inherited grant
-        self.delete(non_inher_ud_url)
+        self.delete(non_inher_ud_link)
 
         # Check the user cannot get a domain token anymore
         self.v3_authenticate_token(domain_auth_data, expected_status=401)
@@ -1457,11 +1462,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.v3_authenticate_token(project_auth_data, expected_status=401)
 
         # Grant non-inherited role for user on domain
-        non_inher_gd_url, non_inher_gd_entity = (
-            _build_role_assignment_url_and_entity(domain_id=self.domain_id,
-                                                  user_id=user['id'],
-                                                  role_id=self.role_id))
-        self.put(non_inher_gd_url)
+        non_inher_gd_link = _build_role_assignment_link(
+            domain_id=self.domain_id, user_id=user['id'], role_id=self.role_id)
+        self.put(non_inher_gd_link)
 
         # Check the user can get only a domain token
         self.v3_authenticate_token(domain_auth_data)
@@ -1472,24 +1475,24 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
-        inher_gd_url, inher_gd_entity = _build_role_assignment_url_and_entity(
+        inher_gd_link = _build_role_assignment_link(
             domain_id=self.domain_id, user_id=user['id'],
             role_id=inherited_role['id'], inherited_to_projects=True)
-        self.put(inher_gd_url)
+        self.put(inher_gd_link)
 
         # Check the user can get both a domain and a project token
         self.v3_authenticate_token(domain_auth_data)
         self.v3_authenticate_token(project_auth_data)
 
         # Delete inherited grant
-        self.delete(inher_gd_url)
+        self.delete(inher_gd_link)
 
         # Check the user can only get a domain token
         self.v3_authenticate_token(domain_auth_data)
         self.v3_authenticate_token(project_auth_data, expected_status=401)
 
         # Delete non-inherited grant
-        self.delete(non_inher_gd_url)
+        self.delete(non_inher_gd_link)
 
         # Check the user cannot get a domain token anymore
         self.v3_authenticate_token(domain_auth_data, expected_status=401)
@@ -1599,10 +1602,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=1,
                                                    resource_url=collection_url)
-        ud_url, ud_entity = _build_role_assignment_url_and_entity(
+        ud_entity = _build_role_assignment_entity(
             domain_id=domain['id'], user_id=user1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
 
         # Now ask for effective list role assignments - the role should
         # turn into a project role, along with the two direct roles that are
@@ -1618,13 +1621,15 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
         # An effective role for an inherited role will be a project
         # entity, with a domain link to the inherited assignment
-        unused, up_entity = _build_role_assignment_url_and_entity(
-            project_id=project1['id'], user_id=user1['id'],
-            role_id=role_list[3]['id'])
-        ud_url, unused = _build_role_assignment_url_and_entity(
+        ud_url = _build_role_assignment_link(
             domain_id=domain['id'], user_id=user1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=ud_url)
+        up_entity = _build_role_assignment_entity(link=ud_url,
+                                                  project_id=project1['id'],
+                                                  user_id=user1['id'],
+                                                  role_id=role_list[3]['id'],
+                                                  inherited_to_projects=True)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
 
     def test_list_role_assignments_for_disabled_inheritance_extension(self):
         """Call ``GET /role_assignments with inherited domain grants``.
@@ -1697,13 +1702,16 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    expected_length=3,
                                                    resource_url=collection_url)
 
-        unused, up_entity = _build_role_assignment_url_and_entity(
-            project_id=project1['id'], user_id=user1['id'],
-            role_id=role_list[3]['id'])
-        ud_url, unused = _build_role_assignment_url_and_entity(
+        ud_url = _build_role_assignment_link(
             domain_id=domain['id'], user_id=user1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=ud_url)
+        up_entity = _build_role_assignment_entity(link=ud_url,
+                                                  project_id=project1['id'],
+                                                  user_id=user1['id'],
+                                                  role_id=role_list[3]['id'],
+                                                  inherited_to_projects=True)
+
+        self.assertRoleAssignmentInListResponse(r, up_entity)
 
         # Disable the extension and re-check the list, the role inherited
         # from the project should no longer show up
@@ -1713,14 +1721,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    expected_length=2,
                                                    resource_url=collection_url)
 
-        unused, up_entity = _build_role_assignment_url_and_entity(
-            project_id=project1['id'], user_id=user1['id'],
-            role_id=role_list[3]['id'])
-        ud_url, unused = _build_role_assignment_url_and_entity(
-            domain_id=domain['id'], user_id=user1['id'],
-            role_id=role_list[3]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentNotInListResponse(r, up_entity,
-                                                   link_url=ud_url)
+        self.assertRoleAssignmentNotInListResponse(r, up_entity)
 
     def test_list_role_assignments_for_inherited_group_domain_grants(self):
         """Call ``GET /role_assignments with inherited group domain grants``.
@@ -1804,10 +1805,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=1,
                                                    resource_url=collection_url)
-        gd_url, gd_entity = _build_role_assignment_url_and_entity(
+        gd_entity = _build_role_assignment_entity(
             domain_id=domain['id'], group_id=group1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
 
         # Now ask for effective list role assignments - the role should
         # turn into a user project role, along with the two direct roles
@@ -1823,13 +1824,11 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
         # An effective role for an inherited role will be a project
         # entity, with a domain link to the inherited assignment
-        unused, up_entity = _build_role_assignment_url_and_entity(
-            project_id=project1['id'], user_id=user1['id'],
-            role_id=role_list[3]['id'])
-        gd_url, unused = _build_role_assignment_url_and_entity(
-            domain_id=domain['id'], group_id=group1['id'],
-            role_id=role_list[3]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentInListResponse(r, up_entity, link_url=gd_url)
+        up_entity = _build_role_assignment_entity(
+            link=gd_entity['links']['assignment'], project_id=project1['id'],
+            user_id=user1['id'], role_id=role_list[3]['id'],
+            inherited_to_projects=True)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
 
     def test_filtered_role_assignments_for_inherited_grants(self):
         """Call ``GET /role_assignments?scope.OS-INHERIT:inherited_to``.
@@ -1916,14 +1915,14 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
-        ud_url, ud_entity = _build_role_assignment_url_and_entity(
+        ud_entity = _build_role_assignment_entity(
             domain_id=domain['id'], user_id=user1['id'],
             role_id=role_list[3]['id'], inherited_to_projects=True)
-        gd_url, gd_entity = _build_role_assignment_url_and_entity(
+        gd_entity = _build_role_assignment_entity(
             domain_id=domain['id'], group_id=group1['id'],
             role_id=role_list[4]['id'], inherited_to_projects=True)
-        self.assertRoleAssignmentInListResponse(r, ud_entity, link_url=ud_url)
-        self.assertRoleAssignmentInListResponse(r, gd_entity, link_url=gd_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
+        self.assertRoleAssignmentInListResponse(r, gd_entity)
 
     def _setup_hierarchical_projects_scenario(self):
         """Creates basic hierarchical projects scenario.
@@ -1969,35 +1968,34 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.v3_authenticate_token(leaf_project_auth_data, expected_status=401)
 
         # Grant non-inherited role for user on leaf project
-        non_inher_up_url, non_inher_up_entity = (
-            _build_role_assignment_url_and_entity(
-                project_id=leaf_id, user_id=self.user['id'],
-                role_id=non_inherited_role_id))
-        self.put(non_inher_up_url)
+        non_inher_up_link = _build_role_assignment_link(
+            project_id=leaf_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.put(non_inher_up_link)
 
         # Check the user can only get a token on leaf project
         self.v3_authenticate_token(root_project_auth_data, expected_status=401)
         self.v3_authenticate_token(leaf_project_auth_data)
 
         # Grant inherited role for user on root project
-        inher_up_url, inher_up_entity = _build_role_assignment_url_and_entity(
+        inher_up_link = _build_role_assignment_link(
             project_id=root_id, user_id=self.user['id'],
             role_id=inherited_role_id, inherited_to_projects=True)
-        self.put(inher_up_url)
+        self.put(inher_up_link)
 
         # Check the user still can get a token only on leaf project
         self.v3_authenticate_token(root_project_auth_data, expected_status=401)
         self.v3_authenticate_token(leaf_project_auth_data)
 
         # Delete non-inherited grant
-        self.delete(non_inher_up_url)
+        self.delete(non_inher_up_link)
 
         # Check the inherited role still applies for leaf project
         self.v3_authenticate_token(root_project_auth_data, expected_status=401)
         self.v3_authenticate_token(leaf_project_auth_data)
 
         # Delete inherited grant
-        self.delete(inher_up_url)
+        self.delete(inher_up_link)
 
         # Check the user cannot get a token on leaf project anymore
         self.v3_authenticate_token(leaf_project_auth_data, expected_status=401)
@@ -2027,34 +2025,33 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         self.v3_authenticate_token(leaf_project_auth_data, expected_status=401)
 
         # Grant non-inherited role for group on leaf project
-        non_inher_gp_url, non_inher_gp_entity = (
-            _build_role_assignment_url_and_entity(
-                project_id=leaf_id, group_id=group['id'],
-                role_id=non_inherited_role_id))
-        self.put(non_inher_gp_url)
+        non_inher_gp_link = _build_role_assignment_link(
+            project_id=leaf_id, group_id=group['id'],
+            role_id=non_inherited_role_id)
+        self.put(non_inher_gp_link)
 
         # Check the user can only get a token on leaf project
         self.v3_authenticate_token(root_project_auth_data, expected_status=401)
         self.v3_authenticate_token(leaf_project_auth_data)
 
         # Grant inherited role for group on root project
-        inher_gp_url, inher_gp_entity = _build_role_assignment_url_and_entity(
+        inher_gp_link = _build_role_assignment_link(
             project_id=root_id, group_id=group['id'],
             role_id=inherited_role_id, inherited_to_projects=True)
-        self.put(inher_gp_url)
+        self.put(inher_gp_link)
 
         # Check the user still can get a token only on leaf project
         self.v3_authenticate_token(root_project_auth_data, expected_status=401)
         self.v3_authenticate_token(leaf_project_auth_data)
 
         # Delete no-inherited grant
-        self.delete(non_inher_gp_url)
+        self.delete(non_inher_gp_link)
 
         # Check the inherited role still applies for leaf project
         self.v3_authenticate_token(leaf_project_auth_data)
 
         # Delete inherited grant
-        self.delete(inher_gp_url)
+        self.delete(inher_gp_link)
 
         # Check the user cannot get a token on leaf project anymore
         self.v3_authenticate_token(leaf_project_auth_data, expected_status=401)
@@ -2077,17 +2074,16 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             self._setup_hierarchical_projects_scenario())
 
         # Grant non-inherited role
-        non_inher_up_url, non_inher_up_entity = (
-            _build_role_assignment_url_and_entity(
-                project_id=root_id, user_id=self.user['id'],
-                role_id=non_inherited_role_id))
-        self.put(non_inher_up_url)
+        non_inher_up_entity = _build_role_assignment_entity(
+            project_id=root_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.put(non_inher_up_entity['links']['assignment'])
 
         # Grant inherited role
-        inher_up_url, inher_up_entity = _build_role_assignment_url_and_entity(
+        inher_up_entity = _build_role_assignment_entity(
             project_id=root_id, user_id=self.user['id'],
             role_id=inherited_role_id, inherited_to_projects=True)
-        self.put(inher_up_url)
+        self.put(inher_up_entity['links']['assignment'])
 
         # Get role assignments
         collection_url = '/role_assignments'
@@ -2096,24 +2092,20 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
 
         # Assert that the user has non-inherited role on root project
-        self.assertRoleAssignmentInListResponse(r, non_inher_up_entity,
-                                                non_inher_up_url)
+        self.assertRoleAssignmentInListResponse(r, non_inher_up_entity)
 
         # Assert that the user has inherited role on root project
-        self.assertRoleAssignmentInListResponse(r, inher_up_entity,
-                                                inher_up_url)
+        self.assertRoleAssignmentInListResponse(r, inher_up_entity)
 
         # Assert that the user does not have non-inherited role on leaf project
-        non_inher_up_url = ('/projects/%s/users/%s/roles/%s' %
-                            (leaf_id, self.user['id'], non_inherited_role_id))
-        non_inher_up_entity['scope']['project']['id'] = leaf_id
-        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity,
-                                                   non_inher_up_url)
+        non_inher_up_entity = _build_role_assignment_entity(
+            project_id=leaf_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity)
 
         # Assert that the user does not have inherited role on leaf project
         inher_up_entity['scope']['project']['id'] = leaf_id
-        self.assertRoleAssignmentNotInListResponse(r, inher_up_entity,
-                                                   inher_up_url)
+        self.assertRoleAssignmentNotInListResponse(r, inher_up_entity)
 
     def test_get_effective_role_assignments_for_project_hierarchy(self):
         """Call ``GET /role_assignments?effective``.
@@ -2134,17 +2126,16 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             self._setup_hierarchical_projects_scenario())
 
         # Grant non-inherited role
-        non_inher_up_url, non_inher_up_entity = (
-            _build_role_assignment_url_and_entity(
-                project_id=root_id, user_id=self.user['id'],
-                role_id=non_inherited_role_id))
-        self.put(non_inher_up_url)
+        non_inher_up_entity = _build_role_assignment_entity(
+            project_id=root_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.put(non_inher_up_entity['links']['assignment'])
 
         # Grant inherited role
-        inher_up_url, inher_up_entity = _build_role_assignment_url_and_entity(
+        inher_up_entity = _build_role_assignment_entity(
             project_id=root_id, user_id=self.user['id'],
             role_id=inherited_role_id, inherited_to_projects=True)
-        self.put(inher_up_url)
+        self.put(inher_up_entity['links']['assignment'])
 
         # Get effective role assignments
         collection_url = '/role_assignments?effective'
@@ -2153,24 +2144,20 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
 
         # Assert that the user has non-inherited role on root project
-        self.assertRoleAssignmentInListResponse(r, non_inher_up_entity,
-                                                non_inher_up_url)
+        self.assertRoleAssignmentInListResponse(r, non_inher_up_entity)
 
         # Assert that the user does not have inherited role on root project
-        self.assertRoleAssignmentNotInListResponse(r, inher_up_entity,
-                                                   inher_up_url)
+        self.assertRoleAssignmentNotInListResponse(r, inher_up_entity)
 
         # Assert that the user does not have non-inherited role on leaf project
-        non_inher_up_url = ('/projects/%s/users/%s/roles/%s' %
-                            (leaf_id, self.user['id'], non_inherited_role_id))
-        non_inher_up_entity['scope']['project']['id'] = leaf_id
-        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity,
-                                                   non_inher_up_url)
+        non_inher_up_entity = _build_role_assignment_entity(
+            project_id=leaf_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity)
 
         # Assert that the user has inherited role on leaf project
         inher_up_entity['scope']['project']['id'] = leaf_id
-        self.assertRoleAssignmentInListResponse(r, inher_up_entity,
-                                                inher_up_url)
+        self.assertRoleAssignmentInListResponse(r, inher_up_entity)
 
     def test_get_inherited_role_assignments_for_project_hierarchy(self):
         """Call ``GET /role_assignments?scope.OS-INHERIT:inherited_to``.
@@ -2190,17 +2177,16 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             self._setup_hierarchical_projects_scenario())
 
         # Grant non-inherited role
-        non_inher_up_url, non_inher_up_entity = (
-            _build_role_assignment_url_and_entity(
-                project_id=root_id, user_id=self.user['id'],
-                role_id=non_inherited_role_id))
-        self.put(non_inher_up_url)
+        non_inher_up_entity = _build_role_assignment_entity(
+            project_id=root_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.put(non_inher_up_entity['links']['assignment'])
 
         # Grant inherited role
-        inher_up_url, inher_up_entity = _build_role_assignment_url_and_entity(
+        inher_up_entity = _build_role_assignment_entity(
             project_id=root_id, user_id=self.user['id'],
             role_id=inherited_role_id, inherited_to_projects=True)
-        self.put(inher_up_url)
+        self.put(inher_up_entity['links']['assignment'])
 
         # Get inherited role assignments
         collection_url = ('/role_assignments'
@@ -2210,24 +2196,20 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                                    resource_url=collection_url)
 
         # Assert that the user does not have non-inherited role on root project
-        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity,
-                                                   non_inher_up_url)
+        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity)
 
         # Assert that the user has inherited role on root project
-        self.assertRoleAssignmentInListResponse(r, inher_up_entity,
-                                                inher_up_url)
+        self.assertRoleAssignmentInListResponse(r, inher_up_entity)
 
         # Assert that the user does not have non-inherited role on leaf project
-        non_inher_up_url = ('/projects/%s/users/%s/roles/%s' %
-                            (leaf_id, self.user['id'], non_inherited_role_id))
-        non_inher_up_entity['scope']['project']['id'] = leaf_id
-        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity,
-                                                   non_inher_up_url)
+        non_inher_up_entity = _build_role_assignment_entity(
+            project_id=leaf_id, user_id=self.user['id'],
+            role_id=non_inherited_role_id)
+        self.assertRoleAssignmentNotInListResponse(r, non_inher_up_entity)
 
         # Assert that the user does not have inherited role on leaf project
         inher_up_entity['scope']['project']['id'] = leaf_id
-        self.assertRoleAssignmentNotInListResponse(r, inher_up_entity,
-                                                   inher_up_url)
+        self.assertRoleAssignmentNotInListResponse(r, inher_up_entity)
 
 
 class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
