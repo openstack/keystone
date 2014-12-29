@@ -378,8 +378,8 @@ class SqlUpgradeTests(SqlMigrateBase):
                                           autoload=True)
         else:
             this_table = table
-        insert = this_table.insert()
-        insert.execute(d)
+        insert = this_table.insert().values(**d)
+        session.execute(insert)
         session.commit()
 
     def test_region_migration(self):
