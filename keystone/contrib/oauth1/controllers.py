@@ -165,7 +165,7 @@ class AccessTokenCrudV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('assignment_api', 'oauth_api')
+@dependency.requires('assignment_api', 'oauth_api', 'role_api')
 class AccessTokenRolesV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'
@@ -195,7 +195,7 @@ class AccessTokenRolesV3(controller.V3Controller):
         raise exception.RoleNotFound(_('Could not find role'))
 
     def _format_role_entity(self, role_id):
-        role = self.assignment_api.get_role(role_id)
+        role = self.role_api.get_role(role_id)
         formatted_entity = role.copy()
         if 'description' in role:
             formatted_entity.pop('description')
