@@ -231,7 +231,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_create_role(self):
         role_ref = self.new_role_ref()
-        self.assignment_api.create_role(role_ref['id'], role_ref)
+        self.role_api.create_role(role_ref['id'], role_ref)
         self._assert_last_note(role_ref['id'], CREATED_OPERATION, 'role')
 
     def test_create_user(self):
@@ -245,7 +245,7 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         trustee = self.new_user_ref(domain_id=self.domain_id)
         trustee = self.identity_api.create_user(trustee)
         role_ref = self.new_role_ref()
-        self.assignment_api.create_role(role_ref['id'], role_ref)
+        self.role_api.create_role(role_ref['id'], role_ref)
         trust_ref = self.new_trust_ref(trustor['id'],
                                        trustee['id'])
         self.trust_api.create_trust(trust_ref['id'],
@@ -269,8 +269,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_delete_role(self):
         role_ref = self.new_role_ref()
-        self.assignment_api.create_role(role_ref['id'], role_ref)
-        self.assignment_api.delete_role(role_ref['id'])
+        self.role_api.create_role(role_ref['id'], role_ref)
+        self.role_api.delete_role(role_ref['id'])
         self._assert_last_note(role_ref['id'], DELETED_OPERATION, 'role')
 
     def test_delete_user(self):
@@ -448,8 +448,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
 
     def test_update_role(self):
         role_ref = self.new_role_ref()
-        self.assignment_api.create_role(role_ref['id'], role_ref)
-        self.assignment_api.update_role(role_ref['id'], role_ref)
+        self.role_api.create_role(role_ref['id'], role_ref)
+        self.role_api.update_role(role_ref['id'], role_ref)
         self._assert_last_note(role_ref['id'], UPDATED_OPERATION, 'role')
 
     def test_update_user(self):
