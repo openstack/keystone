@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import random
+import six
 import uuid
 
 from oslo_config import cfg
@@ -21,6 +23,32 @@ from keystone.tests.unit import test_v3
 
 
 CONF = cfg.CONF
+
+
+def _build_role_assignment_query_url(effective=False, **filters):
+    '''Build and return a role assignment query url with provided params.
+
+    Available filters are: domain_id, project_id, user_id, group_id, role_id
+    and inherited_to_projects.
+
+    '''
+
+    query_params = '?effective' if effective else ''
+
+    for k, v in six.iteritems(filters):
+        query_params += '?' if not query_params else '&'
+
+        if k == 'inherited_to_projects':
+            query_params += 'scope.OS-INHERIT:inherited_to=projects'
+        else:
+            if k in ['domain_id', 'project_id']:
+                query_params += 'scope.'
+            elif k not in ['user_id', 'group_id', 'role_id']:
+                raise ValueError('Invalid key \'%s\' in provided filters.' % k)
+
+            query_params += '%s=%s' % (k.replace('_', '.'), v)
+
+    return '/role_assignments%s' % query_params
 
 
 def _build_role_assignment_link(**attribs):
@@ -1521,6 +1549,394 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # Should have one direct role and one from group membership...
         self.assertRoleAssignmentInListResponse(r, up_entity)
         self.assertRoleAssignmentInListResponse(r, up1_entity)
+
+
+class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase):
+    """Base class for testing /v3/role_assignments API behavior."""
+
+    MAX_HIERARCHY_BREADTH = 3
+    MAX_HIERARCHY_DEPTH = CONF.max_project_tree_depth - 1
+
+    def load_sample_data(self):
+        """Creates sample data to be used on tests.
+
+        Created data are i) a role and ii) a domain containing: a project
+        hierarchy and 3 users within 3 groups.
+
+        """
+        def create_project_hierarchy(parent_id, depth):
+            "Creates a random project hierarchy."
+            if depth == 0:
+                return
+
+            breadth = random.randint(1, self.MAX_HIERARCHY_BREADTH)
+
+            subprojects = []
+            for i in range(breadth):
+                subprojects.append(self.new_project_ref(
+                    domain_id=self.domain_id, parent_id=parent_id))
+                self.assignment_api.create_project(subprojects[-1]['id'],
+                                                   subprojects[-1])
+
+            new_parent = subprojects[random.randint(0, breadth - 1)]
+            create_project_hierarchy(new_parent['id'], depth - 1)
+
+        super(RoleAssignmentBaseTestCase, self).load_sample_data()
+
+        # Create a domain
+        self.domain = self.new_domain_ref()
+        self.domain_id = self.domain['id']
+        self.assignment_api.create_domain(self.domain_id, self.domain)
+
+        # Create a project hierarchy
+        self.project = self.new_project_ref(domain_id=self.domain_id)
+        self.project_id = self.project['id']
+        self.assignment_api.create_project(self.project_id, self.project)
+
+        # Create a random project hierarchy
+        create_project_hierarchy(self.project_id,
+                                 random.randint(1, self.MAX_HIERARCHY_DEPTH))
+
+        # Create 3 users
+        self.user_ids = []
+        for i in range(3):
+            user = self.new_user_ref(domain_id=self.domain_id)
+            user = self.identity_api.create_user(user)
+            self.user_ids.append(user['id'])
+
+        # Create 3 groups
+        self.group_ids = []
+        for i in range(3):
+            group = self.new_group_ref(domain_id=self.domain_id)
+            group = self.identity_api.create_group(group)
+            self.group_ids.append(group['id'])
+
+            # Put 2 members on each group
+            self.identity_api.add_user_to_group(user_id=self.user_ids[i],
+                                                group_id=group['id'])
+            self.identity_api.add_user_to_group(user_id=self.user_ids[i % 2],
+                                                group_id=group['id'])
+
+        self.assignment_api.create_grant(user_id=self.user_id,
+                                         project_id=self.project_id,
+                                         role_id=self.role_id)
+
+        # Create a role
+        self.role = self.new_role_ref()
+        self.role_id = self.role['id']
+        self.assignment_api.create_role(self.role_id, self.role)
+
+        # Set default user and group to be used on tests
+        self.default_user_id = self.user_ids[0]
+        self.default_group_id = self.group_ids[0]
+
+    def get_role_assignments(self, expected_status=200, **filters):
+        """Returns the result from querying role assignment API + queried URL.
+
+        Calls GET /v3/role_assignments?<params> and returns its result, where
+        <params> is the HTTP query parameters form of effective option plus
+        filters, if provided. Queried URL is returned as well.
+
+        :returns: a tuple containing the list role assignments API response and
+                  queried URL.
+
+        """
+
+        query_url = self._get_role_assignments_query_url(**filters)
+        response = self.get(query_url, expected_status=expected_status)
+
+        return (response, query_url)
+
+    def _get_role_assignments_query_url(self, **filters):
+        """Returns non-effective role assignments query URL from given filters.
+
+        :param filters: query parameters are created with the provided filters
+                        on role assignments attributes. Valid filters are:
+                        role_id, domain_id, project_id, group_id, user_id and
+                        inherited_to_projects.
+
+        :returns: role assignments query URL.
+
+        """
+        return _build_role_assignment_query_url(**filters)
+
+
+class RoleAssignmentFailureTestCase(RoleAssignmentBaseTestCase):
+    """Class for testing invalid query params on /v3/role_assignments API.
+
+    Querying domain and project, or user and group results in a HTTP 400, since
+    a role assignment must contain only a single pair of (actor, target). In
+    addition, since filtering on role assignments applies only to the final
+    result, effective mode cannot be combined with i) group or ii) domain and
+    inherited, because it would always result in an empty list.
+
+    """
+
+    def test_get_role_assignments_by_domain_and_project(self):
+        self.get_role_assignments(domain_id=self.domain_id,
+                                  project_id=self.project_id,
+                                  expected_status=400)
+
+    def test_get_role_assignments_by_user_and_group(self):
+        self.get_role_assignments(user_id=self.default_user_id,
+                                  group_id=self.default_group_id,
+                                  expected_status=400)
+
+    def test_get_role_assignments_by_effective_and_inherited(self):
+        self.config_fixture.config(group='os_inherit', enabled=True)
+
+        self.get_role_assignments(domain_id=self.domain_id, effective=True,
+                                  inherited_to_projects=True,
+                                  expected_status=400)
+
+    def test_get_role_assignments_by_effective_and_group(self):
+        self.get_role_assignments(effective=True,
+                                  group_id=self.default_group_id,
+                                  expected_status=400)
+
+
+class RoleAssignmentDirectTestCase(RoleAssignmentBaseTestCase):
+    """Class for testing direct assignments on /v3/role_assignments API.
+
+    Direct assignments on a domain or project have effect on them directly,
+    instead of on their project hierarchy, i.e they are non-inherited. In
+    addition, group direct assignments are not expanded to group's users.
+
+    Tests on this class make assertions on the representation and API filtering
+    of direct assignments.
+
+    """
+
+    def _test_get_role_assignments(self, **filters):
+        """Generic filtering test method.
+
+        According to the provided filters, this method:
+        - creates a new role assignment;
+        - asserts that list role assignments API reponds correctly;
+        - deletes the created role assignment.
+
+        :param filters: filters to be considered when listing role assignments.
+                        Valid filters are: role_id, domain_id, project_id,
+                        group_id, user_id and inherited_to_projects.
+
+        """
+
+        # Fills default assignment with provided filters
+        test_assignment = self._set_default_assignment_attributes(**filters)
+
+        # Create new role assignment for this test
+        self.assignment_api.create_grant(**test_assignment)
+
+        # Get expected role assignments
+        expected_assignments = self._list_expected_role_assignments(
+            **test_assignment)
+
+        # Get role assignments from API
+        response, query_url = self.get_role_assignments(**test_assignment)
+        self.assertValidRoleAssignmentListResponse(response,
+                                                   resource_url=query_url)
+        self.assertEqual(len(expected_assignments),
+                         len(response.result.get('role_assignments')))
+
+        # Assert that expected role assignments were returned by the API call
+        for assignment in expected_assignments:
+            self.assertRoleAssignmentInListResponse(response, assignment)
+
+        # Delete created role assignment
+        self.assignment_api.delete_grant(**test_assignment)
+
+    def _set_default_assignment_attributes(self, **attribs):
+        """Inserts default values for missing attributes of role assignment.
+
+        If no actor, target or role are provided, they will default to values
+        from sample data.
+
+        :param attribs: info from a role assignment entity. Valid attributes
+                        are: role_id, domain_id, project_id, group_id, user_id
+                        and inherited_to_projects.
+
+        """
+        if not any(target in attribs
+                   for target in ('domain_id', 'projects_id')):
+            attribs['project_id'] = self.project_id
+
+        if not any(actor in attribs for actor in ('user_id', 'group_id')):
+            attribs['user_id'] = self.default_user_id
+
+        if 'role_id' not in attribs:
+            attribs['role_id'] = self.role_id
+
+        return attribs
+
+    def _list_expected_role_assignments(self, **filters):
+        """Given the filters, it returns expected direct role assignments.
+
+        :param filters: filters that will be considered when listing role
+                        assignments. Valid filters are: role_id, domain_id,
+                        project_id, group_id, user_id and
+                        inherited_to_projects.
+
+        :returns: the list of the expected role assignments.
+
+        """
+        return [_build_role_assignment_entity(**filters)]
+
+    # Test cases below call the generic test method, providing different filter
+    # combinations. Filters are provided as specified in the method name, after
+    # 'by'. For example, test_get_role_assignments_by_project_user_and_role
+    # calls the generic test method with project_id, user_id and role_id.
+
+    def test_get_role_assignments_by_domain(self, **filters):
+        self._test_get_role_assignments(domain_id=self.domain_id, **filters)
+
+    def test_get_role_assignments_by_project(self, **filters):
+        self._test_get_role_assignments(project_id=self.project_id, **filters)
+
+    def test_get_role_assignments_by_user(self, **filters):
+        self._test_get_role_assignments(user_id=self.default_user_id,
+                                        **filters)
+
+    def test_get_role_assignments_by_group(self, **filters):
+        self._test_get_role_assignments(group_id=self.default_group_id,
+                                        **filters)
+
+    def test_get_role_assignments_by_role(self, **filters):
+        self._test_get_role_assignments(role_id=self.role_id, **filters)
+
+    def test_get_role_assignments_by_domain_and_user(self, **filters):
+        self.test_get_role_assignments_by_domain(user_id=self.default_user_id,
+                                                 **filters)
+
+    def test_get_role_assignments_by_domain_and_group(self, **filters):
+        self.test_get_role_assignments_by_domain(
+            group_id=self.default_group_id, **filters)
+
+    def test_get_role_assignments_by_project_and_user(self, **filters):
+        self.test_get_role_assignments_by_project(user_id=self.default_user_id,
+                                                  **filters)
+
+    def test_get_role_assignments_by_project_and_group(self, **filters):
+        self.test_get_role_assignments_by_project(
+            group_id=self.default_group_id, **filters)
+
+    def test_get_role_assignments_by_domain_user_and_role(self, **filters):
+        self.test_get_role_assignments_by_domain_and_user(role_id=self.role_id,
+                                                          **filters)
+
+    def test_get_role_assignments_by_domain_group_and_role(self, **filters):
+        self.test_get_role_assignments_by_domain_and_group(
+            role_id=self.role_id, **filters)
+
+    def test_get_role_assignments_by_project_user_and_role(self, **filters):
+        self.test_get_role_assignments_by_project_and_user(
+            role_id=self.role_id, **filters)
+
+    def test_get_role_assignments_by_project_group_and_role(self, **filters):
+        self.test_get_role_assignments_by_project_and_group(
+            role_id=self.role_id, **filters)
+
+
+class RoleAssignmentInheritedTestCase(RoleAssignmentDirectTestCase):
+    """Class for testing inherited assignments on /v3/role_assignments API.
+
+    Inherited assignments on a domain or project have no effect on them
+    directly, but on the projects under them instead.
+
+    Tests on this class do not make assertions on the effect of inherited
+    assignments, but in their representation and API filtering.
+
+    """
+
+    def config_overrides(self):
+        super(RoleAssignmentBaseTestCase, self).config_overrides()
+        self.config_fixture.config(group='os_inherit', enabled=True)
+
+    def _test_get_role_assignments(self, **filters):
+        """Adds inherited_to_project filter to expected entity in tests."""
+        super(RoleAssignmentInheritedTestCase,
+              self)._test_get_role_assignments(inherited_to_projects=True,
+                                               **filters)
+
+
+class RoleAssignmentEffectiveTestCase(RoleAssignmentInheritedTestCase):
+    """Class for testing inheritance effects on /v3/role_assignments API.
+
+    Inherited assignments on a domain or project have no effect on them
+    directly, but on the projects under them instead.
+
+    Tests on this class make assertions on the effect of inherited assignments
+    and API filtering.
+
+    """
+
+    def _get_role_assignments_query_url(self, **filters):
+        """Returns effective role assignments query URL from given filters.
+
+        For test methods in this class, effetive will always be true. As in
+        effective mode, inherited_to_projects, group_id, domain_id and
+        project_id will always be desconsidered from provided filters.
+
+        :param filters: query parameters are created with the provided filters.
+                        Valid filters are: role_id, domain_id, project_id,
+                        group_id, user_id and inherited_to_projects.
+
+        :returns: role assignments query URL.
+
+        """
+        query_filters = filters.copy()
+        query_filters.pop('inherited_to_projects')
+
+        query_filters.pop('group_id', None)
+        query_filters.pop('domain_id', None)
+        query_filters.pop('project_id', None)
+
+        return _build_role_assignment_query_url(effective=True,
+                                                **query_filters)
+
+    def _list_expected_role_assignments(self, **filters):
+        """Given the filters, it returns expected direct role assignments.
+
+        :param filters: filters that will be considered when listing role
+                        assignments. Valid filters are: role_id, domain_id,
+                        project_id, group_id, user_id and
+                        inherited_to_projects.
+
+        :returns: the list of the expected role assignments.
+
+        """
+        # Get assignment link, to be put on 'links': {'assignment': link}
+        assignment_link = _build_role_assignment_link(**filters)
+
+        # Expand group membership
+        user_ids = [None]
+        if filters.get('group_id'):
+            user_ids = [user['id'] for user in
+                        self.identity_api.list_users_in_group(
+                            filters['group_id'])]
+        else:
+            user_ids = [self.default_user_id]
+
+        # Expand role inheritance
+        project_ids = [None]
+        if filters.get('domain_id'):
+            project_ids = [project['id'] for project in
+                           self.assignment_api.list_projects_in_domain(
+                               filters.pop('domain_id'))]
+        else:
+            project_ids = [project['id'] for project in
+                           self.assignment_api.list_projects_in_subtree(
+                               self.project_id)]
+
+        # Compute expected role assignments
+        assignments = []
+        for project_id in project_ids:
+            filters['project_id'] = project_id
+            for user_id in user_ids:
+                filters['user_id'] = user_id
+                assignments.append(_build_role_assignment_entity(
+                    link=assignment_link, **filters))
+
+        return assignments
 
 
 class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
