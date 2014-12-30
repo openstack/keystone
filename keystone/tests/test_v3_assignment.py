@@ -67,7 +67,7 @@ def _build_role_assignment_url_and_entity(
     if inherited_to_projects:
         url = '/OS-INHERIT%s/inherited_to_projects' % url
         if not effective:
-            entity['OS-INHERIT:inherited_to'] = 'projects'
+            entity['scope']['OS-INHERIT:inherited_to'] = 'projects'
     return (url, entity)
 
 
