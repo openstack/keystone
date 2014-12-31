@@ -735,59 +735,6 @@ class TestCase(BaseTestCase):
         if not os.environ.get(env_var):
             self.skipTest('Env variable %s is not set.' % env_var)
 
-    def assertSetEqual(self, set1, set2, msg=None):
-        # TODO(morganfainberg): Remove this and self._assertSetEqual once
-        # support for python 2.6 is no longer needed.
-        if (sys.version_info < (2, 7)):
-            return self._assertSetEqual(set1, set2, msg=None)
-        else:
-            # use the native assertSetEqual
-            return super(TestCase, self).assertSetEqual(set1, set2, msg=msg)
-
-    def _assertSetEqual(self, set1, set2, msg=None):
-        """A set-specific equality assertion.
-
-        Args:
-            set1: The first set to compare.
-            set2: The second set to compare.
-            msg: Optional message to use on failure instead of a list of
-                    differences.
-
-        assertSetEqual uses ducktyping to support different types of sets, and
-        is optimized for sets specifically (parameters must support a
-        difference method).
-        """
-        try:
-            difference1 = set1.difference(set2)
-        except TypeError as e:
-            self.fail('invalid type when attempting set difference: %s' % e)
-        except AttributeError as e:
-            self.fail('first argument does not support set difference: %s' % e)
-
-        try:
-            difference2 = set2.difference(set1)
-        except TypeError as e:
-            self.fail('invalid type when attempting set difference: %s' % e)
-        except AttributeError as e:
-            self.fail('second argument does not support set difference: %s' %
-                      e)
-
-        if not (difference1 or difference2):
-            return
-
-        lines = []
-        if difference1:
-            lines.append('Items in the first set but not the second:')
-            for item in difference1:
-                lines.append(repr(item))
-        if difference2:
-            lines.append('Items in the second set but not the first:')
-            for item in difference2:
-                lines.append(repr(item))
-
-        standardMsg = '\n'.join(lines)
-        self.fail(self._formatMessage(msg, standardMsg))
-
 
 class SQLDriverOverrides(object):
     """A mixin for consolidating sql-specific test overrides."""
