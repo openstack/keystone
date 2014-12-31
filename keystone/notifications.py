@@ -55,28 +55,6 @@ _notifier = None
 CONF = cfg.CONF
 CONF.register_opts(notifier_opts)
 
-try:  # Python 2.7+
-    getcallargs = inspect.getcallargs
-except AttributeError:  # Python 2.6 support
-    def getcallargs(f, *positional, **named):
-        """A very simplified version of inspect.getcallargs.
-
-        It will work in our specific case where we are using decorators
-        around methods.
-
-        """
-        argspec = inspect.getargspec(f)
-
-        # setup the defaults
-        callargs = dict(zip(argspec.args[-len(argspec.defaults):],
-                            argspec.defaults))
-
-        callargs.update(named)
-        for n, arg in enumerate(positional):
-            callargs[argspec.args[n]] = arg
-
-        return callargs
-
 # NOTE(morganfainberg): Special case notifications that are only used
 # internally for handling token persistence token deletions
 INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
@@ -364,7 +342,8 @@ class CadfRoleAssignmentNotificationWrapper(object):
             checking kwargs, we can check the positional arguments,
             based on the method signature.
             """
-            call_args = getcallargs(f, wrapped_self, role_id, *args, **kwargs)
+            call_args = inspect.getcallargs(
+                f, wrapped_self, role_id, *args, **kwargs)
             inherited = call_args['inherited_to_projects']
             context = call_args['context']
 
