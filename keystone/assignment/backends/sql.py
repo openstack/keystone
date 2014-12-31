@@ -418,6 +418,10 @@ class Assignment(keystone_assignment.Driver):
 
     def _get_group_project_roles(self, session, groups, project_id,
                                  project_domain_id):
+        if not groups:
+            # If there's no groups then there will be no project roles.
+            return []
+
         # NOTE(rodrigods): First, we always include projects with
         # non-inherited assignments
         sql_constraints = sqlalchemy.and_(
@@ -436,12 +440,13 @@ class Assignment(keystone_assignment.Driver):
             # Inherited roles from projects
             project_parents = [x['id']
                                for x in self.list_project_parents(project_id)]
-            sql_constraints = sqlalchemy.or_(
-                sql_constraints,
-                sqlalchemy.and_(
-                    RoleAssignment.type == AssignmentType.GROUP_PROJECT,
-                    RoleAssignment.inherited,
-                    RoleAssignment.target_id.in_(project_parents)))
+            if project_parents:
+                sql_constraints = sqlalchemy.or_(
+                    sql_constraints,
+                    sqlalchemy.and_(
+                        RoleAssignment.type == AssignmentType.GROUP_PROJECT,
+                        RoleAssignment.inherited,
+                        RoleAssignment.target_id.in_(project_parents)))
         sql_constraints = sqlalchemy.and_(sql_constraints,
                                           RoleAssignment.actor_id.in_(groups))
 
