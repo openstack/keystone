@@ -439,12 +439,12 @@ class FakeLdap(core.LDAPHandler):
             # fix is easy here, just initialize results as above for
             # the SCOPE_BASE case.
             # https://bugs.launchpad.net/keystone/+bug/1368772
-            results = []
             try:
                 item_dict = self.db[self.key(base)]
-                results.extend([(base, item_dict)])
             except KeyError:
                 LOG.debug('search fail: dn not found for SCOPE_SUBTREE')
+                raise ldap.NO_SUCH_OBJECT
+            results = [(base, item_dict)]
             extraresults = [(k[len(self.__prefix):], v)
                             for k, v in six.iteritems(self.db)
                             if re.match('%s.*,%s' %

@@ -41,6 +41,15 @@ from keystone.tests import test_backend
 CONF = config.CONF
 
 
+def create_group_container(identity_api):
+        # Create the groups base entry (ou=Groups,cn=example,cn=com)
+        group_api = identity_api.driver.group
+        conn = group_api.get_connection()
+        dn = 'ou=Groups,cn=example,cn=com'
+        conn.add_s(dn, [('objectclass', ['organizationalUnit']),
+                        ('ou', ['Groups'])])
+
+
 class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def setUp(self):
@@ -863,6 +872,11 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # credentials) that require a database.
         self.useFixture(database.Database())
         super(LDAPIdentity, self).setUp()
+
+    def load_fixtures(self, fixtures):
+        # Override super impl since need to create group container.
+        create_group_container(self.identity_api)
+        super(LDAPIdentity, self).load_fixtures(fixtures)
 
     def test_configurable_allowed_project_actions(self):
         tenant = {'id': u'fäké1', 'name': u'fäké1', 'enabled': True}
@@ -1926,6 +1940,11 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
             obj.setdefault('enabled', True)
+
+    def load_fixtures(self, fixtures):
+        # Override super impl since need to create group container.
+        create_group_container(self.identity_api)
+        super(LDAPIdentity, self).load_fixtures(fixtures)
 
     def config_files(self):
         config_files = super(LDAPIdentityEnabledEmulation, self).config_files()
