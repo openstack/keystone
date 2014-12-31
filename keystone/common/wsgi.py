@@ -217,7 +217,6 @@ class Application(BaseApplication):
         # be the same.
         req_method = req.environ['REQUEST_METHOD'].upper()
 
-        # NOTE(vish): make sure we have no unicode keys for py2.6.
         params = self._normalize_dict(params)
 
         try:
@@ -266,7 +265,7 @@ class Application(BaseApplication):
         return code
 
     def _normalize_arg(self, arg):
-        return str(arg).replace(':', '_').replace('-', '_')
+        return arg.replace(':', '_').replace('-', '_')
 
     def _normalize_dict(self, d):
         return dict([(self._normalize_arg(k), v)
