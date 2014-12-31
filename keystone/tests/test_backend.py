@@ -1225,6 +1225,40 @@ class IdentityTests(object):
         self.assignment_api.delete_grant(role_id, group_id=group_id,
                                          project_id=self.tenant_bar['id'])
 
+    def test_grant_crud_throws_exception_if_invalid_role(self):
+        """Ensure RoleNotFound thrown if role does not exist."""
+
+        def assert_role_not_found_exception(f, **kwargs):
+            self.assertRaises(exception.RoleNotFound, f,
+                              role_id=uuid.uuid4().hex, **kwargs)
+
+        user = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
+                'password': uuid.uuid4().hex, 'enabled': True}
+        user_resp = self.identity_api.create_user(user)
+        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
+                 'enabled': True}
+        group_resp = self.identity_api.create_group(group)
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': DEFAULT_DOMAIN_ID}
+        project_resp = self.assignment_api.create_project(project['id'],
+                                                          project)
+
+        for manager_call in [self.assignment_api.create_grant,
+                             self.assignment_api.get_grant,
+                             self.assignment_api.delete_grant]:
+            assert_role_not_found_exception(
+                manager_call,
+                user_id=user_resp['id'], project_id=project_resp['id'])
+            assert_role_not_found_exception(
+                manager_call,
+                group_id=group_resp['id'], project_id=project_resp['id'])
+            assert_role_not_found_exception(
+                manager_call,
+                user_id=user_resp['id'], domain_id=DEFAULT_DOMAIN_ID)
+            assert_role_not_found_exception(
+                manager_call,
+                group_id=group_resp['id'], domain_id=DEFAULT_DOMAIN_ID)
+
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         role_list = []
         for _ in range(10):
