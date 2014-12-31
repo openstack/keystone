@@ -64,7 +64,6 @@ class Assignment(keystone_assignment.Driver):
 
     def list_user_ids_for_project(self, tenant_id):
         with sql.transaction() as session:
-            self._get_project(session, tenant_id)
             query = session.query(RoleAssignment.actor_id)
             query = query.filter_by(type=AssignmentType.USER_PROJECT)
             query = query.filter_by(target_id=tenant_id)
@@ -137,13 +136,6 @@ class Assignment(keystone_assignment.Driver):
                     'Unexpected combination of grant attributes - '
                     'User, Group, Project, Domain: %s') % message_data)
 
-        with sql.transaction() as session:
-
-            if domain_id:
-                self._get_domain(session, domain_id)
-            if project_id:
-                self._get_project(session, project_id)
-
         type = calculate_type(user_id, group_id, project_id, domain_id)
         try:
             with sql.transaction() as session:
@@ -161,11 +153,6 @@ class Assignment(keystone_assignment.Driver):
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
         with sql.transaction() as session:
-            if domain_id:
-                self._get_domain(session, domain_id)
-            if project_id:
-                self._get_project(session, project_id)
-
             q = session.query(RoleAssignment.role_id)
             q = q.filter(RoleAssignment.actor_id == (user_id or group_id))
             q = q.filter(RoleAssignment.target_id == (project_id or domain_id))
@@ -185,11 +172,6 @@ class Assignment(keystone_assignment.Driver):
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
         with sql.transaction() as session:
-            if domain_id:
-                self._get_domain(session, domain_id)
-            if project_id:
-                self._get_project(session, project_id)
-
             try:
                 q = self._build_grant_filter(
                     session, role_id, user_id, group_id, domain_id, project_id,
@@ -202,11 +184,6 @@ class Assignment(keystone_assignment.Driver):
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
         with sql.transaction() as session:
-            if domain_id:
-                self._get_domain(session, domain_id)
-            if project_id:
-                self._get_project(session, project_id)
-
             q = self._build_grant_filter(
                 session, role_id, user_id, group_id, domain_id, project_id,
                 inherited_to_projects)
@@ -220,6 +197,25 @@ class Assignment(keystone_assignment.Driver):
             project_refs = sql.filter_limit_query(Project, query, hints)
             return [project_ref.to_dict() for project_ref in project_refs]
 
+    def list_projects_from_ids(self, ids):
+        if not ids:
+            return []
+        else:
+            with sql.transaction() as session:
+                query = session.query(Project)
+                query = query.filter(Project.id.in_(ids))
+                return [project_ref.to_dict() for project_ref in query.all()]
+
+    def list_project_ids_from_domain_ids(self, domain_ids):
+        if not domain_ids:
+            return []
+        else:
+            with sql.transaction() as session:
+                query = session.query(Project.id)
+                query = (
+                    query.filter(Project.domain_id.in_(domain_ids)))
+                return [x.id for x in query.all()]
+
     def list_projects_in_domain(self, domain_id):
         with sql.transaction() as session:
             self._get_domain(session, domain_id)
@@ -227,98 +223,60 @@ class Assignment(keystone_assignment.Driver):
             project_refs = query.filter_by(domain_id=domain_id)
             return [project_ref.to_dict() for project_ref in project_refs]
 
-    def _project_ids_to_dicts(self, session, ids):
-        if not ids:
-            return []
-        else:
-            query = session.query(Project)
-            query = query.filter(Project.id.in_(ids))
-            project_refs = query.all()
-            return [project_ref.to_dict() for project_ref in project_refs]
-
-    def list_projects_for_user(self, user_id, group_ids, hints):
+    def _list_project_ids_for_actor(self, actors, hints, inherited,
+                                    group_only=False):
         # TODO(henry-nash): Now that we have a single assignment table, we
         # should be able to honor the hints list that is provided.
 
+        assignment_type = [AssignmentType.GROUP_PROJECT]
+        if not group_only:
+            assignment_type.append(AssignmentType.USER_PROJECT)
+
+        sql_constraints = sqlalchemy.and_(
+            RoleAssignment.type.in_(assignment_type),
+            RoleAssignment.inherited == inherited,
+            RoleAssignment.actor_id.in_(actors))
+
         with sql.transaction() as session:
-            # First get a list of the projects and domains for which the user
-            # has any kind of role assigned
+            query = session.query(RoleAssignment.target_id).filter(
+                sql_constraints).distinct()
 
-            actor_list = [user_id]
-            if group_ids:
-                actor_list = actor_list + group_ids
+        return [x.target_id for x in query.all()]
 
-            query = session.query(RoleAssignment)
-            query = query.filter(RoleAssignment.actor_id.in_(actor_list))
-            assignments = query.all()
+    def list_project_ids_for_user(self, user_id, group_ids, hints,
+                                  inherited=False):
+        actor_list = [user_id]
+        if group_ids:
+            actor_list = actor_list + group_ids
 
-            project_ids = set()
-            for assignment in assignments:
-                # NOTE(rodrigods): First, we always include projects with
-                # non-inherited assignments
-                if ((assignment.type == AssignmentType.USER_PROJECT or
-                        assignment.type == AssignmentType.GROUP_PROJECT) and
-                        not assignment.inherited):
-                    project_ids.add(assignment.target_id)
+        return self._list_project_ids_for_actor(actor_list, hints, inherited)
 
-            if not CONF.os_inherit.enabled:
-                return self._project_ids_to_dicts(session, project_ids)
-
-            # Inherited roles are enabled, so check to see if this user has any
-            # inherited role (direct or group) on any parent project, in which
-            # case we must add in all the projects in that parent's subtree.
-
-            for assignment in assignments:
-                if ((assignment.type == AssignmentType.USER_PROJECT or
-                        assignment.type == AssignmentType.GROUP_PROJECT) and
-                        assignment.inherited):
-                    project_ids.update(
-                        (x['id'] for x in
-                         self.list_projects_in_subtree(assignment.target_id)))
-
-            # Use the same logic above to domains
-
-            domain_ids = set()
-            for assignment in assignments:
-                if ((assignment.type == AssignmentType.USER_DOMAIN or
-                    assignment.type == AssignmentType.GROUP_DOMAIN) and
-                        assignment.inherited):
-                    domain_ids.add(assignment.target_id)
-
-            # Get the projects that are owned by all of these domains and
-            # add them in to the project id list
-
-            if domain_ids:
-                query = session.query(Project.id)
-                query = query.filter(Project.domain_id.in_(domain_ids))
-                for project_ref in query.all():
-                    project_ids.add(project_ref.id)
-
-            return self._project_ids_to_dicts(session, project_ids)
-
-    def list_domains_for_user(self, user_id, group_ids, hints):
+    def list_domain_ids_for_user(self, user_id, group_ids, hints,
+                                 inherited=False):
         with sql.transaction() as session:
-            query = session.query(Domain)
-            query = query.join(RoleAssignment,
-                               Domain.id == RoleAssignment.target_id)
+            query = session.query(RoleAssignment.target_id)
             filters = []
 
             if user_id:
-                filters.append(sqlalchemy.and_(
+                sql_constraints = sqlalchemy.and_(
                     RoleAssignment.actor_id == user_id,
-                    RoleAssignment.inherited == false(),
-                    RoleAssignment.type == AssignmentType.USER_DOMAIN))
+                    RoleAssignment.inherited == inherited,
+                    RoleAssignment.type == AssignmentType.USER_DOMAIN)
+                filters.append(sql_constraints)
+
             if group_ids:
-                filters.append(sqlalchemy.and_(
+                sql_constraints = sqlalchemy.and_(
                     RoleAssignment.actor_id.in_(group_ids),
-                    RoleAssignment.inherited == false(),
-                    RoleAssignment.type == AssignmentType.GROUP_DOMAIN))
+                    RoleAssignment.inherited == inherited,
+                    RoleAssignment.type == AssignmentType.GROUP_DOMAIN)
+                filters.append(sql_constraints)
 
             if not filters:
                 return []
 
-            query = query.filter(sqlalchemy.or_(*filters))
-            return [ref.to_dict() for ref in query.all()]
+            query = query.filter(sqlalchemy.or_(*filters)).distinct()
+
+            return [assignment.target_id for assignment in query.all()]
 
     def _get_children(self, session, project_ids):
         query = session.query(Project)
@@ -373,38 +331,26 @@ class Assignment(keystone_assignment.Driver):
             project_refs = self._get_children(session, [project_id])
             return not project_refs
 
-    def list_role_ids_for_groups(
-            self, group_ids, project_id=None, domain_id=None):
+    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
+        if not group_ids:
+            # If there's no groups then there will be no domain roles.
+            return []
 
-        def _get_role_ids_for_groups_on_domain(group_ids, domain_id):
-            sql_constraints = sqlalchemy.and_(
-                RoleAssignment.type == AssignmentType.GROUP_DOMAIN,
-                RoleAssignment.target_id == domain_id,
-                RoleAssignment.inherited == false(),
-                RoleAssignment.actor_id.in_(group_ids))
+        sql_constraints = sqlalchemy.and_(
+            RoleAssignment.type == AssignmentType.GROUP_DOMAIN,
+            RoleAssignment.target_id == domain_id,
+            RoleAssignment.inherited == false(),
+            RoleAssignment.actor_id.in_(group_ids))
 
-            session = sql.get_session()
-            with session.begin():
-                query = session.query(RoleAssignment.role_id).filter(
-                    sql_constraints).distinct()
-            return [assignment.role_id for assignment in query.all()]
+        with sql.transaction() as session:
+            query = session.query(RoleAssignment.role_id).filter(
+                sql_constraints).distinct()
+        return [role.role_id for role in query.all()]
 
-        def _get_role_ids_for_groups_on_project(group_ids, project_id):
-            with sql.transaction() as session:
-                project = self._get_project(session, project_id)
-                return self._get_group_project_role_ids(
-                    session, group_ids, project_id, project.domain_id)
+    def list_role_ids_for_groups_on_project(
+            self, group_ids, project_id, project_domain_id, project_parents):
 
-        if project_id is not None:
-            return _get_role_ids_for_groups_on_project(group_ids, project_id)
-        elif domain_id is not None:
-            return _get_role_ids_for_groups_on_domain(group_ids, domain_id)
-        else:
-            raise AttributeError(_("Must specify either domain or project"))
-
-    def _get_group_project_role_ids(self, session, groups, project_id,
-                                    project_domain_id):
-        if not groups:
+        if not group_ids:
             # If there's no groups then there will be no project roles.
             return []
 
@@ -414,6 +360,7 @@ class Assignment(keystone_assignment.Driver):
             RoleAssignment.type == AssignmentType.GROUP_PROJECT,
             RoleAssignment.inherited == false(),
             RoleAssignment.target_id == project_id)
+
         if CONF.os_inherit.enabled:
             # Inherited roles from domains
             sql_constraints = sqlalchemy.or_(
@@ -424,8 +371,6 @@ class Assignment(keystone_assignment.Driver):
                     RoleAssignment.target_id == project_domain_id))
 
             # Inherited roles from projects
-            project_parents = [x['id']
-                               for x in self.list_project_parents(project_id)]
             if project_parents:
                 sql_constraints = sqlalchemy.or_(
                     sql_constraints,
@@ -433,77 +378,39 @@ class Assignment(keystone_assignment.Driver):
                         RoleAssignment.type == AssignmentType.GROUP_PROJECT,
                         RoleAssignment.inherited,
                         RoleAssignment.target_id.in_(project_parents)))
-        sql_constraints = sqlalchemy.and_(sql_constraints,
-                                          RoleAssignment.actor_id.in_(groups))
 
-        # NOTE(morganfainberg): Only select the columns we actually care about
-        # here, in this case role_id.
-        query = session.query(RoleAssignment.role_id).filter(
-            sql_constraints).distinct()
+        sql_constraints = sqlalchemy.and_(
+            sql_constraints, RoleAssignment.actor_id.in_(group_ids))
+
+        with sql.transaction() as session:
+            # NOTE(morganfainberg): Only select the columns we actually care
+            # about here, in this case role_id.
+            query = session.query(RoleAssignment.role_id).filter(
+                sql_constraints).distinct()
 
         return [result.role_id for result in query.all()]
 
-    def list_role_ids_for_groups_on_project(
-            self, groups, project_id, project_domain_id):
-        with sql.transaction() as session:
-            return self._get_group_project_role_ids(
-                session, groups, project_id, project_domain_id)
+    def list_project_ids_for_groups(self, group_ids, hints,
+                                    inherited=False):
+        return self._list_project_ids_for_actor(
+            group_ids, hints, inherited, group_only=True)
 
-    def list_projects_for_groups(self, group_ids):
-        with sql.transaction() as session:
-            # First get a list of the projects and domains for which the groups
-            # have any kind of role assigned
+    def list_domain_ids_for_groups(self, group_ids, inherited=False):
+        if not group_ids:
+            # If there's no groups then there will be no domains.
+            return []
 
-            query = session.query(RoleAssignment)
-            query = query.filter(RoleAssignment.actor_id.in_(group_ids))
-            assignments = query.all()
-
-            project_ids = set()
-            for assignment in assignments:
-                if (assignment.type == AssignmentType.GROUP_PROJECT):
-                    project_ids.add(assignment.target_id)
-
-            if not CONF.os_inherit.enabled:
-                return self._project_ids_to_dicts(session, project_ids)
-
-            # Inherited roles are enabled, so check to see if the groups have
-            # roles on any domain, in which case we must add in all the
-            # projects in that domain.
-
-            domain_ids = set()
-            for assignment in assignments:
-                if ((assignment.type == AssignmentType.GROUP_DOMAIN) and
-                        assignment.inherited):
-                    domain_ids.add(assignment.target_id)
-
-            # Get the projects that are owned by all of these domains and
-            # add them in to the project id list
-
-            if domain_ids:
-                query = session.query(Project.id)
-                query = query.filter(Project.domain_id.in_(domain_ids))
-                for project_ref in query.all():
-                    project_ids.add(project_ref.id)
-
-            return self._project_ids_to_dicts(session, project_ids)
-
-    def list_domains_for_groups(self, group_ids):
         group_sql_conditions = sqlalchemy.and_(
             RoleAssignment.type == AssignmentType.GROUP_DOMAIN,
-            RoleAssignment.inherited == false(),
-            Domain.id == RoleAssignment.target_id,
+            RoleAssignment.inherited == inherited,
             RoleAssignment.actor_id.in_(group_ids))
 
-        session = sql.get_session()
-        with session.begin():
-            query = session.query(Domain).filter(
-                group_sql_conditions)
-        return [x.to_dict() for x in query.all()]
+        with sql.transaction() as session:
+            query = session.query(RoleAssignment.target_id).filter(
+                group_sql_conditions).distinct()
+        return [x.target_id for x in query.all()]
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        with sql.transaction() as session:
-            self._get_project(session, tenant_id)
-
         try:
             with sql.transaction() as session:
                 session.add(RoleAssignment(
@@ -585,11 +492,6 @@ class Assignment(keystone_assignment.Driver):
     def delete_project(self, tenant_id):
         with sql.transaction() as session:
             tenant_ref = self._get_project(session, tenant_id)
-
-            q = session.query(RoleAssignment)
-            q = q.filter_by(target_id=tenant_id)
-            q.delete(False)
-
             session.delete(tenant_ref)
 
     # domain crud
@@ -607,6 +509,16 @@ class Assignment(keystone_assignment.Driver):
             query = session.query(Domain)
             refs = sql.filter_limit_query(Domain, query, hints)
             return [ref.to_dict() for ref in refs]
+
+    def list_domains_from_ids(self, ids):
+        if not ids:
+            return []
+        else:
+            with sql.transaction() as session:
+                query = session.query(Domain)
+                query = query.filter(Domain.id.in_(ids))
+                domain_refs = query.all()
+                return [domain_ref.to_dict() for domain_ref in domain_refs]
 
     def _get_domain(self, session, domain_id):
         ref = session.query(Domain).get(domain_id)
@@ -644,14 +556,13 @@ class Assignment(keystone_assignment.Driver):
     def delete_domain(self, domain_id):
         with sql.transaction() as session:
             ref = self._get_domain(session, domain_id)
-
-            # TODO(henry-nash): Although the controller will ensure deletion of
-            # all users & groups within the domain (which will cause all
-            # assignments for those users/groups to also be deleted), there
-            # could still be assignments on this domain for users/groups in
-            # other domains - so we should delete these here (see Bug #1277847)
-
             session.delete(ref)
+
+    def delete_project_assignments(self, project_id):
+        with sql.transaction() as session:
+            q = session.query(RoleAssignment)
+            q = q.filter_by(target_id=project_id)
+            q.delete(False)
 
     def delete_role_assignments(self, role_id):
         with sql.transaction() as session:
