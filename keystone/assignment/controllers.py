@@ -495,13 +495,19 @@ class RoleV3(controller.V3Controller):
         self.role_api.delete_role(role_id)
 
     def _require_domain_xor_project(self, domain_id, project_id):
-        if (domain_id and project_id) or (not domain_id and not project_id):
+        if domain_id and project_id:
             msg = _('Specify a domain or project, not both')
+            raise exception.ValidationError(msg)
+        if not domain_id and not project_id:
+            msg = _('Specify one of domain or project')
             raise exception.ValidationError(msg)
 
     def _require_user_xor_group(self, user_id, group_id):
-        if (user_id and group_id) or (not user_id and not group_id):
+        if user_id and group_id:
             msg = _('Specify a user or group, not both')
+            raise exception.ValidationError(msg)
+        if not user_id and not group_id:
+            msg = _('Specify one of user or group')
             raise exception.ValidationError(msg)
 
     def _check_if_inherited(self, context):
