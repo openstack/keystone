@@ -89,10 +89,6 @@ FILE_OPTIONS = {
                    help='The number of worker processes to serve the admin '
                         'WSGI application. Defaults to number of CPUs '
                         '(minimum of 2).'),
-        # default max request size is 112k
-        cfg.IntOpt('max_request_body_size', default=114688,
-                   help='Enforced by optional sizelimit middleware '
-                        '(keystone.middleware:RequestBodySizeLimiter).'),
         cfg.IntOpt('max_param_size', default=64,
                    help='Limit the sizes of user & project ID/names.'),
         # we allow tokens to be a bit larger to accommodate PKI

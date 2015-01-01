@@ -325,12 +325,6 @@ class Conflict(Error):
     title = 'Conflict'
 
 
-class RequestTooLarge(Error):
-    message_format = _("Request is too large.")
-    code = 413
-    title = 'Request is too large.'
-
-
 class UnexpectedError(SecurityError):
     """Avoids exposing details of failures, unless in debug mode."""
     _message_format = _("An unexpected error prevented the server "
