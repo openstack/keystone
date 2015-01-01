@@ -725,6 +725,36 @@ class RoleAssignmentV3(controller.V3Controller):
         else:
             return True
 
+    def _assert_effective_filters(self, inherited, group, domain):
+        """Assert that useless filter combinations are avoided.
+
+        In effective mode, the following filter combinations are useless, since
+        they would always return an empty list of role assignments:
+        - group id, since no group assignment is returned in effective mode;
+        - domain id and inherited, since no domain inherited assignment is
+        returned in effective mode.
+
+        """
+        if group:
+            msg = _('Combining effective and group filter will always '
+                    'result in an empty list.')
+            raise exception.ValidationError(msg)
+
+        if inherited and domain:
+            msg = _('Combining effective, domain and inherited filters will '
+                    'always result in an empty list.')
+            raise exception.ValidationError(msg)
+
+    def _assert_domain_nand_project(self, domain_id, project_id):
+        if domain_id and project_id:
+            msg = _('Specify a domain or project, not both')
+            raise exception.ValidationError(msg)
+
+    def _assert_user_nand_group(self, user_id, group_id):
+        if user_id and group_id:
+            msg = _('Specify a user or group, not both')
+            raise exception.ValidationError(msg)
+
     @controller.filterprotected('group.id', 'role.id',
                                 'scope.domain.id', 'scope.project.id',
                                 'scope.OS-INHERIT:inherited_to', 'user.id')
@@ -736,16 +766,35 @@ class RoleAssignmentV3(controller.V3Controller):
         # to pass the filters into the driver call, so that the list size is
         # kept a minimum.
 
+        params = context['query_string']
+        effective = 'effective' in params and (
+            self.query_filter_is_true(params['effective']))
+
+        if 'scope.OS-INHERIT:inherited_to' in params:
+            inherited = (
+                params['scope.OS-INHERIT:inherited_to'] == 'projects')
+        else:
+            # None means querying both inherited and direct assignments
+            inherited = None
+
+        self._assert_domain_nand_project(params.get('scope.domain.id'),
+                                         params.get('scope.project.id'))
+        self._assert_user_nand_group(params.get('user.id'),
+                                     params.get('group.id'))
+
+        if effective:
+            self._assert_effective_filters(inherited=inherited,
+                                           group=params.get('group.id'),
+                                           domain=params.get(
+                                               'scope.domain.id'))
+
         hints = self.build_driver_hints(context, filters)
         refs = self.assignment_api.list_role_assignments()
         formatted_refs = (
             [self._format_entity(context, x) for x in refs
              if self._filter_inherited(x)])
 
-        if ('effective' in context['query_string'] and
-                self.query_filter_is_true(
-                    context['query_string']['effective'])):
-
+        if effective:
             formatted_refs = self._expand_indirect_assignments(context,
                                                                formatted_refs)
 
