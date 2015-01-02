@@ -3071,7 +3071,7 @@ class IdentityTests(object):
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEqual(3, len(user_projects))
 
-    @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_cache_disabled('resource')
     @tests.skip_if_no_multiple_domains_support
     def test_domain_rename_invalidates_get_domain_by_name_cache(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
@@ -3086,7 +3086,7 @@ class IdentityTests(object):
                           self.assignment_api.get_domain_by_name,
                           domain_name)
 
-    @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_cache_disabled('resource')
     def test_cache_layer_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
@@ -3096,14 +3096,14 @@ class IdentityTests(object):
         domain_ref = self.assignment_api.get_domain(domain_id)
         updated_domain_ref = copy.deepcopy(domain_ref)
         updated_domain_ref['name'] = uuid.uuid4().hex
-        # Update domain, bypassing assignment api manager
-        self.assignment_api.driver.update_domain(domain_id, updated_domain_ref)
+        # Update domain, bypassing resource api manager
+        self.resource_api.driver.update_domain(domain_id, updated_domain_ref)
         # Verify get_domain still returns the domain
         self.assertDictContainsSubset(
             domain_ref, self.assignment_api.get_domain(domain_id))
         # Invalidate cache
-        self.assignment_api.get_domain.invalidate(self.assignment_api,
-                                                  domain_id)
+        self.resource_api.get_domain.invalidate(self.resource_api,
+                                                domain_id)
         # Verify get_domain returns the updated domain
         self.assertDictContainsSubset(
             updated_domain_ref, self.assignment_api.get_domain(domain_id))
@@ -3112,28 +3112,28 @@ class IdentityTests(object):
         self.assignment_api.update_domain(domain_id, domain_ref)
         self.assertDictContainsSubset(
             domain_ref, self.assignment_api.get_domain(domain_id))
-        # Make sure domain is 'disabled', bypass assignment api manager
+        # Make sure domain is 'disabled', bypass resource api manager
         domain_ref_disabled = domain_ref.copy()
         domain_ref_disabled['enabled'] = False
-        self.assignment_api.driver.update_domain(domain_id,
-                                                 domain_ref_disabled)
-        # Delete domain, bypassing assignment api manager
-        self.assignment_api.driver.delete_domain(domain_id)
+        self.resource_api.driver.update_domain(domain_id,
+                                               domain_ref_disabled)
+        # Delete domain, bypassing resource api manager
+        self.resource_api.driver.delete_domain(domain_id)
         # Verify get_domain still returns the domain
         self.assertDictContainsSubset(
             domain_ref, self.assignment_api.get_domain(domain_id))
         # Invalidate cache
-        self.assignment_api.get_domain.invalidate(self.assignment_api,
-                                                  domain_id)
+        self.resource_api.get_domain.invalidate(self.resource_api,
+                                                domain_id)
         # Verify get_domain now raises DomainNotFound
         self.assertRaises(exception.DomainNotFound,
                           self.assignment_api.get_domain, domain_id)
         # Recreate Domain
         self.assignment_api.create_domain(domain_id, domain)
         self.assignment_api.get_domain(domain_id)
-        # Make sure domain is 'disabled', bypass assignment api manager
+        # Make sure domain is 'disabled', bypass resource api manager
         domain['enabled'] = False
-        self.assignment_api.driver.update_domain(domain_id, domain)
+        self.resource_api.driver.update_domain(domain_id, domain)
         # Delete domain
         self.assignment_api.delete_domain(domain_id)
         # verify DomainNotFound raised
@@ -3141,7 +3141,7 @@ class IdentityTests(object):
                           self.assignment_api.get_domain,
                           domain_id)
 
-    @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_cache_disabled('resource')
     @tests.skip_if_no_multiple_domains_support
     def test_project_rename_invalidates_get_project_by_name_cache(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
@@ -3161,7 +3161,7 @@ class IdentityTests(object):
                           project_name,
                           domain['id'])
 
-    @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_cache_disabled('resource')
     @tests.skip_if_no_multiple_domains_support
     def test_cache_layer_project_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
@@ -3175,15 +3175,15 @@ class IdentityTests(object):
         self.assignment_api.get_project(project_id)
         updated_project = copy.deepcopy(project)
         updated_project['name'] = uuid.uuid4().hex
-        # Update project, bypassing assignment_api manager
-        self.assignment_api.driver.update_project(project_id,
-                                                  updated_project)
+        # Update project, bypassing resource manager
+        self.resource_api.driver.update_project(project_id,
+                                                updated_project)
         # Verify get_project still returns the original project_ref
         self.assertDictContainsSubset(
             project, self.assignment_api.get_project(project_id))
         # Invalidate cache
-        self.assignment_api.get_project.invalidate(self.assignment_api,
-                                                   project_id)
+        self.resource_api.get_project.invalidate(self.resource_api,
+                                                 project_id)
         # Verify get_project now returns the new project
         self.assertDictContainsSubset(
             updated_project,
@@ -3193,14 +3193,14 @@ class IdentityTests(object):
         # Verify get_project returns the original project_ref
         self.assertDictContainsSubset(
             project, self.assignment_api.get_project(project_id))
-        # Delete project bypassing assignment_api
-        self.assignment_api.driver.delete_project(project_id)
+        # Delete project bypassing resource
+        self.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
         self.assertDictContainsSubset(
             project, self.assignment_api.get_project(project_id))
         # Invalidate cache
-        self.assignment_api.get_project.invalidate(self.assignment_api,
-                                                   project_id)
+        self.resource_api.get_project.invalidate(self.resource_api,
+                                                 project_id)
         # Verify ProjectNotFound now raised
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.get_project,
@@ -5486,7 +5486,7 @@ class LimitTests(filtering.FilterTests):
 
         # Override with driver specific limit
         if entity == 'project':
-            self.config_fixture.config(group='assignment', list_limit=5)
+            self.config_fixture.config(group='resource', list_limit=5)
         else:
             self.config_fixture.config(group='identity', list_limit=5)
 

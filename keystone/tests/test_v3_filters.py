@@ -400,7 +400,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self._test_entity_list_limit('group', 'identity')
 
     def test_projects_list_limit(self):
-        self._test_entity_list_limit('project', 'assignment')
+        self._test_entity_list_limit('project', 'resource')
 
     def test_services_list_limit(self):
         self._test_entity_list_limit('service', 'catalog')
