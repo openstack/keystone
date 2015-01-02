@@ -479,7 +479,8 @@ class TestCase(BaseTestCase):
             else:
                 logger.setLevel(level_name)
 
-        warnings.simplefilter('error', DeprecationWarning)
+        warnings.filterwarnings('error', category=DeprecationWarning,
+                                module='^keystone\\.')
         warnings.simplefilter('error', exc.SAWarning)
         self.addCleanup(warnings.resetwarnings)
 
