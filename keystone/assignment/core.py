@@ -74,9 +74,7 @@ class Manager(manager.Manager):
 
     See :mod:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.
-    assignment.Manager() and identity.Manager() have a circular dependency.
-    The late import works around this.  The if block prevents creation of the
-    api object by both managers.
+
     """
     _PROJECT = 'project'
     _ROLE_REMOVED_FROM_USER = 'role_removed_from_user'
@@ -85,6 +83,10 @@ class Manager(manager.Manager):
     def __init__(self):
         assignment_driver = CONF.assignment.driver
 
+        # If there is no explicit assignment driver specified, we let the
+        # identity driver tell us what to use. This is for backward
+        # compatibility reasons from the time when identity and assignment
+        # were all part of identity.
         if assignment_driver is None:
             identity_driver = dependency.REGISTRY['identity_api'].driver
             assignment_driver = identity_driver.default_assignment_driver()
