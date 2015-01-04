@@ -107,19 +107,44 @@ class Catalog(kvs.Catalog):
             raise
 
     def get_catalog(self, user_id, tenant_id):
+        """Retrieve and format the V2 service catalog.
+
+        :param user_id: The id of the user who has been authenticated for
+            creating service catalog.
+        :param tenant_id: The id of the project. 'tenant_id' will be None in
+            the case this being called to create a catalog to go in a domain
+            scoped token. In this case, any endpoint that requires a tenant_id
+            as part of their URL will be skipped.
+
+        :returns: A nested dict representing the service catalog or an
+                  empty dict.
+
+        """
         substitutions = dict(
             itertools.chain(six.iteritems(CONF),
                             six.iteritems(CONF.eventlet_server)))
-        substitutions.update({'tenant_id': tenant_id, 'user_id': user_id})
+        substitutions.update({'user_id': user_id})
+        silent_keyerror_failures = []
+        if tenant_id:
+            substitutions.update({'tenant_id': tenant_id})
+        else:
+            silent_keyerror_failures = ['tenant_id']
 
         catalog = {}
+        # TODO(davechen): If there is service with no endpoints, we should
+        # skip the service instead of keeping it in the catalog.
+        # see bug #1436704.
         for region, region_ref in six.iteritems(self.templates):
             catalog[region] = {}
             for service, service_ref in six.iteritems(region_ref):
                 service_data = {}
                 try:
                     for k, v in six.iteritems(service_ref):
-                        service_data[k] = core.format_url(v, substitutions)
+                        formatted_value = core.format_url(
+                            v, substitutions,
+                            silent_keyerror_failures=silent_keyerror_failures)
+                        if formatted_value:
+                            service_data[k] = formatted_value
                 except exception.MalformedEndpoint:
                     continue  # this failure is already logged in format_url()
                 catalog[region][service] = service_data

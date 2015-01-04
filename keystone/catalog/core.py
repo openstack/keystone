@@ -37,11 +37,13 @@ LOG = log.getLogger(__name__)
 MEMOIZE = cache.get_memoization_decorator(section='catalog')
 
 
-def format_url(url, substitutions):
+def format_url(url, substitutions, silent_keyerror_failures=None):
     """Formats a user-defined URL with the given substitutions.
 
     :param string url: the URL to be formatted
     :param dict substitutions: the dictionary used for substitution
+    :param list silent_keyerror_failures: keys for which we should be silent
+        if there is a KeyError exception on substitution attempt
     :returns: a formatted URL
 
     """
@@ -54,6 +56,7 @@ def format_url(url, substitutions):
     substitutions = utils.WhiteListedItemFilter(
         WHITELISTED_PROPERTIES,
         substitutions)
+    allow_keyerror = silent_keyerror_failures or []
     try:
         result = url.replace('$(', '%(') % substitutions
     except AttributeError:
@@ -61,10 +64,14 @@ def format_url(url, substitutions):
                   {"url": url})
         raise exception.MalformedEndpoint(endpoint=url)
     except KeyError as e:
-        LOG.error(_LE("Malformed endpoint %(url)s - unknown key %(keyerror)s"),
-                  {"url": url,
-                   "keyerror": e})
-        raise exception.MalformedEndpoint(endpoint=url)
+        if not e.args or e.args[0] not in allow_keyerror:
+            LOG.error(_LE("Malformed endpoint %(url)s - unknown key "
+                          "%(keyerror)s"),
+                      {"url": url,
+                       "keyerror": e})
+            raise exception.MalformedEndpoint(endpoint=url)
+        else:
+            result = None
     except TypeError as e:
         LOG.error(_LE("Malformed endpoint '%(url)s'. The following type error "
                       "occurred during string substitution: %(typeerror)s"),
