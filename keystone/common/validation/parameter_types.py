@@ -28,6 +28,12 @@ name = {
     'maxLength': 255
 }
 
+external_id_string = {
+    'type': 'string',
+    'minLength': 1,
+    'maxLength': 64
+}
+
 id_string = {
     'type': 'string',
     'minLength': 1,
