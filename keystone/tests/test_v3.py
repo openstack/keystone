@@ -326,11 +326,14 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase):
     def get_requested_token(self, auth):
         """Request the specific token we want."""
 
-        r = self.admin_request(
-            method='POST',
-            path='/v3/auth/tokens',
-            body=auth)
+        r = self.v3_authenticate_token(auth)
         return r.headers.get('X-Subject-Token')
+
+    def v3_authenticate_token(self, auth, expected_status=201):
+        return self.admin_request(method='POST',
+                                  path='/v3/auth/tokens',
+                                  body=auth,
+                                  expected_status=expected_status)
 
     def v3_request(self, path, **kwargs):
         # Check if the caller has passed in auth details for
