@@ -432,25 +432,69 @@ class KeystoneClientTests(object):
     def test_change_password_invalidates_token(self):
         from keystoneclient import exceptions as client_exceptions
 
-        client = self.get_client(admin=True)
+        admin_client = self.get_client(admin=True)
 
         username = uuid.uuid4().hex
-        passwd = uuid.uuid4().hex
-        user = client.users.create(name=username, password=passwd,
-                                   email=uuid.uuid4().hex)
+        password = uuid.uuid4().hex
+        user = admin_client.users.create(name=username, password=password,
+                                         email=uuid.uuid4().hex)
 
-        token_id = client.tokens.authenticate(username=username,
-                                              password=passwd).id
+        # auth as user should work before a password change
+        client = self._client(username=username, password=password)
 
-        # authenticate with a token should work before a password change
-        client.tokens.authenticate(token=token_id)
+        # auth as user with a token should work before a password change
+        self._client(token=client.auth_token)
 
-        client.users.update_password(user=user.id, password=uuid.uuid4().hex)
+        # administrative password reset
+        admin_client.users.update_password(
+            user=user.id,
+            password=uuid.uuid4().hex)
 
-        # authenticate with a token should not work after a password change
+        # auth as user with original password should not work after change
         self.assertRaises(client_exceptions.Unauthorized,
-                          client.tokens.authenticate,
-                          token=token_id)
+                          self._client,
+                          username=username,
+                          password=password)
+
+        # authenticate with an old token should not work after change
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client,
+                          token=client.auth_token)
+
+    def test_user_change_own_password_invalidates_token(self):
+        from keystoneclient import exceptions as client_exceptions
+
+        # bootstrap a user as admin
+        client = self.get_client(admin=True)
+        username = uuid.uuid4().hex
+        password = uuid.uuid4().hex
+        client.users.create(name=username, password=password,
+                            email=uuid.uuid4().hex)
+
+        # auth as user should work before a password change
+        client = self._client(username=username, password=password)
+
+        # auth as user with a token should work before a password change
+        self._client(token=client.auth_token)
+
+        # change the user's own password
+        # TODO(dolphm): This should NOT raise an HTTPError at all, but rather
+        # this should succeed with a 2xx. This 500 does not prevent the test
+        # from demonstrating the desired consequences below, though.
+        self.assertRaises(client_exceptions.HTTPError,
+                          client.users.update_own_password,
+                          password, uuid.uuid4().hex)
+
+        # auth as user with original password should not work after change
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client,
+                          username=username,
+                          password=password)
+
+        # auth as user with an old token should not work after change
+        self.assertRaises(client_exceptions.Unauthorized,
+                          self._client,
+                          token=client.auth_token)
 
     def test_disable_tenant_invalidates_token(self):
         from keystoneclient import exceptions as client_exceptions
