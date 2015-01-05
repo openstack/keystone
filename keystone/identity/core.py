@@ -87,12 +87,9 @@ class DomainConfigs(dict):
     driver = None
     _any_sql = False
 
-    def _load_driver(self, domain_config, assignment_api):
-        domain_config_driver = (
-            importutils.import_object(
-                domain_config['cfg'].identity.driver, domain_config['cfg']))
-        domain_config_driver.assignment_api = assignment_api
-        return domain_config_driver
+    def _load_driver(self, domain_config):
+        return importutils.import_object(
+            domain_config['cfg'].identity.driver, domain_config['cfg'])
 
     def _load_config(self, assignment_api, file_list, domain_name):
 
@@ -129,8 +126,7 @@ class DomainConfigs(dict):
         config.configure(conf=domain_config['cfg'])
         domain_config['cfg'](args=[], project='keystone',
                              default_config_files=file_list)
-        domain_config['driver'] = self._load_driver(
-            domain_config, assignment_api)
+        domain_config['driver'] = self._load_driver(domain_config)
         assert_no_more_than_one_sql_driver(domain_config, file_list)
         self[domain_ref['id']] = domain_config
 
@@ -167,7 +163,7 @@ class DomainConfigs(dict):
         if domain_id in self:
             return self[domain_id]['cfg']
 
-    def reload_domain_driver(self, assignment_api, domain_id):
+    def reload_domain_driver(self, domain_id):
         # Only used to support unit tests that want to set
         # new config values.  This should only be called once
         # the domains have been configured, since it relies on
@@ -176,11 +172,10 @@ class DomainConfigs(dict):
         if self.configured:
             if domain_id in self:
                 self[domain_id]['driver'] = (
-                    self._load_driver(self[domain_id], assignment_api))
+                    self._load_driver(self[domain_id]))
             else:
                 # The standard driver
                 self.driver = self.driver()
-                self.driver.assignment_api = assignment_api
 
 
 def domains_configured(f):
