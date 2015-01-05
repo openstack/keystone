@@ -4,10 +4,43 @@
 # From keystone
 #
 
+# A "shared secret" that can be used to bootstrap Keystone. This "token" does
+# not represent a user, and carries no explicit authorization. To disable in
+# production (highly recommended), remove AdminTokenAuthMiddleware from your
+# paste application pipelines (for example, in keystone-paste.ini). (string
+# value)
+#admin_token = ADMIN
+
+# The IP address of the network interface for the public service to listen on.
+# (string value)
+# Deprecated group/name - [DEFAULT]/bind_host
+#public_bind_host = 0.0.0.0
+
 # The IP address of the network interface for the admin service to listen on.
 # (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 #admin_bind_host = 0.0.0.0
+
+# (Deprecated) The port which the OpenStack Compute service listens on. This
+# option was only used for string replacement in the templated catalog backend.
+# Templated catalogs should replace the "$(compute_port)s" substitution with
+# the static port of the compute service. As of Juno, this option is deprecated
+# and will be removed in the L release. (integer value)
+#compute_port = 8774
+
+# The port number which the admin service listens on. (integer value)
+#admin_port = 35357
+
+# The port number which the public service listens on. (integer value)
+#public_port = 5000
+
+# The base public endpoint URL for Keystone that is advertised to clients
+# (NOTE: this does NOT affect how Keystone listens for connections). Defaults
+# to the base host URL of the request. E.g. a request to
+# http://server:5000/v3/users will default to http://server:5000. You should
+# only need to set this value if the base URL contains a path (e.g. /prefix/v3)
+# or the endpoint should be found on a different server. (string value)
+#public_endpoint = <None>
 
 # The base admin endpoint URL for Keystone that is advertised to clients (NOTE:
 # this does NOT affect how Keystone listens for connections). Defaults to the
@@ -17,54 +50,24 @@
 # found on a different server. (string value)
 #admin_endpoint = <None>
 
-# The port number which the admin service listens on. (integer value)
-#admin_port = 35357
+# Maximum depth of the project hierarchy. WARNING: setting it to a large value
+# may adversely impact performance. (integer value)
+#max_project_tree_depth = 5
 
-# A "shared secret" that can be used to bootstrap Keystone. This "token" does
-# not represent a user, and carries no explicit authorization. To disable in
-# production (highly recommended), remove AdminTokenAuthMiddleware from your
-# paste application pipelines (for example, in keystone-paste.ini). (string
-# value)
-#admin_token = ADMIN
+# The number of worker processes to serve the public WSGI application. Defaults
+# to number of CPUs (minimum of 2). (integer value)
+#public_workers = <None>
 
 # The number of worker processes to serve the admin WSGI application. Defaults
 # to number of CPUs (minimum of 2). (integer value)
 #admin_workers = <None>
 
-# (Deprecated) The port which the OpenStack Compute service listens on. This
-# option was only used for string replacement in the templated catalog backend.
-# Templated catalogs should replace the "$(compute_port)s" substitution with
-# the static port of the compute service. As of Juno, this option is deprecated
-# and will be removed in the L release. (integer value)
-#compute_port = 8774
-
-# The value passed as the keyword "rounds" to passlib's encrypt method.
-# (integer value)
-#crypt_strength = 40000
-
-# Set this to false if you want to enable the ability for user, group and
-# project entities to be moved between domains by updating their domain_id.
-# Allowing such movement is not recommended if the scope of a domain admin is
-# being restricted by use of an appropriate policy file (see
-# policy.v3cloudsample as an example). (boolean value)
-#domain_id_immutable = true
-
-# The maximum number of entities that will be returned in a collection, with no
-# limit set by default. This global limit may be then overridden for a specific
-# driver, by specifying a list_limit in the appropriate section (e.g.
-# [assignment]). (integer value)
-#list_limit = <None>
-
-# Limit the sizes of user & project ID/names. (integer value)
-#max_param_size = 64
-
-# Maximum depth of the project hierarchy. WARNING: setting it to a large value
-# may adversely impact performance. (integer value)
-#max_project_tree_depth = 5
-
 # Enforced by optional sizelimit middleware
 # (keystone.middleware:RequestBodySizeLimiter). (integer value)
 #max_request_body_size = 114688
+
+# Limit the sizes of user & project ID/names. (integer value)
+#max_param_size = 64
 
 # Similar to max_param_size, but provides an exception for token values.
 # (integer value)
@@ -80,31 +83,9 @@
 # that option for more detail. (string value)
 #member_role_name = _member_
 
-# The IP address of the network interface for the public service to listen on.
-# (string value)
-# Deprecated group/name - [DEFAULT]/bind_host
-#public_bind_host = 0.0.0.0
-
-# The base public endpoint URL for Keystone that is advertised to clients
-# (NOTE: this does NOT affect how Keystone listens for connections). Defaults
-# to the base host URL of the request. E.g. a request to
-# http://server:5000/v3/users will default to http://server:5000. You should
-# only need to set this value if the base URL contains a path (e.g. /prefix/v3)
-# or the endpoint should be found on a different server. (string value)
-#public_endpoint = <None>
-
-# The port number which the public service listens on. (integer value)
-#public_port = 5000
-
-# The number of worker processes to serve the public WSGI application. Defaults
-# to number of CPUs (minimum of 2). (integer value)
-#public_workers = <None>
-
-# If set to true, strict password length checking is performed for password
-# manipulation. If a password exceeds the maximum length, the operation will
-# fail with an HTTP 403 Forbidden error. If set to false, passwords are
-# automatically truncated to the maximum length. (boolean value)
-#strict_password_check = false
+# The value passed as the keyword "rounds" to passlib's encrypt method.
+# (integer value)
+#crypt_strength = 40000
 
 # Set this to true if you want to enable TCP_KEEPALIVE on server sockets, i.e.
 # sockets used by the Keystone wsgi server for client connections. (boolean
@@ -114,6 +95,25 @@
 # Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
 # applies if tcp_keepalive is true. (integer value)
 #tcp_keepidle = 600
+
+# The maximum number of entities that will be returned in a collection, with no
+# limit set by default. This global limit may be then overridden for a specific
+# driver, by specifying a list_limit in the appropriate section (e.g.
+# [assignment]). (integer value)
+#list_limit = <None>
+
+# Set this to false if you want to enable the ability for user, group and
+# project entities to be moved between domains by updating their domain_id.
+# Allowing such movement is not recommended if the scope of a domain admin is
+# being restricted by use of an appropriate policy file (see
+# policy.v3cloudsample as an example). (boolean value)
+#domain_id_immutable = true
+
+# If set to true, strict password length checking is performed for password
+# manipulation. If a password exceeds the maximum length, the operation will
+# fail with an HTTP 403 Forbidden error. If set to false, passwords are
+# automatically truncated to the maximum length. (boolean value)
+#strict_password_check = false
 
 #
 # From keystone.notifications
@@ -156,28 +156,25 @@
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append = <None>
 
-# Format string for %%(asctime)s in log records. Default: %(default)s . (string
-# value)
-#log_date_format = %Y-%m-%d %H:%M:%S
-
-# (Optional) The base directory used for relative --log-file paths. (string
-# value)
-# Deprecated group/name - [DEFAULT]/logdir
-#log_dir = <None>
-
-# (Optional) Name of log file to output to. If no default is set, logging will
-# go to stdout. (string value)
-# Deprecated group/name - [DEFAULT]/logfile
-#log_file = <None>
-
 # DEPRECATED. A logging.Formatter log message format string which may use any
 # of the available logging.LogRecord attributes. This option is deprecated.
 # Please use logging_context_format_string and logging_default_format_string
 # instead. (string value)
 #log_format = <None>
 
-# Syslog facility to receive log lines. (string value)
-#syslog_log_facility = LOG_USER
+# Format string for %%(asctime)s in log records. Default: %(default)s . (string
+# value)
+#log_date_format = %Y-%m-%d %H:%M:%S
+
+# (Optional) Name of log file to output to. If no default is set, logging will
+# go to stdout. (string value)
+# Deprecated group/name - [DEFAULT]/logfile
+#log_file = <None>
+
+# (Optional) The base directory used for relative --log-file paths. (string
+# value)
+# Deprecated group/name - [DEFAULT]/logdir
+#log_dir = <None>
 
 # Use syslog for logging. Existing syslog format is DEPRECATED during I, and
 # will change in J to honor RFC5424. (boolean value)
@@ -188,6 +185,9 @@
 # format without the APP-NAME is deprecated in I, and will be removed in J.
 # (boolean value)
 #use_syslog_rfc_format = false
+
+# Syslog facility to receive log lines. (string value)
+#syslog_log_facility = LOG_USER
 
 #
 # From keystone.openstack.common.log
@@ -200,8 +200,23 @@
 # From keystone.openstack.common.log
 #
 
+# Format string to use for log messages with context. (string value)
+#logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
+
+# Format string to use for log messages without context. (string value)
+#logging_default_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
+
+# Data to append to log format when level is DEBUG. (string value)
+#logging_debug_format_suffix = %(funcName)s %(pathname)s:%(lineno)d
+
+# Prefix each line of exception output with this format. (string value)
+#logging_exception_prefix = %(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
+
 # List of logger=LEVEL pairs. (list value)
 #default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN
+
+# Enables or disables publication of error events. (boolean value)
+#publish_errors = false
 
 # Enables or disables fatal status of deprecations. (boolean value)
 #fatal_deprecations = false
@@ -214,24 +229,12 @@
 # value)
 #instance_uuid_format = "[instance: %(uuid)s] "
 
-# Format string to use for log messages with context. (string value)
-#logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
-
-# Data to append to log format when level is DEBUG. (string value)
-#logging_debug_format_suffix = %(funcName)s %(pathname)s:%(lineno)d
-
-# Format string to use for log messages without context. (string value)
-#logging_default_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
-
-# Prefix each line of exception output with this format. (string value)
-#logging_exception_prefix = %(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
-
-# Enables or disables publication of error events. (boolean value)
-#publish_errors = false
-
 #
 # From keystone.openstack.common.policy
 #
+
+# The JSON file that defines policies. (string value)
+#policy_file = policy.json
 
 # Default rule. Enforced when a requested rule is not found. (string value)
 #policy_default_rule = default
@@ -242,50 +245,152 @@
 # directories to be searched. (multi valued)
 #policy_dirs = policy.d
 
-# The JSON file that defines policies. (string value)
-#policy_file = policy.json
-
 #
 # From oslo.messaging
 #
-
-# Auto-delete queues in AMQP. (boolean value)
-#amqp_auto_delete = false
 
 # Use durable queues in AMQP. (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_durable_queues
 #amqp_durable_queues = false
 
-# The default exchange under which topics are scoped. May be overridden by an
-# exchange name specified in the transport_url option. (string value)
-#control_exchange = keystone
+# Auto-delete queues in AMQP. (boolean value)
+#amqp_auto_delete = false
 
-# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
-#fake_rabbit = false
+# Size of RPC connection pool. (integer value)
+#rpc_conn_pool_size = 30
 
-# How long to wait before reconnecting in response to an AMQP consumer cancel
-# notification. (floating point value)
-#kombu_reconnect_delay = 1.0
+# Qpid broker hostname. (string value)
+#qpid_hostname = localhost
 
-# SSL certification authority file (valid only if SSL enabled). (string value)
-#kombu_ssl_ca_certs =
+# Qpid broker port. (integer value)
+#qpid_port = 5672
 
-# SSL cert file (valid only if SSL enabled). (string value)
-#kombu_ssl_certfile =
+# Qpid HA cluster host:port pairs. (list value)
+#qpid_hosts = $qpid_hostname:$qpid_port
 
-# SSL key file (valid only if SSL enabled). (string value)
-#kombu_ssl_keyfile =
+# Username for Qpid connection. (string value)
+#qpid_username =
+
+# Password for Qpid connection. (string value)
+#qpid_password =
+
+# Space separated list of SASL mechanisms to use for auth. (string value)
+#qpid_sasl_mechanisms =
+
+# Seconds between connection keepalive heartbeats. (integer value)
+#qpid_heartbeat = 60
+
+# Transport to use, either 'tcp' or 'ssl'. (string value)
+#qpid_protocol = tcp
+
+# Whether to disable the Nagle algorithm. (boolean value)
+#qpid_tcp_nodelay = true
+
+# The number of prefetched messages held by receiver. (integer value)
+#qpid_receiver_capacity = 1
+
+# The qpid topology version to use.  Version 1 is what was originally used by
+# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
+# broker federation to work.  Users should update to version 2 when they are
+# able to take everything down, as it requires a clean break. (integer value)
+#qpid_topology_version = 1
 
 # SSL version to use (valid only if SSL enabled). valid values are TLSv1 and
 # SSLv23. SSLv2 and SSLv3 may be available on some distributions. (string
 # value)
 #kombu_ssl_version =
 
+# SSL key file (valid only if SSL enabled). (string value)
+#kombu_ssl_keyfile =
+
+# SSL cert file (valid only if SSL enabled). (string value)
+#kombu_ssl_certfile =
+
+# SSL certification authority file (valid only if SSL enabled). (string value)
+#kombu_ssl_ca_certs =
+
+# How long to wait before reconnecting in response to an AMQP consumer cancel
+# notification. (floating point value)
+#kombu_reconnect_delay = 1.0
+
+# The RabbitMQ broker address where a single node is used. (string value)
+#rabbit_host = localhost
+
+# The RabbitMQ broker port where a single node is used. (integer value)
+#rabbit_port = 5672
+
+# RabbitMQ HA cluster host:port pairs. (list value)
+#rabbit_hosts = $rabbit_host:$rabbit_port
+
+# Connect over SSL for RabbitMQ. (boolean value)
+#rabbit_use_ssl = false
+
+# The RabbitMQ userid. (string value)
+#rabbit_userid = guest
+
+# The RabbitMQ password. (string value)
+#rabbit_password = guest
+
+# The RabbitMQ login method. (string value)
+#rabbit_login_method = AMQPLAIN
+
+# The RabbitMQ virtual host. (string value)
+#rabbit_virtual_host = /
+
+# How frequently to retry connecting with RabbitMQ. (integer value)
+#rabbit_retry_interval = 1
+
+# How long to backoff for between retries when connecting to RabbitMQ. (integer
+# value)
+#rabbit_retry_backoff = 2
+
+# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
+# count). (integer value)
+#rabbit_max_retries = 0
+
+# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
+# must wipe the RabbitMQ database. (boolean value)
+#rabbit_ha_queues = false
+
+# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
+#fake_rabbit = false
+
+# ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
+# The "host" option should point or resolve to this address. (string value)
+#rpc_zmq_bind_address = *
+
+# MatchMaker driver. (string value)
+#rpc_zmq_matchmaker = oslo.messaging._drivers.matchmaker.MatchMakerLocalhost
+
+# ZeroMQ receiver listening port. (integer value)
+#rpc_zmq_port = 9501
+
+# Number of ZeroMQ contexts, defaults to 1. (integer value)
+#rpc_zmq_contexts = 1
+
+# Maximum number of ingress messages to locally buffer per topic. Default is
+# unlimited. (integer value)
+#rpc_zmq_topic_backlog = <None>
+
+# Directory for holding IPC sockets. (string value)
+#rpc_zmq_ipc_dir = /var/run/openstack
+
+# Name of this node. Must be a valid hostname, FQDN, or IP address. Must match
+# "host" option, if running Nova. (string value)
+#rpc_zmq_host = localhost
+
+# Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.
+# (integer value)
+#rpc_cast_timeout = 30
+
 # Heartbeat frequency. (integer value)
 #matchmaker_heartbeat_freq = 300
 
 # Heartbeat time-to-live. (integer value)
 #matchmaker_heartbeat_ttl = 600
+
+# Size of RPC greenthread pool. (integer value)
+#rpc_thread_pool_size = 64
 
 # Driver or drivers to handle sending notifications. (multi valued)
 #notification_driver =
@@ -294,126 +399,21 @@
 # Deprecated group/name - [rpc_notifier2]/topics
 #notification_topics = notifications
 
-# Seconds between connection keepalive heartbeats. (integer value)
-#qpid_heartbeat = 60
-
-# Qpid broker hostname. (string value)
-#qpid_hostname = localhost
-
-# Qpid HA cluster host:port pairs. (list value)
-#qpid_hosts = $qpid_hostname:$qpid_port
-
-# Password for Qpid connection. (string value)
-#qpid_password =
-
-# Qpid broker port. (integer value)
-#qpid_port = 5672
-
-# Transport to use, either 'tcp' or 'ssl'. (string value)
-#qpid_protocol = tcp
-
-# The number of prefetched messages held by receiver. (integer value)
-#qpid_receiver_capacity = 1
-
-# Space separated list of SASL mechanisms to use for auth. (string value)
-#qpid_sasl_mechanisms =
-
-# Whether to disable the Nagle algorithm. (boolean value)
-#qpid_tcp_nodelay = true
-
-# The qpid topology version to use.  Version 1 is what was originally used by
-# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
-# broker federation to work.  Users should update to version 2 when they are
-# able to take everything down, as it requires a clean break. (integer value)
-#qpid_topology_version = 1
-
-# Username for Qpid connection. (string value)
-#qpid_username =
-
-# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
-# must wipe the RabbitMQ database. (boolean value)
-#rabbit_ha_queues = false
-
-# The RabbitMQ broker address where a single node is used. (string value)
-#rabbit_host = localhost
-
-# RabbitMQ HA cluster host:port pairs. (list value)
-#rabbit_hosts = $rabbit_host:$rabbit_port
-
-# The RabbitMQ login method. (string value)
-#rabbit_login_method = AMQPLAIN
-
-# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
-# count). (integer value)
-#rabbit_max_retries = 0
-
-# The RabbitMQ password. (string value)
-#rabbit_password = guest
-
-# The RabbitMQ broker port where a single node is used. (integer value)
-#rabbit_port = 5672
-
-# How long to backoff for between retries when connecting to RabbitMQ. (integer
-# value)
-#rabbit_retry_backoff = 2
-
-# How frequently to retry connecting with RabbitMQ. (integer value)
-#rabbit_retry_interval = 1
-
-# Connect over SSL for RabbitMQ. (boolean value)
-#rabbit_use_ssl = false
-
-# The RabbitMQ userid. (string value)
-#rabbit_userid = guest
-
-# The RabbitMQ virtual host. (string value)
-#rabbit_virtual_host = /
-
-# The messaging driver to use, defaults to rabbit. Other drivers include qpid
-# and zmq. (string value)
-#rpc_backend = rabbit
-
-# Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.
-# (integer value)
-#rpc_cast_timeout = 30
-
-# Size of RPC connection pool. (integer value)
-#rpc_conn_pool_size = 30
-
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
-
-# Size of RPC greenthread pool. (integer value)
-#rpc_thread_pool_size = 64
-
-# ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
-# The "host" option should point or resolve to this address. (string value)
-#rpc_zmq_bind_address = *
-
-# Number of ZeroMQ contexts, defaults to 1. (integer value)
-#rpc_zmq_contexts = 1
-
-# Name of this node. Must be a valid hostname, FQDN, or IP address. Must match
-# "host" option, if running Nova. (string value)
-#rpc_zmq_host = localhost
-
-# Directory for holding IPC sockets. (string value)
-#rpc_zmq_ipc_dir = /var/run/openstack
-
-# MatchMaker driver. (string value)
-#rpc_zmq_matchmaker = oslo.messaging._drivers.matchmaker.MatchMakerLocalhost
-
-# ZeroMQ receiver listening port. (integer value)
-#rpc_zmq_port = 9501
-
-# Maximum number of ingress messages to locally buffer per topic. Default is
-# unlimited. (integer value)
-#rpc_zmq_topic_backlog = <None>
 
 # A URL representing the messaging driver to use and its full configuration. If
 # not set, we fall back to the rpc_backend option and driver specific
 # configuration. (string value)
 #transport_url = <None>
+
+# The messaging driver to use, defaults to rabbit. Other drivers include qpid
+# and zmq. (string value)
+#rpc_backend = rabbit
+
+# The default exchange under which topics are scoped. May be overridden by an
+# exchange name specified in the transport_url option. (string value)
+#control_exchange = keystone
 
 
 [assignment]
@@ -422,16 +422,16 @@
 # From keystone
 #
 
-# TTL (in seconds) to cache assignment data. This has no effect unless global
-# caching is enabled. (integer value)
-#cache_time = <None>
+# Assignment backend driver. (string value)
+#driver = <None>
 
 # Toggle for assignment caching. This has no effect unless global caching is
 # enabled. (boolean value)
 #caching = true
 
-# Assignment backend driver. (string value)
-#driver = <None>
+# TTL (in seconds) to cache assignment data. This has no effect unless global
+# caching is enabled. (integer value)
+#cache_time = <None>
 
 # Maximum number of entities that will be returned in an assignment collection.
 # (integer value)
@@ -444,9 +444,6 @@
 # From keystone
 #
 
-# The external (REMOTE_USER) auth plugin module. (string value)
-#external = keystone.auth.plugins.external.DefaultDomain
-
 # Default auth methods. (list value)
 #methods = external,password,token
 
@@ -456,12 +453,25 @@
 # The token auth plugin module. (string value)
 #token = keystone.auth.plugins.token.Token
 
+# The external (REMOTE_USER) auth plugin module. (string value)
+#external = keystone.auth.plugins.external.DefaultDomain
+
 
 [cache]
 
 #
 # From keystone
 #
+
+# Prefix for building the configuration dictionary for the cache region. This
+# should not need to be changed unless there is another dogpile.cache region
+# with the same configuration name. (string value)
+#config_prefix = cache.keystone
+
+# Default TTL, in seconds, for any cached item in the dogpile.cache region.
+# This applies to any cached method that doesn't have an explicit cache
+# expiration time defined for it. (integer value)
+#expiration_time = 600
 
 # Dogpile.cache backend module. It is recommended that Memcache with pooling
 # (keystone.cache.memcache_pool) or Redis (dogpile.cache.redis) be used in
@@ -474,10 +484,14 @@
 # "<argname>:<value>". (multi valued)
 #backend_argument =
 
-# Prefix for building the configuration dictionary for the cache region. This
-# should not need to be changed unless there is another dogpile.cache region
-# with the same configuration name. (string value)
-#config_prefix = cache.keystone
+# Proxy classes to import that will affect the way the dogpile.cache backend
+# functions. See the dogpile.cache documentation on changing-backend-behavior.
+# (list value)
+#proxies =
+
+# Global toggle for all caching using the should_cache_fn mechanism. (boolean
+# value)
+#enabled = false
 
 # Extra debugging from the cache backend (cache keys, get/set/delete/etc
 # calls). This is only really useful if you need to see the specific cache-
@@ -485,23 +499,18 @@
 # left set to false. (boolean value)
 #debug_cache_backend = false
 
-# Global toggle for all caching using the should_cache_fn mechanism. (boolean
-# value)
-#enabled = false
-
-# Default TTL, in seconds, for any cached item in the dogpile.cache region.
-# This applies to any cached method that doesn't have an explicit cache
-# expiration time defined for it. (integer value)
-#expiration_time = 600
+# Memcache servers in the format of "host:port". (dogpile.cache.memcache and
+# keystone.cache.memcache_pool backends only). (list value)
+#memcache_servers = localhost:11211
 
 # Number of seconds memcached server is considered dead before it is tried
 # again. (dogpile.cache.memcache and keystone.cache.memcache_pool backends
 # only). (integer value)
 #memcache_dead_retry = 300
 
-# Number of seconds that an operation will wait to get a memcache client
-# connection. (integer value)
-#memcache_pool_connection_get_timeout = 10
+# Timeout in seconds for every call to a server. (dogpile.cache.memcache and
+# keystone.cache.memcache_pool backends only). (integer value)
+#memcache_socket_timeout = 3
 
 # Max total number of open connections to every memcached server.
 # (keystone.cache.memcache_pool backend only). (integer value)
@@ -511,18 +520,9 @@
 # it is closed. (keystone.cache.memcache_pool backend only). (integer value)
 #memcache_pool_unused_timeout = 60
 
-# Memcache servers in the format of "host:port". (dogpile.cache.memcache and
-# keystone.cache.memcache_pool backends only). (list value)
-#memcache_servers = localhost:11211
-
-# Timeout in seconds for every call to a server. (dogpile.cache.memcache and
-# keystone.cache.memcache_pool backends only). (integer value)
-#memcache_socket_timeout = 3
-
-# Proxy classes to import that will affect the way the dogpile.cache backend
-# functions. See the dogpile.cache documentation on changing-backend-behavior.
-# (list value)
-#proxies =
+# Number of seconds that an operation will wait to get a memcache client
+# connection. (integer value)
+#memcache_pool_connection_get_timeout = 10
 
 
 [catalog]
@@ -531,24 +531,24 @@
 # From keystone
 #
 
-# Time to cache catalog data (in seconds). This has no effect unless global and
-# catalog caching are enabled. (integer value)
-#cache_time = <None>
+# Catalog template file name for use with the template catalog backend. (string
+# value)
+#template_file = default_catalog.templates
+
+# Catalog backend driver. (string value)
+#driver = keystone.catalog.backends.sql.Catalog
 
 # Toggle for catalog caching. This has no effect unless global caching is
 # enabled. (boolean value)
 #caching = true
 
-# Catalog backend driver. (string value)
-#driver = keystone.catalog.backends.sql.Catalog
+# Time to cache catalog data (in seconds). This has no effect unless global and
+# catalog caching are enabled. (integer value)
+#cache_time = <None>
 
 # Maximum number of entities that will be returned in a catalog collection.
 # (integer value)
 #list_limit = <None>
-
-# Catalog template file name for use with the template catalog backend. (string
-# value)
-#template_file = default_catalog.templates
 
 
 [credential]
@@ -567,6 +567,14 @@
 # From oslo.db
 #
 
+# The file name to use with SQLite. (string value)
+# Deprecated group/name - [DEFAULT]/sqlite_db
+#sqlite_db = oslo.sqlite
+
+# If True, SQLite uses synchronous mode. (boolean value)
+# Deprecated group/name - [DEFAULT]/sqlite_synchronous
+#sqlite_synchronous = true
+
 # The back end to use for the database. (string value)
 # Deprecated group/name - [DEFAULT]/db_backend
 #backend = sqlalchemy
@@ -578,29 +586,15 @@
 # Deprecated group/name - [sql]/connection
 #connection = <None>
 
-# Verbosity of SQL debugging information: 0=None, 100=Everything. (integer
-# value)
-# Deprecated group/name - [DEFAULT]/sql_connection_debug
-#connection_debug = 0
+# The SQLAlchemy connection string to use to connect to the slave database.
+# (string value)
+#slave_connection = <None>
 
-# Add Python stack traces to SQL as comment strings. (boolean value)
-# Deprecated group/name - [DEFAULT]/sql_connection_trace
-#connection_trace = false
-
-# If True, increases the interval between database connection retries up to
-# db_max_retry_interval. (boolean value)
-#db_inc_retry_interval = true
-
-# Maximum database connection retries before error is raised. Set to -1 to
-# specify an infinite retry count. (integer value)
-#db_max_retries = 20
-
-# If db_inc_retry_interval is set, the maximum seconds between database
-# connection retries. (integer value)
-#db_max_retry_interval = 10
-
-# Seconds between database connection retries. (integer value)
-#db_retry_interval = 1
+# The SQL mode to be used for MySQL sessions. This option, including the
+# default, overrides any server-set SQL mode. To use whatever SQL mode is set
+# by the server configuration, set this to no value. Example: mysql_sql_mode=
+# (string value)
+#mysql_sql_mode = TRADITIONAL
 
 # Timeout before idle SQL connections are reaped. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_idle_timeout
@@ -608,10 +602,10 @@
 # Deprecated group/name - [sql]/idle_timeout
 #idle_timeout = 3600
 
-# If set, use this value for max_overflow with SQLAlchemy. (integer value)
-# Deprecated group/name - [DEFAULT]/sql_max_overflow
-# Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
-#max_overflow = <None>
+# Minimum number of SQL connections to keep open in a pool. (integer value)
+# Deprecated group/name - [DEFAULT]/sql_min_pool_size
+# Deprecated group/name - [DATABASE]/sql_min_pool_size
+#min_pool_size = 1
 
 # Maximum number of SQL connections to keep open in a pool. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_pool_size
@@ -624,41 +618,47 @@
 # Deprecated group/name - [DATABASE]/sql_max_retries
 #max_retries = 10
 
-# Minimum number of SQL connections to keep open in a pool. (integer value)
-# Deprecated group/name - [DEFAULT]/sql_min_pool_size
-# Deprecated group/name - [DATABASE]/sql_min_pool_size
-#min_pool_size = 1
-
-# The SQL mode to be used for MySQL sessions. This option, including the
-# default, overrides any server-set SQL mode. To use whatever SQL mode is set
-# by the server configuration, set this to no value. Example: mysql_sql_mode=
-# (string value)
-#mysql_sql_mode = TRADITIONAL
-
-# If set, use this value for pool_timeout with SQLAlchemy. (integer value)
-# Deprecated group/name - [DATABASE]/sqlalchemy_pool_timeout
-#pool_timeout = <None>
-
 # Interval between retries of opening a SQL connection. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_retry_interval
 # Deprecated group/name - [DATABASE]/reconnect_interval
 #retry_interval = 10
 
-# The SQLAlchemy connection string to use to connect to the slave database.
-# (string value)
-#slave_connection = <None>
+# If set, use this value for max_overflow with SQLAlchemy. (integer value)
+# Deprecated group/name - [DEFAULT]/sql_max_overflow
+# Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
+#max_overflow = <None>
 
-# The file name to use with SQLite. (string value)
-# Deprecated group/name - [DEFAULT]/sqlite_db
-#sqlite_db = oslo.sqlite
+# Verbosity of SQL debugging information: 0=None, 100=Everything. (integer
+# value)
+# Deprecated group/name - [DEFAULT]/sql_connection_debug
+#connection_debug = 0
 
-# If True, SQLite uses synchronous mode. (boolean value)
-# Deprecated group/name - [DEFAULT]/sqlite_synchronous
-#sqlite_synchronous = true
+# Add Python stack traces to SQL as comment strings. (boolean value)
+# Deprecated group/name - [DEFAULT]/sql_connection_trace
+#connection_trace = false
+
+# If set, use this value for pool_timeout with SQLAlchemy. (integer value)
+# Deprecated group/name - [DATABASE]/sqlalchemy_pool_timeout
+#pool_timeout = <None>
 
 # Enable the experimental use of database reconnect on connection lost.
 # (boolean value)
 #use_db_reconnect = false
+
+# Seconds between database connection retries. (integer value)
+#db_retry_interval = 1
+
+# If True, increases the interval between database connection retries up to
+# db_max_retry_interval. (boolean value)
+#db_inc_retry_interval = true
+
+# If db_inc_retry_interval is set, the maximum seconds between database
+# connection retries. (integer value)
+#db_max_retry_interval = 10
+
+# Maximum database connection retries before error is raised. Set to -1 to
+# specify an infinite retry count. (integer value)
+#db_max_retries = 20
 
 
 [endpoint_filter]
@@ -690,12 +690,12 @@
 # From keystone
 #
 
+# Federation backend driver. (string value)
+#driver = keystone.contrib.federation.backends.sql.Federation
+
 # Value to be used when filtering assertion parameters from the environment.
 # (string value)
 #assertion_prefix =
-
-# Federation backend driver. (string value)
-#driver = keystone.contrib.federation.backends.sql.Federation
 
 
 [identity]
@@ -712,10 +712,6 @@
 # exist to order to maintain support for your v2 clients. (string value)
 #default_domain_id = default
 
-# Path for Keystone to locate the domain specific identity configuration files
-# if domain_specific_drivers_enabled is set to true. (string value)
-#domain_config_dir = /etc/keystone/domains
-
 # A subset (or all) of domains can have their own identity driver, each with
 # their own partial configuration file in a domain configuration directory.
 # Only values specific to the domain need to be placed in the domain specific
@@ -723,16 +719,20 @@
 # enable. (boolean value)
 #domain_specific_drivers_enabled = false
 
+# Path for Keystone to locate the domain specific identity configuration files
+# if domain_specific_drivers_enabled is set to true. (string value)
+#domain_config_dir = /etc/keystone/domains
+
 # Identity backend driver. (string value)
 #driver = keystone.identity.backends.sql.Identity
-
-# Maximum number of entities that will be returned in an identity collection.
-# (integer value)
-#list_limit = <None>
 
 # Maximum supported length for user passwords; decrease to improve performance.
 # (integer value)
 #max_password_length = 4096
+
+# Maximum number of entities that will be returned in an identity collection.
+# (integer value)
+#list_limit = <None>
 
 
 [identity_mapping]
@@ -740,6 +740,14 @@
 #
 # From keystone
 #
+
+# Keystone Identity Mapping backend driver. (string value)
+#driver = keystone.identity.mapping_backends.sql.Mapping
+
+# Public ID generator for user and group entities. The Keystone identity mapper
+# only supports generators that produce no more than 64 characters. (string
+# value)
+#generator = keystone.identity.id_generators.sha256.Generator
 
 # The format of user and group IDs changed in Juno for backends that do not
 # generate UUIDs (e.g. LDAP), with keystone providing a hash mapping to the
@@ -755,14 +763,6 @@
 # can set this value to False is when configuring a fresh installation.
 # (boolean value)
 #backward_compatible_ids = true
-
-# Keystone Identity Mapping backend driver. (string value)
-#driver = keystone.identity.mapping_backends.sql.Mapping
-
-# Public ID generator for user and group entities. The Keystone identity mapper
-# only supports generators that produce no more than 64 characters. (string
-# value)
-#generator = keystone.identity.id_generators.sha256.Generator
 
 
 [kvs]
@@ -780,13 +780,13 @@
 # with the same configuration name. (string value)
 #config_prefix = keystone.kvs
 
-# Default lock timeout for distributed locking. (integer value)
-#default_lock_timeout = 5
-
 # Toggle to disable using a key-mangling function to ensure fixed length keys.
 # This is toggle-able for debugging purposes, it is highly recommended to
 # always leave this set to true. (boolean value)
 #enable_key_mangler = true
+
+# Default lock timeout for distributed locking. (integer value)
+#default_lock_timeout = 5
 
 
 [ldap]
@@ -795,278 +795,77 @@
 # From keystone
 #
 
+# URL for connecting to the LDAP server. (string value)
+#url = ldap://localhost
+
+# User BindDN to query the LDAP server. (string value)
+#user = <None>
+
+# Password for the BindDN to query the LDAP server. (string value)
+#password = <None>
+
+# LDAP server suffix (string value)
+#suffix = cn=example,cn=com
+
+# If true, will add a dummy member to groups. This is required if the
+# objectclass for groups requires the "member" attribute. (boolean value)
+#use_dumb_member = false
+
+# DN of the "dummy member" to use when "use_dumb_member" is enabled. (string
+# value)
+#dumb_member = cn=dumb,dc=nonexistent
+
+# Delete subtrees using the subtree delete control. Only enable this option if
+# your LDAP server supports subtree deletion. (boolean value)
+#allow_subtree_delete = false
+
+# The LDAP scope for queries, this can be either "one" (onelevel/singleLevel)
+# or "sub" (subtree/wholeSubtree). (string value)
+#query_scope = one
+
+# Maximum results per page; a value of zero ("0") disables paging. (integer
+# value)
+#page_size = 0
+
 # The LDAP dereferencing option for queries. This can be either "never",
 # "searching", "always", "finding" or "default". The "default" option falls
 # back to using default dereferencing configured by your ldap.conf. (string
 # value)
 #alias_dereferencing = default
 
-# Delete subtrees using the subtree delete control. Only enable this option if
-# your LDAP server supports subtree deletion. (boolean value)
-#allow_subtree_delete = false
-
-# End user auth connection lifetime in seconds. (integer value)
-#auth_pool_connection_lifetime = 60
-
-# End user auth connection pool size. (integer value)
-#auth_pool_size = 100
-
-# Override the system's default referral chasing behavior for queries. (boolean
-# value)
-#chase_referrals = <None>
-
 # Sets the LDAP debugging level for LDAP calls. A value of 0 means that
 # debugging is not enabled. This value is a bitmask, consult your LDAP
 # documentation for possible values. (integer value)
 #debug_level = <None>
 
-# DN of the "dummy member" to use when "use_dumb_member" is enabled. (string
+# Override the system's default referral chasing behavior for queries. (boolean
 # value)
-#dumb_member = cn=dumb,dc=nonexistent
+#chase_referrals = <None>
 
-# Additional attribute mappings for groups. Attribute mapping format is
-# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
-# and user_attr is the Identity API attribute. (list value)
-#group_additional_attribute_mapping =
+# Search base for users. (string value)
+#user_tree_dn = <None>
 
-# Allow group creation in LDAP backend. (boolean value)
-#group_allow_create = true
+# LDAP search filter for users. (string value)
+#user_filter = <None>
 
-# Allow group deletion in LDAP backend. (boolean value)
-#group_allow_delete = true
+# LDAP objectclass for users. (string value)
+#user_objectclass = inetOrgPerson
 
-# Allow group update in LDAP backend. (boolean value)
-#group_allow_update = true
+# LDAP attribute mapped to user id. WARNING: must not be a multivalued
+# attribute. (string value)
+#user_id_attribute = cn
 
-# List of attributes stripped off the group on update. (list value)
-#group_attribute_ignore =
+# LDAP attribute mapped to user name. (string value)
+#user_name_attribute = sn
 
-# LDAP attribute mapped to group description. (string value)
-#group_desc_attribute = description
+# LDAP attribute mapped to user email. (string value)
+#user_mail_attribute = mail
 
-# LDAP search filter for groups. (string value)
-#group_filter = <None>
-
-# LDAP attribute mapped to group id. (string value)
-#group_id_attribute = cn
-
-# LDAP attribute mapped to show group membership. (string value)
-#group_member_attribute = member
-
-# LDAP attribute mapped to group name. (string value)
-#group_name_attribute = ou
-
-# LDAP objectclass for groups. (string value)
-#group_objectclass = groupOfNames
-
-# Search base for groups. (string value)
-#group_tree_dn = <None>
-
-# Maximum results per page; a value of zero ("0") disables paging. (integer
-# value)
-#page_size = 0
-
-# Password for the BindDN to query the LDAP server. (string value)
-#password = <None>
-
-# Connection lifetime in seconds. (integer value)
-#pool_connection_lifetime = 600
-
-# Connector timeout in seconds. Value -1 indicates indefinite wait for
-# response. (integer value)
-#pool_connection_timeout = -1
-
-# Time span in seconds to wait between two reconnect trials. (floating point
-# value)
-#pool_retry_delay = 0.1
-
-# Maximum count of reconnect trials. (integer value)
-#pool_retry_max = 3
-
-# Connection pool size. (integer value)
-#pool_size = 10
-
-# Additional attribute mappings for projects. Attribute mapping format is
-# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
-# and user_attr is the Identity API attribute. (list value)
-# Deprecated group/name - [ldap]/tenant_additional_attribute_mapping
-#project_additional_attribute_mapping =
-
-# Allow project creation in LDAP backend. (boolean value)
-# Deprecated group/name - [ldap]/tenant_allow_create
-#project_allow_create = true
-
-# Allow project deletion in LDAP backend. (boolean value)
-# Deprecated group/name - [ldap]/tenant_allow_delete
-#project_allow_delete = true
-
-# Allow project update in LDAP backend. (boolean value)
-# Deprecated group/name - [ldap]/tenant_allow_update
-#project_allow_update = true
-
-# List of attributes stripped off the project on update. (list value)
-# Deprecated group/name - [ldap]/tenant_attribute_ignore
-#project_attribute_ignore =
-
-# LDAP attribute mapped to project description. (string value)
-# Deprecated group/name - [ldap]/tenant_desc_attribute
-#project_desc_attribute = description
-
-# LDAP attribute mapped to project domain_id. (string value)
-# Deprecated group/name - [ldap]/tenant_domain_id_attribute
-#project_domain_id_attribute = businessCategory
-
-# LDAP attribute mapped to project enabled. (string value)
-# Deprecated group/name - [ldap]/tenant_enabled_attribute
-#project_enabled_attribute = enabled
-
-# If true, Keystone uses an alternative method to determine if a project is
-# enabled or not by checking if they are a member of the
-# "project_enabled_emulation_dn" group. (boolean value)
-# Deprecated group/name - [ldap]/tenant_enabled_emulation
-#project_enabled_emulation = false
-
-# DN of the group entry to hold enabled projects when using enabled emulation.
-# (string value)
-# Deprecated group/name - [ldap]/tenant_enabled_emulation_dn
-#project_enabled_emulation_dn = <None>
-
-# LDAP search filter for projects. (string value)
-# Deprecated group/name - [ldap]/tenant_filter
-#project_filter = <None>
-
-# LDAP attribute mapped to project id. (string value)
-# Deprecated group/name - [ldap]/tenant_id_attribute
-#project_id_attribute = cn
-
-# LDAP attribute mapped to project membership for user. (string value)
-# Deprecated group/name - [ldap]/tenant_member_attribute
-#project_member_attribute = member
-
-# LDAP attribute mapped to project name. (string value)
-# Deprecated group/name - [ldap]/tenant_name_attribute
-#project_name_attribute = ou
-
-# LDAP objectclass for projects. (string value)
-# Deprecated group/name - [ldap]/tenant_objectclass
-#project_objectclass = groupOfNames
-
-# Search base for projects (string value)
-# Deprecated group/name - [ldap]/tenant_tree_dn
-#project_tree_dn = <None>
-
-# The LDAP scope for queries, this can be either "one" (onelevel/singleLevel)
-# or "sub" (subtree/wholeSubtree). (string value)
-#query_scope = one
-
-# Additional attribute mappings for roles. Attribute mapping format is
-# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
-# and user_attr is the Identity API attribute. (list value)
-#role_additional_attribute_mapping =
-
-# Allow role creation in LDAP backend. (boolean value)
-#role_allow_create = true
-
-# Allow role deletion in LDAP backend. (boolean value)
-#role_allow_delete = true
-
-# Allow role update in LDAP backend. (boolean value)
-#role_allow_update = true
-
-# List of attributes stripped off the role on update. (list value)
-#role_attribute_ignore =
-
-# LDAP search filter for roles. (string value)
-#role_filter = <None>
-
-# LDAP attribute mapped to role id. (string value)
-#role_id_attribute = cn
-
-# LDAP attribute mapped to role membership. (string value)
-#role_member_attribute = roleOccupant
-
-# LDAP attribute mapped to role name. (string value)
-#role_name_attribute = ou
-
-# LDAP objectclass for roles. (string value)
-#role_objectclass = organizationalRole
-
-# Search base for roles. (string value)
-#role_tree_dn = <None>
-
-# LDAP server suffix (string value)
-#suffix = cn=example,cn=com
-
-# CA certificate directory path for communicating with LDAP servers. (string
-# value)
-#tls_cacertdir = <None>
-
-# CA certificate file path for communicating with LDAP servers. (string value)
-#tls_cacertfile = <None>
-
-# Valid options for tls_req_cert are demand, never, and allow. (string value)
-#tls_req_cert = demand
-
-# URL for connecting to the LDAP server. (string value)
-#url = ldap://localhost
-
-# Enable LDAP connection pooling for end user authentication. If use_pool is
-# disabled, then this setting is meaningless and is not used at all. (boolean
-# value)
-#use_auth_pool = false
-
-# If true, will add a dummy member to groups. This is required if the
-# objectclass for groups requires the "member" attribute. (boolean value)
-#use_dumb_member = false
-
-# Enable LDAP connection pooling. (boolean value)
-#use_pool = false
-
-# Enable TLS for communicating with LDAP servers. (boolean value)
-#use_tls = false
-
-# User BindDN to query the LDAP server. (string value)
-#user = <None>
-
-# List of additional LDAP attributes used for mapping additional attribute
-# mappings for users. Attribute mapping format is <ldap_attr>:<user_attr>,
-# where ldap_attr is the attribute in the LDAP entry and user_attr is the
-# Identity API attribute. (list value)
-#user_additional_attribute_mapping =
-
-# Allow user creation in LDAP backend. (boolean value)
-#user_allow_create = true
-
-# Allow user deletion in LDAP backend. (boolean value)
-#user_allow_delete = true
-
-# Allow user updates in LDAP backend. (boolean value)
-#user_allow_update = true
-
-# List of attributes stripped off the user on update. (list value)
-#user_attribute_ignore = default_project_id,tenants
-
-# LDAP attribute mapped to default_project_id for users. (string value)
-#user_default_project_id_attribute = <None>
+# LDAP attribute mapped to password. (string value)
+#user_pass_attribute = userPassword
 
 # LDAP attribute mapped to user enabled flag. (string value)
 #user_enabled_attribute = enabled
-
-# Default value to enable users. This should match an appropriate int value if
-# the LDAP server uses non-boolean (bitmask) values to indicate if a user is
-# enabled or disabled. If this is not set to "True" the typical value is "512".
-# This is typically used when "user_enabled_attribute = userAccountControl".
-# (string value)
-#user_enabled_default = True
-
-# If true, Keystone uses an alternative method to determine if a user is
-# enabled or not by checking if they are a member of the
-# "user_enabled_emulation_dn" group. (boolean value)
-#user_enabled_emulation = false
-
-# DN of the group entry to hold enabled users when using enabled emulation.
-# (string value)
-#user_enabled_emulation_dn = <None>
 
 # Invert the meaning of the boolean enabled values. Some LDAP servers use a
 # boolean lock attribute where "true" means an account is disabled. Setting
@@ -1082,27 +881,228 @@
 # "user_enabled_attribute = userAccountControl". (integer value)
 #user_enabled_mask = 0
 
-# LDAP search filter for users. (string value)
-#user_filter = <None>
+# Default value to enable users. This should match an appropriate int value if
+# the LDAP server uses non-boolean (bitmask) values to indicate if a user is
+# enabled or disabled. If this is not set to "True" the typical value is "512".
+# This is typically used when "user_enabled_attribute = userAccountControl".
+# (string value)
+#user_enabled_default = True
 
-# LDAP attribute mapped to user id. WARNING: must not be a multivalued
-# attribute. (string value)
-#user_id_attribute = cn
+# List of attributes stripped off the user on update. (list value)
+#user_attribute_ignore = default_project_id,tenants
 
-# LDAP attribute mapped to user email. (string value)
-#user_mail_attribute = mail
+# LDAP attribute mapped to default_project_id for users. (string value)
+#user_default_project_id_attribute = <None>
 
-# LDAP attribute mapped to user name. (string value)
-#user_name_attribute = sn
+# Allow user creation in LDAP backend. (boolean value)
+#user_allow_create = true
 
-# LDAP objectclass for users. (string value)
-#user_objectclass = inetOrgPerson
+# Allow user updates in LDAP backend. (boolean value)
+#user_allow_update = true
 
-# LDAP attribute mapped to password. (string value)
-#user_pass_attribute = userPassword
+# Allow user deletion in LDAP backend. (boolean value)
+#user_allow_delete = true
 
-# Search base for users. (string value)
-#user_tree_dn = <None>
+# If true, Keystone uses an alternative method to determine if a user is
+# enabled or not by checking if they are a member of the
+# "user_enabled_emulation_dn" group. (boolean value)
+#user_enabled_emulation = false
+
+# DN of the group entry to hold enabled users when using enabled emulation.
+# (string value)
+#user_enabled_emulation_dn = <None>
+
+# List of additional LDAP attributes used for mapping additional attribute
+# mappings for users. Attribute mapping format is <ldap_attr>:<user_attr>,
+# where ldap_attr is the attribute in the LDAP entry and user_attr is the
+# Identity API attribute. (list value)
+#user_additional_attribute_mapping =
+
+# Search base for projects (string value)
+# Deprecated group/name - [ldap]/tenant_tree_dn
+#project_tree_dn = <None>
+
+# LDAP search filter for projects. (string value)
+# Deprecated group/name - [ldap]/tenant_filter
+#project_filter = <None>
+
+# LDAP objectclass for projects. (string value)
+# Deprecated group/name - [ldap]/tenant_objectclass
+#project_objectclass = groupOfNames
+
+# LDAP attribute mapped to project id. (string value)
+# Deprecated group/name - [ldap]/tenant_id_attribute
+#project_id_attribute = cn
+
+# LDAP attribute mapped to project membership for user. (string value)
+# Deprecated group/name - [ldap]/tenant_member_attribute
+#project_member_attribute = member
+
+# LDAP attribute mapped to project name. (string value)
+# Deprecated group/name - [ldap]/tenant_name_attribute
+#project_name_attribute = ou
+
+# LDAP attribute mapped to project description. (string value)
+# Deprecated group/name - [ldap]/tenant_desc_attribute
+#project_desc_attribute = description
+
+# LDAP attribute mapped to project enabled. (string value)
+# Deprecated group/name - [ldap]/tenant_enabled_attribute
+#project_enabled_attribute = enabled
+
+# LDAP attribute mapped to project domain_id. (string value)
+# Deprecated group/name - [ldap]/tenant_domain_id_attribute
+#project_domain_id_attribute = businessCategory
+
+# List of attributes stripped off the project on update. (list value)
+# Deprecated group/name - [ldap]/tenant_attribute_ignore
+#project_attribute_ignore =
+
+# Allow project creation in LDAP backend. (boolean value)
+# Deprecated group/name - [ldap]/tenant_allow_create
+#project_allow_create = true
+
+# Allow project update in LDAP backend. (boolean value)
+# Deprecated group/name - [ldap]/tenant_allow_update
+#project_allow_update = true
+
+# Allow project deletion in LDAP backend. (boolean value)
+# Deprecated group/name - [ldap]/tenant_allow_delete
+#project_allow_delete = true
+
+# If true, Keystone uses an alternative method to determine if a project is
+# enabled or not by checking if they are a member of the
+# "project_enabled_emulation_dn" group. (boolean value)
+# Deprecated group/name - [ldap]/tenant_enabled_emulation
+#project_enabled_emulation = false
+
+# DN of the group entry to hold enabled projects when using enabled emulation.
+# (string value)
+# Deprecated group/name - [ldap]/tenant_enabled_emulation_dn
+#project_enabled_emulation_dn = <None>
+
+# Additional attribute mappings for projects. Attribute mapping format is
+# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
+# and user_attr is the Identity API attribute. (list value)
+# Deprecated group/name - [ldap]/tenant_additional_attribute_mapping
+#project_additional_attribute_mapping =
+
+# Search base for roles. (string value)
+#role_tree_dn = <None>
+
+# LDAP search filter for roles. (string value)
+#role_filter = <None>
+
+# LDAP objectclass for roles. (string value)
+#role_objectclass = organizationalRole
+
+# LDAP attribute mapped to role id. (string value)
+#role_id_attribute = cn
+
+# LDAP attribute mapped to role name. (string value)
+#role_name_attribute = ou
+
+# LDAP attribute mapped to role membership. (string value)
+#role_member_attribute = roleOccupant
+
+# List of attributes stripped off the role on update. (list value)
+#role_attribute_ignore =
+
+# Allow role creation in LDAP backend. (boolean value)
+#role_allow_create = true
+
+# Allow role update in LDAP backend. (boolean value)
+#role_allow_update = true
+
+# Allow role deletion in LDAP backend. (boolean value)
+#role_allow_delete = true
+
+# Additional attribute mappings for roles. Attribute mapping format is
+# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
+# and user_attr is the Identity API attribute. (list value)
+#role_additional_attribute_mapping =
+
+# Search base for groups. (string value)
+#group_tree_dn = <None>
+
+# LDAP search filter for groups. (string value)
+#group_filter = <None>
+
+# LDAP objectclass for groups. (string value)
+#group_objectclass = groupOfNames
+
+# LDAP attribute mapped to group id. (string value)
+#group_id_attribute = cn
+
+# LDAP attribute mapped to group name. (string value)
+#group_name_attribute = ou
+
+# LDAP attribute mapped to show group membership. (string value)
+#group_member_attribute = member
+
+# LDAP attribute mapped to group description. (string value)
+#group_desc_attribute = description
+
+# List of attributes stripped off the group on update. (list value)
+#group_attribute_ignore =
+
+# Allow group creation in LDAP backend. (boolean value)
+#group_allow_create = true
+
+# Allow group update in LDAP backend. (boolean value)
+#group_allow_update = true
+
+# Allow group deletion in LDAP backend. (boolean value)
+#group_allow_delete = true
+
+# Additional attribute mappings for groups. Attribute mapping format is
+# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
+# and user_attr is the Identity API attribute. (list value)
+#group_additional_attribute_mapping =
+
+# CA certificate file path for communicating with LDAP servers. (string value)
+#tls_cacertfile = <None>
+
+# CA certificate directory path for communicating with LDAP servers. (string
+# value)
+#tls_cacertdir = <None>
+
+# Enable TLS for communicating with LDAP servers. (boolean value)
+#use_tls = false
+
+# Valid options for tls_req_cert are demand, never, and allow. (string value)
+#tls_req_cert = demand
+
+# Enable LDAP connection pooling. (boolean value)
+#use_pool = false
+
+# Connection pool size. (integer value)
+#pool_size = 10
+
+# Maximum count of reconnect trials. (integer value)
+#pool_retry_max = 3
+
+# Time span in seconds to wait between two reconnect trials. (floating point
+# value)
+#pool_retry_delay = 0.1
+
+# Connector timeout in seconds. Value -1 indicates indefinite wait for
+# response. (integer value)
+#pool_connection_timeout = -1
+
+# Connection lifetime in seconds. (integer value)
+#pool_connection_lifetime = 600
+
+# Enable LDAP connection pooling for end user authentication. If use_pool is
+# disabled, then this setting is meaningless and is not used at all. (boolean
+# value)
+#use_auth_pool = false
+
+# End user auth connection pool size. (integer value)
+#auth_pool_size = 100
+
+# End user auth connection lifetime in seconds. (integer value)
+#auth_pool_connection_lifetime = 60
 
 
 [matchmaker_redis]
@@ -1114,11 +1114,11 @@
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
-# Password for Redis server (optional). (string value)
-#password = <None>
-
 # Use this port to connect to redis host. (integer value)
 #port = 6379
+
+# Password for Redis server (optional). (string value)
+#password = <None>
 
 
 [matchmaker_ring]
@@ -1138,15 +1138,18 @@
 # From keystone
 #
 
+# Memcache servers in the format of "host:port". (list value)
+#servers = localhost:11211
+
 # Number of seconds memcached server is considered dead before it is tried
 # again. This is used by the key value store system (e.g. token pooled
 # memcached persistence backend). (integer value)
 #dead_retry = 300
 
-# Number of seconds that an operation will wait to get a memcache client
-# connection. This is used by the key value store system (e.g. token pooled
-# memcached persistence backend). (integer value)
-#pool_connection_get_timeout = 10
+# Timeout in seconds for every call to a server. This is used by the key value
+# store system (e.g. token pooled memcached persistence backend). (integer
+# value)
+#socket_timeout = 3
 
 # Max total number of open connections to every memcached server. This is used
 # by the key value store system (e.g. token pooled memcached persistence
@@ -1158,13 +1161,10 @@
 # memcached persistence backend). (integer value)
 #pool_unused_timeout = 60
 
-# Memcache servers in the format of "host:port". (list value)
-#servers = localhost:11211
-
-# Timeout in seconds for every call to a server. This is used by the key value
-# store system (e.g. token pooled memcached persistence backend). (integer
-# value)
-#socket_timeout = 3
+# Number of seconds that an operation will wait to get a memcache client
+# connection. This is used by the key value store system (e.g. token pooled
+# memcached persistence backend). (integer value)
+#pool_connection_get_timeout = 10
 
 
 [oauth1]
@@ -1173,14 +1173,14 @@
 # From keystone
 #
 
-# Duration (in seconds) for the OAuth Access Token. (integer value)
-#access_token_duration = 86400
-
 # Credential backend driver. (string value)
 #driver = keystone.contrib.oauth1.backends.sql.OAuth1
 
 # Duration (in seconds) for the OAuth Request Token. (integer value)
 #request_token_duration = 28800
+
+# Duration (in seconds) for the OAuth Access Token. (integer value)
+#access_token_duration = 86400
 
 
 [os_inherit]
@@ -1200,29 +1200,29 @@
 # From oslo.messaging
 #
 
-# Accept clients using either SSL or plain TCP (boolean value)
-# Deprecated group/name - [amqp1]/allow_insecure_clients
-#allow_insecure_clients = false
+# address prefix used when sending to a specific server (string value)
+# Deprecated group/name - [amqp1]/server_request_prefix
+#server_request_prefix = exclusive
 
 # address prefix used when broadcasting to all servers (string value)
 # Deprecated group/name - [amqp1]/broadcast_prefix
 #broadcast_prefix = broadcast
 
-# Name for the AMQP container (string value)
-# Deprecated group/name - [amqp1]/container_name
-#container_name = <None>
-
 # address prefix when sending to any server in group (string value)
 # Deprecated group/name - [amqp1]/group_request_prefix
 #group_request_prefix = unicast
+
+# Name for the AMQP container (string value)
+# Deprecated group/name - [amqp1]/container_name
+#container_name = <None>
 
 # Timeout for inactive connections (in seconds) (integer value)
 # Deprecated group/name - [amqp1]/idle_timeout
 #idle_timeout = 0
 
-# address prefix used when sending to a specific server (string value)
-# Deprecated group/name - [amqp1]/server_request_prefix
-#server_request_prefix = exclusive
+# Debug: dump AMQP frames to stdout (boolean value)
+# Deprecated group/name - [amqp1]/trace
+#trace = false
 
 # CA certificate PEM file for verifing server certificate (string value)
 # Deprecated group/name - [amqp1]/ssl_ca_file
@@ -1240,9 +1240,9 @@
 # Deprecated group/name - [amqp1]/ssl_key_password
 #ssl_key_password = <None>
 
-# Debug: dump AMQP frames to stdout (boolean value)
-# Deprecated group/name - [amqp1]/trace
-#trace = false
+# Accept clients using either SSL or plain TCP (boolean value)
+# Deprecated group/name - [amqp1]/allow_insecure_clients
+#allow_insecure_clients = false
 
 
 [paste_deploy]
@@ -1276,10 +1276,6 @@
 # From keystone
 #
 
-# Toggle for revocation event caching. This has no effect unless global caching
-# is enabled. (boolean value)
-#caching = true
-
 # An implementation of the backend for persisting revocation events. (string
 # value)
 #driver = keystone.contrib.revoke.backends.sql.Revoke
@@ -1287,6 +1283,10 @@
 # This value (calculated in seconds) is added to token expiration before a
 # revocation event may be removed from the backend. (integer value)
 #expiration_buffer = 1800
+
+# Toggle for revocation event caching. This has no effect unless global caching
+# is enabled. (boolean value)
+#caching = true
 
 
 [saml]
@@ -1299,22 +1299,54 @@
 # Keystone. (integer value)
 #assertion_expiration_time = 3600
 
+# Binary to be called for XML signing. Install the appropriate package, specify
+# absolute path or adjust your PATH environment variable if the binary cannot
+# be found. (string value)
+#xmlsec1_binary = xmlsec1
+
 # Path of the certfile for SAML signing. For non-production environments, you
 # may be interested in using `keystone-manage pki_setup` to generate self-
 # signed certificates. Note, the path cannot contain a comma. (string value)
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
+# Path of the keyfile for SAML signing. Note, the path cannot contain a comma.
+# (string value)
+#keyfile = /etc/keystone/ssl/private/signing_key.pem
+
+# Entity ID value for unique Identity Provider identification. Usually FQDN is
+# set with a suffix. A value is required to generate IDP Metadata. For example:
+# https://keystone.example.com/v3/OS-FEDERATION/saml2/idp (string value)
+#idp_entity_id = <None>
+
+# Identity Provider Single-Sign-On service value, required in the Identity
+# Provider's metadata. A value is required to generate IDP Metadata. For
+# example: https://keystone.example.com/v3/OS-FEDERATION/saml2/sso (string
+# value)
+#idp_sso_endpoint = <None>
+
+# Language used by the organization. (string value)
+#idp_lang = en
+
+# Organization name the installation belongs to. (string value)
+#idp_organization_name = <None>
+
+# Organization name to be displayed. (string value)
+#idp_organization_display_name = <None>
+
+# URL of the organization. (string value)
+#idp_organization_url = <None>
+
 # Company of contact person. (string value)
 #idp_contact_company = <None>
-
-# Email address of contact person. (string value)
-#idp_contact_email = <None>
 
 # Given name of contact person (string value)
 #idp_contact_name = <None>
 
 # Surname of contact person. (string value)
 #idp_contact_surname = <None>
+
+# Email address of contact person. (string value)
+#idp_contact_email = <None>
 
 # Telephone number of contact person. (string value)
 #idp_contact_telephone = <None>
@@ -1323,41 +1355,9 @@
 # and other (string value)
 #idp_contact_type = other
 
-# Entity ID value for unique Identity Provider identification. Usually FQDN is
-# set with a suffix. A value is required to generate IDP Metadata. For example:
-# https://keystone.example.com/v3/OS-FEDERATION/saml2/idp (string value)
-#idp_entity_id = <None>
-
-# Language used by the organization. (string value)
-#idp_lang = en
-
 # Path to the Identity Provider Metadata file. This file should be generated
 # with the keystone-manage saml_idp_metadata command. (string value)
 #idp_metadata_path = /etc/keystone/saml2_idp_metadata.xml
-
-# Organization name to be displayed. (string value)
-#idp_organization_display_name = <None>
-
-# Organization name the installation belongs to. (string value)
-#idp_organization_name = <None>
-
-# URL of the organization. (string value)
-#idp_organization_url = <None>
-
-# Identity Provider Single-Sign-On service value, required in the Identity
-# Provider's metadata. A value is required to generate IDP Metadata. For
-# example: https://keystone.example.com/v3/OS-FEDERATION/saml2/sso (string
-# value)
-#idp_sso_endpoint = <None>
-
-# Path of the keyfile for SAML signing. Note, the path cannot contain a comma.
-# (string value)
-#keyfile = /etc/keystone/ssl/private/signing_key.pem
-
-# Binary to be called for XML signing. Install the appropriate package, specify
-# absolute path or adjust your PATH environment variable if the binary cannot
-# be found. (string value)
-#xmlsec1_binary = xmlsec1
 
 
 [signing]
@@ -1366,34 +1366,34 @@
 # From keystone
 #
 
-# Path of the CA for token signing. (string value)
-#ca_certs = /etc/keystone/ssl/certs/ca.pem
-
-# Path of the CA key for token signing. (string value)
-#ca_key = /etc/keystone/ssl/private/cakey.pem
-
-# Certificate subject (auto generated certificate) for token signing. (string
-# value)
-#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
+# Deprecated in favor of provider in the [token] section. (string value)
+#token_format = <None>
 
 # Path of the certfile for token signing. For non-production environments, you
 # may be interested in using `keystone-manage pki_setup` to generate self-
 # signed certificates. (string value)
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
+# Path of the keyfile for token signing. (string value)
+#keyfile = /etc/keystone/ssl/private/signing_key.pem
+
+# Path of the CA for token signing. (string value)
+#ca_certs = /etc/keystone/ssl/certs/ca.pem
+
+# Path of the CA key for token signing. (string value)
+#ca_key = /etc/keystone/ssl/private/cakey.pem
+
 # Key size (in bits) for token signing cert (auto generated certificate).
 # (integer value)
 #key_size = 2048
 
-# Path of the keyfile for token signing. (string value)
-#keyfile = /etc/keystone/ssl/private/signing_key.pem
-
-# Deprecated in favor of provider in the [token] section. (string value)
-#token_format = <None>
-
 # Days the token signing cert is valid for (auto generated certificate).
 # (integer value)
 #valid_days = 3650
+
+# Certificate subject (auto generated certificate) for token signing. (string
+# value)
+#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
 
 
 [ssl]
@@ -1401,6 +1401,17 @@
 #
 # From keystone
 #
+
+# Toggle for SSL support on the Keystone eventlet servers. (boolean value)
+#enable = false
+
+# Path of the certfile for SSL. For non-production environments, you may be
+# interested in using `keystone-manage ssl_setup` to generate self-signed
+# certificates. (string value)
+#certfile = /etc/keystone/ssl/certs/keystone.pem
+
+# Path of the keyfile for SSL. (string value)
+#keyfile = /etc/keystone/ssl/private/keystonekey.pem
 
 # Path of the CA cert file for SSL. (string value)
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
@@ -1411,26 +1422,15 @@
 # Require client certificate. (boolean value)
 #cert_required = false
 
-# SSL certificate subject (auto generated certificate). (string value)
-#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
-
-# Path of the certfile for SSL. For non-production environments, you may be
-# interested in using `keystone-manage ssl_setup` to generate self-signed
-# certificates. (string value)
-#certfile = /etc/keystone/ssl/certs/keystone.pem
-
-# Toggle for SSL support on the Keystone eventlet servers. (boolean value)
-#enable = false
-
 # SSL key length (in bits) (auto generated certificate). (integer value)
 #key_size = 1024
-
-# Path of the keyfile for SSL. (string value)
-#keyfile = /etc/keystone/ssl/private/keystonekey.pem
 
 # Days the certificate is valid for once signed (auto generated certificate).
 # (integer value)
 #valid_days = 3650
+
+# SSL certificate subject (auto generated certificate). (string value)
+#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 
 [token]
@@ -1443,17 +1443,6 @@
 # kerberos,x509. (list value)
 #bind =
 
-# Time to cache tokens (in seconds). This has no effect unless global and token
-# caching are enabled. (integer value)
-#cache_time = <None>
-
-# Toggle for token system caching. This has no effect unless global caching is
-# enabled. (boolean value)
-#caching = true
-
-# Token persistence backend driver. (string value)
-#driver = keystone.token.persistence.backends.sql.Token
-
 # Enforcement policy on tokens presented to Keystone with bind information. One
 # of disabled, permissive, strict, required or a specifically required bind
 # mode, e.g., kerberos or x509 to require binding to that authentication.
@@ -1463,21 +1452,26 @@
 # Amount of time a token should remain valid (in seconds). (integer value)
 #expiration = 3600
 
-# The hash algorithm to use for PKI tokens. This can be set to any algorithm
-# that hashlib supports. WARNING: Before changing this value, the auth_token
-# middleware must be configured with the hash_algorithms, otherwise token
-# revocation will not be processed correctly. (string value)
-#hash_algorithm = md5
-
 # Controls the token construction, validation, and revocation operations. Core
 # providers are "keystone.token.providers.[pkiz|pki|uuid].Provider". The
 # default provider is uuid. (string value)
 #provider = <None>
 
+# Token persistence backend driver. (string value)
+#driver = keystone.token.persistence.backends.sql.Token
+
+# Toggle for token system caching. This has no effect unless global caching is
+# enabled. (boolean value)
+#caching = true
+
 # Time to cache the revocation list and the revocation events if revoke
 # extension is enabled (in seconds). This has no effect unless global and token
 # caching are enabled. (integer value)
 #revocation_cache_time = 3600
+
+# Time to cache tokens (in seconds). This has no effect unless global and token
+# caching are enabled. (integer value)
+#cache_time = <None>
 
 # Revoke token by token identifier. Setting revoke_by_id to true enables
 # various forms of enumerating tokens, e.g. `list tokens for user`. These
@@ -1486,6 +1480,12 @@
 # other than KVS, which stores events in memory. (boolean value)
 #revoke_by_id = true
 
+# The hash algorithm to use for PKI tokens. This can be set to any algorithm
+# that hashlib supports. WARNING: Before changing this value, the auth_token
+# middleware must be configured with the hash_algorithms, otherwise token
+# revocation will not be processed correctly. (string value)
+#hash_algorithm = md5
+
 
 [trust]
 
@@ -1493,9 +1493,9 @@
 # From keystone
 #
 
-# Trust backend driver. (string value)
-#driver = keystone.trust.backends.sql.Trust
-
 # Delegation and impersonation features can be optionally disabled. (boolean
 # value)
 #enabled = true
+
+# Trust backend driver. (string value)
+#driver = keystone.trust.backends.sql.Trust
