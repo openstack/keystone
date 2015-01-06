@@ -149,11 +149,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domain2['id'], self.domain2)
+        self.resource_api.create_domain(self.domain2['id'], self.domain2)
 
         self.project2 = self.new_project_ref(
             domain_id=self.domain2['id'])
-        self.assignment_api.create_project(self.project2['id'], self.project2)
+        self.resource_api.create_project(self.project2['id'], self.project2)
 
         self.user2 = self.new_user_ref(
             domain_id=self.domain2['id'],
@@ -250,11 +250,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
 
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domain2['id'], self.domain2)
+        self.resource_api.create_domain(self.domain2['id'], self.domain2)
 
         self.project2 = self.new_project_ref(
             domain_id=self.domain2['id'])
-        self.assignment_api.create_project(self.project2['id'], self.project2)
+        self.resource_api.create_project(self.project2['id'], self.project2)
 
         self.user2 = self.new_user_ref(
             domain_id=self.domain2['id'],
@@ -283,10 +283,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
 
         # Check all the domain2 relevant entities are gone
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           self.domain2['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           self.project2['id'])
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
@@ -299,9 +299,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                           self.credential2['id'])
 
         # ...and that all self.domain entities are still here
-        r = self.assignment_api.get_domain(self.domain['id'])
+        r = self.resource_api.get_domain(self.domain['id'])
         self.assertDictEqual(r, self.domain)
-        r = self.assignment_api.get_project(self.project['id'])
+        r = self.resource_api.get_project(self.project['id'])
         self.assertDictEqual(r, self.project)
         r = self.identity_api.get_group(self.group['id'])
         self.assertDictEqual(r, self.group)
@@ -330,7 +330,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # Create a new domain that's not the default
         new_domain = self.new_domain_ref()
         new_domain_id = new_domain['id']
-        self.assignment_api.create_domain(new_domain_id, new_domain)
+        self.resource_api.create_domain(new_domain_id, new_domain)
 
         # Disable the new domain so can delete it later.
         self.patch('/domains/%(domain_id)s' % {
@@ -353,7 +353,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # Create a new domain that's not the default
         new_domain = self.new_domain_ref()
         new_domain_id = new_domain['id']
-        self.assignment_api.create_domain(new_domain_id, new_domain)
+        self.resource_api.create_domain(new_domain_id, new_domain)
 
         old_default_domain_id = CONF.identity.default_domain_id
 
@@ -380,7 +380,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """
 
         self.domain = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domain['id'], self.domain)
+        self.resource_api.create_domain(self.domain['id'], self.domain)
 
         self.user2 = self.new_user_ref(domain_id=self.domain['id'])
         password = self.user2['password']
@@ -418,16 +418,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
     def test_delete_domain_hierarchy(self):
         """Call ``DELETE /domains/{domain_id}``."""
         domain = self.new_domain_ref()
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
 
         root_project = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(root_project['id'], root_project)
+        self.resource_api.create_project(root_project['id'], root_project)
 
         leaf_project = self.new_project_ref(
             domain_id=domain['id'],
             parent_id=root_project['id'])
-        self.assignment_api.create_project(leaf_project['id'], leaf_project)
+        self.resource_api.create_project(leaf_project['id'], leaf_project)
 
         # Need to disable it first.
         self.patch('/domains/%(domain_id)s' % {
@@ -439,15 +439,15 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                 'domain_id': domain['id']})
 
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           root_project['id'])
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           leaf_project['id'])
 
     # Project CRUD tests
@@ -548,7 +548,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
     def test_update_project_domain_id(self):
         """Call ``PATCH /projects/{project_id}`` with domain_id."""
         project = self.new_project_ref(domain_id=self.domain['id'])
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
         project['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/projects/%(project_id)s' % {
             'project_id': project['id']},
@@ -609,7 +609,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # Create a second credential with a different project
         self.project2 = self.new_project_ref(
             domain_id=self.domain['id'])
-        self.assignment_api.create_project(self.project2['id'], self.project2)
+        self.resource_api.create_project(self.project2['id'], self.project2)
         self.credential2 = self.new_credential_ref(
             user_id=self.user['id'],
             project_id=self.project2['id'])
@@ -1229,7 +1229,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                                             self.group1['id'])
         self.project1 = self.new_project_ref(
             domain_id=self.domain['id'])
-        self.assignment_api.create_project(self.project1['id'], self.project1)
+        self.resource_api.create_project(self.project1['id'], self.project1)
         self.role1 = self.new_role_ref()
         self.role_api.create_role(self.role1['id'], self.role1)
         self.role2 = self.new_role_ref()
@@ -1551,7 +1551,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         password = user1['password']
@@ -1559,10 +1559,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         user1['password'] = password
         project1 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
         self.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
@@ -1647,7 +1647,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         password = user1['password']
@@ -1655,10 +1655,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         user1['password'] = password
         project1 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
         self.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
@@ -1744,7 +1744,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         password = user1['password']
@@ -1764,10 +1764,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
                                             group1['id'])
         project1 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
         self.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
@@ -1852,7 +1852,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
             role_list.append(role)
 
         domain = self.new_domain_ref()
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
         password = user1['password']
@@ -1863,10 +1863,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         group1 = self.identity_api.create_group(group1)
         project1 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = self.new_project_ref(
             domain_id=domain['id'])
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         # Add some spoiler roles to the projects
         self.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
@@ -1937,8 +1937,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         leaf = self.new_project_ref(domain_id=self.domain['id'],
                                     parent_id=root['id'])
 
-        self.assignment_api.create_project(root['id'], root)
-        self.assignment_api.create_project(leaf['id'], leaf)
+        self.resource_api.create_project(root['id'], root)
+        self.resource_api.create_project(leaf['id'], leaf)
 
         # Create 'non-inherited' and 'inherited' roles
         non_inherited_role = {'id': uuid.uuid4().hex, 'name': 'non-inherited'}

@@ -42,21 +42,19 @@ class SqlIDMapping(test_backend_sql.SqlTests):
     def load_sample_data(self):
         self.addCleanup(self.clean_sample_data)
         domainA = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.domainA = self.assignment_api.create_domain(domainA['id'],
-                                                         domainA)
+        self.domainA = self.resource_api.create_domain(domainA['id'], domainA)
         domainB = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.domainB = self.assignment_api.create_domain(domainB['id'],
-                                                         domainB)
+        self.domainB = self.resource_api.create_domain(domainB['id'], domainB)
 
     def clean_sample_data(self):
         if hasattr(self, 'domainA'):
             self.domainA['enabled'] = False
-            self.assignment_api.update_domain(self.domainA['id'], self.domainA)
-            self.assignment_api.delete_domain(self.domainA['id'])
+            self.resource_api.update_domain(self.domainA['id'], self.domainA)
+            self.resource_api.delete_domain(self.domainA['id'])
         if hasattr(self, 'domainB'):
             self.domainB['enabled'] = False
-            self.assignment_api.update_domain(self.domainB['id'], self.domainB)
-            self.assignment_api.delete_domain(self.domainB['id'])
+            self.resource_api.update_domain(self.domainB['id'], self.domainB)
+            self.resource_api.delete_domain(self.domainB['id'])
 
     def test_invalid_public_key(self):
         self.assertIsNone(self.id_mapping_api.get_id_mapping(uuid.uuid4().hex))

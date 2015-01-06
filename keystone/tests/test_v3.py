@@ -175,7 +175,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
             # a migration, but the in-mem db uses model definitions  to create
             # the schema (no migrations are run).
             try:
-                self.assignment_api.get_domain(DEFAULT_DOMAIN_ID)
+                self.resource_api.get_domain(DEFAULT_DOMAIN_ID)
             except exception.DomainNotFound:
                 domain = {'description': (u'Owns users and tenants (i.e. '
                                           u'projects) available on Identity '
@@ -183,20 +183,20 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
                           'enabled': True,
                           'id': DEFAULT_DOMAIN_ID,
                           'name': u'Default'}
-                self.assignment_api.create_domain(DEFAULT_DOMAIN_ID, domain)
+                self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
 
     def load_sample_data(self):
         self._populate_default_domain()
         self.domain_id = uuid.uuid4().hex
         self.domain = self.new_domain_ref()
         self.domain['id'] = self.domain_id
-        self.assignment_api.create_domain(self.domain_id, self.domain)
+        self.resource_api.create_domain(self.domain_id, self.domain)
 
         self.project_id = uuid.uuid4().hex
         self.project = self.new_project_ref(
             domain_id=self.domain_id)
         self.project['id'] = self.project_id
-        self.assignment_api.create_project(self.project_id, self.project)
+        self.resource_api.create_project(self.project_id, self.project)
 
         self.user = self.new_user_ref(domain_id=self.domain_id)
         password = self.user['password']
@@ -208,8 +208,8 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.default_domain_project = self.new_project_ref(
             domain_id=DEFAULT_DOMAIN_ID)
         self.default_domain_project['id'] = self.default_domain_project_id
-        self.assignment_api.create_project(self.default_domain_project_id,
-                                           self.default_domain_project)
+        self.resource_api.create_project(self.default_domain_project_id,
+                                         self.default_domain_project)
 
         self.default_domain_user = self.new_user_ref(
             domain_id=DEFAULT_DOMAIN_ID)

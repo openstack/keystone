@@ -160,14 +160,14 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                   'name': None,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           tenant['id'],
                           tenant)
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           tenant['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project_by_name,
+                          self.resource_api.get_project_by_name,
                           tenant['name'],
                           DEFAULT_DOMAIN_ID)
 
@@ -189,7 +189,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user = self.identity_api.create_user(user)
         self.assignment_api.add_user_to_project(self.tenant_bar['id'],
                                                 user['id'])
-        self.assignment_api.delete_project(self.tenant_bar['id'])
+        self.resource_api.delete_project(self.tenant_bar['id'])
         tenants = self.assignment_api.list_projects_for_user(user['id'])
         self.assertEqual([], tenants)
 
@@ -230,7 +230,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             user['id'],
             self.tenant_bar['id'],
             role['id'])
-        self.assignment_api.delete_project(self.tenant_bar['id'])
+        self.resource_api.delete_project(self.tenant_bar['id'])
 
         # Now check whether the internal representation of roles
         # has been deleted
@@ -257,12 +257,12 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             'name': uuid.uuid4().hex,
             'domain_id': DEFAULT_DOMAIN_ID,
             arbitrary_key: arbitrary_value}
-        ref = self.assignment_api.create_project(tenant_id, tenant)
+        ref = self.resource_api.create_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertIsNone(ref.get('extra'))
 
         tenant['name'] = uuid.uuid4().hex
-        ref = self.assignment_api.update_project(tenant_id, tenant)
+        ref = self.resource_api.update_project(tenant_id, tenant)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 
@@ -314,14 +314,14 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
 
     def test_list_domains_for_user(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': domain['id'], 'enabled': True}
 
         test_domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(test_domain1['id'], test_domain1)
+        self.resource_api.create_domain(test_domain1['id'], test_domain1)
         test_domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(test_domain2['id'], test_domain2)
+        self.resource_api.create_domain(test_domain2['id'], test_domain2)
 
         user = self.identity_api.create_user(user)
         user_domains = self.assignment_api.list_domains_for_user(user['id'])
@@ -340,7 +340,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         # make user1 a member of both groups.  Both these new domains
         # should now be included, along with any direct user grants.
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': domain['id'], 'enabled': True}
         user = self.identity_api.create_user(user)
@@ -350,11 +350,11 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         group2 = self.identity_api.create_group(group2)
 
         test_domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(test_domain1['id'], test_domain1)
+        self.resource_api.create_domain(test_domain1['id'], test_domain1)
         test_domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(test_domain2['id'], test_domain2)
+        self.resource_api.create_domain(test_domain2['id'], test_domain2)
         test_domain3 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(test_domain3['id'], test_domain3)
+        self.resource_api.create_domain(test_domain3['id'], test_domain3)
 
         self.identity_api.add_user_to_group(user['id'], group1['id'])
         self.identity_api.add_user_to_group(user['id'], group2['id'])
@@ -384,9 +384,9 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
 
         """
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        domain1 = self.assignment_api.create_domain(domain1['id'], domain1)
+        domain1 = self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        domain2 = self.assignment_api.create_domain(domain2['id'], domain2)
+        domain2 = self.resource_api.create_domain(domain2['id'], domain2)
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': domain1['id'], 'enabled': True}
         user = self.identity_api.create_user(user)
@@ -857,7 +857,7 @@ class DeprecatedDecorators(SqlTests):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         self.resource_api.get_project(project_ref['id'])
 
         # Now enable fatal exceptions - creating a project by calling the

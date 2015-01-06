@@ -1303,40 +1303,40 @@ class FederatedTokenTests(FederationTests):
 
         # Create and add domains
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'],
-                                          self.domainA)
+        self.resource_api.create_domain(self.domainA['id'],
+                                        self.domainA)
 
         self.domainB = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainB['id'],
-                                          self.domainB)
+        self.resource_api.create_domain(self.domainB['id'],
+                                        self.domainB)
 
         self.domainC = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainC['id'],
-                                          self.domainC)
+        self.resource_api.create_domain(self.domainC['id'],
+                                        self.domainC)
 
         self.domainD = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainD['id'],
-                                          self.domainD)
+        self.resource_api.create_domain(self.domainD['id'],
+                                        self.domainD)
 
         # Create and add projects
         self.proj_employees = self.new_project_ref(
             domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.proj_employees['id'],
-                                           self.proj_employees)
+        self.resource_api.create_project(self.proj_employees['id'],
+                                         self.proj_employees)
         self.proj_customers = self.new_project_ref(
             domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.proj_customers['id'],
-                                           self.proj_customers)
+        self.resource_api.create_project(self.proj_customers['id'],
+                                         self.proj_customers)
 
         self.project_all = self.new_project_ref(
             domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.project_all['id'],
-                                           self.project_all)
+        self.resource_api.create_project(self.project_all['id'],
+                                         self.project_all)
 
         self.project_inherited = self.new_project_ref(
             domain_id=self.domainD['id'])
-        self.assignment_api.create_project(self.project_inherited['id'],
-                                           self.project_inherited)
+        self.resource_api.create_project(self.project_inherited['id'],
+                                         self.project_inherited)
 
         # Create and add groups
         self.group_employees = self.new_group_ref(

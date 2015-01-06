@@ -64,7 +64,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def _get_domain_fixture(self):
         """Domains in LDAP are read-only, so just return the static one."""
-        return self.assignment_api.get_domain(CONF.identity.default_domain_id)
+        return self.resource_api.get_domain(CONF.identity.default_domain_id)
 
     def clear_database(self):
         for shelf in fakeldap.FakeShelves:
@@ -362,10 +362,10 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
 
         self.identity_api.add_user_to_group(new_user['id'],
                                             group1['id'])
@@ -443,7 +443,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         new_project = {'id': uuid.uuid4().hex,
                        'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
-        self.assignment_api.create_project(new_project['id'], new_project)
+        self.resource_api.create_project(new_project['id'], new_project)
 
         # First check how many role grant already exist
         existing_assignments = len(self.assignment_api.list_role_assignments())
@@ -472,7 +472,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         new_project = {'id': uuid.uuid4().hex,
                        'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
-        self.assignment_api.create_project(new_project['id'], new_project)
+        self.resource_api.create_project(new_project['id'], new_project)
         self.assignment_api.create_grant(user_id=new_user['id'],
                                          project_id=new_project['id'],
                                          role_id='other')
@@ -583,7 +583,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertNotIn(dumb_id, user_ids)
 
     def test_list_domains(self):
-        domains = self.assignment_api.list_domains()
+        domains = self.resource_api.list_domains()
         self.assertEqual(
             [resource.calc_default_domain()],
             domains)
@@ -596,7 +596,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.config_fixture.config(group='identity',
                                    default_domain_id=new_domain_id)
 
-        domains = self.assignment_api.list_domains()
+        domains = self.resource_api.list_domains()
 
         self.assertEqual(new_domain_id, domains[0]['id'])
 
@@ -854,10 +854,10 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         # Attempt to disable the project.
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           self.tenant_baz['id'], {'enabled': False})
 
-        project_info = self.assignment_api.get_project(self.tenant_baz['id'])
+        project_info = self.resource_api.get_project(self.tenant_baz['id'])
 
         # Unlike other entities, if 'enabled' is ignored then 'enabled' is
         # returned as part of the ref.
@@ -880,16 +880,16 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
     def test_configurable_allowed_project_actions(self):
         tenant = {'id': u'fäké1', 'name': u'fäké1', 'enabled': True}
-        self.assignment_api.create_project(u'fäké1', tenant)
-        tenant_ref = self.assignment_api.get_project(u'fäké1')
+        self.resource_api.create_project(u'fäké1', tenant)
+        tenant_ref = self.resource_api.get_project(u'fäké1')
         self.assertEqual(u'fäké1', tenant_ref['id'])
 
         tenant['enabled'] = False
-        self.assignment_api.update_project(u'fäké1', tenant)
+        self.resource_api.update_project(u'fäké1', tenant)
 
-        self.assignment_api.delete_project(u'fäké1')
+        self.resource_api.delete_project(u'fäké1')
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           u'fäké1')
 
     def test_configurable_subtree_delete(self):
@@ -898,7 +898,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': CONF.identity.default_domain_id}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
@@ -914,12 +914,12 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             tenant_id=project1['id'],
             role_id=role1['id'])
 
-        self.assignment_api.delete_project(project1['id'])
+        self.resource_api.delete_project(project1['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project1['id'])
 
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         list = self.assignment_api.get_roles_for_user_and_project(
             user1['id'],
@@ -934,17 +934,17 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
         tenant = {'id': u'fäké1', 'name': u'fäké1'}
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           u'fäké1',
                           tenant)
 
         self.tenant_bar['enabled'] = False
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           self.tenant_bar['id'],
                           self.tenant_bar)
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.delete_project,
+                          self.resource_api.delete_project,
                           self.tenant_bar['id'])
 
     def test_configurable_allowed_role_actions(self):
@@ -984,7 +984,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                           self.role_member['id'])
 
     def test_project_filter(self):
-        tenant_ref = self.assignment_api.get_project(self.tenant_bar['id'])
+        tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
         self.config_fixture.config(group='ldap',
@@ -1002,7 +1002,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  self.tenant_bar['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           self.tenant_bar['id'])
 
     def test_role_filter(self):
@@ -1052,7 +1052,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  self.tenant_baz['id'])
-        tenant_ref = self.assignment_api.get_project(self.tenant_baz['id'])
+        tenant_ref = self.resource_api.get_project(self.tenant_baz['id'])
         self.assertEqual(self.tenant_baz['id'], tenant_ref['id'])
         self.assertEqual(self.tenant_baz['name'], tenant_ref['name'])
         self.assertEqual(
@@ -1074,7 +1074,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  self.tenant_baz['id'])
-        tenant_ref = self.assignment_api.get_project(self.tenant_baz['id'])
+        tenant_ref = self.resource_api.get_project(self.tenant_baz['id'])
         self.assertEqual(self.tenant_baz['id'], tenant_ref['id'])
         self.assertEqual(self.tenant_baz['description'], tenant_ref['name'])
         self.assertEqual(self.tenant_baz['name'], tenant_ref['description'])
@@ -1095,7 +1095,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  self.tenant_baz['id'])
-        tenant_ref = self.assignment_api.get_project(self.tenant_baz['id'])
+        tenant_ref = self.resource_api.get_project(self.tenant_baz['id'])
         self.assertEqual(self.tenant_baz['id'], tenant_ref['id'])
         self.assertNotIn('name', tenant_ref)
         self.assertNotIn('description', tenant_ref)
@@ -1465,37 +1465,37 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True, 'description': uuid.uuid4().hex}
         self.assertRaises(exception.Forbidden,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           domain['id'],
                           domain)
         self.assertRaises(exception.Conflict,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           CONF.identity.default_domain_id,
                           domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
 
         domain['description'] = uuid.uuid4().hex
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.update_domain,
+                          self.resource_api.update_domain,
                           domain['id'],
                           domain)
         self.assertRaises(exception.Forbidden,
-                          self.assignment_api.update_domain,
+                          self.resource_api.update_domain,
                           CONF.identity.default_domain_id,
                           domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.delete_domain,
+                          self.resource_api.delete_domain,
                           domain['id'])
         self.assertRaises(exception.Forbidden,
-                          self.assignment_api.delete_domain,
+                          self.resource_api.delete_domain,
                           CONF.identity.default_domain_id)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
 
     @tests.skip_if_no_multiple_domains_support
@@ -1505,7 +1505,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex}
         self.assertRaises(exception.Forbidden,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           ref['id'],
                           ref)
 
@@ -1537,19 +1537,19 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                    'description': uuid.uuid4().hex,
                    'enabled': True,
                    'parent_id': None}
-        self.assignment_api.create_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.create_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
 
         self.assertDictEqual(project_ref, project)
 
         project['description'] = uuid.uuid4().hex
-        self.assignment_api.update_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.update_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
-        self.assignment_api.delete_project(project['id'])
+        self.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project['id'])
 
     @tests.skip_if_cache_disabled('assignment')
@@ -1562,8 +1562,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                    'description': uuid.uuid4().hex}
         project_id = project['id']
         # Create a project
-        self.assignment_api.create_project(project_id, project)
-        self.assignment_api.get_project(project_id)
+        self.resource_api.create_project(project_id, project)
+        self.resource_api.get_project(project_id)
         updated_project = copy.deepcopy(project)
         updated_project['description'] = uuid.uuid4().hex
         # Update project, bypassing resource manager
@@ -1571,39 +1571,39 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                                                 updated_project)
         # Verify get_project still returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.assignment_api.get_project(project_id))
+            project, self.resource_api.get_project(project_id))
         # Invalidate cache
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  project_id)
         # Verify get_project now returns the new project
         self.assertDictContainsSubset(
             updated_project,
-            self.assignment_api.get_project(project_id))
-        # Update project using the assignment_api manager back to original
-        self.assignment_api.update_project(project['id'], project)
+            self.resource_api.get_project(project_id))
+        # Update project using the resource_api manager back to original
+        self.resource_api.update_project(project['id'], project)
         # Verify get_project returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.assignment_api.get_project(project_id))
+            project, self.resource_api.get_project(project_id))
         # Delete project bypassing resource_api
         self.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
         self.assertDictContainsSubset(
-            project, self.assignment_api.get_project(project_id))
+            project, self.resource_api.get_project(project_id))
         # Invalidate cache
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  project_id)
         # Verify ProjectNotFound now raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project_id)
         # recreate project
-        self.assignment_api.create_project(project_id, project)
-        self.assignment_api.get_project(project_id)
+        self.resource_api.create_project(project_id, project)
+        self.resource_api.get_project(project_id)
         # delete project
-        self.assignment_api.delete_project(project_id)
+        self.resource_api.delete_project(project_id)
         # Verify ProjectNotFound is raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project_id)
 
     def _assert_create_hierarchy_not_allowed(self):
@@ -1615,7 +1615,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                     'domain_id': domain['id'],
                     'enabled': True,
                     'parent_id': None}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         # Creating project2 under project1. LDAP will not allow
         # the creation of a project with parent_id being set
@@ -1627,13 +1627,13 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                     'parent_id': project1['id']}
 
         self.assertRaises(exception.InvalidParentProject,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           project2['id'],
                           project2)
 
         # Now, we'll create project 2 with no parent
         project2['parent_id'] = None
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
 
         # Returning projects to be used across the tests
         return [project1, project2]
@@ -1641,19 +1641,19 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
     def test_check_leaf_projects(self):
         projects = self._assert_create_hierarchy_not_allowed()
         for project in projects:
-            self.assertTrue(self.assignment_api.is_leaf_project(project))
+            self.assertTrue(self.resource_api.is_leaf_project(project))
 
     def test_list_projects_in_subtree(self):
         projects = self._assert_create_hierarchy_not_allowed()
         for project in projects:
-            subtree_list = self.assignment_api.list_projects_in_subtree(
+            subtree_list = self.resource_api.list_projects_in_subtree(
                 project)
             self.assertEqual(0, len(subtree_list))
 
     def test_list_project_parents(self):
         projects = self._assert_create_hierarchy_not_allowed()
         for project in projects:
-            parents_list = self.assignment_api.list_project_parents(project)
+            parents_list = self.resource_api.list_project_parents(project)
             self.assertEqual(0, len(parents_list))
 
     def test_hierarchical_projects_crud(self):
@@ -1711,7 +1711,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         user1 = self.identity_api.create_user(user1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': CONF.identity.default_domain_id}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         self.assignment_api.add_role_to_user_and_project(
             user_id=user1['id'],
@@ -1749,7 +1749,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
     def test_get_default_domain_by_name(self):
         domain = self._get_domain_fixture()
 
-        domain_ref = self.assignment_api.get_domain_by_name(domain['name'])
+        domain_ref = self.resource_api.get_domain_by_name(domain['name'])
         self.assertEqual(domain_ref, domain)
 
     def test_base_ldap_connection_deref_option(self):
@@ -1968,23 +1968,23 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             'description': uuid.uuid4().hex,
             'parent_id': None}
 
-        self.assignment_api.create_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.create_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
 
-        # self.assignment_api.create_project adds an enabled
+        # self.resource_api.create_project adds an enabled
         # key with a value of True when LDAPIdentityEnabledEmulation
         # is used so we now add this expected key to the project dictionary
         project['enabled'] = True
         self.assertDictEqual(project_ref, project)
 
         project['description'] = uuid.uuid4().hex
-        self.assignment_api.update_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.update_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
-        self.assignment_api.delete_project(project['id'])
+        self.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project['id'])
 
     def test_user_crud(self):
@@ -2126,7 +2126,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         pass
 
     def test_list_domains(self):
-        domains = self.assignment_api.list_domains()
+        domains = self.resource_api.list_domains()
         self.assertEqual([resource.calc_default_domain()], domains)
 
     def test_list_domains_non_default_domain_id(self):
@@ -2141,7 +2141,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.config_fixture.config(group='identity',
                                    default_domain_id=new_domain_id)
 
-        domains = self.assignment_api.list_domains()
+        domains = self.resource_api.list_domains()
 
         self.assertEqual(orig_default_domain_id, domains[0]['id'])
 
@@ -2149,7 +2149,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
         self.assertRaises(exception.Forbidden,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           domain['id'],
                           domain)
 
@@ -2330,11 +2330,11 @@ class BaseMultiLDAPandSQLIdentity(object):
 
         def create_domain(domain):
             try:
-                ref = self.assignment_api.create_domain(
+                ref = self.resource_api.create_domain(
                     domain['id'], domain)
             except exception.Conflict:
                 ref = (
-                    self.assignment_api.get_domain_by_name(domain['name']))
+                    self.resource_api.get_domain_by_name(domain['name']))
             return ref
 
         self.domains = {}
@@ -2596,9 +2596,9 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
                    'description': uuid.uuid4().hex,
                    'parent_id': None,
                    'enabled': True}
-        self.assignment_api.create_domain(domain['id'], domain)
-        self.assignment_api.create_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.create_domain(domain['id'], domain)
+        self.resource_api.create_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
         self.assignment_api.create_grant(user_id=self.user_foo['id'],
@@ -2608,10 +2608,10 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
                                          project_id=project['id'],
                                          role_id=self.role_member['id'])
         domain['enabled'] = False
-        self.assignment_api.update_domain(domain['id'], domain)
-        self.assignment_api.delete_domain(domain['id'])
+        self.resource_api.update_domain(domain['id'], domain)
+        self.resource_api.delete_domain(domain['id'])
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
 
     def test_user_enabled_ignored_disable_error(self):
@@ -2912,7 +2912,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         # which should fail.
         self.assertRaises(exception.MultipleSQLDriversInConfig,
                           self.identity_api.domain_configs._load_config,
-                          self.identity_api.assignment_api,
+                          self.resource_api,
                           [tests.TESTCONF + '/domain_configs_one_extra_sql/' +
                            'keystone.domain2.conf'],
                           'domain2')
