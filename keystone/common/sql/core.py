@@ -21,7 +21,7 @@ CONF() because it sets up configuration options.
 import contextlib
 import functools
 
-from oslo.config import cfg
+from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import models

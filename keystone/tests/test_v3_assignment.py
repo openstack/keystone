@@ -12,7 +12,7 @@
 
 import uuid
 
-from oslo.config import cfg
+from oslo_config import cfg
 
 from keystone.common import controller
 from keystone import exception

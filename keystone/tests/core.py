@@ -26,7 +26,7 @@ import time
 import warnings
 
 import fixtures
-from oslo.config import fixture as config_fixture
+from oslo_config import fixture as config_fixture
 import oslotest.base as oslotest
 from oslotest import mockpatch
 import six

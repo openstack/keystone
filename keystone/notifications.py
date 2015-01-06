@@ -19,7 +19,7 @@ import inspect
 import logging
 import socket
 
-from oslo.config import cfg
+from oslo_config import cfg
 import oslo_messaging
 import pycadf
 from pycadf import cadftaxonomy as taxonomy

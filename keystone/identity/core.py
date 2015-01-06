@@ -19,7 +19,7 @@ import functools
 import os
 import uuid
 
-from oslo.config import cfg
+from oslo_config import cfg
 from oslo_utils import importutils
 import six
 

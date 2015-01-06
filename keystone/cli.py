@@ -16,7 +16,7 @@ from __future__ import absolute_import
 
 import os
 
-from oslo.config import cfg
+from oslo_config import cfg
 import pbr.version
 
 from keystone import assignment
