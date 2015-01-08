@@ -17,7 +17,7 @@ from keystone import exception
 from keystone.i18n import _
 
 
-class ProjectEndpoint(sql.ModelBase, sql.DictBase):
+class ProjectEndpoint(sql.ModelBase, sql.ModelDictMixin):
     """project-endpoint relationship table."""
     __tablename__ = 'project_endpoint'
     attributes = ['endpoint_id', 'project_id']
@@ -88,14 +88,14 @@ class EndpointFilter(object):
         query = session.query(ProjectEndpoint)
         query = query.filter_by(project_id=project_id)
         endpoint_filter_refs = query.all()
-        return endpoint_filter_refs
+        return [ref.to_dict() for ref in endpoint_filter_refs]
 
     def list_projects_for_endpoint(self, endpoint_id):
         session = sql.get_session()
         query = session.query(ProjectEndpoint)
         query = query.filter_by(endpoint_id=endpoint_id)
         endpoint_filter_refs = query.all()
-        return endpoint_filter_refs
+        return [ref.to_dict() for ref in endpoint_filter_refs]
 
     def delete_association_by_endpoint(self, endpoint_id):
         session = sql.get_session()
@@ -193,7 +193,7 @@ class EndpointFilter(object):
         query = session.query(ProjectEndpointGroupMembership)
         query = query.filter_by(project_id=project_id)
         endpoint_group_refs = query.all()
-        return endpoint_group_refs
+        return [ref.to_dict() for ref in endpoint_group_refs]
 
     def remove_endpoint_group_from_project(self, endpoint_group_id,
                                            project_id):
@@ -208,7 +208,7 @@ class EndpointFilter(object):
         query = session.query(ProjectEndpointGroupMembership)
         query = query.filter_by(endpoint_group_id=endpoint_group_id)
         endpoint_group_refs = query.all()
-        return endpoint_group_refs
+        return [ref.to_dict() for ref in endpoint_group_refs]
 
     def _delete_endpoint_group_association_by_endpoint_group(
             self, session, endpoint_group_id):
