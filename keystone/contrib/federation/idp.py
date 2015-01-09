@@ -398,7 +398,12 @@ def _sign_assertion(assertion):
                     '--id-attr:ID', 'Assertion']
 
     try:
-        file_path = fileutils.write_to_tempfile(assertion.to_string())
+        # NOTE(gyee): need to make the namespace prefixes explicit so
+        # they won't get reassigned when we wrap the assertion into
+        # SAML2 response
+        file_path = fileutils.write_to_tempfile(assertion.to_string(
+            nspair={'saml': saml2.NAMESPACE,
+                    'xmldsig': xmldsig.NAMESPACE}))
         command_list.append(file_path)
         stdout = subprocess.check_output(command_list)
     except Exception as e:
