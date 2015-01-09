@@ -378,20 +378,7 @@ class TestCase(BaseTestCase):
     def setUp(self):
         super(TestCase, self).setUp()
         self.addCleanup(self.cleanup_instance(
-            '_paths', '_memo', '_overrides', '_group_overrides', 'maxDiff',
-            'config_fixture', 'logger'))
-
-        self._paths = []
-
-        def _cleanup_paths():
-            for path in self._paths:
-                if path in sys.path:
-                    sys.path.remove(path)
-        self.addCleanup(_cleanup_paths)
-
-        self._memo = {}
-        self._overrides = []
-        self._group_overrides = {}
+            'maxDiff', 'config_fixture', 'logger'))
 
         # show complete diffs on failure
         self.maxDiff = None
@@ -587,10 +574,6 @@ class TestCase(BaseTestCase):
 
     def client(self, app, *args, **kw):
         return TestClient(app, *args, **kw)
-
-    def add_path(self, path):
-        sys.path.insert(0, path)
-        self._paths.append(path)
 
     def clear_auth_plugin_registry(self):
         auth.controllers.AUTH_METHODS.clear()
