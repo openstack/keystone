@@ -408,14 +408,12 @@ class TestCase(BaseTestCase):
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
         if methods is None:
-            methods = ['external', 'password', 'token', 'oauth1', 'saml2']
+            methods = ['external', 'password', 'token', ]
             if not method_classes:
                 method_classes = dict(
                     external='keystone.auth.plugins.external.DefaultDomain',
                     password='keystone.auth.plugins.password.Password',
                     token='keystone.auth.plugins.token.Token',
-                    oauth1='keystone.auth.plugins.oauth1.OAuth',
-                    saml2='keystone.auth.plugins.saml2.Saml2',
                 )
         self.config_fixture.config(group='auth', methods=methods)
         common_cfg.setup_authentication()
@@ -521,11 +519,23 @@ class TestCase(BaseTestCase):
         self.clear_auth_plugin_registry()
         drivers = backends.load_backends()
 
+        drivers.update(self.load_extra_backends())
+
         drivers.update(dependency.resolve_future_dependencies())
 
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
         self.addCleanup(self.cleanup_instance(*drivers.keys()))
+
+    def load_extra_backends(self):
+        """Override to load managers that aren't loaded by default.
+
+        This is useful to load managers initialized by extensions. No extra
+        backends are loaded by default.
+
+        :return: dict of name -> manager
+        """
+        return {}
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.

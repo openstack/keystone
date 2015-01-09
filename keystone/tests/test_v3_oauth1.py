@@ -239,6 +239,19 @@ class ConsumerCRUDTests(OAuth1Tests):
 
 class OAuthFlowTests(OAuth1Tests):
 
+    def load_extra_backends(self):
+        return {'oauth_api': oauth1.Manager()}
+
+    def auth_plugin_config_override(self):
+        methods = ['password', 'token', 'oauth1']
+        method_classes = {
+            'password': 'keystone.auth.plugins.password.Password',
+            'token': 'keystone.auth.plugins.token.Token',
+            'oauth1': 'keystone.auth.plugins.oauth1.OAuth',
+        }
+        super(OAuthFlowTests, self).auth_plugin_config_override(
+            methods, **method_classes)
+
     def test_oauth_flow(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
