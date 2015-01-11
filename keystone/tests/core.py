@@ -92,7 +92,7 @@ os.makedirs(TMPDIR)
 atexit.register(shutil.rmtree, TMPDIR)
 
 
-class dirs:
+class dirs(object):
     @staticmethod
     def root(*p):
         return os.path.join(ROOTDIR, *p)

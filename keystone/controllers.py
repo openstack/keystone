@@ -88,7 +88,7 @@ def register_version(version):
     _VERSIONS.append(version)
 
 
-class MimeTypes:
+class MimeTypes(object):
     JSON = 'application/json'
     JSON_HOME = 'application/json-home'
 

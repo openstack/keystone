@@ -29,7 +29,7 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-class AssignmentType:
+class AssignmentType(object):
     USER_PROJECT = 'UserProject'
     GROUP_PROJECT = 'GroupProject'
     USER_DOMAIN = 'UserDomain'
