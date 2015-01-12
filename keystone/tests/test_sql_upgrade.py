@@ -1479,22 +1479,26 @@ class SqlUpgradeTests(SqlMigrateBase):
         # make sure that the parent_id field is dropped in the downgrade
         self.upgrade(61)
         session = self.Session()
-        beta = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'domain_id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'parent_id': uuid.uuid4().hex
-        }
+        domain = {'id': uuid.uuid4().hex,
+                  'name': uuid.uuid4().hex,
+                  'enabled': True}
         acme = {
             'id': uuid.uuid4().hex,
             'description': uuid.uuid4().hex,
-            'domain_id': uuid.uuid4().hex,
+            'domain_id': domain['id'],
             'name': uuid.uuid4().hex,
             'parent_id': None
         }
-        self.insert_dict(session, 'project', beta)
+        beta = {
+            'id': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'domain_id': domain['id'],
+            'name': uuid.uuid4().hex,
+            'parent_id': acme['id']
+        }
+        self.insert_dict(session, 'domain', domain)
         self.insert_dict(session, 'project', acme)
+        self.insert_dict(session, 'project', beta)
         proj_table = sqlalchemy.Table('project', self.metadata, autoload=True)
         self.assertEqual(2, session.query(proj_table).count())
         session.close()
