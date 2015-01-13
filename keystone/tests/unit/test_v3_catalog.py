@@ -246,6 +246,16 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             body={'service': ref})
         self.assertValidServiceResponse(r, ref)
 
+    def test_create_service_no_name(self):
+        """Call ``POST /services``."""
+        ref = self.new_service_ref()
+        del ref['name']
+        r = self.post(
+            '/services',
+            body={'service': ref})
+        ref['name'] = ''
+        self.assertValidServiceResponse(r, ref)
+
     def test_create_service_no_enabled(self):
         """Call ``POST /services``."""
         ref = self.new_service_ref()

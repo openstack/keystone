@@ -144,6 +144,7 @@ class Manager(manager.Manager):
 
     def create_service(self, service_id, service_ref, initiator=None):
         service_ref.setdefault('enabled', True)
+        service_ref.setdefault('name', '')
         ref = self.driver.create_service(service_id, service_ref)
         notifications.Audit.created(self._SERVICE, service_id, initiator)
         return ref
