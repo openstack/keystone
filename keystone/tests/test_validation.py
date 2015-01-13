@@ -360,6 +360,29 @@ class ProjectValidationTestCase(testtools.TestCase):
                           self.create_project_validator.validate,
                           request_to_validate)
 
+    def test_validate_project_request_with_valid_parent_id(self):
+        """Test that we validate `parent_id` in create project requests."""
+        # parent_id is nullable
+        request_to_validate = {'name': self.project_name,
+                               'parent_id': None}
+        self.create_project_validator.validate(request_to_validate)
+        request_to_validate = {'name': self.project_name,
+                               'parent_id': uuid.uuid4().hex}
+        self.create_project_validator.validate(request_to_validate)
+
+    def test_validate_project_request_with_invalid_parent_id_fails(self):
+        """Exception is raised when `parent_id` as a non-id value."""
+        request_to_validate = {'name': self.project_name,
+                               'parent_id': False}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_project_validator.validate,
+                          request_to_validate)
+        request_to_validate = {'name': self.project_name,
+                               'parent_id': 'fake project'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_project_validator.validate,
+                          request_to_validate)
+
     def test_validate_project_update_request(self):
         """Test that we validate a project update request."""
         request_to_validate = {'domain_id': uuid.uuid4().hex}
