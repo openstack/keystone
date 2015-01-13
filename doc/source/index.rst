@@ -46,7 +46,7 @@ Getting Started
     configuration
     configure_federation
     configuringservices
-    enabling_extensions
+    extensions
     community
 
 Man Pages
