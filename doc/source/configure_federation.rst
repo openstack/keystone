@@ -27,6 +27,10 @@ Definitions
 Keystone as a Service Provider (SP)
 -----------------------------------
 
+.. NOTE::
+
+    This feature is considered stable and supported as of the Juno release.
+
 Prerequisites
 -------------
 
@@ -233,10 +237,11 @@ Example cURL
 Keystone as an Identity Provider (IdP)
 --------------------------------------
 
-.. WARNING::
+.. NOTE::
 
-    This feature is experimental and unsupported in Juno (with several known
-    issues that will not be fixed). Feedback welcome for Kilo!
+    This feature is experimental and unsupported in Juno (with several issues
+    that will not be backported). These issues have been fixed and this feature
+    is considered stable and supported as of the Kilo release.
 
 Configuration Options
 ---------------------
