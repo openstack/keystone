@@ -509,7 +509,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         callback_called = []
 
         @dependency.provider('foo_api')
-        class Foo:
+        class Foo(object):
             def __init__(self):
                 self.event_callbacks = {
                     CREATED_OPERATION: {'project': [self.foo_callback]}}
@@ -526,7 +526,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
     def test_invalid_event_callbacks(self):
         @dependency.provider('foo_api')
-        class Foo:
+        class Foo(object):
             def __init__(self):
                 self.event_callbacks = 'bogus'
 
@@ -534,7 +534,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
     def test_invalid_event_callbacks_event(self):
         @dependency.provider('foo_api')
-        class Foo:
+        class Foo(object):
             def __init__(self):
                 self.event_callbacks = {CREATED_OPERATION: 'bogus'}
 

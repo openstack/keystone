@@ -1215,7 +1215,7 @@ class VersionTestCase(RestfulTestCase):
 class AuthContextMiddlewareTestCase(RestfulTestCase):
     def _mock_request_object(self, token_id):
 
-        class fake_req:
+        class fake_req(object):
             headers = {middleware.AUTH_TOKEN_HEADER: token_id}
             environ = {}
 
