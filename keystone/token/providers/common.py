@@ -575,6 +575,12 @@ class BaseProvider(provider.Provider):
 
                 token_data = self.v2_token_data_helper.format_token(
                     token_ref, roles_ref, catalog_ref, trust_ref)
+
+            trust_id = token_data['access'].get('trust', {}).get('id')
+            if trust_id:
+                # token trust validation
+                self.trust_api.get_trust(trust_id)
+
             return token_data
         except exception.ValidationError as e:
             LOG.exception(_LE('Failed to validate token'))
@@ -589,6 +595,12 @@ class BaseProvider(provider.Provider):
         # Lets go with the cached token strategy. Since token
         # management layer is now pluggable, one can always provide
         # their own implementation to suit their needs.
+
+        trust_id = token_ref.get('trust_id')
+        if trust_id:
+            # token trust validation
+            self.trust_api.get_trust(trust_id)
+
         token_data = token_ref.get('token_data')
         if not token_data or 'token' not in token_data:
             # token ref is created by V2 API
