@@ -171,14 +171,14 @@ configuration file.
 
 .. NOTE::
 
-    Keystone does not support moving the contents of a domain (i.e. "it's"
+    Keystone does not support moving the contents of a domain (i.e. "its"
     users and groups) from one backend to another, nor group membership across
     backend boundaries.
 
 .. NOTE::
 
     To delete a domain that uses a domain specific backend, it's necessary
-    to first disable it, remove its specific configuration file (i.e. it's
+    to first disable it, remove its specific configuration file (i.e. its
     corresponding keystone.<domain_name>.conf) and then restart the Identity
     server.
 
@@ -222,10 +222,9 @@ call keystone-manage to purge those entries by specifying the domain and
 local-id.  The type of the entity (i.e. user or group) may also be specified
 if this is needed to uniquely identify the mapping.
 
-Since public IDs are be regeneratable **with the correct generator
-implementation**, then, if the details of those entries that have
-been deleted are not available, then it is safe to simply bulk purge
-identity mappings periodically, for example:
+Since public IDs can be regenerated **with the correct generator implementation**,
+if the details of those entries that have been deleted are not available, then
+it is safe to simply bulk purge identity mappings periodically, for example:
 
 .. code-block:: bash
 
@@ -318,8 +317,8 @@ Simply add the new plugin name to the ``methods`` list along with your plugin
 class configuration in the ``[auth]`` sections of the configuration file
 to deploy it.
 
-If the plugin require addition configurations, it may register its own section
-in the configuration file.
+If the plugin requires additional configurations, it may register its own
+section in the configuration file.
 
 Plugins are invoked in the order in which they are specified in the ``methods``
 attribute of the ``authentication`` request body. If multiple plugins are
@@ -449,7 +448,7 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
 
         .. WARNING::
             ``dogpile.cache.memory`` is not suitable for use outside of unit testing
-            as it does not cleanup it's internal cache on cache expiration, does
+            as it does not cleanup its internal cache on cache expiration, does
             not provide isolation to the cached data (values in the store can be
             inadvertently changed without extra layers of data protection added),
             and does not share cache between processes.  This means that caching
@@ -468,7 +467,7 @@ behavior is that subsystem caching is enabled, but the global toggle is set to d
     cache instead of setting this to ``0``.
 * ``backend_argument`` - an argument passed to the backend when instantiated
     ``backend_argument`` should be specified once per argument to be passed to the
-    back end and in the format of ``<argument name>:<argument value>``.
+    backend and in the format of ``<argument name>:<argument value>``.
     e.g.: ``backend_argument = host:localhost``
 * ``proxies`` - comma delimited list of `ProxyBackends`_ e.g. ``my.example.Proxy, my.example.Proxy2``
 
@@ -497,7 +496,7 @@ Current Keystone systems that have caching capabilities:
 
         .. WARNING::
             Be aware that if a read-only ``assignment`` backend is in use, the cache
-            will not immediately reflect changes on the back end.  Any given change
+            will not immediately reflect changes on the backend.  Any given change
             may take up to the ``cache_time`` (if set in the ``[assignment]``
             section of the configuration) or the global ``expiration_time`` (set in
             the ``[cache]`` section of the configuration) before it is reflected.
@@ -1446,7 +1445,7 @@ Secure Connection
 
 If you are using a directory server to provide the Identity service,
 it is strongly recommended that you utilize a secure connection from
-Keystone to the directory server.  In addition to supporting ldaps,  Keystone
+Keystone to the directory server.  In addition to supporting LDAP,  Keystone
 also provides Transport Layer Security (TLS) support. There are some
 basic configuration options for enabling TLS, identifying a single
 file or directory that contains certificates for all the Certificate
