@@ -179,3 +179,33 @@ class TestV2CatalogAPISQL(tests.TestCase):
         self.assertEqual(1, len(catalog))
         # all three endpoints appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
+
+    def test_get_catalog_always_returns_service_name(self):
+        user_id = uuid.uuid4().hex
+        tenant_id = uuid.uuid4().hex
+
+        # create a service, with a name
+        named_svc = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(named_svc['id'], named_svc)
+        endpoint = self.new_endpoint_ref(service_id=named_svc['id'])
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        # create a service, with no name
+        unnamed_svc = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex
+        }
+        self.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
+        endpoint = self.new_endpoint_ref(service_id=unnamed_svc['id'])
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        region = None
+        catalog = self.catalog_api.get_catalog(user_id, tenant_id)
+
+        self.assertEqual(named_svc['name'],
+                         catalog[region][named_svc['type']]['name'])
+        self.assertEqual('', catalog[region][unnamed_svc['type']]['name'])

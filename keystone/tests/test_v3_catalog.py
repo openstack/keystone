@@ -675,6 +675,39 @@ class TestCatalogAPISQL(tests.TestCase):
         # all three appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
 
+    def test_get_catalog_always_returns_service_name(self):
+        user_id = uuid.uuid4().hex
+        tenant_id = uuid.uuid4().hex
+
+        # create a service, with a name
+        named_svc = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(named_svc['id'], named_svc)
+        endpoint = self.new_endpoint_ref(service_id=named_svc['id'])
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        # create a service, with no name
+        unnamed_svc = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex
+        }
+        self.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
+        endpoint = self.new_endpoint_ref(service_id=unnamed_svc['id'])
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+
+        named_endpoint = [ep for ep in catalog
+                          if ep['type'] == named_svc['type']][0]
+        self.assertEqual(named_svc['name'], named_endpoint['name'])
+
+        unnamed_endpoint = [ep for ep in catalog
+                            if ep['type'] == unnamed_svc['type']][0]
+        self.assertEqual('', unnamed_endpoint['name'])
+
 
 # TODO(dstanek): this needs refactoring with the test above, but we are in a
 # crunch so that will happen in a future patch.
