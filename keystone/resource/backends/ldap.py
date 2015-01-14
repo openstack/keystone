@@ -79,7 +79,7 @@ class Resource(resource.Driver):
 
     def list_projects(self, hints):
         return self._set_default_attributes(
-            self.project.get_all())
+            self.project.get_all_filtered(hints))
 
     def list_projects_in_domain(self, domain_id):
         # We don't support multiple domains within this driver, so ignore
@@ -190,3 +190,7 @@ class ProjectApi(common_ldap.ProjectLdapStructureMixin,
     def update(self, project_id, values):
         old_obj = self.get(project_id)
         return super(ProjectApi, self).update(project_id, values, old_obj)
+
+    def get_all_filtered(self, hints):
+        query = self.filter_query(hints)
+        return super(ProjectApi, self).get_all(query)
