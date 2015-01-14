@@ -135,6 +135,15 @@ def internal(*args, **kwargs):
 
 
 def _get_callback_info(callback):
+    """Return list containing callback's module and name.
+
+    If the callback is an instance method also return the class name.
+
+    :param callback: Function to call
+    :type callback: function
+    :returns: List containing parent module, (optional class,) function name
+    :rtype: list
+    """
     if getattr(callback, 'im_class', None):
         return [getattr(callback, '__module__', None),
                 callback.im_class.__name__,
@@ -144,6 +153,17 @@ def _get_callback_info(callback):
 
 
 def register_event_callback(event, resource_type, callbacks):
+    """Register each callback with the event.
+
+    :param event: Action being registered
+    :type event: keystone.notifications.ACTIONS
+    :param resource_type: Type of resource being operated on
+    :type resource_type: str
+    :param callbacks: Callback items to be registered with event
+    :type callbacks: list
+    :raises ValueError: If event is not a valid ACTION
+    :raises TypeError: If callback is not callable
+    """
     if event not in ACTIONS:
         raise ValueError(_('%(event)s is not a valid notification event, must '
                            'be one of: %(actions)s') %
@@ -208,10 +228,20 @@ def _get_notifier():
 
 
 def clear_subscribers():
+    """Empty subscribers dictionary.
+
+    This effectively stops notifications since there will be no subscribers
+    to publish to.
+    """
     _SUBSCRIBERS.clear()
 
 
 def reset_notifier():
+    """Reset the notifications internal state.
+
+    This is used only for testing purposes.
+
+    """
     global _notifier
     _notifier = None
 
@@ -251,6 +281,14 @@ def _send_notification(operation, resource_type, resource_id, public=True):
 
 
 def _get_request_audit_info(context, user_id=None):
+    """Collect audit information about the request used for CADF.
+
+    :param context: Request context
+    :param user_id: Optional user ID, alternatively collected from context
+    :returns: Auditing data about the request
+    :rtype: :class:`pycadf.Resource`
+    """
+
     remote_addr = None
     http_user_agent = None
 
@@ -385,6 +423,26 @@ class CadfRoleAssignmentNotificationWrapper(object):
 def send_saml_audit_notification(action, context, user_id, group_ids,
                                  identity_provider, protocol, token_id,
                                  outcome):
+    """Send notification to inform observers about SAML events.
+
+    :param action: Action being audited
+    :type action: str
+    :param context: Current request context to collect request info from
+    :type context: dict
+    :param user_id: User ID from Keystone token
+    :type user_id: str
+    :param group_ids: List of Group IDs from Keystone token
+    :type group_ids: list
+    :param identity_provider: ID of the IdP from the Keystone token
+    :type identity_provider: str or None
+    :param protocol: Protocol ID for IdP from the Keystone token
+    :type protocol: str
+    :param token_id: audit_id from Keystone token
+    :type token_id: str or None
+    :param outcome: One of :class:`pycadf.cadftaxonomy`
+    :type outcome: str
+    """
+
     initiator = _get_request_audit_info(context)
     audit_type = SAML_AUDIT_TYPE
     user_id = user_id or taxonomy.UNKNOWN
