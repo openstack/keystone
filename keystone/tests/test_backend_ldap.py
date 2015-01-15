@@ -996,8 +996,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # could affect what the drivers would return up to the manager.  This
         # solves this assumption when working with aggressive (on-create)
         # cache population.
-        self.assignment_api.get_role.invalidate(self.assignment_api,
-                                                self.role_member['id'])
+        self.role_api.get_role.invalidate(self.assignment_api,
+                                          self.role_member['id'])
         self.assignment_api.get_role(self.role_member['id'])
         self.assignment_api.get_project.invalidate(self.assignment_api,
                                                    self.tenant_bar['id'])
@@ -1018,8 +1018,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # could affect what the drivers would return up to the manager.  This
         # solves this assumption when working with aggressive (on-create)
         # cache population.
-        self.assignment_api.get_role.invalidate(self.assignment_api,
-                                                self.role_member['id'])
+        self.role_api.get_role.invalidate(self.assignment_api,
+                                          self.role_member['id'])
         self.assertRaises(exception.RoleNotFound,
                           self.assignment_api.get_role,
                           self.role_member['id'])
@@ -1112,8 +1112,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # could affect what the drivers would return up to the manager.  This
         # solves this assumption when working with aggressive (on-create)
         # cache population.
-        self.assignment_api.get_role.invalidate(self.assignment_api,
-                                                self.role_member['id'])
+        self.role_api.get_role.invalidate(self.role_api,
+                                          self.role_member['id'])
         role_ref = self.assignment_api.get_role(self.role_member['id'])
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertEqual(self.role_member['name'], role_ref['name'])
@@ -1126,8 +1126,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # could affect what the drivers would return up to the manager.  This
         # solves this assumption when working with aggressive (on-create)
         # cache population.
-        self.assignment_api.get_role.invalidate(self.assignment_api,
-                                                self.role_member['id'])
+        self.role_api.get_role.invalidate(self.role_api,
+                                          self.role_member['id'])
         role_ref = self.assignment_api.get_role(self.role_member['id'])
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertNotIn('name', role_ref)
@@ -1144,8 +1144,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # could affect what the drivers would return up to the manager.  This
         # solves this assumption when working with aggressive (on-create)
         # cache population.
-        self.assignment_api.get_role.invalidate(self.assignment_api,
-                                                self.role_member['id'])
+        self.role_api.get_role.invalidate(self.role_api,
+                                          self.role_member['id'])
         role_ref = self.assignment_api.get_role(self.role_member['id'])
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertNotIn('name', role_ref)

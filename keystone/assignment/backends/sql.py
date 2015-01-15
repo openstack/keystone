@@ -38,6 +38,9 @@ class AssignmentType(object):
 
 class Assignment(keystone_assignment.Driver):
 
+    def default_role_driver(self):
+        return "keystone.assignment.role_backends.sql.Role"
+
     def _get_project(self, session, project_id):
         project_ref = session.query(Project).get(project_id)
         if project_ref is None:
@@ -135,7 +138,6 @@ class Assignment(keystone_assignment.Driver):
                     'User, Group, Project, Domain: %s') % message_data)
 
         with sql.transaction() as session:
-            self._get_role(session, role_id)
 
             if domain_id:
                 self._get_domain(session, domain_id)
@@ -155,21 +157,20 @@ class Assignment(keystone_assignment.Driver):
             # The v3 grant APIs are silent if the assignment already exists
             pass
 
-    def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None,
-                    inherited_to_projects=False):
+    def list_grant_role_ids(self, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
         with sql.transaction() as session:
             if domain_id:
                 self._get_domain(session, domain_id)
             if project_id:
                 self._get_project(session, project_id)
 
-            q = session.query(Role).join(RoleAssignment)
+            q = session.query(RoleAssignment.role_id)
             q = q.filter(RoleAssignment.actor_id == (user_id or group_id))
             q = q.filter(RoleAssignment.target_id == (project_id or domain_id))
             q = q.filter(RoleAssignment.inherited == inherited_to_projects)
-            q = q.filter(Role.id == RoleAssignment.role_id)
-            return [x.to_dict() for x in q.all()]
+            return [x.role_id for x in q.all()]
 
     def _build_grant_filter(self, session, role_id, user_id, group_id,
                             domain_id, project_id, inherited_to_projects):
@@ -180,11 +181,10 @@ class Assignment(keystone_assignment.Driver):
         q = q.filter_by(inherited=inherited_to_projects)
         return q
 
-    def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None,
-                  inherited_to_projects=False):
+    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
         with sql.transaction() as session:
-            role_ref = self._get_role(session, role_id)
             if domain_id:
                 self._get_domain(session, domain_id)
             if project_id:
@@ -198,13 +198,10 @@ class Assignment(keystone_assignment.Driver):
             except sql.NotFound:
                 raise exception.RoleNotFound(role_id=role_id)
 
-            return role_ref.to_dict()
-
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
         with sql.transaction() as session:
-            self._get_role(session, role_id)
             if domain_id:
                 self._get_domain(session, domain_id)
             if project_id:
@@ -376,48 +373,37 @@ class Assignment(keystone_assignment.Driver):
             project_refs = self._get_children(session, [project_id])
             return not project_refs
 
-    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+    def list_role_ids_for_groups(
+            self, group_ids, project_id=None, domain_id=None):
 
-        def _get_roles_for_groups_on_domain(group_ids, domain_id):
+        def _get_role_ids_for_groups_on_domain(group_ids, domain_id):
             sql_constraints = sqlalchemy.and_(
                 RoleAssignment.type == AssignmentType.GROUP_DOMAIN,
                 RoleAssignment.target_id == domain_id,
                 RoleAssignment.inherited == false(),
-                Role.id == RoleAssignment.role_id,
                 RoleAssignment.actor_id.in_(group_ids))
 
             session = sql.get_session()
             with session.begin():
-                query = session.query(Role).filter(
+                query = session.query(RoleAssignment.role_id).filter(
                     sql_constraints).distinct()
-            return [role.to_dict() for role in query.all()]
+            return [assignment.role_id for assignment in query.all()]
 
-        def _get_roles_for_groups_on_project(group_ids, project_id):
-
-            def _role_ids_to_dicts(session, ids):
-                if not ids:
-                    return []
-                else:
-                    query = session.query(Role)
-                    query = query.filter(Role.id.in_(ids))
-                    role_refs = query.all()
-                    return [role_ref.to_dict() for role_ref in role_refs]
-
+        def _get_role_ids_for_groups_on_project(group_ids, project_id):
             with sql.transaction() as session:
                 project = self._get_project(session, project_id)
-                role_ids = self._get_group_project_roles(
+                return self._get_group_project_role_ids(
                     session, group_ids, project_id, project.domain_id)
-                return _role_ids_to_dicts(session, role_ids)
 
         if project_id is not None:
-            return _get_roles_for_groups_on_project(group_ids, project_id)
+            return _get_role_ids_for_groups_on_project(group_ids, project_id)
         elif domain_id is not None:
-            return _get_roles_for_groups_on_domain(group_ids, domain_id)
+            return _get_role_ids_for_groups_on_domain(group_ids, domain_id)
         else:
             raise AttributeError(_("Must specify either domain or project"))
 
-    def _get_group_project_roles(self, session, groups, project_id,
-                                 project_domain_id):
+    def _get_group_project_role_ids(self, session, groups, project_id,
+                                    project_domain_id):
         if not groups:
             # If there's no groups then there will be no project roles.
             return []
@@ -457,10 +443,11 @@ class Assignment(keystone_assignment.Driver):
 
         return [result.role_id for result in query.all()]
 
-    def get_group_project_roles(self, groups, project_id, project_domain_id):
+    def list_role_ids_for_groups_on_project(
+            self, groups, project_id, project_domain_id):
         with sql.transaction() as session:
-            return self._get_group_project_roles(session, groups, project_id,
-                                                 project_domain_id)
+            return self._get_group_project_role_ids(
+                session, groups, project_id, project_domain_id)
 
     def list_projects_for_groups(self, group_ids):
         with sql.transaction() as session:
@@ -516,7 +503,6 @@ class Assignment(keystone_assignment.Driver):
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         with sql.transaction() as session:
             self._get_project(session, tenant_id)
-            self._get_role(session, role_id)
 
         try:
             with sql.transaction() as session:
@@ -667,53 +653,11 @@ class Assignment(keystone_assignment.Driver):
 
             session.delete(ref)
 
-    # role crud
-
-    @sql.handle_conflicts(conflict_type='role')
-    def create_role(self, role_id, role):
+    def delete_role_assignments(self, role_id):
         with sql.transaction() as session:
-            ref = Role.from_dict(role)
-            session.add(ref)
-            return ref.to_dict()
-
-    @sql.truncated
-    def list_roles(self, hints):
-        with sql.transaction() as session:
-            query = session.query(Role)
-            refs = sql.filter_limit_query(Role, query, hints)
-            return [ref.to_dict() for ref in refs]
-
-    def _get_role(self, session, role_id):
-        ref = session.query(Role).get(role_id)
-        if ref is None:
-            raise exception.RoleNotFound(role_id=role_id)
-        return ref
-
-    def get_role(self, role_id):
-        with sql.transaction() as session:
-            return self._get_role(session, role_id).to_dict()
-
-    @sql.handle_conflicts(conflict_type='role')
-    def update_role(self, role_id, role):
-        with sql.transaction() as session:
-            ref = self._get_role(session, role_id)
-            old_dict = ref.to_dict()
-            for k in role:
-                old_dict[k] = role[k]
-            new_role = Role.from_dict(old_dict)
-            for attr in Role.attributes:
-                if attr != 'id':
-                    setattr(ref, attr, getattr(new_role, attr))
-            ref.extra = new_role.extra
-            return ref.to_dict()
-
-    def delete_role(self, role_id):
-        with sql.transaction() as session:
-            ref = self._get_role(session, role_id)
             q = session.query(RoleAssignment)
             q = q.filter_by(role_id=role_id)
             q.delete(False)
-            session.delete(ref)
 
     def delete_user(self, user_id):
         with sql.transaction() as session:
@@ -755,15 +699,6 @@ class Project(sql.ModelBase, sql.DictBase):
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
-class Role(sql.ModelBase, sql.DictBase):
-    __tablename__ = 'role'
-    attributes = ['id', 'name']
-    id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(255), unique=True, nullable=False)
-    extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint('name'), {})
-
-
 class RoleAssignment(sql.ModelBase, sql.DictBase):
     __tablename__ = 'assignment'
     attributes = ['type', 'actor_id', 'target_id', 'role_id', 'inherited']
@@ -775,8 +710,7 @@ class RoleAssignment(sql.ModelBase, sql.DictBase):
         nullable=False)
     actor_id = sql.Column(sql.String(64), nullable=False, index=True)
     target_id = sql.Column(sql.String(64), nullable=False)
-    role_id = sql.Column(sql.String(64), sql.ForeignKey('role.id'),
-                         nullable=False)
+    role_id = sql.Column(sql.String(64), nullable=False)
     inherited = sql.Column(sql.Boolean, default=False, nullable=False)
     __table_args__ = (sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id',
                                                'role_id'), {})

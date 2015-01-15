@@ -448,6 +448,22 @@ FILE_OPTIONS = {
                    help='Maximum number of entities that will be returned '
                         'in an assignment collection.'),
     ],
+    'role': [
+        # The role driver has no default for backward compatibility reasons.
+        # If role driver is not specified, the assignment driver chooses
+        # the backend
+        cfg.StrOpt('driver',
+                   help='Role backend driver.'),
+        cfg.BoolOpt('caching', default=True,
+                    help='Toggle for role caching. This has no effect '
+                         'unless global caching is enabled.'),
+        cfg.IntOpt('cache_time',
+                   help='TTL (in seconds) to cache role data. This has '
+                        'no effect unless global caching is enabled.'),
+        cfg.IntOpt('list_limit',
+                   help='Maximum number of entities that will be returned '
+                        'in a role collection.'),
+    ],
     'credential': [
         cfg.StrOpt('driver',
                    default=('keystone.credential.backends'

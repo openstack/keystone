@@ -28,6 +28,7 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
+from keystone.openstack.common import log as logging
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -776,3 +777,36 @@ class SqlCredential(SqlTests):
         credentials = self.credential_api.list_credentials_for_user(
             self.user_foo['id'])
         self._validateCredentialList(credentials, self.user_credentials)
+
+
+class DeprecatedDecorators(SqlTests):
+
+    def test_assignment_to_role_api(self):
+        """Test that calling one of the methods does call LOG.deprecated.
+
+        This method is really generic to the type of backend, but we need
+        one to execute the test, so the SQL backend is as good as any.
+
+        """
+
+        # Rather than try and check that a log message is issued, we
+        # enabled fatal_deprecations so that we can check for the
+        # raising of the exception.
+
+        # First try to create a role without enabling fatal deprecations,
+        # which should work due to the cross manager deprecated calls.
+        role_ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex}
+        self.assignment_api.create_role(role_ref['id'], role_ref)
+        self.role_api.get_role(role_ref['id'])
+
+        # Now enable fatal exceptions - creating a role by calling the
+        # old manager should now fail.
+        self.config_fixture.config(fatal_deprecations=True)
+        role_ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex}
+        self.assertRaises(logging.DeprecatedConfig,
+                          self.assignment_api.create_role,
+                          role_ref['id'], role_ref)

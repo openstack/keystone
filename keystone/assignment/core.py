@@ -29,6 +29,7 @@ from keystone.i18n import _
 from keystone.i18n import _LE, _LI
 from keystone import notifications
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -48,9 +49,26 @@ def calc_default_domain():
             'name': u'Default'}
 
 
+def deprecated_to_role_api(f):
+    """Specialized deprecation wrapper for assignment to role api.
+
+    This wraps the standard deprecation wrapper and fills in the method
+    names automatically.
+
+    """
+    @six.wraps(f)
+    def wrapper(*args, **kwargs):
+        x = versionutils.deprecated(
+            what='assignment.' + f.__name__ + '()',
+            as_of=versionutils.deprecated.KILO,
+            in_favor_of='role.' + f.__name__ + '()')
+        return x(f)
+    return wrapper()
+
+
 @dependency.provider('assignment_api')
 @dependency.optional('revoke_api')
-@dependency.requires('credential_api', 'identity_api')
+@dependency.requires('credential_api', 'identity_api', 'role_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
@@ -239,7 +257,7 @@ class Manager(manager.Manager):
         """
         def _get_group_project_roles(user_id, project_ref):
             group_ids = self._get_group_ids_for_user_id(user_id)
-            return self.driver.get_group_project_roles(
+            return self.driver.list_role_ids_for_groups_on_project(
                 group_ids,
                 project_ref['id'],
                 project_ref['domain_id'])
@@ -322,6 +340,15 @@ class Manager(manager.Manager):
         # Use set() to process the list to remove any duplicates
         return list(set(user_role_list + group_role_list))
 
+    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
+        """Get a list of roles for this group on domain and/or project."""
+
+        # TODO(henry-nash): We should pull up the algorithm for this method
+        # from the drivers to here.
+        role_ids = self.list_role_ids_for_groups(
+            group_ids, project_id, domain_id)
+        return self.role_api.list_roles_from_ids(role_ids)
+
     def add_user_to_project(self, tenant_id, user_id):
         """Add user to a tenant by creating a default role relationship.
 
@@ -330,6 +357,7 @@ class Manager(manager.Manager):
 
         """
         try:
+            self.role_api.get_role(config.CONF.member_role_id)
             self.driver.add_role_to_user_and_project(
                 user_id,
                 tenant_id,
@@ -340,12 +368,16 @@ class Manager(manager.Manager):
                      config.CONF.member_role_id)
             role = {'id': CONF.member_role_id,
                     'name': CONF.member_role_name}
-            self.driver.create_role(config.CONF.member_role_id, role)
+            self.role_api.create_role(config.CONF.member_role_id, role)
             # now that default role exists, the add should succeed
             self.driver.add_role_to_user_and_project(
                 user_id,
                 tenant_id,
                 config.CONF.member_role_id)
+
+    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
+        self.role_api.get_role(role_id)
+        self.driver.add_role_to_user_and_project(user_id, tenant_id, role_id)
 
     def remove_user_from_project(self, tenant_id, user_id):
         """Remove user from a tenant
@@ -598,45 +630,6 @@ class Manager(manager.Manager):
     def get_project_by_name(self, tenant_name, domain_id):
         return self.driver.get_project_by_name(tenant_name, domain_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
-    def get_role(self, role_id):
-        return self.driver.get_role(role_id)
-
-    @notifications.created('role')
-    def create_role(self, role_id, role):
-        ret = self.driver.create_role(role_id, role)
-        if SHOULD_CACHE(ret):
-            self.get_role.set(ret, self, role_id)
-        return ret
-
-    @manager.response_truncated
-    def list_roles(self, hints=None):
-        return self.driver.list_roles(hints or driver_hints.Hints())
-
-    @notifications.updated('role')
-    def update_role(self, role_id, role):
-        ret = self.driver.update_role(role_id, role)
-        self.get_role.invalidate(self, role_id)
-        return ret
-
-    @notifications.deleted('role')
-    def delete_role(self, role_id):
-        try:
-            self._delete_tokens_for_role(role_id)
-        except exception.NotImplemented:
-            # FIXME(morganfainberg): Not all backends (ldap) implement
-            # `list_role_assignments_for_role` which would have previously
-            # caused a NotImplmented error to be raised when called through
-            # the controller. Now error or proper action will always come from
-            # the `delete_role` method logic. Work needs to be done to make
-            # the behavior between drivers consistent (capable of revoking
-            # tokens for the same circumstances).  This is related to the bug
-            # https://bugs.launchpad.net/keystone/+bug/1221805
-            pass
-        self.driver.delete_role(role_id)
-        self.get_role.invalidate(self, role_id)
-
     def list_role_assignments_for_role(self, role_id=None):
         # NOTE(henry-nash): Currently the efficiency of the key driver
         # implementation (SQL) of list_role_assignments is severely hampered by
@@ -664,8 +657,25 @@ class Manager(manager.Manager):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
+        self.role_api.get_role(role_id)
         self.driver.create_grant(role_id, user_id, group_id, domain_id,
                                  project_id, inherited_to_projects)
+
+    def get_grant(self, role_id, user_id=None, group_id=None,
+                  domain_id=None, project_id=None,
+                  inherited_to_projects=False):
+        role_ref = self.role_api.get_role(role_id)
+        self.driver.check_grant_role_id(
+            role_id, user_id, group_id, domain_id, project_id,
+            inherited_to_projects)
+        return role_ref
+
+    def list_grants(self, user_id=None, group_id=None,
+                    domain_id=None, project_id=None,
+                    inherited_to_projects=False):
+        grant_ids = self.driver.list_grant_role_ids(
+            user_id, group_id, domain_id, project_id, inherited_to_projects)
+        return self.role_api.list_roles_from_ids(grant_ids)
 
     @notifications.role_assignment('deleted')
     def delete_grant(self, role_id, user_id=None, group_id=None,
@@ -693,12 +703,17 @@ class Manager(manager.Manager):
                 LOG.debug('Group %s not found, no tokens to invalidate.',
                           group_id)
 
+        # TODO(henry-nash): While having the call to get_role here mimics the
+        # previous behavior (when it was buried inside the driver delete call),
+        # this seems an odd place to have this check, given what we have
+        # already done so far in this method. See Bug #1406776.
+        self.role_api.get_role(role_id)
         self.driver.delete_grant(role_id, user_id, group_id, domain_id,
                                  project_id, inherited_to_projects)
         if user_id is not None:
             self._emit_invalidate_user_token_persistence(user_id)
 
-    def _delete_tokens_for_role(self, role_id):
+    def delete_tokens_for_role_assignments(self, role_id):
         assignments = self.list_role_assignments_for_role(role_id=role_id)
 
         # Iterate over the assignments for this role and build the list of
@@ -770,6 +785,26 @@ class Manager(manager.Manager):
         # from persistence if persistence is enabled.
         pass
 
+    @deprecated_to_role_api
+    def create_role(self, role_id, role):
+        return self.role_api.create_role(role_id, role)
+
+    @deprecated_to_role_api
+    def get_role(self, role_id):
+        return self.role_api.get_role(role_id)
+
+    @deprecated_to_role_api
+    def update_role(self, role_id, role):
+        return self.role_api.update_role(role_id, role)
+
+    @deprecated_to_role_api
+    def delete_role(self, role_id):
+        return self.role_api.delete_role(role_id)
+
+    @deprecated_to_role_api
+    def list_roles(self, hints=None):
+        return self.role_api.list_roles(hints=hints)
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Driver(object):
@@ -811,6 +846,10 @@ class Driver(object):
     def _get_list_limit(self):
         return CONF.assignment.list_limit or CONF.list_limit
 
+    # TODO(henry-nash): A number of the abstract methods incorrectly list
+    # User/GroupNotFound as possible exceptions, even though we no longer
+    # check for these in the driver methods. This is raised as bug #1406393.
+
     @abc.abstractmethod
     def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
@@ -836,8 +875,8 @@ class Driver(object):
         """Add a role to a user within given tenant.
 
         :raises: keystone.exception.UserNotFound,
-                 keystone.exception.ProjectNotFound,
-                 keystone.exception.RoleNotFound
+                 keystone.exception.ProjectNotFound
+
         """
         raise exception.NotImplemented()  # pragma: no cover
 
@@ -865,38 +904,37 @@ class Driver(object):
         the OS-INHERIT extension to be enabled).
 
         :raises: keystone.exception.DomainNotFound,
-                 keystone.exception.ProjectNotFound,
-                 keystone.exception.RoleNotFound
+                 keystone.exception.ProjectNotFound
 
         """
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None,
-                    inherited_to_projects=False):
+    def list_grant_role_ids(self, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
         """Lists assignments/grants.
+
+        :raises: keystone.exception.UserNotFound,
+                 keystone.exception.GroupNotFound,
+                 keystone.exception.ProjectNotFound,
+                 keystone.exception.DomainNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
+        """Checks an assignment/grant role id.
 
         :raises: keystone.exception.UserNotFound,
                  keystone.exception.GroupNotFound,
                  keystone.exception.ProjectNotFound,
                  keystone.exception.DomainNotFound,
                  keystone.exception.RoleNotFound
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None,
-                  inherited_to_projects=False):
-        """Lists assignments/grants.
-
-        :raises: keystone.exception.UserNotFound,
-                 keystone.exception.GroupNotFound,
-                 keystone.exception.ProjectNotFound,
-                 keystone.exception.DomainNotFound,
-                 keystone.exception.RoleNotFound
+        :returns: None or raises an exception if grant not found
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1070,8 +1108,9 @@ class Driver(object):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
-        """List all the roles assigned to groups on either domain or
+    def list_role_ids_for_groups(
+            self, group_ids, project_id=None, domain_id=None):
+        """List all the role ids assigned to groups on either domain or
         project.
 
         If the project_id is not None, this value will be used, no matter what
@@ -1084,7 +1123,7 @@ class Driver(object):
         :raises: AttributeError: In case both project_id and domain_id are set
                                  to None
 
-        :returns: a list of Role entities matching groups and
+        :returns: a list of Role ids matching groups and
                   project_id or domain_id
 
         """
@@ -1155,32 +1194,10 @@ class Driver(object):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
-    # role crud
-
     @abc.abstractmethod
-    def create_role(self, role_id, role):
-        """Creates a new role.
-
-        :raises: keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_roles(self, hints):
-        """List roles in the system.
-
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of role_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_group_project_roles(self, groups, project_id, project_domain_id):
-        """Get group roles for a specific project.
+    def list_role_ids_for_groups_on_project(
+            self, groups, project_id, project_domain_id):
+        """List group role ids for a specific project.
 
         Supports the ``OS-INHERIT`` role inheritance from the project's domain
         if supported by the assignment driver.
@@ -1191,38 +1208,15 @@ class Driver(object):
         :type project_id: str
         :param project_domain_id: project's domain identifier
         :type project_domain_id: str
-        :returns: list of role_refs for the project
+        :returns: list of role ids for the project
         :rtype: list
         """
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def get_role(self, role_id):
-        """Get a role by ID.
+    def delete_role_assignments(self, role_id):
+        """Deletes all assignments for a role."""
 
-        :returns: role_ref
-        :raises: keystone.exception.RoleNotFound
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_role(self, role_id, role):
-        """Updates an existing role.
-
-        :raises: keystone.exception.RoleNotFound,
-                 keystone.exception.Conflict
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_role(self, role_id):
-        """Deletes an existing role.
-
-        :raises: keystone.exception.RoleNotFound
-
-        """
         raise exception.NotImplemented()  # pragma: no cover
 
 # TODO(ayoung): determine what else these two functions raise
@@ -1277,3 +1271,131 @@ class Driver(object):
         """
         if domain_id != CONF.identity.default_domain_id:
             raise exception.DomainNotFound(domain_id=domain_id)
+
+
+@dependency.provider('role_api')
+@dependency.requires('assignment_api')
+class RoleManager(manager.Manager):
+    """Default pivot point for the Role backend."""
+
+    def __init__(self):
+        # If there is a specific driver specified for role, then use it.
+        # Otherwise retrieve the driver type from the assignment driver.
+        role_driver = CONF.role.driver
+
+        if role_driver is None:
+            assignment_driver = dependency.REGISTRY['assignment_api'].driver
+            role_driver = assignment_driver.default_role_driver()
+
+        super(RoleManager, self).__init__(role_driver)
+
+    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
+                        expiration_time=EXPIRATION_TIME)
+    def get_role(self, role_id):
+        return self.driver.get_role(role_id)
+
+    @notifications.created('role')
+    def create_role(self, role_id, role):
+        ret = self.driver.create_role(role_id, role)
+        if SHOULD_CACHE(ret):
+            self.get_role.set(ret, self, role_id)
+        return ret
+
+    @manager.response_truncated
+    def list_roles(self, hints=None):
+        return self.driver.list_roles(hints or driver_hints.Hints())
+
+    @notifications.updated('role')
+    def update_role(self, role_id, role):
+        ret = self.driver.update_role(role_id, role)
+        self.get_role.invalidate(self, role_id)
+        return ret
+
+    @notifications.deleted('role')
+    def delete_role(self, role_id):
+        try:
+            self.assignment_api.delete_tokens_for_role_assignments(role_id)
+        except exception.NotImplemented:
+            # FIXME(morganfainberg): Not all backends (ldap) implement
+            # `list_role_assignments_for_role` which would have previously
+            # caused a NotImplmented error to be raised when called through
+            # the controller. Now error or proper action will always come from
+            # the `delete_role` method logic. Work needs to be done to make
+            # the behavior between drivers consistent (capable of revoking
+            # tokens for the same circumstances).  This is related to the bug
+            # https://bugs.launchpad.net/keystone/+bug/1221805
+            pass
+        self.assignment_api.delete_role_assignments(role_id)
+        self.driver.delete_role(role_id)
+        self.get_role.invalidate(self, role_id)
+
+
+@six.add_metaclass(abc.ABCMeta)
+class RoleDriver(object):
+
+    def _get_list_limit(self):
+        return CONF.role.list_limit or CONF.list_limit
+
+    @abc.abstractmethod
+    def create_role(self, role_id, role):
+        """Creates a new role.
+
+        :raises: keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_roles(self, hints):
+        """List roles in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of role_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_roles_from_ids(self, role_ids):
+        """List roles for the provided list of ids.
+
+        :param role_ids: list of ids
+
+        :returns: a list of role_refs.
+
+        This method is used internally by the assignment manager to bulk read
+        a set of roles given their ids.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_role(self, role_id):
+        """Get a role by ID.
+
+        :returns: role_ref
+        :raises: keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_role(self, role_id, role):
+        """Updates an existing role.
+
+        :raises: keystone.exception.RoleNotFound,
+                 keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_role(self, role_id):
+        """Deletes an existing role.
+
+        :raises: keystone.exception.RoleNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
