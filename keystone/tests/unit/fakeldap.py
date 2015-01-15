@@ -142,8 +142,9 @@ def _match(key, value, attrs):
         str_sids = [six.text_type(x) for x in attrs[key]]
         return six.text_type(value) in str_sids
     if key != 'objectclass':
-        check_value = _internal_attr(key, value)[0]
-        norm_values = list(_internal_attr(key, x)[0] for x in attrs[key])
+        check_value = _internal_attr(key, value)[0].lower()
+        norm_values = list(
+            _internal_attr(key, x)[0].lower() for x in attrs[key])
         return check_value in norm_values
     # it is an objectclass check, so check subclasses
     values = _subs(value)
