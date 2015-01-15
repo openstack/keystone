@@ -12,18 +12,18 @@
 
 from __future__ import absolute_import
 
+from oslo_config import cfg
 from oslo_log import log
 
 from keystone import assignment
 from keystone.common import ldap as common_ldap
 from keystone.common import models
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import ldap as ldap_identity
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 

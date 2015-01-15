@@ -16,17 +16,17 @@
 
 import abc
 
+from oslo_config import cfg
 import six
 
 from keystone import auth
-from keystone.common import config
 from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import versionutils
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)

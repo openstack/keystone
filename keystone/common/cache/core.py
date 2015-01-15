@@ -17,15 +17,15 @@
 import dogpile.cache
 from dogpile.cache import proxy
 from dogpile.cache import util
+from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import importutils
 
-from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LE
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 make_region = dogpile.cache.make_region

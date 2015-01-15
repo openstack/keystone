@@ -14,6 +14,7 @@
 
 import abc
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
@@ -22,14 +23,13 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
-from keystone import config
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone import notifications
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 SHOULD_CACHE = cache.should_cache_fn('resource')
 

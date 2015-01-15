@@ -15,18 +15,18 @@
 """Keystone PKI Token Provider"""
 
 from keystoneclient.common import cms
+from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 
 from keystone.common import environment
 from keystone.common import utils
-from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone.token.providers import common
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 LOG = log.getLogger(__name__)
 

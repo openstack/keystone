@@ -17,12 +17,15 @@
 
 import functools
 
+from oslo_config import cfg
+
 from keystone.assignment import controllers
 from keystone.common import json_home
 from keystone.common import router
 from keystone.common import wsgi
-from keystone import config
 
+
+CONF = cfg.CONF
 
 build_os_inherit_relation = functools.partial(
     json_home.build_v3_extension_resource_relation,
@@ -162,7 +165,7 @@ class Routers(wsgi.RoutersBase):
                           resource_descriptions=self.v3_resources,
                           is_entity_implemented=False))
 
-        if config.CONF.os_inherit.enabled:
+        if CONF.os_inherit.enabled:
             self._add_resource(
                 mapper, grant_controller,
                 path='/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'

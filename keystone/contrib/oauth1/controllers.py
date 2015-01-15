@@ -14,13 +14,13 @@
 
 """Extensions supporting OAuth1."""
 
+from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
-from keystone import config
 from keystone.contrib.oauth1 import core as oauth1
 from keystone.contrib.oauth1 import validator
 from keystone import exception
@@ -29,7 +29,7 @@ from keystone.models import token_model
 from keystone import notifications
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 @notifications.internal(notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,

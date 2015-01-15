@@ -16,13 +16,14 @@
 import os
 import ssl
 
+from oslo_config import cfg
+
 from keystone.common import environment
-from keystone import config
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import appserver
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 CERTDIR = tests.dirs.root('examples', 'pki', 'certs')
 KEYDIR = tests.dirs.root('examples', 'pki', 'private')

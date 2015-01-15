@@ -15,15 +15,15 @@
 
 import ldap
 import ldap.modlist
+from oslo_config import cfg
 
-from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_ldap_livetest
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def create_object(dn, attrs):

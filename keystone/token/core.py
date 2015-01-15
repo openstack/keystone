@@ -14,9 +14,9 @@
 
 """Main entry point into the Token service."""
 
+from oslo_config import cfg
 from oslo_log import log
 
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.openstack.common import versionutils
@@ -24,7 +24,7 @@ from keystone.token import persistence
 from keystone.token import provider
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 

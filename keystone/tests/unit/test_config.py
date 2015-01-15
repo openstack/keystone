@@ -14,12 +14,14 @@
 
 import uuid
 
+from oslo_config import cfg
+
 from keystone import config
 from keystone import exception
 from keystone.tests import unit as tests
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class ConfigTestCase(tests.TestCase):

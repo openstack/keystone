@@ -14,19 +14,19 @@
 
 import os.path
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
 from keystone.catalog.backends import kvs
 from keystone.catalog import core
-from keystone import config
 from keystone import exception
 from keystone.i18n import _LC
 
 
 LOG = log.getLogger(__name__)
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def parse_templates(template_lines):

@@ -16,16 +16,16 @@ import os
 import shutil
 
 import fixtures
+from oslo_config import cfg
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import migration
 
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
-from keystone import config
 from keystone.tests import unit as tests
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def run_once(f):

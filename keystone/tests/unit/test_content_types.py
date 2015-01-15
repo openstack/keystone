@@ -17,16 +17,16 @@ import time
 import uuid
 
 from keystoneclient.common import cms
+from oslo_config import cfg
 import six
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
-from keystone import config
 from keystone.contrib import revoke
 from keystone.tests.unit import rest
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class CoreApiTests(object):

@@ -13,11 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import config
+from oslo_config import cfg
+
 from keystone.token.persistence.backends import kvs
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class Token(kvs.Token):

@@ -16,18 +16,18 @@
 
 import abc
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
 from keystone.common import dependency
 from keystone.common import manager
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 LOG = log.getLogger(__name__)
 

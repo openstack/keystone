@@ -16,13 +16,13 @@
 from __future__ import absolute_import
 
 import fixtures
+from oslo_config import cfg
 from paste import deploy
 
 from keystone.common import environment
-from keystone import config
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 MAIN = 'main'
 ADMIN = 'admin'

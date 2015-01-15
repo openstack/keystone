@@ -17,6 +17,7 @@ import datetime
 import uuid
 
 import mock
+from oslo_config import cfg
 from oslo_utils import timeutils
 from testtools import matchers
 
@@ -35,7 +36,7 @@ from keystone.token import provider
 from keystone import trust
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 

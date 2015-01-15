@@ -12,14 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 import webob
 
-from keystone import config
 from keystone import middleware
 from keystone.tests import unit as tests
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def make_request(**kwargs):

@@ -15,6 +15,7 @@
 import functools
 import uuid
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
@@ -23,14 +24,13 @@ from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import utils
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.models import token_model
 
 
 LOG = log.getLogger(__name__)
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def v2_deprecated(f):

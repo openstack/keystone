@@ -19,13 +19,13 @@ import uuid
 
 import ldap
 import mock
+from oslo_config import cfg
 from testtools import matchers
 
 from keystone.common import cache
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import core as common_ldap_core
 from keystone.common import sql
-from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone.identity.mapping_backends import mapping as map
@@ -38,7 +38,7 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_backend
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def create_group_container(identity_api):
@@ -2642,7 +2642,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         """
         # Confirm that config has drivers_enabled as True, which we will
         # check has been set to False later in this test
-        self.assertTrue(config.CONF.identity.domain_specific_drivers_enabled)
+        self.assertTrue(CONF.identity.domain_specific_drivers_enabled)
         self.load_backends()
         # Execute any command to trigger the lazy loading of domain configs
         self.identity_api.list_users(

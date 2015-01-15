@@ -14,6 +14,7 @@
 
 import logging
 
+from oslo_config import cfg
 import oslo_i18n
 
 
@@ -30,7 +31,7 @@ from keystone.server import common
 from keystone import service as keystone_service
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def initialize_application(name):

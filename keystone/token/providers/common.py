@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
@@ -19,7 +20,6 @@ import six
 from six.moves.urllib import parse
 
 from keystone.common import dependency
-from keystone import config
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
@@ -28,7 +28,7 @@ from keystone.token import provider
 
 
 LOG = log.getLogger(__name__)
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class V2TokenDataHelper(object):

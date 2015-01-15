@@ -17,6 +17,7 @@ import functools
 import uuid
 
 import mock
+from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options
 import sqlalchemy
@@ -25,7 +26,6 @@ from testtools import matchers
 
 from keystone.common import driver_hints
 from keystone.common import sql
-from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
 from keystone.openstack.common import versionutils
@@ -36,7 +36,7 @@ from keystone.tests.unit import test_backend
 from keystone.token.persistence.backends import sql as token_sql
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 

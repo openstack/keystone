@@ -18,18 +18,18 @@ import uuid
 from keystoneclient import exceptions as client_exceptions
 from keystoneclient.v2_0 import client as ks_client
 import mock
+from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 import webob
 
-from keystone import config
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import appserver
 from keystone.tests.unit.ksfixtures import database
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 

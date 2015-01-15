@@ -15,6 +15,7 @@
 import datetime
 import uuid
 
+from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 import six
@@ -23,7 +24,6 @@ from testtools import matchers
 from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
-from keystone import config
 from keystone import exception
 from keystone import middleware
 from keystone.policy.backends import rules
@@ -31,7 +31,7 @@ from keystone.tests import unit as tests
 from keystone.tests.unit import rest
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = 'default'
 
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'

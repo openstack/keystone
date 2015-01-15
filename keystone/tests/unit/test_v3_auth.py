@@ -20,13 +20,13 @@ import uuid
 
 from keystoneclient.common import cms
 import mock
+from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
-from keystone import config
 from keystone.contrib import revoke
 from keystone import exception
 from keystone.policy.backends import rules
@@ -34,7 +34,7 @@ from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class TestAuthInfo(test_v3.AuthTestMixin, testcase.TestCase):

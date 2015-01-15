@@ -14,9 +14,9 @@
 
 import datetime
 
+from oslo_config import cfg
 from oslo_utils import timeutils
 
-from keystone import config
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
@@ -25,7 +25,7 @@ from keystone import token
 from keystone.token.providers import pki
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 FUTURE_DELTA = datetime.timedelta(seconds=CONF.token.expiration)
 CURRENT_DATE = timeutils.utcnow()

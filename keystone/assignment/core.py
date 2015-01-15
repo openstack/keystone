@@ -16,6 +16,7 @@
 
 import abc
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
@@ -23,7 +24,6 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LI
@@ -31,7 +31,7 @@ from keystone import notifications
 from keystone.openstack.common import versionutils
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 SHOULD_CACHE = cache.should_cache_fn('role')
 
@@ -242,28 +242,28 @@ class Manager(manager.Manager):
         """
         self.resource_api.get_project(tenant_id)
         try:
-            self.role_api.get_role(config.CONF.member_role_id)
+            self.role_api.get_role(CONF.member_role_id)
             self.driver.add_role_to_user_and_project(
                 user_id,
                 tenant_id,
-                config.CONF.member_role_id)
+                CONF.member_role_id)
         except exception.RoleNotFound:
             LOG.info(_LI("Creating the default role %s "
                          "because it does not exist."),
-                     config.CONF.member_role_id)
+                     CONF.member_role_id)
             role = {'id': CONF.member_role_id,
                     'name': CONF.member_role_name}
             try:
-                self.role_api.create_role(config.CONF.member_role_id, role)
+                self.role_api.create_role(CONF.member_role_id, role)
             except exception.Conflict:
                 LOG.info(_LI("Creating the default role %s failed because it "
                              "was already created"),
-                         config.CONF.member_role_id)
+                         CONF.member_role_id)
             # now that default role exists, the add should succeed
             self.driver.add_role_to_user_and_project(
                 user_id,
                 tenant_id,
-                config.CONF.member_role_id)
+                CONF.member_role_id)
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self.resource_api.get_project(tenant_id)

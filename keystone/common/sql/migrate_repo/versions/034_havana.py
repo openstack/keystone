@@ -11,17 +11,17 @@
 #    under the License.
 
 import migrate
+from oslo_config import cfg
 from oslo_log import log
 import sqlalchemy as sql
 from sqlalchemy import orm
 
 from keystone.common import sql as ks_sql
 from keystone.common.sql import migration_helpers
-from keystone import config
 
 
 LOG = log.getLogger(__name__)
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def upgrade(migrate_engine):
