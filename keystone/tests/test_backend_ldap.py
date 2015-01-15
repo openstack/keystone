@@ -901,7 +901,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assignment_api.create_project(project1['id'], project1)
 
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role1['id'], role1)
+        self.role_api.create_role(role1['id'], role1)
 
         user1 = {'name': uuid.uuid4().hex,
                  'domain_id': CONF.identity.default_domain_id,
@@ -949,16 +949,16 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
     def test_configurable_allowed_role_actions(self):
         role = {'id': u'fäké1', 'name': u'fäké1'}
-        self.assignment_api.create_role(u'fäké1', role)
-        role_ref = self.assignment_api.get_role(u'fäké1')
+        self.role_api.create_role(u'fäké1', role)
+        role_ref = self.role_api.get_role(u'fäké1')
         self.assertEqual(u'fäké1', role_ref['id'])
 
         role['name'] = u'fäké2'
-        self.assignment_api.update_role(u'fäké1', role)
+        self.role_api.update_role(u'fäké1', role)
 
-        self.assignment_api.delete_role(u'fäké1')
+        self.role_api.delete_role(u'fäké1')
         self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.get_role,
+                          self.role_api.get_role,
                           u'fäké1')
 
     def test_configurable_forbidden_role_actions(self):
@@ -969,18 +969,18 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.create_role,
+                          self.role_api.create_role,
                           role['id'],
                           role)
 
         self.role_member['name'] = uuid.uuid4().hex
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_role,
+                          self.role_api.update_role,
                           self.role_member['id'],
                           self.role_member)
 
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.delete_role,
+                          self.role_api.delete_role,
                           self.role_member['id'])
 
     def test_project_filter(self):
@@ -998,7 +998,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.role_api.get_role.invalidate(self.assignment_api,
                                           self.role_member['id'])
-        self.assignment_api.get_role(self.role_member['id'])
+        self.role_api.get_role(self.role_member['id'])
         self.assignment_api.get_project.invalidate(self.assignment_api,
                                                    self.tenant_bar['id'])
         self.assertRaises(exception.ProjectNotFound,
@@ -1006,7 +1006,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                           self.tenant_bar['id'])
 
     def test_role_filter(self):
-        role_ref = self.assignment_api.get_role(self.role_member['id'])
+        role_ref = self.role_api.get_role(self.role_member['id'])
         self.assertDictEqual(role_ref, self.role_member)
 
         self.config_fixture.config(group='ldap',
@@ -1021,7 +1021,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.role_api.get_role.invalidate(self.assignment_api,
                                           self.role_member['id'])
         self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.get_role,
+                          self.role_api.get_role,
                           self.role_member['id'])
 
     def test_dumb_member(self):
@@ -1114,7 +1114,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.role_api.get_role.invalidate(self.role_api,
                                           self.role_member['id'])
-        role_ref = self.assignment_api.get_role(self.role_member['id'])
+        role_ref = self.role_api.get_role(self.role_member['id'])
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertEqual(self.role_member['name'], role_ref['name'])
 
@@ -1128,7 +1128,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.role_api.get_role.invalidate(self.role_api,
                                           self.role_member['id'])
-        role_ref = self.assignment_api.get_role(self.role_member['id'])
+        role_ref = self.role_api.get_role(self.role_member['id'])
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertNotIn('name', role_ref)
 
@@ -1146,7 +1146,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # cache population.
         self.role_api.get_role.invalidate(self.role_api,
                                           self.role_member['id'])
-        role_ref = self.assignment_api.get_role(self.role_member['id'])
+        role_ref = self.role_api.get_role(self.role_member['id'])
         self.assertEqual(self.role_member['id'], role_ref['id'])
         self.assertNotIn('name', role_ref)
 
@@ -1701,7 +1701,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         role_list = []
         for _ in range(2):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_role(role['id'], role)
+            self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         user1 = {'name': uuid.uuid4().hex,

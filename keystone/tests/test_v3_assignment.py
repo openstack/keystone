@@ -1231,9 +1231,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
             domain_id=self.domain['id'])
         self.assignment_api.create_project(self.project1['id'], self.project1)
         self.role1 = self.new_role_ref()
-        self.assignment_api.create_role(self.role1['id'], self.role1)
+        self.role_api.create_role(self.role1['id'], self.role1)
         self.role2 = self.new_role_ref()
-        self.assignment_api.create_role(self.role2['id'], self.role2)
+        self.role_api.create_role(self.role2['id'], self.role2)
 
         # Now add one of each of the four types of assignment
 
@@ -1405,7 +1405,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
 
         # Create inherited role
         inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
-        self.assignment_api.create_role(inherited_role['id'], inherited_role)
+        self.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
         inher_ud_url, inher_ud_entity = _build_role_assignment_url_and_entity(
@@ -1469,7 +1469,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
 
         # Create inherited role
         inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
-        self.assignment_api.create_role(inherited_role['id'], inherited_role)
+        self.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
         inher_gd_url, inher_gd_entity = _build_role_assignment_url_and_entity(
@@ -1498,7 +1498,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         role_list = []
         for _ in range(2):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_role(role['id'], role)
+            self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         # Create a non-inherited role as a spoiler
@@ -1547,7 +1547,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         role_list = []
         for _ in range(4):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_role(role['id'], role)
+            self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = self.new_domain_ref()
@@ -1643,7 +1643,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         role_list = []
         for _ in range(4):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_role(role['id'], role)
+            self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = self.new_domain_ref()
@@ -1740,7 +1740,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         role_list = []
         for _ in range(4):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_role(role['id'], role)
+            self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = self.new_domain_ref()
@@ -1848,7 +1848,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
         role_list = []
         for _ in range(5):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_role(role['id'], role)
+            self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = self.new_domain_ref()
@@ -1942,10 +1942,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase):
 
         # Create 'non-inherited' and 'inherited' roles
         non_inherited_role = {'id': uuid.uuid4().hex, 'name': 'non-inherited'}
-        self.assignment_api.create_role(non_inherited_role['id'],
-                                        non_inherited_role)
+        self.role_api.create_role(non_inherited_role['id'], non_inherited_role)
         inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
-        self.assignment_api.create_role(inherited_role['id'], inherited_role)
+        self.role_api.create_role(inherited_role['id'], inherited_role)
 
         return (root['id'], leaf['id'],
                 non_inherited_role['id'], inherited_role['id'])
@@ -2240,7 +2239,7 @@ class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
 
     def test_crud_inherited_role_grants_failed_if_disabled(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role['id'], role)
+        self.role_api.create_role(role['id'], role)
 
         base_collection_url = (
             '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles' % {

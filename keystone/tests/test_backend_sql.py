@@ -175,11 +175,11 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         role = {'id': uuid.uuid4().hex,
                 'name': None}
         self.assertRaises(exception.UnexpectedError,
-                          self.assignment_api.create_role,
+                          self.role_api.create_role,
                           role['id'],
                           role)
         self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.get_role,
+                          self.role_api.get_role,
                           role['id'])
 
     def test_delete_project_with_user_association(self):
@@ -202,7 +202,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user = self.identity_api.create_user(user)
         role = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role['id'], role)
+        self.role_api.create_role(role['id'], role)
         self.assignment_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
@@ -225,7 +225,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user = self.identity_api.create_user(user)
         role = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role['id'], role)
+        self.role_api.create_role(role['id'], role)
         self.assignment_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
@@ -394,7 +394,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         group = self.identity_api.create_group(group)
         self.identity_api.add_user_to_group(user['id'], group['id'])
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role['id'], role)
+        self.role_api.create_role(role['id'], role)
 
         # Create a grant on each domain, one user grant, one group grant,
         # both inherited.
@@ -790,7 +790,7 @@ class DeprecatedDecorators(SqlTests):
         """
 
         # Rather than try and check that a log message is issued, we
-        # enabled fatal_deprecations so that we can check for the
+        # enable fatal_deprecations so that we can check for the
         # raising of the exception.
 
         # First try to create a role without enabling fatal deprecations,

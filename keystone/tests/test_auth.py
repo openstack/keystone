@@ -388,7 +388,7 @@ class AuthWithToken(AuthTest):
                     'domain_id': DEFAULT_DOMAIN_ID}
         self.assignment_api.create_project(project1['id'], project1)
         role_one = {'id': 'role_one', 'name': uuid.uuid4().hex}
-        self.assignment_api.create_role(role_one['id'], role_one)
+        self.role_api.create_role(role_one['id'], role_one)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project1['id'], role_one['id'])
         no_context = {}

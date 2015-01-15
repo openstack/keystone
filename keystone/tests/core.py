@@ -521,9 +521,9 @@ class TestCase(BaseTestCase):
 
             for role in fixtures.ROLES:
                 try:
-                    rv = self.assignment_api.create_role(role['id'], role)
+                    rv = self.role_api.create_role(role['id'], role)
                 except exception.Conflict:
-                    rv = self.assignment_api.get_role(role['id'])
+                    rv = self.role_api.get_role(role['id'])
                 attrname = 'role_%s' % role['id']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)

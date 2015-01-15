@@ -1170,8 +1170,7 @@ class FederatedTokenTests(FederationTests):
             domain_id=self.domainA['id'])
         group = self.identity_api.create_group(group)
         role = self.new_role_ref()
-        self.assignment_api.create_role(role['id'],
-                                        role)
+        self.role_api.create_role(role['id'], role)
 
         # assign role to group and project_admins
         self.assignment_api.create_grant(role['id'],
@@ -1311,15 +1310,12 @@ class FederatedTokenTests(FederationTests):
 
         # Create and add roles
         self.role_employee = self.new_role_ref()
-        self.assignment_api.create_role(self.role_employee['id'],
-                                        self.role_employee)
+        self.role_api.create_role(self.role_employee['id'], self.role_employee)
         self.role_customer = self.new_role_ref()
-        self.assignment_api.create_role(self.role_customer['id'],
-                                        self.role_customer)
+        self.role_api.create_role(self.role_customer['id'], self.role_customer)
 
         self.role_admin = self.new_role_ref()
-        self.assignment_api.create_role(self.role_admin['id'],
-                                        self.role_admin)
+        self.role_api.create_role(self.role_admin['id'], self.role_admin)
 
         # Employees can access
         # * proj_employees

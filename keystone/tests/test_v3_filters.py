@@ -90,7 +90,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.user3['password'] = password
 
         self.role = self.new_role_ref()
-        self.assignment_api.create_role(self.role['id'], self.role)
+        self.role_api.create_role(self.role['id'], self.role)
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.user1['id'],
                                          domain_id=self.domainA['id'])
