@@ -186,7 +186,7 @@ class Tenant(controller.V2Controller):
         return o
 
 
-@dependency.requires('assignment_api')
+@dependency.requires('assignment_api', 'role_api')
 class Role(controller.V2Controller):
 
     # COMPAT(essex-3)
@@ -205,14 +205,14 @@ class Role(controller.V2Controller):
 
         roles = self.assignment_api.get_roles_for_user_and_project(
             user_id, tenant_id)
-        return {'roles': [self.assignment_api.get_role(x)
+        return {'roles': [self.role_api.get_role(x)
                           for x in roles]}
 
     # CRUD extension
     @controller.v2_deprecated
     def get_role(self, context, role_id):
         self.assert_admin(context)
-        return {'role': self.assignment_api.get_role(role_id)}
+        return {'role': self.role_api.get_role(role_id)}
 
     @controller.v2_deprecated
     def create_role(self, context, role):
@@ -225,18 +225,18 @@ class Role(controller.V2Controller):
 
         role_id = uuid.uuid4().hex
         role['id'] = role_id
-        role_ref = self.assignment_api.create_role(role_id, role)
+        role_ref = self.role_api.create_role(role_id, role)
         return {'role': role_ref}
 
     @controller.v2_deprecated
     def delete_role(self, context, role_id):
         self.assert_admin(context)
-        self.assignment_api.delete_role(role_id)
+        self.role_api.delete_role(role_id)
 
     @controller.v2_deprecated
     def get_roles(self, context):
         self.assert_admin(context)
-        return {'roles': self.assignment_api.list_roles()}
+        return {'roles': self.role_api.list_roles()}
 
     @controller.v2_deprecated
     def add_role_to_user(self, context, user_id, role_id, tenant_id=None):
@@ -254,7 +254,7 @@ class Role(controller.V2Controller):
         self.assignment_api.add_role_to_user_and_project(
             user_id, tenant_id, role_id)
 
-        role_ref = self.assignment_api.get_role(role_id)
+        role_ref = self.role_api.get_role(role_id)
         return {'role': role_ref}
 
     @controller.v2_deprecated
@@ -320,7 +320,7 @@ class Role(controller.V2Controller):
         self.assignment_api.add_role_to_user_and_project(
             user_id, tenant_id, role_id)
 
-        role_ref = self.assignment_api.get_role(role_id)
+        role_ref = self.role_api.get_role(role_id)
         return {'role': role_ref}
 
     # COMPAT(diablo): CRUD extension
@@ -453,32 +453,32 @@ class ProjectV3(controller.V3Controller):
         return self.assignment_api.delete_project(project_id)
 
 
-@dependency.requires('assignment_api', 'identity_api')
+@dependency.requires('assignment_api', 'identity_api', 'role_api')
 class RoleV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'
 
     def __init__(self):
         super(RoleV3, self).__init__()
-        self.get_member_from_driver = self.assignment_api.get_role
+        self.get_member_from_driver = self.role_api.get_role
 
     @controller.protected()
     @validation.validated(schema.role_create, 'role')
     def create_role(self, context, role):
         ref = self._assign_unique_id(self._normalize_dict(role))
-        ref = self.assignment_api.create_role(ref['id'], ref)
+        ref = self.role_api.create_role(ref['id'], ref)
         return RoleV3.wrap_member(context, ref)
 
     @controller.filterprotected('name')
     def list_roles(self, context, filters):
         hints = RoleV3.build_driver_hints(context, filters)
-        refs = self.assignment_api.list_roles(
+        refs = self.role_api.list_roles(
             hints=hints)
         return RoleV3.wrap_collection(context, refs, hints=hints)
 
     @controller.protected()
     def get_role(self, context, role_id):
-        ref = self.assignment_api.get_role(role_id)
+        ref = self.role_api.get_role(role_id)
         return RoleV3.wrap_member(context, ref)
 
     @controller.protected()
@@ -486,12 +486,12 @@ class RoleV3(controller.V3Controller):
     def update_role(self, context, role_id, role):
         self._require_matching_id(role_id, role)
 
-        ref = self.assignment_api.update_role(role_id, role)
+        ref = self.role_api.update_role(role_id, role)
         return RoleV3.wrap_member(context, ref)
 
     @controller.protected()
     def delete_role(self, context, role_id):
-        self.assignment_api.delete_role(role_id)
+        self.role_api.delete_role(role_id)
 
     def _require_domain_xor_project(self, domain_id, project_id):
         if (domain_id and project_id) or (not domain_id and not project_id):
@@ -521,7 +521,7 @@ class RoleV3(controller.V3Controller):
         """
         ref = {}
         if role_id:
-            ref['role'] = self.assignment_api.get_role(role_id)
+            ref['role'] = self.role_api.get_role(role_id)
         if user_id:
             try:
                 ref['user'] = self.identity_api.get_user(user_id)

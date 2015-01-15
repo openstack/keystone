@@ -50,7 +50,7 @@ from keystone.models import token_model
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
-                     'identity_api', 'token_provider_api')
+                     'identity_api', 'role_api', 'token_provider_api')
 @six.add_metaclass(abc.ABCMeta)
 class Ec2ControllerCommon(object):
     def check_signature(self, creds_ref, credentials):
@@ -139,8 +139,7 @@ class Ec2ControllerCommon(object):
         roles = metadata_ref.get('roles', [])
         if not roles:
             raise exception.Unauthorized(message='User not valid for tenant.')
-        roles_ref = [self.assignment_api.get_role(role_id)
-                     for role_id in roles]
+        roles_ref = [self.role_api.get_role(role_id) for role_id in roles]
 
         catalog_ref = self.catalog_api.get_catalog(
             user_ref['id'], tenant_ref['id'], metadata_ref)

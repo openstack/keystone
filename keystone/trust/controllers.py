@@ -45,8 +45,8 @@ def _admin_trustor_only(context, trust, user_id):
         raise exception.Forbidden()
 
 
-@dependency.requires('assignment_api', 'identity_api', 'token_provider_api',
-                     'trust_api')
+@dependency.requires('assignment_api', 'identity_api', 'role_api',
+                     'token_provider_api', 'trust_api')
 class TrustV3(controller.V3Controller):
     collection_name = "trusts"
     member_name = "trust"
@@ -76,7 +76,7 @@ class TrustV3(controller.V3Controller):
             raise exception.TrustNotFound(trust_id=trust_id)
         _trustor_trustee_only(trust, user_id)
         self._fill_in_roles(context, trust,
-                            self.assignment_api.list_roles())
+                            self.role_api.list_roles())
         return TrustV3.wrap_member(context, trust)
 
     def _fill_in_roles(self, context, trust, all_roles):
@@ -153,7 +153,7 @@ class TrustV3(controller.V3Controller):
             self._require_role(trust)
         self._require_user_is_trustor(context, trust)
         self._require_trustee_exists(trust['trustee_user_id'])
-        all_roles = self.assignment_api.list_roles()
+        all_roles = self.role_api.list_roles()
         clean_roles = self._clean_role_list(context, trust, all_roles)
         self._require_trustor_has_role_in_project(trust, clean_roles)
         trust['expires_at'] = self._parse_expiration_date(
@@ -270,5 +270,5 @@ class TrustV3(controller.V3Controller):
     def get_role_for_trust(self, context, trust_id, role_id):
         """Get a role that has been assigned to a trust."""
         self.check_role_for_trust(context, trust_id, role_id)
-        role = self.assignment_api.get_role(role_id)
+        role = self.role_api.get_role(role_id)
         return assignment.controllers.RoleV3.wrap_member(context, role)

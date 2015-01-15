@@ -144,7 +144,7 @@ class V2TokenDataHelper(object):
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'trust_api')
+                     'role_api', 'trust_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
     def __init__(self):
@@ -182,7 +182,7 @@ class V3TokenDataHelper(object):
         if project_id:
             roles = self.assignment_api.get_roles_for_user_and_project(
                 user_id, project_id)
-        return [self.assignment_api.get_role(role_id) for role_id in roles]
+        return [self.role_api.get_role(role_id) for role_id in roles]
 
     def _populate_roles_for_groups(self, group_ids,
                                    project_id=None, domain_id=None,
@@ -256,7 +256,7 @@ class V3TokenDataHelper(object):
         if access_token:
             filtered_roles = []
             authed_role_ids = jsonutils.loads(access_token['role_ids'])
-            all_roles = self.assignment_api.list_roles()
+            all_roles = self.role_api.list_roles()
             for role in all_roles:
                 for authed_role in authed_role_ids:
                     if authed_role == role['id']:
@@ -384,7 +384,7 @@ class V3TokenDataHelper(object):
 
 @dependency.optional('oauth_api')
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'trust_api')
+                     'role_api', 'trust_api')
 class BaseProvider(provider.Provider):
     def __init__(self, *args, **kwargs):
         super(BaseProvider, self).__init__(*args, **kwargs)
@@ -557,7 +557,7 @@ class BaseProvider(provider.Provider):
                 metadata_ref = token_ref['metadata']
                 roles_ref = []
                 for role_id in metadata_ref.get('roles', []):
-                    roles_ref.append(self.assignment_api.get_role(role_id))
+                    roles_ref.append(self.role_api.get_role(role_id))
 
                 # Get a service catalog if possible
                 # This is needed for on-behalf-of requests

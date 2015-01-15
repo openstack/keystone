@@ -41,7 +41,7 @@ class ExternalAuthNotApplicable(Exception):
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'token_provider_api', 'trust_api')
+                     'role_api', 'token_provider_api', 'trust_api')
 class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -136,7 +136,7 @@ class Auth(controller.V2Controller):
 
         roles_ref = []
         for role_id in metadata_ref.get('roles', []):
-            role_ref = self.assignment_api.get_role(role_id)
+            role_ref = self.role_api.get_role(role_id)
             roles_ref.append(dict(name=role_ref['name']))
 
         (token_id, token_data) = self.token_provider_api.issue_v2_token(
