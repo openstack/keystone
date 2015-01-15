@@ -5273,7 +5273,7 @@ class InheritanceTests(object):
 
 
 class FilterTests(filtering.FilterTests):
-    def test_list_users_filtered(self):
+    def test_list_entities_filtered(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assignment_api.create_domain(domain1['id'], domain1)
 
