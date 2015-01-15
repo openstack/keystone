@@ -107,7 +107,9 @@ def _downgrade_service_table_with_copy(meta, migrate_engine):
     maker = sessionmaker(bind=migrate_engine)
     session = maker()
 
-    session.execute('ALTER TABLE service RENAME TO orig_service;')
+    orig_service_table = sql.Table('service', meta, autoload=True)
+    orig_service_table.deregister()
+    orig_service_table.rename('orig_service')
 
     service_table = sql.Table(
         'service',
@@ -117,18 +119,18 @@ def _downgrade_service_table_with_copy(meta, migrate_engine):
         sql.Column('extra', sql.Text()))
     service_table.create(migrate_engine, checkfirst=True)
 
-    orig_service_table = sql.Table('orig_service', meta, autoload=True)
-    for service in session.query(orig_service_table):
-        new_values = {
-            'id': service.id,
-            'type': service.type,
-            'extra': service.extra,
-        }
-        session.execute('insert into service (id, type, extra) '
-                        'values ( :id, :type, :extra);',
-                        new_values)
-    session.execute('drop table orig_service;')
+    with session.transaction:
+        for service in session.query(orig_service_table):
+            new_values = {
+                'id': service.id,
+                'type': service.type,
+                'extra': service.extra,
+            }
+            session.execute('insert into service (id, type, extra) '
+                            'values ( :id, :type, :extra);',
+                            new_values)
     session.close()
+    orig_service_table.drop()
 
 
 def downgrade(migrate_engine):
