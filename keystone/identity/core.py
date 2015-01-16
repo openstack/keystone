@@ -20,7 +20,7 @@ import os
 import uuid
 
 from oslo.config import cfg
-from oslo.utils import importutils
+from oslo_utils import importutils
 import six
 
 from keystone import clean

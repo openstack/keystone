@@ -21,7 +21,7 @@ import sys
 import uuid
 
 from keystoneclient.common import cms
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 import six
 
 from keystone.common import cache

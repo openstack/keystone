@@ -14,7 +14,7 @@
 
 import functools
 
-from oslo.utils import importutils
+from oslo_utils import importutils
 
 
 def response_truncated(f):

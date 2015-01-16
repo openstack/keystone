@@ -179,6 +179,24 @@ class HackingCode(fixtures.Fixture):
         ]
     }
 
+    oslo_namespace_imports = {
+        'code': """
+            import oslo.utils
+            import oslo_utils
+            import oslo.utils.encodeutils
+            import oslo_utils.encodeutils
+            from oslo import utils
+            from oslo.utils import encodeutils
+            from oslo_utils import encodeutils
+        """,
+        'expected_errors': [
+            (1, 0, 'K333'),
+            (3, 0, 'K333'),
+            (5, 0, 'K333'),
+            (6, 0, 'K333'),
+        ],
+    }
+
 
 class HackingLogging(fixtures.Fixture):
 

@@ -17,8 +17,8 @@ import datetime
 
 from dogpile.cache import api
 from dogpile.cache import util as dp_util
-from oslo.utils import importutils
-from oslo.utils import timeutils
+from oslo_utils import importutils
+from oslo_utils import timeutils
 import six
 
 from keystone import exception

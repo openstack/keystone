@@ -16,8 +16,8 @@ import sys
 
 from keystoneclient.common import cms
 from oslo.serialization import jsonutils
-from oslo.utils import importutils
-from oslo.utils import timeutils
+from oslo_utils import importutils
+from oslo_utils import timeutils
 import six
 
 from keystone.assignment import controllers as assignment_controllers

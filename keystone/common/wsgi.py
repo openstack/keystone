@@ -22,8 +22,8 @@ import copy
 
 from oslo import i18n
 from oslo.serialization import jsonutils
-from oslo.utils import importutils
-from oslo.utils import strutils
+from oslo_utils import importutils
+from oslo_utils import strutils
 import routes.middleware
 import six
 import webob.dec

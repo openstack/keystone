@@ -13,7 +13,7 @@
 import copy
 import uuid
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 
 from keystone.common import config
 from keystone import exception

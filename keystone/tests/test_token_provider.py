@@ -14,7 +14,7 @@
 
 import datetime
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 
 from keystone import config
 from keystone import exception
