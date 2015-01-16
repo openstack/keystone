@@ -14,7 +14,7 @@
 
 """Extensions supporting OAuth1."""
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 
 from keystone.common import controller

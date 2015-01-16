@@ -23,7 +23,7 @@ import hashlib
 import os
 import pwd
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import passlib.hash
 import six

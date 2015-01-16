@@ -13,7 +13,7 @@
 import datetime
 import uuid
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 
 from keystone.common import utils as common_utils
 from keystone import config

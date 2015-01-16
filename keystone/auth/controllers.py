@@ -15,7 +15,7 @@
 import sys
 
 from keystoneclient.common import cms
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslo_utils import importutils
 from oslo_utils import timeutils
 import six

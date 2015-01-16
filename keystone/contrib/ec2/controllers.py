@@ -37,7 +37,7 @@ import sys
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 import six
 
 from keystone.common import controller

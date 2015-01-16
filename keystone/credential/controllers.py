@@ -14,7 +14,7 @@
 
 import hashlib
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 
 from keystone.common import controller
 from keystone.common import dependency

@@ -188,12 +188,24 @@ class HackingCode(fixtures.Fixture):
             from oslo import utils
             from oslo.utils import encodeutils
             from oslo_utils import encodeutils
+
+            import oslo.serialization
+            import oslo_serialization
+            import oslo.serialization.jsonutils
+            import oslo_serialization.jsonutils
+            from oslo import serialization
+            from oslo.serialization import jsonutils
+            from oslo_serialization import jsonutils
         """,
         'expected_errors': [
             (1, 0, 'K333'),
             (3, 0, 'K333'),
             (5, 0, 'K333'),
             (6, 0, 'K333'),
+            (9, 0, 'K333'),
+            (11, 0, 'K333'),
+            (13, 0, 'K333'),
+            (14, 0, 'K333'),
         ],
     }
 

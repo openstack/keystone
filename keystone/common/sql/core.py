@@ -26,7 +26,7 @@ from oslo.db import exception as db_exception
 from oslo.db import options as db_options
 from oslo.db.sqlalchemy import models
 from oslo.db.sqlalchemy import session as db_session
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 import six
 import sqlalchemy as sql
 from sqlalchemy.ext import declarative

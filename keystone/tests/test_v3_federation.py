@@ -17,7 +17,7 @@ import uuid
 
 from lxml import etree
 import mock
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslotest import mockpatch
 import saml2
 from saml2 import saml
