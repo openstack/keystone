@@ -1519,5 +1519,11 @@
 # value)
 #enabled = true
 
+# Enable redelegation feature. (boolean value)
+#allow_redelegation = false
+
+# Maximum depth of trust redelegation. (integer value)
+#max_redelegation_count = 3
+
 # Trust backend driver. (string value)
 #driver = keystone.trust.backends.sql.Trust
