@@ -5359,36 +5359,6 @@ class FilterTests(filtering.FilterTests):
 
         self._delete_test_data('user', user_list)
 
-    def test_filter_sql_injection_attack(self):
-        """Test against sql injection attack on filters
-
-        Test Plan:
-        - Attempt to get all entities back by passing a two-term attribute
-        - Attempt to piggyback filter to damage DB (e.g. drop table)
-
-        """
-        # Check we have some users
-        users = self.identity_api.list_users()
-        self.assertTrue(len(users) > 0)
-
-        hints = driver_hints.Hints()
-        hints.add_filter('name', "anything' or 'x'='x")
-        users = self.identity_api.list_users(hints=hints)
-        self.assertEqual(0, len(users))
-
-        # See if we can add a SQL command...use the group table instead of the
-        # user table since 'user' is reserved word for SQLAlchemy.
-        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
-        group = self.identity_api.create_group(group)
-
-        hints = driver_hints.Hints()
-        hints.add_filter('name', "x'; drop table group")
-        groups = self.identity_api.list_groups(hints=hints)
-        self.assertEqual(0, len(groups))
-
-        groups = self.identity_api.list_groups()
-        self.assertTrue(len(groups) > 0)
-
 
 class LimitTests(filtering.FilterTests):
     ENTITIES = ['user', 'group', 'project']
