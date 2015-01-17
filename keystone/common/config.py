@@ -13,7 +13,7 @@
 # under the License.
 
 from oslo.config import cfg
-from oslo import messaging
+import oslo_messaging
 
 
 _DEFAULT_AUTH_METHODS = ['external', 'password', 'token']
@@ -957,7 +957,7 @@ FILE_OPTIONS = {
 
 
 CONF = cfg.CONF
-messaging.set_transport_defaults(control_exchange='keystone')
+oslo_messaging.set_transport_defaults(control_exchange='keystone')
 
 
 def _register_auth_plugin_opt(conf, option):

@@ -20,7 +20,7 @@ import logging
 import socket
 
 from oslo.config import cfg
-from oslo import messaging
+import oslo_messaging
 import pycadf
 from pycadf import cadftaxonomy as taxonomy
 from pycadf import cadftype
@@ -198,8 +198,9 @@ def _get_notifier():
     if _notifier is None:
         host = CONF.default_publisher_id or socket.gethostname()
         try:
-            transport = messaging.get_transport(CONF)
-            _notifier = messaging.Notifier(transport, "identity.%s" % host)
+            transport = oslo_messaging.get_transport(CONF)
+            _notifier = oslo_messaging.Notifier(transport,
+                                                "identity.%s" % host)
         except Exception:
             LOG.exception(_LE("Failed to construct notifier"))
             _notifier = False
