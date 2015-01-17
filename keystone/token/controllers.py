@@ -419,7 +419,6 @@ class Auth(controller.V2Controller):
         the content body.
 
         """
-        # TODO(ayoung) validate against revocation API
         belongs_to = context['query_string'].get('belongsTo')
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
