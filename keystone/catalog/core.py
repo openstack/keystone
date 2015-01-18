@@ -126,7 +126,9 @@ class Manager(manager.Manager):
 
     @notifications.updated(_REGION, public=False)
     def update_region(self, region_id, region_ref):
-        return self.driver.update_region(region_id, region_ref)
+        ref = self.driver.update_region(region_id, region_ref)
+        self.get_region.invalidate(self, region_id)
+        return ref
 
     @notifications.deleted(_REGION, public=False)
     def delete_region(self, region_id):
@@ -156,7 +158,9 @@ class Manager(manager.Manager):
 
     @notifications.updated(_SERVICE, public=False)
     def update_service(self, service_id, service_ref):
-        return self.driver.update_service(service_id, service_ref)
+        ref = self.driver.update_service(service_id, service_ref)
+        self.get_service.invalidate(self, service_id)
+        return ref
 
     @notifications.deleted(_SERVICE, public=False)
     def delete_service(self, service_id):
@@ -188,7 +192,9 @@ class Manager(manager.Manager):
 
     @notifications.updated(_ENDPOINT, public=False)
     def update_endpoint(self, endpoint_id, endpoint_ref):
-        return self.driver.update_endpoint(endpoint_id, endpoint_ref)
+        ref = self.driver.update_endpoint(endpoint_id, endpoint_ref)
+        self.get_endpoint.invalidate(self, endpoint_id)
+        return ref
 
     @notifications.deleted(_ENDPOINT, public=False)
     def delete_endpoint(self, endpoint_id):
