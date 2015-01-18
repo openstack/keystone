@@ -1189,8 +1189,8 @@
 # From keystone
 #
 
-# role-assignment inheritance to projects from owning domain can be optionally
-# enabled. (boolean value)
+# role-assignment inheritance to projects from owning domain or from projects
+# higher in the hierarchy can be optionally enabled. (boolean value)
 #enabled = false
 
 

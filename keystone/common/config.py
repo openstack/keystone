@@ -229,7 +229,8 @@ FILE_OPTIONS = {
     'os_inherit': [
         cfg.BoolOpt('enabled', default=False,
                     help='role-assignment inheritance to projects from '
-                         'owning domain can be optionally enabled.'),
+                         'owning domain or from projects higher in the '
+                         'hierarchy can be optionally enabled.'),
     ],
     'token': [
         cfg.ListOpt('bind', default=[],
