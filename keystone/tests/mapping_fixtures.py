@@ -15,7 +15,12 @@
 EMPLOYEE_GROUP_ID = "0cd5e9"
 CONTRACTOR_GROUP_ID = "85a868"
 TESTER_GROUP_ID = "123"
+TESTER_GROUP_NAME = "tester"
 DEVELOPER_GROUP_ID = "xyz"
+DEVELOPER_GROUP_NAME = "developer"
+DEVELOPER_GROUP_DOMAIN_NAME = "outsourcing"
+DEVELOPER_GROUP_DOMAIN_ID = "5abc43"
+
 
 # Mapping summary:
 # LastName Smith & Not Contractor or SubContractor -> group 0cd5e9
@@ -453,6 +458,67 @@ MAPPING_TESTER_REGEX = {
     ]
 }
 
+
+MAPPING_GROUP_NAMES = {
+
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                }
+            ]
+        },
+        {
+            "local": [
+                {
+                    "group": {
+                        "name": DEVELOPER_GROUP_NAME,
+                        "domain": {
+                            "name": DEVELOPER_GROUP_DOMAIN_NAME
+                        }
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Employee"
+                    ],
+                }
+            ]
+        },
+        {
+            "local": [
+                {
+                    "group": {
+                        "name": TESTER_GROUP_NAME,
+                        "domain": {
+                            "id": DEVELOPER_GROUP_DOMAIN_ID
+                        }
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "BuildingX"
+                    ]
+                }
+            ]
+        },
+    ]
+}
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',
@@ -493,12 +559,24 @@ CUSTOMER_ASSERTION = {
     'orgPersonType': 'Customer;'
 }
 
+ANOTHER_CUSTOMER_ASSERTION = {
+    'Email': 'mark@example.com',
+    'UserName': 'markcol',
+    'FirstName': 'Mark',
+    'LastName': 'Collins',
+    'orgPersonType': 'Managers;CEO;CTO'
+}
+
 TESTER_ASSERTION = {
     'Email': 'testacct@example.com',
     'UserName': 'testacct',
     'FirstName': 'Test',
     'LastName': 'Account',
     'orgPersonType': 'MadeupGroup;Tester;GroupX'
+}
+
+ANOTHER_TESTER_ASSERTION = {
+    'UserName': 'IamTester'
 }
 
 BAD_TESTER_ASSERTION = {

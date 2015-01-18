@@ -122,16 +122,133 @@ def validate_expiration(token_ref):
         raise exception.Unauthorized(_('Federation token is expired'))
 
 
-def validate_groups(group_ids, mapping_id, identity_api):
+def validate_groups_cardinality(group_ids, mapping_id):
+    """Check if groups list is non-empty.
+
+    :param group_ids: list of group ids
+    :type group_ids: list of str
+
+    :raises exception.MissingGroups: if ``group_ids`` cardinality is 0
+
+    """
     if not group_ids:
         raise exception.MissingGroups(mapping_id=mapping_id)
 
+
+def validate_groups_in_backend(group_ids, mapping_id, identity_api):
+    """Iterate over group ids and make sure they are present in the backend/
+
+    This call is not transactional.
+    :param group_ids: IDs of the groups to be checked
+    :type group_ids: list of str
+
+    :param mapping_id: id of the mapping used for this operation
+    :type mapping_id: str
+
+    :param identity_api: Identity Manager object used for communication with
+                         backend
+    :type identity_api: identity.Manager
+
+    :raises: exception.MappedGroupNotFound
+
+    """
     for group_id in group_ids:
         try:
             identity_api.get_group(group_id)
         except exception.GroupNotFound:
             raise exception.MappedGroupNotFound(
                 group_id=group_id, mapping_id=mapping_id)
+
+
+def validate_groups(group_ids, mapping_id, identity_api):
+    """Check group ids cardinality and check their existence in the backend.
+
+    This call is not transactional.
+    :param group_ids: IDs of the groups to be checked
+    :type group_ids: list of str
+
+    :param mapping_id: id of the mapping used for this operation
+    :type mapping_id: str
+
+    :param identity_api: Identity Manager object used for communication with
+                         backend
+    :type identity_api: identity.Manager
+
+    :raises: exception.MappedGroupNotFound
+    :raises: exception.MissingGroups
+
+    """
+    validate_groups_cardinality(group_ids, mapping_id)
+    validate_groups_in_backend(group_ids, mapping_id, identity_api)
+
+
+# TODO(marek-denis): Optimize this function, so the number of calls to the
+# backend are minimized.
+def transform_to_group_ids(group_names, mapping_id,
+                           identity_api, assignment_api):
+    """Transform groups identitified by name/domain to their ids
+
+    Function accepts list of groups identified by a name and domain giving
+    a list of group ids in return.
+
+    Example of group_names parameter::
+
+        [
+            {
+                "name": "group_name",
+                "domain": {
+                    "id": "domain_id"
+                },
+            },
+            {
+                "name": "group_name_2",
+                "domain": {
+                    "name": "domain_name"
+                }
+            }
+        ]
+
+    :param group_names: list of group identified by name and its domain.
+    :type group_names: list
+
+    :param mapping_id: id of the mapping used for mapping assertion into
+        local credentials
+    :type mapping_id: str
+
+    :param identity_api: identity_api object
+    :param assignment_api: assignment_api object
+
+    :returns: generator object with group ids
+
+    :raises: excepton.MappedGroupNotFound: in case asked group doesn't
+        exist in the backend.
+
+    """
+
+    def resolve_domain(domain):
+        """Return domain id.
+
+        Input is a dictionary with a domain identified either by a ``id`` or a
+        ``name``. In the latter case system will attempt to fetch domain object
+        from the backend.
+
+        :returns: domain's id
+        :rtype: str
+
+        """
+        domain_id = (domain.get('id') or
+                     assignment_api.get_domain_by_name(
+                     domain.get('name')).get('id'))
+        return domain_id
+
+    for group in group_names:
+        try:
+            group_dict = identity_api.get_group_by_name(
+                group['name'], resolve_domain(group['domain']))
+            yield group_dict['id']
+        except exception.GroupNotFound:
+            raise exception.MappedGroupNotFound(
+                group_id=group['name'], mapping_id=mapping_id)
 
 
 def get_assertion_params_from_env(context):
@@ -189,7 +306,27 @@ class RuleProcessor(object):
 
             {
                 'name': 'foobar',
-                'group_ids': ['abc123', 'def456']
+                'group_ids': ['abc123', 'def456'],
+                'group_names': [
+                    {
+                        'name': 'group_name_1',
+                        'domain': {
+                            'name': 'domain1'
+                        }
+                    },
+                    {
+                        'name': 'group_name_1_1',
+                        'domain': {
+                            'name': 'domain1'
+                        }
+                    },
+                    {
+                        'name': 'group_name_2',
+                        'domain': {
+                            'id': 'xyz132'
+                        }
+                    }
+                ]
             }
 
         """
@@ -243,13 +380,20 @@ class RuleProcessor(object):
 
             [{'group': {'id': '0cd5e9'}, 'user': {'email': 'bob@example.com'}}]
 
-        :returns: dictionary with user name and group_ids.
+        :returns: dictionary with user name, group_ids and group_names.
 
         """
+
+        def extract_groups(groups_by_domain):
+            for groups in groups_by_domain.values():
+                for group in {g['name']: g for g in groups}.values():
+                    yield group
 
         # initialize the group_ids as a set to eliminate duplicates
         user_name = None
         group_ids = set()
+        group_names = list()
+        groups_by_domain = dict()
 
         for identity_value in identity_values:
             if 'user' in identity_value:
@@ -260,9 +404,18 @@ class RuleProcessor(object):
                 else:
                     user_name = identity_value['user']['name']
             if 'group' in identity_value:
-                group_ids.add(identity_value['group']['id'])
+                group = identity_value['group']
+                if 'id' in group:
+                    group_ids.add(group['id'])
+                elif 'name' in group:
+                    domain = (group['domain'].get('name') or
+                              group['domain'].get('id'))
+                    groups_by_domain.setdefault(domain, list()).append(group)
+                group_names.extend(extract_groups(groups_by_domain))
 
-        return {'name': user_name, 'group_ids': list(group_ids)}
+        return {'name': user_name,
+                'group_ids': list(group_ids),
+                'group_names': group_names}
 
     def _update_local_mapping(self, local, direct_maps):
         """Replace any {0}, {1} ... values with data from the assertion.
