@@ -425,10 +425,18 @@ class ProjectV3(controller.V3Controller):
 
         subtree_as_list = 'subtree_as_list' in params and (
             self.query_filter_is_true(params['subtree_as_list']))
+        subtree_as_ids = 'subtree_as_ids' in params and (
+            self.query_filter_is_true(params['subtree_as_ids']))
 
         # parents_as_list and parents_as_ids are mutually exclusive
         if parents_as_list and parents_as_ids:
             msg = _('Cannot use parents_as_list and parents_as_ids query '
+                    'params at the same time.')
+            raise exception.ValidationError(msg)
+
+        # subtree_as_list and subtree_as_ids are mutually exclusive
+        if subtree_as_list and subtree_as_ids:
+            msg = _('Cannot use subtree_as_list and subtree_as_ids query '
                     'params at the same time.')
             raise exception.ValidationError(msg)
 
@@ -447,6 +455,9 @@ class ProjectV3(controller.V3Controller):
                 ref['id'], user_id)
             ref['subtree'] = [ProjectV3.wrap_member(context, p)
                               for p in subtree]
+        elif subtree_as_ids:
+            ref['subtree'] = self.resource_api.get_projects_in_subtree_as_ids(
+                ref['id'])
 
     @controller.protected()
     def get_project(self, context, project_id):
