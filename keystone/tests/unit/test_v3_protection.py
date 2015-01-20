@@ -59,7 +59,8 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         rules.reset()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        self.config_fixture.config(policy_file=self.tmpfilename)
+        self.config_fixture.config(group='oslo_policy',
+                                   policy_file=self.tmpfilename)
 
         # A default auth request we can use - un-scoped user token
         self.auth = self.build_authentication_request(
@@ -377,6 +378,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         self.addCleanup(rules.reset)
         rules.reset()
         self.config_fixture.config(
+            group='oslo_policy',
             policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
 
     def load_sample_data(self):

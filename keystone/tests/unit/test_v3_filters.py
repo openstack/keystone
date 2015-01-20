@@ -38,11 +38,12 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
         # Initialize the policy engine and allow us to write to a temp
         # file in each test to create the policies
-        self.orig_policy_file = CONF.policy_file
+        self.orig_policy_file = CONF.oslo_policy.policy_file
         rules.reset()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        self.config_fixture.config(policy_file=self.tmpfilename)
+        self.config_fixture.config(group='oslo_policy',
+                                   policy_file=self.tmpfilename)
 
         # drop the policy rules
         self.addCleanup(rules.reset)
