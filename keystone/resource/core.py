@@ -230,6 +230,49 @@ class Manager(manager.Manager):
             self._filter_projects_list(parents, user_id)
         return parents
 
+    def _build_parents_as_ids_dict(self, project, parents_by_id):
+        # NOTE(rodrigods): we don't rely in the order of the projects returned
+        # by the list_project_parents() method. Thus, we create a project cache
+        # (parents_by_id) in order to access each parent in constant time and
+        # traverse up the hierarchy.
+        def traverse_parents_hierarchy(project):
+            parent_id = project.get('parent_id')
+            if not parent_id:
+                return None
+
+            parent = parents_by_id[parent_id]
+            return {parent_id: traverse_parents_hierarchy(parent)}
+
+        return traverse_parents_hierarchy(project)
+
+    def get_project_parents_as_ids(self, project):
+        """Gets the IDs from the parents from a given project.
+
+        The project IDs are returned as a structured dictionary traversing up
+        the hierarchy to the top level project. For example, considering the
+        following project hierarchy::
+
+                                    A
+                                    |
+                                  +-B-+
+                                  |   |
+                                  C   D
+
+        If we query for project C parents, the expected return is the following
+        dictionary::
+
+            'parents': {
+                B['id']: {
+                    A['id']: None
+                }
+            }
+
+        """
+        parents_list = self.list_project_parents(project['id'])
+        parents_as_ids = self._build_parents_as_ids_dict(
+            project, {proj['id']: proj for proj in parents_list})
+        return parents_as_ids
+
     def list_projects_in_subtree(self, project_id, user_id=None):
         subtree = self.driver.list_projects_in_subtree(project_id)
         # If a user_id was provided, the returned list should be filtered
