@@ -107,6 +107,14 @@ class Assignment(assignment.Driver):
         # project will always be a root and a leaf at the same time
         return True
 
+    def list_projects_from_ids(self, ids):
+        return [self.get_project(id) for id in ids]
+
+    def list_project_ids_from_domain_ids(self, domain_ids):
+        # We don't support multiple domains within this driver, so ignore
+        # any domain specified.
+        return [x.id for x in self.list_projects(driver_hints.Hints())]
+
     def get_project_by_name(self, tenant_name, domain_id):
         self._validate_default_domain_id(domain_id)
         return self._set_default_attributes(
@@ -134,8 +142,7 @@ class Assignment(assignment.Driver):
             self.project.update(tenant_id, tenant))
 
     def list_role_ids_for_groups_on_project(
-            self, groups, project_id, project_domain_id):
-        self.get_project(project_id)
+            self, groups, project_id, project_domain_id, project_parents):
         group_dns = [self.group._id_to_dn(group_id) for group_id in groups]
         role_list = [self.role._dn_to_id(role_assignment.role_dn)
                      for role_assignment in self.role.get_role_assignments
@@ -150,7 +157,6 @@ class Assignment(assignment.Driver):
                       domain_id=None, group_id=None):
 
         def _get_roles_for_just_user_and_project(user_id, tenant_id):
-            self.get_project(tenant_id)
             user_dn = self.user._id_to_dn(user_id)
             return [self.role._dn_to_id(a.role_dn)
                     for a in self.role.get_role_assignments
@@ -158,7 +164,6 @@ class Assignment(assignment.Driver):
                     if common_ldap.is_dn_equal(a.user_dn, user_dn)]
 
         def _get_roles_for_group_and_project(group_id, project_id):
-            self.get_project(project_id)
             group_dn = self.group._id_to_dn(group_id)
             return [self.role._dn_to_id(a.role_dn)
                     for a in self.role.get_role_assignments
@@ -183,7 +188,11 @@ class Assignment(assignment.Driver):
             return {}
         return {'roles': [self._role_to_dict(r, False) for r in metadata_ref]}
 
-    def list_projects_for_user(self, user_id, group_ids, hints):
+    def list_project_ids_for_user(self, user_id, group_ids, hints,
+                                  inherited=False):
+        # TODO(henry-nash): The ldap driver does not support inherited
+        # assignments, so the inherited parameter is unused.
+        # See bug #1404273.
         user_dn = self.user._id_to_dn(user_id)
         associations = (self.role.list_project_roles_for_user
                         (user_dn, self.project.tree_dn))
@@ -194,27 +203,23 @@ class Assignment(assignment.Driver):
                     group_dn, self.project.tree_dn):
                 associations.append(group_role)
 
-        # Since the LDAP backend doesn't store the domain_id in the LDAP
-        # records (and only supports the default domain), we fill in the
-        # domain_id before we return the list.
-        return [self._set_default_attributes(x) for x in
-                self.project.get_user_projects(user_dn, associations)]
+        return list(set(
+            [self.project._dn_to_id(x.project_dn) for x in associations]))
 
-    def list_role_ids_for_groups(
-            self, group_ids, project_id=None, domain_id=None):
+    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
         raise exception.NotImplemented()
 
-    def list_projects_for_groups(self, group_ids):
+    def list_project_ids_for_groups(self, group_ids, hints,
+                                    inherited=False):
         raise exception.NotImplemented()
 
-    def list_domains_for_user(self, user_id, group_ids, hints):
+    def list_domain_ids_for_user(self, user_id, group_ids, hints):
         raise exception.NotImplemented()
 
-    def list_domains_for_groups(self, group_ids):
+    def list_domain_ids_for_groups(self, group_ids, inherited=False):
         raise exception.NotImplemented()
 
     def list_user_ids_for_project(self, tenant_id):
-        self.get_project(tenant_id)
         tenant_dn = self.project._id_to_dn(tenant_id)
         rolegrants = self.role.get_role_assignments(tenant_dn)
         return [self.user._dn_to_id(user_dn) for user_dn in
@@ -229,7 +234,6 @@ class Assignment(assignment.Driver):
                                  self.project._id_to_dn(tenant_id))
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        self.get_project(tenant_id)
         user_dn = self.user._id_to_dn(user_id)
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         self.role.add_user(role_id, role_dn, user_dn, user_id, tenant_id)
@@ -239,7 +243,6 @@ class Assignment(assignment.Driver):
                                    tenant_dn=tenant_dn)
 
     def _add_role_to_group_and_project(self, group_id, tenant_id, role_id):
-        self.get_project(tenant_id)
         group_dn = self.group._id_to_dn(group_id)
         role_dn = self._subrole_id_to_dn(role_id, tenant_id)
         self.role.add_user(role_id, role_dn, group_dn, group_id, tenant_id)
@@ -253,8 +256,8 @@ class Assignment(assignment.Driver):
         if self.project.subtree_delete_enabled:
             self.project.deleteTree(tenant_id)
         else:
-            tenant_dn = self.project._id_to_dn(tenant_id)
-            self.role.roles_delete_subtree_by_project(tenant_dn)
+            # The manager layer will call assignments to delete the
+            # role assignments, so we just have to delete the project itself.
             self.project.delete(tenant_id)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
@@ -289,6 +292,9 @@ class Assignment(assignment.Driver):
     def list_domains(self, hints):
         return [assignment.calc_default_domain()]
 
+    def list_domains_from_ids(self, ids):
+        return [assignment.calc_default_domain()]
+
 # Bulk actions on User From identity
     def delete_user(self, user_id):
         user_dn = self.user._id_to_dn(user_id)
@@ -317,11 +323,6 @@ class Assignment(assignment.Driver):
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
 
-        if domain_id:
-            self.get_domain(domain_id)
-        if project_id:
-            self.get_project(project_id)
-
         try:
             metadata_ref = self._get_metadata(user_id, project_id,
                                               domain_id, group_id)
@@ -339,11 +340,6 @@ class Assignment(assignment.Driver):
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
 
-        if domain_id:
-            self.get_domain(domain_id)
-        if project_id:
-            self.get_project(project_id)
-
         try:
             metadata_ref = self._get_metadata(user_id, project_id,
                                               domain_id, group_id)
@@ -357,11 +353,6 @@ class Assignment(assignment.Driver):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-
-        if domain_id:
-            self.get_domain(domain_id)
-        if project_id:
-            self.get_project(project_id)
 
         try:
             metadata_ref = self._get_metadata(user_id, project_id,
@@ -383,10 +374,6 @@ class Assignment(assignment.Driver):
     def list_grant_role_ids(self, user_id=None, group_id=None,
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
-        if domain_id:
-            self.get_domain(domain_id)
-        if project_id:
-            self.get_project(project_id)
 
         try:
             metadata_ref = self._get_metadata(user_id, project_id,
@@ -418,6 +405,10 @@ class Assignment(assignment.Driver):
                     'project_id': self.project._dn_to_id(a.project_dn)}
             role_assignments.append(assignment)
         return role_assignments
+
+    def delete_project_assignments(self, project_id):
+        tenant_dn = self.project._id_to_dn(project_id)
+        self.role.roles_delete_subtree_by_project(tenant_dn)
 
     def delete_role_assignments(self, role_id):
         self.role.roles_delete_subtree_by_role(role_id, self.project.tree_dn)
