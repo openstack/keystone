@@ -261,52 +261,6 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         tenants = self.assignment_api.list_projects_for_user(user['id'])
         self.assertEqual([], tenants)
 
-    def test_metadata_removed_on_delete_user(self):
-        # A test to check that the internal representation
-        # or roles is correctly updated when a user is deleted
-        user = {'name': uuid.uuid4().hex,
-                'domain_id': DEFAULT_DOMAIN_ID,
-                'password': 'passwd'}
-        user = self.identity_api.create_user(user)
-        role = {'id': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex}
-        self.role_api.create_role(role['id'], role)
-        self.assignment_api.add_role_to_user_and_project(
-            user['id'],
-            self.tenant_bar['id'],
-            role['id'])
-        self.identity_api.delete_user(user['id'])
-
-        # Now check whether the internal representation of roles
-        # has been deleted
-        self.assertRaises(exception.MetadataNotFound,
-                          self.assignment_api._get_metadata,
-                          user['id'],
-                          self.tenant_bar['id'])
-
-    def test_metadata_removed_on_delete_project(self):
-        # A test to check that the internal representation
-        # or roles is correctly updated when a project is deleted
-        user = {'name': uuid.uuid4().hex,
-                'domain_id': DEFAULT_DOMAIN_ID,
-                'password': 'passwd'}
-        user = self.identity_api.create_user(user)
-        role = {'id': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex}
-        self.role_api.create_role(role['id'], role)
-        self.assignment_api.add_role_to_user_and_project(
-            user['id'],
-            self.tenant_bar['id'],
-            role['id'])
-        self.resource_api.delete_project(self.tenant_bar['id'])
-
-        # Now check whether the internal representation of roles
-        # has been deleted
-        self.assertRaises(exception.MetadataNotFound,
-                          self.assignment_api._get_metadata,
-                          user['id'],
-                          self.tenant_bar['id'])
-
     def test_update_project_returns_extra(self):
         """This tests for backwards-compatibility with an essex/folsom bug.
 
