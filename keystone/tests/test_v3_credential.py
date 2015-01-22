@@ -369,10 +369,10 @@ class TestCredentialEc2(CredentialBaseTestCase):
 
     def test_ec2_list_credentials(self):
         """Test ec2 credential listing."""
-        self._get_ec2_cred_uri()
+        self._get_ec2_cred()
         uri = self._get_ec2_cred_uri()
         r = self.get(uri)
-        cred_list = r.result
+        cred_list = r.result['credentials']
         self.assertEqual(1, len(cred_list))
 
     def test_ec2_delete_credential(self):
