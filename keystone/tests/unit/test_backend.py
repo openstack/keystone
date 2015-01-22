@@ -40,7 +40,272 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 NULL_OBJECT = object()
 
 
-class IdentityTests(object):
+class AssignmentTestHelperMixin(object):
+    """Mixin class to aid testing of assignments.
+
+    This class supports data driven test plans that enable:
+
+    - Creation of initial entities, such as domains, users, groups, projects
+      and roles
+    - Creation of assignments referencing the above entities
+    - A set of input parameters and expected outputs to list_role_assignments
+      based on the above test data
+
+    A test plan is a dict of the form:
+
+    test_plan = {
+        entities: details and number of entities,
+        assignments: list of assignments to create,
+        tests: list of pairs of input params and expected outputs}
+
+    An example test plan:
+
+    test_plan = {
+        # First, create the entities required. Entities are specified by
+        # a dict with the key being the entity type and the value an
+        # entity specification which can be one of:
+        #
+        # - a simple number, e.g. {'users': 3} creates 3 users
+        # - a dict where more information regarding the contents of the entity
+        #   is required, e.g. {'domains' : {'users : 3}} creates a domain
+        #   with three users
+        # - a list of entity specifications if multiple are required
+        #
+        # The following creates a domain that contains a single user, group and
+        # project, as well as creating three roles.
+
+        'entities': {'domains': {'users': 1, 'groups': 1, 'projects': 1},
+                     'roles': 3},
+
+        # If it is required that an existing domain be used for the new
+        # entities, then the id of that domain can be included in the
+        # domain dict.  For example, if alternatively we wanted to add 3 users
+        # to the default domain, add a second domain containing 3 projects as
+        # well as 5 additional empty domains, the entities would be defined as:
+        #
+        # 'entities': {'domains': [{'id': DEFAULT_DOMAIN, 'users': 3},
+        #                          {'projects': 3}, 5]},
+        #
+        # Next, create assignments between the entities, referencing the
+        # entities by index, i.e. 'user': 0 refers to user[0]. Entities are
+        # indexed in the order they appear in the 'entities' key above within
+        # their entity type.
+
+        'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                        {'user': 0, 'role': 1, 'project': 0},
+                        {'group': 0, 'role': 2, 'domain': 0},
+                        {'user': 0, 'role': 2, 'project': 0}],
+
+        # Finally, define an array of tests where list_role_assignment() is
+        # called with the given input parameters and the results are then
+        # confirmed to be as given in 'results'. Again, all entities are
+        # referenced by index.
+
+        'tests': [
+            {'params': {},
+             'results': [{'user': 0, 'role': 0, 'domain': 0},
+                         {'user': 0, 'role': 1, 'project': 0},
+                         {'group': 0, 'role': 2, 'domain': 0},
+                         {'user': 0, 'role': 2, 'project': 0}]},
+            {'params': {'role': 2},
+             'results': [{'group': 0, 'role': 2, 'domain': 0},
+                         {'user': 0, 'role': 2, 'project': 0}]}]}
+
+    """
+    def create_entities(self, entity_pattern):
+        """Create the entities specified in the test plan.
+
+        Process the 'entities' key in the test plan, creating the requested
+        entities. Each created entity will be added to the array of entities
+        stored in the returned test_data object, e.g.:
+
+        test_data['users'] = [user[0], user[1]....]
+
+        """
+        def _create_entity_in_domain(entity_type, domain_id):
+            new_entity = {'name': uuid.uuid4().hex, 'domain_id': domain_id}
+            if entity_type == 'users':
+                new_entity = self.identity_api.create_user(new_entity)
+            elif entity_type == 'groups':
+                new_entity = self.identity_api.create_group(new_entity)
+            elif entity_type == 'projects':
+                new_entity['id'] = uuid.uuid4().hex
+                new_entity = self.resource_api.create_project(new_entity['id'],
+                                                              new_entity)
+            else:
+                # Must be a bad test plan
+                raise exception.NotImplemented()
+            return new_entity
+
+        def _create_domain(domain_id=None):
+            if domain_id is None:
+                new_domain = {'id': uuid.uuid4().hex,
+                              'name': uuid.uuid4().hex}
+                self.resource_api.create_domain(new_domain['id'],
+                                                new_domain)
+                return new_domain
+            else:
+                # The test plan specified an existing domain to use
+                return self.resource_api.get_domain(domain_id)
+
+        def _create_role():
+            new_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            return self.role_api.create_role(new_role['id'], new_role)
+
+        def _handle_domain_spec(domain_spec):
+            """Handle the creation of domains and their contents.
+
+            domain_spec may either be a count of the number of empty domains to
+            create, a dict describing the domain contents, or a list of
+            domain_specs.
+
+            In the case when a list is provided, this method calls itself
+            recursively to handle the list elements.
+
+            """
+            if isinstance(domain_spec, list):
+                for x in domain_spec:
+                    _handle_domain_spec(x)
+            elif isinstance(domain_spec, dict):
+                # If there is a domain ID specified, then use it
+                the_domain = _create_domain(domain_id=domain_spec.get('id'))
+                test_data['domains'].append(the_domain)
+                for entity_type, count in domain_spec.items():
+                    if entity_type == 'id':
+                        # We already used this above to determine whether to
+                        # use and existing domain
+                        continue
+                    for _ in range(count):
+                        test_data[entity_type].append(
+                            _create_entity_in_domain(
+                                entity_type, the_domain['id']))
+            else:
+                for _ in range(domain_spec):
+                    test_data['domains'].append(_create_domain())
+
+        test_data = {}
+        for entity in ['users', 'groups', 'domains', 'projects', 'roles']:
+            test_data[entity] = []
+
+        # Create any domains requested and, if specified, any entities within
+        # those domains
+        if 'domains' in entity_pattern:
+            _handle_domain_spec(entity_pattern['domains'])
+
+        # Create any roles requested
+        if 'roles' in entity_pattern:
+            for _ in range(entity_pattern['roles']):
+                test_data['roles'].append(_create_role())
+
+        return test_data
+
+    def _convert_entity_shorthand(self, key, shorthand_data, reference_data):
+        """Convert a shorthand entity description into a full ID reference.
+
+        In test plan definitions, we allow a shorthand for referencing to an
+        entity of the form:
+
+        'user': 0
+
+        which is actually shorthand for:
+
+        'user_id': reference_data['users'][0]['id']
+
+        This method converts the shorthand version into the full reference.
+
+        """
+        expanded_key = '%s_id' % key
+        reference_index = '%ss' % key
+        index_value = (
+            reference_data[reference_index][shorthand_data[key]]['id'])
+        return expanded_key, index_value
+
+    def create_assignments(self, assignment_pattern, test_data):
+        """Create the assignments specified in the test plan."""
+
+        # First store how many assignments are already in the system,
+        # so during the tests we can check the number of new assignments
+        # created.
+        test_data['initial_assignment_count'] = (
+            len(self.assignment_api.list_role_assignments()))
+
+        # Now create the new assignments in the test plan
+        for assignment in assignment_pattern:
+            # Each assignment is a dict of the form:
+            #
+            # { 'user': 0, 'project':1, 'role': 6}
+            #
+            # where the value of each item is the index into the array of
+            # entities created earlier.
+            #
+            # We process the assignment dict to create the args required to
+            # make the create_grant() call.
+            args = {}
+            for param in assignment:
+                # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
+                # where entity in user, group, project or domain
+                key, value = self._convert_entity_shorthand(
+                    param, assignment, test_data)
+                args[key] = value
+            self.assignment_api.create_grant(**args)
+        return test_data
+
+    def execute_assignment_tests(self, test_plan, test_data):
+        """Execute the test plan, based on the created test_data."""
+
+        def check_results(expected, actual, param_arg_count):
+            if param_arg_count == 0:
+                # It was an unfiltered call, so default fixture assignments
+                # might be polluting our answer - so we take into account
+                # how many assignments there were before the test.
+                self.assertEqual(
+                    len(expected) + test_data['initial_assignment_count'],
+                    len(actual))
+            else:
+                self.assertThat(actual, matchers.HasLength(len(expected)))
+
+            for each_expected in expected:
+                expected_assignment = {}
+                for param in each_expected:
+                    # Convert a simple shorthand entry into a full
+                    # entity reference
+                    key, value = self._convert_entity_shorthand(
+                        param, each_expected, test_data)
+                    expected_assignment[key] = value
+                self.assertIn(expected_assignment, actual)
+
+        # Go through each test in the array, processing the input params, which
+        # we build into an args dict, and then call list_role_assignments. Then
+        # check the results against those specified in the test plan.
+        for test in test_plan.get('tests', []):
+            args = {}
+            for param in test['params']:
+                # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
+                # where entity in user, group, project or domain
+                key, value = self._convert_entity_shorthand(
+                    param, test['params'], test_data)
+                args[key] = value
+            results = self.assignment_api.list_role_assignments(**args)
+            check_results(test['results'], results, len(args))
+
+    def execute_assignment_test_plan(self, test_plan):
+        """Create entities, assignments and execute the test plan.
+
+        The standard method to call to create entities and assignments and
+        execute the tests as specified in the test_plan. The test_data
+        dict is returned so that, if required, the caller can execute
+        additional manual tests with the entities and assignments created.
+
+        """
+        test_data = self.create_entities(test_plan['entities'])
+        if 'assignments' in test_plan:
+            test_data = self.create_assignments(test_plan['assignments'],
+                                                test_data)
+        self.execute_assignment_tests(test_plan, test_data)
+        return test_data
+
+
+class IdentityTests(AssignmentTestHelperMixin):
     def _get_domain_fixture(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.resource_api.create_domain(domain['id'], domain)
@@ -506,168 +771,83 @@ class IdentityTests(object):
                           'fake2')
 
     def test_list_role_assignments_unfiltered(self):
-        """Test unfiltered listing of role assignments.
+        """Test unfiltered listing of role assignments."""
 
-        Test Plan:
-
-        - Create a domain, with a user, group & project
-        - Find how many role assignments already exist (from default
-          fixtures)
-        - Create a grant of each type (user/group on project/domain)
-        - Check the number of assignments has gone up by 4 and that
-          the entries we added are in the list returned
-        - Check that if we list assignments by role_id, then we get back
-          assignments that only contain that role.
-
-        """
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.resource_api.create_domain(new_domain['id'], new_domain)
-        new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
-                    'enabled': True, 'domain_id': new_domain['id']}
-        new_user = self.identity_api.create_user(new_user)
-        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
-        new_group = self.identity_api.create_group(new_group)
-        new_project = {'id': uuid.uuid4().hex,
-                       'name': uuid.uuid4().hex,
-                       'domain_id': new_domain['id']}
-        self.resource_api.create_project(new_project['id'], new_project)
-
-        # First check how many role grants already exist
-        existing_assignments = len(self.assignment_api.list_role_assignments())
-
-        # Now create the grants (roles are defined in default_fixtures)
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         domain_id=new_domain['id'],
-                                         role_id='member')
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=new_project['id'],
-                                         role_id='other')
-        self.assignment_api.create_grant(group_id=new_group['id'],
-                                         domain_id=new_domain['id'],
-                                         role_id='admin')
-        self.assignment_api.create_grant(group_id=new_group['id'],
-                                         project_id=new_project['id'],
-                                         role_id='admin')
-
-        # Read back the full list of assignments - check it is gone up by 4
-        assignment_list = self.assignment_api.list_role_assignments()
-        self.assertEqual(existing_assignments + 4, len(assignment_list))
-
-        # Now check that each of our four new entries are in the list
-        self.assertIn(
-            {'user_id': new_user['id'], 'domain_id': new_domain['id'],
-             'role_id': 'member'},
-            assignment_list)
-        self.assertIn(
-            {'user_id': new_user['id'], 'project_id': new_project['id'],
-             'role_id': 'other'},
-            assignment_list)
-        self.assertIn(
-            {'group_id': new_group['id'], 'domain_id': new_domain['id'],
-             'role_id': 'admin'},
-            assignment_list)
-        self.assertIn(
-            {'group_id': new_group['id'], 'project_id': new_project['id'],
-             'role_id': 'admin'},
-            assignment_list)
+        test_plan = {
+            # Create a domain, with a user, group & project
+            'entities': {'domains': {'users': 1, 'groups': 1, 'projects': 1},
+                         'roles': 3},
+            # Create a grant of each type (user/group on project/domain)
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'user': 0, 'role': 1, 'project': 0},
+                            {'group': 0, 'role': 2, 'domain': 0},
+                            {'group': 0, 'role': 2, 'project': 0}],
+            'tests': [
+                # Check that we get back the 4 assignments
+                {'params': {},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'project': 0},
+                             {'group': 0, 'role': 2, 'domain': 0},
+                             {'group': 0, 'role': 2, 'project': 0}]}
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
 
     def test_list_role_assignments_filtered_by_role(self):
-        """Test listing of role assignments filtered by role ID.
+        """Test listing of role assignments filtered by role ID."""
 
-        Test Plan:
+        test_plan = {
+            # Create a user, group & project in the default domain
+            'entities': {'domains': {'id': DEFAULT_DOMAIN_ID,
+                                     'users': 1, 'groups': 1, 'projects': 1},
+                         'roles': 3},
+            # Create a grant of each type (user/group on project/domain)
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'user': 0, 'role': 1, 'project': 0},
+                            {'group': 0, 'role': 2, 'domain': 0},
+                            {'group': 0, 'role': 2, 'project': 0}],
+            'tests': [
+                # Check that when filtering by role, we only get back those
+                # that match
+                {'params': {'role': 2},
+                 'results': [{'group': 0, 'role': 2, 'domain': 0},
+                             {'group': 0, 'role': 2, 'project': 0}]}
+            ]
+        }
+        test_data = self.execute_assignment_test_plan(test_plan)
 
-        - Create a user, group & project
-        - Find how many role assignments already exist (from default
-          fixtures)
-        - Create a grant of each type (user/group on project/domain)
-        - Check that if we list assignments by role_id, then we get back
-          assignments that only contain that role.
-
-        """
-        new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
-                    'enabled': True, 'domain_id': DEFAULT_DOMAIN_ID}
-        new_user = self.identity_api.create_user(new_user)
-        new_group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
-        new_group = self.identity_api.create_group(new_group)
-        new_project = {'id': uuid.uuid4().hex,
-                       'name': uuid.uuid4().hex,
-                       'domain_id': DEFAULT_DOMAIN_ID}
-        self.resource_api.create_project(new_project['id'], new_project)
-
-        # First check how many role grants already exist
-        existing_assignments_for_role = len(
-            self.assignment_api.list_role_assignments_for_role(
-                role_id='admin'))
-
-        # Now create the grants (roles are defined in default_fixtures)
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         domain_id=DEFAULT_DOMAIN_ID,
-                                         role_id='member')
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=new_project['id'],
-                                         role_id='other')
-        self.assignment_api.create_grant(group_id=new_group['id'],
-                                         domain_id=DEFAULT_DOMAIN_ID,
-                                         role_id='admin')
-        self.assignment_api.create_grant(group_id=new_group['id'],
-                                         project_id=new_project['id'],
-                                         role_id='admin')
-
-        # Read back the list of assignments for just the admin role, checking
-        # this only goes up by two.
+        # Also test that list_role_assignments_for_role() gives the same answer
         assignment_list = self.assignment_api.list_role_assignments_for_role(
-            role_id='admin')
-        self.assertEqual(existing_assignments_for_role + 2,
-                         len(assignment_list))
+            role_id=test_data['roles'][2]['id'])
+        self.assertThat(assignment_list, matchers.HasLength(2))
 
         # Now check that each of our two new entries are in the list
         self.assertIn(
-            {'group_id': new_group['id'], 'domain_id': DEFAULT_DOMAIN_ID,
-             'role_id': 'admin'},
+            {'group_id': test_data['groups'][0]['id'],
+             'domain_id': DEFAULT_DOMAIN_ID,
+             'role_id': test_data['roles'][2]['id']},
             assignment_list)
         self.assertIn(
-            {'group_id': new_group['id'], 'project_id': new_project['id'],
-             'role_id': 'admin'},
+            {'group_id': test_data['groups'][0]['id'],
+             'project_id': test_data['projects'][0]['id'],
+             'role_id': test_data['roles'][2]['id']},
             assignment_list)
 
     def test_list_group_role_assignment(self):
         # When a group role assignment is created and the role assignments are
         # listed then the group role assignment is included in the list.
 
-        MEMBER_ROLE_ID = 'member'
-
-        def get_member_assignments():
-            assignments = self.assignment_api.list_role_assignments()
-            return [x for x in assignments if x['role_id'] == MEMBER_ROLE_ID]
-
-        orig_member_assignments = get_member_assignments()
-
-        # Create a group.
-        new_group = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': self.getUniqueString(prefix='tlgra')}
-        new_group = self.identity_api.create_group(new_group)
-
-        # Create a project.
-        new_project = {
-            'id': uuid.uuid4().hex,
-            'name': self.getUniqueString(prefix='tlgra'),
-            'domain_id': DEFAULT_DOMAIN_ID}
-        self.resource_api.create_project(new_project['id'], new_project)
-
-        # Assign a role to the group.
-        self.assignment_api.create_grant(
-            group_id=new_group['id'], project_id=new_project['id'],
-            role_id=MEMBER_ROLE_ID)
-
-        # List role assignments
-        new_member_assignments = get_member_assignments()
-
-        expected_member_assignments = orig_member_assignments + [{
-            'group_id': new_group['id'], 'project_id': new_project['id'],
-            'role_id': MEMBER_ROLE_ID}]
-        self.assertItemsEqual(expected_member_assignments,
-                              new_member_assignments)
+        test_plan = {
+            'entities': {'domains': {'id': DEFAULT_DOMAIN_ID,
+                                     'groups': 1, 'projects': 1},
+                         'roles': 1},
+            'assignments': [{'group': 0, 'role': 0, 'project': 0}],
+            'tests': [
+                {'params': {},
+                 'results': [{'group': 0, 'role': 0, 'project': 0}]}
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
 
     def test_list_role_assignments_bad_role(self):
         assignment_list = self.assignment_api.list_role_assignments_for_role(
