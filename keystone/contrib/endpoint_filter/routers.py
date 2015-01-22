@@ -36,6 +36,7 @@ class EndpointFilterExtension(wsgi.V3ExtensionRouter):
 
     The API looks like::
 
+        PUT /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
         GET /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
         HEAD /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
         DELETE /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
