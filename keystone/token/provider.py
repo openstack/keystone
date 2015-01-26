@@ -269,10 +269,7 @@ class Manager(manager.Manager):
         unique_id = self.unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
-        try:
-            token_ref = self._persistence.get_token(unique_id)
-        except (exception.ValidationError, exception.UserNotFound):
-            raise exception.TokenNotFound(token_id=token_id)
+        token_ref = self._persistence.get_token(unique_id)
         token = self._validate_v3_token(token_ref)
         self._is_valid_token(token)
         return token
