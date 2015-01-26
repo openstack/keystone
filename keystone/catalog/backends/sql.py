@@ -29,10 +29,9 @@ CONF = config.CONF
 
 class Region(sql.ModelBase, sql.DictBase):
     __tablename__ = 'region'
-    attributes = ['id', 'description', 'parent_region_id', 'url']
+    attributes = ['id', 'description', 'parent_region_id']
     id = sql.Column(sql.String(255), primary_key=True)
     description = sql.Column(sql.String(255), nullable=False)
-    url = sql.Column(sql.String(255), nullable=True)
     # NOTE(jaypipes): Right now, using an adjacency list model for
     #                 storing the hierarchy of regions is fine, since
     #                 the API does not support any kind of querying for

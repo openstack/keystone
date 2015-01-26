@@ -22,8 +22,7 @@ _region_properties = {
     },
     'parent_region_id': {
         'type': ['string', 'null']
-    },
-    'url': parameter_types.url
+    }
 }
 
 region_create = {

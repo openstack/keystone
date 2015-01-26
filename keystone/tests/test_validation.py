@@ -771,20 +771,6 @@ class RegionValidationTestCase(testtools.TestCase):
         request_to_validate = {'other_attr': uuid.uuid4().hex}
         self.create_region_validator.validate(request_to_validate)
 
-    def test_validate_region_create_succeeds_with_url(self):
-        """Validate `url` attribute in region create request."""
-        for url in _VALID_URLS:
-            request_to_validate = {'url': url}
-            self.create_region_validator.validate(request_to_validate)
-
-    def test_validate_region_create_fails_with_invalid_url(self):
-        """Exception raised when passing invalid `url` in request."""
-        for url in _INVALID_URLS:
-            request_to_validate = {'url': url}
-            self.assertRaises(exception.SchemaValidationError,
-                              self.create_region_validator.validate,
-                              request_to_validate)
-
     def test_validate_region_update_succeeds(self):
         """Test that we validate a region update request."""
         request_to_validate = {'id': 'us-west',
@@ -804,20 +790,6 @@ class RegionValidationTestCase(testtools.TestCase):
         self.assertRaises(exception.SchemaValidationError,
                           self.update_region_validator.validate,
                           request_to_validate)
-
-    def test_validate_region_update_succeeds_with_url(self):
-        """Validate `url` attribute in region update request."""
-        for url in _VALID_URLS:
-            request_to_validate = {'url': url}
-            self.update_region_validator.validate(request_to_validate)
-
-    def test_validate_region_update_fails_with_invalid_url(self):
-        """Exception raised when passing invalid `url` in request."""
-        for url in _INVALID_URLS:
-            request_to_validate = {'url': url}
-            self.assertRaises(exception.SchemaValidationError,
-                              self.update_region_validator.validate,
-                              request_to_validate)
 
 
 class ServiceValidationTestCase(testtools.TestCase):

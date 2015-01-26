@@ -236,48 +236,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.delete('/regions/%(region_id)s' % {
             'region_id': ref['id']})
 
-    def test_create_region_with_url(self):
-        """Call ``POST /regions`` with a custom url field."""
-        ref = self.new_region_ref()
-        ref['url'] = 'http://beta.com:5000/v3'
-
-        r = self.post(
-            '/regions',
-            body={'region': ref},
-            expected_status=201)
-
-        self.assertEqual(ref['url'], r.json['region']['url'])
-        self.assertValidRegionResponse(r, ref)
-
-        r = self.get(
-            '/regions/%(region_id)s' % {
-                'region_id': ref['id']})
-        self.assertEqual(ref['url'], r.json['region']['url'])
-        self.assertValidRegionResponse(r, ref)
-
-    def test_update_region_with_url(self):
-        """Call ``PUT /regions`` with a custom url field."""
-        ref = self.new_region_ref()
-
-        r = self.post(
-            '/regions',
-            body={'region': ref},
-            expected_status=201)
-
-        self.assertIsNone(r.json['region']['url'])
-        self.assertValidRegionResponse(r, ref)
-
-        region_id = r.json['region']['id']
-        ref = self.new_region_ref()
-        del ref['id']
-        ref['url'] = 'http://beta.com:5000/v3'
-
-        r = self.patch('/regions/%(region_id)s' % {
-            'region_id': region_id},
-            body={'region': ref})
-        self.assertEqual(ref['url'], r.json['region']['url'])
-        self.assertValidRegionResponse(r, ref)
-
     # service crud tests
 
     def test_create_service(self):
