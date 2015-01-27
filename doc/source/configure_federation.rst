@@ -297,7 +297,7 @@ Create a region for the Service Provider (SP)
 
 Create a new region for the service provider, in this example, we are creating
 a new region with an ID of ``BETA``, and URL of
-``https://beta.com/Shibboleth.sso/SAML2/POST``. This URL will be used when
+``https://beta.com/Shibboleth.sso/SAML2/ECP``. This URL will be used when
 creating a SAML assertion for ``BETA``, and signed by the current Keystone IdP.
 
 .. code-block:: bash
@@ -305,7 +305,7 @@ creating a SAML assertion for ``BETA``, and signed by the current Keystone IdP.
     $ curl -s -X PUT \
       -H "X-Auth-Token: $OS_TOKEN" \
       -H "Content-Type: application/json" \
-      -d '{"region": {"url": "http://beta.com/Shibboleth.sso/SAML2/POST"}}' \
+      -d '{"region": {"url": "http://beta.com/Shibboleth.sso/SAML2/ECP"}}' \
       http://localhost:5000/v3/regions/BETA | python -mjson.tool
 
 Testing it all out
