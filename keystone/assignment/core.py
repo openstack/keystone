@@ -676,10 +676,6 @@ class Manager(manager.Manager):
     def list_projects_in_domain(self, domain_id):
         return self.driver.list_projects_in_domain(domain_id)
 
-    def list_user_projects(self, user_id, hints=None):
-        return self.driver.list_user_projects(
-            user_id, hints or driver_hints.Hints())
-
     def list_projects_for_groups(self, group_ids):
         project_ids = (
             self.driver.list_project_ids_for_groups(group_ids,
