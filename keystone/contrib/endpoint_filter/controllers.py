@@ -18,6 +18,8 @@ from keystone import assignment
 from keystone.catalog import controllers as catalog_controllers
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import validation
+from keystone.contrib.endpoint_filter import schema
 from keystone import exception
 from keystone import notifications
 
@@ -157,6 +159,7 @@ class EndpointGroupV3Controller(_ControllerBase):
                                                               path=path)
 
     @controller.protected()
+    @validation.validated(schema.endpoint_group_create, 'endpoint_group')
     def create_endpoint_group(self, context, endpoint_group):
         """Creates an Endpoint Group with the associated filters."""
         ref = self._assign_unique_id(self._normalize_dict(endpoint_group))
@@ -184,6 +187,7 @@ class EndpointGroupV3Controller(_ControllerBase):
             context, ref)
 
     @controller.protected()
+    @validation.validated(schema.endpoint_group_update, 'endpoint_group')
     def update_endpoint_group(self, context, endpoint_group_id,
                               endpoint_group):
         """Update fixed values and/or extend the filters."""
