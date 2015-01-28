@@ -14,6 +14,7 @@
 
 import six
 import sqlalchemy
+from sqlalchemy.sql.expression import false
 
 from keystone import assignment as keystone_assignment
 from keystone import clean
@@ -325,6 +326,7 @@ class Assignment(keystone_assignment.Driver):
         sql_constraints = sqlalchemy.and_(
             RoleAssignment.type == assignment_type,
             RoleAssignment.target_id == target_id,
+            RoleAssignment.inherited == false(),
             Role.id == RoleAssignment.role_id,
             RoleAssignment.actor_id.in_(group_ids))
 
@@ -364,6 +366,7 @@ class Assignment(keystone_assignment.Driver):
 
         group_sql_conditions = sqlalchemy.and_(
             RoleAssignment.type == assignment_type,
+            RoleAssignment.inherited == false(),
             entity.id == RoleAssignment.target_id,
             RoleAssignment.actor_id.in_(group_ids))
 
