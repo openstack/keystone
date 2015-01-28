@@ -3328,6 +3328,13 @@ class IdentityTests(object):
                                         {'description': uuid.uuid4().hex})
         # If the previous line didn't raise an exception then the test passes.
 
+    def test_update_role_same_name(self):
+        # A user can update a role and set the name to be the same as it was.
+
+        self.assignment_api.update_role(self.role_member['id'],
+                                        {'name': self.role_member['name']})
+        # If the previous line didn't raise an exception then the test passes.
+
 
 class TokenTests(object):
     def _create_token_id(self):
