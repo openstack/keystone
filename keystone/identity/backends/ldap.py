@@ -16,6 +16,7 @@ import uuid
 
 import ldap
 import ldap.filter
+import six
 
 from keystone import clean
 from keystone.common import driver_hints
@@ -224,8 +225,8 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             # This could be a bool or a string.  If it's a string,
             # we need to convert it so we can invert it properly.
             enabled = obj.get('enabled', self.enabled_default)
-            if type(enabled) is str:
-                if enabled.lower == 'true':
+            if isinstance(enabled, six.string_types):
+                if enabled.lower() == 'true':
                     enabled = True
                 else:
                     enabled = False
