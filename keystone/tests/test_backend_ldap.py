@@ -1294,6 +1294,47 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # from the resource default.
         self.assertIs(True, user_ref['enabled'])
 
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_user_enabled_attribute_handles_expired(self, mock_ldap_get):
+        # If using 'passwordisexpired' as enabled attribute, and inverting it,
+        # Then an unauthorized user (expired password) should not be enabled.
+        self.config_fixture.config(group='ldap', user_enabled_invert=True,
+                                   user_enabled_attribute='passwordisexpired')
+        mock_ldap_get.return_value = (
+            u'uid=123456789,c=us,ou=our_ldap,o=acme.com',
+            {
+                'uid': [123456789],
+                'mail': ['shaun@acme.com'],
+                'passwordisexpired': ['TRUE'],
+                'cn': ['uid=123456789,c=us,ou=our_ldap,o=acme.com']
+            }
+        )
+
+        user_api = identity.backends.ldap.UserApi(CONF)
+        user_ref = user_api.get('123456789')
+        self.assertIs(False, user_ref['enabled'])
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_user_enabled_attribute_handles_utf8(self, mock_ldap_get):
+        # If using 'passwordisexpired' as enabled attribute, and inverting it,
+        # and the result is utf8 encoded, then the an authorized user should
+        # be enabled.
+        self.config_fixture.config(group='ldap', user_enabled_invert=True,
+                                   user_enabled_attribute='passwordisexpired')
+        mock_ldap_get.return_value = (
+            u'uid=123456789,c=us,ou=our_ldap,o=acme.com',
+            {
+                'uid': [123456789],
+                'mail': [u'shaun@acme.com'],
+                'passwordisexpired': [u'false'],
+                'cn': [u'uid=123456789,c=us,ou=our_ldap,o=acme.com']
+            }
+        )
+
+        user_api = identity.backends.ldap.UserApi(CONF)
+        user_ref = user_api.get('123456789')
+        self.assertIs(True, user_ref['enabled'])
+
     @mock.patch.object(common_ldap_core.KeystoneLDAPHandler, 'simple_bind_s')
     def test_user_api_get_connection_no_user_password(self, mocked_method):
         """Don't bind in case the user and password are blank."""
@@ -1987,6 +2028,26 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def test_user_enabled_invert_default_str_value(self):
         self.skipTest(
             "N/A: Covered by test_user_enabled_invert")
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get')
+    def test_user_enabled_attribute_handles_utf8(self, mock_ldap_get):
+        # Since user_enabled_emulation is enabled in this test, this test will
+        # fail since it's using user_enabled_invert.
+        self.config_fixture.config(group='ldap', user_enabled_invert=True,
+                                   user_enabled_attribute='passwordisexpired')
+        mock_ldap_get.return_value = (
+            u'uid=123456789,c=us,ou=our_ldap,o=acme.com',
+            {
+                'uid': [123456789],
+                'mail': [u'shaun@acme.com'],
+                'passwordisexpired': [u'false'],
+                'cn': [u'uid=123456789,c=us,ou=our_ldap,o=acme.com']
+            }
+        )
+
+        user_api = identity.backends.ldap.UserApi(CONF)
+        user_ref = user_api.get('123456789')
+        self.assertIs(False, user_ref['enabled'])
 
 
 class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
