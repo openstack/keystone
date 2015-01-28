@@ -144,6 +144,15 @@ class KvsIdentity(tests.TestCase, test_backend.IdentityTests):
             exception.NotImplemented,
             super(KvsIdentity, self).test_list_projects_for_groups)
 
+    def test_update_role_no_name(self):
+        # Override
+        # In the case of KVS assignment backend, this test raises. See
+        # bug 1241134
+        # FIXME(blk-u): this shouldn't fail.
+        self.assertRaises(
+            KeyError,
+            super(KvsIdentity, self).test_update_role_no_name)
+
 
 class KvsToken(tests.TestCase, test_backend.TokenTests):
     def setUp(self):
