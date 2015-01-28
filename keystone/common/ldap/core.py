@@ -1517,7 +1517,18 @@ class BaseLdap(object):
 
         modlist = []
         for k, v in six.iteritems(values):
-            if k == 'id' or k in self.attribute_ignore:
+            if k == 'id':
+                # id can't be modified.
+                continue
+
+            if k in self.attribute_ignore:
+
+                # Handle 'enabled' specially since can't disable if ignored.
+                if k == 'enabled' and (not v):
+                    action = _("Disabling an entity where the 'enable' "
+                               "attribute is ignored by configuration.")
+                    raise exception.ForbiddenAction(action=action)
+
                 continue
 
             # attribute value has not changed
