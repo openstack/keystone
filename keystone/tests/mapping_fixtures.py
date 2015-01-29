@@ -458,6 +458,40 @@ MAPPING_TESTER_REGEX = {
     ]
 }
 
+MAPPING_DEVELOPER_REGEX = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                    },
+                    "group": {
+                        "id": DEVELOPER_GROUP_ID
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Developer"
+                    ],
+                },
+                {
+                    "type": "Email",
+                    "not_any_of": [
+                        ".*@example.org$"
+                    ],
+                    "regex": True
+                }
+            ]
+        }
+    ]
+}
 
 MAPPING_GROUP_NAMES = {
 
@@ -587,6 +621,14 @@ BAD_TESTER_ASSERTION = {
     'orgPersonType': 'Tester;'
 }
 
+BAD_DEVELOPER_ASSERTION = {
+    'Email': 'evildeveloper@example.org',
+    'UserName': 'Evil',
+    'FirstName': 'Develop',
+    'LastName': 'Account',
+    'orgPersonType': 'Developer'
+}
+
 MALFORMED_TESTER_ASSERTION = {
     'Email': 'testacct@example.com',
     'UserName': 'testacct',
@@ -596,6 +638,14 @@ MALFORMED_TESTER_ASSERTION = {
     'object': object(),
     'dictionary': dict(zip('teststring', xrange(10))),
     'tuple': tuple(xrange(5))
+}
+
+DEVELOPER_ASSERTION = {
+    'Email': 'developacct@example.com',
+    'UserName': 'developacct',
+    'FirstName': 'Develop',
+    'LastName': 'Account',
+    'orgPersonType': 'Developer'
 }
 
 CONTRACTOR_MALFORMED_ASSERTION = {
