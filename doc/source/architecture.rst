@@ -125,7 +125,7 @@ on the Keystone configuration.
 Service Backends
 ----------------
 
-Each of the services can configured to use a backend to allow Keystone to fit a
+Each of the services can be configured to use a backend to allow Keystone to fit a
 variety of environments and needs. The backend for each service is defined in
 the keystone.conf file with the key ``driver`` under a group associated with
 each service.
@@ -174,7 +174,7 @@ interpolation)::
 LDAP Backend
 ------------
 
-The LDAP backend stores Users and Projects in separate Subtrees.  Roles are recorded
+The LDAP backend stores Users and Projects in separate Subtrees. Roles are recorded
 as entries under the Projects.
 
 
