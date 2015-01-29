@@ -158,6 +158,10 @@ class AuthInfo(object):
                     project_name, domain_ref['id'])
             else:
                 project_ref = self.assignment_api.get_project(project_id)
+                # NOTE(morganfainberg): The _lookup_domain method will raise
+                # exception.Unauthorized if the domain isn't found or is
+                # disabled.
+                self._lookup_domain({'id': project_ref['domain_id']})
         except exception.ProjectNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
