@@ -3215,7 +3215,7 @@ class IdentityTests(object):
                           self.assignment_api.get_project,
                           project_id)
 
-    @tests.skip_if_cache_disabled('assignment')
+    @tests.skip_if_cache_disabled('role')
     def test_cache_layer_role_crud(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         role_id = role['id']

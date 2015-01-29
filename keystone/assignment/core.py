@@ -34,10 +34,12 @@ from keystone.openstack.common import versionutils
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
-SHOULD_CACHE = cache.should_cache_fn('assignment')
+ASSIGNMENT_SHOULD_CACHE = cache.should_cache_fn('assignment')
+ROLE_SHOULD_CACHE = cache.should_cache_fn('role')
 
 # NOTE(blk-u): The config option is not available at import time.
-EXPIRATION_TIME = lambda: CONF.assignment.cache_time
+ASSIGNMENT_EXPIRATION_TIME = lambda: CONF.assignment.cache_time
+ROLE_EXPIRATION_TIME = lambda: CONF.role.cache_time
 
 
 def calc_default_domain():
@@ -141,7 +143,7 @@ class Manager(manager.Manager):
                                              parents_list)
 
         ret = self.driver.create_project(tenant_id, tenant)
-        if SHOULD_CACHE(ret):
+        if ASSIGNMENT_SHOULD_CACHE(ret):
             self.get_project.set(ret, self, tenant_id)
             self.get_project_by_name.set(ret, self, ret['name'],
                                          ret['domain_id'])
@@ -486,13 +488,13 @@ class Manager(manager.Manager):
             self._filter_projects_list(subtree, user_id)
         return subtree
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @cache.on_arguments(should_cache_fn=ASSIGNMENT_SHOULD_CACHE,
+                        expiration_time=ASSIGNMENT_EXPIRATION_TIME)
     def get_domain(self, domain_id):
         return self.driver.get_domain(domain_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @cache.on_arguments(should_cache_fn=ASSIGNMENT_SHOULD_CACHE,
+                        expiration_time=ASSIGNMENT_EXPIRATION_TIME)
     def get_domain_by_name(self, domain_name):
         return self.driver.get_domain_by_name(domain_name)
 
@@ -504,7 +506,7 @@ class Manager(manager.Manager):
         domain.setdefault('enabled', True)
         domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.create_domain(domain_id, domain)
-        if SHOULD_CACHE(ret):
+        if ASSIGNMENT_SHOULD_CACHE(ret):
             self.get_domain.set(ret, self, domain_id)
             self.get_domain_by_name.set(ret, self, ret['name'])
         return ret
@@ -696,13 +698,13 @@ class Manager(manager.Manager):
         return self.driver.list_projects_from_ids(
             list(set(project_ids + project_ids_from_domains)))
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @cache.on_arguments(should_cache_fn=ASSIGNMENT_SHOULD_CACHE,
+                        expiration_time=ASSIGNMENT_EXPIRATION_TIME)
     def get_project(self, project_id):
         return self.driver.get_project(project_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @cache.on_arguments(should_cache_fn=ASSIGNMENT_SHOULD_CACHE,
+                        expiration_time=ASSIGNMENT_EXPIRATION_TIME)
     def get_project_by_name(self, tenant_name, domain_id):
         return self.driver.get_project_by_name(tenant_name, domain_id)
 
@@ -1428,15 +1430,15 @@ class RoleManager(manager.Manager):
 
         super(RoleManager, self).__init__(role_driver)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @cache.on_arguments(should_cache_fn=ROLE_SHOULD_CACHE,
+                        expiration_time=ROLE_EXPIRATION_TIME)
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
 
     @notifications.created('role')
     def create_role(self, role_id, role):
         ret = self.driver.create_role(role_id, role)
-        if SHOULD_CACHE(ret):
+        if ROLE_SHOULD_CACHE(ret):
             self.get_role.set(ret, self, role_id)
         return ret
 
