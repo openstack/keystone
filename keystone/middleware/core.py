@@ -13,17 +13,17 @@
 # under the License.
 
 from oslo.serialization import jsonutils
+from oslo_middleware import sizelimit
 import six
-import webob.dec
 
 from keystone.common import authorization
 from keystone.common import config
-from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _LW
 from keystone.models import token_model
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 
 CONF = config.CONF
 LOG = log.getLogger(__name__)
@@ -185,22 +185,14 @@ class NormalizingFilter(wsgi.Middleware):
             request.environ['PATH_INFO'] = '/'
 
 
-class RequestBodySizeLimiter(wsgi.Middleware):
-    """Limit the size of an incoming request."""
-
+class RequestBodySizeLimiter(sizelimit.RequestBodySizeLimiter):
+    @versionutils.deprecated(
+        versionutils.deprecated.KILO,
+        in_favor_of='oslo_middleware.sizelimit.RequestBodySizeLimiter',
+        remove_in=+1,
+        what='keystone.middleware.RequestBodySizeLimiter')
     def __init__(self, *args, **kwargs):
         super(RequestBodySizeLimiter, self).__init__(*args, **kwargs)
-
-    @webob.dec.wsgify()
-    def __call__(self, req):
-        if req.content_length is None:
-            if req.is_body_readable:
-                limiter = utils.LimitingReader(req.body_file,
-                                               CONF.max_request_body_size)
-                req.body_file = limiter
-        elif req.content_length > CONF.max_request_body_size:
-            raise exception.RequestTooLarge()
-        return self.application
 
 
 class AuthContextMiddleware(wsgi.Middleware):

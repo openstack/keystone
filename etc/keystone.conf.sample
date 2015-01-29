@@ -62,10 +62,6 @@
 # to number of CPUs (minimum of 2). (integer value)
 #admin_workers = <None>
 
-# Enforced by optional sizelimit middleware
-# (keystone.middleware:RequestBodySizeLimiter). (integer value)
-#max_request_body_size = 114688
-
 # Limit the sizes of user & project ID/names. (integer value)
 #max_param_size = 64
 
@@ -1243,6 +1239,18 @@
 # Accept clients using either SSL or plain TCP (boolean value)
 # Deprecated group/name - [amqp1]/allow_insecure_clients
 #allow_insecure_clients = false
+
+
+[oslo_middleware]
+
+#
+# From oslo.middleware
+#
+
+# The maximum body size for each  request, in bytes. (integer value)
+# Deprecated group/name - [DEFAULT]/osapi_max_request_body_size
+# Deprecated group/name - [DEFAULT]/max_request_body_size
+#max_request_body_size = 114688
 
 
 [paste_deploy]

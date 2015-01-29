@@ -157,26 +157,3 @@ class ServiceHelperTests(tests.TestCase):
 
     def test_fail_gracefully(self):
         self.assertRaises(tests.UnexpectedExit, self._do_test)
-
-
-class LimitingReaderTests(tests.TestCase):
-
-    def test_read_default_value(self):
-
-        class FakeData(object):
-            def read(self, *args, **kwargs):
-                self.read_args = args
-                self.read_kwargs = kwargs
-                return 'helloworld'
-
-        data = FakeData()
-        common_utils.LimitingReader(data, 100)
-
-        self.assertEqual('helloworld', data.read())
-        self.assertEqual(0, len(data.read_args))
-        self.assertEqual(0, len(data.read_kwargs))
-
-        self.assertEqual('helloworld', data.read(10))
-        self.assertEqual(1, len(data.read_args))
-        self.assertEqual(0, len(data.read_kwargs))
-        self.assertEqual(10, data.read_args[0])
