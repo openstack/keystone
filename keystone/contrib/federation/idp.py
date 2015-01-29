@@ -398,14 +398,25 @@ def _sign_assertion(assertion):
                     '--id-attr:ID', 'Assertion']
 
     try:
-        file_path = fileutils.write_to_tempfile(assertion.to_string())
+        # NOTE(gyee): need to make the namespace prefixes explicit so
+        # they won't get reassigned when we wrap the assertion into
+        # SAML2 response
+        file_path = fileutils.write_to_tempfile(assertion.to_string(
+            nspair={'saml': saml2.NAMESPACE,
+                    'xmldsig': xmldsig.NAMESPACE}))
         command_list.append(file_path)
-        stdout = subprocess.check_output(command_list)
-    except Exception as e:
-        msg = _LE('Error when signing assertion, reason: %(reason)s')
-        msg = msg % {'reason': e}
-        LOG.error(msg)
-        raise exception.SAMLSigningError(reason=e)
+        process = subprocess.Popen(command_list,
+                                   stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   close_fds=True)
+        stdout, stderr = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            msg = _LE('Error when signing assertion, reason: %(reason)s')
+            msg = msg % {'reason': stderr}
+            LOG.error(msg)
+            raise exception.SAMLSigningError(reason=stderr)
     finally:
         try:
             os.remove(file_path)
