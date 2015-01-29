@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-01-18 06:06+0000\n"
-"PO-Revision-Date: 2015-01-14 15:35+0000\n"
+"POT-Creation-Date: 2015-01-29 06:22+0000\n"
+"PO-Revision-Date: 2015-01-27 20:03+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -341,33 +341,40 @@ msgid "Error while reading metadata file, %(reason)s"
 msgstr ""
 
 #: keystone/exception.py:391
+#, python-format
+msgid ""
+"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
+"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
+msgstr ""
+
+#: keystone/exception.py:398
 msgid "The action you have requested has not been implemented."
 msgstr "The action you have requested has not been implemented."
 
-#: keystone/exception.py:398
+#: keystone/exception.py:405
 msgid "The service you have requested is no longer available on this server."
 msgstr ""
 
-#: keystone/exception.py:405
+#: keystone/exception.py:412
 #, python-format
 msgid "The Keystone configuration file %(config_file)s could not be found."
 msgstr "The Keystone configuration file %(config_file)s could not be found."
 
-#: keystone/exception.py:410
+#: keystone/exception.py:417
 #, python-format
 msgid ""
 "The Keystone domain configuration file %(config_file)s defines an "
 "additional SQL driver - only one is permitted."
 msgstr ""
 
-#: keystone/exception.py:417
+#: keystone/exception.py:424
 #, python-format
 msgid ""
 "%(mod_name)s doesn't provide database migrations. The migration "
 "repository path at %(path)s doesn't exist or isn't a directory."
 msgstr ""
 
-#: keystone/exception.py:429
+#: keystone/exception.py:436
 #, python-format
 msgid ""
 "Unable to sign SAML assertion. It is likely that this server does not "
@@ -406,127 +413,120 @@ msgstr "Specify a domain or project, not both"
 msgid "Specify a user or group, not both"
 msgstr "Specify a user or group, not both"
 
-#: keystone/assignment/core.py:109
+#: keystone/assignment/core.py:115
 #, python-format
 msgid "max hierarchy depth reached for %s branch."
 msgstr ""
 
-#: keystone/assignment/core.py:127
+#: keystone/assignment/core.py:133
 msgid "cannot create a project within a different domain than its parents."
 msgstr ""
 
-#: keystone/assignment/core.py:131
+#: keystone/assignment/core.py:137
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
 
-#: keystone/assignment/core.py:152 keystone/token/core.py:66
+#: keystone/assignment/core.py:158 keystone/token/core.py:66
 #: keystone/token/core.py:82
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "Domain is disabled: %s"
 
-#: keystone/assignment/core.py:163
+#: keystone/assignment/core.py:169
 #, python-format
 msgid "Project is disabled: %s"
 msgstr "Project is disabled: %s"
 
-#: keystone/assignment/core.py:183
+#: keystone/assignment/core.py:189
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 
-#: keystone/assignment/core.py:191
+#: keystone/assignment/core.py:197
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
 msgstr ""
 
-#: keystone/assignment/core.py:203
+#: keystone/assignment/core.py:209
 msgid "Update of `parent_id` is not allowed."
 msgstr ""
 
-#: keystone/assignment/core.py:230
+#: keystone/assignment/core.py:236
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
 msgstr ""
 
-#: keystone/assignment/core.py:455
+#: keystone/assignment/core.py:370
+msgid "Must specify either domain or project"
+msgstr ""
+
+#: keystone/assignment/core.py:503
 msgid "Multiple domains are not supported"
 msgstr ""
 
-#: keystone/assignment/core.py:515
+#: keystone/assignment/core.py:568
 msgid "delete the default domain"
 msgstr ""
 
-#: keystone/assignment/core.py:526
+#: keystone/assignment/core.py:579
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/assignment/core.py:746
+#: keystone/assignment/core.py:839
 #, python-format
 msgid "Project (%s)"
 msgstr "Project (%s)"
 
-#: keystone/assignment/core.py:748
+#: keystone/assignment/core.py:841
 #, python-format
 msgid "Domain (%s)"
 msgstr "Domain (%s)"
 
-#: keystone/assignment/core.py:750
+#: keystone/assignment/core.py:843
 msgid "Unknown Target"
 msgstr "Unknown Target"
 
-#: keystone/assignment/core.py:1244 keystone/assignment/backends/ldap.py:67
+#: keystone/assignment/core.py:1393 keystone/assignment/backends/ldap.py:67
 #: keystone/common/controller.py:288 keystone/identity/core.py:330
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Expected dict or list: %s"
 
-#: keystone/assignment/backends/ldap.py:169
+#: keystone/assignment/backends/ldap.py:174
 msgid "Domain metadata not supported by LDAP"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:273
+#: keystone/assignment/backends/ldap.py:276
 #: keystone/assignment/role_backends/ldap.py:60 keystone/catalog/core.py:106
 #: keystone/common/ldap/core.py:1406
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "Duplicate ID, %s."
 
-#: keystone/assignment/backends/ldap.py:275
-#: keystone/assignment/backends/ldap.py:283
-#: keystone/assignment/backends/ldap.py:287
+#: keystone/assignment/backends/ldap.py:278
+#: keystone/assignment/backends/ldap.py:286
+#: keystone/assignment/backends/ldap.py:290
 msgid "Domains are read-only against LDAP"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:524
+#: keystone/assignment/backends/ldap.py:515
 #, python-format
 msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:530
+#: keystone/assignment/backends/ldap.py:521
 #, python-format
 msgid "Role %s not found"
 msgstr "Role %s not found"
 
-#: keystone/assignment/backends/ldap.py:545
-#: keystone/assignment/backends/sql.py:525
+#: keystone/assignment/backends/ldap.py:536
+#: keystone/assignment/backends/sql.py:432
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "Cannot remove role that has not been granted, %s"
 
-#: keystone/assignment/backends/sql.py:136
-#, python-format
-msgid ""
-"Unexpected combination of grant attributes - User, Group, Project, "
-"Domain: %s"
-msgstr ""
-
-#: keystone/assignment/backends/sql.py:403
-msgid "Must specify either domain or project"
-msgstr ""
-
-#: keystone/assignment/backends/sql.py:546
+#: keystone/assignment/backends/sql.py:453
 #, python-format
 msgid "Unexpected assignment type encountered, %s"
 msgstr ""
@@ -596,7 +596,7 @@ msgstr "Unable to lookup user %s"
 msgid "auth_type is not Negotiate"
 msgstr ""
 
-#: keystone/auth/plugins/mapped.py:187
+#: keystone/auth/plugins/mapped.py:203
 msgid "Could not map user"
 msgstr ""
 
@@ -1051,8 +1051,8 @@ msgid ""
 msgstr ""
 
 #: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:234
-#: keystone/token/provider.py:256 keystone/token/provider.py:354
-#: keystone/token/provider.py:361
+#: keystone/token/provider.py:256 keystone/token/provider.py:351
+#: keystone/token/provider.py:358
 msgid "Failed to validate token"
 msgstr "Failed to validate token"
 
