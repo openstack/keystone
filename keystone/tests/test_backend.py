@@ -41,7 +41,7 @@ NULL_OBJECT = object()
 class IdentityTests(object):
     def _get_domain_fixture(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         return domain
 
     def _set_domain_scope(self, domain_id):
@@ -154,23 +154,23 @@ class IdentityTests(object):
         self.assertEqual(unicode_name, ref['name'])
 
     def test_get_project(self):
-        tenant_ref = self.assignment_api.get_project(self.tenant_bar['id'])
+        tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           uuid.uuid4().hex)
 
     def test_get_project_by_name(self):
-        tenant_ref = self.assignment_api.get_project_by_name(
+        tenant_ref = self.resource_api.get_project_by_name(
             self.tenant_bar['name'],
             DEFAULT_DOMAIN_ID)
         self.assertDictEqual(tenant_ref, self.tenant_bar)
 
     def test_get_project_by_name_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project_by_name,
+                          self.resource_api.get_project_by_name,
                           uuid.uuid4().hex,
                           DEFAULT_DOMAIN_ID)
 
@@ -194,7 +194,7 @@ class IdentityTests(object):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(
+        self.resource_api.create_project(
             project_ref['id'], project_ref)
         # Create 2 roles and give user each role in project
         for i in range(2):
@@ -278,7 +278,7 @@ class IdentityTests(object):
         self.role_api.create_role('fake2', role2)
         role1['name'] = 'fake2name'
         self.assertRaises(exception.Conflict,
-                          self.assignment_api.update_role,
+                          self.role_api.update_role,
                           'fake1',
                           role1)
 
@@ -294,7 +294,7 @@ class IdentityTests(object):
 
     def test_create_duplicate_user_name_in_different_domains(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         user1 = {'name': uuid.uuid4().hex,
                  'domain_id': DEFAULT_DOMAIN_ID,
                  'password': uuid.uuid4().hex}
@@ -306,9 +306,9 @@ class IdentityTests(object):
 
     def test_move_user_between_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         user = {'name': uuid.uuid4().hex,
                 'domain_id': domain1['id'],
                 'password': uuid.uuid4().hex}
@@ -318,9 +318,9 @@ class IdentityTests(object):
 
     def test_move_user_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a user in domain1
         user1 = {'name': uuid.uuid4().hex,
                  'domain_id': domain1['id'],
@@ -378,66 +378,66 @@ class IdentityTests(object):
     def test_create_duplicate_project_id_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
+        self.resource_api.create_project('fake1', tenant)
         tenant['name'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           'fake1',
                           tenant)
 
     def test_create_duplicate_project_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
+        self.resource_api.create_project('fake1', tenant)
         tenant['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           'fake1',
                           tenant)
 
     def test_create_duplicate_project_name_in_different_domains(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         tenant1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': DEFAULT_DOMAIN_ID}
         tenant2 = {'id': uuid.uuid4().hex, 'name': tenant1['name'],
                    'domain_id': new_domain['id']}
-        self.assignment_api.create_project(tenant1['id'], tenant1)
-        self.assignment_api.create_project(tenant2['id'], tenant2)
+        self.resource_api.create_project(tenant1['id'], tenant1)
+        self.resource_api.create_project(tenant2['id'], tenant2)
 
     def test_move_project_between_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
                    'domain_id': domain1['id']}
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
         project['domain_id'] = domain2['id']
-        self.assignment_api.update_project(project['id'], project)
+        self.resource_api.update_project(project['id'], project)
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a project in domain1
         project1 = {'id': uuid.uuid4().hex,
                     'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         # Now create a project in domain2 with a potentially clashing
         # name - which should work since we have domain separation
         project2 = {'id': uuid.uuid4().hex,
                     'name': project1['name'],
                     'domain_id': domain2['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         # Now try and move project1 into the 2nd domain - which should
         # fail since the names clash
         project1['domain_id'] = domain2['id']
         self.assertRaises(exception.Conflict,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           project1['id'],
                           project1)
 
@@ -446,24 +446,24 @@ class IdentityTests(object):
                    'domain_id': DEFAULT_DOMAIN_ID}
         tenant2 = {'id': 'fake2', 'name': 'fake2',
                    'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant1)
-        self.assignment_api.create_project('fake2', tenant2)
+        self.resource_api.create_project('fake1', tenant1)
+        self.resource_api.create_project('fake2', tenant2)
         tenant2['name'] = 'fake1'
         self.assertRaises(exception.Error,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           'fake2',
                           tenant2)
 
     def test_update_project_id_does_nothing(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
+        self.resource_api.create_project('fake1', tenant)
         tenant['id'] = 'fake2'
-        self.assignment_api.update_project('fake1', tenant)
-        tenant_ref = self.assignment_api.get_project('fake1')
+        self.resource_api.update_project('fake1', tenant)
+        tenant_ref = self.resource_api.get_project('fake1')
         self.assertEqual('fake1', tenant_ref['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           'fake2')
 
     def test_list_role_assignments_unfiltered(self):
@@ -482,7 +482,7 @@ class IdentityTests(object):
 
         """
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': new_domain['id']}
         new_user = self.identity_api.create_user(new_user)
@@ -491,7 +491,7 @@ class IdentityTests(object):
         new_project = {'id': uuid.uuid4().hex,
                        'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
-        self.assignment_api.create_project(new_project['id'], new_project)
+        self.resource_api.create_project(new_project['id'], new_project)
 
         # First check how many role grants already exist
         existing_assignments = len(self.assignment_api.list_role_assignments())
@@ -576,7 +576,7 @@ class IdentityTests(object):
             'id': uuid.uuid4().hex,
             'name': self.getUniqueString(prefix='tlgra'),
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(new_project['id'], new_project)
+        self.resource_api.create_project(new_project['id'], new_project)
 
         # Assign a role to the group.
         self.assignment_api.create_grant(
@@ -628,7 +628,7 @@ class IdentityTests(object):
         project_ref = {'id': uuid.uuid4().hex,
                        'name': uuid.uuid4().hex,
                        'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
 
         group = {'name': uuid.uuid4().hex,
                  'domain_id': DEFAULT_DOMAIN_ID}
@@ -686,7 +686,7 @@ class IdentityTests(object):
 
         """
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         new_user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                      'enabled': True, 'domain_id': new_domain['id']}
         new_user1 = self.identity_api.create_user(new_user1)
@@ -847,7 +847,7 @@ class IdentityTests(object):
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': 'secret',
@@ -882,7 +882,7 @@ class IdentityTests(object):
 
     def test_get_and_remove_role_grant_by_group_and_domain(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
@@ -920,10 +920,10 @@ class IdentityTests(object):
 
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         new_project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
-        self.assignment_api.create_project(new_project['id'], new_project)
+        self.resource_api.create_project(new_project['id'], new_project)
         new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
         new_group = self.identity_api.create_group(new_group)
         new_group2 = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
@@ -977,7 +977,7 @@ class IdentityTests(object):
 
     def test_get_and_remove_role_grant_by_user_and_domain(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         new_user = {'name': 'new_user', 'password': 'secret',
                     'enabled': True, 'domain_id': new_domain['id']}
         new_user = self.identity_api.create_user(new_user)
@@ -1016,9 +1016,9 @@ class IdentityTests(object):
         self.role_api.create_role(group1_domain2_role['id'],
                                   group1_domain2_role)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         group1 = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
         group1 = self.identity_api.create_group(group1)
         roles_ref = self.assignment_api.list_grants(
@@ -1065,9 +1065,9 @@ class IdentityTests(object):
                               'name': uuid.uuid4().hex}
         self.role_api.create_role(user1_domain2_role['id'], user1_domain2_role)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -1113,15 +1113,15 @@ class IdentityTests(object):
         role2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role2['id'], role2)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                   'enabled': True}
         group1 = self.identity_api.create_group(group1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         roles_ref = self.assignment_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
@@ -1157,15 +1157,15 @@ class IdentityTests(object):
         role2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role2['id'], role2)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         roles_ref = self.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
@@ -1238,8 +1238,7 @@ class IdentityTests(object):
         group_resp = self.identity_api.create_group(group)
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': DEFAULT_DOMAIN_ID}
-        project_resp = self.assignment_api.create_project(project['id'],
-                                                          project)
+        project_resp = self.resource_api.create_project(project['id'], project)
 
         for manager_call in [self.assignment_api.create_grant,
                              self.assignment_api.get_grant,
@@ -1264,7 +1263,7 @@ class IdentityTests(object):
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -1276,7 +1275,7 @@ class IdentityTests(object):
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
@@ -1373,7 +1372,7 @@ class IdentityTests(object):
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -1385,7 +1384,7 @@ class IdentityTests(object):
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
@@ -1435,10 +1434,10 @@ class IdentityTests(object):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -1495,10 +1494,10 @@ class IdentityTests(object):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -1534,10 +1533,10 @@ class IdentityTests(object):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -1593,7 +1592,7 @@ class IdentityTests(object):
     def test_update_role_404(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.update_role,
+                          self.role_api.update_role,
                           role['id'],
                           role)
 
@@ -1684,13 +1683,13 @@ class IdentityTests(object):
 
     def test_update_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           uuid.uuid4().hex,
                           dict())
 
     def test_delete_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.delete_project,
+                          self.resource_api.delete_project,
                           uuid.uuid4().hex)
 
     def test_update_user_404(self):
@@ -1734,7 +1733,7 @@ class IdentityTests(object):
 
     def test_delete_role_404(self):
         self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.delete_role,
+                          self.role_api.delete_role,
                           uuid.uuid4().hex)
 
     def test_create_update_delete_unicode_project(self):
@@ -1743,9 +1742,9 @@ class IdentityTests(object):
                    'name': unicode_project_name,
                    'description': uuid.uuid4().hex,
                    'domain_id': CONF.identity.default_domain_id}
-        self.assignment_api.create_project(project['id'], project)
-        self.assignment_api.update_project(project['id'], project)
-        self.assignment_api.delete_project(project['id'])
+        self.resource_api.create_project(project['id'], project)
+        self.resource_api.update_project(project['id'], project)
+        self.resource_api.delete_project(project['id'])
 
     def test_create_project_case_sensitivity(self):
         # create a ref with a lowercase name
@@ -1753,28 +1752,28 @@ class IdentityTests(object):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex.lower(),
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(ref['id'], ref)
+        self.resource_api.create_project(ref['id'], ref)
 
         # assign a new ID with the same name, but this time in uppercase
         ref['id'] = uuid.uuid4().hex
         ref['name'] = ref['name'].upper()
-        self.assignment_api.create_project(ref['id'], ref)
+        self.resource_api.create_project(ref['id'], ref)
 
     def test_create_project_with_no_enabled_field(self):
         ref = {
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex.lower(),
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(ref['id'], ref)
+        self.resource_api.create_project(ref['id'], ref)
 
-        project = self.assignment_api.get_project(ref['id'])
+        project = self.resource_api.get_project(ref['id'])
         self.assertIs(project['enabled'], True)
 
     def test_create_project_long_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'a' * 65,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           tenant['id'],
                           tenant)
 
@@ -1782,7 +1781,7 @@ class IdentityTests(object):
         tenant = {'id': 'fake1', 'name': '',
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           tenant['id'],
                           tenant)
 
@@ -1790,49 +1789,49 @@ class IdentityTests(object):
         tenant = {'id': 'fake1', 'name': None,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           tenant['id'],
                           tenant)
         tenant = {'id': 'fake1', 'name': 123,
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           tenant['id'],
                           tenant)
 
     def test_update_project_blank_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
+        self.resource_api.create_project('fake1', tenant)
         tenant['name'] = ''
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           tenant['id'],
                           tenant)
 
     def test_update_project_long_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
+        self.resource_api.create_project('fake1', tenant)
         tenant['name'] = 'a' * 65
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           tenant['id'],
                           tenant)
 
     def test_update_project_invalid_name_fails(self):
         tenant = {'id': 'fake1', 'name': 'fake1',
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
+        self.resource_api.create_project('fake1', tenant)
         tenant['name'] = None
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           tenant['id'],
                           tenant)
 
         tenant['name'] = 123
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           tenant['id'],
                           tenant)
 
@@ -1915,14 +1914,14 @@ class IdentityTests(object):
                        'name': uuid.uuid4().hex,
                        'enabled': True,
                        'domain_id': DEFAULT_DOMAIN_ID}
-            self.assignment_api.create_project(project['id'], project)
-            project_ref = self.assignment_api.get_project(project['id'])
+            self.resource_api.create_project(project['id'], project)
+            project_ref = self.resource_api.get_project(project['id'])
             self.assertEqual(True, project_ref['enabled'])
 
             # Strings are not valid boolean values
             project['enabled'] = "false"
             self.assertRaises(exception.ValidationError,
-                              self.assignment_api.update_project,
+                              self.resource_api.update_project,
                               project['id'],
                               project)
 
@@ -1933,7 +1932,7 @@ class IdentityTests(object):
                    # invalid string value
                    'enabled': "true"}
         self.assertRaises(exception.ValidationError,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           project['id'],
                           project)
 
@@ -2016,9 +2015,9 @@ class IdentityTests(object):
     def test_list_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
-        self.assignment_api.create_domain(domain2['id'], domain2)
-        domains = self.assignment_api.list_domains()
+        self.resource_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain2['id'], domain2)
+        domains = self.resource_api.list_domains()
         self.assertEqual(3, len(domains))
         domain_ids = []
         for domain in domains:
@@ -2028,7 +2027,7 @@ class IdentityTests(object):
         self.assertIn(domain2['id'], domain_ids)
 
     def test_list_projects(self):
-        projects = self.assignment_api.list_projects()
+        projects = self.resource_api.list_projects()
         self.assertEqual(4, len(projects))
         project_ids = []
         for project in projects:
@@ -2038,7 +2037,7 @@ class IdentityTests(object):
 
     def test_list_projects_for_domain(self):
         project_ids = ([x['id'] for x in
-                       self.assignment_api.list_projects_in_domain(
+                       self.resource_api.list_projects_in_domain(
                            DEFAULT_DOMAIN_ID)])
         self.assertEqual(4, len(project_ids))
         self.assertIn(self.tenant_bar['id'], project_ids)
@@ -2049,15 +2048,15 @@ class IdentityTests(object):
     @tests.skip_if_no_multiple_domains_support
     def test_list_projects_for_alternate_domain(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         project_ids = ([x['id'] for x in
-                       self.assignment_api.list_projects_in_domain(
+                       self.resource_api.list_projects_in_domain(
                            domain1['id'])])
         self.assertEqual(2, len(project_ids))
         self.assertIn(project1['id'], project_ids)
@@ -2081,7 +2080,7 @@ class IdentityTests(object):
                    'enabled': True,
                    'name': uuid.uuid4().hex,
                    'parent_id': None}
-        self.assignment_api.create_project(project_id, project)
+        self.resource_api.create_project(project_id, project)
 
         projects = [project]
         for i in range(1, hierarchy_size):
@@ -2091,7 +2090,7 @@ class IdentityTests(object):
                            'enabled': True,
                            'name': uuid.uuid4().hex,
                            'parent_id': project_id}
-            self.assignment_api.create_project(new_project['id'], new_project)
+            self.resource_api.create_project(new_project['id'], new_project)
             projects.append(new_project)
             project_id = new_project['id']
 
@@ -2102,16 +2101,16 @@ class IdentityTests(object):
         root_project = projects_hierarchy[0]
         leaf_project = projects_hierarchy[1]
 
-        self.assertFalse(self.assignment_api.is_leaf_project(
+        self.assertFalse(self.resource_api.is_leaf_project(
             root_project['id']))
-        self.assertTrue(self.assignment_api.is_leaf_project(
+        self.assertTrue(self.resource_api.is_leaf_project(
             leaf_project['id']))
 
         # Delete leaf_project
-        self.assignment_api.delete_project(leaf_project['id'])
+        self.resource_api.delete_project(leaf_project['id'])
 
         # Now, root_project should be leaf
-        self.assertTrue(self.assignment_api.is_leaf_project(
+        self.assertTrue(self.resource_api.is_leaf_project(
             root_project['id']))
 
     def test_list_projects_in_subtree(self):
@@ -2125,20 +2124,20 @@ class IdentityTests(object):
                     'enabled': True,
                     'name': uuid.uuid4().hex,
                     'parent_id': project2['id']}
-        self.assignment_api.create_project(project4['id'], project4)
+        self.resource_api.create_project(project4['id'], project4)
 
-        subtree = self.assignment_api.list_projects_in_subtree(project1['id'])
+        subtree = self.resource_api.list_projects_in_subtree(project1['id'])
         self.assertEqual(3, len(subtree))
         self.assertIn(project2, subtree)
         self.assertIn(project3, subtree)
         self.assertIn(project4, subtree)
 
-        subtree = self.assignment_api.list_projects_in_subtree(project2['id'])
+        subtree = self.resource_api.list_projects_in_subtree(project2['id'])
         self.assertEqual(2, len(subtree))
         self.assertIn(project3, subtree)
         self.assertIn(project4, subtree)
 
-        subtree = self.assignment_api.list_projects_in_subtree(project3['id'])
+        subtree = self.resource_api.list_projects_in_subtree(project3['id'])
         self.assertEqual(0, len(subtree))
 
     def test_list_project_parents(self):
@@ -2152,17 +2151,17 @@ class IdentityTests(object):
                     'enabled': True,
                     'name': uuid.uuid4().hex,
                     'parent_id': project2['id']}
-        self.assignment_api.create_project(project4['id'], project4)
+        self.resource_api.create_project(project4['id'], project4)
 
-        parents1 = self.assignment_api.list_project_parents(project3['id'])
+        parents1 = self.resource_api.list_project_parents(project3['id'])
         self.assertEqual(2, len(parents1))
         self.assertIn(project1, parents1)
         self.assertIn(project2, parents1)
 
-        parents2 = self.assignment_api.list_project_parents(project4['id'])
+        parents2 = self.resource_api.list_project_parents(project4['id'])
         self.assertEqual(parents1, parents2)
 
-        parents = self.assignment_api.list_project_parents(project1['id'])
+        parents = self.resource_api.list_project_parents(project1['id'])
         self.assertEqual(0, len(parents))
 
     def test_list_roles(self):
@@ -2175,12 +2174,12 @@ class IdentityTests(object):
     def test_delete_project_with_role_assignments(self):
         tenant = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(tenant['id'], tenant)
+        self.resource_api.create_project(tenant['id'], tenant)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], tenant['id'], 'member')
-        self.assignment_api.delete_project(tenant['id'])
+        self.resource_api.delete_project(tenant['id'])
         self.assertRaises(exception.NotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           tenant['id'])
 
     def test_delete_role_check_role_grant(self):
@@ -2202,7 +2201,7 @@ class IdentityTests(object):
         new_project = {'id': 'tenant_id', 'name': uuid.uuid4().hex,
                        'domain_id': DEFAULT_DOMAIN_ID}
         original_project = new_project.copy()
-        self.assignment_api.create_project('tenant_id', new_project)
+        self.resource_api.create_project('tenant_id', new_project)
         self.assertDictEqual(original_project, new_project)
 
     def test_create_user_doesnt_modify_passed_in_dict(self):
@@ -2292,29 +2291,29 @@ class IdentityTests(object):
     def test_update_project_enable(self):
         tenant = {'id': 'fake1', 'name': 'fake1', 'enabled': True,
                   'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project('fake1', tenant)
-        tenant_ref = self.assignment_api.get_project('fake1')
+        self.resource_api.create_project('fake1', tenant)
+        tenant_ref = self.resource_api.get_project('fake1')
         self.assertEqual(True, tenant_ref['enabled'])
 
         tenant['enabled'] = False
-        self.assignment_api.update_project('fake1', tenant)
-        tenant_ref = self.assignment_api.get_project('fake1')
+        self.resource_api.update_project('fake1', tenant)
+        tenant_ref = self.resource_api.get_project('fake1')
         self.assertEqual(tenant['enabled'], tenant_ref['enabled'])
 
         # If not present, enabled field should not be updated
         del tenant['enabled']
-        self.assignment_api.update_project('fake1', tenant)
-        tenant_ref = self.assignment_api.get_project('fake1')
+        self.resource_api.update_project('fake1', tenant)
+        tenant_ref = self.resource_api.get_project('fake1')
         self.assertEqual(False, tenant_ref['enabled'])
 
         tenant['enabled'] = True
-        self.assignment_api.update_project('fake1', tenant)
-        tenant_ref = self.assignment_api.get_project('fake1')
+        self.resource_api.update_project('fake1', tenant)
+        tenant_ref = self.resource_api.get_project('fake1')
         self.assertEqual(tenant['enabled'], tenant_ref['enabled'])
 
         del tenant['enabled']
-        self.assignment_api.update_project('fake1', tenant)
-        tenant_ref = self.assignment_api.get_project('fake1')
+        self.resource_api.update_project('fake1', tenant)
+        tenant_ref = self.resource_api.get_project('fake1')
         self.assertEqual(True, tenant_ref['enabled'])
 
     def test_add_user_to_group(self):
@@ -2550,7 +2549,7 @@ class IdentityTests(object):
 
     def test_group_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
         group = self.identity_api.create_group(group)
         group_ref = self.identity_api.get_group(group['id'])
@@ -2593,7 +2592,7 @@ class IdentityTests(object):
 
     def test_create_duplicate_group_name_in_different_domains(self):
         new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(new_domain['id'], new_domain)
+        self.resource_api.create_domain(new_domain['id'], new_domain)
         group1 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
         group2 = {'domain_id': new_domain['id'], 'name': group1['name']}
         group1 = self.identity_api.create_group(group1)
@@ -2601,9 +2600,9 @@ class IdentityTests(object):
 
     def test_move_group_between_domains(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         group = {'name': uuid.uuid4().hex,
                  'domain_id': domain1['id']}
         group = self.identity_api.create_group(group)
@@ -2612,9 +2611,9 @@ class IdentityTests(object):
 
     def test_move_group_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a group in domain1
         group1 = {'name': uuid.uuid4().hex,
                   'domain_id': domain1['id']}
@@ -2636,27 +2635,27 @@ class IdentityTests(object):
     def test_project_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': domain['id']}
-        self.assignment_api.create_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.create_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictContainsSubset(project, project_ref)
 
         project['name'] = uuid.uuid4().hex
-        self.assignment_api.update_project(project['id'], project)
-        project_ref = self.assignment_api.get_project(project['id'])
+        self.resource_api.update_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictContainsSubset(project, project_ref)
 
-        self.assignment_api.delete_project(project['id'])
+        self.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project['id'])
 
     def test_domain_delete_hierarchy(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
 
         # Creating a root and a leaf project inside the domain
         projects_hierarchy = self._create_projects_hierarchy(
@@ -2666,24 +2665,24 @@ class IdentityTests(object):
 
         # Disable the domain
         domain['enabled'] = False
-        self.assignment_api.update_domain(domain['id'], domain)
+        self.resource_api.update_domain(domain['id'], domain)
 
         # Delete the domain
-        self.assignment_api.delete_domain(domain['id'])
+        self.resource_api.delete_domain(domain['id'])
 
         # Make sure the domain no longer exists
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
 
         # Make sure the root project no longer exists
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           root_project['id'])
 
         # Make sure the leaf project no longer exists
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           leaf_project['id'])
 
     def test_hierarchical_projects_crud(self):
@@ -2698,26 +2697,26 @@ class IdentityTests(object):
 
         # update description from leaf_project
         leaf_project['description'] = 'new description'
-        self.assignment_api.update_project(leaf_project['id'], leaf_project)
-        proj_ref = self.assignment_api.get_project(leaf_project['id'])
+        self.resource_api.update_project(leaf_project['id'], leaf_project)
+        proj_ref = self.resource_api.get_project(leaf_project['id'])
         self.assertDictEqual(proj_ref, leaf_project)
 
         # update the parent_id is not allowed
         leaf_project['parent_id'] = root_project1['id']
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           leaf_project['id'],
                           leaf_project)
 
         # delete root_project1
-        self.assignment_api.delete_project(root_project1['id'])
+        self.resource_api.delete_project(root_project1['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           root_project1['id'])
 
         # delete root_project2 is not allowed since it is not a leaf project
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.delete_project,
+                          self.resource_api.delete_project,
                           root_project2['id'])
 
     def test_create_project_with_invalid_parent(self):
@@ -2728,7 +2727,7 @@ class IdentityTests(object):
                    'enabled': True,
                    'parent_id': 'fake'}
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           project['id'],
                           project)
 
@@ -2739,7 +2738,7 @@ class IdentityTests(object):
                         'domain_id': DEFAULT_DOMAIN_ID,
                         'enabled': True,
                         'parent_id': None}
-        self.assignment_api.create_project(root_project['id'], root_project)
+        self.resource_api.create_project(root_project['id'], root_project)
 
         leaf_project = {'id': uuid.uuid4().hex,
                         'name': uuid.uuid4().hex,
@@ -2749,7 +2748,7 @@ class IdentityTests(object):
                         'parent_id': root_project['id']}
 
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           leaf_project['id'],
                           leaf_project)
 
@@ -2758,14 +2757,14 @@ class IdentityTests(object):
         root_project = projects_hierarchy[0]
         leaf_project = projects_hierarchy[1]
 
-        self.assignment_api.delete_project(leaf_project['id'])
+        self.resource_api.delete_project(leaf_project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           leaf_project['id'])
 
-        self.assignment_api.delete_project(root_project['id'])
+        self.resource_api.delete_project(root_project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           root_project['id'])
 
     def test_delete_hierarchical_not_leaf_project(self):
@@ -2773,7 +2772,7 @@ class IdentityTests(object):
         root_project = projects_hierarchy[0]
 
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.delete_project,
+                          self.resource_api.delete_project,
                           root_project['id'])
 
     def test_update_project_parent(self):
@@ -2788,7 +2787,7 @@ class IdentityTests(object):
         # try to update project3 parent to parent1
         project3['parent_id'] = project1['id']
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           project3['id'],
                           project3)
 
@@ -2798,7 +2797,7 @@ class IdentityTests(object):
                     'domain_id': DEFAULT_DOMAIN_ID,
                     'enabled': False,
                     'parent_id': None}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         project2 = {'id': uuid.uuid4().hex,
                     'name': uuid.uuid4().hex,
@@ -2808,7 +2807,7 @@ class IdentityTests(object):
         # It's not possible to create a project under a disabled one in the
         # hierarchy
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           project2['id'],
                           project2)
 
@@ -2817,9 +2816,9 @@ class IdentityTests(object):
         leaf_project = projects_hierarchy[1]
 
         leaf_project['enabled'] = False
-        self.assignment_api.update_project(leaf_project['id'], leaf_project)
+        self.resource_api.update_project(leaf_project['id'], leaf_project)
 
-        project_ref = self.assignment_api.get_project(leaf_project['id'])
+        project_ref = self.resource_api.get_project(leaf_project['id'])
         self.assertEqual(project_ref['enabled'], leaf_project['enabled'])
 
     def test_disable_hierarchical_not_leaf_project(self):
@@ -2828,7 +2827,7 @@ class IdentityTests(object):
 
         root_project['enabled'] = False
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           root_project['id'],
                           root_project)
 
@@ -2839,20 +2838,20 @@ class IdentityTests(object):
 
         # Disable leaf and root
         leaf_project['enabled'] = False
-        self.assignment_api.update_project(leaf_project['id'], leaf_project)
+        self.resource_api.update_project(leaf_project['id'], leaf_project)
         root_project['enabled'] = False
-        self.assignment_api.update_project(root_project['id'], root_project)
+        self.resource_api.update_project(root_project['id'], root_project)
 
         # Try to enable the leaf project, it's not possible since it has
         # a disabled parent
         leaf_project['enabled'] = True
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.update_project,
+                          self.resource_api.update_project,
                           leaf_project['id'],
                           leaf_project)
 
     def _get_hierarchy_depth(self, project_id):
-        return len(self.assignment_api.list_project_parents(project_id)) + 1
+        return len(self.resource_api.list_project_parents(project_id)) + 1
 
     def test_check_hierarchy_depth(self):
         # First create a hierarchy with the max allowed depth
@@ -2871,7 +2870,7 @@ class IdentityTests(object):
             'domain_id': DEFAULT_DOMAIN_ID,
             'parent_id': leaf_project['id']}
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.create_project,
+                          self.resource_api.create_project,
                           project_id,
                           project)
 
@@ -2882,13 +2881,13 @@ class IdentityTests(object):
                    'domain_id': DEFAULT_DOMAIN_ID,
                    'enabled': True,
                    'parent_id': None}
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
 
         # Add a description attribute.
         project['description'] = uuid.uuid4().hex
-        self.assignment_api.update_project(project['id'], project)
+        self.resource_api.update_project(project['id'], project)
 
-        project_ref = self.assignment_api.get_project(project['id'])
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
     def test_project_update_missing_attrs_with_a_falsey_value(self):
@@ -2898,42 +2897,42 @@ class IdentityTests(object):
                    'domain_id': DEFAULT_DOMAIN_ID,
                    'enabled': True,
                    'parent_id': None}
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
 
         # Add a description attribute.
         project['description'] = ''
-        self.assignment_api.update_project(project['id'], project)
+        self.resource_api.update_project(project['id'], project)
 
-        project_ref = self.assignment_api.get_project(project['id'])
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project_ref, project)
 
     def test_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
-        self.assignment_api.create_domain(domain['id'], domain)
-        domain_ref = self.assignment_api.get_domain(domain['id'])
+        self.resource_api.create_domain(domain['id'], domain)
+        domain_ref = self.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain_ref, domain)
 
         domain['name'] = uuid.uuid4().hex
-        self.assignment_api.update_domain(domain['id'], domain)
-        domain_ref = self.assignment_api.get_domain(domain['id'])
+        self.resource_api.update_domain(domain['id'], domain)
+        domain_ref = self.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain_ref, domain)
 
         # Ensure an 'enabled' domain cannot be deleted
         self.assertRaises(exception.ForbiddenAction,
-                          self.assignment_api.delete_domain,
+                          self.resource_api.delete_domain,
                           domain_id=domain['id'])
 
         # Disable the domain
         domain['enabled'] = False
-        self.assignment_api.update_domain(domain['id'], domain)
+        self.resource_api.update_domain(domain['id'], domain)
 
         # Delete the domain
-        self.assignment_api.delete_domain(domain['id'])
+        self.resource_api.delete_domain(domain['id'])
 
         # Make sure the domain no longer exists
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain['id'])
 
     @tests.skip_if_no_multiple_domains_support
@@ -2942,35 +2941,35 @@ class IdentityTests(object):
         ref = {
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex.lower()}
-        self.assignment_api.create_domain(ref['id'], ref)
+        self.resource_api.create_domain(ref['id'], ref)
 
         # assign a new ID with the same name, but this time in uppercase
         ref['id'] = uuid.uuid4().hex
         ref['name'] = ref['name'].upper()
-        self.assignment_api.create_domain(ref['id'], ref)
+        self.resource_api.create_domain(ref['id'], ref)
 
     def test_attribute_update(self):
         project = {
             'domain_id': DEFAULT_DOMAIN_ID,
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex}
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
 
         # pick a key known to be non-existent
         key = 'description'
 
         def assert_key_equals(value):
-            project_ref = self.assignment_api.update_project(
+            project_ref = self.resource_api.update_project(
                 project['id'], project)
             self.assertEqual(value, project_ref[key])
-            project_ref = self.assignment_api.get_project(project['id'])
+            project_ref = self.resource_api.get_project(project['id'])
             self.assertEqual(value, project_ref[key])
 
         def assert_get_key_is(value):
-            project_ref = self.assignment_api.update_project(
+            project_ref = self.resource_api.update_project(
                 project['id'], project)
             self.assertIs(project_ref.get(key), value)
-            project_ref = self.assignment_api.get_project(project['id'])
+            project_ref = self.resource_api.get_project(project['id'])
             self.assertIs(project_ref.get(key), value)
 
         # add an attribute that doesn't exist, set it to a falsey value
@@ -3021,7 +3020,7 @@ class IdentityTests(object):
 
     def test_list_projects_for_user(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -3041,7 +3040,7 @@ class IdentityTests(object):
         # make user1 a member of both groups.  Both these new projects
         # should now be included, along with any direct user grants.
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -3051,10 +3050,10 @@ class IdentityTests(object):
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         self.identity_api.add_user_to_group(user1['id'], group1['id'])
         self.identity_api.add_user_to_group(user1['id'], group2['id'])
 
@@ -3078,12 +3077,12 @@ class IdentityTests(object):
                   'enabled': True}
         domain_id = domain['id']
         domain_name = domain['name']
-        self.assignment_api.create_domain(domain_id, domain)
-        domain_ref = self.assignment_api.get_domain_by_name(domain_name)
+        self.resource_api.create_domain(domain_id, domain)
+        domain_ref = self.resource_api.get_domain_by_name(domain_name)
         domain_ref['name'] = uuid.uuid4().hex
-        self.assignment_api.update_domain(domain_id, domain_ref)
+        self.resource_api.update_domain(domain_id, domain_ref)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain_by_name,
+                          self.resource_api.get_domain_by_name,
                           domain_name)
 
     @tests.skip_if_cache_disabled('resource')
@@ -3092,26 +3091,26 @@ class IdentityTests(object):
                   'enabled': True}
         domain_id = domain['id']
         # Create Domain
-        self.assignment_api.create_domain(domain_id, domain)
-        domain_ref = self.assignment_api.get_domain(domain_id)
+        self.resource_api.create_domain(domain_id, domain)
+        domain_ref = self.resource_api.get_domain(domain_id)
         updated_domain_ref = copy.deepcopy(domain_ref)
         updated_domain_ref['name'] = uuid.uuid4().hex
         # Update domain, bypassing resource api manager
         self.resource_api.driver.update_domain(domain_id, updated_domain_ref)
         # Verify get_domain still returns the domain
         self.assertDictContainsSubset(
-            domain_ref, self.assignment_api.get_domain(domain_id))
+            domain_ref, self.resource_api.get_domain(domain_id))
         # Invalidate cache
         self.resource_api.get_domain.invalidate(self.resource_api,
                                                 domain_id)
         # Verify get_domain returns the updated domain
         self.assertDictContainsSubset(
-            updated_domain_ref, self.assignment_api.get_domain(domain_id))
+            updated_domain_ref, self.resource_api.get_domain(domain_id))
         # Update the domain back to original ref, using the assignment api
         # manager
-        self.assignment_api.update_domain(domain_id, domain_ref)
+        self.resource_api.update_domain(domain_id, domain_ref)
         self.assertDictContainsSubset(
-            domain_ref, self.assignment_api.get_domain(domain_id))
+            domain_ref, self.resource_api.get_domain(domain_id))
         # Make sure domain is 'disabled', bypass resource api manager
         domain_ref_disabled = domain_ref.copy()
         domain_ref_disabled['enabled'] = False
@@ -3121,24 +3120,24 @@ class IdentityTests(object):
         self.resource_api.driver.delete_domain(domain_id)
         # Verify get_domain still returns the domain
         self.assertDictContainsSubset(
-            domain_ref, self.assignment_api.get_domain(domain_id))
+            domain_ref, self.resource_api.get_domain(domain_id))
         # Invalidate cache
         self.resource_api.get_domain.invalidate(self.resource_api,
                                                 domain_id)
         # Verify get_domain now raises DomainNotFound
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain, domain_id)
+                          self.resource_api.get_domain, domain_id)
         # Recreate Domain
-        self.assignment_api.create_domain(domain_id, domain)
-        self.assignment_api.get_domain(domain_id)
+        self.resource_api.create_domain(domain_id, domain)
+        self.resource_api.get_domain(domain_id)
         # Make sure domain is 'disabled', bypass resource api manager
         domain['enabled'] = False
         self.resource_api.driver.update_domain(domain_id, domain)
         # Delete domain
-        self.assignment_api.delete_domain(domain_id)
+        self.resource_api.delete_domain(domain_id)
         # verify DomainNotFound raised
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain,
+                          self.resource_api.get_domain,
                           domain_id)
 
     @tests.skip_if_cache_disabled('resource')
@@ -3150,14 +3149,14 @@ class IdentityTests(object):
                    'domain_id': domain['id']}
         project_id = project['id']
         project_name = project['name']
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         # Create a project
-        self.assignment_api.create_project(project_id, project)
-        self.assignment_api.get_project_by_name(project_name, domain['id'])
+        self.resource_api.create_project(project_id, project)
+        self.resource_api.get_project_by_name(project_name, domain['id'])
         project['name'] = uuid.uuid4().hex
-        self.assignment_api.update_project(project_id, project)
+        self.resource_api.update_project(project_id, project)
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project_by_name,
+                          self.resource_api.get_project_by_name,
                           project_name,
                           domain['id'])
 
@@ -3169,10 +3168,10 @@ class IdentityTests(object):
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': domain['id']}
         project_id = project['id']
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         # Create a project
-        self.assignment_api.create_project(project_id, project)
-        self.assignment_api.get_project(project_id)
+        self.resource_api.create_project(project_id, project)
+        self.resource_api.get_project(project_id)
         updated_project = copy.deepcopy(project)
         updated_project['name'] = uuid.uuid4().hex
         # Update project, bypassing resource manager
@@ -3180,39 +3179,39 @@ class IdentityTests(object):
                                                 updated_project)
         # Verify get_project still returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.assignment_api.get_project(project_id))
+            project, self.resource_api.get_project(project_id))
         # Invalidate cache
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  project_id)
         # Verify get_project now returns the new project
         self.assertDictContainsSubset(
             updated_project,
-            self.assignment_api.get_project(project_id))
-        # Update project using the assignment_api manager back to original
-        self.assignment_api.update_project(project['id'], project)
+            self.resource_api.get_project(project_id))
+        # Update project using the resource_api manager back to original
+        self.resource_api.update_project(project['id'], project)
         # Verify get_project returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.assignment_api.get_project(project_id))
+            project, self.resource_api.get_project(project_id))
         # Delete project bypassing resource
         self.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
         self.assertDictContainsSubset(
-            project, self.assignment_api.get_project(project_id))
+            project, self.resource_api.get_project(project_id))
         # Invalidate cache
         self.resource_api.get_project.invalidate(self.resource_api,
                                                  project_id)
         # Verify ProjectNotFound now raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project_id)
         # recreate project
-        self.assignment_api.create_project(project_id, project)
-        self.assignment_api.get_project(project_id)
+        self.resource_api.create_project(project_id, project)
+        self.resource_api.get_project(project_id)
         # delete project
-        self.assignment_api.delete_project(project_id)
+        self.resource_api.delete_project(project_id)
         # Verify ProjectNotFound is raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_project,
+                          self.resource_api.get_project,
                           project_id)
 
     @tests.skip_if_cache_disabled('role')
@@ -3321,15 +3320,15 @@ class IdentityTests(object):
         domain_name = 'default'
 
         domain = {'id': uuid.uuid4().hex, 'name': domain_name, 'enabled': True}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
 
-        domain_ref = self.assignment_api.get_domain_by_name(domain_name)
+        domain_ref = self.resource_api.get_domain_by_name(domain_name)
         self.assertEqual(domain, domain_ref)
 
     def test_get_not_default_domain_by_name(self):
         domain_name = 'foo'
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_domain_by_name,
+                          self.resource_api.get_domain_by_name,
                           domain_name)
 
     def test_project_update_and_project_get_return_same_response(self):
@@ -3340,10 +3339,10 @@ class IdentityTests(object):
             'description': uuid.uuid4().hex,
             'enabled': True}
 
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
 
         updated_project = {'enabled': False}
-        updated_project_ref = self.assignment_api.update_project(
+        updated_project_ref = self.resource_api.update_project(
             project['id'], updated_project)
 
         # SQL backend adds 'extra' field
@@ -3351,7 +3350,7 @@ class IdentityTests(object):
 
         self.assertIs(False, updated_project_ref['enabled'])
 
-        project_ref = self.assignment_api.get_project(project['id'])
+        project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project_ref, updated_project_ref)
 
     def test_user_update_and_user_get_return_same_response(self):
@@ -3399,7 +3398,7 @@ class IdentityTests(object):
             'id': uuid.uuid4().hex,
             'name': self.getUniqueString(prefix='tdgrra'),
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assignment_api.create_project(new_project['id'], new_project)
+        self.resource_api.create_project(new_project['id'], new_project)
 
         # Assign a role to the group.
         self.assignment_api.create_grant(
@@ -3427,7 +3426,7 @@ class IdentityTests(object):
 
         """
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         group_list = []
         group_id_list = []
         role_list = []
@@ -3479,15 +3478,15 @@ class IdentityTests(object):
 
         """
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         group_list = []
         group_id_list = []
         role_list = []
@@ -3563,7 +3562,7 @@ class IdentityTests(object):
         group_id_list = []
         for _ in range(3):
             domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            self.assignment_api.create_domain(domain['id'], domain)
+            self.resource_api.create_domain(domain['id'], domain)
             domain_list.append(domain)
 
             group = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
@@ -3614,21 +3613,21 @@ class IdentityTests(object):
 
         """
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        project1 = self.assignment_api.create_project(project1['id'], project1)
+        project1 = self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        project2 = self.assignment_api.create_project(project2['id'], project2)
+        project2 = self.resource_api.create_project(project2['id'], project2)
         project3 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        project3 = self.assignment_api.create_project(project3['id'], project3)
+        project3 = self.resource_api.create_project(project3['id'], project3)
         project4 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        project4 = self.assignment_api.create_project(project4['id'], project4)
+        project4 = self.resource_api.create_project(project4['id'], project4)
         group_list = []
         role_list = []
         for _ in range(7):
@@ -4993,13 +4992,13 @@ class InheritanceTests(object):
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         roles_ref = self.assignment_api.list_grants(
             user_id=user1['id'],
@@ -5067,7 +5066,7 @@ class InheritanceTests(object):
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -5079,7 +5078,7 @@ class InheritanceTests(object):
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
 
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
@@ -5139,16 +5138,16 @@ class InheritanceTests(object):
         """
         self.config_fixture.config(group='os_inherit', enabled=True)
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
         user1 = self.identity_api.create_user(user1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
 
         # Create 2 grants, one on a project and one inherited grant
         # on the domain
@@ -5186,14 +5185,14 @@ class InheritanceTests(object):
                         'enabled': True,
                         'name': uuid.uuid4().hex,
                         'parent_id': None}
-        self.assignment_api.create_project(root_project['id'], root_project)
+        self.resource_api.create_project(root_project['id'], root_project)
         leaf_project = {'id': uuid.uuid4().hex,
                         'description': '',
                         'domain_id': DEFAULT_DOMAIN_ID,
                         'enabled': True,
                         'name': uuid.uuid4().hex,
                         'parent_id': root_project['id']}
-        self.assignment_api.create_project(leaf_project['id'], leaf_project)
+        self.resource_api.create_project(leaf_project['id'], leaf_project)
 
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
@@ -5240,21 +5239,21 @@ class InheritanceTests(object):
         """
         self.config_fixture.config(group='os_inherit', enabled=True)
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain2['id'], domain2)
+        self.resource_api.create_domain(domain2['id'], domain2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         project2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project2['id'], project2)
+        self.resource_api.create_project(project2['id'], project2)
         project3 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.assignment_api.create_project(project3['id'], project3)
+        self.resource_api.create_project(project3['id'], project3)
         project4 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
-        self.assignment_api.create_project(project4['id'], project4)
+        self.resource_api.create_project(project4['id'], project4)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
         user1 = self.identity_api.create_user(user1)
@@ -5307,14 +5306,14 @@ class InheritanceTests(object):
                         'enabled': True,
                         'name': uuid.uuid4().hex,
                         'parent_id': None}
-        self.assignment_api.create_project(root_project['id'], root_project)
+        self.resource_api.create_project(root_project['id'], root_project)
         leaf_project = {'id': uuid.uuid4().hex,
                         'description': '',
                         'domain_id': DEFAULT_DOMAIN_ID,
                         'enabled': True,
                         'name': uuid.uuid4().hex,
                         'parent_id': root_project['id']}
-        self.assignment_api.create_project(leaf_project['id'], leaf_project)
+        self.resource_api.create_project(leaf_project['id'], leaf_project)
 
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
@@ -5351,7 +5350,7 @@ class InheritanceTests(object):
 class FilterTests(filtering.FilterTests):
     def test_list_entities_filtered(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
 
         for entity in ['user', 'group', 'project']:
             # Create 20 entities, 14 of which are in domain1
@@ -5445,7 +5444,7 @@ class LimitTests(filtering.FilterTests):
         """Setup for Limit Test Cases."""
 
         self.domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(self.domain1['id'], self.domain1)
+        self.resource_api.create_domain(self.domain1['id'], self.domain1)
         self.addCleanup(self.clean_up_domain)
 
         self.entity_lists = {}
@@ -5462,8 +5461,8 @@ class LimitTests(filtering.FilterTests):
         """Clean up domain test data from Limit Test Cases."""
 
         self.domain1['enabled'] = False
-        self.assignment_api.update_domain(self.domain1['id'], self.domain1)
-        self.assignment_api.delete_domain(self.domain1['id'])
+        self.resource_api.update_domain(self.domain1['id'], self.domain1)
+        self.resource_api.delete_domain(self.domain1['id'])
         del self.domain1
 
     def clean_up_entities(self):

@@ -70,12 +70,12 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self._populate_default_domain()
         # Start by creating a couple of domains
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainB['id'], self.domainB)
+        self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.domainC = self.new_domain_ref()
         self.domainC['enabled'] = False
-        self.assignment_api.create_domain(self.domainC['id'], self.domainC)
+        self.resource_api.create_domain(self.domainC['id'], self.domainC)
 
         # Now create some users, one in domainA and two of them in domainB
         self.user1 = self.new_user_ref(domain_id=self.domainA['id'])
@@ -383,12 +383,12 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         # Start by creating a couple of domains
         self._populate_default_domain()
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainB['id'], self.domainB)
+        self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.admin_domain = {'id': 'admin_domain_id', 'name': 'Admin_domain'}
-        self.assignment_api.create_domain(self.admin_domain['id'],
-                                          self.admin_domain)
+        self.resource_api.create_domain(self.admin_domain['id'],
+                                        self.admin_domain)
 
         # And our users
         self.cloud_admin_user = self.new_user_ref(
@@ -439,7 +439,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         # Create and assign roles to the project
         self.project = self.new_project_ref(domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.project['id'], self.project)
+        self.resource_api.create_project(self.project['id'], self.project)
         self.assignment_api.create_grant(self.admin_role['id'],
                                          user_id=self.project_admin_user['id'],
                                          project_id=self.project['id'])

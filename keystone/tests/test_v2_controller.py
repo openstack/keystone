@@ -69,13 +69,13 @@ class TenantTestCase(tests.TestCase):
 
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         # Check the real total number of projects, we should have the above
         # plus those in the default features
-        refs = self.assignment_api.list_projects()
+        refs = self.resource_api.list_projects()
         self.assertEqual(len(default_fixtures.TENANTS) + 1, len(refs))
 
         # Now list all projects using the v2 API - we should only get

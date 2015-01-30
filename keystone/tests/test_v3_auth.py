@@ -184,7 +184,7 @@ class TokenAPITests(object):
             'name': uuid.uuid4().hex,
         }
 
-        self.assignment_api.create_domain(new_domain_id, new_domain)
+        self.resource_api.create_domain(new_domain_id, new_domain)
 
         # 2) Create user in new domain.
         new_user_password = uuid.uuid4().hex
@@ -470,7 +470,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         super(TestTokenRevokeSelfAndAdmin, self).load_sample_data()
         # DomainA setup
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.resource_api.create_domain(self.domainA['id'], self.domainA)
 
         self.userAdminA = self.new_user_ref(domain_id=self.domainA['id'])
         password = self.userAdminA['password']
@@ -565,7 +565,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     def test_adminB_fails_revoking_userA_token(self):
         # DomainB setup
         self.domainB = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainB['id'], self.domainB)
+        self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.userAdminB = self.new_user_ref(domain_id=self.domainB['id'])
         password = self.userAdminB['password']
         self.userAdminB = self.identity_api.create_user(self.userAdminB)
@@ -636,13 +636,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # Start by creating a couple of domains and projects
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainB['id'], self.domainB)
+        self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.projectA = self.new_project_ref(domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.projectA['id'], self.projectA)
+        self.resource_api.create_project(self.projectA['id'], self.projectA)
         self.projectB = self.new_project_ref(domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.projectB['id'], self.projectB)
+        self.resource_api.create_project(self.projectB['id'], self.projectB)
 
         # Now create some users
         self.user1 = self.new_user_ref(
@@ -774,7 +774,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def role_data_fixtures(self):
         self.projectC = self.new_project_ref(domain_id=self.domainA['id'])
-        self.assignment_api.create_project(self.projectC['id'], self.projectC)
+        self.resource_api.create_project(self.projectC['id'], self.projectC)
         self.user4 = self.new_user_ref(domain_id=self.domainB['id'])
         password = self.user4['password']
         self.user4 = self.identity_api.create_user(self.user4)
@@ -1850,7 +1850,7 @@ class TestAuth(test_v3.RestfulTestCase):
     def test_project_id_scoped_token_with_user_id_401(self):
         project_id = uuid.uuid4().hex
         project = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_id, project)
+        self.resource_api.create_project(project_id, project)
 
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -1882,9 +1882,9 @@ class TestAuth(test_v3.RestfulTestCase):
         """
 
         domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(domainA['id'], domainA)
+        self.resource_api.create_domain(domainA['id'], domainA)
         projectA = self.new_project_ref(domain_id=domainA['id'])
-        self.assignment_api.create_project(projectA['id'], projectA)
+        self.resource_api.create_project(projectA['id'], projectA)
 
         user1 = self.new_user_ref(
             domain_id=domainA['id'])
@@ -1996,10 +1996,10 @@ class TestAuth(test_v3.RestfulTestCase):
         """Verify getting a token in cross domain group/project roles."""
         # create domain, project and group and grant roles to user
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assignment_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
-        self.assignment_api.create_project(project1['id'], project1)
+        self.resource_api.create_project(project1['id'], project1)
         user_foo = self.new_user_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID)
         password = user_foo['password']
         user_foo = self.identity_api.create_user(user_foo)
@@ -2496,11 +2496,11 @@ class TestAuth(test_v3.RestfulTestCase):
         # create a disabled domain
         domain = self.new_domain_ref()
         domain['enabled'] = False
-        self.assignment_api.create_domain(domain['id'], domain)
+        self.resource_api.create_domain(domain['id'], domain)
 
         # create a project in the disabled domain
         project = self.new_project_ref(domain_id=domain['id'])
-        self.assignment_api.create_project(project['id'], project)
+        self.resource_api.create_project(project['id'], project)
 
         # assign some role to self.user for the project in the disabled domain
         self.assignment_api.add_role_to_user_and_project(

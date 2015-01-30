@@ -65,12 +65,12 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         # Start by creating a few domains
         self._populate_default_domain()
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainB['id'], self.domainB)
+        self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.domainC = self.new_domain_ref()
         self.domainC['enabled'] = False
-        self.assignment_api.create_domain(self.domainC['id'], self.domainC)
+        self.resource_api.create_domain(self.domainC['id'], self.domainC)
 
         # Now create some users, one in domainA and two of them in domainB
         self.user1 = self.new_user_ref(domain_id=self.domainA['id'])

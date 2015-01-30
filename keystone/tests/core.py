@@ -492,13 +492,14 @@ class TestCase(BaseTestCase):
 
         # TODO(termie): doing something from json, probably based on Django's
         #               loaddata will be much preferred.
-        if hasattr(self, 'identity_api') and hasattr(self, 'assignment_api'):
+        if (hasattr(self, 'identity_api') and
+            hasattr(self, 'assignment_api') and
+                hasattr(self, 'resource_api')):
             for domain in fixtures.DOMAINS:
                 try:
-                    rv = self.assignment_api.create_domain(domain['id'],
-                                                           domain)
+                    rv = self.resource_api.create_domain(domain['id'], domain)
                 except exception.Conflict:
-                    rv = self.assignment_api.get_domain(domain['id'])
+                    rv = self.resource_api.get_domain(domain['id'])
                 except exception.NotImplemented:
                     rv = domain
                 attrname = 'domain_%s' % domain['id']
@@ -509,10 +510,10 @@ class TestCase(BaseTestCase):
                 if hasattr(self, 'tenant_%s' % tenant['id']):
                     try:
                         # This will clear out any roles on the project as well
-                        self.assignment_api.delete_project(tenant['id'])
+                        self.resource_api.delete_project(tenant['id'])
                     except exception.ProjectNotFound:
                         pass
-                rv = self.assignment_api.create_project(
+                rv = self.resource_api.create_project(
                     tenant['id'], tenant)
 
                 attrname = 'tenant_%s' % tenant['id']
