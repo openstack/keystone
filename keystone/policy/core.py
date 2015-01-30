@@ -41,7 +41,7 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.policy.driver)
 
-    @notifications.created(_POLICY, public=False)
+    @notifications.created(_POLICY)
     def create_policy(self, policy_id, policy):
             return self.driver.create_policy(policy_id, policy)
 
@@ -51,7 +51,7 @@ class Manager(manager.Manager):
         except exception.NotFound:
             raise exception.PolicyNotFound(policy_id=policy_id)
 
-    @notifications.updated(_POLICY, public=False)
+    @notifications.updated(_POLICY)
     def update_policy(self, policy_id, policy):
         if 'id' in policy and policy_id != policy['id']:
             raise exception.ValidationError('Cannot change policy ID')
@@ -67,7 +67,7 @@ class Manager(manager.Manager):
         # caller.
         return self.driver.list_policies()
 
-    @notifications.deleted(_POLICY, public=False)
+    @notifications.deleted(_POLICY)
     def delete_policy(self, policy_id):
         try:
             return self.driver.delete_policy(policy_id)
