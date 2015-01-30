@@ -187,9 +187,10 @@ class EndpointGroupV3Controller(_ControllerBase):
     def update_endpoint_group(self, context, endpoint_group_id,
                               endpoint_group):
         """Update fixed values and/or extend the filters."""
+        if 'filters' in endpoint_group:
+            self._require_valid_filter(endpoint_group)
         ref = self.endpoint_filter_api.update_endpoint_group(endpoint_group_id,
                                                              endpoint_group)
-        self._require_valid_filter(ref)
         return EndpointGroupV3Controller.wrap_member(
             context, ref)
 

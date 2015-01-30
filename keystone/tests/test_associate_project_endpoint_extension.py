@@ -767,6 +767,16 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             'endpoint_group_id': endpoint_group_id}
         self.patch(url, body=body, expected_status=400)
 
+        # Perform a GET call to ensure that the content remains
+        # the same (as DEFAULT_ENDPOINT_GROUP_BODY) after attempting to update
+        # with an invalid filter
+        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
+            'endpoint_group_id': endpoint_group_id}
+        r = self.get(url)
+        del r.result['endpoint_group']['id']
+        del r.result['endpoint_group']['links']
+        self.assertDictEqual(self.DEFAULT_ENDPOINT_GROUP_BODY, r.result)
+
     def test_delete_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
 
