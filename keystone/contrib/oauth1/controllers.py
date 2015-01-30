@@ -165,7 +165,7 @@ class AccessTokenCrudV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('assignment_api', 'oauth_api', 'role_api')
+@dependency.requires('oauth_api', 'role_api')
 class AccessTokenRolesV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'

@@ -46,7 +46,7 @@ extension.register_public_extension(
         ]})
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
+@dependency.requires('catalog_api', 'identity_api', 'resource_api',
                      'token_provider_api')
 class UserController(identity.controllers.User):
     def set_user_password(self, context, user_id, user):
@@ -97,7 +97,7 @@ class UserController(identity.controllers.User):
         if token_ref.bind:
             new_token_ref['bind'] = token_ref.bind
         if token_ref.project_id:
-            new_token_ref['tenant'] = self.assignment_api.get_project(
+            new_token_ref['tenant'] = self.resource_api.get_project(
                 token_ref.project_id)
         if token_ref.role_names:
             roles_ref = [dict(name=value)

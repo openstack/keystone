@@ -22,14 +22,14 @@ from keystone import exception
 from keystone import notifications
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'endpoint_filter_api')
+@dependency.requires('catalog_api', 'endpoint_filter_api', 'resource_api')
 class _ControllerBase(controller.V3Controller):
     """Base behaviors for endpoint filter controllers."""
 
     def _get_endpoint_groups_for_project(self, project_id):
         # recover the project endpoint group memberships and for each
         # membership recover the endpoint group
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         try:
             refs = self.endpoint_filter_api.list_endpoint_groups_for_project(
                 project_id)
@@ -85,7 +85,7 @@ class EndpointFilterV3Controller(_ControllerBase):
         # The relationship can still be established even with a disabled
         # project as there are no security implications.
         self.catalog_api.get_endpoint(endpoint_id)
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         self.endpoint_filter_api.add_endpoint_to_project(endpoint_id,
                                                          project_id)
 
@@ -93,14 +93,14 @@ class EndpointFilterV3Controller(_ControllerBase):
     def check_endpoint_in_project(self, context, project_id, endpoint_id):
         """Verifies endpoint is currently associated with given project."""
         self.catalog_api.get_endpoint(endpoint_id)
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         self.endpoint_filter_api.check_endpoint_in_project(endpoint_id,
                                                            project_id)
 
     @controller.protected()
     def list_endpoints_for_project(self, context, project_id):
         """List all endpoints currently associated with a given project."""
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         refs = self.endpoint_filter_api.list_endpoints_for_project(project_id)
         filtered_endpoints = dict(
             (ref['endpoint_id'], self.catalog_api.get_endpoint(
@@ -133,7 +133,7 @@ class EndpointFilterV3Controller(_ControllerBase):
         self.catalog_api.get_endpoint(endpoint_id)
         refs = self.endpoint_filter_api.list_projects_for_endpoint(endpoint_id)
 
-        projects = [self.assignment_api.get_project(
+        projects = [self.resource_api.get_project(
             ref['project_id']) for ref in refs]
         return assignment.controllers.ProjectV3.wrap_collection(context,
                                                                 projects)
@@ -222,7 +222,7 @@ class EndpointGroupV3Controller(_ControllerBase):
                                    endpoint_group_id))
         projects = []
         for endpoint_group_ref in endpoint_group_refs:
-            project = self.assignment_api.get_project(
+            project = self.resource_api.get_project(
                 endpoint_group_ref['project_id'])
             if project:
                 projects.append(project)
@@ -261,7 +261,7 @@ class ProjectEndpointGroupV3Controller(_ControllerBase):
     def get_endpoint_group_in_project(self, context, endpoint_group_id,
                                       project_id):
         """Retrieve the endpoint group associated with the id if exists."""
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         self.endpoint_filter_api.get_endpoint_group(endpoint_group_id)
         ref = self.endpoint_filter_api.get_endpoint_group_in_project(
             endpoint_group_id, project_id)
@@ -272,7 +272,7 @@ class ProjectEndpointGroupV3Controller(_ControllerBase):
     def add_endpoint_group_to_project(self, context, endpoint_group_id,
                                       project_id):
         """Creates an association between an endpoint group and project."""
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         self.endpoint_filter_api.get_endpoint_group(endpoint_group_id)
         self.endpoint_filter_api.add_endpoint_group_to_project(
             endpoint_group_id, project_id)
@@ -281,7 +281,7 @@ class ProjectEndpointGroupV3Controller(_ControllerBase):
     def remove_endpoint_group_from_project(self, context, endpoint_group_id,
                                            project_id):
         """Remove the endpoint group from associated project."""
-        self.assignment_api.get_project(project_id)
+        self.resource_api.get_project(project_id)
         self.endpoint_filter_api.get_endpoint_group(endpoint_group_id)
         self.endpoint_filter_api.remove_endpoint_group_from_project(
             endpoint_group_id, project_id)

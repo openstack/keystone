@@ -124,7 +124,7 @@ class AuthContext(dict):
 # available for consumers. Consumers should probably not be getting
 # identity_api from this since it's available in global registry, then
 # identity_api should be removed from this list.
-@dependency.requires('assignment_api', 'identity_api', 'trust_api')
+@dependency.requires('identity_api', 'resource_api', 'trust_api')
 class AuthInfo(object):
     """Encapsulation of "auth" request."""
 
@@ -147,7 +147,7 @@ class AuthInfo(object):
     def _assert_project_is_enabled(self, project_ref):
         # ensure the project is enabled
         try:
-            self.assignment_api.assert_project_enabled(
+            self.resource_api.assert_project_enabled(
                 project_id=project_ref['id'],
                 project=project_ref)
         except AssertionError as e:
@@ -157,7 +157,7 @@ class AuthInfo(object):
 
     def _assert_domain_is_enabled(self, domain_ref):
         try:
-            self.assignment_api.assert_domain_enabled(
+            self.resource_api.assert_domain_enabled(
                 domain_id=domain_ref['id'],
                 domain=domain_ref)
         except AssertionError as e:
@@ -174,10 +174,10 @@ class AuthInfo(object):
                                             target='domain')
         try:
             if domain_name:
-                domain_ref = self.assignment_api.get_domain_by_name(
+                domain_ref = self.resource_api.get_domain_by_name(
                     domain_name)
             else:
-                domain_ref = self.assignment_api.get_domain(domain_id)
+                domain_ref = self.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.exception(e)
             raise exception.Unauthorized(e)
@@ -197,10 +197,10 @@ class AuthInfo(object):
                     raise exception.ValidationError(attribute='domain',
                                                     target='project')
                 domain_ref = self._lookup_domain(project_info['domain'])
-                project_ref = self.assignment_api.get_project_by_name(
+                project_ref = self.resource_api.get_project_by_name(
                     project_name, domain_ref['id'])
             else:
-                project_ref = self.assignment_api.get_project(project_id)
+                project_ref = self.resource_api.get_project(project_id)
                 # NOTE(morganfainberg): The _lookup_domain method will raise
                 # exception.Unauthorized if the domain isn't found or is
                 # disabled.
@@ -340,7 +340,7 @@ class AuthInfo(object):
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'token_provider_api', 'trust_api')
+                     'resource_api', 'token_provider_api', 'trust_api')
 class Auth(controller.V3Controller):
 
     # Note(atiwari): From V3 auth controller code we are
@@ -427,9 +427,9 @@ class Auth(controller.V3Controller):
 
         # make sure user's default project is legit before scoping to it
         try:
-            default_project_ref = self.assignment_api.get_project(
+            default_project_ref = self.resource_api.get_project(
                 default_project_id)
-            default_project_domain_ref = self.assignment_api.get_domain(
+            default_project_domain_ref = self.resource_api.get_domain(
                 default_project_ref['domain_id'])
             if (default_project_ref.get('enabled', True) and
                     default_project_domain_ref.get('enabled', True)):

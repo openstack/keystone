@@ -36,7 +36,8 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'token_provider_api')
+@dependency.requires('assignment_api', 'identity_api', 'resource_api',
+                     'token_provider_api')
 class Tenant(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -47,7 +48,7 @@ class Tenant(controller.V2Controller):
                 context, context['query_string'].get('name'))
 
         self.assert_admin(context)
-        tenant_refs = self.assignment_api.list_projects_in_domain(
+        tenant_refs = self.resource_api.list_projects_in_domain(
             CONF.identity.default_domain_id)
         for tenant_ref in tenant_refs:
             tenant_ref = self.filter_domain_id(tenant_ref)
@@ -90,13 +91,13 @@ class Tenant(controller.V2Controller):
     def get_project(self, context, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
-        ref = self.assignment_api.get_project(tenant_id)
+        ref = self.resource_api.get_project(tenant_id)
         return {'tenant': self.filter_domain_id(ref)}
 
     @controller.v2_deprecated
     def get_project_by_name(self, context, tenant_name):
         self.assert_admin(context)
-        ref = self.assignment_api.get_project_by_name(
+        ref = self.resource_api.get_project_by_name(
             tenant_name, CONF.identity.default_domain_id)
         return {'tenant': self.filter_domain_id(ref)}
 
@@ -111,7 +112,7 @@ class Tenant(controller.V2Controller):
 
         self.assert_admin(context)
         tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
-        tenant = self.assignment_api.create_project(
+        tenant = self.resource_api.create_project(
             tenant_ref['id'],
             self._normalize_domain_id(context, tenant_ref))
         return {'tenant': self.filter_domain_id(tenant)}
@@ -124,14 +125,14 @@ class Tenant(controller.V2Controller):
         clean_tenant = tenant.copy()
         clean_tenant.pop('domain_id', None)
 
-        tenant_ref = self.assignment_api.update_project(
+        tenant_ref = self.resource_api.update_project(
             tenant_id, clean_tenant)
         return {'tenant': tenant_ref}
 
     @controller.v2_deprecated
     def delete_project(self, context, tenant_id):
         self.assert_admin(context)
-        self.assignment_api.delete_project(tenant_id)
+        self.resource_api.delete_project(tenant_id)
 
     @controller.v2_deprecated
     def get_project_users(self, context, tenant_id, **kw):
@@ -345,74 +346,73 @@ class Role(controller.V2Controller):
             user_id, tenant_id, role_id)
 
 
-@dependency.requires('assignment_api')
+@dependency.requires('resource_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
 
     def __init__(self):
         super(DomainV3, self).__init__()
-        self.get_member_from_driver = self.assignment_api.get_domain
+        self.get_member_from_driver = self.resource_api.get_domain
 
     @controller.protected()
     @validation.validated(schema.domain_create, 'domain')
     def create_domain(self, context, domain):
         ref = self._assign_unique_id(self._normalize_dict(domain))
-        ref = self.assignment_api.create_domain(ref['id'], ref)
+        ref = self.resource_api.create_domain(ref['id'], ref)
         return DomainV3.wrap_member(context, ref)
 
     @controller.filterprotected('enabled', 'name')
     def list_domains(self, context, filters):
         hints = DomainV3.build_driver_hints(context, filters)
-        refs = self.assignment_api.list_domains(hints=hints)
+        refs = self.resource_api.list_domains(hints=hints)
         return DomainV3.wrap_collection(context, refs, hints=hints)
 
     @controller.protected()
     def get_domain(self, context, domain_id):
-        ref = self.assignment_api.get_domain(domain_id)
+        ref = self.resource_api.get_domain(domain_id)
         return DomainV3.wrap_member(context, ref)
 
     @controller.protected()
     @validation.validated(schema.domain_update, 'domain')
     def update_domain(self, context, domain_id, domain):
         self._require_matching_id(domain_id, domain)
-        ref = self.assignment_api.update_domain(domain_id, domain)
+        ref = self.resource_api.update_domain(domain_id, domain)
         return DomainV3.wrap_member(context, ref)
 
     @controller.protected()
     def delete_domain(self, context, domain_id):
-        return self.assignment_api.delete_domain(domain_id)
+        return self.resource_api.delete_domain(domain_id)
 
 
-@dependency.requires('assignment_api')
+@dependency.requires('assignment_api', 'resource_api')
 class ProjectV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
 
     def __init__(self):
         super(ProjectV3, self).__init__()
-        self.get_member_from_driver = self.assignment_api.get_project
+        self.get_member_from_driver = self.resource_api.get_project
 
     @controller.protected()
     @validation.validated(schema.project_create, 'project')
     def create_project(self, context, project):
         ref = self._assign_unique_id(self._normalize_dict(project))
         ref = self._normalize_domain_id(context, ref)
-        ref = self.assignment_api.create_project(ref['id'], ref)
+        ref = self.resource_api.create_project(ref['id'], ref)
         return ProjectV3.wrap_member(context, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name',
                                 'parent_id')
     def list_projects(self, context, filters):
         hints = ProjectV3.build_driver_hints(context, filters)
-        refs = self.assignment_api.list_projects(hints=hints)
+        refs = self.resource_api.list_projects(hints=hints)
         return ProjectV3.wrap_collection(context, refs, hints=hints)
 
     @controller.filterprotected('enabled', 'name')
     def list_user_projects(self, context, filters, user_id):
         hints = ProjectV3.build_driver_hints(context, filters)
-        refs = self.assignment_api.list_projects_for_user(user_id,
-                                                          hints=hints)
+        refs = self.assignment_api.list_projects_for_user(user_id, hints=hints)
         return ProjectV3.wrap_collection(context, refs, hints=hints)
 
     def _expand_project_ref(self, context, ref):
@@ -420,7 +420,7 @@ class ProjectV3(controller.V3Controller):
         if ('parents_as_list' in context['query_string'] and
                 self.query_filter_is_true(
                     context['query_string']['parents_as_list'])):
-            parents = self.assignment_api.list_project_parents(
+            parents = self.resource_api.list_project_parents(
                 ref['id'], user_id)
             ref['parents'] = [ProjectV3.wrap_member(context, p)
                               for p in parents]
@@ -428,14 +428,14 @@ class ProjectV3(controller.V3Controller):
         if ('subtree_as_list' in context['query_string'] and
                 self.query_filter_is_true(
                     context['query_string']['subtree_as_list'])):
-            subtree = self.assignment_api.list_projects_in_subtree(
+            subtree = self.resource_api.list_projects_in_subtree(
                 ref['id'], user_id)
             ref['subtree'] = [ProjectV3.wrap_member(context, p)
                               for p in subtree]
 
     @controller.protected()
     def get_project(self, context, project_id):
-        ref = self.assignment_api.get_project(project_id)
+        ref = self.resource_api.get_project(project_id)
         self._expand_project_ref(context, ref)
         return ProjectV3.wrap_member(context, ref)
 
@@ -444,16 +444,17 @@ class ProjectV3(controller.V3Controller):
     def update_project(self, context, project_id, project):
         self._require_matching_id(project_id, project)
         self._require_matching_domain_id(
-            project_id, project, self.assignment_api.get_project)
-        ref = self.assignment_api.update_project(project_id, project)
+            project_id, project, self.resource_api.get_project)
+        ref = self.resource_api.update_project(project_id, project)
         return ProjectV3.wrap_member(context, ref)
 
     @controller.protected()
     def delete_project(self, context, project_id):
-        return self.assignment_api.delete_project(project_id)
+        return self.resource_api.delete_project(project_id)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'role_api')
+@dependency.requires('assignment_api', 'identity_api', 'resource_api',
+                     'role_api')
 class RoleV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'
@@ -532,9 +533,9 @@ class RoleV3(controller.V3Controller):
             ref['group'] = self.identity_api.get_group(group_id)
 
         if domain_id:
-            ref['domain'] = self.assignment_api.get_domain(domain_id)
+            ref['domain'] = self.resource_api.get_domain(domain_id)
         else:
-            ref['project'] = self.assignment_api.get_project(project_id)
+            ref['project'] = self.resource_api.get_project(project_id)
 
         self.check_protection(context, protection, ref)
 
@@ -588,7 +589,7 @@ class RoleV3(controller.V3Controller):
             self._check_if_inherited(context), context)
 
 
-@dependency.requires('assignment_api', 'identity_api')
+@dependency.requires('assignment_api', 'identity_api', 'resource_api')
 class RoleAssignmentV3(controller.V3Controller):
 
     # TODO(henry-nash): The current implementation does not provide a full
@@ -824,7 +825,7 @@ class RoleAssignmentV3(controller.V3Controller):
                     # projects owned by this domain.
                     project_ids = (
                         [x['id'] for x in
-                            self.assignment_api.list_projects_in_domain(
+                            self.resource_api.list_projects_in_domain(
                                 r['scope']['domain']['id'])])
                     base_entry = copy.deepcopy(r)
                     target_type = 'domains'
@@ -836,7 +837,7 @@ class RoleAssignmentV3(controller.V3Controller):
                     project_id = r['scope']['project']['id']
                     project_ids = (
                         [x['id'] for x in
-                            self.assignment_api.list_projects_in_subtree(
+                            self.resource_api.list_projects_in_subtree(
                                 project_id)])
                     base_entry = copy.deepcopy(r)
                     target_type = 'projects'

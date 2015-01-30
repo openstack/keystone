@@ -60,7 +60,7 @@ def validate_auth_info(self, user_ref, tenant_ref):
         raise exception.Unauthorized(msg)
 
     # If the user's domain is disabled don't allow them to authenticate
-    user_domain_ref = self.assignment_api.get_domain(
+    user_domain_ref = self.resource_api.get_domain(
         user_ref['domain_id'])
     if user_domain_ref and not user_domain_ref.get('enabled', True):
         msg = _('Domain is disabled: %s') % user_domain_ref['id']
@@ -75,7 +75,7 @@ def validate_auth_info(self, user_ref, tenant_ref):
             raise exception.Unauthorized(msg)
 
         # If the project's domain is disabled don't allow them to authenticate
-        project_domain_ref = self.assignment_api.get_domain(
+        project_domain_ref = self.resource_api.get_domain(
             tenant_ref['domain_id'])
         if (project_domain_ref and
                 not project_domain_ref.get('enabled', True)):
