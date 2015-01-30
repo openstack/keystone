@@ -80,6 +80,8 @@ def handle_scoped_token(context, auth_payload, auth_context, token_ref,
         context, user_id, group_ids, identity_provider, protocol,
         token_audit_id)
 
+    utils.assert_enabled_identity_provider(federation_api, identity_provider)
+
     try:
         mapping = federation_api.get_mapping_from_idp_and_protocol(
             identity_provider, protocol)
@@ -105,6 +107,9 @@ def handle_unscoped_token(context, auth_payload, auth_context,
     assertion = extract_assertion_data(context)
     identity_provider = auth_payload['identity_provider']
     protocol = auth_payload['protocol']
+
+    utils.assert_enabled_identity_provider(federation_api, identity_provider)
+
     group_ids = None
     # NOTE(topol): The user is coming in from an IdP with a SAML assertion
     # instead of from a token, so we set token_id to None
