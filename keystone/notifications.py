@@ -35,6 +35,13 @@ from keystone.i18n import _, _LE
 notifier_opts = [
     cfg.StrOpt('default_publisher_id',
                help='Default publisher_id for outgoing notifications'),
+    cfg.StrOpt('notification_format', default='basic',
+               help='Define the notification format for Identity Service '
+                    'events. A "basic" notification has information about '
+                    'the resource being operated on. A "cadf" notification '
+                    'has the same information, as well as information about '
+                    'the initiator of the event. Valid options are: basic '
+                    'and cadf'),
 ]
 
 config_section = None
@@ -48,6 +55,14 @@ _ACTIONS = collections.namedtuple(
     'created, deleted, disabled, updated, internal')
 ACTIONS = _ACTIONS(created='created', deleted='deleted', disabled='disabled',
                    updated='updated', internal='internal')
+
+CADF_TYPE_MAP = {
+    'group': taxonomy.SECURITY_GROUP,
+    'project': taxonomy.SECURITY_PROJECT,
+    'role': taxonomy.SECURITY_ROLE,
+    'user': taxonomy.SECURITY_ACCOUNT_USER,
+    'domain': taxonomy.SECURITY_DOMAIN
+}
 
 SAML_AUDIT_TYPE = 'http://docs.oasis-open.org/security/saml/v2.0'
 # resource types that can be notified
@@ -99,11 +114,30 @@ class ManagerNotificationWrapper(object):
                     resource_id = result[self.result_id_arg_attr]
                 else:
                     resource_id = args[self.resource_id_arg_index]
+
+                # NOTE(stevemar): the _send_notification function is
+                # overloaded, it's used to register callbacks and to actually
+                # send the notification externally. Thus, we should check
+                # the desired notification format in the function instead
+                # of before it.
                 _send_notification(
                     self.operation,
                     self.resource_type,
                     resource_id,
                     public=self.public)
+
+                # Only emit CADF notifications for public events
+                if CONF.notification_format == 'cadf' and self.public:
+                    outcome = taxonomy.OUTCOME_SUCCESS
+                    # TODO(stevemar): In a future patch when we pass the
+                    # context from the controller to the manager then the
+                    # context will be available and we can enable the commented
+                    # out code below.
+                    context = {}
+                    # call_args = inspect.getcallargs(f, *args, **kwargs)
+                    # context = call_args['context']
+                    _create_cadf_payload(self.operation, self.resource_type,
+                                         resource_id, outcome, context)
             return result
 
         return wrapper
@@ -218,6 +252,46 @@ def reset_notifier():
     _notifier = None
 
 
+def _create_cadf_payload(operation, resource_type, resource_id,
+                         outcome, context):
+    """Prepare data for CADF audit notifier.
+
+    Transform the arguments into content to be consumed by the function that
+    emits CADF events (_send_audit_notification). Specifically the
+    ``resource_type`` (role, user, etc) must be transformed into a CADF
+    keyword, such as: ``data/security/role``. The ``resource_id`` is added as a
+    top level value for the ``resource_info`` key. Lastly, the ``operation`` is
+    used to create the CADF ``action``, and the ``event_type`` name.
+
+    As per the CADF specification, the ``action`` must start with create,
+    update, delete, etc... i.e.: created.user or deleted.role
+
+    However the ``event_type`` is an OpenStack-ism that is typically of the
+    form project.resource.operation. i.e.: identity.project.updated
+
+    :param operation: operation being performed (created, updated, or deleted)
+    :param resource_type: type of resource being operated on (role, user, etc)
+    :param resource_id: ID of resource being operated on
+    :param outcome: outcomes of the operation (SUCCESS, FAILURE, etc)
+    :param context: WSGI context, contains info about the user
+    """
+
+    initiator = _get_request_audit_info(context)
+    if resource_type not in CADF_TYPE_MAP:
+        target_uri = taxonomy.UNKNOWN
+    else:
+        target_uri = CADF_TYPE_MAP.get(resource_type)
+    target = resource.Resource(typeURI=target_uri,
+                               id=resource_id)
+
+    audit_kwargs = {'resource_info': resource_id}
+    cadf_action = '%s.%s' % (operation, resource_type)
+    event_type = '%s.%s.%s' % (SERVICE, resource_type, operation)
+
+    _send_audit_notification(cadf_action, initiator, outcome,
+                             target, event_type, **audit_kwargs)
+
+
 def _send_notification(operation, resource_type, resource_id, public=True):
     """Send notification to inform observers about the affected resource.
 
@@ -235,7 +309,10 @@ def _send_notification(operation, resource_type, resource_id, public=True):
 
     notify_event_callbacks(SERVICE, resource_type, operation, payload)
 
-    if public:
+    # Only send this notification if the 'basic' format is used, otherwise
+    # let the CADF functions handle sending the notification. But we check
+    # here so as to not disrupt the notify_event_callbacks function.
+    if public and CONF.notification_format == 'basic':
         notifier = _get_notifier()
         if notifier:
             context = {}
