@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-01-29 06:22+0000\n"
-"PO-Revision-Date: 2015-01-27 20:03+0000\n"
+"POT-Creation-Date: 2015-01-30 06:21+0000\n"
+"PO-Revision-Date: 2015-01-29 23:49+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -292,89 +292,85 @@ msgstr ""
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
 msgstr ""
 
-#: keystone/exception.py:329
-msgid "Request is too large."
-msgstr "Request is too large."
-
-#: keystone/exception.py:336
+#: keystone/exception.py:330
 msgid "An unexpected error prevented the server from fulfilling your request."
 msgstr ""
 
-#: keystone/exception.py:339
+#: keystone/exception.py:333
 #, python-format
 msgid ""
 "An unexpected error prevented the server from fulfilling your request: "
 "%(exception)s"
 msgstr ""
 
-#: keystone/exception.py:362
+#: keystone/exception.py:356
 #, python-format
 msgid "Unable to parse policy file %(policy_file)s."
 msgstr ""
 
-#: keystone/exception.py:366
+#: keystone/exception.py:360
 #, python-format
 msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
 msgstr ""
 
-#: keystone/exception.py:371
+#: keystone/exception.py:365
 msgid ""
 "Expected signing certificates are not available on the server. Please "
 "check Keystone configuration."
 msgstr ""
 
-#: keystone/exception.py:377
+#: keystone/exception.py:371
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 
-#: keystone/exception.py:382
+#: keystone/exception.py:376
 #, python-format
 msgid ""
 "Group %(group_id)s returned by mapping %(mapping_id)s was not found in "
 "the backend."
 msgstr ""
 
-#: keystone/exception.py:387
+#: keystone/exception.py:381
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
 msgstr ""
 
-#: keystone/exception.py:391
+#: keystone/exception.py:385
 #, python-format
 msgid ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
 msgstr ""
 
-#: keystone/exception.py:398
+#: keystone/exception.py:392
 msgid "The action you have requested has not been implemented."
 msgstr "The action you have requested has not been implemented."
 
-#: keystone/exception.py:405
+#: keystone/exception.py:399
 msgid "The service you have requested is no longer available on this server."
 msgstr ""
 
-#: keystone/exception.py:412
+#: keystone/exception.py:406
 #, python-format
 msgid "The Keystone configuration file %(config_file)s could not be found."
 msgstr "The Keystone configuration file %(config_file)s could not be found."
 
-#: keystone/exception.py:417
+#: keystone/exception.py:411
 #, python-format
 msgid ""
 "The Keystone domain configuration file %(config_file)s defines an "
 "additional SQL driver - only one is permitted."
 msgstr ""
 
-#: keystone/exception.py:424
+#: keystone/exception.py:418
 #, python-format
 msgid ""
 "%(mod_name)s doesn't provide database migrations. The migration "
 "repository path at %(path)s doesn't exist or isn't a directory."
 msgstr ""
 
-#: keystone/exception.py:436
+#: keystone/exception.py:430
 #, python-format
 msgid ""
 "Unable to sign SAML assertion. It is likely that this server does not "
@@ -413,81 +409,81 @@ msgstr "Specify a domain or project, not both"
 msgid "Specify a user or group, not both"
 msgstr "Specify a user or group, not both"
 
-#: keystone/assignment/core.py:115
+#: keystone/assignment/core.py:117
 #, python-format
 msgid "max hierarchy depth reached for %s branch."
 msgstr ""
 
-#: keystone/assignment/core.py:133
+#: keystone/assignment/core.py:135
 msgid "cannot create a project within a different domain than its parents."
 msgstr ""
 
-#: keystone/assignment/core.py:137
+#: keystone/assignment/core.py:139
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
 
-#: keystone/assignment/core.py:158 keystone/token/core.py:66
+#: keystone/assignment/core.py:160 keystone/token/core.py:66
 #: keystone/token/core.py:82
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "Domain is disabled: %s"
 
-#: keystone/assignment/core.py:169
+#: keystone/assignment/core.py:171
 #, python-format
 msgid "Project is disabled: %s"
 msgstr "Project is disabled: %s"
 
-#: keystone/assignment/core.py:189
+#: keystone/assignment/core.py:191
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 
-#: keystone/assignment/core.py:197
+#: keystone/assignment/core.py:199
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
 msgstr ""
 
-#: keystone/assignment/core.py:209
+#: keystone/assignment/core.py:211
 msgid "Update of `parent_id` is not allowed."
 msgstr ""
 
-#: keystone/assignment/core.py:236
+#: keystone/assignment/core.py:238
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
 msgstr ""
 
-#: keystone/assignment/core.py:370
+#: keystone/assignment/core.py:372
 msgid "Must specify either domain or project"
 msgstr ""
 
-#: keystone/assignment/core.py:503
+#: keystone/assignment/core.py:505
 msgid "Multiple domains are not supported"
 msgstr ""
 
-#: keystone/assignment/core.py:568
+#: keystone/assignment/core.py:570
 msgid "delete the default domain"
 msgstr ""
 
-#: keystone/assignment/core.py:579
+#: keystone/assignment/core.py:581
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/assignment/core.py:839
+#: keystone/assignment/core.py:841
 #, python-format
 msgid "Project (%s)"
 msgstr "Project (%s)"
 
-#: keystone/assignment/core.py:841
+#: keystone/assignment/core.py:843
 #, python-format
 msgid "Domain (%s)"
 msgstr "Domain (%s)"
 
-#: keystone/assignment/core.py:843
+#: keystone/assignment/core.py:845
 msgid "Unknown Target"
 msgstr "Unknown Target"
 
-#: keystone/assignment/core.py:1393 keystone/assignment/backends/ldap.py:67
+#: keystone/assignment/core.py:1395 keystone/assignment/backends/ldap.py:67
 #: keystone/common/controller.py:288 keystone/identity/core.py:330
 #, python-format
 msgid "Expected dict or list: %s"
@@ -1064,9 +1060,9 @@ msgstr "Enabled field must be a boolean"
 msgid "Enabled field should be a boolean"
 msgstr "Enabled field should be a boolean"
 
-#: keystone/identity/core.py:220 keystone/identity/backends/ldap.py:58
-#: keystone/identity/backends/ldap.py:60 keystone/identity/backends/ldap.py:66
-#: keystone/identity/backends/ldap.py:68 keystone/identity/backends/sql.py:109
+#: keystone/identity/core.py:220 keystone/identity/backends/ldap.py:59
+#: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
+#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:109
 #: keystone/identity/backends/sql.py:111
 msgid "Invalid user / password"
 msgstr ""
@@ -1080,17 +1076,17 @@ msgstr "User is disabled: %s"
 msgid "Cannot change user ID"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:98
+#: keystone/identity/backends/ldap.py:99
 msgid "Cannot change user name"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:187 keystone/identity/backends/sql.py:193
+#: keystone/identity/backends/ldap.py:188 keystone/identity/backends/sql.py:193
 #: keystone/identity/backends/sql.py:211
 #, python-format
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:337
+#: keystone/identity/backends/ldap.py:338
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "User %(user_id)s is already a member of group %(group_id)s"
