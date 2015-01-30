@@ -291,9 +291,9 @@
 # able to take everything down, as it requires a clean break. (integer value)
 #qpid_topology_version = 1
 
-# SSL version to use (valid only if SSL enabled). valid values are TLSv1 and
-# SSLv23. SSLv2 and SSLv3 may be available on some distributions. (string
-# value)
+# SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
+# SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
+# distributions. (string value)
 #kombu_ssl_version =
 
 # SSL key file (valid only if SSL enabled). (string value)
@@ -356,7 +356,7 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-#rpc_zmq_matchmaker = oslo.messaging._drivers.matchmaker.MatchMakerLocalhost
+#rpc_zmq_matchmaker = oslo_messaging._drivers.matchmaker.MatchMakerLocalhost
 
 # ZeroMQ receiver listening port. (integer value)
 #rpc_zmq_port = 9501
@@ -385,7 +385,7 @@
 # Heartbeat time-to-live. (integer value)
 #matchmaker_heartbeat_ttl = 600
 
-# Size of RPC greenthread pool. (integer value)
+# Size of RPC thread pool. (integer value)
 #rpc_thread_pool_size = 64
 
 # Driver or drivers to handle sending notifications. (multi valued)
