@@ -2493,8 +2493,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
     def reload_backends(self, domain_id):
         # Just reload the driver for this domain - which will pickup
         # any updated cfg
-        self.identity_api.domain_configs.reload_domain_driver(
-            self.identity_api.assignment_api, domain_id)
+        self.identity_api.domain_configs.reload_domain_driver(domain_id)
 
     def get_config(self, domain_id):
         # Get the config for this domain, will return CONF
@@ -2751,8 +2750,7 @@ class DomainSpecificLDAPandSQLIdentity(
     def reload_backends(self, domain_id):
         # Just reload the driver for this domain - which will pickup
         # any updated cfg
-        self.identity_api.domain_configs.reload_domain_driver(
-            self.identity_api.assignment_api, domain_id)
+        self.identity_api.domain_configs.reload_domain_driver(domain_id)
 
     def get_config(self, domain_id):
         # Get the config for this domain, will return CONF
@@ -2922,8 +2920,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         else:
             # Just reload the driver for this domain - which will pickup
             # any updated cfg
-            self.identity_api.domain_configs.reload_domain_driver(
-                self.identity_api.assignment_api, domain_id)
+            self.identity_api.domain_configs.reload_domain_driver(domain_id)
 
     def test_default_sql_plus_sql_specific_driver_fails(self):
         # First confirm that if ldap is default driver, domain1 can be
