@@ -838,3 +838,35 @@ class DeprecatedDecorators(SqlTests):
         self.assertRaises(logging.DeprecatedConfig,
                           self.assignment_api.create_role,
                           role_ref['id'], role_ref)
+
+    def test_assignment_to_resource_api(self):
+        """Test that calling one of the methods does call LOG.deprecated.
+
+        This method is really generic to the type of backend, but we need
+        one to execute the test, so the SQL backend is as good as any.
+
+        """
+
+        # Rather than try and check that a log message is issued, we
+        # enable fatal_deprecations so that we can check for the
+        # raising of the exception.
+
+        # First try to create a project without enabling fatal deprecations,
+        # which should work due to the cross manager deprecated calls.
+        project_ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.get_project(project_ref['id'])
+
+        # Now enable fatal exceptions - creating a project by calling the
+        # old manager should now fail.
+        self.config_fixture.config(fatal_deprecations=True)
+        project_ref = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.assertRaises(logging.DeprecatedConfig,
+                          self.assignment_api.create_project,
+                          project_ref['id'], project_ref)

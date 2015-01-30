@@ -435,15 +435,27 @@ FILE_OPTIONS = {
         # the backend
         cfg.StrOpt('driver',
                    help='Assignment backend driver.'),
+    ],
+    'resource': [
+        cfg.StrOpt('driver',
+                   help='Resource backend driver. If a resource driver is '
+                        'not specified, the assignment driver will choose '
+                        'the resource driver.'),
         cfg.BoolOpt('caching', default=True,
-                    help='Toggle for assignment caching. This has no effect '
+                    deprecated_opts=[cfg.DeprecatedOpt('caching',
+                                                       group='assignment')],
+                    help='Toggle for resource caching. This has no effect '
                          'unless global caching is enabled.'),
         cfg.IntOpt('cache_time',
-                   help='TTL (in seconds) to cache assignment data. This has '
+                   deprecated_opts=[cfg.DeprecatedOpt('cache_time',
+                                                      group='assignment')],
+                   help='TTL (in seconds) to cache resource data. This has '
                         'no effect unless global caching is enabled.'),
         cfg.IntOpt('list_limit',
+                   deprecated_opts=[cfg.DeprecatedOpt('list_limit',
+                                                      group='assignment')],
                    help='Maximum number of entities that will be returned '
-                        'in an assignment collection.'),
+                        'in a resource collection.'),
     ],
     'role': [
         # The role driver has no default for backward compatibility reasons.
