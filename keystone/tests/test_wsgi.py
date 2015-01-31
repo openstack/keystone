@@ -17,7 +17,7 @@ import socket
 import uuid
 
 import mock
-from oslo import i18n
+import oslo_i18n
 from oslo_serialization import jsonutils
 import six
 from testtools import matchers
@@ -278,7 +278,7 @@ class LocalizedResponseTest(tests.TestCase):
         req = webob.Request.blank('/')
         self.assertIsNone(wsgi.best_match_language(req))
 
-    @mock.patch.object(i18n, 'get_available_languages')
+    @mock.patch.object(oslo_i18n, 'get_available_languages')
     def test_request_match_language_expected(self, mock_gal):
         # If Accept-Language is a supported language, best_match_language()
         # returns it.
@@ -289,7 +289,7 @@ class LocalizedResponseTest(tests.TestCase):
         req = webob.Request.blank('/', headers={'Accept-Language': language})
         self.assertEqual(wsgi.best_match_language(req), language)
 
-    @mock.patch.object(i18n, 'get_available_languages')
+    @mock.patch.object(oslo_i18n, 'get_available_languages')
     def test_request_match_language_unexpected(self, mock_gal):
         # If Accept-Language is a language we do not support,
         # best_match_language() returns None.
@@ -308,7 +308,7 @@ class LocalizedResponseTest(tests.TestCase):
         self.assertNotEqual(type(exception.Unauthorized.message_format),
                             six.text_type)
 
-    @mock.patch.object(i18n, 'get_available_languages')
+    @mock.patch.object(oslo_i18n, 'get_available_languages')
     def test_get_localized_response(self, mock_gal):
         # If the request has the Accept-Language set to a supported language
         # and an exception is raised by the application that is translatable

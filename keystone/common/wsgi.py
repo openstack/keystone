@@ -20,7 +20,7 @@
 
 import copy
 
-from oslo import i18n
+import oslo_i18n
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
 from oslo_utils import strutils
@@ -114,7 +114,7 @@ def best_match_language(req):
     if not req.accept_language:
         return None
     return req.accept_language.best_match(
-        i18n.get_available_languages('keystone'))
+        oslo_i18n.get_available_languages('keystone'))
 
 
 class BaseApplication(object):
@@ -778,7 +778,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
     """Forms a WSGI response based on the current error."""
 
     error_message = error.args[0]
-    message = i18n.translate(error_message, desired_locale=user_locale)
+    message = oslo_i18n.translate(error_message, desired_locale=user_locale)
     if message is error_message:
         # translate() didn't do anything because it wasn't a Message,
         # convert to a string.

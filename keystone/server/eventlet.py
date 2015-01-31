@@ -17,8 +17,8 @@ import logging
 import os
 import socket
 
-from oslo import i18n
 from oslo_concurrency import processutils
+import oslo_i18n
 import pbr.version
 
 
@@ -26,7 +26,7 @@ import pbr.version
 # keystone.i18n._() is called to ensure it has the desired lazy lookup
 # behavior. This includes cases, like keystone.exceptions, where
 # keystone.i18n._() is called at import time.
-i18n.enable_lazy()
+oslo_i18n.enable_lazy()
 
 
 from keystone.common import environment
