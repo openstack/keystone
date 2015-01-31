@@ -619,6 +619,17 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         # No audit event should have occurred
         self.assertEqual(0, len(self._audits))
 
+    def test_initiator_data_is_set(self):
+        ref = self.new_domain_ref()
+        resp = self.post('/domains', body={'domain': ref})
+        resource_id = resp.result.get('domain').get('id')
+        self._assert_last_audit(resource_id, CREATED_OPERATION, 'domain',
+                                cadftaxonomy.SECURITY_DOMAIN)
+        self.assertTrue(len(self._audits) > 0)
+        audit = self._audits[-1]
+        payload = audit['payload']
+        self.assertEqual(self.user_id, payload['initiator']['id'])
+
 
 class CADFNotificationsForEntities(NotificationsForEntities):
 

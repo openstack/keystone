@@ -30,6 +30,7 @@ from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.models import token_model
+from keystone import notifications
 
 
 CONF = cfg.CONF
@@ -282,7 +283,8 @@ class RoleV3(controller.V3Controller):
     @validation.validated(schema.role_create, 'role')
     def create_role(self, context, role):
         ref = self._assign_unique_id(self._normalize_dict(role))
-        ref = self.role_api.create_role(ref['id'], ref)
+        initiator = notifications._get_request_audit_info(context)
+        ref = self.role_api.create_role(ref['id'], ref, initiator)
         return RoleV3.wrap_member(context, ref)
 
     @controller.filterprotected('name')
@@ -301,13 +303,14 @@ class RoleV3(controller.V3Controller):
     @validation.validated(schema.role_update, 'role')
     def update_role(self, context, role_id, role):
         self._require_matching_id(role_id, role)
-
-        ref = self.role_api.update_role(role_id, role)
+        initiator = notifications._get_request_audit_info(context)
+        ref = self.role_api.update_role(role_id, role, initiator)
         return RoleV3.wrap_member(context, ref)
 
     @controller.protected()
     def delete_role(self, context, role_id):
-        self.role_api.delete_role(role_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.role_api.delete_role(role_id, initiator)
 
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',

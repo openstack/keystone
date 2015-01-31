@@ -15,6 +15,7 @@
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
+from keystone import notifications
 from keystone.policy import schema
 
 
@@ -27,8 +28,8 @@ class PolicyV3(controller.V3Controller):
     @validation.validated(schema.policy_create, 'policy')
     def create_policy(self, context, policy):
         ref = self._assign_unique_id(self._normalize_dict(policy))
-
-        ref = self.policy_api.create_policy(ref['id'], ref)
+        initiator = notifications._get_request_audit_info(context)
+        ref = self.policy_api.create_policy(ref['id'], ref, initiator)
         return PolicyV3.wrap_member(context, ref)
 
     @controller.filterprotected('type')
@@ -45,9 +46,11 @@ class PolicyV3(controller.V3Controller):
     @controller.protected()
     @validation.validated(schema.policy_update, 'policy')
     def update_policy(self, context, policy_id, policy):
-        ref = self.policy_api.update_policy(policy_id, policy)
+        initiator = notifications._get_request_audit_info(context)
+        ref = self.policy_api.update_policy(policy_id, policy, initiator)
         return PolicyV3.wrap_member(context, ref)
 
     @controller.protected()
     def delete_policy(self, context, policy_id):
-        return self.policy_api.delete_policy(policy_id)
+        initiator = notifications._get_request_audit_info(context)
+        return self.policy_api.delete_policy(policy_id, initiator)
