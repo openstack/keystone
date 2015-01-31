@@ -353,6 +353,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
                                     [role_ref])
         self._assert_last_note(
             trust_ref['id'], CREATED_OPERATION, 'OS-TRUST:trust')
+        self._assert_last_audit(trust_ref['id'], CREATED_OPERATION,
+                                'OS-TRUST:trust', cadftaxonomy.SECURITY_TRUST)
 
     def test_delete_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
@@ -426,6 +428,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.delete_trust(trust_ref['id'])
         self._assert_last_note(
             trust_ref['id'], DELETED_OPERATION, 'OS-TRUST:trust')
+        self._assert_last_audit(trust_ref['id'], DELETED_OPERATION,
+                                'OS-TRUST:trust', cadftaxonomy.SECURITY_TRUST)
 
     def test_create_endpoint(self):
         endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)

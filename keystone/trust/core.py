@@ -117,8 +117,8 @@ class Manager(manager.Manager):
 
         return trust
 
-    @notifications.created(_TRUST)
-    def create_trust(self, trust_id, trust, roles, redelegated_trust=None):
+    def create_trust(self, trust_id, trust, roles, redelegated_trust=None,
+                     initiator=None):
         """Create a new trust.
 
         :returns: a new trust
@@ -165,10 +165,13 @@ class Manager(manager.Manager):
                 self._validate_redelegation(t, trust)
 
         trust.setdefault('redelegation_count', max_redelegation_count)
-        return self.driver.create_trust(trust_id, trust, roles)
+        ref = self.driver.create_trust(trust_id, trust, roles)
 
-    @notifications.deleted(_TRUST)
-    def delete_trust(self, trust_id):
+        notifications.Audit.created(self._TRUST, trust_id, initiator=initiator)
+
+        return ref
+
+    def delete_trust(self, trust_id, initiator=None):
         """Remove a trust.
 
         :raises: keystone.exception.TrustNotFound
@@ -194,6 +197,8 @@ class Manager(manager.Manager):
 
         # end recursion
         self.driver.delete_trust(trust_id)
+
+        notifications.Audit.deleted(self._TRUST, trust_id, initiator)
 
 
 @six.add_metaclass(abc.ABCMeta)
