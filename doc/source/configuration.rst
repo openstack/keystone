@@ -1566,6 +1566,13 @@ section:
   user_allow_update = False
   user_allow_delete = False
 
+.. NOTE::
+
+    While having identity related infomration backed by LDAP while other
+    information is backed by SQL is a supported configuration, as shown above;
+    the opposite is not true. If either resource or assignment drivers are
+    configured for LDAP, then Identity must also be configured for LDAP.
+
 Connection Pooling
 ------------------
 

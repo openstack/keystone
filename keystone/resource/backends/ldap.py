@@ -38,9 +38,9 @@ class Resource(resource.Driver):
         self.LDAP_PASSWORD = CONF.ldap.password
         self.suffix = CONF.ldap.suffix
 
-        # This is the only deep dependency from resource back
-        # to identity.  The assumption is that if you are using
-        # LDAP for resource, you are using it for identity as well.
+        # This is the only deep dependency from resource back to identity.
+        # This is safe to do since if you are using LDAP for resource, it is
+        # required that you are using it for identity as well.
         self.user = ldap_identity.UserApi(CONF)
 
         self.project = ProjectApi(CONF)
