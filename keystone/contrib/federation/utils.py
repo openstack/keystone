@@ -144,7 +144,7 @@ def validate_idp(idp, assertion):
         LOG.warning(_LW('Impossible to identify the IdP %s '),
                     idp['id'])
         # If nothing is defined, the administrator may want to
-        # allow the mapping of everyy IdP
+        # allow the mapping of every IdP
         return
     try:
         idp_remote_identifier = assertion[remote_id_parameter]
