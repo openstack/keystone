@@ -44,10 +44,11 @@ class FederationProtocolModel(sql.ModelBase, sql.DictBase):
 
 class IdentityProviderModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'identity_provider'
-    attributes = ['id', 'enabled', 'description']
-    mutable_attributes = frozenset(['description', 'enabled'])
+    attributes = ['id', 'remote_id', 'enabled', 'description']
+    mutable_attributes = frozenset(['description', 'enabled', 'remote_id'])
 
     id = sql.Column(sql.String(64), primary_key=True)
+    remote_id = sql.Column(sql.String(256), nullable=True)
     enabled = sql.Column(sql.Boolean, nullable=False)
     description = sql.Column(sql.Text(), nullable=True)
 
