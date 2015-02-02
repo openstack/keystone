@@ -509,7 +509,46 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                 'project_id': self.project_id})
         self.assertValidProjectResponse(r, self.project)
 
-    def test_get_project_with_parents_list(self):
+    def test_get_project_with_parents_as_ids(self):
+        """Call ``GET /projects/{project_id}?parents_as_ids``."""
+        projects = self._create_projects_hierarchy(hierarchy_size=2)
+
+        # Query for projects[2] parents_as_ids
+        r = self.get(
+            '/projects/%(project_id)s?parents_as_ids' % {
+                'project_id': projects[2]['project']['id']})
+
+        self.assertValidProjectResponse(r, projects[2]['project'])
+        parents_as_ids = r.result['project']['parents']
+
+        # Assert parents_as_ids is a structured dictionary correctly
+        # representing the hierarchy. The request was made using projects[2]
+        # id, hence its parents should be projects[1] and projects[0]. It
+        # should have the following structure:
+        # {
+        #   projects[1]: {
+        #       projects[0]: None
+        #   }
+        # }
+        expected_dict = {
+            projects[1]['project']['id']: {
+                projects[0]['project']['id']: None
+            }
+        }
+        self.assertDictEqual(expected_dict, parents_as_ids)
+
+        # Query for projects[0] parents_as_ids
+        r = self.get(
+            '/projects/%(project_id)s?parents_as_ids' % {
+                'project_id': projects[0]['project']['id']})
+
+        self.assertValidProjectResponse(r, projects[0]['project'])
+        parents_as_ids = r.result['project']['parents']
+
+        # projects[0] has no parents, parents_as_ids must be None
+        self.assertIsNone(parents_as_ids)
+
+    def test_get_project_with_parents_as_list(self):
         """Call ``GET /projects/{project_id}?parents_as_list``."""
         projects = self._create_projects_hierarchy(hierarchy_size=2)
 
@@ -521,6 +560,17 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.assertValidProjectResponse(r, projects[1]['project'])
         self.assertIn(projects[0], r.result['project']['parents'])
         self.assertNotIn(projects[2], r.result['project']['parents'])
+
+    def test_get_project_with_parents_as_list_and_parents_as_ids(self):
+        """Call ``GET /projects/{project_id}?parents_as_list&parents_as_ids``.
+
+        """
+        projects = self._create_projects_hierarchy(hierarchy_size=2)
+
+        self.get(
+            '/projects/%(project_id)s?parents_as_list&parents_as_ids' % {
+                'project_id': projects[1]['project']['id']},
+            expected_status=400)
 
     def test_get_project_with_subtree_list(self):
         """Call ``GET /projects/{project_id}?subtree_as_list``."""
