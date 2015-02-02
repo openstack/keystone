@@ -292,21 +292,23 @@ and pipe the output to a file. For example:
     The file location should match the value of the configuration option
     ``idp_metadata_path`` that was assigned in the previous section.
 
-Create a region for the Service Provider (SP)
----------------------------------------------
+Create a Service Provider (SP)
+------------------------------
 
-Create a new region for the service provider, in this example, we are creating
-a new region with an ID of ``BETA``, and URL of
-``https://beta.com/Shibboleth.sso/SAML2/ECP``. This URL will be used when
-creating a SAML assertion for ``BETA``, and signed by the current Keystone IdP.
+In this example we are creating a new Service Provider with an ID of ``BETA``,
+a ``sp_url`` of ``http://beta.example.com/Shibboleth.sso/POST/ECP`` and a
+``auth_url`` of ``http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth``
+. The ``sp_url`` will be used when creating a SAML assertion for ``BETA`` and
+signed by the current Keystone IdP. The ``auth_url`` is used to retrieve the
+token for ``BETA`` once the SAML assertion is sent.
 
 .. code-block:: bash
 
     $ curl -s -X PUT \
       -H "X-Auth-Token: $OS_TOKEN" \
       -H "Content-Type: application/json" \
-      -d '{"region": {"url": "http://beta.com/Shibboleth.sso/SAML2/ECP"}}' \
-      http://localhost:5000/v3/regions/BETA | python -mjson.tool
+      -d '{"service_provider": {"auth_url": "http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth", "sp_url": "https://example.com:5000/Shibboleth.sso/SAML2/ECP"}' \
+      http://localhost:5000/v3/service_providers/BETA | python -mjson.tool
 
 Testing it all out
 ------------------
@@ -319,9 +321,11 @@ Keystone, specifically intended for the Service Provider Keystone.
 
     $ curl -s -X POST \
       -H "Content-Type: application/json" \
-      -d '{"auth": {"scope": {"region": {"id": "BETA"}}, "identity": {"token": {"id": "d793d935b9c343f783955cf39ee7dc3c"}, "methods": ["token"]}}}' \
+      -d '{"auth": {"scope": {"service_provider": {"id": "BETA"}}, "identity": {"token": {"id": "d793d935b9c343f783955cf39ee7dc3c"}, "methods": ["token"]}}}' \
       http://localhost:5000/v3/auth/OS-FEDERATION/saml2
 
-At this point the SAML Assertion can be sent to the Service Provider Keystone,
-and a valid OpenStack token, issued by a Service Provider Keystone, will be
-returned.
+At this point the SAML Assertion can be sent to the Service Provider Keystone
+using the provided ``auth_url`` in the ``X-Auth-Url`` header present in the
+response containing the SAML Assertion, and a valid OpenStack token, issued by
+a Service Provider Keystone, will be returned.
+
