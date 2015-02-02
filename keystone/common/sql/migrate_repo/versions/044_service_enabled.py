@@ -29,7 +29,7 @@ column.
 """
 
 from oslo.serialization import jsonutils
-from oslo.utils import strutils
+from oslo_utils import strutils
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 

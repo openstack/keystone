@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo.utils import encodeutils
+from oslo_utils import encodeutils
 import six
 
 from keystone.common import config

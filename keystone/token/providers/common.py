@@ -13,7 +13,7 @@
 # under the License.
 
 from oslo.serialization import jsonutils
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 import six
 from six.moves.urllib import parse
 

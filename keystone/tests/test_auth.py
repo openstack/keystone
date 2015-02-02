@@ -17,7 +17,7 @@ import datetime
 import uuid
 
 import mock
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 from testtools import matchers
 
 from keystone import assignment

@@ -17,7 +17,7 @@
 import dogpile.cache
 from dogpile.cache import proxy
 from dogpile.cache import util
-from oslo.utils import importutils
+from oslo_utils import importutils
 
 from keystone import config
 from keystone import exception

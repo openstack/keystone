@@ -14,7 +14,7 @@
 
 import time
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 
 from keystone.common import sql
 from keystone import exception

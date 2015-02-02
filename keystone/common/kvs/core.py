@@ -22,7 +22,7 @@ from dogpile.cache import proxy
 from dogpile.cache import region
 from dogpile.cache import util as dogpile_util
 from dogpile.core import nameregistry
-from oslo.utils import importutils
+from oslo_utils import importutils
 import six
 
 from keystone.common import config

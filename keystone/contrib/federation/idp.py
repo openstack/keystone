@@ -15,7 +15,7 @@ import os
 import subprocess
 import uuid
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 import saml2
 from saml2 import md
 from saml2 import saml

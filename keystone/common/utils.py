@@ -24,7 +24,7 @@ import os
 import pwd
 
 from oslo.serialization import jsonutils
-from oslo.utils import strutils
+from oslo_utils import strutils
 import passlib.hash
 import six
 from six import moves

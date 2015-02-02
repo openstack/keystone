@@ -16,7 +16,7 @@
 from __future__ import absolute_import
 import copy
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 import six
 
 from keystone.common import kvs

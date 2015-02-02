@@ -19,7 +19,7 @@ from keystoneclient import exceptions as client_exceptions
 from keystoneclient.v2_0 import client as ks_client
 import mock
 from oslo.serialization import jsonutils
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 import webob
 
 from keystone import config

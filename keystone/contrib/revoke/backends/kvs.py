@@ -12,7 +12,7 @@
 
 import datetime
 
-from oslo.utils import timeutils
+from oslo_utils import timeutils
 
 from keystone.common import kvs
 from keystone import config

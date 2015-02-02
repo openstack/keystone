@@ -120,3 +120,13 @@ class TestCheckForNonDebugLoggingIssues(BaseStyleCheck):
         actual_errors = [(e[0] - import_lines, e[1], e[2])
                          for e in actual_errors]
         self.assertEqual(expected_errors or [], actual_errors)
+
+
+class TestCheckOsloNamespaceImports(BaseStyleCheck):
+    def get_checker(self):
+        return checks.check_oslo_namespace_imports
+
+    def test(self):
+        code = self.code_ex.oslo_namespace_imports['code']
+        errors = self.code_ex.oslo_namespace_imports['expected_errors']
+        self.assert_has_errors(code, expected_errors=errors)
