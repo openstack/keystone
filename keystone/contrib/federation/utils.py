@@ -576,3 +576,11 @@ class RuleProcessor(object):
             return True
 
         return False
+
+
+def assert_enabled_identity_provider(federation_api, idp_id):
+    identity_provider = federation_api.get_idp(idp_id)
+    if identity_provider.get('enabled') is not True:
+        msg = _('Identity Provider %(idp)s is disabled') % {'idp': idp_id}
+        LOG.debug(msg)
+        raise exception.Forbidden(msg)

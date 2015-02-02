@@ -955,6 +955,20 @@ class FederatedTokenTests(FederationTests):
         r = self._issue_unscoped_token()
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
 
+    def test_issue_unscoped_token_disabled_idp(self):
+        """Checks if authentication works with disabled identity providers.
+
+        Test plan:
+        1) Disable default IdP
+        2) Try issuing unscoped token for that IdP
+        3) Expect server to forbid authentication
+
+        """
+        enabled_false = {'enabled': False}
+        self.federation_api.update_idp(self.IDP, enabled_false)
+        self.assertRaises(exception.Forbidden,
+                          self._issue_unscoped_token)
+
     def test_issue_unscoped_token_group_names_in_mapping(self):
         r = self._issue_unscoped_token(assertion='ANOTHER_CUSTOMER_ASSERTION')
         ref_groups = set([self.group_customers['id'], self.group_admins['id']])
@@ -1016,6 +1030,29 @@ class FederatedTokenTests(FederationTests):
         roles_ref = [self.role_employee]
         projects_ref = self.proj_employees
         self._check_projects_and_roles(token_resp, roles_ref, projects_ref)
+
+    def test_scope_token_with_idp_disabled(self):
+        """Scope token issued by disabled IdP.
+
+        Try scoping the token issued by an IdP which is disabled now.
+        Expect server to refuse scoping operatin.
+
+        This test confirms correct behaviour when IdP was enabled and unscoped
+        token was issued, but disabled before user tries to scope the token.
+        Here we assume the unscoped token was already issued and start from
+        the moment where IdP is being disabled and unscoped token is being
+        used.
+
+        Test plan:
+        1) Disable IdP
+        2) Try scoping unscoped token
+
+        """
+        enabled_false = {'enabled': False}
+        self.federation_api.update_idp(self.IDP, enabled_false)
+        self.v3_authenticate_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
+            expected_status=403)
 
     def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
