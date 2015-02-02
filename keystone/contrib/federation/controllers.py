@@ -55,9 +55,9 @@ class IdentityProvider(_ControllerBase):
     collection_name = 'identity_providers'
     member_name = 'identity_provider'
 
-    _mutable_parameters = frozenset(['description', 'enabled', 'remote_id'])
+    _mutable_parameters = frozenset(['description', 'enabled', 'remote_ids'])
     _public_parameters = frozenset(['id', 'enabled', 'description',
-                                    'remote_id', 'links'
+                                    'remote_ids', 'links'
                                     ])
 
     @classmethod
@@ -285,7 +285,9 @@ class Auth(auth_controllers.Auth):
 
         if host in CONF.federation.trusted_dashboard:
             ref = self.federation_api.get_idp_from_remote_id(remote_id)
-            identity_provider = ref['id']
+            # NOTE(stevemar): the returned object is a simple dict that
+            # contains the idp_id and remote_id.
+            identity_provider = ref['idp_id']
             res = self.federated_authentication(context, identity_provider,
                                                 protocol_id)
             token_id = res.headers['X-Subject-Token']

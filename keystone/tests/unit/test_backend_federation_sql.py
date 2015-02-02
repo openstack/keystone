@@ -21,10 +21,14 @@ class SqlFederation(test_backend_sql.SqlModels):
 
     def test_identity_provider(self):
         cols = (('id', sql.String, 64),
-                ('remote_id', sql.String, 256),
                 ('enabled', sql.Boolean, None),
                 ('description', sql.Text, None))
         self.assertExpectedSchema('identity_provider', cols)
+
+    def test_idp_remote_ids(self):
+        cols = (('idp_id', sql.String, 64),
+                ('remote_id', sql.String, 255))
+        self.assertExpectedSchema('idp_remote_ids', cols)
 
     def test_federated_protocol(self):
         cols = (('id', sql.String, 64),

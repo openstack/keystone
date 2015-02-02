@@ -708,6 +708,41 @@ class VersionTests(SqlMigrateBase):
                 extension=name,
                 version=0)
 
+    def test_extension_federation_upgraded_values(self):
+        abs_path = migration_helpers.find_migrate_repo(federation)
+        migration.db_version_control(sql.get_engine(), abs_path)
+        migration.db_sync(sql.get_engine(), abs_path, version=6)
+        idp_table = sqlalchemy.Table("identity_provider",
+                                     self.metadata,
+                                     autoload=True)
+        idps = [{'id': uuid.uuid4().hex,
+                 'enabled': True,
+                 'description': uuid.uuid4().hex,
+                 'remote_id': uuid.uuid4().hex},
+                {'id': uuid.uuid4().hex,
+                 'enabled': True,
+                 'description': uuid.uuid4().hex,
+                 'remote_id': uuid.uuid4().hex}]
+        for idp in idps:
+            ins = idp_table.insert().values({'id': idp['id'],
+                                             'enabled': idp['enabled'],
+                                             'description': idp['description'],
+                                             'remote_id': idp['remote_id']})
+            self.engine.execute(ins)
+        migration.db_sync(sql.get_engine(), abs_path)
+        idp_remote_ids_table = sqlalchemy.Table("idp_remote_ids",
+                                                self.metadata,
+                                                autoload=True)
+        for idp in idps:
+            s = idp_remote_ids_table.select().where(
+                'idp_id="' + idp['id'] + '"')
+            remote = self.engine.execute(s).fetchone()
+            self.assertEqual(idp['remote_id'],
+                             remote['remote_id'],
+                             'remote_ids must be preserved during the '
+                             'migration from identity_provider table to '
+                             'idp_remote_ids table')
+
     def test_unexpected_extension(self):
         """The version for an extension that doesn't exist raises ImportError.
 
