@@ -4348,6 +4348,10 @@ class TrustTests(object):
 
 
 class CatalogTests(object):
+
+    _legacy_endpoint_id_in_endpoint = False
+    _enabled_default_to_true_when_creating_endpoint = False
+
     def test_region_crud(self):
         # create
         region_id = '0' * 255
@@ -4387,6 +4391,13 @@ class CatalogTests(object):
         region_ids = [x['id'] for x in regions]
         self.assertIn(parent_region_id, region_ids)
         self.assertIn(region_id, region_ids)
+
+        # update
+        region_desc_update = {'description': uuid.uuid4().hex}
+        res = self.catalog_api.update_region(region_id, region_desc_update)
+        expected_region = new_region.copy()
+        expected_region['description'] = region_desc_update['description']
+        self.assertDictEqual(expected_region, res)
 
         # delete
         self.catalog_api.delete_region(parent_region_id)
@@ -4524,6 +4535,13 @@ class CatalogTests(object):
         # list
         services = self.catalog_api.list_services()
         self.assertIn(service_id, [x['id'] for x in services])
+
+        # update
+        service_name_update = {'name': uuid.uuid4().hex}
+        res = self.catalog_api.update_service(service_id, service_name_update)
+        expected_service = new_service.copy()
+        expected_service['name'] = service_name_update['name']
+        self.assertDictEqual(expected_service, res)
 
         # delete
         self.catalog_api.delete_service(service_id)
@@ -4778,6 +4796,27 @@ class CatalogTests(object):
             'url': uuid.uuid4().hex,
         }
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
+
+    def test_update_endpoint(self):
+        dummy_service_ref, endpoint_ref, dummy_disabled_endpoint_ref = (
+            self._create_endpoints())
+        res = self.catalog_api.update_endpoint(endpoint_ref['id'],
+                                               {'interface': 'private'})
+        expected_endpoint = endpoint_ref.copy()
+        expected_endpoint['interface'] = 'private'
+        if self._legacy_endpoint_id_in_endpoint:
+            expected_endpoint['legacy_endpoint_id'] = None
+        if self._enabled_default_to_true_when_creating_endpoint:
+            expected_endpoint['enabled'] = True
+        self.assertDictEqual(expected_endpoint, res)
+
+    def test_update_endpoint_non_exist_region_id(self):
+        dummy_service_ref, endpoint_ref, dummy_disabled_endpoint_ref = (
+            self._create_endpoints())
+        self.assertRaises(exception.NotFound,
+                          self.catalog_api.update_endpoint,
+                          endpoint_ref['id'],
+                          {'region_id': uuid.uuid4().hex})
 
     def _create_endpoints(self):
         # Creates a service and 2 endpoints for the service in the same region.
