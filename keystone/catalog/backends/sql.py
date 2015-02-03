@@ -99,7 +99,7 @@ class Catalog(catalog.Driver):
             raise exception.RegionNotFound(region_id=region_id)
         return ref
 
-    def _delete_child_regions(self, session, region_id):
+    def _delete_child_regions(self, session, region_id, root_region_id):
         """Delete all child regions.
 
         Recursively delete any region that has the supplied region
@@ -107,7 +107,10 @@ class Catalog(catalog.Driver):
         """
         children = session.query(Region).filter_by(parent_region_id=region_id)
         for child in children:
-            self._delete_child_regions(session, child.id)
+            if child.id == root_region_id:
+                # Hit a circular region hierarchy
+                return
+            self._delete_child_regions(session, child.id, root_region_id)
             session.delete(child)
 
     def _check_parent_region(self, session, region_ref):
@@ -122,14 +125,17 @@ class Catalog(catalog.Driver):
             # which is the behavior we want.
             self._get_region(session, parent_region_id)
 
-    def _has_endpoints(self, session, region):
+    def _has_endpoints(self, session, region, root_region):
         if region.endpoints is not None and len(region.endpoints) > 0:
             return True
 
         q = session.query(Region)
         q = q.filter_by(parent_region_id=region.id)
         for child in q.all():
-            if self._has_endpoints(session, child):
+            if child.id == root_region.id:
+                # Hit a circular region hierarchy
+                return False
+            if self._has_endpoints(session, child, root_region):
                 return True
         return False
 
@@ -141,9 +147,9 @@ class Catalog(catalog.Driver):
         session = sql.get_session()
         with session.begin():
             ref = self._get_region(session, region_id)
-            if self._has_endpoints(session, ref):
+            if self._has_endpoints(session, ref, ref):
                 raise exception.RegionDeletionError(region_id=region_id)
-            self._delete_child_regions(session, region_id)
+            self._delete_child_regions(session, region_id, region_id)
             session.delete(ref)
 
     @sql.handle_conflicts(conflict_type='region')
@@ -162,6 +168,7 @@ class Catalog(catalog.Driver):
             ref = self._get_region(session, region_id)
             old_dict = ref.to_dict()
             old_dict.update(region_ref)
+            self._ensure_no_circle_in_hierarchical_regions(old_dict)
             new_region = Region.from_dict(old_dict)
             for attr in Region.attributes:
                 if attr != 'id':

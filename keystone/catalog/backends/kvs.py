@@ -25,7 +25,7 @@ class Catalog(kvs.Base, catalog.Driver):
 
     # region crud
 
-    def _delete_child_regions(self, region_id):
+    def _delete_child_regions(self, region_id, root_region_id):
         """Delete all child regions.
 
         Recursively delete any region that has the supplied region
@@ -34,8 +34,11 @@ class Catalog(kvs.Base, catalog.Driver):
         children = [r for r in self.list_regions(driver_hints.Hints())
                     if r['parent_region_id'] == region_id]
         for child in children:
-            self._delete_child_regions(child['id'])
-            self.delete_region(child['id'])
+            if child['id'] == root_region_id:
+                # Hit a circular region hierarchy
+                return
+            self._delete_child_regions(child['id'], root_region_id)
+            self._delete_region(child['id'])
 
     def _check_parent_region(self, region_ref):
         """Raise a NotFound if the parent region does not exist.
@@ -69,15 +72,19 @@ class Catalog(kvs.Base, catalog.Driver):
         self._check_parent_region(region)
         old_region = self.get_region(region_id)
         old_region.update(region)
+        self._ensure_no_circle_in_hierarchical_regions(old_region)
         self.db.set('region-%s' % region_id, old_region)
         return old_region
 
-    def delete_region(self, region_id):
-        self._delete_child_regions(region_id)
+    def _delete_region(self, region_id):
         self.db.delete('region-%s' % region_id)
         region_list = set(self.db.get('region_list', []))
         region_list.remove(region_id)
         self.db.set('region_list', list(region_list))
+
+    def delete_region(self, region_id):
+        self._delete_child_regions(region_id, region_id)
+        self._delete_region(region_id)
 
     # service crud
 

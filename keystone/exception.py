@@ -115,6 +115,13 @@ class ValidationSizeError(Error):
     title = 'Bad Request'
 
 
+class CircularRegionHierarchyError(Error):
+    message_format = _("The specified parent region %(parent_region_id)s "
+                       "would create a circular region hierarchy.")
+    code = 400
+    title = 'Bad Request'
+
+
 class PasswordVerificationError(Error):
     message_format = _("The password length must be less than or equal "
                        "to %(size)i. The server could not comply with the "
