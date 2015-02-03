@@ -57,8 +57,8 @@ class IdentityProviderModel(sql.ModelBase, sql.DictBase):
         new_dictionary = dictionary.copy()
         return cls(**new_dictionary)
 
-    def to_dict(self, include_extra_dict=False):
-        """Return the model's attributes as a dictionary."""
+    def to_dict(self):
+        """Return a dictionary with model's attributes."""
         d = dict()
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
@@ -71,6 +71,31 @@ class MappingModel(sql.ModelBase, sql.DictBase):
 
     id = sql.Column(sql.String(64), primary_key=True)
     rules = sql.Column(sql.JsonBlob(), nullable=False)
+
+    @classmethod
+    def from_dict(cls, dictionary):
+        new_dictionary = dictionary.copy()
+        return cls(**new_dictionary)
+
+    def to_dict(self):
+        """Return a dictionary with model's attributes."""
+        d = dict()
+        for attr in self.__class__.attributes:
+            d[attr] = getattr(self, attr)
+        return d
+
+
+class ServiceProviderModel(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'service_provider'
+    attributes = ['auth_url', 'id', 'enabled', 'description', 'sp_url']
+    mutable_attributes = frozenset(['auth_url', 'description', 'enabled',
+                                    'sp_url'])
+
+    id = sql.Column(sql.String(64), primary_key=True)
+    enabled = sql.Column(sql.Boolean, nullable=False)
+    description = sql.Column(sql.Text(), nullable=True)
+    auth_url = sql.Column(sql.String(256), nullable=True)
+    sp_url = sql.Column(sql.String(256), nullable=True)
 
     @classmethod
     def from_dict(cls, dictionary):
@@ -241,3 +266,45 @@ class Federation(core.Driver):
             mapping_id = protocol_ref.mapping_id
             mapping_ref = self._get_mapping(session, mapping_id)
         return mapping_ref.to_dict()
+
+    # Service Provider CRUD
+    @sql.handle_conflicts(conflict_type='service_provider')
+    def create_sp(self, sp_id, sp):
+        with sql.transaction() as session:
+            sp['id'] = sp_id
+            sp_ref = ServiceProviderModel.from_dict(sp)
+            session.add(sp_ref)
+        return sp_ref.to_dict()
+
+    def delete_sp(self, sp_id):
+        with sql.transaction() as session:
+            sp_ref = self._get_sp(session, sp_id)
+            session.delete(sp_ref)
+
+    def _get_sp(self, session, sp_id):
+        sp_ref = session.query(ServiceProviderModel).get(sp_id)
+        if not sp_ref:
+            raise exception.ServiceProviderNotFound(sp_id=sp_id)
+        return sp_ref
+
+    def list_sps(self):
+        session = sql.get_session()
+        with sql.transaction() as session:
+            sps = session.query(ServiceProviderModel)
+        sps_list = [sp.to_dict() for sp in sps]
+        return sps_list
+
+    def get_sp(self, sp_id):
+        with sql.transaction() as session:
+            sp_ref = self._get_sp(session, sp_id)
+        return sp_ref.to_dict()
+
+    def update_sp(self, sp_id, sp):
+        with sql.transaction() as session:
+            sp_ref = self._get_sp(session, sp_id)
+            old_sp = sp_ref.to_dict()
+            old_sp.update(sp)
+            new_sp = ServiceProviderModel.from_dict(old_sp)
+            for attr in ServiceProviderModel.mutable_attributes:
+                setattr(sp_ref, attr, getattr(new_sp, attr))
+        return sp_ref.to_dict()

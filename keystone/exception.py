@@ -307,6 +307,10 @@ class IdentityProviderNotFound(NotFound):
     message_format = _("Could not find Identity Provider: %(idp_id)s")
 
 
+class ServiceProviderNotFound(NotFound):
+    message_format = _("Could not find Service Provider: %(sp_id)s")
+
+
 class FederatedProtocolNotFound(NotFound):
     message_format = _("Could not find federated protocol %(protocol_id)s for"
                        " Identity Provider: %(idp_id)s")
