@@ -1711,8 +1711,7 @@ class TestAuth(test_v3.RestfulTestCase):
         r = self.v3_authenticate_token(auth_data)
         self.assertValidProjectScopedTokenResponse(r)
 
-    def test_default_project_id_scoped_token_with_user_id(self):
-        # create a second project to work with
+    def _second_project_as_default(self):
         ref = self.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': ref})
         project = self.assertValidProjectResponse(r, ref)
@@ -1730,6 +1729,11 @@ class TestAuth(test_v3.RestfulTestCase):
             'user_id': self.user['id']},
             body=body)
         self.assertValidUserResponse(r)
+
+        return project
+
+    def test_default_project_id_scoped_token_with_user_id(self):
+        project = self._second_project_as_default()
 
         # attempt to authenticate without requesting a project
         auth_data = self.build_authentication_request(
@@ -1740,24 +1744,7 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertEqual(r.result['token']['project']['id'], project['id'])
 
     def test_default_project_id_scoped_token_with_user_id_no_catalog(self):
-        # create a second project to work with
-        ref = self.new_project_ref(domain_id=self.domain_id)
-        r = self.post('/projects', body={'project': ref})
-        project = self.assertValidProjectResponse(r, ref)
-
-        # grant the user a role on the project
-        self.put(
-            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
-                'user_id': self.user['id'],
-                'project_id': project['id'],
-                'role_id': self.role['id']})
-
-        # set the user's preferred project
-        body = {'user': {'default_project_id': project['id']}}
-        r = self.patch('/users/%(user_id)s' % {
-            'user_id': self.user['id']},
-            body=body)
-        self.assertValidUserResponse(r)
+        project = self._second_project_as_default()
 
         # attempt to authenticate without requesting a project
         auth_data = self.build_authentication_request(
@@ -1766,6 +1753,20 @@ class TestAuth(test_v3.RestfulTestCase):
         r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
         self.assertEqual(r.result['token']['project']['id'], project['id'])
+
+    def test_explicit_unscoped_token(self):
+        self._second_project_as_default()
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            unscoped="unscoped")
+        r = self.post('/auth/tokens', body=auth_data, noauth=True)
+
+        self.assertIsNone(r.result['token'].get('project'))
+        self.assertIsNone(r.result['token'].get('domain'))
+        self.assertIsNone(r.result['token'].get('scope'))
 
     def test_implicit_project_id_scoped_token_with_user_id_no_catalog(self):
         # attempt to authenticate without requesting a project
