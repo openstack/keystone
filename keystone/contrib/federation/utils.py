@@ -608,3 +608,11 @@ def assert_enabled_identity_provider(federation_api, idp_id):
         msg = _('Identity Provider %(idp)s is disabled') % {'idp': idp_id}
         LOG.debug(msg)
         raise exception.Forbidden(msg)
+
+
+def assert_enabled_service_provider_object(service_provider):
+    if service_provider.get('enabled') is not True:
+        sp_id = service_provider['id']
+        msg = _('Service Provider %(sp)s is disabled') % {'sp': sp_id}
+        LOG.debug(msg)
+        raise exception.Forbidden(msg)

@@ -38,9 +38,9 @@ saml_create = {
         'scope': {
             'type': 'object',
             'properties': {
-                'region': basic_property_id
+                'service_provider': basic_property_id
             },
-            'required': ['region'],
+            'required': ['service_provider'],
             'additionalProperties': False
         },
     },
