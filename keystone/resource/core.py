@@ -281,6 +281,65 @@ class Manager(manager.Manager):
             self._filter_projects_list(subtree, user_id)
         return subtree
 
+    def _build_subtree_as_ids_dict(self, project_id, subtree_by_parent):
+        # NOTE(rodrigods): we perform a depth first search to construct the
+        # dictionaries representing each level of the subtree hierarchy. In
+        # order to improve this traversal performance, we create a cache of
+        # projects (subtree_py_parent) that accesses in constant time the
+        # direct children of a given project.
+        def traverse_subtree_hierarchy(project_id):
+            children = subtree_by_parent.get(project_id)
+            if not children:
+                return None
+
+            children_ids = {}
+            for child in children:
+                children_ids[child['id']] = traverse_subtree_hierarchy(
+                    child['id'])
+            return children_ids
+
+        return traverse_subtree_hierarchy(project_id)
+
+    def get_projects_in_subtree_as_ids(self, project_id):
+        """Gets the IDs from the projects in the subtree from a given project.
+
+        The project IDs are returned as a structured dictionary representing
+        their hierarchy. For example, considering the following project
+        hierarchy::
+
+                                    A
+                                    |
+                                  +-B-+
+                                  |   |
+                                  C   D
+
+        If we query for project A subtree, the expected return is the following
+        dictionary::
+
+            'subtree': {
+                B['id']: {
+                    C['id']: None,
+                    D['id']: None
+                }
+            }
+
+        """
+        def _projects_indexed_by_parent(projects_list):
+            projects_by_parent = {}
+            for proj in projects_list:
+                parent_id = proj.get('parent_id')
+                if parent_id:
+                    if parent_id in projects_by_parent:
+                        projects_by_parent[parent_id].append(proj)
+                    else:
+                        projects_by_parent[parent_id] = [proj]
+            return projects_by_parent
+
+        subtree_list = self.list_projects_in_subtree(project_id)
+        subtree_as_ids = self._build_subtree_as_ids_dict(
+            project_id, _projects_indexed_by_parent(subtree_list))
+        return subtree_as_ids
+
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=EXPIRATION_TIME)
     def get_domain(self, domain_id):
