@@ -87,8 +87,18 @@ The Keystone configuration files are an ``ini`` file format based on Paste_, a
 common system used to configure Python WSGI based applications. The PasteDeploy
 configuration entries (WSGI pipeline definitions) can be provided in a separate
 ``keystone-paste.ini`` file, while general and driver-specific configuration
-parameters are in the primary configuration file ``keystone.conf``. The primary
-configuration file is organized into the following sections:
+parameters are in the primary configuration file ``keystone.conf``.
+
+.. NOTE::
+
+   Since keystone's PasteDeploy configuration file has been separated
+   from the main keystone configuration file, ``keystone.conf``, all
+   local configuration or driver-specific configuration parameters must
+   go in the main keystone configuration file instead of the PasteDeploy
+   configuration file, i.e. configuration in ``keystone-paste.ini``
+   is not supported.
+
+The primary configuration file is organized into the following sections:
 
 * ``[DEFAULT]`` - General configuration
 * ``[assignment]`` - Assignment system driver configuration
