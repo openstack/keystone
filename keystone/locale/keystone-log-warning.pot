@@ -1,14 +1,14 @@
 # Translations template for keystone.
-# Copyright (C) 2014 OpenStack Foundation
+# Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev21\n"
+"Project-Id-Version: keystone 2015.1.dev183\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-12-28 06:03+0000\n"
+"POT-Creation-Date: 2015-02-03 06:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,12 +29,12 @@ msgstr ""
 msgid "missing exception kwargs (programmer error)"
 msgstr ""
 
-#: keystone/assignment/controllers.py:76
+#: keystone/assignment/controllers.py:77
 #, python-format
 msgid "Authentication failed: %s"
 msgstr ""
 
-#: keystone/assignment/controllers.py:737
+#: keystone/assignment/controllers.py:753
 #, python-format
 msgid ""
 "Group %(group)s not found for role-assignment - %(target)s with Role: "
@@ -66,7 +66,7 @@ msgstr ""
 msgid "RBAC: Invalid user data in token"
 msgstr ""
 
-#: keystone/common/controller.py:79 keystone/middleware/core.py:232
+#: keystone/common/controller.py:79 keystone/middleware/core.py:224
 msgid "RBAC: Invalid token"
 msgstr ""
 
@@ -88,12 +88,12 @@ msgstr ""
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/wsgi.py:227
+#: keystone/common/wsgi.py:226
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr ""
 
-#: keystone/common/wsgi.py:347
+#: keystone/common/wsgi.py:346
 msgid "Invalid token in _get_trust_id_for_request"
 msgstr ""
 
@@ -163,7 +163,12 @@ msgid ""
 "%(endpoint_id)s not found."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:258
+#: keystone/contrib/federation/utils.py:144
+#, python-format
+msgid "Impossible to identify the IdP %s "
+msgstr ""
+
+#: keystone/contrib/federation/utils.py:426
 #, python-format
 msgid "Ignoring user name %s"
 msgstr ""
@@ -178,12 +183,12 @@ msgstr ""
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr ""
 
-#: keystone/identity/core.py:118
+#: keystone/identity/core.py:115
 #, python-format
 msgid "Invalid domain name (%s) found in config file name"
 msgstr ""
 
-#: keystone/identity/core.py:144
+#: keystone/identity/core.py:140
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr ""
@@ -196,7 +201,7 @@ msgid ""
 "be removed in the L release"
 msgstr ""
 
-#: keystone/middleware/core.py:242
+#: keystone/middleware/core.py:234
 msgid "Auth context already exists in the request environment"
 msgstr ""
 
@@ -210,12 +215,12 @@ msgstr ""
 msgid "pid %d not in child list"
 msgstr ""
 
-#: keystone/tests/core.py:147
+#: keystone/tests/core.py:148
 #, python-format
 msgid "Failed to checkout %s"
 msgstr ""
 
-#: keystone/token/provider.py:134
+#: keystone/token/provider.py:135
 msgid ""
 "[signing] token_format is deprecated. Please change to setting the "
 "[token] provider configuration value instead"
