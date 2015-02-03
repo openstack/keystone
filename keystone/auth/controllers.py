@@ -15,6 +15,7 @@
 import sys
 
 from keystoneclient.common import cms
+from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
 from oslo_utils import timeutils
@@ -27,7 +28,6 @@ from keystone import config
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LI, _LW
-from keystone.openstack.common import log
 from keystone.resource import controllers as resource_controllers
 
 

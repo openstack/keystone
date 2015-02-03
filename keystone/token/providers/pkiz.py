@@ -13,6 +13,7 @@
 """Keystone Compressed PKI Token Provider"""
 
 from keystoneclient.common import cms
+from oslo_log import log
 from oslo_serialization import jsonutils
 
 from keystone.common import environment
@@ -20,7 +21,6 @@ from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import log
 from keystone.token.providers import common
 
 

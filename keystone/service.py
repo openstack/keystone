@@ -15,6 +15,7 @@
 import functools
 import sys
 
+from oslo_log import log
 from paste import deploy
 import routes
 
@@ -26,7 +27,6 @@ from keystone import config
 from keystone import controllers
 from keystone import credential
 from keystone import identity
-from keystone.openstack.common import log
 from keystone import policy
 from keystone import resource
 from keystone import routers

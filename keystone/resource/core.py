@@ -14,6 +14,7 @@
 
 import abc
 
+from oslo_log import log
 import six
 
 from keystone import clean
@@ -25,7 +26,6 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone import notifications
-from keystone.openstack.common import log
 
 
 CONF = config.CONF

@@ -15,6 +15,7 @@ import os
 import subprocess
 import uuid
 
+from oslo_log import log
 from oslo_utils import timeutils
 import saml2
 from saml2 import md
@@ -27,7 +28,6 @@ from keystone.common import config
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone.openstack.common import fileutils
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

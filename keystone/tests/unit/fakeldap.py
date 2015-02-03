@@ -26,13 +26,13 @@ import re
 import shelve
 
 import ldap
+from oslo_log import log
 import six
 from six import moves
 
 from keystone.common.ldap import core
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import log
 
 
 SCOPE_NAMES = {

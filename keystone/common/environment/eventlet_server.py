@@ -25,15 +25,16 @@ import sys
 import eventlet
 import eventlet.wsgi
 import greenlet
+from oslo_log import log
+from oslo_log import loggers
 
 from keystone.i18n import _LE, _LI
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
 
 
-class EventletFilteringLogger(log.WritableLogger):
+class EventletFilteringLogger(loggers.WritableLogger):
     # NOTE(morganfainberg): This logger is designed to filter out specific
     # Tracebacks to limit the amount of data that eventlet can log. In the
     # case of broken sockets (EPIPE and ECONNRESET), we are seeing a huge

@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
 from oslo_serialization import jsonutils
 import webob
 
@@ -19,7 +20,6 @@ from keystone.common import extension
 from keystone.common import json_home
 from keystone.common import wsgi
 from keystone import exception
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

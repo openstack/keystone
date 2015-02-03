@@ -10,12 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
+
 from keystone import clean
 from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.i18n import _LE
-from keystone.openstack.common import log
 from keystone import resource as keystone_resource
 
 

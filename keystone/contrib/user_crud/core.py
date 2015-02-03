@@ -15,13 +15,14 @@
 import copy
 import uuid
 
+from oslo_log import log
+
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import wsgi
 from keystone import exception
 from keystone import identity
 from keystone.models import token_model
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

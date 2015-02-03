@@ -17,10 +17,11 @@
 
 import os.path
 
+from oslo_log import log
+
 from keystone.common import utils
 from keystone import config
 from keystone import exception
-from keystone.openstack.common import log
 from keystone.openstack.common import policy as common_policy
 from keystone import policy
 

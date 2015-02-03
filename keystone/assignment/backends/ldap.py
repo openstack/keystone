@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 import ldap as ldap
 import ldap.filter
+from oslo_log import log
 
 from keystone import assignment
 from keystone.assignment.role_backends import ldap as ldap_role
@@ -24,7 +25,6 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import ldap as ldap_identity
-from keystone.openstack.common import log
 from keystone.openstack.common import versionutils
 
 

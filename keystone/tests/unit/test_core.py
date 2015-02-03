@@ -15,10 +15,10 @@
 import sys
 import warnings
 
+from oslo_log import log
 from sqlalchemy import exc
 from testtools import matchers
 
-from keystone.openstack.common import log
 from keystone.tests import unit as tests
 
 

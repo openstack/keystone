@@ -25,7 +25,7 @@ Logging
 
 Use the common logging module, and ensure you ``getLogger``::
 
-    from keystone.openstack.common import log
+    from oslo_log import log
 
     LOG = log.getLogger(__name__)
 

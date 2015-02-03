@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 import six
@@ -22,7 +23,6 @@ from keystone import config
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
-from keystone.openstack.common import log
 from keystone import token
 from keystone.token import provider
 

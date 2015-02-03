@@ -19,6 +19,7 @@ import copy
 import functools
 import uuid
 
+from oslo_log import log
 from six.moves import urllib
 
 from keystone.assignment import schema
@@ -29,7 +30,6 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.models import token_model
-from keystone.openstack.common import log
 
 
 CONF = config.CONF

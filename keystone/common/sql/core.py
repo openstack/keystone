@@ -26,6 +26,7 @@ from oslo_db import exception as db_exception
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import models
 from oslo_db.sqlalchemy import session as db_session
+from oslo_log import log
 from oslo_serialization import jsonutils
 import six
 import sqlalchemy as sql
@@ -36,7 +37,6 @@ from sqlalchemy import types as sql_types
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import log
 
 
 CONF = cfg.CONF
