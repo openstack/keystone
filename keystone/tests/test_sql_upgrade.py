@@ -1523,6 +1523,19 @@ class SqlUpgradeTests(SqlMigrateBase):
                 return True
         return False
 
+    def test_drop_region_url_upgrade(self):
+        self.upgrade(63)
+        self.assertTableColumns('region',
+                                ['id', 'description', 'parent_region_id',
+                                 'extra'])
+
+    def test_drop_region_url_downgrade(self):
+        self.upgrade(63)
+        self.downgrade(62)
+        self.assertTableColumns('region',
+                                ['id', 'description', 'parent_region_id',
+                                 'extra', 'url'])
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
