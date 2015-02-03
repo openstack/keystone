@@ -11,28 +11,12 @@
 # value)
 #admin_token = ADMIN
 
-# The IP address of the network interface for the public service to listen on.
-# (string value)
-# Deprecated group/name - [DEFAULT]/bind_host
-#public_bind_host = 0.0.0.0
-
-# The IP address of the network interface for the admin service to listen on.
-# (string value)
-# Deprecated group/name - [DEFAULT]/bind_host
-#admin_bind_host = 0.0.0.0
-
 # (Deprecated) The port which the OpenStack Compute service listens on. This
 # option was only used for string replacement in the templated catalog backend.
 # Templated catalogs should replace the "$(compute_port)s" substitution with
 # the static port of the compute service. As of Juno, this option is deprecated
 # and will be removed in the L release. (integer value)
 #compute_port = 8774
-
-# The port number which the admin service listens on. (integer value)
-#admin_port = 35357
-
-# The port number which the public service listens on. (integer value)
-#public_port = 5000
 
 # The base public endpoint URL for Keystone that is advertised to clients
 # (NOTE: this does NOT affect how Keystone listens for connections). Defaults
@@ -54,14 +38,6 @@
 # may adversely impact performance. (integer value)
 #max_project_tree_depth = 5
 
-# The number of worker processes to serve the public WSGI application. Defaults
-# to number of CPUs (minimum of 2). (integer value)
-#public_workers = <None>
-
-# The number of worker processes to serve the admin WSGI application. Defaults
-# to number of CPUs (minimum of 2). (integer value)
-#admin_workers = <None>
-
 # Limit the sizes of user & project ID/names. (integer value)
 #max_param_size = 64
 
@@ -82,15 +58,6 @@
 # The value passed as the keyword "rounds" to passlib's encrypt method.
 # (integer value)
 #crypt_strength = 40000
-
-# Set this to true if you want to enable TCP_KEEPALIVE on server sockets, i.e.
-# sockets used by the Keystone wsgi server for client connections. (boolean
-# value)
-#tcp_keepalive = false
-
-# Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
-# applies if tcp_keepalive is true. (integer value)
-#tcp_keepidle = 600
 
 # The maximum number of entities that will be returned in a collection, with no
 # limit set by default. This global limit may be then overridden for a specific
@@ -659,6 +626,83 @@
 
 # Endpoint policy backend driver (string value)
 #driver = keystone.contrib.endpoint_policy.backends.sql.EndpointPolicy
+
+
+[eventlet_server]
+
+#
+# From keystone
+#
+
+# The number of worker processes to serve the public eventlet application.
+# Defaults to number of CPUs (minimum of 2). (integer value)
+# Deprecated group/name - [DEFAULT]/public_workers
+#public_workers = <None>
+
+# The number of worker processes to serve the admin eventlet application.
+# Defaults to number of CPUs (minimum of 2). (integer value)
+# Deprecated group/name - [DEFAULT]/admin_workers
+#admin_workers = <None>
+
+# The IP address of the network interface for the public service to listen on.
+# (string value)
+# Deprecated group/name - [DEFAULT]/bind_host
+# Deprecated group/name - [DEFAULT]/public_bind_host
+#public_bind_host = 0.0.0.0
+
+# The port number which the public service listens on. (integer value)
+# Deprecated group/name - [DEFAULT]/public_port
+#public_port = 5000
+
+# The IP address of the network interface for the admin service to listen on.
+# (string value)
+# Deprecated group/name - [DEFAULT]/bind_host
+# Deprecated group/name - [DEFAULT]/admin_bind_host
+#admin_bind_host = 0.0.0.0
+
+# The port number which the admin service listens on. (integer value)
+# Deprecated group/name - [DEFAULT]/admin_port
+#admin_port = 35357
+
+# Set this to true if you want to enable TCP_KEEPALIVE on server sockets, i.e.
+# sockets used by the Keystone wsgi server for client connections. (boolean
+# value)
+# Deprecated group/name - [DEFAULT]/tcp_keepalive
+#tcp_keepalive = false
+
+# Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
+# applies if tcp_keepalive is true. (integer value)
+# Deprecated group/name - [DEFAULT]/tcp_keepidle
+#tcp_keepidle = 600
+
+
+[eventlet_server_ssl]
+
+#
+# From keystone
+#
+
+# Toggle for SSL support on the Keystone eventlet servers. (boolean value)
+# Deprecated group/name - [ssl]/enable
+#enable = false
+
+# Path of the certfile for SSL. For non-production environments, you may be
+# interested in using `keystone-manage ssl_setup` to generate self-signed
+# certificates. (string value)
+# Deprecated group/name - [ssl]/certfile
+#certfile = /etc/keystone/ssl/certs/keystone.pem
+
+# Path of the keyfile for SSL. (string value)
+# Deprecated group/name - [ssl]/keyfile
+#keyfile = /etc/keystone/ssl/private/keystonekey.pem
+
+# Path of the CA cert file for SSL. (string value)
+# Deprecated group/name - [ssl]/ca_certs
+#ca_certs = /etc/keystone/ssl/certs/ca.pem
+
+# Require client certificate. (boolean value)
+# Deprecated group/name - [ssl]/cert_required
+#cert_required = false
 
 
 [federation]
@@ -1452,25 +1496,8 @@
 # From keystone
 #
 
-# Toggle for SSL support on the Keystone eventlet servers. (boolean value)
-#enable = false
-
-# Path of the certfile for SSL. For non-production environments, you may be
-# interested in using `keystone-manage ssl_setup` to generate self-signed
-# certificates. (string value)
-#certfile = /etc/keystone/ssl/certs/keystone.pem
-
-# Path of the keyfile for SSL. (string value)
-#keyfile = /etc/keystone/ssl/private/keystonekey.pem
-
-# Path of the CA cert file for SSL. (string value)
-#ca_certs = /etc/keystone/ssl/certs/ca.pem
-
 # Path of the CA key file for SSL. (string value)
 #ca_key = /etc/keystone/ssl/private/cakey.pem
-
-# Require client certificate. (boolean value)
-#cert_required = false
 
 # SSL key length (in bits) (auto generated certificate). (integer value)
 #key_size = 1024
