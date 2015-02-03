@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-01-30 06:21+0000\n"
-"PO-Revision-Date: 2015-01-29 23:49+0000\n"
+"POT-Creation-Date: 2015-02-03 06:04+0000\n"
+"PO-Revision-Date: 2015-02-02 21:14+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -392,144 +392,81 @@ msgstr ""
 msgid "Method not callable: %s"
 msgstr ""
 
-#: keystone/assignment/controllers.py:109
-#: keystone/assignment/controllers.py:223 keystone/identity/controllers.py:67
+#: keystone/assignment/controllers.py:110
+#: keystone/assignment/controllers.py:224 keystone/identity/controllers.py:67
 msgid "Name field is required and cannot be empty"
 msgstr "Campo nome é requerido e não pode ser vazio"
 
-#: keystone/assignment/controllers.py:164
+#: keystone/assignment/controllers.py:165
 msgid "Marker could not be found"
 msgstr "Marcador não pôde ser encontrado"
 
-#: keystone/assignment/controllers.py:175
+#: keystone/assignment/controllers.py:176
 msgid "Invalid limit value"
 msgstr "Valor limite inválido"
 
-#: keystone/assignment/controllers.py:498
+#: keystone/assignment/controllers.py:431
+msgid ""
+"Cannot use parents_as_list and parents_as_ids query params at the same "
+"time."
+msgstr ""
+
+#: keystone/assignment/controllers.py:514
 msgid "Specify a domain or project, not both"
 msgstr "Especifique um domínio ou projeto, não ambos"
 
-#: keystone/assignment/controllers.py:503
+#: keystone/assignment/controllers.py:519
 msgid "Specify a user or group, not both"
 msgstr "Epecifique um usuário ou grupo, não ambos"
 
-#: keystone/assignment/core.py:117
-#, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr ""
-
-#: keystone/assignment/core.py:135
-msgid "cannot create a project within a different domain than its parents."
-msgstr ""
-
-#: keystone/assignment/core.py:139
-#, python-format
-msgid "cannot create a project in a branch containing a disabled project: %s"
-msgstr ""
-
-#: keystone/assignment/core.py:160 keystone/token/core.py:66
-#: keystone/token/core.py:82
-#, python-format
-msgid "Domain is disabled: %s"
-msgstr "O domínio está desativado: %s"
-
-#: keystone/assignment/core.py:171
-#, python-format
-msgid "Project is disabled: %s"
-msgstr "O projeto está desativado: %s"
-
-#: keystone/assignment/core.py:191
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr ""
-
-#: keystone/assignment/core.py:199
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr ""
-
-#: keystone/assignment/core.py:211
-msgid "Update of `parent_id` is not allowed."
-msgstr ""
-
-#: keystone/assignment/core.py:238
-#, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr ""
-
-#: keystone/assignment/core.py:372
+#: keystone/assignment/core.py:232
 msgid "Must specify either domain or project"
 msgstr ""
 
-#: keystone/assignment/core.py:505
-msgid "Multiple domains are not supported"
-msgstr ""
-
-#: keystone/assignment/core.py:570
-msgid "delete the default domain"
-msgstr ""
-
-#: keystone/assignment/core.py:581
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr ""
-
-#: keystone/assignment/core.py:841
+#: keystone/assignment/core.py:496
 #, python-format
 msgid "Project (%s)"
 msgstr "Projeto (%s)"
 
-#: keystone/assignment/core.py:843
+#: keystone/assignment/core.py:498
 #, python-format
 msgid "Domain (%s)"
 msgstr "Domínio (%s)"
 
-#: keystone/assignment/core.py:845
+#: keystone/assignment/core.py:500
 msgid "Unknown Target"
 msgstr "Alvo Desconhecido"
 
-#: keystone/assignment/core.py:1395 keystone/assignment/backends/ldap.py:67
-#: keystone/common/controller.py:288 keystone/identity/core.py:330
-#, python-format
-msgid "Expected dict or list: %s"
-msgstr "Esperado dict ou list: %s"
-
-#: keystone/assignment/backends/ldap.py:174
+#: keystone/assignment/backends/ldap.py:87
 msgid "Domain metadata not supported by LDAP"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:276
-#: keystone/assignment/role_backends/ldap.py:60 keystone/catalog/core.py:106
-#: keystone/common/ldap/core.py:1406
-#, python-format
-msgid "Duplicate ID, %s."
-msgstr "ID duplicado, %s."
-
-#: keystone/assignment/backends/ldap.py:278
-#: keystone/assignment/backends/ldap.py:286
-#: keystone/assignment/backends/ldap.py:290
-msgid "Domains are read-only against LDAP"
-msgstr ""
-
-#: keystone/assignment/backends/ldap.py:515
+#: keystone/assignment/backends/ldap.py:368
 #, python-format
 msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:521
+#: keystone/assignment/backends/ldap.py:374
 #, python-format
 msgid "Role %s not found"
 msgstr "Role %s não localizada"
 
-#: keystone/assignment/backends/ldap.py:536
-#: keystone/assignment/backends/sql.py:432
+#: keystone/assignment/backends/ldap.py:389
+#: keystone/assignment/backends/sql.py:327
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "Não é possível remover role que não foi concedido, %s"
 
-#: keystone/assignment/backends/sql.py:453
+#: keystone/assignment/backends/sql.py:348
 #, python-format
 msgid "Unexpected assignment type encountered, %s"
 msgstr ""
+
+#: keystone/assignment/role_backends/ldap.py:60 keystone/catalog/core.py:106
+#: keystone/common/ldap/core.py:1406 keystone/resource/backends/ldap.py:148
+#, python-format
+msgid "Duplicate ID, %s."
+msgstr "ID duplicado, %s."
 
 #: keystone/assignment/role_backends/ldap.py:68
 #: keystone/common/ldap/core.py:1396
@@ -596,7 +533,7 @@ msgstr "Não é possível consultar o usuário %s"
 msgid "auth_type is not Negotiate"
 msgstr ""
 
-#: keystone/auth/plugins/mapped.py:203
+#: keystone/auth/plugins/mapped.py:210
 msgid "Could not map user"
 msgstr ""
 
@@ -649,6 +586,12 @@ msgstr ""
 #: keystone/common/base64utils.py:244 keystone/common/base64utils.py:265
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr ""
+
+#: keystone/common/controller.py:288 keystone/identity/core.py:326
+#: keystone/resource/core.py:709 keystone/resource/backends/ldap.py:60
+#, python-format
+msgid "Expected dict or list: %s"
+msgstr "Esperado dict ou list: %s"
 
 #: keystone/common/controller.py:585
 msgid "Cannot change Domain ID"
@@ -916,11 +859,11 @@ msgstr ""
 msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
 msgstr ""
 
-#: keystone/contrib/ec2/controllers.py:317
+#: keystone/contrib/ec2/controllers.py:318
 msgid "Token belongs to another user"
 msgstr "O token pertence à outro usuário"
 
-#: keystone/contrib/ec2/controllers.py:345
+#: keystone/contrib/ec2/controllers.py:346
 msgid "Credential belongs to another user"
 msgstr "A credencial pertence à outro usuário"
 
@@ -938,7 +881,7 @@ msgstr ""
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:278
+#: keystone/contrib/federation/controllers.py:280
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 
@@ -963,6 +906,23 @@ msgstr ""
 
 #: keystone/contrib/federation/utils.py:122
 msgid "Federation token is expired"
+msgstr ""
+
+#: keystone/contrib/federation/utils.py:152
+msgid ""
+"Could not find Identity Provider identifier in environment, check "
+"[federation] remote_id_attribute for details."
+msgstr ""
+
+#: keystone/contrib/federation/utils.py:157
+msgid ""
+"Incoming identity provider identifier not included among the accepeted "
+"identifiers."
+msgstr ""
+
+#: keystone/contrib/federation/utils.py:608
+#, python-format
+msgid "Identity Provider %(idp)s is disabled"
 msgstr ""
 
 #: keystone/contrib/oauth1/controllers.py:96
@@ -1050,9 +1010,9 @@ msgid ""
 "bug in the Keystone server. The current request is aborted."
 msgstr ""
 
-#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:234
-#: keystone/token/provider.py:256 keystone/token/provider.py:351
-#: keystone/token/provider.py:358
+#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:235
+#: keystone/token/provider.py:257 keystone/token/provider.py:352
+#: keystone/token/provider.py:359
 msgid "Failed to validate token"
 msgstr "Falha ao validar token"
 
@@ -1064,19 +1024,19 @@ msgstr "Campo habilitado precisa ser um booleano"
 msgid "Enabled field should be a boolean"
 msgstr "Campo habilitado deve ser um booleano"
 
-#: keystone/identity/core.py:220 keystone/identity/backends/ldap.py:59
+#: keystone/identity/core.py:215 keystone/identity/backends/ldap.py:59
 #: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
 #: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:109
 #: keystone/identity/backends/sql.py:111
 msgid "Invalid user / password"
 msgstr ""
 
-#: keystone/identity/core.py:594 keystone/token/core.py:58
+#: keystone/identity/core.py:590 keystone/token/core.py:58
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
 
-#: keystone/identity/core.py:636
+#: keystone/identity/core.py:632
 msgid "Cannot change user ID"
 msgstr ""
 
@@ -1173,12 +1133,74 @@ msgstr ""
 msgid "%(what)s is deprecated as of %(as_of)s. It will not be superseded."
 msgstr ""
 
-#: keystone/token/controllers.py:384
+#: keystone/resource/core.py:80
+#, python-format
+msgid "max hierarchy depth reached for %s branch."
+msgstr ""
+
+#: keystone/resource/core.py:98
+msgid "cannot create a project within a different domain than its parents."
+msgstr ""
+
+#: keystone/resource/core.py:102
+#, python-format
+msgid "cannot create a project in a branch containing a disabled project: %s"
+msgstr ""
+
+#: keystone/resource/core.py:123 keystone/token/core.py:66
+#: keystone/token/core.py:82
+#, python-format
+msgid "Domain is disabled: %s"
+msgstr "O domínio está desativado: %s"
+
+#: keystone/resource/core.py:134
+#, python-format
+msgid "Project is disabled: %s"
+msgstr "O projeto está desativado: %s"
+
+#: keystone/resource/core.py:154
+#, python-format
+msgid "cannot enable project %s since it has disabled parents"
+msgstr ""
+
+#: keystone/resource/core.py:162
+#, python-format
+msgid "cannot disable project %s since its subtree contains enabled projects"
+msgstr ""
+
+#: keystone/resource/core.py:174
+msgid "Update of `parent_id` is not allowed."
+msgstr ""
+
+#: keystone/resource/core.py:201
+#, python-format
+msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
+msgstr ""
+
+#: keystone/resource/core.py:298
+msgid "Multiple domains are not supported"
+msgstr ""
+
+#: keystone/resource/core.py:345
+msgid "delete the default domain"
+msgstr ""
+
+#: keystone/resource/core.py:356
+msgid "cannot delete a domain that is enabled, please disable it first."
+msgstr ""
+
+#: keystone/resource/backends/ldap.py:150
+#: keystone/resource/backends/ldap.py:158
+#: keystone/resource/backends/ldap.py:162
+msgid "Domains are read-only against LDAP"
+msgstr ""
+
+#: keystone/token/controllers.py:385
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "Usuário %(u_id)s  não está autorizado para o tenant %(t_id)s"
 
-#: keystone/token/controllers.py:403 keystone/token/controllers.py:406
+#: keystone/token/controllers.py:404 keystone/token/controllers.py:407
 msgid "Token does not belong to specified tenant."
 msgstr "O token não pertence ao tenant especificado."
 
@@ -1187,7 +1209,7 @@ msgstr "O token não pertence ao tenant especificado."
 msgid "Tenant is disabled: %s"
 msgstr ""
 
-#: keystone/token/provider.py:142
+#: keystone/token/provider.py:143
 msgid ""
 "Unrecognized keystone.conf [signing] token_format: expected either 'UUID'"
 " or 'PKI'"

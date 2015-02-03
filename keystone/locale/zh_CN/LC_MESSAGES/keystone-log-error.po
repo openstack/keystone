@@ -1,5 +1,5 @@
 # Translations template for keystone.
-# Copyright (C) 2014 OpenStack Foundation
+# Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-12-28 06:03+0000\n"
-"PO-Revision-Date: 2014-12-10 14:52+0000\n"
+"POT-Creation-Date: 2015-02-03 06:04+0000\n"
+"PO-Revision-Date: 2015-01-30 05:20+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/keystone/"
 "language/zh_CN/)\n"
@@ -20,33 +20,18 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: keystone/notifications.py:223
+#: keystone/notifications.py:204
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:267
+#: keystone/notifications.py:248
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:455
+#: keystone/notifications.py:437
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
-msgstr ""
-
-#: keystone/assignment/core.py:524
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found projects hierarchy - "
-"%(project_id)s."
-msgstr ""
-
-#: keystone/assignment/backends/sql.py:342
-#: keystone/assignment/backends/sql.py:361
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found in projects hierarchy - "
-"%(project_id)s."
 msgstr ""
 
 #: keystone/catalog/core.py:62
@@ -115,7 +100,7 @@ msgid ""
 "Circular reference or a repeated entry found in region tree - %(region_id)s."
 msgstr "在域树- %(region_id)s 中发现循环引用或重复项。"
 
-#: keystone/contrib/federation/idp.py:405
+#: keystone/contrib/federation/idp.py:410
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr "对断言进行签名时出错，原因：%(reason)s"
@@ -143,7 +128,21 @@ msgstr "对于类型为 %s 的匹配项，不存在任何处理程序"
 msgid "Unhandled exception"
 msgstr "存在未处理的异常"
 
-#: keystone/token/provider.py:352
+#: keystone/resource/core.py:393
+#, python-format
+msgid ""
+"Circular reference or a repeated entry found projects hierarchy - "
+"%(project_id)s."
+msgstr ""
+
+#: keystone/resource/backends/sql.py:101 keystone/resource/backends/sql.py:120
+#, python-format
+msgid ""
+"Circular reference or a repeated entry found in projects hierarchy - "
+"%(project_id)s."
+msgstr ""
+
+#: keystone/token/provider.py:350
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
@@ -156,7 +155,7 @@ msgid ""
 "%(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:580
+#: keystone/token/providers/common.py:586
 msgid "Failed to validate token"
 msgstr "token验证失败"
 
