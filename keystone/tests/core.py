@@ -41,7 +41,6 @@ from keystone.common import environment  # noqa
 environment.use_eventlet()
 
 from keystone import auth
-from keystone import backends
 from keystone.common import config as common_cfg
 from keystone.common import dependency
 from keystone.common import kvs
@@ -52,6 +51,7 @@ from keystone import exception
 from keystone.i18n import _LW
 from keystone import notifications
 from keystone.openstack.common import log
+from keystone.server import common
 from keystone import service
 from keystone.tests import ksfixtures
 from keystone.tests import utils
@@ -459,11 +459,8 @@ class TestCase(BaseTestCase):
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
         self.clear_auth_plugin_registry()
-        drivers = backends.load_backends()
-
-        drivers.update(self.load_extra_backends())
-
-        drivers.update(dependency.resolve_future_dependencies())
+        drivers, _unused = common.setup_backends(
+            load_extra_backends_fn=self.load_extra_backends)
 
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
