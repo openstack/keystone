@@ -459,4 +459,16 @@ class HackingLogging(fixtures.Fixture):
             """,
             'expected_errors': [],
         },
+        {
+            'code': """
+                # this should not be an error
+                LOG = log.getLogger(__name__)
+                try:
+                    something = True
+                except AssertionError as e:
+                    LOG.warning(six.text_type(e))
+                    raise exception.Unauthorized(e)
+            """,
+            'expected_errors': [],
+        },
     ]

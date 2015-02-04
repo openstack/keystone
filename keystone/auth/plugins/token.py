@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from keystone import auth
 from keystone.auth.plugins import mapped
 from keystone.common import dependency
@@ -94,5 +96,5 @@ def token_authenticate(context, auth_payload, user_context, token_ref):
         user_context['method_names'].extend(token_ref.methods)
 
     except AssertionError as e:
-        LOG.error(e)
+        LOG.error(six.text_type(e))
         raise exception.Unauthorized(e)

@@ -239,16 +239,16 @@ class Application(BaseApplication):
             return render_exception(e, context=context,
                                     user_locale=best_match_language(req))
         except exception.Error as e:
-            LOG.warning(e)
+            LOG.warning(six.text_type(e))
             return render_exception(e, context=context,
                                     user_locale=best_match_language(req))
         except TypeError as e:
-            LOG.exception(e)
+            LOG.exception(six.text_type(e))
             return render_exception(exception.ValidationError(e),
                                     context=context,
                                     user_locale=best_match_language(req))
         except Exception as e:
-            LOG.exception(e)
+            LOG.exception(six.text_type(e))
             return render_exception(exception.UnexpectedError(exception=e),
                                     context=context,
                                     user_locale=best_match_language(req))
@@ -443,16 +443,16 @@ class Middleware(Application):
             response = request.get_response(self.application)
             return self.process_response(request, response)
         except exception.Error as e:
-            LOG.warning(e)
+            LOG.warning(six.text_type(e))
             return render_exception(e, request=request,
                                     user_locale=best_match_language(request))
         except TypeError as e:
-            LOG.exception(e)
+            LOG.exception(six.text_type(e))
             return render_exception(exception.ValidationError(e),
                                     request=request,
                                     user_locale=best_match_language(request))
         except Exception as e:
-            LOG.exception(e)
+            LOG.exception(six.text_type(e))
             return render_exception(exception.UnexpectedError(exception=e),
                                     request=request,
                                     user_locale=best_match_language(request))
