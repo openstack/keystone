@@ -581,7 +581,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         note = self._notifications[-1]
         self.assertEqual(note['action'], action)
         initiator = note['initiator']
-        self.assertEqual(initiator.name, user_id)
+        self.assertEqual(initiator.id, user_id)
         self.assertEqual(initiator.host.address, self.LOCAL_HOST)
         self.assertTrue(note['send_notification_called'])
 
