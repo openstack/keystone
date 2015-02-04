@@ -19,10 +19,14 @@ from oslo_middleware import sizelimit
 from oslo_serialization import jsonutils
 
 from keystone.common import authorization
+from keystone.common import tokenless_auth
 from keystone.common import wsgi
+from keystone.contrib.federation import constants as federation_constants
+from keystone.contrib.federation import utils
 from keystone import exception
-from keystone.i18n import _LW
+from keystone.i18n import _, _LI, _LW
 from keystone.models import token_model
+from keystone.token.providers import common
 
 
 CONF = cfg.CONF
@@ -194,17 +198,109 @@ class AuthContextMiddleware(wsgi.Middleware):
             LOG.warning(_LW('RBAC: Invalid token'))
             raise exception.Unauthorized()
 
-    def process_request(self, request):
-        if AUTH_TOKEN_HEADER not in request.headers:
-            LOG.debug(('Auth token not in the request header. '
-                       'Will not build auth context.'))
-            return
+    def _build_tokenless_auth_context(self, env):
+        """Build the authentication context.
 
+        The context is built from the attributes provided in the env,
+        such as certificate and scope attributes.
+        """
+        tokenless_helper = tokenless_auth.TokenlessAuthHelper(env)
+
+        (domain_id, project_id, trust_ref, unscoped) = (
+            tokenless_helper.get_scope())
+        user_ref = tokenless_helper.get_mapped_user(
+            project_id,
+            domain_id)
+
+        # NOTE(gyee): if it is an ephemeral user, the
+        # given X.509 SSL client cert does not need to map to
+        # an existing user.
+        if user_ref['type'] == utils.UserType.EPHEMERAL:
+            auth_context = {}
+            auth_context['group_ids'] = user_ref['group_ids']
+            auth_context[federation_constants.IDENTITY_PROVIDER] = (
+                user_ref[federation_constants.IDENTITY_PROVIDER])
+            auth_context[federation_constants.PROTOCOL] = (
+                user_ref[federation_constants.PROTOCOL])
+            if domain_id and project_id:
+                msg = _('Scoping to both domain and project is not allowed')
+                raise ValueError(msg)
+            if domain_id:
+                auth_context['domain_id'] = domain_id
+            if project_id:
+                auth_context['project_id'] = project_id
+            auth_context['roles'] = user_ref['roles']
+        else:
+            # it's the local user, so token data is needed.
+            token_helper = common.V3TokenDataHelper()
+            token_data = token_helper.get_token_data(
+                user_id=user_ref['id'],
+                method_names=[CONF.tokenless_auth.protocol],
+                domain_id=domain_id,
+                project_id=project_id)
+
+            auth_context = {'user_id': user_ref['id']}
+            auth_context['is_delegated_auth'] = False
+            if domain_id:
+                auth_context['domain_id'] = domain_id
+            if project_id:
+                auth_context['project_id'] = project_id
+            auth_context['roles'] = [role['name'] for role
+                                     in token_data['token']['roles']]
+        return auth_context
+
+    def _validate_trusted_issuer(self, env):
+        """To further filter the certificates that are trusted.
+
+        If the config option 'trusted_issuer' is absent or does
+        not contain the trusted issuer DN, no certificates
+        will be allowed in tokenless authorization.
+
+        :param env: The env contains the client issuer's attributes
+        :type env: dict
+        :returns: True if client_issuer is trusted; otherwise False
+        """
+
+        client_issuer = env.get(CONF.tokenless_auth.issuer_attribute)
+        if not client_issuer:
+            msg = _LI('Cannot find client issuer in env by the '
+                      'issuer attribute - %s.')
+            LOG.info(msg, CONF.tokenless_auth.issuer_attribute)
+            return False
+
+        if client_issuer in CONF.tokenless_auth.trusted_issuer:
+            return True
+
+        msg = _LI('The client issuer %(client_issuer)s does not match with '
+                  'the trusted issuer %(trusted_issuer)s')
+        LOG.info(
+            msg, {'client_issuer': client_issuer,
+                  'trusted_issuer': CONF.tokenless_auth.trusted_issuer})
+
+        return False
+
+    def process_request(self, request):
         if authorization.AUTH_CONTEXT_ENV in request.environ:
-            msg = _LW('Auth context already exists in the request environment')
+            msg = _LW('Auth context already exists in the request '
+                      'environment; it will be used for authorization '
+                      'instead of creating a new one.')
             LOG.warning(msg)
             return
 
-        auth_context = self._build_auth_context(request)
+        # NOTE(gyee): token takes precedence over SSL client certificates.
+        # This will preserve backward compatibility with the existing
+        # behavior. Tokenless authorization with X.509 SSL client
+        # certificate is effectively disabled if no trusted issuers are
+        # provided.
+        if AUTH_TOKEN_HEADER in request.headers:
+            auth_context = self._build_auth_context(request)
+        elif self._validate_trusted_issuer(request.environ):
+            auth_context = self._build_tokenless_auth_context(
+                request.environ)
+        else:
+            LOG.debug('There is either no auth token in the request or '
+                      'the certificate issuer is not trusted. No auth '
+                      'context will be set.')
+            return
         LOG.debug('RBAC: auth_context: %s', auth_context)
         request.environ[authorization.AUTH_CONTEXT_ENV] = auth_context
