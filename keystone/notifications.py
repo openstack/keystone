@@ -264,7 +264,7 @@ def _get_request_audit_info(context, user_id=None):
 
     host = pycadf.host.Host(address=remote_addr, agent=http_user_agent)
     initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
-                                  name=user_id, host=host)
+                                  id=user_id, host=host)
     return initiator
 
 
