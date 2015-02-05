@@ -196,6 +196,16 @@ class Application(BaseApplication):
         context['query_string'] = dict(six.iteritems(req.params))
         context['headers'] = dict(six.iteritems(req.headers))
         context['path'] = req.environ['PATH_INFO']
+        scheme = (None if not CONF.secure_proxy_ssl_header
+                  else req.environ.get(CONF.secure_proxy_ssl_header))
+        if scheme:
+            # NOTE(andrey-mp): "wsgi.url_scheme" contains the protocol used
+            # before the proxy removed it ('https' usually). So if
+            # the webob.Request instance is modified in order to use this
+            # scheme instead of the one defined by API, the call to
+            # webob.Request.relative_url() will return a URL with the correct
+            # scheme.
+            req.environ['wsgi.url_scheme'] = scheme
         context['host_url'] = req.host_url
         params = req.environ.get(PARAMS_ENV, {})
         # authentication and authorization attributes are set as environment
