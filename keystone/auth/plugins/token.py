@@ -16,12 +16,16 @@ from keystone import auth
 from keystone.auth.plugins import mapped
 from keystone.common import dependency
 from keystone.common import wsgi
+from keystone import config
 from keystone import exception
+from keystone.i18n import _
 from keystone.models import token_model
 from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
+
+CONF = config.CONF
 
 
 @dependency.optional('federation_api')
@@ -60,6 +64,11 @@ def token_authenticate(context, auth_payload, user_context, token_ref):
 
         if token_ref.oauth_scoped or token_ref.trust_scoped:
             raise exception.Forbidden()
+
+        if not CONF.token.allow_rescope_scoped_token:
+            # Do not allow conversion from scoped tokens.
+            if token_ref.project_scoped or token_ref.domain_scoped:
+                raise exception.Forbidden(action=_("rescope a scoped token"))
 
         wsgi.validate_token_bind(context, token_ref)
 

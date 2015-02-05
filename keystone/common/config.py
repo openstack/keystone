@@ -275,6 +275,10 @@ FILE_OPTIONS = {
                     'list of tokens to revoke. Only disable if you are '
                     'switching to using the Revoke extension with a '
                     'backend other than KVS, which stores events in memory.'),
+        cfg.BoolOpt('allow_rescope_scoped_token', default=True,
+                    help='Allow rescoping of scoped token. Setting '
+                    'allow_rescoped_scoped_token to false prevents a user '
+                    'from exchanging a scoped token for any other token.'),
         cfg.StrOpt('hash_algorithm', default='md5',
                    help="The hash algorithm to use for PKI tokens. This can "
                         "be set to any algorithm that hashlib supports. "
