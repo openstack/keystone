@@ -19,6 +19,7 @@
 """Utility methods for working with WSGI servers."""
 
 import copy
+import urllib
 
 from oslo import i18n
 from oslo.serialization import jsonutils
@@ -189,7 +190,6 @@ class Application(BaseApplication):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
         action = arg_dict.pop('action')
         del arg_dict['controller']
-        LOG.debug('arg_dict: %s', arg_dict)
 
         # allow middleware up the stack to provide context, params and headers.
         context = req.environ.get(CONTEXT_ENV, {})
@@ -226,6 +226,10 @@ class Application(BaseApplication):
         # response code between GET and HEAD requests. The HTTP status should
         # be the same.
         req_method = req.environ['REQUEST_METHOD'].upper()
+        LOG.info('%(req_method)s %(path)s?%(params)s', {
+            'req_method': req_method,
+            'path': context['path'],
+            'params': urllib.urlencode(params)})
 
         params = self._normalize_dict(params)
 
