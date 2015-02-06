@@ -127,6 +127,7 @@ class Token(token.persistence.Driver):
 
         """
         session = sql.get_session()
+        token_list = []
         with session.begin():
             now = timeutils.utcnow()
             query = session.query(TokenModel)
@@ -148,6 +149,9 @@ class Token(token.persistence.Driver):
                         continue
 
                 token_ref.valid = False
+                token_list.append(token_ref.id)
+
+        return token_list
 
     def _tenant_matches(self, tenant_id, token_ref_dict):
         return ((tenant_id is None) or
