@@ -6181,6 +6181,37 @@ class InheritanceTests(AssignmentTestHelperMixin):
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEqual(3, len(user_projects))
 
+        # TODO(henry-nash): The test above uses list_projects_for_user
+        # which may, in a subsequent patch, be re-implemeted to call
+        # list_role_assignments and then report only the distinct projects.
+        #
+        # The test plan below therefore mirrors this test, to ensure that
+        # list_role_assignments works the same. Once list_projects_for_user
+        # has been re-implemented then the manual tests above can be
+        # refactored.
+        test_plan = {
+            # A domain with 1 project, plus a second domain with 2 projects,
+            # as well as a user. Also, create 2 roles.
+            'entities': {'domains': [{'projects': 1},
+                                     {'users': 1, 'projects': 2}],
+                         'roles': 2},
+            'assignments': [{'user': 0, 'role': 0, 'project': 0},
+                            {'user': 0, 'role': 1, 'domain': 1,
+                             'inherited_to_projects': True}],
+            'tests': [
+                # List all effective assignments for user[0]
+                # Should get one direct role plus one inherited role for each
+                # project in domain
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0},
+                             {'user': 0, 'role': 1, 'project': 1,
+                              'indirect': {'domain': 1}},
+                             {'user': 0, 'role': 1, 'project': 2,
+                              'indirect': {'domain': 1}}]}
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
+
     def test_list_projects_for_user_with_inherited_user_project_grants(self):
         """Test inherited role assignments for users on nested projects.
 
@@ -6304,6 +6335,48 @@ class InheritanceTests(AssignmentTestHelperMixin):
         # project3 (since it has both a direct user role and an inherited role)
         user_projects = self.assignment_api.list_projects_for_user(user1['id'])
         self.assertEqual(5, len(user_projects))
+
+        # TODO(henry-nash): The test above uses list_projects_for_user
+        # which may, in a subsequent patch, be re-implemeted to call
+        # list_role_assignments and then report only the distinct projects.
+        #
+        # The test plan below therefore mirrors this test, to ensure that
+        # list_role_assignments works the same. Once list_projects_for_user
+        # has been re-implemented then the manual tests above can be
+        # refactored.
+        test_plan = {
+            # A domain with a 1 project, plus a second domain with 2 projects,
+            # as well as a user & group and a 3rd domain with 2 projects.
+            # Also, created 2 roles.
+            'entities': {'domains': [{'projects': 1},
+                                     {'users': 1, 'groups': 1, 'projects': 2},
+                                     {'projects': 2}],
+                         'roles': 2},
+            'group_memberships': [{'group': 0, 'users': [0]}],
+            'assignments': [{'user': 0, 'role': 0, 'project': 0},
+                            {'user': 0, 'role': 0, 'project': 3},
+                            {'user': 0, 'role': 1, 'domain': 1,
+                             'inherited_to_projects': True},
+                            {'user': 0, 'role': 1, 'domain': 2,
+                             'inherited_to_projects': True}],
+            'tests': [
+                # List all effective assignments for user[0]
+                # Should get back both direct roles plus roles on both projects
+                # from each domain. Duplicates should not be fitered out.
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 3},
+                             {'user': 0, 'role': 0, 'project': 0},
+                             {'user': 0, 'role': 1, 'project': 1,
+                              'indirect': {'domain': 1}},
+                             {'user': 0, 'role': 1, 'project': 2,
+                              'indirect': {'domain': 1}},
+                             {'user': 0, 'role': 1, 'project': 3,
+                              'indirect': {'domain': 2}},
+                             {'user': 0, 'role': 1, 'project': 4,
+                              'indirect': {'domain': 2}}]}
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
 
     def test_list_projects_for_user_with_inherited_group_project_grants(self):
         """Test inherited role assignments for groups on nested projects.
