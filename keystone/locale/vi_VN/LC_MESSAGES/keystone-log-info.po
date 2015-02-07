@@ -1,5 +1,5 @@
 # Translations template for keystone.
-# Copyright (C) 2014 OpenStack Foundation
+# Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2014-12-28 06:03+0000\n"
-"PO-Revision-Date: 2014-12-23 12:43+0000\n"
+"POT-Creation-Date: 2015-02-07 06:03+0000\n"
+"PO-Revision-Date: 2015-02-06 22:14+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/projects/p/"
 "keystone/language/vi_VN/)\n"
@@ -19,9 +19,14 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: keystone/assignment/core.py:338
+#: keystone/assignment/core.py:251
 #, python-format
 msgid "Creating the default role %s because it does not exist."
+msgstr ""
+
+#: keystone/assignment/core.py:259
+#, python-format
+msgid "Creating the default role %s failed because it was already created"
 msgstr ""
 
 #: keystone/auth/controllers.py:63
