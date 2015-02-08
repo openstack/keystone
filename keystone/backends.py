@@ -17,6 +17,7 @@ from keystone.common import cache
 from keystone.contrib import endpoint_filter
 from keystone.contrib import endpoint_policy
 from keystone.contrib import federation
+from keystone.contrib import oauth1
 from keystone import credential
 from keystone import identity
 from keystone import policy
@@ -47,6 +48,7 @@ def load_backends():
         id_generator_api=identity.generator.Manager(),
         id_mapping_api=identity.MappingManager(),
         identity_api=_IDENTITY_API,
+        oauth_api=oauth1.Manager(),
         policy_api=policy.Manager(),
         resource_api=resource.Manager(),
         role_api=assignment.RoleManager(),
