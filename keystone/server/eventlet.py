@@ -132,12 +132,12 @@ def run(possible_topdir):
         servers.append(create_server(paste_config,
                                      'admin',
                                      CONF.admin_bind_host,
-                                     int(CONF.admin_port),
+                                     CONF.admin_port,
                                      admin_worker_count))
         servers.append(create_server(paste_config,
                                      'main',
                                      CONF.public_bind_host,
-                                     int(CONF.public_port),
+                                     CONF.public_port,
                                      public_worker_count))
         return servers
 
