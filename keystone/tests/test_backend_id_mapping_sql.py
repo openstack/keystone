@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2014 IBM Corp.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -117,6 +118,21 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         self.id_mapping_api.delete_id_mapping(public_id3)
         self.assertThat(mapping_sql.list_id_mappings(),
                         matchers.HasLength(initial_mappings))
+
+    def test_id_mapping_handles_unicode(self):
+        local_id = u'fäké1'
+        local_entity = {'domain_id': self.domainA['id'],
+                        'local_id': local_id,
+                        'entity_type': mapping.EntityType.USER}
+
+        # Check no mappings for the new local entity
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity))
+
+        # The mapping generator should handle unicode, although currently this
+        # fails due to bug #1419187
+        self.assertRaises(UnicodeEncodeError,
+                          self.id_mapping_api.create_id_mapping,
+                          local_entity)
 
     def test_delete_public_id_is_silent(self):
         # Test that deleting an invalid public key is silent
