@@ -12,7 +12,7 @@
 
 import functools
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 

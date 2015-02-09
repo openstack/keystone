@@ -18,7 +18,7 @@ import uuid
 
 import mock
 from oslo import i18n
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 import six
 from testtools import matchers
 import webob

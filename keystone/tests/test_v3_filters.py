@@ -15,7 +15,7 @@
 
 import uuid
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 
 from keystone import config
 from keystone.policy.backends import rules

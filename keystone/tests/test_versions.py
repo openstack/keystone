@@ -18,7 +18,7 @@ import functools
 import random
 
 import mock
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from testtools import matchers as tt_matchers
 
 from keystone.common import json_home

@@ -28,7 +28,7 @@ column.
 
 """
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import sqlalchemy as sql
 from sqlalchemy.orm import Session

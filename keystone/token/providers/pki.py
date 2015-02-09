@@ -15,7 +15,7 @@
 """Keystone PKI Token Provider"""
 
 from keystoneclient.common import cms
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 
 from keystone.common import environment
 from keystone.common import utils

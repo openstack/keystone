@@ -15,7 +15,7 @@
 import copy
 import uuid
 
-from oslo.serialization import jsonutils
+from oslo_serialization import jsonutils
 from six.moves import urllib
 
 from keystone import config
