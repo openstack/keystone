@@ -399,8 +399,8 @@ class CheckForLoggingIssues(BaseASTChecker):
 
 def check_oslo_namespace_imports(logical_line, blank_before, filename):
     oslo_namespace_imports = re.compile(
-        r"(((from)|(import))\s+oslo\.((serialization)|(utils)))|"
-        "(from\s+oslo\s+import\s+((serialization)|(utils)))")
+        r"(((from)|(import))\s+oslo\.((messaging)|(serialization)|(utils)))|"
+        "(from\s+oslo\s+import\s+((messaging)|(serialization)|(utils)))")
 
     if re.match(oslo_namespace_imports, logical_line):
         msg = ("K333: '%s' must be used instead of '%s'.") % (
