@@ -192,7 +192,7 @@ class Role(controller.V2Controller):
 
     # COMPAT(essex-3)
     @controller.v2_deprecated
-    def get_user_roles(self, context, user_id, tenant_id=None):
+    def get_user_roles(self, context, user_id, tenant_id):
         """Get the roles for a user and tenant pair.
 
         Since we're trying to ignore the idea of user-only roles we're
@@ -200,10 +200,6 @@ class Role(controller.V2Controller):
 
         """
         self.assert_admin(context)
-        if tenant_id is None:
-            raise exception.NotImplemented(message='User roles not supported: '
-                                                   'tenant ID required')
-
         roles = self.assignment_api.get_roles_for_user_and_project(
             user_id, tenant_id)
         return {'roles': [self.role_api.get_role(x)

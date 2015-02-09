@@ -1114,29 +1114,6 @@ Returns:
         }
     }
 
-GET /users/{user_id}/roles
-==========================
-
-Retrieve the roles granted to a user, given a user ID:
-
-.. code-block:: bash
-
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users/4/roles
-
-Returns:
-
-.. code-block:: javascript
-
-    {
-        "roles_links":[],
-        "roles":[
-            {
-                "id":"2",
-                "name":"KeystoneServiceAdmin"
-            }
-        ]
-    }
-
 GET /tokens/revoked
 ===================
 
