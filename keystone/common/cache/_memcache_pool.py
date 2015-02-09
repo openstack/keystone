@@ -67,6 +67,8 @@ class ConnectionPool(queue.Queue):
                                  indefinite.
         :type conn_get_timeout: int
         """
+        # super() cannot be used here because Queue in stdlib is an
+        # old-style class
         queue.Queue.__init__(self, maxsize)
         self._unused_timeout = unused_timeout
         self._connection_get_timeout = conn_get_timeout
@@ -118,7 +120,9 @@ class ConnectionPool(queue.Queue):
             self._debug_logger('Releasing connection %s', id(conn))
             self._drop_expired_connections()
             try:
-                super(ConnectionPool, self).put(conn, block=False)
+                # super() cannot be used here because Queue in stdlib is an
+                # old-style class
+                queue.Queue.put(self, conn, block=False)
             except queue.Full:
                 self._debug_logger('Reaping exceeding connection %s', id(conn))
                 self._destroy_connection(conn)
@@ -163,6 +167,8 @@ class ConnectionPool(queue.Queue):
 
 class MemcacheClientPool(ConnectionPool):
     def __init__(self, urls, arguments, **kwargs):
+        # super() cannot be used here because Queue in stdlib is an
+        # old-style class
         ConnectionPool.__init__(self, **kwargs)
         self.urls = urls
         self._arguments = arguments
@@ -178,6 +184,8 @@ class MemcacheClientPool(ConnectionPool):
         conn.disconnect_all()
 
     def _get(self):
+        # super() cannot be used here because Queue in stdlib is an
+        # old-style class
         conn = ConnectionPool._get(self)
         try:
             # Propagate host state known to us to this client's list
@@ -189,7 +197,9 @@ class MemcacheClientPool(ConnectionPool):
         except Exception:
             # We need to be sure that connection doesn't leak from the pool.
             # This code runs before we enter context manager's try-finally
-            # block, so we need to explicitly release it here
+            # block, so we need to explicitly release it here.
+            # super() cannot be used here because Queue in stdlib is an
+            # old-style class
             ConnectionPool._put(self, conn)
             raise
         return conn
@@ -218,4 +228,6 @@ class MemcacheClientPool(ConnectionPool):
                 self._debug_logger('All hosts are dead. Marking them as live.')
                 self._hosts_deaduntil[:] = [0] * len(self._hosts_deaduntil)
         finally:
+            # super() cannot be used here because Queue in stdlib is an
+            # old-style class
             ConnectionPool._put(self, conn)
