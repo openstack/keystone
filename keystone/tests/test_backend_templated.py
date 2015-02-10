@@ -80,6 +80,13 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
     def test_get_v3_catalog_endpoint_disabled(self):
         self.skipTest("Templated backend doesn't have disabled endpoints")
 
+    def assert_catalogs_equal(self, expected, observed):
+        for e, o in zip(sorted(expected), sorted(observed)):
+            expected_endpoints = e.pop('endpoints')
+            observed_endpoints = o.pop('endpoints')
+            self.assertDictEqual(e, o)
+            self.assertItemsEqual(expected_endpoints, observed_endpoints)
+
     def test_get_v3_catalog(self):
         user_id = uuid.uuid4().hex
         project_id = uuid.uuid4().hex
@@ -111,7 +118,7 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
              'type': 'identity',
              'name': "'Identity Service'",
              'id': '1'}]
-        self.assertEqual(exp_catalog, catalog_ref)
+        self.assert_catalogs_equal(exp_catalog, catalog_ref)
 
     def test_list_regions_filtered_by_parent_region_id(self):
         self.skipTest('Templated backend does not support hints')
