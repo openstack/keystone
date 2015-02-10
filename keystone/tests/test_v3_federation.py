@@ -1392,6 +1392,20 @@ class FederatedTokenTests(FederationTests):
         self.assertRaises(exception.Unauthorized,
                           self._issue_unscoped_token)
 
+    def test_v2_auth_with_federation_token_fails(self):
+        """Test that using a federation token with v2 auth fails.
+
+        If an admin sets up a federated keystone environment, and a user
+        incorrectly configures a service (like nova) only use v2 auth, the
+        returned message should be informative.
+
+        """
+        r = self._issue_unscoped_token()
+        token_id = r.headers.get('X-Subject-Token')
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api.validate_v2_token,
+                          token_id=token_id)
+
     def load_federation_sample_data(self):
         """Inject additional data."""
 
