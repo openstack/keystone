@@ -795,7 +795,7 @@ class VersionBehindSslTestCase(tests.TestCase):
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = self._get_expected(host)
-        self.assertEqual(expected, data)
+        self.assertThat(data, _VersionsEqual(expected))
 
     def test_versions_with_header(self):
         client = self.client(self.public_app)
@@ -807,4 +807,4 @@ class VersionBehindSslTestCase(tests.TestCase):
         data = jsonutils.loads(resp.body)
         expected = self._get_expected('https://%s:%s/' % (host_name,
                                                           host_port))
-        self.assertEqual(expected, data)
+        self.assertThat(data, _VersionsEqual(expected))
