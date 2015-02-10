@@ -16,8 +16,8 @@ import os
 import shutil
 
 import fixtures
-from oslo.db import options as db_options
-from oslo.db.sqlalchemy import migration
+from oslo_db import options as db_options
+from oslo_db.sqlalchemy import migration
 
 from keystone.common import sql
 from keystone.common.sql import migration_helpers

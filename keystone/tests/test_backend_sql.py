@@ -17,8 +17,8 @@ import functools
 import uuid
 
 import mock
-from oslo.db import exception as db_exception
-from oslo.db import options
+from oslo_db import exception as db_exception
+from oslo_db import options
 import sqlalchemy
 from sqlalchemy import exc
 from testtools import matchers

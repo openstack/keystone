@@ -34,9 +34,9 @@ import json
 import uuid
 
 from migrate.versioning import api as versioning_api
-from oslo.db import exception as db_exception
-from oslo.db.sqlalchemy import migration
-from oslo.db.sqlalchemy import session as db_session
+from oslo_db import exception as db_exception
+from oslo_db.sqlalchemy import migration
+from oslo_db.sqlalchemy import session as db_session
 import six
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
@@ -1234,11 +1234,11 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertEqual(1, session.query(region_unique_table).count())
         # verify the unique constraint is enforced
         self.assertRaises(
-            # FIXME (I159): Since oslo.db wraps all the database exceptions
+            # FIXME (I159): Since oslo_db wraps all the database exceptions
             # into more specific exception objects, we should catch both of
-            # sqlalchemy and oslo.db exceptions. If an old oslo.db version
+            # sqlalchemy and oslo_db exceptions. If an old oslo_db version
             # is installed, IntegrityError is raised. If >=0.4.0 version of
-            # oslo.db is installed, DBError is raised.
+            # oslo_db is installed, DBError is raised.
             # When the global requirements is updated with
             # the version fixes exceptions wrapping, IntegrityError must be
             # removed from the tuple.

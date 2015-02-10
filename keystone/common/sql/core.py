@@ -22,10 +22,10 @@ import contextlib
 import functools
 
 from oslo.config import cfg
-from oslo.db import exception as db_exception
-from oslo.db import options as db_options
-from oslo.db.sqlalchemy import models
-from oslo.db.sqlalchemy import session as db_session
+from oslo_db import exception as db_exception
+from oslo_db import options as db_options
+from oslo_db.sqlalchemy import models
+from oslo_db.sqlalchemy import session as db_session
 from oslo_serialization import jsonutils
 import six
 import sqlalchemy as sql
@@ -401,7 +401,7 @@ def handle_conflicts(conflict_type='object'):
                                          details=_('Duplicate Entry'))
             except db_exception.DBError as e:
                 # TODO(blk-u): inspecting inner_exception breaks encapsulation;
-                # oslo.db should provide exception we need.
+                # oslo_db should provide exception we need.
                 if isinstance(e.inner_exception, IntegrityError):
                     # LOG the exception for debug purposes, do not send the
                     # exception details out with the raised Conflict exception

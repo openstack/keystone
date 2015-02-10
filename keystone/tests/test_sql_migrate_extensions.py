@@ -29,7 +29,7 @@ WARNING::
    all data will be lost.
 """
 
-from oslo.db.sqlalchemy import utils
+from oslo_db.sqlalchemy import utils
 
 from keystone.contrib import endpoint_filter
 from keystone.contrib import endpoint_policy
