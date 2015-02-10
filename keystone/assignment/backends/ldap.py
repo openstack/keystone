@@ -25,6 +25,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import ldap as ldap_identity
 from keystone.openstack.common import log
+from keystone.openstack.common import versionutils
 
 
 CONF = config.CONF
@@ -32,6 +33,10 @@ LOG = log.getLogger(__name__)
 
 
 class Assignment(assignment.Driver):
+    @versionutils.deprecated(
+        versionutils.deprecated.KILO,
+        remove_in=+2,
+        what='keystone.assignment.backends.ldap.Assignment')
     def __init__(self):
         super(Assignment, self).__init__()
         self.LDAP_URL = CONF.ldap.url
