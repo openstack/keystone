@@ -979,6 +979,19 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         # returned as part of the ref.
         self.assertIs(True, project_info['enabled'])
 
+    def test_list_role_assignment_by_domain(self):
+        """Multiple domain assignments are not supported."""
+        self.assertRaises(
+            (exception.Forbidden, exception.DomainNotFound),
+            super(BaseLDAPIdentity, self).test_list_role_assignment_by_domain)
+
+    def test_list_role_assignment_by_user_with_domain_group_roles(self):
+        """Multiple domain assignments are not supported."""
+        self.assertRaises(
+            (exception.Forbidden, exception.DomainNotFound),
+            super(BaseLDAPIdentity, self).
+            test_list_role_assignment_by_user_with_domain_group_roles)
+
 
 class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
@@ -2802,6 +2815,17 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         # Domain roles are supported by the SQL Assignment backend
         base = super(BaseLDAPIdentity, self)
         base.test_list_role_assignments_filtered_by_role()
+
+    def test_list_role_assignment_by_domain(self):
+        # With multi LDAP this method should work, so override the override
+        # from BaseLDAPIdentity
+        super(BaseLDAPIdentity, self).test_list_role_assignment_by_domain
+
+    def test_list_role_assignment_by_user_with_domain_group_roles(self):
+        # With multi LDAP this method should work, so override the override
+        # from BaseLDAPIdentity
+        super(BaseLDAPIdentity, self).\
+            test_list_role_assignment_by_user_with_domain_group_roles
 
 
 class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):

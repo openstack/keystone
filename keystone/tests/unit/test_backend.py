@@ -1926,6 +1926,82 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.identity_api.delete_group(group1['id'])
         self.identity_api.get_user(user1['id'])
 
+    def test_list_role_assignment_by_domain(self):
+        """Test listing of role assignment filtered by domain."""
+
+        test_plan = {
+            # A domain with 3 users, 1 group, a spoiler domain and 2 roles.
+            'entities': {'domains': [{'users': 3, 'groups': 1}, 1],
+                         'roles': 2},
+            # Users 1 & 2 are in the group
+            'group_memberships': [{'group': 0, 'users': [1, 2]}],
+            # Assign a role for user 0 and the group
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'group': 0, 'role': 1, 'domain': 0}],
+            'tests': [
+                # List all effective assignments for domain[0].
+                # Should get one direct user role and user roles for each of
+                # the users in the group.
+                {'params': {'domain': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 1, 'role': 1, 'domain': 0,
+                              'indirect': {'group': 0}},
+                             {'user': 2, 'role': 1, 'domain': 0,
+                              'indirect': {'group': 0}}
+                             ]},
+                # Using domain[1] should return nothing
+                {'params': {'domain': 1, 'effective': True},
+                 'results': []},
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
+
+    def test_list_role_assignment_by_user_with_domain_group_roles(self):
+        """Test listing assignments by user, with group roles on a domain."""
+
+        test_plan = {
+            # A domain with 3 users, 3 groups, a spoiler domain
+            # plus 3 roles.
+            'entities': {'domains': [{'users': 3, 'groups': 3}, 1],
+                         'roles': 3},
+            # Users 1 & 2 are in the group 0, User 1 also in group 1
+            'group_memberships': [{'group': 0, 'users': [0, 1]},
+                                  {'group': 1, 'users': [0]}],
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'group': 0, 'role': 1, 'domain': 0},
+                            {'group': 1, 'role': 2, 'domain': 0},
+                            # ...and two spoiler assignments
+                            {'user': 1, 'role': 1, 'domain': 0},
+                            {'group': 2, 'role': 2, 'domain': 0}],
+            'tests': [
+                # List all effective assignments for user[0].
+                # Should get one direct user role and a user roles for each of
+                # groups 0 and 1
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'domain': 0,
+                              'indirect': {'group': 0}},
+                             {'user': 0, 'role': 2, 'domain': 0,
+                              'indirect': {'group': 1}}
+                             ]},
+                # Adding domain[0] as a filter should return the same data
+                {'params': {'user': 0, 'domain': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'domain': 0,
+                              'indirect': {'group': 0}},
+                             {'user': 0, 'role': 2, 'domain': 0,
+                              'indirect': {'group': 1}}
+                             ]},
+                # Using domain[1] should return nothing
+                {'params': {'user': 0, 'domain': 1, 'effective': True},
+                 'results': []},
+                # Using user[2] should return nothing
+                {'params': {'user': 2, 'domain': 0, 'effective': True},
+                 'results': []},
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
+
     def test_delete_domain_with_user_group_project_links(self):
         # TODO(chungg):add test case once expected behaviour defined
         pass
