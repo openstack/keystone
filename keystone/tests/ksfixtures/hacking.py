@@ -212,6 +212,14 @@ class HackingCode(fixtures.Fixture):
             from oslo import db
             from oslo.db import api
             from oslo_db import api
+
+            import oslo.config
+            import oslo_config
+            import oslo.config.cfg
+            import oslo_config.cfg
+            from oslo import config
+            from oslo.config import cfg
+            from oslo_config import cfg
         """,
         'expected_errors': [
             (1, 0, 'K333'),
@@ -230,6 +238,10 @@ class HackingCode(fixtures.Fixture):
             (27, 0, 'K333'),
             (29, 0, 'K333'),
             (30, 0, 'K333'),
+            (33, 0, 'K333'),
+            (35, 0, 'K333'),
+            (37, 0, 'K333'),
+            (38, 0, 'K333'),
         ],
     }
 
