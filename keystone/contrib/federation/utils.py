@@ -20,6 +20,7 @@ from oslo_log import log
 from oslo_utils import timeutils
 import six
 
+from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LW
 
@@ -291,6 +292,11 @@ class RuleProcessor(object):
         ANY_ONE_OF = 'any_one_of'
         NOT_ANY_OF = 'not_any_of'
 
+    class _UserType(object):
+        """User mapping type."""
+        EPHEMERAL = 'ephemeral'
+        LOCAL = 'local'
+
     def __init__(self, rules):
         """Initialize RuleProcessor.
 
@@ -413,8 +419,27 @@ class RuleProcessor(object):
                 for group in {g['name']: g for g in groups}.values():
                     yield group
 
+        def normalize_user(user):
+            """Parse and validate user mapping."""
+
+            user_type = user.get('type')
+
+            if user_type and user_type not in (self._UserType.EPHEMERAL,
+                                               self._UserType.LOCAL):
+                msg = _("User type %s not supported") % user_type
+                raise exception.ValidationError(msg)
+
+            if user_type is None:
+                user_type = user['type'] = self._UserType.EPHEMERAL
+
+            if user_type == self._UserType.EPHEMERAL:
+                user['domain'] = {
+                    'id': (CONF.federation.federated_domain_name or
+                           federation.FEDERATED_DOMAIN_KEYWORD)
+                }
+
         # initialize the group_ids as a set to eliminate duplicates
-        user_name = None
+        user = {}
         group_ids = set()
         group_names = list()
         groups_by_domain = dict()
@@ -422,11 +447,10 @@ class RuleProcessor(object):
         for identity_value in identity_values:
             if 'user' in identity_value:
                 # if a mapping outputs more than one user name, log it
-                if user_name is not None:
-                    LOG.warning(_LW('Ignoring user name %s'),
-                                identity_value['user']['name'])
+                if user:
+                    LOG.warning(_LW('Ignoring user name'))
                 else:
-                    user_name = identity_value['user']['name']
+                    user = identity_value.get('user')
             if 'group' in identity_value:
                 group = identity_value['group']
                 if 'id' in group:
@@ -437,7 +461,9 @@ class RuleProcessor(object):
                     groups_by_domain.setdefault(domain, list()).append(group)
                 group_names.extend(extract_groups(groups_by_domain))
 
-        return {'name': user_name,
+        normalize_user(user)
+
+        return {'user': user,
                 'group_ids': list(group_ids),
                 'group_names': group_names}
 

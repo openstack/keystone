@@ -123,7 +123,8 @@ def handle_unscoped_token(context, auth_payload, auth_context,
         mapped_properties = apply_mapping_filter(identity_provider, protocol,
                                                  assertion, assignment_api,
                                                  federation_api, identity_api)
-        user_id = setup_username(context, mapped_properties)
+        user = setup_username(context, mapped_properties)
+        user_id = user.get('id')
         group_ids = mapped_properties['group_ids']
 
     except Exception:
@@ -189,24 +190,40 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
 def setup_username(context, mapped_properties):
     """Setup federated username.
 
-    If ``user_name`` is specified in the mapping_properties use this
-    value.Otherwise try fetching value from an environment variable
-    ``REMOTE_USER``.
-    This method also url encodes user_name and saves this value in user_id.
-    If user_name cannot be mapped raise exception.Unauthorized.
+    Function covers all the cases for properly setting user id, a primary
+    identifier for identity objects. Initial version of the mapping engine
+    assumed user is identified by ``name`` and his ``id`` is built from the
+    name. We, however need to be able to accept local rules that identify user
+    by either id or name/domain.
+
+    The following use-cases are covered:
+
+    1) If neither user_name nor user_id is set raise exception.Unauthorized
+    2) If user_id is set and user_name not, set user_name equal to user_id
+    3) If user_id is not set and user_name is, set user_id as url safe version
+       of user_name.
 
     :param context: authentication context
     :param mapped_properties: Properties issued by a RuleProcessor.
     :type: dictionary
 
     :raises: exception.Unauthorized
-    :returns: tuple with user_name and user_id values.
+    :returns: dictionary with user identification
+    :rtype: dict
 
     """
-    user_name = mapped_properties['name']
-    if user_name is None:
-        user_name = context['environment'].get('REMOTE_USER')
-        if user_name is None:
-            raise exception.Unauthorized(_("Could not map user"))
-    user_id = parse.quote(user_name)
-    return user_id
+    user = mapped_properties['user']
+
+    user_id = user.get('id')
+    user_name = user.get('name') or context['environment'].get('REMOTE_USER')
+
+    if not any([user_id, user_name]):
+        raise exception.Unauthorized(_("Could not map user"))
+
+    elif not user_name:
+        user['name'] = user_id
+
+    elif not user_id:
+        user['id'] = parse.quote(user_name)
+
+    return user
