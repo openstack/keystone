@@ -40,6 +40,6 @@ try:
     _LC = _translators.log_critical
 except ImportError:
     # NOTE(dims): Support for cases where a project wants to use
-    # code from keystone-incubator, but is not ready to be internationalized
+    # code from oslo-incubator, but is not ready to be internationalized
     # (like tempest)
     _ = _LI = _LW = _LE = _LC = lambda x: x
