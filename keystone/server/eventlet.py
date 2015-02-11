@@ -103,6 +103,18 @@ def _get_workers(worker_type_config_opt):
     return worker_count
 
 
+def configure_threading():
+    monkeypatch_thread = not CONF.standard_threads
+    pydev_debug_url = utils.setup_remote_pydev_debug()
+    if pydev_debug_url:
+        # in order to work around errors caused by monkey patching we have to
+        # set the thread to False.  An explanation is here:
+        # http://lists.openstack.org/pipermail/openstack-dev/2012-August/
+        # 000794.html
+        monkeypatch_thread = False
+    environment.use_eventlet(monkeypatch_thread)
+
+
 def run(possible_topdir):
     dev_conf = os.path.join(possible_topdir,
                             'etc',
@@ -113,19 +125,10 @@ def run(possible_topdir):
 
     common.configure(
         version=pbr.version.VersionInfo('keystone').version_string(),
-        config_files=config_files)
+        config_files=config_files,
+        pre_setup_logging_fn=configure_threading)
 
     paste_config = config.find_paste_config()
-
-    monkeypatch_thread = not CONF.standard_threads
-    pydev_debug_url = utils.setup_remote_pydev_debug()
-    if pydev_debug_url:
-        # in order to work around errors caused by monkey patching we have to
-        # set the thread to False.  An explanation is here:
-        # http://lists.openstack.org/pipermail/openstack-dev/2012-August/
-        # 000794.html
-        monkeypatch_thread = False
-    environment.use_eventlet(monkeypatch_thread)
 
     def create_servers():
         admin_worker_count = _get_workers('admin_workers')

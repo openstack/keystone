@@ -23,7 +23,8 @@ from keystone import config
 CONF = cfg.CONF
 
 
-def configure(version=None, config_files=None):
+def configure(version=None, config_files=None,
+              pre_setup_logging_fn=lambda: None):
     config.configure()
     sql.initialize()
     config.set_default_for_default_log_levels()
@@ -31,6 +32,7 @@ def configure(version=None, config_files=None):
     CONF(project='keystone', version=version,
          default_config_files=config_files)
 
+    pre_setup_logging_fn()
     config.setup_logging()
 
 
