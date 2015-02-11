@@ -321,12 +321,12 @@ class DomainV3(controller.V3Controller):
 
 
 @dependency.requires('assignment_api', 'resource_api')
-class ProjectV3(controller.V3Controller):
+class ProjectAssignmentV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
 
     def __init__(self):
-        super(ProjectV3, self).__init__()
+        super(ProjectAssignmentV3, self).__init__()
         self.get_member_from_driver = self.resource_api.get_project
 
     @controller.protected()
@@ -340,7 +340,7 @@ class ProjectV3(controller.V3Controller):
         auth_context = context['environment'][authorization.AUTH_CONTEXT_ENV]
         projects = self.assignment_api.list_projects_for_groups(
             auth_context['group_ids'])
-        return ProjectV3.wrap_collection(context, projects)
+        return ProjectAssignmentV3.wrap_collection(context, projects)
 
 
 @dependency.requires('federation_api')

@@ -89,7 +89,7 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         idp_controller = controllers.IdentityProvider()
         protocol_controller = controllers.FederationProtocol()
         mapping_controller = controllers.MappingController()
-        project_controller = controllers.ProjectV3()
+        project_controller = controllers.ProjectAssignmentV3()
         domain_controller = controllers.DomainV3()
         saml_metadata_controller = controllers.SAMLMetadataV3()
         sp_controller = controllers.ServiceProvider()

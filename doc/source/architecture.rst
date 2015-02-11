@@ -36,14 +36,31 @@ Identity
 --------
 
 The Identity service provides auth credential validation and data about Users,
-Groups, Projects, Domains and Roles, as well as any associated metadata.
+Groups.
 
 In the basic case all this data is managed by the service, allowing the service
 to manage all the CRUD associated with the data.
 
-In other cases, this data is pulled, by varying degrees, from an authoritative
-backend service. An example of this would be when backending on LDAP. See
-`LDAP Backend` below for more details.
+In other cases from an authoritative backend service. An example of this would
+be when backending on LDAP. See `LDAP Backend` below for more details.
+
+
+Resource
+--------
+
+The Resource service provides data about Projects and Domains.
+
+Like the Identity service, this data may either be managed directly by the
+service or be pulled from another authoritative backend service, such as LDAP.
+
+
+Assignment
+----------
+
+The Assignment service provides data about Roles and Role assignments to the
+entities managed by the Identity and Resource services.  Again, like these two
+services, this data may either be managed directly by the Assignment service
+or be pulled from another authoritative backend service, such as LDAP.
 
 
 Token
@@ -90,8 +107,12 @@ on the Keystone configuration.
 
 * Assignment
 
- * :mod:`keystone.assignment.controllers.DomainV3`
- * :mod:`keystone.assignment.controllers.ProjectV3`
+ * :mod:`keystone.assignment.controllers.GrantAssignmentV3`
+ * :mod:`keystone.assignment.controllers.ProjectAssignmentV3`
+ * :mod:`keystone.assignment.controllers.TenantAssignment`
+ * :mod:`keystone.assignment.controllers.Role`
+ * :mod:`keystone.assignment.controllers.RoleAssignmentV2`
+ * :mod:`keystone.assignment.controllers.RoleAssignmentV3`
  * :mod:`keystone.assignment.controllers.RoleV3`
 
 * Authentication
@@ -112,6 +133,11 @@ on the Keystone configuration.
 * Policy
 
  * :mod:`keystone.policy.controllers.PolicyV3`
+
+* Resource
+
+ * :mod:`keystone.resource.controllers.DomainV3`
+ * :mod:`keystone.resource.controllers.ProjectV3`
 
 * Token
 
