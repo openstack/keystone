@@ -661,6 +661,20 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         # If this doesn't raise, then the test is successful.
         user = self.identity_api.create_user(user)
 
+    def test_create_user_with_boolean_string_names(self):
+        # Ensure that any attribute that is equal to the string 'TRUE'
+        # or 'FALSE' will not be converted to a boolean value, it
+        # should be returned as is.
+        boolean_strings = ['TRUE', 'FALSE', 'true', 'false', 'True', 'False',
+                           'TrUe' 'FaLse']
+        for name in boolean_strings:
+            user = {
+                'name': name,
+                'domain_id': CONF.identity.default_domain_id}
+            user_ref = self.identity_api.create_user(user)
+            user_info = self.identity_api.get_user(user_ref['id'])
+            self.assertEqual(name, user_info['name'])
+
     def test_unignored_user_none_mapping(self):
         # Ensure that an attribute that maps to None that is not explicitly
         # ignored in configuration is implicitly ignored without triggering
