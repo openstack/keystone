@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev3\n"
+"Project-Id-Version: keystone 2015.1.dev47\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-06 06:03+0000\n"
+"POT-Creation-Date: 2015-02-12 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -390,36 +390,16 @@ msgstr ""
 msgid "Method not callable: %s"
 msgstr ""
 
-#: keystone/assignment/controllers.py:110
-#: keystone/assignment/controllers.py:224 keystone/identity/controllers.py:67
+#: keystone/assignment/controllers.py:106 keystone/identity/controllers.py:67
+#: keystone/resource/controllers.py:75
 msgid "Name field is required and cannot be empty"
 msgstr ""
 
-#: keystone/assignment/controllers.py:165
-msgid "Marker could not be found"
-msgstr ""
-
-#: keystone/assignment/controllers.py:176
-msgid "Invalid limit value"
-msgstr ""
-
-#: keystone/assignment/controllers.py:433
-msgid ""
-"Cannot use parents_as_list and parents_as_ids query params at the same "
-"time."
-msgstr ""
-
-#: keystone/assignment/controllers.py:439
-msgid ""
-"Cannot use subtree_as_list and subtree_as_ids query params at the same "
-"time."
-msgstr ""
-
-#: keystone/assignment/controllers.py:525
+#: keystone/assignment/controllers.py:327
 msgid "Specify a domain or project, not both"
 msgstr ""
 
-#: keystone/assignment/controllers.py:530
+#: keystone/assignment/controllers.py:332
 msgid "Specify a user or group, not both"
 msgstr ""
 
@@ -427,35 +407,35 @@ msgstr ""
 msgid "Must specify either domain or project"
 msgstr ""
 
-#: keystone/assignment/core.py:496
+#: keystone/assignment/core.py:501
 #, python-format
 msgid "Project (%s)"
 msgstr ""
 
-#: keystone/assignment/core.py:498
+#: keystone/assignment/core.py:503
 #, python-format
 msgid "Domain (%s)"
 msgstr ""
 
-#: keystone/assignment/core.py:500
+#: keystone/assignment/core.py:505
 msgid "Unknown Target"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:87
+#: keystone/assignment/backends/ldap.py:92
 msgid "Domain metadata not supported by LDAP"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:368
+#: keystone/assignment/backends/ldap.py:373
 #, python-format
 msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:374
+#: keystone/assignment/backends/ldap.py:379
 #, python-format
 msgid "Role %s not found"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:389
+#: keystone/assignment/backends/ldap.py:394
 #: keystone/assignment/backends/sql.py:327
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -567,7 +547,7 @@ msgstr ""
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
 
-#: keystone/common/authorization.py:46 keystone/common/wsgi.py:61
+#: keystone/common/authorization.py:46 keystone/common/wsgi.py:62
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
@@ -601,15 +581,23 @@ msgstr ""
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/common/controller.py:585
+#: keystone/common/controller.py:301
+msgid "Marker could not be found"
+msgstr ""
+
+#: keystone/common/controller.py:312
+msgid "Invalid limit value"
+msgstr ""
+
+#: keystone/common/controller.py:620
 msgid "Cannot change Domain ID"
 msgstr ""
 
-#: keystone/common/controller.py:614
+#: keystone/common/controller.py:649
 msgid "domain_id is required as part of entity"
 msgstr ""
 
-#: keystone/common/controller.py:649
+#: keystone/common/controller.py:684
 msgid "A domain-scoped token must be used"
 msgstr ""
 
@@ -667,17 +655,17 @@ msgstr ""
 msgid "Invalid blob in credential"
 msgstr ""
 
-#: keystone/common/wsgi.py:325
+#: keystone/common/wsgi.py:329
 #, python-format
 msgid "%s field is required and cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:337
+#: keystone/common/wsgi.py:341
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:554
+#: keystone/common/wsgi.py:558
 msgid "The resource could not be found."
 msgstr ""
 
@@ -1134,6 +1122,18 @@ msgstr ""
 #: keystone/openstack/common/versionutils.py:101
 #, python-format
 msgid "%(what)s is deprecated as of %(as_of)s. It will not be superseded."
+msgstr ""
+
+#: keystone/resource/controllers.py:181
+msgid ""
+"Cannot use parents_as_list and parents_as_ids query params at the same "
+"time."
+msgstr ""
+
+#: keystone/resource/controllers.py:187
+msgid ""
+"Cannot use subtree_as_list and subtree_as_ids query params at the same "
+"time."
 msgstr ""
 
 #: keystone/resource/core.py:80
