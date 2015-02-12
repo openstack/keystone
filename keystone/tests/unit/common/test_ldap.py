@@ -24,9 +24,9 @@ import tempfile
 from keystone.common import ldap as ks_ldap
 from keystone.common.ldap import core as common_ldap_core
 from keystone import config
-from keystone import tests
-from keystone.tests import default_fixtures
-from keystone.tests import fakeldap
+from keystone.tests import unit as tests
+from keystone.tests.unit import default_fixtures
+from keystone.tests.unit import fakeldap
 
 CONF = config.CONF
 

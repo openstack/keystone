@@ -15,7 +15,7 @@
 import uuid
 
 from keystone.common import dependency
-from keystone import tests
+from keystone.tests import unit as tests
 
 
 class TestDependencyInjection(tests.BaseTestCase):

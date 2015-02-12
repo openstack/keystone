@@ -18,8 +18,8 @@ from oslo_utils import timeutils
 from keystone.common import config
 from keystone import exception
 from keystone.models import token_model
-from keystone.tests import core
-from keystone.tests import test_token_provider
+from keystone.tests.unit import core
+from keystone.tests.unit import test_token_provider
 
 
 CONF = config.CONF

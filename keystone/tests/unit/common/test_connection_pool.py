@@ -19,7 +19,7 @@ from testtools import matchers
 
 from keystone.common.cache import _memcache_pool
 from keystone import exception
-from keystone.tests import core
+from keystone.tests.unit import core
 
 
 class _TestConnectionPool(_memcache_pool.ConnectionPool):

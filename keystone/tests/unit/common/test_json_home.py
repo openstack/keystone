@@ -18,7 +18,7 @@ import copy
 from testtools import matchers
 
 from keystone.common import json_home
-from keystone import tests
+from keystone.tests import unit as tests
 
 
 class JsonHomeTest(tests.BaseTestCase):

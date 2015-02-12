@@ -17,7 +17,7 @@ import pep8
 import testtools
 
 from keystone.hacking import checks
-from keystone.tests.ksfixtures import hacking as hacking_fixtures
+from keystone.tests.unit.ksfixtures import hacking as hacking_fixtures
 
 
 class BaseStyleCheck(testtools.TestCase):

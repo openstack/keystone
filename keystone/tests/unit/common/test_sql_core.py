@@ -14,8 +14,8 @@
 from sqlalchemy.ext import declarative
 
 from keystone.common import sql
-from keystone import tests
-from keystone.tests import utils
+from keystone.tests import unit as tests
+from keystone.tests.unit import utils
 
 
 ModelBase = declarative.declarative_base()

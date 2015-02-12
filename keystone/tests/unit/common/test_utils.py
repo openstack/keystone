@@ -19,8 +19,8 @@ from keystone.common import utils as common_utils
 from keystone import config
 from keystone import exception
 from keystone import service
-from keystone import tests
-from keystone.tests import utils
+from keystone.tests import unit as tests
+from keystone.tests.unit import utils
 
 
 CONF = config.CONF

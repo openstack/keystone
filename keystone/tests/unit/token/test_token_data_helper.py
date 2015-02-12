@@ -16,7 +16,7 @@ import uuid
 from testtools import matchers
 
 from keystone import exception
-from keystone import tests
+from keystone.tests import unit as tests
 from keystone.token.providers import common
 
 

@@ -17,7 +17,7 @@ import base64
 from six import moves
 
 from keystone.common import pemutils
-from keystone import tests
+from keystone.tests import unit as tests
 
 
 # List of 2-tuples, (pem_type, pem_header)

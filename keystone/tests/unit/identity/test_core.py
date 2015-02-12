@@ -20,7 +20,7 @@ import mock
 from keystone import config
 from keystone import exception
 from keystone import identity
-from keystone import tests
+from keystone.tests import unit as tests
 
 
 CONF = config.CONF

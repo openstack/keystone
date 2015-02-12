@@ -19,7 +19,7 @@ from sqlalchemy import exc
 from testtools import matchers
 
 from keystone.openstack.common import log
-from keystone import tests
+from keystone.tests import unit as tests
 
 
 LOG = log.getLogger(__name__)

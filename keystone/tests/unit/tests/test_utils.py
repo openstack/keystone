@@ -13,7 +13,7 @@
 from testtools import matchers
 from testtools import testcase
 
-from keystone.tests import utils
+from keystone.tests.unit import utils
 
 
 class TestWipDecorator(testcase.TestCase):

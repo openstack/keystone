@@ -13,7 +13,7 @@
 #    under the License.
 
 from keystone.common import base64utils
-from keystone import tests
+from keystone.tests import unit as tests
 
 base64_alphabet = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                    'abcdefghijklmnopqrstuvwxyz'

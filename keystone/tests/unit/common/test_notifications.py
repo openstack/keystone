@@ -26,7 +26,7 @@ import testtools
 
 from keystone.common import dependency
 from keystone import notifications
-from keystone.tests import test_v3
+from keystone.tests.unit import test_v3
 
 
 CONF = cfg.CONF
