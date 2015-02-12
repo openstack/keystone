@@ -18,7 +18,7 @@
 """Generic Node base class for all workers that run on hosts."""
 
 import errno
-import logging as std_logging
+import logging
 import os
 import random
 import signal
@@ -39,7 +39,6 @@ from oslo.config import cfg
 
 from keystone.openstack.common import eventlet_backdoor
 from keystone.openstack.common._i18n import _LE, _LI, _LW
-from keystone.openstack.common import log as logging
 from keystone.openstack.common import systemd
 from keystone.openstack.common import threadgroup
 
@@ -163,7 +162,7 @@ class ServiceLauncher(Launcher):
         signo = 0
 
         LOG.debug('Full set of CONF:')
-        CONF.log_opt_values(LOG, std_logging.DEBUG)
+        CONF.log_opt_values(LOG, logging.DEBUG)
 
         try:
             if ready_callback:
@@ -377,7 +376,7 @@ class ProcessLauncher(object):
 
         systemd.notify_once()
         LOG.debug('Full set of CONF:')
-        CONF.log_opt_values(LOG, std_logging.DEBUG)
+        CONF.log_opt_values(LOG, logging.DEBUG)
 
         try:
             while True:
@@ -397,7 +396,7 @@ class ProcessLauncher(object):
                 self.running = True
                 self.sigcaught = None
         except eventlet.greenlet.GreenletExit:
-            LOG.info(_LI("Wait called after thread killed.  Cleaning up."))
+            LOG.info(_LI("Wait called after thread killed. Cleaning up."))
 
         self.stop()
 
@@ -434,8 +433,8 @@ class Service(object):
     def start(self):
         pass
 
-    def stop(self):
-        self.tg.stop()
+    def stop(self, graceful=False):
+        self.tg.stop(graceful)
         self.tg.wait()
         # Signal that service cleanup is done:
         if not self._done.ready():

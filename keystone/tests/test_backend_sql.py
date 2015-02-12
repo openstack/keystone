@@ -28,7 +28,7 @@ from keystone.common import sql
 from keystone import config
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
-from keystone.openstack.common import log as logging
+from keystone.openstack.common import versionutils
 from keystone import tests
 from keystone.tests import default_fixtures
 from keystone.tests.ksfixtures import database
@@ -839,7 +839,7 @@ class DeprecatedDecorators(SqlTests):
         role_ref = {
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex}
-        self.assertRaises(logging.DeprecatedConfig,
+        self.assertRaises(versionutils.DeprecatedConfig,
                           self.assignment_api.create_role,
                           role_ref['id'], role_ref)
 
@@ -871,6 +871,6 @@ class DeprecatedDecorators(SqlTests):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
             'domain_id': DEFAULT_DOMAIN_ID}
-        self.assertRaises(logging.DeprecatedConfig,
+        self.assertRaises(versionutils.DeprecatedConfig,
                           self.assignment_api.create_project,
                           project_ref['id'], project_ref)
