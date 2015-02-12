@@ -262,8 +262,8 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
         actual_cols = [col.name for col in table.columns]
         # Check if the columns are equal, but allow for a different order,
         # which might occur after an upgrade followed by a downgrade
-        self.assertEqual(expected_cols.sort(), actual_cols.sort(),
-                         '%s table' % table_name)
+        self.assertItemsEqual(expected_cols, actual_cols,
+                              '%s table' % table_name)
 
     @property
     def initial_db_version(self):
