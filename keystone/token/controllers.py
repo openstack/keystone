@@ -233,7 +233,7 @@ class Auth(controller.V2Controller):
             trust_roles = []
             for role in trust_ref['roles']:
                 if 'roles' not in metadata_ref:
-                    raise exception.Forbidden()()
+                    raise exception.Forbidden()
                 if role['id'] in metadata_ref['roles']:
                     trust_roles.append(role['id'])
                 else:
