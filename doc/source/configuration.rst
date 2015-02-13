@@ -1006,7 +1006,7 @@ API call in question. For example:
 
 .. code-block:: javascript
 
-    "identity:create_user": [["role:admin", "domain_id:%(user.domain_id)s"]]
+    "identity:create_user": "role:admin and domain_id:%(user.domain_id)s"
 
 Indicates that to create a user you must have the admin role in your token and
 in addition the domain_id in your token (which implies this must be a domain
@@ -1032,7 +1032,7 @@ The following attributes are available
 
   .. code-block:: javascript
 
-    "identity:delete_user": [["role:admin", "domain_id:%(target.user.domain_id)s"]]
+    "identity:delete_user": "role:admin and domain_id:%(target.user.domain_id)s"
 
   would ensure that the user object that is being deleted is in the same
   domain as the token provided.
