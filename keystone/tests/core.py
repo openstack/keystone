@@ -305,9 +305,6 @@ class TestCase(BaseTestCase):
     def config_overrides(self):
         signing_certfile = 'examples/pki/certs/signing_cert.pem'
         signing_keyfile = 'examples/pki/private/signing_key.pem'
-        # Exercise multiple worker process code paths
-        self.config_fixture.config(public_workers=2)
-        self.config_fixture.config(admin_workers=2)
         self.config_fixture.config(policy_file=dirs.etc('policy.json'))
         self.config_fixture.config(
             # TODO(morganfainberg): Make Cache Testing a separate test case
