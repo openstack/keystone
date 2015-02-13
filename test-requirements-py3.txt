@@ -50,7 +50,6 @@ discover
 python-subunit>=0.0.18
 testrepository>=0.0.18
 testtools>=0.9.36,!=1.2.0
-testscenarios>=0.4
 
 # For documentation
 oslosphinx>=2.2.0  # Apache-2.0
