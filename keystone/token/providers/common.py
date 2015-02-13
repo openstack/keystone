@@ -494,6 +494,16 @@ class BaseProvider(provider.Provider):
             raise exception.Unauthorized()
         return token_ref
 
+    def _assert_is_not_federation_token(self, token_ref):
+        """Make sure we aren't using v2 auth on a federation token."""
+        token_data = token_ref.get('token_data')
+        if (token_data and self.get_token_version(token_data) ==
+                token.provider.V3):
+            if 'OS-FEDERATION' in token_data['token']['user']:
+                msg = _('Attempting to use OS-FEDERATION token with V2 '
+                        'Identity Service, use V3 Authentication')
+                raise exception.Unauthorized(msg)
+
     def _assert_default_domain(self, token_ref):
         """Make sure we are operating on default domain only."""
         if (token_ref.get('token_data') and
@@ -540,6 +550,7 @@ class BaseProvider(provider.Provider):
 
     def validate_v2_token(self, token_ref):
         try:
+            self._assert_is_not_federation_token(token_ref)
             self._assert_default_domain(token_ref)
             # FIXME(gyee): performance or correctness? Should we return the
             # cached token or reconstruct it? Obviously if we are going with
