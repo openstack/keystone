@@ -335,7 +335,13 @@ class CheckForLoggingIssues(BaseASTChecker):
 
         # if first arg is a call to a i18n name
         if isinstance(msg, ast.Call):
-            func_name = msg.func.id
+            try:
+                func_name = msg.func.id
+            except AttributeError:
+                # in the case of logging only an exception, the msg function
+                # will not have an id associated with it, for instance:
+                # LOG.warning(six.text_type(e))
+                return
 
             # the function name is the correct translation helper
             # for the logging method

@@ -46,7 +46,7 @@ class UserAuthInfo(object):
                 domain_id=domain_ref['id'],
                 domain=domain_ref)
         except AssertionError as e:
-            LOG.warning(e)
+            LOG.warning(six.text_type(e))
             six.reraise(exception.Unauthorized, exception.Unauthorized(e),
                         sys.exc_info()[2])
 
@@ -56,7 +56,7 @@ class UserAuthInfo(object):
                 user_id=user_ref['id'],
                 user=user_ref)
         except AssertionError as e:
-            LOG.warning(e)
+            LOG.warning(six.text_type(e))
             six.reraise(exception.Unauthorized, exception.Unauthorized(e),
                         sys.exc_info()[2])
 
@@ -74,7 +74,7 @@ class UserAuthInfo(object):
             else:
                 domain_ref = self.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
-            LOG.exception(e)
+            LOG.exception(six.text_type(e))
             raise exception.Unauthorized(e)
         self._assert_domain_is_enabled(domain_ref)
         return domain_ref
@@ -105,7 +105,7 @@ class UserAuthInfo(object):
                     user_ref['domain_id'])
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:
-            LOG.exception(e)
+            LOG.exception(six.text_type(e))
             raise exception.Unauthorized(e)
         self._assert_user_is_enabled(user_ref)
         self.user_ref = user_ref
