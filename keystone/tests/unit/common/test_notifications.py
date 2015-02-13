@@ -551,8 +551,8 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         super(CadfNotificationsWrapperTestCase, self).setUp()
         self._notifications = []
 
-        def fake_notify(action, initiator, outcome, **kwargs):
-            account_user = cadftaxonomy.ACCOUNT_USER
+        def fake_notify(action, initiator, outcome, target,
+                        event_type, **kwargs):
             service_security = cadftaxonomy.SERVICE_SECURITY
 
             event = eventfactory.EventFactory().new_event(
@@ -560,7 +560,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 outcome=outcome,
                 action=action,
                 initiator=initiator,
-                target=cadfresource.Resource(typeURI=account_user),
+                target=target,
                 observer=cadfresource.Resource(typeURI=service_security))
 
             for key, value in kwargs.items():
