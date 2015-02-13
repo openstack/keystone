@@ -124,16 +124,11 @@ def ldap2py(val):
     """Convert an LDAP formatted value to Python type used by OpenStack.
 
     Virtually all LDAP values are stored as UTF-8 encoded strings.
-    OpenStack prefers values which are Python types, e.g. unicode,
-    boolean, etc.
+    OpenStack prefers values which are unicode friendly.
 
     :param val: LDAP formatted value
     :returns: val converted to preferred Python type
     """
-    try:
-        return LDAP_VALUES[val]
-    except KeyError:
-        pass
     return utf8_decode(val)
 
 
