@@ -607,9 +607,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
     DEFAULT_ENDPOINT_GROUP_BODY = {
         'endpoint_group': {
             'description': 'endpoint group description',
-                           'filters': {
-                               'interface': 'admin'
-                           },
+            'filters': {
+                'interface': 'admin'
+            },
             'name': 'endpoint_group_name'
         }
     }
