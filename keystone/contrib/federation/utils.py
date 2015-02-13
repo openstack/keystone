@@ -558,6 +558,13 @@ class RuleProcessor(object):
 
         return direct_maps
 
+    def _evaluate_values_by_regex(self, values, assertion_values):
+        for value in values:
+            for assertion_value in assertion_values:
+                if re.search(value, assertion_value):
+                    return True
+        return False
+
     def _evaluate_requirement(self, values, requirement_type,
                               eval_type, regex, assertion):
         """Evaluate the incoming requirement and assertion.
@@ -587,13 +594,10 @@ class RuleProcessor(object):
             return False
 
         if regex:
-            for value in values:
-                for assertion_value in assertion_values:
-                    if re.search(value, assertion_value):
-                        return True
-            return False
-
-        any_match = bool(set(values).intersection(set(assertion_values)))
+            any_match = self._evaluate_values_by_regex(values,
+                                                       assertion_values)
+        else:
+            any_match = bool(set(values).intersection(set(assertion_values)))
         if any_match and eval_type == self._EvalType.ANY_ONE_OF:
             return True
         if not any_match and eval_type == self._EvalType.NOT_ANY_OF:

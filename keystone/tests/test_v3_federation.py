@@ -722,6 +722,45 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual(name, user_name)
         self.assertIn(mapping_fixtures.EMPLOYEE_GROUP_ID, group_ids)
 
+    def test_rule_engine_not_any_of_regex_verify_pass(self):
+        """Should return group DEVELOPER_GROUP_ID.
+
+        The DEVELOPER_ASSERTION should successfully have a match in
+        MAPPING_DEVELOPER_REGEX. This will test the case where many
+        remote rules must be matched, including a `not_any_of`, with
+        regex set to True.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_DEVELOPER_REGEX
+        assertion = mapping_fixtures.DEVELOPER_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        values = rp.process(assertion)
+
+        user_name = assertion.get('UserName')
+        group_ids = values.get('group_ids')
+        name = values.get('name')
+
+        self.assertEqual(user_name, name)
+        self.assertIn(mapping_fixtures.DEVELOPER_GROUP_ID, group_ids)
+
+    def test_rule_engine_not_any_of_regex_verify_fail(self):
+        """Should deny authorization.
+
+        The email in the assertion will fail the regex test.
+        It is set to reject any @example.org address, but the
+        incoming value is set to evildeveloper@example.org.
+        RuleProcessor should return list of empty group_ids.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_DEVELOPER_REGEX
+        assertion = mapping_fixtures.BAD_DEVELOPER_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNone(mapped_properties['name'])
+        self.assertListEqual(list(), mapped_properties['group_ids'])
+
     def _rule_engine_regex_match_and_many_groups(self, assertion):
         """Should return group DEVELOPER_GROUP_ID and TESTER_GROUP_ID.
 
