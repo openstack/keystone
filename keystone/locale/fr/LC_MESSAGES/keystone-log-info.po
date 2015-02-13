@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-07 06:03+0000\n"
-"PO-Revision-Date: 2015-02-06 22:14+0000\n"
+"POT-Creation-Date: 2015-02-13 06:03+0000\n"
+"PO-Revision-Date: 2015-02-12 12:02+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -50,29 +50,29 @@ msgstr ""
 msgid "Running command - %s"
 msgstr "Exécution de la commande %s"
 
-#: keystone/common/wsgi.py:77
+#: keystone/common/wsgi.py:78
 msgid "No bind information present in token"
 msgstr "Aucune information d'attachement n'est présente dans le jeton"
 
-#: keystone/common/wsgi.py:81
+#: keystone/common/wsgi.py:82
 #, python-format
 msgid "Named bind mode %s not in bind information"
 msgstr ""
 "Le mode d'attachement nommé %s n'est pas dans l'information d'attachement"
 
-#: keystone/common/wsgi.py:88
+#: keystone/common/wsgi.py:89
 msgid "Kerberos credentials required and not present"
 msgstr "L'identitification Kerberos est requise mais non présente"
 
-#: keystone/common/wsgi.py:92
+#: keystone/common/wsgi.py:93
 msgid "Kerberos credentials do not match those in bind"
 msgstr "L'identification Kerberos ne correspond pas à celle de l'attachement"
 
-#: keystone/common/wsgi.py:96
+#: keystone/common/wsgi.py:97
 msgid "Kerberos bind authentication successful"
 msgstr "Attachement Kerberos identifié correctement"
 
-#: keystone/common/wsgi.py:103
+#: keystone/common/wsgi.py:104
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr ""
@@ -115,7 +115,7 @@ msgstr ""
 "Réception de la notification suivante: service %(service)s, resource_type: "
 "%(resource_type)s, operation %(operation)s payload %(payload)s"
 
-#: keystone/openstack/common/eventlet_backdoor.py:147
+#: keystone/openstack/common/eventlet_backdoor.py:146
 #, python-format
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
 msgstr "Eventlet backdoor en écoute sur le port %(port)s for process %(pid)d"
@@ -125,54 +125,54 @@ msgstr "Eventlet backdoor en écoute sur le port %(port)s for process %(pid)d"
 msgid "Can not find policy directory: %s"
 msgstr ""
 
-#: keystone/openstack/common/service.py:174
+#: keystone/openstack/common/service.py:173
 #, python-format
 msgid "Caught %s, exiting"
 msgstr "%s interceptée, sortie"
 
-#: keystone/openstack/common/service.py:232
+#: keystone/openstack/common/service.py:231
 msgid "Parent process has died unexpectedly, exiting"
 msgstr "Processus parent arrêté de manière inattendue, sortie"
 
-#: keystone/openstack/common/service.py:263
+#: keystone/openstack/common/service.py:262
 #, python-format
 msgid "Child caught %s, exiting"
 msgstr "L'enfant a reçu %s, sortie"
 
-#: keystone/openstack/common/service.py:302
+#: keystone/openstack/common/service.py:301
 msgid "Forking too fast, sleeping"
 msgstr "Bifurcation trop rapide, pause"
 
-#: keystone/openstack/common/service.py:321
+#: keystone/openstack/common/service.py:320
 #, python-format
 msgid "Started child %d"
 msgstr "Enfant démarré %d"
 
-#: keystone/openstack/common/service.py:331
+#: keystone/openstack/common/service.py:330
 #, python-format
 msgid "Starting %d workers"
 msgstr "Démarrage des travailleurs %d"
 
-#: keystone/openstack/common/service.py:348
+#: keystone/openstack/common/service.py:347
 #, python-format
 msgid "Child %(pid)d killed by signal %(sig)d"
 msgstr "Enfant %(pid)d arrêté par le signal %(sig)d"
 
-#: keystone/openstack/common/service.py:352
+#: keystone/openstack/common/service.py:351
 #, python-format
 msgid "Child %(pid)s exited with status %(code)d"
 msgstr "Processus fils %(pid)s terminé avec le status %(code)d"
 
-#: keystone/openstack/common/service.py:391
+#: keystone/openstack/common/service.py:390
 #, python-format
 msgid "Caught %s, stopping children"
 msgstr "%s interceptée, arrêt de l'enfant"
 
-#: keystone/openstack/common/service.py:400
-msgid "Wait called after thread killed.  Cleaning up."
-msgstr "Pause demandée après suppression de thread. Nettoyage."
+#: keystone/openstack/common/service.py:399
+msgid "Wait called after thread killed. Cleaning up."
+msgstr ""
 
-#: keystone/openstack/common/service.py:416
+#: keystone/openstack/common/service.py:415
 #, python-format
 msgid "Waiting on %d children to exit"
 msgstr "En attente %d enfants pour sortie"
