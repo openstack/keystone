@@ -262,8 +262,6 @@ class Manager(manager.Manager):
 
     """
     _USER = 'user'
-    _USER_PASSWORD = 'user_password'
-    _USER_REMOVED_FROM_GROUP = 'user_removed_from_group'
     _GROUP = 'group'
 
     def __init__(self):
