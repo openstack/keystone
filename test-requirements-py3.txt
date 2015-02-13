@@ -21,6 +21,7 @@ pymongo>=2.5
 # authenticate against an existing LDAP server
 # python-ldap>=2.4
 # ldappool>=1.0 # MPL
+-e git+https://github.com/rbarrois/python-ldap.git@py3#egg=python-ldap
 
 # Required for federation extension (although used only for federating multiple
 # Keystones)
