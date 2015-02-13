@@ -27,6 +27,7 @@ oslo.middleware>=0.3.0                  # Apache-2.0
 oslo.serialization>=1.2.0               # Apache-2.0
 oslo.utils>=1.2.0                       # Apache-2.0
 oauthlib>=0.6
+pysaml2
 dogpile.cache>=0.5.3
 jsonschema>=2.0.0,<3.0.0
 pycadf>=0.6.0

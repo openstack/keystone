@@ -19,10 +19,6 @@ pymongo>=2.5
 python-ldap>=2.4
 ldappool>=1.0 # MPL
 
-# Required for federation extension (although used only for federating multiple
-# Keystones)
-pysaml2
-
 # Testing
 # computes code coverage percentages
 coverage>=3.6

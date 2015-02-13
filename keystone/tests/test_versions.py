@@ -111,8 +111,31 @@ _build_trust_relation = functools.partial(
     json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
     extension_version='1.0')
 
+_build_federation_rel = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-FEDERATION',
+    extension_version='1.0')
+
 TRUST_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
     'OS-TRUST', '1.0', 'trust_id')
+
+IDP_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
+    'OS-FEDERATION', '1.0', 'idp_id')
+
+PROTOCOL_ID_PARAM_RELATION = json_home.build_v3_extension_parameter_relation(
+    'OS-FEDERATION', '1.0', 'protocol_id')
+
+MAPPING_ID_PARAM_RELATION = json_home.build_v3_extension_parameter_relation(
+    'OS-FEDERATION', '1.0', 'mapping_id')
+
+SP_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
+    'OS-FEDERATION', '1.0', 'sp_id')
+
+BASE_IDP_PROTOCOL = '/OS-FEDERATION/identity_providers/{idp_id}/protocols'
+
+# TODO(stevemar): Use BASE_IDP_PROTOCOL when bug 1420125 is resolved.
+FEDERATED_AUTH_URL = ('/OS-FEDERATION/identity_providers/{identity_provider}'
+                      '/protocols/{protocol}/auth')
 
 V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
     json_home.build_v3_resource_relation('auth_tokens'): {
@@ -287,6 +310,47 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
         'href-template': '/users/{user_id}/projects',
         'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
     json_home.build_v3_resource_relation('users'): {'href': '/users'},
+    _build_federation_rel(resource_name='domains'): {
+        'href': '/OS-FEDERATION/domains'},
+    _build_federation_rel(resource_name='projects'): {
+        'href': '/OS-FEDERATION/projects'},
+    _build_federation_rel(resource_name='saml2'): {
+        'href': '/auth/OS-FEDERATION/saml2'},
+    _build_federation_rel(resource_name='metadata'): {
+        'href': '/OS-FEDERATION/saml2/metadata'},
+    _build_federation_rel(resource_name='identity_providers'): {
+        'href': '/OS-FEDERATION/identity_providers'},
+    _build_federation_rel(resource_name='service_providers'): {
+        'href': '/OS-FEDERATION/service_providers'},
+    _build_federation_rel(resource_name='mappings'): {
+        'href': '/OS-FEDERATION/mappings'},
+    _build_federation_rel(resource_name='identity_provider'):
+    {
+        'href-template': '/OS-FEDERATION/identity_providers/{idp_id}',
+        'href-vars': {'idp_id': IDP_ID_PARAMETER_RELATION, }},
+    _build_federation_rel(resource_name='service_provider'):
+    {
+        'href-template': '/OS-FEDERATION/service_providers/{sp_id}',
+        'href-vars': {'sp_id': SP_ID_PARAMETER_RELATION, }},
+    _build_federation_rel(resource_name='mapping'):
+    {
+        'href-template': '/OS-FEDERATION/mappings/{mapping_id}',
+        'href-vars': {'mapping_id': MAPPING_ID_PARAM_RELATION, }},
+    _build_federation_rel(resource_name='identity_provider_protocol'): {
+        'href-template': BASE_IDP_PROTOCOL + '/{protocol_id}',
+        'href-vars': {
+            'idp_id': IDP_ID_PARAMETER_RELATION,
+            'protocol_id': PROTOCOL_ID_PARAM_RELATION, }},
+    _build_federation_rel(resource_name='identity_provider_protocols'): {
+        'href-template': BASE_IDP_PROTOCOL,
+        'href-vars': {
+            'idp_id': IDP_ID_PARAMETER_RELATION}},
+    # TODO(stevemar): Update href-vars when bug 1420125 is resolved.
+    _build_federation_rel(resource_name='identity_provider_protocol_auth'): {
+        'href-template': FEDERATED_AUTH_URL,
+        'href-vars': {
+            'identity_provider': IDP_ID_PARAMETER_RELATION,
+            'protocol': PROTOCOL_ID_PARAM_RELATION, }},
 }
 
 
