@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-03 06:04+0000\n"
-"PO-Revision-Date: 2015-02-02 20:13+0000\n"
+"POT-Creation-Date: 2015-02-13 06:03+0000\n"
+"PO-Revision-Date: 2015-02-12 12:02+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -37,33 +37,33 @@ msgstr ""
 msgid "missing exception kwargs (programmer error)"
 msgstr ""
 
-#: keystone/assignment/controllers.py:77
+#: keystone/assignment/controllers.py:59
 #, python-format
 msgid "Authentication failed: %s"
 msgstr "L'authentification a échoué: %s"
 
-#: keystone/assignment/controllers.py:753
+#: keystone/assignment/controllers.py:567
 #, python-format
 msgid ""
 "Group %(group)s not found for role-assignment - %(target)s with Role: "
 "%(role)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:440
+#: keystone/auth/controllers.py:449
 #, python-format
 msgid ""
 "User %(user_id)s doesn't have access to default project %(project_id)s. The "
 "token will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:448
+#: keystone/auth/controllers.py:457
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s is disabled. The token "
 "will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:457
+#: keystone/auth/controllers.py:466
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s not found. The token will "
@@ -79,15 +79,15 @@ msgid "RBAC: Invalid token"
 msgstr "RBAC : Jeton non valide"
 
 #: keystone/common/controller.py:104 keystone/common/controller.py:201
-#: keystone/common/controller.py:688
+#: keystone/common/controller.py:723
 msgid "RBAC: Bypassing authorization"
 msgstr "RBAC : Autorisation ignorée"
 
-#: keystone/common/controller.py:617 keystone/common/controller.py:652
+#: keystone/common/controller.py:652 keystone/common/controller.py:687
 msgid "Invalid token found while getting domain ID for list request"
 msgstr ""
 
-#: keystone/common/controller.py:625
+#: keystone/common/controller.py:660
 msgid "No domain information specified as part of list request"
 msgstr ""
 
@@ -96,12 +96,12 @@ msgstr ""
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/wsgi.py:226
+#: keystone/common/wsgi.py:240
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
 
-#: keystone/common/wsgi.py:346
+#: keystone/common/wsgi.py:360
 msgid "Invalid token in _get_trust_id_for_request"
 msgstr "Jeton invalide dans _get_trust_id_for_request"
 
@@ -223,12 +223,10 @@ msgstr ""
 
 #: keystone/openstack/common/loopingcall.py:87
 #, python-format
-msgid "task %(func_name)s run outlasted interval by %(delay).2f sec"
+msgid "task %(func_name)r run outlasted interval by %(delay).2f sec"
 msgstr ""
-"L'exécution de la tâche %(func_name)s a dépassé intervalle de %(delay).2f "
-"secondes "
 
-#: keystone/openstack/common/service.py:356
+#: keystone/openstack/common/service.py:355
 #, python-format
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
