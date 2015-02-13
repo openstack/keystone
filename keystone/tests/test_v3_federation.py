@@ -1808,6 +1808,11 @@ class FederatedTokenTests(FederationTests):
                 {
                     "local": [
                         {
+                            "user": {
+                                "name": "{0}"
+                            }
+                        },
+                        {
                             "group": {
                                 "name": "NON_EXISTING",
                                 "domain": {
