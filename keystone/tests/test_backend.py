@@ -840,10 +840,62 @@ class IdentityTests(object):
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
                           project_id=self.tenant_baz['id'],
+                          role_id='member')
+
+    def test_get_role_assignment_by_project_not_found(self):
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.check_grant_role_id,
+                          user_id=self.user_foo['id'],
+                          project_id=self.tenant_baz['id'],
+                          role_id='member')
+
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.check_grant_role_id,
+                          group_id=uuid.uuid4().hex,
+                          project_id=self.tenant_baz['id'],
+                          role_id='member')
+
+    def test_get_role_assignment_by_domain_not_found(self):
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.check_grant_role_id,
+                          user_id=self.user_foo['id'],
+                          domain_id=self.domain_default['id'],
+                          role_id='member')
+
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.check_grant_role_id,
+                          group_id=uuid.uuid4().hex,
+                          domain_id=self.domain_default['id'],
+                          role_id='member')
+
+    def test_del_role_assignment_by_project_not_found(self):
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.delete_grant,
+                          user_id=self.user_foo['id'],
+                          project_id=self.tenant_baz['id'],
+                          role_id='member')
+
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.delete_grant,
+                          group_id=uuid.uuid4().hex,
+                          project_id=self.tenant_baz['id'],
+                          role_id='member')
+
+    def test_del_role_assignment_by_domain_not_found(self):
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.delete_grant,
+                          user_id=self.user_foo['id'],
+                          domain_id=self.domain_default['id'],
+                          role_id='member')
+
+        self.assertRaises(exception.RoleAssignmentNotFound,
+                          self.assignment_api.delete_grant,
+                          group_id=uuid.uuid4().hex,
+                          domain_id=self.domain_default['id'],
                           role_id='member')
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
@@ -875,7 +927,7 @@ class IdentityTests(object):
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           project_id=self.tenant_bar['id'],
@@ -913,7 +965,7 @@ class IdentityTests(object):
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           domain_id=new_domain['id'],
@@ -970,7 +1022,7 @@ class IdentityTests(object):
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           domain_id=new_domain['id'],
@@ -1001,7 +1053,7 @@ class IdentityTests(object):
             user_id=new_user['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           user_id=new_user['id'],
                           domain_id=new_domain['id'],
@@ -1052,7 +1104,7 @@ class IdentityTests(object):
             group_id=group1['id'],
             domain_id=domain2['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           group_id=group1['id'],
                           domain_id=domain2['id'],
@@ -1102,7 +1154,7 @@ class IdentityTests(object):
             user_id=user1['id'],
             domain_id=domain2['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           user_id=user1['id'],
                           domain_id=domain2['id'],

@@ -254,6 +254,12 @@ class RoleNotFound(NotFound):
     message_format = _("Could not find role: %(role_id)s")
 
 
+class RoleAssignmentNotFound(NotFound):
+    message_format = _("Could not find role assignment with role: "
+                       "%(role_id)s, user or group: %(actor_id)s, "
+                       "project or domain: %(target_id)s")
+
+
 class RegionNotFound(NotFound):
     message_format = _("Could not find region: %(region_id)s")
 

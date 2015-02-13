@@ -188,7 +188,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
                           project_id=self.tenant_baz['id'],
@@ -227,13 +227,19 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assertRaises(exception.NotFound,
+        self.assertRaises(exception.RoleAssignmentNotFound,
                           self.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           project_id=self.tenant_bar['id'],
                           role_id='member')
 
     def test_get_and_remove_role_grant_by_group_and_domain(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_role_assignment_by_domain_not_found(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_del_role_assignment_by_domain_not_found(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
     def test_get_and_remove_role_grant_by_user_and_domain(self):

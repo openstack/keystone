@@ -730,7 +730,7 @@ class Driver(object):
                             inherited_to_projects=False):
         """Checks an assignment/grant role id.
 
-        :raises: keystone.exception.RoleNotFound
+        :raises: keystone.exception.RoleAssignmentNotFound
         :returns: None or raises an exception if grant not found
 
         """
@@ -742,7 +742,7 @@ class Driver(object):
                      inherited_to_projects=False):
         """Deletes assignments/grants.
 
-        :raises: keystone.exception.RoleNotFound
+        :raises: keystone.exception.RoleAssignmentNotFound
 
         """
         raise exception.NotImplemented()  # pragma: no cover
