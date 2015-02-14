@@ -695,9 +695,46 @@ class CredentialValidationTestCase(testtools.TestCase):
                           self.create_credential_validator.validate,
                           request_to_validate)
 
-    def test_validate_credential_with_types_succeeds(self):
-        """Test that credential type works for ec2 and cert."""
-        cred_types = ['ec2', 'cert', uuid.uuid4().hex]
+    def test_validate_credential_ec2_without_project_id_fails(self):
+        """Validate `project_id` is required for ec2.
+
+        Test that an exception is raised when type is ec2 and no `project_id`
+        is provided in create request.
+        """
+        request_to_validate = {'blob': 'some credential blob',
+                               'type': 'ec2',
+                               'user_id': uuid.uuid4().hex}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_credential_validator.validate,
+                          request_to_validate)
+
+    def test_validate_credential_ec2_with_project_id_succeeds(self):
+        """Test that credential request works for ec2."""
+        request_to_validate = {'blob': 'some credential blob',
+                               'project_id': uuid.uuid4().hex,
+                               'type': 'ec2',
+                               'user_id': uuid.uuid4().hex}
+        self.create_credential_validator.validate(request_to_validate)
+
+    def test_validate_credential_non_ec2_with_project_id_succeeds(self):
+        """Test that credential request works for non-ec2."""
+        cred_types = ['cert', uuid.uuid4().hex]
+
+        for c_type in cred_types:
+            request_to_validate = {'blob': 'some blob',
+                                   'project_id': uuid.uuid4().hex,
+                                   'type': c_type,
+                                   'user_id': uuid.uuid4().hex}
+            # Make sure an exception isn't raised
+            self.create_credential_validator.validate(request_to_validate)
+
+    def test_validate_credential_non_ec2_without_project_id_succeeds(self):
+        """Validate `project_id` is not required for non-ec2.
+
+        Test that create request without `project_id` succeeds for any
+        non-ec2 credential.
+        """
+        cred_types = ['cert', uuid.uuid4().hex]
 
         for c_type in cred_types:
             request_to_validate = {'blob': 'some blob',
