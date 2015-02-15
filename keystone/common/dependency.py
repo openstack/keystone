@@ -31,11 +31,25 @@ from keystone.i18n import _
 from keystone import notifications
 
 
-REGISTRY = {}
+_REGISTRY = {}
 
 _future_dependencies = {}
 _future_optionals = {}
 _factories = {}
+
+
+def _set_provider(name, provider):
+    _REGISTRY[name] = provider
+
+
+GET_REQUIRED = object()
+GET_OPTIONAL = object()
+
+
+def get_provider(name, optional=GET_REQUIRED):
+    if optional is GET_REQUIRED:
+        return _REGISTRY[name]
+    return _REGISTRY.get(name)
 
 
 class UnresolvableDependencyException(Exception):
@@ -109,7 +123,7 @@ def provider(name):
             def __wrapped_init__(self, *args, **kwargs):
                 """Initialize the wrapped object and add it to the registry."""
                 init(self, *args, **kwargs)
-                REGISTRY[name] = self
+                _set_provider(name, self)
                 register_event_callbacks(self)
 
                 resolve_future_dependencies(__provider_name=name)
@@ -129,12 +143,12 @@ def _process_dependencies(obj):
 
     def process(obj, attr_name, unresolved_in_out):
         for dependency in getattr(obj, attr_name, []):
-            if dependency not in REGISTRY:
+            if dependency not in _REGISTRY:
                 # We don't know about this dependency, so save it for later.
                 unresolved_in_out.setdefault(dependency, []).append(obj)
                 continue
 
-            setattr(obj, dependency, REGISTRY[dependency])
+            setattr(obj, dependency, get_provider(dependency))
 
     process(obj, '_dependencies', _future_dependencies)
     process(obj, '_optionals', _future_optionals)
@@ -242,14 +256,14 @@ def resolve_future_dependencies(__provider_name=None):
         targets.extend(_future_optionals.pop(__provider_name, []))
 
         for target in targets:
-            setattr(target, __provider_name, REGISTRY[__provider_name])
+            setattr(target, __provider_name, get_provider(__provider_name))
 
         return
 
     # Resolve optional dependencies, sets the attribute to None if there's no
     # provider registered.
     for dependency, targets in six.iteritems(_future_optionals.copy()):
-        provider = REGISTRY.get(dependency)
+        provider = get_provider(dependency, optional=GET_OPTIONAL)
         if provider is None:
             factory = _factories.get(dependency)
             if factory:
@@ -262,7 +276,7 @@ def resolve_future_dependencies(__provider_name=None):
     # there's no provider registered.
     try:
         for dependency, targets in six.iteritems(_future_dependencies.copy()):
-            if dependency not in REGISTRY:
+            if dependency not in _REGISTRY:
                 # a Class was registered that could fulfill the dependency, but
                 # it has not yet been initialized.
                 factory = _factories.get(dependency)
@@ -273,7 +287,7 @@ def resolve_future_dependencies(__provider_name=None):
                     raise UnresolvableDependencyException(dependency, targets)
 
             for target in targets:
-                setattr(target, dependency, REGISTRY[dependency])
+                setattr(target, dependency, get_provider(dependency))
     finally:
         _future_dependencies.clear()
     return new_providers
@@ -286,6 +300,6 @@ def reset():
     from previous tests.
     """
 
-    REGISTRY.clear()
+    _REGISTRY.clear()
     _future_dependencies.clear()
     _future_optionals.clear()

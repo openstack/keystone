@@ -96,7 +96,7 @@ class Manager(manager.Manager):
         # compatibility reasons from the time when identity, resource and
         # assignment were all part of identity.
         if assignment_driver is None:
-            identity_driver = dependency.REGISTRY['identity_api'].driver
+            identity_driver = dependency.get_provider('identity_api').driver
             assignment_driver = identity_driver.default_assignment_driver()
 
         super(Manager, self).__init__(assignment_driver)
@@ -908,7 +908,8 @@ class RoleManager(manager.Manager):
         role_driver = CONF.role.driver
 
         if role_driver is None:
-            assignment_driver = dependency.REGISTRY['assignment_api'].driver
+            assignment_driver = (
+                dependency.get_provider('assignment_api').driver)
             role_driver = assignment_driver.default_role_driver()
 
         super(RoleManager, self).__init__(role_driver)
