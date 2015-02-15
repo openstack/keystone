@@ -1928,9 +1928,8 @@ class TestAuth(test_v3.RestfulTestCase):
                                              disabled_endpoint_id)
 
     def test_project_id_scoped_token_with_user_id_401(self):
-        project_id = uuid.uuid4().hex
         project = self.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(project_id, project)
+        self.resource_api.create_project(project['id'], project)
 
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
