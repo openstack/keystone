@@ -254,7 +254,6 @@ def resolve_future_dependencies(__provider_name=None):
             factory = _factories.get(dependency)
             if factory:
                 provider = factory()
-                REGISTRY[dependency] = provider
                 new_providers[dependency] = provider
         for target in targets:
             setattr(target, dependency, provider)
@@ -269,7 +268,6 @@ def resolve_future_dependencies(__provider_name=None):
                 factory = _factories.get(dependency)
                 if factory:
                     provider = factory()
-                    REGISTRY[dependency] = provider
                     new_providers[dependency] = provider
                 else:
                     raise UnresolvableDependencyException(dependency, targets)
