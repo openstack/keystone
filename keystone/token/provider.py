@@ -245,7 +245,6 @@ class Manager(manager.Manager):
         # (PKI) as part of the cache_key.
         token_ref = self._persistence.get_token(unique_id)
         token = self._validate_v2_token(token_ref)
-        self.check_revocation_v2(token)
         self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token
