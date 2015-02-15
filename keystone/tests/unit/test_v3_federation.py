@@ -26,7 +26,6 @@ import xmldsig
 
 from keystone.auth import controllers as auth_controllers
 from keystone import config
-from keystone.contrib import federation
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import utils as mapping_utils
@@ -852,9 +851,6 @@ class MappingRuleEngineTests(FederationTests):
 
 
 class FederatedTokenTests(FederationTests):
-
-    def load_extra_backends(self):
-        return {'federation_api': federation.Manager()}
 
     def auth_plugin_config_override(self):
         methods = ['saml2']
