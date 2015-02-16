@@ -1645,6 +1645,22 @@ class FederatedTokenTests(FederationTests):
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
         self._check_domains_are_valid(r.result['token'])
 
+    def test_issue_unscoped_token_for_local_user(self):
+        r = self._issue_unscoped_token(assertion='LOCAL_USER_ASSERTION')
+        token_resp = r.json_body['token']
+        self.assertListEqual(['saml2'], token_resp['methods'])
+        self.assertEqual(self.user['id'], token_resp['user']['id'])
+        self.assertEqual(self.user['name'], token_resp['user']['name'])
+        self.assertEqual(self.domain['id'], token_resp['user']['domain']['id'])
+        # Make sure the token is not scoped
+        self.assertNotIn('project', token_resp)
+        self.assertNotIn('domain', token_resp)
+
+    def test_issue_token_for_local_user_user_not_found(self):
+        self.assertRaises(exception.Unauthorized,
+                          self._issue_unscoped_token,
+                          assertion='ANOTHER_LOCAL_USER_ASSERTION')
+
     def load_federation_sample_data(self):
         """Inject additional data."""
 
@@ -2043,6 +2059,53 @@ class FederatedTokenTests(FederationTests):
                             "type": "UserName",
                             "any_one_of": [
                                 "IamTester"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "type": "local",
+                                "name": self.user['name'],
+                                "domain": {
+                                    "id": self.user['domain_id']
+                                }
+                            }
+                        },
+                        {
+                            "group": {
+                                "id": self.group_customers['id']
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "UserType",
+                            "any_one_of": [
+                                "random"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "type": "local",
+                                "name": self.user['name'],
+                                "domain": {
+                                    "id": uuid.uuid4().hex
+                                }
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "Position",
+                            "any_one_of": [
+                                "DirectorGeneral"
                             ]
                         }
                     ]

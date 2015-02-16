@@ -18,6 +18,7 @@ from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 
 from keystone import auth
+from keystone.auth import plugins as auth_plugins
 from keystone.common import dependency
 from keystone.contrib import federation
 from keystone.contrib.federation import utils
@@ -28,6 +29,8 @@ from keystone import notifications
 
 
 LOG = log.getLogger(__name__)
+
+METHOD_NAME = 'mapped'
 
 
 @dependency.requires('assignment_api', 'federation_api', 'identity_api',
@@ -104,6 +107,22 @@ def handle_scoped_token(context, auth_payload, auth_context, token_ref,
 
 def handle_unscoped_token(context, auth_payload, auth_context,
                           assignment_api, federation_api, identity_api):
+
+    def is_ephemeral_user(mapped_properties):
+        return mapped_properties['user']['type'] == utils.UserType.EPHEMERAL
+
+    def build_ephemeral_user_context(auth_context, user, mapped_properties,
+                                     identity_provider, protocol):
+        auth_context['user_id'] = user['id']
+        auth_context['group_ids'] = mapped_properties['group_ids']
+        auth_context[federation.IDENTITY_PROVIDER] = identity_provider
+        auth_context[federation.PROTOCOL] = protocol
+
+    def build_local_user_context(auth_context, mapped_properties):
+        user_info = auth_plugins.UserAuthInfo.create(mapped_properties,
+                                                     METHOD_NAME)
+        auth_context['user_id'] = user_info.user_id
+
     assertion = extract_assertion_data(context)
     identity_provider = auth_payload['identity_provider']
     protocol = auth_payload['protocol']
@@ -120,12 +139,22 @@ def handle_unscoped_token(context, auth_payload, auth_context,
     user_id = None
 
     try:
-        mapped_properties = apply_mapping_filter(identity_provider, protocol,
-                                                 assertion, assignment_api,
-                                                 federation_api, identity_api)
-        user = setup_username(context, mapped_properties)
-        user_id = user.get('id')
-        group_ids = mapped_properties['group_ids']
+        mapped_properties = apply_mapping_filter(
+            identity_provider, protocol, assertion, assignment_api,
+            federation_api, identity_api)
+
+        if is_ephemeral_user(mapped_properties):
+            user = setup_username(context, mapped_properties)
+            user_id = user['id']
+            group_ids = mapped_properties['group_ids']
+            mapping = federation_api.get_mapping_from_idp_and_protocol(
+                identity_provider, protocol)
+            utils.validate_groups_cardinality(group_ids, mapping['id'])
+            build_ephemeral_user_context(auth_context, user,
+                                         mapped_properties,
+                                         identity_provider, protocol)
+        else:
+            build_local_user_context(auth_context, mapped_properties)
 
     except Exception:
         # NOTE(topol): Diaper defense to catch any exception, so we can
@@ -145,11 +174,6 @@ def handle_unscoped_token(context, auth_payload, auth_context,
                                                    identity_provider,
                                                    protocol, token_id,
                                                    outcome)
-
-    auth_context['user_id'] = user_id
-    auth_context['group_ids'] = group_ids
-    auth_context[federation.IDENTITY_PROVIDER] = identity_provider
-    auth_context[federation.PROTOCOL] = protocol
 
 
 def extract_assertion_data(context):
@@ -182,7 +206,6 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
         utils.transform_to_group_ids(
             mapped_properties['group_names'], mapping['id'],
             identity_api, assignment_api))
-    utils.validate_groups_cardinality(group_ids, mapping['id'])
     mapped_properties['group_ids'] = list(set(group_ids))
     return mapped_properties
 
