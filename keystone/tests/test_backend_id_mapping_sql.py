@@ -120,6 +120,7 @@ class SqlIDMapping(test_backend_sql.SqlTests):
                         matchers.HasLength(initial_mappings))
 
     def test_id_mapping_handles_unicode(self):
+        initial_mappings = len(mapping_sql.list_id_mappings())
         local_id = u'fäké1'
         local_entity = {'domain_id': self.domainA['id'],
                         'local_id': local_id,
@@ -128,11 +129,12 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         # Check no mappings for the new local entity
         self.assertIsNone(self.id_mapping_api.get_public_id(local_entity))
 
-        # The mapping generator should handle unicode, although currently this
-        # fails due to bug #1419187
-        self.assertRaises(UnicodeEncodeError,
-                          self.id_mapping_api.create_id_mapping,
-                          local_entity)
+        # Create the new mapping and then read it back
+        public_id = self.id_mapping_api.create_id_mapping(local_entity)
+        self.assertThat(mapping_sql.list_id_mappings(),
+                        matchers.HasLength(initial_mappings + 1))
+        self.assertEqual(
+            public_id, self.id_mapping_api.get_public_id(local_entity))
 
     def test_delete_public_id_is_silent(self):
         # Test that deleting an invalid public key is silent
