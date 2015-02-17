@@ -15,6 +15,7 @@
 import functools
 import uuid
 
+from oslo_log import log
 import six
 
 from keystone.common import authorization
@@ -26,7 +27,6 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.models import token_model
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

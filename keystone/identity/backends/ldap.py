@@ -16,6 +16,7 @@ import uuid
 
 import ldap
 import ldap.filter
+from oslo_log import log
 import six
 
 from keystone import clean
@@ -26,7 +27,6 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone import identity
-from keystone.openstack.common import log
 
 
 CONF = config.CONF

@@ -23,6 +23,7 @@ import hashlib
 import os
 import pwd
 
+from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import passlib.hash
@@ -32,7 +33,6 @@ from six import moves
 from keystone.common import config
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
-from keystone.openstack.common import log
 
 
 CONF = config.CONF

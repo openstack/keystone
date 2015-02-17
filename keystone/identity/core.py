@@ -20,6 +20,7 @@ import os
 import uuid
 
 from oslo_config import cfg
+from oslo_log import log
 from oslo_utils import importutils
 import six
 
@@ -32,7 +33,6 @@ from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.identity.mapping_backends import mapping
 from keystone import notifications
-from keystone.openstack.common import log
 
 
 CONF = config.CONF

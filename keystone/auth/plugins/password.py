@@ -14,13 +14,13 @@
 
 import sys
 
+from oslo_log import log
 import six
 
 from keystone import auth
 from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import log
 
 METHOD_NAME = 'password'
 

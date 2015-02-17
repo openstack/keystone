@@ -17,13 +17,13 @@ import datetime
 
 from dogpile.cache import api
 from dogpile.cache import util as dp_util
+from oslo_log import log
 from oslo_utils import importutils
 from oslo_utils import timeutils
 import six
 
 from keystone import exception
 from keystone.i18n import _, _LW
-from keystone.openstack.common import log
 
 
 NO_VALUE = api.NO_VALUE

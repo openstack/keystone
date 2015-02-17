@@ -17,11 +17,11 @@ import os
 import time
 import uuid
 
+from oslo_log import log
 import six
 from testtools import testcase
 
 from keystone.common import environment
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

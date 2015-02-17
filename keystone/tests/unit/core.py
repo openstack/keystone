@@ -27,6 +27,7 @@ import warnings
 
 import fixtures
 from oslo_config import fixture as config_fixture
+from oslo_log import log
 import oslotest.base as oslotest
 from oslotest import mockpatch
 import six
@@ -50,7 +51,6 @@ from keystone import controllers
 from keystone import exception
 from keystone.i18n import _LW
 from keystone import notifications
-from keystone.openstack.common import log
 from keystone.server import common
 from keystone import service
 from keystone.tests.unit import ksfixtures
@@ -84,6 +84,7 @@ def _calc_tmpdir():
 TMPDIR = _calc_tmpdir()
 
 CONF = config.CONF
+log.register_options(CONF)
 
 IN_MEM_DB_CONN_STRING = 'sqlite://'
 

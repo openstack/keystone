@@ -22,6 +22,7 @@ from dogpile.cache import proxy
 from dogpile.cache import region
 from dogpile.cache import util as dogpile_util
 from dogpile.core import nameregistry
+from oslo_log import log
 from oslo_utils import importutils
 import six
 
@@ -30,7 +31,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LI
 from keystone.i18n import _LW
-from keystone.openstack.common import log
 
 
 __all__ = ['KeyValueStore', 'KeyValueStoreLock', 'LockTimeout',

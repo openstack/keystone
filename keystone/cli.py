@@ -17,6 +17,7 @@ from __future__ import absolute_import
 import os
 
 from oslo_config import cfg
+from oslo_log import log
 import pbr.version
 
 from keystone import assignment
@@ -27,13 +28,11 @@ from keystone.common import utils
 from keystone import config
 from keystone.i18n import _, _LW
 from keystone import identity
-from keystone.openstack.common import log
 from keystone import token
 
 
-LOG = log.getLogger(__name__)
-
 CONF = config.CONF
+LOG = log.getLogger(__name__)
 
 
 class BaseApp(object):

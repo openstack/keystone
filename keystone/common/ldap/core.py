@@ -22,12 +22,12 @@ import weakref
 
 import ldap.filter
 import ldappool
+from oslo_log import log
 import six
 
 from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LW
-from keystone.openstack.common import log
 
 LOG = log.getLogger(__name__)
 

@@ -21,13 +21,13 @@ import time
 
 from dogpile.cache import api
 from dogpile.cache.backends import memcached
+from oslo_log import log
 
 from keystone.common.cache.backends import memcache_pool
 from keystone.common import manager
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import log
 
 
 CONF = config.CONF

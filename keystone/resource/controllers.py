@@ -17,13 +17,14 @@
 
 import uuid
 
+from oslo_log import log
+
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
 from keystone import config
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import log
 from keystone.resource import schema
 
 

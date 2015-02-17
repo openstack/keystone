@@ -14,6 +14,7 @@
 
 import os.path
 
+from oslo_log import log
 import six
 
 from keystone.catalog.backends import kvs
@@ -21,7 +22,6 @@ from keystone.catalog import core
 from keystone import config
 from keystone import exception
 from keystone.i18n import _LC
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

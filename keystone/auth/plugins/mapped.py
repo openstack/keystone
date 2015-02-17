@@ -12,6 +12,7 @@
 
 import functools
 
+from oslo_log import log
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
@@ -24,7 +25,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

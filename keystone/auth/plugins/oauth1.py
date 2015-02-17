@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
 from oslo_utils import timeutils
 
 from keystone import auth
@@ -21,7 +22,6 @@ from keystone.contrib.oauth1 import core as oauth
 from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.i18n import _
-from keystone.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
