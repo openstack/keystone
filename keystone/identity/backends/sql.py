@@ -33,8 +33,7 @@ class User(sql.ModelBase, sql.DictBase):
                   'default_project_id']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), nullable=False)
-    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
-                           nullable=False)
+    domain_id = sql.Column(sql.String(64), nullable=False)
     password = sql.Column(sql.String(128))
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
@@ -55,8 +54,7 @@ class Group(sql.ModelBase, sql.DictBase):
     attributes = ['id', 'name', 'domain_id', 'description']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), nullable=False)
-    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
-                           nullable=False)
+    domain_id = sql.Column(sql.String(64), nullable=False)
     description = sql.Column(sql.Text())
     extra = sql.Column(sql.JsonBlob())
     # Unique constraint across two columns to create the separation
