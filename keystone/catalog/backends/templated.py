@@ -17,8 +17,8 @@ import os.path
 
 from oslo_config import cfg
 from oslo_log import log
+import six
 
-from keystone.catalog.backends import kvs
 from keystone.catalog import core
 from keystone import exception
 from keystone.i18n import _LC
@@ -56,7 +56,7 @@ def parse_templates(template_lines):
     return o
 
 
-class Catalog(kvs.Catalog):
+class Catalog(core.Driver):
     """A backend that generates endpoints for the Catalog based on templates.
 
     It is usually configured via config entries that look like:
@@ -105,6 +105,95 @@ class Catalog(kvs.Catalog):
             LOG.critical(_LC('Unable to open template file %s'), template_file)
             raise
 
+    # region crud
+
+    def create_region(self, region_ref):
+        raise exception.NotImplemented()
+
+    def list_regions(self, hints):
+        return [{'id': region_id, 'description': '', 'parent_region_id': ''}
+                for region_id in self.templates]
+
+    def get_region(self, region_id):
+        if region_id in self.templates:
+            return {'id': region_id, 'description': '', 'parent_region_id': ''}
+        raise exception.RegionNotFound(region_id=region_id)
+
+    def update_region(self, region_id, region_ref):
+        raise exception.NotImplemented()
+
+    def delete_region(self, region_id):
+        raise exception.NotImplemented()
+
+    # service crud
+
+    def create_service(self, service_id, service_ref):
+        raise exception.NotImplemented()
+
+    def _list_services(self, hints):
+        for region_ref in six.itervalues(self.templates):
+            for service_type, service_ref in six.iteritems(region_ref):
+                yield {
+                    'id': service_type,
+                    'enabled': True,
+                    'name': service_ref.get('name', ''),
+                    'description': service_ref.get('description', ''),
+                    'type': service_type,
+                }
+
+    def list_services(self, hints):
+        return list(self._list_services())
+
+    def get_service(self, service_id):
+        for service in self._list_services(hints=None):
+            if service['id'] == service_id:
+                return service
+        raise exception.ServiceNotFound(service_id=service_id)
+
+    def update_service(self, service_id, service_ref):
+        raise exception.NotImplemented()
+
+    def delete_service(self, service_id):
+        raise exception.NotImplemented()
+
+    # endpoint crud
+
+    def create_endpoint(self, endpoint_id, endpoint_ref):
+        raise exception.NotImplemented()
+
+    def _list_endpoints(self):
+        for region_id, region_ref in six.iteritems(self.templates):
+            for service_type, service_ref in six.iteritems(region_ref):
+                for key in service_ref:
+                    if key.endswith('URL'):
+                        interface = key[:-3]
+                        endpoint_id = ('%s-%s-%s' %
+                                       (region_id, service_type, interface))
+                        yield {
+                            'id': endpoint_id,
+                            'service_id': service_type,
+                            'interface': interface,
+                            'url': service_ref[key],
+                            'legacy_endpoint_id': None,
+                            'region_id': region_id,
+                            'enabled': True,
+                        }
+
+    def list_endpoints(self, hints):
+        return list(self._list_endpoints())
+
+    def get_endpoint(self, endpoint_id):
+        for endpoint in self._list_endpoints():
+            if endpoint['id'] == endpoint_id:
+                return endpoint
+        raise exception.EndpointNotFound(endpoint_id=endpoint_id)
+
+    def update_endpoint(self, endpoint_id, endpoint_ref):
+        raise exception.NotImplemented()
+
+    def delete_endpoint(self, endpoint_id):
+        raise exception.NotImplemented()
+
     def get_catalog(self, user_id, tenant_id):
         """Retrieve and format the V2 service catalog.
 
@@ -148,3 +237,58 @@ class Catalog(kvs.Catalog):
                 catalog[region][service] = service_data
 
         return catalog
+
+    def add_endpoint_to_project(self, endpoint_id, project_id):
+        raise exception.NotImplemented()
+
+    def remove_endpoint_from_project(self, endpoint_id, project_id):
+        raise exception.NotImplemented()
+
+    def check_endpoint_in_project(self, endpoint_id, project_id):
+        raise exception.NotImplemented()
+
+    def list_endpoints_for_project(self, project_id):
+        raise exception.NotImplemented()
+
+    def list_projects_for_endpoint(self, endpoint_id):
+        raise exception.NotImplemented()
+
+    def delete_association_by_endpoint(self, endpoint_id):
+        raise exception.NotImplemented()
+
+    def delete_association_by_project(self, project_id):
+        raise exception.NotImplemented()
+
+    def create_endpoint_group(self, endpoint_group):
+        raise exception.NotImplemented()
+
+    def get_endpoint_group(self, endpoint_group_id):
+        raise exception.NotImplemented()
+
+    def update_endpoint_group(self, endpoint_group_id, endpoint_group):
+        raise exception.NotImplemented()
+
+    def delete_endpoint_group(self, endpoint_group_id):
+        raise exception.NotImplemented()
+
+    def add_endpoint_group_to_project(self, endpoint_group_id, project_id):
+        raise exception.NotImplemented()
+
+    def get_endpoint_group_in_project(self, endpoint_group_id, project_id):
+        raise exception.NotImplemented()
+
+    def list_endpoint_groups(self):
+        raise exception.NotImplemented()
+
+    def list_endpoint_groups_for_project(self, project_id):
+        raise exception.NotImplemented()
+
+    def list_projects_associated_with_endpoint_group(self, endpoint_group_id):
+        raise exception.NotImplemented()
+
+    def remove_endpoint_group_from_project(self, endpoint_group_id,
+                                           project_id):
+        raise exception.NotImplemented()
+
+    def delete_endpoint_group_association_by_project(self, project_id):
+        raise exception.NotImplemented()

@@ -22,3 +22,7 @@ other:
     Removed ``check_role_for_trust`` from the trust controller, ensure policy
     files do not refer to this target. This was deprecated in the Kilo
     release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    Removed Catalog KVS backend (``keystone.catalog.backends.sql.Catalog``).
+    This was deprecated in the Icehouse release.

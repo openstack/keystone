@@ -103,60 +103,6 @@ class KvsToken(unit.TestCase, test_backend.TokenTests):
         self.assertEqual(expected_user_token_list, user_token_list)
 
 
-class KvsCatalog(unit.TestCase, test_backend.CatalogTests):
-    def setUp(self):
-        super(KvsCatalog, self).setUp()
-        self.load_backends()
-        self._load_fake_catalog()
-
-    def config_overrides(self):
-        super(KvsCatalog, self).config_overrides()
-        self.config_fixture.config(group='catalog', driver='kvs')
-
-    def _load_fake_catalog(self):
-        self.catalog_foobar = self.catalog_api.driver._create_catalog(
-            'foo', 'bar',
-            {'RegionFoo': {'service_bar': {'foo': 'bar'}}})
-
-    def test_get_catalog_returns_not_found(self):
-        # FIXME(dolph): this test should be moved up to test_backend
-        # FIXME(dolph): exceptions should be UserNotFound and ProjectNotFound
-        self.assertRaises(exception.NotFound,
-                          self.catalog_api.get_catalog,
-                          uuid.uuid4().hex,
-                          'bar')
-
-        self.assertRaises(exception.NotFound,
-                          self.catalog_api.get_catalog,
-                          'foo',
-                          uuid.uuid4().hex)
-
-    def test_get_catalog(self):
-        catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
-        self.assertDictEqual(self.catalog_foobar, catalog_ref)
-
-    def test_get_catalog_endpoint_disabled(self):
-        # This test doesn't apply to KVS because with the KVS backend the
-        # application creates the catalog (including the endpoints) for each
-        # user and project. Whether endpoints are enabled or disabled isn't
-        # a consideration.
-        f = super(KvsCatalog, self).test_get_catalog_endpoint_disabled
-        self.assertRaises(exception.NotFound, f)
-
-    def test_get_v3_catalog_endpoint_disabled(self):
-        # There's no need to have disabled endpoints in the kvs catalog. Those
-        # endpoints should just be removed from the store. This just tests
-        # what happens currently when the super impl is called.
-        f = super(KvsCatalog, self).test_get_v3_catalog_endpoint_disabled
-        self.assertRaises(exception.NotFound, f)
-
-    def test_list_regions_filtered_by_parent_region_id(self):
-        self.skipTest('KVS backend does not support hints')
-
-    def test_service_filtering(self):
-        self.skipTest("kvs backend doesn't support filtering")
-
-
 class KvsTokenCacheInvalidation(unit.TestCase,
                                 test_backend.TokenCacheInvalidation):
     def setUp(self):

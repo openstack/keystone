@@ -23,6 +23,7 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
+from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
 
@@ -987,6 +988,14 @@ class RestfulTestCase(rest.RestfulTestCase):
 
 
 class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
+
+    def config_overrides(self):
+        super(V2TestCase, self).config_overrides()
+        self.config_fixture.config(
+            group='catalog',
+            driver='templated',
+            template_file=unit.dirs.tests('default_catalog.templates'))
+
     def _get_user_id(self, r):
         return r['user']['id']
 
