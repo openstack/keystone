@@ -23,6 +23,7 @@ from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import config
+from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone import notifications
@@ -121,6 +122,24 @@ class Manager(manager.Manager):
             domain = self.get_domain(domain_id)
         if not domain.get('enabled', True):
             raise AssertionError(_('Domain is disabled: %s') % domain_id)
+
+    def assert_domain_not_federated(self, domain_id, domain):
+        """Assert the Domain's name and id are not "Federated".
+
+        Note that the reserved keyword 'Federated' is case insensitive
+
+        :raise AssertionError if domain named "Federated".
+        """
+
+        federated_domain_reserved = federation.FEDERATED_DOMAIN_KEYWORD.lower()
+
+        if domain.get('name') is not None:
+            if domain['name'].lower() == federated_domain_reserved:
+                raise AssertionError(_('Domain cannot be named Federated: %s')
+                                     % domain_id)
+        if domain_id.lower() == federated_domain_reserved:
+            raise AssertionError(_('Domain cannot have ID Federated: %s')
+                                 % domain_id)
 
     def assert_project_enabled(self, project_id, project=None):
         """Assert the project is enabled and its associated domain is enabled.
@@ -355,6 +374,7 @@ class Manager(manager.Manager):
         if (not self.identity_api.multiple_domains_supported and
                 domain_id != CONF.identity.default_domain_id):
             raise exception.Forbidden(_('Multiple domains are not supported'))
+        self.assert_domain_not_federated(domain_id, domain)
         domain.setdefault('enabled', True)
         domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.create_domain(domain_id, domain)
@@ -382,6 +402,7 @@ class Manager(manager.Manager):
 
     @notifications.updated('domain')
     def update_domain(self, domain_id, domain):
+        self.assert_domain_not_federated(domain_id, domain)
         original_domain = self.driver.get_domain(domain_id)
         if 'enabled' in domain:
             domain['enabled'] = clean.domain_enabled(domain['enabled'])
