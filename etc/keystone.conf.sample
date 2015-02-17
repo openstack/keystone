@@ -111,6 +111,11 @@
 # automatically truncated to the maximum length. (boolean value)
 #strict_password_check = false
 
+# The HTTP header used to determine the scheme for the original request, even
+# if it was removed by an SSL terminating proxy. Typical value is
+# "HTTP_X_FORWARDED_PROTO". (string value)
+#secure_proxy_ssl_header = <None>
+
 #
 # From keystone.notifications
 #
@@ -131,7 +136,23 @@
 #backdoor_port = <None>
 
 #
-# From keystone.openstack.common.log
+# From keystone.openstack.common.policy
+#
+
+# The JSON file that defines policies. (string value)
+#policy_file = policy.json
+
+# Default rule. Enforced when a requested rule is not found. (string value)
+#policy_default_rule = default
+
+# Directories where policy configuration files are stored. They can be relative
+# to any directory in the search path defined by the config_dir option, or
+# absolute paths. The file defined by policy_file must exist for these
+# directories to be searched. (multi valued)
+#policy_dirs = policy.d
+
+#
+# From oslo.log
 #
 
 # Print debugging output (set logging level to DEBUG instead of default WARNING
@@ -141,10 +162,6 @@
 # Print more verbose output (set logging level to INFO instead of default
 # WARNING level). (boolean value)
 #verbose = false
-
-#
-# From keystone.openstack.common.log
-#
 
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
@@ -185,16 +202,8 @@
 # Syslog facility to receive log lines. (string value)
 #syslog_log_facility = LOG_USER
 
-#
-# From keystone.openstack.common.log
-#
-
 # Log output to standard error. (boolean value)
 #use_stderr = true
-
-#
-# From keystone.openstack.common.log
-#
 
 # Format string to use for log messages with context. (string value)
 #logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
@@ -224,22 +233,6 @@
 # The format for an instance UUID that is passed with the log message. (string
 # value)
 #instance_uuid_format = "[instance: %(uuid)s] "
-
-#
-# From keystone.openstack.common.policy
-#
-
-# The JSON file that defines policies. (string value)
-#policy_file = policy.json
-
-# Default rule. Enforced when a requested rule is not found. (string value)
-#policy_default_rule = default
-
-# Directories where policy configuration files are stored. They can be relative
-# to any directory in the search path defined by the config_dir option, or
-# absolute paths. The file defined by policy_file must exist for these
-# directories to be searched. (multi valued)
-#policy_dirs = policy.d
 
 #
 # From oslo.messaging
@@ -685,6 +678,14 @@
 # environment (e.g. if using the mod_shib plugin this value is `Shib-Identity-
 # Provider`). (string value)
 #remote_id_attribute = <None>
+
+# A domain name that is reserved to allow federated ephemeral users to have a
+# domain concept. Note that an admin will not be able to create a domain with
+# this name or update an existing domain to this name. You are not advised to
+# change this value unless you really have to. Changing this option to empty
+# string or None will not have any impact and default name will be used.
+# (string value)
+#federated_domain_name = Federated
 
 
 [identity]
