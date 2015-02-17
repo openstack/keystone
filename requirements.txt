@@ -31,5 +31,5 @@ oauthlib>=0.6
 pysaml2
 dogpile.cache>=0.5.3
 jsonschema>=2.0.0,<3.0.0
-pycadf>=0.6.0
+pycadf>=0.8.0
 posix_ipc
