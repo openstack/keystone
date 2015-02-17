@@ -26,6 +26,7 @@ from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
+from keystone.openstack.common import versionutils
 from keystone.trust import schema
 
 
@@ -203,6 +204,16 @@ class TrustV3(controller.V3Controller):
         except ValueError:
             raise exception.ValidationTimeStampError()
 
+    def _check_role_for_trust(self, context, trust_id, role_id):
+        """Checks if a role has been assigned to a trust."""
+        trust = self.trust_api.get_trust(trust_id)
+        if not trust:
+            raise exception.TrustNotFound(trust_id=trust_id)
+        user_id = self._get_user_id(context)
+        _trustor_trustee_only(trust, user_id)
+        if not any(role['id'] == role_id for role in trust['roles']):
+            raise exception.RoleNotFound(role_id=role_id)
+
     @controller.protected()
     def list_trusts(self, context):
         query = context['query_string']
@@ -255,20 +266,15 @@ class TrustV3(controller.V3Controller):
         return {'roles': trust['roles'],
                 'links': trust['roles_links']}
 
-    @controller.protected()
+    @versionutils.deprecated(
+        versionutils.deprecated.KILO,
+        remove_in=+2)
     def check_role_for_trust(self, context, trust_id, role_id):
-        """Checks if a role has been assigned to a trust."""
-        trust = self.trust_api.get_trust(trust_id)
-        if not trust:
-            raise exception.TrustNotFound(trust_id=trust_id)
-        user_id = self._get_user_id(context)
-        _trustor_trustee_only(trust, user_id)
-        if not any(role['id'] == role_id for role in trust['roles']):
-            raise exception.RoleNotFound(role_id=role_id)
+        return self._check_role_for_trust(self, context, trust_id, role_id)
 
     @controller.protected()
     def get_role_for_trust(self, context, trust_id, role_id):
         """Get a role that has been assigned to a trust."""
-        self.check_role_for_trust(context, trust_id, role_id)
+        self._check_role_for_trust(context, trust_id, role_id)
         role = self.role_api.get_role(role_id)
         return assignment.controllers.RoleV3.wrap_member(context, role)
