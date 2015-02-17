@@ -501,6 +501,62 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                 exception.DomainNotFound, self.assignment_api.delete_domain,
                 domain['id'])
 
+    def test_forbid_operations_on_defined_federated_domain(self):
+        """Make sure one cannot operate on a user-defined federated domain.
+
+        This includes operations like create, update, delete.
+
+        """
+
+        non_default_name = 'beta_federated_domain'
+        self.config_fixture.config(group='federation',
+                                   federated_domain_name=non_default_name)
+        domain = self.new_domain_ref()
+        domain['name'] = non_default_name
+        self.assertRaises(AssertionError,
+                          self.assignment_api.create_domain,
+                          domain['id'], domain)
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.delete_domain,
+                          domain['id'])
+        self.assertRaises(AssertionError,
+                          self.assignment_api.update_domain,
+                          domain['id'], domain)
+
+    def test_set_federated_domain_when_config_empty(self):
+        """Make sure we are operable even if config value is not properly
+        set.
+
+        This includes operations like create, update, delete.
+
+        """
+        federated_name = 'Federated'
+        self.config_fixture.config(group='federation',
+                                   federated_domain_name='')
+        domain = self.new_domain_ref()
+        domain['id'] = federated_name
+        self.assertRaises(AssertionError,
+                          self.assignment_api.create_domain,
+                          domain['id'], domain)
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.delete_domain,
+                          domain['id'])
+        self.assertRaises(AssertionError,
+                          self.assignment_api.update_domain,
+                          domain['id'], domain)
+
+        # swap id with name
+        domain['id'], domain['name'] = domain['name'], domain['id']
+        self.assertRaises(AssertionError,
+                          self.assignment_api.create_domain,
+                          domain['id'], domain)
+        self.assertRaises(exception.DomainNotFound,
+                          self.assignment_api.delete_domain,
+                          domain['id'])
+        self.assertRaises(AssertionError,
+                          self.assignment_api.update_domain,
+                          domain['id'], domain)
+
     # Project CRUD tests
 
     def test_list_projects(self):
