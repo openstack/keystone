@@ -1005,42 +1005,6 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
                           self.resource_api.delete_project,
                           self.tenant_bar['id'])
 
-    def test_configurable_allowed_role_actions(self):
-        role = {'id': u'fäké1', 'name': u'fäké1'}
-        self.role_api.create_role(u'fäké1', role)
-        role_ref = self.role_api.get_role(u'fäké1')
-        self.assertEqual(u'fäké1', role_ref['id'])
-
-        role['name'] = u'fäké2'
-        self.role_api.update_role(u'fäké1', role)
-
-        self.role_api.delete_role(u'fäké1')
-        self.assertRaises(exception.RoleNotFound,
-                          self.role_api.get_role,
-                          u'fäké1')
-
-    def test_configurable_forbidden_role_actions(self):
-        self.config_fixture.config(
-            group='ldap', role_allow_create=False, role_allow_update=False,
-            role_allow_delete=False)
-        self.load_backends()
-
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.assertRaises(exception.ForbiddenAction,
-                          self.role_api.create_role,
-                          role['id'],
-                          role)
-
-        self.role_member['name'] = uuid.uuid4().hex
-        self.assertRaises(exception.ForbiddenAction,
-                          self.role_api.update_role,
-                          self.role_member['id'],
-                          self.role_member)
-
-        self.assertRaises(exception.ForbiddenAction,
-                          self.role_api.delete_role,
-                          self.role_member['id'])
-
     def test_project_filter(self):
         tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(tenant_ref, self.tenant_bar)
@@ -1062,25 +1026,6 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.get_project,
                           self.tenant_bar['id'])
-
-    def test_role_filter(self):
-        role_ref = self.role_api.get_role(self.role_member['id'])
-        self.assertDictEqual(role_ref, self.role_member)
-
-        self.config_fixture.config(group='ldap',
-                                   role_filter='(CN=DOES_NOT_MATCH)')
-        self.load_backends()
-        # NOTE(morganfainberg): CONF.ldap.role_filter will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.role_api.get_role.invalidate(self.role_api,
-                                          self.role_member['id'])
-        self.assertRaises(exception.RoleNotFound,
-                          self.role_api.get_role,
-                          self.role_member['id'])
 
     def test_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
@@ -1158,55 +1103,6 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.assertNotIn('name', tenant_ref)
         self.assertNotIn('description', tenant_ref)
         self.assertNotIn('enabled', tenant_ref)
-
-    def test_role_attribute_mapping(self):
-        self.config_fixture.config(group='ldap', role_name_attribute='ou')
-        self.clear_database()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        # NOTE(morganfainberg): CONF.ldap.role_name_attribute will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.role_api.get_role.invalidate(self.role_api,
-                                          self.role_member['id'])
-        role_ref = self.role_api.get_role(self.role_member['id'])
-        self.assertEqual(self.role_member['id'], role_ref['id'])
-        self.assertEqual(self.role_member['name'], role_ref['name'])
-
-        self.config_fixture.config(group='ldap', role_name_attribute='sn')
-        self.load_backends()
-        # NOTE(morganfainberg): CONF.ldap.role_name_attribute will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.role_api.get_role.invalidate(self.role_api,
-                                          self.role_member['id'])
-        role_ref = self.role_api.get_role(self.role_member['id'])
-        self.assertEqual(self.role_member['id'], role_ref['id'])
-        self.assertNotIn('name', role_ref)
-
-    def test_role_attribute_ignore(self):
-        self.config_fixture.config(group='ldap',
-                                   role_attribute_ignore=['name'])
-        self.clear_database()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        # NOTE(morganfainberg): CONF.ldap.role_attribute_ignore will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.role_api.get_role.invalidate(self.role_api,
-                                          self.role_member['id'])
-        role_ref = self.role_api.get_role(self.role_member['id'])
-        self.assertEqual(self.role_member['id'], role_ref['id'])
-        self.assertNotIn('name', role_ref)
 
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(group='ldap', user_enabled_mask=2,
