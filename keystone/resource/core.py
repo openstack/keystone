@@ -67,6 +67,9 @@ class Manager(manager.Manager):
             assignment_driver = dependency.REGISTRY['assignment_api'].driver
             resource_driver = assignment_driver.default_resource_driver()
 
+        self.federated_domain_reserved = (
+            federation.FEDERATED_DOMAIN_KEYWORD.lower())
+
         super(Manager, self).__init__(resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):
@@ -131,13 +134,11 @@ class Manager(manager.Manager):
         :raise AssertionError if domain named "Federated".
         """
 
-        federated_domain_reserved = federation.FEDERATED_DOMAIN_KEYWORD.lower()
-
         if domain.get('name') is not None:
-            if domain['name'].lower() == federated_domain_reserved:
+            if domain['name'].lower() == self.federated_domain_reserved:
                 raise AssertionError(_('Domain cannot be named Federated: %s')
                                      % domain_id)
-        if domain_id.lower() == federated_domain_reserved:
+        if domain_id.lower() == self.federated_domain_reserved:
             raise AssertionError(_('Domain cannot have ID Federated: %s')
                                  % domain_id)
 

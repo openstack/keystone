@@ -462,26 +462,44 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                           self.resource_api.get_project,
                           leaf_project['id'])
 
-    def test_create_federated_domain_name(self):
-        """Ensure user cannot create domain named Federated."""
-        domain = self.new_domain_ref()
-        domain['name'] = 'Federated'
-        self.assertRaises(AssertionError, self.assignment_api.create_domain,
-                          domain['id'], domain)
+    def test_forbid_operations_on_federated_domain(self):
+        """Make sure one cannot operate on federated domain.
 
-    def test_create_federated_domain_id(self):
-        """Ensure user cannot create domain with ID Federated."""
-        domain = self.new_domain_ref()
-        domain['id'] = 'federated'
-        self.assertRaises(AssertionError, self.assignment_api.create_domain,
-                          domain['id'], domain)
+        This includes operations like create, update, delete
+        on domain identified by id and name where difference variations of
+        id 'Federated' are used.
 
-    def test_update_federated_domain_id(self):
-        """Ensure user cannot update a domain with the name Federated."""
-        domain = self.new_domain_ref()
-        domain['name'] = 'FEDERATED'
-        self.assertRaises(AssertionError, self.assignment_api.update_domain,
-                          domain['id'], domain)
+        """
+        def create_domains():
+            for variation in ('Federated', 'FEDERATED',
+                              'federated', 'fEderated'):
+                domain = self.new_domain_ref()
+                domain['id'] = variation
+                yield domain
+
+        for domain in create_domains():
+            self.assertRaises(
+                AssertionError, self.assignment_api.create_domain,
+                domain['id'], domain)
+            self.assertRaises(
+                AssertionError, self.assignment_api.update_domain,
+                domain['id'], domain)
+            self.assertRaises(
+                exception.DomainNotFound, self.assignment_api.delete_domain,
+                domain['id'])
+
+            # swap 'name' with 'id' and try again, expecting the request to
+            # gracefully fail
+            domain['id'], domain['name'] = domain['name'], domain['id']
+            self.assertRaises(
+                AssertionError, self.assignment_api.create_domain,
+                domain['id'], domain)
+            self.assertRaises(
+                AssertionError, self.assignment_api.update_domain,
+                domain['id'], domain)
+            self.assertRaises(
+                exception.DomainNotFound, self.assignment_api.delete_domain,
+                domain['id'])
 
     # Project CRUD tests
 
