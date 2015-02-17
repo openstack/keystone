@@ -67,9 +67,6 @@ class Manager(manager.Manager):
             assignment_driver = dependency.REGISTRY['assignment_api'].driver
             resource_driver = assignment_driver.default_resource_driver()
 
-        self.federated_domain_reserved = (
-            federation.FEDERATED_DOMAIN_KEYWORD.lower())
-
         super(Manager, self).__init__(resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):
@@ -127,20 +124,26 @@ class Manager(manager.Manager):
             raise AssertionError(_('Domain is disabled: %s') % domain_id)
 
     def assert_domain_not_federated(self, domain_id, domain):
-        """Assert the Domain's name and id are not "Federated".
+        """Assert the Domain's name and id do not match the resevered keyword.
 
-        Note that the reserved keyword 'Federated' is case insensitive
+        Note that the reserved keyword is defined in the configuration file,
+        by default, it is 'Federated', it is also case insensitive.
+        If config's option is empty the default hardcoded value 'Federated'
+        will be used.
 
-        :raise AssertionError if domain named "Federated".
+        :raise AssertionError if domain named match the value in the config.
+
         """
-
-        if domain.get('name') is not None:
-            if domain['name'].lower() == self.federated_domain_reserved:
-                raise AssertionError(_('Domain cannot be named Federated: %s')
-                                     % domain_id)
-        if domain_id.lower() == self.federated_domain_reserved:
-            raise AssertionError(_('Domain cannot have ID Federated: %s')
-                                 % domain_id)
+        # NOTE(marek-denis): We cannot create this attribute in the __init__ as
+        # config values are always initialized to default value.
+        federated_domain = (CONF.federation.federated_domain_name or
+                            federation.FEDERATED_DOMAIN_KEYWORD).lower()
+        if (domain.get('name') and domain['name'].lower() == federated_domain):
+            raise AssertionError(_('Domain cannot be named %s')
+                                 % federated_domain)
+        if (domain_id.lower() == federated_domain):
+            raise AssertionError(_('Domain cannot have ID %s')
+                                 % federated_domain)
 
     def assert_project_enabled(self, project_id, project=None):
         """Assert the project is enabled and its associated domain is enabled.

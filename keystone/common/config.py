@@ -511,6 +511,15 @@ FILE_OPTIONS = {
                         'Identity Provider from the environment (e.g. if '
                         'using the mod_shib plugin this value is '
                         '`Shib-Identity-Provider`).'),
+        cfg.StrOpt('federated_domain_name', default='Federated',
+                   help='A domain name that is reserved to allow federated '
+                        'ephemeral users to have a domain concept. Note that '
+                        'an admin will not be able to create a domain with '
+                        'this name or update an existing domain to this '
+                        'name. You are not advised to change this value '
+                        'unless you really have to. Changing this option '
+                        'to empty string or None will not have any impact and '
+                        'default name will be used.'),
     ],
     'policy': [
         cfg.StrOpt('driver',
