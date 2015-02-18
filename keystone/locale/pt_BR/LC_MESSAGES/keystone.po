@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-17 06:05+0000\n"
-"PO-Revision-Date: 2015-02-17 05:37+0000\n"
+"POT-Creation-Date: 2015-02-18 06:03+0000\n"
+"PO-Revision-Date: 2015-02-18 01:25+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -605,7 +605,7 @@ msgid "padded base64url text must be multiple of 4 characters"
 msgstr ""
 
 #: keystone/common/controller.py:288 keystone/identity/core.py:324
-#: keystone/resource/core.py:790 keystone/resource/backends/ldap.py:61
+#: keystone/resource/core.py:793 keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Esperado dict ou list: %s"
@@ -1056,8 +1056,8 @@ msgstr "Campo habilitado deve ser um booleano"
 
 #: keystone/identity/core.py:215 keystone/identity/backends/ldap.py:59
 #: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
-#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:109
-#: keystone/identity/backends/sql.py:111
+#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:107
+#: keystone/identity/backends/sql.py:109
 msgid "Invalid user / password"
 msgstr ""
 
@@ -1074,8 +1074,8 @@ msgstr ""
 msgid "Cannot change user name"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:188 keystone/identity/backends/sql.py:193
-#: keystone/identity/backends/sql.py:211
+#: keystone/identity/backends/ldap.py:188 keystone/identity/backends/sql.py:191
+#: keystone/identity/backends/sql.py:209
 #, python-format
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
@@ -1088,28 +1088,6 @@ msgstr "Usuário %(user_id)s já é membro do grupo %(group_id)s"
 #: keystone/models/token_model.py:61
 msgid "Found invalid token: scoped to both project and domain."
 msgstr ""
-
-#: keystone/openstack/common/log.py:298
-#: keystone/openstack/common/versionutils.py:232
-#, python-format
-msgid "Deprecated: %s"
-msgstr "Deprecado: %s"
-
-#: keystone/openstack/common/log.py:406
-#, python-format
-msgid "Error loading logging config %(log_config)s: %(err_msg)s"
-msgstr "Erro carregando configuração de logging: %(log_config)s: %(err_msg)s"
-
-#: keystone/openstack/common/log.py:467
-#, python-format
-msgid "syslog facility must be one of: %s"
-msgstr "Recurso syslog deve ser um destes: %s"
-
-#: keystone/openstack/common/log.py:715
-#: keystone/openstack/common/versionutils.py:250
-#, python-format
-msgid "Fatal call to deprecated config: %(msg)s"
-msgstr "Chamada fatal à configuração deprecada: %(msg)s"
 
 #: keystone/openstack/common/policy.py:111
 msgid "The JSON file that defines policies."
@@ -1165,6 +1143,16 @@ msgstr ""
 msgid "%(what)s is deprecated as of %(as_of)s. It will not be superseded."
 msgstr ""
 
+#: keystone/openstack/common/versionutils.py:232
+#, python-format
+msgid "Deprecated: %s"
+msgstr "Deprecado: %s"
+
+#: keystone/openstack/common/versionutils.py:250
+#, python-format
+msgid "Fatal call to deprecated config: %(msg)s"
+msgstr "Chamada fatal à configuração deprecada: %(msg)s"
+
 #: keystone/resource/controllers.py:182
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same "
@@ -1177,69 +1165,69 @@ msgid ""
 "time."
 msgstr ""
 
-#: keystone/resource/core.py:84
+#: keystone/resource/core.py:81
 #, python-format
 msgid "max hierarchy depth reached for %s branch."
 msgstr ""
 
-#: keystone/resource/core.py:102
+#: keystone/resource/core.py:99
 msgid "cannot create a project within a different domain than its parents."
 msgstr ""
 
-#: keystone/resource/core.py:106
+#: keystone/resource/core.py:103
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
 
-#: keystone/resource/core.py:127 keystone/token/core.py:67
+#: keystone/resource/core.py:124 keystone/token/core.py:67
 #: keystone/token/core.py:83
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "O domínio está desativado: %s"
 
-#: keystone/resource/core.py:139
-#, python-format
-msgid "Domain cannot be named Federated: %s"
-msgstr ""
-
 #: keystone/resource/core.py:142
 #, python-format
-msgid "Domain cannot have ID Federated: %s"
+msgid "Domain cannot be named %s"
 msgstr ""
 
-#: keystone/resource/core.py:154
+#: keystone/resource/core.py:145
+#, python-format
+msgid "Domain cannot have ID %s"
+msgstr ""
+
+#: keystone/resource/core.py:157
 #, python-format
 msgid "Project is disabled: %s"
 msgstr "O projeto está desativado: %s"
 
-#: keystone/resource/core.py:174
+#: keystone/resource/core.py:177
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 
-#: keystone/resource/core.py:182
+#: keystone/resource/core.py:185
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
 msgstr ""
 
-#: keystone/resource/core.py:194
+#: keystone/resource/core.py:197
 msgid "Update of `parent_id` is not allowed."
 msgstr ""
 
-#: keystone/resource/core.py:221
+#: keystone/resource/core.py:224
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
 msgstr ""
 
-#: keystone/resource/core.py:377
+#: keystone/resource/core.py:380
 msgid "Multiple domains are not supported"
 msgstr ""
 
-#: keystone/resource/core.py:426
+#: keystone/resource/core.py:429
 msgid "delete the default domain"
 msgstr ""
 
-#: keystone/resource/core.py:437
+#: keystone/resource/core.py:440
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
@@ -1314,17 +1302,17 @@ msgstr "Usuário não é confiável."
 msgid "Oauth is disabled."
 msgstr "Oauth está desabilitado."
 
-#: keystone/token/providers/common.py:507
+#: keystone/token/providers/common.py:512
 msgid ""
 "Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
 "Authentication"
 msgstr ""
 
-#: keystone/token/providers/common.py:517
+#: keystone/token/providers/common.py:522
 msgid "Non-default domain is not supported"
 msgstr "O domínio não padrão não é suportado"
 
-#: keystone/token/providers/common.py:525
+#: keystone/token/providers/common.py:530
 msgid "Domain scoped token is not supported"
 msgstr "O token de escopo de domínio não é suportado"
 
