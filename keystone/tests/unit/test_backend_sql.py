@@ -106,11 +106,6 @@ class SqlModels(SqlTests):
                 ('extra', sql.JsonBlob, None))
         self.assertExpectedSchema('project', cols)
 
-    def test_role_model(self):
-        cols = (('id', sql.String, 64),
-                ('name', sql.String, 255))
-        self.assertExpectedSchema('role', cols)
-
     def test_role_assignment_model(self):
         cols = (('type', sql.Enum, None),
                 ('actor_id', sql.String, 64),
@@ -170,17 +165,6 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           self.resource_api.get_project_by_name,
                           tenant['name'],
                           DEFAULT_DOMAIN_ID)
-
-    def test_create_null_role_name(self):
-        role = {'id': uuid.uuid4().hex,
-                'name': None}
-        self.assertRaises(exception.UnexpectedError,
-                          self.role_api.create_role,
-                          role['id'],
-                          role)
-        self.assertRaises(exception.RoleNotFound,
-                          self.role_api.get_role,
-                          role['id'])
 
     def test_delete_project_with_user_association(self):
         user = {'name': 'fakeuser',
