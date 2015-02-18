@@ -204,11 +204,11 @@ class TestDependencyInjection(tests.BaseTestCase):
 
         p_inst = P()
 
-        self.assertIs(dependency.REGISTRY[p_id], p_inst)
+        self.assertIs(dependency.get_provider(p_id), p_inst)
 
         dependency.reset()
 
-        self.assertFalse(dependency.REGISTRY)
+        self.assertFalse(dependency._REGISTRY)
 
     def test_optional_dependency_not_provided(self):
         requirement_name = uuid.uuid4().hex
@@ -265,3 +265,29 @@ class TestDependencyInjection(tests.BaseTestCase):
         self.assertIs(getattr(p1, p2_name), p2)
         self.assertIs(getattr(p2, p1_name), p1)
         self.assertIsNone(getattr(p1, optional_name))
+
+    def test_get_provider(self):
+        # Can get the instance of a provider using get_provider
+
+        provider_name = uuid.uuid4().hex
+
+        @dependency.provider(provider_name)
+        class P(object):
+            pass
+
+        provider_instance = P()
+        retrieved_provider_instance = dependency.get_provider(provider_name)
+        self.assertIs(provider_instance, retrieved_provider_instance)
+
+    def test_get_provider_not_provided_error(self):
+        # If no provider and provider is required then fails.
+
+        provider_name = uuid.uuid4().hex
+        self.assertRaises(KeyError, dependency.get_provider, provider_name)
+
+    def test_get_provider_not_provided_optional(self):
+        # If no provider and provider is optional then returns None.
+
+        provider_name = uuid.uuid4().hex
+        self.assertIsNone(dependency.get_provider(provider_name,
+                                                  dependency.GET_OPTIONAL))
