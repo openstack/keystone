@@ -62,7 +62,7 @@ class TenantAssignment(controller.V2Controller):
 
         tenant_refs = (
             self.assignment_api.list_projects_for_user(token_ref.user_id))
-        tenant_refs = [self.filter_domain_id(ref) for ref in tenant_refs
+        tenant_refs = [self.v3_to_v2_project(ref) for ref in tenant_refs
                        if ref['domain_id'] == CONF.identity.default_domain_id]
         params = {
             'limit': context['query_string'].get('limit'),
