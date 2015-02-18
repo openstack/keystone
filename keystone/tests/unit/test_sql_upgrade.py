@@ -1540,6 +1540,19 @@ class SqlUpgradeTests(SqlMigrateBase):
                                 ['id', 'description', 'parent_region_id',
                                  'extra', 'url'])
 
+    def test_drop_domain_fk(self):
+        self.upgrade(63)
+        self.assertTrue(self.does_fk_exist('group', 'domain_id'))
+        self.assertTrue(self.does_fk_exist('user', 'domain_id'))
+        self.upgrade(64)
+        if self.engine.name != 'sqlite':
+            # sqlite does not support FK deletions (or enforcement)
+            self.assertFalse(self.does_fk_exist('group', 'domain_id'))
+            self.assertFalse(self.does_fk_exist('user', 'domain_id'))
+        self.downgrade(63)
+        self.assertTrue(self.does_fk_exist('group', 'domain_id'))
+        self.assertTrue(self.does_fk_exist('user', 'domain_id'))
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
