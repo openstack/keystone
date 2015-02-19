@@ -69,7 +69,7 @@ class TestDomainConfigs(tests.BaseTestCase):
         self.addCleanup(os.remove, domain_config_filename)
 
         with mock.patch.object(identity.DomainConfigs,
-                               '_load_config') as mock_load_config:
+                               '_load_config_from_file') as mock_load_config:
             domain_config = identity.DomainConfigs()
             fake_assignment_api = None
             fake_standard_driver = None
@@ -78,3 +78,15 @@ class TestDomainConfigs(tests.BaseTestCase):
             mock_load_config.assert_called_once_with(fake_assignment_api,
                                                      [domain_config_filename],
                                                      'abc.def.com')
+
+    def test_loading_config_from_database(self):
+        # This is currently not implemented
+        CONF.set_override('domain_configurations_from_database', True,
+                          'identity')
+        domain_config = identity.DomainConfigs()
+        fake_assignment_api = None
+        fake_standard_driver = None
+        self.assertRaises(exception.NotImplemented,
+                          domain_config.setup_domain_drivers,
+                          fake_standard_driver,
+                          fake_assignment_api)

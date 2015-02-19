@@ -3029,12 +3029,13 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
 
         # Now try and manually load a 2nd sql specific driver, for domain2,
         # which should fail.
-        self.assertRaises(exception.MultipleSQLDriversInConfig,
-                          self.identity_api.domain_configs._load_config,
-                          self.resource_api,
-                          [tests.TESTCONF + '/domain_configs_one_extra_sql/' +
-                           'keystone.domain2.conf'],
-                          'domain2')
+        self.assertRaises(
+            exception.MultipleSQLDriversInConfig,
+            self.identity_api.domain_configs._load_config_from_file,
+            self.resource_api,
+            [tests.TESTCONF + '/domain_configs_one_extra_sql/' +
+             'keystone.domain2.conf'],
+            'domain2')
 
 
 class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
