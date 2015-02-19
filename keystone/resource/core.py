@@ -457,19 +457,10 @@ class Manager(manager.Manager):
         """Delete the contents of a domain.
 
         Before we delete a domain, we need to remove all the entities
-        that are owned by it, i.e. Users, Groups & Projects. To do this we
-        call the respective delete functions for these entities, which are
+        that are owned by it, i.e. Projects. To do this we
+        call the delete function for these entities, which are
         themselves responsible for deleting any credentials and role grants
         associated with them as well as revoking any relevant tokens.
-
-        The order we delete entities is also important since some types
-        of backend may need to maintain referential integrity
-        throughout, and many of the entities have relationship with each
-        other. The following deletion order is therefore used:
-
-        Projects: Reference user and groups for grants
-        Groups: Reference users for membership and domains for grants
-        Users: Reference domains for grants
 
         """
 
@@ -495,38 +486,13 @@ class Manager(manager.Manager):
                           {'projectid': project['id'],
                            'domainid': domain_id})
 
-        user_refs = self.identity_api.list_users(domain_scope=domain_id)
         proj_refs = self.list_projects_in_domain(domain_id)
-        group_refs = self.identity_api.list_groups(domain_scope=domain_id)
 
         # Deleting projects recursively
         roots = [x for x in proj_refs if x.get('parent_id') is None]
         examined = set()
         for project in roots:
             _delete_projects(project, proj_refs, examined)
-
-        for group in group_refs:
-            # Cleanup any existing groups.
-            if group['domain_id'] == domain_id:
-                try:
-                    self.identity_api.delete_group(group['id'])
-                except exception.GroupNotFound:
-                    LOG.debug(('Group %(groupid)s not found when deleting '
-                               'domain contents for %(domainid)s, continuing '
-                               'with cleanup.'),
-                              {'groupid': group['id'], 'domainid': domain_id})
-
-        # And finally, delete the users themselves
-        for user in user_refs:
-            if user['domain_id'] == domain_id:
-                try:
-                    self.identity_api.delete_user(user['id'])
-                except exception.UserNotFound:
-                    LOG.debug(('User %(userid)s not found when '
-                               'deleting domain contents for %(domainid)s, '
-                               'continuing with cleanup.'),
-                              {'userid': user['id'],
-                               'domainid': domain_id})
 
     @manager.response_truncated
     def list_projects(self, hints=None):
