@@ -14,9 +14,10 @@
 
 import uuid
 
-from keystone import config
+from oslo_config import cfg
 
-CONF = config.CONF
+
+CONF = cfg.CONF
 
 
 class FilterTests(object):

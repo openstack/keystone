@@ -17,13 +17,13 @@ import json
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
+from oslo_config import cfg
 
-from keystone import config
 from keystone import exception
 from keystone.tests.unit import test_v3
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class CredentialBaseTestCase(test_v3.RestfulTestCase):

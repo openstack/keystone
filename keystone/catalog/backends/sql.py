@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 import six
 import sqlalchemy
 from sqlalchemy.sql import true
@@ -20,11 +21,10 @@ from sqlalchemy.sql import true
 from keystone import catalog
 from keystone.catalog import core
 from keystone.common import sql
-from keystone import config
 from keystone import exception
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class Region(sql.ModelBase, sql.DictBase):

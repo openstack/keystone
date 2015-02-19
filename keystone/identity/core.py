@@ -35,7 +35,7 @@ from keystone.identity.mapping_backends import mapping
 from keystone import notifications
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 LOG = log.getLogger(__name__)
 

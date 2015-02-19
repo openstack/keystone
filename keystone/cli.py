@@ -31,7 +31,7 @@ from keystone import identity
 from keystone import token
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 

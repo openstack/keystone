@@ -15,6 +15,7 @@
 import sys
 
 from keystoneclient.common import cms
+from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
@@ -33,7 +34,7 @@ from keystone.resource import controllers as resource_controllers
 
 LOG = log.getLogger(__name__)
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 # registry of authentication methods
 AUTH_METHODS = {}

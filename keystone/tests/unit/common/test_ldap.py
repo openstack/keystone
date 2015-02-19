@@ -15,6 +15,7 @@ import uuid
 
 import ldap.dn
 import mock
+from oslo_config import cfg
 from testtools import matchers
 
 import os
@@ -23,12 +24,11 @@ import tempfile
 
 from keystone.common import ldap as ks_ldap
 from keystone.common.ldap import core as common_ldap_core
-from keystone import config
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class DnCompareTest(tests.BaseTestCase):

@@ -12,13 +12,14 @@
 
 """Extensions supporting Federation."""
 
+from oslo_config import cfg
+
 from keystone.auth import controllers as auth_controllers
 from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
 from keystone.common import wsgi
-from keystone import config
 from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import schema
 from keystone.contrib.federation import utils
@@ -27,7 +28,7 @@ from keystone.i18n import _
 from keystone.models import token_model
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class _ControllerBase(controller.V3Controller):

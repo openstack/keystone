@@ -34,6 +34,7 @@ import json
 import uuid
 
 from migrate.versioning import api as versioning_api
+from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import migration
 from oslo_db.sqlalchemy import session as db_session
@@ -46,7 +47,6 @@ from keystone.assignment.backends import sql as assignment_sql
 from keystone.common import sql
 from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
-from keystone import config
 from keystone.contrib import federation
 from keystone.contrib import revoke
 from keystone import exception
@@ -55,7 +55,7 @@ from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 # NOTE(morganfainberg): This should be updated when each DB migration collapse

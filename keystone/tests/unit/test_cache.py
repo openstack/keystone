@@ -16,14 +16,14 @@ import copy
 
 from dogpile.cache import api
 from dogpile.cache import proxy
+from oslo_config import cfg
 
 from keystone.common import cache
-from keystone import config
 from keystone import exception
 from keystone.tests import unit as tests
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 NO_VALUE = api.NO_VALUE
 
 
@@ -82,7 +82,7 @@ class CacheRegionTest(tests.TestCase):
 
     def _add_test_caching_option(self):
         self.config_fixture.register_opt(
-            config.config.cfg.BoolOpt('caching', default=True), group='cache')
+            cfg.BoolOpt('caching', default=True), group='cache')
 
     def _get_cacheable_function(self):
         SHOULD_CACHE_FN = cache.should_cache_fn('cache')

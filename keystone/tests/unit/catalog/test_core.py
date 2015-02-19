@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 import testtools
 
 from keystone.catalog import core
-from keystone import config
 from keystone import exception
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class FormatUrlTests(testtools.TestCase):

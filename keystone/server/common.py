@@ -12,13 +12,15 @@
 #    under the License.
 
 
+from oslo_config import cfg
+
 from keystone import backends
 from keystone.common import dependency
 from keystone.common import sql
 from keystone import config
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def configure(version=None, config_files=None):

@@ -22,12 +22,12 @@ import uuid
 
 import oauthlib.common
 from oauthlib import oauth1
+from oslo_config import cfg
 import six
 
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
-from keystone import config
 from keystone import exception
 from keystone import notifications
 
@@ -57,7 +57,7 @@ class Token(object):
         self.verifier = verifier
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 def token_generator(*args, **kwargs):

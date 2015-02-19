@@ -12,16 +12,16 @@
 
 import datetime
 
+from oslo_config import cfg
 from oslo_utils import timeutils
 
 from keystone.common import kvs
-from keystone import config
 from keystone.contrib import revoke
 from keystone import exception
 from keystone.openstack.common import versionutils
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 _EVENT_KEY = 'os-revoke-events'
 _KVS_BACKEND = 'openstack.kvs.Memory'

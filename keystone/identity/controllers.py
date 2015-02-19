@@ -14,16 +14,16 @@
 
 """Workflow Logic the Identity service."""
 
+from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common import controller
 from keystone.common import dependency
-from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LW
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
@@ -126,7 +126,7 @@ class User(controller.V2Controller):
             if user_ref['tenantId'] != old_user_ref.get('tenantId'):
                 if old_user_ref.get('tenantId'):
                     try:
-                        member_role_id = config.CONF.member_role_id
+                        member_role_id = CONF.member_role_id
                         self.assignment_api.remove_role_from_user_and_project(
                             user_id, old_user_ref['tenantId'], member_role_id)
                     except exception.NotFound:

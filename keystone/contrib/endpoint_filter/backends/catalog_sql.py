@@ -12,15 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 import six
 
 from keystone.catalog.backends import sql
 from keystone.catalog import core as catalog_core
 from keystone.common import dependency
-from keystone import config
 from keystone import exception
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 @dependency.requires('endpoint_filter_api')

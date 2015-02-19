@@ -14,6 +14,7 @@
 
 import uuid
 
+from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 import six
@@ -22,14 +23,13 @@ from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone.trust import schema
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 LOG = log.getLogger(__name__)
 

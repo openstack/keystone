@@ -26,6 +26,7 @@ import time
 import warnings
 
 import fixtures
+from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 import oslotest.base as oslotest
@@ -83,7 +84,7 @@ def _calc_tmpdir():
 
 TMPDIR = _calc_tmpdir()
 
-CONF = config.CONF
+CONF = cfg.CONF
 log.register_options(CONF)
 
 IN_MEM_DB_CONN_STRING = 'sqlite://'

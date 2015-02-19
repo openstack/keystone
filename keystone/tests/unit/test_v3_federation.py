@@ -17,6 +17,7 @@ import uuid
 
 from lxml import etree
 import mock
+from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslotest import mockpatch
@@ -26,7 +27,6 @@ from saml2 import sigver
 import xmldsig
 
 from keystone.auth import controllers as auth_controllers
-from keystone import config
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import utils as mapping_utils
@@ -37,7 +37,7 @@ from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.abspath(__file__))
 XMLDIR = os.path.join(ROOTDIR, 'saml2/')

@@ -18,6 +18,7 @@ import os
 import socket
 
 from oslo_concurrency import processutils
+from oslo_config import cfg
 import oslo_i18n
 import pbr.version
 
@@ -39,7 +40,7 @@ from keystone.server import common
 from keystone import service as keystone_service
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class ServerWrapper(object):

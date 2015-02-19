@@ -16,14 +16,14 @@ import os
 import uuid
 
 import mock
+from oslo_config import cfg
 
-from keystone import config
 from keystone import exception
 from keystone import identity
 from keystone.tests import unit as tests
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class TestDomainConfigs(tests.BaseTestCase):

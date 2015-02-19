@@ -16,16 +16,16 @@
 
 import abc
 
+from oslo_config import cfg
 import six
 
 from keystone.common import dependency
 from keystone.common import manager
-from keystone import config
 from keystone import exception
 from keystone import notifications
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 @dependency.provider('policy_api')

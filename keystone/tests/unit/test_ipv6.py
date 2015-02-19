@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from oslo_config import cfg
+
 from keystone.common import environment
-from keystone import config
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import appserver
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class IPv6TestCase(tests.TestCase):

@@ -15,9 +15,9 @@
 import uuid
 
 import ldappool
+from oslo_config import cfg
 
 from keystone.common.ldap import core as ldap_core
-from keystone import config
 from keystone.identity.backends import ldap
 from keystone.tests import unit as tests
 from keystone.tests.unit import fakeldap
@@ -25,7 +25,7 @@ from keystone.tests.unit import test_backend_ldap_pool
 from keystone.tests.unit import test_ldap_livetest
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
