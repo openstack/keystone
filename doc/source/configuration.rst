@@ -393,14 +393,6 @@ configuring the following property.
 * ``provider`` - token provider driver. Defaults to
   ``keystone.token.providers.uuid.Provider``
 
-Note that ``token_format`` in the ``[signing]`` section is deprecated but still
-being supported for backward compatibility. Therefore, if ``provider`` is set
-to ``keystone.token.providers.pki.Provider``, ``token_format`` must be ``PKI``.
-Conversely, if ``provider`` is ``keystone.token.providers.uuid.Provider``,
-``token_format`` must be ``UUID``.
-
-For a customized provider, ``token_format`` must not be set to ``PKI`` or
-``UUID``.
 
 PKI or UUID?
 ^^^^^^^^^^^^
