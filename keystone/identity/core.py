@@ -283,26 +283,23 @@ class Manager(manager.Manager):
 
         for group in group_refs:
             # Cleanup any existing groups.
-            if group['domain_id'] == domain_id:
-                try:
-                    self.delete_group(group['id'])
-                except exception.GroupNotFound:
-                    LOG.debug(('Group %(groupid)s not found when deleting '
-                               'domain contents for %(domainid)s, continuing '
-                               'with cleanup.'),
-                              {'groupid': group['id'], 'domainid': domain_id})
+            try:
+                self.delete_group(group['id'])
+            except exception.GroupNotFound:
+                LOG.debug(('Group %(groupid)s not found when deleting domain '
+                           'contents for %(domainid)s, continuing with '
+                           'cleanup.'),
+                          {'groupid': group['id'], 'domainid': domain_id})
 
         # And finally, delete the users themselves
         for user in user_refs:
-            if user['domain_id'] == domain_id:
-                try:
-                    self.delete_user(user['id'])
-                except exception.UserNotFound:
-                    LOG.debug(('User %(userid)s not found when '
-                               'deleting domain contents for %(domainid)s, '
-                               'continuing with cleanup.'),
-                              {'userid': user['id'],
-                               'domainid': domain_id})
+            try:
+                self.delete_user(user['id'])
+            except exception.UserNotFound:
+                LOG.debug(('User %(userid)s not found when deleting domain '
+                           'contents for %(domainid)s, continuing with '
+                           'cleanup.'),
+                          {'userid': user['id'], 'domainid': domain_id})
 
     # Domain ID normalization methods
 
