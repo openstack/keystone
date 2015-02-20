@@ -140,7 +140,6 @@
     "identity:list_projects_associated_with_endpoint_group": "rule:admin_required",
     "identity:list_endpoints_associated_with_endpoint_group": "rule:admin_required",
     "identity:get_endpoint_group_in_project": "rule:admin_required",
-    "identity:list_endpoint_groups_for_project": "rule:admin_required",
     "identity:add_endpoint_group_to_project": "rule:admin_required",
     "identity:remove_endpoint_group_from_project": "rule:admin_required",
 
