@@ -239,9 +239,6 @@ class ConsumerCRUDTests(OAuth1Tests):
 
 class OAuthFlowTests(OAuth1Tests):
 
-    def load_extra_backends(self):
-        return {'oauth_api': oauth1.Manager()}
-
     def auth_plugin_config_override(self):
         methods = ['password', 'token', 'oauth1']
         method_classes = {
