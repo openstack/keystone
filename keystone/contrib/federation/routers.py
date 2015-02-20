@@ -14,7 +14,6 @@ import functools
 
 from keystone.common import json_home
 from keystone.common import wsgi
-from keystone.contrib import federation
 from keystone.contrib.federation import controllers
 
 
@@ -82,9 +81,6 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         return "/OS-FEDERATION/%s" % suffix
 
     def add_routes(self, mapper):
-        # This is needed for dependency injection
-        # it loads the Federation driver which registers it as a dependency.
-        federation.Manager()
         auth_controller = controllers.Auth()
         idp_controller = controllers.IdentityProvider()
         protocol_controller = controllers.FederationProtocol()
