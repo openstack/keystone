@@ -36,14 +36,16 @@ class IPv6TestCase(tests.TestCase):
 
         # Verify Admin
         with appserver.AppServer(paste_conf, appserver.ADMIN, host="::1"):
-            conn = environment.httplib.HTTPConnection('::1', CONF.admin_port)
+            conn = environment.httplib.HTTPConnection(
+                '::1', CONF.eventlet_server.admin_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
             self.assertEqual(resp.status, 300)
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, host="::1"):
-            conn = environment.httplib.HTTPConnection('::1', CONF.public_port)
+            conn = environment.httplib.HTTPConnection(
+                '::1', CONF.eventlet_server.public_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
             self.assertEqual(resp.status, 300)

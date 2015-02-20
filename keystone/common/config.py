@@ -31,18 +31,6 @@ FILE_OPTIONS = {
                         'AdminTokenAuthMiddleware from your paste '
                         'application pipelines (for example, in '
                         'keystone-paste.ini).'),
-        cfg.StrOpt('public_bind_host',
-                   default='0.0.0.0',
-                   deprecated_opts=[cfg.DeprecatedOpt('bind_host',
-                                                      group='DEFAULT')],
-                   help='The IP address of the network interface for the '
-                        'public service to listen on.'),
-        cfg.StrOpt('admin_bind_host',
-                   default='0.0.0.0',
-                   deprecated_opts=[cfg.DeprecatedOpt('bind_host',
-                                                      group='DEFAULT')],
-                   help='The IP address of the network interface for the '
-                        'admin service to listen on.'),
         cfg.IntOpt('compute_port', default=8774,
                    help='(Deprecated) The port which the OpenStack Compute '
                         'service listens on. This option was only used for '
@@ -51,12 +39,6 @@ FILE_OPTIONS = {
                         '"$(compute_port)s" substitution with the static port '
                         'of the compute service. As of Juno, this option is '
                         'deprecated and will be removed in the L release.'),
-        cfg.IntOpt('admin_port', default=35357,
-                   help='The port number which the admin service listens '
-                        'on.'),
-        cfg.IntOpt('public_port', default=5000,
-                   help='The port number which the public service listens '
-                        'on.'),
         cfg.StrOpt('public_endpoint',
                    help='The base public endpoint URL for Keystone that is '
                         'advertised to clients (NOTE: this does NOT affect '
@@ -81,14 +63,6 @@ FILE_OPTIONS = {
                    help='Maximum depth of the project hierarchy. WARNING: '
                         'setting it to a large value may adversely impact '
                         'performance.'),
-        cfg.IntOpt('public_workers',
-                   help='The number of worker processes to serve the public '
-                        'WSGI application. Defaults to number of CPUs '
-                        '(minimum of 2).'),
-        cfg.IntOpt('admin_workers',
-                   help='The number of worker processes to serve the admin '
-                        'WSGI application. Defaults to number of CPUs '
-                        '(minimum of 2).'),
         cfg.IntOpt('max_param_size', default=64,
                    help='Limit the sizes of user & project ID/names.'),
         # we allow tokens to be a bit larger to accommodate PKI
@@ -109,16 +83,6 @@ FILE_OPTIONS = {
         cfg.IntOpt('crypt_strength', default=40000,
                    help='The value passed as the keyword "rounds" to '
                         'passlib\'s encrypt method.'),
-        cfg.BoolOpt('tcp_keepalive', default=False,
-                    help='Set this to true if you want to enable '
-                         'TCP_KEEPALIVE on server sockets, i.e. sockets used '
-                         'by the Keystone wsgi server for client '
-                         'connections.'),
-        cfg.IntOpt('tcp_keepidle',
-                   default=600,
-                   help='Sets the value of TCP_KEEPIDLE in seconds for each '
-                        'server socket. Only applies if tcp_keepalive is '
-                        'true.'),
         cfg.IntOpt('list_limit',
                    help='The maximum number of entities that will be '
                         'returned in a collection, with no limit set by '
@@ -378,26 +342,9 @@ FILE_OPTIONS = {
                         'a memcache client connection.'),
     ],
     'ssl': [
-        cfg.BoolOpt('enable', default=False,
-                    help='Toggle for SSL support on the Keystone '
-                         'eventlet servers.'),
-        cfg.StrOpt('certfile',
-                   default="/etc/keystone/ssl/certs/keystone.pem",
-                   help='Path of the certfile for SSL. For non-production '
-                        'environments, you may be interested in using '
-                        '`keystone-manage ssl_setup` to generate self-signed '
-                        'certificates.'),
-        cfg.StrOpt('keyfile',
-                   default='/etc/keystone/ssl/private/keystonekey.pem',
-                   help='Path of the keyfile for SSL.'),
-        cfg.StrOpt('ca_certs',
-                   default='/etc/keystone/ssl/certs/ca.pem',
-                   help='Path of the CA cert file for SSL.'),
         cfg.StrOpt('ca_key',
                    default='/etc/keystone/ssl/private/cakey.pem',
                    help='Path of the CA key file for SSL.'),
-        cfg.BoolOpt('cert_required', default=False,
-                    help='Require client certificate.'),
         cfg.IntOpt('key_size', default=1024,
                    help='SSL key length (in bits) (auto generated '
                         'certificate).'),
@@ -969,6 +916,76 @@ FILE_OPTIONS = {
                    help='Path to the Identity Provider Metadata file. '
                         'This file should be generated with the '
                         'keystone-manage saml_idp_metadata command.'),
+    ],
+    'eventlet_server': [
+        cfg.IntOpt('public_workers',
+                   deprecated_name='public_workers',
+                   help='The number of worker processes to serve the public '
+                        'eventlet application. Defaults to number of CPUs '
+                        '(minimum of 2).'),
+        cfg.IntOpt('admin_workers',
+                   deprecated_name='admin_workers',
+                   help='The number of worker processes to serve the admin '
+                        'eventlet application. Defaults to number of CPUs '
+                        '(minimum of 2).'),
+        cfg.StrOpt('public_bind_host',
+                   default='0.0.0.0',
+                   deprecated_opts=[cfg.DeprecatedOpt('bind_host',
+                                                      group='DEFAULT'),
+                                    cfg.DeprecatedOpt('public_bind_host',
+                                                      group='DEFAULT'), ],
+                   help='The IP address of the network interface for the '
+                        'public service to listen on.'),
+        cfg.IntOpt('public_port', default=5000, deprecated_name='public_port',
+                   help='The port number which the public service listens '
+                        'on.'),
+        cfg.StrOpt('admin_bind_host',
+                   default='0.0.0.0',
+                   deprecated_opts=[cfg.DeprecatedOpt('bind_host',
+                                                      group='DEFAULT'),
+                                    cfg.DeprecatedOpt('admin_bind_host',
+                                                      group='DEFAULT')],
+                   help='The IP address of the network interface for the '
+                        'admin service to listen on.'),
+        cfg.IntOpt('admin_port', default=35357, deprecated_name='admin_port',
+                   help='The port number which the admin service listens '
+                        'on.'),
+        cfg.BoolOpt('tcp_keepalive', default=False,
+                    deprecated_name='tcp_keepalive',
+                    help='Set this to true if you want to enable '
+                         'TCP_KEEPALIVE on server sockets, i.e. sockets used '
+                         'by the Keystone wsgi server for client '
+                         'connections.'),
+        cfg.IntOpt('tcp_keepidle',
+                   default=600,
+                   deprecated_name='tcp_keepidle',
+                   help='Sets the value of TCP_KEEPIDLE in seconds for each '
+                        'server socket. Only applies if tcp_keepalive is '
+                        'true.'),
+    ],
+    'eventlet_server_ssl': [
+        cfg.BoolOpt('enable', default=False, deprecated_name='enable',
+                    deprecated_group='ssl',
+                    help='Toggle for SSL support on the Keystone '
+                         'eventlet servers.'),
+        cfg.StrOpt('certfile',
+                   default="/etc/keystone/ssl/certs/keystone.pem",
+                   deprecated_name='certfile', deprecated_group='ssl',
+                   help='Path of the certfile for SSL. For non-production '
+                        'environments, you may be interested in using '
+                        '`keystone-manage ssl_setup` to generate self-signed '
+                        'certificates.'),
+        cfg.StrOpt('keyfile',
+                   default='/etc/keystone/ssl/private/keystonekey.pem',
+                   deprecated_name='keyfile', deprecated_group='ssl',
+                   help='Path of the keyfile for SSL.'),
+        cfg.StrOpt('ca_certs',
+                   default='/etc/keystone/ssl/certs/ca.pem',
+                   deprecated_name='ca_certs', deprecated_group='ssl',
+                   help='Path of the CA cert file for SSL.'),
+        cfg.BoolOpt('cert_required', default=False,
+                    deprecated_name='cert_required', deprecated_group='ssl',
+                    help='Require client certificate.'),
     ],
 }
 
