@@ -37,12 +37,12 @@ notifier_opts = [
     cfg.StrOpt('default_publisher_id',
                help='Default publisher_id for outgoing notifications'),
     cfg.StrOpt('notification_format', default='basic',
+               choices=['basic', 'cadf'],
                help='Define the notification format for Identity Service '
                     'events. A "basic" notification has information about '
                     'the resource being operated on. A "cadf" notification '
                     'has the same information, as well as information about '
-                    'the initiator of the event. Valid options are: basic '
-                    'and cadf'),
+                    'the initiator of the event.'),
 ]
 
 config_section = None
