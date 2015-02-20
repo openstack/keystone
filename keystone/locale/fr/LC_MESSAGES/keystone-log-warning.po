@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-13 06:03+0000\n"
-"PO-Revision-Date: 2015-02-12 12:02+0000\n"
+"POT-Creation-Date: 2015-02-20 06:03+0000\n"
+"PO-Revision-Date: 2015-02-19 13:12+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -21,13 +21,13 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: keystone/cli.py:145
+#: keystone/cli.py:144
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 "keystone-manage pki_setup n'est pas recommandé pour une utilisation en "
 "production."
 
-#: keystone/cli.py:164
+#: keystone/cli.py:163
 msgid "keystone-manage ssl_setup is not recommended for production use."
 msgstr ""
 "keystone-manage ssl_setup n'est pas recommandé pour une utilisation en "
@@ -42,35 +42,35 @@ msgstr ""
 msgid "Authentication failed: %s"
 msgstr "L'authentification a échoué: %s"
 
-#: keystone/assignment/controllers.py:567
+#: keystone/assignment/controllers.py:573
 #, python-format
 msgid ""
 "Group %(group)s not found for role-assignment - %(target)s with Role: "
 "%(role)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:449
+#: keystone/auth/controllers.py:450
 #, python-format
 msgid ""
 "User %(user_id)s doesn't have access to default project %(project_id)s. The "
 "token will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:457
+#: keystone/auth/controllers.py:458
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s is disabled. The token "
 "will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:466
+#: keystone/auth/controllers.py:467
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s not found. The token will "
 "be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/common/authorization.py:54
+#: keystone/common/authorization.py:55
 msgid "RBAC: Invalid user data in token"
 msgstr "RBAC: Donnée utilisation non valide dans le token"
 
@@ -96,12 +96,12 @@ msgstr ""
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/wsgi.py:240
+#: keystone/common/wsgi.py:241
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
 
-#: keystone/common/wsgi.py:360
+#: keystone/common/wsgi.py:361
 msgid "Invalid token in _get_trust_id_for_request"
 msgstr "Jeton invalide dans _get_trust_id_for_request"
 
@@ -122,7 +122,7 @@ msgstr "%s n'est pas un dogpile.proxy.ProxyBackend"
 msgid "KVS lock released (timeout reached) for: %s"
 msgstr "Verrou KVS relaché (temps limite atteint) pour : %s"
 
-#: keystone/common/ldap/core.py:1031
+#: keystone/common/ldap/core.py:1026
 msgid ""
 "LDAP Server does not support paging. Disable paging in keystone.conf to "
 "avoid this message."
@@ -130,7 +130,7 @@ msgstr ""
 "Le serveur LDAP ne prend pas en charge la pagination. Désactivez la "
 "pagination dans keystone.conf pour éviter de recevoir ce message."
 
-#: keystone/common/ldap/core.py:1230
+#: keystone/common/ldap/core.py:1225
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
@@ -139,7 +139,7 @@ msgstr ""
 "Mauvais mappage d'attribut additionnel: \"%s\". Le format doit être "
 "<ldap_attribute>:<keystone_attribute>"
 
-#: keystone/common/ldap/core.py:1341
+#: keystone/common/ldap/core.py:1336
 #, python-format
 msgid ""
 "ID attribute %(id_attr)s for LDAP object %(dn)s has multiple values and "
@@ -149,7 +149,7 @@ msgstr ""
 "par conséquent ne peut être utilisé comme un ID. Obtention de l'ID depuis le "
 "DN à la place."
 
-#: keystone/common/ldap/core.py:1674
+#: keystone/common/ldap/core.py:1669
 #, python-format
 msgid ""
 "When deleting entries for %(search_base)s, could not delete nonexistent "
@@ -189,12 +189,12 @@ msgstr ""
 msgid "Ignoring user name %s"
 msgstr "nom d'utilisateur ignoré %s"
 
-#: keystone/identity/controllers.py:137
+#: keystone/identity/controllers.py:138
 #, python-format
 msgid "Unable to remove user %(user)s from %(tenant)s."
 msgstr "Impossible de supprimer l'utilisateur %(user)s depuis %(tenant)s."
 
-#: keystone/identity/controllers.py:156
+#: keystone/identity/controllers.py:157
 #, python-format
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr "Impossible d'ajouter l'utilisateur %(user)s à %(tenant)s."
@@ -231,16 +231,10 @@ msgstr ""
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
 
-#: keystone/tests/core.py:148
+#: keystone/tests/unit/core.py:150
 #, python-format
 msgid "Failed to checkout %s"
 msgstr "Echec de la réservation %s"
-
-#: keystone/token/provider.py:135
-msgid ""
-"[signing] token_format is deprecated. Please change to setting the [token] "
-"provider configuration value instead"
-msgstr ""
 
 #: keystone/token/persistence/core.py:240
 #, python-format

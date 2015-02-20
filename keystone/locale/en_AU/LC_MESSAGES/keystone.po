@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-19 06:04+0000\n"
-"PO-Revision-Date: 2015-02-19 00:06+0000\n"
+"POT-Creation-Date: 2015-02-20 06:03+0000\n"
+"PO-Revision-Date: 2015-02-20 04:02+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -397,6 +397,13 @@ msgid ""
 " %(reason)s"
 msgstr ""
 
+#: keystone/exception.py:455
+msgid ""
+"No Authorization headers found, cannot proceed with OAuth related calls, "
+"if running under HTTPd or Apache, ensure WSGIPassAuthorization is set to "
+"On."
+msgstr ""
+
 #: keystone/notifications.py:149
 #, python-format
 msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
@@ -584,7 +591,7 @@ msgstr ""
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
 
-#: keystone/common/authorization.py:47 keystone/common/wsgi.py:62
+#: keystone/common/authorization.py:47 keystone/common/wsgi.py:63
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
@@ -612,8 +619,8 @@ msgstr "text is not a multiple of 4, but contains pad \"%s\""
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr "padded base64url text must be multiple of 4 characters"
 
-#: keystone/common/controller.py:288 keystone/identity/core.py:324
-#: keystone/resource/core.py:794 keystone/resource/backends/ldap.py:61
+#: keystone/common/controller.py:288 keystone/identity/core.py:357
+#: keystone/resource/core.py:760 keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Expected dict or list: %s"
@@ -698,17 +705,17 @@ msgstr ""
 msgid "Invalid blob in credential"
 msgstr "Invalid blob in credential"
 
-#: keystone/common/wsgi.py:329
+#: keystone/common/wsgi.py:330
 #, python-format
 msgid "%s field is required and cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:341
+#: keystone/common/wsgi.py:342
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:558
+#: keystone/common/wsgi.py:563
 msgid "The resource could not be found."
 msgstr "The resource could not be found."
 
@@ -1048,9 +1055,9 @@ msgid ""
 "bug in the Keystone server. The current request is aborted."
 msgstr ""
 
-#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:235
-#: keystone/token/provider.py:256 keystone/token/provider.py:351
-#: keystone/token/provider.py:358
+#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:191
+#: keystone/token/provider.py:212 keystone/token/provider.py:307
+#: keystone/token/provider.py:314
 msgid "Failed to validate token"
 msgstr "Failed to validate token"
 
@@ -1069,12 +1076,12 @@ msgstr "Enabled field should be a boolean"
 msgid "Invalid user / password"
 msgstr ""
 
-#: keystone/identity/core.py:588 keystone/token/core.py:59
+#: keystone/identity/core.py:621 keystone/token/core.py:59
 #, python-format
 msgid "User is disabled: %s"
 msgstr "User is disabled: %s"
 
-#: keystone/identity/core.py:630
+#: keystone/identity/core.py:663
 msgid "Cannot change user ID"
 msgstr ""
 
@@ -1245,7 +1252,7 @@ msgstr ""
 msgid "Domains are read-only against LDAP"
 msgstr ""
 
-#: keystone/server/eventlet.py:84
+#: keystone/server/eventlet.py:86
 #, python-format
 msgid "Failed to start the %(name)s server"
 msgstr ""
@@ -1263,14 +1270,6 @@ msgstr "Token does not belong to specified tenant."
 #, python-format
 msgid "Tenant is disabled: %s"
 msgstr "Tenant is disabled: %s"
-
-#: keystone/token/provider.py:143
-msgid ""
-"Unrecognized keystone.conf [signing] token_format: expected either 'UUID'"
-" or 'PKI'"
-msgstr ""
-"Unrecognized keystone.conf [signing] token_format: expected either 'UUID'"
-" or 'PKI'"
 
 #: keystone/token/persistence/backends/kvs.py:133
 #, python-format

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-03 06:04+0000\n"
-"PO-Revision-Date: 2015-01-05 20:11+0000\n"
+"POT-Creation-Date: 2015-02-20 06:03+0000\n"
+"PO-Revision-Date: 2015-02-20 04:02+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/keystone/"
 "language/es/)\n"
@@ -19,16 +19,16 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: keystone/notifications.py:204
+#: keystone/notifications.py:206
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:248
+#: keystone/notifications.py:249
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:437
+#: keystone/notifications.py:466
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
@@ -57,12 +57,12 @@ msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
 msgstr ""
 
-#: keystone/common/openssl.py:92
+#: keystone/common/openssl.py:93
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
 msgstr ""
 
-#: keystone/common/openssl.py:120
+#: keystone/common/openssl.py:121
 #, python-format
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr ""
@@ -84,12 +84,12 @@ msgid ""
 "Skipping unknown format: %s"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:98
+#: keystone/common/environment/eventlet_server.py:99
 #, python-format
 msgid "Could not bind to %(host)s:%(port)s"
 msgstr "No se puede asociar a %(host)s:%(port)s"
 
-#: keystone/common/environment/eventlet_server.py:184
+#: keystone/common/environment/eventlet_server.py:185
 msgid "Server error"
 msgstr "Error del servidor"
 
@@ -103,6 +103,10 @@ msgstr ""
 #: keystone/contrib/federation/idp.py:410
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
+msgstr ""
+
+#: keystone/contrib/oauth1/core.py:136
+msgid "Cannot retrieve Authorization headers"
 msgstr ""
 
 #: keystone/openstack/common/loopingcall.py:95
@@ -124,25 +128,25 @@ msgstr "Ha ocurrido un error al interpretar la regla %s"
 msgid "No handler for matches of kind %s"
 msgstr "No hay manejador para coincidencias de clase %s"
 
-#: keystone/openstack/common/service.py:269
+#: keystone/openstack/common/service.py:268
 msgid "Unhandled exception"
 msgstr "Excepción no controlada"
 
-#: keystone/resource/core.py:393
+#: keystone/resource/core.py:469
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/backends/sql.py:101 keystone/resource/backends/sql.py:120
+#: keystone/resource/backends/sql.py:102 keystone/resource/backends/sql.py:121
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/token/provider.py:350
+#: keystone/token/provider.py:305
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
@@ -155,7 +159,7 @@ msgid ""
 "%(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:586
+#: keystone/token/providers/common.py:606
 msgid "Failed to validate token"
 msgstr "Ha fallado la validación del token"
 
