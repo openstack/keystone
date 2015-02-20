@@ -22,11 +22,6 @@ from keystone.tests.unit import default_fixtures
 
 class RoleTests(object):
 
-    def test_get_role(self):
-        role_ref = self.role_api.get_role(self.role_admin['id'])
-        role_ref_dict = dict((x, role_ref[x]) for x in role_ref)
-        self.assertDictEqual(role_ref_dict, self.role_admin)
-
     def test_get_role_404(self):
         self.assertRaises(exception.RoleNotFound,
                           self.role_api.get_role,
