@@ -1736,19 +1736,6 @@ class IdentityTests(object):
         self.resource_api.update_project(project['id'], project)
         self.resource_api.delete_project(project['id'])
 
-    def test_create_project_case_sensitivity(self):
-        # create a ref with a lowercase name
-        ref = {
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex.lower(),
-            'domain_id': DEFAULT_DOMAIN_ID}
-        self.resource_api.create_project(ref['id'], ref)
-
-        # assign a new ID with the same name, but this time in uppercase
-        ref['id'] = uuid.uuid4().hex
-        ref['name'] = ref['name'].upper()
-        self.resource_api.create_project(ref['id'], ref)
-
     def test_create_project_with_no_enabled_field(self):
         ref = {
             'id': uuid.uuid4().hex,
@@ -1824,17 +1811,6 @@ class IdentityTests(object):
                           self.resource_api.update_project,
                           tenant['id'],
                           tenant)
-
-    def test_create_user_case_sensitivity(self):
-        # create a ref with a lowercase name
-        ref = {
-            'name': uuid.uuid4().hex.lower(),
-            'domain_id': DEFAULT_DOMAIN_ID}
-        ref = self.identity_api.create_user(ref)
-
-        # assign a new ID with the same name, but this time in uppercase
-        ref['name'] = ref['name'].upper()
-        self.identity_api.create_user(ref)
 
     def test_create_user_long_name_fails(self):
         user = {'name': 'a' * 256,
@@ -5400,58 +5376,36 @@ class InheritanceTests(object):
 
 class FilterTests(filtering.FilterTests):
     def test_list_entities_filtered(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.resource_api.create_domain(domain1['id'], domain1)
-
         for entity in ['user', 'group', 'project']:
-            # Create 20 entities, 14 of which are in domain1
-            entity_list = self._create_test_data(entity, 6)
-            domain1_entity_list = self._create_test_data(entity, 14,
-                                                         domain1['id'])
-
-            # Should get back the 14 entities in domain1
-            hints = driver_hints.Hints()
-            hints.add_filter('domain_id', domain1['id'])
-            entities = self._list_entities(entity)(hints=hints)
-            self.assertEqual(14, len(entities))
-            self._match_with_list(entities, domain1_entity_list)
-            # Check the driver has removed the filter from the list hints
-            self.assertFalse(hints.get_exact_filter_by_name('domain_id'))
+            # Create 20 entities
+            entity_list = self._create_test_data(entity, 20)
 
             # Try filtering to get one an exact item out of the list
             hints = driver_hints.Hints()
-            hints.add_filter('name', domain1_entity_list[10]['name'])
+            hints.add_filter('name', entity_list[10]['name'])
             entities = self._list_entities(entity)(hints=hints)
             self.assertEqual(1, len(entities))
-            self.assertEqual(entities[0]['id'], domain1_entity_list[10]['id'])
+            self.assertEqual(entities[0]['id'], entity_list[10]['id'])
             # Check the driver has removed the filter from the list hints
             self.assertFalse(hints.get_exact_filter_by_name('name'))
             self._delete_test_data(entity, entity_list)
-            self._delete_test_data(entity, domain1_entity_list)
 
     def test_list_users_inexact_filtered(self):
-        # Create 20 users
-        user_list = self._create_test_data('user', 20)
-        # Set up some names that we can filter on
-        user = user_list[5]
-        user['name'] = 'The'
-        self.identity_api.update_user(user['id'], user)
-        user = user_list[6]
-        user['name'] = 'The Ministry'
-        self.identity_api.update_user(user['id'], user)
-        user = user_list[7]
-        user['name'] = 'The Ministry of'
-        self.identity_api.update_user(user['id'], user)
-        user = user_list[8]
-        user['name'] = 'The Ministry of Silly'
-        self.identity_api.update_user(user['id'], user)
-        user = user_list[9]
-        user['name'] = 'The Ministry of Silly Walks'
-        self.identity_api.update_user(user['id'], user)
-        # ...and one for useful case insensitivity testing
-        user = user_list[10]
-        user['name'] = 'The ministry of silly walks OF'
-        self.identity_api.update_user(user['id'], user)
+        # Create 20 users, some with specific names. We set the names at create
+        # time (rather than updating them), since the LDAP driver does not
+        # support name updates.
+        user_name_data = {
+            # user index: name for user
+            5: 'The',
+            6: 'The Ministry',
+            7: 'The Ministry of',
+            8: 'The Ministry of Silly',
+            9: 'The Ministry of Silly Walks',
+            # ...and one for useful case insensitivity testing
+            10: 'The ministry of silly walks OF'
+        }
+        user_list = self._create_test_data(
+            'user', 20, domain_id=DEFAULT_DOMAIN_ID, name_dict=user_name_data)
 
         hints = driver_hints.Hints()
         hints.add_filter('name', 'ministry', comparator='contains')
@@ -5473,17 +5427,23 @@ class FilterTests(filtering.FilterTests):
         hints.add_filter('name', 'of', comparator='endswith')
         users = self.identity_api.list_users(hints=hints)
         self.assertEqual(2, len(users))
-        self.assertEqual(user_list[7]['id'], users[0]['id'])
-        self.assertEqual(user_list[10]['id'], users[1]['id'])
+        # We can't assume we will get back the users in any particular order
+        self.assertIn(user_list[7]['id'], [users[0]['id'], users[1]['id']])
+        self.assertIn(user_list[10]['id'], [users[0]['id'], users[1]['id']])
         # TODO(henry-nash) Check inexact filter has been removed.
 
-        # TODO(henry-nash): Add some case sensitive tests.  The issue
-        # is that MySQL 0.7, by default, is installed in case
-        # insensitive mode (which is what is run by default for our
+        # TODO(henry-nash): Add some case sensitive tests.  However,
+        # these would be hard to validate currently, since:
+        #
+        # For SQL, the issue is that MySQL 0.7, by default, is installed in
+        # case insensitive mode (which is what is run by default for our
         # SQL backend tests).  For production deployments. OpenStack
         # assumes a case sensitive database.  For these tests, therefore, we
         # need to be able to check the sensitivity of the database so as to
         # know whether to run case sensitive tests here.
+        #
+        # For LDAP/AD, although dependent on the schema being used, attributes
+        # are typically configured to be case aware, but not case sensitive.
 
         self._delete_test_data('user', user_list)
 

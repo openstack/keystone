@@ -680,6 +680,11 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
             user_ref = self.identity_api.create_user(user)
             user_info = self.identity_api.get_user(user_ref['id'])
             self.assertEqual(name, user_info['name'])
+            # Delete the user to ensure  that the Keystone uniqueness
+            # requirements combined with the case-insensitive nature of a
+            # typical LDAP schema does not cause subsequent names in
+            # boolean_strings to clash.
+            self.identity_api.delete_user(user_ref['id'])
 
     def test_unignored_user_none_mapping(self):
         # Ensure that an attribute that maps to None that is not explicitly
