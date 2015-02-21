@@ -342,6 +342,13 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self._assert_last_audit(user_ref['id'], DELETED_OPERATION, 'user',
                                 cadftaxonomy.SECURITY_ACCOUNT_USER)
 
+    def test_create_domain(self):
+        domain_ref = self.new_domain_ref()
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
+        self._assert_last_note(domain_ref['id'], CREATED_OPERATION, 'domain')
+        self._assert_last_audit(domain_ref['id'], CREATED_OPERATION, 'domain',
+                                cadftaxonomy.SECURITY_DOMAIN)
+
     def test_update_domain(self):
         domain_ref = self.new_domain_ref()
         self.assignment_api.create_domain(domain_ref['id'], domain_ref)
@@ -349,6 +356,16 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.assignment_api.update_domain(domain_ref['id'], domain_ref)
         self._assert_last_note(domain_ref['id'], UPDATED_OPERATION, 'domain')
         self._assert_last_audit(domain_ref['id'], UPDATED_OPERATION, 'domain',
+                                cadftaxonomy.SECURITY_DOMAIN)
+
+    def test_delete_domain(self):
+        domain_ref = self.new_domain_ref()
+        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        domain_ref['enabled'] = False
+        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self.assignment_api.delete_domain(domain_ref['id'])
+        self._assert_last_note(domain_ref['id'], DELETED_OPERATION, 'domain')
+        self._assert_last_audit(domain_ref['id'], DELETED_OPERATION, 'domain',
                                 cadftaxonomy.SECURITY_DOMAIN)
 
     def test_delete_trust(self):
@@ -364,16 +381,6 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.trust_api.delete_trust(trust_ref['id'])
         self._assert_last_note(
             trust_ref['id'], DELETED_OPERATION, 'OS-TRUST:trust')
-
-    def test_delete_domain(self):
-        domain_ref = self.new_domain_ref()
-        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
-        domain_ref['enabled'] = False
-        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
-        self.assignment_api.delete_domain(domain_ref['id'])
-        self._assert_last_note(domain_ref['id'], DELETED_OPERATION, 'domain')
-        self._assert_last_audit(domain_ref['id'], DELETED_OPERATION, 'domain',
-                                cadftaxonomy.SECURITY_DOMAIN)
 
     def test_create_endpoint(self):
         endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
