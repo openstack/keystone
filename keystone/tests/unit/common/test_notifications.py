@@ -380,6 +380,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.create_endpoint(endpoint_ref['id'], endpoint_ref)
         self._assert_notify_sent(endpoint_ref['id'], CREATED_OPERATION,
                                  'endpoint')
+        self._assert_last_audit(endpoint_ref['id'], CREATED_OPERATION,
+                                'endpoint', cadftaxonomy.SECURITY_ENDPOINT)
 
     def test_update_endpoint(self):
         endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
@@ -387,6 +389,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.update_endpoint(endpoint_ref['id'], endpoint_ref)
         self._assert_notify_sent(endpoint_ref['id'], UPDATED_OPERATION,
                                  'endpoint')
+        self._assert_last_audit(endpoint_ref['id'], UPDATED_OPERATION,
+                                'endpoint', cadftaxonomy.SECURITY_ENDPOINT)
 
     def test_delete_endpoint(self):
         endpoint_ref = self.new_endpoint_ref(service_id=self.service_id)
@@ -394,12 +398,16 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.delete_endpoint(endpoint_ref['id'])
         self._assert_notify_sent(endpoint_ref['id'], DELETED_OPERATION,
                                  'endpoint')
+        self._assert_last_audit(endpoint_ref['id'], DELETED_OPERATION,
+                                'endpoint', cadftaxonomy.SECURITY_ENDPOINT)
 
     def test_create_service(self):
         service_ref = self.new_service_ref()
         self.catalog_api.create_service(service_ref['id'], service_ref)
         self._assert_notify_sent(service_ref['id'], CREATED_OPERATION,
                                  'service')
+        self._assert_last_audit(service_ref['id'], CREATED_OPERATION,
+                                'service', cadftaxonomy.SECURITY_SERVICE)
 
     def test_update_service(self):
         service_ref = self.new_service_ref()
@@ -407,6 +415,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.update_service(service_ref['id'], service_ref)
         self._assert_notify_sent(service_ref['id'], UPDATED_OPERATION,
                                  'service')
+        self._assert_last_audit(service_ref['id'], UPDATED_OPERATION,
+                                'service', cadftaxonomy.SECURITY_SERVICE)
 
     def test_delete_service(self):
         service_ref = self.new_service_ref()
@@ -414,12 +424,16 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.delete_service(service_ref['id'])
         self._assert_notify_sent(service_ref['id'], DELETED_OPERATION,
                                  'service')
+        self._assert_last_audit(service_ref['id'], DELETED_OPERATION,
+                                'service', cadftaxonomy.SECURITY_SERVICE)
 
     def test_create_region(self):
         region_ref = self.new_region_ref()
         self.catalog_api.create_region(region_ref)
         self._assert_notify_sent(region_ref['id'], CREATED_OPERATION,
                                  'region')
+        self._assert_last_audit(region_ref['id'], CREATED_OPERATION,
+                                'region', cadftaxonomy.SECURITY_REGION)
 
     def test_update_region(self):
         region_ref = self.new_region_ref()
@@ -427,6 +441,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.update_region(region_ref['id'], region_ref)
         self._assert_notify_sent(region_ref['id'], UPDATED_OPERATION,
                                  'region')
+        self._assert_last_audit(region_ref['id'], UPDATED_OPERATION,
+                                'region', cadftaxonomy.SECURITY_REGION)
 
     def test_delete_region(self):
         region_ref = self.new_region_ref()
@@ -434,12 +450,16 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.catalog_api.delete_region(region_ref['id'])
         self._assert_notify_sent(region_ref['id'], DELETED_OPERATION,
                                  'region')
+        self._assert_last_audit(region_ref['id'], DELETED_OPERATION,
+                                'region', cadftaxonomy.SECURITY_REGION)
 
     def test_create_policy(self):
         policy_ref = self.new_policy_ref()
         self.policy_api.create_policy(policy_ref['id'], policy_ref)
         self._assert_notify_sent(policy_ref['id'], CREATED_OPERATION,
                                  'policy')
+        self._assert_last_audit(policy_ref['id'], CREATED_OPERATION,
+                                'policy', cadftaxonomy.SECURITY_POLICY)
 
     def test_update_policy(self):
         policy_ref = self.new_policy_ref()
@@ -447,6 +467,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.policy_api.update_policy(policy_ref['id'], policy_ref)
         self._assert_notify_sent(policy_ref['id'], UPDATED_OPERATION,
                                  'policy')
+        self._assert_last_audit(policy_ref['id'], UPDATED_OPERATION,
+                                'policy', cadftaxonomy.SECURITY_POLICY)
 
     def test_delete_policy(self):
         policy_ref = self.new_policy_ref()
@@ -454,6 +476,8 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
         self.policy_api.delete_policy(policy_ref['id'])
         self._assert_notify_sent(policy_ref['id'], DELETED_OPERATION,
                                  'policy')
+        self._assert_last_audit(policy_ref['id'], DELETED_OPERATION,
+                                'policy', cadftaxonomy.SECURITY_POLICY)
 
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()
