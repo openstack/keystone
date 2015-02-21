@@ -56,6 +56,7 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+    _DOMAIN = 'domain'
     _PROJECT = 'project'
 
     def __init__(self):
@@ -374,7 +375,7 @@ class Manager(manager.Manager):
     def get_domain_by_name(self, domain_name):
         return self.driver.get_domain_by_name(domain_name)
 
-    @notifications.created('domain')
+    @notifications.created(_DOMAIN)
     def create_domain(self, domain_id, domain):
         if (not self.identity_api.multiple_domains_supported and
                 domain_id != CONF.identity.default_domain_id):
@@ -392,7 +393,7 @@ class Manager(manager.Manager):
     def list_domains(self, hints=None):
         return self.driver.list_domains(hints or driver_hints.Hints())
 
-    @notifications.disabled('domain', public=False)
+    @notifications.disabled(_DOMAIN, public=False)
     def _disable_domain(self, domain_id):
         """Emit a notification to the callback system domain is been disabled.
 
@@ -405,7 +406,7 @@ class Manager(manager.Manager):
         """
         pass
 
-    @notifications.updated('domain')
+    @notifications.updated(_DOMAIN)
     def update_domain(self, domain_id, domain):
         self.assert_domain_not_federated(domain_id, domain)
         original_domain = self.driver.get_domain(domain_id)
@@ -421,7 +422,7 @@ class Manager(manager.Manager):
         self.get_domain_by_name.invalidate(self, original_domain['name'])
         return ret
 
-    @notifications.deleted('domain')
+    @notifications.deleted(_DOMAIN)
     def delete_domain(self, domain_id):
         # explicitly forbid deleting the default domain (this should be a
         # carefully orchestrated manual process involving configuration

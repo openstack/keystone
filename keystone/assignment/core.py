@@ -902,6 +902,8 @@ class Driver(object):
 class RoleManager(manager.Manager):
     """Default pivot point for the Role backend."""
 
+    _ROLE = 'role'
+
     def __init__(self):
         # If there is a specific driver specified for role, then use it.
         # Otherwise retrieve the driver type from the assignment driver.
@@ -919,7 +921,7 @@ class RoleManager(manager.Manager):
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
 
-    @notifications.created('role')
+    @notifications.created(_ROLE)
     def create_role(self, role_id, role):
         ret = self.driver.create_role(role_id, role)
         if SHOULD_CACHE(ret):
@@ -930,13 +932,13 @@ class RoleManager(manager.Manager):
     def list_roles(self, hints=None):
         return self.driver.list_roles(hints or driver_hints.Hints())
 
-    @notifications.updated('role')
+    @notifications.updated(_ROLE)
     def update_role(self, role_id, role):
         ret = self.driver.update_role(role_id, role)
         self.get_role.invalidate(self, role_id)
         return ret
 
-    @notifications.deleted('role')
+    @notifications.deleted(_ROLE)
     def delete_role(self, role_id):
         try:
             self.assignment_api.delete_tokens_for_role_assignments(role_id)
