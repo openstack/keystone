@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""Main entry point into the Endpoint Filter service."""
+
 import abc
 
 from oslo_config import cfg

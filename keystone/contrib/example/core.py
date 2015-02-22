@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""Main entry point into this Example service."""
+
 from oslo_log import log
 
 from keystone.common import dependency
@@ -26,7 +28,7 @@ LOG = log.getLogger(__name__)
 
 @dependency.provider('example_api')
 class ExampleManager(manager.Manager):
-    """Example Manager.
+    """Default pivot point for this Example backend.
 
     See :mod:`keystone.common.manager.Manager` for more details on
     how this dynamically calls the backend.

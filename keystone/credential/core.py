@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Main entry point into the Credentials service."""
+"""Main entry point into the Credential service."""
 
 import abc
 
