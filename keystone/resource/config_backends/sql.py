@@ -12,6 +12,7 @@
 
 from keystone.common import sql
 from keystone import exception
+from keystone.i18n import _
 from keystone import resource
 
 
@@ -66,8 +67,10 @@ class DomainConfig(resource.DomainConfigDriver):
                    filter_by(domain_id=domain_id, group=group,
                              option=option).one())
         except sql.NotFound:
+            msg = _('option %(option)s in group %(group)s') % {
+                'group': group, 'option': option}
             raise exception.DomainConfigNotFound(
-                domain_id=domain_id, group=group, option=option)
+                domain_id=domain_id, group_or_option=msg)
         return ref
 
     def get_config_option(self, domain_id, group, option, sensitive=False):

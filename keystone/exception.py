@@ -224,6 +224,10 @@ class InvalidPolicyAssociation(Forbidden):
                        "Service: %(service_id)s, Region: %(region_id)s")
 
 
+class InvalidDomainConfig(Forbidden):
+    message_format = _("Invalid domain specific configuration: %(reason)s")
+
+
 class NotFound(Error):
     message_format = _("Could not find: %(target)s")
     code = 404
@@ -336,9 +340,8 @@ class PublicIDNotFound(NotFound):
 
 
 class DomainConfigNotFound(NotFound):
-    message_format = _('Could not find Domain Configuration for domain: '
-                       '%(domain_id)s, for group: %(group)s and '
-                       'option: %(option)s')
+    message_format = _('Could not find %(group_or_option)s in domain '
+                       'configuration for domain %(domain_id)s')
 
 
 class Conflict(Error):
