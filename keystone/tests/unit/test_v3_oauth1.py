@@ -614,6 +614,23 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         body = {'roles': [{'id': self.role_id}]}
         self.put(url, body=body, expected_status=404)
 
+    def test_bad_consumer_id(self):
+        consumer = self._create_single_consumer()
+        consumer_id = uuid.uuid4().hex
+        consumer_secret = consumer['secret']
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+        url, headers = self._create_request_token(consumer, self.project_id)
+        self.post(url, headers=headers, expected_status=404)
+
+    def test_bad_requested_project_id(self):
+        consumer = self._create_single_consumer()
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+        project_id = uuid.uuid4().hex
+        url, headers = self._create_request_token(consumer, project_id)
+        self.post(url, headers=headers, expected_status=404)
+
     def test_bad_verifier(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
