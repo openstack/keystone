@@ -29,6 +29,8 @@ SERVICE_FIXTURE = object()
 class V2CatalogTestCase(rest.RestfulTestCase):
     def setUp(self):
         super(V2CatalogTestCase, self).setUp()
+        self.useFixture(database.Database())
+
         self.service_id = uuid.uuid4().hex
         self.service = self.new_service_ref()
         self.service['id'] = self.service_id
@@ -42,6 +44,12 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_admin['id'])
+
+    def config_overrides(self):
+        super(V2CatalogTestCase, self).config_overrides()
+        self.config_fixture.config(
+            group='catalog',
+            driver='keystone.catalog.backends.sql.Catalog')
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
