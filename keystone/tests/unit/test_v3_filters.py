@@ -184,11 +184,35 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         new_policy = {"identity:list_domains": []}
         self._set_policy(new_policy)
 
-        my_url = '/domains?enableds&name=%s' % self.domainA['name']
+        my_url = '/domains?enabled&name=%s' % self.domainA['name']
         r = self.get(my_url, auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
         self.assertEqual(len(id_list), 1)
         self.assertIn(self.domainA['id'], id_list)
+        self.assertIs(True, r.result.get('domains')[0]['enabled'])
+
+    def test_invalid_filter_is_ignored(self):
+        """GET /domains?enableds&name=myname
+
+        Test Plan:
+
+        - Update policy for no protection on api
+        - Filter by name and 'enableds', which does not exist
+        - Assert 'enableds' is ignored
+
+        """
+        new_policy = {"identity:list_domains": []}
+        self._set_policy(new_policy)
+
+        my_url = '/domains?enableds=0&name=%s' % self.domainA['name']
+        r = self.get(my_url, auth=self.auth)
+        id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
+
+        # domainA is returned and it is enabled, since enableds=0 is not the
+        # same as enabled=0
+        self.assertEqual(len(id_list), 1)
+        self.assertIn(self.domainA['id'], id_list)
+        self.assertIs(True, r.result.get('domains')[0]['enabled'])
 
     def test_list_users_filtered_by_funny_name(self):
         """GET /users?name=%myname%
