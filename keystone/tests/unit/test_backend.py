@@ -2075,6 +2075,35 @@ class IdentityTests(object):
         self.assertIn(self.tenant_bar['id'], project_ids)
         self.assertIn(self.tenant_baz['id'], project_ids)
 
+    @test_utils.wip('Exposes bug #1424745')
+    def test_list_projects_with_multiple_filters(self):
+        # Create a project
+        project = {'id': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
+                   'name': uuid.uuid4().hex, 'description': uuid.uuid4().hex,
+                   'enabled': True, 'parent_id': None}
+        self.resource_api.create_project(project['id'], project)
+
+        # Build driver hints with the project's name and inexistent description
+        hints = driver_hints.Hints()
+        hints.add_filter('name', project['name'])
+        hints.add_filter('description', uuid.uuid4().hex)
+
+        # Retrieve projects based on hints and check an empty list is returned
+        projects = self.resource_api.list_projects(hints)
+        self.assertEqual([], projects)
+
+        # Build correct driver hints
+        hints = driver_hints.Hints()
+        hints.add_filter('name', project['name'])
+        hints.add_filter('description', project['description'])
+
+        # Retrieve projects based on hints
+        projects = self.resource_api.list_projects(hints)
+
+        # Check that the returned list contains only the first project
+        self.assertEqual(1, len(projects))
+        self.assertEqual(project, projects[0])
+
     def test_list_projects_for_domain(self):
         project_ids = ([x['id'] for x in
                        self.resource_api.list_projects_in_domain(
