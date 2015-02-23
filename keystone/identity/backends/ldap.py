@@ -79,7 +79,7 @@ class Identity(identity.Driver):
         return self.user.get_filtered(user_id)
 
     def list_users(self, hints):
-        return self.user.get_all_filtered()
+        return self.user.get_all_filtered(hints)
 
     def get_user_by_name(self, user_name, domain_id):
         # domain_id will already have been handled in the Manager layer,
@@ -158,10 +158,10 @@ class Identity(identity.Driver):
     def list_groups_for_user(self, user_id, hints):
         user_ref = self._get_user(user_id)
         user_dn = user_ref['dn']
-        return self.group.list_user_groups_filtered(user_dn)
+        return self.group.list_user_groups_filtered(user_dn, hints)
 
     def list_groups(self, hints):
-        return self.group.get_all_filtered()
+        return self.group.get_all_filtered(hints)
 
     def list_users_in_group(self, group_id, hints):
         users = []
@@ -264,8 +264,9 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         user = self.get(user_id)
         return self.filter_attributes(user)
 
-    def get_all_filtered(self):
-        return [self.filter_attributes(user) for user in self.get_all()]
+    def get_all_filtered(self, hints):
+        query = self.filter_query(hints)
+        return [self.filter_attributes(user) for user in self.get_all(query)]
 
     def filter_attributes(self, user):
         return identity.filter_user(common_ldap.filter_entity(user))
@@ -357,7 +358,7 @@ class GroupApi(common_ldap.BaseLdap):
                                                   self.ldap_filter or '')
         return self.get_all(query)
 
-    def list_user_groups_filtered(self, user_dn):
+    def list_user_groups_filtered(self, user_dn, hints):
         """Return a filtered list of groups for which the user is a member."""
 
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
@@ -365,7 +366,7 @@ class GroupApi(common_ldap.BaseLdap):
                                                   self.member_attribute,
                                                   user_dn_esc,
                                                   self.ldap_filter or '')
-        return self.get_all_filtered(query)
+        return self.get_all_filtered(hints, query)
 
     def list_group_users(self, group_id):
         """Return a list of user dns which are members of a group."""
@@ -395,6 +396,7 @@ class GroupApi(common_ldap.BaseLdap):
         group = self.get_by_name(group_name)
         return common_ldap.filter_entity(group)
 
-    def get_all_filtered(self, query=None):
+    def get_all_filtered(self, hints, query=None):
+        query = self.filter_query(hints, query)
         return [common_ldap.filter_entity(group)
                 for group in self.get_all(query)]

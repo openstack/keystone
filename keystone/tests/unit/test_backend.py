@@ -5447,6 +5447,58 @@ class FilterTests(filtering.FilterTests):
 
         self._delete_test_data('user', user_list)
 
+    def test_groups_for_user_filtered(self):
+        """Test use of filtering doesn't break groups_for_user listing.
+
+        Some backends may use filtering to achieve the list of groups for a
+        user, so test that it can combine a second filter.
+
+        Test Plan:
+
+        - Create 10 groups, some with names we can filter on
+        - Create 2 users
+        - Assign 1 of those users to most of the groups, including some of the
+          well known named ones
+        - Assign the other user to other groups as spoilers
+        - Ensure that when we list groups for users with a filter on the group
+          name, both restrictions have been enforced on what is returned.
+
+        """
+
+        number_of_groups = 10
+        group_name_data = {
+            # entity index: name for entity
+            5: 'The',
+            6: 'The Ministry',
+            9: 'The Ministry of Silly Walks',
+        }
+        group_list = self._create_test_data(
+            'group', number_of_groups,
+            domain_id=DEFAULT_DOMAIN_ID, name_dict=group_name_data)
+        user_list = self._create_test_data('user', 2)
+
+        for group in range(7):
+            # Create membership, including with two out of the three groups
+            # with well know names
+            self.identity_api.add_user_to_group(user_list[0]['id'],
+                                                group_list[group]['id'])
+        # ...and some spoiler memberships
+        for group in range(7, number_of_groups):
+            self.identity_api.add_user_to_group(user_list[1]['id'],
+                                                group_list[group]['id'])
+
+        hints = driver_hints.Hints()
+        hints.add_filter('name', 'The', comparator='startswith')
+        groups = self.identity_api.list_groups_for_user(
+            user_list[0]['id'], hints=hints)
+        # We should only get back 2 out of the 3 groups that start with 'The'
+        # hence showing that both "filters" have been applied
+        self.assertThat(len(groups), matchers.Equals(2))
+        self.assertIn(group_list[5]['id'], [groups[0]['id'], groups[1]['id']])
+        self.assertIn(group_list[6]['id'], [groups[0]['id'], groups[1]['id']])
+        self._delete_test_data('user', user_list)
+        self._delete_test_data('group', group_list)
+
 
 class LimitTests(filtering.FilterTests):
     ENTITIES = ['user', 'group', 'project']

@@ -3002,3 +3002,37 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
                           [tests.TESTCONF + '/domain_configs_one_extra_sql/' +
                            'keystone.domain2.conf'],
                           'domain2')
+
+
+class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
+
+    def setUp(self):
+        super(LdapFilterTests, self).setUp()
+        self.useFixture(database.Database())
+        self.clear_database()
+
+        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+        self.engine = sql.get_engine()
+        self.addCleanup(sql.cleanup)
+        sql.ModelBase.metadata.create_all(bind=self.engine)
+
+        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+        self.addCleanup(common_ldap_core._HANDLERS.clear)
+
+    def config_overrides(self):
+        super(LdapFilterTests, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            driver='keystone.identity.backends.ldap.Identity')
+
+    def config_files(self):
+        config_files = super(LdapFilterTests, self).config_files()
+        config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
+        return config_files
+
+    def clear_database(self):
+        for shelf in fakeldap.FakeShelves:
+            fakeldap.FakeShelves[shelf].clear()
