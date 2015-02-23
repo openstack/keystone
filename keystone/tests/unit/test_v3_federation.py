@@ -41,6 +41,7 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils
 from keystone.token.providers import common as token_common
 
 
@@ -2289,6 +2290,45 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
                 projects = set(p['id'] for p in projects_resp)
                 self.assertEqual(projects_ref, projects,
                                  'match failed for url %s' % url)
+
+    # TODO(samueldmq): Create another test class for role inheritance tests.
+    # The advantage would be to reduce the complexity of this test class and
+    # have tests specific to this fuctionality grouped, easing readability and
+    # maintenability.
+    @utils.wip('waiting on bug #1424500')
+    def test_list_projects_for_inherited_project_assignment(self):
+        # Enable os_inherit extension
+        self.config_fixture.config(group='os_inherit', enabled=True)
+
+        # Create a subproject
+        subproject_inherited = self.new_project_ref(
+            domain_id=self.domainD['id'],
+            parent_id=self.project_inherited['id'])
+        self.resource_api.create_project(subproject_inherited['id'],
+                                         subproject_inherited)
+
+        # Create an inherited role assignment
+        self.assignment_api.create_grant(
+            role_id=self.role_employee['id'],
+            group_id=self.group_employees['id'],
+            project_id=self.project_inherited['id'],
+            inherited_to_projects=True)
+
+        # Define expected projects from employee assertion, which contain
+        # the created subproject
+        expected_project_ids = [self.project_all['id'],
+                                self.proj_employees['id'],
+                                subproject_inherited['id']]
+
+        # Assert expected projects for both available URLs
+        for url in ('/OS-FEDERATION/projects', '/auth/projects'):
+            r = self.get(url, token=self.tokens['EMPLOYEE_ASSERTION'])
+            project_ids = [project['id'] for project in r.result['projects']]
+
+            self.assertEqual(len(expected_project_ids), len(project_ids))
+            for expected_project_id in expected_project_ids:
+                self.assertIn(expected_project_id, project_ids,
+                              'Projects match failed for url %s' % url)
 
     def test_list_domains(self):
         urls = ('/OS-FEDERATION/domains', '/auth/domains')
