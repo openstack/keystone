@@ -72,6 +72,7 @@ def filter_user(user_ref):
     return user_ref
 
 
+@dependency.requires('domain_config_api')
 class DomainConfigs(dict):
     """Discover, store and provide access to domain specific configs.
 
@@ -88,9 +89,6 @@ class DomainConfigs(dict):
     the identity manager and driver can use.
 
     """
-    # TODO(henry-nash): Reading the configuration options from the resource
-    # is not yet supported, and attempting to do so will raise a NotImplemented
-    # error.
     configured = False
     driver = None
     _any_sql = False
@@ -99,19 +97,24 @@ class DomainConfigs(dict):
         return importutils.import_object(
             domain_config['cfg'].identity.driver, domain_config['cfg'])
 
-    def _assert_no_more_than_one_sql_driver(self, new_config, config_file):
+    def _assert_no_more_than_one_sql_driver(self, domain_id, new_config,
+                                            config_file=None):
         """Ensure there is more than one sql driver.
 
         Check to see if the addition of the driver in this new config
         would cause there to now be more than one sql driver.
+
+        If we are loading from configuration files, the config_file will hold
+        the name of the file we have just loaded.
 
         """
         if (new_config['driver'].is_sql and
                 (self.driver.is_sql or self._any_sql)):
             # The addition of this driver would cause us to have more than
             # one sql driver, so raise an exception.
-            raise exception.MultipleSQLDriversInConfig(
-                config_file=config_file)
+            if not config_file:
+                config_file = _('Database at /domains/%s/config') % domain_id
+            raise exception.MultipleSQLDriversInConfig(source=config_file)
         self._any_sql = new_config['driver'].is_sql
 
     def _load_config_from_file(self, resource_api, file_list, domain_name):
@@ -135,7 +138,9 @@ class DomainConfigs(dict):
         domain_config['cfg'](args=[], project='keystone',
                              default_config_files=file_list)
         domain_config['driver'] = self._load_driver(domain_config)
-        self._assert_no_more_than_one_sql_driver(domain_config, file_list)
+        self._assert_no_more_than_one_sql_driver(domain_ref['id'],
+                                                 domain_config,
+                                                 config_file=file_list)
         self[domain_ref['id']] = domain_config
 
     def _setup_domain_drivers_from_files(self, standard_driver, resource_api):
@@ -174,10 +179,43 @@ class DomainConfigs(dict):
                                    'config directory'),
                                   fname)
 
+    def _load_config_from_database(self, domain_id, specific_config):
+        domain_config = {}
+        domain_config['cfg'] = cfg.ConfigOpts()
+        config.configure(conf=domain_config['cfg'])
+        domain_config['cfg'](args=[], project='keystone')
+
+        # Override any options that have been passed in as specified in the
+        # database.
+        for group in specific_config:
+            for option in specific_config[group]:
+                domain_config['cfg'].set_override(
+                    option, specific_config[group][option], group)
+
+        domain_config['driver'] = self._load_driver(domain_config)
+        self._assert_no_more_than_one_sql_driver(domain_id, domain_config)
+        self[domain_id] = domain_config
+
     def _setup_domain_drivers_from_database(self, standard_driver,
                                             resource_api):
+        """Read domain specific configuration from database and load drivers.
 
-        raise exception.NotImplemented()
+        Domain configurations are stored in the domain-config backend,
+        so we go through each domain to find those that have a specific config
+        defined, and for those that do we:
+
+        - Create a new config structure, overriding any specific options
+          defined in the resource backend
+        - Initialise a new instance of the required driver with this new config
+
+        """
+        for domain in resource_api.list_domains():
+            domain_config_options = (
+                self.domain_config_api.
+                get_config_with_sensitive_info(domain['id']))
+            if domain_config_options:
+                self._load_config_from_database(domain['id'],
+                                                domain_config_options)
 
     def setup_domain_drivers(self, standard_driver, resource_api):
         # This is called by the api call wrapper
@@ -198,12 +236,14 @@ class DomainConfigs(dict):
     def get_domain_conf(self, domain_id):
         if domain_id in self:
             return self[domain_id]['cfg']
+        else:
+            return CONF
 
     def reload_domain_driver(self, domain_id):
         # Only used to support unit tests that want to set
         # new config values.  This should only be called once
         # the domains have been configured, since it relies on
-        # the fact that the configuration files have already been
+        # the fact that the configuration files/database have already been
         # read.
         if self.configured:
             if domain_id in self:

@@ -435,9 +435,9 @@ class KeysNotFound(UnexpectedError):
 
 
 class MultipleSQLDriversInConfig(UnexpectedError):
-    message_format = _('The Keystone domain configuration file '
-                       '%(config_file)s defines an additional SQL driver - '
-                       'only one is permitted.')
+    message_format = _('The Keystone domain-specific configuration has '
+                       'specified more than one SQL driver (only one is '
+                       'permitted): %(source)s.')
 
 
 class MigrationNotProvided(Exception):
