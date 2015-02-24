@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-20 06:03+0000\n"
-"PO-Revision-Date: 2015-02-20 04:02+0000\n"
+"POT-Creation-Date: 2015-02-24 06:03+0000\n"
+"PO-Revision-Date: 2015-02-24 04:19+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -404,12 +404,12 @@ msgid ""
 "On."
 msgstr ""
 
-#: keystone/notifications.py:149
+#: keystone/notifications.py:187
 #, python-format
 msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
 msgstr ""
 
-#: keystone/notifications.py:158
+#: keystone/notifications.py:196
 #, python-format
 msgid "Method not callable: %s"
 msgstr ""
@@ -620,7 +620,7 @@ msgid "padded base64url text must be multiple of 4 characters"
 msgstr "padded base64url text must be multiple of 4 characters"
 
 #: keystone/common/controller.py:288 keystone/identity/core.py:357
-#: keystone/resource/core.py:760 keystone/resource/backends/ldap.py:61
+#: keystone/resource/core.py:761 keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Expected dict or list: %s"
@@ -925,7 +925,20 @@ msgstr ""
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:285
+#: keystone/contrib/federation/controllers.py:273
+msgid "Missing entity ID from environment"
+msgstr ""
+
+#: keystone/contrib/federation/controllers.py:281
+msgid "Request must have an origin query parameter"
+msgstr ""
+
+#: keystone/contrib/federation/controllers.py:291
+#, python-format
+msgid "%(host)s is not a trusted dashboard host"
+msgstr ""
+
+#: keystone/contrib/federation/controllers.py:332
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 
@@ -991,44 +1004,44 @@ msgstr "User IDs do not match"
 msgid "Could not find role"
 msgstr "Could not find role"
 
-#: keystone/contrib/oauth1/controllers.py:238
+#: keystone/contrib/oauth1/controllers.py:244
 msgid "Invalid signature"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:287
-#: keystone/contrib/oauth1/controllers.py:363
+#: keystone/contrib/oauth1/controllers.py:293
+#: keystone/contrib/oauth1/controllers.py:369
 msgid "Request token is expired"
 msgstr "Request token is expired"
 
-#: keystone/contrib/oauth1/controllers.py:301
+#: keystone/contrib/oauth1/controllers.py:307
 msgid "There should not be any non-oauth parameters"
 msgstr "There should not be any non-oauth parameters"
 
-#: keystone/contrib/oauth1/controllers.py:305
+#: keystone/contrib/oauth1/controllers.py:311
 msgid "provided consumer key does not match stored consumer key"
 msgstr "provided consumer key does not match stored consumer key"
 
-#: keystone/contrib/oauth1/controllers.py:309
+#: keystone/contrib/oauth1/controllers.py:315
 msgid "provided verifier does not match stored verifier"
 msgstr "provided verifier does not match stored verifier"
 
-#: keystone/contrib/oauth1/controllers.py:313
+#: keystone/contrib/oauth1/controllers.py:319
 msgid "provided request key does not match stored request key"
 msgstr "provided request key does not match stored request key"
 
-#: keystone/contrib/oauth1/controllers.py:317
+#: keystone/contrib/oauth1/controllers.py:323
 msgid "Request Token does not have an authorizing user id"
 msgstr "Request Token does not have an authorizing user id"
 
-#: keystone/contrib/oauth1/controllers.py:352
+#: keystone/contrib/oauth1/controllers.py:358
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:382
+#: keystone/contrib/oauth1/controllers.py:388
 msgid "authorizing user does not have role required"
 msgstr "authorizing user does not have role required"
 
-#: keystone/contrib/oauth1/controllers.py:395
+#: keystone/contrib/oauth1/controllers.py:401
 msgid "User is not a member of the requested project"
 msgstr "User is not a member of the requested project"
 
@@ -1095,7 +1108,7 @@ msgstr ""
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:338
+#: keystone/identity/backends/ldap.py:339
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "User %(user_id)s is already a member of group %(group_id)s"
@@ -1180,69 +1193,69 @@ msgid ""
 "time."
 msgstr ""
 
-#: keystone/resource/core.py:82
+#: keystone/resource/core.py:83
 #, python-format
 msgid "max hierarchy depth reached for %s branch."
 msgstr ""
 
-#: keystone/resource/core.py:100
+#: keystone/resource/core.py:101
 msgid "cannot create a project within a different domain than its parents."
 msgstr ""
 
-#: keystone/resource/core.py:104
+#: keystone/resource/core.py:105
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
 
-#: keystone/resource/core.py:125 keystone/token/core.py:67
+#: keystone/resource/core.py:126 keystone/token/core.py:67
 #: keystone/token/core.py:83
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "Domain is disabled: %s"
 
-#: keystone/resource/core.py:143
+#: keystone/resource/core.py:144
 #, python-format
 msgid "Domain cannot be named %s"
 msgstr ""
 
-#: keystone/resource/core.py:146
+#: keystone/resource/core.py:147
 #, python-format
 msgid "Domain cannot have ID %s"
 msgstr ""
 
-#: keystone/resource/core.py:158
+#: keystone/resource/core.py:159
 #, python-format
 msgid "Project is disabled: %s"
 msgstr "Project is disabled: %s"
 
-#: keystone/resource/core.py:178
+#: keystone/resource/core.py:179
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 
-#: keystone/resource/core.py:186
+#: keystone/resource/core.py:187
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
 msgstr ""
 
-#: keystone/resource/core.py:198
+#: keystone/resource/core.py:199
 msgid "Update of `parent_id` is not allowed."
 msgstr ""
 
-#: keystone/resource/core.py:225
+#: keystone/resource/core.py:226
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
 msgstr ""
 
-#: keystone/resource/core.py:381
+#: keystone/resource/core.py:382
 msgid "Multiple domains are not supported"
 msgstr ""
 
-#: keystone/resource/core.py:430
+#: keystone/resource/core.py:431
 msgid "delete the default domain"
 msgstr ""
 
-#: keystone/resource/core.py:441
+#: keystone/resource/core.py:442
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
