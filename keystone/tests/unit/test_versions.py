@@ -490,6 +490,24 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
         'href-template': BASE_EP_FILTER + '/projects',
         'href-vars': {'endpoint_group_id':
                       ENDPOINT_GROUP_ID_PARAMETER_RELATION, }},
+    json_home.build_v3_resource_relation('domain_config'): {
+        'href-template':
+        '/domains/{domain_id}/config',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID}},
+    json_home.build_v3_resource_relation('domain_config_group'): {
+        'href-template':
+        '/domains/{domain_id}/config/{group}',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'group': json_home.build_v3_parameter_relation('config_group')}},
+    json_home.build_v3_resource_relation('domain_config_option'): {
+        'href-template':
+        '/domains/{domain_id}/config/{group}/{option}',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'group': json_home.build_v3_parameter_relation('config_group'),
+            'option': json_home.build_v3_parameter_relation('config_option')}},
 }
 
 
