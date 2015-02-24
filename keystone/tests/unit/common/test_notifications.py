@@ -1007,7 +1007,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
 
         with mock.patch('keystone.notifications.LOG', self.mock_log):
             notifications.register_event_callback(
-                CREATED_OPERATION, 'thing', C.callback)
+                CREATED_OPERATION, 'thing', C().callback)
 
         callback = 'keystone.tests.unit.common.test_notifications.C.callback'
         expected_log_data = {
@@ -1026,7 +1026,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
 
         with mock.patch('keystone.notifications.LOG', self.mock_log):
             notifications.register_event_callback(
-                CREATED_OPERATION, 'thing', [callback, C.callback])
+                CREATED_OPERATION, 'thing', [callback, C().callback])
 
         callback_1 = 'keystone.tests.unit.common.test_notifications.callback'
         callback_2 = 'keystone.tests.unit.common.test_notifications.C.callback'
