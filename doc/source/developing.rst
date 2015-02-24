@@ -309,7 +309,7 @@ this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests,
 changing the configuration by overriding with configuration files stored in
 the tests directory aimed at enabling the SQL backend for the Identity module.
 
-Likewise, ``test_keystoneclient.py`` takes advantage of the tests written
+Likewise, ``test_v2_keystoneclient.py`` takes advantage of the tests written
 against ``KeystoneClientTests`` to verify the same tests function through
 different drivers and releases of the Keystone client.
 

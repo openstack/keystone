@@ -18,10 +18,10 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 from keystoneclient import exceptions as client_exceptions
 
 from keystone.tests import unit as tests
-from keystone.tests.unit import test_keystoneclient
+from keystone.tests.unit import test_v2_keystoneclient
 
 
-class ClientDrivenSqlTestCase(test_keystoneclient.ClientDrivenTestCase):
+class ClientDrivenSqlTestCase(test_v2_keystoneclient.ClientDrivenTestCase):
     def config_files(self):
         config_files = super(ClientDrivenSqlTestCase, self).config_files()
         config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
