@@ -18,7 +18,6 @@ import uuid
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 
-from keystone.policy.backends import rules
 from keystone.tests.unit import filtering
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
@@ -35,18 +34,10 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """Setup for Identity Filter Test Cases."""
 
         super(IdentityTestFilteredCase, self).setUp()
-
-        # Initialize the policy engine and allow us to write to a temp
-        # file in each test to create the policies
-        self.orig_policy_file = CONF.oslo_policy.policy_file
-        rules.reset()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
         self.config_fixture.config(group='oslo_policy',
                                    policy_file=self.tmpfilename)
-
-        # drop the policy rules
-        self.addCleanup(rules.reset)
 
     def load_sample_data(self):
         """Create sample data for these tests.

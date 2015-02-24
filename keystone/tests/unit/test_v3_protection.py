@@ -52,11 +52,6 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         # sample data, which would make checking the results of our
         # tests harder
         super(IdentityTestProtectedCase, self).setUp()
-
-        # Initialize the policy engine and allow us to write to a temp
-        # file in each test to create the policies
-        self.addCleanup(rules.reset)
-        rules.reset()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
         self.config_fixture.config(group='oslo_policy',

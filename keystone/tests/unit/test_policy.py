@@ -27,7 +27,19 @@ from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import temporaryfile
 
 
-class PolicyFileTestCase(tests.TestCase):
+class BasePolicyTestCase(tests.TestCase):
+    def setUp(self):
+        super(BasePolicyTestCase, self).setUp()
+        rules.reset()
+        self.addCleanup(rules.reset)
+        self.addCleanup(self.clear_cache_safely)
+
+    def clear_cache_safely(self):
+        if rules._ENFORCER:
+            rules._ENFORCER.clear()
+
+
+class PolicyFileTestCase(BasePolicyTestCase):
     def setUp(self):
         # self.tmpfilename should exist before setUp super is called
         # this is to ensure it is available for the config_fixture in
@@ -35,9 +47,6 @@ class PolicyFileTestCase(tests.TestCase):
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
         super(PolicyFileTestCase, self).setUp()
-
-        rules.reset()
-        self.addCleanup(rules.reset)
         self.target = {}
 
     def config_overrides(self):
@@ -67,11 +76,9 @@ class PolicyFileTestCase(tests.TestCase):
                           empty_credentials, action, self.target)
 
 
-class PolicyTestCase(tests.TestCase):
+class PolicyTestCase(BasePolicyTestCase):
     def setUp(self):
         super(PolicyTestCase, self).setUp()
-        rules.reset()
-        self.addCleanup(rules.reset)
         # NOTE(vish): preload rules to circumvent reloading from file
         rules.init()
         self.rules = {
@@ -160,11 +167,9 @@ class PolicyTestCase(tests.TestCase):
         rules.enforce(admin_credentials, uppercase_action, self.target)
 
 
-class DefaultPolicyTestCase(tests.TestCase):
+class DefaultPolicyTestCase(BasePolicyTestCase):
     def setUp(self):
         super(DefaultPolicyTestCase, self).setUp()
-        rules.reset()
-        self.addCleanup(rules.reset)
         rules.init()
 
         self.rules = {
