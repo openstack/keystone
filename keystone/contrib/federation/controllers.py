@@ -13,6 +13,11 @@
 """Extensions supporting Federation."""
 
 from oslo_config import cfg
+import string
+
+from oslo_log import log
+from six.moves import urllib
+import webob
 
 from keystone.auth import controllers as auth_controllers
 from keystone.common import authorization
@@ -29,6 +34,7 @@ from keystone.models import token_model
 
 
 CONF = cfg.CONF
+LOG = log.getLogger(__name__)
 
 
 class _ControllerBase(controller.V3Controller):
@@ -258,6 +264,47 @@ class Auth(auth_controllers.Auth):
         }
 
         return self.authenticate_for_token(context, auth=auth)
+
+    def federated_sso_auth(self, context, protocol_id):
+        try:
+            remote_id_name = CONF.federation.remote_id_attribute
+            identity_provider = context['environment'][remote_id_name]
+        except KeyError:
+            msg = _('Missing entity ID from environment')
+            LOG.error(msg)
+            raise exception.Unauthorized(msg)
+
+        if 'origin' in context['query_string']:
+            origin = context['query_string'].get('origin')
+            host = urllib.parse.unquote_plus(origin)
+        else:
+            msg = _('Request must have an origin query parameter')
+            LOG.error(msg)
+            raise exception.ValidationError(msg)
+
+        if host in CONF.federation.trusted_dashboard:
+            res = self.federated_authentication(context, identity_provider,
+                                                protocol_id)
+            token_id = res.headers['X-Subject-Token']
+            return self.render_html_response(host, token_id)
+        else:
+            msg = _('%(host)s is not a trusted dashboard host')
+            msg = msg % {'host': host}
+            LOG.error(msg)
+            raise exception.Unauthorized(msg)
+
+    def render_html_response(self, host, token_id):
+        """Forms an HTML Form from a template with autosubmit."""
+
+        headers = [('Content-Type', 'text/html')]
+
+        with open(CONF.federation.sso_callback_template) as template:
+            src = string.Template(template.read())
+
+        subs = {'host': host, 'token': token_id}
+        body = src.substitute(subs)
+        return webob.Response(body=body, status='200',
+                              headerlist=headers)
 
     @validation.validated(schema.saml_create, 'auth')
     def create_saml_assertion(self, context, auth):

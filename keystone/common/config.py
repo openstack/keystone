@@ -19,6 +19,7 @@ import oslo_messaging
 _DEFAULT_AUTH_METHODS = ['external', 'password', 'token']
 _CERTFILE = '/etc/keystone/ssl/certs/signing_cert.pem'
 _KEYFILE = '/etc/keystone/ssl/private/signing_key.pem'
+_SSO_CALLBACK = '/etc/keystone/sso_callback_template.html'
 
 
 FILE_OPTIONS = {
@@ -465,6 +466,17 @@ FILE_OPTIONS = {
                         'unless you really have to. Changing this option '
                         'to empty string or None will not have any impact and '
                         'default name will be used.'),
+        cfg.MultiStrOpt('trusted_dashboard', default=[],
+                        help='A list of trusted dashboard hosts. Before '
+                             'accepting a Single Sign-On request to return a '
+                             'token, the origin host must be a member of the '
+                             'trusted_dashboard list. This configuration '
+                             'option may be repeated for multiple values. '
+                             'For example: trusted_dashboard=http://acme.com '
+                             'trusted_dashboard=http://beta.com'),
+        cfg.StrOpt('sso_callback_template', default=_SSO_CALLBACK,
+                   help='Location of Single Sign-On callback handler, will '
+                        'return a token to a trusted dashboard host.'),
     ],
     'policy': [
         cfg.StrOpt('driver',
