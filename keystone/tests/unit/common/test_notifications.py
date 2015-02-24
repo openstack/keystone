@@ -17,6 +17,7 @@ import uuid
 
 import mock
 from oslo_config import cfg
+from oslo_config import fixture as config_fixture
 from oslotest import mockpatch
 from pycadf import cadftaxonomy
 from pycadf import cadftype
@@ -35,6 +36,7 @@ EXP_RESOURCE_TYPE = uuid.uuid4().hex
 CREATED_OPERATION = notifications.ACTIONS.created
 UPDATED_OPERATION = notifications.ACTIONS.updated
 DELETED_OPERATION = notifications.ACTIONS.deleted
+DISABLED_OPERATION = notifications.ACTIONS.disabled
 
 
 class ArbitraryException(Exception):
@@ -49,6 +51,49 @@ def register_callback(operation, resource_type=EXP_RESOURCE_TYPE):
                          im_class=mock.Mock(__name__='class'))
     notifications.register_event_callback(operation, resource_type, callback)
     return callback
+
+
+class AuditNotificationsTestCase(testtools.TestCase):
+    def setUp(self):
+        super(AuditNotificationsTestCase, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.addCleanup(notifications.clear_subscribers)
+
+    def _test_notification_operation(self, notify_function, operation):
+        exp_resource_id = uuid.uuid4().hex
+        callback = register_callback(operation)
+        notify_function(EXP_RESOURCE_TYPE, exp_resource_id)
+        callback.assert_called_once_with('identity', EXP_RESOURCE_TYPE,
+                                         operation,
+                                         {'resource_info': exp_resource_id})
+        self.config_fixture.config(notification_format='cadf')
+        with mock.patch(
+                'keystone.notifications._create_cadf_payload') as cadf_notify:
+            notify_function(EXP_RESOURCE_TYPE, exp_resource_id)
+            initiator = None
+            cadf_notify.assert_called_once_with(
+                operation, EXP_RESOURCE_TYPE, exp_resource_id,
+                notifications.taxonomy.OUTCOME_SUCCESS, initiator)
+            notify_function(EXP_RESOURCE_TYPE, exp_resource_id, public=False)
+            cadf_notify.assert_called_once_with(
+                operation, EXP_RESOURCE_TYPE, exp_resource_id,
+                notifications.taxonomy.OUTCOME_SUCCESS, initiator)
+
+    def test_resource_created_notification(self):
+        self._test_notification_operation(notifications.Audit.created,
+                                          CREATED_OPERATION)
+
+    def test_resource_updated_notification(self):
+        self._test_notification_operation(notifications.Audit.updated,
+                                          UPDATED_OPERATION)
+
+    def test_resource_deleted_notification(self):
+        self._test_notification_operation(notifications.Audit.deleted,
+                                          DELETED_OPERATION)
+
+    def test_resource_disabled_notification(self):
+        self._test_notification_operation(notifications.Audit.disabled,
+                                          DISABLED_OPERATION)
 
 
 class NotificationsWrapperTestCase(testtools.TestCase):
