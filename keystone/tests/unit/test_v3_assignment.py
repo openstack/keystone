@@ -701,6 +701,22 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
                 'project_id': self.project_id})
         self.assertValidProjectResponse(r, self.project)
 
+    def test_get_project_with_parents_as_list_with_invalid_id(self):
+        """Call ``GET /projects/{project_id}?parents_as_list``."""
+        self.get('/projects/%(project_id)s?parents_as_list' % {
+                 'project_id': None}, expected_status=404)
+
+        self.get('/projects/%(project_id)s?parents_as_list' % {
+                 'project_id': uuid.uuid4().hex}, expected_status=404)
+
+    def test_get_project_with_subtree_as_list_with_invalid_id(self):
+        """Call ``GET /projects/{project_id}?subtree_as_list``."""
+        self.get('/projects/%(project_id)s?subtree_as_list' % {
+                 'project_id': None}, expected_status=404)
+
+        self.get('/projects/%(project_id)s?subtree_as_list' % {
+                 'project_id': uuid.uuid4().hex}, expected_status=404)
+
     def test_get_project_with_parents_as_ids(self):
         """Call ``GET /projects/{project_id}?parents_as_ids``."""
         projects = self._create_projects_hierarchy(hierarchy_size=2)
