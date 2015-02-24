@@ -940,18 +940,7 @@ class RoleManager(manager.Manager):
 
     @notifications.deleted(_ROLE)
     def delete_role(self, role_id):
-        try:
-            self.assignment_api.delete_tokens_for_role_assignments(role_id)
-        except exception.NotImplemented:
-            # FIXME(morganfainberg): Not all backends (ldap) implement
-            # `list_role_assignments_for_role` which would have previously
-            # caused a NotImplmented error to be raised when called through
-            # the controller. Now error or proper action will always come from
-            # the `delete_role` method logic. Work needs to be done to make
-            # the behavior between drivers consistent (capable of revoking
-            # tokens for the same circumstances).  This is related to the bug
-            # https://bugs.launchpad.net/keystone/+bug/1221805
-            pass
+        self.assignment_api.delete_tokens_for_role_assignments(role_id)
         self.assignment_api.delete_role_assignments(role_id)
         self.driver.delete_role(role_id)
         self.get_role.invalidate(self, role_id)
