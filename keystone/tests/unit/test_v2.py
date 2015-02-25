@@ -289,7 +289,7 @@ class CoreApiTests(object):
         self.assertValidUserResponse(r)
 
     def test_create_update_user_invalid_enabled_type(self):
-        # Enforce usage of boolean for 'enabled' field in JSON
+        # Enforce usage of boolean for 'enabled' field
         token = self.get_scoped_token()
 
         # Test CREATE request
@@ -974,9 +974,7 @@ class RestfulTestCase(rest.RestfulTestCase):
             self.role_admin['id'])
 
 
-class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
-    content_type = 'json'
-
+class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
     def _get_user_id(self, r):
         return r['user']['id']
 
@@ -990,7 +988,6 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         return r['tenant']['id']
 
     def _get_token_id(self, r):
-        """Applicable only to JSON."""
         return r.result['access']['token']['id']
 
     def assertNoRoles(self, r):
@@ -1002,7 +999,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         self.assertEqual(r.result['error']['code'], r.status_code)
 
     def assertValidExtension(self, extension, expected):
-        super(JsonTestCase, self).assertValidExtension(extension)
+        super(V2TestCase, self).assertValidExtension(extension)
         descriptions = [ext['description'] for ext in six.itervalues(expected)]
         description = extension.get('description')
         self.assertIsNotNone(description)
@@ -1023,7 +1020,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         self.assertValidExtension(r.result.get('extension'), expected)
 
     def assertValidUser(self, user):
-        super(JsonTestCase, self).assertValidUser(user)
+        super(V2TestCase, self).assertValidUser(user)
         self.assertNotIn('default_project_id', user)
         if 'tenantId' in user:
             # NOTE(morganfainberg): tenantId should never be "None", it gets
@@ -1100,7 +1097,7 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
             self.assertValidRole(role)
 
     def assertValidVersion(self, version):
-        super(JsonTestCase, self).assertValidVersion(version)
+        super(V2TestCase, self).assertValidVersion(version)
 
         self.assertIsNotNone(version.get('links'))
         self.assertNotEmpty(version.get('links'))
@@ -1262,8 +1259,8 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         token_hash = cms.cms_hash_token(token, mode=hash_algorithm)
         self.assertThat(token_hash, matchers.Equals(data['revoked'][0]['id']))
 
-    def test_create_update_user_json_invalid_enabled_type(self):
-        # Enforce usage of boolean for 'enabled' field in JSON
+    def test_create_update_user_invalid_enabled_type(self):
+        # Enforce usage of boolean for 'enabled' field
         token = self.get_scoped_token()
 
         # Test CREATE request
@@ -1373,13 +1370,13 @@ class JsonTestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
             expected_status=200)
 
 
-class RevokeApiJsonTestCase(JsonTestCase):
+class RevokeApiTestCase(V2TestCase):
 
     def load_extra_backends(self):
         return {'revoke_api': revoke.Manager()}
 
     def config_overrides(self):
-        super(RevokeApiJsonTestCase, self).config_overrides()
+        super(RevokeApiTestCase, self).config_overrides()
         self.config_fixture.config(
             group='revoke',
             driver='keystone.contrib.revoke.backends.kvs.Revoke')
