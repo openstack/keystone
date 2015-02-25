@@ -34,7 +34,12 @@ from keystone.i18n import _
 
 
 CONF = cfg.CONF
-DEFAULT_EXTENSIONS = ['revoke', 'federation']
+DEFAULT_EXTENSIONS = ['endpoint_filter',
+                      'endpoint_policy',
+                      'federation',
+                      'oauth1',
+                      'revoke',
+                      ]
 
 
 def get_default_domain():
