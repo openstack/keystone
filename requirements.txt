@@ -13,7 +13,7 @@ sqlalchemy-migrate>=0.8.2,!=0.8.4,<=0.9.1
 passlib
 lxml>=2.3
 iso8601>=0.1.9
-python-keystoneclient>=0.7.0,<0.12
+python-keystoneclient>=0.7.0,<=0.11.2
 oslo.config>=1.2.0,<1.5
 oslo.messaging>=1.3.0,<1.5
 # only for Keystone tests running against keystoneclient master
