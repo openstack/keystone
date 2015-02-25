@@ -158,32 +158,41 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.oauth1.driver)
 
-    @notifications.created(_CONSUMER)
-    def create_consumer(self, consumer_ref):
-        return self.driver.create_consumer(consumer_ref)
+    def create_consumer(self, consumer_ref, initiator=None):
+        ret = self.driver.create_consumer(consumer_ref)
+        notifications.Audit.created(self._CONSUMER, ret['id'], initiator)
+        return ret
 
-    @notifications.updated(_CONSUMER)
-    def update_consumer(self, consumer_id, consumer_ref):
-        return self.driver.update_consumer(consumer_id, consumer_ref)
+    def update_consumer(self, consumer_id, consumer_ref, initiator=None):
+        ret = self.driver.update_consumer(consumer_id, consumer_ref)
+        notifications.Audit.updated(self._CONSUMER, consumer_id, initiator)
+        return ret
 
-    @notifications.deleted(_CONSUMER)
-    def delete_consumer(self, consumer_id):
-        return self.driver.delete_consumer(consumer_id)
+    def delete_consumer(self, consumer_id, initiator=None):
+        ret = self.driver.delete_consumer(consumer_id)
+        notifications.Audit.deleted(self._CONSUMER, consumer_id, initiator)
+        return ret
 
-    @notifications.created(_ACCESS_TOKEN)
-    def create_access_token(self, request_id, access_token_duration):
-        return self.driver.create_access_token(request_id,
-                                               access_token_duration)
+    def create_access_token(self, request_id, access_token_duration,
+                            initiator=None):
+        ret = self.driver.create_access_token(request_id,
+                                              access_token_duration)
+        notifications.Audit.created(self._ACCESS_TOKEN, ret['id'], initiator)
+        return ret
 
-    @notifications.deleted(_ACCESS_TOKEN, resource_id_arg_index=2)
-    def delete_access_token(self, user_id, access_token_id):
-        return self.driver.delete_access_token(user_id, access_token_id)
+    def delete_access_token(self, user_id, access_token_id, initiator=None):
+        ret = self.driver.delete_access_token(user_id, access_token_id)
+        notifications.Audit.deleted(self._ACCESS_TOKEN, access_token_id,
+                                    initiator)
+        return ret
 
-    @notifications.created(_REQUEST_TOKEN, resource_id_arg_index=2)
     def create_request_token(self, consumer_id, requested_project,
-                             request_token_duration):
-        return self.driver.create_request_token(
+                             request_token_duration, initiator=None):
+        ret = self.driver.create_request_token(
             consumer_id, requested_project, request_token_duration)
+        notifications.Audit.created(self._REQUEST_TOKEN, ret['id'],
+                                    initiator)
+        return ret
 
 
 @six.add_metaclass(abc.ABCMeta)
