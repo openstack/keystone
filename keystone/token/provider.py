@@ -33,7 +33,6 @@ from keystone import exception
 from keystone.i18n import _, _LE
 from keystone.models import token_model
 from keystone import notifications
-from keystone.openstack.common import versionutils
 from keystone.token import persistence
 
 
@@ -229,41 +228,6 @@ class Manager(manager.Manager):
         token = self._validate_v3_token(token_ref)
         self._is_valid_token(token)
         return token
-
-    @versionutils.deprecated(
-        as_of=versionutils.deprecated.JUNO,
-        what='token_provider_api.check_v2_token',
-        in_favor_of='token_provider_api.validate_v2_token',
-        remove_in=+1)
-    def check_v2_token(self, token_id, belongs_to=None):
-        """Check the validity of the given V2 token.
-
-        :param token_id: identity of the token
-        :param belongs_to: optional identity of the scoped project
-        :returns: None
-        :raises: keystone.exception.Unauthorized
-        """
-        # NOTE(morganfainberg): Ensure we never use the long-form token_id
-        # (PKI) as part of the cache_key.
-        unique_id = self.unique_id(token_id)
-        self.validate_v2_token(unique_id, belongs_to=belongs_to)
-
-    @versionutils.deprecated(
-        as_of=versionutils.deprecated.JUNO,
-        what='token_provider_api.check_v3_token',
-        in_favor_of='token_provider_api.validate_v3_token',
-        remove_in=+1)
-    def check_v3_token(self, token_id):
-        """Check the validity of the given V3 token.
-
-        :param token_id: identity of the token
-        :returns: None
-        :raises: keystone.exception.Unauthorized
-        """
-        # NOTE(morganfainberg): Ensure we never use the long-form token_id
-        # (PKI) as part of the cache_key.
-        unique_id = self.unique_id(token_id)
-        self.validate_v3_token(unique_id)
 
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=EXPIRATION_TIME)
