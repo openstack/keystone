@@ -22,6 +22,7 @@ import six
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
 
 
@@ -1388,3 +1389,112 @@ class RevokeApiTestCase(V2TestCase):
 
     def test_fetch_revocation_list_sha256(self):
         self.skipTest('Revoke API disables revocation_list.')
+
+
+class TestFernetTokenProviderV2(RestfulTestCase):
+
+    def setUp(self):
+        super(TestFernetTokenProviderV2, self).setUp()
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+
+    # Used by RestfulTestCase
+    def _get_token_id(self, r):
+        return r.result['access']['token']['id']
+
+    def new_project_ref(self):
+        return {'id': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+                'description': uuid.uuid4().hex,
+                'domain_id': 'default',
+                'enabled': True}
+
+    def config_overrides(self):
+        super(TestFernetTokenProviderV2, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.fernet.Provider')
+
+    def test_authenticate_unscoped_token(self):
+        unscoped_token = self.get_unscoped_token()
+        # Fernet token must be of length 255 per usability requirements
+        self.assertLess(len(unscoped_token), 255)
+
+    def test_validate_unscoped_token(self):
+        # Grab an admin token to validate with
+        project_ref = self.new_project_ref()
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
+                                                         project_ref['id'],
+                                                         self.role_admin['id'])
+        admin_token = self.get_scoped_token(tenant_id=project_ref['id'])
+        unscoped_token = self.get_unscoped_token()
+        path = ('/v2.0/tokens/%s' % unscoped_token)
+        self.admin_request(
+            method='GET',
+            path=path,
+            token=admin_token,
+            expected_status=200)
+
+    def test_authenticate_scoped_token(self):
+        project_ref = self.new_project_ref()
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'], project_ref['id'], self.role_service['id'])
+        token = self.get_scoped_token(tenant_id=project_ref['id'])
+        # Fernet token must be of length 255 per usability requirements
+        self.assertLess(len(token), 255)
+
+    def test_validate_scoped_token(self):
+        project_ref = self.new_project_ref()
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
+                                                         project_ref['id'],
+                                                         self.role_admin['id'])
+        project2_ref = self.new_project_ref()
+        self.resource_api.create_project(project2_ref['id'], project2_ref)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'], project2_ref['id'], self.role_member['id'])
+        admin_token = self.get_scoped_token(tenant_id=project_ref['id'])
+        member_token = self.get_scoped_token(tenant_id=project2_ref['id'])
+        path = ('/v2.0/tokens/%s?belongsTo=%s' % (member_token,
+                project2_ref['id']))
+        # Validate token belongs to project
+        self.admin_request(
+            method='GET',
+            path=path,
+            token=admin_token,
+            expected_status=200)
+
+    def test_token_authentication_and_validation(self):
+        """Test token authentication for Fernet token provider.
+
+        Verify that token authentication returns validate response code and
+        valid token belongs to project.
+        """
+        project_ref = self.new_project_ref()
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        unscoped_token = self.get_unscoped_token()
+        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
+                                                         project_ref['id'],
+                                                         self.role_admin['id'])
+        r = self.public_request(
+            method='POST',
+            path='/v2.0/tokens',
+            body={
+                'auth': {
+                    'tenantName': project_ref['name'],
+                    'token': {
+                        'id': unscoped_token.encode('ascii')
+                    }
+                }
+            },
+            expected_status=200)
+
+        token_id = self._get_token_id(r)
+        path = ('/v2.0/tokens/%s?belongsTo=%s' % (token_id, project_ref['id']))
+        # Validate token belongs to project
+        self.admin_request(
+            method='GET',
+            path=path,
+            token=CONF.admin_token,
+            expected_status=200)
