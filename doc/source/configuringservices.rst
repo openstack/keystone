@@ -138,15 +138,15 @@ Keystone is online, you need to add the services to the catalog:
 
 .. code-block:: bash
 
-    $ openstack service create nova --type compute \
+    $ openstack service create compute --name nova \
                                     --description "Nova Compute Service"
-    $ openstack service create ec2 --type ec2 \
+    $ openstack service create ec2 --name ec2 \
                                    --description "EC2 Compatibility Layer"
-    $ openstack service create glance --type image \
+    $ openstack service create image --name glance \
                                       --description "Glance Image Service"
-    $ openstack service create keystone --type identity \
+    $ openstack service create identity --name keystone \
                                         --description "Keystone Identity Service"
-    $ openstack service create swift --type object-store \
+    $ openstack service create object-store --name swift \
                                      --description "Swift Service"
 
 
