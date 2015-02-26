@@ -67,18 +67,67 @@ class SqlModels(SqlTests):
         s = sqlalchemy.select([table])
         return s
 
-    def assertExpectedSchema(self, table, cols):
+    def assertExpectedSchema(self, table, expected_schema):
+        """Assert that a table's schema is what we expect.
+
+        :param string table: the name of the table to inspect
+        :param tuple expected_schema: a tuple of tuples containing the
+            expected schema
+        :raises: AssertionError
+
+        The expected_shema format is simply::
+
+            (
+                ('column name', sql type, qualifying detail),
+                ...
+            )
+
+        The qualifying detail varies based on the type of the column::
+
+          - sql.Boolean columns must indicate the column's default value or
+            None if there is no default
+          - Columns with a length, like sql.String, must indicate the
+            column's length
+          - All other column types should use None
+
+        Example::
+
+            cols = (('id', sql.String, 64),
+                    ('enabled', sql.Boolean, True),
+                    ('extra', sql.JsonBlob, None))
+            self.assertExpectedSchema('table_name', cols)
+
+        """
         table = self.select_table(table)
-        for col, type_, length in cols:
-            self.assertIsInstance(table.c[col].type, type_)
-            if length:
-                self.assertEqual(length, table.c[col].type.length)
+
+        actual_schema = []
+        for column in table.c:
+            if isinstance(column.type, sql.Boolean):
+                default = None
+                if column._proxies[0].default:
+                    default = column._proxies[0].default.arg
+                actual_schema.append((column.name, type(column.type), default))
+            elif (hasattr(column.type, 'length') and
+                    not isinstance(column.type, sql.Enum)):
+                # NOTE(dstanek): Even though sql.Enum columns have a length
+                # set we don't want to catch them here. Maybe in the future
+                # we'll check to see that they contain a list of the correct
+                # possible values.
+                actual_schema.append((column.name,
+                                      type(column.type),
+                                      column.type.length))
+            else:
+                actual_schema.append((column.name, type(column.type), None))
+
+        self.assertEqual(list(sorted(expected_schema)),
+                         list(sorted(actual_schema)))
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
                 ('name', sql.String, 255),
                 ('password', sql.String, 128),
                 ('domain_id', sql.String, 64),
+                ('default_project_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
                 ('extra', sql.JsonBlob, None))
         self.assertExpectedSchema('user', cols)
@@ -94,7 +143,8 @@ class SqlModels(SqlTests):
     def test_domain_model(self):
         cols = (('id', sql.String, 64),
                 ('name', sql.String, 64),
-                ('enabled', sql.Boolean, None))
+                ('enabled', sql.Boolean, True),
+                ('extra', sql.JsonBlob, None))
         self.assertExpectedSchema('domain', cols)
 
     def test_project_model(self):
