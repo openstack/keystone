@@ -664,6 +664,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         token = self.assertValidTokenResponse(r, *args, **kwargs)
 
         if require_catalog:
+            endpoint_num = 0
             self.assertIn('catalog', token)
 
             if isinstance(token['catalog'], list):
@@ -673,11 +674,11 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
                         self.assertNotIn('enabled', endpoint)
                         self.assertNotIn('legacy_endpoint_id', endpoint)
                         self.assertNotIn('service_id', endpoint)
+                        endpoint_num += 1
 
             # sub test for the OS-EP-FILTER extension enabled
             if endpoint_filter:
-                self.assertThat(token['catalog'],
-                                matchers.HasLength(ep_filter_assoc))
+                self.assertEqual(ep_filter_assoc, endpoint_num)
         else:
             self.assertNotIn('catalog', token)
 
