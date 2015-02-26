@@ -335,7 +335,8 @@ class KeyValueStore(object):
         timeout.
         """
         self._assert_configured()
-        return KeyValueStoreLock(self._mutex(key), key, self.locking)
+        return KeyValueStoreLock(self._mutex(key), key, self.locking,
+                                 self._lock_timeout)
 
     @contextlib.contextmanager
     def _action_with_lock(self, key, lock=None):
@@ -367,10 +368,11 @@ class KeyValueStoreLock(object):
 
     This is only a write lock, and will not prevent reads from occurring.
     """
-    def __init__(self, mutex, key, locking_enabled=True):
+    def __init__(self, mutex, key, locking_enabled=True, lock_timeout=0):
         self.mutex = mutex
         self.key = key
         self.enabled = locking_enabled
+        self.lock_timeout = lock_timeout
         self.active = False
         self.acquire_time = 0
 
@@ -386,11 +388,11 @@ class KeyValueStoreLock(object):
 
     @property
     def expired(self):
-        if self.mutex.lock_timeout == 0:
-            return False
-        else:
+        if self.lock_timeout:
             calculated = time.time() - self.acquire_time + LOCK_WINDOW
-            return calculated > self.mutex.lock_timeout
+            return calculated > self.lock_timeout
+        else:
+            return False
 
     def release(self):
         if self.enabled:

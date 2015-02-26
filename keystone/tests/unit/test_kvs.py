@@ -35,7 +35,6 @@ class MutexFixture(object):
     def __init__(self, storage_dict, key, timeout):
         self.database = storage_dict
         self.key = '_lock' + key
-        self.lock_timeout = timeout
 
     def acquire(self, wait=True):
         while True:
