@@ -1176,11 +1176,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         The revocation should be independently to the presence
         of the revoke API.
         """
-
-        # If enabled, the revoke API will revoke tokens first.
-        # This ensures that tokens are revoked even without revoke API.
-        self.assignment_api.revoke_api = None
-
         # creates grant from group on project.
         self.assignment_api.create_grant(role_id=self.role['id'],
                                          project_id=self.project['id'],
