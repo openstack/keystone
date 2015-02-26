@@ -64,6 +64,8 @@ project-scoped token request.
 
    extensions/endpoint_filter.rst
 
+* `API Specification for Endpoint Filtering <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-ep-filter-ext.html>`__
+
 ---------------
 Endpoint Policy
 ---------------
@@ -81,6 +83,8 @@ a policy ID.
    :maxdepth: 1
 
    extensions/endpoint_policy.rst
+
+* `API Specification for Endpoint Policy <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-endpoint-policy.html>`__
 
 ----------
 Federation
@@ -100,6 +104,8 @@ attributes to Identity API attributes.
 
    extensions/federation.rst
 
+* `API Specification for Federation <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html>`__
+
 -------
 Inherit
 -------
@@ -112,6 +118,8 @@ hierarchy.
 
    *Experimental* (Havava, Icehouse)
    *Stable* (Juno)
+
+* `API Specification for Inherit <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-inherit-ext.html>`__
 
 ----------
 OAuth 1.0a
@@ -130,6 +138,8 @@ roles to third party consumers via the OAuth 1.0a specification.
 
    extensions/oauth1.rst
 
+* `API Specification for OAuth 1.0a <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-oauth1-ext.html>`__
+
 -----------------
 Revocation Events
 -----------------
@@ -147,3 +157,5 @@ no longer valid.
    :maxdepth: 1
 
    extensions/revoke.rst
+
+* `API Specification for Revocation Events <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-revoke-ext.html>`__
