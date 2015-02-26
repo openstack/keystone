@@ -27,7 +27,7 @@ from keystone.i18n import _
 LOG = log.getLogger(__name__)
 
 
-@dependency.optional('oauth_api')
+@dependency.requires('oauth_api')
 class OAuth(auth.AuthMethodHandler):
 
     method = 'oauth1'

@@ -30,8 +30,7 @@ LOG = log.getLogger(__name__)
 CONF = config.CONF
 
 
-@dependency.optional('federation_api')
-@dependency.requires('identity_api', 'token_provider_api')
+@dependency.requires('federation_api', 'identity_api', 'token_provider_api')
 class Token(auth.AuthMethodHandler):
 
     method = 'token'

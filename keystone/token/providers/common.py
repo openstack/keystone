@@ -382,9 +382,8 @@ class V3TokenDataHelper(object):
         return {'token': token_data}
 
 
-@dependency.optional('oauth_api')
-@dependency.requires('catalog_api', 'identity_api', 'resource_api',
-                     'role_api', 'trust_api')
+@dependency.requires('catalog_api', 'identity_api', 'oauth_api',
+                     'resource_api', 'role_api', 'trust_api')
 class BaseProvider(provider.Provider):
     def __init__(self, *args, **kwargs):
         super(BaseProvider, self).__init__(*args, **kwargs)

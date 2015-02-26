@@ -220,9 +220,8 @@ def exception_translated(exception_type):
 
 
 @dependency.provider('identity_api')
-@dependency.optional('revoke_api')
 @dependency.requires('assignment_api', 'credential_api', 'id_mapping_api',
-                     'resource_api')
+                     'resource_api', 'revoke_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
