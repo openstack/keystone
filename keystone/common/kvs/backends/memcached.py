@@ -16,7 +16,7 @@
 Keystone Memcached dogpile.cache backend implementation.
 """
 
-import random
+import random as _random
 import time
 
 from dogpile.cache import api
@@ -33,7 +33,7 @@ from keystone.i18n import _
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 NO_VALUE = api.NO_VALUE
-
+random = _random.SystemRandom()
 
 VALID_DOGPILE_BACKENDS = dict(
     pylibmc=memcached.PylibmcBackend,
