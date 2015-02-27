@@ -116,7 +116,6 @@ class Resource(resource.Driver):
 
     def create_project(self, tenant_id, tenant):
         self.project.check_allow_create()
-        tenant = self._validate_default_domain(tenant)
         self._validate_parent_project_is_none(tenant)
         tenant['name'] = clean.project_name(tenant['name'])
         data = tenant.copy()

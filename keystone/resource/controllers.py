@@ -202,8 +202,11 @@ class ProjectV3(controller.V3Controller):
         ref = self._assign_unique_id(self._normalize_dict(project))
         ref = self._normalize_domain_id(context, ref)
         initiator = notifications._get_request_audit_info(context)
-        ref = self.resource_api.create_project(ref['id'], ref,
-                                               initiator=initiator)
+        try:
+            ref = self.resource_api.create_project(ref['id'], ref,
+                                                   initiator=initiator)
+        except exception.DomainNotFound as e:
+            raise exception.ValidationError(e)
         return ProjectV3.wrap_member(context, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name',

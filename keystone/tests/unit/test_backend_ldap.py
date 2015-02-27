@@ -937,7 +937,9 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         super(LDAPIdentity, self).load_fixtures(fixtures)
 
     def test_configurable_allowed_project_actions(self):
-        tenant = {'id': u'fäké1', 'name': u'fäké1', 'enabled': True}
+        domain = self._get_domain_fixture()
+        tenant = {'id': u'fäké1', 'name': u'fäké1', 'enabled': True,
+                  'domain_id': domain['id']}
         self.resource_api.create_project(u'fäké1', tenant)
         tenant_ref = self.resource_api.get_project(u'fäké1')
         self.assertEqual(u'fäké1', tenant_ref['id'])
@@ -990,7 +992,8 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             project_allow_update=False, project_allow_delete=False)
         self.load_backends()
 
-        tenant = {'id': u'fäké1', 'name': u'fäké1'}
+        domain = self._get_domain_fixture()
+        tenant = {'id': u'fäké1', 'name': u'fäké1', 'domain_id': domain['id']}
         self.assertRaises(exception.ForbiddenAction,
                           self.resource_api.create_project,
                           u'fäké1',
