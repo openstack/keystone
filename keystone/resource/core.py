@@ -25,7 +25,7 @@ from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.contrib import federation
 from keystone import exception
-from keystone.i18n import _, _LE
+from keystone.i18n import _, _LE, _LW
 from keystone import notifications
 
 
@@ -1184,6 +1184,53 @@ class DomainConfigManager(manager.Manager):
         whitelisted = self.list_config_options(domain_id, group, option)
         sensitive = self.list_config_options(domain_id, group, option,
                                              sensitive=True)
+
+        # Check if there are any sensitive substitutions needed. We first try
+        # and simply ensure any sensitive options that have valid substitution
+        # references in the whitelisted options are substituted. We then check
+        # the resulting whitelisted option and raise a warning if there
+        # appears to be an unmatched or incorrectly constructed substitution
+        # reference. To avoid the risk of logging any sensitive options that
+        # have already been substituted, we first take a copy of the
+        # whitelisted option.
+
+        # Build a dict of the sensitive options ready to try substitution
+        sensitive_dict = {s['option']: s['value'] for s in sensitive}
+
+        for each_whitelisted in whitelisted:
+            if not isinstance(each_whitelisted['value'], six.string_types):
+                # We only support substitutions into string types, if its an
+                # integer, list etc. then just continue onto the next one
+                continue
+
+            # Store away the original value in case we need to raise a warning
+            # after substitution.
+            original_value = each_whitelisted['value']
+            warning_msg = ''
+            try:
+                each_whitelisted['value'] = (
+                    each_whitelisted['value'] % sensitive_dict)
+            except KeyError:
+                warning_msg = _LW(
+                    'Found what looks like an unmatched config option '
+                    'substitution reference - domain: %(domain)s, group: '
+                    '%(group)s, option: %(option)s, value: %(value)s. Perhaps '
+                    'the config option to which it refers has yet to be '
+                    'added?')
+            except (ValueError, TypeError):
+                warning_msg = _LW(
+                    'Found what looks like an incorrectly constructed '
+                    'config option substitution reference - domain: '
+                    '%(domain)s, group: %(group)s, option: %(option)s, '
+                    'value: %(value)s.')
+
+            if warning_msg:
+                LOG.warn(warning_msg % {
+                    'domain': domain_id,
+                    'group': each_whitelisted['group'],
+                    'option': each_whitelisted['option'],
+                    'value': original_value})
+
         return self._list_to_config(whitelisted, sensitive)
 
 
