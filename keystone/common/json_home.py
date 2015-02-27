@@ -54,6 +54,18 @@ class Parameters(object):
     USER_ID = build_v3_parameter_relation('user_id')
 
 
+class Status(object):
+    """Status values supported."""
+
+    DEPRECATED = 'deprecated'
+    EXPERIMENTAL = 'experimental'
+    STABLE = 'stable'
+
+    @classmethod
+    def is_supported(cls, status):
+        return status in [cls.DEPRECATED, cls.EXPERIMENTAL, cls.STABLE]
+
+
 def translate_urls(json_home, new_prefix):
     """Given a JSON Home document, sticks new_prefix on each of the urls."""
 
