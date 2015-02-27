@@ -21,7 +21,9 @@ def upgrade(migrate_engine):
         'mapping',
         meta,
         sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('rules', sql.Text(), nullable=False))
+        sql.Column('rules', sql.Text(), nullable=False),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
     mapping_table.create(migrate_engine, checkfirst=True)
 
 

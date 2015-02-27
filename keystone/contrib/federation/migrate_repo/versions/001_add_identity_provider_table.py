@@ -22,7 +22,9 @@ def upgrade(migrate_engine):
         meta,
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('enabled', sql.Boolean, nullable=False),
-        sql.Column('description', sql.Text(), nullable=True))
+        sql.Column('description', sql.Text(), nullable=True),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
 
     idp_table.create(migrate_engine, checkfirst=True)
 
@@ -33,7 +35,9 @@ def upgrade(migrate_engine):
         sql.Column('idp_id', sql.String(64),
                    sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
                    primary_key=True),
-        sql.Column('mapping_id', sql.String(64), nullable=True))
+        sql.Column('mapping_id', sql.String(64), nullable=True),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
 
     federation_protocol_table.create(migrate_engine, checkfirst=True)
 
