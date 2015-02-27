@@ -39,6 +39,7 @@ from keystone.tests.unit import core
 from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
+from keystone.token.providers import common as token_common
 
 
 CONF = cfg.CONF
@@ -2907,3 +2908,104 @@ class WebSSOTests(FederatedTokenTests):
         self.assertRaises(exception.Unauthorized,
                           self.api.federated_sso_auth,
                           context, self.PROTOCOL)
+
+
+class K2KServiceCatalogTests(FederationTests):
+    SP1 = 'ALPHA'
+    SP2 = 'BETA'
+    SP3 = 'GAMMA'
+
+    def load_extra_backends(self):
+        ref = {'federation_api': federation.Manager()}
+        return ref
+
+    def setUp(self):
+        super(K2KServiceCatalogTests, self).setUp()
+
+        sp = self.sp_ref()
+        self.federation_api.create_sp(self.SP1, sp)
+        self.sp_alpha = {self.SP1: sp}
+
+        sp = self.sp_ref()
+        self.federation_api.create_sp(self.SP2, sp)
+        self.sp_beta = {self.SP2: sp}
+
+        sp = self.sp_ref()
+        self.federation_api.create_sp(self.SP3, sp)
+        self.sp_gamma = {self.SP3: sp}
+
+        self.token_v3_helper = token_common.V3TokenDataHelper()
+
+    def sp_response(self, id, ref):
+        ref.pop('enabled')
+        ref.pop('description')
+        ref['id'] = id
+        return ref
+
+    def sp_ref(self):
+        ref = {
+            'auth_url': uuid.uuid4().hex,
+            'enabled': True,
+            'description': uuid.uuid4().hex,
+            'sp_url': uuid.uuid4().hex,
+        }
+        return ref
+
+    def _validate_service_providers(self, token, ref):
+        token_data = token['token']
+        self.assertIn('service_providers', token_data)
+        self.assertIsNotNone(token_data['service_providers'])
+        service_providers = token_data.get('service_providers')
+
+        self.assertEqual(len(ref), len(service_providers))
+        for entity in service_providers:
+            id = entity.get('id')
+            ref_entity = self.sp_response(id, ref.get(id))
+            self.assertDictEqual(ref_entity, entity)
+
+    def test_service_providers_in_token(self):
+        """Check if sevice providers are listed in service catalog."""
+
+        token = self.token_v3_helper.get_token_data(self.user_id,
+                                                    ['password'],
+                                                    None)
+        ref = {}
+        for r in (self.sp_alpha, self.sp_beta, self.sp_gamma):
+            ref.update(r)
+        self._validate_service_providers(token, ref)
+
+    def test_service_provides_in_token_disabled_sp(self):
+        """Test behaviour with disabled service providers.
+
+        They should not be listed in the service catalog.
+
+        """
+        # disable service provider ALPHA
+        sp_ref = {'enabled': False}
+        self.federation_api.update_sp(self.SP1, sp_ref)
+
+        token = self.token_v3_helper.get_token_data(self.user_id,
+                                                    ['password'],
+                                                    None)
+        ref = {}
+        for r in (self.sp_beta, self.sp_gamma):
+            ref.update(r)
+        self._validate_service_providers(token, ref)
+
+    def test_no_service_providers_in_token(self):
+        """Test SC with disabled service providers
+
+        There should be no entry ``service_providers`` in the Catalog.
+        Test passes providing no Attribute was raised.
+
+        """
+        sp_ref = {'enabled': False}
+        for sp in (self.SP1, self.SP2, self.SP3):
+            self.federation_api.update_sp(sp, sp_ref)
+
+        token = self.token_v3_helper.get_token_data(self.user_id,
+                                                    ['password'],
+                                                    None)
+        self.assertNotIn('service_providers', token['token'],
+                         message=('Expected Service Catalog not to have '
+                                  'service_providers'))

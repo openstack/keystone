@@ -294,3 +294,9 @@ class Federation(core.Driver):
             for attr in ServiceProviderModel.mutable_attributes:
                 setattr(sp_ref, attr, getattr(new_sp, attr))
         return sp_ref.to_dict()
+
+    def get_enabled_service_providers(self):
+        with sql.transaction() as session:
+            service_providers = session.query(ServiceProviderModel)
+            service_providers = service_providers.filter_by(enabled=True)
+        return service_providers
