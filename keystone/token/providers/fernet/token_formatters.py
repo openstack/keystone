@@ -23,7 +23,7 @@ import six
 from keystone.common import dependency
 from keystone import exception
 from keystone.token.providers import common
-from keystone.token.providers.klwt import utils
+from keystone.token.providers.fernet import utils
 
 
 CONF = cfg.CONF
@@ -130,7 +130,7 @@ class BaseTokenFormatter(object):
 
 class StandardTokenFormatter(BaseTokenFormatter):
 
-    token_format = 'KLWT00'
+    token_format = 'F00'
 
     def create_token(self, user_id, project_id, token_data):
         """Create a standard formatted token.
@@ -163,7 +163,7 @@ class StandardTokenFormatter(BaseTokenFormatter):
         return token_id
 
     def validate_token(self, token_string):
-        """Validate a KLWT00 formatted token.
+        """Validate a F00 formatted token.
 
         :param token_string: a string representing the token
         :return: a tuple contains the user_id, project_id and token_data
@@ -214,7 +214,7 @@ class StandardTokenFormatter(BaseTokenFormatter):
 @dependency.requires('trust_api')
 class TrustTokenFormatter(BaseTokenFormatter):
 
-    token_format = 'KLWT01'
+    token_format = 'F01'
 
     def create_token(self, user_id, project_id, token_data):
         """Create a trust formatted token.

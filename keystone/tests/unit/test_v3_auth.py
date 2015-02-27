@@ -32,7 +32,7 @@ from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
-from keystone.tests.unit.token import test_klwt_provider as klwt
+from keystone.tests.unit.token import test_fernet_provider as fernet
 
 
 CONF = cfg.CONF
@@ -4059,17 +4059,17 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertValidDomainListResponse(r)
 
 
-class TestKLWTokenProvider(test_v3.RestfulTestCase,
-                           klwt.KeyRepositoryTestMixin):
+class TestFernetTokenProvider(test_v3.RestfulTestCase,
+                              fernet.KeyRepositoryTestMixin):
     def setUp(self):
-        super(TestKLWTokenProvider, self).setUp()
+        super(TestFernetTokenProvider, self).setUp()
         self.setUpKeyRepository()
 
     def config_overrides(self):
-        super(TestKLWTokenProvider, self).config_overrides()
+        super(TestFernetTokenProvider, self).config_overrides()
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.klwt.Provider')
+            provider='keystone.token.providers.fernet.Provider')
 
     def test_authenticate_for_unscoped_token(self):
         auth_data = self.build_authentication_request(
@@ -4077,7 +4077,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         unscoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(unscoped_token, matchers.StartsWith('KLWT00'))
+        self.assertThat(unscoped_token, matchers.StartsWith('F00'))
         self.assertLess(len(unscoped_token), 255)
 
     def test_validate_unscoped_token(self):
@@ -4086,7 +4086,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
         unscoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(unscoped_token, matchers.StartsWith('KLWT00'))
+        self.assertThat(unscoped_token, matchers.StartsWith('F00'))
         headers = {'X-Subject-Token': unscoped_token}
         self.get('/auth/tokens', headers=headers, expected_status=200)
 
@@ -4096,7 +4096,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             password=self.user['password'])
         resp = self.post('/auth/tokens', body=auth_data)
         unscoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(unscoped_token, matchers.StartsWith('KLWT00'))
+        self.assertThat(unscoped_token, matchers.StartsWith('F00'))
         tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
                           unscoped_token[50 + 32:])
         headers = {'X-Subject-Token': tampered_token}
@@ -4109,7 +4109,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             project_id=self.project_id)
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         project_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(project_scoped_token, matchers.StartsWith('KLWT00'))
+        self.assertThat(project_scoped_token, matchers.StartsWith('F00'))
         self.assertLess(len(project_scoped_token), 255)
 
     def test_validate_project_scoped_token(self):
@@ -4119,7 +4119,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             project_id=self.project_id)
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         project_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(project_scoped_token, matchers.StartsWith('KLWT00'))
+        self.assertThat(project_scoped_token, matchers.StartsWith('F00'))
         headers = {'X-Subject-Token': project_scoped_token}
         self.get('/auth/tokens', headers=headers, expected_status=200)
 
@@ -4130,7 +4130,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             project_id=self.project_id)
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         project_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(project_scoped_token, matchers.StartsWith('KLWT00'))
+        self.assertThat(project_scoped_token, matchers.StartsWith('F00'))
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
         headers = {'X-Subject-Token': tampered_token}
@@ -4158,7 +4158,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
             trust_id=trust['id'])
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         trust_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(trust_scoped_token, matchers.StartsWith('KLWT01'))
+        self.assertThat(trust_scoped_token, matchers.StartsWith('F01'))
         self.assertLess(len(trust_scoped_token), 255)
 
     def test_validate_a_trust_scoped_token(self):
@@ -4184,7 +4184,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         # Get a trust scoped token
         trust_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(trust_scoped_token, matchers.StartsWith('KLWT01'))
+        self.assertThat(trust_scoped_token, matchers.StartsWith('F01'))
         headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
         self.get('/auth/tokens', headers=headers, expected_status=200)
@@ -4212,7 +4212,7 @@ class TestKLWTokenProvider(test_v3.RestfulTestCase,
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         # Get a trust scoped token
         trust_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(trust_scoped_token, matchers.StartsWith('KLWT01'))
+        self.assertThat(trust_scoped_token, matchers.StartsWith('F01'))
         tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
                           trust_scoped_token[50 + 32:])
         headers = {'X-Subject-Token': tampered_token}

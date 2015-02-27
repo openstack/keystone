@@ -224,9 +224,10 @@ class Manager(manager.Manager):
     def validate_v3_token(self, token_id):
         unique_id = self.unique_id(token_id)
         # NOTE(lbragstad): Only go to persistent storage if we have a token to
-        # fetch from the backend. If the KLWT provider is being used this step
-        # isn't necessary. The KLWT reference is persisted in the token_id, so
-        # in this case set the token_ref as the identifier of the token.
+        # fetch from the backend. If the Fernet token provider is being used
+        # this step isn't necessary. The Fernet token reference is persisted in
+        # the token_id, so in this case set the token_ref as the identifier of
+        # the token.
         if not self._needs_persistence:
             token_ref = token_id
         else:

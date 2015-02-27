@@ -22,9 +22,9 @@ from oslo_utils import timeutils
 from keystone.common import config
 from keystone import exception
 from keystone.tests import unit as tests
-from keystone.token.providers import klwt
-from keystone.token.providers.klwt import token_formatters
-from keystone.token.providers.klwt import utils
+from keystone.token.providers import fernet
+from keystone.token.providers.fernet import token_formatters
+from keystone.token.providers.fernet import utils
 
 
 CONF = config.CONF
@@ -34,18 +34,18 @@ class KeyRepositoryTestMixin(object):
     def setUpKeyRepository(self):
         directory = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, directory)
-        self.config_fixture.config(group='klw_tokens',
+        self.config_fixture.config(group='fernet_tokens',
                                    key_repository=directory)
 
         utils.create_key_directory()
         utils.initialize_key_repository()
 
 
-class TestKLWTokenProvider(tests.TestCase, KeyRepositoryTestMixin):
+class TestFernetTokenProvider(tests.TestCase, KeyRepositoryTestMixin):
     def setUp(self):
-        super(TestKLWTokenProvider, self).setUp()
+        super(TestFernetTokenProvider, self).setUp()
         self.setUpKeyRepository()
-        self.provider = klwt.Provider()
+        self.provider = fernet.Provider()
 
     def test_issue_v2_token_raises_not_implemented(self):
         """Test that exception is raised when call creating v2 token."""
@@ -144,7 +144,7 @@ class TestStandardTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
                                'get_token_data',
                                side_effect=fake_get_token_data):
             user_id, project_id, token_data = self.formatter.validate_token(
-                token[6:])
+                token[len('F00'):])
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_project_id, project_id)

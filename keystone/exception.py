@@ -426,7 +426,7 @@ class ConfigFileNotFound(UnexpectedError):
 
 class KeysNotFound(UnexpectedError):
     message_format = _('No encryption keys found; run keystone-manage '
-                       'klwt_setup to bootstrap one.')
+                       'fernet_setup to bootstrap one.')
 
 
 class MultipleSQLDriversInConfig(UnexpectedError):

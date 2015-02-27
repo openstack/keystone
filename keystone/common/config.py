@@ -206,15 +206,14 @@ FILE_OPTIONS = {
                          'owning domain or from projects higher in the '
                          'hierarchy can be optionally enabled.'),
     ],
-    'klw_tokens': [
+    'fernet_tokens': [
         cfg.StrOpt('key_repository',
-                   default='/etc/keystone/keys/',
-                   help='Directory containing Keystone Lightweight token '
-                        '(KLWT) keys.'),
+                   default='/etc/keystone/fernet-keys/',
+                   help='Directory containing Fernet token keys.'),
         cfg.IntOpt('max_active_keys',
                    default=3,
                    help='This controls how many keys are held in rotation by '
-                        'keystone-manage klwt_rotate before they are '
+                        'keystone-manage fernet_rotate before they are '
                         'discarded. The default value of 3 means that '
                         'keystone will maintain one staged key, one primary '
                         'key, and one secondary key. Increasing this value '
@@ -238,7 +237,7 @@ FILE_OPTIONS = {
                    default='keystone.token.providers.uuid.Provider',
                    help='Controls the token construction, validation, and '
                         'revocation operations. Core providers are '
-                        '"keystone.token.providers.[klwt|pkiz|pki|uuid].'
+                        '"keystone.token.providers.[fernet|pkiz|pki|uuid].'
                         'Provider". The default provider is uuid.'),
         cfg.StrOpt('driver',
                    default='keystone.token.persistence.backends.sql.Token',

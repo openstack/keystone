@@ -396,8 +396,8 @@ configuring the following property.
   ``keystone.token.providers.uuid.Provider``
 
 
-UUID, PKI, PKIZ, or KLWT?
-^^^^^^^^^^^^^^^^^^^^^^^^^
+UUID, PKI, PKIZ, or Fernet?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Each token format uses different technologies to achieve various performance,
 scaling and architectural requirements.
@@ -431,16 +431,16 @@ certificates which may be created using ``keystone-manage pki_setup`` for
 demonstration purposes (this is not recommended for production deployments: use
 certificates issued by an trusted CA instead).
 
-KLWT tokens contain a limited amount of identity and authorization data in a
+Fernet tokens contain a limited amount of identity and authorization data in a
 `MessagePacked <http://msgpack.org/>`_ payload. The payload is then wrapped as
 a `Fernet <https://github.com/fernet/spec>`_ message for transport, where
 Fernet provides the required web safe characteristics for use in URLs and
-headers. KLWT tokens require symmetric encryption keys which can be established
-using ``keystone-manage klwt_setup`` and periodically rotated using
-``keystone-manage klwt_rotate``.
+headers. Fernet tokens require symmetric encryption keys which can be
+established using ``keystone-manage fernet_setup`` and periodically rotated
+using ``keystone-manage fernet_rotate``.
 
 .. WARNING::
-    UUID, PKI, PKIZ, and KLWT tokens are all bearer tokens, meaning that they
+    UUID, PKI, PKIZ, and Fernet tokens are all bearer tokens, meaning that they
     must be protected from unnecessary disclosure to prevent unauthorized
     access.
 
@@ -720,18 +720,18 @@ If ``keystone-manage pki_setup`` is not used then these options don't need to
 be set.
 
 
-Encryption Keys for KLWT
-------------------------
+Encryption Keys for Fernet
+--------------------------
 
-``keystone-manage klwt_setup`` will attempt to create a key repository as
-configured in the ``[klw_tokens]`` section of ``keystone.conf`` and bootstrap
-it with encryption keys.
+``keystone-manage fernet_setup`` will attempt to create a key repository as
+configured in the ``[fernet_tokens]`` section of ``keystone.conf`` and
+bootstrap it with encryption keys.
 
 A single 256-bit key is actually composed of two smaller keys: a 128-bit key
 used for SHA256 HMAC signing and a 128-bit key used for AES encryption. See the
 `Fernet token <https://github.com/fernet/spec>`_ specification for more detail.
 
-``keystone-manage klwt_rotate`` will rotate encryption keys through the
+``keystone-manage fernet_rotate`` will rotate encryption keys through the
 following states:
 
 * **Staged key**: In a key rotation, a new key is introduced into the rotation
@@ -754,19 +754,19 @@ following states:
 * **Secondary keys**: In a key rotation, the old *primary* key is demoted to be
   a *secondary* key. *Secondary* keys are only used to validate previously
   generated tokens. You can maintain any number of *secondary* keys, up to
-  ``[klw_tokens] max_active_keys`` (where "active" refers to the sum of all
+  ``[fernet_tokens] max_active_keys`` (where "active" refers to the sum of all
   recognized keys in any state: *staged*, *primary* or *secondary*). When
   ``max_active_keys`` is exceeded during a key rotation, the oldest keys are
   discarded.
 
-When a new primary key is created, all new tokens will be signed or encrypted
-with the new primary key. The old primary key is demoted to a secondary key,
-which can still be used for validating tokens. Excess secondary keys (beyond
-``[klw_tokens] max_active_keys``) are revoked. Revoked keys are premanently
+When a new primary key is created, all new tokens will be encrypted using the
+new primary key. The old primary key is demoted to a secondary key, which can
+still be used for validating tokens. Excess secondary keys (beyond
+``[fernet_tokens] max_active_keys``) are revoked. Revoked keys are permanently
 deleted.
 
-Rotating keys too frequently, or with ``['klw_tokens] max_active_keys`` set too
-low, will cause tokens to become invalid prior to their expiration.
+Rotating keys too frequently, or with ``[fernet_tokens] max_active_keys`` set
+too low, will cause tokens to become invalid prior to their expiration.
 
 Service Catalog
 ---------------
