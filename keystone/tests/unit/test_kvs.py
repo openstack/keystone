@@ -479,8 +479,8 @@ class KVSTest(tests.TestCase):
         expected_foo_keys = [self.key_foo]
         expected_bar_keys = [self.key_bar]
 
-        mapping_foo = dict([(self.key_foo, self.value_foo)])
-        mapping_bar = dict([(self.key_bar, self.value_bar)])
+        mapping_foo = {self.key_foo: self.value_foo}
+        mapping_bar = {self.key_bar: self.value_bar}
 
         kvs.configure(backing_store='openstack.kvs.Memcached',
                       memcached_backend='TestDriver',

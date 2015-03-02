@@ -257,6 +257,21 @@ class HackingCode(fixtures.Fixture):
         ],
     }
 
+    dict_constructor = {
+        'code': """
+            lower_res = {k.lower(): v for k, v in six.iteritems(res[1])}
+            fool = dict(a='a', b='b')
+            lower_res = dict((k.lower(), v) for k, v in six.iteritems(res[1]))
+            attrs = dict([(k, _from_json(v))])
+            dict([[i,i] for i in range(3)])
+            dict(({1:2}))
+        """,
+        'expected_errors': [
+            (3, 0, 'K008'),
+            (4, 0, 'K008'),
+            (5, 0, 'K008'),
+        ]}
+
 
 class HackingLogging(fixtures.Fixture):
 

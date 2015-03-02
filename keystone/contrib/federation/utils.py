@@ -367,8 +367,8 @@ class RuleProcessor(object):
         # This will create a new dictionary where the values are arrays, and
         # any multiple values are stored in the arrays.
         LOG.debug('assertion data: %s', assertion_data)
-        assertion = dict((n, v.split(';')) for n, v in assertion_data.items()
-                         if isinstance(v, six.string_types))
+        assertion = {n: v.split(';') for n, v in assertion_data.items()
+                     if isinstance(v, six.string_types)}
         LOG.debug('assertion: %s', assertion)
         identity_values = []
 

@@ -140,7 +140,7 @@ def get_oauth_headers(headers):
 
 def extract_non_oauth_params(query_string):
     params = oauthlib.common.extract_params(query_string)
-    return dict([(k, v) for k, v in params if not k.startswith('oauth_')])
+    return {k: v for k, v in params if not k.startswith('oauth_')}
 
 
 @dependency.provider('oauth_api')

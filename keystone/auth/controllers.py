@@ -560,7 +560,7 @@ class Auth(controller.V3Controller):
         # it's most likely that only one of these will be filled so avoid
         # the combination if possible.
         if a and b:
-            return dict((x['id'], x) for x in a + b).values()
+            return {x['id']: x for x in a + b}.values()
         else:
             return a or b
 

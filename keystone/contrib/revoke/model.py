@@ -91,8 +91,8 @@ class RevokeEvent(object):
                 'audit_id',
                 'audit_chain_id',
                 ]
-        event = dict((key, self.__dict__[key]) for key in keys
-                     if self.__dict__[key] is not None)
+        event = {key: self.__dict__[key] for key in keys
+                 if self.__dict__[key] is not None}
         if self.trust_id is not None:
             event['OS-TRUST:trust_id'] = self.trust_id
         if self.consumer_id is not None:

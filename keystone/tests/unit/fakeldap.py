@@ -348,8 +348,7 @@ class FakeLdap(core.LDAPHandler):
                       core.utf8_decode(dn))
             raise ldap.ALREADY_EXISTS(dn)
 
-        self.db[key] = dict([(k, _internal_attr(k, v))
-                             for k, v in modlist])
+        self.db[key] = {k: _internal_attr(k, v) for k, v in modlist}
         self.db.sync()
 
     def delete_s(self, dn):
@@ -512,8 +511,8 @@ class FakeLdap(core.LDAPHandler):
             match_attrs[id_attr] = [id_val]
             if not filterstr or _match_query(filterstr, match_attrs):
                 # filter the attributes by attrlist
-                attrs = dict([(k, v) for k, v in six.iteritems(attrs)
-                              if not attrlist or k in attrlist])
+                attrs = {k: v for k, v in six.iteritems(attrs)
+                         if not attrlist or k in attrlist}
                 objects.append((dn, attrs))
 
         return objects

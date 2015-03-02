@@ -63,15 +63,14 @@ class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
 
     def config_overrides(self):
         super(TestAuthPlugin, self).config_overrides()
-        method_opts = dict(
-            [
-                ('external', 'keystone.auth.plugins.external.DefaultDomain'),
-                ('password', 'keystone.auth.plugins.password.Password'),
-                ('token', 'keystone.auth.plugins.token.Token'),
-                (METHOD_NAME,
-                 'keystone.tests.unit.test_auth_plugin.'
-                 'SimpleChallengeResponse'),
-            ])
+        method_opts = {
+            'external': 'keystone.auth.plugins.external.DefaultDomain',
+            'password': 'keystone.auth.plugins.password.Password',
+            'token': 'keystone.auth.plugins.token.Token',
+            METHOD_NAME:
+                'keystone.tests.unit.test_auth_plugin.SimpleChallengeResponse',
+        }
+
         self.auth_plugin_config_override(
             methods=['external', 'password', 'token', METHOD_NAME],
             **method_opts)

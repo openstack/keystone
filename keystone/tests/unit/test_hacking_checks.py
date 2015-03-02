@@ -130,3 +130,14 @@ class TestCheckOsloNamespaceImports(BaseStyleCheck):
         code = self.code_ex.oslo_namespace_imports['code']
         errors = self.code_ex.oslo_namespace_imports['expected_errors']
         self.assert_has_errors(code, expected_errors=errors)
+
+
+class TestDictConstructorWithSequenceCopy(BaseStyleCheck):
+
+    def get_checker(self):
+        return checks.dict_constructor_with_sequence_copy
+
+    def test(self):
+        code = self.code_ex.dict_constructor['code']
+        errors = self.code_ex.dict_constructor['expected_errors']
+        self.assert_has_errors(code, expected_errors=errors)

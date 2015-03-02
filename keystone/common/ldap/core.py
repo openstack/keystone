@@ -1319,7 +1319,7 @@ class BaseLdap(object):
         # in a case-insensitive way.  We use the case specified in the
         # mapping for the model to ensure we have a predictable way of
         # retrieving values later.
-        lower_res = dict((k.lower(), v) for k, v in six.iteritems(res[1]))
+        lower_res = {k.lower(): v for k, v in six.iteritems(res[1])}
 
         id_attrs = lower_res.get(self.id_attr.lower())
         if not id_attrs:

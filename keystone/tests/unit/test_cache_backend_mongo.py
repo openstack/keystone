@@ -198,7 +198,7 @@ class MockCollection(object):
             existing_doc = self._documents[self._insert(document)]
 
     def _internalize_dict(self, d):
-        return dict((k, copy.deepcopy(v)) for k, v in six.iteritems(d))
+        return {k: copy.deepcopy(v) for k, v in six.iteritems(d)}
 
     def remove(self, spec_or_id=None, search_filter=None):
         """Remove objects matching spec_or_id from the collection."""

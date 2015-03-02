@@ -94,8 +94,7 @@ class PolicyTestCase(tests.TestCase):
 
     def _set_rules(self):
         these_rules = common_policy.Rules(
-            dict((k, common_policy.parse_rule(v))
-                 for k, v in self.rules.items()))
+            {k: common_policy.parse_rule(v)for k, v in self.rules.items()})
         rules._ENFORCER.set_rules(these_rules)
 
     def test_enforce_nonexistent_action_throws(self):
@@ -189,8 +188,8 @@ class DefaultPolicyTestCase(tests.TestCase):
 
     def _set_rules(self, default_rule):
         these_rules = common_policy.Rules(
-            dict((k, common_policy.parse_rule(v))
-                 for k, v in self.rules.items()), default_rule)
+            {k: common_policy.parse_rule(v) for k, v in self.rules.items()},
+            default_rule)
         rules._ENFORCER.set_rules(these_rules)
 
     def test_policy_called(self):
