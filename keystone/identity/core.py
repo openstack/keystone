@@ -582,10 +582,9 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
-    @notifications.created(_USER, result_id_arg_attr='id')
     @domains_configured
     @exception_translated('user')
-    def create_user(self, user_ref):
+    def create_user(self, user_ref, initiator=None):
         user = user_ref.copy()
         user['name'] = clean.user_name(user['name'])
         user.setdefault('enabled', True)
@@ -602,6 +601,7 @@ class Manager(manager.Manager):
         # that particular driver type.
         user['id'] = uuid.uuid4().hex
         ref = driver.create_user(user['id'], user)
+        notifications.Audit.created(self._USER, user['id'], initiator)
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
@@ -655,10 +655,9 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref_list, domain_scope, driver, mapping.EntityType.USER)
 
-    @notifications.updated(_USER)
     @domains_configured
     @exception_translated('user')
-    def update_user(self, user_id, user_ref):
+    def update_user(self, user_id, user_ref, initiator=None):
         old_user_ref = self.get_user(user_id)
         user = user_ref.copy()
         if 'name' in user:
@@ -684,6 +683,8 @@ class Manager(manager.Manager):
 
         ref = driver.update_user(entity_id, user)
 
+        notifications.Audit.updated(self._USER, user_id, initiator)
+
         enabled_change = ((user.get('enabled') is False) and
                           user['enabled'] != old_user_ref.get('enabled'))
         if enabled_change or user.get('password') is not None:
@@ -692,10 +693,9 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
-    @notifications.deleted(_USER)
     @domains_configured
     @exception_translated('user')
-    def delete_user(self, user_id):
+    def delete_user(self, user_id, initiator=None):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
         # Get user details to invalidate the cache.
@@ -707,11 +707,11 @@ class Manager(manager.Manager):
                                          user_old['domain_id'])
         self.credential_api.delete_credentials_for_user(user_id)
         self.id_mapping_api.delete_id_mapping(user_id)
+        notifications.Audit.deleted(self._USER, user_id, initiator)
 
-    @notifications.created(_GROUP, result_id_arg_attr='id')
     @domains_configured
     @exception_translated('group')
-    def create_group(self, group_ref):
+    def create_group(self, group_ref, initiator=None):
         group = group_ref.copy()
         group.setdefault('description', '')
         domain_id = group['domain_id']
@@ -726,6 +726,9 @@ class Manager(manager.Manager):
         # that particular driver type.
         group['id'] = uuid.uuid4().hex
         ref = driver.create_group(group['id'], group)
+
+        notifications.Audit.created(self._GROUP, group['id'], initiator)
+
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.GROUP)
 
@@ -748,10 +751,9 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.GROUP)
 
-    @notifications.updated(_GROUP)
     @domains_configured
     @exception_translated('group')
-    def update_group(self, group_id, group):
+    def update_group(self, group_id, group, initiator=None):
         if 'domain_id' in group:
             self.resource_api.get_domain(group['domain_id'])
         domain_id, driver, entity_id = (
@@ -759,13 +761,13 @@ class Manager(manager.Manager):
         group = self._clear_domain_id_if_domain_unaware(driver, group)
         ref = driver.update_group(entity_id, group)
         self.get_group.invalidate(self, group_id)
+        notifications.Audit.updated(self._GROUP, group_id, initiator)
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.GROUP)
 
-    @notifications.deleted(_GROUP)
     @domains_configured
     @exception_translated('group')
-    def delete_group(self, group_id):
+    def delete_group(self, group_id, initiator=None):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
         user_ids = (u['id'] for u in self.list_users_in_group(group_id))
@@ -773,6 +775,9 @@ class Manager(manager.Manager):
         self.get_group.invalidate(self, group_id)
         self.id_mapping_api.delete_id_mapping(group_id)
         self.assignment_api.delete_group(group_id)
+
+        notifications.Audit.deleted(self._GROUP, group_id, initiator)
+
         for uid in user_ids:
             self.emit_invalidate_user_token_persistence(uid)
 

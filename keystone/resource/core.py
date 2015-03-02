@@ -83,8 +83,7 @@ class Manager(manager.Manager):
                 action=_('max hierarchy depth reached for '
                          '%s branch.') % project_id)
 
-    @notifications.created(_PROJECT)
-    def create_project(self, tenant_id, tenant):
+    def create_project(self, tenant_id, tenant, initiator=None):
         tenant = tenant.copy()
         tenant.setdefault('enabled', True)
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
@@ -109,6 +108,7 @@ class Manager(manager.Manager):
                                              parents_list)
 
         ret = self.driver.create_project(tenant_id, tenant)
+        notifications.Audit.created(self._PROJECT, tenant_id, initiator)
         if SHOULD_CACHE(ret):
             self.get_project.set(ret, self, tenant_id)
             self.get_project_by_name.set(ret, self, ret['name'],
@@ -188,8 +188,7 @@ class Manager(manager.Manager):
                              'its subtree contains enabled '
                              'projects') % project_id)
 
-    @notifications.updated(_PROJECT)
-    def update_project(self, tenant_id, tenant):
+    def update_project(self, tenant_id, tenant, initiator=None):
         original_tenant = self.driver.get_project(tenant_id)
         tenant = tenant.copy()
 
@@ -214,13 +213,13 @@ class Manager(manager.Manager):
             self._disable_project(tenant_id)
 
         ret = self.driver.update_project(tenant_id, tenant)
+        notifications.Audit.updated(self._PROJECT, tenant_id, initiator)
         self.get_project.invalidate(self, tenant_id)
         self.get_project_by_name.invalidate(self, original_tenant['name'],
                                             original_tenant['domain_id'])
         return ret
 
-    @notifications.deleted(_PROJECT)
-    def delete_project(self, tenant_id):
+    def delete_project(self, tenant_id, initiator=None):
         if not self.driver.is_leaf_project(tenant_id):
             raise exception.ForbiddenAction(
                 action=_('cannot delete the project %s since it is not '
@@ -238,6 +237,7 @@ class Manager(manager.Manager):
         self.get_project_by_name.invalidate(self, project['name'],
                                             project['domain_id'])
         self.credential_api.delete_credentials_for_project(tenant_id)
+        notifications.Audit.deleted(self._PROJECT, tenant_id, initiator)
         return ret
 
     def _filter_projects_list(self, projects_list, user_id):
@@ -375,8 +375,7 @@ class Manager(manager.Manager):
     def get_domain_by_name(self, domain_name):
         return self.driver.get_domain_by_name(domain_name)
 
-    @notifications.created(_DOMAIN)
-    def create_domain(self, domain_id, domain):
+    def create_domain(self, domain_id, domain, initiator=None):
         if (not self.identity_api.multiple_domains_supported and
                 domain_id != CONF.identity.default_domain_id):
             raise exception.Forbidden(_('Multiple domains are not supported'))
@@ -384,6 +383,9 @@ class Manager(manager.Manager):
         domain.setdefault('enabled', True)
         domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.create_domain(domain_id, domain)
+
+        notifications.Audit.created(self._DOMAIN, domain_id, initiator)
+
         if SHOULD_CACHE(ret):
             self.get_domain.set(ret, self, domain_id)
             self.get_domain_by_name.set(ret, self, ret['name'])
@@ -406,24 +408,25 @@ class Manager(manager.Manager):
         """
         pass
 
-    @notifications.updated(_DOMAIN)
-    def update_domain(self, domain_id, domain):
+    def update_domain(self, domain_id, domain, initiator=None):
         self.assert_domain_not_federated(domain_id, domain)
         original_domain = self.driver.get_domain(domain_id)
         if 'enabled' in domain:
             domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.update_domain(domain_id, domain)
+        notifications.Audit.updated(self._DOMAIN, domain_id, initiator)
         # disable owned users & projects when the API user specifically set
         #     enabled=False
         if (original_domain.get('enabled', True) and
                 not domain.get('enabled', True)):
-            self._disable_domain(domain_id)
+            notifications.Audit.disabled(self._DOMAIN, domain_id, initiator,
+                                         public=False)
+
         self.get_domain.invalidate(self, domain_id)
         self.get_domain_by_name.invalidate(self, original_domain['name'])
         return ret
 
-    @notifications.deleted(_DOMAIN)
-    def delete_domain(self, domain_id):
+    def delete_domain(self, domain_id, initiator=None):
         # explicitly forbid deleting the default domain (this should be a
         # carefully orchestrated manual process involving configuration
         # changes, etc)
@@ -451,6 +454,7 @@ class Manager(manager.Manager):
         # to the backend to delete all assignments for this domain.
         # (see Bug #1277847)
         self.driver.delete_domain(domain_id)
+        notifications.Audit.deleted(self._DOMAIN, domain_id, initiator)
         self.get_domain.invalidate(self, domain_id)
         self.get_domain_by_name.invalidate(self, domain['name'])
 
