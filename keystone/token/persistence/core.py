@@ -27,7 +27,6 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _LW
-from keystone.openstack.common import versionutils
 
 
 CONF = cfg.CONF
@@ -51,13 +50,6 @@ class PersistenceManager(manager.Manager):
 
     def __init__(self):
         super(PersistenceManager, self).__init__(CONF.token.driver)
-
-    @versionutils.deprecated(as_of=versionutils.deprecated.JUNO,
-                             in_favor_of='token_provider_api.unique_id',
-                             remove_in=+1,
-                             what='token_api.unique_id')
-    def unique_id(self, token_id):
-        return self.token_provider_api.unique_id(token_id)
 
     def _assert_valid(self, token_id, token_ref):
         """Raise TokenNotFound if the token is expired."""
