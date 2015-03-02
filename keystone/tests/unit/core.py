@@ -296,7 +296,7 @@ class BaseTestCase(oslotest.BaseTestCase):
         return cleanup
 
 
-@dependency.optional('revoke_api')
+@dependency.requires('revoke_api')
 class TestCase(BaseTestCase):
 
     _config_file_list = []
