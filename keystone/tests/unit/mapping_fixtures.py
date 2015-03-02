@@ -20,6 +20,8 @@ DEVELOPER_GROUP_ID = "xyz"
 DEVELOPER_GROUP_NAME = "developer"
 DEVELOPER_GROUP_DOMAIN_NAME = "outsourcing"
 DEVELOPER_GROUP_DOMAIN_ID = "5abc43"
+FEDERATED_DOMAIN = "Federated"
+LOCAL_DOMAIN = "Local"
 
 
 # Mapping summary:
@@ -550,6 +552,187 @@ MAPPING_GROUP_NAMES = {
                 }
             ]
         },
+    ]
+}
+
+MAPPING_EPHEMERAL_USER = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {
+                            "id": FEDERATED_DOMAIN
+                        },
+                        "type": "ephemeral"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "tbo"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_EPHEMERAL_USER_LOCAL_DOMAIN = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {
+                            "id": LOCAL_DOMAIN
+                        },
+                        "type": "ephemeral"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "jsmith"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_LOCAL_USER_LOCAL_DOMAIN = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {
+                            "id": LOCAL_DOMAIN
+                        },
+                        "type": "local"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "jsmith"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+# Excercise all possibilities of user identitfication. Values are hardcoded on
+# purpose.
+MAPPING_USER_IDS = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "jsmith"
+                    ]
+                }
+            ]
+        },
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {
+                            "id": "federated"
+                        }
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "tbo"
+                    ]
+                }
+            ]
+        },
+        {
+            "local": [
+                {
+                    "user": {
+                        "id": "{0}"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "bob"
+                    ]
+                }
+            ]
+        },
+        {
+            "local": [
+                {
+                    "user": {
+                        "id": "abc123",
+                        "name": "{0}",
+                        "domain": {
+                            "id": "federated"
+                        }
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "bwilliams"
+                    ]
+                }
+            ]
+        }
     ]
 }
 
