@@ -85,6 +85,67 @@ INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE = 'invalidate_user_project_tokens'
 INVALIDATE_USER_OAUTH_CONSUMER_TOKENS = 'invalidate_user_consumer_tokens'
 
 
+class Audit(object):
+    """Namespace for audit notification functions.
+
+    This is a namespace object to contain all of the direct notification
+    functions utilized for ``Manager`` methods.
+    """
+
+    @classmethod
+    def _emit(cls, operation, resource_type, resource_id, initiator, public):
+        """Directly send an event notification.
+
+        :param operation: one of the values from ACTIONS
+        :param resource_type: type of resource being affected
+        :param resource_id: ID of the resource affected
+        :param initiator: CADF representation of the user that created the
+                          request
+        :param public: If True (default), the event will be sent to the
+                       notifier API.  If False, the event will only be sent via
+                       notify_event_callbacks to in process listeners
+        """
+        # NOTE(stevemar): the _send_notification function is
+        # overloaded, it's used to register callbacks and to actually
+        # send the notification externally. Thus, we should check
+        # the desired notification format in the function instead
+        # of before it.
+        _send_notification(
+            operation,
+            resource_type,
+            resource_id,
+            public=public)
+
+        if CONF.notification_format == 'cadf' and public:
+            outcome = taxonomy.OUTCOME_SUCCESS
+            _create_cadf_payload(operation, resource_type, resource_id,
+                                 outcome, initiator)
+
+    @classmethod
+    def created(cls, resource_type, resource_id, initiator=None,
+                public=True):
+        cls._emit(ACTIONS.created, resource_type, resource_id, initiator,
+                  public)
+
+    @classmethod
+    def updated(cls, resource_type, resource_id, initiator=None,
+                public=True):
+        cls._emit(ACTIONS.updated, resource_type, resource_id, initiator,
+                  public)
+
+    @classmethod
+    def disabled(cls, resource_type, resource_id, initiator=None,
+                 public=True):
+        cls._emit(ACTIONS.disabled, resource_type, resource_id, initiator,
+                  public)
+
+    @classmethod
+    def deleted(cls, resource_type, resource_id, initiator=None,
+                public=True):
+        cls._emit(ACTIONS.deleted, resource_type, resource_id, initiator,
+                  public)
+
+
 class ManagerNotificationWrapper(object):
     """Send event notifications for ``Manager`` methods.
 
@@ -133,15 +194,13 @@ class ManagerNotificationWrapper(object):
                 # Only emit CADF notifications for public events
                 if CONF.notification_format == 'cadf' and self.public:
                     outcome = taxonomy.OUTCOME_SUCCESS
-                    # TODO(stevemar): In a future patch when we pass the
-                    # context from the controller to the manager then the
-                    # context will be available and we can enable the commented
-                    # out code below.
-                    context = {}
-                    # call_args = inspect.getcallargs(f, *args, **kwargs)
-                    # context = call_args['context']
+                    # NOTE(morganfainberg): The decorator form will always use
+                    # a 'None' initiator, since we do not pass context around
+                    # in a manner that allows the decorator to inspect context
+                    # and extract the needed information.
+                    initiator = None
                     _create_cadf_payload(self.operation, self.resource_type,
-                                         resource_id, outcome, context)
+                                         resource_id, outcome, initiator)
             return result
 
         return wrapper
@@ -257,7 +316,7 @@ def reset_notifier():
 
 
 def _create_cadf_payload(operation, resource_type, resource_id,
-                         outcome, context):
+                         outcome, initiator):
     """Prepare data for CADF audit notifier.
 
     Transform the arguments into content to be consumed by the function that
@@ -277,10 +336,9 @@ def _create_cadf_payload(operation, resource_type, resource_id,
     :param resource_type: type of resource being operated on (role, user, etc)
     :param resource_id: ID of resource being operated on
     :param outcome: outcomes of the operation (SUCCESS, FAILURE, etc)
-    :param context: WSGI context, contains info about the user
+    :param initiator: CADF representation of the user that created the request
     """
 
-    initiator = _get_request_audit_info(context)
     if resource_type not in CADF_TYPE_MAP:
         target_uri = taxonomy.UNKNOWN
     else:
