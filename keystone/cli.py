@@ -13,6 +13,7 @@
 # under the License.
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
 
@@ -21,11 +22,13 @@ from oslo_log import log
 import pbr.version
 
 from keystone import assignment
+from keystone.common import driver_hints
 from keystone.common import openssl
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
+from keystone import exception
 from keystone.i18n import _, _LW
 from keystone import identity
 from keystone import resource
@@ -319,6 +322,225 @@ class MappingPurge(BaseApp):
         mapping_manager.driver.purge_mappings(mapping)
 
 
+DOMAIN_CONF_FHEAD = 'keystone.'
+DOMAIN_CONF_FTAIL = '.conf'
+
+
+class DomainConfigUploadFiles(object):
+
+    def __init__(self):
+        super(DomainConfigUploadFiles, self).__init__()
+        self.load_backends()
+
+    def load_backends(self):
+        """Load the backends needed for uploading domain configs.
+
+        We only need the resource and domain_config managers, but there are
+        some dependencies which mean we have to load the assignment and
+        identity managers as well.
+
+        The order of loading the backends is important, since the resource
+        manager depends on the assignment manager, which in turn depends on
+        the identity manager.
+
+        """
+        identity.Manager()
+        assignment.Manager()
+        self.resource_manager = resource.Manager()
+        self.domain_config_manager = resource.DomainConfigManager()
+
+    def valid_options(self):
+        """Validate the options, returning True if they are indeed valid.
+
+        It would be nice to use the argparse automated checking for this
+        validation, but the only way I can see doing that is to make the
+        default (i.e. if no optional parameters are specified) to upload
+        all configuration files - and that sounds too dangerous as a
+        default. So we use it in a slightly unconventional way, where all
+        parameters are optional, but you must specify at least one.
+
+        """
+        if (CONF.command.all is False and
+                CONF.command.domain_name is None):
+            print(_('At least one option must be provided, use either '
+                    '--all or --domain-name'))
+            raise ValueError
+
+        if (CONF.command.all is True and
+                CONF.command.domain_name is not None):
+            print(_('The --all option cannot be used with '
+                    'the --domain-name option'))
+            raise ValueError
+
+    def upload_config_to_database(self, file_name, domain_name):
+        """Upload a single config file to the database.
+
+        :param file_name: the file containing the config options
+        :param domain_name: the domain name
+
+        :raises: ValueError: the domain does not exist or already has domain
+                             specific configurations defined
+        :raises: Exceptions from oslo config: there is an issue with options
+                                              defined in the config file or its
+                                              format
+
+        The caller of this method should catch the errors raised and handle
+        appropriately in order that the best UX experience can be provided for
+        both the case of when a user has asked for a specific config file to
+        be uploaded, as well as all config files in a directory.
+
+        """
+        try:
+            domain_ref = (
+                self.resource_manager.driver.get_domain_by_name(domain_name))
+        except exception.DomainNotFound:
+            print(_('Invalid domain name: %(domain)s found in config file '
+                    'name: %(file)s - ignoring this file.') % {
+                        'domain': domain_name,
+                        'file': file_name})
+            raise ValueError
+
+        if self.domain_config_manager.get_config_with_sensitive_info(
+                domain_ref['id']):
+            print(_('Domain: %(domain)s already has a configuration '
+                    'defined - ignoring file: %(file)s.') % {
+                        'domain': domain_name,
+                        'file': file_name})
+            raise ValueError
+
+        sections = {}
+        try:
+            parser = cfg.ConfigParser(file_name, sections)
+            parser.parse()
+        except Exception:
+            # We explicitly don't try and differentiate the error cases, in
+            # order to keep the code in this tool more robust as oslo.config
+            # changes.
+            print(_('Error parsing configuration file for domain: %(domain)s, '
+                    'file: %(file)s.') % {
+                        'domain': domain_name,
+                        'file': file_name})
+            raise
+
+        for group in sections:
+            for option in sections[group]:
+                    sections[group][option] = sections[group][option][0]
+        self.domain_config_manager.create_config(domain_ref['id'], sections)
+
+    def upload_configs_to_database(self, file_name, domain_name):
+        """Upload configs from file and load into database.
+
+        This method will be called repeatedly for all the config files in the
+        config directory. To provide a better UX, we differentiate the error
+        handling in this case (versus when the user has asked for a single
+        config file to be uploaded).
+
+        """
+        try:
+            self.upload_config_to_database(file_name, domain_name)
+        except ValueError:
+            # We've already given all the info we can in a message, so carry
+            # on to the next one
+            pass
+        except Exception:
+            # Some other error occurred relating to this specific config file
+            # or domain. Since we are trying to upload all the config files,
+            # we'll continue and hide this exception. However, we tell the
+            # user how to get more info about this error by re-running with
+            # just the domain at fault. When we run in single-domain mode we
+            # will NOT hide the exception.
+            print(_('To get a more detailed information on this error, re-run '
+                    'this command for the specific domain, i.e.: '
+                    'keystone-manage domain_config_upload --domain-name %s') %
+                  domain_name)
+            pass
+
+    def read_domain_configs_from_files(self):
+        """Read configs from file(s) and load into database.
+
+        The command line parameters have already been parsed and the CONF
+        command option will have been set. It is either set to the name of an
+        explicit domain, or it's None to indicate that we want all domain
+        config files.
+
+        """
+        domain_name = CONF.command.domain_name
+        conf_dir = CONF.identity.domain_config_dir
+        if not os.path.exists(conf_dir):
+            print(_('Unable to locate domain config directory: %s') % conf_dir)
+            raise ValueError
+
+        if domain_name:
+            # Request is to upload the configs for just one domain
+            fname = DOMAIN_CONF_FHEAD + domain_name + DOMAIN_CONF_FTAIL
+            self.upload_config_to_database(
+                os.path.join(conf_dir, fname), domain_name)
+            return
+
+        # Request is to transfer all config files, so let's read all the
+        # files in the config directory, and transfer those that match the
+        # filename pattern of 'keystone.<domain_name>.conf'
+        for r, d, f in os.walk(conf_dir):
+            for fname in f:
+                if (fname.startswith(DOMAIN_CONF_FHEAD) and
+                        fname.endswith(DOMAIN_CONF_FTAIL)):
+                    if fname.count('.') >= 2:
+                        self.upload_configs_to_database(
+                            os.path.join(r, fname),
+                            fname[len(DOMAIN_CONF_FHEAD):
+                                  -len(DOMAIN_CONF_FTAIL)])
+                    else:
+                        LOG.warn(_LW('Ignoring file (%s) while scanning '
+                                     'domain config directory'), fname)
+
+    def run(self):
+        # First off, let's just check we can talk to the domain database
+        try:
+            self.resource_manager.driver.list_domains(driver_hints.Hints())
+        except Exception:
+            # It is likely that there is some SQL or other backend error
+            # related to set up
+            print(_('Unable to access the keystone database, please check it '
+                    'is configured correctly.'))
+            raise
+
+        try:
+            self.valid_options()
+            self.read_domain_configs_from_files()
+        except ValueError:
+            # We will already have printed out a nice message, so indicate
+            # to caller the non-success error code to be used.
+            return 1
+
+
+class DomainConfigUpload(BaseApp):
+    """Upload the domain specific configuration files to the database."""
+
+    name = 'domain_config_upload'
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(DomainConfigUpload, cls).add_argument_parser(subparsers)
+        parser.add_argument('--all', default=False, action='store_true',
+                            help='Upload contents of all domain specific '
+                                 'configuration files. Either use this option '
+                                 'or use the --domain-name option to choose a '
+                                 'specific domain.')
+        parser.add_argument('--domain-name', default=None,
+                            help='Upload contents of the specific '
+                                 'configuration file for the given domain. '
+                                 'Either use this option or use the --all '
+                                 'option to upload contents for all domains.')
+        return parser
+
+    @staticmethod
+    def main():
+        dcu = DomainConfigUploadFiles()
+        status = dcu.run()
+        if status is not None:
+            exit(status)
+
+
 class SamlIdentityProviderMetadata(BaseApp):
     """Generate Identity Provider metadata."""
 
@@ -336,6 +558,7 @@ class SamlIdentityProviderMetadata(BaseApp):
 CMDS = [
     DbSync,
     DbVersion,
+    DomainConfigUpload,
     FernetRotate,
     FernetSetup,
     MappingPurge,
