@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev155\n"
+"Project-Id-Version: keystone 2015.1.dev236\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-20 06:03+0000\n"
+"POT-Creation-Date: 2015-03-02 06:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,7 +110,7 @@ msgstr ""
 msgid "%s is not a dogpile.proxy.ProxyBackend"
 msgstr ""
 
-#: keystone/common/kvs/core.py:401
+#: keystone/common/kvs/core.py:403
 #, python-format
 msgid "KVS lock released (timeout reached) for: %s"
 msgstr ""
@@ -163,14 +163,13 @@ msgid ""
 "%(endpoint_id)s not found."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:144
+#: keystone/contrib/federation/utils.py:145
 #, python-format
 msgid "Impossible to identify the IdP %s "
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:426
-#, python-format
-msgid "Ignoring user name %s"
+#: keystone/contrib/federation/utils.py:452
+msgid "Ignoring user name"
 msgstr ""
 
 #: keystone/identity/controllers.py:138

@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-24 06:03+0000\n"
-"PO-Revision-Date: 2015-02-24 04:19+0000\n"
+"POT-Creation-Date: 2015-03-02 06:34+0000\n"
+"PO-Revision-Date: 2015-03-02 05:59+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -565,7 +565,7 @@ msgstr "Não é possível consultar o usuário %s"
 msgid "auth_type is not Negotiate"
 msgstr ""
 
-#: keystone/auth/plugins/mapped.py:210
+#: keystone/auth/plugins/mapped.py:244
 msgid "Could not map user"
 msgstr ""
 
@@ -582,7 +582,7 @@ msgstr "Token de acesso expirou"
 msgid "Could not validate the access token"
 msgstr ""
 
-#: keystone/auth/plugins/password.py:134
+#: keystone/auth/plugins/password.py:46
 msgid "Invalid username or password"
 msgstr "Nome de usuário ou senha inválidos"
 
@@ -717,7 +717,7 @@ msgstr ""
 msgid "The resource could not be found."
 msgstr "O recurso não pôde ser localizado."
 
-#: keystone/common/cache/_memcache_pool.py:111
+#: keystone/common/cache/_memcache_pool.py:113
 #, python-format
 msgid "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
 msgstr ""
@@ -780,12 +780,12 @@ msgstr ""
 msgid "`key_mangler` option must be a function reference"
 msgstr ""
 
-#: keystone/common/kvs/core.py:352
+#: keystone/common/kvs/core.py:353
 #, python-format
 msgid "Lock key must match target key: %(lock)s != %(target)s"
 msgstr ""
 
-#: keystone/common/kvs/core.py:356
+#: keystone/common/kvs/core.py:357
 msgid "Must be called within an active lock context."
 msgstr ""
 
@@ -892,8 +892,8 @@ msgstr ""
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
 
-#: keystone/common/sql/migration_helpers.py:184
-#: keystone/common/sql/migration_helpers.py:223
+#: keystone/common/sql/migration_helpers.py:189
+#: keystone/common/sql/migration_helpers.py:228
 #, python-format
 msgid "%s extension does not exist."
 msgstr ""
@@ -961,28 +961,33 @@ msgid ""
 "administrative or billing."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:122
+#: keystone/contrib/federation/utils.py:123
 msgid "Federation token is expired"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:152
+#: keystone/contrib/federation/utils.py:153
 msgid ""
 "Could not find Identity Provider identifier in environment, check "
 "[federation] remote_id_attribute for details."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:157
+#: keystone/contrib/federation/utils.py:158
 msgid ""
 "Incoming identity provider identifier not included among the accepeted "
 "identifiers."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:612
+#: keystone/contrib/federation/utils.py:430
+#, python-format
+msgid "User type %s not supported"
+msgstr ""
+
+#: keystone/contrib/federation/utils.py:639
 #, python-format
 msgid "Identity Provider %(idp)s is disabled"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:620
+#: keystone/contrib/federation/utils.py:647
 #, python-format
 msgid "Service Provider %(sp)s is disabled"
 msgstr ""
@@ -996,7 +1001,7 @@ msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
 
 #: keystone/contrib/oauth1/controllers.py:188
-#: keystone/contrib/oauth1/backends/sql.py:267
+#: keystone/contrib/oauth1/backends/sql.py:270
 msgid "User IDs do not match"
 msgstr "ID de usuário não confere"
 
@@ -1049,15 +1054,15 @@ msgstr "Usuário autorizado não possui o role necessário"
 msgid "User is not a member of the requested project"
 msgstr "Usuário não é um membro do projeto requisitado"
 
-#: keystone/contrib/oauth1/backends/sql.py:88
+#: keystone/contrib/oauth1/backends/sql.py:91
 msgid "Consumer not found"
 msgstr "Consumidor não encontrado"
 
-#: keystone/contrib/oauth1/backends/sql.py:183
+#: keystone/contrib/oauth1/backends/sql.py:186
 msgid "Request token not found"
 msgstr "Token de requisição não encontrado"
 
-#: keystone/contrib/oauth1/backends/sql.py:247
+#: keystone/contrib/oauth1/backends/sql.py:250
 msgid "Access token not found"
 msgstr "Token de acesso não encontrado"
 
@@ -1344,15 +1349,15 @@ msgstr "O token de escopo de domínio não é suportado"
 msgid "Unable to sign token."
 msgstr "Não é possível assinar o token."
 
-#: keystone/trust/controllers.py:146
+#: keystone/trust/controllers.py:147
 msgid "Redelegation allowed for delegated by trust only"
 msgstr ""
 
-#: keystone/trust/controllers.py:174
+#: keystone/trust/controllers.py:178
 msgid "The authenticated user should match the trustor."
 msgstr ""
 
-#: keystone/trust/controllers.py:179
+#: keystone/trust/controllers.py:183
 msgid "At least one role should be specified."
 msgstr ""
 
