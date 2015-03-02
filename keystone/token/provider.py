@@ -189,10 +189,9 @@ class Manager(manager.Manager):
         except KeyError:
             raise exception.TokenNotFound(_('Failed to validate token'))
 
-        if self.revoke_api is not None:
-            token_values = self.revoke_api.model.build_token_values_v2(
-                token_data, CONF.identity.default_domain_id)
-            self.revoke_api.check_token(token_values)
+        token_values = self.revoke_api.model.build_token_values_v2(
+            token_data, CONF.identity.default_domain_id)
+        self.revoke_api.check_token(token_values)
 
     def validate_v2_token(self, token_id, belongs_to=None):
         unique_id = self.unique_id(token_id)
@@ -209,9 +208,8 @@ class Manager(manager.Manager):
             token_data = token['token']
         except KeyError:
             raise exception.TokenNotFound(_('Failed to validate token'))
-        if self.revoke_api is not None:
-            token_values = self.revoke_api.model.build_token_values(token_data)
-            self.revoke_api.check_token(token_values)
+        token_values = self.revoke_api.model.build_token_values(token_data)
+        self.revoke_api.check_token(token_values)
 
     def check_revocation(self, token):
         version = self.driver.get_token_version(token)
@@ -396,42 +394,41 @@ class Manager(manager.Manager):
         self._validate_v3_token.invalidate(self, token_id)
 
     def revoke_token(self, token_id, revoke_chain=False):
-        if self.revoke_api:
-            revoke_by_expires = False
-            project_id = None
-            domain_id = None
+        revoke_by_expires = False
+        project_id = None
+        domain_id = None
 
-            token_ref = token_model.KeystoneToken(
-                token_id=token_id,
-                token_data=self.validate_token(token_id))
+        token_ref = token_model.KeystoneToken(
+            token_id=token_id,
+            token_data=self.validate_token(token_id))
 
-            user_id = token_ref.user_id
-            expires_at = token_ref.expires
-            audit_id = token_ref.audit_id
-            audit_chain_id = token_ref.audit_chain_id
-            if token_ref.project_scoped:
-                project_id = token_ref.project_id
-            if token_ref.domain_scoped:
-                domain_id = token_ref.domain_id
+        user_id = token_ref.user_id
+        expires_at = token_ref.expires
+        audit_id = token_ref.audit_id
+        audit_chain_id = token_ref.audit_chain_id
+        if token_ref.project_scoped:
+            project_id = token_ref.project_id
+        if token_ref.domain_scoped:
+            domain_id = token_ref.domain_id
 
-            if audit_id is None and not revoke_chain:
-                LOG.debug('Received token with no audit_id.')
-                revoke_by_expires = True
+        if audit_id is None and not revoke_chain:
+            LOG.debug('Received token with no audit_id.')
+            revoke_by_expires = True
 
-            if audit_chain_id is None and revoke_chain:
-                LOG.debug('Received token with no audit_chain_id.')
-                revoke_by_expires = True
+        if audit_chain_id is None and revoke_chain:
+            LOG.debug('Received token with no audit_chain_id.')
+            revoke_by_expires = True
 
-            if revoke_by_expires:
-                self.revoke_api.revoke_by_expiration(user_id, expires_at,
+        if revoke_by_expires:
+            self.revoke_api.revoke_by_expiration(user_id, expires_at,
+                                                 project_id=project_id,
+                                                 domain_id=domain_id)
+        elif revoke_chain:
+            self.revoke_api.revoke_by_audit_chain_id(audit_chain_id,
                                                      project_id=project_id,
                                                      domain_id=domain_id)
-            elif revoke_chain:
-                self.revoke_api.revoke_by_audit_chain_id(audit_chain_id,
-                                                         project_id=project_id,
-                                                         domain_id=domain_id)
-            else:
-                self.revoke_api.revoke_by_audit_id(audit_id)
+        else:
+            self.revoke_api.revoke_by_audit_id(audit_id)
 
         if CONF.token.revoke_by_id:
             self._persistence.delete_token(token_id=token_id)

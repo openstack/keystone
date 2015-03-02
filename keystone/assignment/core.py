@@ -284,9 +284,8 @@ class Manager(manager.Manager):
                 self.driver.remove_role_from_user_and_project(user_id,
                                                               tenant_id,
                                                               role_id)
-                if self.revoke_api:
-                    self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
-                                                    project_id=tenant_id)
+                self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
+                                                project_id=tenant_id)
 
             except exception.RoleNotFound:
                 LOG.debug("Removing role %s failed because it does not exist.",
@@ -382,9 +381,8 @@ class Manager(manager.Manager):
         self.driver.remove_role_from_user_and_project(user_id, tenant_id,
                                                       role_id)
         self.identity_api.emit_invalidate_user_token_persistence(user_id)
-        if self.revoke_api:
-            self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
-                                            project_id=tenant_id)
+        self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
+                                        project_id=tenant_id)
 
     @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
     def _emit_invalidate_user_token_persistence(self, user_id):
@@ -431,11 +429,10 @@ class Manager(manager.Manager):
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
         if group_id is None:
-            if self.revoke_api:
-                self.revoke_api.revoke_by_grant(user_id=user_id,
-                                                role_id=role_id,
-                                                domain_id=domain_id,
-                                                project_id=project_id)
+            self.revoke_api.revoke_by_grant(user_id=user_id,
+                                            role_id=role_id,
+                                            domain_id=domain_id,
+                                            project_id=project_id)
         else:
             try:
                 # NOTE(morganfainberg): The user ids are the important part
@@ -444,10 +441,9 @@ class Manager(manager.Manager):
                     if user['id'] != user_id:
                         self._emit_invalidate_user_token_persistence(
                             user['id'])
-                        if self.revoke_api:
-                            self.revoke_api.revoke_by_grant(
-                                user_id=user['id'], role_id=role_id,
-                                domain_id=domain_id, project_id=project_id)
+                        self.revoke_api.revoke_by_grant(
+                            user_id=user['id'], role_id=role_id,
+                            domain_id=domain_id, project_id=project_id)
             except exception.GroupNotFound:
                 LOG.debug('Group %s not found, no tokens to invalidate.',
                           group_id)
