@@ -226,6 +226,44 @@ class IdentityTests(object):
         self.user_foo.pop('password')
         self.assertDictEqual(user_ref, self.user_foo)
 
+    @tests.skip_if_cache_disabled('identity')
+    def test_cache_layer_get_user(self):
+        user = {
+            'name': uuid.uuid4().hex.lower(),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        self.identity_api.create_user(user)
+        ref = self.identity_api.get_user_by_name(user['name'],
+                                                 user['domain_id'])
+        # cache the result.
+        self.identity_api.get_user(ref['id'])
+        # delete bypassing identity api
+        domain_id, driver, entity_id = (
+            self.identity_api._get_domain_driver_and_entity_id(ref['id']))
+        driver.delete_user(entity_id)
+
+        self.assertDictEqual(ref, self.identity_api.get_user(ref['id']))
+        self.identity_api.get_user.invalidate(self.identity_api, ref['id'])
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user, ref['id'])
+        user = {
+            'name': uuid.uuid4().hex.lower(),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        self.identity_api.create_user(user)
+        ref = self.identity_api.get_user_by_name(user['name'],
+                                                 user['domain_id'])
+        user['description'] = uuid.uuid4().hex
+        # cache the result.
+        self.identity_api.get_user(ref['id'])
+        # update using identity api and get back updated user.
+        user_updated = self.identity_api.update_user(ref['id'], user)
+        self.assertDictContainsSubset(self.identity_api.get_user(ref['id']),
+                                      user_updated)
+        self.assertDictContainsSubset(
+            self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
+            user_updated)
+
     def test_get_user_404(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
@@ -239,6 +277,42 @@ class IdentityTests(object):
         #               not be returned by the api
         self.user_foo.pop('password')
         self.assertDictEqual(user_ref, self.user_foo)
+
+    @tests.skip_if_cache_disabled('identity')
+    def test_cache_layer_get_user_by_name(self):
+        user = {
+            'name': uuid.uuid4().hex.lower(),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        self.identity_api.create_user(user)
+        ref = self.identity_api.get_user_by_name(user['name'],
+                                                 user['domain_id'])
+        # delete bypassing the identity api.
+        domain_id, driver, entity_id = (
+            self.identity_api._get_domain_driver_and_entity_id(ref['id']))
+        driver.delete_user(entity_id)
+
+        self.assertDictEqual(ref, self.identity_api.get_user_by_name(
+            user['name'], DEFAULT_DOMAIN_ID))
+        self.identity_api.get_user_by_name.invalidate(
+            self.identity_api, user['name'], DEFAULT_DOMAIN_ID)
+        self.assertRaises(exception.UserNotFound,
+                          self.identity_api.get_user_by_name,
+                          user['name'], DEFAULT_DOMAIN_ID)
+        user = {
+            'name': uuid.uuid4().hex.lower(),
+            'domain_id': DEFAULT_DOMAIN_ID
+        }
+        self.identity_api.create_user(user)
+        ref = self.identity_api.get_user_by_name(user['name'],
+                                                 user['domain_id'])
+        user['description'] = uuid.uuid4().hex
+        user_updated = self.identity_api.update_user(ref['id'], user)
+        self.assertDictContainsSubset(self.identity_api.get_user(ref['id']),
+                                      user_updated)
+        self.assertDictContainsSubset(
+            self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
+            user_updated)
 
     def test_get_user_by_name_404(self):
         self.assertRaises(exception.UserNotFound,
@@ -2540,6 +2614,32 @@ class IdentityTests(object):
                           self.identity_api.get_group_by_name,
                           uuid.uuid4().hex,
                           DEFAULT_DOMAIN_ID)
+
+    @tests.skip_if_cache_disabled('identity')
+    def test_cache_layer_group_crud(self):
+        group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        group = self.identity_api.create_group(group)
+        # cache the result
+        group_ref = self.identity_api.get_group(group['id'])
+        # delete the group bypassing identity api.
+        domain_id, driver, entity_id = (
+            self.identity_api._get_domain_driver_and_entity_id(group['id']))
+        driver.delete_group(entity_id)
+
+        self.assertEqual(group_ref, self.identity_api.get_group(group['id']))
+        self.identity_api.get_group.invalidate(self.identity_api, group['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group, group['id'])
+
+        group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        group = self.identity_api.create_group(group)
+        # cache the result
+        self.identity_api.get_group(group['id'])
+        group['name'] = uuid.uuid4().hex
+        group_ref = self.identity_api.update_group(group['id'], group)
+        # after updating through identity api, get updated group
+        self.assertDictContainsSubset(self.identity_api.get_group(group['id']),
+                                      group_ref)
 
     def test_create_duplicate_group_name_fails(self):
         group1 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}

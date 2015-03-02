@@ -1161,7 +1161,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """Call ``DELETE`` on the user and check the role assignment."""
         member_url, user = self._create_new_user_and_assign_role_on_project()
         # Delete the user from identity backend
-        self.identity_api.driver.delete_user(user['id'])
+        self.identity_api.delete_user(user['id'])
         # We should get a 404 when looking for the user in the identity
         # backend because we're not performing a delete operation on the role.
         self.head(member_url, expected_status=404)
