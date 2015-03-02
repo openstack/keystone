@@ -34,9 +34,7 @@ from keystone import notifications
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-SHOULD_CACHE = cache.should_cache_fn('catalog')
-
-EXPIRATION_TIME = lambda: CONF.catalog.cache_time
+MEMOIZE = cache.get_memoization_decorator(section='catalog')
 
 
 def format_url(url, substitutions):
@@ -118,8 +116,7 @@ class Manager(manager.Manager):
         notifications.Audit.created(self._REGION, ret['id'], initiator)
         return ret
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_region(self, region_id):
         try:
             return self.driver.get_region(region_id)
@@ -151,8 +148,7 @@ class Manager(manager.Manager):
         notifications.Audit.created(self._SERVICE, service_id, initiator)
         return ref
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_service(self, service_id):
         try:
             return self.driver.get_service(service_id)
@@ -210,8 +206,7 @@ class Manager(manager.Manager):
         except exception.NotFound:
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_endpoint(self, endpoint_id):
         try:
             return self.driver.get_endpoint(endpoint_id)

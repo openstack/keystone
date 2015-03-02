@@ -40,11 +40,7 @@ CONF = cfg.CONF
 
 LOG = log.getLogger(__name__)
 
-SHOULD_CACHE = cache.should_cache_fn('identity')
-
-
-def get_expiration_time():
-    return CONF.identity.cache_time or CONF.cache_time
+MEMOIZE = cache.get_memoization_decorator(section='identity')
 
 DOMAIN_CONF_FHEAD = 'keystone.'
 DOMAIN_CONF_FTAIL = '.conf'
@@ -607,8 +603,7 @@ class Manager(manager.Manager):
 
     @domains_configured
     @exception_translated('user')
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=get_expiration_time)
+    @MEMOIZE
     def get_user(self, user_id):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
@@ -629,8 +624,7 @@ class Manager(manager.Manager):
 
     @domains_configured
     @exception_translated('user')
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=get_expiration_time)
+    @MEMOIZE
     def get_user_by_name(self, user_name, domain_id):
         driver = self._select_identity_driver(domain_id)
         ref = driver.get_user_by_name(user_name, domain_id)
@@ -734,8 +728,7 @@ class Manager(manager.Manager):
 
     @domains_configured
     @exception_translated('group')
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=get_expiration_time)
+    @MEMOIZE
     def get_group(self, group_id):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))

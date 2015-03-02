@@ -31,11 +31,9 @@ from keystone.i18n import _LW
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-SHOULD_CACHE = cache.should_cache_fn('token')
-
-# NOTE(blk-u): The config options are not available at import time.
-EXPIRATION_TIME = lambda: CONF.token.cache_time
-REVOCATION_CACHE_EXPIRATION_TIME = lambda: CONF.token.revocation_cache_time
+MEMOIZE = cache.get_memoization_decorator(section='token')
+REVOCATION_MEMOIZE = cache.get_memoization_decorator(
+    section='token', expiration_section='revoke')
 
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',
@@ -73,8 +71,7 @@ class PersistenceManager(manager.Manager):
         self._assert_valid(token_id, token_ref)
         return token_ref
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def _get_token(self, token_id):
         # Only ever use the "unique" id in the cache key.
         return self.driver.get_token(token_id)
@@ -84,7 +81,7 @@ class PersistenceManager(manager.Manager):
         data_copy = copy.deepcopy(data)
         data_copy['id'] = unique_id
         ret = self.driver.create_token(unique_id, data_copy)
-        if SHOULD_CACHE(ret):
+        if MEMOIZE.should_cache_fn(ret):
             # NOTE(morganfainberg): when doing a cache set, you must pass the
             # same arguments through, the same as invalidate (this includes
             # "self"). First argument is always the value to be cached
@@ -111,8 +108,7 @@ class PersistenceManager(manager.Manager):
             self._invalidate_individual_token_cache(unique_id)
         self.invalidate_revocation_list()
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=REVOCATION_CACHE_EXPIRATION_TIME)
+    @REVOCATION_MEMOIZE
     def list_revoked_tokens(self):
         return self.driver.list_revoked_tokens()
 

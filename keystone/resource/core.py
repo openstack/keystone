@@ -31,10 +31,7 @@ from keystone import notifications
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-SHOULD_CACHE = cache.should_cache_fn('resource')
-
-# NOTE(blk-u): The config options are not available at import time.
-EXPIRATION_TIME = lambda: CONF.resource.cache_time
+MEMOIZE = cache.get_memoization_decorator(section='resource')
 
 
 def calc_default_domain():
@@ -109,7 +106,7 @@ class Manager(manager.Manager):
 
         ret = self.driver.create_project(tenant_id, tenant)
         notifications.Audit.created(self._PROJECT, tenant_id, initiator)
-        if SHOULD_CACHE(ret):
+        if MEMOIZE.should_cache_fn(ret):
             self.get_project.set(ret, self, tenant_id)
             self.get_project_by_name.set(ret, self, ret['name'],
                                          ret['domain_id'])
@@ -365,13 +362,11 @@ class Manager(manager.Manager):
             project_id, _projects_indexed_by_parent(subtree_list))
         return subtree_as_ids
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_domain(self, domain_id):
         return self.driver.get_domain(domain_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_domain_by_name(self, domain_name):
         return self.driver.get_domain_by_name(domain_name)
 
@@ -386,7 +381,7 @@ class Manager(manager.Manager):
 
         notifications.Audit.created(self._DOMAIN, domain_id, initiator)
 
-        if SHOULD_CACHE(ret):
+        if MEMOIZE.should_cache_fn(ret):
             self.get_domain.set(ret, self, domain_id)
             self.get_domain_by_name.set(ret, self, ret['name'])
         return ret
@@ -509,13 +504,11 @@ class Manager(manager.Manager):
     def list_projects_in_domain(self, domain_id):
         return self.driver.list_projects_in_domain(domain_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_project(self, project_id):
         return self.driver.get_project(project_id)
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=EXPIRATION_TIME)
+    @MEMOIZE
     def get_project_by_name(self, tenant_name, domain_id):
         return self.driver.get_project_by_name(tenant_name, domain_id)
 

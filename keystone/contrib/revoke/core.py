@@ -52,9 +52,7 @@ EXTENSION_DATA = {
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
-SHOULD_CACHE = cache.should_cache_fn('revoke')
-# TODO(ayoung): migrate from the token section
-REVOCATION_CACHE_EXPIRATION_TIME = lambda: CONF.token.revocation_cache_time
+MEMOIZE = cache.get_memoization_decorator(section='revoke')
 
 
 def revoked_before_cutoff_time():
@@ -199,8 +197,7 @@ class Manager(manager.Manager):
     def revoke_by_domain_role_assignment(self, domain_id, role_id):
         self.revoke(model.RevokeEvent(domain_id=domain_id, role_id=role_id))
 
-    @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
-                        expiration_time=REVOCATION_CACHE_EXPIRATION_TIME)
+    @MEMOIZE
     def _get_revoke_tree(self):
         events = self.driver.get_events()
         revoke_tree = model.RevokeTree(revoke_events=events)
