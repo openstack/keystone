@@ -606,7 +606,7 @@ class MappingRuleEngineTests(FederationTests):
         """Check whether mapped properties object has 'user' within.
 
         According to today's rules, RuleProcessor does not have to issue user's
-        id or name. What's actually  required is user's type and for ephemeral
+        id or name. What's actually required is user's type and for ephemeral
         users that would be service domain named 'Federated'.
         """
         self.assertIn('user', mapped_properties,
@@ -624,7 +624,7 @@ class MappingRuleEngineTests(FederationTests):
         """Should return user's name and group id EMPLOYEE_GROUP_ID.
 
         The ADMIN_ASSERTION should successfully have a match in MAPPING_LARGE.
-        The will test the case where `any_one_of` is valid, and there is
+        They will test the case where `any_one_of` is valid, and there is
         a direct mapping for the users name.
 
         """
@@ -857,8 +857,8 @@ class MappingRuleEngineTests(FederationTests):
     def test_rule_engine_returns_group_names(self):
         """Check whether RuleProcessor returns group names with their domains.
 
-        RuleProcessor shold return 'group_names' entry with a list of
-        dictionaries with two entries 'name' and 'domain' identyfing group by
+        RuleProcessor should return 'group_names' entry with a list of
+        dictionaries with two entries 'name' and 'domain' identifying group by
         its name and domain.
 
         """
@@ -902,12 +902,12 @@ class MappingRuleEngineTests(FederationTests):
         self.assertValidMappedUserObject(mapped_properties)
 
     def test_create_user_object_with_bad_mapping(self):
-        """Test if user object is created even with bad mapping
+        """Test if user object is created even with bad mapping.
 
         User objects will be created by mapping engine always as long as there
         is corresponding local rule.  This test shows, that even with assertion
-        where no group names nor ids are matched,  but there is 'blind' rule
-        for mapping user, such object will be created.
+        where no group names nor ids are matched, but there is 'blind' rule for
+        mapping user, such object will be created.
 
         In this test MAPPING_EHPEMERAL_USER expects UserName set to jsmith
         whereas value from assertion is 'tbo'.
@@ -924,7 +924,7 @@ class MappingRuleEngineTests(FederationTests):
         self.assertNotIn('name', mapped_properties['user'])
 
     def test_set_ephemeral_domain_to_ephemeral_users(self):
-        """Test auto assigning service domain to ephemeral users
+        """Test auto assigning service domain to ephemeral users.
 
         Test that ephemeral users will always become members of federated
         service domain. The check depends on ``type`` value which must be set
@@ -950,7 +950,7 @@ class MappingRuleEngineTests(FederationTests):
             domain_id=mapping_fixtures.LOCAL_DOMAIN)
 
     def test_user_identifications_name(self):
-        """Test varius mapping options and how users are identified
+        """Test varius mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
@@ -973,7 +973,7 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual('jsmith', mapped_properties['user']['name'])
 
     def test_user_identifications_name_and_federated_domain(self):
-        """Test varius mapping options and how users are identified
+        """Test varius mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
@@ -996,7 +996,7 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual('tbo', mapped_properties['user']['id'])
 
     def test_user_identification_id(self):
-        """Test varius mapping options and how users are identified
+        """Test varius mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
@@ -1020,13 +1020,13 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual('bob', mapped_properties['user']['id'])
 
     def test_user_identification_id_and_name(self):
-        """Test varius mapping options and how users are identified
+        """Test varius mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
         Test plan:
         - Check if the user has proper domain ('federated') set
-        - Check if the user has propert type set ('ephemeral')
+        - Check if the user has proper type set ('ephemeral')
         - Check if user's name is properly mapped from the assertion
         - Check if user's id is properly set and and equal to value hardcoded
         in the mapping
@@ -1320,8 +1320,8 @@ class FederatedTokenTests(FederationTests):
     def test_scope_token_with_idp_disabled(self):
         """Scope token issued by disabled IdP.
 
-        Try scoping the token issued by an IdP which is disabled now.
-        Expect server to refuse scoping operatin.
+        Try scoping the token issued by an IdP which is disabled now. Expect
+        server to refuse scoping operation.
 
         This test confirms correct behaviour when IdP was enabled and unscoped
         token was issued, but disabled before user tries to scope the token.
@@ -1499,7 +1499,7 @@ class FederatedTokenTests(FederationTests):
 
         * Issue unscoped token
         * List available projects based on groups
-        * Scope token to a one of available projects
+        * Scope token to one of available projects
 
         """
 
@@ -1593,7 +1593,7 @@ class FederatedTokenTests(FederationTests):
     def test_assertion_prefix_parameter(self):
         """Test parameters filtering based on the prefix.
 
-        With ``assertion_prefix`` set to fixed, non defailt value,
+        With ``assertion_prefix`` set to fixed, non default value,
         issue an unscoped token from assertion EMPLOYEE_ASSERTION_PREFIXED.
         Expect server to return unscoped token.
 
@@ -1624,8 +1624,8 @@ class FederatedTokenTests(FederationTests):
     def test_v2_auth_with_federation_token_fails(self):
         """Test that using a federation token with v2 auth fails.
 
-        If an admin sets up a federated keystone environment, and a user
-        incorrectly configures a service (like nova) only use v2 auth, the
+        If an admin sets up a federated Keystone environment, and a user
+        incorrectly configures a service (like Nova) to only use v2 auth, the
         returned message should be informative.
 
         """
@@ -2310,7 +2310,7 @@ class SAMLGenerationTests(FederationTests):
                          project_attribute.attribute_value[0].text)
 
     def test_verify_assertion_object(self):
-        """Test if the Assertion object is build properly.
+        """Test that the Assertion object is built properly.
 
         The Assertion doesn't need to be signed in this test, so
         _sign_assertion method is patched and doesn't alter the assertion.
@@ -2328,7 +2328,7 @@ class SAMLGenerationTests(FederationTests):
     def test_valid_saml_xml(self):
         """Test the generated SAML object can become valid XML.
 
-        Test the  generator directly by passing known arguments, the result
+        Test the generator directly by passing known arguments, the result
         should be a SAML object that consistently includes attributes based on
         the known arguments that were passed in.
 
@@ -2449,8 +2449,7 @@ class SAMLGenerationTests(FederationTests):
         return token_id
 
     def test_not_project_scoped_token(self):
-        """Test that the SAML generation fails when passing tokens
-        not scoped by project.
+        """Ensure SAML generation fails when passing domain-scoped tokens.
 
         The server should return a 403 Forbidden Action.
 
@@ -2536,8 +2535,7 @@ class SAMLGenerationTests(FederationTests):
         self.post(self.SAML_GENERATION_ROUTE, body=body, expected_status=400)
 
     def test_sp_not_found(self):
-        """Test that an invalid service provider in the request body raises an
-        exception.
+        """Test SAML generation with an invalid service provider ID.
 
         Raises exception.ServiceProviderNotFound() - error code 404
 
@@ -2795,7 +2793,7 @@ class ServiceProviderTests(FederationTests):
         """Update existing service provider.
 
         Update default existing service provider and make sure it has been
-        properly change.
+        properly changed.
 
         """
         new_sp_ref = self.sp_ref()
@@ -2818,7 +2816,7 @@ class ServiceProviderTests(FederationTests):
         """Update immutable attributes in service provider.
 
         In this particular case the test will try to change ``id`` attribute.
-        Expectet server to return error code
+        The server should return an HTTP 403 error code.
 
         """
         new_sp_ref = {'id': uuid.uuid4().hex}
@@ -2990,7 +2988,7 @@ class K2KServiceCatalogTests(FederationTests):
         self._validate_service_providers(token, ref)
 
     def test_no_service_providers_in_token(self):
-        """Test service catalog with disabled service providers
+        """Test service catalog with disabled service providers.
 
         There should be no entry ``service_providers`` in the catalog.
         Test passes providing no attribute was raised.
