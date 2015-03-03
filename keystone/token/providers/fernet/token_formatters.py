@@ -127,6 +127,26 @@ class BaseTokenFormatter(object):
             audit_ids = audit_ids.pop()
         return (issued_at_int, expires_at_int, audit_ids)
 
+    def pack(self, payload):
+        """Pack a payload for transport."""
+        msgpacked = msgpack.packb(payload)
+        encrypted = self.crypto.encrypt(msgpacked)
+
+        # Tack the token format on to the encrypted_token
+        return self.token_format + encrypted
+
+    def unpack(self, token_string):
+        """Unpack and validate a payload."""
+        try:
+            decrypted_token = self.crypto.decrypt(token_string)
+        except fernet.InvalidToken as e:
+            raise exception.Unauthorized(six.text_type(e))
+
+        # TODO(lbragstad): catch msgpack errors here
+        payload = msgpack.unpackb(decrypted_token)
+
+        return payload
+
 
 class StandardTokenFormatter(BaseTokenFormatter):
 
@@ -153,14 +173,7 @@ class StandardTokenFormatter(BaseTokenFormatter):
         else:
             token = (b_user_id, issued_at_int, expires_at_int, audit_ids)
 
-        msgpacked_token = msgpack.packb(token)
-
-        encrypted_token = self.crypto.encrypt(msgpacked_token)
-
-        # Tack the token format on to the encrypted_token
-        token_id = self.token_format + encrypted_token
-
-        return token_id
+        return self.pack(token)
 
     def validate_token(self, token_string):
         """Validate a F00 formatted token.
@@ -169,13 +182,7 @@ class StandardTokenFormatter(BaseTokenFormatter):
         :return: a tuple contains the user_id, project_id and token_data
 
         """
-        try:
-            decrypted_token = self.crypto.decrypt(token_string)
-        except fernet.InvalidToken as e:
-            raise exception.Unauthorized(six.text_type(e))
-
-        # TODO(lbragstad): catch msgpack errors here
-        unpacked_token = msgpack.unpackb(decrypted_token)
+        unpacked_token = self.unpack(token_string)
 
         # Rebuild and retrieve token information from the token string
         b_user_id = unpacked_token[0]
@@ -233,13 +240,8 @@ class TrustTokenFormatter(BaseTokenFormatter):
         b_trust_id = self._convert_uuid_hex_to_bytes(trust_id)
         token = (b_user_id, b_project_id, b_trust_id, issued_at_int,
                  expires_at_int, audit_ids)
-        msgpacked_token = msgpack.packb(token)
 
-        encrypted_token = self.crypto.encrypt(msgpacked_token)
-
-        # Tack the token format on to the encrypted_token
-        token_id = self.token_format + encrypted_token
-        return token_id
+        return self.pack(token)
 
     def validate_token(self, token_string):
         """Validate a trust formatted token.
@@ -248,13 +250,7 @@ class TrustTokenFormatter(BaseTokenFormatter):
         :return: a tuple contains the user_id, project_id and token_data
 
         """
-        try:
-            decrypted_token = self.crypto.decrypt(token_string)
-        except fernet.InvalidToken as e:
-            raise exception.Unauthorized(six.text_type(e))
-
-        # TODO(lbragstad): catch msgpack errors here
-        unpacked_token = msgpack.unpackb(decrypted_token)
+        unpacked_token = self.unpack(token_string)
 
         # Rebuild and retrieve token information from the token string
         b_user_id = unpacked_token[0]
