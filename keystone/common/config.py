@@ -127,11 +127,22 @@ FILE_OPTIONS = {
                     default=False,
                     help='A subset (or all) of domains can have their own '
                          'identity driver, each with their own partial '
-                         'configuration file in a domain configuration '
-                         'directory. Only values specific to the domain '
-                         'need to be placed in the domain specific '
-                         'configuration file. This feature is disabled by '
+                         'configuration options, stored in either the '
+                         'resource backend or in a file in a domain '
+                         'configuration directory (depending on the setting '
+                         'of domain_configurations_from_database). Only '
+                         'values specific to the domain need to be specified '
+                         'in this manner. This feature is disabled by '
                          'default; set to true to enable.'),
+        cfg.BoolOpt('domain_configurations_from_database',
+                    default=False,
+                    help='Extract the domain specific configuration options '
+                         'from the resource backend where they have been '
+                         'stored with the domain data. This feature is '
+                         'disabled by default (in which case the domain '
+                         'specific options will be loaded from files in the '
+                         'domain configuration directory); set to true to '
+                         'enable. This feature is not yet supported.'),
         cfg.StrOpt('domain_config_dir',
                    default='/etc/keystone/domains',
                    help='Path for Keystone to locate the domain specific '

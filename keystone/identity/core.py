@@ -76,19 +76,21 @@ class DomainConfigs(dict):
     """Discover, store and provide access to domain specific configs.
 
     The setup_domain_drivers() call will be made via the wrapper from
-    the first call to any driver function handled by this manager. This
-    setup call it will scan the domain config directory for files of the form
+    the first call to any driver function handled by this manager.
 
-    keystone.<domain_name>.conf
+    Domain specific configurations are only supported for the identity backend
+    and the individual configurations are either specified in the resource
+    database or in individual domain configuration files, depending on the
+    setting of the 'domain_configurations_from_database' config option.
 
-    For each file, the domain_name will be turned into a domain_id and then
-    this class will:
-
-    - Create a new config structure, adding in the specific additional options
-      defined in this config file
-    - Initialise a new instance of the required driver with this new config.
+    The result will be that for each domain with a specific configuration,
+    this class will hold a reference to a ConfigOpts and driver object that
+    the identity manager and driver can use.
 
     """
+    # TODO(henry-nash): Reading the configuration options from the resource
+    # is not yet supported, and attempting to do so will raise a NotImplemented
+    # error.
     configured = False
     driver = None
     _any_sql = False
@@ -97,22 +99,22 @@ class DomainConfigs(dict):
         return importutils.import_object(
             domain_config['cfg'].identity.driver, domain_config['cfg'])
 
-    def _load_config(self, resource_api, file_list, domain_name):
+    def _assert_no_more_than_one_sql_driver(self, new_config, config_file):
+        """Ensure there is more than one sql driver.
 
-        def assert_no_more_than_one_sql_driver(new_config, config_file):
-            """Ensure there is more than one sql driver.
+        Check to see if the addition of the driver in this new config
+        would cause there to now be more than one sql driver.
 
-            Check to see if the addition of the driver in this new config
-            would cause there to now be more than one sql driver.
+        """
+        if (new_config['driver'].is_sql and
+                (self.driver.is_sql or self._any_sql)):
+            # The addition of this driver would cause us to have more than
+            # one sql driver, so raise an exception.
+            raise exception.MultipleSQLDriversInConfig(
+                config_file=config_file)
+        self._any_sql = new_config['driver'].is_sql
 
-            """
-            if (new_config['driver'].is_sql and
-                    (self.driver.is_sql or self._any_sql)):
-                # The addition of this driver would cause us to have more than
-                # one sql driver, so raise an exception.
-                raise exception.MultipleSQLDriversInConfig(
-                    config_file=config_file)
-            self._any_sql = new_config['driver'].is_sql
+    def _load_config_from_file(self, resource_api, file_list, domain_name):
 
         try:
             domain_ref = resource_api.get_domain_by_name(domain_name)
@@ -133,14 +135,25 @@ class DomainConfigs(dict):
         domain_config['cfg'](args=[], project='keystone',
                              default_config_files=file_list)
         domain_config['driver'] = self._load_driver(domain_config)
-        assert_no_more_than_one_sql_driver(domain_config, file_list)
+        self._assert_no_more_than_one_sql_driver(domain_config, file_list)
         self[domain_ref['id']] = domain_config
 
-    def setup_domain_drivers(self, standard_driver, resource_api):
-        # This is called by the api call wrapper
-        self.configured = True
-        self.driver = standard_driver
+    def _setup_domain_drivers_from_files(self, standard_driver, resource_api):
+        """Read the domain specific configuration files and load the drivers.
 
+        Domain configuration files are stored in the domain config directory,
+        and must be named of the form:
+
+        keystone.<domain_name>.conf
+
+        For each file, call the load config method where the domain_name
+        will be turned into a domain_id and then:
+
+        - Create a new config structure, adding in the specific additional
+          options defined in this config file
+        - Initialise a new instance of the required driver with this new config
+
+        """
         conf_dir = CONF.identity.domain_config_dir
         if not os.path.exists(conf_dir):
             LOG.warning(_LW('Unable to locate domain config directory: %s'),
@@ -152,14 +165,31 @@ class DomainConfigs(dict):
                 if (fname.startswith(DOMAIN_CONF_FHEAD) and
                         fname.endswith(DOMAIN_CONF_FTAIL)):
                     if fname.count('.') >= 2:
-                        self._load_config(resource_api,
-                                          [os.path.join(r, fname)],
-                                          fname[len(DOMAIN_CONF_FHEAD):
-                                                -len(DOMAIN_CONF_FTAIL)])
+                        self._load_config_from_file(
+                            resource_api, [os.path.join(r, fname)],
+                            fname[len(DOMAIN_CONF_FHEAD):
+                                  -len(DOMAIN_CONF_FTAIL)])
                     else:
                         LOG.debug(('Ignoring file (%s) while scanning domain '
                                    'config directory'),
                                   fname)
+
+    def _setup_domain_drivers_from_database(self, standard_driver,
+                                            resource_api):
+
+        raise exception.NotImplemented()
+
+    def setup_domain_drivers(self, standard_driver, resource_api):
+        # This is called by the api call wrapper
+        self.configured = True
+        self.driver = standard_driver
+
+        if CONF.identity.domain_configurations_from_database:
+            self._setup_domain_drivers_from_database(standard_driver,
+                                                     resource_api)
+        else:
+            self._setup_domain_drivers_from_files(standard_driver,
+                                                  resource_api)
 
     def get_domain_driver(self, domain_id):
         if domain_id in self:
