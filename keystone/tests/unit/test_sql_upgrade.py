@@ -1553,6 +1553,21 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTrue(self.does_fk_exist('group', 'domain_id'))
         self.assertTrue(self.does_fk_exist('user', 'domain_id'))
 
+    def test_add_domain_config(self):
+        whitelisted_table = 'whitelisted_config'
+        sensitive_table = 'sensitive_config'
+        self.upgrade(64)
+        self.assertTableDoesNotExist(whitelisted_table)
+        self.assertTableDoesNotExist(sensitive_table)
+        self.upgrade(65)
+        self.assertTableColumns(whitelisted_table,
+                                ['domain_id', 'group', 'option', 'value'])
+        self.assertTableColumns(sensitive_table,
+                                ['domain_id', 'group', 'option', 'value'])
+        self.downgrade(64)
+        self.assertTableDoesNotExist(whitelisted_table)
+        self.assertTableDoesNotExist(sensitive_table)
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

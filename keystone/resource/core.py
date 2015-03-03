@@ -47,8 +47,8 @@ def calc_default_domain():
 
 
 @dependency.provider('resource_api')
-@dependency.requires('assignment_api', 'credential_api', 'identity_api',
-                     'revoke_api')
+@dependency.requires('assignment_api', 'credential_api', 'domain_config_api',
+                     'identity_api', 'revoke_api')
 class Manager(manager.Manager):
     """Default pivot point for the resource backend.
 
@@ -446,6 +446,9 @@ class Manager(manager.Manager):
                          'please disable it first.'))
 
         self._delete_domain_contents(domain_id)
+        # Delete any database stored domain config
+        self.domain_config_api.delete_config_options(domain_id)
+        self.domain_config_api.delete_config_options(domain_id, sensitive=True)
         # TODO(henry-nash): Although the controller will ensure deletion of
         # all users & groups within the domain (which will cause all
         # assignments for those users/groups to also be deleted), there
@@ -782,3 +785,105 @@ class Driver(object):
         """
         if domain_id != CONF.identity.default_domain_id:
             raise exception.DomainNotFound(domain_id=domain_id)
+
+
+@dependency.provider('domain_config_api')
+class DomainConfigManager(manager.Manager):
+    """Default pivot point for the Domain Config backend."""
+
+    def __init__(self):
+        super(DomainConfigManager, self).__init__(CONF.domain_config.driver)
+
+    # TODO(henry-nash): The manager layer will handle all the whitelist
+    # checking of the config options, using the appropriate driver methods for
+    # the whitelisted and sensitive data.
+
+
+@six.add_metaclass(abc.ABCMeta)
+class DomainConfigDriver(object):
+    """Interface description for a Domain Config driver."""
+
+    @abc.abstractmethod
+    def create_config_option(self, domain_id, group, option, value,
+                             sensitive=False):
+        """Creates a config option for a domain.
+
+        :param domain_id: the domain for this option
+        :param group: the group name
+        :param option: the option name
+        :param value: the value to assign to this option
+        :param sensitive: whether the option is sensitive
+
+        :returns: dict containing group, option and value
+        :raises: keystone.exception.Conflict
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_config_option(self, domain_id, group, option, sensitive=False):
+        """Gets the config option for a domain.
+
+        :param domain_id: the domain for this option
+        :param group: the group name
+        :param option: the option name
+        :param sensitive: whether the option is sensitive
+
+        :returns: dict containing group, option and value
+        :raises: keystone.exception.DomainConfigNotFound: the option doesn't
+                                                          exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_config_options(self, domain_id, group=None, option=False,
+                            sensitive=False):
+        """Gets a config options for a domain.
+
+        :param domain_id: the domain for this option
+        :param group: optional group option name
+        :param option: optional option name. If group is None, then this
+                       paramater is ignored
+        :param sensitive: whether the option is sensitive
+
+        :returns: list of dicts containing group, option and value
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_config_option(self, domain_id, group, option, value,
+                             sensitive=False):
+        """Updates a config option for a domain.
+
+        :param domain_id: the domain for this option
+        :param group: the group option name
+        :param option: the option name
+        :param value: the value to assign to this option
+        :param sensitive: whether the option is sensitive
+
+        :returns: dict containing updated group, option and value
+        :raises: keystone.exception.DomainConfigNotFound: the option doesn't
+                                                          exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_config_options(self, domain_id, group=None, option=None,
+                              sensitive=False):
+        """Deletes config options for a domain.
+
+        Allows deletion of all options for a domain, all options in a group
+        or a specific option. The driver is silent if there are no options
+        to delete.
+
+        :param domain_id: the domain for this option
+        :param group: optional group option name
+        :param option: optional option name. If group is None, then this
+                       paramater is ignored
+        :param sensitive: whether the option is sensitive
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover

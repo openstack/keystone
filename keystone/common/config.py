@@ -445,6 +445,12 @@ FILE_OPTIONS = {
                    help='Maximum number of entities that will be returned '
                         'in a resource collection.'),
     ],
+    'domain_config': [
+        cfg.StrOpt('driver',
+                   default='keystone.resource.config_backends.sql.'
+                           'DomainConfig',
+                   help='Domain config backend driver.'),
+    ],
     'role': [
         # The role driver has no default for backward compatibility reasons.
         # If role driver is not specified, the assignment driver chooses

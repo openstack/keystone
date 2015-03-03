@@ -335,6 +335,12 @@ class PublicIDNotFound(NotFound):
     message_format = "%(id)s"
 
 
+class DomainConfigNotFound(NotFound):
+    message_format = _('Could not find Domain Configuration for domain: '
+                       '%(domain_id)s, for group: %(group)s and '
+                       'option: %(option)s')
+
+
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s")
