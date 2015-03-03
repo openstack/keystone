@@ -27,7 +27,6 @@ from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
-from keystone.contrib import revoke
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit as tests
@@ -675,9 +674,6 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
 
 class TestTokenRevokeById(test_v3.RestfulTestCase):
     """Test token revocation on the v3 Identity API."""
-
-    def load_extra_backends(self):
-        return {'revoke_api': revoke.Manager()}
 
     def config_overrides(self):
         super(TestTokenRevokeById, self).config_overrides()
@@ -3070,9 +3066,6 @@ class TestTrustChain(test_v3.RestfulTestCase):
 class TestTrustAuth(test_v3.RestfulTestCase):
     EXTENSION_NAME = 'revoke'
     EXTENSION_TO_ADD = 'revoke_extension'
-
-    def load_extra_backends(self):
-        return {'revoke_api': revoke.Manager()}
 
     def config_overrides(self):
         super(TestTrustAuth, self).config_overrides()

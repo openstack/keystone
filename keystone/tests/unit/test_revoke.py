@@ -18,7 +18,6 @@ import mock
 from oslo_utils import timeutils
 from testtools import matchers
 
-from keystone.contrib import revoke
 from keystone.contrib.revoke import model
 from keystone import exception
 from keystone.tests import unit as tests
@@ -180,9 +179,6 @@ class RevokeTests(object):
 
 
 class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
-    def load_extra_backends(self):
-        return {'revoke_api': revoke.Manager()}
-
     def config_overrides(self):
         super(SqlRevokeTests, self).config_overrides()
         self.config_fixture.config(
@@ -195,9 +191,6 @@ class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
 
 
 class KvsRevokeTests(tests.TestCase, RevokeTests):
-    def load_extra_backends(self):
-        return {'revoke_api': revoke.Manager()}
-
     def config_overrides(self):
         super(KvsRevokeTests, self).config_overrides()
         self.config_fixture.config(

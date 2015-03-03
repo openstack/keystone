@@ -18,6 +18,7 @@ from keystone.contrib import endpoint_filter
 from keystone.contrib import endpoint_policy
 from keystone.contrib import federation
 from keystone.contrib import oauth1
+from keystone.contrib import revoke
 from keystone import credential
 from keystone import identity
 from keystone import policy
@@ -51,6 +52,7 @@ def load_backends():
         oauth_api=oauth1.Manager(),
         policy_api=policy.Manager(),
         resource_api=resource.Manager(),
+        revoke_api=revoke.Manager(),
         role_api=assignment.RoleManager(),
         token_api=token.persistence.Manager(),
         trust_api=trust.Manager(),

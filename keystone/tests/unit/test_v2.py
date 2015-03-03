@@ -22,7 +22,6 @@ import six
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
-from keystone.contrib import revoke
 from keystone.tests.unit import rest
 
 
@@ -1371,10 +1370,6 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
 
 class RevokeApiTestCase(V2TestCase):
-
-    def load_extra_backends(self):
-        return {'revoke_api': revoke.Manager()}
-
     def config_overrides(self):
         super(RevokeApiTestCase, self).config_overrides()
         self.config_fixture.config(
