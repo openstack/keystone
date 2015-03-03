@@ -143,8 +143,8 @@ class V2TokenDataHelper(object):
         return services.values()
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'resource_api', 'role_api', 'trust_api')
+@dependency.requires('assignment_api', 'catalog_api', 'federation_api',
+                     'identity_api', 'resource_api', 'role_api', 'trust_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
     def __init__(self):
@@ -325,6 +325,14 @@ class V3TokenDataHelper(object):
             # TODO(ayoung): Enforce Endpoints for trust
             token_data['catalog'] = service_catalog
 
+    def _populate_service_providers(self, token_data):
+        if 'service_providers' in token_data:
+            return
+
+        service_providers = self.federation_api.get_enabled_service_providers()
+        if service_providers:
+            token_data['service_providers'] = service_providers
+
     def _populate_token_dates(self, token_data, expires=None, trust=None,
                               issued_at=None):
         if not expires:
@@ -376,6 +384,7 @@ class V3TokenDataHelper(object):
         if include_catalog:
             self._populate_service_catalog(token_data, user_id, domain_id,
                                            project_id, trust)
+        self._populate_service_providers(token_data)
         self._populate_token_dates(token_data, expires=expires, trust=trust,
                                    issued_at=issued_at)
         self._populate_oauth_section(token_data, access_token)

@@ -58,6 +58,32 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.federation.driver)
 
+    def get_enabled_service_providers(self):
+        """List enabled service providers for Service Catalog
+
+        Service Provider in a catalog contains three attributes: ``id``,
+        ``auth_url``, ``sp_url``, where:
+
+        - id is an unique, user defined identifier for service provider object
+        - auth_url is a authentication URL of remote Keystone
+        - sp_url a URL accessible at the remote service provider where SAML
+          assertion is transmitted.
+
+        :returns: list of dictionaries with enabled service providers
+        :rtype: list of dicts
+
+        """
+        def normalize(sp):
+            ref = {
+                'auth_url': sp.auth_url,
+                'id': sp.id,
+                'sp_url': sp.sp_url
+            }
+            return ref
+
+        service_providers = self.driver.get_enabled_service_providers()
+        return [normalize(sp) for sp in service_providers]
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Driver(object):
@@ -289,6 +315,23 @@ class Driver(object):
         :rtype: dict
 
         :raises: keystone.exception.ServiceProviderNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    def get_enabled_service_providers(self):
+        """List enabled service providers for Service Catalog
+
+        Service Provider in a catalog contains three attributes: ``id``,
+        ``auth_url``, ``sp_url``, where:
+
+        - id is an unique, user defined identifier for service provider object
+        - auth_url is a authentication URL of remote Keystone
+        - sp_url a URL accessible at the remote service provider where SAML
+          assertion is transmitted.
+
+        :returns: list of dictionaries with enabled service providers
+        :rtype: list of dicts
 
         """
         raise exception.NotImplemented()  # pragma: no cover
