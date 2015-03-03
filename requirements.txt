@@ -33,3 +33,5 @@ dogpile.cache>=0.5.3
 jsonschema>=2.0.0,<3.0.0
 pycadf>=0.8.0
 posix_ipc
+cryptography>=0.4 # Apache-2.0
+msgpack-python>=0.4.0

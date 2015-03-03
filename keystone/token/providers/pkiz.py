@@ -45,3 +45,7 @@ class Provider(common.BaseProvider):
         except environment.subprocess.CalledProcessError:
             LOG.exception(ERROR_MESSAGE)
             raise exception.UnexpectedError(ERROR_MESSAGE)
+
+    def needs_persistence(self):
+        """Should the token be written to a backend."""
+        return True

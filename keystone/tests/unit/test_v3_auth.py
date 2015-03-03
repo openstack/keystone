@@ -32,6 +32,7 @@ from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
+from keystone.tests.unit.token import test_klwt_provider as klwt
 
 
 CONF = cfg.CONF
@@ -4056,3 +4057,163 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         r = self.get('/auth/domains', expected_status=200)
         self.assertThat(r.json['domains'], matchers.HasLength(1))
         self.assertValidDomainListResponse(r)
+
+
+class TestKLWTokenProvider(test_v3.RestfulTestCase,
+                           klwt.KeyRepositoryTestMixin):
+    def setUp(self):
+        super(TestKLWTokenProvider, self).setUp()
+        self.setUpKeyRepository()
+
+    def config_overrides(self):
+        super(TestKLWTokenProvider, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.klwt.Provider')
+
+    def test_authenticate_for_unscoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        unscoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(unscoped_token, matchers.StartsWith('KLWT00'))
+        self.assertLess(len(unscoped_token), 255)
+
+    def test_validate_unscoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        unscoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(unscoped_token, matchers.StartsWith('KLWT00'))
+        headers = {'X-Subject-Token': unscoped_token}
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+    def test_validate_tampered_unscoped_token_fails(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.post('/auth/tokens', body=auth_data)
+        unscoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(unscoped_token, matchers.StartsWith('KLWT00'))
+        tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
+                          unscoped_token[50 + 32:])
+        headers = {'X-Subject-Token': tampered_token}
+        self.get('/auth/tokens', headers=headers, expected_status=401)
+
+    def test_authenticate_for_project_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project_id)
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        project_scoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(project_scoped_token, matchers.StartsWith('KLWT00'))
+        self.assertLess(len(project_scoped_token), 255)
+
+    def test_validate_project_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project_id)
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        project_scoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(project_scoped_token, matchers.StartsWith('KLWT00'))
+        headers = {'X-Subject-Token': project_scoped_token}
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+    def test_validate_tampered_project_scoped_token_fails(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project_id)
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        project_scoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(project_scoped_token, matchers.StartsWith('KLWT00'))
+        tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
+                          project_scoped_token[50 + 32:])
+        headers = {'X-Subject-Token': tampered_token}
+        self.get('/auth/tokens', headers=headers, expected_status=401)
+
+    def test_rescope_unscoped_token_with_trust(self):
+        # Create a trustee user
+        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
+        trustee_user = self.identity_api.create_user(trustee_user_ref)
+        trustee_user['password'] = trustee_user_ref['password']
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee_user['id'],
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id])
+
+        # Create a trust
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        trust_scoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(trust_scoped_token, matchers.StartsWith('KLWT01'))
+        self.assertLess(len(trust_scoped_token), 255)
+
+    def test_validate_a_trust_scoped_token(self):
+        # Create a trustee user
+        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
+        trustee_user = self.identity_api.create_user(trustee_user_ref)
+        trustee_user['password'] = trustee_user_ref['password']
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee_user['id'],
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id])
+
+        # Create a trust
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        # Get a trust scoped token
+        trust_scoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(trust_scoped_token, matchers.StartsWith('KLWT01'))
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+    def test_validate_tampered_trust_scoped_token_fails(self):
+        # Create a trustee user
+        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
+        trustee_user = self.identity_api.create_user(trustee_user_ref)
+        trustee_user['password'] = trustee_user_ref['password']
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee_user['id'],
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id])
+
+        # Create a trust
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        # Get a trust scoped token
+        trust_scoped_token = resp.headers.get('X-Subject-Token')
+        self.assertThat(trust_scoped_token, matchers.StartsWith('KLWT01'))
+        tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
+                          trust_scoped_token[50 + 32:])
+        headers = {'X-Subject-Token': tampered_token}
+        self.get('/auth/tokens', headers=headers, expected_status=401)

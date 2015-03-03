@@ -396,32 +396,53 @@ configuring the following property.
   ``keystone.token.providers.uuid.Provider``
 
 
-PKI or UUID?
-^^^^^^^^^^^^
+UUID, PKI, PKIZ, or KLWT?
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-UUID-based tokens are randomly generated opaque strings that are issued and
-validated by the identity service. They must be persisted by the identity
-service in order to be later validated, and revoking them is simply a matter of
+Each token format uses different technologies to achieve various performance,
+scaling and architectural requirements.
+
+UUID tokens contain randomly generated UUID4 payloads that are issued and
+validated by the identity service. They are encoded using their hex digest for
+transport and are thus URL-friendly. They must be persisted by the identity
+service in order to be later validated. Revoking them is simply a matter of
 deleting them from the token persistence backend.
 
-PKI-based tokens are Cryptographic Message Syntax (CMS) strings that can be
-verified offline using keystone's public signing key. The only reason for them
-to be persisted by the identity service is to later build token revocation
-lists (explicit lists of tokens that have been revoked), otherwise they are
-theoretically ephemeral. PKI tokens should therefore have much better scaling
-characteristics (decentralized validation). They are base-64 encoded (and are
-therefore not URL-friendly without encoding) and may be too long to fit in
-either headers or URLs if they contain extensive service catalogs or other
-additional attributes.
+Both PKI and PKIZ tokens contain JSON payloads that represent the entire token
+validation response that would normally be retrieved from keystone. The payload
+is then signed using `Cryptographic Message Syntax (CMS)
+<http://en.wikipedia.org/wiki/Cryptographic_Message_Syntax>`_. The combination
+of CMS and the exhaustive payload allows PKI and PKIZ tokens to be verified
+offline using keystone's public signing key. The only reason for them to be
+persisted by the identity service is to later build token revocation *lists*
+(explicit lists of tokens that have been revoked), otherwise they are
+theoretically ephemeral when supported by token revocation *events* (which
+describe invalidated tokens rather than enumerate them). PKIZ tokens add zlib
+compression after signing to achieve a smaller overall token size. To make them
+URL-friendly, PKI tokens are base64 encoded and then arbitrarily manipulated to
+replace unsafe characters with safe ones whereas PKIZ tokens use conventional
+base64url encoding. Due to the size of the payload and the overhead incurred by
+the CMS format, both PKI and PKIZ tokens may be too long to fit in either
+headers or URLs if they contain extensive service catalogs or other additional
+attributes. Some third-party applications such as web servers and clients may
+need to be recompiled from source to customize the limitations that PKI and
+PKIZ tokens would otherwise exceed). Both PKI and PKIZ tokens require signing
+certificates which may be created using ``keystone-manage pki_setup`` for
+demonstration purposes (this is not recommended for production deployments: use
+certificates issued by an trusted CA instead).
+
+KLWT tokens contain a limited amount of identity and authorization data in a
+`MessagePacked <http://msgpack.org/>`_ payload. The payload is then wrapped as
+a `Fernet <https://github.com/fernet/spec>`_ message for transport, where
+Fernet provides the required web safe characteristics for use in URLs and
+headers. KLWT tokens require symmetric encryption keys which can be established
+using ``keystone-manage klwt_setup`` and periodically rotated using
+``keystone-manage klwt_rotate``.
 
 .. WARNING::
-    Both UUID and PKI-based tokens are bearer tokens, meaning that they must be
-    protected from unnecessary disclosure to prevent unauthorized access.
-
-The current architectural approaches for both UUID and PKI-based tokens have
-pain points exposed by environments under heavy load or with a large service
-catalog (search bugs and blueprints for the latest details and potential
-solutions).
+    UUID, PKI, PKIZ, and KLWT tokens are all bearer tokens, meaning that they
+    must be protected from unnecessary disclosure to prevent unauthorized
+    access.
 
 Caching Layer
 -------------
@@ -698,6 +719,54 @@ following configuration options in the ``[signing]`` section are used:
 If ``keystone-manage pki_setup`` is not used then these options don't need to
 be set.
 
+
+Encryption Keys for KLWT
+------------------------
+
+``keystone-manage klwt_setup`` will attempt to create a key repository as
+configured in the ``[klw_tokens]`` section of ``keystone.conf`` and bootstrap
+it with encryption keys.
+
+A single 256-bit key is actually composed of two smaller keys: a 128-bit key
+used for SHA256 HMAC signing and a 128-bit key used for AES encryption. See the
+`Fernet token <https://github.com/fernet/spec>`_ specification for more detail.
+
+``keystone-manage klwt_rotate`` will rotate encryption keys through the
+following states:
+
+* **Staged key**: In a key rotation, a new key is introduced into the rotation
+  in this state. Only one key is considered to be the *staged* key at any given
+  time. This key will become the *primary* during the *next* key rotation. This
+  key is only used to validate tokens and serves to avoid race conditions in
+  multi-node deployments (all nodes should recognize all *primary* keys in the
+  deployment at all times). In a multi-node Keystone deployment this would
+  allow for the *staged* key to be replicated to all Keystone nodes before
+  being promoted to *primary* on a single node. This prevents the case where a
+  *primary* key is created on one Keystone node and tokens encryted/signed with
+  that new *primary* are rejected on another Keystone node because the new
+  *primary* doesn't exist there yet.
+
+* **Primary key**: In a key rotation, the old *staged* key is promoted to be
+  the *primary*. Only one key is considered to be the *primary* key at any
+  given time. This is the key used to generate new tokens. This key is also
+  used to validate previously generated tokens.
+
+* **Secondary keys**: In a key rotation, the old *primary* key is demoted to be
+  a *secondary* key. *Secondary* keys are only used to validate previously
+  generated tokens. You can maintain any number of *secondary* keys, up to
+  ``[klw_tokens] max_active_keys`` (where "active" refers to the sum of all
+  recognized keys in any state: *staged*, *primary* or *secondary*). When
+  ``max_active_keys`` is exceeded during a key rotation, the oldest keys are
+  discarded.
+
+When a new primary key is created, all new tokens will be signed or encrypted
+with the new primary key. The old primary key is demoted to a secondary key,
+which can still be used for validating tokens. Excess secondary keys (beyond
+``[klw_tokens] max_active_keys``) are revoked. Revoked keys are premanently
+deleted.
+
+Rotating keys too frequently, or with ``['klw_tokens] max_active_keys`` set too
+low, will cause tokens to become invalid prior to their expiration.
 
 Service Catalog
 ---------------
