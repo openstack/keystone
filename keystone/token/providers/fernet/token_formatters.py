@@ -166,13 +166,13 @@ class StandardTokenFormatter(BaseTokenFormatter):
         b_user_id = self._convert_uuid_hex_to_bytes(user_id)
         if project_id:
             b_scope_id = self._convert_uuid_hex_to_bytes(project_id)
-            token = (
+            payload = (
                 b_user_id, b_scope_id, issued_at_int, expires_at_int,
                 audit_ids)
         else:
-            token = (b_user_id, issued_at_int, expires_at_int, audit_ids)
+            payload = (b_user_id, issued_at_int, expires_at_int, audit_ids)
 
-        return self.pack(token)
+        return self.pack(payload)
 
     def validate_token(self, token_string):
         """Validate a F00 formatted token.
@@ -181,20 +181,20 @@ class StandardTokenFormatter(BaseTokenFormatter):
         :return: a tuple contains the user_id, project_id and token_data
 
         """
-        unpacked_token = self.unpack(token_string)
+        payload = self.unpack(token_string)
 
         # Rebuild and retrieve token information from the token string
-        b_user_id = unpacked_token[0]
+        b_user_id = payload[0]
         b_project_id = None
-        if isinstance(unpacked_token[1], str):
-            b_project_id = unpacked_token[1]
-            issued_at_ts = unpacked_token[2]
-            expires_at_ts = unpacked_token[3]
-            audit_ids = unpacked_token[4]
+        if isinstance(payload[1], str):
+            b_project_id = payload[1]
+            issued_at_ts = payload[2]
+            expires_at_ts = payload[3]
+            audit_ids = payload[4]
         else:
-            issued_at_ts = unpacked_token[1]
-            expires_at_ts = unpacked_token[2]
-            audit_ids = unpacked_token[3]
+            issued_at_ts = payload[1]
+            expires_at_ts = payload[2]
+            audit_ids = payload[3]
 
         # Uncompress the IDs
         user_id = self._convert_uuid_bytes_to_hex(b_user_id)
@@ -237,10 +237,10 @@ class TrustTokenFormatter(BaseTokenFormatter):
         b_user_id = self._convert_uuid_hex_to_bytes(user_id)
         b_project_id = self._convert_uuid_hex_to_bytes(project_id)
         b_trust_id = self._convert_uuid_hex_to_bytes(trust_id)
-        token = (b_user_id, b_project_id, b_trust_id, issued_at_int,
-                 expires_at_int, audit_ids)
+        payload = (b_user_id, b_project_id, b_trust_id, issued_at_int,
+                   expires_at_int, audit_ids)
 
-        return self.pack(token)
+        return self.pack(payload)
 
     def validate_token(self, token_string):
         """Validate a trust formatted token.
@@ -249,15 +249,15 @@ class TrustTokenFormatter(BaseTokenFormatter):
         :return: a tuple contains the user_id, project_id and token_data
 
         """
-        unpacked_token = self.unpack(token_string)
+        payload = self.unpack(token_string)
 
         # Rebuild and retrieve token information from the token string
-        b_user_id = unpacked_token[0]
-        b_project_id = unpacked_token[1]
-        b_trust_id = unpacked_token[2]
-        issued_at_ts = unpacked_token[3]
-        expires_at_ts = unpacked_token[4]
-        audit_ids = unpacked_token[5]
+        b_user_id = payload[0]
+        b_project_id = payload[1]
+        b_trust_id = payload[2]
+        issued_at_ts = payload[3]
+        expires_at_ts = payload[4]
+        audit_ids = payload[5]
 
         # Uncompress the IDs
         user_id = self._convert_uuid_bytes_to_hex(b_user_id)
