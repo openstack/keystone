@@ -20,7 +20,6 @@ from oslo_utils import timeutils
 from keystone.common import dependency
 from keystone import exception
 from keystone.tests import unit as tests
-from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
 from keystone.token.providers import pki
@@ -780,26 +779,6 @@ class TestTokenProvider(tests.TestCase):
             self.token_provider_api._is_valid_token(create_v2_token()))
         self.assertIsNone(
             self.token_provider_api._is_valid_token(create_v3_token()))
-
-
-class TestTokenProviderOAuth1(tests.TestCase):
-    def setUp(self):
-        super(TestTokenProviderOAuth1, self).setUp()
-        self.useFixture(database.Database())
-        self.load_backends()
-
-    def config_overrides(self):
-        super(TestTokenProviderOAuth1, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.uuid.Provider')
-
-    def test_uuid_provider_no_oauth_fails_oauth(self):
-        self.load_fixtures(default_fixtures)
-        self.token_provider_api.driver.oauth_api = None
-        self.assertRaises(exception.Forbidden,
-                          self.token_provider_api.driver.issue_v3_token,
-                          self.user_foo['id'], ['oauth1'])
 
 
 # NOTE(ayoung): renamed to avoid automatic test detection
