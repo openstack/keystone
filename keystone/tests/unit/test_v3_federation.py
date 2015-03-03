@@ -2911,13 +2911,9 @@ class WebSSOTests(FederatedTokenTests):
 
 
 class K2KServiceCatalogTests(FederationTests):
-    SP1 = 'ALPHA'
-    SP2 = 'BETA'
-    SP3 = 'GAMMA'
-
-    def load_extra_backends(self):
-        ref = {'federation_api': federation.Manager()}
-        return ref
+    SP1 = 'SP1'
+    SP2 = 'SP2'
+    SP3 = 'SP3'
 
     def setUp(self):
         super(K2KServiceCatalogTests, self).setUp()
@@ -2964,7 +2960,7 @@ class K2KServiceCatalogTests(FederationTests):
             self.assertDictEqual(ref_entity, entity)
 
     def test_service_providers_in_token(self):
-        """Check if sevice providers are listed in service catalog."""
+        """Check if service providers are listed in service catalog."""
 
         token = self.token_v3_helper.get_token_data(self.user_id,
                                                     ['password'],
@@ -2977,7 +2973,8 @@ class K2KServiceCatalogTests(FederationTests):
     def test_service_provides_in_token_disabled_sp(self):
         """Test behaviour with disabled service providers.
 
-        They should not be listed in the service catalog.
+        Disabled service providers should not be listed in the service
+        catalog.
 
         """
         # disable service provider ALPHA
@@ -2993,10 +2990,10 @@ class K2KServiceCatalogTests(FederationTests):
         self._validate_service_providers(token, ref)
 
     def test_no_service_providers_in_token(self):
-        """Test SC with disabled service providers
+        """Test service catalog with disabled service providers
 
-        There should be no entry ``service_providers`` in the Catalog.
-        Test passes providing no Attribute was raised.
+        There should be no entry ``service_providers`` in the catalog.
+        Test passes providing no attribute was raised.
 
         """
         sp_ref = {'enabled': False}
