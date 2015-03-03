@@ -408,7 +408,7 @@ class Manager(manager.Manager):
         else:
             self.revoke_api.revoke_by_audit_id(audit_id)
 
-        if CONF.token.revoke_by_id:
+        if CONF.token.revoke_by_id and self._needs_persistence:
             self._persistence.delete_token(token_id=token_id)
 
     def list_revoked_tokens(self):

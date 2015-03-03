@@ -4058,6 +4058,63 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
         super(TestFernetTokenProvider, self).setUp()
         self.setUpKeyRepository()
 
+    def _make_auth_request(self, auth_data, trust_token=False):
+        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        token = resp.headers.get('X-Subject-Token')
+        if trust_token:
+            self.assertThat(token, matchers.StartsWith('F01'))
+        else:
+            self.assertThat(token, matchers.StartsWith('F00'))
+        return token
+
+    def _get_unscoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        return self._make_auth_request(auth_data)
+
+    def _get_project_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project_id)
+        return self._make_auth_request(auth_data)
+
+    def _get_domain_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain_id)
+        return self._make_auth_request(auth_data)
+
+    def _get_trust_scoped_token(self, trustee_user, trust):
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        return self._make_auth_request(auth_data, trust_token=True)
+
+    def _set_user_enabled(self, user, enabled=True):
+        user['enabled'] = enabled
+        self.identity_api.update_user(user['id'], user)
+
+    def _create_trust(self):
+        # Create a trustee user
+        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
+        trustee_user = self.identity_api.create_user(trustee_user_ref)
+        trustee_user['password'] = trustee_user_ref['password']
+        ref = self.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee_user['id'],
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id])
+
+        # Create a trust
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+        return (trustee_user, trust)
+
     def config_overrides(self):
         super(TestFernetTokenProvider, self).config_overrides()
         self.config_fixture.config(
@@ -4065,11 +4122,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
             provider='keystone.token.providers.fernet.Provider')
 
     def test_authenticate_for_unscoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
-        unscoped_token = resp.headers.get('X-Subject-Token')
+        unscoped_token = self._get_unscoped_token()
         self.assertThat(unscoped_token, matchers.StartsWith('F00'))
         self.assertLess(len(unscoped_token), 255)
 
@@ -4095,109 +4148,199 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
         headers = {'X-Subject-Token': tampered_token}
         self.get('/auth/tokens', headers=headers, expected_status=401)
 
+    def test_revoke_unscoped_token(self):
+        unscoped_token = self._get_unscoped_token()
+        headers = {'X-Subject-Token': unscoped_token}
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self.delete('/auth/tokens', headers=headers, expected_status=204)
+        self.get('/auth/tokens', headers=headers, expected_status=404)
+
+    def test_unscoped_token_is_invalid_after_disabling_user(self):
+        unscoped_token = self._get_unscoped_token()
+        headers = {'X-Subject-Token': unscoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable the user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
+    def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
+        unscoped_token = self._get_unscoped_token()
+        headers = {'X-Subject-Token': unscoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable the user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+        # Enable the user
+        self._set_user_enabled(self.user)
+        # Ensure validating a token for a re-enabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
+    def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
+        unscoped_token = self._get_unscoped_token()
+        headers = {'X-Subject-Token': unscoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable the user's domain
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
+    def test_unscoped_token_is_invalid_after_changing_user_password(self):
+        unscoped_token = self._get_unscoped_token()
+        headers = {'X-Subject-Token': unscoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Change user's password
+        self.user['password'] = 'Password1'
+        self.identity_api.update_user(self.user['id'], self.user)
+        # Ensure updating user's password revokes existing user's tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
     def test_authenticate_for_project_scoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project_id)
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
-        project_scoped_token = resp.headers.get('X-Subject-Token')
+        project_scoped_token = self._get_project_scoped_token()
         self.assertThat(project_scoped_token, matchers.StartsWith('F00'))
         self.assertLess(len(project_scoped_token), 255)
 
     def test_validate_project_scoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project_id)
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
-        project_scoped_token = resp.headers.get('X-Subject-Token')
+        project_scoped_token = self._get_project_scoped_token()
         self.assertThat(project_scoped_token, matchers.StartsWith('F00'))
         headers = {'X-Subject-Token': project_scoped_token}
         self.get('/auth/tokens', headers=headers, expected_status=200)
 
     def test_validate_tampered_project_scoped_token_fails(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project_id)
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
-        project_scoped_token = resp.headers.get('X-Subject-Token')
+        project_scoped_token = self._get_project_scoped_token()
         self.assertThat(project_scoped_token, matchers.StartsWith('F00'))
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
         headers = {'X-Subject-Token': tampered_token}
         self.get('/auth/tokens', headers=headers, expected_status=401)
 
+    def test_revoke_project_scoped_token(self):
+        project_scoped_token = self._get_project_scoped_token()
+        headers = {'X-Subject-Token': project_scoped_token}
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self.delete('/auth/tokens', headers=headers, expected_status=204)
+        self.get('/auth/tokens', headers=headers, expected_status=404)
+
+    def test_project_scoped_token_is_invalid_after_disabling_user(self):
+        project_scoped_token = self._get_project_scoped_token()
+        headers = {'X-Subject-Token': project_scoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable the user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
+
+    def test_domain_scoped_token_is_invalid_after_disabling_user(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        headers = {'X-Subject-Token': domain_scoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          domain_scoped_token)
+
+    def test_domain_scoped_token_is_invalid_after_deleting_grant(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        headers = {'X-Subject-Token': domain_scoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Delete access to domain
+        self.assignment_api.delete_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          domain_scoped_token)
+
+    def test_project_scoped_token_invalid_after_changing_user_password(self):
+        project_scoped_token = self._get_project_scoped_token()
+        headers = {'X-Subject-Token': project_scoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Update user's password
+        self.user['password'] = 'Password1'
+        self.identity_api.update_user(self.user['id'], self.user)
+        # Ensure updating user's password revokes existing tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
+
+    def test_project_scoped_token_invalid_after_disabling_project(self):
+        project_scoped_token = self._get_project_scoped_token()
+        headers = {'X-Subject-Token': project_scoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable project
+        self.project['enabled'] = False
+        self.resource_api.update_project(self.project['id'], self.project)
+        # Ensure validating a token for a disabled project fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
+
+    def test_domain_scoped_token_invalid_after_disabling_domain(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        headers = {'X-Subject-Token': domain_scoped_token}
+        # Make sure the token is valid
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Disable domain
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+        # Ensure validating a token for a disabled domain fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          domain_scoped_token)
+
     def test_rescope_unscoped_token_with_trust(self):
-        # Create a trustee user
-        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
-        trustee_user = self.identity_api.create_user(trustee_user_ref)
-        trustee_user['password'] = trustee_user_ref['password']
-        ref = self.new_trust_ref(
-            trustor_user_id=self.user_id,
-            trustee_user_id=trustee_user['id'],
-            project_id=self.project_id,
-            impersonation=True,
-            role_ids=[self.role_id])
-
-        # Create a trust
-        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
-        trust = self.assertValidTrustResponse(r)
-
-        auth_data = self.build_authentication_request(
-            user_id=trustee_user['id'],
-            password=trustee_user['password'],
-            trust_id=trust['id'])
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
-        trust_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(trust_scoped_token, matchers.StartsWith('F01'))
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         self.assertLess(len(trust_scoped_token), 255)
 
     def test_validate_a_trust_scoped_token(self):
-        # Create a trustee user
-        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
-        trustee_user = self.identity_api.create_user(trustee_user_ref)
-        trustee_user['password'] = trustee_user_ref['password']
-        ref = self.new_trust_ref(
-            trustor_user_id=self.user_id,
-            trustee_user_id=trustee_user['id'],
-            project_id=self.project_id,
-            impersonation=True,
-            role_ids=[self.role_id])
-
-        # Create a trust
-        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
-        trust = self.assertValidTrustResponse(r)
-
-        auth_data = self.build_authentication_request(
-            user_id=trustee_user['id'],
-            password=trustee_user['password'],
-            trust_id=trust['id'])
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
-        # Get a trust scoped token
-        trust_scoped_token = resp.headers.get('X-Subject-Token')
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         self.assertThat(trust_scoped_token, matchers.StartsWith('F01'))
         headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
         self.get('/auth/tokens', headers=headers, expected_status=200)
 
     def test_validate_tampered_trust_scoped_token_fails(self):
-        # Create a trustee user
-        trustee_user_ref = self.new_user_ref(domain_id=self.domain_id)
-        trustee_user = self.identity_api.create_user(trustee_user_ref)
-        trustee_user['password'] = trustee_user_ref['password']
-        ref = self.new_trust_ref(
-            trustor_user_id=self.user_id,
-            trustee_user_id=trustee_user['id'],
-            project_id=self.project_id,
-            impersonation=True,
-            role_ids=[self.role_id])
-
-        # Create a trust
-        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
-        trust = self.assertValidTrustResponse(r)
-
+        trustee_user, trust = self._create_trust()
         auth_data = self.build_authentication_request(
             user_id=trustee_user['id'],
             password=trustee_user['password'],
@@ -4210,3 +4353,90 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
                           trust_scoped_token[50 + 32:])
         headers = {'X-Subject-Token': tampered_token}
         self.get('/auth/tokens', headers=headers, expected_status=401)
+
+    def test_revoke_trust_scoped_token(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self.delete('/auth/tokens', headers=headers, expected_status=204)
+        self.get('/auth/tokens', headers=headers, expected_status=404)
+
+    def test_trust_scoped_token_is_invalid_after_disabling_trustee(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+        # Disable trustee
+        trustee_update_ref = dict(enabled=False)
+        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_invalid_after_changing_trustee_password(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+        # Change trustee's password
+        trustee_update_ref = dict(password='Password1')
+        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
+        # Ensure updating trustee's password revokes existing tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        self.assertThat(trust_scoped_token, matchers.StartsWith('F01'))
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+        # Disable the trustor
+        trustor_update_ref = dict(enabled=False)
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_invalid_after_changing_trustor_password(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+        # Change trustor's password
+        trustor_update_ref = dict(password='Password1')
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure updating trustor's password revokes existing user's tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_invalid_after_disabled_trustor_domain(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        headers = {'X-Subject-Token': trust_scoped_token}
+        # Validate a trust scoped token
+        self.get('/auth/tokens', headers=headers, expected_status=200)
+
+        # Disable trustor's domain
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+
+        trustor_update_ref = dict(password='Password1')
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure updating trustor's password revokes existing user's tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
