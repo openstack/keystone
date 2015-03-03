@@ -40,7 +40,6 @@ class BaseTokenFormatter(object):
     token_version = None
 
     def __init__(self):
-        """Establish a connection with Keyczar and store it."""
         self.v3_token_data_helper = common.V3TokenDataHelper()
 
     @property
