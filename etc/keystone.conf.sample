@@ -90,6 +90,12 @@
 # Default publisher_id for outgoing notifications (string value)
 #default_publisher_id = <None>
 
+# Define the notification format for Identity Service events. A "basic"
+# notification has information about the resource being operated on. A "cadf"
+# notification has the same information, as well as information about the
+# initiator of the event. Valid options are: basic and cadf (string value)
+#notification_format = basic
+
 #
 # From keystone.openstack.common.eventlet_backdoor
 #
@@ -204,112 +210,6 @@
 #
 # From oslo.messaging
 #
-
-# Use durable queues in AMQP. (boolean value)
-# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
-#amqp_durable_queues = false
-
-# Auto-delete queues in AMQP. (boolean value)
-#amqp_auto_delete = false
-
-# Size of RPC connection pool. (integer value)
-#rpc_conn_pool_size = 30
-
-# Qpid broker hostname. (string value)
-#qpid_hostname = localhost
-
-# Qpid broker port. (integer value)
-#qpid_port = 5672
-
-# Qpid HA cluster host:port pairs. (list value)
-#qpid_hosts = $qpid_hostname:$qpid_port
-
-# Username for Qpid connection. (string value)
-#qpid_username =
-
-# Password for Qpid connection. (string value)
-#qpid_password =
-
-# Space separated list of SASL mechanisms to use for auth. (string value)
-#qpid_sasl_mechanisms =
-
-# Seconds between connection keepalive heartbeats. (integer value)
-#qpid_heartbeat = 60
-
-# Transport to use, either 'tcp' or 'ssl'. (string value)
-#qpid_protocol = tcp
-
-# Whether to disable the Nagle algorithm. (boolean value)
-#qpid_tcp_nodelay = true
-
-# The number of prefetched messages held by receiver. (integer value)
-#qpid_receiver_capacity = 1
-
-# The qpid topology version to use.  Version 1 is what was originally used by
-# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
-# broker federation to work.  Users should update to version 2 when they are
-# able to take everything down, as it requires a clean break. (integer value)
-#qpid_topology_version = 1
-
-# SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
-# SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
-# distributions. (string value)
-#kombu_ssl_version =
-
-# SSL key file (valid only if SSL enabled). (string value)
-#kombu_ssl_keyfile =
-
-# SSL cert file (valid only if SSL enabled). (string value)
-#kombu_ssl_certfile =
-
-# SSL certification authority file (valid only if SSL enabled). (string value)
-#kombu_ssl_ca_certs =
-
-# How long to wait before reconnecting in response to an AMQP consumer cancel
-# notification. (floating point value)
-#kombu_reconnect_delay = 1.0
-
-# The RabbitMQ broker address where a single node is used. (string value)
-#rabbit_host = localhost
-
-# The RabbitMQ broker port where a single node is used. (integer value)
-#rabbit_port = 5672
-
-# RabbitMQ HA cluster host:port pairs. (list value)
-#rabbit_hosts = $rabbit_host:$rabbit_port
-
-# Connect over SSL for RabbitMQ. (boolean value)
-#rabbit_use_ssl = false
-
-# The RabbitMQ userid. (string value)
-#rabbit_userid = guest
-
-# The RabbitMQ password. (string value)
-#rabbit_password = guest
-
-# The RabbitMQ login method. (string value)
-#rabbit_login_method = AMQPLAIN
-
-# The RabbitMQ virtual host. (string value)
-#rabbit_virtual_host = /
-
-# How frequently to retry connecting with RabbitMQ. (integer value)
-#rabbit_retry_interval = 1
-
-# How long to backoff for between retries when connecting to RabbitMQ. (integer
-# value)
-#rabbit_retry_backoff = 2
-
-# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
-# count). (integer value)
-#rabbit_max_retries = 0
-
-# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
-# must wipe the RabbitMQ database. (boolean value)
-#rabbit_ha_queues = false
-
-# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
-#fake_rabbit = false
 
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
 # The "host" option should point or resolve to this address. (string value)
@@ -589,19 +489,19 @@
 # (boolean value)
 #use_db_reconnect = false
 
-# Seconds between database connection retries. (integer value)
+# Seconds between retries of a database transaction. (integer value)
 #db_retry_interval = 1
 
-# If True, increases the interval between database connection retries up to
+# If True, increases the interval between retries of a database operation up to
 # db_max_retry_interval. (boolean value)
 #db_inc_retry_interval = true
 
-# If db_inc_retry_interval is set, the maximum seconds between database
-# connection retries. (integer value)
+# If db_inc_retry_interval is set, the maximum seconds between retries of a
+# database operation. (integer value)
 #db_max_retry_interval = 10
 
-# Maximum database connection retries before error is raised. Set to -1 to
-# specify an infinite retry count. (integer value)
+# Maximum retries in case of connection error or deadlock error before error is
+# raised. Set to -1 to specify an infinite retry count. (integer value)
 #db_max_retries = 20
 
 
@@ -731,6 +631,34 @@
 # (string value)
 #federated_domain_name = Federated
 
+# A list of trusted dashboard hosts. Before accepting a Single Sign-On request
+# to return a token, the origin host must be a member of the trusted_dashboard
+# list. This configuration option may be repeated for multiple values. For
+# example: trusted_dashboard=http://acme.com trusted_dashboard=http://beta.com
+# (multi valued)
+#trusted_dashboard =
+
+# Location of Single Sign-On callback handler, will return a token to a trusted
+# dashboard host. (string value)
+#sso_callback_template = /etc/keystone/sso_callback_template.html
+
+
+[fernet_tokens]
+
+#
+# From keystone
+#
+
+# Directory containing Fernet token keys. (string value)
+#key_repository = /etc/keystone/fernet-keys/
+
+# This controls how many keys are held in rotation by keystone-manage
+# fernet_rotate before they are discarded. The default value of 3 means that
+# keystone will maintain one staged key, one primary key, and one secondary
+# key. Increasing this value means that additional secondary keys will be kept
+# in the rotation. (integer value)
+#max_active_keys = 3
+
 
 [identity]
 
@@ -747,11 +675,19 @@
 #default_domain_id = default
 
 # A subset (or all) of domains can have their own identity driver, each with
-# their own partial configuration file in a domain configuration directory.
-# Only values specific to the domain need to be placed in the domain specific
-# configuration file. This feature is disabled by default; set to true to
-# enable. (boolean value)
+# their own partial configuration options, stored in either the resource
+# backend or in a file in a domain configuration directory (depending on the
+# setting of domain_configurations_from_database). Only values specific to the
+# domain need to be specified in this manner. This feature is disabled by
+# default; set to true to enable. (boolean value)
 #domain_specific_drivers_enabled = false
+
+# Extract the domain specific configuration options from the resource backend
+# where they have been stored with the domain data. This feature is disabled by
+# default (in which case the domain specific options will be loaded from files
+# in the domain configuration directory); set to true to enable. This feature
+# is not yet supported. (boolean value)
+#domain_configurations_from_database = false
 
 # Path for Keystone to locate the domain specific identity configuration files
 # if domain_specific_drivers_enabled is set to true. (string value)
@@ -759,6 +695,14 @@
 
 # Identity backend driver. (string value)
 #driver = keystone.identity.backends.sql.Identity
+
+# Toggle for identity caching. This has no effect unless global caching is
+# enabled. (boolean value)
+#caching = true
+
+# Time to cache identity data (in seconds). This has no effect unless global
+# and identity caching are enabled. (integer value)
+#cache_time = 600
 
 # Maximum supported length for user passwords; decrease to improve performance.
 # (integer value)
@@ -1279,6 +1223,168 @@
 #allow_insecure_clients = false
 
 
+[oslo_messaging_qpid]
+
+#
+# From oslo.messaging
+#
+
+# Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues = false
+
+# Auto-delete queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_auto_delete
+#amqp_auto_delete = false
+
+# Size of RPC connection pool. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_conn_pool_size
+#rpc_conn_pool_size = 30
+
+# Qpid broker hostname. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_hostname
+#qpid_hostname = localhost
+
+# Qpid broker port. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_port
+#qpid_port = 5672
+
+# Qpid HA cluster host:port pairs. (list value)
+# Deprecated group/name - [DEFAULT]/qpid_hosts
+#qpid_hosts = $qpid_hostname:$qpid_port
+
+# Username for Qpid connection. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_username
+#qpid_username =
+
+# Password for Qpid connection. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_password
+#qpid_password =
+
+# Space separated list of SASL mechanisms to use for auth. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_sasl_mechanisms
+#qpid_sasl_mechanisms =
+
+# Seconds between connection keepalive heartbeats. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_heartbeat
+#qpid_heartbeat = 60
+
+# Transport to use, either 'tcp' or 'ssl'. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_protocol
+#qpid_protocol = tcp
+
+# Whether to disable the Nagle algorithm. (boolean value)
+# Deprecated group/name - [DEFAULT]/qpid_tcp_nodelay
+#qpid_tcp_nodelay = true
+
+# The number of prefetched messages held by receiver. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_receiver_capacity
+#qpid_receiver_capacity = 1
+
+# The qpid topology version to use.  Version 1 is what was originally used by
+# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
+# broker federation to work.  Users should update to version 2 when they are
+# able to take everything down, as it requires a clean break. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_topology_version
+#qpid_topology_version = 1
+
+
+[oslo_messaging_rabbit]
+
+#
+# From oslo.messaging
+#
+
+# Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues = false
+
+# Auto-delete queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_auto_delete
+#amqp_auto_delete = false
+
+# Size of RPC connection pool. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_conn_pool_size
+#rpc_conn_pool_size = 30
+
+# SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
+# SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
+# distributions. (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_version
+#kombu_ssl_version =
+
+# SSL key file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_keyfile
+#kombu_ssl_keyfile =
+
+# SSL cert file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_certfile
+#kombu_ssl_certfile =
+
+# SSL certification authority file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_ca_certs
+#kombu_ssl_ca_certs =
+
+# How long to wait before reconnecting in response to an AMQP consumer cancel
+# notification. (floating point value)
+# Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
+#kombu_reconnect_delay = 1.0
+
+# The RabbitMQ broker address where a single node is used. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_host
+#rabbit_host = localhost
+
+# The RabbitMQ broker port where a single node is used. (integer value)
+# Deprecated group/name - [DEFAULT]/rabbit_port
+#rabbit_port = 5672
+
+# RabbitMQ HA cluster host:port pairs. (list value)
+# Deprecated group/name - [DEFAULT]/rabbit_hosts
+#rabbit_hosts = $rabbit_host:$rabbit_port
+
+# Connect over SSL for RabbitMQ. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_use_ssl
+#rabbit_use_ssl = false
+
+# The RabbitMQ userid. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_userid
+#rabbit_userid = guest
+
+# The RabbitMQ password. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_password
+#rabbit_password = guest
+
+# The RabbitMQ login method. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_login_method
+#rabbit_login_method = AMQPLAIN
+
+# The RabbitMQ virtual host. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_virtual_host
+#rabbit_virtual_host = /
+
+# How frequently to retry connecting with RabbitMQ. (integer value)
+#rabbit_retry_interval = 1
+
+# How long to backoff for between retries when connecting to RabbitMQ. (integer
+# value)
+# Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
+#rabbit_retry_backoff = 2
+
+# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
+# count). (integer value)
+# Deprecated group/name - [DEFAULT]/rabbit_max_retries
+#rabbit_max_retries = 0
+
+# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
+# must wipe the RabbitMQ database. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_ha_queues
+#rabbit_ha_queues = false
+
+# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
+# Deprecated group/name - [DEFAULT]/fake_rabbit
+#fake_rabbit = false
+
+
 [oslo_middleware]
 
 #
@@ -1460,9 +1566,6 @@
 # From keystone
 #
 
-# Deprecated in favor of provider in the [token] section. (string value)
-#token_format = <None>
-
 # Path of the certfile for token signing. For non-production environments, you
 # may be interested in using `keystone-manage pki_setup` to generate self-
 # signed certificates. (string value)
@@ -1530,9 +1633,9 @@
 #expiration = 3600
 
 # Controls the token construction, validation, and revocation operations. Core
-# providers are "keystone.token.providers.[pkiz|pki|uuid].Provider". The
+# providers are "keystone.token.providers.[fernet|pkiz|pki|uuid].Provider". The
 # default provider is uuid. (string value)
-#provider = <None>
+#provider = keystone.token.providers.uuid.Provider
 
 # Token persistence backend driver. (string value)
 #driver = keystone.token.persistence.backends.sql.Token
