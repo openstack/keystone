@@ -17,7 +17,6 @@ from oslo_utils import timeutils
 import six
 from testtools import matchers
 
-from keystone.contrib import revoke
 from keystone.contrib.revoke import model
 from keystone.tests.unit import test_v3
 from keystone.token import provider
@@ -39,9 +38,6 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
             'href': '/OS-REVOKE/events',
         },
     }
-
-    def load_extra_backends(self):
-        return {'revoke_api': revoke.Manager()}
 
     def test_get_empty_list(self):
         resp = self.get('/OS-REVOKE/events')
