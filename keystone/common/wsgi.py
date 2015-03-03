@@ -230,7 +230,7 @@ class Application(BaseApplication):
         LOG.info('%(req_method)s %(path)s?%(params)s', {
             'req_method': req_method,
             'path': context['path'],
-            'params': urllib.urlencode(params)})
+            'params': urllib.urlencode(req.params)})
 
         params = self._normalize_dict(params)
 
