@@ -50,9 +50,9 @@ Starting and Stopping Keystone under Eventlet
 
 .. WARNING::
 
-    Running Keystone under eventlet has been deprecated as of the Kilo release.
+    Running keystone under eventlet has been deprecated as of the Kilo release.
     Support for utilizing eventlet will be removed as of the M-release. The
-    recommended deployment is to run Keystone in a WSGI server
+    recommended deployment is to run keystone in a WSGI server
     (e.g. ``mod_wsgi`` under ``HTTPD``).
 
 Keystone can be run using either its built-in eventlet server or it can be run
