@@ -31,20 +31,21 @@ def validate_key_repository():
     # in as None because we don't set allow_no_values to True.
 
     # ensure current user has full access to the key repository
-    if (not os.access(CONF.klw_tokens.key_repository, os.R_OK) or not
-            os.access(CONF.klw_tokens.key_repository, os.W_OK) or not
-            os.access(CONF.klw_tokens.key_repository, os.X_OK)):
+    if (not os.access(CONF.fernet_tokens.key_repository, os.R_OK) or not
+            os.access(CONF.fernet_tokens.key_repository, os.W_OK) or not
+            os.access(CONF.fernet_tokens.key_repository, os.X_OK)):
         LOG.error(
-            _LE('Either [klw_tokens] key_repository does not exist or Keystone'
-                ' does not have sufficient permission to access it: %s'),
-            CONF.klw_tokens.key_repository)
+            _LE('Either [fernet_tokens] key_repository does not exist or '
+                'Keystone does not have sufficient permission to access it: '
+                '%s'), CONF.fernet_tokens.key_repository)
         return False
 
     # ensure the key repository isn't world-readable
-    stat_info = os.stat(CONF.klw_tokens.key_repository)
+    stat_info = os.stat(CONF.fernet_tokens.key_repository)
     if stat_info.st_mode & stat.S_IROTH or stat_info.st_mode & stat.S_IXOTH:
-        LOG.warning(_LW('[klw_tokens] key_repository is world readable: %s'),
-                    CONF.klw_tokens.key_repository)
+        LOG.warning(_LW(
+            '[fernet_tokens] key_repository is world readable: %s'),
+            CONF.fernet_tokens.key_repository)
 
     return True
 
@@ -54,7 +55,7 @@ def _convert_to_integers(id_value):
     # NOTE(lbragstad) os.chown() will raise a TypeError here if
     # keystone_user_id and keystone_group_id are not integers. Let's
     # cast them to integers if we can because it's possible to pass non-integer
-    # values into the klwt_setup utility.
+    # values into the fernet_setup utility.
     try:
         id_int = int(id_value)
     except ValueError as e:
@@ -67,29 +68,30 @@ def _convert_to_integers(id_value):
 
 def create_key_directory(keystone_user_id=None, keystone_group_id=None):
     """If the configured key directory does not exist, attempt to create it."""
-    if not os.access(CONF.klw_tokens.key_repository, os.F_OK):
+    if not os.access(CONF.fernet_tokens.key_repository, os.F_OK):
         LOG.info(_LI(
-            '[klw_tokens] key_repository does not appear to exist; attempting '
-            'to create it'))
+            '[fernet_tokens] key_repository does not appear to exist; '
+            'attempting to create it'))
 
         try:
-            os.makedirs(CONF.klw_tokens.key_repository, 0o700)
+            os.makedirs(CONF.fernet_tokens.key_repository, 0o700)
         except OSError:
             LOG.error(_LE(
-                'Failed to create [klw_tokens] key_repository: either it '
+                'Failed to create [fernet_tokens] key_repository: either it '
                 'already exists or you don\'t have sufficient permissions to '
                 'create it'))
 
         if keystone_user_id and keystone_group_id:
             os.chown(
-                CONF.klw_tokens.key_repository,
+                CONF.fernet_tokens.key_repository,
                 keystone_user_id,
                 keystone_group_id)
         elif keystone_user_id or keystone_group_id:
             LOG.warning(_LW(
-                'Unable to change the ownership of [klw_tokens] '
+                'Unable to change the ownership of [fernet_tokens] '
                 'key_repository without a keystone user ID and keystone group '
-                'ID both being provided: %s') % CONF.klw_tokens.key_repository)
+                'ID both being provided: %s') %
+                CONF.fernet_tokens.key_repository)
 
 
 def _create_new_key(keystone_user_id, keystone_group_id):
@@ -110,9 +112,9 @@ def _create_new_key(keystone_user_id, keystone_group_id):
         LOG.warning(_LW(
             'Unable to change the ownership of the new key without a keystone '
             'user ID and keystone group ID both being provided: %s') %
-            CONF.klw_tokens.key_repository)
+            CONF.fernet_tokens.key_repository)
     # Determine the file name of the new key
-    key_file = os.path.join(CONF.klw_tokens.key_repository, '0')
+    key_file = os.path.join(CONF.fernet_tokens.key_repository, '0')
     try:
         with open(key_file, 'w') as f:
             f.write(key)
@@ -136,7 +138,8 @@ def initialize_key_repository(keystone_user_id=None, keystone_group_id=None):
 
     """
     # make sure we have work to do before proceeding
-    if os.access(os.path.join(CONF.klw_tokens.key_repository, '0'), os.F_OK):
+    if os.access(os.path.join(CONF.fernet_tokens.key_repository, '0'),
+                 os.F_OK):
         LOG.info(_LI('Key repository is already initialized; aborting.'))
         return
 
@@ -168,8 +171,8 @@ def rotate_keys(keystone_user_id=None, keystone_group_id=None):
     """
     # read the list of key files
     key_files = dict()
-    for filename in os.listdir(CONF.klw_tokens.key_repository):
-        path = os.path.join(CONF.klw_tokens.key_repository, str(filename))
+    for filename in os.listdir(CONF.fernet_tokens.key_repository):
+        path = os.path.join(CONF.fernet_tokens.key_repository, str(filename))
         if os.path.isfile(path):
             key_files[int(filename)] = path
 
@@ -185,11 +188,11 @@ def rotate_keys(keystone_user_id=None, keystone_group_id=None):
 
     # promote the next primary key to be the primary
     os.rename(
-        os.path.join(CONF.klw_tokens.key_repository, '0'),
-        os.path.join(CONF.klw_tokens.key_repository, str(new_primary_key)))
+        os.path.join(CONF.fernet_tokens.key_repository, '0'),
+        os.path.join(CONF.fernet_tokens.key_repository, str(new_primary_key)))
     key_files.pop(0)
     key_files[new_primary_key] = os.path.join(
-        CONF.klw_tokens.key_repository,
+        CONF.fernet_tokens.key_repository,
         str(new_primary_key))
     LOG.info(_LI('Promoted key 0 to be the primary: %s'), new_primary_key)
 
@@ -197,15 +200,16 @@ def rotate_keys(keystone_user_id=None, keystone_group_id=None):
     _create_new_key(keystone_user_id, keystone_group_id)
 
     # check for bad configuration
-    if CONF.klw_tokens.max_active_keys < 1:
+    if CONF.fernet_tokens.max_active_keys < 1:
         LOG.warning(_LW(
-            '[klw_tokens] max_active_keys must be at least 1 to maintain a '
+            '[fernet_tokens] max_active_keys must be at least 1 to maintain a '
             'primary key.'))
-        CONF.klw_tokens.max_active_keys = 1
+        CONF.fernet_tokens.max_active_keys = 1
 
     # purge excess keys
     keys = sorted(key_files.keys())
-    excess_keys = keys[:len(key_files) - CONF.klw_tokens.max_active_keys + 1]
+    excess_keys = (
+        keys[:len(key_files) - CONF.fernet_tokens.max_active_keys + 1])
     LOG.info(_LI('Excess keys to purge: %s'), excess_keys)
     for i in excess_keys:
         os.remove(key_files[i])
@@ -224,8 +228,8 @@ def load_keys():
 
     # build a dictionary of key_number:encryption_key pairs
     keys = dict()
-    for filename in os.listdir(CONF.klw_tokens.key_repository):
-        path = os.path.join(CONF.klw_tokens.key_repository, str(filename))
+    for filename in os.listdir(CONF.fernet_tokens.key_repository):
+        path = os.path.join(CONF.fernet_tokens.key_repository, str(filename))
         if os.path.isfile(path):
             with open(path, 'r') as key_file:
                 keys[int(filename)] = key_file.read()
@@ -233,7 +237,7 @@ def load_keys():
     LOG.info(_LI(
         'Loaded %(count)s encryption keys from: %(dir)s'), {
             'count': len(keys),
-            'dir': CONF.klw_tokens.key_repository})
+            'dir': CONF.fernet_tokens.key_repository})
 
     # return the encryption_keys, sorted by key number, descending
     return [keys[x] for x in sorted(keys.keys(), reverse=True)]

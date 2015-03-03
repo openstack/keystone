@@ -15,14 +15,14 @@ from oslo_log import log
 
 from keystone import exception
 from keystone.token.providers import common
-from keystone.token.providers.klwt import token_formatters
+from keystone.token.providers.fernet import token_formatters
 
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
-TOKEN_PREFIX = 'KLWT00'
-TRUST_TOKEN_PREFIX = 'KLWT01'
+TOKEN_PREFIX = 'F00'
+TRUST_TOKEN_PREFIX = 'F01'
 
 
 class Provider(common.BaseProvider):
@@ -132,7 +132,7 @@ class Provider(common.BaseProvider):
                 token_formatter.validate_token(token_str))
             return token_data
         # If the token_format is not recognized, raise Unauthorized.
-        msg = ('This is not a recognized KLWT formatted token: %s',
+        msg = ('This is not a recognized Fernet formatted token: %s',
                token_format)
         raise exception.Unauthorized(msg)
 

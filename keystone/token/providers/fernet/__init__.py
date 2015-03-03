@@ -10,4 +10,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.token.providers.klwt.core import *  # noqa
+from keystone.token.providers.fernet.core import *  # noqa
