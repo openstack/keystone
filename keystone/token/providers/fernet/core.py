@@ -15,14 +15,12 @@ from oslo_log import log
 
 from keystone import exception
 from keystone.token.providers import common
-from keystone.token.providers.fernet import token_formatters
+from keystone.token.providers.fernet import format_map as fm
+from keystone.token.providers.fernet import token_formatters as tf
 
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-
-TOKEN_PREFIX = 'F00'
-TRUST_TOKEN_PREFIX = 'F01'
 
 
 class Provider(common.BaseProvider):
@@ -30,8 +28,9 @@ class Provider(common.BaseProvider):
         super(Provider, self).__init__(*args, **kwargs)
 
         self.token_format_map = {
-            TOKEN_PREFIX: token_formatters.StandardTokenFormatter(),
-            TRUST_TOKEN_PREFIX: token_formatters.TrustTokenFormatter()}
+            fm.UNSCOPED_TOKEN_PREFIX: tf.UnscopedTokenFormatter(),
+            fm.TOKEN_PREFIX: tf.StandardTokenFormatter(),
+            fm.TRUST_TOKEN_PREFIX: tf.TrustTokenFormatter()}
 
     def needs_persistence(self):
         """Should the token be written to a backend."""
@@ -73,13 +72,6 @@ class Provider(common.BaseProvider):
         :returns: tuple containing the id of the token and the token data
 
         """
-        token_format = None
-
-        if trust:
-            token_format = self.token_format_map[TRUST_TOKEN_PREFIX]
-        else:
-            token_format = self.token_format_map[TOKEN_PREFIX]
-
         token_ref = None
         if auth_context and self._is_mapped_token(auth_context):
             token_ref = self._handle_mapped_tokens(
@@ -98,7 +90,19 @@ class Provider(common.BaseProvider):
             include_catalog=include_catalog,
             audit_info=parent_audit_id)
 
-        token_id = token_format.create_token(user_id, project_id, token_data)
+        token_format = None
+
+        if trust:
+            token_format = self.token_format_map[fm.TRUST_TOKEN_PREFIX]
+            token_id = token_format.create_token(user_id, project_id,
+                                                 token_data)
+        elif domain_id is None and project_id is None:
+            token_format = self.token_format_map[fm.UNSCOPED_TOKEN_PREFIX]
+            token_id = token_format.create_token(user_id, token_data)
+        else:
+            token_format = self.token_format_map[fm.TOKEN_PREFIX]
+            token_id = token_format.create_token(user_id, project_id,
+                                                 token_data)
 
         return token_id, token_data
 
@@ -121,7 +125,7 @@ class Provider(common.BaseProvider):
 
         """
         # Determine and look up the token formatter.
-        token_prefix_length = len(TOKEN_PREFIX)
+        token_prefix_length = len(fm.TOKEN_PREFIX)
         token_format = token_ref[:token_prefix_length]
         token_formatter = self.token_format_map.get(token_format)
         if token_formatter:
