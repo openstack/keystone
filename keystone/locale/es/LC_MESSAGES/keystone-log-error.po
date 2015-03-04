@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-20 06:03+0000\n"
-"PO-Revision-Date: 2015-02-20 04:02+0000\n"
+"POT-Creation-Date: 2015-03-04 06:03+0000\n"
+"PO-Revision-Date: 2015-03-03 02:33+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/keystone/"
 "language/es/)\n"
@@ -19,16 +19,16 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: keystone/notifications.py:206
+#: keystone/notifications.py:304
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:249
+#: keystone/notifications.py:389
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:466
+#: keystone/notifications.py:606
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
@@ -132,7 +132,7 @@ msgstr "No hay manejador para coincidencias de clase %s"
 msgid "Unhandled exception"
 msgstr "Excepción no controlada"
 
-#: keystone/resource/core.py:469
+#: keystone/resource/core.py:477
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
@@ -146,7 +146,7 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
-#: keystone/token/provider.py:305
+#: keystone/token/provider.py:280
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
@@ -159,10 +159,23 @@ msgid ""
 "%(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:606
+#: keystone/token/providers/common.py:611
 msgid "Failed to validate token"
 msgstr "Ha fallado la validación del token"
 
 #: keystone/token/providers/pki.py:47
 msgid "Unable to sign token"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:38
+#, python-format
+msgid ""
+"Either [fernet_tokens] key_repository does not exist or Keystone does not "
+"have sufficient permission to access it: %s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:79
+msgid ""
+"Failed to create [fernet_tokens] key_repository: either it already exists or "
+"you don't have sufficient permissions to create it"
 msgstr ""

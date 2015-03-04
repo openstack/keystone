@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-02-13 06:03+0000\n"
-"PO-Revision-Date: 2015-02-12 12:02+0000\n"
+"POT-Creation-Date: 2015-03-04 06:03+0000\n"
+"PO-Revision-Date: 2015-03-03 02:32+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/projects/p/"
 "keystone/language/vi_VN/)\n"
@@ -19,59 +19,59 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: keystone/assignment/core.py:251
+#: keystone/assignment/core.py:250
 #, python-format
 msgid "Creating the default role %s because it does not exist."
 msgstr ""
 
-#: keystone/assignment/core.py:259
+#: keystone/assignment/core.py:258
 #, python-format
 msgid "Creating the default role %s failed because it was already created"
 msgstr ""
 
-#: keystone/auth/controllers.py:63
+#: keystone/auth/controllers.py:64
 msgid "Loading auth-plugins by class-name is deprecated."
 msgstr ""
 
-#: keystone/auth/controllers.py:105
+#: keystone/auth/controllers.py:106
 #, python-format
 msgid ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
 "the earliest value."
 msgstr ""
 
-#: keystone/common/openssl.py:80
+#: keystone/common/openssl.py:81
 #, python-format
 msgid "Running command - %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:78
+#: keystone/common/wsgi.py:79
 msgid "No bind information present in token"
 msgstr ""
 
-#: keystone/common/wsgi.py:82
+#: keystone/common/wsgi.py:83
 #, python-format
 msgid "Named bind mode %s not in bind information"
 msgstr ""
 
-#: keystone/common/wsgi.py:89
+#: keystone/common/wsgi.py:90
 msgid "Kerberos credentials required and not present"
 msgstr ""
 
-#: keystone/common/wsgi.py:93
+#: keystone/common/wsgi.py:94
 msgid "Kerberos credentials do not match those in bind"
 msgstr ""
 
-#: keystone/common/wsgi.py:97
+#: keystone/common/wsgi.py:98
 msgid "Kerberos bind authentication successful"
 msgstr ""
 
-#: keystone/common/wsgi.py:104
+#: keystone/common/wsgi.py:105
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:102
+#: keystone/common/environment/eventlet_server.py:103
 #, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr ""
@@ -165,12 +165,52 @@ msgstr ""
 msgid "Waiting on %d children to exit"
 msgstr "Chờ đợi %d tiến trình con để thoát "
 
-#: keystone/token/persistence/backends/sql.py:63
-#, python-format
-msgid "Token expiration batch size: %d"
-msgstr ""
-
 #: keystone/token/persistence/backends/sql.py:279
 #, python-format
 msgid "Total expired tokens removed: %d"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:72
+msgid ""
+"[fernet_tokens] key_repository does not appear to exist; attempting to "
+"create it"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:130
+#, python-format
+msgid "Created a new key: %s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:143
+msgid "Key repository is already initialized; aborting."
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:179
+#, python-format
+msgid "Starting key rotation with %(count)s key files: %(list)s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:185
+#, python-format
+msgid "Current primary key is: %s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:187
+#, python-format
+msgid "Next primary key will be: %s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:197
+#, python-format
+msgid "Promoted key 0 to be the primary: %s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:213
+#, python-format
+msgid "Excess keys to purge: %s"
+msgstr ""
+
+#: keystone/token/providers/fernet/utils.py:237
+#, python-format
+msgid "Loaded %(count)s encryption keys from: %(dir)s"
 msgstr ""
