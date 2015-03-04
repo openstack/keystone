@@ -227,7 +227,7 @@ def skip_if_no_multiple_domains_support(f):
     def wrapper(*args, **kwargs):
         test_obj = args[0]
         if not test_obj.identity_api.multiple_domains_supported:
-                raise testcase.TestSkipped('No multiple domains support')
+            raise testcase.TestSkipped('No multiple domains support')
         return f(*args, **kwargs)
     return wrapper
 

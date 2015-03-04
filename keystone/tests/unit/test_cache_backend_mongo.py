@@ -242,7 +242,7 @@ class MockMongoDB(object):
             return get_collection(self._dbname, name)
 
     def __getitem__(self, name):
-            return get_collection(self._dbname, name)
+        return get_collection(self._dbname, name)
 
 
 class MockMongoClient(object):

@@ -460,7 +460,7 @@ class Auth(controller.V2Controller):
         for t in tokens:
             expires = t['expires']
             if expires and isinstance(expires, datetime.datetime):
-                    t['expires'] = timeutils.isotime(expires)
+                t['expires'] = timeutils.isotime(expires)
         data = {'revoked': tokens}
         json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,

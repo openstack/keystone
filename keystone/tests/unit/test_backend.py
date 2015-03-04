@@ -1950,20 +1950,20 @@ class IdentityTests(object):
                           user)
 
     def test_update_project_invalid_enabled_type_string(self):
-            project = {'id': uuid.uuid4().hex,
-                       'name': uuid.uuid4().hex,
-                       'enabled': True,
-                       'domain_id': DEFAULT_DOMAIN_ID}
-            self.resource_api.create_project(project['id'], project)
-            project_ref = self.resource_api.get_project(project['id'])
-            self.assertEqual(True, project_ref['enabled'])
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
+                   'enabled': True,
+                   'domain_id': DEFAULT_DOMAIN_ID}
+        self.resource_api.create_project(project['id'], project)
+        project_ref = self.resource_api.get_project(project['id'])
+        self.assertEqual(True, project_ref['enabled'])
 
-            # Strings are not valid boolean values
-            project['enabled'] = "false"
-            self.assertRaises(exception.ValidationError,
-                              self.resource_api.update_project,
-                              project['id'],
-                              project)
+        # Strings are not valid boolean values
+        project['enabled'] = "false"
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.update_project,
+                          project['id'],
+                          project)
 
     def test_create_project_invalid_enabled_type_string(self):
         project = {'id': uuid.uuid4().hex,

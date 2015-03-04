@@ -547,7 +547,7 @@ class Auth(controller.V3Controller):
         for t in tokens:
             expires = t['expires']
             if not (expires and isinstance(expires, six.text_type)):
-                    t['expires'] = timeutils.isotime(expires)
+                t['expires'] = timeutils.isotime(expires)
         data = {'revoked': tokens}
         json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,
