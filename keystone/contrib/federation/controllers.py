@@ -16,6 +16,7 @@ from oslo_config import cfg
 import string
 
 from oslo_log import log
+import six
 from six.moves import urllib
 import webob
 
@@ -341,8 +342,10 @@ class Auth(auth_controllers.Auth):
         return wsgi.render_response(body=response.to_string(),
                                     status=('200', 'OK'),
                                     headers=[('Content-Type', 'text/xml'),
-                                             ('X-sp-url', sp_url),
-                                             ('X-auth-url', auth_url)])
+                                             ('X-sp-url',
+                                              six.binary_type(sp_url)),
+                                             ('X-auth-url',
+                                              six.binary_type(auth_url))])
 
 
 @dependency.requires('assignment_api', 'resource_api')
