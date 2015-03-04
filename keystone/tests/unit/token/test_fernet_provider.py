@@ -82,7 +82,7 @@ class TestBaseTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
 
     def test_uuid_hex_to_byte_conversions(self):
         expected_hex_uuid = uuid.uuid4().hex
-        uuid_obj = uuid.UUID('{' + expected_hex_uuid + '}')
+        uuid_obj = uuid.UUID(expected_hex_uuid)
         expected_uuid_in_bytes = uuid_obj.bytes
         actual_uuid_in_bytes = self.formatter._convert_uuid_hex_to_bytes(
             expected_hex_uuid)
