@@ -44,9 +44,9 @@ class Assignment(assignment.Driver):
         self.LDAP_PASSWORD = CONF.ldap.password
         self.suffix = CONF.ldap.suffix
 
-        # These are the only deep dependency from assignment back
-        # to identity.  The assumption is that if you are using
-        # LDAP for assignments, you are using it for Id as well.
+        # This is the only deep dependency from assignment back to identity.
+        # This is safe to do since if you are using LDAP for assignment, it is
+        # required that you are using it for identity as well.
         self.user = ldap_identity.UserApi(CONF)
         self.group = ldap_identity.GroupApi(CONF)
 
