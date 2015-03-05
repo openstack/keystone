@@ -12,18 +12,21 @@
 
 import base64
 import datetime
-import hashlib
 import shutil
 import tempfile
 import uuid
 
 from oslo_utils import timeutils
 
+from keystone.common import config
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
 from keystone.token.providers.fernet import utils
+
+
+CONF = config.CONF
 
 
 class KeyRepositoryTestMixin(object):
@@ -70,124 +73,119 @@ class TestFernetTokenProvider(tests.TestCase, KeyRepositoryTestMixin):
             uuid.uuid4().hex)
 
 
-class TestBaseTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
-    def setUp(self):
-        super(TestBaseTokenFormatter, self).setUp()
-        self.setUpKeyRepository()
-        self.formatter = token_formatters.BaseTokenFormatter()
-
+class TestPayloads(tests.TestCase, KeyRepositoryTestMixin):
     def test_uuid_hex_to_byte_conversions(self):
+        payload_cls = token_formatters.BasePayload
+
         expected_hex_uuid = uuid.uuid4().hex
         uuid_obj = uuid.UUID(expected_hex_uuid)
         expected_uuid_in_bytes = uuid_obj.bytes
-        actual_uuid_in_bytes = self.formatter._convert_uuid_hex_to_bytes(
+        actual_uuid_in_bytes = payload_cls.convert_uuid_hex_to_bytes(
             expected_hex_uuid)
         self.assertEqual(expected_uuid_in_bytes, actual_uuid_in_bytes)
-        actual_hex_uuid = self.formatter._convert_uuid_bytes_to_hex(
+        actual_hex_uuid = payload_cls.convert_uuid_bytes_to_hex(
             expected_uuid_in_bytes)
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
 
     def test_time_string_to_int_conversions(self):
+        payload_cls = token_formatters.BasePayload
+
         expected_time_str = timeutils.isotime()
         time_obj = timeutils.parse_isotime(expected_time_str)
         expected_time_int = (
             (timeutils.normalize_time(time_obj) -
              datetime.datetime.utcfromtimestamp(0)).total_seconds())
 
-        actual_time_int = self.formatter._convert_time_string_to_int(
+        actual_time_int = payload_cls._convert_time_string_to_int(
             expected_time_str)
         self.assertEqual(expected_time_int, actual_time_int)
 
-        actual_time_str = self.formatter._convert_int_to_time_string(
+        actual_time_str = payload_cls._convert_int_to_time_string(
             actual_time_int)
         self.assertEqual(expected_time_str, actual_time_str)
 
-
-class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
-    def setUp(self):
-        super(TestScopedTokenFormatter, self).setUp()
-        self.setUpKeyRepository()
-        self.formatter = token_formatters.ScopedTokenFormatter()
-
-    def test_token_encryption(self):
+    def test_unscoped_payload(self):
         exp_user_id = uuid.uuid4().hex
-        exp_project_id = uuid.uuid4().hex
-        # All we are validating here is that the token is encrypted and
-        # decrypted properly, not the actual validity of token data.
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
 
-        token = self.formatter.create_token(
+        payload = token_formatters.UnscopedPayload.assemble(
+            exp_user_id, exp_expires_at, exp_audit_ids)
+
+        (user_id, expires_at, audit_ids) = (
+            token_formatters.UnscopedPayload.disassemble(payload))
+
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
+
+    def test_project_scoped_payload(self):
+        exp_user_id = uuid.uuid4().hex
+        exp_project_id = uuid.uuid4().hex
+        exp_expires_at = timeutils.isotime(timeutils.utcnow())
+        exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
+
+        payload = token_formatters.ProjectScopedPayload.assemble(
             exp_user_id, exp_project_id, exp_expires_at, exp_audit_ids)
 
         (user_id, project_id, expires_at, audit_ids) = (
-            self.formatter.validate_token(token[len('F00'):]))
+            token_formatters.ProjectScopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_project_id, project_id)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
-    def test_encrypted_token_is_under_255_characters(self):
-        user_id = uuid.uuid4().hex
-        project_id = uuid.uuid4().hex
-        # All we are validating here is that the token is encrypted and
-        # decrypted properly, not the actual validity of token data.
-        encrypted_token = self.formatter.create_token(
-            user_id,
-            project_id,
-            timeutils.isotime(timeutils.utcnow()),
-            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2])
-        self.assertLess(len(encrypted_token), 255)
+    def test_domain_scoped_payload(self):
+        exp_user_id = uuid.uuid4().hex
+        exp_domain_id = uuid.uuid4().hex
+        exp_expires_at = timeutils.isotime(timeutils.utcnow())
+        exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
 
+        payload = token_formatters.DomainScopedPayload.assemble(
+            exp_user_id, exp_domain_id, exp_expires_at, exp_audit_ids)
 
-class TestCustomTokenFormatter(TestScopedTokenFormatter):
-    def setUp(self):
-        # bypassing the parent setUp because we want to set up our own custom
-        # token formatter
-        super(TestScopedTokenFormatter, self).setUp()
+        (user_id, domain_id, expires_at, audit_ids) = (
+            token_formatters.DomainScopedPayload.disassemble(payload))
 
-        class HandRolledCrypto(object):
-            """Hold my beer and watch this."""
-            def encrypt(self, plaintext):
-                """Adds security by obscurity."""
-                checksum = hashlib.md5(plaintext).hexdigest()
-                return '%s-%s' % (plaintext[::-1], checksum)
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_domain_id, domain_id)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
 
-            def decrypt(self, ciphertext):
-                """Removes obscurity to validate security."""
-                try:
-                    ciphertext, checksum = ciphertext.rsplit('-', 1)
-                except ValueError:
-                    raise exception.Unauthorized()
-                plaintext = ciphertext[::-1]
-                if checksum != hashlib.md5(plaintext).hexdigest():
-                    raise exception.Unauthorized()
-                return plaintext
+    def test_domain_scoped_payload_with_default_domain(self):
+        exp_user_id = uuid.uuid4().hex
+        exp_domain_id = CONF.identity.default_domain_id
+        exp_expires_at = timeutils.isotime(timeutils.utcnow())
+        exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
 
-        class CustomTokenFormatter(token_formatters.ScopedTokenFormatter):
-            @property
-            def crypto(self):
-                """Customize the cryptography implementation."""
-                return HandRolledCrypto()
+        payload = token_formatters.DomainScopedPayload.assemble(
+            exp_user_id, exp_domain_id, exp_expires_at, exp_audit_ids)
 
-        self.formatter = CustomTokenFormatter()
+        (user_id, domain_id, expires_at, audit_ids) = (
+            token_formatters.DomainScopedPayload.disassemble(payload))
 
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_domain_id, domain_id)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
 
-class TestTrustTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
-    def setUp(self):
-        super(TestTrustTokenFormatter, self).setUp()
-        self.setUpKeyRepository()
-        self.formatter = token_formatters.TrustTokenFormatter()
+    def test_trust_scoped_payload(self):
+        exp_user_id = uuid.uuid4().hex
+        exp_project_id = uuid.uuid4().hex
+        exp_expires_at = timeutils.isotime(timeutils.utcnow())
+        exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
+        exp_trust_id = uuid.uuid4().hex
 
-    def test_encrypted_trust_token_is_under_255_characters(self):
-        user_id = uuid.uuid4().hex
-        project_id = uuid.uuid4().hex
+        payload = token_formatters.TrustScopedPayload.assemble(
+            exp_user_id, exp_project_id, exp_expires_at, exp_audit_ids,
+            exp_trust_id)
 
-        encrypted_token = self.formatter.create_token(
-            user_id,
-            project_id,
-            timeutils.isotime(timeutils.utcnow()),
-            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
-            uuid.uuid4().hex)
-        self.assertLess(len(encrypted_token), 255)
+        (user_id, project_id, expires_at, audit_ids, trust_id) = (
+            token_formatters.TrustScopedPayload.disassemble(payload))
+
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_project_id, project_id)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
+        self.assertEqual(exp_trust_id, trust_id)

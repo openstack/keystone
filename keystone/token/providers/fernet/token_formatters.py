@@ -14,14 +14,12 @@ import datetime
 import uuid
 
 from cryptography import fernet
-import msgpack
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 import six
 
 from keystone import exception
-from keystone.token.providers.fernet import format_map as fm
 from keystone.token.providers.fernet import utils
 
 
@@ -29,14 +27,8 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class BaseTokenFormatter(object):
-    """Base object for token formatters to inherit."""
-
-    # NOTE(lbragstad): Each class the inherits BaseTokenFormatter should define
-    # the `token_format` and `token_version`. The combination of the two should
-    # be unique.
-    token_format = None
-    token_version = None
+class TokenFormatter(object):
+    """Packs and unpacks payloads into tokens for transport."""
 
     @property
     def crypto(self):
@@ -59,7 +51,44 @@ class BaseTokenFormatter(object):
         fernet_instances = [fernet.Fernet(key) for key in utils.load_keys()]
         return fernet.MultiFernet(fernet_instances)
 
-    def _convert_uuid_hex_to_bytes(self, uuid_string):
+    def pack(self, payload):
+        """Pack a payload for transport as a token."""
+        return self.crypto.encrypt(payload)
+
+    def unpack(self, token):
+        """Unpack a token, and validate the payload."""
+        try:
+            return self.crypto.decrypt(token, ttl=CONF.token.expiration)
+        except fernet.InvalidToken as e:
+            raise exception.Unauthorized(six.text_type(e))
+
+
+class BasePayload(object):
+    # each payload variant should have a unique version
+    version = None
+
+    @classmethod
+    def assemble(cls, *args):
+        """Assemble the payload of a token.
+
+        :param args: whatever data should go into the payload
+        :returns: the payload of a token
+
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def disassemble(cls, payload):
+        """Disassemble an unscoped payload into the component data.
+
+        :param payload: this variant of payload
+        :returns: a tuple of the payloads component data
+
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def convert_uuid_hex_to_bytes(cls, uuid_string):
         """Compress UUID formatted strings to bytes.
 
         :param uuid_string: uuid string to compress to bytes
@@ -72,7 +101,8 @@ class BaseTokenFormatter(object):
         uuid_obj = uuid.UUID(uuid_string)
         return uuid_obj.bytes
 
-    def _convert_uuid_bytes_to_hex(self, uuid_byte_string):
+    @classmethod
+    def convert_uuid_bytes_to_hex(cls, uuid_byte_string):
         """Generate uuid.hex format based on byte string.
 
         :param uuid_byte_string: uuid string to generate from
@@ -85,7 +115,8 @@ class BaseTokenFormatter(object):
         uuid_obj = uuid.UUID(bytes=uuid_byte_string)
         return uuid_obj.hex
 
-    def _convert_time_string_to_int(self, time_string):
+    @classmethod
+    def _convert_time_string_to_int(cls, time_string):
         """Convert a time formatted string to a timestamp integer.
 
         :param time_string: time formatted string
@@ -96,7 +127,8 @@ class BaseTokenFormatter(object):
         return (timeutils.normalize_time(time_object) -
                 datetime.datetime.utcfromtimestamp(0)).total_seconds()
 
-    def _convert_int_to_time_string(self, time_int):
+    @classmethod
+    def _convert_int_to_time_string(cls, time_int):
         """Convert a timestamp integer to a string.
 
         :param time_int: integer representing timestamp
@@ -106,172 +138,160 @@ class BaseTokenFormatter(object):
         time_object = datetime.datetime.utcfromtimestamp(int(time_int))
         return timeutils.isotime(time_object)
 
-    def pack(self, payload):
-        """Pack a payload for transport."""
-        msgpacked = msgpack.packb(payload)
-        encrypted = self.crypto.encrypt(msgpacked)
 
-        # Tack the token format on to the encrypted_token
-        return self.token_format + encrypted
+class UnscopedPayload(BasePayload):
+    version = 0
 
-    def unpack(self, token_string):
-        """Unpack and validate a payload."""
-        try:
-            decrypted_token = self.crypto.decrypt(token_string)
-        except fernet.InvalidToken as e:
-            raise exception.Unauthorized(six.text_type(e))
-
-        # TODO(lbragstad): catch msgpack errors here
-        payload = msgpack.unpackb(decrypted_token)
-
-        return payload
-
-
-class UnscopedTokenFormatter(BaseTokenFormatter):
-
-    token_format = fm.UNSCOPED_TOKEN_PREFIX
-
-    def create_token(self, user_id, expires_at, audit_ids):
-        """Create a unscoped token.
+    @classmethod
+    def assemble(cls, user_id, expires_at, audit_ids):
+        """Assemble the payload of an unscoped token.
 
         :param user_id: identifier of the user in the token request
         :param expires_at: datetime of the token's expiration
         :param audit_ids: list of the token's audit IDs
-        :returns: a string representing the token
+        :returns: the payload of an unscoped token
 
         """
-        b_user_id = self._convert_uuid_hex_to_bytes(user_id)
-        expires_at_int = self._convert_time_string_to_int(expires_at)
-        payload = (b_user_id, expires_at_int, audit_ids)
+        b_user_id = cls.convert_uuid_hex_to_bytes(user_id)
+        expires_at_int = cls._convert_time_string_to_int(expires_at)
+        return (b_user_id, expires_at_int, audit_ids)
 
-        return self.pack(payload)
+    @classmethod
+    def disassemble(cls, payload):
+        """Disassemble an unscoped payload into the component data.
 
-    def validate_token(self, token_string):
-        """Validate an unscoped token.
-
-        :param token_string: a string representing the token
-        :returns: a tuple containing the user_id, issued_at_str,
-                  expires_at_str, audit_ids
+        :param payload: the payload of an unscoped token
+        :return: a tuple containing the user_id, expires_at, and audit_ids
 
         """
-        payload = self.unpack(token_string)
-
-        # Rebuild and retrieve token information from the token string
-        b_user_id = payload[0]
-        expires_at_ts = payload[1]
+        user_id = cls.convert_uuid_bytes_to_hex(payload[0])
+        expires_at_str = cls._convert_int_to_time_string(payload[1])
         audit_ids = payload[2]
-
-        user_id = self._convert_uuid_bytes_to_hex(b_user_id)
-
-        expires_at_str = self._convert_int_to_time_string(expires_at_ts)
 
         return (user_id, expires_at_str, audit_ids)
 
 
-class ScopedTokenFormatter(BaseTokenFormatter):
+class DomainScopedPayload(BasePayload):
+    version = 1
 
-    token_format = fm.SCOPED_TOKEN_PREFIX
+    @classmethod
+    def assemble(cls, user_id, domain_id, expires_at, audit_ids):
+        """Assemble the payload of a domain-scoped token.
 
-    def create_token(self, user_id, project_id, expires_at, audit_ids):
-        """Create a standard formatted token.
+        :param user_id: ID of the user in the token request
+        :param domain_id: ID of the domain to scope to
+        :param expires_at: datetime of the token's expiration
+        :param audit_ids: list of the token's audit IDs
+        :returns: the payload of a domain-scoped token
+
+        """
+        b_user_id = cls.convert_uuid_hex_to_bytes(user_id)
+        try:
+            b_domain_id = cls.convert_uuid_hex_to_bytes(domain_id)
+        except ValueError:
+            # the default domain ID is configurable, and probably isn't a UUID
+            if domain_id == CONF.identity.default_domain_id:
+                b_domain_id = domain_id
+            else:
+                raise
+        expires_at_int = cls._convert_time_string_to_int(expires_at)
+        return (b_user_id, b_domain_id, expires_at_int, audit_ids)
+
+    @classmethod
+    def disassemble(cls, payload):
+        """Disassemble a payload into the component data.
+
+        :param payload: the payload of a token
+        :return: a tuple containing the user_id, domain_id, expires_at_str, and
+                 audit_ids
+
+        """
+        user_id = cls.convert_uuid_bytes_to_hex(payload[0])
+        try:
+            domain_id = cls.convert_uuid_bytes_to_hex(payload[1])
+        except ValueError:
+            # the default domain ID is configurable, and probably isn't a UUID
+            if payload[1] == CONF.identity.default_domain_id:
+                domain_id = payload[1]
+            else:
+                raise
+        expires_at_str = cls._convert_int_to_time_string(payload[2])
+        audit_ids = payload[3]
+
+        return (user_id, domain_id, expires_at_str, audit_ids)
+
+
+class ProjectScopedPayload(BasePayload):
+    version = 2
+
+    @classmethod
+    def assemble(cls, user_id, project_id, expires_at, audit_ids):
+        """Assemble the payload of a project-scoped token.
 
         :param user_id: ID of the user in the token request
         :param project_id: ID of the project to scope to
         :param expires_at: datetime of the token's expiration
         :param audit_ids: list of the token's audit IDs
-        :returns: a string representing the token
+        :returns: the payload of a project-scoped token
 
         """
-        expires_at_int = self._convert_time_string_to_int(expires_at)
-        b_user_id = self._convert_uuid_hex_to_bytes(user_id)
-        if project_id:
-            b_scope_id = self._convert_uuid_hex_to_bytes(project_id)
-            payload = (b_user_id, b_scope_id, expires_at_int, audit_ids)
-        else:
-            payload = (b_user_id, expires_at_int, audit_ids)
+        b_user_id = cls.convert_uuid_hex_to_bytes(user_id)
+        b_scope_id = cls.convert_uuid_hex_to_bytes(project_id)
+        expires_at_int = cls._convert_time_string_to_int(expires_at)
+        return (b_user_id, b_scope_id, expires_at_int, audit_ids)
 
-        return self.pack(payload)
+    @classmethod
+    def disassemble(cls, payload):
+        """Disassemble a payload into the component data.
 
-    def validate_token(self, token_string):
-        """Validate a F00 formatted token.
-
-        :param token_string: a string representing the token
-        :returns: a tuple containing the user_id, project_id, issued_at_str,
-                 expires_at_str, and audit_ids
+        :param payload: the payload of a token
+        :return: a tuple containing the user_id, project_id, expires_at_str,
+                 and audit_ids
 
         """
-        payload = self.unpack(token_string)
-
-        # Rebuild and retrieve token information from the token string
-        b_user_id = payload[0]
-        b_project_id = None
-        if isinstance(payload[1], str):
-            b_project_id = payload[1]
-            expires_at_ts = payload[2]
-            audit_ids = payload[3]
-        else:
-            expires_at_ts = payload[1]
-            audit_ids = payload[2]
-
-        # Uncompress the IDs
-        user_id = self._convert_uuid_bytes_to_hex(b_user_id)
-        project_id = None
-        if b_project_id:
-            project_id = self._convert_uuid_bytes_to_hex(b_project_id)
-
-        # Generate created at and expires at times
-        expires_at_str = self._convert_int_to_time_string(expires_at_ts)
+        user_id = cls.convert_uuid_bytes_to_hex(payload[0])
+        project_id = cls.convert_uuid_bytes_to_hex(payload[1])
+        expires_at_str = cls._convert_int_to_time_string(payload[2])
+        audit_ids = payload[3]
 
         return (user_id, project_id, expires_at_str, audit_ids)
 
 
-class TrustTokenFormatter(BaseTokenFormatter):
+class TrustScopedPayload(BasePayload):
+    version = 3
 
-    token_format = fm.TRUST_TOKEN_PREFIX
-
-    def create_token(self, user_id, project_id, expires_at, audit_ids,
-                     trust_id):
-        """Create a trust formatted token.
+    @classmethod
+    def assemble(cls, user_id, project_id, expires_at, audit_ids, trust_id):
+        """Assemble the payload of a trust-scoped token.
 
         :param user_id: ID of the user in the token request
         :param project_id: ID of the project to scope to
         :param expires_at: datetime of the token's expiration
         :param audit_ids: list of the token's audit IDs
         :param trust_id: ID of the trust in effect
-        :returns: a string representing the token
+        :returns: the payload of a trust-scoped token
 
         """
-        expires_at_int = self._convert_time_string_to_int(expires_at)
-        b_user_id = self._convert_uuid_hex_to_bytes(user_id)
-        b_project_id = self._convert_uuid_hex_to_bytes(project_id)
-        b_trust_id = self._convert_uuid_hex_to_bytes(trust_id)
-        payload = (b_user_id, b_project_id, b_trust_id, expires_at_int,
-                   audit_ids)
+        b_user_id = cls.convert_uuid_hex_to_bytes(user_id)
+        b_project_id = cls.convert_uuid_hex_to_bytes(project_id)
+        b_trust_id = cls.convert_uuid_hex_to_bytes(trust_id)
+        expires_at_int = cls._convert_time_string_to_int(expires_at)
 
-        return self.pack(payload)
+        return (b_user_id, b_project_id, expires_at_int, b_trust_id, audit_ids)
 
-    def validate_token(self, token_string):
-        """Validate a trust formatted token.
+    @classmethod
+    def disassemble(cls, payload):
+        """Validate a trust-based payload.
 
         :param token_string: a string representing the token
-        :returns: a tuple containing the user_id, project_id, issued_at_str,
-                  expires_at_str, audit_ids, and trust_id
+        :returns: a tuple containing the user_id, project_id, expires_at_str,
+                  audit_ids, and trust_id
 
         """
-        payload = self.unpack(token_string)
-
-        # Rebuild and retrieve token information from the token string
-        b_user_id = payload[0]
-        b_project_id = payload[1]
-        b_trust_id = payload[2]
-        expires_at_ts = payload[3]
+        user_id = cls.convert_uuid_bytes_to_hex(payload[0])
+        project_id = cls.convert_uuid_bytes_to_hex(payload[1])
+        expires_at_str = cls._convert_int_to_time_string(payload[2])
+        trust_id = cls.convert_uuid_bytes_to_hex(payload[3])
         audit_ids = payload[4]
-
-        # Uncompress the IDs
-        user_id = self._convert_uuid_bytes_to_hex(b_user_id)
-        project_id = self._convert_uuid_bytes_to_hex(b_project_id)
-        trust_id = self._convert_uuid_bytes_to_hex(b_trust_id)
-        # Generate created at and expires at times
-        expires_at_str = self._convert_int_to_time_string(expires_at_ts)
 
         return (user_id, project_id, expires_at_str, audit_ids, trust_id)

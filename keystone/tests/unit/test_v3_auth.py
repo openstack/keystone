@@ -542,6 +542,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
 
     def load_sample_data(self):
         """Load Sample Data for Test Cases.
+
         Two domains, domainA and domainB
         Two users in domainA, userNormalA and userAdminA
         One user in domainB, userAdminB
@@ -4055,23 +4056,17 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
         super(TestFernetTokenProvider, self).setUp()
         self.setUpKeyRepository()
 
-    def _make_auth_request(self, auth_data, trust_token=False,
-                           unscoped_token=False):
+    def _make_auth_request(self, auth_data):
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
         token = resp.headers.get('X-Subject-Token')
-        if trust_token:
-            self.assertThat(token, matchers.StartsWith('F02'))
-        elif unscoped_token:
-            self.assertThat(token, matchers.StartsWith('F00'))
-        else:
-            self.assertThat(token, matchers.StartsWith('F01'))
+        self.assertLess(len(token), 255)
         return token
 
     def _get_unscoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'])
-        return self._make_auth_request(auth_data, unscoped_token=True)
+        return self._make_auth_request(auth_data)
 
     def _get_project_scoped_token(self):
         auth_data = self.build_authentication_request(
@@ -4092,7 +4087,19 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
             user_id=trustee_user['id'],
             password=trustee_user['password'],
             trust_id=trust['id'])
-        return self._make_auth_request(auth_data, trust_token=True)
+        return self._make_auth_request(auth_data)
+
+    def _validate_token(self, token, expected_status=200):
+        return self.get(
+            '/auth/tokens',
+            headers={'X-Subject-Token': token},
+            expected_status=expected_status)
+
+    def _revoke_token(self, token, expected_status=204):
+        return self.delete(
+            '/auth/tokens',
+            headers={'X-Subject-Token': token},
+            expected_status=expected_status)
 
     def _set_user_enabled(self, user, enabled=True):
         user['enabled'] = enabled
@@ -4121,45 +4128,26 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
             group='token',
             provider='keystone.token.providers.fernet.Provider')
 
-    def test_authenticate_for_unscoped_token(self):
-        unscoped_token = self._get_unscoped_token()
-        self.assertThat(unscoped_token, matchers.StartsWith('F00'))
-        self.assertLess(len(unscoped_token), 255)
-
     def test_validate_unscoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        resp = self.post('/auth/tokens', body=auth_data)
-        unscoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(unscoped_token, matchers.StartsWith('F00'))
-        headers = {'X-Subject-Token': unscoped_token}
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        unscoped_token = self._get_unscoped_token()
+        self._validate_token(unscoped_token)
 
     def test_validate_tampered_unscoped_token_fails(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        resp = self.post('/auth/tokens', body=auth_data)
-        unscoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(unscoped_token, matchers.StartsWith('F00'))
+        unscoped_token = self._get_unscoped_token()
         tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
                           unscoped_token[50 + 32:])
-        headers = {'X-Subject-Token': tampered_token}
-        self.get('/auth/tokens', headers=headers, expected_status=401)
+        self._validate_token(tampered_token, expected_status=401)
 
     def test_revoke_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
-        headers = {'X-Subject-Token': unscoped_token}
-        self.get('/auth/tokens', headers=headers, expected_status=200)
-        self.delete('/auth/tokens', headers=headers, expected_status=204)
-        self.get('/auth/tokens', headers=headers, expected_status=404)
+        self._validate_token(unscoped_token)
+        self._revoke_token(unscoped_token)
+        self._validate_token(unscoped_token, expected_status=404)
 
     def test_unscoped_token_is_invalid_after_disabling_user(self):
         unscoped_token = self._get_unscoped_token()
-        headers = {'X-Subject-Token': unscoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(unscoped_token)
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -4169,9 +4157,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
 
     def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
         unscoped_token = self._get_unscoped_token()
-        headers = {'X-Subject-Token': unscoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(unscoped_token)
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -4187,9 +4174,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
 
     def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
         unscoped_token = self._get_unscoped_token()
-        headers = {'X-Subject-Token': unscoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(unscoped_token)
         # Disable the user's domain
         self.domain['enabled'] = False
         self.resource_api.update_domain(self.domain['id'], self.domain)
@@ -4200,9 +4186,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
 
     def test_unscoped_token_is_invalid_after_changing_user_password(self):
         unscoped_token = self._get_unscoped_token()
-        headers = {'X-Subject-Token': unscoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(unscoped_token)
         # Change user's password
         self.user['password'] = 'Password1'
         self.identity_api.update_user(self.user['id'], self.user)
@@ -4211,37 +4196,26 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
                           self.token_provider_api.validate_token,
                           unscoped_token)
 
-    def test_authenticate_for_project_scoped_token(self):
-        project_scoped_token = self._get_project_scoped_token()
-        self.assertThat(project_scoped_token, matchers.StartsWith('F01'))
-        self.assertLess(len(project_scoped_token), 255)
-
     def test_validate_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
-        self.assertThat(project_scoped_token, matchers.StartsWith('F01'))
-        headers = {'X-Subject-Token': project_scoped_token}
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(project_scoped_token)
 
     def test_validate_tampered_project_scoped_token_fails(self):
         project_scoped_token = self._get_project_scoped_token()
-        self.assertThat(project_scoped_token, matchers.StartsWith('F01'))
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
-        headers = {'X-Subject-Token': tampered_token}
-        self.get('/auth/tokens', headers=headers, expected_status=401)
+        self._validate_token(tampered_token, expected_status=401)
 
     def test_revoke_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
-        headers = {'X-Subject-Token': project_scoped_token}
-        self.get('/auth/tokens', headers=headers, expected_status=200)
-        self.delete('/auth/tokens', headers=headers, expected_status=204)
-        self.get('/auth/tokens', headers=headers, expected_status=404)
+        self._validate_token(project_scoped_token)
+        self._revoke_token(project_scoped_token)
+        self._validate_token(project_scoped_token, expected_status=404)
 
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
-        headers = {'X-Subject-Token': project_scoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(project_scoped_token)
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -4255,9 +4229,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
                                          user_id=self.user['id'],
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
-        headers = {'X-Subject-Token': domain_scoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(domain_scoped_token)
         # Disable user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -4271,9 +4244,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
                                          user_id=self.user['id'],
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
-        headers = {'X-Subject-Token': domain_scoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(domain_scoped_token)
         # Delete access to domain
         self.assignment_api.delete_grant(self.role['id'],
                                          user_id=self.user['id'],
@@ -4285,9 +4257,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
 
     def test_project_scoped_token_invalid_after_changing_user_password(self):
         project_scoped_token = self._get_project_scoped_token()
-        headers = {'X-Subject-Token': project_scoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(project_scoped_token)
         # Update user's password
         self.user['password'] = 'Password1'
         self.identity_api.update_user(self.user['id'], self.user)
@@ -4298,9 +4269,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
 
     def test_project_scoped_token_invalid_after_disabling_project(self):
         project_scoped_token = self._get_project_scoped_token()
-        headers = {'X-Subject-Token': project_scoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(project_scoped_token)
         # Disable project
         self.project['enabled'] = False
         self.resource_api.update_project(self.project['id'], self.project)
@@ -4315,9 +4285,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
                                          user_id=self.user['id'],
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
-        headers = {'X-Subject-Token': domain_scoped_token}
         # Make sure the token is valid
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(domain_scoped_token)
         # Disable domain
         self.domain['enabled'] = False
         self.resource_api.update_domain(self.domain['id'], self.domain)
@@ -4334,41 +4303,30 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
     def test_validate_a_trust_scoped_token(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        self.assertThat(trust_scoped_token, matchers.StartsWith('F02'))
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(trust_scoped_token)
 
     def test_validate_tampered_trust_scoped_token_fails(self):
         trustee_user, trust = self._create_trust()
-        auth_data = self.build_authentication_request(
-            user_id=trustee_user['id'],
-            password=trustee_user['password'],
-            trust_id=trust['id'])
-        resp = self.post('/auth/tokens', body=auth_data, expected_status=201)
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Get a trust scoped token
-        trust_scoped_token = resp.headers.get('X-Subject-Token')
-        self.assertThat(trust_scoped_token, matchers.StartsWith('F02'))
         tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
                           trust_scoped_token[50 + 32:])
-        headers = {'X-Subject-Token': tampered_token}
-        self.get('/auth/tokens', headers=headers, expected_status=401)
+        self._validate_token(tampered_token, expected_status=401)
 
     def test_revoke_trust_scoped_token(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
-        self.delete('/auth/tokens', headers=headers, expected_status=204)
-        self.get('/auth/tokens', headers=headers, expected_status=404)
+        self._validate_token(trust_scoped_token)
+        self._revoke_token(trust_scoped_token)
+        self._validate_token(trust_scoped_token, expected_status=404)
 
     def test_trust_scoped_token_is_invalid_after_disabling_trustee(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(trust_scoped_token)
 
         # Disable trustee
         trustee_update_ref = dict(enabled=False)
@@ -4381,9 +4339,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
     def test_trust_scoped_token_invalid_after_changing_trustee_password(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(trust_scoped_token)
         # Change trustee's password
         trustee_update_ref = dict(password='Password1')
         self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
@@ -4395,10 +4352,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
     def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        self.assertThat(trust_scoped_token, matchers.StartsWith('F02'))
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(trust_scoped_token)
 
         # Disable the trustor
         trustor_update_ref = dict(enabled=False)
@@ -4411,9 +4366,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
     def test_trust_scoped_token_invalid_after_changing_trustor_password(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(trust_scoped_token)
 
         # Change trustor's password
         trustor_update_ref = dict(password='Password1')
@@ -4426,9 +4380,8 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
     def test_trust_scoped_token_invalid_after_disabled_trustor_domain(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        headers = {'X-Subject-Token': trust_scoped_token}
         # Validate a trust scoped token
-        self.get('/auth/tokens', headers=headers, expected_status=200)
+        self._validate_token(trust_scoped_token)
 
         # Disable trustor's domain
         self.domain['enabled'] = False

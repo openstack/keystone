@@ -14,6 +14,7 @@ import base64
 import datetime
 import struct
 
+import msgpack
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
@@ -22,7 +23,6 @@ from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
 from keystone.token.providers import common
-from keystone.token.providers.fernet import format_map as fm
 from keystone.token.providers.fernet import token_formatters as tf
 
 
@@ -41,10 +41,7 @@ class Provider(common.BaseProvider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
 
-        self.token_format_map = {
-            fm.UNSCOPED_TOKEN_PREFIX: tf.UnscopedTokenFormatter(),
-            fm.SCOPED_TOKEN_PREFIX: tf.ScopedTokenFormatter(),
-            fm.TRUST_TOKEN_PREFIX: tf.TrustTokenFormatter()}
+        self.token_formatter = tf.TokenFormatter()
 
     def needs_persistence(self):
         """Should the token be written to a backend."""
@@ -104,31 +101,40 @@ class Provider(common.BaseProvider):
             include_catalog=include_catalog,
             audit_info=parent_audit_id)
 
-        token_format = None
-
         if trust:
-            token_format = self.token_format_map[fm.TRUST_TOKEN_PREFIX]
-            token_id = token_format.create_token(
+            version = tf.TrustScopedPayload.version
+            payload = tf.TrustScopedPayload.assemble(
                 user_id,
                 project_id,
                 token_data['token']['expires_at'],
                 token_data['token']['audit_ids'],
                 token_data['token']['OS-TRUST:trust']['id'])
-        elif domain_id is None and project_id is None:
-            token_format = self.token_format_map[fm.UNSCOPED_TOKEN_PREFIX]
-            token_id = token_format.create_token(
-                user_id,
-                token_data['token']['expires_at'],
-                token_data['token']['audit_ids'])
-        else:
-            token_format = self.token_format_map[fm.SCOPED_TOKEN_PREFIX]
-            token_id = token_format.create_token(
+        elif project_id:
+            version = tf.ProjectScopedPayload.version
+            payload = tf.ProjectScopedPayload.assemble(
                 user_id,
                 project_id,
                 token_data['token']['expires_at'],
                 token_data['token']['audit_ids'])
+        elif domain_id:
+            version = tf.DomainScopedPayload.version
+            payload = tf.DomainScopedPayload.assemble(
+                user_id,
+                domain_id,
+                token_data['token']['expires_at'],
+                token_data['token']['audit_ids'])
+        else:
+            version = tf.UnscopedPayload.version
+            payload = tf.UnscopedPayload.assemble(
+                user_id,
+                token_data['token']['expires_at'],
+                token_data['token']['audit_ids'])
 
-        return token_id, token_data
+        versioned_payload = (version,) + payload
+        serialized_payload = msgpack.packb(versioned_payload)
+        token = self.token_formatter.pack(serialized_payload)
+
+        return token, token_data
 
     def validate_v2_token(self, token_ref):
         """Validate a V2 formatted token.
@@ -158,47 +164,46 @@ class Provider(common.BaseProvider):
 
         return created_at
 
-    def validate_v3_token(self, token_ref):
+    def validate_v3_token(self, token):
         """Validate a V3 formatted token.
 
-        :param token_ref: a string describing the token to validate
+        :param token: a string describing the token to validate
         :returns: the token data
         :raises: keystone.exception.Unauthorized
 
         """
-        # Determine and look up the token formatter.
-        token_prefix_length = len(fm.SCOPED_TOKEN_PREFIX)
-        token_format = token_ref[:token_prefix_length]
-        token_formatter = self.token_format_map.get(token_format)
-        if not token_formatter:
-            # If the token_format is not recognized, raise Unauthorized.
-            raise exception.Unauthorized(_(
-                'This is not a recognized Fernet formatted token: %s') %
-                token_format)
-
-        # If we recognize the token format pass the rest of the token
-        # string to the correct token_formatter.
-        token_str = token_ref[token_prefix_length:]
+        serialized_payload = self.token_formatter.unpack(token)
+        versioned_payload = msgpack.unpackb(serialized_payload)
+        version, payload = versioned_payload[0], versioned_payload[1:]
 
         # depending on the formatter, these may or may not be defined
+        domain_id = None
         project_id = None
         trust_ref = None
 
-        if token_format == fm.UNSCOPED_TOKEN_PREFIX:
+        if version == tf.UnscopedPayload.version:
             (user_id, expires_at, audit_ids) = (
-                token_formatter.validate_token(token_str))
-        elif token_format == fm.SCOPED_TOKEN_PREFIX:
+                tf.UnscopedPayload.disassemble(payload))
+        elif version == tf.DomainScopedPayload.version:
+            (user_id, domain_id, expires_at, audit_ids) = (
+                tf.DomainScopedPayload.disassemble(payload))
+        elif version == tf.ProjectScopedPayload.version:
             (user_id, project_id, expires_at, audit_ids) = (
-                token_formatter.validate_token(token_str))
-        elif token_format == fm.TRUST_TOKEN_PREFIX:
+                tf.ProjectScopedPayload.disassemble(payload))
+        elif version == tf.TrustScopedPayload.version:
             (user_id, project_id, expires_at, audit_ids, trust_id) = (
-                token_formatter.validate_token(token_str))
+                tf.TrustScopedPayload.disassemble(payload))
 
             trust_ref = self.trust_api.get_trust(trust_id)
+        else:
+            # If the token_format is not recognized, raise Unauthorized.
+            raise exception.Unauthorized(_(
+                'This is not a recognized Fernet payload version: %s') %
+                version)
 
         # rather than appearing in the payload, the creation time is encoded
         # into the token format itself
-        created_at = Provider._creation_time(token_str)
+        created_at = Provider._creation_time(token)
 
         return self.v3_token_data_helper.get_token_data(
             user_id,
