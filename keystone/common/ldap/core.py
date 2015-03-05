@@ -1690,8 +1690,6 @@ class BaseLdap(object):
 
             :param filter_: the dict that describes this filter
             :param hints: contains the list of filters yet to be satisfied.
-                          Any filters satisfied here will be removed so that
-                          the caller will know if any filters remain.
 
             :returns query: LDAP query term to be added
 
@@ -1739,13 +1737,13 @@ class BaseLdap(object):
                 # work out if they need to do something with it.
                 return
 
-            hints.filters.remove(filter_)
             return query_term
 
         if hints is None:
             return query
 
         filter_list = []
+        satisfied_filters = []
 
         for filter_ in hints.filters:
             if filter_['name'] not in self.attribute_mapping:
@@ -1753,9 +1751,15 @@ class BaseLdap(object):
             new_filter = build_filter(filter_, hints)
             if new_filter is not None:
                 filter_list.append(new_filter)
+                satisfied_filters.append(filter_)
 
         if filter_list:
             query = u'(&%s%s)' % (query, ''.join(filter_list))
+
+        # Remove satisfied filters, then the caller will know remaining filters
+        for filter_ in satisfied_filters:
+            hints.filters.remove(filter_)
+
         return query
 
 
