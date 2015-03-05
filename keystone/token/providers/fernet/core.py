@@ -94,15 +94,28 @@ class Provider(common.BaseProvider):
 
         if trust:
             token_format = self.token_format_map[fm.TRUST_TOKEN_PREFIX]
-            token_id = token_format.create_token(user_id, project_id,
-                                                 token_data)
+            token_id = token_format.create_token(
+                user_id,
+                project_id,
+                token_data['token']['issued_at'],
+                token_data['token']['expires_at'],
+                token_data['token']['audit_ids'],
+                token_data['token']['OS-TRUST:trust']['id'])
         elif domain_id is None and project_id is None:
             token_format = self.token_format_map[fm.UNSCOPED_TOKEN_PREFIX]
-            token_id = token_format.create_token(user_id, token_data)
+            token_id = token_format.create_token(
+                user_id,
+                token_data['token']['issued_at'],
+                token_data['token']['expires_at'],
+                token_data['token']['audit_ids'])
         else:
             token_format = self.token_format_map[fm.SCOPED_TOKEN_PREFIX]
-            token_id = token_format.create_token(user_id, project_id,
-                                                 token_data)
+            token_id = token_format.create_token(
+                user_id,
+                project_id,
+                token_data['token']['issued_at'],
+                token_data['token']['expires_at'],
+                token_data['token']['audit_ids'])
 
         return token_id, token_data
 

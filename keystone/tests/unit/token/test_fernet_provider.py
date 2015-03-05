@@ -128,7 +128,7 @@ class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         }
 
         token = self.formatter.create_token(
-            exp_user_id, exp_project_id, exp_token_data)
+            exp_user_id, exp_project_id, issued_at, expires_at, audit_ids)
 
         def fake_get_token_data(*args, **kwargs):
             fake_token_data = {
@@ -163,16 +163,12 @@ class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         project_id = uuid.uuid4().hex
         # All we are validating here is that the token is encrypted and
         # decrypted properly, not the actual validity of token data.
-        token_data = {
-            'token': {
-                'issued_at': timeutils.isotime(timeutils.utcnow()),
-                'expires_at': timeutils.isotime(timeutils.utcnow()),
-                'audit_ids': base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
-            }
-        }
-
         encrypted_token = self.formatter.create_token(
-            user_id, project_id, token_data)
+            user_id,
+            project_id,
+            timeutils.isotime(timeutils.utcnow()),
+            timeutils.isotime(timeutils.utcnow()),
+            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2])
         self.assertLess(len(encrypted_token), 255)
 
     def test_tampered_encrypted_token_throws_exception(self):
@@ -180,16 +176,12 @@ class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         project_id = uuid.uuid4().hex
         # All we are validating here is that the token is encrypted and
         # decrypted properly, not the actual validity of token data.
-        token_data = {
-            'token': {
-                'issued_at': timeutils.isotime(timeutils.utcnow()),
-                'expires_at': timeutils.isotime(timeutils.utcnow()),
-                'audit_ids': base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
-            }
-        }
-
-        # Grab an encrypted token
-        et = self.formatter.create_token(user_id, project_id, token_data)
+        et = self.formatter.create_token(
+            user_id,
+            project_id,
+            timeutils.isotime(timeutils.utcnow()),
+            timeutils.isotime(timeutils.utcnow()),
+            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2])
         some_id = uuid.uuid4().hex
         tampered_token = et[:50] + some_id + et[50 + len(some_id):]
 
@@ -240,33 +232,27 @@ class TestTrustTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
     def test_encrypted_trust_token_is_under_255_characters(self):
         user_id = uuid.uuid4().hex
         project_id = uuid.uuid4().hex
-        token_data = {
-            'token': {
-                'OS-TRUST:trust': {'id': uuid.uuid4().hex},
-                'issued_at': timeutils.isotime(timeutils.utcnow()),
-                'expires_at': timeutils.isotime(timeutils.utcnow()),
-                'audit_ids': base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
-            }
-        }
 
         encrypted_token = self.formatter.create_token(
-            user_id, project_id, token_data)
+            user_id,
+            project_id,
+            timeutils.isotime(timeutils.utcnow()),
+            timeutils.isotime(timeutils.utcnow()),
+            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
+            uuid.uuid4().hex)
         self.assertLess(len(encrypted_token), 255)
 
     def test_tampered_encrypted_trust_token_throws_exception(self):
         user_id = uuid.uuid4().hex
         project_id = uuid.uuid4().hex
-        token_data = {
-            'token': {
-                'OS-TRUST:trust': {'id': uuid.uuid4().hex},
-                'issued_at': timeutils.isotime(timeutils.utcnow()),
-                'expires_at': timeutils.isotime(timeutils.utcnow()),
-                'audit_ids': base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
-            }
-        }
 
         # Grab an encrypted token
-        et = self.formatter.create_token(user_id, project_id, token_data)
+        et = self.formatter.create_token(
+            user_id, project_id,
+            timeutils.isotime(timeutils.utcnow()),
+            timeutils.isotime(timeutils.utcnow()),
+            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
+            uuid.uuid4().hex)
         some_id = uuid.uuid4().hex
         tampered_token = et[:50] + some_id + et[50 + len(some_id):]
 
