@@ -30,7 +30,6 @@ import traceback
 import six
 
 from keystone.i18n import _
-from keystone import notifications
 
 
 _REGISTRY = {}
@@ -94,44 +93,10 @@ def provider(name):
     """
     def wrapper(cls):
         def wrapped(init):
-            def register_event_callbacks(self):
-                # NOTE(morganfainberg): A provider who has an implicit
-                # dependency on other providers may utilize the event callback
-                # mechanism to react to any changes in those providers. This is
-                # performed at the .provider() mechanism so that we can ensure
-                # that the callback is only ever called once and guaranteed
-                # to be on the properly configured and instantiated backend.
-                if not hasattr(self, 'event_callbacks'):
-                    return
-
-                if not isinstance(self.event_callbacks, dict):
-                    msg = _('event_callbacks must be a dict')
-                    raise ValueError(msg)
-
-                for event in self.event_callbacks:
-                    if not isinstance(self.event_callbacks[event], dict):
-                        msg = _('event_callbacks[%s] must be a dict') % event
-                        raise ValueError(msg)
-                    for resource_type in self.event_callbacks[event]:
-                        # Make sure we register the provider for each event it
-                        # cares to call back.
-                        callbacks = self.event_callbacks[event][resource_type]
-                        if not callbacks:
-                            continue
-                        if not hasattr(callbacks, '__iter__'):
-                            # ensure the callback information is a list
-                            # allowing multiple callbacks to exist
-                            callbacks = [callbacks]
-                        notifications.register_event_callback(event,
-                                                              resource_type,
-                                                              callbacks)
-
             def __wrapped_init__(self, *args, **kwargs):
                 """Initialize the wrapped object and add it to the registry."""
                 init(self, *args, **kwargs)
                 _set_provider(name, self)
-                register_event_callbacks(self)
-
                 resolve_future_dependencies(__provider_name=name)
 
             return __wrapped_init__

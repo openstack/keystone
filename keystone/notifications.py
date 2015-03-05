@@ -15,6 +15,7 @@
 """Notifications module for OpenStack Identity Service resources"""
 
 import collections
+import functools
 import inspect
 import logging
 import socket
@@ -290,6 +291,72 @@ def register_event_callback(event, resource_type, callbacks):
             callback_str = '.'.join(i for i in callback_info if i is not None)
             event_str = '.'.join(['identity', resource_type, event])
             LOG.debug(msg, {'callback': callback_str, 'event': event_str})
+
+
+def listener(cls):
+    """A class decorator to declare a class to be a notification listener.
+
+    A notification listener must specify the event(s) it is interested in by
+    defining a ``event_callbacks`` attribute or property. ``event_callbacks``
+    is a dictionary where the key is the type of event and the value is a
+    dictionary containing a mapping of resource types to callback(s).
+
+    ``keystone.notifications.ACTIONS`` contains constants for the currently
+    supported events. There is currently no single place to find constants for
+    the resource types.
+
+    Example::
+
+        @listener
+        class Something(object):
+
+            event_callbacks = {
+                notifications.ACTIONS.created: {
+                    'user': self._user_created_callback,
+                },
+                notifications.ACTIONS.deleted: {
+                    'project': [
+                        self._project_deleted_callback,
+                        self._do_cleanup,
+                    ]
+                },
+            }
+
+    """
+
+    def init_wrapper(init):
+        @functools.wraps(init)
+        def __new_init__(self, *args, **kwargs):
+            init(self, *args, **kwargs)
+            if not hasattr(self, 'event_callbacks'):
+                msg = _("%r object has no attribute 'event_callbacks'")
+                raise AttributeError(msg % self.__class__.__name)
+            _register_event_callbacks(self)
+        return __new_init__
+
+    def _register_event_callbacks(self):
+        if not isinstance(self.event_callbacks, dict):
+            msg = _('event_callbacks must be a dict')
+            raise ValueError(msg)
+
+        for event in self.event_callbacks:
+            if not isinstance(self.event_callbacks[event], dict):
+                msg = _('event_callbacks[%s] must be a dict') % event
+                raise ValueError(msg)
+            for resource_type in self.event_callbacks[event]:
+                # Make sure we register the provider for each event it
+                # cares to call back.
+                callbacks = self.event_callbacks[event][resource_type]
+                if not callbacks:
+                    continue
+                if not hasattr(callbacks, '__iter__'):
+                    # ensure the callback information is a list
+                    # allowing multiple callbacks to exist
+                    callbacks = [callbacks]
+                register_event_callback(event, resource_type, callbacks)
+
+    cls.__init__ = init_wrapper(cls.__init__)
+    return cls
 
 
 def notify_event_callbacks(service, resource_type, operation, payload):
