@@ -16,8 +16,6 @@ import shutil
 import tempfile
 import uuid
 
-import mock
-from oslo_config import cfg
 from oslo_utils import timeutils
 
 from keystone import exception
@@ -25,9 +23,6 @@ from keystone.tests import unit as tests
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
 from keystone.token.providers.fernet import utils
-
-
-CONF = cfg.CONF
 
 
 class KeyRepositoryTestMixin(object):
@@ -116,47 +111,22 @@ class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         exp_project_id = uuid.uuid4().hex
         # All we are validating here is that the token is encrypted and
         # decrypted properly, not the actual validity of token data.
-        issued_at = timeutils.isotime(timeutils.utcnow())
-        expires_at = timeutils.isotime(timeutils.utcnow())
-        audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
-        exp_token_data = {
-            'token': {
-                'issued_at': issued_at,
-                'expires_at': expires_at,
-                'audit_ids': audit_ids,
-            }
-        }
+        exp_issued_at = timeutils.isotime(timeutils.utcnow())
+        exp_expires_at = timeutils.isotime(timeutils.utcnow())
+        exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
 
         token = self.formatter.create_token(
-            exp_user_id, exp_project_id, issued_at, expires_at, audit_ids)
+            exp_user_id, exp_project_id, exp_issued_at, exp_expires_at,
+            exp_audit_ids)
 
-        def fake_get_token_data(*args, **kwargs):
-            fake_token_data = {
-                'token': {
-                    'issued_at': issued_at,
-                    'expires_at': expires_at,
-                    'audit_ids': audit_ids
-                }
-            }
-            return fake_token_data
-
-        with mock.patch.object(token_formatters.common.V3TokenDataHelper,
-                               'get_token_data',
-                               side_effect=fake_get_token_data):
-            user_id, project_id, token_data = self.formatter.validate_token(
-                token[len('F00'):])
+        (user_id, project_id, issued_at, expires_at, audit_ids) = (
+            self.formatter.validate_token(token[len('F00'):]))
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_project_id, project_id)
-        self.assertEqual(
-            exp_token_data['token']['issued_at'],
-            token_data['token']['issued_at'])
-        self.assertEqual(
-            exp_token_data['token']['expires_at'],
-            token_data['token']['expires_at'])
-        self.assertEqual(
-            exp_token_data['token']['audit_ids'],
-            token_data['token']['audit_ids'])
+        self.assertEqual(exp_issued_at, issued_at)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
 
     def test_encrypted_token_is_under_255_characters(self):
         user_id = uuid.uuid4().hex

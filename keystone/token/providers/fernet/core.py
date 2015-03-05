@@ -13,7 +13,9 @@
 from oslo_config import cfg
 from oslo_log import log
 
+from keystone.common import dependency
 from keystone import exception
+from keystone.i18n import _
 from keystone.token.providers import common
 from keystone.token.providers.fernet import format_map as fm
 from keystone.token.providers.fernet import token_formatters as tf
@@ -23,6 +25,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
+@dependency.requires('trust_api')
 class Provider(common.BaseProvider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
@@ -141,17 +144,40 @@ class Provider(common.BaseProvider):
         token_prefix_length = len(fm.SCOPED_TOKEN_PREFIX)
         token_format = token_ref[:token_prefix_length]
         token_formatter = self.token_format_map.get(token_format)
-        if token_formatter:
-            # If we recognize the token format pass the rest of the token
-            # string to the correct token_formatter class.
-            token_str = token_ref[token_prefix_length:]
-            (user_id, project_id, token_data) = (
+        if not token_formatter:
+            # If the token_format is not recognized, raise Unauthorized.
+            raise exception.Unauthorized(_(
+                'This is not a recognized Fernet formatted token: %s') %
+                token_format)
+
+        # If we recognize the token format pass the rest of the token
+        # string to the correct token_formatter.
+        token_str = token_ref[token_prefix_length:]
+
+        # depending on the formatter, these may or may not be defined
+        project_id = None
+        trust_ref = None
+
+        if token_format == fm.UNSCOPED_TOKEN_PREFIX:
+            (user_id, issued_at, expires_at, audit_ids) = (
                 token_formatter.validate_token(token_str))
-            return token_data
-        # If the token_format is not recognized, raise Unauthorized.
-        msg = ('This is not a recognized Fernet formatted token: %s',
-               token_format)
-        raise exception.Unauthorized(msg)
+        elif token_format == fm.SCOPED_TOKEN_PREFIX:
+            (user_id, project_id, issued_at, expires_at, audit_ids) = (
+                token_formatter.validate_token(token_str))
+        elif token_format == fm.TRUST_TOKEN_PREFIX:
+            (user_id, project_id, issued_at, expires_at, audit_ids,
+                trust_id) = token_formatter.validate_token(token_str)
+
+            trust_ref = self.trust_api.get_trust(trust_id)
+
+        return self.v3_token_data_helper.get_token_data(
+            user_id,
+            method_names=['password', 'token'],
+            project_id=project_id,
+            expires=expires_at,
+            issued_at=issued_at,
+            trust=trust_ref,
+            audit_info=audit_ids)
 
     def _get_token_id(self, token_data):
         """Generate the token_id based upon the data in token_data.
