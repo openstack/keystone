@@ -12,9 +12,9 @@
 
 """Extensions supporting Federation."""
 
-from oslo_config import cfg
 import string
 
+from oslo_config import cfg
 from oslo_log import log
 from six.moves import urllib
 import webob
