@@ -393,6 +393,21 @@ class DomainConfigTests(object):
                           self.domain['id'], config['ldap'], group='ldap',
                           option='url')
 
+        # Now some valid groups/options, but just not ones that are in the
+        # existing config
+        config = {'ldap': {'user_tree_dn': uuid.uuid4().hex}}
+        self.domain_config_api.create_config(self.domain['id'], config)
+        config_wrong_group = {'identity': {'driver': uuid.uuid4().hex}}
+        self.assertRaises(exception.DomainConfigNotFound,
+                          self.domain_config_api.update_config,
+                          self.domain['id'], config_wrong_group,
+                          group='identity')
+        config_wrong_option = {'url': uuid.uuid4().hex}
+        self.assertRaises(exception.DomainConfigNotFound,
+                          self.domain_config_api.update_config,
+                          self.domain['id'], config_wrong_option,
+                          group='ldap', option='url')
+
         # And finally just some bad groups/options
         bad_group = uuid.uuid4().hex
         config = {bad_group: {'user': uuid.uuid4().hex}}
