@@ -29,7 +29,7 @@ class Provider(common.BaseProvider):
 
         self.token_format_map = {
             fm.UNSCOPED_TOKEN_PREFIX: tf.UnscopedTokenFormatter(),
-            fm.TOKEN_PREFIX: tf.StandardTokenFormatter(),
+            fm.SCOPED_TOKEN_PREFIX: tf.ScopedTokenFormatter(),
             fm.TRUST_TOKEN_PREFIX: tf.TrustTokenFormatter()}
 
     def needs_persistence(self):
@@ -100,7 +100,7 @@ class Provider(common.BaseProvider):
             token_format = self.token_format_map[fm.UNSCOPED_TOKEN_PREFIX]
             token_id = token_format.create_token(user_id, token_data)
         else:
-            token_format = self.token_format_map[fm.TOKEN_PREFIX]
+            token_format = self.token_format_map[fm.SCOPED_TOKEN_PREFIX]
             token_id = token_format.create_token(user_id, project_id,
                                                  token_data)
 
@@ -125,7 +125,7 @@ class Provider(common.BaseProvider):
 
         """
         # Determine and look up the token formatter.
-        token_prefix_length = len(fm.TOKEN_PREFIX)
+        token_prefix_length = len(fm.SCOPED_TOKEN_PREFIX)
         token_format = token_ref[:token_prefix_length]
         token_formatter = self.token_format_map.get(token_format)
         if token_formatter:
