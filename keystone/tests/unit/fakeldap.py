@@ -146,10 +146,10 @@ def _match(key, value, attrs):
                             x[len(x) - len(norm_val) + 1:]):
                         return True
         elif norm_val.endswith('*'):
-                # Is the string at the start of the target?
-                for x in val_list:
-                    if norm_val[:-1] == x[:len(norm_val) - 1]:
-                        return True
+            # Is the string at the start of the target?
+            for x in val_list:
+                if norm_val[:-1] == x[:len(norm_val) - 1]:
+                    return True
         else:
             # Is the string an exact match?
             for x in val_list:

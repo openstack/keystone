@@ -169,9 +169,9 @@ class Federation(core.Driver):
         protocol['id'] = protocol_id
         protocol['idp_id'] = idp_id
         with sql.transaction() as session:
-                self._get_idp(session, idp_id)
-                protocol_ref = FederationProtocolModel.from_dict(protocol)
-                session.add(protocol_ref)
+            self._get_idp(session, idp_id)
+            protocol_ref = FederationProtocolModel.from_dict(protocol)
+            session.add(protocol_ref)
         return protocol_ref.to_dict()
 
     def update_protocol(self, idp_id, protocol_id, protocol):

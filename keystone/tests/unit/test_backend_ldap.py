@@ -42,12 +42,12 @@ CONF = cfg.CONF
 
 
 def create_group_container(identity_api):
-        # Create the groups base entry (ou=Groups,cn=example,cn=com)
-        group_api = identity_api.driver.group
-        conn = group_api.get_connection()
-        dn = 'ou=Groups,cn=example,cn=com'
-        conn.add_s(dn, [('objectclass', ['organizationalUnit']),
-                        ('ou', ['Groups'])])
+    # Create the groups base entry (ou=Groups,cn=example,cn=com)
+    group_api = identity_api.driver.group
+    conn = group_api.get_connection()
+    dn = 'ou=Groups,cn=example,cn=com'
+    conn.add_s(dn, [('objectclass', ['organizationalUnit']),
+                    ('ou', ['Groups'])])
 
 
 class BaseLDAPIdentity(test_backend.IdentityTests):
@@ -90,18 +90,18 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         return config_files
 
     def get_user_enabled_vals(self, user):
-            user_dn = (
-                self.identity_api.driver.user._id_to_dn_string(user['id']))
-            enabled_attr_name = CONF.ldap.user_enabled_attribute
+        user_dn = (
+            self.identity_api.driver.user._id_to_dn_string(user['id']))
+        enabled_attr_name = CONF.ldap.user_enabled_attribute
 
-            ldap_ = self.identity_api.driver.user.get_connection()
-            res = ldap_.search_s(user_dn,
-                                 ldap.SCOPE_BASE,
-                                 u'(sn=%s)' % user['name'])
-            if enabled_attr_name in res[0][1]:
-                return res[0][1][enabled_attr_name]
-            else:
-                return None
+        ldap_ = self.identity_api.driver.user.get_connection()
+        res = ldap_.search_s(user_dn,
+                             ldap.SCOPE_BASE,
+                             u'(sn=%s)' % user['name'])
+        if enabled_attr_name in res[0][1]:
+            return res[0][1][enabled_attr_name]
+        else:
+            return None
 
     def test_build_tree(self):
         """Regression test for building the tree names
