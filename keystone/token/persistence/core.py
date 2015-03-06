@@ -198,11 +198,6 @@ class PersistenceManager(manager.Manager):
         self.token_provider_api.invalidate_individual_token_cache(token_id)
 
 
-# NOTE(morganfainberg): @dependency.optional() is required here to ensure the
-# class-level optional dependency control attribute is populated as empty
-# this is because of the override of .__getattr__ and ensures that if the
-# optional dependency injector changes attributes, this class doesn't break.
-@dependency.optional()
 @dependency.requires('token_provider_api')
 @dependency.provider('token_api')
 class Manager(object):
