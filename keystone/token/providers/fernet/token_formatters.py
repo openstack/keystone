@@ -110,23 +110,6 @@ class BaseTokenFormatter(object):
         time_object = datetime.datetime.fromtimestamp(int(time_int))
         return timeutils.isotime(time_object)
 
-    def _convert_token_data(self, token_data):
-        """Pull creation, expiration and audit ids out of token data.
-
-        :param token_data: dictionary containing information about the token
-        :returns: a tuple including the issued at time, expiration and audit
-                  ids.
-
-        """
-        created_at = token_data['token']['issued_at']
-        issued_at_int = self._convert_time_string_to_int(created_at)
-        expires_at = token_data['token']['expires_at']
-        expires_at_int = self._convert_time_string_to_int(expires_at)
-        audit_ids = token_data['token']['audit_ids']
-        if isinstance(audit_ids, list) and len(audit_ids) == 1:
-            audit_ids = audit_ids.pop()
-        return (issued_at_int, expires_at_int, audit_ids)
-
     def pack(self, payload):
         """Pack a payload for transport."""
         msgpacked = msgpack.packb(payload)
@@ -152,18 +135,19 @@ class UnscopedTokenFormatter(BaseTokenFormatter):
 
     token_format = fm.UNSCOPED_TOKEN_PREFIX
 
-    def create_token(self, user_id, token_data):
+    def create_token(self, user_id, created_at, expires_at, audit_ids):
         """Create a unscoped token.
 
         :param user_id: identifier of the user in the token request
-        :param token_data: dictionary of token data
+        :param issued_at_int: datetime of the token's creation
+        :param expires_at_int: datetime of the token's expiration
+        :param audit_ids: list of the token's audit IDs
         :returns: a string representing the token
 
         """
-        (issued_at_int, expires_at_int, audit_ids) = self._convert_token_data(
-            token_data)
-
         b_user_id = self._convert_uuid_hex_to_bytes(user_id)
+        issued_at_int = self._convert_time_string_to_int(created_at)
+        expires_at_int = self._convert_time_string_to_int(expires_at)
         payload = (b_user_id, issued_at_int, expires_at_int, audit_ids)
 
         return self.pack(payload)
@@ -202,18 +186,20 @@ class ScopedTokenFormatter(BaseTokenFormatter):
 
     token_format = fm.SCOPED_TOKEN_PREFIX
 
-    def create_token(self, user_id, project_id, token_data):
+    def create_token(self, user_id, project_id, created_at, expires_at,
+                     audit_ids):
         """Create a standard formatted token.
 
         :param user_id: ID of the user in the token request
         :param project_id: ID of the project to scope to
-        :param token_data: dictionary of token data
+        :param created_at: datetime of the token's creation
+        :param expires_at: datetime of the token's expiration
+        :param audit_ids: list of the token's audit IDs
         :returns: a string representing the token
 
         """
-        (issued_at_int, expires_at_int, audit_ids) = self._convert_token_data(
-            token_data)
-
+        issued_at_int = self._convert_time_string_to_int(created_at)
+        expires_at_int = self._convert_time_string_to_int(expires_at)
         b_user_id = self._convert_uuid_hex_to_bytes(user_id)
         if project_id:
             b_scope_id = self._convert_uuid_hex_to_bytes(project_id)
@@ -273,18 +259,21 @@ class TrustTokenFormatter(BaseTokenFormatter):
 
     token_format = fm.TRUST_TOKEN_PREFIX
 
-    def create_token(self, user_id, project_id, token_data):
+    def create_token(self, user_id, project_id, created_at, expires_at,
+                     audit_ids, trust_id):
         """Create a trust formatted token.
 
         :param user_id: ID of the user in the token request
         :param project_id: ID of the project to scope to
-        :param token_data: dictionary of token data
+        :param created_at: datetime of the token's creation
+        :param expires_at: datetime of the token's expiration
+        :param audit_ids: list of the token's audit IDs
+        :param trust_id: ID of the trust in effect
         :returns: a string representing the token
 
         """
-        (issued_at_int, expires_at_int, audit_ids) = self._convert_token_data(
-            token_data)
-        trust_id = token_data['token']['OS-TRUST:trust']['id']
+        issued_at_int = self._convert_time_string_to_int(created_at)
+        expires_at_int = self._convert_time_string_to_int(expires_at)
         b_user_id = self._convert_uuid_hex_to_bytes(user_id)
         b_project_id = self._convert_uuid_hex_to_bytes(project_id)
         b_trust_id = self._convert_uuid_hex_to_bytes(trust_id)
