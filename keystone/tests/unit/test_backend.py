@@ -2075,7 +2075,6 @@ class IdentityTests(object):
         self.assertIn(self.tenant_bar['id'], project_ids)
         self.assertIn(self.tenant_baz['id'], project_ids)
 
-    @test_utils.wip('Exposes bug #1424745')
     def test_list_projects_with_multiple_filters(self):
         # Create a project
         project = {'id': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,

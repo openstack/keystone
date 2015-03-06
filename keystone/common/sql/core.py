@@ -251,15 +251,16 @@ def _filter(model, query, hints):
     :returns query: query, updated with any filters satisfied
 
     """
-    def inexact_filter(model, query, filter_, hints):
+    def inexact_filter(model, query, filter_, satisfied_filters, hints):
         """Applies an inexact filter to a query.
 
         :param model: the table model in question
         :param query: query to apply filters to
         :param filter_: the dict that describes this filter
+        :param satisfied_filters: a cumulative list of satisfied filters, to
+                                  which filter_ will be added if it is
+                                  satisfied.
         :param hints: contains the list of filters yet to be satisfied.
-                      Any filters satisfied here will be removed so that
-                      the caller will know if any filters remain.
 
         :returns query: query updated to add any inexact filters we could
                         satisfy
@@ -287,19 +288,21 @@ def _filter(model, query, hints):
             # work out if they need to do something with it.
             return query
 
-        hints.filters.remove(filter_)
+        satisfied_filters.append(filter_)
         return query.filter(query_term)
 
-    def exact_filter(model, filter_, cumulative_filter_dict, hints):
+    def exact_filter(
+            model, filter_, satisfied_filters, cumulative_filter_dict, hints):
         """Applies an exact filter to a query.
 
         :param model: the table model in question
         :param filter_: the dict that describes this filter
+        :param satisfied_filters: a cumulative list of satisfied filters, to
+                                  which filter_ will be added if it is
+                                  satisfied.
         :param cumulative_filter_dict: a dict that describes the set of
                                       exact filters built up so far
         :param hints: contains the list of filters yet to be satisfied.
-                      Any filters satisfied here will be removed so that
-                      the caller will know if any filters remain.
 
         :returns: updated cumulative dict
 
@@ -311,22 +314,28 @@ def _filter(model, query, hints):
                 utils.attr_as_boolean(filter_['value']))
         else:
             cumulative_filter_dict[key] = filter_['value']
-        hints.filters.remove(filter_)
+        satisfied_filters.append(filter_)
         return cumulative_filter_dict
 
     filter_dict = {}
-
+    satisfied_filters = []
     for filter_ in hints.filters:
         if filter_['name'] not in model.attributes:
             continue
         if filter_['comparator'] == 'equals':
-            filter_dict = exact_filter(model, filter_, filter_dict, hints)
+            filter_dict = exact_filter(
+                model, filter_, satisfied_filters, filter_dict, hints)
         else:
-            query = inexact_filter(model, query, filter_, hints)
+            query = inexact_filter(
+                model, query, filter_, satisfied_filters, hints)
 
     # Apply any exact filters we built up
     if filter_dict:
         query = query.filter_by(**filter_dict)
+
+    # Remove satisfied filters, then the caller will know remaining filters
+    for filter_ in satisfied_filters:
+        hints.filters.remove(filter_)
 
     return query
 
