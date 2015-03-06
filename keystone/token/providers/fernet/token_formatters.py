@@ -198,9 +198,9 @@ class UnscopedTokenFormatter(BaseTokenFormatter):
         return (user_id, None, token_data)
 
 
-class StandardTokenFormatter(BaseTokenFormatter):
+class ScopedTokenFormatter(BaseTokenFormatter):
 
-    token_format = fm.TOKEN_PREFIX
+    token_format = fm.SCOPED_TOKEN_PREFIX
 
     def create_token(self, user_id, project_id, token_data):
         """Create a standard formatted token.

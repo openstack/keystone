@@ -105,11 +105,11 @@ class TestBaseTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         self.assertEqual(expected_time_str, actual_time_str)
 
 
-class TestStandardTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
+class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
     def setUp(self):
-        super(TestStandardTokenFormatter, self).setUp()
+        super(TestScopedTokenFormatter, self).setUp()
         self.setUpKeyRepository()
-        self.formatter = token_formatters.StandardTokenFormatter()
+        self.formatter = token_formatters.ScopedTokenFormatter()
 
     def test_token_encryption(self):
         exp_user_id = uuid.uuid4().hex
@@ -198,11 +198,11 @@ class TestStandardTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
                           tampered_token[4:])
 
 
-class TestCustomTokenFormatter(TestStandardTokenFormatter):
+class TestCustomTokenFormatter(TestScopedTokenFormatter):
     def setUp(self):
         # bypassing the parent setUp because we want to set up our own custom
         # token formatter
-        super(TestStandardTokenFormatter, self).setUp()
+        super(TestScopedTokenFormatter, self).setUp()
 
         class HandRolledCrypto(object):
             """Hold my beer and watch this."""
@@ -222,7 +222,7 @@ class TestCustomTokenFormatter(TestStandardTokenFormatter):
                     raise exception.Unauthorized()
                 return plaintext
 
-        class CustomTokenFormatter(token_formatters.StandardTokenFormatter):
+        class CustomTokenFormatter(token_formatters.ScopedTokenFormatter):
             @property
             def crypto(self):
                 """Customize the cryptography implementation."""
