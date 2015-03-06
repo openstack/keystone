@@ -126,12 +126,12 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                                    alias_dereferencing='searching')
         self.identity_api = identity_ldap.Identity()
         user_ref = self.identity_api.get_user('alt_fake1')
-        self.assertEqual(user_ref['id'], 'alt_fake1')
+        self.assertEqual('alt_fake1', user_ref['id'])
 
         self.config_fixture.config(group='ldap', alias_dereferencing='always')
         self.identity_api = identity_ldap.Identity()
         user_ref = self.identity_api.get_user('alt_fake1')
-        self.assertEqual(user_ref['id'], 'alt_fake1')
+        self.assertEqual('alt_fake1', user_ref['id'])
 
     # FakeLDAP does not correctly process filters, so this test can only be
     # run against a live LDAP server
@@ -153,7 +153,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         for x in range(0, USER_COUNT):
             group_refs = self.identity_api.list_groups_for_user(
                 test_users[x]['id'])
-            self.assertEqual(len(group_refs), 0)
+            self.assertEqual(0, len(group_refs))
 
         for x in range(0, GROUP_COUNT):
             new_group = {'domain_id': domain['id'],
@@ -163,37 +163,37 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
             group_refs = self.identity_api.list_groups_for_user(
                 positive_user['id'])
-            self.assertEqual(len(group_refs), x)
+            self.assertEqual(x, len(group_refs))
 
             self.identity_api.add_user_to_group(
                 positive_user['id'],
                 new_group['id'])
             group_refs = self.identity_api.list_groups_for_user(
                 positive_user['id'])
-            self.assertEqual(len(group_refs), x + 1)
+            self.assertEqual(x + 1, len(group_refs))
 
             group_refs = self.identity_api.list_groups_for_user(
                 negative_user['id'])
-            self.assertEqual(len(group_refs), 0)
+            self.assertEqual(0, len(group_refs))
 
         self.config_fixture.config(group='ldap', group_filter='(dn=xx)')
         self.reload_backends(CONF.identity.default_domain_id)
         group_refs = self.identity_api.list_groups_for_user(
             positive_user['id'])
-        self.assertEqual(len(group_refs), 0)
+        self.assertEqual(0, len(group_refs))
         group_refs = self.identity_api.list_groups_for_user(
             negative_user['id'])
-        self.assertEqual(len(group_refs), 0)
+        self.assertEqual(0, len(group_refs))
 
         self.config_fixture.config(group='ldap',
                                    group_filter='(objectclass=*)')
         self.reload_backends(CONF.identity.default_domain_id)
         group_refs = self.identity_api.list_groups_for_user(
             positive_user['id'])
-        self.assertEqual(len(group_refs), GROUP_COUNT)
+        self.assertEqual(GROUP_COUNT, len(group_refs))
         group_refs = self.identity_api.list_groups_for_user(
             negative_user['id'])
-        self.assertEqual(len(group_refs), 0)
+        self.assertEqual(0, len(group_refs))
 
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(

@@ -330,7 +330,7 @@ class MongoCache(tests.BaseTestCase):
         random_key = uuid.uuid4().hex
         region.set(random_key, "dummyValue10")
         # There is no proxy so can access MongoCacheBackend directly
-        self.assertEqual(region.backend.api.w, 1)
+        self.assertEqual(1, region.backend.api.w)
 
     def test_incorrect_read_preference(self):
         self.arguments['read_preference'] = 'inValidValue'
@@ -338,8 +338,7 @@ class MongoCache(tests.BaseTestCase):
                                                    arguments=self.arguments)
         # As per delayed loading of pymongo, read_preference value should
         # still be string and NOT enum
-        self.assertEqual(region.backend.api.read_preference,
-                         'inValidValue')
+        self.assertEqual('inValidValue', region.backend.api.read_preference)
 
         random_key = uuid.uuid4().hex
         self.assertRaises(ValueError, region.set,
@@ -351,15 +350,15 @@ class MongoCache(tests.BaseTestCase):
                                                    arguments=self.arguments)
         # As per delayed loading of pymongo, read_preference value should
         # still be string and NOT enum
-        self.assertEqual(region.backend.api.read_preference,
-                         'secondaryPreferred')
+        self.assertEqual('secondaryPreferred',
+                         region.backend.api.read_preference)
 
         random_key = uuid.uuid4().hex
         region.set(random_key, "dummyValue10")
 
         # Now as pymongo is loaded so expected read_preference value is enum.
         # There is no proxy so can access MongoCacheBackend directly
-        self.assertEqual(region.backend.api.read_preference, 3)
+        self.assertEqual(3, region.backend.api.read_preference)
 
     def test_missing_replica_set_name(self):
         self.arguments['use_replica'] = True
@@ -390,15 +389,15 @@ class MongoCache(tests.BaseTestCase):
         region = dp_region.make_region().configure('keystone.cache.mongo',
                                                    arguments=self.arguments)
         # There is no proxy so can access MongoCacheBackend directly
-        self.assertEqual(region.backend.api.hosts, 'localhost:27017')
-        self.assertEqual(region.backend.api.db_name, 'ks_cache')
-        self.assertEqual(region.backend.api.cache_collection, 'cache')
-        self.assertEqual(region.backend.api.username, 'test_user')
-        self.assertEqual(region.backend.api.password, 'test_password')
-        self.assertEqual(region.backend.api.use_replica, True)
-        self.assertEqual(region.backend.api.replicaset_name, 'my_replica')
-        self.assertEqual(region.backend.api.conn_kwargs['ssl'], False)
-        self.assertEqual(region.backend.api.ttl_seconds, 60)
+        self.assertEqual('localhost:27017', region.backend.api.hosts)
+        self.assertEqual('ks_cache', region.backend.api.db_name)
+        self.assertEqual('cache', region.backend.api.cache_collection)
+        self.assertEqual('test_user', region.backend.api.username)
+        self.assertEqual('test_password', region.backend.api.password)
+        self.assertEqual(True, region.backend.api.use_replica)
+        self.assertEqual('my_replica', region.backend.api.replicaset_name)
+        self.assertEqual(False, region.backend.api.conn_kwargs['ssl'])
+        self.assertEqual(60, region.backend.api.ttl_seconds)
 
     def test_multiple_region_cache_configuration(self):
         arguments1 = copy.copy(self.arguments)
@@ -407,11 +406,11 @@ class MongoCache(tests.BaseTestCase):
         region1 = dp_region.make_region().configure('keystone.cache.mongo',
                                                     arguments=arguments1)
         # There is no proxy so can access MongoCacheBackend directly
-        self.assertEqual(region1.backend.api.hosts, 'localhost:27017')
-        self.assertEqual(region1.backend.api.db_name, 'ks_cache')
-        self.assertEqual(region1.backend.api.cache_collection, 'cache_region1')
-        self.assertEqual(region1.backend.api.username, 'test_user')
-        self.assertEqual(region1.backend.api.password, 'test_password')
+        self.assertEqual('localhost:27017', region1.backend.api.hosts)
+        self.assertEqual('ks_cache', region1.backend.api.db_name)
+        self.assertEqual('cache_region1', region1.backend.api.cache_collection)
+        self.assertEqual('test_user', region1.backend.api.username)
+        self.assertEqual('test_password', region1.backend.api.password)
         # Should be None because of delayed initialization
         self.assertIsNone(region1.backend.api._data_manipulator)
 
@@ -431,9 +430,9 @@ class MongoCache(tests.BaseTestCase):
         region2 = dp_region.make_region().configure('keystone.cache.mongo',
                                                     arguments=arguments2)
         # There is no proxy so can access MongoCacheBackend directly
-        self.assertEqual(region2.backend.api.hosts, 'localhost:27017')
-        self.assertEqual(region2.backend.api.db_name, 'ks_cache')
-        self.assertEqual(region2.backend.api.cache_collection, 'cache_region2')
+        self.assertEqual('localhost:27017', region2.backend.api.hosts)
+        self.assertEqual('ks_cache', region2.backend.api.db_name)
+        self.assertEqual('cache_region2', region2.backend.api.cache_collection)
 
         # Should be None because of delayed initialization
         self.assertIsNone(region2.backend.api._data_manipulator)
@@ -483,7 +482,7 @@ class MongoCache(tests.BaseTestCase):
         self.arguments['mongo_ttl_seconds'] = '3600'
         region = dp_region.make_region().configure('keystone.cache.mongo',
                                                    arguments=self.arguments)
-        self.assertEqual(region.backend.api.ttl_seconds, 3600)
+        self.assertEqual(3600, region.backend.api.ttl_seconds)
         random_key = uuid.uuid4().hex
         region.set(random_key, "dummyValue")
         self.assertEqual("dummyValue", region.get(random_key))
@@ -493,7 +492,7 @@ class MongoCache(tests.BaseTestCase):
         self.arguments['mongo_ttl_seconds'] = 1800
         region = dp_region.make_region().configure('keystone.cache.mongo',
                                                    arguments=self.arguments)
-        self.assertEqual(region.backend.api.ttl_seconds, 1800)
+        self.assertEqual(1800, region.backend.api.ttl_seconds)
         random_key = uuid.uuid4().hex
         region.set(random_key, "dummyValue")
         self.assertEqual("dummyValue", region.get(random_key))
@@ -711,10 +710,10 @@ class MongoCache(tests.BaseTestCase):
 
         # There is no proxy so can access MongoCacheBackend directly
         api_methargs = region.backend.api.meth_kwargs
-        self.assertEqual(api_methargs['wtimeout'], 30000)
-        self.assertEqual(api_methargs['j'], True)
-        self.assertEqual(api_methargs['continue_on_error'], True)
-        self.assertEqual(api_methargs['secondary_acceptable_latency_ms'], 60)
+        self.assertEqual(30000, api_methargs['wtimeout'])
+        self.assertEqual(True, api_methargs['j'])
+        self.assertEqual(True, api_methargs['continue_on_error'])
+        self.assertEqual(60, api_methargs['secondary_acceptable_latency_ms'])
 
         random_key = uuid.uuid4().hex
         region.set(random_key, "dummyValue1")

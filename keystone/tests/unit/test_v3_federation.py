@@ -498,7 +498,7 @@ class MappingCRUDTests(FederationTests):
         self.assertIsNotNone(entities)
         self.assertResponseStatus(resp, 200)
         self.assertValidListLinks(resp.result.get('links'))
-        self.assertEqual(len(entities), 1)
+        self.assertEqual(1, len(entities))
 
     def test_mapping_delete(self):
         url = self.MAPPING_URL + '%(mapping_id)s'
@@ -727,8 +727,8 @@ class MappingRuleEngineTests(FederationTests):
         group_ids = values.get('group_ids')
         name = values.get('user', {}).get('name')
 
-        self.assertEqual(name, user_name)
-        self.assertEqual(group_ids, [])
+        self.assertEqual(user_name, name)
+        self.assertEqual([], group_ids,)
 
     def test_rule_engine_not_any_of_many_rules(self):
         """Should return group EMPLOYEE_GROUP_ID.
@@ -749,7 +749,7 @@ class MappingRuleEngineTests(FederationTests):
         group_ids = values.get('group_ids')
         name = values.get('user', {}).get('name')
 
-        self.assertEqual(name, user_name)
+        self.assertEqual(user_name, name)
         self.assertIn(mapping_fixtures.EMPLOYEE_GROUP_ID, group_ids)
 
     def test_rule_engine_not_any_of_regex_verify_pass(self):
@@ -1410,7 +1410,7 @@ class FederatedTokenTests(FederationTests):
         r = self.v3_authenticate_token(self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER)
         token_resp = r.result['token']
         domain_id = token_resp['domain']['id']
-        self.assertEqual(domain_id, self.domainA['id'])
+        self.assertEqual(self.domainA['id'], domain_id)
         self._check_scoped_token_attributes(token_resp)
 
     def test_scope_to_domain_multiple_tokens(self):
@@ -1434,7 +1434,7 @@ class FederatedTokenTests(FederationTests):
             r = self.v3_authenticate_token(body)
             token_resp = r.result['token']
             domain_id = token_resp['domain']['id']
-            self.assertEqual(domain_id, domain_id_ref)
+            self.assertEqual(domain_id_ref, domain_id)
             self._check_scoped_token_attributes(token_resp)
 
     def test_scope_to_domain_with_only_inherited_roles_fails(self):
@@ -1465,7 +1465,7 @@ class FederatedTokenTests(FederationTests):
                 r = self.get(url, token=token)
                 projects_resp = r.result['projects']
                 projects = set(p['id'] for p in projects_resp)
-                self.assertEqual(projects, projects_ref,
+                self.assertEqual(projects_ref, projects,
                                  'match failed for url %s' % url)
 
     def test_list_domains(self):
@@ -1491,7 +1491,7 @@ class FederatedTokenTests(FederationTests):
                 r = self.get(url, token=token)
                 domains_resp = r.result['domains']
                 domains = set(p['id'] for p in domains_resp)
-                self.assertEqual(domains, domains_ref,
+                self.assertEqual(domains_ref, domains,
                                  'match failed for url %s' % url)
 
     def test_full_workflow(self):
@@ -1517,7 +1517,7 @@ class FederatedTokenTests(FederationTests):
         r = self.v3_authenticate_token(v3_scope_request)
         token_resp = r.result['token']
         project_id = token_resp['project']['id']
-        self.assertEqual(project_id, project['id'])
+        self.assertEqual(project['id'], project_id)
         self._check_scoped_token_attributes(token_resp)
 
     def test_workflow_with_groups_deletion(self):

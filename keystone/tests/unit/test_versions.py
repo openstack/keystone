@@ -626,7 +626,7 @@ class VersionTestCase(tests.TestCase):
     def test_public_versions(self):
         client = self.client(self.public_app)
         resp = client.get('/')
-        self.assertEqual(resp.status_int, 300)
+        self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:
@@ -643,7 +643,7 @@ class VersionTestCase(tests.TestCase):
     def test_admin_versions(self):
         client = self.client(self.admin_app)
         resp = client.get('/')
-        self.assertEqual(resp.status_int, 300)
+        self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:
@@ -663,7 +663,7 @@ class VersionTestCase(tests.TestCase):
         for app in (self.public_app, self.admin_app):
             client = self.client(app)
             resp = client.get('/')
-            self.assertEqual(resp.status_int, 300)
+            self.assertEqual(300, resp.status_int)
             data = jsonutils.loads(resp.body)
             expected = VERSIONS_RESPONSE
             for version in expected['versions']['values']:
@@ -679,31 +679,31 @@ class VersionTestCase(tests.TestCase):
     def test_public_version_v2(self):
         client = self.client(self.public_app)
         resp = client.get('/v2.0/')
-        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v2_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v2.0/' %
                             CONF.eventlet_server.public_port)
-        self.assertEqual(data, expected)
+        self.assertEqual(expected, data)
 
     def test_admin_version_v2(self):
         client = self.client(self.admin_app)
         resp = client.get('/v2.0/')
-        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v2_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v2.0/' %
                             CONF.eventlet_server.admin_port)
-        self.assertEqual(data, expected)
+        self.assertEqual(expected, data)
 
     def test_use_site_url_if_endpoint_unset_v2(self):
         self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
         for app in (self.public_app, self.admin_app):
             client = self.client(app)
             resp = client.get('/v2.0/')
-            self.assertEqual(resp.status_int, 200)
+            self.assertEqual(200, resp.status_int)
             data = jsonutils.loads(resp.body)
             expected = v2_VERSION_RESPONSE
             self._paste_in_port(expected['version'], 'http://localhost/v2.0/')
@@ -712,52 +712,52 @@ class VersionTestCase(tests.TestCase):
     def test_public_version_v3(self):
         client = self.client(self.public_app)
         resp = client.get('/v3/')
-        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v3/' %
                             CONF.eventlet_server.public_port)
-        self.assertEqual(data, expected)
+        self.assertEqual(expected, data)
 
     def test_admin_version_v3(self):
         client = self.client(self.public_app)
         resp = client.get('/v3/')
-        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v3/' %
                             CONF.eventlet_server.admin_port)
-        self.assertEqual(data, expected)
+        self.assertEqual(expected, data)
 
     def test_use_site_url_if_endpoint_unset_v3(self):
         self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
         for app in (self.public_app, self.admin_app):
             client = self.client(app)
             resp = client.get('/v3/')
-            self.assertEqual(resp.status_int, 200)
+            self.assertEqual(200, resp.status_int)
             data = jsonutils.loads(resp.body)
             expected = v3_VERSION_RESPONSE
             self._paste_in_port(expected['version'], 'http://localhost/v3/')
-            self.assertEqual(data, expected)
+            self.assertEqual(expected, data)
 
     @mock.patch.object(controllers, '_VERSIONS', ['v3'])
     def test_v2_disabled(self):
         client = self.client(self.public_app)
         # request to /v2.0 should fail
         resp = client.get('/v2.0/')
-        self.assertEqual(resp.status_int, 404)
+        self.assertEqual(404, resp.status_int)
 
         # request to /v3 should pass
         resp = client.get('/v3/')
-        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v3/' %
                             CONF.eventlet_server.public_port)
-        self.assertEqual(data, expected)
+        self.assertEqual(expected, data)
 
         # only v3 information should be displayed by requests to /
         v3_only_response = {
@@ -771,26 +771,26 @@ class VersionTestCase(tests.TestCase):
                             'http://localhost:%s/v3/' %
                             CONF.eventlet_server.public_port)
         resp = client.get('/')
-        self.assertEqual(resp.status_int, 300)
+        self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
-        self.assertEqual(data, v3_only_response)
+        self.assertEqual(v3_only_response, data)
 
     @mock.patch.object(controllers, '_VERSIONS', ['v2.0'])
     def test_v3_disabled(self):
         client = self.client(self.public_app)
         # request to /v3 should fail
         resp = client.get('/v3/')
-        self.assertEqual(resp.status_int, 404)
+        self.assertEqual(404, resp.status_int)
 
         # request to /v2.0 should pass
         resp = client.get('/v2.0/')
-        self.assertEqual(resp.status_int, 200)
+        self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v2_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
                             'http://localhost:%s/v2.0/' %
                             CONF.eventlet_server.public_port)
-        self.assertEqual(data, expected)
+        self.assertEqual(expected, data)
 
         # only v2 information should be displayed by requests to /
         v2_only_response = {
@@ -804,9 +804,9 @@ class VersionTestCase(tests.TestCase):
                             'http://localhost:%s/v2.0/' %
                             CONF.eventlet_server.public_port)
         resp = client.get('/')
-        self.assertEqual(resp.status_int, 300)
+        self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
-        self.assertEqual(data, v2_only_response)
+        self.assertEqual(v2_only_response, data)
 
     def _test_json_home(self, path, exp_json_home_data):
         client = self.client(self.public_app)
@@ -923,7 +923,7 @@ class VersionSingleAppTestCase(tests.TestCase):
         app = self.loadapp('keystone', app_name)
         client = self.client(app)
         resp = client.get('/')
-        self.assertEqual(resp.status_int, 300)
+        self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:

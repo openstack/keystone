@@ -281,8 +281,8 @@ class SqlUpgradeTests(SqlMigrateBase):
         version = migration.db_version(sql.get_engine(), self.repo_path,
                                        migrate_repo.DB_INIT_VERSION)
         self.assertEqual(
-            version,
             migrate_repo.DB_INIT_VERSION,
+            version,
             'DB is not at version %s' % migrate_repo.DB_INIT_VERSION)
 
     def test_two_steps_forward_one_step_back(self):
@@ -1323,12 +1323,12 @@ class SqlUpgradeTests(SqlMigrateBase):
                                  'service_id', 'url', 'extra', 'enabled',
                                  'region_id'])
         region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(region_table.c.id.type.length, 255)
-        self.assertEqual(region_table.c.parent_region_id.type.length, 255)
+        self.assertEqual(255, region_table.c.id.type.length)
+        self.assertEqual(255, region_table.c.parent_region_id.type.length)
         endpoint_table = sqlalchemy.Table('endpoint',
                                           self.metadata,
                                           autoload=True)
-        self.assertEqual(endpoint_table.c.region_id.type.length, 255)
+        self.assertEqual(255, endpoint_table.c.region_id.type.length)
 
     def test_endpoint_region_downgrade_columns(self):
         self.upgrade(53)
@@ -1338,12 +1338,12 @@ class SqlUpgradeTests(SqlMigrateBase):
                                  'service_id', 'url', 'extra', 'enabled',
                                  'region'])
         region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(region_table.c.id.type.length, 64)
-        self.assertEqual(region_table.c.parent_region_id.type.length, 64)
+        self.assertEqual(64, region_table.c.id.type.length)
+        self.assertEqual(64, region_table.c.parent_region_id.type.length)
         endpoint_table = sqlalchemy.Table('endpoint',
                                           self.metadata,
                                           autoload=True)
-        self.assertEqual(endpoint_table.c.region.type.length, 255)
+        self.assertEqual(255, endpoint_table.c.region.type.length)
 
     def test_endpoint_region_migration(self):
         self.upgrade(52)

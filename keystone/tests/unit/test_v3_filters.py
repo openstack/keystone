@@ -145,7 +145,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self._set_policy(new_policy)
         r = self.get('/domains?enabled=0', auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
-        self.assertEqual(len(id_list), 1)
+        self.assertEqual(1, len(id_list))
         self.assertIn(self.domainC['id'], id_list)
 
         # Try a few ways of specifying 'false'
@@ -159,14 +159,14 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         for val in ('1', 'true', 'True', 'TRUE', 'y', 'yes', 'on'):
             r = self.get('/domains?enabled=%s' % val, auth=self.auth)
             id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
-            self.assertEqual(len(id_list), 3)
+            self.assertEqual(3, len(id_list))
             self.assertIn(self.domainA['id'], id_list)
             self.assertIn(self.domainB['id'], id_list)
             self.assertIn(CONF.identity.default_domain_id, id_list)
 
         r = self.get('/domains?enabled', auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
-        self.assertEqual(len(id_list), 3)
+        self.assertEqual(3, len(id_list))
         self.assertIn(self.domainA['id'], id_list)
         self.assertIn(self.domainB['id'], id_list)
         self.assertIn(CONF.identity.default_domain_id, id_list)
@@ -187,7 +187,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         my_url = '/domains?enabled&name=%s' % self.domainA['name']
         r = self.get(my_url, auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
-        self.assertEqual(len(id_list), 1)
+        self.assertEqual(1, len(id_list))
         self.assertIn(self.domainA['id'], id_list)
         self.assertIs(True, r.result.get('domains')[0]['enabled'])
 
@@ -210,7 +210,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
         # domainA is returned and it is enabled, since enableds=0 is not the
         # same as enabled=0
-        self.assertEqual(len(id_list), 1)
+        self.assertEqual(1, len(id_list))
         self.assertIn(self.domainA['id'], id_list)
         self.assertIs(True, r.result.get('domains')[0]['enabled'])
 
@@ -232,8 +232,8 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         url_by_name = '/users?name=%my%name%'
         r = self.get(url_by_name, auth=self.auth)
 
-        self.assertEqual(len(r.result.get('users')), 1)
-        self.assertEqual(r.result.get('users')[0]['id'], user['id'])
+        self.assertEqual(1, len(r.result.get('users')))
+        self.assertEqual(user['id'], r.result.get('users')[0]['id'])
 
     def test_inexact_filters(self):
         # Create 20 users
@@ -263,38 +263,38 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
         url_by_name = '/users?name__contains=Ministry'
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEqual(len(r.result.get('users')), 4)
+        self.assertEqual(4, len(r.result.get('users')))
         self._match_with_list(r.result.get('users'), user_list,
                               list_start=6, list_end=10)
 
         url_by_name = '/users?name__icontains=miNIstry'
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEqual(len(r.result.get('users')), 5)
+        self.assertEqual(5, len(r.result.get('users')))
         self._match_with_list(r.result.get('users'), user_list,
                               list_start=6, list_end=11)
 
         url_by_name = '/users?name__startswith=The'
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEqual(len(r.result.get('users')), 5)
+        self.assertEqual(5, len(r.result.get('users')))
         self._match_with_list(r.result.get('users'), user_list,
                               list_start=5, list_end=10)
 
         url_by_name = '/users?name__istartswith=the'
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEqual(len(r.result.get('users')), 6)
+        self.assertEqual(6, len(r.result.get('users')))
         self._match_with_list(r.result.get('users'), user_list,
                               list_start=5, list_end=11)
 
         url_by_name = '/users?name__endswith=of'
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEqual(len(r.result.get('users')), 1)
+        self.assertEqual(1, len(r.result.get('users')))
         self.assertEqual(r.result.get('users')[0]['id'], user_list[7]['id'])
 
         url_by_name = '/users?name__iendswith=OF'
         r = self.get(url_by_name, auth=self.auth)
-        self.assertEqual(len(r.result.get('users')), 2)
-        self.assertEqual(r.result.get('users')[0]['id'], user_list[7]['id'])
-        self.assertEqual(r.result.get('users')[1]['id'], user_list[10]['id'])
+        self.assertEqual(2, len(r.result.get('users')))
+        self.assertEqual(user_list[7]['id'], r.result.get('users')[0]['id'])
+        self.assertEqual(user_list[10]['id'], r.result.get('users')[1]['id'])
 
         self._delete_test_data('user', user_list)
 
@@ -314,7 +314,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         url_by_name = "/users?name=anything' or 'x'='x"
         r = self.get(url_by_name, auth=self.auth)
 
-        self.assertEqual(len(r.result.get('users')), 0)
+        self.assertEqual(0, len(r.result.get('users')))
 
         # See if we can add a SQL command...use the group table instead of the
         # user table since 'user' is reserved word for SQLAlchemy.
@@ -409,12 +409,12 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self.config_fixture.config(list_limit=5)
         self.config_fixture.config(group=driver, list_limit=None)
         r = self.get('/%s' % plural, auth=self.auth)
-        self.assertEqual(len(r.result.get(plural)), 5)
+        self.assertEqual(5, len(r.result.get(plural)))
         self.assertIs(r.result.get('truncated'), True)
 
         self.config_fixture.config(group=driver, list_limit=4)
         r = self.get('/%s' % plural, auth=self.auth)
-        self.assertEqual(len(r.result.get(plural)), 4)
+        self.assertEqual(4, len(r.result.get(plural)))
         self.assertIs(r.result.get('truncated'), True)
 
     def test_users_list_limit(self):
@@ -444,7 +444,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         """Check truncated attribute not set when list not limited."""
 
         r = self.get('/services', auth=self.auth)
-        self.assertEqual(len(r.result.get('services')), 10)
+        self.assertEqual(10, len(r.result.get('services')))
         self.assertIsNone(r.result.get('truncated'))
 
     def test_at_limit(self):
@@ -456,5 +456,5 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self.config_fixture.config(list_limit=5)
         self.config_fixture.config(group='catalog', list_limit=10)
         r = self.get('/services', auth=self.auth)
-        self.assertEqual(len(r.result.get('services')), 10)
+        self.assertEqual(10, len(r.result.get('services')))
         self.assertIsNone(r.result.get('truncated'))

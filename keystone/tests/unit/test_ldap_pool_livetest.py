@@ -58,8 +58,8 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         handler = ldap_core._get_connection(CONF.ldap.url, use_pool=True)
         self.assertNotEqual(type(handler.Connector),
                             type(fakeldap.FakeLdapPool))
-        self.assertEqual(type(handler.Connector),
-                         type(ldappool.StateConnector))
+        self.assertEqual(type(ldappool.StateConnector),
+                         type(handler.Connector))
 
     def test_async_search_and_result3(self):
         self.config_fixture.config(group='ldap', page_size=1)
@@ -76,26 +76,26 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
             return ldappool_cm.connection(who, cred)
 
         with _get_conn() as c1:  # 1
-            self.assertEqual(len(ldappool_cm), 1)
+            self.assertEqual(1, len(ldappool_cm))
             self.assertTrue(c1.connected, True)
             self.assertTrue(c1.active, True)
             with _get_conn() as c2:  # conn2
-                self.assertEqual(len(ldappool_cm), 2)
+                self.assertEqual(2, len(ldappool_cm))
                 self.assertTrue(c2.connected)
                 self.assertTrue(c2.active)
 
-            self.assertEqual(len(ldappool_cm), 2)
+            self.assertEqual(2, len(ldappool_cm))
             # c2 went out of context, its connected but not active
             self.assertTrue(c2.connected)
             self.assertFalse(c2.active)
             with _get_conn() as c3:  # conn3
-                self.assertEqual(len(ldappool_cm), 2)
+                self.assertEqual(2, len(ldappool_cm))
                 self.assertTrue(c3.connected)
                 self.assertTrue(c3.active)
                 self.assertTrue(c3 is c2)  # same connection is reused
                 self.assertTrue(c2.active)
                 with _get_conn() as c4:  # conn4
-                    self.assertEqual(len(ldappool_cm), 3)
+                    self.assertEqual(3, len(ldappool_cm))
                     self.assertTrue(c4.connected)
                     self.assertTrue(c4.active)
 
@@ -136,15 +136,15 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
 
         user1 = self._create_user_and_authenticate(password)
         auth_cm = self._get_auth_conn_pool_cm()
-        self.assertEqual(len(auth_cm), 1)
+        self.assertEqual(1, len(auth_cm))
         user2 = self._create_user_and_authenticate(password)
-        self.assertEqual(len(auth_cm), 1)
+        self.assertEqual(1, len(auth_cm))
         user3 = self._create_user_and_authenticate(password)
-        self.assertEqual(len(auth_cm), 1)
+        self.assertEqual(1, len(auth_cm))
         user4 = self._create_user_and_authenticate(password)
-        self.assertEqual(len(auth_cm), 1)
+        self.assertEqual(1, len(auth_cm))
         user5 = self._create_user_and_authenticate(password)
-        self.assertEqual(len(auth_cm), 1)
+        self.assertEqual(1, len(auth_cm))
 
         # connection pool size remains 1 even for different user ldap bind
         # as there is only one active connection at a time
@@ -166,7 +166,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
                 with auth_cm.connection(u3_dn, password) as _:
                     with auth_cm.connection(u4_dn, password) as _:
                         with auth_cm.connection(u5_dn, password) as _:
-                            self.assertEqual(len(auth_cm), 5)
+                            self.assertEqual(5, len(auth_cm))
                             _.unbind_s()
 
         user3['password'] = new_password

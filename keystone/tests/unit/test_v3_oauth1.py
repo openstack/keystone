@@ -108,7 +108,7 @@ class ConsumerCRUDTests(OAuth1Tests):
             body={'consumer': ref})
         consumer = resp.result['consumer']
         consumer_id = consumer['id']
-        self.assertEqual(consumer['description'], description)
+        self.assertEqual(description, consumer['description'])
         self.assertIsNotNone(consumer_id)
         self.assertIsNotNone(consumer['secret'])
         return consumer
@@ -146,8 +146,8 @@ class ConsumerCRUDTests(OAuth1Tests):
         self_url = ['http://localhost/v3', self.CONSUMER_URL,
                     '/', consumer_id]
         self_url = ''.join(self_url)
-        self.assertEqual(resp.result['consumer']['links']['self'], self_url)
-        self.assertEqual(resp.result['consumer']['id'], consumer_id)
+        self.assertEqual(self_url, resp.result['consumer']['links']['self'])
+        self.assertEqual(consumer_id, resp.result['consumer']['id'])
 
     def test_consumer_list(self):
         self._consumer_create()
@@ -156,7 +156,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertIsNotNone(entities)
         self_url = ['http://localhost/v3', self.CONSUMER_URL]
         self_url = ''.join(self_url)
-        self.assertEqual(resp.result['links']['self'], self_url)
+        self.assertEqual(self_url, resp.result['links']['self'])
         self.assertValidListLinks(resp.result['links'])
 
     def test_consumer_update(self):
@@ -169,8 +169,8 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_resp = self.patch(self.CONSUMER_URL + '/%s' % original_id,
                                  body={'consumer': update_ref})
         consumer = update_resp.result['consumer']
-        self.assertEqual(consumer['description'], update_description)
-        self.assertEqual(consumer['id'], original_id)
+        self.assertEqual(update_description, consumer['description'])
+        self.assertEqual(original_id, consumer['id'])
 
     def test_consumer_update_bad_secret(self):
         consumer = self._create_single_consumer()
@@ -316,8 +316,8 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         }
         resp = self.get(url)
         entity = resp.result['access_token']
-        self.assertEqual(entity['id'], self.access_token.key)
-        self.assertEqual(entity['consumer_id'], self.consumer['key'])
+        self.assertEqual(self.access_token.key, entity['id'])
+        self.assertEqual(self.consumer['key'], entity['consumer_id'])
         self.assertEqual('http://localhost/v3' + url, entity['links']['self'])
 
     def test_get_access_token_dne(self):
@@ -342,7 +342,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                   'role': self.role_id})
         resp = self.get(url)
         entity = resp.result['role']
-        self.assertEqual(entity['id'], self.role_id)
+        self.assertEqual(self.role_id, entity['id'])
 
     def test_get_role_in_access_token_dne(self):
         self.test_oauth_flow()
@@ -385,14 +385,14 @@ class AuthTokenTests(OAuthFlowTests):
 
         # now verify the oauth section
         oauth_section = r.result['token']['OS-OAUTH1']
-        self.assertEqual(oauth_section['access_token_id'],
-                         self.access_token.key)
-        self.assertEqual(oauth_section['consumer_id'], self.consumer['key'])
+        self.assertEqual(self.access_token.key,
+                         oauth_section['access_token_id'])
+        self.assertEqual(self.consumer['key'], oauth_section['consumer_id'])
 
         # verify the roles section
         roles_list = r.result['token']['roles']
         # we can just verify the 0th role since we are only assigning one role
-        self.assertEqual(roles_list[0]['id'], self.role_id)
+        self.assertEqual(self.role_id, roles_list[0]['id'])
 
         # verify that the token can perform delegated tasks
         ref = self.new_user_ref(domain_id=self.domain_id)

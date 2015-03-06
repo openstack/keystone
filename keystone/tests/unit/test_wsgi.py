@@ -91,16 +91,16 @@ class ApplicationTest(BaseWSGITest):
         body = b'{"attribute": "value"}'
 
         resp = wsgi.render_response(body=data)
-        self.assertEqual(resp.status, '200 OK')
-        self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.body, body)
-        self.assertEqual(resp.headers.get('Vary'), 'X-Auth-Token')
-        self.assertEqual(resp.headers.get('Content-Length'), str(len(body)))
+        self.assertEqual('200 OK', resp.status)
+        self.assertEqual(200, resp.status_int)
+        self.assertEqual(body, resp.body)
+        self.assertEqual('X-Auth-Token', resp.headers.get('Vary'))
+        self.assertEqual(str(len(body)), resp.headers.get('Content-Length'))
 
     def test_render_response_custom_status(self):
         resp = wsgi.render_response(status=(501, 'Not Implemented'))
-        self.assertEqual(resp.status, '501 Not Implemented')
-        self.assertEqual(resp.status_int, 501)
+        self.assertEqual('501 Not Implemented', resp.status)
+        self.assertEqual(501, resp.status_int)
 
     def test_successful_require_attribute(self):
         app = FakeAttributeCheckerApp()
@@ -146,23 +146,23 @@ class ApplicationTest(BaseWSGITest):
 
     def test_render_response_custom_headers(self):
         resp = wsgi.render_response(headers=[('Custom-Header', 'Some-Value')])
-        self.assertEqual(resp.headers.get('Custom-Header'), 'Some-Value')
-        self.assertEqual(resp.headers.get('Vary'), 'X-Auth-Token')
+        self.assertEqual('Some-Value', resp.headers.get('Custom-Header'))
+        self.assertEqual('X-Auth-Token', resp.headers.get('Vary'))
 
     def test_render_response_no_body(self):
         resp = wsgi.render_response()
-        self.assertEqual(resp.status, '204 No Content')
-        self.assertEqual(resp.status_int, 204)
-        self.assertEqual(resp.body, b'')
-        self.assertEqual(resp.headers.get('Content-Length'), '0')
+        self.assertEqual('204 No Content', resp.status)
+        self.assertEqual(204, resp.status_int)
+        self.assertEqual(b'', resp.body)
+        self.assertEqual('0', resp.headers.get('Content-Length'))
         self.assertIsNone(resp.headers.get('Content-Type'))
 
     def test_render_response_head_with_body(self):
         resp = wsgi.render_response({'id': uuid.uuid4().hex}, method='HEAD')
-        self.assertEqual(resp.status_int, 200)
-        self.assertEqual(resp.body, b'')
+        self.assertEqual(200, resp.status_int)
+        self.assertEqual(b'', resp.body)
         self.assertNotEqual(resp.headers.get('Content-Length'), '0')
-        self.assertEqual(resp.headers.get('Content-Type'), 'application/json')
+        self.assertEqual('application/json', resp.headers.get('Content-Type'))
 
     def test_application_local_config(self):
         class FakeApp(wsgi.Application):
@@ -176,14 +176,14 @@ class ApplicationTest(BaseWSGITest):
     def test_render_exception(self):
         e = exception.Unauthorized(message=u'\u7f51\u7edc')
         resp = wsgi.render_exception(e)
-        self.assertEqual(resp.status_int, 401)
+        self.assertEqual(401, resp.status_int)
 
     def test_render_exception_host(self):
         e = exception.Unauthorized(message=u'\u7f51\u7edc')
         context = {'host_url': 'http://%s:5000' % uuid.uuid4().hex}
         resp = wsgi.render_exception(e, context=context)
 
-        self.assertEqual(resp.status_int, 401)
+        self.assertEqual(401, resp.status_int)
 
 
 class ExtensionRouterTest(BaseWSGITest):
@@ -226,7 +226,7 @@ class MiddlewareTest(BaseWSGITest):
         req = self._make_request()
         req.environ['REMOTE_ADDR'] = '127.0.0.1'
         resp = FakeMiddleware(self.app)(req)
-        self.assertEqual(resp.status_int, exception.Unauthorized.code)
+        self.assertEqual(exception.Unauthorized.code, resp.status_int)
 
     def test_middleware_type_error(self):
         class FakeMiddleware(wsgi.Middleware):
@@ -237,7 +237,7 @@ class MiddlewareTest(BaseWSGITest):
         req.environ['REMOTE_ADDR'] = '127.0.0.1'
         resp = FakeMiddleware(self.app)(req)
         # This is a validationerror type
-        self.assertEqual(resp.status_int, exception.ValidationError.code)
+        self.assertEqual(exception.ValidationError.code, resp.status_int)
 
     def test_middleware_exception_error(self):
 
@@ -250,7 +250,7 @@ class MiddlewareTest(BaseWSGITest):
         def do_request():
             req = self._make_request()
             resp = FakeMiddleware(self.app)(req)
-            self.assertEqual(resp.status_int, exception.UnexpectedError.code)
+            self.assertEqual(exception.UnexpectedError.code, resp.status_int)
             return resp
 
         # Exception data should not be in the message when debug is False
@@ -287,7 +287,7 @@ class LocalizedResponseTest(tests.TestCase):
         mock_gal.return_value = [language]
 
         req = webob.Request.blank('/', headers={'Accept-Language': language})
-        self.assertEqual(wsgi.best_match_language(req), language)
+        self.assertEqual(language, wsgi.best_match_language(req))
 
     @mock.patch.object(oslo_i18n, 'get_available_languages')
     def test_request_match_language_unexpected(self, mock_gal):
@@ -417,7 +417,7 @@ class ServerTest(tests.TestCase):
         server.start()
         self.addCleanup(server.stop)
 
-        self.assertEqual(mock_sock_dup.setsockopt.call_count, 2)
+        self.assertEqual(2, mock_sock_dup.setsockopt.call_count)
 
         # Test the last set of call args i.e. for the keepidle
         mock_sock_dup.setsockopt.assert_called_with(socket.IPPROTO_TCP,
