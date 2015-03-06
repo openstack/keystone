@@ -126,7 +126,7 @@ class Manager(manager.Manager):
             raise AssertionError(_('Domain is disabled: %s') % domain_id)
 
     def assert_domain_not_federated(self, domain_id, domain):
-        """Assert the Domain's name and id do not match the resevered keyword.
+        """Assert the Domain's name and id do not match the reserved keyword.
 
         Note that the reserved keyword is defined in the configuration file,
         by default, it is 'Federated', it is also case insensitive.
@@ -1039,8 +1039,8 @@ class DomainConfigManager(manager.Manager):
 
         The contents of the supplied config will be merged with the existing
         config for this domain, updating or creating new options if these did
-        not previously exist. If group or option are specified, then the update
-        will be limited to those specified items - and the inclusion of other
+        not previously exist. If group or option is specified, then the update
+        will be limited to those specified items and the inclusion of other
         options in the supplied config will raise an exception, as will the
         situation when those options do not already exist in the current
         config.
@@ -1058,7 +1058,7 @@ class DomainConfigManager(manager.Manager):
             self._assert_valid_group_and_option(group, option)
 
             # If a group has been specified, then the request is to
-            # explicitely only update the options in that group - so the config
+            # explicitly only update the options in that group - so the config
             # must not contain anything else. Further, that group must exist in
             # the original config. Likewise, if an option has been specified,
             # then the group in the config must only contain that option and it
@@ -1239,7 +1239,7 @@ class DomainConfigDriver(object):
         :param domain_id: the domain for this option
         :param group: optional group option name
         :param option: optional option name. If group is None, then this
-                       paramater is ignored
+                       parameter is ignored
         :param sensitive: whether the option is sensitive
 
         :returns: list of dicts containing group, option and value
@@ -1277,7 +1277,7 @@ class DomainConfigDriver(object):
         :param domain_id: the domain for this option
         :param group: optional group option name
         :param option: optional option name. If group is None, then this
-                       paramater is ignored
+                       parameter is ignored
         :param sensitive: whether the option is sensitive
 
         """
