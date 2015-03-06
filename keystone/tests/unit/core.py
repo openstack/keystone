@@ -274,7 +274,7 @@ class TestClient(object):
 class BaseTestCase(oslotest.BaseTestCase):
     """Light weight base test class.
 
-    This is a placeholder that will eventually go away once thc
+    This is a placeholder that will eventually go away once the
     setup/teardown in TestCase is properly trimmed down to the bare
     essentials. This is really just a play to speed up the tests by
     eliminating unnecessary work.
@@ -433,7 +433,7 @@ class TestCase(BaseTestCase):
 
         self.addCleanup(kvs.INMEMDB.clear)
 
-        # Ensure Notification subscriotions and resource types are empty
+        # Ensure Notification subscriptions and resource types are empty
         self.addCleanup(notifications.clear_subscribers)
         self.addCleanup(notifications.reset_notifier)
 
