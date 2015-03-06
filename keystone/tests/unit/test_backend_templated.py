@@ -124,4 +124,4 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
         self.skipTest('Templated backend does not support hints')
 
     def test_service_filtering(self):
-        self.skipTest("kvs backend doesn't support filtering")
+        self.skipTest("Templated backend doesn't support filtering")
