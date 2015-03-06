@@ -35,15 +35,15 @@ class ConfigTestCase(tests.TestCase):
         return config_files
 
     def test_paste_config(self):
-        self.assertEqual(config.find_paste_config(),
-                         tests.dirs.etc('keystone-paste.ini'))
+        self.assertEqual(tests.dirs.etc('keystone-paste.ini'),
+                         config.find_paste_config())
         self.config_fixture.config(group='paste_deploy',
                                    config_file=uuid.uuid4().hex)
         self.assertRaises(exception.ConfigFileNotFound,
                           config.find_paste_config)
         self.config_fixture.config(group='paste_deploy', config_file='')
-        self.assertEqual(config.find_paste_config(),
-                         tests.dirs.etc('keystone.conf.sample'))
+        self.assertEqual(tests.dirs.etc('keystone.conf.sample'),
+                         config.find_paste_config())
 
     def test_config_default(self):
         self.assertEqual('keystone.auth.plugins.password.Password',

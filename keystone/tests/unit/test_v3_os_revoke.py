@@ -81,7 +81,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.revoke_api.revoke_by_expiration(user_id, expires_at)
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
-        self.assertEqual(len(events), 1)
+        self.assertEqual(1, len(events))
         self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_disabled_project_in_list(self):
@@ -94,7 +94,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
-        self.assertEqual(len(events), 1)
+        self.assertEqual(1, len(events))
         self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_disabled_domain_in_list(self):
@@ -107,7 +107,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
-        self.assertEqual(len(events), 1)
+        self.assertEqual(1, len(events))
         self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_list_since_invalid(self):
@@ -116,7 +116,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     def test_list_since_valid(self):
         resp = self.get('/OS-REVOKE/events?since=2013-02-27T18:30:59.999999Z')
         events = resp.json_body['events']
-        self.assertEqual(len(events), 0)
+        self.assertEqual(0, len(events))
 
     def test_since_future_time_no_events(self):
         domain_id = uuid.uuid4().hex
@@ -128,7 +128,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
-        self.assertEqual(len(events), 1)
+        self.assertEqual(1, len(events))
 
         resp = self.get('/OS-REVOKE/events?since=%s' % _future_time_string())
         events = resp.json_body['events']

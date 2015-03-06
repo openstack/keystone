@@ -40,7 +40,7 @@ class IPv6TestCase(tests.TestCase):
                 '::1', CONF.eventlet_server.admin_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
-            self.assertEqual(resp.status, 300)
+            self.assertEqual(300, resp.status)
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, host="::1"):
@@ -48,4 +48,4 @@ class IPv6TestCase(tests.TestCase):
                 '::1', CONF.eventlet_server.public_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
-            self.assertEqual(resp.status, 300)
+            self.assertEqual(300, resp.status)
