@@ -81,7 +81,7 @@ class BaseTokenFormatter(object):
         """Generate uuid.hex format based on byte string.
 
         :param uuid_byte_string: uuid string to generate from
-        :return: uuid hex formatted string
+        :returns: uuid hex formatted string
 
         """
         # TODO(lbragstad): Wrap this in an exception. Not sure what the case
@@ -139,7 +139,7 @@ class UnscopedTokenFormatter(BaseTokenFormatter):
         """Create a unscoped token.
 
         :param user_id: identifier of the user in the token request
-        :param issued_at_int: datetime of the token's creation
+        :param created_at: datetime of the token's creation
         :param expires_at_int: datetime of the token's expiration
         :param audit_ids: list of the token's audit IDs
         :returns: a string representing the token
@@ -156,7 +156,7 @@ class UnscopedTokenFormatter(BaseTokenFormatter):
         """Validate an unscoped token.
 
         :param token_string: a string representing the token
-        :return: a tuple contains the user_id and token_data
+        :returns: a tuple contains the user_id and token_data
 
         """
         payload = self.unpack(token_string)
@@ -215,7 +215,7 @@ class ScopedTokenFormatter(BaseTokenFormatter):
         """Validate a F00 formatted token.
 
         :param token_string: a string representing the token
-        :return: a tuple contains the user_id, project_id and token_data
+        :returns: a tuple contains the user_id, project_id and token_data
 
         """
         payload = self.unpack(token_string)
@@ -286,7 +286,7 @@ class TrustTokenFormatter(BaseTokenFormatter):
         """Validate a trust formatted token.
 
         :param token_string: a string representing the token
-        :return: a tuple contains the user_id, project_id and token_data
+        :returns: a tuple contains the user_id, project_id and token_data
 
         """
         payload = self.unpack(token_string)
