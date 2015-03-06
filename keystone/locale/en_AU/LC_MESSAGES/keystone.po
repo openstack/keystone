@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-04 06:03+0000\n"
-"PO-Revision-Date: 2015-03-03 23:14+0000\n"
+"POT-Creation-Date: 2015-03-06 06:03+0000\n"
+"PO-Revision-Date: 2015-03-06 02:08+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -186,223 +186,228 @@ msgstr ""
 
 #: keystone/exception.py:228
 #, python-format
+msgid "Invalid domain specific configuration: %(reason)s"
+msgstr ""
+
+#: keystone/exception.py:232
+#, python-format
 msgid "Could not find: %(target)s"
 msgstr ""
 
-#: keystone/exception.py:234
+#: keystone/exception.py:238
 #, python-format
 msgid "Could not find endpoint: %(endpoint_id)s"
 msgstr ""
 
-#: keystone/exception.py:241
+#: keystone/exception.py:245
 msgid "An unhandled exception has occurred: Could not find metadata."
 msgstr "An unhandled exception has occurred: Could not find metadata."
 
-#: keystone/exception.py:246
+#: keystone/exception.py:250
 #, python-format
 msgid "Could not find policy: %(policy_id)s"
 msgstr ""
 
-#: keystone/exception.py:250
+#: keystone/exception.py:254
 msgid "Could not find policy association"
 msgstr ""
 
-#: keystone/exception.py:254
+#: keystone/exception.py:258
 #, python-format
 msgid "Could not find role: %(role_id)s"
 msgstr ""
 
-#: keystone/exception.py:258
+#: keystone/exception.py:262
 #, python-format
 msgid ""
 "Could not find role assignment with role: %(role_id)s, user or group: "
 "%(actor_id)s, project or domain: %(target_id)s"
 msgstr ""
 
-#: keystone/exception.py:264
+#: keystone/exception.py:268
 #, python-format
 msgid "Could not find region: %(region_id)s"
 msgstr ""
 
-#: keystone/exception.py:268
+#: keystone/exception.py:272
 #, python-format
 msgid "Could not find service: %(service_id)s"
 msgstr ""
 
-#: keystone/exception.py:272
+#: keystone/exception.py:276
 #, python-format
 msgid "Could not find domain: %(domain_id)s"
 msgstr ""
 
-#: keystone/exception.py:276
+#: keystone/exception.py:280
 #, python-format
 msgid "Could not find project: %(project_id)s"
 msgstr ""
 
-#: keystone/exception.py:280
+#: keystone/exception.py:284
 #, python-format
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr ""
 
-#: keystone/exception.py:284
+#: keystone/exception.py:288
 #, python-format
 msgid "Could not find token: %(token_id)s"
 msgstr ""
 
-#: keystone/exception.py:288
+#: keystone/exception.py:292
 #, python-format
 msgid "Could not find user: %(user_id)s"
 msgstr ""
 
-#: keystone/exception.py:292
+#: keystone/exception.py:296
 #, python-format
 msgid "Could not find group: %(group_id)s"
 msgstr ""
 
-#: keystone/exception.py:296
+#: keystone/exception.py:300
 #, python-format
 msgid "Could not find mapping: %(mapping_id)s"
 msgstr ""
 
-#: keystone/exception.py:300
+#: keystone/exception.py:304
 #, python-format
 msgid "Could not find trust: %(trust_id)s"
 msgstr ""
 
-#: keystone/exception.py:304
+#: keystone/exception.py:308
 #, python-format
 msgid "No remaining uses for trust: %(trust_id)s"
 msgstr ""
 
-#: keystone/exception.py:308
+#: keystone/exception.py:312
 #, python-format
 msgid "Could not find credential: %(credential_id)s"
 msgstr ""
 
-#: keystone/exception.py:312
+#: keystone/exception.py:316
 #, python-format
 msgid "Could not find version: %(version)s"
 msgstr ""
 
-#: keystone/exception.py:316
+#: keystone/exception.py:320
 #, python-format
 msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
 msgstr ""
 
-#: keystone/exception.py:320
+#: keystone/exception.py:324
 #, python-format
 msgid "Could not find Identity Provider: %(idp_id)s"
 msgstr ""
 
-#: keystone/exception.py:324
+#: keystone/exception.py:328
 #, python-format
 msgid "Could not find Service Provider: %(sp_id)s"
 msgstr ""
 
-#: keystone/exception.py:328
+#: keystone/exception.py:332
 #, python-format
 msgid ""
 "Could not find federated protocol %(protocol_id)s for Identity Provider: "
 "%(idp_id)s"
 msgstr ""
 
-#: keystone/exception.py:339
+#: keystone/exception.py:343
 #, python-format
 msgid ""
-"Could not find Domain Configuration for domain: %(domain_id)s, for group:"
-" %(group)s and option: %(option)s"
+"Could not find %(group_or_option)s in domain configuration for domain "
+"%(domain_id)s"
 msgstr ""
 
-#: keystone/exception.py:345
+#: keystone/exception.py:348
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
 msgstr ""
 
-#: keystone/exception.py:353
+#: keystone/exception.py:356
 msgid "An unexpected error prevented the server from fulfilling your request."
 msgstr ""
 
-#: keystone/exception.py:356
+#: keystone/exception.py:359
 #, python-format
 msgid ""
 "An unexpected error prevented the server from fulfilling your request: "
 "%(exception)s"
 msgstr ""
 
-#: keystone/exception.py:379
+#: keystone/exception.py:382
 #, python-format
 msgid "Unable to parse policy file %(policy_file)s."
 msgstr ""
 
-#: keystone/exception.py:383
+#: keystone/exception.py:386
 #, python-format
 msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
 msgstr ""
 
-#: keystone/exception.py:388
+#: keystone/exception.py:391
 msgid ""
 "Expected signing certificates are not available on the server. Please "
 "check Keystone configuration."
 msgstr ""
 
-#: keystone/exception.py:394
+#: keystone/exception.py:397
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 
-#: keystone/exception.py:399
+#: keystone/exception.py:402
 #, python-format
 msgid ""
 "Group %(group_id)s returned by mapping %(mapping_id)s was not found in "
 "the backend."
 msgstr ""
 
-#: keystone/exception.py:404
+#: keystone/exception.py:407
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
 msgstr ""
 
-#: keystone/exception.py:408
+#: keystone/exception.py:411
 #, python-format
 msgid ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
 msgstr ""
 
-#: keystone/exception.py:415
+#: keystone/exception.py:418
 msgid "The action you have requested has not been implemented."
 msgstr "The action you have requested has not been implemented."
 
-#: keystone/exception.py:422
+#: keystone/exception.py:425
 msgid "The service you have requested is no longer available on this server."
 msgstr ""
 
-#: keystone/exception.py:429
+#: keystone/exception.py:432
 #, python-format
 msgid "The Keystone configuration file %(config_file)s could not be found."
 msgstr "The Keystone configuration file %(config_file)s could not be found."
 
-#: keystone/exception.py:434
+#: keystone/exception.py:437
 msgid ""
 "No encryption keys found; run keystone-manage fernet_setup to bootstrap "
 "one."
 msgstr ""
 
-#: keystone/exception.py:439
+#: keystone/exception.py:442
 #, python-format
 msgid ""
 "The Keystone domain configuration file %(config_file)s defines an "
 "additional SQL driver - only one is permitted."
 msgstr ""
 
-#: keystone/exception.py:446
+#: keystone/exception.py:449
 #, python-format
 msgid ""
 "%(mod_name)s doesn't provide database migrations. The migration "
 "repository path at %(path)s doesn't exist or isn't a directory."
 msgstr ""
 
-#: keystone/exception.py:458
+#: keystone/exception.py:461
 #, python-format
 msgid ""
 "Unable to sign SAML assertion. It is likely that this server does not "
@@ -410,7 +415,7 @@ msgid ""
 " %(reason)s"
 msgstr ""
 
-#: keystone/exception.py:466
+#: keystone/exception.py:469
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, "
 "if running under HTTPd or Apache, ensure WSGIPassAuthorization is set to "
@@ -938,20 +943,20 @@ msgstr ""
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:273
+#: keystone/contrib/federation/controllers.py:274
 msgid "Missing entity ID from environment"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:281
+#: keystone/contrib/federation/controllers.py:282
 msgid "Request must have an origin query parameter"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:291
+#: keystone/contrib/federation/controllers.py:292
 #, python-format
 msgid "%(host)s is not a trusted dashboard host"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:332
+#: keystone/contrib/federation/controllers.py:333
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 
@@ -1086,9 +1091,9 @@ msgid ""
 "bug in the Keystone server. The current request is aborted."
 msgstr ""
 
-#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:193
-#: keystone/token/provider.py:213 keystone/token/provider.py:282
-#: keystone/token/provider.py:289
+#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:205
+#: keystone/token/provider.py:225 keystone/token/provider.py:294
+#: keystone/token/provider.py:301
 msgid "Failed to validate token"
 msgstr "Failed to validate token"
 
@@ -1276,6 +1281,84 @@ msgstr ""
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
+#: keystone/resource/core.py:848
+msgid "No options specified"
+msgstr "No options specified"
+
+#: keystone/resource/core.py:854
+#, python-format
+msgid ""
+"The value of group %(group)s specified in the config should be a "
+"dictionary of options"
+msgstr ""
+
+#: keystone/resource/core.py:878
+#, python-format
+msgid ""
+"Option %(option)s found with no group specified while checking domain "
+"configuration request"
+msgstr ""
+
+#: keystone/resource/core.py:885
+#, python-format
+msgid "Group %(group)s is not supported for domain specific configurations"
+msgstr ""
+
+#: keystone/resource/core.py:892
+#, python-format
+msgid ""
+"Option %(option)s in group %(group)s is not supported for domain specific"
+" configurations"
+msgstr ""
+
+#: keystone/resource/core.py:945
+msgid "An unexpected error occurred when retrieving domain configs"
+msgstr ""
+
+#: keystone/resource/core.py:1020 keystone/resource/core.py:1104
+#: keystone/resource/core.py:1174 keystone/resource/config_backends/sql.py:70
+#, python-format
+msgid "option %(option)s in group %(group)s"
+msgstr ""
+
+#: keystone/resource/core.py:1023 keystone/resource/core.py:1109
+#: keystone/resource/core.py:1170
+#, python-format
+msgid "group %(group)s"
+msgstr ""
+
+#: keystone/resource/core.py:1025
+msgid "any options"
+msgstr ""
+
+#: keystone/resource/core.py:1069
+#, python-format
+msgid ""
+"Trying to update option %(option)s in group %(group)s, so that, and only "
+"that, option must be specified  in the config"
+msgstr ""
+
+#: keystone/resource/core.py:1074
+#, python-format
+msgid ""
+"Trying to update group %(group)s, so that, and only that, group must be "
+"specified in the config"
+msgstr ""
+
+#: keystone/resource/core.py:1083
+#, python-format
+msgid ""
+"request to update group %(group)s, but config provided contains group "
+"%(group_other)s instead"
+msgstr ""
+
+#: keystone/resource/core.py:1090
+#, python-format
+msgid ""
+"Trying to update option %(option)s in group %(group)s, but config "
+"provided contains option %(option_other)s instead"
+msgstr ""
+
 #: keystone/resource/backends/ldap.py:151
 #: keystone/resource/backends/ldap.py:159
 #: keystone/resource/backends/ldap.py:163
@@ -1284,8 +1367,8 @@ msgstr ""
 
 #: keystone/server/eventlet.py:77
 msgid ""
-"Running Keystone via eventlet is deprecated as of Kilo in favor of "
-"running in a WSGI server (e.g. mod_wsgi). Support for Keystone under "
+"Running keystone via eventlet is deprecated as of Kilo in favor of "
+"running in a WSGI server (e.g. mod_wsgi). Support for keystone under "
 "eventlet will be removed in the \"M\"-Release."
 msgstr ""
 

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-04 06:03+0000\n"
-"PO-Revision-Date: 2015-03-03 02:33+0000\n"
+"POT-Creation-Date: 2015-03-06 06:04+0000\n"
+"PO-Revision-Date: 2015-03-05 05:50+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/keystone/"
 "language/it/)\n"
@@ -135,6 +135,13 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
+#: keystone/resource/core.py:939
+#, python-format
+msgid ""
+"Unexpected results in response for domain config - %(count)s responses, "
+"first option is %(option)s, expected option %(expected)s"
+msgstr ""
+
 #: keystone/resource/backends/sql.py:102 keystone/resource/backends/sql.py:121
 #, python-format
 msgid ""
@@ -142,7 +149,7 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
-#: keystone/token/provider.py:280
+#: keystone/token/provider.py:292
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
