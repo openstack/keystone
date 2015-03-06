@@ -1041,7 +1041,9 @@ class DomainConfigManager(manager.Manager):
         config for this domain, updating or creating new options if these did
         not previously exist. If group or option are specified, then the update
         will be limited to those specified items - and the inclusion of other
-        options in the supplied config will raise an exception.
+        options in the supplied config will raise an exception, as will the
+        situation when those options do not already exist in the current
+        config.
 
         :returns: a dict of groups containing all whitelisted options
         :raises keystone.exception.InvalidDomainConfig: when the config
@@ -1049,7 +1051,7 @@ class DomainConfigManager(manager.Manager):
                 support or one that does not exist in the original config
 
         """
-        def _assert_valid_update(config, group=None, option=None):
+        def _assert_valid_update(domain_id, config, group=None, option=None):
             """Ensure the combination of config, group and option is valid."""
 
             self._assert_valid_config(config)
@@ -1057,9 +1059,10 @@ class DomainConfigManager(manager.Manager):
 
             # If a group has been specified, then the request is to
             # explicitely only update the options in that group - so the config
-            # must not contain anything else. Hence there can only be one
-            # entry in the config. Likewise, if an option has been specified,
-            # then the group in the config must only contain that option.
+            # must not contain anything else. Further, that group must exist in
+            # the original config. Likewise, if an option has been specified,
+            # then the group in the config must only contain that option and it
+            # also must exist in the original config.
             if group:
                 if len(config) != 1 or (option and len(config[group]) != 1):
                     if option:
@@ -1074,8 +1077,8 @@ class DomainConfigManager(manager.Manager):
                     raise exception.InvalidDomainConfig(reason=msg)
 
                 # So we now know we have the right number of entries in the
-                # config that match the group/options specified - but we must
-                # also make sure they are the right ones.
+                # config that align with a group/option being specified, but we
+                # must also make sure they match.
                 if group not in config:
                     msg = _('request to update group %(group)s, but config '
                             'provided contains group %(group_other)s '
@@ -1090,6 +1093,22 @@ class DomainConfigManager(manager.Manager):
                                 'group': group, 'option': option,
                                 'option_other': config[group].keys()[0]}
                     raise exception.InvalidDomainConfig(reason=msg)
+
+                # Finally, we need to check if the group/option specified
+                # already exists in the original config - since if not, to keep
+                # with the semantics of an update, we need to fail with
+                # a DomainConfigNotFound
+                if not self.get_config_with_sensitive_info(domain_id,
+                                                           group, option):
+                    if option:
+                        msg = _('option %(option)s in group %(group)s') % {
+                            'group': group, 'option': option}
+                        raise exception.DomainConfigNotFound(
+                            domain_id=domain_id, group_or_option=msg)
+                    else:
+                        msg = _('group %(group)s') % {'group': group}
+                        raise exception.DomainConfigNotFound(
+                            domain_id=domain_id, group_or_option=msg)
 
         def _update_or_create(domain_id, option, sensitive):
             """Update the option, if it doesn't exist then create it."""
@@ -1110,7 +1129,7 @@ class DomainConfigManager(manager.Manager):
             # group in question
             update_config = {group: config}
 
-        _assert_valid_update(update_config, group, option)
+        _assert_valid_update(domain_id, update_config, group, option)
 
         whitelisted, sensitive = self._config_to_list(update_config)
 
