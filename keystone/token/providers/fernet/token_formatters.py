@@ -10,22 +10,31 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import base64
 import datetime
+import struct
 import uuid
 
 from cryptography import fernet
+import msgpack
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 import six
 
 from keystone import exception
+from keystone.i18n import _
 from keystone.token import provider
 from keystone.token.providers.fernet import utils
 
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
+
+# Fernet byte indexes as as computed by pypi/keyless_fernet and defined in
+# https://github.com/fernet/spec
+TIMESTAMP_START = 1
+TIMESTAMP_END = 9
 
 
 class TokenFormatter(object):
@@ -62,6 +71,99 @@ class TokenFormatter(object):
             return self.crypto.decrypt(token, ttl=CONF.token.expiration)
         except fernet.InvalidToken as e:
             raise exception.Unauthorized(six.text_type(e))
+
+    @classmethod
+    def creation_time(cls, fernet_token):
+        """Returns the creation time of a valid Fernet token."""
+        # fernet tokens are base64 encoded, so we need to unpack them first
+        token_bytes = base64.urlsafe_b64decode(fernet_token)
+
+        # slice into the byte array to get just the timestamp
+        timestamp_bytes = token_bytes[TIMESTAMP_START:TIMESTAMP_END]
+
+        # convert those bytes to an integer
+        # (it's a 64-bit "unsigned long long int" in C)
+        timestamp_int = struct.unpack(">Q", timestamp_bytes)[0]
+
+        # and with an integer, it's trivial to produce a datetime object
+        created_at = datetime.datetime.utcfromtimestamp(timestamp_int)
+
+        return created_at
+
+    def create_token(self, user_id, expires_at, audit_ids, domain_id=None,
+                     project_id=None, trust_id=None):
+        """Given a set of payload attributes, generate a Fernet token."""
+        if trust_id:
+            version = TrustScopedPayload.version
+            payload = TrustScopedPayload.assemble(
+                user_id,
+                project_id,
+                expires_at,
+                audit_ids,
+                trust_id)
+        elif project_id:
+            version = ProjectScopedPayload.version
+            payload = ProjectScopedPayload.assemble(
+                user_id,
+                project_id,
+                expires_at,
+                audit_ids)
+        elif domain_id:
+            version = DomainScopedPayload.version
+            payload = DomainScopedPayload.assemble(
+                user_id,
+                domain_id,
+                expires_at,
+                audit_ids)
+        else:
+            version = UnscopedPayload.version
+            payload = UnscopedPayload.assemble(
+                user_id,
+                expires_at,
+                audit_ids)
+
+        versioned_payload = (version,) + payload
+        serialized_payload = msgpack.packb(versioned_payload)
+        token = self.pack(serialized_payload)
+
+        return token
+
+    def validate_token(self, token):
+        """Validates a Fernet token and returns the payload attributes."""
+        serialized_payload = self.unpack(token)
+        versioned_payload = msgpack.unpackb(serialized_payload)
+        version, payload = versioned_payload[0], versioned_payload[1:]
+
+        # depending on the formatter, these may or may not be defined
+        domain_id = None
+        project_id = None
+        trust_id = None
+
+        if version == UnscopedPayload.version:
+            (user_id, expires_at, audit_ids) = (
+                UnscopedPayload.disassemble(payload))
+        elif version == DomainScopedPayload.version:
+            (user_id, domain_id, expires_at, audit_ids) = (
+                DomainScopedPayload.disassemble(payload))
+        elif version == ProjectScopedPayload.version:
+            (user_id, project_id, expires_at, audit_ids) = (
+                ProjectScopedPayload.disassemble(payload))
+        elif version == TrustScopedPayload.version:
+            (user_id, project_id, expires_at, audit_ids, trust_id) = (
+                TrustScopedPayload.disassemble(payload))
+        else:
+            # If the token_format is not recognized, raise Unauthorized.
+            raise exception.Unauthorized(_(
+                'This is not a recognized Fernet payload version: %s') %
+                version)
+
+        # rather than appearing in the payload, the creation time is encoded
+        # into the token format itself
+        created_at = TokenFormatter.creation_time(token)
+        created_at = timeutils.isotime(created_at)
+
+        return (user_id, audit_ids, domain_id, project_id, trust_id,
+                created_at, expires_at)
 
 
 class BasePayload(object):
