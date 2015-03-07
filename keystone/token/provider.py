@@ -20,7 +20,6 @@ import datetime
 import sys
 import uuid
 
-from keystoneclient.common import cms
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
@@ -34,6 +33,7 @@ from keystone.i18n import _, _LE
 from keystone.models import token_model
 from keystone import notifications
 from keystone.token import persistence
+from keystone.token import utils
 
 
 CONF = cfg.CONF
@@ -164,18 +164,6 @@ class Manager(manager.Manager):
             self._persistence_manager = persistence.PersistenceManager()
         return self._persistence_manager
 
-    def unique_id(self, token_id):
-        """Return a unique ID for a token.
-
-        The returned value is useful as the primary key of a database table,
-        memcache store, or other lookup table.
-
-        :returns: Given a PKI token, returns it's hashed value. Otherwise,
-                  returns the passed-in value (such as a UUID token ID or an
-                  existing hash).
-        """
-        return cms.cms_hash_token(token_id, mode=CONF.token.hash_algorithm)
-
     def _create_token(self, token_id, token_data):
         try:
             if isinstance(token_data['expires'], six.string_types):
@@ -192,7 +180,7 @@ class Manager(manager.Manager):
                 six.reraise(*exc_info)
 
     def validate_token(self, token_id, belongs_to=None):
-        unique_id = self.unique_id(token_id)
+        unique_id = utils.generate_unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         token = self._validate_token(unique_id)
@@ -211,7 +199,7 @@ class Manager(manager.Manager):
         self.revoke_api.check_token(token_values)
 
     def validate_v2_token(self, token_id, belongs_to=None):
-        unique_id = self.unique_id(token_id)
+        unique_id = utils.generate_unique_id(token_id)
         if self._needs_persistence:
             # NOTE(morganfainberg): Ensure we never use the long-form token_id
             # (PKI) as part of the cache_key.
@@ -239,7 +227,7 @@ class Manager(manager.Manager):
             return self.check_revocation_v3(token)
 
     def validate_v3_token(self, token_id):
-        unique_id = self.unique_id(token_id)
+        unique_id = utils.generate_unique_id(token_id)
         # NOTE(lbragstad): Only go to persistent storage if we have a token to
         # fetch from the backend. If the Fernet token provider is being used
         # this step isn't necessary. The Fernet token reference is persisted in

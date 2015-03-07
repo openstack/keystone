@@ -27,6 +27,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _LW
+from keystone.token import utils
 
 
 CONF = cfg.CONF
@@ -62,7 +63,7 @@ class PersistenceManager(manager.Manager):
             # context['token_id'] will in-fact be None. This also saves
             # a round-trip to the backend if we don't have a token_id.
             raise exception.TokenNotFound(token_id='')
-        unique_id = self.token_provider_api.unique_id(token_id)
+        unique_id = utils.generate_unique_id(token_id)
         token_ref = self._get_token(unique_id)
         # NOTE(morganfainberg): Lift expired checking to the manager, there is
         # no reason to make the drivers implement this check. With caching,
@@ -77,7 +78,7 @@ class PersistenceManager(manager.Manager):
         return self.driver.get_token(token_id)
 
     def create_token(self, token_id, data):
-        unique_id = self.token_provider_api.unique_id(token_id)
+        unique_id = utils.generate_unique_id(token_id)
         data_copy = copy.deepcopy(data)
         data_copy['id'] = unique_id
         ret = self.driver.create_token(unique_id, data_copy)
@@ -91,7 +92,7 @@ class PersistenceManager(manager.Manager):
     def delete_token(self, token_id):
         if not CONF.token.revoke_by_id:
             return
-        unique_id = self.token_provider_api.unique_id(token_id)
+        unique_id = utils.generate_unique_id(token_id)
         self.driver.delete_token(unique_id)
         self._invalidate_individual_token_cache(unique_id)
         self.invalidate_revocation_list()
@@ -104,7 +105,7 @@ class PersistenceManager(manager.Manager):
                                               consumer_id)
         self.driver.delete_tokens(user_id, tenant_id, trust_id, consumer_id)
         for token_id in token_list:
-            unique_id = self.token_provider_api.unique_id(token_id)
+            unique_id = utils.generate_unique_id(token_id)
             self._invalidate_individual_token_cache(unique_id)
         self.invalidate_revocation_list()
 
