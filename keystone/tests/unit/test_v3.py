@@ -159,6 +159,10 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
         self.empty_context = {'environment': {}}
 
+        # Initialize the policy engine and allow us to write to a temp
+        # file in each test to create the policies
+        rules.reset()
+
         # drop the policy rules
         self.addCleanup(rules.reset)
 
