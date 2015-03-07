@@ -21,6 +21,7 @@ from keystone.tests import unit as tests
 class TestDependencyInjection(tests.BaseTestCase):
     def setUp(self):
         super(TestDependencyInjection, self).setUp()
+        dependency.reset()
         self.addCleanup(dependency.reset)
 
     def test_dependency_injection(self):
