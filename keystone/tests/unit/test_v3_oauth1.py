@@ -574,7 +574,8 @@ class AuthTokenTests(OAuthFlowTests):
     def _set_policy(self, new_policy):
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        self.config_fixture.config(policy_file=self.tmpfilename)
+        self.config_fixture.config(group='oslo_policy',
+                                   policy_file=self.tmpfilename)
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write(jsonutils.dumps(new_policy))
 

@@ -567,13 +567,14 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
                                          domain_id=self.domainA['id'])
 
         # Finally, switch to the v3 sample policy file
-        self.orig_policy_file = CONF.policy_file
+        self.orig_policy_file = CONF.oslo_policy.policy_file
         from keystone.policy.backends import rules
         rules.reset()
 
     def config_overrides(self):
         super(TestTokenRevokeSelfAndAdmin, self).config_overrides()
         self.config_fixture.config(
+            group='oslo_policy',
             policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
 
     def test_user_revokes_own_token(self):

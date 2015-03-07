@@ -16,12 +16,12 @@
 import json
 
 import mock
+from oslo_policy import policy as common_policy
 import six
 from six.moves.urllib import request as urlrequest
 from testtools import matchers
 
 from keystone import exception
-from keystone.openstack.common import policy as common_policy
 from keystone.policy.backends import rules
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import temporaryfile
@@ -42,7 +42,8 @@ class PolicyFileTestCase(tests.TestCase):
 
     def config_overrides(self):
         super(PolicyFileTestCase, self).config_overrides()
-        self.config_fixture.config(policy_file=self.tmpfilename)
+        self.config_fixture.config(group='oslo_policy',
+                                   policy_file=self.tmpfilename)
 
     def test_modified_policy_reloads(self):
         action = "example:test"
@@ -52,8 +53,7 @@ class PolicyFileTestCase(tests.TestCase):
         rules.enforce(empty_credentials, action, self.target)
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write("""{"example:test": ["false:false"]}""")
-        # NOTE(vish): reset stored policy cache so we don't have to sleep(1)
-        rules._POLICY_CACHE = {}
+        rules._ENFORCER.clear()
         self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           empty_credentials, action, self.target)
 
@@ -63,7 +63,7 @@ class PolicyFileTestCase(tests.TestCase):
         invalid_json = '{"example:test": [],}'
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write(invalid_json)
-        self.assertRaises(exception.PolicyParsingError, rules.enforce,
+        self.assertRaises(ValueError, rules.enforce,
                           empty_credentials, action, self.target)
 
 
@@ -93,8 +93,7 @@ class PolicyTestCase(tests.TestCase):
         self.target = {}
 
     def _set_rules(self):
-        these_rules = common_policy.Rules(
-            {k: common_policy.parse_rule(v)for k, v in self.rules.items()})
+        these_rules = common_policy.Rules.from_dict(self.rules)
         rules._ENFORCER.set_rules(these_rules)
 
     def test_enforce_nonexistent_action_throws(self):
@@ -187,9 +186,7 @@ class DefaultPolicyTestCase(tests.TestCase):
         setattr(rules._ENFORCER, 'load_rules', lambda *args, **kwargs: None)
 
     def _set_rules(self, default_rule):
-        these_rules = common_policy.Rules(
-            {k: common_policy.parse_rule(v) for k, v in self.rules.items()},
-            default_rule)
+        these_rules = common_policy.Rules.from_dict(self.rules, default_rule)
         rules._ENFORCER.set_rules(these_rules)
 
     def test_policy_called(self):

@@ -15,14 +15,11 @@
 
 """Policy engine for keystone"""
 
-import os.path
-
 from oslo_config import cfg
 from oslo_log import log
+from oslo_policy import policy as common_policy
 
-from keystone.common import utils
 from keystone import exception
-from keystone.openstack.common import policy as common_policy
 from keystone import policy
 
 
@@ -31,42 +28,17 @@ LOG = log.getLogger(__name__)
 
 
 _ENFORCER = None
-_POLICY_PATH = None
-_POLICY_CACHE = {}
 
 
 def reset():
-    global _POLICY_PATH
-    global _POLICY_CACHE
     global _ENFORCER
-    _POLICY_PATH = None
-    _POLICY_CACHE = {}
     _ENFORCER = None
 
 
 def init():
-    global _POLICY_PATH
-    global _POLICY_CACHE
     global _ENFORCER
-    if not _POLICY_PATH:
-        _POLICY_PATH = CONF.policy_file
-        if not os.path.exists(_POLICY_PATH):
-            _POLICY_PATH = CONF.find_file(_POLICY_PATH)
     if not _ENFORCER:
-        _ENFORCER = common_policy.Enforcer(policy_file=_POLICY_PATH)
-    utils.read_cached_file(_POLICY_PATH,
-                           _POLICY_CACHE,
-                           reload_func=_set_rules)
-
-
-def _set_rules(data):
-    global _ENFORCER
-    default_rule = CONF.policy_default_rule
-    try:
-        _ENFORCER.set_rules(common_policy.Rules.load_json(
-            data, default_rule))
-    except ValueError:
-        raise exception.PolicyParsingError(policy_file=_POLICY_PATH)
+        _ENFORCER = common_policy.Enforcer(CONF)
 
 
 def enforce(credentials, action, target, do_raise=True):
