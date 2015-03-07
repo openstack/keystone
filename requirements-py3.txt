@@ -2,7 +2,6 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-# keystone dependencies
 pbr>=0.6,!=0.7,<1.0
 WebOb>=1.2.3
 # Eventlet is considered dead for Py3
