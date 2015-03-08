@@ -22,7 +22,6 @@ import re
 import shutil
 import socket
 import sys
-import time
 import warnings
 
 import fixtures
@@ -50,13 +49,11 @@ from keystone.common.kvs import core as kvs_core
 from keystone import config
 from keystone import controllers
 from keystone import exception
-from keystone.i18n import _LW
 from keystone import notifications
 from keystone.policy.backends import rules
 from keystone.server import common
 from keystone import service
 from keystone.tests.unit import ksfixtures
-from keystone.tests.unit import utils
 
 
 config.configure()
@@ -114,38 +111,6 @@ class dirs(object):
 
 # keystone.common.sql.initialize() for testing.
 DEFAULT_TEST_DB_FILE = dirs.tmp('test.db')
-
-
-def checkout_vendor(repo, rev):
-    # TODO(termie): this function is a good target for some optimizations :PERF
-    name = repo.split('/')[-1]
-    if name.endswith('.git'):
-        name = name[:-4]
-
-    working_dir = os.getcwd()
-    revdir = os.path.join(VENDOR, '%s-%s' % (name, rev.replace('/', '_')))
-    modcheck = os.path.join(VENDOR, '.%s-%s' % (name, rev.replace('/', '_')))
-    try:
-        if os.path.exists(modcheck):
-            mtime = os.stat(modcheck).st_mtime
-            if int(time.time()) - mtime < 10000:
-                return revdir
-
-        if not os.path.exists(revdir):
-            utils.git('clone', repo, revdir)
-
-        os.chdir(revdir)
-        utils.git('checkout', '-q', 'master')
-        utils.git('pull', '-q')
-        utils.git('checkout', '-q', rev)
-
-        # write out a modified time
-        with open(modcheck, 'w') as fd:
-            fd.write('1')
-    except environment.subprocess.CalledProcessError:
-        LOG.warning(_LW('Failed to checkout %s'), repo)
-    os.chdir(working_dir)
-    return revdir
 
 
 @atexit.register
