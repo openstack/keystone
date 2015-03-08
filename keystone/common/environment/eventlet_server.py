@@ -65,12 +65,11 @@ class EventletFilteringLogger(loggers.WritableLogger):
 class Server(object):
     """Server class to manage multiple WSGI sockets and applications."""
 
-    def __init__(self, application, host=None, port=None, threads=1000,
-                 keepalive=False, keepidle=None):
+    def __init__(self, application, host=None, port=None, keepalive=False,
+                 keepidle=None):
         self.application = application
         self.host = host or '0.0.0.0'
         self.port = port or 0
-        self.threads = threads
         # Pool for a green thread in which wsgi server will be running
         self.pool = eventlet.GreenPool(POOL_SIZE)
         self.socket_info = {}
@@ -185,7 +184,6 @@ class Server(object):
         logger = log.getLogger('eventlet.wsgi.server')
         try:
             eventlet.wsgi.server(socket, application,
-                                 max_size=self.threads,
                                  log=EventletFilteringLogger(logger),
                                  debug=False)
         except greenlet.GreenletExit:
