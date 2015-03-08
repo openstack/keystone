@@ -29,7 +29,6 @@ from keystone import config
 from keystone.i18n import _, _LW
 from keystone import identity
 from keystone import token
-from keystone.token.providers.fernet import utils as fernet
 
 
 CONF = cfg.CONF
@@ -192,6 +191,8 @@ class FernetSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
+        from keystone.token.providers.fernet import utils as fernet
+
         keystone_user_id, keystone_group_id = cls.get_user_group()
         fernet.create_key_directory(keystone_user_id, keystone_group_id)
         if fernet.validate_key_repository():
@@ -221,6 +222,8 @@ class FernetRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
+        from keystone.token.providers.fernet import utils as fernet
+
         keystone_user_id, keystone_group_id = cls.get_user_group()
         if fernet.validate_key_repository():
             fernet.rotate_keys(keystone_user_id, keystone_group_id)
