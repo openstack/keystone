@@ -98,7 +98,8 @@ class BaseTokenFormatter(object):
 
         """
         time_object = timeutils.parse_isotime(time_string)
-        return int(time_object.strftime('%s'))
+        return (timeutils.normalize_time(time_object) -
+                datetime.datetime.utcfromtimestamp(0)).total_seconds()
 
     def _convert_int_to_time_string(self, time_int):
         """Convert a timestamp integer to a string.
@@ -107,7 +108,7 @@ class BaseTokenFormatter(object):
         :returns: a time formatted string
 
         """
-        time_object = datetime.datetime.fromtimestamp(int(time_int))
+        time_object = datetime.datetime.utcfromtimestamp(int(time_int))
         return timeutils.isotime(time_object)
 
     def pack(self, payload):
