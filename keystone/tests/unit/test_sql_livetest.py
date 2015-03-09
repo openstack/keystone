@@ -23,8 +23,7 @@ class PostgresqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
         super(PostgresqlMigrateTests, self).setUp()
 
     def config_files(self):
-        files = (test_sql_upgrade.SqlUpgradeTests.
-                 _config_file_list[:])
+        files = super(PostgresqlMigrateTests, self).config_files()
         files.append(tests.dirs.tests_conf("backend_postgresql.conf"))
         return files
 
@@ -35,8 +34,7 @@ class MysqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
         super(MysqlMigrateTests, self).setUp()
 
     def config_files(self):
-        files = (test_sql_upgrade.SqlUpgradeTests.
-                 _config_file_list[:])
+        files = super(MysqlMigrateTests, self).config_files()
         files.append(tests.dirs.tests_conf("backend_mysql.conf"))
         return files
 
@@ -48,8 +46,7 @@ class PostgresqlRevokeExtensionsTests(
         super(PostgresqlRevokeExtensionsTests, self).setUp()
 
     def config_files(self):
-        files = (test_sql_upgrade.SqlUpgradeTests.
-                 _config_file_list[:])
+        files = super(PostgresqlRevokeExtensionsTests, self).config_files()
         files.append(tests.dirs.tests_conf("backend_postgresql.conf"))
         return files
 
@@ -60,8 +57,7 @@ class MysqlRevokeExtensionsTests(test_sql_migrate_extensions.RevokeExtension):
         super(MysqlRevokeExtensionsTests, self).setUp()
 
     def config_files(self):
-        files = (test_sql_upgrade.SqlUpgradeTests.
-                 _config_file_list[:])
+        files = super(MysqlRevokeExtensionsTests, self).config_files()
         files.append(tests.dirs.tests_conf("backend_mysql.conf"))
         return files
 
@@ -72,7 +68,6 @@ class Db2MigrateTests(test_sql_upgrade.SqlUpgradeTests):
         super(Db2MigrateTests, self).setUp()
 
     def config_files(self):
-        files = (test_sql_upgrade.SqlUpgradeTests.
-                 _config_file_list[:])
+        files = super(Db2MigrateTests, self).config_files()
         files.append(tests.dirs.tests_conf("backend_db2.conf"))
         return files
