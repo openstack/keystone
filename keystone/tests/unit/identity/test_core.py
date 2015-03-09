@@ -18,6 +18,7 @@ import uuid
 
 import mock
 from oslo_config import cfg
+from oslo_config import fixture as config_fixture
 
 from keystone import exception
 from keystone import identity
@@ -35,7 +36,10 @@ class TestDomainConfigs(tests.BaseTestCase):
         self.addCleanup(CONF.reset)
 
         self.tmp_dir = tests.dirs.tmp()
-        CONF.set_override('domain_config_dir', self.tmp_dir, 'identity')
+
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture.config(domain_config_dir=self.tmp_dir,
+                                   group='identity')
 
     def test_config_for_nonexistent_domain(self):
         """Having a config for a non-existent domain will be ignored.
@@ -132,8 +136,8 @@ class TestDatabaseDomainConfigs(tests.TestCase):
         self.assertFalse(CONF.identity.domain_configurations_from_database)
 
     def test_loading_config_from_database(self):
-        CONF.set_override('domain_configurations_from_database', True,
-                          'identity')
+        self.config_fixture.config(domain_configurations_from_database=True,
+                                   group='identity')
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.resource_api.create_domain(domain['id'], domain)
         # Override two config options for our domain
