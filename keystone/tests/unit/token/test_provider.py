@@ -16,7 +16,7 @@ from keystone.tests import unit
 from keystone.token import provider
 
 
-class TestRandomStrings(unit.TestCase):
+class TestRandomStrings(unit.BaseTestCase):
     def test_strings_are_url_safe(self):
         s = provider.random_urlsafe_str()
         self.assertEqual(s, urllib.quote_plus(s))

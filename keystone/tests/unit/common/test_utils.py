@@ -14,6 +14,7 @@ import datetime
 import uuid
 
 from oslo_config import cfg
+from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
 
 from keystone.common import utils as common_utils
@@ -28,8 +29,12 @@ CONF = cfg.CONF
 TZ = utils.TZ
 
 
-class UtilsTestCase(tests.TestCase):
+class UtilsTestCase(tests.BaseTestCase):
     OPTIONAL = object()
+
+    def setUp(self):
+        super(UtilsTestCase, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_hash(self):
         password = 'right'
@@ -149,7 +154,7 @@ class UtilsTestCase(tests.TestCase):
         self.assertEqual(expected_json, json)
 
 
-class ServiceHelperTests(tests.TestCase):
+class ServiceHelperTests(tests.BaseTestCase):
 
     @service.fail_gracefully
     def _do_test(self):
