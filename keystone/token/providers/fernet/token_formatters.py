@@ -174,7 +174,6 @@ class UnscopedTokenFormatter(BaseTokenFormatter):
         token_data = self.v3_token_data_helper.get_token_data(
             user_id,
             ['password', 'token'],
-            {},
             expires=expires_at_str,
             issued_at=issued_at_str,
             audit_info=audit_ids)
@@ -245,7 +244,6 @@ class ScopedTokenFormatter(BaseTokenFormatter):
         token_data = self.v3_token_data_helper.get_token_data(
             user_id,
             ['password', 'token'],
-            {},
             project_id=project_id,
             expires=expires_at_str,
             issued_at=issued_at_str,
@@ -311,7 +309,6 @@ class TrustTokenFormatter(BaseTokenFormatter):
         token_data = self.v3_token_data_helper.get_token_data(
             user_id,
             ['password', 'token'],
-            {},
             project_id=project_id,
             expires=expires_at_str,
             issued_at=issued_at_str,

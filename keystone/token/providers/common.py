@@ -354,11 +354,13 @@ class V3TokenDataHelper(object):
             LOG.error(msg)
             raise exception.UnexpectedError(msg)
 
-    def get_token_data(self, user_id, method_names, extras,
+    def get_token_data(self, user_id, method_names, extras=None,
                        domain_id=None, project_id=None, expires=None,
                        trust=None, token=None, include_catalog=True,
                        bind=None, access_token=None, issued_at=None,
                        audit_info=None):
+        if extras is None:
+            extras = {}
         token_data = {'methods': method_names,
                       'extras': extras}
 
@@ -640,7 +642,6 @@ class BaseProvider(provider.Provider):
             token_data = self.v3_token_data_helper.get_token_data(
                 token_ref['user']['id'],
                 ['password', 'token'],
-                {},
                 project_id=project_id,
                 bind=token_ref.get('bind'),
                 expires=token_ref['expires'],

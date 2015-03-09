@@ -2963,9 +2963,7 @@ class K2KServiceCatalogTests(FederationTests):
     def test_service_providers_in_token(self):
         """Check if service providers are listed in service catalog."""
 
-        token = self.token_v3_helper.get_token_data(self.user_id,
-                                                    ['password'],
-                                                    None)
+        token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
         ref = {}
         for r in (self.sp_alpha, self.sp_beta, self.sp_gamma):
             ref.update(r)
@@ -2982,9 +2980,7 @@ class K2KServiceCatalogTests(FederationTests):
         sp_ref = {'enabled': False}
         self.federation_api.update_sp(self.SP1, sp_ref)
 
-        token = self.token_v3_helper.get_token_data(self.user_id,
-                                                    ['password'],
-                                                    None)
+        token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
         ref = {}
         for r in (self.sp_beta, self.sp_gamma):
             ref.update(r)
@@ -3001,9 +2997,7 @@ class K2KServiceCatalogTests(FederationTests):
         for sp in (self.SP1, self.SP2, self.SP3):
             self.federation_api.update_sp(sp, sp_ref)
 
-        token = self.token_v3_helper.get_token_data(self.user_id,
-                                                    ['password'],
-                                                    None)
+        token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
         self.assertNotIn('service_providers', token['token'],
                          message=('Expected Service Catalog not to have '
                                   'service_providers'))
