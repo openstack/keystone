@@ -14,7 +14,6 @@
 
 from __future__ import absolute_import
 import atexit
-import copy
 import functools
 import logging
 import os
@@ -295,10 +294,8 @@ class BaseTestCase(oslotest.BaseTestCase):
 @dependency.requires('revoke_api')
 class TestCase(BaseTestCase):
 
-    _config_file_list = []
-
     def config_files(self):
-        return copy.copy(self._config_file_list)
+        return []
 
     def config_overrides(self):
         signing_certfile = 'examples/pki/certs/signing_cert.pem'
