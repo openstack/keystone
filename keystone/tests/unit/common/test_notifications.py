@@ -212,9 +212,11 @@ class NotificationsTestCase(testtools.TestCase):
             mocked.assert_called_once_with(*expected_args)
 
 
-class NotificationsForEntities(test_v3.RestfulTestCase):
+class BaseNotificationTest(test_v3.RestfulTestCase):
+
     def setUp(self):
-        super(NotificationsForEntities, self).setUp()
+        super(BaseNotificationTest, self).setUp()
+
         self._notifications = []
         self._audits = []
 
@@ -309,6 +311,9 @@ class NotificationsForEntities(test_v3.RestfulTestCase):
                 break
         else:
             self.fail("Notification not sent.")
+
+
+class NotificationsForEntities(BaseNotificationTest):
 
     def test_create_group(self):
         group_ref = self.new_group_ref(domain_id=self.domain_id)
