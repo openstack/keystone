@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev292\n"
+"Project-Id-Version: keystone 2015.1.dev362\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-04 06:03+0000\n"
+"POT-Creation-Date: 2015-03-09 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,11 +104,6 @@ msgstr ""
 #: keystone/openstack/common/eventlet_backdoor.py:146
 #, python-format
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
-msgstr ""
-
-#: keystone/openstack/common/policy.py:275
-#, python-format
-msgid "Can not find policy directory: %s"
 msgstr ""
 
 #: keystone/openstack/common/service.py:173

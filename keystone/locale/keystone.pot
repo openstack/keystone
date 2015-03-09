@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev331\n"
+"Project-Id-Version: keystone 2015.1.dev362\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-06 06:03+0000\n"
+"POT-Creation-Date: 2015-03-09 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -326,78 +326,73 @@ msgstr ""
 
 #: keystone/exception.py:382
 #, python-format
-msgid "Unable to parse policy file %(policy_file)s."
-msgstr ""
-
-#: keystone/exception.py:386
-#, python-format
 msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
 msgstr ""
 
-#: keystone/exception.py:391
+#: keystone/exception.py:387
 msgid ""
 "Expected signing certificates are not available on the server. Please "
 "check Keystone configuration."
 msgstr ""
 
-#: keystone/exception.py:397
+#: keystone/exception.py:393
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr ""
 
-#: keystone/exception.py:402
+#: keystone/exception.py:398
 #, python-format
 msgid ""
 "Group %(group_id)s returned by mapping %(mapping_id)s was not found in "
 "the backend."
 msgstr ""
 
-#: keystone/exception.py:407
+#: keystone/exception.py:403
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
 msgstr ""
 
-#: keystone/exception.py:411
+#: keystone/exception.py:407
 #, python-format
 msgid ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
 msgstr ""
 
-#: keystone/exception.py:418
+#: keystone/exception.py:414
 msgid "The action you have requested has not been implemented."
 msgstr ""
 
-#: keystone/exception.py:425
+#: keystone/exception.py:421
 msgid "The service you have requested is no longer available on this server."
 msgstr ""
 
-#: keystone/exception.py:432
+#: keystone/exception.py:428
 #, python-format
 msgid "The Keystone configuration file %(config_file)s could not be found."
 msgstr ""
 
-#: keystone/exception.py:437
+#: keystone/exception.py:433
 msgid ""
 "No encryption keys found; run keystone-manage fernet_setup to bootstrap "
 "one."
 msgstr ""
 
-#: keystone/exception.py:442
+#: keystone/exception.py:438
 #, python-format
 msgid ""
 "The Keystone domain configuration file %(config_file)s defines an "
 "additional SQL driver - only one is permitted."
 msgstr ""
 
-#: keystone/exception.py:449
+#: keystone/exception.py:445
 #, python-format
 msgid ""
 "%(mod_name)s doesn't provide database migrations. The migration "
 "repository path at %(path)s doesn't exist or isn't a directory."
 msgstr ""
 
-#: keystone/exception.py:461
+#: keystone/exception.py:457
 #, python-format
 msgid ""
 "Unable to sign SAML assertion. It is likely that this server does not "
@@ -405,7 +400,7 @@ msgid ""
 " %(reason)s"
 msgstr ""
 
-#: keystone/exception.py:469
+#: keystone/exception.py:465
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, "
 "if running under HTTPd or Apache, ensure WSGIPassAuthorization is set to "
@@ -885,11 +880,11 @@ msgid ""
 " self "
 msgstr ""
 
-#: keystone/common/sql/core.py:401
+#: keystone/common/sql/core.py:410
 msgid "Duplicate Entry"
 msgstr ""
 
-#: keystone/common/sql/core.py:417
+#: keystone/common/sql/core.py:426
 #, python-format
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
@@ -1122,32 +1117,6 @@ msgstr ""
 
 #: keystone/models/token_model.py:61
 msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-
-#: keystone/openstack/common/policy.py:111
-msgid "The JSON file that defines policies."
-msgstr ""
-
-#: keystone/openstack/common/policy.py:114
-msgid "Default rule. Enforced when a requested rule is not found."
-msgstr ""
-
-#: keystone/openstack/common/policy.py:118
-msgid ""
-"Directories where policy configuration files are stored. They can be "
-"relative to any directory in the search path defined by the config_dir "
-"option, or absolute paths. The file defined by policy_file must exist for"
-" these directories to be searched."
-msgstr ""
-
-#: keystone/openstack/common/policy.py:142
-#, python-format
-msgid "Policy doesn't allow %s to be performed."
-msgstr ""
-
-#: keystone/openstack/common/policy.py:239
-#, python-format
-msgid "Rules must be an instance of dict or Rules, got %s instead"
 msgstr ""
 
 #: keystone/openstack/common/versionutils.py:99

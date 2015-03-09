@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-04 06:03+0000\n"
-"PO-Revision-Date: 2015-03-03 02:32+0000\n"
+"POT-Creation-Date: 2015-03-09 06:03+0000\n"
+"PO-Revision-Date: 2015-03-07 04:31+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/projects/p/"
 "keystone/language/vi_VN/)\n"
@@ -107,11 +107,6 @@ msgstr ""
 #, python-format
 msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
 msgstr "Eventlet backdoor lắng nghe trên %(port)s đối với tiến trình %(pid)d"
-
-#: keystone/openstack/common/policy.py:275
-#, python-format
-msgid "Can not find policy directory: %s"
-msgstr ""
 
 #: keystone/openstack/common/service.py:173
 #, python-format

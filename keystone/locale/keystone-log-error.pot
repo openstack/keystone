@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev331\n"
+"Project-Id-Version: keystone 2015.1.dev362\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-06 06:04+0000\n"
+"POT-Creation-Date: 2015-03-09 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,17 +111,6 @@ msgstr ""
 
 #: keystone/openstack/common/loopingcall.py:138
 msgid "in dynamic looping call"
-msgstr ""
-
-#: keystone/openstack/common/policy.py:563
-#: keystone/openstack/common/policy.py:843
-#, python-format
-msgid "Failed to understand rule %s"
-msgstr ""
-
-#: keystone/openstack/common/policy.py:573
-#, python-format
-msgid "No handler for matches of kind %s"
 msgstr ""
 
 #: keystone/openstack/common/service.py:268

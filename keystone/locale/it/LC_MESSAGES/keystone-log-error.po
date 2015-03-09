@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-06 06:04+0000\n"
-"PO-Revision-Date: 2015-03-05 05:50+0000\n"
+"POT-Creation-Date: 2015-03-09 06:03+0000\n"
+"PO-Revision-Date: 2015-03-07 04:31+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/keystone/"
 "language/it/)\n"
@@ -112,17 +112,6 @@ msgstr "chiamata in loop a durata fissa"
 #: keystone/openstack/common/loopingcall.py:138
 msgid "in dynamic looping call"
 msgstr "chiamata in loop dinamico"
-
-#: keystone/openstack/common/policy.py:563
-#: keystone/openstack/common/policy.py:843
-#, python-format
-msgid "Failed to understand rule %s"
-msgstr "Impossibile comprendere la regola %s"
-
-#: keystone/openstack/common/policy.py:573
-#, python-format
-msgid "No handler for matches of kind %s"
-msgstr "Nessun gestore per le corrispondenze di tipo %s"
 
 #: keystone/openstack/common/service.py:268
 msgid "Unhandled exception"
