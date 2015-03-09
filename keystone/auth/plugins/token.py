@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
@@ -19,7 +20,6 @@ from keystone import auth
 from keystone.auth.plugins import mapped
 from keystone.common import dependency
 from keystone.common import wsgi
-from keystone import config
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
@@ -27,7 +27,7 @@ from keystone.models import token_model
 
 LOG = log.getLogger(__name__)
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 @dependency.requires('federation_api', 'identity_api', 'token_provider_api')

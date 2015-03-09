@@ -17,9 +17,9 @@ import tempfile
 import uuid
 
 import mock
+from oslo_config import cfg
 from oslo_utils import timeutils
 
-from keystone.common import config
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.token.providers import fernet
@@ -27,7 +27,7 @@ from keystone.token.providers.fernet import token_formatters
 from keystone.token.providers.fernet import utils
 
 
-CONF = config.CONF
+CONF = cfg.CONF
 
 
 class KeyRepositoryTestMixin(object):
