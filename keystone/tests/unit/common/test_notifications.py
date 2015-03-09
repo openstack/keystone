@@ -628,6 +628,13 @@ class NotificationsForEntities(BaseNotificationTest):
         # No audit event should have occurred
         self.assertEqual(0, len(self._audits))
 
+
+class CADFNotificationsForEntities(NotificationsForEntities):
+
+    def setUp(self):
+        super(CADFNotificationsForEntities, self).setUp()
+        self.config_fixture.config(notification_format='cadf')
+
     def test_initiator_data_is_set(self):
         ref = self.new_domain_ref()
         resp = self.post('/domains', body={'domain': ref})
@@ -638,13 +645,6 @@ class NotificationsForEntities(BaseNotificationTest):
         audit = self._audits[-1]
         payload = audit['payload']
         self.assertEqual(self.user_id, payload['initiator']['id'])
-
-
-class CADFNotificationsForEntities(NotificationsForEntities):
-
-    def setUp(self):
-        super(CADFNotificationsForEntities, self).setUp()
-        self.config_fixture.config(notification_format='cadf')
 
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
