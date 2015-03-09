@@ -176,6 +176,21 @@ class DomainConfigs(dict):
                                   fname)
 
     def _load_config_from_database(self, domain_id, specific_config):
+
+        def _assert_not_sql_driver(domain_id, new_config):
+            """Ensure this is not an sql driver.
+
+            Due to multi-threading safety concerns, we do not currently support
+            the setting of a specific identity driver to sql via the Identity
+            API.
+
+            """
+            if new_config['driver'].is_sql:
+                reason = _('Domain specific sql drivers are not supported via '
+                           'the Identity API. One is specified in '
+                           '/domains/%s/config') % domain_id
+                raise exception.InvalidDomainConfig(reason=reason)
+
         domain_config = {}
         domain_config['cfg'] = cfg.ConfigOpts()
         config.configure(conf=domain_config['cfg'])
@@ -188,8 +203,9 @@ class DomainConfigs(dict):
                 domain_config['cfg'].set_override(
                     option, specific_config[group][option], group)
 
+        domain_config['cfg_overrides'] = specific_config
         domain_config['driver'] = self._load_driver(domain_config)
-        self._assert_no_more_than_one_sql_driver(domain_id, domain_config)
+        _assert_not_sql_driver(domain_id, domain_config)
         self[domain_id] = domain_config
 
     def _setup_domain_drivers_from_database(self, standard_driver,
@@ -226,10 +242,12 @@ class DomainConfigs(dict):
                                                   resource_api)
 
     def get_domain_driver(self, domain_id):
+        self.check_config_and_reload_domain_driver_if_required(domain_id)
         if domain_id in self:
             return self[domain_id]['driver']
 
     def get_domain_conf(self, domain_id):
+        self.check_config_and_reload_domain_driver_if_required(domain_id)
         if domain_id in self:
             return self[domain_id]['cfg']
         else:
@@ -248,6 +266,61 @@ class DomainConfigs(dict):
             else:
                 # The standard driver
                 self.driver = self.driver()
+
+    def check_config_and_reload_domain_driver_if_required(self, domain_id):
+        """Check for, and load, any new domain specific config for this domain.
+
+        This is only supported for the database-stored domain specific
+        configuration.
+
+        When the domain specific drivers were set up, we stored away the
+        specific config for this domain that was available at that time. So we
+        now read the current version and compare. While this might seem
+        somewhat inefficient, the sensitive config call is cached, so should be
+        light weight. More importantly, when the cache timeout is reached, we
+        will get any config that has been updated from any other keystone
+        process.
+
+        This cache-timeout approach works for both multi-process and
+        multi-threaded keystone configurations. In multi-threaded
+        configurations, even though we might remove a driver object (that
+        could be in use by another thread), this won't actually be thrown away
+        until all references to it have been broken. When that other
+        thread is released back and is restarted with another command to
+        process, next time it accesses the driver it will pickup the new one.
+
+        """
+        if (not CONF.identity.domain_specific_drivers_enabled or
+                not CONF.identity.domain_configurations_from_database):
+            # If specific drivers are not enabled, then there is nothing to do.
+            # If we are not storing the configurations in the database, then
+            # we'll only re-read the domain specific config files on startup
+            # of keystone.
+            return
+
+        latest_domain_config = (
+            self.domain_config_api.
+            get_config_with_sensitive_info(domain_id))
+        domain_config_in_use = domain_id in self
+
+        if latest_domain_config:
+            if (not domain_config_in_use or
+                    latest_domain_config != self[domain_id]['cfg_overrides']):
+                self._load_config_from_database(domain_id,
+                                                latest_domain_config)
+        elif domain_config_in_use:
+            # The domain specific config has been deleted, so should remove the
+            # specific driver for this domain.
+            try:
+                del self[domain_id]
+            except KeyError:
+                # Allow this error in case we are unlucky and in a
+                # multi-threaded situation, two threads happen to be running
+                # in lock step.
+                pass
+        # If we fall into the else condition, this means there is no domain
+        # config set, and there is none in use either, so we have nothing
+        # to do.
 
 
 def domains_configured(f):

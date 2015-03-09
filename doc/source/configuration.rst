@@ -200,6 +200,16 @@ Once enabled, any existing domain-specific configuration files in the
 configuration directory will be ignored and only those domain-specific
 configuration options specified via the Identity API will be used.
 
+Unlike the file-based method of specifying domain-specific configurations,
+options specified via the Identity API will become active without needing to
+restart the keystone server. For performance reasons, the current state of
+configuration options for a domain are cached in the keystone server, and in
+multi-process and multi-threaded keystone configurations, the new
+configuration options may not become active until the cache has timed out. The
+cache settings for domain config options can be adjusted in the general
+keystone configuration file (option ``cache_time`` in the ``domain-config``
+group).
+
 .. NOTE::
 
     It is important to notice that when using either of these methods of
@@ -207,7 +217,10 @@ configuration options specified via the Identity API will be used.
     configuration file is still maintained. Only those options that relate
     to the Identity driver for users and groups (i.e. specifying whether the
     driver for this domain is SQL or LDAP, and, if LDAP, the options that
-    define that connection) are supported in a domain-specific manner.
+    define that connection) are supported in a domain-specific manner. Further,
+    when using the configuration options via the Identity API, the driver
+    option must be set to an LDAP driver (attempting to set it to an SQL driver
+    will generate an error when it is subsequently used).
 
 For existing installations that already use file-based domain-specific
 configurations who wish to migrate to the SQL-based approach, the

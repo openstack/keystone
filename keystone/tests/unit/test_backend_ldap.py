@@ -2725,6 +2725,49 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
                 CONF.identity.default_domain_id))
         self.assertEqual(CONF.ldap.url, default_config.ldap.url)
 
+    def test_reloading_domain_config(self):
+        """Ensure domain drivers are reloaded on a config modification."""
+
+        domain_cfgs = self.identity_api.domain_configs
+
+        # Create a new config for the default domain, hence overwriting the
+        # current settings.
+        new_config = {
+            'ldap': {'url': uuid.uuid4().hex},
+            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}}
+        self.domain_config_api.create_config(
+            CONF.identity.default_domain_id, new_config)
+        default_config = (
+            domain_cfgs.get_domain_conf(CONF.identity.default_domain_id))
+        self.assertEqual(new_config['ldap']['url'], default_config.ldap.url)
+
+        # Ensure updating is also honored
+        updated_config = {'url': uuid.uuid4().hex}
+        self.domain_config_api.update_config(
+            CONF.identity.default_domain_id, updated_config,
+            group='ldap', option='url')
+        default_config = (
+            domain_cfgs.get_domain_conf(CONF.identity.default_domain_id))
+        self.assertEqual(updated_config['url'], default_config.ldap.url)
+
+        # ...and finally ensure delete causes the driver to get the standard
+        # config again.
+        self.domain_config_api.delete_config(CONF.identity.default_domain_id)
+        default_config = (
+            domain_cfgs.get_domain_conf(CONF.identity.default_domain_id))
+        self.assertEqual(CONF.ldap.url, default_config.ldap.url)
+
+    def test_setting_sql_driver_raises_exception(self):
+        """Ensure setting of domain specific sql driver is prevented."""
+
+        new_config = {
+            'identity': {'driver': 'keystone.identity.backends.sql.Identity'}}
+        self.domain_config_api.create_config(
+            CONF.identity.default_domain_id, new_config)
+        self.assertRaises(exception.InvalidDomainConfig,
+                          self.identity_api.domain_configs.get_domain_conf,
+                          CONF.identity.default_domain_id)
+
 
 class DomainSpecificLDAPandSQLIdentity(
     BaseLDAPIdentity, tests.SQLDriverOverrides, tests.TestCase,
