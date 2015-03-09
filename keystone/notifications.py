@@ -394,6 +394,8 @@ def _send_notification(operation, resource_type, resource_id, public=True):
 def _get_request_audit_info(context, user_id=None):
     remote_addr = None
     http_user_agent = None
+    project_id = None
+    domain_id = None
 
     if context and 'environment' in context and context['environment']:
         environment = context['environment']
@@ -402,10 +404,19 @@ def _get_request_audit_info(context, user_id=None):
         if not user_id:
             user_id = environment.get('KEYSTONE_AUTH_CONTEXT',
                                       {}).get('user_id')
+        project_id = environment.get('KEYSTONE_AUTH_CONTEXT',
+                                     {}).get('project_id')
+        domain_id = environment.get('KEYSTONE_AUTH_CONTEXT',
+                                    {}).get('domain_id')
 
     host = pycadf.host.Host(address=remote_addr, agent=http_user_agent)
     initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
                                   id=user_id, host=host)
+    if project_id:
+        initiator.project_id = project_id
+    if domain_id:
+        initiator.domain_id = domain_id
+
     return initiator
 
 

@@ -645,6 +645,7 @@ class CADFNotificationsForEntities(NotificationsForEntities):
         audit = self._audits[-1]
         payload = audit['payload']
         self.assertEqual(self.user_id, payload['initiator']['id'])
+        self.assertEqual(self.project_id, payload['initiator']['project_id'])
 
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
