@@ -23,6 +23,7 @@ from keystone.common import dependency
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
+from keystone.openstack.common import versionutils
 from keystone import token
 from keystone.token import provider
 
@@ -361,6 +362,11 @@ class V3TokenDataHelper(object):
                        audit_info=None):
         if extras is None:
             extras = {}
+        if extras:
+            versionutils.deprecated(
+                what='passing token data with "extras"',
+                as_of=versionutils.deprecated.KILO,
+                in_favor_of='well-defined APIs')
         token_data = {'methods': method_names,
                       'extras': extras}
 
