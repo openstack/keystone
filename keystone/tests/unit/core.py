@@ -565,9 +565,6 @@ class TestCase(BaseTestCase):
     def loadapp(self, config, name='main'):
         return service.loadapp(self._paste_config(config), name=name)
 
-    def client(self, app, *args, **kw):
-        return TestClient(app, *args, **kw)
-
     def clear_auth_plugin_registry(self):
         auth.controllers.AUTH_METHODS.clear()
         auth.controllers.AUTH_PLUGINS_LOADED = False

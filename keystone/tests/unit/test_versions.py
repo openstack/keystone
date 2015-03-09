@@ -624,7 +624,7 @@ class VersionTestCase(tests.TestCase):
                 link['href'] = port
 
     def test_public_versions(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         resp = client.get('/')
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -641,7 +641,7 @@ class VersionTestCase(tests.TestCase):
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_admin_versions(self):
-        client = self.client(self.admin_app)
+        client = tests.TestClient(self.admin_app)
         resp = client.get('/')
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -661,7 +661,7 @@ class VersionTestCase(tests.TestCase):
         self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
 
         for app in (self.public_app, self.admin_app):
-            client = self.client(app)
+            client = tests.TestClient(app)
             resp = client.get('/')
             self.assertEqual(300, resp.status_int)
             data = jsonutils.loads(resp.body)
@@ -677,7 +677,7 @@ class VersionTestCase(tests.TestCase):
             self.assertThat(data, _VersionsEqual(expected))
 
     def test_public_version_v2(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         resp = client.get('/v2.0/')
         self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -688,7 +688,7 @@ class VersionTestCase(tests.TestCase):
         self.assertEqual(expected, data)
 
     def test_admin_version_v2(self):
-        client = self.client(self.admin_app)
+        client = tests.TestClient(self.admin_app)
         resp = client.get('/v2.0/')
         self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -701,7 +701,7 @@ class VersionTestCase(tests.TestCase):
     def test_use_site_url_if_endpoint_unset_v2(self):
         self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
         for app in (self.public_app, self.admin_app):
-            client = self.client(app)
+            client = tests.TestClient(app)
             resp = client.get('/v2.0/')
             self.assertEqual(200, resp.status_int)
             data = jsonutils.loads(resp.body)
@@ -710,7 +710,7 @@ class VersionTestCase(tests.TestCase):
             self.assertEqual(data, expected)
 
     def test_public_version_v3(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         resp = client.get('/v3/')
         self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -721,7 +721,7 @@ class VersionTestCase(tests.TestCase):
         self.assertEqual(expected, data)
 
     def test_admin_version_v3(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         resp = client.get('/v3/')
         self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -734,7 +734,7 @@ class VersionTestCase(tests.TestCase):
     def test_use_site_url_if_endpoint_unset_v3(self):
         self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
         for app in (self.public_app, self.admin_app):
-            client = self.client(app)
+            client = tests.TestClient(app)
             resp = client.get('/v3/')
             self.assertEqual(200, resp.status_int)
             data = jsonutils.loads(resp.body)
@@ -744,7 +744,7 @@ class VersionTestCase(tests.TestCase):
 
     @mock.patch.object(controllers, '_VERSIONS', ['v3'])
     def test_v2_disabled(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         # request to /v2.0 should fail
         resp = client.get('/v2.0/')
         self.assertEqual(404, resp.status_int)
@@ -777,7 +777,7 @@ class VersionTestCase(tests.TestCase):
 
     @mock.patch.object(controllers, '_VERSIONS', ['v2.0'])
     def test_v3_disabled(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         # request to /v3 should fail
         resp = client.get('/v3/')
         self.assertEqual(404, resp.status_int)
@@ -809,7 +809,7 @@ class VersionTestCase(tests.TestCase):
         self.assertEqual(v2_only_response, data)
 
     def _test_json_home(self, path, exp_json_home_data):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         resp = client.get(path, headers={'Accept': 'application/json-home'})
 
         self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
@@ -842,7 +842,7 @@ class VersionTestCase(tests.TestCase):
         # Accept headers with multiple types and qvalues are handled.
 
         def make_request(accept_types=None):
-            client = self.client(self.public_app)
+            client = tests.TestClient(self.public_app)
             headers = None
             if accept_types:
                 headers = {'Accept': accept_types}
@@ -921,7 +921,7 @@ class VersionSingleAppTestCase(tests.TestCase):
 
     def _test_version(self, app_name):
         app = self.loadapp('keystone', app_name)
-        client = self.client(app)
+        client = tests.TestClient(app)
         resp = client.get('/')
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -967,7 +967,7 @@ class VersionInheritEnabledTestCase(tests.TestCase):
         # If the request is /v3 and the Accept header is application/json-home
         # then the server responds with a JSON Home document.
 
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         resp = client.get('/v3/', headers={'Accept': 'application/json-home'})
 
         self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
@@ -1007,7 +1007,7 @@ class VersionBehindSslTestCase(tests.TestCase):
         return expected
 
     def test_versions_without_headers(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         host_name = 'host-%d' % random.randint(10, 30)
         host_port = random.randint(10000, 30000)
         host = 'http://%s:%s/' % (host_name, host_port)
@@ -1018,7 +1018,7 @@ class VersionBehindSslTestCase(tests.TestCase):
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_versions_with_header(self):
-        client = self.client(self.public_app)
+        client = tests.TestClient(self.public_app)
         host_name = 'host-%d' % random.randint(10, 30)
         host_port = random.randint(10000, 30000)
         resp = client.get('http://%s:%s/' % (host_name, host_port),
