@@ -411,11 +411,7 @@ class TestCase(BaseTestCase):
         for pair in CONF.default_log_levels:
             mod, _sep, level_name = pair.partition('=')
             logger = logging.getLogger(mod)
-            if sys.version_info < (2, 7):
-                level = logging.getLevelName(level_name)
-                logger.setLevel(level)
-            else:
-                logger.setLevel(level_name)
+            logger.setLevel(level_name)
 
         warnings.filterwarnings('error', category=DeprecationWarning,
                                 module='^keystone\\.')
