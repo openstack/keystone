@@ -172,5 +172,10 @@
     "identity:check_policy_association_for_region_and_service": "rule:admin_required",
     "identity:delete_policy_association_for_region_and_service": "rule:admin_required",
     "identity:get_policy_for_endpoint": "rule:admin_required",
-    "identity:list_endpoints_for_policy": "rule:admin_required"
+    "identity:list_endpoints_for_policy": "rule:admin_required",
+
+    "identity:create_domain_config": "rule:admin_required",
+    "identity:get_domain_config": "rule:admin_required",
+    "identity:update_domain_config": "rule:admin_required",
+    "identity:delete_domain_config": "rule:admin_required"
 }
