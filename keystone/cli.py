@@ -28,6 +28,7 @@ from keystone.common import utils
 from keystone import config
 from keystone.i18n import _, _LW
 from keystone import identity
+from keystone import resource
 from keystone import token
 from keystone.token.providers.fernet import utils as fernet
 
@@ -289,8 +290,10 @@ class MappingPurge(BaseApp):
         def get_domain_id(name):
             try:
                 identity.Manager()
-                assignment_manager = assignment.Manager()
-                return assignment_manager.driver.get_domain_by_name(name)['id']
+                # init assignment manager to avoid KeyError in resource.core
+                assignment.Manager()
+                resource_manager = resource.Manager()
+                return resource_manager.driver.get_domain_by_name(name)['id']
             except KeyError:
                 raise ValueError(_("Unknown domain '%(name)s' specified by "
                                    "--domain-name") % {'name': name})
