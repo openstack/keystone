@@ -25,11 +25,15 @@ from keystone.tests import unit as tests
 LOG = log.getLogger(__name__)
 
 
-class TestTestCase(tests.TestCase):
+class BaseTestTestCase(tests.BaseTestCase):
+
     def test_unexpected_exit(self):
         # if a test calls sys.exit it raises rather than exiting.
         self.assertThat(lambda: sys.exit(),
                         matchers.raises(tests.UnexpectedExit))
+
+
+class TestTestCase(tests.TestCase):
 
     def test_bad_log(self):
         # If the arguments are invalid for the string in a log it raises an

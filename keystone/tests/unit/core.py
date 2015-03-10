@@ -275,6 +275,11 @@ class BaseTestCase(oslotest.BaseTestCase):
     eliminating unnecessary work.
     """
 
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+        self.useFixture(mockpatch.PatchObject(sys, 'exit',
+                                              side_effect=UnexpectedExit))
+
     def cleanup_instance(self, *names):
         """Create a function suitable for use with self.addCleanup.
 
@@ -380,8 +385,6 @@ class TestCase(BaseTestCase):
 
         self.addCleanup(CONF.reset)
 
-        self.useFixture(mockpatch.PatchObject(sys, 'exit',
-                                              side_effect=UnexpectedExit))
         self.useFixture(mockpatch.PatchObject(logging.Handler, 'handleError',
                                               side_effect=BadLog))
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
