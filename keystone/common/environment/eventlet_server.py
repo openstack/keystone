@@ -33,6 +33,13 @@ from keystone.i18n import _LE, _LI
 
 LOG = log.getLogger(__name__)
 
+# The size of a pool that is used to spawn a single green thread in which
+# a wsgi server is then started. The size of one is enough, because in case
+# of several workers the parent process forks and each child gets a copy
+# of a pool, which does not include any greenthread object as the spawn is
+# done after the fork.
+POOL_SIZE = 1
+
 
 class EventletFilteringLogger(loggers.WritableLogger):
     # NOTE(morganfainberg): This logger is designed to filter out specific
@@ -63,7 +70,9 @@ class Server(object):
         self.application = application
         self.host = host or '0.0.0.0'
         self.port = port or 0
-        self.pool = eventlet.GreenPool(threads)
+        self.threads = threads
+        # Pool for a green thread in which wsgi server will be running
+        self.pool = eventlet.GreenPool(POOL_SIZE)
         self.socket_info = {}
         self.greenthread = None
         self.do_ssl = False
@@ -175,7 +184,8 @@ class Server(object):
         """Start a WSGI server with a new green thread pool."""
         logger = log.getLogger('eventlet.wsgi.server')
         try:
-            eventlet.wsgi.server(socket, application, custom_pool=self.pool,
+            eventlet.wsgi.server(socket, application,
+                                 max_size=self.threads,
                                  log=EventletFilteringLogger(logger),
                                  debug=False)
         except greenlet.GreenletExit:
