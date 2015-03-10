@@ -106,7 +106,7 @@ class Manager(manager.Manager):
 
         ret = self.driver.create_project(tenant_id, tenant)
         notifications.Audit.created(self._PROJECT, tenant_id, initiator)
-        if MEMOIZE.should_cache_fn(ret):
+        if MEMOIZE.should_cache(ret):
             self.get_project.set(ret, self, tenant_id)
             self.get_project_by_name.set(ret, self, ret['name'],
                                          ret['domain_id'])
@@ -381,7 +381,7 @@ class Manager(manager.Manager):
 
         notifications.Audit.created(self._DOMAIN, domain_id, initiator)
 
-        if MEMOIZE.should_cache_fn(ret):
+        if MEMOIZE.should_cache(ret):
             self.get_domain.set(ret, self, domain_id)
             self.get_domain_by_name.set(ret, self, ret['name'])
         return ret

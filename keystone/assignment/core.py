@@ -915,7 +915,7 @@ class RoleManager(manager.Manager):
     def create_role(self, role_id, role, initiator=None):
         ret = self.driver.create_role(role_id, role)
         notifications.Audit.created(self._ROLE, role_id, initiator)
-        if MEMOIZE.should_cache_fn(ret):
+        if MEMOIZE.should_cache(ret):
             self.get_role.set(ret, self, role_id)
         return ret
 
