@@ -1618,6 +1618,35 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual('tbo', mapped_properties['user']['name'])
         self.assertEqual([], mapped_properties['group_ids'])
 
+    def test_rule_engine_blacklist_and_direct_groups_mapping_multiples(self):
+        """Tests matching multiple values before the blacklist.
+
+        Verifies that the local indexes are correct when matching multiple
+        remote values for a field when the field occurs before the blacklist
+        entry in the remote rules.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_GROUPS_BLACKLIST_MULTIPLES
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION_MULTIPLE_GROUPS
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+
+        reference = {
+            mapping_fixtures.CONTRACTOR_GROUP_NAME:
+            {
+                "name": mapping_fixtures.CONTRACTOR_GROUP_NAME,
+                "domain": {
+                    "id": mapping_fixtures.DEVELOPER_GROUP_DOMAIN_ID
+                }
+            }
+        }
+        for rule in mapped_properties['group_names']:
+            self.assertDictEqual(reference.get(rule.get('name')), rule)
+        self.assertEqual('tbo', mapped_properties['user']['name'])
+        self.assertEqual([], mapped_properties['group_ids'])
+
     def test_rule_engine_whitelist_direct_group_mapping_missing_domain(self):
         """Test if the local rule is rejected upon missing domain value
 
