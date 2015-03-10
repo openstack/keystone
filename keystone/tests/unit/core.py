@@ -377,11 +377,7 @@ class TestCase(BaseTestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
-        self.addCleanup(self.cleanup_instance(
-            'maxDiff', 'config_fixture', 'logger'))
-
-        # show complete diffs on failure
-        self.maxDiff = None
+        self.addCleanup(self.cleanup_instance('config_fixture', 'logger'))
 
         self.addCleanup(CONF.reset)
 
