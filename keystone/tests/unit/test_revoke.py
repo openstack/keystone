@@ -114,27 +114,27 @@ def _matches(event, token_values):
 class RevokeTests(object):
     def test_list(self):
         self.revoke_api.revoke_by_user(user_id=1)
-        self.assertEqual(1, len(self.revoke_api.get_events()))
+        self.assertEqual(1, len(self.revoke_api.list_events()))
 
         self.revoke_api.revoke_by_user(user_id=2)
-        self.assertEqual(2, len(self.revoke_api.get_events()))
+        self.assertEqual(2, len(self.revoke_api.list_events()))
 
     def test_list_since(self):
         self.revoke_api.revoke_by_user(user_id=1)
         self.revoke_api.revoke_by_user(user_id=2)
         past = timeutils.utcnow() - datetime.timedelta(seconds=1000)
-        self.assertEqual(2, len(self.revoke_api.get_events(past)))
+        self.assertEqual(2, len(self.revoke_api.list_events(past)))
         future = timeutils.utcnow() + datetime.timedelta(seconds=1000)
-        self.assertEqual(0, len(self.revoke_api.get_events(future)))
+        self.assertEqual(0, len(self.revoke_api.list_events(future)))
 
     def test_past_expiry_are_removed(self):
         user_id = 1
         self.revoke_api.revoke_by_expiration(user_id, _future_time())
-        self.assertEqual(1, len(self.revoke_api.get_events()))
+        self.assertEqual(1, len(self.revoke_api.list_events()))
         event = model.RevokeEvent()
         event.revoked_at = _past_time()
         self.revoke_api.revoke(event)
-        self.assertEqual(1, len(self.revoke_api.get_events()))
+        self.assertEqual(1, len(self.revoke_api.list_events()))
 
     @mock.patch.object(timeutils, 'utcnow')
     def test_expired_events_removed_validate_token_success(self, mock_utcnow):

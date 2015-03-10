@@ -31,7 +31,7 @@ class RevokeController(controller.V3Controller):
             except ValueError:
                 raise exception.ValidationError(
                     message=_('invalid date format %s') % since)
-        events = self.revoke_api.get_events(last_fetch=last_fetch)
+        events = self.revoke_api.list_events(last_fetch=last_fetch)
         # Build the links by hand as the standard controller calls require ids
         response = {'events': [event.to_dict() for event in events],
                     'links': {
