@@ -352,6 +352,8 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
         'href': '/OS-FEDERATION/projects'},
     _build_federation_rel(resource_name='saml2'): {
         'href': '/auth/OS-FEDERATION/saml2'},
+    _build_federation_rel(resource_name='ecp'): {
+        'href': '/auth/OS-FEDERATION/saml2/ecp'},
     _build_federation_rel(resource_name='metadata'): {
         'href': '/OS-FEDERATION/saml2/metadata'},
     _build_federation_rel(resource_name='identity_providers'): {
