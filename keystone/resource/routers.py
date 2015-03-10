@@ -57,7 +57,7 @@ class Routers(wsgi.RoutersBase):
                 'domain_id': json_home.Parameters.DOMAIN_ID
             })
 
-        confg_group_param = (
+        config_group_param = (
             json_home.build_v3_parameter_relation('config_group'))
         self._add_resource(
             mapper, config_controller,
@@ -68,7 +68,7 @@ class Routers(wsgi.RoutersBase):
             rel=json_home.build_v3_resource_relation('domain_config_group'),
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
-                'group': confg_group_param
+                'group': config_group_param
             })
 
         self._add_resource(
@@ -80,7 +80,7 @@ class Routers(wsgi.RoutersBase):
             rel=json_home.build_v3_resource_relation('domain_config_option'),
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
-                'group': confg_group_param,
+                'group': config_group_param,
                 'option': json_home.build_v3_parameter_relation(
                     'config_option')
             })
