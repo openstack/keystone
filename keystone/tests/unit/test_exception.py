@@ -14,6 +14,8 @@
 
 import uuid
 
+from oslo_config import cfg
+from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
 import six
 
@@ -22,7 +24,7 @@ from keystone import exception
 from keystone.tests import unit as tests
 
 
-class ExceptionTestCase(tests.TestCase):
+class ExceptionTestCase(tests.BaseTestCase):
     def assertValidJsonRendering(self, e):
         resp = wsgi.render_exception(e)
         self.assertEqual(e.code, resp.status_int)
@@ -105,6 +107,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
     def setUp(self):
         super(UnexpectedExceptionTestCase, self).setUp()
         self.exc_str = uuid.uuid4().hex
+        self.config_fixture = self.useFixture(config_fixture.Config(cfg.CONF))
 
     def test_unexpected_error_no_debug(self):
         self.config_fixture.config(debug=False)
@@ -151,6 +154,11 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
 
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
+
+    def setUp(self):
+        super(SecurityErrorTestCase, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(cfg.CONF))
+
     def test_unauthorized_exposure(self):
         self.config_fixture.config(debug=False)
 

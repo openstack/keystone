@@ -26,7 +26,7 @@ base64url_alphabet = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                       '-_=')    # includes pad char
 
 
-class TestValid(tests.TestCase):
+class TestValid(tests.BaseTestCase):
     def test_valid_base64(self):
         self.assertTrue(base64utils.is_valid_base64('+/=='))
         self.assertTrue(base64utils.is_valid_base64('+/+='))
@@ -68,7 +68,7 @@ class TestValid(tests.TestCase):
         self.assertTrue(base64utils.is_valid_base64url('-_=='))
 
 
-class TestBase64Padding(tests.TestCase):
+class TestBase64Padding(tests.BaseTestCase):
 
     def test_filter(self):
         self.assertEqual('', base64utils.filter_formatting(''))
@@ -189,7 +189,7 @@ class TestBase64Padding(tests.TestCase):
                           base64utils.base64url_percent_decode, 'AB%3D%3')
 
 
-class TestTextWrap(tests.TestCase):
+class TestTextWrap(tests.BaseTestCase):
 
     def test_wrapping(self):
         raw_text = 'abcdefgh'
