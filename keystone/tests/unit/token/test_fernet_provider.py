@@ -11,6 +11,7 @@
 # under the License.
 
 import base64
+import datetime
 import hashlib
 import shutil
 import tempfile
@@ -92,9 +93,11 @@ class TestBaseTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
 
     def test_time_string_to_int_conversions(self):
-        expected_time_str = timeutils.isotime(timeutils.utcnow())
+        expected_time_str = timeutils.isotime()
         time_obj = timeutils.parse_isotime(expected_time_str)
-        expected_time_int = int(time_obj.strftime('%s'))
+        expected_time_int = (
+            (timeutils.normalize_time(time_obj) -
+             datetime.datetime.utcfromtimestamp(0)).total_seconds())
 
         actual_time_int = self.formatter._convert_time_string_to_int(
             expected_time_str)
