@@ -225,13 +225,7 @@ class Catalog(catalog.Driver):
     # Endpoints
     def create_endpoint(self, endpoint_id, endpoint_ref):
         session = sql.get_session()
-        self.get_service(endpoint_ref['service_id'])
         new_endpoint = Endpoint.from_dict(endpoint_ref)
-
-        # NOTE(henry-nash): We'd like to just let the foreign key constraint
-        # check for existence of the region, but this won't work with sqlite.
-        if endpoint_ref.get('region_id') is not None:
-            self.get_region(endpoint_ref['region_id'])
 
         with session.begin():
             session.add(new_endpoint)
@@ -262,10 +256,6 @@ class Catalog(catalog.Driver):
 
     def update_endpoint(self, endpoint_id, endpoint_ref):
         session = sql.get_session()
-        # NOTE(henry-nash): We'd like to just let the foreign key constraint
-        # check for existence of the region, but this won't work with sqlite.
-        if endpoint_ref.get('region_id') is not None:
-            self.get_region(endpoint_ref['region_id'])
 
         with session.begin():
             ref = self._get_endpoint(session, endpoint_id)

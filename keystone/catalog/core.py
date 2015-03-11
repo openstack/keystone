@@ -182,20 +182,33 @@ class Manager(manager.Manager):
     def list_services(self, hints=None):
         return self.driver.list_services(hints or driver_hints.Hints())
 
-    def create_endpoint(self, endpoint_id, endpoint_ref, initiator=None):
+    def _assert_region_exists(self, region_id):
         try:
-            ref = self.driver.create_endpoint(endpoint_id, endpoint_ref)
+            if region_id is not None:
+                self.get_region(region_id)
         except exception.RegionNotFound:
             raise exception.ValidationError(attribute='endpoint region_id',
                                             target='region table')
-        except exception.NotFound:
-            service_id = endpoint_ref.get('service_id')
-            raise exception.ServiceNotFound(service_id=service_id)
+
+    def _assert_service_exists(self, service_id):
+        try:
+            if service_id is not None:
+                self.get_service(service_id)
+        except exception.ServiceNotFound:
+            raise exception.ValidationError(attribute='endpoint service_id',
+                                            target='service table')
+
+    def create_endpoint(self, endpoint_id, endpoint_ref, initiator=None):
+        self._assert_region_exists(endpoint_ref.get('region_id'))
+        self._assert_service_exists(endpoint_ref['service_id'])
+        ref = self.driver.create_endpoint(endpoint_id, endpoint_ref)
 
         notifications.Audit.created(self._ENDPOINT, endpoint_id, initiator)
         return ref
 
     def update_endpoint(self, endpoint_id, endpoint_ref, initiator=None):
+        self._assert_region_exists(endpoint_ref.get('region_id'))
+        self._assert_service_exists(endpoint_ref.get('service_id'))
         ref = self.driver.update_endpoint(endpoint_id, endpoint_ref)
         notifications.Audit.updated(self._ENDPOINT, endpoint_id, initiator)
         self.get_endpoint.invalidate(self, endpoint_id)
