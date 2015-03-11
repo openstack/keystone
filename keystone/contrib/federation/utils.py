@@ -156,7 +156,7 @@ def validate_idp(idp, assertion):
         raise exception.ValidationError(msg)
     if idp_remote_identifier != idp['remote_id']:
         msg = _('Incoming identity provider identifier not included '
-                'among the accepeted identifiers.')
+                'among the accepted identifiers.')
         raise exception.Forbidden(msg)
 
 
