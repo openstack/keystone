@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-09 06:03+0000\n"
-"PO-Revision-Date: 2015-03-07 04:31+0000\n"
+"POT-Creation-Date: 2015-03-11 06:08+0000\n"
+"PO-Revision-Date: 2015-03-11 04:40+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -39,15 +39,15 @@ msgstr "%(property_name)s should not be greater than %(max_length)s characters."
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr "%(property_name)s is not a %(display_expected_type)s"
 
-#: keystone/cli.py:279
+#: keystone/cli.py:280
 msgid "At least one option must be provided"
 msgstr ""
 
-#: keystone/cli.py:286
+#: keystone/cli.py:287
 msgid "--all option cannot be mixed with other options"
 msgstr ""
 
-#: keystone/cli.py:295
+#: keystone/cli.py:298
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr ""
@@ -428,7 +428,7 @@ msgid "Method not callable: %s"
 msgstr ""
 
 #: keystone/assignment/controllers.py:107 keystone/identity/controllers.py:69
-#: keystone/resource/controllers.py:77
+#: keystone/resource/controllers.py:78
 msgid "Name field is required and cannot be empty"
 msgstr "Name field is required and cannot be empty"
 
@@ -1173,13 +1173,13 @@ msgstr "Deprecated: %s"
 msgid "Fatal call to deprecated config: %(msg)s"
 msgstr "Fatal call to deprecated config: %(msg)s"
 
-#: keystone/resource/controllers.py:188
+#: keystone/resource/controllers.py:231
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same "
 "time."
 msgstr ""
 
-#: keystone/resource/controllers.py:194
+#: keystone/resource/controllers.py:237
 msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same "
 "time."
@@ -1360,52 +1360,57 @@ msgstr "Token does not belong to specified tenant."
 msgid "Unknown token version %s"
 msgstr ""
 
-#: keystone/token/providers/common.py:195
-#: keystone/token/providers/common.py:300
+#: keystone/token/providers/common.py:196
+#: keystone/token/providers/common.py:301
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr "User %(user_id)s has no access to project %(project_id)s"
 
-#: keystone/token/providers/common.py:200
-#: keystone/token/providers/common.py:305
+#: keystone/token/providers/common.py:201
+#: keystone/token/providers/common.py:306
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr "User %(user_id)s has no access to domain %(domain_id)s"
 
-#: keystone/token/providers/common.py:227
+#: keystone/token/providers/common.py:228
 msgid "Trustor is disabled."
 msgstr "Trustor is disabled."
 
-#: keystone/token/providers/common.py:291
+#: keystone/token/providers/common.py:292
 msgid "Trustee has no delegated roles."
 msgstr "Trustee has no delegated roles."
 
-#: keystone/token/providers/common.py:352
+#: keystone/token/providers/common.py:353
 #, python-format
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
 msgstr ""
 
-#: keystone/token/providers/common.py:373
+#: keystone/token/providers/common.py:381
 msgid "User is not a trustee."
 msgstr "User is not a trustee."
 
-#: keystone/token/providers/common.py:517
+#: keystone/token/providers/common.py:525
 msgid ""
 "Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
 "Authentication"
 msgstr ""
 
-#: keystone/token/providers/common.py:527
+#: keystone/token/providers/common.py:535
 msgid "Non-default domain is not supported"
 msgstr "Non-default domain is not supported"
 
-#: keystone/token/providers/common.py:535
+#: keystone/token/providers/common.py:543
 msgid "Domain scoped token is not supported"
 msgstr "Domain scoped token is not supported"
 
 #: keystone/token/providers/pki.py:48 keystone/token/providers/pkiz.py:30
 msgid "Unable to sign token."
 msgstr "Unable to sign token."
+
+#: keystone/token/providers/fernet/core.py:149
+#, python-format
+msgid "This is not a recognized Fernet formatted token: %s"
+msgstr ""
 
 #: keystone/trust/controllers.py:148
 msgid "Redelegation allowed for delegated by trust only"

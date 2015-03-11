@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-04 06:03+0000\n"
-"PO-Revision-Date: 2015-03-03 02:33+0000\n"
+"POT-Creation-Date: 2015-03-11 06:08+0000\n"
+"PO-Revision-Date: 2015-03-10 20:11+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -21,13 +21,13 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: keystone/cli.py:155
+#: keystone/cli.py:156
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 "keystone-manage pki_setup n'est pas recommandé pour une utilisation en "
 "production."
 
-#: keystone/cli.py:174
+#: keystone/cli.py:175
 msgid "keystone-manage ssl_setup is not recommended for production use."
 msgstr ""
 "keystone-manage ssl_setup n'est pas recommandé pour une utilisation en "
@@ -229,11 +229,6 @@ msgstr ""
 #, python-format
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
-
-#: keystone/tests/unit/core.py:150
-#, python-format
-msgid "Failed to checkout %s"
-msgstr "Echec de la réservation %s"
 
 #: keystone/token/persistence/core.py:232
 #, python-format
