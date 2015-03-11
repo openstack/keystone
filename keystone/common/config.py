@@ -142,7 +142,7 @@ FILE_OPTIONS = {
                          'disabled by default (in which case the domain '
                          'specific options will be loaded from files in the '
                          'domain configuration directory); set to true to '
-                         'enable. This feature is not yet supported.'),
+                         'enable.'),
         cfg.StrOpt('domain_config_dir',
                    default='/etc/keystone/domains',
                    help='Path for Keystone to locate the domain specific '

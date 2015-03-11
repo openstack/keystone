@@ -2512,12 +2512,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
 
         # All initial test data setup complete, time to switch on support
         # for separate backends per domain.
-
-        self.config_fixture.config(
-            group='identity', domain_specific_drivers_enabled=True,
-            domain_config_dir=tests.TESTCONF + '/domain_configs_multi_ldap')
-        self.config_fixture.config(group='identity_mapping',
-                                   backward_compatible_ids=False)
+        self.enable_multi_domain()
 
         self.clear_database()
         self.load_fixtures(default_fixtures)
@@ -2547,6 +2542,20 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
             self.domains['domain1']['id'])
         self.users['userC'] = self.create_user(
             self.domains['domain3']['id'])
+
+    def enable_multi_domain(self):
+        """Enable the chosen form of multi domain configuration support.
+
+        This method enables the file-based configuration support. Child classes
+        that wish to use the database domain configuration support should
+        override this method and set the appropriate config_fixture option.
+
+        """
+        self.config_fixture.config(
+            group='identity', domain_specific_drivers_enabled=True,
+            domain_config_dir=tests.TESTCONF + '/domain_configs_multi_ldap')
+        self.config_fixture.config(group='identity_mapping',
+                                   backward_compatible_ids=False)
 
     def reload_backends(self, domain_id):
         # Just reload the driver for this domain - which will pickup
@@ -2747,6 +2756,78 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         # Override
         self.skipTest("Doesn't apply since LDAP configuration is ignored for "
                       "SQL assignment backend.")
+
+
+class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
+    """Class to test the use of domain configs stored in the database.
+
+    Repeat the same tests as MultiLDAPandSQLIdentity, but instead of using the
+    domain specific config files, store the domain specific values in the
+    database.
+
+    """
+    def enable_multi_domain(self):
+        # The values below are the same as in the domain_configs_multi_ldap
+        # cdirectory of test config_files.
+        default_config = {
+            'ldap': {'url': 'fake://memory',
+                     'user': 'cn=Admin',
+                     'password': 'password',
+                     'suffix': 'cn=example,cn=com'},
+            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}
+        }
+        domain1_config = {
+            'ldap': {'url': 'fake://memory1',
+                     'user': 'cn=Admin',
+                     'password': 'password',
+                     'suffix': 'cn=example,cn=com'},
+            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}
+        }
+        domain2_config = {
+            'ldap': {'url': 'fake://memory',
+                     'user': 'cn=Admin',
+                     'password': 'password',
+                     'suffix': 'cn=myroot,cn=com',
+                     'group_tree_dn': 'ou=UserGroups,dc=myroot,dc=org',
+                     'user_tree_dn': 'ou=Users,dc=myroot,dc=org'},
+            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}
+        }
+
+        self.domain_config_api.create_config(CONF.identity.default_domain_id,
+                                             default_config)
+        self.domain_config_api.create_config(self.domains['domain1']['id'],
+                                             domain1_config)
+        self.domain_config_api.create_config(self.domains['domain2']['id'],
+                                             domain2_config)
+
+        self.config_fixture.config(
+            group='identity', domain_specific_drivers_enabled=True,
+            domain_configurations_from_database=True)
+        self.config_fixture.config(group='identity_mapping',
+                                   backward_compatible_ids=False)
+
+    def test_domain_config_has_no_impact_if_database_support_disabled(self):
+        """Ensure database domain configs have no effect if disabled.
+
+        Set reading from database configs to false, restart the backends
+        and then try and set and use database configs.
+
+        """
+        self.config_fixture.config(
+            group='identity', domain_configurations_from_database=False)
+        self.load_backends()
+        new_config = {'ldap': {'url': uuid.uuid4().hex}}
+        self.domain_config_api.create_config(
+            CONF.identity.default_domain_id, new_config)
+        # Trigger the identity backend to initialise any domain specific
+        # configurations
+        self.identity_api.list_users()
+        # Check that the new config has not been passed to the driver for
+        # the default domain.
+        default_config = (
+            self.identity_api.domain_configs.get_domain_conf(
+                CONF.identity.default_domain_id))
+        self.assertEqual(CONF.ldap.url, default_config.ldap.url)
 
 
 class DomainSpecificLDAPandSQLIdentity(
