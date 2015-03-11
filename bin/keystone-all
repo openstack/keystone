@@ -130,10 +130,6 @@ if __name__ == '__main__':
          version=pbr.version.VersionInfo('keystone').version_string(),
          default_config_files=config_files)
 
-    config.setup_logging()
-
-    paste_config = config.find_paste_config()
-
     monkeypatch_thread = not CONF.standard_threads
     pydev_debug_url = utils.setup_remote_pydev_debug()
     if pydev_debug_url:
@@ -143,6 +139,13 @@ if __name__ == '__main__':
         # 000794.html
         monkeypatch_thread = False
     environment.use_eventlet(monkeypatch_thread)
+
+    # NOTE(amakarov): logging must be set up after eventlet patching, otherwise
+    # logging handlers will be left with generic locks instead of using patched
+    # eventlet semaphores.
+    config.setup_logging()
+
+    paste_config = config.find_paste_config()
 
     backends.load_backends()
 
