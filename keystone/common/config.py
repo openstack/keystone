@@ -973,11 +973,13 @@ FILE_OPTIONS = {
     'eventlet_server': [
         cfg.IntOpt('public_workers',
                    deprecated_name='public_workers',
+                   deprecated_group='DEFAULT',
                    help='The number of worker processes to serve the public '
                         'eventlet application. Defaults to number of CPUs '
                         '(minimum of 2).'),
         cfg.IntOpt('admin_workers',
                    deprecated_name='admin_workers',
+                   deprecated_group='DEFAULT',
                    help='The number of worker processes to serve the admin '
                         'eventlet application. Defaults to number of CPUs '
                         '(minimum of 2).'),
@@ -990,6 +992,7 @@ FILE_OPTIONS = {
                    help='The IP address of the network interface for the '
                         'public service to listen on.'),
         cfg.IntOpt('public_port', default=5000, deprecated_name='public_port',
+                   deprecated_group='DEFAULT',
                    help='The port number which the public service listens '
                         'on.'),
         cfg.StrOpt('admin_bind_host',
@@ -1001,10 +1004,12 @@ FILE_OPTIONS = {
                    help='The IP address of the network interface for the '
                         'admin service to listen on.'),
         cfg.IntOpt('admin_port', default=35357, deprecated_name='admin_port',
+                   deprecated_group='DEFAULT',
                    help='The port number which the admin service listens '
                         'on.'),
         cfg.BoolOpt('tcp_keepalive', default=False,
                     deprecated_name='tcp_keepalive',
+                    deprecated_group='DEFAULT',
                     help='Set this to true if you want to enable '
                          'TCP_KEEPALIVE on server sockets, i.e. sockets used '
                          'by the Keystone wsgi server for client '
@@ -1012,6 +1017,7 @@ FILE_OPTIONS = {
         cfg.IntOpt('tcp_keepidle',
                    default=600,
                    deprecated_name='tcp_keepidle',
+                   deprecated_group='DEFAULT',
                    help='Sets the value of TCP_KEEPIDLE in seconds for each '
                         'server socket. Only applies if tcp_keepalive is '
                         'true.'),
