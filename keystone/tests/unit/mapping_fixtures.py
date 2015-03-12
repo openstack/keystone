@@ -17,12 +17,12 @@ CONTRACTOR_GROUP_ID = "85a868"
 TESTER_GROUP_ID = "123"
 TESTER_GROUP_NAME = "tester"
 DEVELOPER_GROUP_ID = "xyz"
-DEVELOPER_GROUP_NAME = "developer"
+DEVELOPER_GROUP_NAME = "Developer"
+CONTRACTOR_GROUP_NAME = "Contractor"
 DEVELOPER_GROUP_DOMAIN_NAME = "outsourcing"
 DEVELOPER_GROUP_DOMAIN_ID = "5abc43"
 FEDERATED_DOMAIN = "Federated"
 LOCAL_DOMAIN = "Local"
-
 
 # Mapping summary:
 # LastName Smith & Not Contractor or SubContractor -> group 0cd5e9
@@ -584,6 +584,37 @@ MAPPING_EPHEMERAL_USER = {
     ]
 }
 
+MAPPING_GROUPS_WHITELIST = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "whitelist": [
+                        "Developer", "Contractor"
+                    ]
+                },
+                {
+                    "type": "UserName"
+                }
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": DEVELOPER_GROUP_DOMAIN_ID
+                    }
+                },
+                {
+                    "user": {
+                        "name": "{1}"
+                    }
+                }
+            ]
+        }
+    ]
+}
+
 MAPPING_EPHEMERAL_USER_LOCAL_DOMAIN = {
     "rules": [
         {
@@ -613,6 +644,26 @@ MAPPING_EPHEMERAL_USER_LOCAL_DOMAIN = {
     ]
 }
 
+MAPPING_GROUPS_WHITELIST_MISSING_DOMAIN = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "whitelist": [
+                        "Developer", "Contractor"
+                    ]
+                },
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                }
+            ]
+        }
+    ]
+}
+
 MAPPING_LOCAL_USER_LOCAL_DOMAIN = {
     "rules": [
         {
@@ -636,6 +687,37 @@ MAPPING_LOCAL_USER_LOCAL_DOMAIN = {
                     "any_one_of": [
                         "jsmith"
                     ]
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_GROUPS_BLACKLIST = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "blacklist": [
+                        "Developer", "Manager"
+                    ]
+                },
+                {
+                    "type": "UserName"
+                }
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": DEVELOPER_GROUP_DOMAIN_ID
+                    }
+                },
+                {
+                    "user": {
+                        "name": "{1}"
+                    }
                 }
             ]
         }
@@ -736,12 +818,66 @@ MAPPING_USER_IDS = {
     ]
 }
 
+MAPPING_GROUPS_BLACKLIST_MISSING_DOMAIN = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "blacklist": [
+                        "Developer", "Manager"
+                    ]
+                },
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                },
+            ]
+        }
+    ]
+}
+
+MAPPING_GROUPS_WHITELIST_AND_BLACKLIST = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "blacklist": [
+                        "Employee"
+                    ],
+                    "whitelist": [
+                        "Contractor"
+                    ]
+                },
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": DEVELOPER_GROUP_DOMAIN_ID
+                    }
+                },
+            ]
+        }
+    ]
+}
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',
     'FirstName': 'Tim',
     'LastName': 'Bo',
     'orgPersonType': 'Employee;BuildingX'
+}
+
+EMPLOYEE_ASSERTION_MULTIPLE_GROUPS = {
+    'Email': 'tim@example.com',
+    'UserName': 'tbo',
+    'FirstName': 'Tim',
+    'LastName': 'Bo',
+    'orgPersonType': 'Developer;Manager;Contractor'
 }
 
 EMPLOYEE_ASSERTION_PREFIXED = {

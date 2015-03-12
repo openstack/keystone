@@ -1249,6 +1249,17 @@ class MappingCRUDTests(FederationTests):
         self.put(url, expected_status=400,
                  body={'mapping': mapping_fixtures.MAPPING_EXTRA_RULES_PROPS})
 
+    def test_create_mapping_with_blacklist_and_whitelist(self):
+        """Test for adding whitelist and blacklist in the rule
+
+        Server should respond with HTTP 400 error upon discovering both
+        ``whitelist`` and ``blacklist`` keywords in the same rule.
+
+        """
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_AND_BLACKLIST
+        self.put(url, expected_status=400, body={'mapping': mapping})
+
 
 class MappingRuleEngineTests(FederationTests):
     """A class for testing the mapping rule engine."""
@@ -1539,6 +1550,111 @@ class MappingRuleEngineTests(FederationTests):
         }
         for rule in mapped_properties['group_names']:
             self.assertDictEqual(reference.get(rule.get('name')), rule)
+
+    def test_rule_engine_whitelist_and_direct_groups_mapping(self):
+        """Should return user's groups Developer and Contractor.
+
+        The EMPLOYEE_ASSERTION_MULTIPLE_GROUPS should successfully have a match
+        in MAPPING_GROUPS_WHITELIST. It will test the case where 'whitelist'
+        correctly filters out Manager and only allows Developer and Contractor.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION_MULTIPLE_GROUPS
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+
+        reference = {
+            mapping_fixtures.DEVELOPER_GROUP_NAME:
+            {
+                "name": mapping_fixtures.DEVELOPER_GROUP_NAME,
+                "domain": {
+                    "id": mapping_fixtures.DEVELOPER_GROUP_DOMAIN_ID
+                }
+            },
+            mapping_fixtures.CONTRACTOR_GROUP_NAME:
+            {
+                "name": mapping_fixtures.CONTRACTOR_GROUP_NAME,
+                "domain": {
+                    "id": mapping_fixtures.DEVELOPER_GROUP_DOMAIN_ID
+                }
+            }
+        }
+        for rule in mapped_properties['group_names']:
+            self.assertDictEqual(reference.get(rule.get('name')), rule)
+
+        self.assertEqual('tbo', mapped_properties['user']['name'])
+        self.assertEqual([], mapped_properties['group_ids'])
+
+    def test_rule_engine_blacklist_and_direct_groups_mapping(self):
+        """Should return user's group Developer.
+
+        The EMPLOYEE_ASSERTION_MULTIPLE_GROUPS should successfully have a match
+        in MAPPING_GROUPS_BLACKLIST. It will test the case where 'blacklist'
+        correctly filters out Manager and Developer and only allows Contractor.
+
+        """
+
+        mapping = mapping_fixtures.MAPPING_GROUPS_BLACKLIST
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION_MULTIPLE_GROUPS
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+
+        reference = {
+            mapping_fixtures.CONTRACTOR_GROUP_NAME:
+            {
+                "name": mapping_fixtures.CONTRACTOR_GROUP_NAME,
+                "domain": {
+                    "id": mapping_fixtures.DEVELOPER_GROUP_DOMAIN_ID
+                }
+            }
+        }
+        for rule in mapped_properties['group_names']:
+            self.assertDictEqual(reference.get(rule.get('name')), rule)
+        self.assertEqual('tbo', mapped_properties['user']['name'])
+        self.assertEqual([], mapped_properties['group_ids'])
+
+    def test_rule_engine_whitelist_direct_group_mapping_missing_domain(self):
+        """Test if the local rule is rejected upon missing domain value
+
+        This is a variation with a ``whitelist`` filter.
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_MISSING_DOMAIN
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION_MULTIPLE_GROUPS
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        self.assertRaises(exception.ValidationError, rp.process, assertion)
+
+    def test_rule_engine_blacklist_direct_group_mapping_missing_domain(self):
+        """Test if the local rule is rejected upon missing domain value
+
+        This is a variation with a ``blacklist`` filter.
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_BLACKLIST_MISSING_DOMAIN
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION_MULTIPLE_GROUPS
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        self.assertRaises(exception.ValidationError, rp.process, assertion)
+
+    def test_rule_engine_no_groups_allowed(self):
+        """Should return user mapped to no groups.
+
+        The EMPLOYEE_ASSERTION should successfully have a match
+        in MAPPING_GROUPS_WHITELIST, but 'whitelist' should filter out
+        the group values from the assertion and thus map to no groups.
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+        self.assertListEqual(mapped_properties['group_names'], [])
+        self.assertListEqual(mapped_properties['group_ids'], [])
+        self.assertEqual('tbo', mapped_properties['user']['name'])
 
     def test_mapping_federated_domain_specified(self):
         """Test mapping engine when domain 'ephemeral' is explicitely set.
