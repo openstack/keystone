@@ -59,7 +59,8 @@ class ConsumerCrudV3(controller.V3Controller):
     @controller.protected()
     def create_consumer(self, context, consumer):
         ref = self._assign_unique_id(self._normalize_dict(consumer))
-        consumer_ref = self.oauth_api.create_consumer(ref)
+        initiator = notifications._get_request_audit_info(context)
+        consumer_ref = self.oauth_api.create_consumer(ref, initiator)
         return ConsumerCrudV3.wrap_member(context, consumer_ref)
 
     @controller.protected()
@@ -67,7 +68,8 @@ class ConsumerCrudV3(controller.V3Controller):
         self._require_matching_id(consumer_id, consumer)
         ref = self._normalize_dict(consumer)
         self._validate_consumer_ref(ref)
-        ref = self.oauth_api.update_consumer(consumer_id, ref)
+        initiator = notifications._get_request_audit_info(context)
+        ref = self.oauth_api.update_consumer(consumer_id, ref, initiator)
         return ConsumerCrudV3.wrap_member(context, ref)
 
     @controller.protected()
@@ -89,7 +91,8 @@ class ConsumerCrudV3(controller.V3Controller):
         payload = {'user_id': user_token_ref.user_id,
                    'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
-        self.oauth_api.delete_consumer(consumer_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.oauth_api.delete_consumer(consumer_id, initiator)
 
     def _validate_consumer_ref(self, consumer):
         if 'secret' in consumer:
@@ -138,8 +141,9 @@ class AccessTokenCrudV3(controller.V3Controller):
         consumer_id = access_token['consumer_id']
         payload = {'user_id': user_id, 'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
+        initiator = notifications._get_request_audit_info(context)
         return self.oauth_api.delete_access_token(
-            user_id, access_token_id)
+            user_id, access_token_id, initiator)
 
     @staticmethod
     def _get_user_id(entity):
@@ -245,9 +249,11 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.Unauthorized(message=msg)
 
         request_token_duration = CONF.oauth1.request_token_duration
+        initiator = notifications._get_request_audit_info(context)
         token_ref = self.oauth_api.create_request_token(consumer_id,
                                                         requested_project_id,
-                                                        request_token_duration)
+                                                        request_token_duration,
+                                                        initiator)
 
         result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
                   % {'key': token_ref['id'],
@@ -324,8 +330,10 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.Unauthorized(message=msg)
 
         access_token_duration = CONF.oauth1.access_token_duration
+        initiator = notifications._get_request_audit_info(context)
         token_ref = self.oauth_api.create_access_token(request_token_id,
-                                                       access_token_duration)
+                                                       access_token_duration,
+                                                       initiator)
 
         result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
                   % {'key': token_ref['id'],
