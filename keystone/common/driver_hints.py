@@ -30,6 +30,10 @@ class Hints(object):
     accessed publicly. Also it contains a dict called limit, which will
     indicate the amount of data we want to limit our listing to.
 
+    If the filter is discovered to never match, then `cannot_match` can be set
+    to indicate that there will not be any matches and the backend work can be
+    short-circuited.
+
     Each filter term consists of:
 
     * ``name``: the name of the attribute being matched
@@ -44,6 +48,7 @@ class Hints(object):
     def __init__(self):
         self.limit = None
         self.filters = list()
+        self.cannot_match = False
 
     def add_filter(self, name, value, comparator='equals',
                    case_sensitive=False):
