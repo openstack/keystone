@@ -180,8 +180,39 @@ def _sync_common_repo(version):
             raise
 
 
+def _fix_federation_tables(engine):
+    """Fix the identity_provider, federation_protocol and mapping tables
+     to be InnoDB and Charset UTF8.
+
+    This function is to work around bug #1426334. This has occurred because
+    the original migration did not specify InnoDB and charset utf8. Due
+    to the sanity_check, a deployer can get wedged here and require manual
+    database changes to fix.
+    """
+    # NOTE(marco-fargetta) This is a workaround to "fix" that tables only
+    # if we're under MySQL
+    if engine.name == 'mysql':
+        # * Disable any check for the foreign keys because they prevent the
+        # alter table to execute
+        engine.execute("SET foreign_key_checks = 0")
+        # * Make the tables using InnoDB engine
+        engine.execute("ALTER TABLE identity_provider Engine=InnoDB")
+        engine.execute("ALTER TABLE federation_protocol Engine=InnoDB")
+        engine.execute("ALTER TABLE mapping Engine=InnoDB")
+        # * Make the tables using utf8 encoding
+        engine.execute("ALTER TABLE identity_provider "
+                       "CONVERT TO CHARACTER SET utf8")
+        engine.execute("ALTER TABLE federation_protocol "
+                       "CONVERT TO CHARACTER SET utf8")
+        engine.execute("ALTER TABLE mapping CONVERT TO CHARACTER SET utf8")
+        # * Revert the foreign keys check back
+        engine.execute("SET foreign_key_checks = 1")
+
+
 def _sync_extension_repo(extension, version):
     init_version = 0
+    engine = sql.get_engine()
+
     try:
         package_name = '.'.join((contrib.__name__, extension))
         package = importutils.import_module(package_name)
@@ -200,8 +231,27 @@ def _sync_extension_repo(extension, version):
     except exception.MigrationNotProvided as e:
         print(e)
         sys.exit(1)
-    migration.db_sync(sql.get_engine(), abs_path, version=version,
-                      init_version=init_version)
+    try:
+        migration.db_sync(engine, abs_path, version=version,
+                          init_version=init_version)
+    except ValueError:
+        # NOTE(marco-fargetta): ValueError is raised from the sanity check (
+        # verifies that tables are utf8 under mysql). The federation_protocol,
+        # identity_provider and mapping tables were not initially built with
+        # InnoDB and utf8 as part of the table arguments when the migration
+        # was initially created. Bug #1426334 is a scenario where the deployer
+        # can get wedged, unable to upgrade or downgrade.
+        # This is a workaround to "fix" those tables if we're under MySQL and
+        # the version is before the 6 because before the tables were introduced
+        # before and patched when migration 5 was available
+        if engine.name == 'mysql' and \
+           int(six.text_type(get_db_version(extension))) < 6:
+            _fix_federation_tables(engine)
+            # The migration is applied again after the fix
+            migration.db_sync(engine, abs_path, version=version,
+                              init_version=init_version)
+        else:
+            raise
 
 
 def sync_database_to_version(extension=None, version=None):
