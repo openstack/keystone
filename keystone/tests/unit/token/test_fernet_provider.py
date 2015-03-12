@@ -114,20 +114,17 @@ class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
         exp_project_id = uuid.uuid4().hex
         # All we are validating here is that the token is encrypted and
         # decrypted properly, not the actual validity of token data.
-        exp_issued_at = timeutils.isotime(timeutils.utcnow())
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
 
         token = self.formatter.create_token(
-            exp_user_id, exp_project_id, exp_issued_at, exp_expires_at,
-            exp_audit_ids)
+            exp_user_id, exp_project_id, exp_expires_at, exp_audit_ids)
 
-        (user_id, project_id, issued_at, expires_at, audit_ids) = (
+        (user_id, project_id, expires_at, audit_ids) = (
             self.formatter.validate_token(token[len('F00'):]))
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_project_id, project_id)
-        self.assertEqual(exp_issued_at, issued_at)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
@@ -140,27 +137,8 @@ class TestScopedTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
             user_id,
             project_id,
             timeutils.isotime(timeutils.utcnow()),
-            timeutils.isotime(timeutils.utcnow()),
             base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2])
         self.assertLess(len(encrypted_token), 255)
-
-    def test_tampered_encrypted_token_throws_exception(self):
-        user_id = uuid.uuid4().hex
-        project_id = uuid.uuid4().hex
-        # All we are validating here is that the token is encrypted and
-        # decrypted properly, not the actual validity of token data.
-        et = self.formatter.create_token(
-            user_id,
-            project_id,
-            timeutils.isotime(timeutils.utcnow()),
-            timeutils.isotime(timeutils.utcnow()),
-            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2])
-        some_id = uuid.uuid4().hex
-        tampered_token = et[:50] + some_id + et[50 + len(some_id):]
-
-        self.assertRaises(exception.Unauthorized,
-                          self.formatter.validate_token,
-                          tampered_token[4:])
 
 
 class TestCustomTokenFormatter(TestScopedTokenFormatter):
@@ -210,25 +188,6 @@ class TestTrustTokenFormatter(tests.TestCase, KeyRepositoryTestMixin):
             user_id,
             project_id,
             timeutils.isotime(timeutils.utcnow()),
-            timeutils.isotime(timeutils.utcnow()),
             base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
             uuid.uuid4().hex)
         self.assertLess(len(encrypted_token), 255)
-
-    def test_tampered_encrypted_trust_token_throws_exception(self):
-        user_id = uuid.uuid4().hex
-        project_id = uuid.uuid4().hex
-
-        # Grab an encrypted token
-        et = self.formatter.create_token(
-            user_id, project_id,
-            timeutils.isotime(timeutils.utcnow()),
-            timeutils.isotime(timeutils.utcnow()),
-            base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2],
-            uuid.uuid4().hex)
-        some_id = uuid.uuid4().hex
-        tampered_token = et[:50] + some_id + et[50 + len(some_id):]
-
-        self.assertRaises(exception.Unauthorized,
-                          self.formatter.validate_token,
-                          tampered_token[6:])
