@@ -109,22 +109,6 @@
 #backdoor_port = <None>
 
 #
-# From keystone.openstack.common.policy
-#
-
-# The JSON file that defines policies. (string value)
-#policy_file = policy.json
-
-# Default rule. Enforced when a requested rule is not found. (string value)
-#policy_default_rule = default
-
-# Directories where policy configuration files are stored. They can be relative
-# to any directory in the search path defined by the config_dir option, or
-# absolute paths. The file defined by policy_file must exist for these
-# directories to be searched. (multi valued)
-#policy_dirs = policy.d
-
-#
 # From oslo.log
 #
 
@@ -191,7 +175,7 @@
 #logging_exception_prefix = %(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s
 
 # List of logger=LEVEL pairs. (list value)
-#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN
+#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN
 
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
@@ -289,7 +273,7 @@
 #
 
 # Default auth methods. (list value)
-#methods = external,password,token
+#methods = external,password,token,oauth1
 
 # The password auth plugin module. (string value)
 #password = keystone.auth.plugins.password.Password
@@ -299,6 +283,9 @@
 
 # The external (REMOTE_USER) auth plugin module. (string value)
 #external = keystone.auth.plugins.external.DefaultDomain
+
+# The oAuth1.0 auth plugin module. (string value)
+#oauth1 = keystone.auth.plugins.oauth1.OAuth
 
 
 [cache]
@@ -505,6 +492,16 @@
 #db_max_retries = 20
 
 
+[domain_config]
+
+#
+# From keystone
+#
+
+# Domain config backend driver. (string value)
+#driver = keystone.resource.config_backends.sql.DomainConfig
+
+
 [endpoint_filter]
 
 #
@@ -685,8 +682,8 @@
 # Extract the domain specific configuration options from the resource backend
 # where they have been stored with the domain data. This feature is disabled by
 # default (in which case the domain specific options will be loaded from files
-# in the domain configuration directory); set to true to enable. This feature
-# is not yet supported. (boolean value)
+# in the domain configuration directory); set to true to enable. (boolean
+# value)
 #domain_configurations_from_database = false
 
 # Path for Keystone to locate the domain specific identity configuration files
@@ -763,7 +760,7 @@
 # always leave this set to true. (boolean value)
 #enable_key_mangler = true
 
-# Default lock timeout for distributed locking. (integer value)
+# Default lock timeout (in seconds) for distributed locking. (integer value)
 #default_lock_timeout = 5
 
 
@@ -1397,6 +1394,29 @@
 #max_request_body_size = 114688
 
 
+[oslo_policy]
+
+#
+# From oslo.policy
+#
+
+# The JSON file that defines policies. (string value)
+# Deprecated group/name - [DEFAULT]/policy_file
+#policy_file = policy.json
+
+# Default rule. Enforced when a requested rule is not found. (string value)
+# Deprecated group/name - [DEFAULT]/policy_default_rule
+#policy_default_rule = default
+
+# Directories where policy configuration files are stored. They can be relative
+# to any directory in the search path defined by the config_dir option, or
+# absolute paths. The file defined by policy_file must exist for these
+# directories to be searched.  Missing or empty directories are ignored. (multi
+# valued)
+# Deprecated group/name - [DEFAULT]/policy_dirs
+#policy_dirs = policy.d
+
+
 [paste_deploy]
 
 #
@@ -1465,6 +1485,12 @@
 # Toggle for revocation event caching. This has no effect unless global caching
 # is enabled. (boolean value)
 #caching = true
+
+# Time to cache the revocation list and the revocation events (in seconds).
+# This has no effect unless global and token caching are enabled. (integer
+# value)
+# Deprecated group/name - [token]/revocation_cache_time
+#cache_time = 3600
 
 
 [role]
@@ -1633,8 +1659,8 @@
 #expiration = 3600
 
 # Controls the token construction, validation, and revocation operations. Core
-# providers are "keystone.token.providers.[fernet|pkiz|pki|uuid].Provider". The
-# default provider is uuid. (string value)
+# providers are "keystone.token.providers.[fernet|pkiz|pki|uuid].Provider".
+# (string value)
 #provider = keystone.token.providers.uuid.Provider
 
 # Token persistence backend driver. (string value)
@@ -1643,11 +1669,6 @@
 # Toggle for token system caching. This has no effect unless global caching is
 # enabled. (boolean value)
 #caching = true
-
-# Time to cache the revocation list and the revocation events if revoke
-# extension is enabled (in seconds). This has no effect unless global and token
-# caching are enabled. (integer value)
-#revocation_cache_time = 3600
 
 # Time to cache tokens (in seconds). This has no effect unless global and token
 # caching are enabled. (integer value)
