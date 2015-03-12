@@ -28,7 +28,7 @@ import traceback
 
 import eventlet.backdoor
 import greenlet
-from oslo.config import cfg
+from oslo_config import cfg
 
 from keystone.openstack.common._i18n import _LI
 
@@ -50,7 +50,7 @@ LOG = logging.getLogger(__name__)
 
 
 def list_opts():
-    """Entry point for oslo.config-generator.
+    """Entry point for oslo-config-generator.
     """
     return [(None, copy.deepcopy(eventlet_backdoor_opts))]
 
