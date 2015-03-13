@@ -14,24 +14,42 @@
 
 import sys
 
+from oslo_config import cfg
 from oslo_log import log
 import six
 
 from keystone.common import dependency
 from keystone import exception
 
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
+def construct_method_map_from_config():
+    """Determine authentication method types for deployment.
+
+    :returns: a dictionary containing the methods and their indexes
+
+    """
+    method_map = dict()
+    method_index = 1
+    for method in CONF.auth.methods:
+        method_map[method_index] = method
+        method_index = method_index * 2
+
+    return method_map
+
+
 def convert_method_list_to_integer(methods):
-    """Convert the method type to an integer.
+    """Convert the method type(s) to an integer.
 
     :param methods: a list of method names
     :returns: an integer representing the methods
 
     """
-    method_map = {1: 'password', 2: 'token', 4: 'saml2', 8: 'oauth1'}
-    method_ints = list()
+    method_map = construct_method_map_from_config()
+
+    method_ints = []
     for method in methods:
         for k, v in six.iteritems(method_map):
             if v == method:
@@ -43,29 +61,31 @@ def convert_integer_to_method_list(method_int):
     """Convert an integer to a list of methods.
 
     :param method_int: an integer representing methods
-    :returns: a list of methods
+    :returns: a corresponding list of methods
 
     """
-    possibilities = {1: ['password'],
-                     2: ['token'],
-                     3: ['password', 'token'],
-                     4: ['saml2'],
-                     5: ['password', 'saml2'],
-                     6: ['token', 'saml2'],
-                     7: ['password', 'token', 'saml2'],
-                     8: ['oauth1'],
-                     9: ['password', 'oauth1'],
-                     10: ['token', 'oauth1'],
-                     11: ['password', 'token', 'oauth1'],
-                     12: ['saml2', 'oauth1'],
-                     13: ['password', 'saml2', 'oauth1'],
-                     14: ['token', 'saml2', 'oauth1'],
-                     15: ['password', 'token', 'saml2', 'oauth1']}
+    # If the method_int is 0 then no methods were used so return an empty
+    # method list
+    if method_int == 0:
+        return []
 
-    try:
-        return possibilities[method_int]
-    except KeyError:
-        raise exception.AuthMethodNotSupported()
+    method_map = construct_method_map_from_config()
+    method_ints = []
+    for k, v in six.iteritems(method_map):
+        method_ints.append(k)
+    method_ints.sort(reverse=True)
+
+    confirmed_methods = []
+    for m_int in method_ints:
+        if (method_int / m_int) == 1:
+            confirmed_methods.append(m_int)
+            method_int = method_int - m_int
+
+    methods = []
+    for method in confirmed_methods:
+        methods.append(method_map[method])
+
+    return methods
 
 
 @dependency.requires('identity_api', 'resource_api')

@@ -182,7 +182,9 @@ class TokenFormatter(object):
         # rather than appearing in the payload, the creation time is encoded
         # into the token format itself
         created_at = TokenFormatter.creation_time(token)
-        created_at = timeutils.isotime(created_at)
+        created_at = timeutils.isotime(at=created_at, subsecond=True)
+        expires_at = timeutils.parse_isotime(expires_at)
+        expires_at = timeutils.isotime(at=expires_at, subsecond=True)
 
         return (user_id, methods, audit_ids, domain_id, project_id, trust_id,
                 federated_info, created_at, expires_at)

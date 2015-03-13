@@ -4445,3 +4445,24 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self.assertRaises(exception.Unauthorized,
                           self.token_provider_api.validate_v2_token,
                           trust_scoped_token)
+
+
+class TestAuthFernetTokenProvider(TestAuth):
+    def setUp(self):
+        super(TestAuthFernetTokenProvider, self).setUp()
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+
+    def config_overrides(self):
+        super(TestAuthFernetTokenProvider, self).config_overrides()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.fernet.Provider')
+
+    def test_verify_with_bound_token(self):
+        self.skipTest('Bind not current supported by Fernet, see bug 1433311.')
+
+    def test_v2_v3_bind_token_intermix(self):
+        self.skipTest('Bind not current supported by Fernet, see bug 1433311.')
+
+    def test_auth_with_bind_token(self):
+        self.skipTest('Bind not current supported by Fernet, see bug 1433311.')
