@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-11 06:08+0000\n"
-"PO-Revision-Date: 2015-03-11 04:40+0000\n"
+"POT-Creation-Date: 2015-03-13 06:09+0000\n"
+"PO-Revision-Date: 2015-03-13 02:57+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -395,8 +395,8 @@ msgstr ""
 #: keystone/exception.py:438
 #, python-format
 msgid ""
-"The Keystone domain configuration file %(config_file)s defines an "
-"additional SQL driver - only one is permitted."
+"The Keystone domain-specific configuration has specified more than one "
+"SQL driver (only one is permitted): %(source)s."
 msgstr ""
 
 #: keystone/exception.py:445
@@ -421,12 +421,12 @@ msgid ""
 "On."
 msgstr ""
 
-#: keystone/notifications.py:247
+#: keystone/notifications.py:250
 #, python-format
 msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
 msgstr ""
 
-#: keystone/notifications.py:256
+#: keystone/notifications.py:259
 #, python-format
 msgid "Method not callable: %s"
 msgstr ""
@@ -636,7 +636,7 @@ msgstr ""
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr ""
 
-#: keystone/common/controller.py:288 keystone/identity/core.py:392
+#: keystone/common/controller.py:288 keystone/identity/core.py:432
 #: keystone/resource/core.py:768 keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
@@ -905,8 +905,8 @@ msgstr ""
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
 
-#: keystone/common/sql/migration_helpers.py:189
-#: keystone/common/sql/migration_helpers.py:228
+#: keystone/common/sql/migration_helpers.py:220
+#: keystone/common/sql/migration_helpers.py:278
 #, python-format
 msgid "%s extension does not exist."
 msgstr ""
@@ -974,96 +974,103 @@ msgid ""
 "administrative or billing."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:123
+#: keystone/contrib/federation/utils.py:178
 msgid "Federation token is expired"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:153
+#: keystone/contrib/federation/utils.py:208
 msgid ""
 "Could not find Identity Provider identifier in environment, check "
 "[federation] remote_id_attribute for details."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:158
+#: keystone/contrib/federation/utils.py:213
 msgid ""
-"Incoming identity provider identifier not included among the accepeted "
+"Incoming identity provider identifier not included among the accepted "
 "identifiers."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:430
+#: keystone/contrib/federation/utils.py:501
 #, python-format
 msgid "User type %s not supported"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:639
+#: keystone/contrib/federation/utils.py:537
+#, python-format
+msgid ""
+"Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords "
+"must be specified."
+msgstr ""
+
+#: keystone/contrib/federation/utils.py:753
 #, python-format
 msgid "Identity Provider %(idp)s is disabled"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:647
+#: keystone/contrib/federation/utils.py:761
 #, python-format
 msgid "Service Provider %(sp)s is disabled"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:96
+#: keystone/contrib/oauth1/controllers.py:99
 msgid "Cannot change consumer secret"
 msgstr "Não é possível alterar segredo do consumidor"
 
-#: keystone/contrib/oauth1/controllers.py:128
+#: keystone/contrib/oauth1/controllers.py:131
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:188
+#: keystone/contrib/oauth1/controllers.py:192
 #: keystone/contrib/oauth1/backends/sql.py:270
 msgid "User IDs do not match"
 msgstr "ID de usuário não confere"
 
-#: keystone/contrib/oauth1/controllers.py:195
+#: keystone/contrib/oauth1/controllers.py:199
 msgid "Could not find role"
 msgstr "Não é possível encontrar role"
 
-#: keystone/contrib/oauth1/controllers.py:244
+#: keystone/contrib/oauth1/controllers.py:248
 msgid "Invalid signature"
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:293
-#: keystone/contrib/oauth1/controllers.py:369
+#: keystone/contrib/oauth1/controllers.py:299
+#: keystone/contrib/oauth1/controllers.py:377
 msgid "Request token is expired"
 msgstr "Token de requisição expirou"
 
-#: keystone/contrib/oauth1/controllers.py:307
+#: keystone/contrib/oauth1/controllers.py:313
 msgid "There should not be any non-oauth parameters"
 msgstr "Não deve haver nenhum parâmetro não oauth"
 
-#: keystone/contrib/oauth1/controllers.py:311
+#: keystone/contrib/oauth1/controllers.py:317
 msgid "provided consumer key does not match stored consumer key"
 msgstr ""
 "Chave de consumidor fornecida não confere com a chave de consumidor "
 "armazenada"
 
-#: keystone/contrib/oauth1/controllers.py:315
+#: keystone/contrib/oauth1/controllers.py:321
 msgid "provided verifier does not match stored verifier"
 msgstr "Verificador fornecido não confere com o verificador armazenado"
 
-#: keystone/contrib/oauth1/controllers.py:319
+#: keystone/contrib/oauth1/controllers.py:325
 msgid "provided request key does not match stored request key"
 msgstr ""
 "Chave de requisição do provedor não confere com a chave de requisição "
 "armazenada"
 
-#: keystone/contrib/oauth1/controllers.py:323
+#: keystone/contrib/oauth1/controllers.py:329
 msgid "Request Token does not have an authorizing user id"
 msgstr "Token de Requisição não possui um ID de usuário autorizado"
 
-#: keystone/contrib/oauth1/controllers.py:358
+#: keystone/contrib/oauth1/controllers.py:366
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
 
-#: keystone/contrib/oauth1/controllers.py:388
+#: keystone/contrib/oauth1/controllers.py:396
 msgid "authorizing user does not have role required"
 msgstr "Usuário autorizado não possui o role necessário"
 
-#: keystone/contrib/oauth1/controllers.py:401
+#: keystone/contrib/oauth1/controllers.py:409
 msgid "User is not a member of the requested project"
 msgstr "Usuário não é um membro do projeto requisitado"
 
@@ -1090,9 +1097,9 @@ msgid ""
 "bug in the Keystone server. The current request is aborted."
 msgstr ""
 
-#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:205
-#: keystone/token/provider.py:225 keystone/token/provider.py:294
-#: keystone/token/provider.py:301
+#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:210
+#: keystone/token/provider.py:230 keystone/token/provider.py:299
+#: keystone/token/provider.py:306
 msgid "Failed to validate token"
 msgstr "Falha ao validar token"
 
@@ -1104,19 +1111,24 @@ msgstr "Campo habilitado precisa ser um booleano"
 msgid "Enabled field should be a boolean"
 msgstr "Campo habilitado deve ser um booleano"
 
-#: keystone/identity/core.py:251 keystone/identity/backends/ldap.py:59
+#: keystone/identity/core.py:116
+#, python-format
+msgid "Database at /domains/%s/config"
+msgstr ""
+
+#: keystone/identity/core.py:291 keystone/identity/backends/ldap.py:59
 #: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
 #: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:108
 #: keystone/identity/backends/sql.py:110
 msgid "Invalid user / password"
 msgstr ""
 
-#: keystone/identity/core.py:658
+#: keystone/identity/core.py:698
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
 
-#: keystone/identity/core.py:701
+#: keystone/identity/core.py:741
 msgid "Cannot change user ID"
 msgstr ""
 
@@ -1411,9 +1423,9 @@ msgstr "O token de escopo de domínio não é suportado"
 msgid "Unable to sign token."
 msgstr "Não é possível assinar o token."
 
-#: keystone/token/providers/fernet/core.py:149
+#: keystone/token/providers/fernet/token_formatters.py:174
 #, python-format
-msgid "This is not a recognized Fernet formatted token: %s"
+msgid "This is not a recognized Fernet payload version: %s"
 msgstr ""
 
 #: keystone/trust/controllers.py:148
