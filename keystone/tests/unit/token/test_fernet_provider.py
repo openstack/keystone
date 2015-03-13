@@ -106,85 +106,98 @@ class TestPayloads(tests.TestCase, KeyRepositoryTestMixin):
 
     def test_unscoped_payload(self):
         exp_user_id = uuid.uuid4().hex
+        exp_methods = ['password']
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.UnscopedPayload.assemble(
-            exp_user_id, exp_expires_at, exp_audit_ids)
+            exp_user_id, exp_methods, exp_expires_at, exp_audit_ids)
 
-        (user_id, expires_at, audit_ids) = (
+        (user_id, methods, expires_at, audit_ids) = (
             token_formatters.UnscopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
     def test_project_scoped_payload(self):
         exp_user_id = uuid.uuid4().hex
+        exp_methods = ['password']
         exp_project_id = uuid.uuid4().hex
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.ProjectScopedPayload.assemble(
-            exp_user_id, exp_project_id, exp_expires_at, exp_audit_ids)
+            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
+            exp_audit_ids)
 
-        (user_id, project_id, expires_at, audit_ids) = (
+        (user_id, methods, project_id, expires_at, audit_ids) = (
             token_formatters.ProjectScopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_project_id, project_id)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
     def test_domain_scoped_payload(self):
         exp_user_id = uuid.uuid4().hex
+        exp_methods = ['password']
         exp_domain_id = uuid.uuid4().hex
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_domain_id, exp_expires_at, exp_audit_ids)
+            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
+            exp_audit_ids)
 
-        (user_id, domain_id, expires_at, audit_ids) = (
+        (user_id, methods, domain_id, expires_at, audit_ids) = (
             token_formatters.DomainScopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_domain_id, domain_id)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
     def test_domain_scoped_payload_with_default_domain(self):
         exp_user_id = uuid.uuid4().hex
+        exp_methods = ['password']
         exp_domain_id = CONF.identity.default_domain_id
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_domain_id, exp_expires_at, exp_audit_ids)
+            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
+            exp_audit_ids)
 
-        (user_id, domain_id, expires_at, audit_ids) = (
+        (user_id, methods, domain_id, expires_at, audit_ids) = (
             token_formatters.DomainScopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_domain_id, domain_id)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
     def test_trust_scoped_payload(self):
         exp_user_id = uuid.uuid4().hex
+        exp_methods = ['password']
         exp_project_id = uuid.uuid4().hex
         exp_expires_at = timeutils.isotime(timeutils.utcnow())
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_trust_id = uuid.uuid4().hex
 
         payload = token_formatters.TrustScopedPayload.assemble(
-            exp_user_id, exp_project_id, exp_expires_at, exp_audit_ids,
-            exp_trust_id)
+            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
+            exp_audit_ids, exp_trust_id)
 
-        (user_id, project_id, expires_at, audit_ids, trust_id) = (
+        (user_id, methods, project_id, expires_at, audit_ids, trust_id) = (
             token_formatters.TrustScopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_project_id, project_id)
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)

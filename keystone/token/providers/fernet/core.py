@@ -138,6 +138,7 @@ class Provider(common.BaseProvider):
             user_id,
             token_data['token']['expires_at'],
             token_data['token']['audit_ids'],
+            methods=method_names,
             domain_id=domain_id,
             project_id=project_id,
             trust_id=token_data['token'].get('OS-TRUST:trust', {}).get('id'),
@@ -162,20 +163,18 @@ class Provider(common.BaseProvider):
         :raises: keystone.exception.Unauthorized
 
         """
-        (user_id, audit_ids, domain_id, project_id, trust_id,
+        (user_id, methods, audit_ids, domain_id, project_id, trust_id,
             federated_info, created_at, expires_at) = (
                 self.token_formatter.validate_token(token))
 
         token_dict = None
-        methods = None
         if federated_info:
             token_dict = self._rebuild_federated_info(federated_info, user_id)
-            methods = federated_info['protocol_id']
         trust_ref = self.trust_api.get_trust(trust_id)
 
         return self.v3_token_data_helper.get_token_data(
             user_id,
-            method_names=methods if methods else ['password', 'token'],
+            method_names=methods,
             project_id=project_id,
             issued_at=created_at,
             expires=expires_at,

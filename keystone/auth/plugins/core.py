@@ -23,6 +23,51 @@ from keystone import exception
 LOG = log.getLogger(__name__)
 
 
+def convert_method_list_to_integer(methods):
+    """Convert the method type to an integer.
+
+    :param methods: a list of method names
+    :returns: an integer representing the methods
+
+    """
+    method_map = {1: 'password', 2: 'token', 4: 'saml2', 8: 'oauth1'}
+    method_ints = list()
+    for method in methods:
+        for k, v in six.iteritems(method_map):
+            if v == method:
+                method_ints.append(k)
+    return sum(method_ints)
+
+
+def convert_integer_to_method_list(method_int):
+    """Convert an integer to a list of methods.
+
+    :param method_int: an integer representing methods
+    :returns: a list of methods
+
+    """
+    possibilities = {1: ['password'],
+                     2: ['token'],
+                     3: ['password', 'token'],
+                     4: ['saml2'],
+                     5: ['password', 'saml2'],
+                     6: ['token', 'saml2'],
+                     7: ['password', 'token', 'saml2'],
+                     8: ['oauth1'],
+                     9: ['password', 'oauth1'],
+                     10: ['token', 'oauth1'],
+                     11: ['password', 'token', 'oauth1'],
+                     12: ['saml2', 'oauth1'],
+                     13: ['password', 'saml2', 'oauth1'],
+                     14: ['token', 'saml2', 'oauth1'],
+                     15: ['password', 'token', 'saml2', 'oauth1']}
+
+    try:
+        return possibilities[method_int]
+    except KeyError:
+        raise exception.AuthMethodNotSupported()
+
+
 @dependency.requires('identity_api', 'resource_api')
 class UserAuthInfo(object):
 
