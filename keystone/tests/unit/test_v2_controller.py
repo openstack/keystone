@@ -92,4 +92,5 @@ class TenantTestCase(tests.TestCase):
         for tenant in default_fixtures.TENANTS:
             tenant_copy = tenant.copy()
             tenant_copy.pop('domain_id')
+            tenant_copy.pop('parent_id')
             self.assertIn(tenant_copy, refs['tenants'])

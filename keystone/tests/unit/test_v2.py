@@ -56,6 +56,8 @@ class CoreApiTests(object):
     def assertValidTenant(self, tenant):
         self.assertIsNotNone(tenant.get('id'))
         self.assertIsNotNone(tenant.get('name'))
+        self.assertNotIn('domain_id', tenant)
+        self.assertNotIn('parent_id', tenant)
 
     def assertValidUser(self, user):
         self.assertIsNotNone(user.get('id'))
