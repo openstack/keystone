@@ -1203,12 +1203,11 @@ class BaseLdap(object):
             attribute_ignore = '%s_attribute_ignore' % self.options_name
             self.attribute_ignore = getattr(conf.ldap, attribute_ignore)
 
-        self.use_dumb_member = getattr(conf.ldap, 'use_dumb_member')
-        self.dumb_member = (getattr(conf.ldap, 'dumb_member') or
+        self.use_dumb_member = conf.ldap.use_dumb_member
+        self.dumb_member = (conf.ldap.dumb_member or
                             self.DUMB_MEMBER_DN)
 
-        self.subtree_delete_enabled = getattr(conf.ldap,
-                                              'allow_subtree_delete')
+        self.subtree_delete_enabled = conf.ldap.allow_subtree_delete
 
     def _not_found(self, object_id):
         if self.NotFound is None:

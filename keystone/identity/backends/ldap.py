@@ -302,7 +302,7 @@ class GroupApi(common_ldap.BaseLdap):
 
     def __init__(self, conf):
         super(GroupApi, self).__init__(conf)
-        self.member_attribute = (getattr(conf.ldap, 'group_member_attribute')
+        self.member_attribute = (conf.ldap.group_member_attribute
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
     def create(self, values):
