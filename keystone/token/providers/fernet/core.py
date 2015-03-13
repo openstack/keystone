@@ -175,6 +175,7 @@ class Provider(common.BaseProvider):
         return self.v3_token_data_helper.get_token_data(
             user_id,
             method_names=methods,
+            domain_id=domain_id,
             project_id=project_id,
             issued_at=created_at,
             expires=expires_at,

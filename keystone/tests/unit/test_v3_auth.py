@@ -4200,6 +4200,18 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase,
         project_scoped_token = self._get_project_scoped_token()
         self._validate_token(project_scoped_token)
 
+    def test_validate_domain_scoped_token(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        resp = self._validate_token(domain_scoped_token)
+        resp_json = json.loads(resp.body)
+        self.assertIsNotNone(resp_json['token']['catalog'])
+        self.assertIsNotNone(resp_json['token']['roles'])
+        self.assertIsNotNone(resp_json['token']['domain'])
+
     def test_validate_tampered_project_scoped_token_fails(self):
         project_scoped_token = self._get_project_scoped_token()
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
