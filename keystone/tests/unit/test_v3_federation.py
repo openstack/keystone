@@ -39,6 +39,7 @@ from keystone.tests.unit import core
 from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit.token import test_fernet_provider as fernet
 from keystone.token.providers import common as token_common
 
 
@@ -2317,6 +2318,68 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         self.assertRaises(exception.Unauthorized,
                           self._issue_unscoped_token,
                           assertion='ANOTHER_LOCAL_USER_ASSERTION')
+
+
+class FernetFederatedTokenTests(FederationTests, FederatedSetupMixin,
+                                fernet.KeyRepositoryTestMixin):
+    AUTH_METHOD = 'token'
+
+    def load_fixtures(self, fixtures):
+        super(FernetFederatedTokenTests, self).load_fixtures(fixtures)
+        self.load_federation_sample_data()
+
+    def auth_plugin_config_override(self):
+        methods = ['saml2', 'token', 'password']
+        method_classes = dict(
+            password='keystone.auth.plugins.password.Password',
+            token='keystone.auth.plugins.token.Token',
+            saml2='keystone.auth.plugins.saml2.Saml2')
+        super(FernetFederatedTokenTests,
+              self).auth_plugin_config_override(methods, **method_classes)
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.fernet.Provider')
+        self.setUpKeyRepository()
+
+    def test_federated_unscoped_token(self):
+        resp = self._issue_unscoped_token()
+        self.assertEqual(184, len(resp.headers['X-Subject-Token']))
+
+    def test_federated_unscoped_token_with_multiple_groups(self):
+        assertion = 'ANOTHER_CUSTOMER_ASSERTION'
+        resp = self._issue_unscoped_token(assertion=assertion)
+        self.assertEqual(204, len(resp.headers['X-Subject-Token']))
+
+    def test_validate_federated_unscoped_token(self):
+        resp = self._issue_unscoped_token()
+        unscoped_token = resp.headers.get('X-Subject-Token')
+        # assert that the token we received is valid
+        self.get('/auth/tokens/', headers={'X-Subject-Token': unscoped_token})
+
+    def test_fernet_full_workflow(self):
+        """Test 'standard' workflow for granting Fernet access tokens.
+
+        * Issue unscoped token
+        * List available projects based on groups
+        * Scope token to one of available projects
+
+        """
+        resp = self._issue_unscoped_token()
+        unscoped_token = resp.headers.get('X-Subject-Token')
+        resp = self.get('/OS-FEDERATION/projects',
+                        token=unscoped_token)
+        projects = resp.result['projects']
+        random_project = random.randint(0, len(projects)) - 1
+        project = projects[random_project]
+
+        v3_scope_request = self._scope_request(unscoped_token,
+                                               'project', project['id'])
+
+        resp = self.v3_authenticate_token(v3_scope_request)
+        token_resp = resp.result['token']
+        project_id = token_resp['project']['id']
+        self.assertEqual(project['id'], project_id)
+        self._check_scoped_token_attributes(token_resp)
 
 
 class FederatedTokenTestsMethodToken(FederatedTokenTests):
