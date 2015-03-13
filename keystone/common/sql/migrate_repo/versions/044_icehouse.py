@@ -1,14 +1,15 @@
-#    Licensed under the Apache License, Version 2.0 (the "License"); you may
-#    not use this file except in compliance with the License. You may obtain
-#    a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
 #
-#         http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-#    License for the specific language governing permissions and limitations
-#    under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
 
 import migrate
 from oslo_config import cfg
@@ -16,6 +17,7 @@ from oslo_log import log
 import sqlalchemy as sql
 from sqlalchemy import orm
 
+from keystone.assignment.backends import sql as assignment_sql
 from keystone.common import sql as ks_sql
 from keystone.common.sql import migration_helpers
 
@@ -66,6 +68,8 @@ def upgrade(migrate_engine):
         sql.Column('service_id', sql.String(length=64), nullable=False),
         sql.Column('url', sql.Text, nullable=False),
         sql.Column('extra', ks_sql.JsonBlob.impl),
+        sql.Column('enabled', sql.Boolean, nullable=False, default=True,
+                   server_default='1'),
         mysql_engine='InnoDB',
         mysql_charset='utf8')
 
@@ -76,22 +80,6 @@ def upgrade(migrate_engine):
         sql.Column('name', sql.String(length=64), nullable=False),
         sql.Column('description', sql.Text),
         sql.Column('extra', ks_sql.JsonBlob.impl),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8')
-
-    group_domain_metadata = sql.Table(
-        'group_domain_metadata', meta,
-        sql.Column('group_id', sql.String(length=64), primary_key=True),
-        sql.Column('domain_id', sql.String(length=64), primary_key=True),
-        sql.Column('data', ks_sql.JsonBlob.impl),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8')
-
-    group_project_metadata = sql.Table(
-        'group_project_metadata', meta,
-        sql.Column('group_id', sql.String(length=64), primary_key=True),
-        sql.Column('project_id', sql.String(length=64), primary_key=True),
-        sql.Column('data', ks_sql.JsonBlob.impl),
         mysql_engine='InnoDB',
         mysql_charset='utf8')
 
@@ -127,6 +115,8 @@ def upgrade(migrate_engine):
         'service', meta,
         sql.Column('id', sql.String(length=64), primary_key=True),
         sql.Column('type', sql.String(length=255)),
+        sql.Column('enabled', sql.Boolean, nullable=False, default=True,
+                   server_default='1'),
         sql.Column('extra', ks_sql.JsonBlob.impl),
         mysql_engine='InnoDB',
         mysql_charset='utf8')
@@ -151,6 +141,7 @@ def upgrade(migrate_engine):
         sql.Column('impersonation', sql.Boolean, nullable=False),
         sql.Column('deleted_at', sql.DateTime),
         sql.Column('expires_at', sql.DateTime),
+        sql.Column('remaining_uses', sql.Integer, nullable=True),
         sql.Column('extra', ks_sql.JsonBlob.impl),
         mysql_engine='InnoDB',
         mysql_charset='utf8')
@@ -176,14 +167,6 @@ def upgrade(migrate_engine):
         mysql_engine='InnoDB',
         mysql_charset='utf8')
 
-    user_domain_metadata = sql.Table(
-        'user_domain_metadata', meta,
-        sql.Column('user_id', sql.String(length=64), primary_key=True),
-        sql.Column('domain_id', sql.String(length=64), primary_key=True),
-        sql.Column('data', ks_sql.JsonBlob.impl),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8')
-
     user_group_membership = sql.Table(
         'user_group_membership', meta,
         sql.Column('user_id', sql.String(length=64), primary_key=True),
@@ -191,19 +174,39 @@ def upgrade(migrate_engine):
         mysql_engine='InnoDB',
         mysql_charset='utf8')
 
-    user_project_metadata = sql.Table(
-        'user_project_metadata', meta,
-        sql.Column('user_id', sql.String(length=64), primary_key=True),
-        sql.Column('project_id', sql.String(length=64), primary_key=True),
-        sql.Column('data', ks_sql.JsonBlob.impl),
+    region = sql.Table(
+        'region',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('description', sql.String(255), nullable=False),
+        sql.Column('parent_region_id', sql.String(64), nullable=True),
+        sql.Column('extra', sql.Text()),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
+
+    assignment = sql.Table(
+        'assignment',
+        meta,
+        sql.Column('type', sql.Enum(
+            assignment_sql.AssignmentType.USER_PROJECT,
+            assignment_sql.AssignmentType.GROUP_PROJECT,
+            assignment_sql.AssignmentType.USER_DOMAIN,
+            assignment_sql.AssignmentType.GROUP_DOMAIN,
+            name='type'),
+            nullable=False),
+        sql.Column('actor_id', sql.String(64), nullable=False),
+        sql.Column('target_id', sql.String(64), nullable=False),
+        sql.Column('role_id', sql.String(64), nullable=False),
+        sql.Column('inherited', sql.Boolean, default=False, nullable=False),
+        sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id', 'role_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8')
 
     # create all tables
-    tables = [credential, domain, endpoint, group, group_domain_metadata,
-              group_project_metadata, policy, project, role, service,
-              token, trust, trust_role, user, user_domain_metadata,
-              user_group_membership, user_project_metadata]
+    tables = [credential, domain, endpoint, group,
+              policy, project, role, service,
+              token, trust, trust_role, user,
+              user_group_membership, region, assignment]
 
     for table in tables:
         try:
@@ -229,25 +232,10 @@ def upgrade(migrate_engine):
 
     # Indexes
     sql.Index('ix_token_expires', token.c.expires).create()
-    sql.Index('ix_token_valid', token.c.valid).create()
+    sql.Index('ix_token_expires_valid', token.c.expires,
+              token.c.valid).create()
 
     fkeys = [
-        {'columns': [user_project_metadata.c.project_id],
-         'references': [project.c.id],
-         'name': 'fk_user_project_metadata_project_id'},
-
-        {'columns': [user_domain_metadata.c.domain_id],
-         'references': [domain.c.id],
-         'name': 'fk_user_domain_metadata_domain_id'},
-
-        {'columns': [group_project_metadata.c.project_id],
-         'references': [project.c.id],
-         'name': 'fk_group_project_metadata_project_id'},
-
-        {'columns': [group_domain_metadata.c.domain_id],
-         'references': [domain.c.id],
-         'name': 'fk_group_domain_metadata_domain_id'},
-
         {'columns': [endpoint.c.service_id],
          'references': [service.c.id]},
 
@@ -269,7 +257,10 @@ def upgrade(migrate_engine):
 
         {'columns': [project.c.domain_id],
          'references': [domain.c.id],
-         'name': 'fk_project_domain_id'}
+         'name': 'fk_project_domain_id'},
+
+        {'columns': [assignment.c.role_id],
+         'references': [role.c.id]}
     ]
 
     for fkey in fkeys:
@@ -284,5 +275,5 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
-    raise NotImplementedError('Downgrade to pre-Havana release db schema is '
+    raise NotImplementedError('Downgrade to pre-Icehouse release db schema is '
                               'unsupported.')
