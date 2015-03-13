@@ -251,16 +251,14 @@ def _filter(model, query, hints):
     :returns query: query, updated with any filters satisfied
 
     """
-    def inexact_filter(model, query, filter_, satisfied_filters, hints):
+    def inexact_filter(model, query, filter_, satisfied_filters):
         """Applies an inexact filter to a query.
 
         :param model: the table model in question
         :param query: query to apply filters to
-        :param filter_: the dict that describes this filter
-        :param satisfied_filters: a cumulative list of satisfied filters, to
-                                  which filter_ will be added if it is
-                                  satisfied.
-        :param hints: contains the list of filters yet to be satisfied.
+        :param dict filter_: describes this filter
+        :param list satisfied_filters: filter_ will be added if it is
+                                       satisfied.
 
         :returns query: query updated to add any inexact filters we could
                         satisfy
@@ -291,20 +289,13 @@ def _filter(model, query, hints):
         satisfied_filters.append(filter_)
         return query.filter(query_term)
 
-    def exact_filter(
-            model, filter_, satisfied_filters, cumulative_filter_dict, hints):
+    def exact_filter(model, filter_, cumulative_filter_dict):
         """Applies an exact filter to a query.
 
         :param model: the table model in question
-        :param filter_: the dict that describes this filter
-        :param satisfied_filters: a cumulative list of satisfied filters, to
-                                  which filter_ will be added if it is
-                                  satisfied.
-        :param cumulative_filter_dict: a dict that describes the set of
-                                      exact filters built up so far
-        :param hints: contains the list of filters yet to be satisfied.
-
-        :returns: updated cumulative dict
+        :param dict filter_: describes this filter
+        :param dict cumulative_filter_dict: describes the set of exact filters
+                                            built up so far
 
         """
         key = filter_['name']
@@ -314,8 +305,6 @@ def _filter(model, query, hints):
                 utils.attr_as_boolean(filter_['value']))
         else:
             cumulative_filter_dict[key] = filter_['value']
-        satisfied_filters.append(filter_)
-        return cumulative_filter_dict
 
     filter_dict = {}
     satisfied_filters = []
@@ -323,11 +312,10 @@ def _filter(model, query, hints):
         if filter_['name'] not in model.attributes:
             continue
         if filter_['comparator'] == 'equals':
-            filter_dict = exact_filter(
-                model, filter_, satisfied_filters, filter_dict, hints)
+            exact_filter(model, filter_, filter_dict)
+            satisfied_filters.append(filter_)
         else:
-            query = inexact_filter(
-                model, query, filter_, satisfied_filters, hints)
+            query = inexact_filter(model, query, filter_, satisfied_filters)
 
     # Apply any exact filters we built up
     if filter_dict:
