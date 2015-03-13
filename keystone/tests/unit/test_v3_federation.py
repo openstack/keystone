@@ -2838,10 +2838,10 @@ class ServiceProviderTests(FederationTests):
 
     def sp_ref(self):
         ref = {
-            'auth_url': 8 * uuid.uuid4().hex,
+            'auth_url': 'https://' + uuid.uuid4().hex + '.com',
             'enabled': True,
             'description': uuid.uuid4().hex,
-            'sp_url': 8 * uuid.uuid4().hex
+            'sp_url': 'https://' + uuid.uuid4().hex + '.com',
         }
         return ref
 
@@ -2874,7 +2874,7 @@ class ServiceProviderTests(FederationTests):
         sp = self.sp_ref()
         sp[uuid.uuid4().hex] = uuid.uuid4().hex
         self.put(url, body={'service_provider': sp},
-                 expected_status=403)
+                 expected_status=400)
 
     def test_list_service_providers(self):
         """Test listing of service provider objects.
@@ -2941,14 +2941,14 @@ class ServiceProviderTests(FederationTests):
         new_sp_ref = {'id': uuid.uuid4().hex}
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         self.patch(url, body={'service_provider': new_sp_ref},
-                   expected_status=403)
+                   expected_status=400)
 
     def test_update_service_provider_unknown_parameter(self):
         new_sp_ref = self.sp_ref()
         new_sp_ref[uuid.uuid4().hex] = uuid.uuid4().hex
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         self.patch(url, body={'service_provider': new_sp_ref},
-                   expected_status=403)
+                   expected_status=400)
 
     def test_update_service_provider_404(self):
         new_sp_ref = self.sp_ref()

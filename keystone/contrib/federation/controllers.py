@@ -407,6 +407,7 @@ class ServiceProvider(_ControllerBase):
                                     'links', 'sp_url'])
 
     @controller.protected()
+    @validation.validated(schema.service_provider_create, 'service_provider')
     def create_service_provider(self, context, sp_id, service_provider):
         service_provider = self._normalize_dict(service_provider)
         service_provider.setdefault('enabled', False)
@@ -431,6 +432,7 @@ class ServiceProvider(_ControllerBase):
         self.federation_api.delete_sp(sp_id)
 
     @controller.protected()
+    @validation.validated(schema.service_provider_update, 'service_provider')
     def update_service_provider(self, context, sp_id, service_provider):
         service_provider = self._normalize_dict(service_provider)
         ServiceProvider.check_immutable_params(service_provider)
