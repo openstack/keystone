@@ -25,7 +25,6 @@ from testtools import matchers
 from keystone.common import cache
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import core as common_ldap_core
-from keystone.common import sql
 from keystone import exception
 from keystone import identity
 from keystone.identity.mapping_backends import mapping as map
@@ -2110,17 +2109,13 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         return config_files
 
     def setUp(self):
-        self.useFixture(database.Database())
+        sqldb = self.useFixture(database.Database())
         super(LdapIdentitySqlAssignment, self).setUp()
         self.clear_database()
         self.load_backends()
         cache.configure_cache_region(cache.REGION)
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
 
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
-
+        sqldb.recreate()
         self.load_fixtures(default_fixtures)
         # defaulted by the data load
         self.user_foo['enabled'] = True
@@ -2390,16 +2385,11 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
 
     """
     def setUp(self):
-        self.useFixture(database.Database())
+        sqldb = self.useFixture(database.Database())
         super(MultiLDAPandSQLIdentity, self).setUp()
 
         self.load_backends()
-
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
-
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+        sqldb.recreate()
 
         self.domain_count = 5
         self.domain_specific_count = 3
@@ -2740,11 +2730,11 @@ class DomainSpecificLDAPandSQLIdentity(
 
     """
     def setUp(self):
-        self.useFixture(database.Database())
+        sqldb = self.useFixture(database.Database())
         super(DomainSpecificLDAPandSQLIdentity, self).setUp()
-        self.initial_setup()
+        self.initial_setup(sqldb)
 
-    def initial_setup(self):
+    def initial_setup(self, sqldb):
         # We aren't setting up any initial data ahead of switching to
         # domain-specific operation, so make the switch straight away.
         self.config_fixture.config(
@@ -2755,12 +2745,7 @@ class DomainSpecificLDAPandSQLIdentity(
                                    backward_compatible_ids=False)
 
         self.load_backends()
-
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
-
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+        sqldb.recreate()
 
         self.domain_count = 2
         self.domain_specific_count = 2
@@ -2902,7 +2887,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
     - A separate SQL backend for domain1
 
     """
-    def initial_setup(self):
+    def initial_setup(self, sqldb):
         # We aren't setting up any initial data ahead of switching to
         # domain-specific operation, so make the switch straight away.
         self.config_fixture.config(
@@ -2916,12 +2901,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
                                    backward_compatible_ids=True)
 
         self.load_backends()
-
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
-
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+        sqldb.recreate()
 
         self.domain_count = 2
         self.domain_specific_count = 1
@@ -3019,18 +2999,14 @@ class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
 
     def setUp(self):
         super(LdapFilterTests, self).setUp()
-        self.useFixture(database.Database())
+        sqldb = self.useFixture(database.Database())
         self.clear_database()
 
         common_ldap.register_handler('fake://', fakeldap.FakeLdap)
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        sqldb.recreate()
 
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
         self.addCleanup(common_ldap_core._HANDLERS.clear)
 
     def config_overrides(self):

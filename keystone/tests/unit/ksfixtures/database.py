@@ -119,6 +119,9 @@ class Database(fixtures.Fixture):
         _setup_database(extensions=self._extensions)
 
         self.engine = sql.get_engine()
-        sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.cleanup)
+        sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
+
+    def recreate(self):
+        sql.ModelBase.metadata.create_all(bind=self.engine)
