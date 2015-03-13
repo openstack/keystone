@@ -202,7 +202,7 @@ class Manager(manager.Manager):
     @cache.on_arguments(should_cache_fn=SHOULD_CACHE,
                         expiration_time=REVOCATION_CACHE_EXPIRATION_TIME)
     def _get_revoke_tree(self):
-        events = self.driver.get_events()
+        events = self.driver.list_events()
         revoke_tree = model.RevokeTree(revoke_events=events)
 
         return revoke_tree
@@ -230,7 +230,7 @@ class Driver(object):
     """Interface for recording and reporting revocation events."""
 
     @abc.abstractmethod
-    def get_events(self, last_fetch=None):
+    def list_events(self, last_fetch=None):
         """return the revocation events, as a list of objects
 
         :param last_fetch:   Time of last fetch.  Return all events newer.

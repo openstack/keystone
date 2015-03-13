@@ -508,7 +508,7 @@ class AuthWithToken(AuthTest):
 
             self.token_provider_api.revoke_token(token_id, revoke_chain=True)
 
-            revoke_events = self.revoke_api.get_events()
+            revoke_events = self.revoke_api.list_events()
             self.assertThat(revoke_events, matchers.HasLength(1))
             revoke_event = revoke_events[0].to_dict()
             self.assertIn('expires_at', revoke_event)
@@ -536,7 +536,7 @@ class AuthWithToken(AuthTest):
             # token are revoked.
             self.token_provider_api.revoke_token(token_id)
 
-            revoke_events = self.revoke_api.get_events()
+            revoke_events = self.revoke_api.list_events()
             self.assertThat(revoke_events, matchers.HasLength(2))
             revoke_event = revoke_events[1].to_dict()
             self.assertIn('expires_at', revoke_event)
