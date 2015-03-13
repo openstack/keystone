@@ -20,10 +20,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import identity
 
-# Import resource sql to ensure that the models defined in there are
-# available for the reference from User and Group to Domain.id.
-from keystone.resource.backends import sql as resource_sql  # noqa
-
 
 CONF = cfg.CONF
 
