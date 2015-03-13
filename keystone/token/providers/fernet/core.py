@@ -10,30 +10,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import base64
-import datetime
-import struct
-
-import msgpack
 from oslo_config import cfg
 from oslo_log import log
-from oslo_utils import timeutils
 
 from keystone.common import dependency
 from keystone import exception
-from keystone.i18n import _
 from keystone.token.providers import common
 from keystone.token.providers.fernet import token_formatters as tf
 
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-
-
-# Fernet byte indexes as as computed by pypi/keyless_fernet and defined in
-# https://github.com/fernet/spec
-TIMESTAMP_START = 1
-TIMESTAMP_END = 9
 
 
 @dependency.requires('trust_api')
@@ -101,38 +88,13 @@ class Provider(common.BaseProvider):
             include_catalog=include_catalog,
             audit_info=parent_audit_id)
 
-        if trust:
-            version = tf.TrustScopedPayload.version
-            payload = tf.TrustScopedPayload.assemble(
-                user_id,
-                project_id,
-                token_data['token']['expires_at'],
-                token_data['token']['audit_ids'],
-                token_data['token']['OS-TRUST:trust']['id'])
-        elif project_id:
-            version = tf.ProjectScopedPayload.version
-            payload = tf.ProjectScopedPayload.assemble(
-                user_id,
-                project_id,
-                token_data['token']['expires_at'],
-                token_data['token']['audit_ids'])
-        elif domain_id:
-            version = tf.DomainScopedPayload.version
-            payload = tf.DomainScopedPayload.assemble(
-                user_id,
-                domain_id,
-                token_data['token']['expires_at'],
-                token_data['token']['audit_ids'])
-        else:
-            version = tf.UnscopedPayload.version
-            payload = tf.UnscopedPayload.assemble(
-                user_id,
-                token_data['token']['expires_at'],
-                token_data['token']['audit_ids'])
-
-        versioned_payload = (version,) + payload
-        serialized_payload = msgpack.packb(versioned_payload)
-        token = self.token_formatter.pack(serialized_payload)
+        token = self.token_formatter.create_token(
+            user_id,
+            token_data['token']['expires_at'],
+            token_data['token']['audit_ids'],
+            domain_id=domain_id,
+            project_id=project_id,
+            trust_id=token_data['token'].get('OS-TRUST:trust', {}).get('id'))
 
         return token, token_data
 
@@ -146,24 +108,6 @@ class Provider(common.BaseProvider):
         """
         raise exception.NotImplemented()
 
-    @classmethod
-    def _creation_time(cls, fernet_token):
-        """Returns the creation time of a valid Fernet token."""
-        # fernet tokens are base64 encoded, so we need to unpack them first
-        token_bytes = base64.urlsafe_b64decode(fernet_token)
-
-        # slice into the byte array to get just the timestamp
-        timestamp_bytes = token_bytes[TIMESTAMP_START:TIMESTAMP_END]
-
-        # convert those bytes to an integer
-        # (it's a 64-bit "unsigned long long int" in C)
-        timestamp_int = struct.unpack(">Q", timestamp_bytes)[0]
-
-        # and with an integer, it's trivial to produce a datetime object
-        created_at = datetime.datetime.utcfromtimestamp(timestamp_int)
-
-        return created_at
-
     def validate_v3_token(self, token):
         """Validate a V3 formatted token.
 
@@ -172,45 +116,17 @@ class Provider(common.BaseProvider):
         :raises: keystone.exception.Unauthorized
 
         """
-        serialized_payload = self.token_formatter.unpack(token)
-        versioned_payload = msgpack.unpackb(serialized_payload)
-        version, payload = versioned_payload[0], versioned_payload[1:]
+        (user_id, audit_ids, domain_id, project_id, trust_id, created_at,
+            expires_at) = self.token_formatter.validate_token(token)
 
-        # depending on the formatter, these may or may not be defined
-        domain_id = None
-        project_id = None
-        trust_ref = None
-
-        if version == tf.UnscopedPayload.version:
-            (user_id, expires_at, audit_ids) = (
-                tf.UnscopedPayload.disassemble(payload))
-        elif version == tf.DomainScopedPayload.version:
-            (user_id, domain_id, expires_at, audit_ids) = (
-                tf.DomainScopedPayload.disassemble(payload))
-        elif version == tf.ProjectScopedPayload.version:
-            (user_id, project_id, expires_at, audit_ids) = (
-                tf.ProjectScopedPayload.disassemble(payload))
-        elif version == tf.TrustScopedPayload.version:
-            (user_id, project_id, expires_at, audit_ids, trust_id) = (
-                tf.TrustScopedPayload.disassemble(payload))
-
-            trust_ref = self.trust_api.get_trust(trust_id)
-        else:
-            # If the token_format is not recognized, raise Unauthorized.
-            raise exception.Unauthorized(_(
-                'This is not a recognized Fernet payload version: %s') %
-                version)
-
-        # rather than appearing in the payload, the creation time is encoded
-        # into the token format itself
-        created_at = Provider._creation_time(token)
+        trust_ref = self.trust_api.get_trust(trust_id)
 
         return self.v3_token_data_helper.get_token_data(
             user_id,
             method_names=['password', 'token'],
             project_id=project_id,
+            issued_at=created_at,
             expires=expires_at,
-            issued_at=timeutils.isotime(created_at),
             trust=trust_ref,
             audit_info=audit_ids)
 
