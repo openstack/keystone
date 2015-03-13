@@ -20,6 +20,7 @@ from oslo_utils import timeutils
 import six
 
 from keystone import exception
+from keystone.token import provider
 from keystone.token.providers.fernet import utils
 
 
@@ -154,7 +155,9 @@ class UnscopedPayload(BasePayload):
         """
         b_user_id = cls.convert_uuid_hex_to_bytes(user_id)
         expires_at_int = cls._convert_time_string_to_int(expires_at)
-        return (b_user_id, expires_at_int, audit_ids)
+        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+                           audit_ids))
+        return (b_user_id, expires_at_int, b_audit_ids)
 
     @classmethod
     def disassemble(cls, payload):
@@ -166,8 +169,7 @@ class UnscopedPayload(BasePayload):
         """
         user_id = cls.convert_uuid_bytes_to_hex(payload[0])
         expires_at_str = cls._convert_int_to_time_string(payload[1])
-        audit_ids = payload[2]
-
+        audit_ids = list(map(provider.base64_encode, payload[2]))
         return (user_id, expires_at_str, audit_ids)
 
 
@@ -195,7 +197,9 @@ class DomainScopedPayload(BasePayload):
             else:
                 raise
         expires_at_int = cls._convert_time_string_to_int(expires_at)
-        return (b_user_id, b_domain_id, expires_at_int, audit_ids)
+        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+                           audit_ids))
+        return (b_user_id, b_domain_id, expires_at_int, b_audit_ids)
 
     @classmethod
     def disassemble(cls, payload):
@@ -216,7 +220,7 @@ class DomainScopedPayload(BasePayload):
             else:
                 raise
         expires_at_str = cls._convert_int_to_time_string(payload[2])
-        audit_ids = payload[3]
+        audit_ids = list(map(provider.base64_encode, payload[3]))
 
         return (user_id, domain_id, expires_at_str, audit_ids)
 
@@ -236,9 +240,11 @@ class ProjectScopedPayload(BasePayload):
 
         """
         b_user_id = cls.convert_uuid_hex_to_bytes(user_id)
-        b_scope_id = cls.convert_uuid_hex_to_bytes(project_id)
+        b_project_id = cls.convert_uuid_hex_to_bytes(project_id)
         expires_at_int = cls._convert_time_string_to_int(expires_at)
-        return (b_user_id, b_scope_id, expires_at_int, audit_ids)
+        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+                           audit_ids))
+        return (b_user_id, b_project_id, expires_at_int, b_audit_ids)
 
     @classmethod
     def disassemble(cls, payload):
@@ -252,7 +258,7 @@ class ProjectScopedPayload(BasePayload):
         user_id = cls.convert_uuid_bytes_to_hex(payload[0])
         project_id = cls.convert_uuid_bytes_to_hex(payload[1])
         expires_at_str = cls._convert_int_to_time_string(payload[2])
-        audit_ids = payload[3]
+        audit_ids = list(map(provider.base64_encode, payload[3]))
 
         return (user_id, project_id, expires_at_str, audit_ids)
 
@@ -276,8 +282,11 @@ class TrustScopedPayload(BasePayload):
         b_project_id = cls.convert_uuid_hex_to_bytes(project_id)
         b_trust_id = cls.convert_uuid_hex_to_bytes(trust_id)
         expires_at_int = cls._convert_time_string_to_int(expires_at)
+        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+                           audit_ids))
 
-        return (b_user_id, b_project_id, expires_at_int, b_trust_id, audit_ids)
+        return (b_user_id, b_project_id, expires_at_int, b_audit_ids,
+                b_trust_id)
 
     @classmethod
     def disassemble(cls, payload):
@@ -291,7 +300,7 @@ class TrustScopedPayload(BasePayload):
         user_id = cls.convert_uuid_bytes_to_hex(payload[0])
         project_id = cls.convert_uuid_bytes_to_hex(payload[1])
         expires_at_str = cls._convert_int_to_time_string(payload[2])
-        trust_id = cls.convert_uuid_bytes_to_hex(payload[3])
-        audit_ids = payload[4]
+        audit_ids = list(map(provider.base64_encode, payload[3]))
+        trust_id = cls.convert_uuid_bytes_to_hex(payload[4])
 
         return (user_id, project_id, expires_at_str, audit_ids, trust_id)
