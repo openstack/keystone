@@ -29,8 +29,29 @@ _credential_properties = {
 credential_create = {
     'type': 'object',
     'properties': _credential_properties,
-    'required': ['blob', 'type', 'user_id'],
-    'additionalProperties': True
+    'additionalProperties': True,
+    'oneOf': [
+        {
+            'title': 'ec2 credential requires project_id',
+            'required': ['blob', 'type', 'user_id', 'project_id'],
+            'properties': {
+                'type': {
+                    'enum': ['ec2']
+                }
+            }
+        },
+        {
+            'title': 'non-ec2 credential does not require project_id',
+            'required': ['blob', 'type', 'user_id'],
+            'properties': {
+                'type': {
+                    'not': {
+                        'enum': ['ec2']
+                    }
+                }
+            }
+        }
+    ]
 }
 
 credential_update = {
