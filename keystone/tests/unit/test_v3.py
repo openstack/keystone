@@ -396,15 +396,6 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
         return project
 
-    def admin_request(self, *args, **kwargs):
-        """Translates XML responses to dicts.
-
-        This implies that we only have to write assertions for JSON.
-
-        """
-        r = super(RestfulTestCase, self).admin_request(*args, **kwargs)
-        return r
-
     def get_scoped_token(self):
         """Convenience method so that we can test authenticated requests."""
         r = self.admin_request(
