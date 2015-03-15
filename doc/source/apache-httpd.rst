@@ -28,37 +28,6 @@ Running Keystone in HTTPD
     support ``Transfer-Encoding: chunked``.
 
 
-SSL
-===
-
-To run Keystone in HTTPD, first enable SSL support. This is optional, but
-highly recommended.
-
-Install mod_nss according to your distribution, then apply the following patch
-and restart HTTPD::
-
-    --- /etc/httpd/conf.d/nss.conf.orig	2012-03-29 12:59:06.319470425 -0400
-    +++ /etc/httpd/conf.d/nss.conf	2012-03-29 12:19:38.862721465 -0400
-    @@ -17,7 +17,7 @@
-     # Note: Configurations that use IPv6 but not IPv4-mapped addresses need two
-     #       Listen directives: "Listen [::]:8443" and "Listen 0.0.0.0:443"
-     #
-    -Listen 8443
-    +Listen 443
-
-     ##
-     ##  SSL Global Context
-    @@ -81,7 +81,7 @@
-     ## SSL Virtual Host Context
-     ##
-
-    -<virtualhost _default_:8443="">
-    +<virtualhost _default_:443="">
-
-     #   General setup for the virtual host
-     #DocumentRoot "/etc/httpd/htdocs"
-    </virtualhost></virtualhost>
-
 Firewall
 --------
 
