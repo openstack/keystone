@@ -75,20 +75,27 @@ Putting it somewhere else requires you set up your SELinux policy accordingly.
 Keystone Configuration
 ----------------------
 
-Make sure you use either the ``SQL`` or the ``memcached`` driver for
-``tokens``, otherwise the tokens will not be shared between the processes of
-the Apache HTTPD server.
+Make sure that when using a token format that requires persistence, you use a
+token persistence driver that can be shared between processes. The SQL and
+memcached token persistence drivers provided with keystone can be shared
+between processes.
 
-For ``SQL,`` in ``/etc/keystone/keystone.conf`` make sure you have set::
+.. WARNING::
+
+    The KVS (``keystone.token.persistence.backends.kvs.Token``) token
+    persistence driver cannot be shared between processes so must not be used
+    when running keystone under HTTPD (the tokens will not be shared between
+    the processes of the server and validation will fail).
+
+For SQL, in ``/etc/keystone/keystone.conf`` set::
 
     [token]
-    driver = keystone.token.backends.sql.Token
+    driver = keystone.token.persistence.backends.sql.Token
 
-For ``memcache,`` in ``/etc/keystone/keystone.conf`` make sure you have set::
+For memcached, in ``/etc/keystone/keystone.conf`` set::
 
     [token]
-    driver = keystone.token.backends.memcache.Token
+    driver = keystone.token.persistence.backends.memcache.Token
 
-In both cases, all servers that are storing tokens need a shared backend. This
-means either that both point to the same database server, or both point to a
-common memcached instance.
+All servers that are storing tokens need a shared backend. This means that
+either all servers use the same database server or use a common memcached pool.
