@@ -28,18 +28,6 @@ Running Keystone in HTTPD
     support ``Transfer-Encoding: chunked``.
 
 
-Firewall
---------
-
-Add the following rule to IPTables in order to ensure the SSL traffic can pass
-your firewall::
-
-    -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
-
-it goes right before::
-
-    -A INPUT -j REJECT --reject-with icmp-host-prohibited
-
 Files
 -----
 
@@ -47,6 +35,10 @@ Copy the file httpd/wsgi-keystone.conf to the appropriate location for your
 Apache server, most likely::
 
     /etc/httpd/conf.d/wsgi-keystone.conf
+
+Update this file to match your system configuration (for example, some
+distributions put httpd logs in the ``apache2`` directory and some in the
+``httpd`` directory; also, enable TLS).
 
 Create the directory ``/var/www/cgi-bin/keystone/``. You can either hardlink or
 softlink the files ``main`` and ``admin`` to the file ``keystone.py`` in this
