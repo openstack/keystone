@@ -51,18 +51,12 @@ Keystone's primary configuration file (``etc/keystone.conf``) and the
 PasteDeploy configuration file (``etc/keystone-paste.ini``) must be readable to
 HTTPD in one of the default locations described in :doc:`configuration`.
 
-SELinux
--------
+Access Control
+--------------
 
-If you are running with SELinux enabled (and you should be) make sure that the
-file has the appropriate SELinux context to access the linked file. If you
-have the file in /var/www/cgi-bin,  you can do this by running:
-
-.. code-block:: bash
-
-    $ sudo restorecon /var/www/cgi-bin
-
-Putting it somewhere else requires you set up your SELinux policy accordingly.
+If you are running with Linux kernel security module enabled (for example
+SELinux or AppArmor) make sure that the file has the appropriate context to
+access the linked file.
 
 Keystone Configuration
 ----------------------
