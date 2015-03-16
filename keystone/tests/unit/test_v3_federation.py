@@ -2296,7 +2296,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
                     "remote": [
                         {
                             "type": "REMOTE_USER_GROUPS",
-                            "blacklist": ["noblacklist"]
                         }
                     ]
                 }
@@ -2304,10 +2303,290 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         }
         self.federation_api.update_mapping(self.mapping['id'], rules)
 
+    def test_empty_blacklist_passess_all_values(self):
+        """Test a mapping with empty blacklist specified
+
+        Not adding a ``blacklist`` keyword to the mapping rules has the same
+        effect as adding an empty ``blacklist``.
+        In both cases, the mapping engine will not discard any groups that are
+        associated with apache environment variables.
+
+        This test checks scenario where an empty blacklist was specified.
+        Expected result is to allow any value.
+
+        The test scenario is as follows:
+         - Create group ``EXISTS``
+         - Create group ``NO_EXISTS``
+         - Set mapping rules for existing IdP with a blacklist
+           that passes through as REMOTE_USER_GROUPS
+         - Issue unscoped token with groups  ``EXISTS`` and ``NO_EXISTS``
+           assigned
+
+        """
+
+        domain_id = self.domainA['id']
+        domain_name = self.domainA['name']
+
+        # Add a group "EXISTS"
+        group_exists = self.new_group_ref(domain_id=domain_id)
+        group_exists['name'] = 'EXISTS'
+        group_exists = self.identity_api.create_group(group_exists)
+
+        # Add a group "NO_EXISTS"
+        group_no_exists = self.new_group_ref(domain_id=domain_id)
+        group_no_exists['name'] = 'NO_EXISTS'
+        group_no_exists = self.identity_api.create_group(group_no_exists)
+
+        group_ids = set([group_exists['id'], group_no_exists['id']])
+
+        rules = {
+            'rules': [
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "name": "{0}",
+                                "id": "{0}"
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER"
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "groups": "{0}",
+                            "domain": {"name": domain_name}
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER_GROUPS",
+                            "blacklist": []
+                        }
+                    ]
+                }
+            ]
+        }
+        self.federation_api.update_mapping(self.mapping['id'], rules)
         r = self._issue_unscoped_token(assertion='UNMATCHED_GROUP_ASSERTION')
         assigned_group_ids = r.json['token']['user']['OS-FEDERATION']['groups']
-        self.assertEqual(1, len(assigned_group_ids))
-        self.assertEqual(group['id'], assigned_group_ids[0]['id'])
+        self.assertEqual(len(group_ids), len(assigned_group_ids))
+        for group in assigned_group_ids:
+            self.assertIn(group['id'], group_ids)
+
+    def test_not_adding_blacklist_passess_all_values(self):
+        """Test a mapping without blacklist specified.
+
+        Not adding a ``blacklist`` keyword to the mapping rules has the same
+        effect as adding an empty ``blacklist``. In both cases all values will
+        be accepted and passed.
+
+        This test checks scenario where an blacklist was not specified.
+        Expected result is to allow any value.
+
+        The test scenario is as follows:
+         - Create group ``EXISTS``
+         - Create group ``NO_EXISTS``
+         - Set mapping rules for existing IdP with a blacklist
+           that passes through as REMOTE_USER_GROUPS
+         - Issue unscoped token with on groups ``EXISTS`` and ``NO_EXISTS``
+           assigned
+
+        """
+
+        domain_id = self.domainA['id']
+        domain_name = self.domainA['name']
+
+        # Add a group "EXISTS"
+        group_exists = self.new_group_ref(domain_id=domain_id)
+        group_exists['name'] = 'EXISTS'
+        group_exists = self.identity_api.create_group(group_exists)
+
+        # Add a group "NO_EXISTS"
+        group_no_exists = self.new_group_ref(domain_id=domain_id)
+        group_no_exists['name'] = 'NO_EXISTS'
+        group_no_exists = self.identity_api.create_group(group_no_exists)
+
+        group_ids = set([group_exists['id'], group_no_exists['id']])
+
+        rules = {
+            'rules': [
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "name": "{0}",
+                                "id": "{0}"
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER"
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "groups": "{0}",
+                            "domain": {"name": domain_name}
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER_GROUPS",
+                        }
+                    ]
+                }
+            ]
+        }
+        self.federation_api.update_mapping(self.mapping['id'], rules)
+        r = self._issue_unscoped_token(assertion='UNMATCHED_GROUP_ASSERTION')
+        assigned_group_ids = r.json['token']['user']['OS-FEDERATION']['groups']
+        self.assertEqual(len(group_ids), len(assigned_group_ids))
+        for group in assigned_group_ids:
+            self.assertIn(group['id'], group_ids)
+
+    def test_empty_whitelist_discards_all_values(self):
+        """Test that empty whitelist blocks all the values
+
+        Not adding a ``whitelist`` keyword to the mapping value is different
+        than adding empty whitelist.  The former case will simply pass all the
+        values, whereas the latter would discard all the values.
+
+        This test checks scenario where an empty whitelist was specified.
+        The expected result is that no groups are matched.
+
+        The test scenario is as follows:
+         - Create group ``EXISTS``
+         - Set mapping rules for existing IdP with an empty whitelist
+           that whould discard any values from the assertion
+         - Try issuing unscoped token, expect server to raise
+           ``exception.MissingGroups`` as no groups were matched and ephemeral
+           user does not have any group assigned.
+
+        """
+        domain_id = self.domainA['id']
+        domain_name = self.domainA['name']
+        group = self.new_group_ref(domain_id=domain_id)
+        group['name'] = 'EXISTS'
+        group = self.identity_api.create_group(group)
+        rules = {
+            'rules': [
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "name": "{0}",
+                                "id": "{0}"
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER"
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "groups": "{0}",
+                            "domain": {"name": domain_name}
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER_GROUPS",
+                            "whitelist": []
+                        }
+                    ]
+                }
+            ]
+        }
+        self.federation_api.update_mapping(self.mapping['id'], rules)
+
+        self.assertRaises(exception.MissingGroups,
+                          self._issue_unscoped_token,
+                          assertion='UNMATCHED_GROUP_ASSERTION')
+
+    def test_not_setting_whitelist_accepts_all_values(self):
+        """Test that not setting whitelist passes
+
+        Not adding a ``whitelist`` keyword to the mapping value is different
+        than adding empty whitelist.  The former case will simply pass all the
+        values, whereas the latter would discard all the values.
+
+        This test checks a scenario where a ``whitelist`` was not specified.
+        Expected result is that no groups are ignored.
+
+        The test scenario is as follows:
+         - Create group ``EXISTS``
+         - Set mapping rules for existing IdP with an empty whitelist
+           that whould discard any values from the assertion
+         - Issue an unscoped token and make sure ephemeral user is a member of
+           two groups.
+
+        """
+        domain_id = self.domainA['id']
+        domain_name = self.domainA['name']
+
+        # Add a group "EXISTS"
+        group_exists = self.new_group_ref(domain_id=domain_id)
+        group_exists['name'] = 'EXISTS'
+        group_exists = self.identity_api.create_group(group_exists)
+
+        # Add a group "NO_EXISTS"
+        group_no_exists = self.new_group_ref(domain_id=domain_id)
+        group_no_exists['name'] = 'NO_EXISTS'
+        group_no_exists = self.identity_api.create_group(group_no_exists)
+
+        group_ids = set([group_exists['id'], group_no_exists['id']])
+
+        rules = {
+            'rules': [
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "name": "{0}",
+                                "id": "{0}"
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER"
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "groups": "{0}",
+                            "domain": {"name": domain_name}
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER_GROUPS",
+                        }
+                    ]
+                }
+            ]
+        }
+        self.federation_api.update_mapping(self.mapping['id'], rules)
+        r = self._issue_unscoped_token(assertion='UNMATCHED_GROUP_ASSERTION')
+        assigned_group_ids = r.json['token']['user']['OS-FEDERATION']['groups']
+        self.assertEqual(len(group_ids), len(assigned_group_ids))
+        for group in assigned_group_ids:
+            self.assertIn(group['id'], group_ids)
 
     def test_assertion_prefix_parameter(self):
         """Test parameters filtering based on the prefix.

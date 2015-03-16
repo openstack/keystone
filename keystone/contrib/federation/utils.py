@@ -686,10 +686,10 @@ class RuleProcessor(object):
 
                 # If a blacklist or whitelist is used, we want to map to the
                 # whole list instead of just its values separately.
-                if blacklisted_values:
+                if blacklisted_values is not None:
                     direct_map_values = [v for v in direct_map_values
                                          if v not in blacklisted_values]
-                elif whitelisted_values:
+                elif whitelisted_values is not None:
                     direct_map_values = [v for v in direct_map_values
                                          if v in whitelisted_values]
 
