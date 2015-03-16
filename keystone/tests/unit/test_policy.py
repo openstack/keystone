@@ -223,6 +223,9 @@ class PolicyJsonTestCase(tests.TestCase):
         cloud_policy_keys = self._load_entries(
             tests.dirs.etc('policy.v3cloudsample.json'))
 
-        diffs = set(policy_keys).difference(set(cloud_policy_keys))
+        policy_extra_keys = ['admin_or_token_subject',
+                             'token_subject', ]
+        expected_policy_keys = list(cloud_policy_keys) + policy_extra_keys
+        diffs = set(policy_keys).difference(set(expected_policy_keys))
 
         self.assertThat(diffs, matchers.Equals(set()))
