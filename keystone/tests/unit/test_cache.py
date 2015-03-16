@@ -13,9 +13,12 @@
 # under the License.
 
 import copy
+import time
+import uuid
 
 from dogpile.cache import api
 from dogpile.cache import proxy
+import mock
 from oslo_config import cfg
 
 from keystone.common import cache
@@ -85,11 +88,13 @@ class CacheRegionTest(tests.TestCase):
             cfg.BoolOpt('caching', default=True), group='cache')
 
     def _get_cacheable_function(self):
-        SHOULD_CACHE_FN = cache.should_cache_fn('cache')
+        with mock.patch.object(cache.REGION, 'cache_on_arguments',
+                               self.region.cache_on_arguments):
+            memoize = cache.get_memoization_decorator(section='cache')
 
-        @self.region.cache_on_arguments(should_cache_fn=SHOULD_CACHE_FN)
-        def cacheable_function(value):
-            return value
+            @memoize
+            def cacheable_function(value):
+                return value
 
         return cacheable_function
 
@@ -104,6 +109,77 @@ class CacheRegionTest(tests.TestCase):
         # Verify configuring the CacheRegion again doesn't error.
         cache.configure_cache_region(self.region)
         cache.configure_cache_region(self.region)
+
+    def _get_cache_fallthrough_fn(self, cache_time):
+        with mock.patch.object(cache.REGION, 'cache_on_arguments',
+                               self.region.cache_on_arguments):
+            memoize = cache.get_memoization_decorator(
+                section='cache',
+                expiration_section='assignment')
+
+            class _test_obj(object):
+                def __init__(self, value):
+                    self.test_value = value
+
+                @memoize
+                def get_test_value(self):
+                    return self.test_value
+
+            def _do_test(value):
+
+                test_obj = _test_obj(value)
+
+                # Ensure the value has been cached
+                test_obj.get_test_value()
+                # Get the now cached value
+                cached_value = test_obj.get_test_value()
+                self.assertTrue(cached_value.cached)
+                self.assertEqual(value.value, cached_value.value)
+                self.assertEqual(cached_value.value, test_obj.test_value.value)
+                # Change the underlying value on the test object.
+                test_obj.test_value = TestProxyValue(uuid.uuid4().hex)
+                self.assertEqual(cached_value.value,
+                                 test_obj.get_test_value().value)
+                # override the system time to ensure the non-cached new value
+                # is returned
+                new_time = time.time() + (cache_time * 2)
+                with mock.patch.object(time, 'time',
+                                       return_value=new_time):
+                    overriden_cache_value = test_obj.get_test_value()
+                    self.assertNotEqual(cached_value.value,
+                                        overriden_cache_value.value)
+                    self.assertEqual(test_obj.test_value.value,
+                                     overriden_cache_value.value)
+
+        return _do_test
+
+    def test_cache_no_fallthrough_expiration_time_fn(self):
+        # Since we do not re-configure the cache region, for ease of testing
+        # this value is set the same as the expiration_time default in the
+        # [cache] section
+        cache_time = 600
+        expiration_time = cache.get_expiration_time_fn('role')
+        do_test = self._get_cache_fallthrough_fn(cache_time)
+        # Run the test with the assignment cache_time value
+        self.config_fixture.config(cache_time=cache_time,
+                                   group='role')
+        test_value = TestProxyValue(uuid.uuid4().hex)
+        self.assertEqual(cache_time, expiration_time())
+        do_test(value=test_value)
+
+    def test_cache_fallthrough_expiration_time_fn(self):
+        # Since we do not re-configure the cache region, for ease of testing
+        # this value is set the same as the expiration_time default in the
+        # [cache] section
+        cache_time = 599
+        expiration_time = cache.get_expiration_time_fn('role')
+        do_test = self._get_cache_fallthrough_fn(cache_time)
+        # Run the test with the assignment cache_time value set to None and
+        # the global value set.
+        self.config_fixture.config(cache_time=None, group='role')
+        test_value = TestProxyValue(uuid.uuid4().hex)
+        self.assertIsNone(expiration_time())
+        do_test(value=test_value)
 
     def test_should_cache_fn_global_cache_enabled(self):
         # Verify should_cache_fn generates a sane function for subsystem and
