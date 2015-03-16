@@ -38,7 +38,7 @@ from keystone.token import persistence
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-MEMOIZE = cache.get_memoization_decorator('token')
+MEMOIZE = cache.get_memoization_decorator(section='token')
 
 # NOTE(morganfainberg): This is for compatibility in case someone was relying
 # on the old location of the UnsupportedTokenVersionException for their code.
