@@ -53,6 +53,7 @@ class Routers(wsgi.RoutersBase):
             patch_action='update_domain_config_only',
             delete_action='delete_domain_config',
             rel=json_home.build_v3_resource_relation('domain_config'),
+            status=json_home.Status.EXPERIMENTAL,
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID
             })
@@ -66,6 +67,7 @@ class Routers(wsgi.RoutersBase):
             patch_action='update_domain_config_group',
             delete_action='delete_domain_config',
             rel=json_home.build_v3_resource_relation('domain_config_group'),
+            status=json_home.Status.EXPERIMENTAL,
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group': config_group_param
@@ -78,6 +80,7 @@ class Routers(wsgi.RoutersBase):
             patch_action='update_domain_config',
             delete_action='delete_domain_config',
             rel=json_home.build_v3_resource_relation('domain_config_option'),
+            status=json_home.Status.EXPERIMENTAL,
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group': config_group_param,
