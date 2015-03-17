@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.1.dev443\n"
+"Project-Id-Version: keystone 2015.1.dev468\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-13 06:09+0000\n"
+"POT-Creation-Date: 2015-03-17 06:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -450,21 +450,21 @@ msgid ""
 "an empty list."
 msgstr ""
 
-#: keystone/assignment/core.py:231
+#: keystone/assignment/core.py:228
 msgid "Must specify either domain or project"
 msgstr ""
 
-#: keystone/assignment/core.py:496
+#: keystone/assignment/core.py:493
 #, python-format
 msgid "Project (%s)"
 msgstr ""
 
-#: keystone/assignment/core.py:498
+#: keystone/assignment/core.py:495
 #, python-format
 msgid "Domain (%s)"
 msgstr ""
 
-#: keystone/assignment/core.py:500
+#: keystone/assignment/core.py:497
 msgid "Unknown Target"
 msgstr ""
 
@@ -493,7 +493,7 @@ msgstr ""
 msgid "Unexpected assignment type encountered, %s"
 msgstr ""
 
-#: keystone/assignment/role_backends/ldap.py:61 keystone/catalog/core.py:105
+#: keystone/assignment/role_backends/ldap.py:61 keystone/catalog/core.py:103
 #: keystone/common/ldap/core.py:1401 keystone/resource/backends/ldap.py:149
 #, python-format
 msgid "Duplicate ID, %s."
@@ -594,7 +594,7 @@ msgstr ""
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
 
-#: keystone/common/authorization.py:47 keystone/common/wsgi.py:63
+#: keystone/common/authorization.py:47 keystone/common/wsgi.py:64
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
@@ -622,8 +622,8 @@ msgstr ""
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr ""
 
-#: keystone/common/controller.py:288 keystone/identity/core.py:432
-#: keystone/resource/core.py:768 keystone/resource/backends/ldap.py:61
+#: keystone/common/controller.py:288 keystone/identity/core.py:428
+#: keystone/resource/core.py:761 keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
@@ -702,18 +702,23 @@ msgstr ""
 msgid "Invalid blob in credential"
 msgstr ""
 
-#: keystone/common/wsgi.py:329
+#: keystone/common/wsgi.py:330
 #, python-format
 msgid "%s field is required and cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:341
+#: keystone/common/wsgi.py:342
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:562
+#: keystone/common/wsgi.py:563
 msgid "The resource could not be found."
+msgstr ""
+
+#: keystone/common/wsgi.py:704
+#, python-format
+msgid "Unexpected status requested for JSON Home response, %s"
 msgstr ""
 
 #: keystone/common/cache/_memcache_pool.py:113
@@ -889,8 +894,8 @@ msgstr ""
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
 
-#: keystone/common/sql/migration_helpers.py:220
-#: keystone/common/sql/migration_helpers.py:278
+#: keystone/common/sql/migration_helpers.py:187
+#: keystone/common/sql/migration_helpers.py:245
 #, python-format
 msgid "%s extension does not exist."
 msgstr ""
@@ -1071,15 +1076,15 @@ msgstr ""
 msgid "invalid date format %s"
 msgstr ""
 
-#: keystone/contrib/revoke/core.py:152
+#: keystone/contrib/revoke/core.py:150
 msgid ""
 "The revoke call must not have both domain_id and project_id. This is a "
 "bug in the Keystone server. The current request is aborted."
 msgstr ""
 
-#: keystone/contrib/revoke/core.py:221 keystone/token/provider.py:210
-#: keystone/token/provider.py:230 keystone/token/provider.py:299
-#: keystone/token/provider.py:306
+#: keystone/contrib/revoke/core.py:218 keystone/token/provider.py:207
+#: keystone/token/provider.py:227 keystone/token/provider.py:293
+#: keystone/token/provider.py:300
 msgid "Failed to validate token"
 msgstr ""
 
@@ -1091,24 +1096,24 @@ msgstr ""
 msgid "Enabled field should be a boolean"
 msgstr ""
 
-#: keystone/identity/core.py:116
+#: keystone/identity/core.py:112
 #, python-format
 msgid "Database at /domains/%s/config"
 msgstr ""
 
-#: keystone/identity/core.py:291 keystone/identity/backends/ldap.py:59
+#: keystone/identity/core.py:287 keystone/identity/backends/ldap.py:59
 #: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
-#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:108
-#: keystone/identity/backends/sql.py:110
+#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:104
+#: keystone/identity/backends/sql.py:106
 msgid "Invalid user / password"
 msgstr ""
 
-#: keystone/identity/core.py:698
+#: keystone/identity/core.py:693
 #, python-format
 msgid "User is disabled: %s"
 msgstr ""
 
-#: keystone/identity/core.py:741
+#: keystone/identity/core.py:735
 msgid "Cannot change user ID"
 msgstr ""
 
@@ -1116,8 +1121,8 @@ msgstr ""
 msgid "Cannot change user name"
 msgstr ""
 
-#: keystone/identity/backends/ldap.py:188 keystone/identity/backends/sql.py:192
-#: keystone/identity/backends/sql.py:210
+#: keystone/identity/backends/ldap.py:188 keystone/identity/backends/sql.py:188
+#: keystone/identity/backends/sql.py:206
 #, python-format
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
 msgstr ""
@@ -1131,36 +1136,36 @@ msgstr ""
 msgid "Found invalid token: scoped to both project and domain."
 msgstr ""
 
-#: keystone/openstack/common/versionutils.py:99
+#: keystone/openstack/common/versionutils.py:108
 #, python-format
 msgid ""
 "%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s and "
 "may be removed in %(remove_in)s."
 msgstr ""
 
-#: keystone/openstack/common/versionutils.py:103
+#: keystone/openstack/common/versionutils.py:112
 #, python-format
 msgid ""
 "%(what)s is deprecated as of %(as_of)s and may be removed in "
 "%(remove_in)s. It will not be superseded."
 msgstr ""
 
-#: keystone/openstack/common/versionutils.py:107
+#: keystone/openstack/common/versionutils.py:116
 #, python-format
 msgid "%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s."
 msgstr ""
 
-#: keystone/openstack/common/versionutils.py:110
+#: keystone/openstack/common/versionutils.py:119
 #, python-format
 msgid "%(what)s is deprecated as of %(as_of)s. It will not be superseded."
 msgstr ""
 
-#: keystone/openstack/common/versionutils.py:232
+#: keystone/openstack/common/versionutils.py:241
 #, python-format
 msgid "Deprecated: %s"
 msgstr ""
 
-#: keystone/openstack/common/versionutils.py:250
+#: keystone/openstack/common/versionutils.py:259
 #, python-format
 msgid "Fatal call to deprecated config: %(msg)s"
 msgstr ""
@@ -1177,143 +1182,143 @@ msgid ""
 "time."
 msgstr ""
 
-#: keystone/resource/core.py:83
+#: keystone/resource/core.py:80
 #, python-format
 msgid "max hierarchy depth reached for %s branch."
 msgstr ""
 
-#: keystone/resource/core.py:100
+#: keystone/resource/core.py:97
 msgid "cannot create a project within a different domain than its parents."
 msgstr ""
 
-#: keystone/resource/core.py:104
+#: keystone/resource/core.py:101
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
 
-#: keystone/resource/core.py:126
+#: keystone/resource/core.py:123
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr ""
 
-#: keystone/resource/core.py:144
+#: keystone/resource/core.py:141
 #, python-format
 msgid "Domain cannot be named %s"
 msgstr ""
 
-#: keystone/resource/core.py:147
+#: keystone/resource/core.py:144
 #, python-format
 msgid "Domain cannot have ID %s"
 msgstr ""
 
-#: keystone/resource/core.py:159
+#: keystone/resource/core.py:156
 #, python-format
 msgid "Project is disabled: %s"
 msgstr ""
 
-#: keystone/resource/core.py:179
+#: keystone/resource/core.py:176
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 
-#: keystone/resource/core.py:187
+#: keystone/resource/core.py:184
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
 msgstr ""
 
-#: keystone/resource/core.py:198
+#: keystone/resource/core.py:195
 msgid "Update of `parent_id` is not allowed."
 msgstr ""
 
-#: keystone/resource/core.py:225
+#: keystone/resource/core.py:222
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
 msgstr ""
 
-#: keystone/resource/core.py:381
+#: keystone/resource/core.py:376
 msgid "Multiple domains are not supported"
 msgstr ""
 
-#: keystone/resource/core.py:434
+#: keystone/resource/core.py:429
 msgid "delete the default domain"
 msgstr ""
 
-#: keystone/resource/core.py:445
+#: keystone/resource/core.py:440
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/resource/core.py:848
+#: keystone/resource/core.py:841
 msgid "No options specified"
 msgstr ""
 
-#: keystone/resource/core.py:854
+#: keystone/resource/core.py:847
 #, python-format
 msgid ""
 "The value of group %(group)s specified in the config should be a "
 "dictionary of options"
 msgstr ""
 
-#: keystone/resource/core.py:878
+#: keystone/resource/core.py:871
 #, python-format
 msgid ""
 "Option %(option)s found with no group specified while checking domain "
 "configuration request"
 msgstr ""
 
-#: keystone/resource/core.py:885
+#: keystone/resource/core.py:878
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
 
-#: keystone/resource/core.py:892
+#: keystone/resource/core.py:885
 #, python-format
 msgid ""
 "Option %(option)s in group %(group)s is not supported for domain specific"
 " configurations"
 msgstr ""
 
-#: keystone/resource/core.py:945
+#: keystone/resource/core.py:938
 msgid "An unexpected error occurred when retrieving domain configs"
 msgstr ""
 
-#: keystone/resource/core.py:1020 keystone/resource/core.py:1104
-#: keystone/resource/core.py:1174 keystone/resource/config_backends/sql.py:70
+#: keystone/resource/core.py:1013 keystone/resource/core.py:1097
+#: keystone/resource/core.py:1167 keystone/resource/config_backends/sql.py:70
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr ""
 
-#: keystone/resource/core.py:1023 keystone/resource/core.py:1109
-#: keystone/resource/core.py:1170
+#: keystone/resource/core.py:1016 keystone/resource/core.py:1102
+#: keystone/resource/core.py:1163
 #, python-format
 msgid "group %(group)s"
 msgstr ""
 
-#: keystone/resource/core.py:1025
+#: keystone/resource/core.py:1018
 msgid "any options"
 msgstr ""
 
-#: keystone/resource/core.py:1069
+#: keystone/resource/core.py:1062
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, so that, and only "
 "that, option must be specified  in the config"
 msgstr ""
 
-#: keystone/resource/core.py:1074
+#: keystone/resource/core.py:1067
 #, python-format
 msgid ""
 "Trying to update group %(group)s, so that, and only that, group must be "
 "specified in the config"
 msgstr ""
 
-#: keystone/resource/core.py:1083
+#: keystone/resource/core.py:1076
 #, python-format
 msgid ""
 "request to update group %(group)s, but config provided contains group "
 "%(group_other)s instead"
 msgstr ""
 
-#: keystone/resource/core.py:1090
+#: keystone/resource/core.py:1083
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, but config "
