@@ -207,7 +207,6 @@ class AuthInfo(object):
                 # disabled.
                 self._lookup_domain({'id': project_ref['domain_id']})
         except exception.ProjectNotFound as e:
-            LOG.exception(six.text_type(e))
             raise exception.Unauthorized(e)
         self._assert_project_is_enabled(project_ref)
         return project_ref
