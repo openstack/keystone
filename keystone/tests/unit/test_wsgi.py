@@ -49,6 +49,22 @@ class FakeAttributeCheckerApp(wsgi.Application):
         self._require_attributes(ref, attr)
 
 
+class RouterTest(tests.TestCase):
+    def setUp(self):
+        self.router = wsgi.RoutersBase()
+        super(RouterTest, self).setUp()
+
+    def test_invalid_status(self):
+        fake_mapper = uuid.uuid4().hex
+        fake_controller = uuid.uuid4().hex
+        fake_path = uuid.uuid4().hex
+        fake_rel = uuid.uuid4().hex
+        self.assertRaises(exception.Error,
+                          self.router._add_resource,
+                          fake_mapper, fake_controller, fake_path, fake_rel,
+                          status=uuid.uuid4().hex)
+
+
 class BaseWSGITest(tests.TestCase):
     def setUp(self):
         self.app = FakeApp()

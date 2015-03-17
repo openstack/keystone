@@ -15,6 +15,9 @@
 
 import six
 
+from keystone import exception
+from keystone.i18n import _
+
 
 def build_v3_resource_relation(resource_name):
     return ('http://docs.openstack.org/api/openstack-identity/3/rel/%s' %
@@ -62,8 +65,18 @@ class Status(object):
     STABLE = 'stable'
 
     @classmethod
-    def is_supported(cls, status):
-        return status in [cls.DEPRECATED, cls.EXPERIMENTAL, cls.STABLE]
+    def update_resource_data(cls, resource_data, status):
+        if status is cls.STABLE:
+            # We currently do not add a status if the resource is stable, the
+            # absence of the status property can be taken as meaning that the
+            # resource is stable.
+            return
+        if status is cls.DEPRECATED or status is cls.EXPERIMENTAL:
+            resource_data['hints'] = {'status': status}
+            return
+
+        raise exception.Error(message=_(
+            'Unexpected status requested for JSON Home response, %s') % status)
 
 
 def translate_urls(json_home, new_prefix):
