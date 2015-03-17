@@ -982,3 +982,8 @@ ANOTHER_LOCAL_USER_ASSERTION = {
     'UserName': 'marek',
     'Position': 'DirectorGeneral'
 }
+
+UNMATCHED_GROUP_ASSERTION = {
+    'REMOTE_USER': 'Any Momoose',
+    'REMOTE_USER_GROUPS': 'EXISTS;NO_EXISTS'
+}

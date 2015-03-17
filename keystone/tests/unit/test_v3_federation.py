@@ -1887,7 +1887,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         self.assertEqual(ref_groups, token_groups)
 
     def test_issue_unscoped_tokens_nonexisting_group(self):
-        self.assertRaises(exception.MappedGroupNotFound,
+        self.assertRaises(exception.MissingGroups,
                           self._issue_unscoped_token,
                           assertion='ANOTHER_TESTER_ASSERTION')
 
@@ -2248,6 +2248,66 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
             self.project_all['id'])
 
         self.v3_authenticate_token(scoped_token, expected_status=500)
+
+    def test_lists_with_missing_group_in_backend(self):
+        """Test a mapping that points to a group that does not exist
+
+        For explicit mappings, we expect the group to exist in the backend,
+        but for lists, specifically blacklists, a missing group is expected
+        as many groups will be specified by the IdP that are not Keystone
+        groups.
+
+        The test scenario is as follows:
+         - Create group ``EXISTS``
+         - Set mapping rules for existing IdP with a blacklist
+           that passes through as REMOTE_USER_GROUPS
+         - Issue unscoped token with on group  ``EXISTS`` id in it
+
+        """
+        domain_id = self.domainA['id']
+        domain_name = self.domainA['name']
+        group = self.new_group_ref(domain_id=domain_id)
+        group['name'] = 'EXISTS'
+        group = self.identity_api.create_group(group)
+        rules = {
+            'rules': [
+                {
+                    "local": [
+                        {
+                            "user": {
+                                "name": "{0}",
+                                "id": "{0}"
+                            }
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER"
+                        }
+                    ]
+                },
+                {
+                    "local": [
+                        {
+                            "groups": "{0}",
+                            "domain": {"name": domain_name}
+                        }
+                    ],
+                    "remote": [
+                        {
+                            "type": "REMOTE_USER_GROUPS",
+                            "blacklist": ["noblacklist"]
+                        }
+                    ]
+                }
+            ]
+        }
+        self.federation_api.update_mapping(self.mapping['id'], rules)
+
+        r = self._issue_unscoped_token(assertion='UNMATCHED_GROUP_ASSERTION')
+        assigned_group_ids = r.json['token']['user']['OS-FEDERATION']['groups']
+        self.assertEqual(1, len(assigned_group_ids))
+        self.assertEqual(group['id'], assigned_group_ids[0]['id'])
 
     def test_assertion_prefix_parameter(self):
         """Test parameters filtering based on the prefix.
