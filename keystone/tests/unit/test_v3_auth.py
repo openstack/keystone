@@ -30,8 +30,8 @@ from keystone import auth
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit as tests
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit.token import test_fernet_provider as fernet
 
 
 CONF = cfg.CONF
@@ -4050,11 +4050,10 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertValidDomainListResponse(r)
 
 
-class TestFernetTokenProvider(test_v3.RestfulTestCase,
-                              fernet.KeyRepositoryTestMixin):
+class TestFernetTokenProvider(test_v3.RestfulTestCase):
     def setUp(self):
         super(TestFernetTokenProvider, self).setUp()
-        self.setUpKeyRepository()
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
     def _make_auth_request(self, auth_data):
         resp = self.post('/auth/tokens', body=auth_data, expected_status=201)

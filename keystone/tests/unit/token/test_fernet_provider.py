@@ -11,8 +11,6 @@
 # under the License.
 
 import datetime
-import shutil
-import tempfile
 import uuid
 
 from oslo_utils import timeutils
@@ -20,30 +18,19 @@ from oslo_utils import timeutils
 from keystone.common import config
 from keystone import exception
 from keystone.tests import unit as tests
+from keystone.tests.unit import ksfixtures
 from keystone.token import provider
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
-from keystone.token.providers.fernet import utils
 
 
 CONF = config.CONF
 
 
-class KeyRepositoryTestMixin(object):
-    def setUpKeyRepository(self):
-        directory = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, directory)
-        self.config_fixture.config(group='fernet_tokens',
-                                   key_repository=directory)
-
-        utils.create_key_directory()
-        utils.initialize_key_repository()
-
-
-class TestFernetTokenProvider(tests.TestCase, KeyRepositoryTestMixin):
+class TestFernetTokenProvider(tests.TestCase):
     def setUp(self):
         super(TestFernetTokenProvider, self).setUp()
-        self.setUpKeyRepository()
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
         self.provider = fernet.Provider()
 
     def test_issue_v2_token_raises_not_implemented(self):
@@ -73,7 +60,7 @@ class TestFernetTokenProvider(tests.TestCase, KeyRepositoryTestMixin):
             uuid.uuid4().hex)
 
 
-class TestPayloads(tests.TestCase, KeyRepositoryTestMixin):
+class TestPayloads(tests.TestCase):
     def test_uuid_hex_to_byte_conversions(self):
         payload_cls = token_formatters.BasePayload
 
