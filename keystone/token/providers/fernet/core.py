@@ -146,6 +146,11 @@ class Provider(common.BaseProvider):
         :returns: tuple containing the id of the token and the token data
 
         """
+        # TODO(lbragstad): Currently, Fernet tokens don't support bind in the
+        # token format. Raise a 501 if we're dealing with bind.
+        if auth_context.get('bind'):
+            raise exception.NotImplemented()
+
         token_ref = None
         # NOTE(lbragstad): This determines if we are dealing with a federated
         # token or not. The groups for the user will be in the returned token
