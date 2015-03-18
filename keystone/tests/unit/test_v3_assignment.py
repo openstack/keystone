@@ -2928,3 +2928,16 @@ class AssignmentV3toV2MethodsTestCase(tests.TestCase):
         updated_ref = controller.V3Controller.filter_domain_id(ref)
         self.assertIs(ref, updated_ref)
         self.assertDictEqual(ref, expected_ref)
+
+    def test_v2controller_filter_domain(self):
+        other_data = uuid.uuid4().hex
+        domain_id = uuid.uuid4().hex
+        non_default_domain_ref = {'domain': {'id': domain_id},
+                                  'other_data': other_data}
+        default_domain_ref = {'domain': {'id': 'default'},
+                              'other_data': other_data}
+        updated_ref = controller.V2Controller.filter_domain(default_domain_ref)
+        self.assertNotIn('domain', updated_ref)
+        self.assertRaises(exception.Unauthorized,
+                          controller.V2Controller.filter_domain,
+                          non_default_domain_ref)

@@ -144,6 +144,10 @@ class TokenFormatter(object):
 
     def validate_token(self, token):
         """Validates a Fernet token and returns the payload attributes."""
+        # Convert v2 unicode token to a string
+        if not isinstance(token, six.binary_type):
+            token = token.encode('ascii')
+
         serialized_payload = self.unpack(token)
         versioned_payload = msgpack.unpackb(serialized_payload)
         version, payload = versioned_payload[0], versioned_payload[1:]

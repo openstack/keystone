@@ -4404,3 +4404,44 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           trust_scoped_token)
+
+    def test_v2_validate_unscoped_token_returns_401(self):
+        """Test raised exception when validating unscoped token.
+
+        Test that validating an unscoped token in v2.0 of a v3 user of a
+        non-default domain returns unauthorized.
+        """
+        unscoped_token = self._get_unscoped_token()
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api.validate_v2_token,
+                          unscoped_token)
+
+    def test_v2_validate_domain_scoped_token_returns_401(self):
+        """Test raised exception when validating a domain scoped token.
+
+        Test that validating an domain scoped token in v2.0
+        returns unauthorized.
+        """
+
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+
+        scoped_token = self._get_domain_scoped_token()
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api.validate_v2_token,
+                          scoped_token)
+
+    def test_v2_validate_trust_scoped_token(self):
+        """Test raised exception when validating a trust scoped token.
+
+        Test that validating an trust scoped token in v2.0 returns
+        unauthorized.
+        """
+
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api.validate_v2_token,
+                          trust_scoped_token)

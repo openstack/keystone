@@ -33,30 +33,22 @@ class TestFernetTokenProvider(tests.TestCase):
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
         self.provider = fernet.Provider()
 
-    def test_issue_v2_token_raises_not_implemented(self):
-        """Test that exception is raised when call creating v2 token."""
-        token_ref = {}
-        self.assertRaises(exception.NotImplemented,
-                          self.provider.issue_v2_token,
-                          token_ref)
-
-    def test_validate_v2_token_raises_not_implemented(self):
-        """Test that exception is raised when validating a v2 token."""
-        token_ref = {}
-        self.assertRaises(exception.NotImplemented,
-                          self.provider.validate_v2_token,
-                          token_ref)
-
     def test_get_token_id_raises_not_implemented(self):
         """Test that an exception is raised when calling _get_token_id."""
         token_data = {}
         self.assertRaises(exception.NotImplemented,
                           self.provider._get_token_id, token_data)
 
-    def test_invalid_token(self):
+    def test_invalid_v3_token_raises_401(self):
         self.assertRaises(
             exception.Unauthorized,
             self.provider.validate_v3_token,
+            uuid.uuid4().hex)
+
+    def test_invalid_v2_token_raises_401(self):
+        self.assertRaises(
+            exception.Unauthorized,
+            self.provider.validate_v2_token,
             uuid.uuid4().hex)
 
 
