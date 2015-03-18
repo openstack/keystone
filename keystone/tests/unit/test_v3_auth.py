@@ -4459,10 +4459,36 @@ class TestAuthFernetTokenProvider(TestAuth):
             provider='keystone.token.providers.fernet.Provider')
 
     def test_verify_with_bound_token(self):
-        self.skipTest('Bind not current supported by Fernet, see bug 1433311.')
+        self.config_fixture.config(group='token', bind='kerberos')
+        auth_data = self.build_authentication_request(
+            project_id=self.project['id'])
+        remote_user = self.default_domain_user['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'AUTH_TYPE': 'Negotiate'})
+        # Bind not current supported by Fernet, see bug 1433311.
+        self.v3_authenticate_token(auth_data, expected_status=501)
 
     def test_v2_v3_bind_token_intermix(self):
-        self.skipTest('Bind not current supported by Fernet, see bug 1433311.')
+        self.config_fixture.config(group='token', bind='kerberos')
+
+        # we need our own user registered to the default domain because of
+        # the way external auth works.
+        remote_user = self.default_domain_user['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'AUTH_TYPE': 'Negotiate'})
+        body = {'auth': {}}
+        # Bind not current supported by Fernet, see bug 1433311.
+        self.admin_request(path='/v2.0/tokens',
+                           method='POST',
+                           body=body,
+                           expected_status=501)
 
     def test_auth_with_bind_token(self):
-        self.skipTest('Bind not current supported by Fernet, see bug 1433311.')
+        self.config_fixture.config(group='token', bind=['kerberos'])
+
+        auth_data = self.build_authentication_request()
+        remote_user = self.default_domain_user['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'AUTH_TYPE': 'Negotiate'})
+        # Bind not current supported by Fernet, see bug 1433311.
+        self.v3_authenticate_token(auth_data, expected_status=501)
