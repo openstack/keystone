@@ -46,6 +46,11 @@ class Provider(common.BaseProvider):
         :returns: tuple containing the ID of the token and the token data
 
         """
+        # TODO(lbragstad): Currently, Fernet tokens don't support bind in the
+        # token format. Raise a 501 if we're dealing with bind.
+        if token_ref.get('bind'):
+            raise exception.NotImplemented()
+
         user_id = token_ref['user']['id']
         # Default to password since methods not provided by token_ref
         method_names = ['password']

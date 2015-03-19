@@ -77,6 +77,15 @@ def convert_integer_to_method_list(method_int):
 
     confirmed_methods = []
     for m_int in method_ints:
+        # (lbragstad): By dividing the method_int by each key in the
+        # method_map, we know if the division results in an integer of 1, that
+        # key was used in the construction of the total sum of the method_int.
+        # In that case, we should confirm the key value and store it so we can
+        # look it up later. Then we should take the remainder of what is
+        # confirmed and the method_int and continue the process. In the end, we
+        # should have a list of integers that correspond to indexes in our
+        # method_map and we can reinflate the methods that the original
+        # method_int represents.
         if (method_int / m_int) == 1:
             confirmed_methods.append(m_int)
             method_int = method_int - m_int
