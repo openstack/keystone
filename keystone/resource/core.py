@@ -780,6 +780,9 @@ class Driver(object):
             raise exception.DomainNotFound(domain_id=domain_id)
 
 
+MEMOIZE_CONFIG = cache.get_memoization_decorator(section='domain_config')
+
+
 @dependency.provider('domain_config_api')
 class DomainConfigManager(manager.Manager):
     """Default pivot point for the Domain Config backend."""
@@ -975,6 +978,10 @@ class DomainConfigManager(manager.Manager):
             self.create_config_option(
                 domain_id, option['group'], option['option'], option['value'],
                 sensitive=True)
+        # Since we are caching on the full substituted config, we just
+        # invalidate here, rather than try and create the right result to
+        # cache.
+        self.get_config_with_sensitive_info.invalidate(self, domain_id)
         return self._list_to_config(whitelisted)
 
     def get_config(self, domain_id, group=None, option=None):
@@ -1131,6 +1138,7 @@ class DomainConfigManager(manager.Manager):
         for new_option in sensitive:
             _update_or_create(domain_id, new_option, sensitive=True)
 
+        self.get_config_with_sensitive_info.invalidate(self, domain_id)
         return self.get_config(domain_id)
 
     def delete_config(self, domain_id, group=None, option=None):
@@ -1171,6 +1179,7 @@ class DomainConfigManager(manager.Manager):
 
         self.delete_config_options(domain_id, group, option)
         self.delete_config_options(domain_id, group, option, sensitive=True)
+        self.get_config_with_sensitive_info.invalidate(self, domain_id)
 
     def _get_config_with_sensitive_info(self, domain_id, group=None,
                                         option=None):
@@ -1232,6 +1241,7 @@ class DomainConfigManager(manager.Manager):
 
         return self._list_to_config(whitelisted, sensitive)
 
+    @MEMOIZE_CONFIG
     def get_config_with_sensitive_info(self, domain_id):
         """Get config for a domain with sensitive info included.
 
