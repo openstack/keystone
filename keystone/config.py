@@ -47,7 +47,8 @@ def set_default_for_default_log_levels():
     ]
 
     log.register_options(CONF)
-    CONF.default_log_levels.extend(extra_log_level_defaults)
+    CONF.set_default('default_log_levels',
+                     CONF.default_log_levels + extra_log_level_defaults)
 
 
 def setup_logging():
