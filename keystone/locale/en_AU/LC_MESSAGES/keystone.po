@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-17 06:33+0000\n"
-"PO-Revision-Date: 2015-03-16 17:41+0000\n"
+"POT-Creation-Date: 2015-03-19 06:03+0000\n"
+"PO-Revision-Date: 2015-03-19 02:24+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
 "(http://www.transifex.com/projects/p/keystone/language/en_AU/)\n"
@@ -39,17 +39,63 @@ msgstr "%(property_name)s should not be greater than %(max_length)s characters."
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr "%(property_name)s is not a %(display_expected_type)s"
 
-#: keystone/cli.py:280
+#: keystone/cli.py:283
 msgid "At least one option must be provided"
 msgstr ""
 
-#: keystone/cli.py:287
+#: keystone/cli.py:290
 msgid "--all option cannot be mixed with other options"
 msgstr ""
 
-#: keystone/cli.py:298
+#: keystone/cli.py:301
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
+msgstr ""
+
+#: keystone/cli.py:365 keystone/tests/unit/test_cli.py:213
+msgid "At least one option must be provided, use either --all or --domain-name"
+msgstr ""
+
+#: keystone/cli.py:371 keystone/tests/unit/test_cli.py:229
+msgid "The --all option cannot be used with the --domain-name option"
+msgstr ""
+
+#: keystone/cli.py:397 keystone/tests/unit/test_cli.py:246
+#, python-format
+msgid ""
+"Invalid domain name: %(domain)s found in config file name: %(file)s - "
+"ignoring this file."
+msgstr ""
+
+#: keystone/cli.py:405 keystone/tests/unit/test_cli.py:187
+#, python-format
+msgid ""
+"Domain: %(domain)s already has a configuration defined - ignoring file: "
+"%(file)s."
+msgstr ""
+
+#: keystone/cli.py:419
+#, python-format
+msgid "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
+msgstr ""
+
+#: keystone/cli.py:452
+#, python-format
+msgid ""
+"To get a more detailed information on this error, re-run this command for"
+" the specific domain, i.e.: keystone-manage domain_config_upload "
+"--domain-name %s"
+msgstr ""
+
+#: keystone/cli.py:470
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr ""
+
+#: keystone/cli.py:503
+msgid ""
+"Unable to access the keystone database, please check it is configured "
+"correctly."
 msgstr ""
 
 #: keystone/exception.py:79
@@ -541,23 +587,23 @@ msgid ""
 "conflicting values %(new)s and %(old)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:337
+#: keystone/auth/controllers.py:336
 msgid "Scoping to both domain and project is not allowed"
 msgstr "Scoping to both domain and project is not allowed"
 
-#: keystone/auth/controllers.py:340
+#: keystone/auth/controllers.py:339
 msgid "Scoping to both domain and trust is not allowed"
 msgstr "Scoping to both domain and trust is not allowed"
 
-#: keystone/auth/controllers.py:343
+#: keystone/auth/controllers.py:342
 msgid "Scoping to both project and trust is not allowed"
 msgstr "Scoping to both project and trust is not allowed"
 
-#: keystone/auth/controllers.py:513
+#: keystone/auth/controllers.py:512
 msgid "User not found"
 msgstr "User not found"
 
-#: keystone/auth/controllers.py:617
+#: keystone/auth/controllers.py:616
 msgid "A project-scoped token is required to produce a service catalog."
 msgstr ""
 
@@ -632,29 +678,33 @@ msgstr "text is not a multiple of 4, but contains pad \"%s\""
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr "padded base64url text must be multiple of 4 characters"
 
-#: keystone/common/controller.py:288 keystone/identity/core.py:428
+#: keystone/common/controller.py:237 keystone/token/providers/common.py:589
+msgid "Non-default domain is not supported"
+msgstr "Non-default domain is not supported"
+
+#: keystone/common/controller.py:305 keystone/identity/core.py:428
 #: keystone/resource/core.py:761 keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Expected dict or list: %s"
 
-#: keystone/common/controller.py:301
+#: keystone/common/controller.py:318
 msgid "Marker could not be found"
 msgstr "Marker could not be found"
 
-#: keystone/common/controller.py:312
+#: keystone/common/controller.py:329
 msgid "Invalid limit value"
 msgstr "Invalid limit value"
 
-#: keystone/common/controller.py:620
+#: keystone/common/controller.py:637
 msgid "Cannot change Domain ID"
 msgstr ""
 
-#: keystone/common/controller.py:649
+#: keystone/common/controller.py:666
 msgid "domain_id is required as part of entity"
 msgstr ""
 
-#: keystone/common/controller.py:684
+#: keystone/common/controller.py:701
 msgid "A domain-scoped token must be used"
 msgstr ""
 
@@ -1099,8 +1149,8 @@ msgid ""
 msgstr ""
 
 #: keystone/contrib/revoke/core.py:218 keystone/token/provider.py:207
-#: keystone/token/provider.py:227 keystone/token/provider.py:293
-#: keystone/token/provider.py:300
+#: keystone/token/provider.py:230 keystone/token/provider.py:296
+#: keystone/token/provider.py:303
 msgid "Failed to validate token"
 msgstr "Failed to validate token"
 
@@ -1377,46 +1427,42 @@ msgstr "Token does not belong to specified tenant."
 msgid "Unknown token version %s"
 msgstr ""
 
-#: keystone/token/providers/common.py:196
-#: keystone/token/providers/common.py:301
+#: keystone/token/providers/common.py:250
+#: keystone/token/providers/common.py:355
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr "User %(user_id)s has no access to project %(project_id)s"
 
-#: keystone/token/providers/common.py:201
-#: keystone/token/providers/common.py:306
+#: keystone/token/providers/common.py:255
+#: keystone/token/providers/common.py:360
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr "User %(user_id)s has no access to domain %(domain_id)s"
 
-#: keystone/token/providers/common.py:228
+#: keystone/token/providers/common.py:282
 msgid "Trustor is disabled."
 msgstr "Trustor is disabled."
 
-#: keystone/token/providers/common.py:292
+#: keystone/token/providers/common.py:346
 msgid "Trustee has no delegated roles."
 msgstr "Trustee has no delegated roles."
 
-#: keystone/token/providers/common.py:353
+#: keystone/token/providers/common.py:407
 #, python-format
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
 msgstr ""
 
-#: keystone/token/providers/common.py:381
+#: keystone/token/providers/common.py:435
 msgid "User is not a trustee."
 msgstr "User is not a trustee."
 
-#: keystone/token/providers/common.py:525
+#: keystone/token/providers/common.py:579
 msgid ""
 "Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
 "Authentication"
 msgstr ""
 
-#: keystone/token/providers/common.py:535
-msgid "Non-default domain is not supported"
-msgstr "Non-default domain is not supported"
-
-#: keystone/token/providers/common.py:543
+#: keystone/token/providers/common.py:597
 msgid "Domain scoped token is not supported"
 msgstr "Domain scoped token is not supported"
 
@@ -1424,7 +1470,13 @@ msgstr "Domain scoped token is not supported"
 msgid "Unable to sign token."
 msgstr "Unable to sign token."
 
-#: keystone/token/providers/fernet/token_formatters.py:174
+#: keystone/token/providers/fernet/core.py:210
+msgid ""
+"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
+"tokens."
+msgstr ""
+
+#: keystone/token/providers/fernet/token_formatters.py:189
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr ""
