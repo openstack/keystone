@@ -29,6 +29,10 @@ WARNING::
    all data will be lost.
 """
 
+import sqlalchemy
+import uuid
+
+from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import utils
 
 from keystone.contrib import endpoint_filter
@@ -216,10 +220,18 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         super(FederationExtension, self).setUp()
         self.identity_provider = 'identity_provider'
         self.federation_protocol = 'federation_protocol'
+        self.service_provider = 'service_provider'
         self.mapping = 'mapping'
 
     def repo_package(self):
         return federation
+
+    def insert_dict(self, session, table_name, d):
+        """Naively inserts key-value pairs into a table, given a dictionary."""
+        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
+        insert = table.insert().values(**d)
+        session.execute(insert)
+        session.commit()
 
     def test_upgrade(self):
         self.assertTableDoesNotExist(self.identity_provider)
@@ -272,6 +284,77 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableDoesNotExist(self.federation_protocol)
         self.assertTableDoesNotExist(self.mapping)
 
+    def test_fixup_service_provider_attributes(self):
+        self.upgrade(6, repository=self.repo_path)
+        self.assertTableColumns(self.service_provider,
+                                ['id', 'description', 'enabled', 'auth_url',
+                                 'sp_url'])
+
+        session = self.Session()
+        sp1 = {'id': uuid.uuid4().hex,
+               'auth_url': None,
+               'sp_url': uuid.uuid4().hex,
+               'description': uuid.uuid4().hex,
+               'enabled': True}
+        sp2 = {'id': uuid.uuid4().hex,
+               'auth_url': uuid.uuid4().hex,
+               'sp_url': None,
+               'description': uuid.uuid4().hex,
+               'enabled': True}
+        sp3 = {'id': uuid.uuid4().hex,
+               'auth_url': None,
+               'sp_url': None,
+               'description': uuid.uuid4().hex,
+               'enabled': True}
+
+        # Insert with 'auth_url' or 'sp_url' set to null must fail
+        self.assertRaises(db_exception.DBError,
+                          self.insert_dict,
+                          session,
+                          self.service_provider,
+                          sp1)
+        self.assertRaises(db_exception.DBError,
+                          self.insert_dict,
+                          session,
+                          self.service_provider,
+                          sp2)
+        self.assertRaises(db_exception.DBError,
+                          self.insert_dict,
+                          session,
+                          self.service_provider,
+                          sp3)
+
+        session.close()
+        self.downgrade(5, repository=self.repo_path)
+        self.assertTableColumns(self.service_provider,
+                                ['id', 'description', 'enabled', 'auth_url',
+                                 'sp_url'])
+        session = self.Session()
+        self.metadata.clear()
+
+        # Before the migration, the table should accept null values
+        self.insert_dict(session, self.service_provider, sp1)
+        self.insert_dict(session, self.service_provider, sp2)
+        self.insert_dict(session, self.service_provider, sp3)
+
+        # Check if null values are updated to empty string when migrating
+        session.close()
+        self.upgrade(6, repository=self.repo_path)
+        sp_table = sqlalchemy.Table(self.service_provider,
+                                    self.metadata,
+                                    autoload=True)
+        session = self.Session()
+        self.metadata.clear()
+
+        sp = session.query(sp_table).filter(sp_table.c.id == sp1['id'])[0]
+        self.assertEqual('', sp.auth_url)
+
+        sp = session.query(sp_table).filter(sp_table.c.id == sp2['id'])[0]
+        self.assertEqual('', sp.sp_url)
+
+        sp = session.query(sp_table).filter(sp_table.c.id == sp3['id'])[0]
+        self.assertEqual('', sp.auth_url)
+        self.assertEqual('', sp.sp_url)
 
 _REVOKE_COLUMN_NAMES = ['id', 'domain_id', 'project_id', 'user_id', 'role_id',
                         'trust_id', 'consumer_id', 'access_token_id',
