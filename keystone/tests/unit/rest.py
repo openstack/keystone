@@ -12,9 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import io
-
-
 from oslo_serialization import jsonutils
 import six
 import webtest
@@ -85,16 +82,12 @@ class RestfulTestCase(tests.TestCase):
         if token:
             headers['X-Auth-Token'] = str(token)
 
-        # setting body this way because of:
-        # https://github.com/Pylons/webtest/issues/71
-        if body:
-            kwargs['body_file'] = io.BytesIO(body)
-
         # sets environ['REMOTE_ADDR']
         kwargs.setdefault('remote_addr', 'localhost')
 
         response = app.request(path, headers=headers,
-                               status=expected_status, **kwargs)
+                               status=expected_status, body=body,
+                               **kwargs)
 
         return response
 
