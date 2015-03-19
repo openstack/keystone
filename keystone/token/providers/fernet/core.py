@@ -61,7 +61,14 @@ class Provider(common.BaseProvider):
 
         audit_ids = provider.audit_info(parent_audit_id)
 
-        # Get v3 token data and exclude building v3 specific catalog
+        # Get v3 token data and exclude building v3 specific catalog. This is
+        # due to the fact that the V2TokenDataHelper.format_token() method
+        # doesn't build any of the token_reference from other Keystone APIs.
+        # Instead, it builds it from what is persisted in the token reference.
+        # Here we are going to leverage the V3TokenDataHelper.get_token_data()
+        # method written for V3 because it goes through and populates the token
+        # reference dynamically. Once we have a V3 token reference, we can
+        # attempt to convert it to a V2 token response.
         v3_token_data = self.v3_token_data_helper.get_token_data(
             user_id,
             method_names,
@@ -190,7 +197,7 @@ class Provider(common.BaseProvider):
 
         :param token_ref: reference describing the token to validate
         :returns: the token data
-        :raises: keystone.exception.Unauthorized if v3 token is used
+        :raises keystone.exception.Unauthorized: if v3 token is used
 
         """
         (user_id, methods,
@@ -221,7 +228,8 @@ class Provider(common.BaseProvider):
 
         :param token: a string describing the token to validate
         :returns: the token data
-        :raises: keystone.exception.Unauthorized
+        :raises keystone.exception.Unauthorized: if token format version isn't
+                                                 supported
 
         """
         (user_id, methods, audit_ids, domain_id, project_id, trust_id,
