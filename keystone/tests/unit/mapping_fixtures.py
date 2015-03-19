@@ -693,6 +693,39 @@ MAPPING_LOCAL_USER_LOCAL_DOMAIN = {
     ]
 }
 
+MAPPING_GROUPS_BLACKLIST_MULTIPLES = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "blacklist": [
+                        "Developer", "Manager"
+                    ]
+                },
+                {
+                    "type": "Thing"  # this could be variable length!
+                },
+                {
+                    "type": "UserName"
+                },
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": DEVELOPER_GROUP_DOMAIN_ID
+                    }
+                },
+                {
+                    "user": {
+                        "name": "{2}",
+                    }
+                }
+            ]
+        }
+    ]
+}
 MAPPING_GROUPS_BLACKLIST = {
     "rules": [
         {
@@ -877,7 +910,8 @@ EMPLOYEE_ASSERTION_MULTIPLE_GROUPS = {
     'UserName': 'tbo',
     'FirstName': 'Tim',
     'LastName': 'Bo',
-    'orgPersonType': 'Developer;Manager;Contractor'
+    'orgPersonType': 'Developer;Manager;Contractor',
+    'Thing': 'yes!;maybe!;no!!'
 }
 
 EMPLOYEE_ASSERTION_PREFIXED = {
