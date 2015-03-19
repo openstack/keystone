@@ -48,5 +48,5 @@ oslosphinx>=2.2.0  # Apache-2.0
 
 stevedore>=1.1.0  # Apache-2.0
 
-tempest-lib>=0.2.0
+tempest-lib>=0.3.0
 
