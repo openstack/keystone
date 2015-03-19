@@ -1091,8 +1091,8 @@ class DomainConfigManager(manager.Manager):
                 # already exists in the original config - since if not, to keep
                 # with the semantics of an update, we need to fail with
                 # a DomainConfigNotFound
-                if not self.get_config_with_sensitive_info(domain_id,
-                                                           group, option):
+                if not self._get_config_with_sensitive_info(domain_id,
+                                                            group, option):
                     if option:
                         msg = _('option %(option)s in group %(group)s') % {
                             'group': group, 'option': option}
@@ -1154,7 +1154,7 @@ class DomainConfigManager(manager.Manager):
         if group:
             # As this is a partial delete, then make sure the items requested
             # are valid and exist in the current config
-            current_config = self.get_config_with_sensitive_info(domain_id)
+            current_config = self._get_config_with_sensitive_info(domain_id)
             # Raise an exception if the group/options specified don't exist in
             # the current config so that the delete method provides the
             # correct error semantics.
@@ -1172,13 +1172,12 @@ class DomainConfigManager(manager.Manager):
         self.delete_config_options(domain_id, group, option)
         self.delete_config_options(domain_id, group, option, sensitive=True)
 
-    def get_config_with_sensitive_info(self, domain_id, group=None,
-                                       option=None):
-        """Get config for a domain with sensitive info included.
+    def _get_config_with_sensitive_info(self, domain_id, group=None,
+                                        option=None):
+        """Get config for a domain/group/option with sensitive info included.
 
-        This method is not exposed via the public API, but is used by the
-        identity manager to initialize a domain with the fully formed config
-        options.
+        This is only used by the methods within this class, which may need to
+        check individual groups or options.
 
         """
         whitelisted = self.list_config_options(domain_id, group, option)
@@ -1232,6 +1231,16 @@ class DomainConfigManager(manager.Manager):
                     'value': original_value})
 
         return self._list_to_config(whitelisted, sensitive)
+
+    def get_config_with_sensitive_info(self, domain_id):
+        """Get config for a domain with sensitive info included.
+
+        This method is not exposed via the public API, but is used by the
+        identity manager to initialize a domain with the fully formed config
+        options.
+
+        """
+        return self._get_config_with_sensitive_info(domain_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
