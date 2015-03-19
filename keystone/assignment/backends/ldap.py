@@ -309,7 +309,7 @@ class ProjectApi(common_ldap.ProjectLdapStructureMixin,
 
     def __init__(self, conf):
         super(ProjectApi, self).__init__(conf)
-        self.member_attribute = (getattr(conf.ldap, 'project_member_attribute')
+        self.member_attribute = (conf.ldap.project_member_attribute
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
     def get_user_projects(self, user_dn, associations):
@@ -370,7 +370,7 @@ class RoleApi(ldap_role.RoleLdapStructureMixin, common_ldap.BaseLdap):
 
     def __init__(self, conf, user_api):
         super(RoleApi, self).__init__(conf)
-        self.member_attribute = (getattr(conf.ldap, 'role_member_attribute')
+        self.member_attribute = (conf.ldap.role_member_attribute
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
         self._user_api = user_api
 

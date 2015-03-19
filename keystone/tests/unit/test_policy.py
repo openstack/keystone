@@ -188,7 +188,7 @@ class DefaultPolicyTestCase(BasePolicyTestCase):
         self._old_load_rules = rules._ENFORCER.load_rules
         self.addCleanup(setattr, rules._ENFORCER, 'load_rules',
                         self._old_load_rules)
-        setattr(rules._ENFORCER, 'load_rules', lambda *args, **kwargs: None)
+        rules._ENFORCER.load_rules = lambda *args, **kwargs: None
 
     def _set_rules(self, default_rule):
         these_rules = common_policy.Rules.from_dict(self.rules, default_rule)

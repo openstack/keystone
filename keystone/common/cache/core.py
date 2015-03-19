@@ -302,7 +302,7 @@ def get_memoization_decorator(section, expiration_section=None):
     # Make sure the actual "should_cache" and "expiration_time" methods are
     # available. This is potentially interesting/useful to pre-seed cache
     # values.
-    setattr(memoize, 'should_cache', should_cache)
-    setattr(memoize, 'get_expiration_time', expiration_time)
+    memoize.should_cache = should_cache
+    memoize.get_expiration_time = expiration_time
 
     return memoize
