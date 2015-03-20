@@ -406,15 +406,17 @@ class ServiceProvider(_ControllerBase):
     member_name = 'service_provider'
 
     _mutable_parameters = frozenset(['auth_url', 'description', 'enabled',
-                                     'sp_url'])
+                                     'relay_state_prefix', 'sp_url'])
     _public_parameters = frozenset(['auth_url', 'id', 'enabled', 'description',
-                                    'links', 'sp_url'])
+                                    'links', 'relay_state_prefix', 'sp_url'])
 
     @controller.protected()
     @validation.validated(schema.service_provider_create, 'service_provider')
     def create_service_provider(self, context, sp_id, service_provider):
         service_provider = self._normalize_dict(service_provider)
         service_provider.setdefault('enabled', False)
+        service_provider.setdefault('relay_state_prefix',
+                                    CONF.saml.relay_state_prefix)
         ServiceProvider.check_immutable_params(service_provider)
         sp_ref = self.federation_api.create_sp(sp_id, service_provider)
         response = ServiceProvider.wrap_member(context, sp_ref)

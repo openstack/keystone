@@ -978,6 +978,11 @@ FILE_OPTIONS = {
                    help='Path to the Identity Provider Metadata file. '
                         'This file should be generated with the '
                         'keystone-manage saml_idp_metadata command.'),
+        cfg.StrOpt('relay_state_prefix',
+                   default='ss:mem:',
+                   help='The prefix to use for the RelayState SAML '
+                        'attribute, used when generating ECP wrapped '
+                        'assertions.'),
     ],
     'eventlet_server': [
         cfg.IntOpt('public_workers',
