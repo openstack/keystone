@@ -125,6 +125,15 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
+    def get_idp_from_remote_id(self, remote_id):
+        """Get an identity provider by remote ID.
+
+        :raises: keystone.exception.IdentityProviderNotFound
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
     def update_idp(self, idp_id, idp):
         """Update an identity provider by ID.
 

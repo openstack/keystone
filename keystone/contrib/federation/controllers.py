@@ -269,7 +269,7 @@ class Auth(auth_controllers.Auth):
     def federated_sso_auth(self, context, protocol_id):
         try:
             remote_id_name = CONF.federation.remote_id_attribute
-            identity_provider = context['environment'][remote_id_name]
+            remote_id = context['environment'][remote_id_name]
         except KeyError:
             msg = _('Missing entity ID from environment')
             LOG.error(msg)
@@ -284,6 +284,8 @@ class Auth(auth_controllers.Auth):
             raise exception.ValidationError(msg)
 
         if host in CONF.federation.trusted_dashboard:
+            ref = self.federation_api.get_idp_from_remote_id(remote_id)
+            identity_provider = ref['id']
             res = self.federated_authentication(context, identity_provider,
                                                 protocol_id)
             token_id = res.headers['X-Subject-Token']
