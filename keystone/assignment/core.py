@@ -80,6 +80,9 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+
+    driver_namespace = 'keystone.assignment'
+
     _PROJECT = 'project'
     _ROLE_REMOVED_FROM_USER = 'role_removed_from_user'
     _INVALIDATION_USER_PROJECT_TOKENS = 'invalidate_user_project_tokens'
@@ -929,6 +932,8 @@ class Driver(object):
 @dependency.requires('assignment_api')
 class RoleManager(manager.Manager):
     """Default pivot point for the Role backend."""
+
+    driver_namespace = 'keystone.role'
 
     _ROLE = 'role'
 

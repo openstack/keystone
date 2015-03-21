@@ -70,6 +70,8 @@ class Manager(manager.Manager):
 
     """
 
+    driver_namespace = 'keystone.revoke'
+
     def __init__(self):
         super(Manager, self).__init__(CONF.revoke.driver)
         self._register_listeners()

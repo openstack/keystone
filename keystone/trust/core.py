@@ -41,6 +41,9 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+
+    driver_namespace = 'keystone.trust'
+
     _TRUST = "OS-TRUST:trust"
 
     def __init__(self):

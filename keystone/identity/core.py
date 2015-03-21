@@ -89,7 +89,8 @@ class DomainConfigs(dict):
     _any_sql = False
 
     def _load_driver(self, domain_config):
-        return manager.load_driver(domain_config['cfg'].identity.driver,
+        return manager.load_driver(Manager.driver_namespace,
+                                   domain_config['cfg'].identity.driver,
                                    domain_config['cfg'])
 
     def _assert_no_more_than_one_sql_driver(self, domain_id, new_config,
@@ -404,6 +405,9 @@ class Manager(manager.Manager):
     mapping by default is a more prudent way to introduce this functionality.
 
     """
+
+    driver_namespace = 'keystone.identity'
+
     _USER = 'user'
     _GROUP = 'group'
 
@@ -1264,6 +1268,8 @@ class Driver(object):
 @dependency.provider('id_mapping_api')
 class MappingManager(manager.Manager):
     """Default pivot point for the ID Mapping backend."""
+
+    driver_namespace = 'keystone.identity.id_mapping'
 
     def __init__(self):
         super(MappingManager, self).__init__(CONF.identity_mapping.driver)

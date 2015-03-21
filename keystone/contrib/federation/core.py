@@ -55,6 +55,9 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+
+    driver_namespace = 'keystone.federation'
+
     def __init__(self):
         super(Manager, self).__init__(CONF.federation.driver)
 

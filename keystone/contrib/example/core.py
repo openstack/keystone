@@ -33,6 +33,8 @@ class ExampleManager(manager.Manager):
 
     """
 
+    driver_namespace = 'keystone.example'
+
     def __init__(self):
         # The following is an example of event callbacks. In this setup,
         # ExampleManager's data model is depended on project's data model.

@@ -47,6 +47,8 @@ class PersistenceManager(manager.Manager):
 
     """
 
+    driver_namespace = 'keystone.token.persistence'
+
     def __init__(self):
         super(PersistenceManager, self).__init__(CONF.token.driver)
 
