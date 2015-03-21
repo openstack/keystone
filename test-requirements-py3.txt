@@ -50,4 +50,3 @@ testtools>=0.9.36,!=1.2.0
 # For documentation
 oslosphinx>=2.2.0  # Apache-2.0
 
-stevedore>=1.1.0  # Apache-2.0
