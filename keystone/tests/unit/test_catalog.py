@@ -47,9 +47,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
 
     def config_overrides(self):
         super(V2CatalogTestCase, self).config_overrides()
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.sql.Catalog')
+        self.config_fixture.config(group='catalog', driver='sql')
 
     def new_ref(self):
         """Populates a ref with attributes common to all API entities."""
@@ -147,9 +145,7 @@ class TestV2CatalogAPISQL(tests.TestCase):
 
     def config_overrides(self):
         super(TestV2CatalogAPISQL, self).config_overrides()
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.sql.Catalog')
+        self.config_fixture.config(group='catalog', driver='sql')
 
     def new_endpoint_ref(self, service_id):
         return {

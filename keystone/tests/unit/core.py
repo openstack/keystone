@@ -287,7 +287,7 @@ class TestCase(BaseTestCase):
             proxies=['keystone.tests.unit.test_cache.CacheIsolatingProxy'])
         self.config_fixture.config(
             group='catalog',
-            driver='keystone.catalog.backends.templated.Catalog',
+            driver='templated',
             template_file=dirs.tests('default_catalog.templates'))
         self.config_fixture.config(
             group='kvs',
@@ -295,16 +295,12 @@ class TestCase(BaseTestCase):
                 ('keystone.tests.unit.test_kvs.'
                  'KVSBackendForcedKeyMangleFixture'),
                 'keystone.tests.unit.test_kvs.KVSBackendFixture'])
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='signing', certfile=signing_certfile,
             keyfile=signing_keyfile,
             ca_certs='examples/pki/certs/cacert.pem')
-        self.config_fixture.config(
-            group='token',
-            driver='keystone.token.persistence.backends.kvs.Token')
+        self.config_fixture.config(group='token', driver='kvs')
         self.config_fixture.config(
             group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
         self.config_fixture.config(
@@ -633,21 +629,9 @@ class SQLDriverOverrides(object):
     def config_overrides(self):
         super(SQLDriverOverrides, self).config_overrides()
         # SQL specific driver overrides
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.sql.Catalog')
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.sql.Identity')
-        self.config_fixture.config(
-            group='policy',
-            driver='keystone.policy.backends.sql.Policy')
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.sql.Revoke')
-        self.config_fixture.config(
-            group='token',
-            driver='keystone.token.persistence.backends.sql.Token')
-        self.config_fixture.config(
-            group='trust',
-            driver='keystone.trust.backends.sql.Trust')
+        self.config_fixture.config(group='catalog', driver='sql')
+        self.config_fixture.config(group='identity', driver='sql')
+        self.config_fixture.config(group='policy', driver='sql')
+        self.config_fixture.config(group='revoke', driver='sql')
+        self.config_fixture.config(group='token', driver='sql')
+        self.config_fixture.config(group='trust', driver='sql')

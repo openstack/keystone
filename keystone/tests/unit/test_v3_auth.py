@@ -485,9 +485,7 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
 class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
     def config_overrides(self):
         super(TestPKITokenAPIs, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.pki.Provider')
+        self.config_fixture.config(group='token', provider='pki')
 
     def setUp(self):
         super(TestPKITokenAPIs, self).setUp()
@@ -501,9 +499,7 @@ class TestPKIZTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
 
     def config_overrides(self):
         super(TestPKIZTokenAPIs, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.pkiz.Provider')
+        self.config_fixture.config(group='token', provider='pkiz')
 
     def setUp(self):
         super(TestPKIZTokenAPIs, self).setUp()
@@ -513,9 +509,7 @@ class TestPKIZTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
 class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
     def config_overrides(self):
         super(TestUUIDTokenAPIs, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.uuid.Provider')
+        self.config_fixture.config(group='token', provider='uuid')
 
     def setUp(self):
         super(TestUUIDTokenAPIs, self).setUp()
@@ -675,12 +669,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestTokenRevokeById, self).config_overrides()
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Provider',
+            provider='pki',
             revoke_by_id=False)
 
     def setUp(self):
@@ -1391,12 +1383,10 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     """Test token revocation on the v3 Identity API."""
     def config_overrides(self):
         super(TestTokenRevokeApi, self).config_overrides()
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Provider',
+            provider='pki',
             revoke_by_id=False)
 
     def assertValidDeletedProjectResponse(self, events_response, project_id):
@@ -3067,12 +3057,10 @@ class TestTrustAuth(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestTrustAuth, self).config_overrides()
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Provider',
+            provider='pki',
             revoke_by_id=False)
         self.config_fixture.config(group='trust', enabled=True)
 
@@ -4123,9 +4111,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestFernetTokenProvider, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.fernet.Provider')
+        self.config_fixture.config(group='token', provider='fernet')
 
     def test_validate_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
@@ -4454,9 +4440,7 @@ class TestAuthFernetTokenProvider(TestAuth):
 
     def config_overrides(self):
         super(TestAuthFernetTokenProvider, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.fernet.Provider')
+        self.config_fixture.config(group='token', provider='fernet')
 
     def test_verify_with_bound_token(self):
         self.config_fixture.config(group='token', bind='kerberos')

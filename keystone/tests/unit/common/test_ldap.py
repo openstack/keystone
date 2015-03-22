@@ -218,9 +218,7 @@ class LDAPDeleteTreeTest(tests.TestCase):
 
     def config_overrides(self):
         super(LDAPDeleteTreeTest, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
+        self.config_fixture.config(group='identity', driver='ldap')
 
     def config_files(self):
         config_files = super(LDAPDeleteTreeTest, self).config_files()
@@ -372,9 +370,7 @@ class LDAPPagedResultsTest(tests.TestCase):
 
     def config_overrides(self):
         super(LDAPPagedResultsTest, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
+        self.config_fixture.config(group='identity', driver='ldap')
 
     def config_files(self):
         config_files = super(LDAPPagedResultsTest, self).config_files()

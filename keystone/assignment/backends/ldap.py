@@ -36,7 +36,7 @@ class Assignment(assignment.Driver):
     @versionutils.deprecated(
         versionutils.deprecated.KILO,
         remove_in=+2,
-        what='keystone.assignment.backends.ldap.Assignment')
+        what='ldap')
     def __init__(self):
         super(Assignment, self).__init__()
         self.LDAP_URL = CONF.ldap.url
@@ -54,10 +54,10 @@ class Assignment(assignment.Driver):
         self.role = RoleApi(CONF, self.user)
 
     def default_role_driver(self):
-        return 'keystone.assignment.role_backends.ldap.Role'
+        return 'ldap'
 
     def default_resource_driver(self):
-        return 'keystone.resource.backends.ldap.Resource'
+        return 'ldap'
 
     def list_role_ids_for_groups_on_project(
             self, groups, project_id, project_domain_id, project_parents):

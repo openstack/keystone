@@ -110,9 +110,7 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
 
     def config_overrides(self):
         super(KvsCatalog, self).config_overrides()
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.kvs.Catalog')
+        self.config_fixture.config(group='catalog', driver='kvs')
 
     def _load_fake_catalog(self):
         self.catalog_foobar = self.catalog_api.driver._create_catalog(
@@ -167,6 +165,4 @@ class KvsTokenCacheInvalidation(tests.TestCase,
 
     def config_overrides(self):
         super(KvsTokenCacheInvalidation, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            driver='keystone.token.persistence.backends.kvs.Token')
+        self.config_fixture.config(group='token', driver='kvs')

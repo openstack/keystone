@@ -1011,7 +1011,7 @@ class DomainConfigManager(manager.Manager):
                     'url': 'myurl'
                     'user_tree_dn': 'OU=myou'},
                 'identity': {
-                    'driver': 'keystone.identity.backends.ldap.Identity'}
+                    'driver': 'ldap'}
 
             }
 
