@@ -25,7 +25,6 @@ from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common.cache.backends import memcache_pool
-from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _
 
@@ -73,7 +72,7 @@ class MemcachedLock(object):
         client.delete(self.key)
 
 
-class MemcachedBackend(manager.Manager):
+class MemcachedBackend(object):
     """Pivot point to leverage the various dogpile.cache memcached backends.
 
     To specify a specific dogpile.cache memcached driver, pass the argument
@@ -111,6 +110,12 @@ class MemcachedBackend(manager.Manager):
                      'driver_list': ','.join(VALID_DOGPILE_BACKENDS.keys())})
             else:
                 self.driver = VALID_DOGPILE_BACKENDS[backend](arguments)
+
+    def __getattr__(self, name):
+        """Forward calls to the underlying driver."""
+        f = getattr(self.driver, name)
+        setattr(self, name, f)
+        return f
 
     def _get_set_arguments_driver_attr(self, exclude_expiry=False):
 
