@@ -284,9 +284,6 @@ class TestCase(BaseTestCase):
             driver='keystone.catalog.backends.templated.Catalog',
             template_file=dirs.tests('default_catalog.templates'))
         self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.sql.Identity')
-        self.config_fixture.config(
             group='kvs',
             backends=[
                 ('keystone.tests.unit.test_kvs.'
@@ -302,9 +299,6 @@ class TestCase(BaseTestCase):
         self.config_fixture.config(
             group='token',
             driver='keystone.token.persistence.backends.kvs.Token')
-        self.config_fixture.config(
-            group='trust',
-            driver='keystone.trust.backends.sql.Trust')
         self.config_fixture.config(
             group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
         self.config_fixture.config(
