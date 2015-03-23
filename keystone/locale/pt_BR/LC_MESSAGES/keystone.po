@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-19 06:03+0000\n"
-"PO-Revision-Date: 2015-03-19 02:24+0000\n"
+"POT-Creation-Date: 2015-03-23 06:04+0000\n"
+"PO-Revision-Date: 2015-03-21 23:03+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -92,7 +92,7 @@ msgstr ""
 #: keystone/cli.py:470
 #, python-format
 msgid "Unable to locate domain config directory: %s"
-msgstr ""
+msgstr "Não é possível localizar diretório de configuração de domínio: %s"
 
 #: keystone/cli.py:503
 msgid ""
@@ -554,13 +554,13 @@ msgid "Unexpected assignment type encountered, %s"
 msgstr ""
 
 #: keystone/assignment/role_backends/ldap.py:61 keystone/catalog/core.py:103
-#: keystone/common/ldap/core.py:1401 keystone/resource/backends/ldap.py:149
+#: keystone/common/ldap/core.py:1400 keystone/resource/backends/ldap.py:149
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "ID duplicado, %s."
 
 #: keystone/assignment/role_backends/ldap.py:69
-#: keystone/common/ldap/core.py:1391
+#: keystone/common/ldap/core.py:1390
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Nome duplicado, %s."
@@ -909,38 +909,38 @@ msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
 
-#: keystone/common/ldap/core.py:1326
+#: keystone/common/ldap/core.py:1325
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
 msgstr ""
 
-#: keystone/common/ldap/core.py:1370
+#: keystone/common/ldap/core.py:1369
 #, python-format
 msgid "LDAP %s create"
 msgstr "Criação de LDAP %s"
 
-#: keystone/common/ldap/core.py:1375
+#: keystone/common/ldap/core.py:1374
 #, python-format
 msgid "LDAP %s update"
 msgstr "Atualização de LDAP %s"
 
-#: keystone/common/ldap/core.py:1380
+#: keystone/common/ldap/core.py:1379
 #, python-format
 msgid "LDAP %s delete"
 msgstr "Exclusão de LDAP %s"
 
-#: keystone/common/ldap/core.py:1522
+#: keystone/common/ldap/core.py:1521
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by "
 "configuration."
 msgstr ""
 
-#: keystone/common/ldap/core.py:1533
+#: keystone/common/ldap/core.py:1532
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
 msgstr "Não é possível alterar %(option_name)s %(attr)s"
 
-#: keystone/common/ldap/core.py:1620
+#: keystone/common/ldap/core.py:1619
 #, python-format
 msgid "Member %(member)s is already a member of group %(group)s"
 msgstr ""
@@ -1474,7 +1474,7 @@ msgstr "O token de escopo de domínio não é suportado"
 msgid "Unable to sign token."
 msgstr "Não é possível assinar o token."
 
-#: keystone/token/providers/fernet/core.py:210
+#: keystone/token/providers/fernet/core.py:215
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
 "tokens."
