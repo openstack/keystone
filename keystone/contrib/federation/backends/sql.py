@@ -94,8 +94,8 @@ class ServiceProviderModel(sql.ModelBase, sql.DictBase):
     id = sql.Column(sql.String(64), primary_key=True)
     enabled = sql.Column(sql.Boolean, nullable=False)
     description = sql.Column(sql.Text(), nullable=True)
-    auth_url = sql.Column(sql.String(256), nullable=True)
-    sp_url = sql.Column(sql.String(256), nullable=True)
+    auth_url = sql.Column(sql.String(256), nullable=False)
+    sp_url = sql.Column(sql.String(256), nullable=False)
 
     @classmethod
     def from_dict(cls, dictionary):
