@@ -127,7 +127,7 @@ class Auth(controller.V2Controller):
 
         if tenant_ref:
             catalog_ref = self.catalog_api.get_catalog(
-                user_ref['id'], tenant_ref['id'], metadata_ref)
+                user_ref['id'], tenant_ref['id'])
         else:
             catalog_ref = {}
 
@@ -480,8 +480,7 @@ class Auth(controller.V2Controller):
         if token_ref.project_id:
             catalog_ref = self.catalog_api.get_catalog(
                 token_ref.user_id,
-                token_ref.project_id,
-                token_ref.metadata)
+                token_ref.project_id)
 
         return Auth.format_endpoint_list(catalog_ref)
 

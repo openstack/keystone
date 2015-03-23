@@ -143,7 +143,7 @@ class Ec2ControllerCommon(object):
         roles_ref = [self.role_api.get_role(role_id) for role_id in roles]
 
         catalog_ref = self.catalog_api.get_catalog(
-            user_ref['id'], tenant_ref['id'], metadata_ref)
+            user_ref['id'], tenant_ref['id'])
 
         return user_ref, tenant_ref, metadata_ref, roles_ref, catalog_ref
 

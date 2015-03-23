@@ -652,8 +652,7 @@ class BaseProvider(provider.Provider):
                 if token_ref.get('tenant'):
                     catalog_ref = self.catalog_api.get_catalog(
                         token_ref['user']['id'],
-                        token_ref['tenant']['id'],
-                        metadata_ref)
+                        token_ref['tenant']['id'])
 
                 trust_ref = None
                 if CONF.trust.enabled and 'trust_id' in metadata_ref:

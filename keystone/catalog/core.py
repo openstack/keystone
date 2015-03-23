@@ -230,9 +230,9 @@ class Manager(manager.Manager):
     def list_endpoints(self, hints=None):
         return self.driver.list_endpoints(hints or driver_hints.Hints())
 
-    def get_catalog(self, user_id, tenant_id, metadata=None):
+    def get_catalog(self, user_id, tenant_id):
         try:
-            return self.driver.get_catalog(user_id, tenant_id, metadata)
+            return self.driver.get_catalog(user_id, tenant_id)
         except exception.NotFound:
             raise exception.NotFound('Catalog not found for user and tenant')
 
@@ -417,7 +417,7 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def get_catalog(self, user_id, tenant_id, metadata=None):
+    def get_catalog(self, user_id, tenant_id):
         """Retrieve and format the current service catalog.
 
         Example::
@@ -441,7 +441,7 @@ class Driver(object):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
-    def get_v3_catalog(self, user_id, tenant_id, metadata=None):
+    def get_v3_catalog(self, user_id, tenant_id):
         """Retrieve and format the current V3 service catalog.
 
         The default implementation builds the V3 catalog from the V2 catalog.
@@ -471,7 +471,7 @@ class Driver(object):
         :raises: keystone.exception.NotFound
 
         """
-        v2_catalog = self.get_catalog(user_id, tenant_id, metadata=metadata)
+        v2_catalog = self.get_catalog(user_id, tenant_id)
         v3_catalog = []
 
         for region_name, region in six.iteritems(v2_catalog):

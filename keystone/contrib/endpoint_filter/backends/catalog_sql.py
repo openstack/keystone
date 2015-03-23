@@ -25,7 +25,7 @@ CONF = cfg.CONF
 
 @dependency.requires('endpoint_filter_api')
 class EndpointFilterCatalog(sql.Catalog):
-    def get_v3_catalog(self, user_id, project_id, metadata=None):
+    def get_v3_catalog(self, user_id, project_id):
         substitutions = dict(six.iteritems(CONF))
         substitutions.update({'tenant_id': project_id, 'user_id': user_id})
 
@@ -36,7 +36,7 @@ class EndpointFilterCatalog(sql.Catalog):
         if (not refs and
                 CONF.endpoint_filter.return_all_endpoints_if_no_filter):
             return super(EndpointFilterCatalog, self).get_v3_catalog(
-                user_id, project_id, metadata=metadata)
+                user_id, project_id)
 
         for entry in refs:
             try:
