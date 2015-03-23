@@ -908,7 +908,8 @@ FILE_OPTIONS = {
                          'for debugging purposes, it is highly recommended '
                          'to always leave this set to true.'),
         cfg.IntOpt('default_lock_timeout', default=5,
-                   help='Default lock timeout for distributed locking.'),
+                   help='Default lock timeout (in seconds) for distributed '
+                        'locking.'),
     ],
     'saml': [
         cfg.IntOpt('assertion_expiration_time', default=3600,
