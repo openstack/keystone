@@ -880,6 +880,40 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                    domain=self.domain_id,
                                    group=group['id'])
 
+    def test_add_role_to_user_and_project(self):
+        # A notification is sent when add_role_to_user_and_project is called on
+        # the assignment manager.
+
+        project_ref = self.new_project_ref(self.domain_id)
+        project = self.resource_api.create_project(
+            project_ref['id'], project_ref)
+        tenant_id = project['id']
+
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_id, tenant_id, self.role_id)
+
+        self.assertTrue(self._notifications)
+        note = self._notifications[-1]
+        self.assertEqual(note['action'], 'created.role_assignment')
+        self.assertTrue(note['send_notification_called'])
+
+        self._assert_event(self.role_id, project=tenant_id, user=self.user_id)
+
+    def test_remove_role_from_user_and_project(self):
+        # A notification is sent when remove_role_from_user_and_project is
+        # called on the assignment manager.
+
+        self.assignment_api.remove_role_from_user_and_project(
+            self.user_id, self.project_id, self.role_id)
+
+        self.assertTrue(self._notifications)
+        note = self._notifications[-1]
+        self.assertEqual(note['action'], 'deleted.role_assignment')
+        self.assertTrue(note['send_notification_called'])
+
+        self._assert_event(self.role_id, project=self.project_id,
+                           user=self.user_id)
+
 
 class TestCallbackRegistration(testtools.TestCase):
     def setUp(self):
