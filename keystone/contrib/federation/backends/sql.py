@@ -132,6 +132,14 @@ class Federation(core.Driver):
             raise exception.IdentityProviderNotFound(idp_id=idp_id)
         return idp_ref
 
+    def _get_idp_from_remote_id(self, session, remote_id):
+        q = session.query(IdentityProviderModel)
+        q = q.filter_by(remote_id=remote_id)
+        try:
+            return q.one()
+        except sql.NotFound:
+            raise exception.IdentityProviderNotFound(idp_id=remote_id)
+
     def list_idps(self):
         with sql.transaction() as session:
             idps = session.query(IdentityProviderModel)
@@ -141,6 +149,11 @@ class Federation(core.Driver):
     def get_idp(self, idp_id):
         with sql.transaction() as session:
             idp_ref = self._get_idp(session, idp_id)
+        return idp_ref.to_dict()
+
+    def get_idp_from_remote_id(self, remote_id):
+        with sql.transaction() as session:
+            idp_ref = self._get_idp_from_remote_id(session, remote_id)
         return idp_ref.to_dict()
 
     def update_idp(self, idp_id, idp):

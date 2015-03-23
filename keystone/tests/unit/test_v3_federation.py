@@ -3145,14 +3145,31 @@ class WebSSOTests(FederatedTokenTests):
         self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
 
     def test_federated_sso_auth(self):
-        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_ID}
         context = {'environment': environment}
         query_string = {'origin': self.ORIGIN}
         self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
         resp = self.api.federated_sso_auth(context, self.PROTOCOL)
         self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
 
+    def test_federated_sso_auth_bad_remote_id(self):
+        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        context = {'environment': environment}
+        query_string = {'origin': self.ORIGIN}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        self.assertRaises(exception.IdentityProviderNotFound,
+                          self.api.federated_sso_auth,
+                          context, self.PROTOCOL)
+
     def test_federated_sso_missing_query(self):
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_ID}
+        context = {'environment': environment}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION')
+        self.assertRaises(exception.ValidationError,
+                          self.api.federated_sso_auth,
+                          context, self.PROTOCOL)
+
+    def test_federated_sso_missing_query_bad_remote_id(self):
         environment = {self.REMOTE_ID_ATTR: self.IDP}
         context = {'environment': environment}
         self._inject_assertion(context, 'EMPLOYEE_ASSERTION')
@@ -3161,6 +3178,15 @@ class WebSSOTests(FederatedTokenTests):
                           context, self.PROTOCOL)
 
     def test_federated_sso_untrusted_dashboard(self):
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_ID}
+        context = {'environment': environment}
+        query_string = {'origin': uuid.uuid4().hex}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        self.assertRaises(exception.Unauthorized,
+                          self.api.federated_sso_auth,
+                          context, self.PROTOCOL)
+
+    def test_federated_sso_untrusted_dashboard_bad_remote_id(self):
         environment = {self.REMOTE_ID_ATTR: self.IDP}
         context = {'environment': environment}
         query_string = {'origin': uuid.uuid4().hex}
