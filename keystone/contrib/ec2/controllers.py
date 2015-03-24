@@ -383,7 +383,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
             metadata_ref=metadata_ref)
         return render_token_data_response(token_id, token_data)
 
-    @controller.protected()
+    @controller.protected(callback=_check_credential_owner_and_user_id_match)
     def ec2_get_credential(self, context, user_id, credential_id):
         return super(Ec2ControllerV3, self).get_credential(user_id,
                                                            credential_id)
