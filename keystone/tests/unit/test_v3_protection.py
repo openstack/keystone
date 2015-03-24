@@ -526,23 +526,18 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         # Given a non-admin user token, the token can be used to revoke
         # itself.
         # This is DELETE /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
-        # FIXME(blk-u): This test fails, a user can't revoke the same token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'])
         token = self.get_requested_token(auth)
 
-        # FIXME(blk-u): remove expected_status=403
         self.delete('/auth/tokens', token=token,
-                    headers={'X-Subject-Token': token}, expected_status=403)
+                    headers={'X-Subject-Token': token})
 
     def test_user_revoke_user_token(self):
         # A user can revoke one of their own tokens.
         # This is DELETE /v3/auth/tokens
-        # FIXME(blk-u): This test fails, a user can't revoke the same token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
@@ -550,9 +545,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         token1 = self.get_requested_token(auth)
         token2 = self.get_requested_token(auth)
 
-        # FIXME(blk-u): remove expected_status=403
         self.delete('/auth/tokens', token=token1,
-                    headers={'X-Subject-Token': token2}, expected_status=403)
+                    headers={'X-Subject-Token': token2})
 
     def test_user_revoke_other_user_token_rejected(self):
         # A user cannot revoke another user's token.
