@@ -249,7 +249,7 @@ FILE_OPTIONS = {
                    help='Controls the token construction, validation, and '
                         'revocation operations. Core providers are '
                         '"keystone.token.providers.[fernet|pkiz|pki|uuid].'
-                        'Provider". The default provider is uuid.'),
+                        'Provider".'),
         cfg.StrOpt('driver',
                    default='keystone.token.persistence.backends.sql.Token',
                    help='Token persistence backend driver.'),
