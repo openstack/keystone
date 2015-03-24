@@ -341,6 +341,256 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assertIn(self.group2['id'], id_list)
 
 
+class IdentityTestPolicySample(test_v3.RestfulTestCase):
+    """Test policy enforcement of the policy.json file."""
+
+    def load_sample_data(self):
+        self._populate_default_domain()
+
+        self.just_a_user = self.new_user_ref(
+            domain_id=CONF.identity.default_domain_id)
+        password = uuid.uuid4().hex
+        self.just_a_user['password'] = password
+        self.just_a_user = self.identity_api.create_user(self.just_a_user)
+        self.just_a_user['password'] = password
+
+        self.another_user = self.new_user_ref(
+            domain_id=CONF.identity.default_domain_id)
+        password = uuid.uuid4().hex
+        self.another_user['password'] = password
+        self.another_user = self.identity_api.create_user(self.another_user)
+        self.another_user['password'] = password
+
+        self.admin_user = self.new_user_ref(
+            domain_id=CONF.identity.default_domain_id)
+        password = uuid.uuid4().hex
+        self.admin_user['password'] = password
+        self.admin_user = self.identity_api.create_user(self.admin_user)
+        self.admin_user['password'] = password
+
+        self.role = self.new_role_ref()
+        self.role_api.create_role(self.role['id'], self.role)
+        self.admin_role = {'id': uuid.uuid4().hex, 'name': 'admin'}
+        self.role_api.create_role(self.admin_role['id'], self.admin_role)
+
+        # Create and assign roles to the project
+        self.project = self.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        self.resource_api.create_project(self.project['id'], self.project)
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.just_a_user['id'],
+                                         project_id=self.project['id'])
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.another_user['id'],
+                                         project_id=self.project['id'])
+        self.assignment_api.create_grant(self.admin_role['id'],
+                                         user_id=self.admin_user['id'],
+                                         project_id=self.project['id'])
+
+    def test_user_validate_same_token(self):
+        # Given a non-admin user token, the token can be used to validate
+        # itself.
+        # This is GET /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
+        # FIXME(blk-u): This test fails, a user can't validate their own token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token = self.get_requested_token(auth)
+
+        # FIXME(blk-u): remove expected_status=403.
+        self.get('/auth/tokens', token=token,
+                 headers={'X-Subject-Token': token}, expected_status=403)
+
+    def test_user_validate_user_token(self):
+        # A user can validate one of their own tokens.
+        # This is GET /v3/auth/tokens
+        # FIXME(blk-u): This test fails, a user can't validate their own token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token1 = self.get_requested_token(auth)
+        token2 = self.get_requested_token(auth)
+
+        # FIXME(blk-u): remove expected_status=403.
+        self.get('/auth/tokens', token=token1,
+                 headers={'X-Subject-Token': token2}, expected_status=403)
+
+    def test_user_validate_other_user_token_rejected(self):
+        # A user cannot validate another user's token.
+        # This is GET /v3/auth/tokens
+
+        user1_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user1_token = self.get_requested_token(user1_auth)
+
+        user2_auth = self.build_authentication_request(
+            user_id=self.another_user['id'],
+            password=self.another_user['password'])
+        user2_token = self.get_requested_token(user2_auth)
+
+        self.get('/auth/tokens', token=user1_token,
+                 headers={'X-Subject-Token': user2_token}, expected_status=403)
+
+    def test_admin_validate_user_token(self):
+        # An admin can validate a user's token.
+        # This is GET /v3/auth/tokens
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.admin_user['id'],
+            password=self.admin_user['password'],
+            project_id=self.project['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.get('/auth/tokens', token=admin_token,
+                 headers={'X-Subject-Token': user_token})
+
+    def test_user_check_same_token(self):
+        # Given a non-admin user token, the token can be used to check
+        # itself.
+        # This is HEAD /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
+        # FIXME(blk-u): This test fails, a user can't check the same token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token = self.get_requested_token(auth)
+
+        # FIXME(blk-u): change to expected_status=200
+        self.head('/auth/tokens', token=token,
+                  headers={'X-Subject-Token': token}, expected_status=403)
+
+    def test_user_check_user_token(self):
+        # A user can check one of their own tokens.
+        # This is HEAD /v3/auth/tokens
+        # FIXME(blk-u): This test fails, a user can't check the same token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token1 = self.get_requested_token(auth)
+        token2 = self.get_requested_token(auth)
+
+        # FIXME(blk-u): change to expected_status=200
+        self.head('/auth/tokens', token=token1,
+                  headers={'X-Subject-Token': token2}, expected_status=403)
+
+    def test_user_check_other_user_token_rejected(self):
+        # A user cannot check another user's token.
+        # This is HEAD /v3/auth/tokens
+
+        user1_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user1_token = self.get_requested_token(user1_auth)
+
+        user2_auth = self.build_authentication_request(
+            user_id=self.another_user['id'],
+            password=self.another_user['password'])
+        user2_token = self.get_requested_token(user2_auth)
+
+        self.head('/auth/tokens', token=user1_token,
+                  headers={'X-Subject-Token': user2_token},
+                  expected_status=403)
+
+    def test_admin_check_user_token(self):
+        # An admin can check a user's token.
+        # This is HEAD /v3/auth/tokens
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.admin_user['id'],
+            password=self.admin_user['password'],
+            project_id=self.project['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.head('/auth/tokens', token=admin_token,
+                  headers={'X-Subject-Token': user_token}, expected_status=200)
+
+    def test_user_revoke_same_token(self):
+        # Given a non-admin user token, the token can be used to revoke
+        # itself.
+        # This is DELETE /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
+        # FIXME(blk-u): This test fails, a user can't revoke the same token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token = self.get_requested_token(auth)
+
+        # FIXME(blk-u): remove expected_status=403
+        self.delete('/auth/tokens', token=token,
+                    headers={'X-Subject-Token': token}, expected_status=403)
+
+    def test_user_revoke_user_token(self):
+        # A user can revoke one of their own tokens.
+        # This is DELETE /v3/auth/tokens
+        # FIXME(blk-u): This test fails, a user can't revoke the same token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token1 = self.get_requested_token(auth)
+        token2 = self.get_requested_token(auth)
+
+        # FIXME(blk-u): remove expected_status=403
+        self.delete('/auth/tokens', token=token1,
+                    headers={'X-Subject-Token': token2}, expected_status=403)
+
+    def test_user_revoke_other_user_token_rejected(self):
+        # A user cannot revoke another user's token.
+        # This is DELETE /v3/auth/tokens
+
+        user1_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user1_token = self.get_requested_token(user1_auth)
+
+        user2_auth = self.build_authentication_request(
+            user_id=self.another_user['id'],
+            password=self.another_user['password'])
+        user2_token = self.get_requested_token(user2_auth)
+
+        self.delete('/auth/tokens', token=user1_token,
+                    headers={'X-Subject-Token': user2_token},
+                    expected_status=403)
+
+    def test_admin_revoke_user_token(self):
+        # An admin can revoke a user's token.
+        # This is DELETE /v3/auth/tokens
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.admin_user['id'],
+            password=self.admin_user['password'],
+            project_id=self.project['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.delete('/auth/tokens', token=admin_token,
+                    headers={'X-Subject-Token': user_token})
+
+
 class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
     """Test policy enforcement of the sample v3 cloud policy file."""
 
@@ -727,3 +977,194 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
 
         # the owner can get the credential
         self.delete(just_user_url, auth=just_user_auth)
+
+    def test_user_validate_same_token(self):
+        # Given a non-admin user token, the token can be used to validate
+        # itself.
+        # This is GET /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
+        # FIXME(blk-u): This test fails, a user can't validate their own token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token = self.get_requested_token(auth)
+
+        # FIXME(blk-u): remove expected_status=403.
+        self.get('/auth/tokens', token=token,
+                 headers={'X-Subject-Token': token}, expected_status=403)
+
+    def test_user_validate_user_token(self):
+        # A user can validate one of their own tokens.
+        # This is GET /v3/auth/tokens
+        # FIXME(blk-u): This test fails, a user can't validate their own token,
+        # see bug 1421825.
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token1 = self.get_requested_token(auth)
+        token2 = self.get_requested_token(auth)
+
+        # FIXME(blk-u): remove expected_status=403.
+        self.get('/auth/tokens', token=token1,
+                 headers={'X-Subject-Token': token2}, expected_status=403)
+
+    def test_user_validate_other_user_token_rejected(self):
+        # A user cannot validate another user's token.
+        # This is GET /v3/auth/tokens
+
+        user1_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user1_token = self.get_requested_token(user1_auth)
+
+        user2_auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'])
+        user2_token = self.get_requested_token(user2_auth)
+
+        self.get('/auth/tokens', token=user1_token,
+                 headers={'X-Subject-Token': user2_token}, expected_status=403)
+
+    def test_admin_validate_user_token(self):
+        # An admin can validate a user's token.
+        # This is GET /v3/auth/tokens
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            domain_id=self.admin_domain['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.get('/auth/tokens', token=admin_token,
+                 headers={'X-Subject-Token': user_token})
+
+    def test_user_check_same_token(self):
+        # Given a non-admin user token, the token can be used to check
+        # itself.
+        # This is HEAD /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token = self.get_requested_token(auth)
+
+        self.head('/auth/tokens', token=token,
+                  headers={'X-Subject-Token': token}, expected_status=200)
+
+    def test_user_check_user_token(self):
+        # A user can check one of their own tokens.
+        # This is HEAD /v3/auth/tokens
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token1 = self.get_requested_token(auth)
+        token2 = self.get_requested_token(auth)
+
+        self.head('/auth/tokens', token=token1,
+                  headers={'X-Subject-Token': token2}, expected_status=200)
+
+    def test_user_check_other_user_token_rejected(self):
+        # A user cannot check another user's token.
+        # This is HEAD /v3/auth/tokens
+
+        user1_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user1_token = self.get_requested_token(user1_auth)
+
+        user2_auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'])
+        user2_token = self.get_requested_token(user2_auth)
+
+        self.head('/auth/tokens', token=user1_token,
+                  headers={'X-Subject-Token': user2_token},
+                  expected_status=403)
+
+    def test_admin_check_user_token(self):
+        # An admin can check a user's token.
+        # This is HEAD /v3/auth/tokens
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.head('/auth/tokens', token=admin_token,
+                  headers={'X-Subject-Token': user_token}, expected_status=200)
+
+    def test_user_revoke_same_token(self):
+        # Given a non-admin user token, the token can be used to revoke
+        # itself.
+        # This is DELETE /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token = self.get_requested_token(auth)
+
+        self.delete('/auth/tokens', token=token,
+                    headers={'X-Subject-Token': token})
+
+    def test_user_revoke_user_token(self):
+        # A user can revoke one of their own tokens.
+        # This is DELETE /v3/auth/tokens
+
+        auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        token1 = self.get_requested_token(auth)
+        token2 = self.get_requested_token(auth)
+
+        self.delete('/auth/tokens', token=token1,
+                    headers={'X-Subject-Token': token2})
+
+    def test_user_revoke_other_user_token_rejected(self):
+        # A user cannot revoke another user's token.
+        # This is DELETE /v3/auth/tokens
+
+        user1_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user1_token = self.get_requested_token(user1_auth)
+
+        user2_auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'])
+        user2_token = self.get_requested_token(user2_auth)
+
+        self.delete('/auth/tokens', token=user1_token,
+                    headers={'X-Subject-Token': user2_token},
+                    expected_status=403)
+
+    def test_admin_revoke_user_token(self):
+        # An admin can revoke a user's token.
+        # This is DELETE /v3/auth/tokens
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.delete('/auth/tokens', token=admin_token,
+                    headers={'X-Subject-Token': user_token})
