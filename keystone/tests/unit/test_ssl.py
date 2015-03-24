@@ -36,7 +36,24 @@ CLIENT = os.path.join(CERTDIR, 'middleware.pem')
 class SSLTestCase(tests.TestCase):
     def setUp(self):
         super(SSLTestCase, self).setUp()
+        # NOTE(jamespage):
+        # Deal with more secure certificate chain verification
+        # introduced in python 2.7.9 under PEP-0476
+        # https://github.com/python/peps/blob/master/pep-0476.txt
+        self.context = None
+        if hasattr(ssl, '_create_unverified_context'):
+            self.context = ssl._create_unverified_context()
         self.load_backends()
+
+    def get_HTTPSConnection(self, *args):
+        """Simple helper to configure HTTPSConnection objects."""
+        if self.context:
+            return environment.httplib.HTTPSConnection(
+                *args,
+                context=self.context
+            )
+        else:
+            return environment.httplib.HTTPSConnection(*args)
 
     def test_1way_ssl_ok(self):
         """Make sure both public and admin API work with 1-way SSL."""
@@ -45,7 +62,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Admin
         with appserver.AppServer(paste_conf, appserver.ADMIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '127.0.0.1', CONF.eventlet_server.admin_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -53,7 +70,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '127.0.0.1', CONF.eventlet_server.public_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -69,7 +86,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Admin
         with appserver.AppServer(paste_conf, appserver.ADMIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '127.0.0.1', CONF.eventlet_server.admin_port, CLIENT, CLIENT)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -77,7 +94,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '127.0.0.1', CONF.eventlet_server.public_port, CLIENT, CLIENT)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -92,7 +109,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Admin
         with appserver.AppServer(paste_conf, appserver.ADMIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '::1', CONF.eventlet_server.admin_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -100,7 +117,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '::1', CONF.eventlet_server.public_port)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -119,7 +136,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Admin
         with appserver.AppServer(paste_conf, appserver.ADMIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '::1', CONF.eventlet_server.admin_port, CLIENT, CLIENT)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -127,7 +144,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '::1', CONF.eventlet_server.public_port, CLIENT, CLIENT)
             conn.request('GET', '/')
             resp = conn.getresponse()
@@ -140,7 +157,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Admin
         with appserver.AppServer(paste_conf, appserver.ADMIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '127.0.0.1', CONF.eventlet_server.admin_port)
             try:
                 conn.request('GET', '/')
@@ -150,7 +167,7 @@ class SSLTestCase(tests.TestCase):
 
         # Verify Public
         with appserver.AppServer(paste_conf, appserver.MAIN, **ssl_kwargs):
-            conn = environment.httplib.HTTPSConnection(
+            conn = self.get_HTTPSConnection(
                 '127.0.0.1', CONF.eventlet_server.public_port)
             try:
                 conn.request('GET', '/')
