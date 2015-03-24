@@ -106,7 +106,7 @@ class Catalog(kvs.Catalog):
             LOG.critical(_LC('Unable to open template file %s'), template_file)
             raise
 
-    def get_catalog(self, user_id, tenant_id, metadata=None):
+    def get_catalog(self, user_id, tenant_id):
         substitutions = dict(
             itertools.chain(six.iteritems(CONF),
                             six.iteritems(CONF.eventlet_server)))

@@ -268,7 +268,7 @@ class Catalog(catalog.Driver):
             ref.extra = new_endpoint.extra
         return ref.to_dict()
 
-    def get_catalog(self, user_id, tenant_id, metadata=None):
+    def get_catalog(self, user_id, tenant_id):
         substitutions = dict(
             itertools.chain(six.iteritems(CONF),
                             six.iteritems(CONF.eventlet_server)))
@@ -303,7 +303,7 @@ class Catalog(catalog.Driver):
 
         return catalog
 
-    def get_v3_catalog(self, user_id, tenant_id, metadata=None):
+    def get_v3_catalog(self, user_id, tenant_id):
         d = dict(
             itertools.chain(six.iteritems(CONF),
                             six.iteritems(CONF.eventlet_server)))
