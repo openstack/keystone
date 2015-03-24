@@ -594,10 +594,10 @@ class Manager(manager.Manager):
         if (not driver.is_domain_aware() and driver == self.driver and
             domain_id != CONF.identity.default_domain_id and
                 domain_id is not None):
-                    LOG.warning('Found multiple domains being mapped to a '
-                                'driver that does not support that (e.g. '
-                                'LDAP) - Domain ID: %(domain)s, '
-                                'Default Driver: %(driver)s',
+                    LOG.warning(_LW('Found multiple domains being mapped to a '
+                                    'driver that does not support that (e.g. '
+                                    'LDAP) - Domain ID: %(domain)s, '
+                                    'Default Driver: %(driver)s'),
                                 {'domain': domain_id,
                                  'driver': (driver == self.driver)})
                     raise exception.DomainNotFound(domain_id=domain_id)
