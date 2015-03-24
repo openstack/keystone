@@ -241,15 +241,15 @@ class Manager(manager.Manager):
         user_projects = self.assignment_api.list_projects_for_user(user_id)
         user_projects_ids = set([proj['id'] for proj in user_projects])
         # Keep only the projects present in user_projects
-        projects_list = [proj for proj in projects_list
-                         if proj['id'] in user_projects_ids]
+        return [proj for proj in projects_list
+                if proj['id'] in user_projects_ids]
 
     def list_project_parents(self, project_id, user_id=None):
         parents = self.driver.list_project_parents(project_id)
         # If a user_id was provided, the returned list should be filtered
         # against the projects this user has access to.
         if user_id:
-            self._filter_projects_list(parents, user_id)
+            parents = self._filter_projects_list(parents, user_id)
         return parents
 
     def _build_parents_as_ids_dict(self, project, parents_by_id):
@@ -300,7 +300,7 @@ class Manager(manager.Manager):
         # If a user_id was provided, the returned list should be filtered
         # against the projects this user has access to.
         if user_id:
-            self._filter_projects_list(subtree, user_id)
+            subtree = self._filter_projects_list(subtree, user_id)
         return subtree
 
     def _build_subtree_as_ids_dict(self, project_id, subtree_by_parent):
