@@ -20,6 +20,7 @@ from keystone.common import controller
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = cfg.CONF
@@ -683,18 +684,87 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # projects[0] has no parents, parents_as_ids must be None
         self.assertIsNone(parents_as_ids)
 
-    def test_get_project_with_parents_as_list(self):
-        """Call ``GET /projects/{project_id}?parents_as_list``."""
-        projects = self._create_projects_hierarchy(hierarchy_size=2)
+    def test_get_project_with_parents_as_list_with_full_access(self):
+        """``GET /projects/{project_id}?parents_as_list`` with full access.
 
-        r = self.get(
-            '/projects/%(project_id)s?parents_as_list' % {
-                'project_id': projects[1]['project']['id']})
+        Test plan:
 
+        - Create 'parent', 'project' and 'subproject' projects;
+        - Assign a user a role on each one of those projects;
+        - Check that calling parents_as_list on 'subproject' returns both
+          'project' and 'parent'.
+
+        """
+
+        # Create the project hierarchy
+        parent = self.new_project_ref(domain_id=self.domain_id)
+        parent = self.post('/projects', body={'project': parent}).result
+
+        project = self.new_project_ref(domain_id=self.domain_id,
+                                       parent_id=parent['project']['id'])
+        project = self.post('/projects', body={'project': project}).result
+
+        subproject = self.new_project_ref(domain_id=self.domain_id,
+                                          parent_id=project['project']['id'])
+        subproject = self.post('/projects',
+                               body={'project': subproject}).result
+
+        # Assign a role for the user on all the created projects
+        for proj in (parent, project, subproject):
+            self.put(_build_role_assignment_link(
+                role_id=self.role_id, user_id=self.user_id,
+                project_id=proj['project']['id']))
+
+        # Make the API call
+        r = self.get('/projects/%(project_id)s?parents_as_list' %
+                     {'project_id': subproject['project']['id']})
+        self.assertValidProjectResponse(r, subproject['project'])
+
+        # Assert only 'project' and 'parent' are in the parents list
+        self.assertIn(project, r.result['project']['parents'])
+        self.assertIn(parent, r.result['project']['parents'])
+        self.assertEqual(2, len(r.result['project']['parents']))
+
+    @test_utils.wip('Waiting on bug #1434916')
+    def test_get_project_with_parents_as_list_with_partial_access(self):
+        """``GET /projects/{project_id}?parents_as_list`` with partial access.
+
+        Test plan:
+
+        - Create 'parent', 'project' and 'subproject' projects;
+        - Assign a user a role on 'parent' and 'subproject';
+        - Check that calling parents_as_list on 'subproject' only returns
+          'parent'.
+
+        """
+
+        # Create the project hierarchy
+        parent = self.new_project_ref(domain_id=self.domain_id)
+        parent = self.post('/projects', body={'project': parent}).result
+
+        project = self.new_project_ref(domain_id=self.domain_id,
+                                       parent_id=parent['project']['id'])
+        project = self.post('/projects', body={'project': project}).result
+
+        subproject = self.new_project_ref(domain_id=self.domain_id,
+                                          parent_id=project['project']['id'])
+        subproject = self.post('/projects',
+                               body={'project': subproject}).result
+
+        # Assign a role for the user on parent and subproject
+        for proj in (parent, subproject):
+            self.put(_build_role_assignment_link(
+                role_id=self.role_id, user_id=self.user_id,
+                project_id=proj['project']['id']))
+
+        # Make the API call
+        r = self.get('/projects/%(project_id)s?parents_as_list' %
+                     {'project_id': subproject['project']['id']})
+        self.assertValidProjectResponse(r, subproject['project'])
+
+        # Assert only 'parent' is in the parents list
+        self.assertIn(parent, r.result['project']['parents'])
         self.assertEqual(1, len(r.result['project']['parents']))
-        self.assertValidProjectResponse(r, projects[1]['project'])
-        self.assertIn(projects[0], r.result['project']['parents'])
-        self.assertNotIn(projects[2], r.result['project']['parents'])
 
     def test_get_project_with_parents_as_list_and_parents_as_ids(self):
         """Call ``GET /projects/{project_id}?parents_as_list&parents_as_ids``.
@@ -798,18 +868,86 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         # projects[3] has no subtree, subtree_as_ids must be None
         self.assertIsNone(subtree_as_ids)
 
-    def test_get_project_with_subtree_as_list(self):
-        """Call ``GET /projects/{project_id}?subtree_as_list``."""
-        projects = self._create_projects_hierarchy(hierarchy_size=2)
+    def test_get_project_with_subtree_as_list_with_full_access(self):
+        """``GET /projects/{project_id}?subtree_as_list`` with full access.
 
-        r = self.get(
-            '/projects/%(project_id)s?subtree_as_list' % {
-                'project_id': projects[1]['project']['id']})
+        Test plan:
 
+        - Create 'parent', 'project' and 'subproject' projects;
+        - Assign a user a role on each one of those projects;
+        - Check that calling subtree_as_list on 'parent' returns both 'parent'
+          and 'subproject'.
+
+        """
+
+        # Create the project hierarchy
+        parent = self.new_project_ref(domain_id=self.domain_id)
+        parent = self.post('/projects', body={'project': parent}).result
+
+        project = self.new_project_ref(domain_id=self.domain_id,
+                                       parent_id=parent['project']['id'])
+        project = self.post('/projects', body={'project': project}).result
+
+        subproject = self.new_project_ref(domain_id=self.domain_id,
+                                          parent_id=project['project']['id'])
+        subproject = self.post('/projects',
+                               body={'project': subproject}).result
+
+        # Assign a role for the user on all the created projects
+        for proj in (parent, project, subproject):
+            self.put(_build_role_assignment_link(
+                role_id=self.role_id, user_id=self.user_id,
+                project_id=proj['project']['id']))
+
+        # Make the API call
+        r = self.get('/projects/%(project_id)s?subtree_as_list' %
+                     {'project_id': parent['project']['id']})
+        self.assertValidProjectResponse(r, parent['project'])
+
+        # Assert only 'project' and 'subproject' are in the subtree
+        self.assertIn(project, r.result['project']['subtree'])
+        self.assertIn(subproject, r.result['project']['subtree'])
+        self.assertEqual(2, len(r.result['project']['subtree']))
+
+    @test_utils.wip('Waiting on bug #1434916')
+    def test_get_project_with_subtree_as_list_with_partial_access(self):
+        """``GET /projects/{project_id}?subtree_as_list`` with partial access.
+
+        Test plan:
+
+        - Create 'parent', 'project' and 'subproject' projects;
+        - Assign a user a role on 'parent' and 'subproject';
+        - Check that calling subtree_as_list on 'parent' returns 'subproject'.
+
+        """
+
+        # Create the project hierarchy
+        parent = self.new_project_ref(domain_id=self.domain_id)
+        parent = self.post('/projects', body={'project': parent}).result
+
+        project = self.new_project_ref(domain_id=self.domain_id,
+                                       parent_id=parent['project']['id'])
+        project = self.post('/projects', body={'project': project}).result
+
+        subproject = self.new_project_ref(domain_id=self.domain_id,
+                                          parent_id=project['project']['id'])
+        subproject = self.post('/projects',
+                               body={'project': subproject}).result
+
+        # Assign a role for the user on parent and subproject
+        for proj in (parent, subproject):
+            self.put(_build_role_assignment_link(
+                role_id=self.role_id, user_id=self.user_id,
+                project_id=proj['project']['id']))
+
+        # Make the API call
+        r = self.get('/projects/%(project_id)s?subtree_as_list' %
+                     {'project_id': parent['project']['id']})
+        self.assertValidProjectResponse(r, parent['project'])
+
+        # Assert only 'subproject' is in the subtree
+        self.assertIn(subproject, r.result['project']['subtree'])
         self.assertEqual(1, len(r.result['project']['subtree']))
-        self.assertValidProjectResponse(r, projects[1]['project'])
-        self.assertNotIn(projects[0], r.result['project']['subtree'])
-        self.assertIn(projects[2], r.result['project']['subtree'])
 
     def test_get_project_with_subtree_as_list_and_subtree_as_ids(self):
         """Call ``GET /projects/{project_id}?subtree_as_list&subtree_as_ids``.
