@@ -22,7 +22,9 @@ from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
+from keystone.token.providers import fernet
 from keystone.token.providers import pki
+from keystone.token.providers import pkiz
 from keystone.token.providers import uuid
 
 
@@ -745,19 +747,25 @@ class TestTokenProvider(tests.TestCase):
         self.config_fixture.config(
             group='token',
             provider='keystone.token.providers.uuid.Provider')
-        token.provider.Manager()
+        self.assertIsInstance(token.provider.Manager().driver, uuid.Provider)
 
         dependency.reset()
         self.config_fixture.config(
             group='token',
             provider='keystone.token.providers.pki.Provider')
-        token.provider.Manager()
+        self.assertIsInstance(token.provider.Manager().driver, pki.Provider)
 
         dependency.reset()
         self.config_fixture.config(
             group='token',
             provider='keystone.token.providers.pkiz.Provider')
-        token.provider.Manager()
+        self.assertIsInstance(token.provider.Manager().driver, pkiz.Provider)
+
+        dependency.reset()
+        self.config_fixture.config(
+            group='token',
+            provider='keystone.token.providers.fernet.Provider')
+        self.assertIsInstance(token.provider.Manager().driver, fernet.Provider)
 
     def test_unsupported_token_provider(self):
         self.config_fixture.config(group='token',
