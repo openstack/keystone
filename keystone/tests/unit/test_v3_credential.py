@@ -18,6 +18,7 @@ import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_config import cfg
+from testtools import matchers
 
 from keystone import exception
 from keystone.tests.unit import test_v3
@@ -375,14 +376,17 @@ class TestCredentialEc2(CredentialBaseTestCase):
         self.assertIsNone(ec2_cred['trust_id'])
         self._validate_signature(access=ec2_cred['access'],
                                  secret=ec2_cred['secret'])
-
-        return ec2_cred
+        uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
+        self.assertThat(ec2_cred['links']['self'],
+                        matchers.EndsWith(uri))
 
     def test_ec2_get_credential(self):
         ec2_cred = self._get_ec2_cred()
         uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
         r = self.get(uri)
         self.assertDictEqual(ec2_cred, r.result['credential'])
+        self.assertThat(ec2_cred['links']['self'],
+                        matchers.EndsWith(uri))
 
     def test_ec2_list_credentials(self):
         """Test ec2 credential listing."""
@@ -391,6 +395,8 @@ class TestCredentialEc2(CredentialBaseTestCase):
         r = self.get(uri)
         cred_list = r.result['credentials']
         self.assertEqual(1, len(cred_list))
+        self.assertThat(r.result['links']['self'],
+                        matchers.EndsWith(uri))
 
     def test_ec2_delete_credential(self):
         """Test ec2 credential deletion."""

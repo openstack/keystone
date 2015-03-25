@@ -349,11 +349,11 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 @dependency.requires('policy_api', 'token_provider_api')
 class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
 
-    member_name = 'project'
+    collection_name = 'credentials'
+    member_name = 'credential'
 
     def __init__(self):
         super(Ec2ControllerV3, self).__init__()
-        self.get_member_from_driver = self.credential_api.get_credential
 
     def _check_credential_owner_and_user_id_match(self, context, prep_info,
                                                   user_id, credential_id):
@@ -385,22 +385,34 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
     def ec2_get_credential(self, context, user_id, credential_id):
-        return super(Ec2ControllerV3, self).get_credential(user_id,
-                                                           credential_id)
+        ref = super(Ec2ControllerV3, self).get_credential(user_id,
+                                                          credential_id)
+        return Ec2ControllerV3.wrap_member(context, ref['credential'])
 
     @controller.protected()
     def ec2_list_credentials(self, context, user_id):
-        return super(Ec2ControllerV3, self).get_credentials(user_id)
+        refs = super(Ec2ControllerV3, self).get_credentials(user_id)
+        return Ec2ControllerV3.wrap_collection(context, refs['credentials'])
 
     @controller.protected()
     def ec2_create_credential(self, context, user_id, tenant_id):
-        return super(Ec2ControllerV3, self).create_credential(context, user_id,
-                                                              tenant_id)
+        ref = super(Ec2ControllerV3, self).create_credential(context, user_id,
+                                                             tenant_id)
+        return Ec2ControllerV3.wrap_member(context, ref['credential'])
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
     def ec2_delete_credential(self, context, user_id, credential_id):
         return super(Ec2ControllerV3, self).delete_credential(user_id,
                                                               credential_id)
+
+    @classmethod
+    def _add_self_referential_link(cls, context, ref):
+        path = '/users/%(user_id)s/credentials/OS-EC2/%(credential_id)s'
+        url = cls.base_url(context, path) % {
+            'user_id': ref['user_id'],
+            'credential_id': ref['access']}
+        ref.setdefault('links', {})
+        ref['links']['self'] = url
 
 
 def render_token_data_response(token_id, token_data):
