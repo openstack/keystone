@@ -14,7 +14,9 @@ from keystone.common.validation import parameter_types
 
 
 _region_properties = {
-    'description': parameter_types.description,
+    'description': {
+        'type': ['string', 'null'],
+    },
     # NOTE(lbragstad): Regions use ID differently. The user can specify the ID
     # or it will be generated automatically.
     'id': {
