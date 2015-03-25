@@ -111,15 +111,16 @@ find described in :doc:`configuringservices`.
 Installing from packages: Fedora
 --------------------------------
 
-Installing Keystone with Fedora 17 is documented at
-http://fedoraproject.org/wiki/Getting_started_with_OpenStack_on_Fedora_17.
+To install Keystone on Fedora refer to the steps found in the `OpenStack
+Install Guide`_.
 
 To install the packages:
 
 .. code-block:: bash
 
-    $ sudo yum install --enablerepo=updates-testing openstack-keystone
+    $ sudo yum install openstack-keystone
 
-Once installed, you can configure Keystone based on the instructions at:
+Once installed, you still need to initialize data in Keystone, which you can
+find described in :doc:`configuringservices`.
 
-http://fedoraproject.org/wiki/Getting_started_with_OpenStack_on_Fedora_17#Configuring_Keystone_for_authentication
+.. _`OpenStack Install Guide`: http://docs.openstack.org/juno/install-guide/install/yum/content/keystone-install.html
