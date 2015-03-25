@@ -118,7 +118,8 @@ class Auth(controller.V2Controller):
         # format.
         user_ref = self.v3_to_v2_user(user_ref)
         if tenant_ref:
-            tenant_ref = self.filter_domain_id(tenant_ref)
+            tenant_ref = self.v3_to_v2_project(tenant_ref)
+
         auth_token_data = self._get_auth_token_data(user_ref,
                                                     tenant_ref,
                                                     metadata_ref,

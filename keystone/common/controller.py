@@ -239,6 +239,12 @@ class V2Controller(wsgi.Application):
         return ref
 
     @staticmethod
+    def filter_project_parent_id(ref):
+        """Remove parent_id since v2 calls are not hierarchy-aware."""
+        ref.pop('parent_id', None)
+        return ref
+
+    @staticmethod
     def normalize_username_in_response(ref):
         """Adds username to outgoing user refs to match the v2 spec.
 
@@ -301,6 +307,34 @@ class V2Controller(wsgi.Application):
             return _normalize_and_filter_user_properties(ref)
         elif isinstance(ref, list):
             return [_normalize_and_filter_user_properties(x) for x in ref]
+        else:
+            raise ValueError(_('Expected dict or list: %s') % type(ref))
+
+    @staticmethod
+    def v3_to_v2_project(ref):
+        """Convert a project_ref from v3 to v2.
+
+        * v2.0 projects are not domain aware, and should have domain_id removed
+        * v2.0 projects are not hierarchy aware, and should have parent_id
+          removed
+
+        This method should only be applied to project_refs being returned from
+        the v2.0 controller(s).
+
+        If ref is a list type, we will iterate through each element and do the
+        conversion.
+        """
+
+        def _filter_project_properties(ref):
+            """Run through the various filter methods."""
+            V2Controller.filter_domain_id(ref)
+            V2Controller.filter_project_parent_id(ref)
+            return ref
+
+        if isinstance(ref, dict):
+            return _filter_project_properties(ref)
+        elif isinstance(ref, list):
+            return [_filter_project_properties(x) for x in ref]
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
