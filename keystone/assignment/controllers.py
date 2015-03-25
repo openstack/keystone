@@ -107,7 +107,14 @@ class Role(controller.V2Controller):
             msg = _('Name field is required and cannot be empty')
             raise exception.ValidationError(message=msg)
 
-        role_id = uuid.uuid4().hex
+        if role['name'] == CONF.member_role_name:
+            # Use the configured member role ID when creating the configured
+            # member role name. This avoids the potential of creating a
+            # "member" role with an unexpected ID.
+            role_id = CONF.member_role_id
+        else:
+            role_id = uuid.uuid4().hex
+
         role['id'] = role_id
         role_ref = self.role_api.create_role(role_id, role)
         return {'role': role_ref}
@@ -282,7 +289,16 @@ class RoleV3(controller.V3Controller):
     @controller.protected()
     @validation.validated(schema.role_create, 'role')
     def create_role(self, context, role):
-        ref = self._assign_unique_id(self._normalize_dict(role))
+        if role['name'] == CONF.member_role_name:
+            # Use the configured member role ID when creating the configured
+            # member role name. This avoids the potential of creating a
+            # "member" role with an unexpected ID.
+            role['id'] = CONF.member_role_id
+        else:
+            role = self._assign_unique_id(role)
+
+        ref = self._normalize_dict(role)
+
         initiator = notifications._get_request_audit_info(context)
         ref = self.role_api.create_role(ref['id'], ref, initiator)
         return RoleV3.wrap_member(context, ref)
