@@ -34,14 +34,3 @@ def upgrade(migrate_engine):
         sql.Column('expires_at', sql.DateTime()),
         sql.Column('revoked_at', sql.DateTime(), index=True, nullable=False))
     service_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    # Operations to reverse the above upgrade go here.
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    tables = ['revocation_event']
-    for t in tables:
-        table = sql.Table(t, meta, autoload=True)
-        table.drop(migrate_engine, checkfirst=True)

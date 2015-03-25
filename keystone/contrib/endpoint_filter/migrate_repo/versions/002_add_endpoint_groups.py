@@ -39,13 +39,3 @@ def upgrade(migrate_engine):
         sql.PrimaryKeyConstraint('endpoint_group_id',
                                  'project_id'))
     project_endpoint_group_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    # Operations to reverse the above upgrade go here.
-    for table_name in ['project_endpoint_group',
-                       'endpoint_group']:
-        table = sql.Table(table_name, meta, autoload=True)
-        table.drop()

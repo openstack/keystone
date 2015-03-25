@@ -35,20 +35,3 @@ def upgrade(migrate_engine):
                     'ref_column': consumer_table.c.id}]
     if meta.bind != 'sqlite':
         migration_helpers.add_constraints(constraints)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    consumer_table = sql.Table('consumer', meta, autoload=True)
-    request_token_table = sql.Table('request_token', meta, autoload=True)
-    access_token_table = sql.Table('access_token', meta, autoload=True)
-
-    constraints = [{'table': request_token_table,
-                    'fk_column': 'consumer_id',
-                    'ref_column': consumer_table.c.id},
-                   {'table': access_token_table,
-                    'fk_column': 'consumer_id',
-                    'ref_column': consumer_table.c.id}]
-    if migrate_engine.name != 'sqlite':
-        migration_helpers.remove_constraints(constraints)

@@ -33,9 +33,3 @@ def upgrade(migrate_engine):
     if migrate_engine.name == 'sqlite':
         return
     migration_helpers.remove_constraints(list_constraints(migrate_engine))
-
-
-def downgrade(migrate_engine):
-    if migrate_engine.name == 'sqlite':
-        return
-    migration_helpers.add_constraints(list_constraints(migrate_engine))

@@ -36,25 +36,9 @@ b. For each endpoint
     ii. Assign the id to the region_id column
 c. Remove the column region
 
-
-To Downgrade:
-
-Endpoint Table
-
-a. Add back in the region column
-b. For each endpoint
-    i. Copy the region_id column to the region column
-c. Remove the column region_id
-
-Region Table
-
-Decrease the size of the id column in the region table, making sure that
-we don't get classing primary keys.
-
 """
 
 import migrate
-import six
 import sqlalchemy as sql
 from sqlalchemy.orm import sessionmaker
 
@@ -90,39 +74,6 @@ def _migrate_to_region_id(migrate_engine, region_table, endpoint_table):
         name='fk_endpoint_region_id').create()
 
 
-def _migrate_to_region(migrate_engine, region_table, endpoint_table):
-    endpoints = list(endpoint_table.select().execute())
-
-    for endpoint in endpoints:
-        new_values = {'region': endpoint.region_id}
-        f = endpoint_table.c.id == endpoint.id
-        update = endpoint_table.update().where(f).values(new_values)
-        migrate_engine.execute(update)
-
-    if 'sqlite' != migrate_engine.name:
-        migrate.ForeignKeyConstraint(
-            columns=[endpoint_table.c.region_id],
-            refcolumns=[region_table.c.id],
-            name='fk_endpoint_region_id').drop()
-    endpoint_table.c.region_id.drop()
-
-
-def _prepare_regions_for_id_truncation(migrate_engine, region_table):
-    """Ensure there are no IDs that are bigger than 64 chars.
-
-    The size of the id and parent_id fields where increased from 64 to 255
-    during the upgrade.  On downgrade we have to make sure that the ids can
-    fit in the new column size. For rows with ids greater than this, we have
-    no choice but to dump them.
-
-    """
-    for region in list(region_table.select().execute()):
-        if (len(six.text_type(region.id)) > 64 or
-                len(six.text_type(region.parent_region_id)) > 64):
-            delete = region_table.delete(region_table.c.id == region.id)
-            migrate_engine.execute(delete)
-
-
 def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
@@ -138,19 +89,3 @@ def upgrade(migrate_engine):
     _migrate_to_region_id(migrate_engine, region_table, endpoint_table)
 
     endpoint_table.c.region.drop()
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    region_table = sql.Table('region', meta, autoload=True)
-    endpoint_table = sql.Table('endpoint', meta, autoload=True)
-    region_column = sql.Column('region', sql.String(length=255))
-    region_column.create(endpoint_table)
-
-    _migrate_to_region(migrate_engine, region_table, endpoint_table)
-    _prepare_regions_for_id_truncation(migrate_engine, region_table)
-
-    region_table.c.id.alter(type=sql.String(length=64))
-    region_table.c.parent_region_id.alter(type=sql.String(length=64))

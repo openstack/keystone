@@ -27,9 +27,3 @@ def upgrade(migrate_engine):
             values(mapping_id=''))
     migrate_engine.execute(stmt)
     federation_protocol.c.mapping_id.alter(nullable=False)
-
-
-def downgrade(migrate_engine):
-    meta = sa.MetaData(bind=migrate_engine)
-    federation_protocol = sa.Table('federation_protocol', meta, autoload=True)
-    federation_protocol.c.mapping_id.alter(nullable=True)

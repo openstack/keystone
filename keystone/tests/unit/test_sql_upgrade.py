@@ -230,9 +230,6 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
     def upgrade(self, *args, **kwargs):
         self._migrate(*args, **kwargs)
 
-    def downgrade(self, *args, **kwargs):
-        self._migrate(*args, downgrade=True, **kwargs)
-
     def _migrate(self, version, repository=None, downgrade=False,
                  current_schema=None):
         repository = repository or self.repo_path
@@ -278,42 +275,6 @@ class SqlUpgradeTests(SqlMigrateBase):
             version,
             'DB is not at version %s' % migrate_repo.DB_INIT_VERSION)
 
-    def test_two_steps_forward_one_step_back(self):
-        """You should be able to cleanly undo and re-apply all upgrades.
-
-        Upgrades are run in the following order::
-
-            Starting with the initial version defined at
-            keystone.common.migrate_repo.DB_INIT_VERSION
-
-            INIT +1 -> INIT +2 -> INIT +1 -> INIT +2 -> INIT +3 -> INIT +2 ...
-            ^---------------------^          ^---------------------^
-
-        Downgrade to the DB_INIT_VERSION does not occur based on the
-        requirement that the base version be DB_INIT_VERSION + 1 before
-        migration can occur. Downgrade below DB_INIT_VERSION + 1 is no longer
-        supported.
-
-        DB_INIT_VERSION is the number preceding the release schema version from
-        two releases prior. Example, Juno releases with the DB_INIT_VERSION
-        being 35 where Havana (Havana was two releases before Juno) release
-        schema version is 36.
-
-        The migrate utility requires the db must be initialized under version
-        control with the revision directly before the first version to be
-        applied.
-
-        """
-        for x in range(migrate_repo.DB_INIT_VERSION + 1,
-                       self.max_version + 1):
-            self.upgrade(x)
-            downgrade_ver = x - 1
-            # Don't actually downgrade to the init version. This will raise
-            # a not-implemented error.
-            if downgrade_ver != migrate_repo.DB_INIT_VERSION:
-                self.downgrade(x - 1)
-            self.upgrade(x)
-
     def test_upgrade_add_initial_tables(self):
         self.upgrade(migrate_repo.DB_INIT_VERSION + 1)
         self.check_initial_table_structure()
@@ -338,32 +299,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         for k in default_domain.keys():
             self.assertEqual(default_domain[k], getattr(refs[0], k))
 
-    def test_downgrade_to_db_init_version(self):
-        self.upgrade(self.max_version)
-
-        if self.engine.name == 'mysql':
-            self._mysql_check_all_tables_innodb()
-
-        self.downgrade(migrate_repo.DB_INIT_VERSION + 1)
-        self.check_initial_table_structure()
-
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-        meta.reflect(self.engine)
-
-        initial_table_set = set(INITIAL_TABLE_STRUCTURE.keys())
-        table_set = set(meta.tables.keys())
-        # explicitly remove the migrate_version table, this is not controlled
-        # by the migration scripts and should be exempt from this check.
-        table_set.remove('migrate_version')
-
-        self.assertSetEqual(initial_table_set, table_set)
-        # Downgrade to before Icehouse's release schema version (044) is not
-        # supported. A NotImplementedError should be raised when attempting to
-        # downgrade.
-        self.assertRaises(NotImplementedError, self.downgrade,
-                          migrate_repo.DB_INIT_VERSION)
-
     def insert_dict(self, session, table_name, d, table=None):
         """Naively inserts key-value pairs into a table, given a dictionary."""
         if table is None:
@@ -380,50 +315,12 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('id_mapping')
         self.upgrade(51)
         self.assertTableExists('id_mapping')
-        self.downgrade(50)
-        self.assertTableDoesNotExist('id_mapping')
 
     def test_region_url_upgrade(self):
         self.upgrade(52)
         self.assertTableColumns('region',
                                 ['id', 'description', 'parent_region_id',
                                  'extra', 'url'])
-
-    def test_region_url_downgrade(self):
-        self.upgrade(52)
-        self.downgrade(51)
-        self.assertTableColumns('region',
-                                ['id', 'description', 'parent_region_id',
-                                 'extra'])
-
-    def test_region_url_cleanup(self):
-        # make sure that the url field is dropped in the downgrade
-        self.upgrade(52)
-        session = self.Session()
-        beta = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'parent_region_id': uuid.uuid4().hex,
-            'url': uuid.uuid4().hex
-        }
-        acme = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'parent_region_id': uuid.uuid4().hex,
-            'url': None
-        }
-        self.insert_dict(session, 'region', beta)
-        self.insert_dict(session, 'region', acme)
-        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(2, session.query(region_table).count())
-        session.close()
-        self.downgrade(51)
-        session = self.Session()
-        self.metadata.clear()
-        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(2, session.query(region_table).count())
-        region = session.query(region_table)[0]
-        self.assertRaises(AttributeError, getattr, region, 'url')
 
     def test_endpoint_region_upgrade_columns(self):
         self.upgrade(53)
@@ -438,21 +335,6 @@ class SqlUpgradeTests(SqlMigrateBase):
                                           self.metadata,
                                           autoload=True)
         self.assertEqual(255, endpoint_table.c.region_id.type.length)
-
-    def test_endpoint_region_downgrade_columns(self):
-        self.upgrade(53)
-        self.downgrade(52)
-        self.assertTableColumns('endpoint',
-                                ['id', 'legacy_endpoint_id', 'interface',
-                                 'service_id', 'url', 'extra', 'enabled',
-                                 'region'])
-        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(64, region_table.c.id.type.length)
-        self.assertEqual(64, region_table.c.parent_region_id.type.length)
-        endpoint_table = sqlalchemy.Table('endpoint',
-                                          self.metadata,
-                                          autoload=True)
-        self.assertEqual(255, endpoint_table.c.region.type.length)
 
     def test_endpoint_region_migration(self):
         self.upgrade(52)
@@ -519,28 +401,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertEqual(1, session.query(endpoint_table).
                          filter_by(region_id=_small_region_name).count())
 
-        # downgrade to 52
-        session.close()
-        self.downgrade(52)
-        session = self.Session()
-        self.metadata.clear()
-
-        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(1, session.query(region_table).count())
-        self.assertEqual(1, session.query(region_table).
-                         filter_by(id=_small_region_name).count())
-
-        endpoint_table = sqlalchemy.Table('endpoint',
-                                          self.metadata,
-                                          autoload=True)
-        self.assertEqual(5, session.query(endpoint_table).count())
-        self.assertEqual(2, session.query(endpoint_table).
-                         filter_by(region=_long_region_name).count())
-        self.assertEqual(1, session.query(endpoint_table).
-                         filter_by(region=_clashing_region_name).count())
-        self.assertEqual(1, session.query(endpoint_table).
-                         filter_by(region=_small_region_name).count())
-
     def test_add_actor_id_index(self):
         self.upgrade(53)
         self.upgrade(54)
@@ -556,68 +416,11 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertIn(('ix_token_user_id', ['user_id']), index_data)
         self.assertIn(('ix_token_trust_id', ['trust_id']), index_data)
 
-    def test_token_user_id_and_trust_id_index_downgrade(self):
-        self.upgrade(55)
-        self.downgrade(54)
-        table = sqlalchemy.Table('token', self.metadata, autoload=True)
-        index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
-        self.assertNotIn(('ix_token_user_id', ['user_id']), index_data)
-        self.assertNotIn(('ix_token_trust_id', ['trust_id']), index_data)
-
-    def test_remove_actor_id_index(self):
-        self.upgrade(54)
-        self.downgrade(53)
-        table = sqlalchemy.Table('assignment', self.metadata, autoload=True)
-        index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
-        self.assertNotIn(('ix_actor_id', ['actor_id']), index_data)
-
     def test_project_parent_id_upgrade(self):
         self.upgrade(61)
         self.assertTableColumns('project',
                                 ['id', 'name', 'extra', 'description',
                                  'enabled', 'domain_id', 'parent_id'])
-
-    def test_project_parent_id_downgrade(self):
-        self.upgrade(61)
-        self.downgrade(60)
-        self.assertTableColumns('project',
-                                ['id', 'name', 'extra', 'description',
-                                 'enabled', 'domain_id'])
-
-    def test_project_parent_id_cleanup(self):
-        # make sure that the parent_id field is dropped in the downgrade
-        self.upgrade(61)
-        session = self.Session()
-        domain = {'id': uuid.uuid4().hex,
-                  'name': uuid.uuid4().hex,
-                  'enabled': True}
-        acme = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'domain_id': domain['id'],
-            'name': uuid.uuid4().hex,
-            'parent_id': None
-        }
-        beta = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'domain_id': domain['id'],
-            'name': uuid.uuid4().hex,
-            'parent_id': acme['id']
-        }
-        self.insert_dict(session, 'domain', domain)
-        self.insert_dict(session, 'project', acme)
-        self.insert_dict(session, 'project', beta)
-        proj_table = sqlalchemy.Table('project', self.metadata, autoload=True)
-        self.assertEqual(2, session.query(proj_table).count())
-        session.close()
-        self.downgrade(60)
-        session = self.Session()
-        self.metadata.clear()
-        proj_table = sqlalchemy.Table('project', self.metadata, autoload=True)
-        self.assertEqual(2, session.query(proj_table).count())
-        project = session.query(proj_table)[0]
-        self.assertRaises(AttributeError, getattr, project, 'parent_id')
 
     def test_drop_assignment_role_fk(self):
         self.upgrade(61)
@@ -626,8 +429,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         if self.engine.name != 'sqlite':
             # sqlite does not support FK deletions (or enforcement)
             self.assertFalse(self.does_fk_exist('assignment', 'role_id'))
-        self.downgrade(61)
-        self.assertTrue(self.does_fk_exist('assignment', 'role_id'))
 
     def does_fk_exist(self, table, fk_column):
         inspector = reflection.Inspector.from_engine(self.engine)
@@ -642,14 +443,7 @@ class SqlUpgradeTests(SqlMigrateBase):
                                 ['id', 'description', 'parent_region_id',
                                  'extra'])
 
-    def test_drop_region_url_downgrade(self):
-        self.upgrade(63)
-        self.downgrade(62)
-        self.assertTableColumns('region',
-                                ['id', 'description', 'parent_region_id',
-                                 'extra', 'url'])
-
-    def test_drop_domain_fk(self):
+    def test_domain_fk(self):
         self.upgrade(63)
         self.assertTrue(self.does_fk_exist('group', 'domain_id'))
         self.assertTrue(self.does_fk_exist('user', 'domain_id'))
@@ -658,9 +452,6 @@ class SqlUpgradeTests(SqlMigrateBase):
             # sqlite does not support FK deletions (or enforcement)
             self.assertFalse(self.does_fk_exist('group', 'domain_id'))
             self.assertFalse(self.does_fk_exist('user', 'domain_id'))
-        self.downgrade(63)
-        self.assertTrue(self.does_fk_exist('group', 'domain_id'))
-        self.assertTrue(self.does_fk_exist('user', 'domain_id'))
 
     def test_add_domain_config(self):
         whitelisted_table = 'whitelisted_config'
@@ -673,9 +464,6 @@ class SqlUpgradeTests(SqlMigrateBase):
                                 ['domain_id', 'group', 'option', 'value'])
         self.assertTableColumns(sensitive_table,
                                 ['domain_id', 'group', 'option', 'value'])
-        self.downgrade(64)
-        self.assertTableDoesNotExist(whitelisted_table)
-        self.assertTableDoesNotExist(sensitive_table)
 
     def test_fixup_service_name_value_upgrade(self):
         """Update service name data from `extra` to empty string."""
@@ -881,6 +669,13 @@ class VersionTests(SqlMigrateBase):
         version = migration_helpers.get_db_version()
         self.assertEqual(self.max_version, version)
 
+    def test_assert_not_schema_downgrade(self):
+        self.upgrade(self.max_version)
+        self.assertRaises(
+            db_exception.DbMigrationError,
+            migration_helpers._sync_common_repo,
+            self.max_version - 1)
+
     def test_extension_not_controlled(self):
         """When get the version before controlling, raises DbMigrationError."""
         self.assertRaises(db_exception.DbMigrationError,
@@ -906,21 +701,12 @@ class VersionTests(SqlMigrateBase):
             self.assertTrue(
                 version > 0,
                 "Version for %s didn't change after migrated?" % name)
-
-    def test_extension_downgraded(self):
-        """When get the version after downgrading an extension, it is 0."""
-        for name, extension in six.iteritems(EXTENSIONS):
-            abs_path = migration_helpers.find_migrate_repo(extension)
-            migration.db_version_control(sql.get_engine(), abs_path)
-            migration.db_sync(sql.get_engine(), abs_path)
-            version = migration_helpers.get_db_version(extension=name)
-            self.assertTrue(
-                version > 0,
-                "Version for %s didn't change after migrated?" % name)
-            migration.db_sync(sql.get_engine(), abs_path, version=0)
-            version = migration_helpers.get_db_version(extension=name)
-            self.assertEqual(0, version,
-                             'Migrate version for %s is not 0' % name)
+            # Verify downgrades cannot occur
+            self.assertRaises(
+                db_exception.DbMigrationError,
+                migration_helpers._sync_extension_repo,
+                extension=name,
+                version=0)
 
     def test_unexpected_extension(self):
         """The version for an extension that doesn't exist raises ImportError.

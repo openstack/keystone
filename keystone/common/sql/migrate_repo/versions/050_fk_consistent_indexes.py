@@ -39,11 +39,3 @@ def upgrade(migrate_engine):
         if any(i for i in user_group_membership.indexes if
                i.columns.keys() == ['group_id'] and i.name != 'group_id'):
             sa.Index('group_id', user_group_membership.c.group_id).create()
-
-
-def downgrade(migrate_engine):
-    # NOTE(i159): index exists only in MySQL schemas, and got an inconsistent
-    # name only when MySQL 5.5 renamed it after re-creation
-    # (during migrations). So we just fixed inconsistency, there is no
-    # necessity to revert it.
-    pass

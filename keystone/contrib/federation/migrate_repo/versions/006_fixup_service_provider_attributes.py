@@ -38,11 +38,3 @@ def upgrade(migrate_engine):
 
     sp_table.c.auth_url.alter(nullable=False)
     sp_table.c.sp_url.alter(nullable=False)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    sp_table = sql.Table(_SP_TABLE_NAME, meta, autoload=True)
-    sp_table.c.auth_url.alter(nullable=True)
-    sp_table.c.sp_url.alter(nullable=True)

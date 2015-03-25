@@ -30,14 +30,3 @@ def upgrade(migrate_engine):
         sql.Column('type', sql.String(255)),
         sql.Column('extra', sql.Text()))
     service_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    # Operations to reverse the above upgrade go here.
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    tables = ['example']
-    for t in tables:
-        table = sql.Table(t, meta, autoload=True)
-        table.drop(migrate_engine, checkfirst=True)

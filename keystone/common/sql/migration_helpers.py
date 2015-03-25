@@ -143,6 +143,7 @@ def _sync_common_repo(version):
     abs_path = find_migrate_repo()
     init_version = migrate_repo.DB_INIT_VERSION
     engine = sql.get_engine()
+    _assert_not_schema_downgrade(version=version)
     migration.db_sync(engine, abs_path, version=version,
                       init_version=init_version)
 
@@ -176,6 +177,18 @@ def _fix_federation_tables(engine):
         engine.execute("SET foreign_key_checks = 1")
 
 
+def _assert_not_schema_downgrade(extension=None, version=None):
+    if version is not None:
+        try:
+            current_ver = int(six.text_type(get_db_version(extension)))
+            if int(version) < current_ver:
+                raise migration.exception.DbMigrationError()
+        except exceptions.DatabaseNotControlledError:
+            # NOTE(morganfainberg): The database is not controlled, this action
+            # cannot be a downgrade.
+            pass
+
+
 def _sync_extension_repo(extension, version):
     init_version = 0
     engine = sql.get_engine()
@@ -198,6 +211,9 @@ def _sync_extension_repo(extension, version):
     except exception.MigrationNotProvided as e:
         print(e)
         sys.exit(1)
+
+    _assert_not_schema_downgrade(extension=extension, version=version)
+
     try:
         migration.db_sync(engine, abs_path, version=version,
                           init_version=init_version)

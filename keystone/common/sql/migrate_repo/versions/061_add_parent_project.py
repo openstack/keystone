@@ -38,17 +38,3 @@ def upgrade(migrate_engine):
     if migrate_engine.name == 'sqlite':
         return
     migration_helpers.add_constraints(list_constraints(project_table))
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    project_table = sql.Table(_PROJECT_TABLE_NAME, meta, autoload=True)
-
-    # SQLite does not support constraints, and querying the constraints
-    # raises an exception
-    if migrate_engine.name != 'sqlite':
-        migration_helpers.remove_constraints(list_constraints(project_table))
-
-    project_table.drop_column(_PARENT_ID_COLUMN_NAME)

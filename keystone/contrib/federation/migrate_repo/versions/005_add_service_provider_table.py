@@ -29,10 +29,3 @@ def upgrade(migrate_engine):
         mysql_charset='utf8')
 
     sp_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    table = sql.Table('service_provider', meta, autoload=True)
-    table.drop()

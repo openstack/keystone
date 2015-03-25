@@ -63,7 +63,8 @@ class DbSync(BaseApp):
                             help=('Migrate the database up to a specified '
                                   'version. If not provided, db_sync will '
                                   'migrate the database to the latest known '
-                                  'version.'))
+                                  'version. Schema downgrades are not '
+                                  'supported.'))
         parser.add_argument('--extension', default=None,
                             help=('Migrate the database for the specified '
                                   'extension. If not provided, db_sync will '

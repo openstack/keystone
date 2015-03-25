@@ -26,12 +26,3 @@ def upgrade(migrate_engine):
                                     nullable=True)
     event_table.create_column(audit_id_column)
     event_table.create_column(audit_chain_column)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    event_table = sql.Table(_TABLE_NAME, meta, autoload=True)
-    event_table.drop_column('audit_id')
-    event_table.drop_column('audit_chain_id')

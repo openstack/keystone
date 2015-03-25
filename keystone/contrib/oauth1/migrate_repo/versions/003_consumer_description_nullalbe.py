@@ -20,10 +20,3 @@ def upgrade(migrate_engine):
     meta.bind = migrate_engine
     user_table = sql.Table('consumer', meta, autoload=True)
     user_table.c.description.alter(nullable=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    user_table = sql.Table('consumer', meta, autoload=True)
-    user_table.c.description.alter(nullable=False)
