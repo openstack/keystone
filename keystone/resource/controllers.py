@@ -48,7 +48,7 @@ class Tenant(controller.V2Controller):
         tenant_refs = self.resource_api.list_projects_in_domain(
             CONF.identity.default_domain_id)
         for tenant_ref in tenant_refs:
-            tenant_ref = self.filter_domain_id(tenant_ref)
+            tenant_ref = self.v3_to_v2_project(tenant_ref)
         params = {
             'limit': context['query_string'].get('limit'),
             'marker': context['query_string'].get('marker'),
@@ -60,14 +60,14 @@ class Tenant(controller.V2Controller):
         # TODO(termie): this stuff should probably be moved to middleware
         self.assert_admin(context)
         ref = self.resource_api.get_project(tenant_id)
-        return {'tenant': self.filter_domain_id(ref)}
+        return {'tenant': self.v3_to_v2_project(ref)}
 
     @controller.v2_deprecated
     def get_project_by_name(self, context, tenant_name):
         self.assert_admin(context)
         ref = self.resource_api.get_project_by_name(
             tenant_name, CONF.identity.default_domain_id)
-        return {'tenant': self.filter_domain_id(ref)}
+        return {'tenant': self.v3_to_v2_project(ref)}
 
     # CRUD Extension
     @controller.v2_deprecated
@@ -83,7 +83,7 @@ class Tenant(controller.V2Controller):
         tenant = self.resource_api.create_project(
             tenant_ref['id'],
             self._normalize_domain_id(context, tenant_ref))
-        return {'tenant': self.filter_domain_id(tenant)}
+        return {'tenant': self.v3_to_v2_project(tenant)}
 
     @controller.v2_deprecated
     def update_project(self, context, tenant_id, tenant):
@@ -95,7 +95,7 @@ class Tenant(controller.V2Controller):
 
         tenant_ref = self.resource_api.update_project(
             tenant_id, clean_tenant)
-        return {'tenant': tenant_ref}
+        return {'tenant': self.v3_to_v2_project(tenant_ref)}
 
     @controller.v2_deprecated
     def delete_project(self, context, tenant_id):
