@@ -607,7 +607,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.post('/projects', body={'project': {}}, expected_status=400)
 
     def _create_projects_hierarchy(self, hierarchy_size=1):
-        """Creates a project hierarchy with specified size.
+        """Creates a single-branched project hierarchy with the specified size.
 
         :param hierarchy_size: the desired hierarchy size, default is 1 -
                                a project with one child.
@@ -615,9 +615,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         :returns projects: a list of the projects in the created hierarchy.
 
         """
-        resp = self.get(
-            '/projects/%(project_id)s' % {
-                'project_id': self.project_id})
+        new_ref = self.new_project_ref(domain_id=self.domain_id)
+        resp = self.post('/projects', body={'project': new_ref})
 
         projects = [resp.result]
 
@@ -696,17 +695,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """
 
         # Create the project hierarchy
-        parent = self.new_project_ref(domain_id=self.domain_id)
-        parent = self.post('/projects', body={'project': parent}).result
-
-        project = self.new_project_ref(domain_id=self.domain_id,
-                                       parent_id=parent['project']['id'])
-        project = self.post('/projects', body={'project': project}).result
-
-        subproject = self.new_project_ref(domain_id=self.domain_id,
-                                          parent_id=project['project']['id'])
-        subproject = self.post('/projects',
-                               body={'project': subproject}).result
+        parent, project, subproject = self._create_projects_hierarchy(2)
 
         # Assign a role for the user on all the created projects
         for proj in (parent, project, subproject):
@@ -737,17 +726,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """
 
         # Create the project hierarchy
-        parent = self.new_project_ref(domain_id=self.domain_id)
-        parent = self.post('/projects', body={'project': parent}).result
-
-        project = self.new_project_ref(domain_id=self.domain_id,
-                                       parent_id=parent['project']['id'])
-        project = self.post('/projects', body={'project': project}).result
-
-        subproject = self.new_project_ref(domain_id=self.domain_id,
-                                          parent_id=project['project']['id'])
-        subproject = self.post('/projects',
-                               body={'project': subproject}).result
+        parent, project, subproject = self._create_projects_hierarchy(2)
 
         # Assign a role for the user on parent and subproject
         for proj in (parent, subproject):
@@ -879,17 +858,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """
 
         # Create the project hierarchy
-        parent = self.new_project_ref(domain_id=self.domain_id)
-        parent = self.post('/projects', body={'project': parent}).result
-
-        project = self.new_project_ref(domain_id=self.domain_id,
-                                       parent_id=parent['project']['id'])
-        project = self.post('/projects', body={'project': project}).result
-
-        subproject = self.new_project_ref(domain_id=self.domain_id,
-                                          parent_id=project['project']['id'])
-        subproject = self.post('/projects',
-                               body={'project': subproject}).result
+        parent, project, subproject = self._create_projects_hierarchy(2)
 
         # Assign a role for the user on all the created projects
         for proj in (parent, project, subproject):
@@ -919,17 +888,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """
 
         # Create the project hierarchy
-        parent = self.new_project_ref(domain_id=self.domain_id)
-        parent = self.post('/projects', body={'project': parent}).result
-
-        project = self.new_project_ref(domain_id=self.domain_id,
-                                       parent_id=parent['project']['id'])
-        project = self.post('/projects', body={'project': project}).result
-
-        subproject = self.new_project_ref(domain_id=self.domain_id,
-                                          parent_id=project['project']['id'])
-        subproject = self.post('/projects',
-                               body={'project': subproject}).result
+        parent, project, subproject = self._create_projects_hierarchy(2)
 
         # Assign a role for the user on parent and subproject
         for proj in (parent, subproject):
@@ -1055,10 +1014,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
 
     def test_delete_not_leaf_project(self):
         """Call ``DELETE /projects/{project_id}``."""
-        self._create_projects_hierarchy()
+        projects = self._create_projects_hierarchy()
         self.delete(
             '/projects/%(project_id)s' % {
-                'project_id': self.project_id},
+                'project_id': projects[0]['project']['id']},
             expected_status=403)
 
     # Role CRUD tests
