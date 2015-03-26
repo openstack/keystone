@@ -244,6 +244,13 @@ class BaseTestCase(oslotest.BaseTestCase):
         super(BaseTestCase, self).setUp()
         self.useFixture(mockpatch.PatchObject(sys, 'exit',
                                               side_effect=UnexpectedExit))
+        self.useFixture(mockpatch.PatchObject(logging.Handler, 'handleError',
+                                              side_effect=BadLog))
+
+        warnings.filterwarnings('error', category=DeprecationWarning,
+                                module='^keystone\\.')
+        warnings.simplefilter('error', exc.SAWarning)
+        self.addCleanup(warnings.resetwarnings)
 
     def cleanup_instance(self, *names):
         """Create a function suitable for use with self.addCleanup.
@@ -346,8 +353,6 @@ class TestCase(BaseTestCase):
 
         self.addCleanup(CONF.reset)
 
-        self.useFixture(mockpatch.PatchObject(logging.Handler, 'handleError',
-                                              side_effect=BadLog))
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config(self.config_files())
 
@@ -373,11 +378,6 @@ class TestCase(BaseTestCase):
             mod, _sep, level_name = pair.partition('=')
             logger = logging.getLogger(mod)
             logger.setLevel(level_name)
-
-        warnings.filterwarnings('error', category=DeprecationWarning,
-                                module='^keystone\\.')
-        warnings.simplefilter('error', exc.SAWarning)
-        self.addCleanup(warnings.resetwarnings)
 
         self.useFixture(ksfixtures.Cache())
 
