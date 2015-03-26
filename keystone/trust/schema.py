@@ -15,8 +15,11 @@ from keystone.common.validation import parameter_types
 
 
 _trust_properties = {
-    'trustor_user_id': parameter_types.id_string,
-    'trustee_user_id': parameter_types.id_string,
+    # NOTE(lbragstad): These are set as external_id_string because they have
+    # the ability to be read as LDAP user identifiers, which could be something
+    # other than uuid.
+    'trustor_user_id': parameter_types.external_id_string,
+    'trustee_user_id': parameter_types.external_id_string,
     'impersonation': parameter_types.boolean,
     'project_id': validation.nullable(parameter_types.id_string),
     'remaining_uses': {

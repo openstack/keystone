@@ -226,7 +226,7 @@ class EntityValidationTestCase(testtools.TestCase):
     def test_create_entity_with_invalid_id_strings(self):
         """Exception raised when using invalid id strings."""
         long_string = 'A' * 65
-        invalid_id_strings = ['', long_string, 'this,should,fail']
+        invalid_id_strings = ['', long_string]
         for invalid_id in invalid_id_strings:
             request_to_validate = {'name': self.resource_name,
                                    'id_string': invalid_id}
@@ -1358,6 +1358,13 @@ class TrustValidationTestCase(testtools.TestCase):
                                'trustee_user_id': uuid.uuid4().hex,
                                'impersonation': False,
                                'remaining_uses': 2}
+        self.create_trust_validator.validate(request_to_validate)
+
+    def test_validate_trust_with_period_in_user_id_string(self):
+        """Validate trust request with a period in the user id string."""
+        request_to_validate = {'trustor_user_id': 'john.smith',
+                               'trustee_user_id': 'joe.developer',
+                               'impersonation': False}
         self.create_trust_validator.validate(request_to_validate)
 
     def test_validate_trust_with_invalid_expires_at_fails(self):
