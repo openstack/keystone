@@ -13,8 +13,6 @@
 
 import uuid
 
-import testtools
-
 from keystone.assignment import schema as assignment_schema
 from keystone.catalog import schema as catalog_schema
 from keystone.common import validation
@@ -26,6 +24,7 @@ from keystone.credential import schema as credential_schema
 from keystone import exception
 from keystone.policy import schema as policy_schema
 from keystone.resource import schema as resource_schema
+from keystone.tests import unit
 from keystone.trust import schema as trust_schema
 
 """Example model to validate create requests against. Assume that this is
@@ -96,7 +95,7 @@ _VALID_FILTERS = [{'interface': 'admin'},
 _INVALID_FILTERS = ['some string', 1, 0, True, False]
 
 
-class EntityValidationTestCase(testtools.TestCase):
+class EntityValidationTestCase(unit.BaseTestCase):
 
     def setUp(self):
         super(EntityValidationTestCase, self).setUp()
@@ -299,7 +298,7 @@ class EntityValidationTestCase(testtools.TestCase):
                           request_to_validate)
 
 
-class ProjectValidationTestCase(testtools.TestCase):
+class ProjectValidationTestCase(unit.BaseTestCase):
     """Test for V3 Project API validation."""
 
     def setUp(self):
@@ -426,7 +425,7 @@ class ProjectValidationTestCase(testtools.TestCase):
                           request_to_validate)
 
 
-class DomainValidationTestCase(testtools.TestCase):
+class DomainValidationTestCase(unit.BaseTestCase):
     """Test for V3 Domain API validation."""
 
     def setUp(self):
@@ -524,7 +523,7 @@ class DomainValidationTestCase(testtools.TestCase):
                           request_to_validate)
 
 
-class RoleValidationTestCase(testtools.TestCase):
+class RoleValidationTestCase(unit.BaseTestCase):
     """Test for V3 Role API validation."""
 
     def setUp(self):
@@ -578,7 +577,7 @@ class RoleValidationTestCase(testtools.TestCase):
                           request_to_validate)
 
 
-class PolicyValidationTestCase(testtools.TestCase):
+class PolicyValidationTestCase(unit.BaseTestCase):
     """Test for V3 Policy API validation."""
 
     def setUp(self):
@@ -653,7 +652,7 @@ class PolicyValidationTestCase(testtools.TestCase):
                               request_to_validate)
 
 
-class CredentialValidationTestCase(testtools.TestCase):
+class CredentialValidationTestCase(unit.BaseTestCase):
     """Test for V3 Credential API validation."""
 
     def setUp(self):
@@ -770,7 +769,7 @@ class CredentialValidationTestCase(testtools.TestCase):
         self.update_credential_validator.validate(request_to_validate)
 
 
-class RegionValidationTestCase(testtools.TestCase):
+class RegionValidationTestCase(unit.BaseTestCase):
     """Test for V3 Region API validation."""
 
     def setUp(self):
@@ -830,7 +829,7 @@ class RegionValidationTestCase(testtools.TestCase):
                           request_to_validate)
 
 
-class ServiceValidationTestCase(testtools.TestCase):
+class ServiceValidationTestCase(unit.BaseTestCase):
     """Test for V3 Service API validation."""
 
     def setUp(self):
@@ -985,7 +984,7 @@ class ServiceValidationTestCase(testtools.TestCase):
                           request_to_validate)
 
 
-class EndpointValidationTestCase(testtools.TestCase):
+class EndpointValidationTestCase(unit.BaseTestCase):
     """Test for V3 Endpoint API validation."""
 
     def setUp(self):
@@ -1164,7 +1163,7 @@ class EndpointValidationTestCase(testtools.TestCase):
                               request_to_validate)
 
 
-class EndpointGroupValidationTestCase(testtools.TestCase):
+class EndpointGroupValidationTestCase(unit.BaseTestCase):
     """Test for V3 Endpoint Group API validation."""
 
     def setUp(self):
@@ -1269,7 +1268,7 @@ class EndpointGroupValidationTestCase(testtools.TestCase):
                               request_to_validate)
 
 
-class TrustValidationTestCase(testtools.TestCase):
+class TrustValidationTestCase(unit.BaseTestCase):
     """Test for V3 Trust API validation."""
 
     _valid_roles = ['member', uuid.uuid4().hex, str(uuid.uuid4())]
@@ -1406,7 +1405,7 @@ class TrustValidationTestCase(testtools.TestCase):
         self.create_trust_validator.validate(request_to_validate)
 
 
-class ServiceProviderValidationTestCase(testtools.TestCase):
+class ServiceProviderValidationTestCase(unit.BaseTestCase):
     """Test for V3 Service Provider API validation."""
 
     def setUp(self):

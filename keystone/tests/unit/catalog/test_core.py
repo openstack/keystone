@@ -11,16 +11,16 @@
 # under the License.
 
 from oslo_config import cfg
-import testtools
 
 from keystone.catalog import core
 from keystone import exception
+from keystone.tests import unit
 
 
 CONF = cfg.CONF
 
 
-class FormatUrlTests(testtools.TestCase):
+class FormatUrlTests(unit.BaseTestCase):
 
     def test_successful_formatting(self):
         url_template = ('http://$(public_bind_host)s:$(admin_port)d/'

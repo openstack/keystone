@@ -23,10 +23,10 @@ from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
 from pycadf import resource as cadfresource
-import testtools
 
 from keystone.common import dependency
 from keystone import notifications
+from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
@@ -53,7 +53,7 @@ def register_callback(operation, resource_type=EXP_RESOURCE_TYPE):
     return callback
 
 
-class AuditNotificationsTestCase(testtools.TestCase):
+class AuditNotificationsTestCase(unit.BaseTestCase):
     def setUp(self):
         super(AuditNotificationsTestCase, self).setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
@@ -96,7 +96,7 @@ class AuditNotificationsTestCase(testtools.TestCase):
                                           DISABLED_OPERATION)
 
 
-class NotificationsWrapperTestCase(testtools.TestCase):
+class NotificationsWrapperTestCase(unit.BaseTestCase):
     def create_fake_ref(self):
         resource_id = uuid.uuid4().hex
         return resource_id, {
@@ -174,7 +174,7 @@ class NotificationsWrapperTestCase(testtools.TestCase):
         self.assertFalse(callback.called)
 
 
-class NotificationsTestCase(testtools.TestCase):
+class NotificationsTestCase(unit.BaseTestCase):
     def setUp(self):
         super(NotificationsTestCase, self).setUp()
 
@@ -881,7 +881,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                    group=group['id'])
 
 
-class TestCallbackRegistration(testtools.TestCase):
+class TestCallbackRegistration(unit.BaseTestCase):
     def setUp(self):
         super(TestCallbackRegistration, self).setUp()
         self.mock_log = mock.Mock()

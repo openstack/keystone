@@ -14,13 +14,13 @@ import textwrap
 
 import mock
 import pep8
-import testtools
 
 from keystone.hacking import checks
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import hacking as hacking_fixtures
 
 
-class BaseStyleCheck(testtools.TestCase):
+class BaseStyleCheck(unit.BaseTestCase):
 
     def setUp(self):
         super(BaseStyleCheck, self).setUp()
