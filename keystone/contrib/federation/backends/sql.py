@@ -17,6 +17,7 @@ from oslo_serialization import jsonutils
 from keystone.common import sql
 from keystone.contrib.federation import core
 from keystone import exception
+from sqlalchemy import orm
 
 
 class FederationProtocolModel(sql.ModelBase, sql.DictBase):
@@ -44,13 +45,51 @@ class FederationProtocolModel(sql.ModelBase, sql.DictBase):
 
 class IdentityProviderModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'identity_provider'
-    attributes = ['id', 'remote_id', 'enabled', 'description']
-    mutable_attributes = frozenset(['description', 'enabled', 'remote_id'])
+    attributes = ['id', 'enabled', 'description', 'remote_ids']
+    mutable_attributes = frozenset(['description', 'enabled', 'remote_ids'])
 
     id = sql.Column(sql.String(64), primary_key=True)
-    remote_id = sql.Column(sql.String(256), nullable=True)
     enabled = sql.Column(sql.Boolean, nullable=False)
     description = sql.Column(sql.Text(), nullable=True)
+    remote_ids = orm.relationship('IdPRemoteIdsModel',
+                                  order_by='IdPRemoteIdsModel.remote_id',
+                                  cascade='all, delete-orphan')
+
+    @classmethod
+    def from_dict(cls, dictionary):
+        new_dictionary = dictionary.copy()
+        remote_ids_list = new_dictionary.pop('remote_ids', [])
+        identity_provider = cls(**new_dictionary)
+        remote_ids = []
+        # NOTE(fmarco76): the remote_ids_list contains only remote ids
+        # associated with the IdP because of the "relationship" established in
+        # sqlalchemy and corresponding to the FK in the idp_remote_ids table
+        for remote in remote_ids_list:
+            remote_ids.append(IdPRemoteIdsModel(remote_id=remote))
+        identity_provider.remote_ids = remote_ids
+        return identity_provider
+
+    def to_dict(self):
+        """Return a dictionary with model's attributes."""
+        d = dict()
+        for attr in self.__class__.attributes:
+            d[attr] = getattr(self, attr)
+        d['remote_ids'] = []
+        for remote in self.remote_ids:
+            d['remote_ids'].append(remote.remote_id)
+        return d
+
+
+class IdPRemoteIdsModel(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'idp_remote_ids'
+    attributes = ['idp_id', 'remote_id']
+    mutable_attributes = frozenset(['idp_id', 'remote_id'])
+
+    idp_id = sql.Column(sql.String(64),
+                        sql.ForeignKey('identity_provider.id',
+                                       ondelete='CASCADE'))
+    remote_id = sql.Column(sql.String(255),
+                           primary_key=True)
 
     @classmethod
     def from_dict(cls, dictionary):
@@ -133,7 +172,7 @@ class Federation(core.Driver):
         return idp_ref
 
     def _get_idp_from_remote_id(self, session, remote_id):
-        q = session.query(IdentityProviderModel)
+        q = session.query(IdPRemoteIdsModel)
         q = q.filter_by(remote_id=remote_id)
         try:
             return q.one()
@@ -153,8 +192,8 @@ class Federation(core.Driver):
 
     def get_idp_from_remote_id(self, remote_id):
         with sql.transaction() as session:
-            idp_ref = self._get_idp_from_remote_id(session, remote_id)
-        return idp_ref.to_dict()
+            ref = self._get_idp_from_remote_id(session, remote_id)
+        return ref.to_dict()
 
     def update_idp(self, idp_id, idp):
         with sql.transaction() as session:

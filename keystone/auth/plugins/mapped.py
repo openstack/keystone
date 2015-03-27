@@ -184,7 +184,7 @@ def extract_assertion_data(context):
 def apply_mapping_filter(identity_provider, protocol, assertion,
                          assignment_api, federation_api, identity_api):
     idp = federation_api.get_idp(identity_provider)
-    utils.validate_idp(idp, assertion)
+    utils.validate_idp(idp, protocol, assertion)
     mapping = federation_api.get_mapping_from_idp_and_protocol(
         identity_provider, protocol)
     rules = jsonutils.loads(mapping['rules'])
