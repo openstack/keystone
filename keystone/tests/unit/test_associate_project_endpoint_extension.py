@@ -52,7 +52,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
 
         """
         self.put(self.default_request_url,
-                 body='',
                  expected_status=204)
 
     def test_create_endpoint_project_association_with_invalid_project(self):
@@ -65,7 +64,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': uuid.uuid4().hex,
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=404)
 
     def test_create_endpoint_project_association_with_invalid_endpoint(self):
@@ -78,7 +76,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.default_domain_project_id,
                      'endpoint_id': uuid.uuid4().hex},
-                 body='',
                  expected_status=404)
 
     def test_create_endpoint_project_association_with_unexpected_body(self):
@@ -98,7 +95,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
 
         """
         self.put(self.default_request_url,
-                 body='',
                  expected_status=204)
         self.head('/OS-EP-FILTER/projects/%(project_id)s'
                   '/endpoints/%(endpoint_id)s' % {
@@ -117,7 +113,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                   '/endpoints/%(endpoint_id)s' % {
                       'project_id': uuid.uuid4().hex,
                       'endpoint_id': self.endpoint_id},
-                  body='',
                   expected_status=404)
 
     def test_check_endpoint_project_association_with_invalid_endpoint(self):
@@ -131,7 +126,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                   '/endpoints/%(endpoint_id)s' % {
                       'project_id': self.default_domain_project_id,
                       'endpoint_id': uuid.uuid4().hex},
-                  body='',
                   expected_status=404)
 
     def test_list_endpoints_associated_with_valid_project(self):
@@ -156,7 +150,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.get('/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
                  'project_id': uuid.uuid4().hex},
-                 body='',
                  expected_status=404)
 
     def test_list_projects_associated_with_endpoint(self):
@@ -217,7 +210,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                     '/endpoints/%(endpoint_id)s' % {
                         'project_id': uuid.uuid4().hex,
                         'endpoint_id': self.endpoint_id},
-                    body='',
                     expected_status=404)
 
     def test_remove_endpoint_project_association_with_invalid_endpoint(self):
@@ -231,7 +223,6 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                     '/endpoints/%(endpoint_id)s' % {
                         'project_id': self.default_domain_project_id,
                         'endpoint_id': uuid.uuid4().hex},
-                    body='',
                     expected_status=404)
 
     def test_endpoint_project_association_cleanup_when_project_deleted(self):
@@ -289,7 +280,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': project['id'],
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=204)
 
         # attempt to authenticate without requesting a project
@@ -311,7 +301,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.project['id'],
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=204)
 
         auth_data = self.build_authentication_request(
@@ -358,7 +347,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': project['id'],
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=204)
 
         # attempt to authenticate without requesting a project
@@ -385,7 +373,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.project['id'],
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=204)
 
         auth_data = self.build_authentication_request(
@@ -464,7 +451,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.project['id'],
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=204)
 
         # create a second temporary endpoint
@@ -480,7 +466,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.project['id'],
                      'endpoint_id': self.endpoint_id2},
-                 body='',
                  expected_status=204)
 
         # remove the temporary reference
@@ -582,7 +567,6 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.project['id'],
                      'endpoint_id': self.endpoint_id},
-                 body='',
                  expected_status=204)
 
         auth_data = self.build_authentication_request(
