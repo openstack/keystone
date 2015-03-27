@@ -17,8 +17,6 @@ import uuid
 
 from testtools import matchers
 
-# NOTE(morganfainberg): import endpoint filter to populate the SQL model
-from keystone.contrib import endpoint_filter  # noqa
 from keystone.tests.unit import test_v3
 
 
