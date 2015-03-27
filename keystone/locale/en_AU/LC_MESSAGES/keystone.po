@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-23 06:04+0000\n"
+"POT-Creation-Date: 2015-03-27 06:08+0000\n"
 "PO-Revision-Date: 2015-03-21 23:03+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: English (Australia) "
@@ -39,47 +39,47 @@ msgstr "%(property_name)s should not be greater than %(max_length)s characters."
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr "%(property_name)s is not a %(display_expected_type)s"
 
-#: keystone/cli.py:283
+#: keystone/cli.py:284
 msgid "At least one option must be provided"
 msgstr ""
 
-#: keystone/cli.py:290
+#: keystone/cli.py:291
 msgid "--all option cannot be mixed with other options"
 msgstr ""
 
-#: keystone/cli.py:301
+#: keystone/cli.py:302
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr ""
 
-#: keystone/cli.py:365 keystone/tests/unit/test_cli.py:213
+#: keystone/cli.py:366 keystone/tests/unit/test_cli.py:213
 msgid "At least one option must be provided, use either --all or --domain-name"
 msgstr ""
 
-#: keystone/cli.py:371 keystone/tests/unit/test_cli.py:229
+#: keystone/cli.py:372 keystone/tests/unit/test_cli.py:229
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr ""
 
-#: keystone/cli.py:397 keystone/tests/unit/test_cli.py:246
+#: keystone/cli.py:398 keystone/tests/unit/test_cli.py:246
 #, python-format
 msgid ""
 "Invalid domain name: %(domain)s found in config file name: %(file)s - "
 "ignoring this file."
 msgstr ""
 
-#: keystone/cli.py:405 keystone/tests/unit/test_cli.py:187
+#: keystone/cli.py:406 keystone/tests/unit/test_cli.py:187
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
 "%(file)s."
 msgstr ""
 
-#: keystone/cli.py:419
+#: keystone/cli.py:420
 #, python-format
 msgid "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
 msgstr ""
 
-#: keystone/cli.py:452
+#: keystone/cli.py:453
 #, python-format
 msgid ""
 "To get a more detailed information on this error, re-run this command for"
@@ -87,12 +87,12 @@ msgid ""
 "--domain-name %s"
 msgstr ""
 
-#: keystone/cli.py:470
+#: keystone/cli.py:471
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr "Unable to locate domain config directory: %s"
 
-#: keystone/cli.py:503
+#: keystone/cli.py:504
 msgid ""
 "Unable to access the keystone database, please check it is configured "
 "correctly."
@@ -463,12 +463,12 @@ msgid ""
 "On."
 msgstr ""
 
-#: keystone/notifications.py:250
+#: keystone/notifications.py:270
 #, python-format
 msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
 msgstr ""
 
-#: keystone/notifications.py:259
+#: keystone/notifications.py:279
 #, python-format
 msgid "Method not callable: %s"
 msgstr ""
@@ -478,29 +478,29 @@ msgstr ""
 msgid "Name field is required and cannot be empty"
 msgstr "Name field is required and cannot be empty"
 
-#: keystone/assignment/controllers.py:330
-#: keystone/assignment/controllers.py:753
+#: keystone/assignment/controllers.py:346
+#: keystone/assignment/controllers.py:769
 msgid "Specify a domain or project, not both"
 msgstr "Specify a domain or project, not both"
 
-#: keystone/assignment/controllers.py:333
+#: keystone/assignment/controllers.py:349
 msgid "Specify one of domain or project"
 msgstr ""
 
-#: keystone/assignment/controllers.py:338
-#: keystone/assignment/controllers.py:758
+#: keystone/assignment/controllers.py:354
+#: keystone/assignment/controllers.py:774
 msgid "Specify a user or group, not both"
 msgstr "Specify a user or group, not both"
 
-#: keystone/assignment/controllers.py:341
+#: keystone/assignment/controllers.py:357
 msgid "Specify one of user or group"
 msgstr ""
 
-#: keystone/assignment/controllers.py:742
+#: keystone/assignment/controllers.py:758
 msgid "Combining effective and group filter will always result in an empty list."
 msgstr ""
 
-#: keystone/assignment/controllers.py:747
+#: keystone/assignment/controllers.py:763
 msgid ""
 "Combining effective, domain and inherited filters will always result in "
 "an empty list."
@@ -641,7 +641,7 @@ msgstr ""
 msgid "Invalid username or password"
 msgstr "Invalid username or password"
 
-#: keystone/auth/plugins/token.py:72 keystone/token/controllers.py:160
+#: keystone/auth/plugins/token.py:72 keystone/token/controllers.py:161
 msgid "rescope a scoped token"
 msgstr ""
 
@@ -682,29 +682,30 @@ msgstr "padded base64url text must be multiple of 4 characters"
 msgid "Non-default domain is not supported"
 msgstr "Non-default domain is not supported"
 
-#: keystone/common/controller.py:305 keystone/identity/core.py:428
-#: keystone/resource/core.py:761 keystone/resource/backends/ldap.py:61
+#: keystone/common/controller.py:311 keystone/common/controller.py:339
+#: keystone/identity/core.py:428 keystone/resource/core.py:761
+#: keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Expected dict or list: %s"
 
-#: keystone/common/controller.py:318
+#: keystone/common/controller.py:352
 msgid "Marker could not be found"
 msgstr "Marker could not be found"
 
-#: keystone/common/controller.py:329
+#: keystone/common/controller.py:363
 msgid "Invalid limit value"
 msgstr "Invalid limit value"
 
-#: keystone/common/controller.py:637
+#: keystone/common/controller.py:671
 msgid "Cannot change Domain ID"
 msgstr ""
 
-#: keystone/common/controller.py:666
+#: keystone/common/controller.py:700
 msgid "domain_id is required as part of entity"
 msgstr ""
 
-#: keystone/common/controller.py:701
+#: keystone/common/controller.py:735
 msgid "A domain-scoped token must be used"
 msgstr ""
 
@@ -720,6 +721,11 @@ msgstr ""
 #: keystone/common/dependency.py:113
 #, python-format
 msgid "event_callbacks[%s] must be a dict"
+msgstr ""
+
+#: keystone/common/json_home.py:78
+#, python-format
+msgid "Unexpected status requested for JSON Home response, %s"
 msgstr ""
 
 #: keystone/common/pemutils.py:223
@@ -781,11 +787,6 @@ msgstr ""
 #: keystone/common/wsgi.py:563
 msgid "The resource could not be found."
 msgstr "The resource could not be found."
-
-#: keystone/common/wsgi.py:704
-#, python-format
-msgid "Unexpected status requested for JSON Home response, %s"
-msgstr ""
 
 #: keystone/common/cache/_memcache_pool.py:113
 #, python-format
@@ -960,8 +961,8 @@ msgstr ""
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
 
-#: keystone/common/sql/migration_helpers.py:187
-#: keystone/common/sql/migration_helpers.py:245
+#: keystone/common/sql/migration_helpers.py:200
+#: keystone/common/sql/migration_helpers.py:261
 #, python-format
 msgid "%s extension does not exist."
 msgstr ""
@@ -1001,12 +1002,12 @@ msgstr ""
 msgid "Request must have an origin query parameter"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:292
+#: keystone/contrib/federation/controllers.py:294
 #, python-format
 msgid "%(host)s is not a trusted dashboard host"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:333
+#: keystone/contrib/federation/controllers.py:335
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 
@@ -1317,78 +1318,78 @@ msgstr ""
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/resource/core.py:841
+#: keystone/resource/core.py:844
 msgid "No options specified"
 msgstr "No options specified"
 
-#: keystone/resource/core.py:847
+#: keystone/resource/core.py:850
 #, python-format
 msgid ""
 "The value of group %(group)s specified in the config should be a "
 "dictionary of options"
 msgstr ""
 
-#: keystone/resource/core.py:871
+#: keystone/resource/core.py:874
 #, python-format
 msgid ""
 "Option %(option)s found with no group specified while checking domain "
 "configuration request"
 msgstr ""
 
-#: keystone/resource/core.py:878
+#: keystone/resource/core.py:881
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
 
-#: keystone/resource/core.py:885
+#: keystone/resource/core.py:888
 #, python-format
 msgid ""
 "Option %(option)s in group %(group)s is not supported for domain specific"
 " configurations"
 msgstr ""
 
-#: keystone/resource/core.py:938
+#: keystone/resource/core.py:941
 msgid "An unexpected error occurred when retrieving domain configs"
 msgstr ""
 
-#: keystone/resource/core.py:1013 keystone/resource/core.py:1097
-#: keystone/resource/core.py:1167 keystone/resource/config_backends/sql.py:70
+#: keystone/resource/core.py:1020 keystone/resource/core.py:1104
+#: keystone/resource/core.py:1175 keystone/resource/config_backends/sql.py:70
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr ""
 
-#: keystone/resource/core.py:1016 keystone/resource/core.py:1102
-#: keystone/resource/core.py:1163
+#: keystone/resource/core.py:1023 keystone/resource/core.py:1109
+#: keystone/resource/core.py:1171
 #, python-format
 msgid "group %(group)s"
 msgstr ""
 
-#: keystone/resource/core.py:1018
+#: keystone/resource/core.py:1025
 msgid "any options"
 msgstr ""
 
-#: keystone/resource/core.py:1062
+#: keystone/resource/core.py:1069
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, so that, and only "
 "that, option must be specified  in the config"
 msgstr ""
 
-#: keystone/resource/core.py:1067
+#: keystone/resource/core.py:1074
 #, python-format
 msgid ""
 "Trying to update group %(group)s, so that, and only that, group must be "
 "specified in the config"
 msgstr ""
 
-#: keystone/resource/core.py:1076
+#: keystone/resource/core.py:1083
 #, python-format
 msgid ""
 "request to update group %(group)s, but config provided contains group "
 "%(group_other)s instead"
 msgstr ""
 
-#: keystone/resource/core.py:1083
+#: keystone/resource/core.py:1090
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, but config "
@@ -1413,12 +1414,12 @@ msgstr ""
 msgid "Failed to start the %(name)s server"
 msgstr ""
 
-#: keystone/token/controllers.py:391
+#: keystone/token/controllers.py:392
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "User %(u_id)s is unauthorized for tenant %(t_id)s"
 
-#: keystone/token/controllers.py:410 keystone/token/controllers.py:413
+#: keystone/token/controllers.py:411 keystone/token/controllers.py:414
 msgid "Token does not belong to specified tenant."
 msgstr "Token does not belong to specified tenant."
 
