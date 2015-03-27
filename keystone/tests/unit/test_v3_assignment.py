@@ -20,7 +20,6 @@ from keystone.common import controller
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = cfg.CONF
@@ -725,7 +724,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.assertIn(parent, r.result['project']['parents'])
         self.assertEqual(2, len(r.result['project']['parents']))
 
-    @test_utils.wip('Waiting on bug #1434916')
     def test_get_project_with_parents_as_list_with_partial_access(self):
         """``GET /projects/{project_id}?parents_as_list`` with partial access.
 
@@ -909,7 +907,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         self.assertIn(subproject, r.result['project']['subtree'])
         self.assertEqual(2, len(r.result['project']['subtree']))
 
-    @test_utils.wip('Waiting on bug #1434916')
     def test_get_project_with_subtree_as_list_with_partial_access(self):
         """``GET /projects/{project_id}?subtree_as_list`` with partial access.
 
