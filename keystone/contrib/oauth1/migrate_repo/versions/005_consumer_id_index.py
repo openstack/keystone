@@ -32,11 +32,3 @@ def upgrade(migrate_engine):
             # with the new name. This can be considered as renaming under the
             # MySQL rules.
             sa.Index('consumer_id', table.c.consumer_id).create()
-
-
-def downgrade(migrate_engine):
-    # NOTE(i159): index exists only in MySQL schemas, and got an inconsistent
-    # name only when MySQL 5.5 renamed it after re-creation
-    # (during migrations). So we just fixed inconsistency, there is no
-    # necessity to revert it.
-    pass

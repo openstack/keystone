@@ -21,10 +21,3 @@ def upgrade(migrate_engine):
     idp_table = utils.get_table(migrate_engine, 'identity_provider')
     remote_id = sql.Column('remote_id', sql.String(256), nullable=True)
     idp_table.create_column(remote_id)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    idp_table = utils.get_table(migrate_engine, 'identity_provider')
-    idp_table.drop_column('remote_id')

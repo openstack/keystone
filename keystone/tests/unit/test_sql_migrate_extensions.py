@@ -53,12 +53,6 @@ class SqlUpgradeExampleExtension(test_sql_upgrade.SqlMigrateBase):
         self.upgrade(1, repository=self.repo_path)
         self.assertTableColumns('example', ['id', 'type', 'extra'])
 
-    def test_downgrade(self):
-        self.upgrade(1, repository=self.repo_path)
-        self.assertTableColumns('example', ['id', 'type', 'extra'])
-        self.downgrade(0, repository=self.repo_path)
-        self.assertTableDoesNotExist('example')
-
 
 class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
     def repo_package(self):
@@ -66,10 +60,6 @@ class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
 
     def upgrade(self, version):
         super(SqlUpgradeOAuth1Extension, self).upgrade(
-            version, repository=self.repo_path)
-
-    def downgrade(self, version):
-        super(SqlUpgradeOAuth1Extension, self).downgrade(
             version, repository=self.repo_path)
 
     def _assert_v1_3_tables(self):
@@ -136,18 +126,6 @@ class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
         self.upgrade(5)
         self._assert_v4_later_tables()
 
-    def test_downgrade(self):
-        self.upgrade(5)
-        self._assert_v4_later_tables()
-        self.downgrade(3)
-        self._assert_v1_3_tables()
-        self.downgrade(1)
-        self._assert_v1_3_tables()
-        self.downgrade(0)
-        self.assertTableDoesNotExist('consumer')
-        self.assertTableDoesNotExist('request_token')
-        self.assertTableDoesNotExist('access_token')
-
 
 class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
     def repo_package(self):
@@ -155,10 +133,6 @@ class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
 
     def upgrade(self, version):
         super(EndpointFilterExtension, self).upgrade(
-            version, repository=self.repo_path)
-
-    def downgrade(self, version):
-        super(EndpointFilterExtension, self).downgrade(
             version, repository=self.repo_path)
 
     def _assert_v1_tables(self):
@@ -184,14 +158,6 @@ class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
         self.upgrade(2)
         self._assert_v2_tables()
 
-    def test_downgrade(self):
-        self.upgrade(2)
-        self._assert_v2_tables()
-        self.downgrade(1)
-        self._assert_v1_tables()
-        self.downgrade(0)
-        self.assertTableDoesNotExist('project_endpoint')
-
 
 class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):
     def repo_package(self):
@@ -203,14 +169,6 @@ class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableColumns('policy_association',
                                 ['id', 'policy_id', 'endpoint_id',
                                  'service_id', 'region_id'])
-
-    def test_downgrade(self):
-        self.upgrade(1, repository=self.repo_path)
-        self.assertTableColumns('policy_association',
-                                ['id', 'policy_id', 'endpoint_id',
-                                 'service_id', 'region_id'])
-        self.downgrade(0, repository=self.repo_path)
-        self.assertTableDoesNotExist('policy_association')
 
 
 class FederationExtension(test_sql_upgrade.SqlMigrateBase):
@@ -264,27 +222,7 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
                 'federation_protocol')
             self.assertFalse(federation_protocol.c.mapping_id.nullable)
 
-    def test_downgrade(self):
-        self.upgrade(3, repository=self.repo_path)
-        self.assertTableColumns(self.identity_provider,
-                                ['id', 'enabled', 'description'])
-        self.assertTableColumns(self.federation_protocol,
-                                ['id', 'idp_id', 'mapping_id'])
-        self.assertTableColumns(self.mapping,
-                                ['id', 'rules'])
-
-        self.downgrade(2, repository=self.repo_path)
-        federation_protocol = utils.get_table(
-            self.engine,
-            'federation_protocol')
-        self.assertTrue(federation_protocol.c.mapping_id.nullable)
-
-        self.downgrade(0, repository=self.repo_path)
-        self.assertTableDoesNotExist(self.identity_provider)
-        self.assertTableDoesNotExist(self.federation_protocol)
-        self.assertTableDoesNotExist(self.mapping)
-
-    def test_fixup_service_provider_attributes(self):
+    def test_service_provider_attributes_cannot_be_null(self):
         self.upgrade(6, repository=self.repo_path)
         self.assertTableColumns(self.service_provider,
                                 ['id', 'description', 'enabled', 'auth_url',
@@ -325,12 +263,28 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
                           sp3)
 
         session.close()
-        self.downgrade(5, repository=self.repo_path)
+
+    def test_fixup_service_provider_attributes(self):
+        session = self.Session()
+        sp1 = {'id': uuid.uuid4().hex,
+               'auth_url': None,
+               'sp_url': uuid.uuid4().hex,
+               'description': uuid.uuid4().hex,
+               'enabled': True}
+        sp2 = {'id': uuid.uuid4().hex,
+               'auth_url': uuid.uuid4().hex,
+               'sp_url': None,
+               'description': uuid.uuid4().hex,
+               'enabled': True}
+        sp3 = {'id': uuid.uuid4().hex,
+               'auth_url': None,
+               'sp_url': None,
+               'description': uuid.uuid4().hex,
+               'enabled': True}
+        self.upgrade(5, repository=self.repo_path)
         self.assertTableColumns(self.service_provider,
                                 ['id', 'description', 'enabled', 'auth_url',
                                  'sp_url'])
-        session = self.Session()
-        self.metadata.clear()
 
         # Before the migration, the table should accept null values
         self.insert_dict(session, self.service_provider, sp1)
@@ -356,12 +310,13 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertEqual('', sp.auth_url)
         self.assertEqual('', sp.sp_url)
 
-_REVOKE_COLUMN_NAMES = ['id', 'domain_id', 'project_id', 'user_id', 'role_id',
-                        'trust_id', 'consumer_id', 'access_token_id',
-                        'issued_before', 'expires_at', 'revoked_at']
-
 
 class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
+
+    _REVOKE_COLUMN_NAMES = ['id', 'domain_id', 'project_id', 'user_id',
+                            'role_id', 'trust_id', 'consumer_id',
+                            'access_token_id', 'issued_before', 'expires_at',
+                            'revoked_at']
 
     def repo_package(self):
         return revoke
@@ -370,11 +325,4 @@ class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertTableDoesNotExist('revocation_event')
         self.upgrade(1, repository=self.repo_path)
         self.assertTableColumns('revocation_event',
-                                _REVOKE_COLUMN_NAMES)
-
-    def test_downgrade(self):
-        self.upgrade(1, repository=self.repo_path)
-        self.assertTableColumns('revocation_event',
-                                _REVOKE_COLUMN_NAMES)
-        self.downgrade(0, repository=self.repo_path)
-        self.assertTableDoesNotExist('revocation_event')
+                                self._REVOKE_COLUMN_NAMES)

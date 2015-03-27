@@ -36,12 +36,3 @@ def upgrade(migrate_engine):
             nullable=False))
 
     endpoint_filtering_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    # Operations to reverse the above upgrade go here.
-    for table_name in ['project_endpoint']:
-        table = sql.Table(table_name, meta, autoload=True)
-        table.drop()

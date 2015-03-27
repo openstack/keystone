@@ -34,10 +34,3 @@ def upgrade(migrate_engine):
         f = service_table.c.id == service.id
         update = service_table.update().where(f).values(new_values)
         migrate_engine.execute(update)
-
-
-def downgrade(migration_engine):
-    # The upgrade fixes the data inconsistency for the service name,
-    # it defaults the value to empty string. There is no necessity
-    # to revert it.
-    pass

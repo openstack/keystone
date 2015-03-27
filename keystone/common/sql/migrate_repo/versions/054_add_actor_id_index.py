@@ -24,12 +24,3 @@ def upgrade(migrate_engine):
     assignment = sql.Table(ASSIGNMENT_TABLE, meta, autoload=True)
     idx = sql.Index('ix_actor_id', assignment.c.actor_id)
     idx.create(migrate_engine)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    assignment = sql.Table(ASSIGNMENT_TABLE, meta, autoload=True)
-    idx = sql.Index('ix_actor_id', assignment.c.actor_id)
-    idx.drop(migrate_engine)

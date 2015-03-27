@@ -25,13 +25,3 @@ def upgrade(migrate_engine):
         mysql_engine='InnoDB',
         mysql_charset='utf8')
     mapping_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    # Drop previously created tables
-    tables = ['mapping']
-    for table_name in tables:
-        table = sql.Table(table_name, meta, autoload=True)
-        table.drop()

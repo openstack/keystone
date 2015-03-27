@@ -40,12 +40,3 @@ def upgrade(migrate_engine):
         mysql_charset='utf8')
 
     federation_protocol_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    tables = ['federation_protocol', 'identity_provider']
-    for table_name in tables:
-        table = sql.Table(table_name, meta, autoload=True)
-        table.drop()

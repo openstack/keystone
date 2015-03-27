@@ -38,11 +38,3 @@ def upgrade(migrate_engine):
         mysql_charset='utf8')
 
     endpoint_policy_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    # Operations to reverse the above upgrade go here.
-    table = sql.Table('policy_association', meta, autoload=True)
-    table.drop()

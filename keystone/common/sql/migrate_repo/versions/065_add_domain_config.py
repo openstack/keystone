@@ -43,13 +43,3 @@ def upgrade(migrate_engine):
         mysql_engine='InnoDB',
         mysql_charset='utf8')
     sensitive_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    table = sql.Table(WHITELIST_TABLE, meta, autoload=True)
-    table.drop(migrate_engine, checkfirst=True)
-    table = sql.Table(SENSITIVE_TABLE, meta, autoload=True)
-    table.drop(migrate_engine, checkfirst=True)

@@ -23,13 +23,3 @@ def upgrade(migrate_engine):
 
     sql.Index('ix_token_user_id', token.c.user_id).create()
     sql.Index('ix_token_trust_id', token.c.trust_id).create()
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    token = sql.Table('token', meta, autoload=True)
-
-    sql.Index('ix_token_user_id', token.c.user_id).drop()
-    sql.Index('ix_token_trust_id', token.c.trust_id).drop()

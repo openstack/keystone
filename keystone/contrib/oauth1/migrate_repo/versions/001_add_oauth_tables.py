@@ -55,13 +55,3 @@ def upgrade(migrate_engine):
         sql.Column('consumer_id', sql.String(64), nullable=False),
         sql.Column('expires_at', sql.String(64), nullable=True))
     access_token_table.create(migrate_engine, checkfirst=True)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    # Operations to reverse the above upgrade go here.
-    tables = ['consumer', 'request_token', 'access_token']
-    for table_name in tables:
-        table = sql.Table(table_name, meta, autoload=True)
-        table.drop()
