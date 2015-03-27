@@ -735,7 +735,7 @@ class VersionTests(SqlMigrateBase):
                                                 autoload=True)
         for idp in idps:
             s = idp_remote_ids_table.select().where(
-                'idp_id="' + idp['id'] + '"')
+                idp_remote_ids_table.c.idp_id == idp['id'])
             remote = self.engine.execute(s).fetchone()
             self.assertEqual(idp['remote_id'],
                              remote['remote_id'],
