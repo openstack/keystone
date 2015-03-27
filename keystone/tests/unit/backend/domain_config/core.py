@@ -17,6 +17,7 @@ import mock
 from testtools import matchers
 
 from keystone import exception
+from keystone.tests import unit as tests
 
 
 class DomainConfigTests(object):
@@ -521,3 +522,30 @@ class DomainConfigTests(object):
         self.assertFalse(mock_log.warn.called)
         # The escaping '%' should have been removed
         self.assertEqual('my_url/%(password)s', res['ldap']['url'])
+
+    @tests.skip_if_cache_disabled('domain_config')
+    def test_cache_layer_get_sensitive_config(self):
+        config = {'ldap': {'url': uuid.uuid4().hex,
+                           'user_tree_dn': uuid.uuid4().hex,
+                           'password': uuid.uuid4().hex},
+                  'identity': {'driver': uuid.uuid4().hex}}
+        self.domain_config_api.create_config(self.domain['id'], config)
+        # cache the result
+        res = self.domain_config_api.get_config_with_sensitive_info(
+            self.domain['id'])
+        self.assertEqual(config, res)
+
+        # delete, bypassing domain config manager api
+        self.domain_config_api.delete_config_options(self.domain['id'])
+        self.domain_config_api.delete_config_options(self.domain['id'],
+                                                     sensitive=True)
+
+        self.assertDictEqual(
+            res, self.domain_config_api.get_config_with_sensitive_info(
+                self.domain['id']))
+        self.domain_config_api.get_config_with_sensitive_info.invalidate(
+            self.domain_config_api, self.domain['id'])
+        self.assertDictEqual(
+            {},
+            self.domain_config_api.get_config_with_sensitive_info(
+                self.domain['id']))
