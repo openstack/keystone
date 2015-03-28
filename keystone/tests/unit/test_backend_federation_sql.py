@@ -46,5 +46,6 @@ class SqlFederation(test_backend_sql.SqlModels):
                 ('id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
                 ('description', sql.Text, None),
+                ('relay_state_prefix', sql.String, 256),
                 ('sp_url', sql.String, 256))
         self.assertExpectedSchema('service_provider', cols)

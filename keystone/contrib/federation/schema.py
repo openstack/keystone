@@ -58,7 +58,8 @@ _service_provider_properties = {
     'auth_url': parameter_types.url,
     'sp_url': parameter_types.url,
     'description': validation.nullable(parameter_types.description),
-    'enabled': parameter_types.boolean
+    'enabled': parameter_types.boolean,
+    'relay_state_prefix': validation.nullable(parameter_types.description)
 }
 
 service_provider_create = {

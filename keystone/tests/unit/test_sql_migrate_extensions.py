@@ -310,6 +310,12 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         self.assertEqual('', sp.auth_url)
         self.assertEqual('', sp.sp_url)
 
+    def test_add_relay_state_column(self):
+        self.upgrade(8, repository=self.repo_path)
+        self.assertTableColumns(self.service_provider,
+                                ['id', 'description', 'enabled', 'auth_url',
+                                 'relay_state_prefix', 'sp_url'])
+
 
 class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
 

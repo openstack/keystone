@@ -126,15 +126,17 @@ class MappingModel(sql.ModelBase, sql.DictBase):
 
 class ServiceProviderModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'service_provider'
-    attributes = ['auth_url', 'id', 'enabled', 'description', 'sp_url']
+    attributes = ['auth_url', 'id', 'enabled', 'description',
+                  'relay_state_prefix', 'sp_url']
     mutable_attributes = frozenset(['auth_url', 'description', 'enabled',
-                                    'sp_url'])
+                                    'relay_state_prefix', 'sp_url'])
 
     id = sql.Column(sql.String(64), primary_key=True)
     enabled = sql.Column(sql.Boolean, nullable=False)
     description = sql.Column(sql.Text(), nullable=True)
     auth_url = sql.Column(sql.String(256), nullable=False)
     sp_url = sql.Column(sql.String(256), nullable=False)
+    relay_state_prefix = sql.Column(sql.String(256), nullable=False)
 
     @classmethod
     def from_dict(cls, dictionary):
