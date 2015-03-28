@@ -50,6 +50,7 @@ Getting Started
     setup
     installing
     configuration
+    policy_mapping
     configure_federation
     configuringservices
     extensions
