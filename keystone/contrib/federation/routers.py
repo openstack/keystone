@@ -74,6 +74,7 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             protocols/$protocol/auth
 
         POST /auth/OS-FEDERATION/saml2
+        POST /auth/OS-FEDERATION/saml2/ecp
         GET /OS-FEDERATION/saml2/metadata
 
         GET /auth/OS-FEDERATION/websso/{protocol_id}
@@ -209,6 +210,11 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             path='/auth' + self._construct_url('saml2'),
             post_action='create_saml_assertion',
             rel=build_resource_relation(resource_name='saml2'))
+        self._add_resource(
+            mapper, auth_controller,
+            path='/auth' + self._construct_url('saml2/ecp'),
+            post_action='create_ecp_assertion',
+            rel=build_resource_relation(resource_name='ecp'))
         self._add_resource(
             mapper, auth_controller,
             path='/auth' + self._construct_url('websso/{protocol_id}'),

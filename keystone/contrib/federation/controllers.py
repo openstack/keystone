@@ -311,21 +311,12 @@ class Auth(auth_controllers.Auth):
         return webob.Response(body=body, status='200',
                               headerlist=headers)
 
-    @validation.validated(schema.saml_create, 'auth')
-    def create_saml_assertion(self, context, auth):
-        """Exchange a scoped token for a SAML assertion.
-
-        :param auth: Dictionary that contains a token and service provider id
-        :returns: SAML Assertion based on properties from the token
-        """
-
+    def _create_base_saml_assertion(self, context, auth):
         issuer = CONF.saml.idp_entity_id
         sp_id = auth['scope']['service_provider']['id']
         service_provider = self.federation_api.get_sp(sp_id)
         utils.assert_enabled_service_provider_object(service_provider)
-
         sp_url = service_provider.get('sp_url')
-        auth_url = service_provider.get('auth_url')
 
         token_id = auth['identity']['token']['id']
         token_data = self.token_provider_api.validate_token(token_id)
@@ -342,8 +333,48 @@ class Auth(auth_controllers.Auth):
         generator = keystone_idp.SAMLGenerator()
         response = generator.samlize_token(issuer, sp_url, subject, roles,
                                            project)
+        return (response, service_provider)
+
+    @validation.validated(schema.saml_create, 'auth')
+    def create_saml_assertion(self, context, auth):
+        """Exchange a scoped token for a SAML assertion.
+
+        :param auth: Dictionary that contains a token and service provider ID
+        :returns: SAML Assertion based on properties from the token
+        """
+
+        t = self._create_base_saml_assertion(context, auth)
+        (response, service_provider) = t
+        sp_url = service_provider.get('sp_url')
+        auth_url = service_provider.get('auth_url')
 
         return wsgi.render_response(body=response.to_string(),
+                                    status=('200', 'OK'),
+                                    headers=[('Content-Type', 'text/xml'),
+                                             ('X-sp-url',
+                                              six.binary_type(sp_url)),
+                                             ('X-auth-url',
+                                              six.binary_type(auth_url))])
+
+    @validation.validated(schema.saml_create, 'auth')
+    def create_ecp_assertion(self, context, auth):
+        """Exchange a scoped token for an ECP assertion.
+
+        :param auth: Dictionary that contains a token and service provider ID
+        :returns: ECP Assertion based on properties from the token
+        """
+
+        t = self._create_base_saml_assertion(context, auth)
+        (saml_assertion, service_provider) = t
+        sp_url = service_provider.get('sp_url')
+        auth_url = service_provider.get('auth_url')
+        relay_state_prefix = service_provider.get('relay_state_prefix')
+
+        generator = keystone_idp.ECPGenerator()
+        ecp_assertion = generator.generate_ecp(saml_assertion,
+                                               relay_state_prefix)
+
+        return wsgi.render_response(body=ecp_assertion.to_string(),
                                     status=('200', 'OK'),
                                     headers=[('Content-Type', 'text/xml'),
                                              ('X-sp-url',

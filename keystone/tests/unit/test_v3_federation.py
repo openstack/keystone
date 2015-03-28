@@ -13,6 +13,7 @@
 import os
 import random
 import subprocess
+from testtools import matchers
 import uuid
 
 from lxml import etree
@@ -2938,6 +2939,7 @@ class SAMLGenerationTests(FederationTests):
     ROLES = ['admin', 'member']
     PROJECT = 'development'
     SAML_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2'
+    ECP_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2/ecp'
     ASSERTION_VERSION = "2.0"
     SERVICE_PROVDIER_ID = 'ACME'
 
@@ -2957,7 +2959,9 @@ class SAMLGenerationTests(FederationTests):
         self.signed_assertion = saml2.create_class_from_xml_string(
             saml.Assertion, _load_xml('signed_saml2_assertion.xml'))
         self.sp = self.sp_ref()
-        self.federation_api.create_sp(self.SERVICE_PROVDIER_ID, self.sp)
+        url = '/OS-FEDERATION/service_providers/' + self.SERVICE_PROVDIER_ID
+        self.put(url, body={'service_provider': self.sp},
+                 expected_status=201)
 
     def test_samlize_token_values(self):
         """Test the SAML generator produces a SAML object.
@@ -3251,6 +3255,52 @@ class SAMLGenerationTests(FederationTests):
         body = self._create_generate_saml_request(token_id,
                                                   self.SERVICE_PROVDIER_ID)
         self.post(self.SAML_GENERATION_ROUTE, body=body, expected_status=404)
+
+    def test_generate_ecp_route(self):
+        """Test that the ECP generation endpoint produces XML.
+
+        The ECP endpoint /v3/auth/OS-FEDERATION/saml2/ecp should take the same
+        input as the SAML generation endpoint (scoped token ID + Service
+        Provider ID).
+        The controller should return a SAML assertion that is wrapped in a
+        SOAP envelope.
+        """
+
+        self.config_fixture.config(group='saml', idp_entity_id=self.ISSUER)
+        token_id = self._fetch_valid_token()
+        body = self._create_generate_saml_request(token_id,
+                                                  self.SERVICE_PROVDIER_ID)
+
+        with mock.patch.object(keystone_idp, '_sign_assertion',
+                               return_value=self.signed_assertion):
+            http_response = self.post(self.ECP_GENERATION_ROUTE, body=body,
+                                      response_content_type='text/xml',
+                                      expected_status=200)
+
+        env_response = etree.fromstring(http_response.result)
+        header = env_response[0]
+
+        # Verify the relay state starts with 'ss:mem'
+        prefix = CONF.saml.relay_state_prefix
+        self.assertThat(header[0].text, matchers.StartsWith(prefix))
+
+        # Verify that the content in the body matches the expected assertion
+        body = env_response[1]
+        response = body[0]
+        issuer = response[0]
+        assertion = response[2]
+
+        self.assertEqual(self.RECIPIENT, response.get('Destination'))
+        self.assertEqual(self.ISSUER, issuer.text)
+
+        user_attribute = assertion[4][0]
+        self.assertIsInstance(user_attribute[0].text, str)
+
+        role_attribute = assertion[4][1]
+        self.assertIsInstance(role_attribute[0].text, str)
+
+        project_attribute = assertion[4][2]
+        self.assertIsInstance(project_attribute[0].text, str)
 
 
 class IdPMetadataGenerationTests(FederationTests):
