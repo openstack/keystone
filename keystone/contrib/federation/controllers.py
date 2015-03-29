@@ -335,6 +335,11 @@ class Auth(auth_controllers.Auth):
                                            project)
         return (response, service_provider)
 
+    def _build_response_headers(self, service_provider):
+        return [('Content-Type', 'text/xml'),
+                ('X-sp-url', six.binary_type(service_provider['sp_url'])),
+                ('X-auth-url', six.binary_type(service_provider['auth_url']))]
+
     @validation.validated(schema.saml_create, 'auth')
     def create_saml_assertion(self, context, auth):
         """Exchange a scoped token for a SAML assertion.
@@ -345,16 +350,11 @@ class Auth(auth_controllers.Auth):
 
         t = self._create_base_saml_assertion(context, auth)
         (response, service_provider) = t
-        sp_url = service_provider.get('sp_url')
-        auth_url = service_provider.get('auth_url')
 
+        headers = self._build_response_headers(service_provider)
         return wsgi.render_response(body=response.to_string(),
                                     status=('200', 'OK'),
-                                    headers=[('Content-Type', 'text/xml'),
-                                             ('X-sp-url',
-                                              six.binary_type(sp_url)),
-                                             ('X-auth-url',
-                                              six.binary_type(auth_url))])
+                                    headers=headers)
 
     @validation.validated(schema.saml_create, 'auth')
     def create_ecp_assertion(self, context, auth):
@@ -366,21 +366,16 @@ class Auth(auth_controllers.Auth):
 
         t = self._create_base_saml_assertion(context, auth)
         (saml_assertion, service_provider) = t
-        sp_url = service_provider.get('sp_url')
-        auth_url = service_provider.get('auth_url')
         relay_state_prefix = service_provider.get('relay_state_prefix')
 
         generator = keystone_idp.ECPGenerator()
         ecp_assertion = generator.generate_ecp(saml_assertion,
                                                relay_state_prefix)
 
+        headers = self._build_response_headers(service_provider)
         return wsgi.render_response(body=ecp_assertion.to_string(),
                                     status=('200', 'OK'),
-                                    headers=[('Content-Type', 'text/xml'),
-                                             ('X-sp-url',
-                                              six.binary_type(sp_url)),
-                                             ('X-auth-url',
-                                              six.binary_type(auth_url))])
+                                    headers=headers)
 
 
 @dependency.requires('assignment_api', 'resource_api')
