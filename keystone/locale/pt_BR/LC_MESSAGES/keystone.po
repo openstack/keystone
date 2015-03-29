@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-27 06:08+0000\n"
-"PO-Revision-Date: 2015-03-21 23:03+0000\n"
+"POT-Creation-Date: 2015-03-29 06:05+0000\n"
+"PO-Revision-Date: 2015-03-27 15:26+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -1002,29 +1002,29 @@ msgstr ""
 msgid "Request must have an origin query parameter"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:294
+#: keystone/contrib/federation/controllers.py:296
 #, python-format
 msgid "%(host)s is not a trusted dashboard host"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:335
+#: keystone/contrib/federation/controllers.py:328
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:454
+#: keystone/contrib/federation/idp.py:457
 #, python-format
 msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:521
+#: keystone/contrib/federation/idp.py:524
 msgid "Ensure configuration option idp_entity_id is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:524
+#: keystone/contrib/federation/idp.py:527
 msgid "Ensure configuration option idp_sso_endpoint is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:544
+#: keystone/contrib/federation/idp.py:547
 msgid ""
 "idp_contact_type must be one of: [technical, other, support, "
 "administrative or billing."
@@ -1034,36 +1034,34 @@ msgstr ""
 msgid "Federation token is expired"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:208
-msgid ""
-"Could not find Identity Provider identifier in environment, check "
-"[federation] remote_id_attribute for details."
+#: keystone/contrib/federation/utils.py:225
+msgid "Could not find Identity Provider identifier in environment"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:213
+#: keystone/contrib/federation/utils.py:229
 msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:501
+#: keystone/contrib/federation/utils.py:517
 #, python-format
 msgid "User type %s not supported"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:537
+#: keystone/contrib/federation/utils.py:553
 #, python-format
 msgid ""
 "Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords "
 "must be specified."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:753
+#: keystone/contrib/federation/utils.py:769
 #, python-format
 msgid "Identity Provider %(idp)s is disabled"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:761
+#: keystone/contrib/federation/utils.py:777
 #, python-format
 msgid "Service Provider %(sp)s is disabled"
 msgstr ""

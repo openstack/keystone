@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-19 06:04+0000\n"
-"PO-Revision-Date: 2015-03-19 02:24+0000\n"
+"POT-Creation-Date: 2015-03-29 06:05+0000\n"
+"PO-Revision-Date: 2015-03-27 15:26+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -21,19 +21,19 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: keystone/cli.py:159
+#: keystone/cli.py:160
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 "keystone-manage pki_setup n'est pas recommandé pour une utilisation en "
 "production."
 
-#: keystone/cli.py:178
+#: keystone/cli.py:179
 msgid "keystone-manage ssl_setup is not recommended for production use."
 msgstr ""
 "keystone-manage ssl_setup n'est pas recommandé pour une utilisation en "
 "production."
 
-#: keystone/cli.py:493
+#: keystone/cli.py:494
 #, python-format
 msgid "Ignoring file (%s) while scanning domain config directory"
 msgstr ""
@@ -47,7 +47,7 @@ msgstr ""
 msgid "Authentication failed: %s"
 msgstr "L'authentification a échoué: %s"
 
-#: keystone/assignment/controllers.py:576
+#: keystone/assignment/controllers.py:592
 #, python-format
 msgid ""
 "Group %(group)s not found for role-assignment - %(target)s with Role: "
@@ -84,15 +84,15 @@ msgid "RBAC: Invalid token"
 msgstr "RBAC : Jeton non valide"
 
 #: keystone/common/controller.py:104 keystone/common/controller.py:201
-#: keystone/common/controller.py:740
+#: keystone/common/controller.py:774
 msgid "RBAC: Bypassing authorization"
 msgstr "RBAC : Autorisation ignorée"
 
-#: keystone/common/controller.py:669 keystone/common/controller.py:704
+#: keystone/common/controller.py:703 keystone/common/controller.py:738
 msgid "Invalid token found while getting domain ID for list request"
 msgstr ""
 
-#: keystone/common/controller.py:677
+#: keystone/common/controller.py:711
 msgid "No domain information specified as part of list request"
 msgstr ""
 
@@ -135,7 +135,7 @@ msgstr ""
 "Le serveur LDAP ne prend pas en charge la pagination. Désactivez la "
 "pagination dans keystone.conf pour éviter de recevoir ce message."
 
-#: keystone/common/ldap/core.py:1225
+#: keystone/common/ldap/core.py:1224
 #, python-format
 msgid ""
 "Invalid additional attribute mapping: \"%s\". Format must be "
@@ -144,7 +144,7 @@ msgstr ""
 "Mauvais mappage d'attribut additionnel: \"%s\". Le format doit être "
 "<ldap_attribute>:<keystone_attribute>"
 
-#: keystone/common/ldap/core.py:1336
+#: keystone/common/ldap/core.py:1335
 #, python-format
 msgid ""
 "ID attribute %(id_attr)s for LDAP object %(dn)s has multiple values and "
@@ -154,7 +154,7 @@ msgstr ""
 "par conséquent ne peut être utilisé comme un ID. Obtention de l'ID depuis le "
 "DN à la place."
 
-#: keystone/common/ldap/core.py:1669
+#: keystone/common/ldap/core.py:1668
 #, python-format
 msgid ""
 "When deleting entries for %(search_base)s, could not delete nonexistent "
@@ -184,12 +184,7 @@ msgid ""
 "not found."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:200
-#, python-format
-msgid "Impossible to identify the IdP %s "
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:523
+#: keystone/contrib/federation/utils.py:539
 msgid "Ignoring user name"
 msgstr ""
 
@@ -235,7 +230,7 @@ msgstr ""
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
 
-#: keystone/resource/core.py:1214
+#: keystone/resource/core.py:1222
 #, python-format
 msgid ""
 "Found what looks like an unmatched config option substitution reference - "
@@ -243,7 +238,7 @@ msgid ""
 "Perhaps the config option to which it refers has yet to be added?"
 msgstr ""
 
-#: keystone/resource/core.py:1221
+#: keystone/resource/core.py:1229
 #, python-format
 msgid ""
 "Found what looks like an incorrectly constructed config option substitution "
@@ -251,7 +246,7 @@ msgid ""
 "%(value)s."
 msgstr ""
 
-#: keystone/token/persistence/core.py:228
+#: keystone/token/persistence/core.py:227
 #, python-format
 msgid ""
 "`token_api.%s` is deprecated as of Juno in favor of utilizing methods on "
