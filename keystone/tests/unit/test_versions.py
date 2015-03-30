@@ -71,9 +71,9 @@ v3_MEDIA_TYPES = [
 ]
 
 v3_EXPECTED_RESPONSE = {
-    "id": "v3.0",
+    "id": "v3.4",
     "status": "stable",
-    "updated": "2013-03-06T00:00:00Z",
+    "updated": "2015-03-30T00:00:00Z",
     "links": [
         {
             "rel": "self",
@@ -653,7 +653,7 @@ class VersionTestCase(tests.TestCase):
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:
-            if version['id'] == 'v3.0':
+            if version['id'].startswith('v3'):
                 self._paste_in_port(
                     version, 'http://localhost:%s/v3/' %
                     CONF.eventlet_server.public_port)
@@ -670,7 +670,7 @@ class VersionTestCase(tests.TestCase):
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:
-            if version['id'] == 'v3.0':
+            if version['id'].startswith('v3'):
                 self._paste_in_port(
                     version, 'http://localhost:%s/v3/' %
                     CONF.eventlet_server.admin_port)
@@ -691,7 +691,7 @@ class VersionTestCase(tests.TestCase):
             expected = VERSIONS_RESPONSE
             for version in expected['versions']['values']:
                 # localhost happens to be the site url for tests
-                if version['id'] == 'v3.0':
+                if version['id'].startswith('v3'):
                     self._paste_in_port(
                         version, 'http://localhost/v3/')
                 elif version['id'] == 'v2.0':
@@ -950,7 +950,7 @@ class VersionSingleAppTestCase(tests.TestCase):
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:
-            if version['id'] == 'v3.0':
+            if version['id'].startswith('v3'):
                 self._paste_in_port(
                     version, 'http://localhost:%s/v3/' %
                     CONF.eventlet_server.public_port)
@@ -1023,7 +1023,7 @@ class VersionBehindSslTestCase(tests.TestCase):
     def _get_expected(self, host):
         expected = VERSIONS_RESPONSE
         for version in expected['versions']['values']:
-            if version['id'] == 'v3.0':
+            if version['id'].startswith('v3'):
                 self._paste_in_port(version, host + 'v3/')
             elif version['id'] == 'v2.0':
                 self._paste_in_port(version, host + 'v2.0/')
