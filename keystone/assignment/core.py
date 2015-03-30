@@ -350,9 +350,11 @@ class Manager(manager.Manager):
         if not CONF.os_inherit.enabled:
             return self.resource_api.list_projects_from_ids(project_ids)
 
-        # Inherited roles are enabled, so check to see if these groups have any
-        # roles on any domain, in which case we must add in all the projects
-        # in that domain.
+        # os_inherit extension is enabled, so check to see if these groups have
+        # any inherited role assignment on: i) any domain, in which case we
+        # must add in all the projects in that domain; ii) any project, in
+        # which case we must add in all the subprojects under that project in
+        # the hierarchy.
 
         domain_ids = self.driver.list_domain_ids_for_groups(
             group_ids, inherited=True)
@@ -360,8 +362,17 @@ class Manager(manager.Manager):
         project_ids_from_domains = (
             self.resource_api.list_project_ids_from_domain_ids(domain_ids))
 
+        parents_ids = self.list_project_ids_for_groups(group_ids,
+                                                       driver_hints.Hints(),
+                                                       inherited=True)
+
+        subproject_ids = []
+        for parent_id in parents_ids:
+            subtree = self.resource_api.list_projects_in_subtree(parent_id)
+            subproject_ids += [subproject['id'] for subproject in subtree]
+
         return self.resource_api.list_projects_from_ids(
-            list(set(project_ids + project_ids_from_domains)))
+            list(set(project_ids + project_ids_from_domains + subproject_ids)))
 
     def list_role_assignments_for_role(self, role_id=None):
         # NOTE(henry-nash): Currently the efficiency of the key driver
