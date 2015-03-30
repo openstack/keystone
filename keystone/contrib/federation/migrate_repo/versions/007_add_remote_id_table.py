@@ -12,8 +12,6 @@
 
 import sqlalchemy as orm
 
-from keystone.common import sql
-
 
 def upgrade(migrate_engine):
     meta = orm.MetaData()
@@ -33,11 +31,11 @@ def upgrade(migrate_engine):
         mysql_charset='utf8')
 
     remote_id_table.create(migrate_engine, checkfirst=True)
-    with sql.transaction() as session:
-        for identity in session.query(idp_table.c.id,
-                                      idp_table.c.remote_id):
-            remote_idp_entry = {'idp_id': identity.id,
-                                'remote_id': identity.remote_id}
-            remote_id_table.insert(remote_idp_entry).execute()
+
+    select = orm.sql.select([idp_table.c.id, idp_table.c.remote_id])
+    for identity in migrate_engine.execute(select):
+        remote_idp_entry = {'idp_id': identity.id,
+                            'remote_id': identity.remote_id}
+        remote_id_table.insert(remote_idp_entry).execute()
 
     idp_table.drop_column('remote_id')
