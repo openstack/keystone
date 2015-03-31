@@ -156,10 +156,6 @@ configuration file.
 Domain-specific Drivers
 -----------------------
 
-.. NOTE::
-
-    This functionality is new in Juno.
-
 Keystone supports the option (disabled by default) to specify identity driver
 configurations on a domain by domain basis, allowing, for example, a specific
 domain to have its own LDAP or SQL server. This is configured by specifying the
@@ -182,12 +178,61 @@ the primary configuration file for the specified domain only. Domains without a
 specific configuration file will continue to use the options from the primary
 configuration file.
 
+Keystone also supports the ability to store the domain-specific configuration
+options in the keystone SQL database, managed via the Identity API, as opposed
+to using domain-specific configuration files.
+
 .. NOTE::
 
-    It is important to notice that by enabling this configuration, the
-    operations of listing all users and listing all groups are not supported,
-    those calls will need that either a domain filter is specified or the usage
-    of a domain scoped token.
+    The ability to store and manage configuration options via the Identity API
+    is new and experimental in Kilo.
+
+This capability (which is disabled by default) is enabled by specifying the
+following options in the main keystone configuration file:
+
+.. code-block:: ini
+
+ [identity]
+ domain_specific_drivers_enabled = true
+ domain_configurations_from_database = true
+
+Once enabled, any existing domain-specific configuration files in the
+configuration directory will be ignored and only those domain-specific
+configuration options specified via the Identity API will be used.
+
+.. NOTE::
+
+    It is important to notice that when using either of these methods of
+    specifying domain-specific configuration options, the main keystone
+    configuration file is still maintained. Only those options that relate
+    to the Identity driver for users and groups (i.e. specifying whether the
+    driver for this domain is SQL or LDAP, and, if LDAP, the options that
+    define that connection) are supported in a domain-specific manner.
+
+For existing installations that already use file-based domain-specific
+configurations who wish to migrate to the SQL-based approach, the
+``keystone-manage`` command can be used to upload all configuration files to
+the SQL database:
+
+.. code-block:: bash
+
+    $ keystone-manage domain_config_upload --all
+
+Once uploaded, these domain-configuration options will be visible via the
+Identity API as well as applied to the domain-specific drivers. It is also
+possible to upload individual domain-specific configuration files by
+specifying the domain name:
+
+.. code-block:: bash
+
+    $ keystone-manage domain_config_upload --domain-name DOMAINA
+
+.. NOTE::
+
+    It is important to notice that by enabling either of the domain-specific
+    configuration methods, the operations of listing all users and listing all
+    groups are not supported, those calls will need either a domain filter to
+    be specified or usage of a domain scoped token.
 
 .. NOTE::
 
@@ -197,17 +242,21 @@ configuration file.
 
 .. NOTE::
 
-    To delete a domain that uses a domain specific backend, it's necessary to
-    first disable it, remove its specific configuration file (i.e. its
-    corresponding keystone.<domain_name>.conf) and then restart the Identity
-    server.
+    When using the file-based domain-specific configuration method, to delete a
+    domain that uses a domain specific backend, it's necessary to first disable
+    it, remove its specific configuration file (i.e. its corresponding
+    keystone.<domain_name>.conf) and then restart the Identity server. When
+    managing configuration options via the Identity API, the domain can simply
+    be disabled and deleted via the Identity API; since any domain-specific
+    configuration options will automatically be removed.
 
 .. NOTE::
 
-    Although Keystone supports multiple LDAP backends via domain specific
-    configuration files, it currently only supports one SQL backend. This could
-    be either the default driver or a single domain-specific backend, perhaps
-    for storing service users in a predominantly LDAP installation.
+    Although Keystone supports multiple LDAP backends via the above
+    domain-specific configuration methods, it currently only supports one SQL
+    backend. This could be either the default driver or a single
+    domain-specific backend, perhaps for storing service users in a
+    predominantly LDAP installation.
 
 Due to the need for user and group IDs to be unique across an OpenStack
 installation and for Keystone to be able to deduce which domain and backend to
