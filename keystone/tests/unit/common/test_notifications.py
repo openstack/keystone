@@ -759,13 +759,14 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 'action': action,
                 'initiator': initiator,
                 'event': event,
+                'event_type': event_type,
                 'send_notification_called': True}
             self._notifications.append(note)
 
         self.useFixture(mockpatch.PatchObject(
             notifications, '_send_audit_notification', fake_notify))
 
-    def _assert_last_note(self, action, user_id):
+    def _assert_last_note(self, action, user_id, event_type=None):
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
         self.assertEqual(note['action'], action)
@@ -773,6 +774,8 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self.assertEqual(initiator.id, user_id)
         self.assertEqual(initiator.host.address, self.LOCAL_HOST)
         self.assertTrue(note['send_notification_called'])
+        if event_type:
+            self.assertEqual(note['event_type'], event_type)
 
     def _assert_event(self, role_id, project=None, domain=None,
                       user=None, group=None, inherit=False):
@@ -857,11 +860,15 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                               user=None, group=None):
         self.put(url)
         action = "%s.%s" % (CREATED_OPERATION, self.ROLE_ASSIGNMENT)
-        self._assert_last_note(action, self.user_id)
+        event_type = '%s.%s.%s' % (notifications.SERVICE,
+                                   self.ROLE_ASSIGNMENT, CREATED_OPERATION)
+        self._assert_last_note(action, self.user_id, event_type)
         self._assert_event(role, project, domain, user, group)
         self.delete(url)
         action = "%s.%s" % (DELETED_OPERATION, self.ROLE_ASSIGNMENT)
-        self._assert_last_note(action, self.user_id)
+        event_type = '%s.%s.%s' % (notifications.SERVICE,
+                                   self.ROLE_ASSIGNMENT, DELETED_OPERATION)
+        self._assert_last_note(action, self.user_id, event_type)
         self._assert_event(role, project, domain, user, group)
 
     def test_user_project_grant(self):
