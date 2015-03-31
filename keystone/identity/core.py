@@ -765,7 +765,7 @@ class Manager(manager.Manager):
         # Get user details to invalidate the cache.
         user_old = self.get_user(user_id)
         driver.delete_user(entity_id)
-        self.assignment_api.delete_user(user_id)
+        self.assignment_api.delete_user_assignments(user_id)
         self.get_user.invalidate(self, user_id)
         self.get_user_by_name.invalidate(self, user_old['name'],
                                          user_old['domain_id'])
@@ -837,7 +837,7 @@ class Manager(manager.Manager):
         driver.delete_group(entity_id)
         self.get_group.invalidate(self, group_id)
         self.id_mapping_api.delete_id_mapping(group_id)
-        self.assignment_api.delete_group(group_id)
+        self.assignment_api.delete_group_assignments(group_id)
 
         notifications.Audit.deleted(self._GROUP, group_id, initiator)
 

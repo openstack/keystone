@@ -181,7 +181,7 @@ class Assignment(assignment.Driver):
                                      self.group._id_to_dn(group_id), role_id)
 
 # Bulk actions on User From identity
-    def delete_user(self, user_id):
+    def delete_user_assignments(self, user_id):
         user_dn = self.user._id_to_dn(user_id)
         for ref in self.role.list_global_roles_for_user(user_dn):
             self.role.delete_user(ref.role_dn, ref.user_dn,
@@ -191,7 +191,7 @@ class Assignment(assignment.Driver):
             self.role.delete_user(ref.role_dn, ref.user_dn,
                                   self.role._dn_to_id(ref.role_dn))
 
-    def delete_group(self, group_id):
+    def delete_group_assignments(self, group_id):
         """Called when the group was deleted.
 
         Any role assignments for the group should be cleaned up.

@@ -377,13 +377,13 @@ class Assignment(keystone_assignment.Driver):
             q = q.filter_by(role_id=role_id)
             q.delete(False)
 
-    def delete_user(self, user_id):
+    def delete_user_assignments(self, user_id):
         with sql.transaction() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=user_id)
             q.delete(False)
 
-    def delete_group(self, group_id):
+    def delete_group_assignments(self, group_id):
         with sql.transaction() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=group_id)
