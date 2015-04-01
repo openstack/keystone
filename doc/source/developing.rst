@@ -768,4 +768,4 @@ The documentation is generated with Sphinx using the tox command.  To create HTM
 
     $ tox -e docs
 
-The results are in the docs/build/html and docs/build/man directories respectively.
+The results are in the doc/build/html and doc/build/man directories respectively.
