@@ -67,10 +67,11 @@ class Catalog(kvs.Base, catalog.Driver):
         return self.db.get('region-%s' % region_id)
 
     def update_region(self, region_id, region):
-        region.setdefault('parent_region_id')
         self._check_parent_region(region)
-        self.db.set('region-%s' % region_id, region)
-        return region
+        old_region = self.get_region(region_id)
+        old_region.update(region)
+        self.db.set('region-%s' % region_id, old_region)
+        return old_region
 
     def delete_region(self, region_id):
         self._delete_child_regions(region_id)
@@ -95,8 +96,10 @@ class Catalog(kvs.Base, catalog.Driver):
         return self.db.get('service-%s' % service_id)
 
     def update_service(self, service_id, service):
-        self.db.set('service-%s' % service_id, service)
-        return service
+        old_service = self.get_service(service_id)
+        old_service.update(service)
+        self.db.set('service-%s' % service_id, old_service)
+        return old_service
 
     def delete_service(self, service_id):
         # delete referencing endpoints
@@ -126,8 +129,13 @@ class Catalog(kvs.Base, catalog.Driver):
         return self.db.get('endpoint-%s' % endpoint_id)
 
     def update_endpoint(self, endpoint_id, endpoint):
-        self.db.set('endpoint-%s' % endpoint_id, endpoint)
-        return endpoint
+        if endpoint.get('region_id') is not None:
+            self.get_region(endpoint['region_id'])
+
+        old_endpoint = self.get_endpoint(endpoint_id)
+        old_endpoint.update(endpoint)
+        self.db.set('endpoint-%s' % endpoint_id, old_endpoint)
+        return old_endpoint
 
     def delete_endpoint(self, endpoint_id):
         self.db.delete('endpoint-%s' % endpoint_id)

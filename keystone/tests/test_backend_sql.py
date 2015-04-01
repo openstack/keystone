@@ -511,6 +511,10 @@ class SqlToken(SqlTests, test_backend.TokenTests):
 
 
 class SqlCatalog(SqlTests, test_backend.CatalogTests):
+
+    _legacy_endpoint_id_in_endpoint = True
+    _enabled_default_to_true_when_creating_endpoint = True
+
     def test_catalog_ignored_malformed_urls(self):
         service = {
             'id': uuid.uuid4().hex,
