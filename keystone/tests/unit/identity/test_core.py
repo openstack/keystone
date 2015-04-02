@@ -113,9 +113,9 @@ class TestDomainConfigs(tests.BaseTestCase):
             with mock.patch.object(identity.cfg, 'ConfigOpts'):
                 with mock.patch.object(domains_config, '_load_driver',
                                        load_driver_mock):
-                    # TODO(henry-nash): The following call should fail since
-                    # we are asking for two sql drivers.  See bug #1410850.
-                    domains_config.setup_domain_drivers(
+                    self.assertRaises(
+                        exception.MultipleSQLDriversInConfig,
+                        domains_config.setup_domain_drivers,
                         generic_driver, assignment_api)
 
                     self.assertEqual(3, load_driver_mock.call_count)

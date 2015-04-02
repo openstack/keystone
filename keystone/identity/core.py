@@ -111,7 +111,7 @@ class DomainConfigs(dict):
             if not config_file:
                 config_file = _('Database at /domains/%s/config') % domain_id
             raise exception.MultipleSQLDriversInConfig(source=config_file)
-        self._any_sql = new_config['driver'].is_sql
+        self._any_sql = self._any_sql or new_config['driver'].is_sql
 
     def _load_config_from_file(self, resource_api, file_list, domain_name):
 
