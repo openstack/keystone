@@ -532,6 +532,21 @@ class SqlUpgradeTests(SqlMigrateBase):
             extra = fetch_service_extra(service_id)
             self.assertDictEqual(exp_extra, extra, msg)
 
+    def _does_index_exist(self, table_name, index_name):
+        meta = sqlalchemy.MetaData(bind=self.engine)
+        table = sqlalchemy.Table('assignment', meta, autoload=True)
+        return index_name in [idx.name for idx in table.indexes]
+
+    def test_drop_assignment_role_id_index_mysql(self):
+        self.upgrade(66)
+        if self.engine.name == "mysql":
+            self.assertTrue(self._does_index_exist('assignment',
+                                                   'assignment_role_id_fkey'))
+        self.upgrade(67)
+        if self.engine.name == "mysql":
+            self.assertFalse(self._does_index_exist('assignment',
+                                                    'assignment_role_id_fkey'))
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
