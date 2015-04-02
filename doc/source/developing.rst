@@ -91,9 +91,13 @@ following from the Keystone root project directory:
 Database Schema Migrations
 --------------------------
 
-Keystone uses SQLAlchemy-migrate_ to migrate
-the SQL database between revisions. For core components, the migrations are
-kept in a central repository under ``keystone/common/sql/migrate_repo``.
+Keystone uses SQLAlchemy-migrate_ to migrate the SQL database between
+revisions. For core components, the migrations are kept in a central
+repository under ``keystone/common/sql/migrate_repo/versions``. Each
+SQL migration has a version which can be identified by the name of
+the script, the version is the number before the underline.
+For example, if the script is named ``001_add_X_table.py`` then the
+version of the SQL migration is ``1``.
 
 .. _SQLAlchemy-migrate: http://code.google.com/p/sqlalchemy-migrate/
 
@@ -103,11 +107,13 @@ but should instead have its own repository. This repository must be in the
 extension's directory in ``keystone/contrib/<extension>/migrate_repo``. In
 addition, it needs a subdirectory named ``versions``. For example, if the
 extension name is ``my_extension`` then the directory structure would be
-``keystone/contrib/my_extension/migrate_repo/versions/``. For the migration to
-work, both the ``migrate_repo`` and ``versions`` subdirectories must have
-``__init__.py`` files. SQLAlchemy-migrate will look for a configuration file in
-the ``migrate_repo`` named ``migrate.cfg``. This conforms to a key/value `ini`
-file format. A sample configuration file with the minimal set of values is::
+``keystone/contrib/my_extension/migrate_repo/versions/``.
+
+For the migration to work, both the ``migrate_repo`` and ``versions``
+subdirectories must have ``__init__.py`` files. SQLAlchemy-migrate will look
+for a configuration file in the ``migrate_repo`` named ``migrate.cfg``. This
+conforms to a key/value `ini` file format. A sample configuration file with
+the minimal set of values is::
 
     [db_settings]
     repository_id=my_extension
@@ -117,12 +123,32 @@ file format. A sample configuration file with the minimal set of values is::
 The directory ``keystone/contrib/example`` contains a sample extension
 migration.
 
-Migrations must be explicitly run for each extension individually. To run a
-migration for a specific extension, simply run:
+For core components, to run a migration for upgrade, simply run:
+
+.. code-block:: bash
+
+    $ keystone-manage db_sync <version>
+
+.. NOTE::
+
+   If no version is specified, then the most recent migration will be used.
+
+For extensions, migrations must be explicitly run for each extension individually.
+To run a migration for a specific extension, simply run:
 
 .. code-block:: bash
 
     $ keystone-manage db_sync --extension <name>
+
+.. NOTE::
+
+   The meaning of "extension" here has been changed since all of the
+   "extension" are loaded and the migrations are run by default, but
+   the source is maintained in a separate directory.
+
+.. NOTE::
+
+   Schema downgrades are not supported for both core components and extensions.
 
 Initial Sample Data
 -------------------
