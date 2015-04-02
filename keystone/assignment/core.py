@@ -129,7 +129,7 @@ class Manager(manager.Manager):
         """
         def _get_group_project_roles(user_id, project_ref):
             group_ids = self._get_group_ids_for_user_id(user_id)
-            return self.driver.list_role_ids_for_groups_on_project(
+            return self.list_role_ids_for_groups_on_project(
                 group_ids,
                 project_ref['id'],
                 project_ref['domain_id'],
@@ -218,11 +218,11 @@ class Manager(manager.Manager):
 
         if project_id is not None:
             project = self.resource_api.get_project(project_id)
-            role_ids = self.driver.list_role_ids_for_groups_on_project(
+            role_ids = self.list_role_ids_for_groups_on_project(
                 group_ids, project_id, project['domain_id'],
                 self._list_parent_ids_of_project(project_id))
         elif domain_id is not None:
-            role_ids = self.driver.list_role_ids_for_groups_on_domain(
+            role_ids = self.list_role_ids_for_groups_on_domain(
                 group_ids, domain_id)
         else:
             raise AttributeError(_("Must specify either domain or project"))
@@ -299,7 +299,7 @@ class Manager(manager.Manager):
         # optimization with the various backend technologies (SQL, LDAP etc.).
 
         group_ids = self._get_group_ids_for_user_id(user_id)
-        project_ids = self.driver.list_project_ids_for_user(
+        project_ids = self.list_project_ids_for_user(
             user_id, group_ids, hints or driver_hints.Hints())
 
         if not CONF.os_inherit.enabled:
@@ -309,7 +309,7 @@ class Manager(manager.Manager):
         # inherited role (direct or group) on any parent project, in which
         # case we must add in all the projects in that parent's subtree.
         project_ids = set(project_ids)
-        project_ids_inherited = self.driver.list_project_ids_for_user(
+        project_ids_inherited = self.list_project_ids_for_user(
             user_id, group_ids, hints or driver_hints.Hints(), inherited=True)
         for proj_id in project_ids_inherited:
             project_ids.update(
@@ -317,7 +317,7 @@ class Manager(manager.Manager):
                  self.resource_api.list_projects_in_subtree(proj_id)))
 
         # Now do the same for any domain inherited roles
-        domain_ids = self.driver.list_domain_ids_for_user(
+        domain_ids = self.list_domain_ids_for_user(
             user_id, group_ids, hints or driver_hints.Hints(),
             inherited=True)
         project_ids.update(
@@ -335,18 +335,17 @@ class Manager(manager.Manager):
         # projects for a user is pushed down into the driver to enable
         # optimization with the various backend technologies (SQL, LDAP etc.).
         group_ids = self._get_group_ids_for_user_id(user_id)
-        domain_ids = self.driver.list_domain_ids_for_user(
+        domain_ids = self.list_domain_ids_for_user(
             user_id, group_ids, hints or driver_hints.Hints())
         return self.resource_api.list_domains_from_ids(domain_ids)
 
     def list_domains_for_groups(self, group_ids):
-        domain_ids = self.driver.list_domain_ids_for_groups(group_ids)
+        domain_ids = self.list_domain_ids_for_groups(group_ids)
         return self.resource_api.list_domains_from_ids(domain_ids)
 
     def list_projects_for_groups(self, group_ids):
         project_ids = (
-            self.driver.list_project_ids_for_groups(group_ids,
-                                                    driver_hints.Hints()))
+            self.list_project_ids_for_groups(group_ids, driver_hints.Hints()))
         if not CONF.os_inherit.enabled:
             return self.resource_api.list_projects_from_ids(project_ids)
 
@@ -354,8 +353,7 @@ class Manager(manager.Manager):
         # roles on any domain, in which case we must add in all the projects
         # in that domain.
 
-        domain_ids = self.driver.list_domain_ids_for_groups(
-            group_ids, inherited=True)
+        domain_ids = self.list_domain_ids_for_groups(group_ids, inherited=True)
 
         project_ids_from_domains = (
             self.resource_api.list_project_ids_from_domain_ids(domain_ids))
@@ -405,7 +403,7 @@ class Manager(manager.Manager):
             self.resource_api.get_domain(domain_id)
         if project_id:
             self.resource_api.get_project(project_id)
-        self.driver.check_grant_role_id(
+        self.check_grant_role_id(
             role_id, user_id, group_id, domain_id, project_id,
             inherited_to_projects)
         return role_ref
@@ -417,7 +415,7 @@ class Manager(manager.Manager):
             self.resource_api.get_domain(domain_id)
         if project_id:
             self.resource_api.get_project(project_id)
-        grant_ids = self.driver.list_grant_role_ids(
+        grant_ids = self.list_grant_role_ids(
             user_id, group_id, domain_id, project_id, inherited_to_projects)
         return self.role_api.list_roles_from_ids(grant_ids)
 
