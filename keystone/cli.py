@@ -239,7 +239,7 @@ class TokenFlush(BaseApp):
     @classmethod
     def main(cls):
         token_manager = token.persistence.PersistenceManager()
-        token_manager.driver.flush_expired_tokens()
+        token_manager.flush_expired_tokens()
 
 
 class MappingPurge(BaseApp):
@@ -297,7 +297,7 @@ class MappingPurge(BaseApp):
                 # init assignment manager to avoid KeyError in resource.core
                 assignment.Manager()
                 resource_manager = resource.Manager()
-                return resource_manager.driver.get_domain_by_name(name)['id']
+                return resource_manager.get_domain_by_name(name)['id']
             except KeyError:
                 raise ValueError(_("Unknown domain '%(name)s' specified by "
                                    "--domain-name") % {'name': name})
@@ -320,7 +320,7 @@ class MappingPurge(BaseApp):
             mapping['type'] = CONF.command.type
 
         mapping_manager = identity.MappingManager()
-        mapping_manager.driver.purge_mappings(mapping)
+        mapping_manager.purge_mappings(mapping)
 
 
 DOMAIN_CONF_FHEAD = 'keystone.'
@@ -393,7 +393,7 @@ class DomainConfigUploadFiles(object):
         """
         try:
             domain_ref = (
-                self.resource_manager.driver.get_domain_by_name(domain_name))
+                self.resource_manager.get_domain_by_name(domain_name))
         except exception.DomainNotFound:
             print(_('Invalid domain name: %(domain)s found in config file '
                     'name: %(file)s - ignoring this file.') % {
@@ -497,7 +497,7 @@ class DomainConfigUploadFiles(object):
     def run(self):
         # First off, let's just check we can talk to the domain database
         try:
-            self.resource_manager.driver.list_domains(driver_hints.Hints())
+            self.resource_manager.list_domains(driver_hints.Hints())
         except Exception:
             # It is likely that there is some SQL or other backend error
             # related to set up

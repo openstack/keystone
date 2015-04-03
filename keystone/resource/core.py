@@ -62,9 +62,8 @@ class Manager(manager.Manager):
         resource_driver = CONF.resource.driver
 
         if resource_driver is None:
-            assignment_driver = (
-                dependency.get_provider('assignment_api').driver)
-            resource_driver = assignment_driver.default_resource_driver()
+            assignment_manager = dependency.get_provider('assignment_api')
+            resource_driver = assignment_manager.default_resource_driver()
 
         super(Manager, self).__init__(resource_driver)
 

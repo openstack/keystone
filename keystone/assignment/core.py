@@ -900,9 +900,8 @@ class RoleManager(manager.Manager):
         role_driver = CONF.role.driver
 
         if role_driver is None:
-            assignment_driver = (
-                dependency.get_provider('assignment_api').driver)
-            role_driver = assignment_driver.default_role_driver()
+            assignment_manager = dependency.get_provider('assignment_api')
+            role_driver = assignment_manager.default_role_driver()
 
         super(RoleManager, self).__init__(role_driver)
 
