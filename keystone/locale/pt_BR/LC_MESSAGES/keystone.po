@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-29 06:05+0000\n"
-"PO-Revision-Date: 2015-03-27 15:26+0000\n"
+"POT-Creation-Date: 2015-04-03 06:03+0000\n"
+"PO-Revision-Date: 2015-04-02 16:08+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) "
 "(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
@@ -467,12 +467,12 @@ msgid ""
 "On."
 msgstr ""
 
-#: keystone/notifications.py:270
+#: keystone/notifications.py:271
 #, python-format
 msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
 msgstr ""
 
-#: keystone/notifications.py:279
+#: keystone/notifications.py:280
 #, python-format
 msgid "Method not callable: %s"
 msgstr ""
@@ -514,17 +514,17 @@ msgstr ""
 msgid "Must specify either domain or project"
 msgstr ""
 
-#: keystone/assignment/core.py:493
+#: keystone/assignment/core.py:491
 #, python-format
 msgid "Project (%s)"
 msgstr "Projeto (%s)"
 
-#: keystone/assignment/core.py:495
+#: keystone/assignment/core.py:493
 #, python-format
 msgid "Domain (%s)"
 msgstr "Domínio (%s)"
 
-#: keystone/assignment/core.py:497
+#: keystone/assignment/core.py:495
 msgid "Unknown Target"
 msgstr "Alvo Desconhecido"
 
@@ -687,7 +687,7 @@ msgid "Non-default domain is not supported"
 msgstr "O domínio não padrão não é suportado"
 
 #: keystone/common/controller.py:311 keystone/common/controller.py:339
-#: keystone/identity/core.py:428 keystone/resource/core.py:761
+#: keystone/identity/core.py:501 keystone/resource/core.py:761
 #: keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
@@ -972,11 +972,11 @@ msgstr ""
 msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
 msgstr ""
 
-#: keystone/contrib/ec2/controllers.py:318
+#: keystone/contrib/ec2/controllers.py:332
 msgid "Token belongs to another user"
 msgstr "O token pertence à outro usuário"
 
-#: keystone/contrib/ec2/controllers.py:346
+#: keystone/contrib/ec2/controllers.py:360
 msgid "Credential belongs to another user"
 msgstr "A credencial pertence à outro usuário"
 
@@ -1170,19 +1170,26 @@ msgstr "Campo habilitado deve ser um booleano"
 msgid "Database at /domains/%s/config"
 msgstr ""
 
-#: keystone/identity/core.py:287 keystone/identity/backends/ldap.py:59
+#: keystone/identity/core.py:189
+#, python-format
+msgid ""
+"Domain specific sql drivers are not supported via the Identity API. One "
+"is specified in /domains/%s/config"
+msgstr ""
+
+#: keystone/identity/core.py:360 keystone/identity/backends/ldap.py:59
 #: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
 #: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:104
 #: keystone/identity/backends/sql.py:106
 msgid "Invalid user / password"
 msgstr ""
 
-#: keystone/identity/core.py:693
+#: keystone/identity/core.py:766
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
 
-#: keystone/identity/core.py:735
+#: keystone/identity/core.py:808
 msgid "Cannot change user ID"
 msgstr ""
 
