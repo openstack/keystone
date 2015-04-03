@@ -58,7 +58,9 @@ class IdentityProviderModel(sql.ModelBase, sql.DictBase):
     @classmethod
     def from_dict(cls, dictionary):
         new_dictionary = dictionary.copy()
-        remote_ids_list = new_dictionary.pop('remote_ids', [])
+        remote_ids_list = new_dictionary.pop('remote_ids', None)
+        if not remote_ids_list:
+            remote_ids_list = []
         identity_provider = cls(**new_dictionary)
         remote_ids = []
         # NOTE(fmarco76): the remote_ids_list contains only remote ids

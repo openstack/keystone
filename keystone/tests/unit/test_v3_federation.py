@@ -856,6 +856,21 @@ class FederatedIdentityProviderTests(FederationTests):
                                  keys_to_check=keys_to_check,
                                  ref=body)
 
+    def test_create_idp_remote_none(self):
+        """Creates an IdP with a None remote_ids."""
+
+        keys_to_check = list(self.idp_keys)
+        keys_to_check.append('remote_ids')
+        body = self.default_body.copy()
+        body['description'] = uuid.uuid4().hex
+        body['remote_ids'] = None
+        resp = self._create_default_idp(body=body)
+        expected = body.copy()
+        expected['remote_ids'] = []
+        self.assertValidResponse(resp, 'identity_provider', dummy_validator,
+                                 keys_to_check=keys_to_check,
+                                 ref=expected)
+
     def test_update_idp_remote_ids(self):
         """Update IdP's remote_ids parameter."""
         body = self.default_body.copy()
