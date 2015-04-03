@@ -41,7 +41,6 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils
 from keystone.token.providers import common as token_common
 
 
@@ -2295,7 +2294,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
     # The advantage would be to reduce the complexity of this test class and
     # have tests specific to this fuctionality grouped, easing readability and
     # maintenability.
-    @utils.wip('waiting on bug #1424500')
     def test_list_projects_for_inherited_project_assignment(self):
         # Enable os_inherit extension
         self.config_fixture.config(group='os_inherit', enabled=True)
