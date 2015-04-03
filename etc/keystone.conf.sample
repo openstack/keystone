@@ -501,6 +501,14 @@
 # Domain config backend driver. (string value)
 #driver = keystone.resource.config_backends.sql.DomainConfig
 
+# Toggle for domain config caching. This has no effect unless global caching is
+# enabled. (boolean value)
+#caching = true
+
+# TTL (in seconds) to cache domain config data. This has no effect unless
+# domain config caching is enabled. (integer value)
+#cache_time = 300
+
 
 [endpoint_filter]
 
@@ -1377,6 +1385,14 @@
 # Deprecated group/name - [DEFAULT]/rabbit_ha_queues
 #rabbit_ha_queues = false
 
+# Number of seconds after which the Rabbit broker is considered down if
+# heartbeat's keep-alive fails (0 disable the heartbeat). (integer value)
+#heartbeat_timeout_threshold = 60
+
+# How often times during the heartbeat_timeout_threshold we check the
+# heartbeat. (integer value)
+#heartbeat_rate = 2
+
 # Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
 # Deprecated group/name - [DEFAULT]/fake_rabbit
 #fake_rabbit = false
@@ -1584,6 +1600,10 @@
 # Path to the Identity Provider Metadata file. This file should be generated
 # with the keystone-manage saml_idp_metadata command. (string value)
 #idp_metadata_path = /etc/keystone/saml2_idp_metadata.xml
+
+# The prefix to use for the RelayState SAML attribute, used when generating ECP
+# wrapped assertions. (string value)
+#relay_state_prefix = ss:mem:
 
 
 [signing]
