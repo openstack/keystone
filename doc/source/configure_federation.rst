@@ -65,6 +65,14 @@ Using Shibboleth and OpenID Connect are documented so far.
 .. _`Setup Shibboleth`: extensions/shibboleth.html
 .. _`Setup OpenID Connect`: extensions/openidc.html
 
+Configure Keystone and Horizon for Single Sign-On
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* To configure horizon to access a federated keystone,
+  follow the steps outlined at: `Keystone Federation and Horizon`_.
+
+.. _`Keystone Federation and Horizon`: extensions/websso.html
+
 Enable the ``OS-FEDERATION`` extension
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
