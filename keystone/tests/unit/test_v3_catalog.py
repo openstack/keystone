@@ -15,6 +15,8 @@
 import copy
 import uuid
 
+from testtools import matchers
+
 from keystone import catalog
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import database
@@ -675,6 +677,20 @@ class TestCatalogAPISQL(tests.TestCase):
         self.assertEqual(1, len(catalog[0]['endpoints']))
         # all three appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
+
+        # create another valid endpoint - tenant_id will be replaced
+        ref = self.new_endpoint_ref(self.service_id)
+        ref['url'] = 'http://keystone/%(tenant_id)s'
+        self.catalog_api.create_endpoint(ref['id'], ref)
+
+        # there are two valid endpoints, positive check
+        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        self.assertThat(catalog[0]['endpoints'], matchers.HasLength(2))
+
+        # If the URL has no 'tenant_id' to substitute, we will skip the
+        # endpoint which contains this kind of URL, negative check.
+        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id=None)
+        self.assertThat(catalog[0]['endpoints'], matchers.HasLength(1))
 
     def test_get_catalog_always_returns_service_name(self):
         user_id = uuid.uuid4().hex

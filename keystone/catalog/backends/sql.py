@@ -269,10 +269,29 @@ class Catalog(catalog.Driver):
         return ref.to_dict()
 
     def get_catalog(self, user_id, tenant_id):
+        """Retrieve and format the V2 service catalog.
+
+        :param user_id: The id of the user who has been authenticated for
+            creating service catalog.
+        :param tenant_id: The id of the project. 'tenant_id' will be None
+            in the case this being called to create a catalog to go in a
+            domain scoped token. In this case, any endpoint that requires
+            a tenant_id as part of their URL will be skipped (as would a whole
+            service if, as a consequence, it has no valid endpoints).
+
+        :returns: A nested dict representing the service catalog or an
+                  empty dict.
+
+        """
         substitutions = dict(
             itertools.chain(six.iteritems(CONF),
                             six.iteritems(CONF.eventlet_server)))
-        substitutions.update({'tenant_id': tenant_id, 'user_id': user_id})
+        substitutions.update({'user_id': user_id})
+        silent_keyerror_failures = []
+        if tenant_id:
+            substitutions.update({'tenant_id': tenant_id})
+        else:
+            silent_keyerror_failures = ['tenant_id']
 
         session = sql.get_session()
         endpoints = (session.query(Endpoint).
@@ -285,7 +304,13 @@ class Catalog(catalog.Driver):
             if not endpoint.service['enabled']:
                 continue
             try:
-                url = core.format_url(endpoint['url'], substitutions)
+                formatted_url = core.format_url(
+                    endpoint['url'], substitutions,
+                    silent_keyerror_failures=silent_keyerror_failures)
+                if formatted_url is not None:
+                    url = formatted_url
+                else:
+                    continue
             except exception.MalformedEndpoint:
                 continue  # this failure is already logged in format_url()
 
@@ -304,11 +329,27 @@ class Catalog(catalog.Driver):
         return catalog
 
     def get_v3_catalog(self, user_id, tenant_id):
+        """Retrieve and format the current V3 service catalog.
+
+        :param user_id: The id of the user who has been authenticated for
+            creating service catalog.
+        :param tenant_id: The id of the project. 'tenant_id' will be None in
+            the case this being called to create a catalog to go in a domain
+            scoped token. In this case, any endpoint that requires a
+            tenant_id as part of their URL will be skipped.
+
+        :returns: A list representing the service catalog or an empty list
+
+        """
         d = dict(
             itertools.chain(six.iteritems(CONF),
                             six.iteritems(CONF.eventlet_server)))
-        d.update({'tenant_id': tenant_id,
-                  'user_id': user_id})
+        d.update({'user_id': user_id})
+        silent_keyerror_failures = []
+        if tenant_id:
+            d.update({'tenant_id': tenant_id})
+        else:
+            silent_keyerror_failures = ['tenant_id']
 
         session = sql.get_session()
         services = (session.query(Service).filter(Service.enabled == true()).
@@ -322,12 +363,20 @@ class Catalog(catalog.Driver):
                 del endpoint['enabled']
                 endpoint['region'] = endpoint['region_id']
                 try:
-                    endpoint['url'] = core.format_url(endpoint['url'], d)
+                    formatted_url = core.format_url(
+                        endpoint['url'], d,
+                        silent_keyerror_failures=silent_keyerror_failures)
+                    if formatted_url:
+                        endpoint['url'] = formatted_url
+                    else:
+                        continue
                 except exception.MalformedEndpoint:
                     continue  # this failure is already logged in format_url()
 
                 yield endpoint
 
+        # TODO(davechen): If there is service with no endpoints, we should skip
+        # the service instead of keeping it in the catalog, see bug #1436704.
         def make_v3_service(svc):
             eps = list(make_v3_endpoints(svc.endpoints))
             service = {'endpoints': eps, 'id': svc.id, 'type': svc.type}

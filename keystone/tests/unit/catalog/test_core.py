@@ -72,3 +72,17 @@ class FormatUrlTests(testtools.TestCase):
                           core.format_url,
                           url_template,
                           values)
+
+    def test_substitution_with_allowed_keyerror(self):
+        # No value of 'tenant_id' is passed into url_template.
+        # mod: format_url will return None instead of raising
+        # "MalformedEndpoint" exception.
+        # This is intentional behavior since we don't want to skip
+        # all the later endpoints once there is an URL of endpoint
+        # trying to replace 'tenant_id' with None.
+        url_template = ('http://$(public_bind_host)s:$(admin_port)d/'
+                        '$(tenant_id)s/$(user_id)s')
+        values = {'public_bind_host': 'server', 'admin_port': 9090,
+                  'user_id': 'B'}
+        self.assertIsNone(core.format_url(url_template, values,
+                          silent_keyerror_failures=['tenant_id']))
