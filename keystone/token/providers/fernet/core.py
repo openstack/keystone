@@ -154,7 +154,7 @@ class Provider(common.BaseProvider):
         :param metadata_ref: metadata reference
         :param include_catalog: return the catalog in the response if True,
                                 otherwise don't return the catalog
-        :param parent_audit_id: ID of the patent audit entity
+        :param parent_audit_id: ID of the parent audit entity
         :returns: tuple containing the id of the token and the token data
 
         """
