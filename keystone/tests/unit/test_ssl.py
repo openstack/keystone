@@ -36,6 +36,16 @@ CLIENT = os.path.join(CERTDIR, 'middleware.pem')
 class SSLTestCase(tests.TestCase):
     def setUp(self):
         super(SSLTestCase, self).setUp()
+        raise self.skipTest('SSL Version and Ciphers cannot be configured '
+                            'with eventlet, some platforms have disabled '
+                            'SSLv3. See bug 1381365.')
+        # NOTE(morganfainberg): It has been determined that this
+        # will not be fixed. These tests should be re-enabled for the full
+        # functional test suite when run against an SSL terminated
+        # endpoint. Some distributions/environments have patched OpenSSL to
+        # not have SSLv3 at all due to POODLE and this causes differing
+        # behavior depending on platform. See bug 1381365 for more information.
+
         # NOTE(jamespage):
         # Deal with more secure certificate chain verification
         # introduced in python 2.7.9 under PEP-0476
