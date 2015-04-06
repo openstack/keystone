@@ -35,11 +35,22 @@ from keystone.i18n import _
 
 LOG = log.getLogger(__name__)
 
-# This 'class' is taken from http://stackoverflow.com/a/22520633/238308
-# Don't inherit client from threading.local so that we can reuse clients in
-# different threads
-_MemcacheClient = type('_MemcacheClient', (object,),
-                       dict(memcache.Client.__dict__))
+
+class _MemcacheClient(memcache.Client):
+    """Thread global memcache client
+
+    As client is inherited from threading.local we have to restore object
+    methods overloaded by threading.local so we can reuse clients in
+    different threads
+    """
+    __delattr__ = object.__delattr__
+    __getattribute__ = object.__getattribute__
+    __new__ = object.__new__
+    __setattr__ = object.__setattr__
+
+    def __del__(self):
+        pass
+
 
 _PoolItem = collections.namedtuple('_PoolItem', ['ttl', 'connection'])
 
