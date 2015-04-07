@@ -33,7 +33,7 @@ class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
     access_token_id = sql.Column(sql.String(64))
     issued_before = sql.Column(sql.DateTime(), nullable=False)
     expires_at = sql.Column(sql.DateTime())
-    revoked_at = sql.Column(sql.DateTime(), nullable=False)
+    revoked_at = sql.Column(sql.DateTime(), nullable=False, index=True)
     audit_id = sql.Column(sql.String(32))
     audit_chain_id = sql.Column(sql.String(32))
 
