@@ -7,9 +7,9 @@ Keystone Management Utility
 ---------------------------
 
 :Author: openstack@lists.openstack.org
-:Date:   2014-10-16
+:Date:   2015-4-7
 :Copyright: OpenStack Foundation
-:Version: 2014.2
+:Version: 2015.1
 :Manual section: 1
 :Manual group: cloud computing
 
@@ -42,6 +42,9 @@ Available commands:
 
 * ``db_sync``: Sync the database.
 * ``db_version``: Print the current migration version of the database.
+* ``domain_config_upload``: Upload domain configuration file.
+* ``fernet_rotate``: Rotate keys in the Fernet key repository.
+* ``fernet_setup``: Setup a Fernet key repository.
 * ``mapping_purge``: Purge the identity mapping table.
 * ``pki_setup``: Initialize the certificates used to sign tokens.
 * ``saml_idp_metadata``: Generate identity provider metadata.
