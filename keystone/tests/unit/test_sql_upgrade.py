@@ -512,6 +512,10 @@ class SqlUpgradeTests(SqlMigrateBase):
              random_attr_name_empty, random_attr_name_none_str),
         ]
 
+        # NOTE(viktors): Add a service with empty extra field
+        self.insert_dict(session, 'service',
+                         {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex})
+
         session.close()
         self.upgrade(66)
         session = self.Session()
