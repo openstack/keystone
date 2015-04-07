@@ -22,7 +22,11 @@ def upgrade(migrate_engine):
     services = list(service_table.select().execute())
 
     for service in services:
-        extra_dict = jsonutils.loads(service.extra)
+        if service.extra is not None:
+            extra_dict = jsonutils.loads(service.extra)
+        else:
+            extra_dict = {}
+
         # Skip records where service is not null
         if extra_dict.get('name') is not None:
             continue
