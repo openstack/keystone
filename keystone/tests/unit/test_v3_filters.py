@@ -331,12 +331,6 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
 
         super(IdentityTestListLimitCase, self).setUp()
 
-        self._set_policy({"identity:list_users": [],
-                          "identity:list_groups": [],
-                          "identity:list_projects": [],
-                          "identity:list_services": [],
-                          "identity:list_policies": []})
-
         # Create 10 entries for each of the entities we are going to test
         self.ENTITY_TYPES = ['user', 'group', 'project']
         self.entity_lists = {}
@@ -398,6 +392,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         else:
             plural = '%ss' % entity
 
+        self._set_policy({"identity:list_%s" % plural: []})
         self.config_fixture.config(list_limit=5)
         self.config_fixture.config(group=driver, list_limit=None)
         r = self.get('/%s' % plural, auth=self.auth)
@@ -435,6 +430,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
     def test_no_limit(self):
         """Check truncated attribute not set when list not limited."""
 
+        self._set_policy({"identity:list_services": []})
         r = self.get('/services', auth=self.auth)
         self.assertEqual(10, len(r.result.get('services')))
         self.assertIsNone(r.result.get('truncated'))
@@ -445,6 +441,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         # Test this by overriding the general limit with a higher
         # driver-specific limit (allowing all entities to be returned
         # in the collection), which should result in a non truncated list
+        self._set_policy({"identity:list_services": []})
         self.config_fixture.config(list_limit=5)
         self.config_fixture.config(group='catalog', list_limit=10)
         r = self.get('/services', auth=self.auth)
