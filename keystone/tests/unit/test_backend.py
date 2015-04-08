@@ -5157,6 +5157,81 @@ class PolicyTests(object):
 
 class InheritanceTests(object):
 
+    def _test_crud_inherited_and_direct_assignment(self, **kwargs):
+        """Tests inherited and direct assignments for the actor and target
+
+        Ensure it is possible to create both inherited and direct role
+        assignments for the same actor on the same target. The actor and the
+        target are specified in the kwargs as ('user_id' or 'group_id') and
+        ('project_id' or 'domain_id'), respectively.
+
+        """
+
+        # Create a new role to avoid assignments loaded from default fixtures
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = self.role_api.create_role(role['id'], role)
+
+        # Define the common assigment entity
+        assignment_entity = {'role_id': role['id']}
+        assignment_entity.update(kwargs)
+
+        # Define assignments under test
+        direct_assignment_entity = assignment_entity.copy()
+        inherited_assignment_entity = assignment_entity.copy()
+        inherited_assignment_entity['inherited_to_projects'] = 'projects'
+
+        # Create direct assignment and check grants
+        self.assignment_api.create_grant(inherited_to_projects=False,
+                                         **assignment_entity)
+
+        grants = self.assignment_api.list_role_assignments_for_role(role['id'])
+        self.assertThat(grants, matchers.HasLength(1))
+        self.assertIn(direct_assignment_entity, grants)
+
+        # Now add inherited assignment and check grants
+        self.assignment_api.create_grant(inherited_to_projects=True,
+                                         **assignment_entity)
+
+        grants = self.assignment_api.list_role_assignments_for_role(role['id'])
+        self.assertThat(grants, matchers.HasLength(2))
+        self.assertIn(direct_assignment_entity, grants)
+        self.assertIn(inherited_assignment_entity, grants)
+
+        # Delete both and check grants
+        self.assignment_api.delete_grant(inherited_to_projects=False,
+                                         **assignment_entity)
+        self.assignment_api.delete_grant(inherited_to_projects=True,
+                                         **assignment_entity)
+
+        grants = self.assignment_api.list_role_assignments_for_role(role['id'])
+        self.assertEqual([], grants)
+
+    @test_utils.wip('Waiting on bug #1403539')
+    def test_crud_inherited_and_direct_assignment_for_user_on_domain(self):
+        self._test_crud_inherited_and_direct_assignment(
+            user_id=self.user_foo['id'], domain_id=DEFAULT_DOMAIN_ID)
+
+    @test_utils.wip('Waiting on bug #1403539')
+    def test_crud_inherited_and_direct_assignment_for_group_on_domain(self):
+        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = self.identity_api.create_group(group)
+
+        self._test_crud_inherited_and_direct_assignment(
+            group_id=group['id'], domain_id=DEFAULT_DOMAIN_ID)
+
+    @test_utils.wip('Waiting on bug #1403539')
+    def test_crud_inherited_and_direct_assignment_for_user_on_project(self):
+        self._test_crud_inherited_and_direct_assignment(
+            user_id=self.user_foo['id'], project_id=self.tenant_baz['id'])
+
+    @test_utils.wip('Waiting on bug #1403539')
+    def test_crud_inherited_and_direct_assignment_for_group_on_project(self):
+        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = self.identity_api.create_group(group)
+
+        self._test_crud_inherited_and_direct_assignment(
+            group_id=group['id'], project_id=self.tenant_baz['id'])
+
     def test_inherited_role_grants_for_user(self):
         """Test inherited user roles.
 
