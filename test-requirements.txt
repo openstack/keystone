@@ -7,7 +7,7 @@ pysqlite
 python-memcached>=1.48
 
 # Optional dogpile backend: MongoDB
-pymongo>=2.4
+pymongo>=2.4,<3.0
 
 # Optional backend: LDAP
 # authenticate against an existing LDAP server
@@ -15,27 +15,27 @@ python-ldap==2.3.13
 
 # Testing
 # computes code coverage percentages
-coverage>=3.6
+coverage>=3.6,<=3.7.1
 # fixture stubbing
-fixtures>=0.3.14
+fixtures>=0.3.14,<=1.0.0
 # mock object framework
-mock>=1.0
-mox>=0.5.3
+mock>=1.0,<=1.0.1
+mox>=0.5.3,<=0.5.3
 # required to build documentation
 sphinx>=1.1.2,<1.1.999
 # test wsgi apps without starting an http server
-WebTest>=2.0
+WebTest>=2.0,<=2.0.18
 
-discover
-python-subunit>=0.0.18
-testrepository>=0.0.18
-testtools>=0.9.34,!=1.2.0,!=1.4.0
-testscenarios>=0.4
+discover<=0.4.0
+python-subunit>=0.0.18,<=1.1.0
+testrepository>=0.0.18,<=0.0.20
+testtools>=0.9.34,!=1.2.0,!=1.4.0,<=1.7.1
+testscenarios>=0.4,<=0.4
 
 # For documentation
-oslosphinx
+oslosphinx<=2.5.0
 
 # Used only by oslo
-kombu>=2.4.8
-lockfile>=0.8
+kombu>=2.5.0,<=3.0.7
+lockfile>=0.8,<=0.10.2
 stevedore>=0.14,<1.2
