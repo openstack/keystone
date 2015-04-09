@@ -191,10 +191,7 @@ def validate_groups_cardinality(group_ids, mapping_id):
         raise exception.MissingGroups(mapping_id=mapping_id)
 
 
-def validate_idp(idp, protocol, assertion):
-    """Validate the IdP providing the assertion is registered for the mapping.
-    """
-
+def get_remote_id_parameter(protocol):
     # NOTE(marco-fargetta): Since we support any protocol ID, we attempt to
     # retrieve the remote_id_attribute of the protocol ID. If it's not
     # registered in the config, then register the option and try again.
@@ -210,10 +207,19 @@ def validate_idp(idp, protocol, assertion):
         except AttributeError:
             pass
     if not remote_id_parameter:
-        LOG.debug('Cannot find "remote_id_attibute" in configuration '
+        LOG.debug('Cannot find "remote_id_attribute" in configuration '
                   'group %s. Trying default location in '
                   'group federation.', protocol)
         remote_id_parameter = CONF.federation.remote_id_attribute
+
+    return remote_id_parameter
+
+
+def validate_idp(idp, protocol, assertion):
+    """Validate the IdP providing the assertion is registered for the mapping.
+    """
+
+    remote_id_parameter = get_remote_id_parameter(protocol)
     if not remote_id_parameter or not idp['remote_ids']:
         LOG.debug('Impossible to identify the IdP %s ', idp['id'])
         # If nothing is defined, the administrator may want to
