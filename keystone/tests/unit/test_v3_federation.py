@@ -3678,6 +3678,7 @@ class WebSSOTests(FederatedTokenTests):
     SSO_TEMPLATE_PATH = os.path.join(core.dirs.etc(), SSO_TEMPLATE_NAME)
     TRUSTED_DASHBOARD = 'http://horizon.com'
     ORIGIN = urllib.parse.quote_plus(TRUSTED_DASHBOARD)
+    PROTOCOL_REMOTE_ID_ATTR = uuid.uuid4().hex
 
     def setUp(self):
         super(WebSSOTests, self).setUp()
@@ -3699,6 +3700,18 @@ class WebSSOTests(FederatedTokenTests):
 
     def test_federated_sso_auth(self):
         environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        context = {'environment': environment}
+        query_string = {'origin': self.ORIGIN}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        resp = self.api.federated_sso_auth(context, self.PROTOCOL)
+        self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
+
+    def test_federated_sso_auth_with_protocol_specific_remote_id(self):
+        self.config_fixture.config(
+            group=self.PROTOCOL,
+            remote_id_attribute=self.PROTOCOL_REMOTE_ID_ATTR)
+
+        environment = {self.PROTOCOL_REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
         context = {'environment': environment}
         query_string = {'origin': self.ORIGIN}
         self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)

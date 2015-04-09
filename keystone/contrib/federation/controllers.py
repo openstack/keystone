@@ -268,7 +268,7 @@ class Auth(auth_controllers.Auth):
 
     def federated_sso_auth(self, context, protocol_id):
         try:
-            remote_id_name = CONF.federation.remote_id_attribute
+            remote_id_name = utils.get_remote_id_parameter(protocol_id)
             remote_id = context['environment'][remote_id_name]
         except KeyError:
             msg = _('Missing entity ID from environment')
