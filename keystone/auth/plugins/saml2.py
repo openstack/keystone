@@ -23,5 +23,4 @@ This plugin subclasses mapped.Mapped, and may be specified in keystone.conf:
 
 
 class Saml2(mapped.Mapped):
-
-    method = 'saml2'
+    pass

@@ -31,9 +31,6 @@ CONF = cfg.CONF
 
 @six.add_metaclass(abc.ABCMeta)
 class Base(auth.AuthMethodHandler):
-
-    method = 'external'
-
     def authenticate(self, context, auth_info, auth_context):
         """Use REMOTE_USER to look up the user in the identity backend.
 
@@ -99,8 +96,6 @@ class Domain(Base):
 @dependency.requires('assignment_api', 'identity_api')
 class KerberosDomain(Domain):
     """Allows `kerberos` as a method."""
-    method = 'kerberos'
-
     def _authenticate(self, remote_user, context):
         auth_type = context['environment'].get('AUTH_TYPE')
         if auth_type != 'Negotiate':
