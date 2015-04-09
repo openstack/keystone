@@ -12,29 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sql
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    # Upgrade operations go here. Don't create your own engine; bind
-    # migrate_engine to your metadata
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    endpoint_policy_table = sql.Table(
-        'policy_association',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('policy_id', sql.String(64),
-                   nullable=False),
-        sql.Column('endpoint_id', sql.String(64),
-                   nullable=True),
-        sql.Column('service_id', sql.String(64),
-                   nullable=True),
-        sql.Column('region_id', sql.String(64),
-                   nullable=True),
-        sql.UniqueConstraint('endpoint_id', 'service_id', 'region_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8')
-
-    endpoint_policy_table.create(migrate_engine, checkfirst=True)
+    raise exception.MigrationMovedFailure(extension='endpoint_policy')

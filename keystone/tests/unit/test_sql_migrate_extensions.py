@@ -41,6 +41,7 @@ from keystone.contrib import example
 from keystone.contrib import federation
 from keystone.contrib import oauth1
 from keystone.contrib import revoke
+from keystone import exception
 from keystone.tests.unit import test_sql_upgrade
 
 
@@ -164,11 +165,9 @@ class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):
         return endpoint_policy
 
     def test_upgrade(self):
-        self.assertTableDoesNotExist('policy_association')
-        self.upgrade(1, repository=self.repo_path)
-        self.assertTableColumns('policy_association',
-                                ['id', 'policy_id', 'endpoint_id',
-                                 'service_id', 'region_id'])
+        self.assertRaises(exception.MigrationMovedFailure,
+                          self.upgrade, version=1,
+                          repository=self.repo_path)
 
 
 class FederationExtension(test_sql_upgrade.SqlMigrateBase):

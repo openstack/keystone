@@ -491,3 +491,13 @@ class TokenlessAuthConfigError(ValidationError):
     message_format = _('Could not determine Identity Provider ID. The '
                        'configuration option %(issuer_attribute)s '
                        'was not found in the request environment.')
+
+
+class MigrationMovedFailure(RuntimeError):
+    def __init__(self, extension):
+        self.extension = extension
+        msg = _("The %s extension has been moved into keystone core and as "
+                "such its migrations are maintained by the main keystone "
+                "database control. Use the command: keystone-manage "
+                "db_sync") % self.extension
+        super(MigrationMovedFailure, self).__init__(msg)
