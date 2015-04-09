@@ -290,7 +290,7 @@ you'll normally only want to run the test that hits your breakpoint:
 
 .. code-block:: bash
 
-    $ tox -e debug keystone.tests.test_auth.AuthWithToken.test_belongs_to
+    $ tox -e debug keystone.tests.unit.test_auth.AuthWithToken.test_belongs_to
 
 For reference, the ``debug`` tox environment implements the instructions
 here: https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
@@ -317,31 +317,29 @@ For example, to discard logging data during a test run:
 Test Structure
 ==============
 
-Not all of the tests in the tests directory are strictly unit tests. Keystone
-intentionally includes tests that run the service locally and drives the entire
-configuration to achieve basic functional testing.
+Not all of the tests in the keystone/tests/unit directory are strictly unit
+tests. Keystone intentionally includes tests that run the service locally and
+drives the entire configuration to achieve basic functional testing.
 
-For the functional tests, an in-memory key-value store is used to keep the
-tests fast.
+For the functional tests, an in-memory key-value store or in-memory sqlite
+database is used to keep the tests fast.
 
-Within the tests directory, the general structure of the tests is a basic
-set of tests represented under a test class, and then subclasses of those
+Within the tests directory, the general structure of the backend tests is a
+basic set of tests represented under a test class, and then subclasses of those
 tests under other classes with different configurations to drive different
 backends through the APIs.
 
 For example, ``test_backend.py`` has a sequence of tests under the class
-``IdentityTests`` that will work with the default drivers as configured in
-this projects etc/ directory. ``test_backend_sql.py`` subclasses those tests,
-changing the configuration by overriding with configuration files stored in
-the tests directory aimed at enabling the SQL backend for the Identity module.
+:class:`~keystone.tests.unit.test_backend.IdentityTests` that will work with
+the default drivers as configured in this project's etc/ directory.
+``test_backend_sql.py`` subclasses those tests, changing the configuration by
+overriding with configuration files stored in the ``tests/unit/config_files``
+directory aimed at enabling the SQL backend for the Identity module.
 
-Likewise, ``test_v2_keystoneclient.py`` takes advantage of the tests written
-against ``KeystoneClientTests`` to verify the same tests function through
-different drivers and releases of the Keystone client.
-
-The class ``CompatTestCase`` does the work of checking out a specific version
-of python-keystoneclient, and then verifying it against a temporarily running
-local instance to explicitly verify basic functional testing across the API.
+:class:`keystone.tests.unit.test_v2_keystoneclient.ClientDrivenTestCase`
+uses the installed python-keystoneclient, verifying it against a temporarily
+running local keystone instance to explicitly verify basic functional testing
+across the API.
 
 Testing Schema Migrations
 =========================
@@ -351,7 +349,8 @@ built-in test runner, one migration at a time.
 
 .. WARNING::
 
-    This may leave your database in an inconsistent state; attempt this in non-production environments only!
+    This may leave your database in an inconsistent state; attempt this in
+    non-production environments only!
 
 This is useful for testing the *next* migration in sequence (both forward &
 backward) in a database under version control:
@@ -370,9 +369,17 @@ of your data during migration.
 Writing Tests
 =============
 
-To add tests covering all drivers, update the relevant base test class
-(``test_backend.py``, ``test_legacy_compat.py``, and
-``test_keystoneclient.py``).
+To add tests covering all drivers, update the base test class in
+``test_backend.py``.
+
+.. NOTE::
+
+    The structure of backend testing is in transition, migrating from having
+    all classes in a single file (test_backend.py) to one where there is a
+    directory structure to reduce the size of the test files. See:
+
+        - :mod:`keystone.tests.unit.backend.role`
+        - :mod:`keystone.tests.unit.backend.domain_config`
 
 To add new drivers, subclass the ``test_backend.py`` (look towards
 ``test_backend_sql.py`` or ``test_backend_kvs.py`` for examples) and update the
@@ -405,15 +412,16 @@ and set environment variables ``KEYSTONE_IDENTITY_BACKEND=ldap`` and
 ``KEYSTONE_CLEAR_LDAP=yes`` in your ``localrc`` file.
 
 The unit tests can be run against a live server with
-``keystone/tests/test_ldap_livetest.py`` and
-``keystone/tests/test_ldap_pool_livetest.py``. The default password is ``test``
-but if you have installed devstack with a different LDAP password, modify the
-file ``keystone/tests/config_files/backend_liveldap.conf`` and
-``keystone/tests/config_files/backend_pool_liveldap.conf`` to reflect your password.
+``keystone/tests/unit/test_ldap_livetest.py`` and
+``keystone/tests/unit/test_ldap_pool_livetest.py``. The default password is
+``test`` but if you have installed devstack with a different LDAP password,
+modify the file ``keystone/tests/unit/config_files/backend_liveldap.conf`` and
+``keystone/tests/unit/config_files/backend_pool_liveldap.conf`` to reflect your
+password.
 
 .. NOTE::
-    To run the live tests you need to set the environment variable ``ENABLE_LDAP_LIVE_TEST``
-    to a non-negative value.
+    To run the live tests you need to set the environment variable 
+    ``ENABLE_LDAP_LIVE_TEST`` to a non-negative value.
 
 
 "Work in progress" Tests
@@ -431,21 +439,22 @@ including:
   used to catch bug regressions and commit it before any code is
   written.
 
-The ``keystone.tests.util.wip`` decorator can be used to mark a test as
-WIP. A WIP test will always be run. If the test fails then a TestSkipped
+The :func:`keystone.tests.unit.utils.wip` decorator can be used to mark a test
+as WIP. A WIP test will always be run. If the test fails then a TestSkipped
 exception is raised because we expect the test to fail. We do not pass
 the test in this case so that it doesn't count toward the number of
 successfully run tests. If the test passes an AssertionError exception is
 raised so that the developer knows they made the test pass. This is a
 reminder to remove the decorator.
 
-The ``wip`` decorator requires that the author provides a message. This
-message is important because it will tell other developers why this test
-is marked as a work in progress. Reviewers will require that these
-messages are descriptive and accurate.
+The :func:`~keystone.tests.unit.utils.wip` decorator requires that the author
+provides a message. This message is important because it will tell other
+developers why this test is marked as a work in progress. Reviewers will
+require that these messages are descriptive and accurate.
 
 .. NOTE::
-    The ``wip`` decorator is not a replacement for skipping tests.
+    The :func:`~keystone.tests.unit.utils.wip` decorator is not a replacement for
+    skipping tests.
 
 .. code-block:: python
 
