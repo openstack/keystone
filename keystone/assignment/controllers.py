@@ -159,8 +159,8 @@ class RoleAssignmentV2(controller.V2Controller):
         """
         self.assert_admin(context)
         if tenant_id is None:
-            raise exception.NotImplemented(message='User roles not supported: '
-                                                   'tenant_id required')
+            raise exception.NotImplemented(
+                message=_('User roles not supported: tenant_id required'))
 
         self.assignment_api.add_role_to_user_and_project(
             user_id, tenant_id, role_id)
@@ -178,8 +178,8 @@ class RoleAssignmentV2(controller.V2Controller):
         """
         self.assert_admin(context)
         if tenant_id is None:
-            raise exception.NotImplemented(message='User roles not supported: '
-                                                   'tenant_id required')
+            raise exception.NotImplemented(
+                message=_('User roles not supported: tenant_id required'))
 
         # This still has the weird legacy semantics that adding a role to
         # a user also adds them to a tenant, so we must follow up on that
