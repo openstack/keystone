@@ -52,6 +52,9 @@ UHeBXxQq/GmfBv3l+V5ObQ+EHKnyDodLHCk=</ns1:X509Certificate>
     <ns0:Attribute Name="openstack_user" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
       <ns0:AttributeValue xsi:type="xs:string">test_user</ns0:AttributeValue>
     </ns0:Attribute>
+    <ns0:Attribute Name="openstack_user_domain" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+      <ns0:AttributeValue xsi:type="xs:string">user_domain</ns0:AttributeValue>
+    </ns0:Attribute>
     <ns0:Attribute Name="openstack_roles" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
       <ns0:AttributeValue xsi:type="xs:string">admin</ns0:AttributeValue>
       <ns0:AttributeValue xsi:type="xs:string">member</ns0:AttributeValue>
@@ -60,7 +63,7 @@ UHeBXxQq/GmfBv3l+V5ObQ+EHKnyDodLHCk=</ns1:X509Certificate>
       <ns0:AttributeValue xsi:type="xs:string">development</ns0:AttributeValue>
     </ns0:Attribute>
     <ns0:Attribute Name="openstack_project_domain" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
-      <ns0:AttributeValue xsi:type="xs:string">Default</ns0:AttributeValue>
+      <ns0:AttributeValue xsi:type="xs:string">project_domain</ns0:AttributeValue>
     </ns0:Attribute>
   </ns0:AttributeStatement>
 </ns0:Assertion>
