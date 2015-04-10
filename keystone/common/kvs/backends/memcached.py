@@ -75,9 +75,10 @@ class MemcachedLock(object):
 class MemcachedBackend(object):
     """Pivot point to leverage the various dogpile.cache memcached backends.
 
-    To specify a specific dogpile.cache memcached driver, pass the argument
-    `memcached_driver` set to one of the provided memcached drivers (at this
-    time `memcached`, `bmemcached`, `pylibmc` are valid).
+    To specify a specific dogpile.cache memcached backend, pass the argument
+    `memcached_backend` set to one of the provided memcached backends (at this
+    time `memcached`, `bmemcached`, `pylibmc` and `pooled_memcached` are
+    valid).
     """
     def __init__(self, arguments):
         self._key_mangler = None
@@ -104,10 +105,10 @@ class MemcachedBackend(object):
         else:
             if backend not in VALID_DOGPILE_BACKENDS:
                 raise ValueError(
-                    _('Backend `%(driver)s` is not a valid memcached '
-                      'backend. Valid drivers: %(driver_list)s') %
-                    {'driver': backend,
-                     'driver_list': ','.join(VALID_DOGPILE_BACKENDS.keys())})
+                    _('Backend `%(backend)s` is not a valid memcached '
+                      'backend. Valid backends: %(backend_list)s') %
+                    {'backend': backend,
+                     'backend_list': ','.join(VALID_DOGPILE_BACKENDS.keys())})
             else:
                 self.driver = VALID_DOGPILE_BACKENDS[backend](arguments)
 
