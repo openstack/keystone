@@ -15,11 +15,11 @@ from keystone import auth
 from keystone import catalog
 from keystone.common import cache
 from keystone.contrib import endpoint_filter
-from keystone.contrib import endpoint_policy
 from keystone.contrib import federation
 from keystone.contrib import oauth1
 from keystone.contrib import revoke
 from keystone import credential
+from keystone import endpoint_policy
 from keystone import identity
 from keystone import policy
 from keystone import resource
