@@ -259,7 +259,7 @@ FILE_OPTIONS = {
                          'fixed length cache-keys. This is toggle-able for '
                          'debugging purposes, it is highly recommended to '
                          'always leave this set to True.'),
-        cfg.MultiStrOpt('backend_argument', default=[],
+        cfg.MultiStrOpt('backend_argument', default=[], secret=True,
                         help='Arguments supplied to the backend module. '
                              'Specify this option once per argument to be '
                              'passed to the dogpile.cache backend. Example '
