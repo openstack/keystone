@@ -326,7 +326,7 @@ FILE_OPTIONS = {
                         'deployments.  Small workloads (single process) '
                         'like devstack can use the dogpile.cache.memory '
                         'backend.'),
-        cfg.MultiStrOpt('backend_argument', default=[],
+        cfg.MultiStrOpt('backend_argument', default=[], secret=True,
                         help='Arguments supplied to the backend module. '
                              'Specify this option once per argument to be '
                              'passed to the dogpile.cache backend. Example '
