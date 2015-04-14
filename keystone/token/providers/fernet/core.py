@@ -242,9 +242,11 @@ class Provider(common.BaseProvider):
                 self.token_formatter.validate_token(token))
 
         token_dict = None
+        trust_ref = None
         if federated_info:
             token_dict = self._rebuild_federated_info(federated_info, user_id)
-        trust_ref = self.trust_api.get_trust(trust_id)
+        if trust_id:
+            trust_ref = self.trust_api.get_trust(trust_id)
 
         return self.v3_token_data_helper.get_token_data(
             user_id,

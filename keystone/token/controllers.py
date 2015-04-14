@@ -194,8 +194,9 @@ class Auth(controller.V2Controller):
         if not CONF.trust.enabled and 'trust_id' in auth:
             raise exception.Forbidden('Trusts are disabled.')
         elif CONF.trust.enabled and 'trust_id' in auth:
-            trust_ref = self.trust_api.get_trust(auth['trust_id'])
-            if trust_ref is None:
+            try:
+                trust_ref = self.trust_api.get_trust(auth['trust_id'])
+            except exception.TrustNotFound:
                 raise exception.Forbidden()
             if user_id != trust_ref['trustee_user_id']:
                 raise exception.Forbidden()
