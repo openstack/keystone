@@ -161,7 +161,8 @@ ENDPOINT_GROUP_ID_PARAMETER_RELATION = (
 
 BASE_IDP_PROTOCOL = '/OS-FEDERATION/identity_providers/{idp_id}/protocols'
 BASE_EP_POLICY = '/policies/{policy_id}/OS-ENDPOINT-POLICY'
-BASE_EP_FILTER = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
+BASE_EP_FILTER_PREFIX = '/OS-EP-FILTER'
+BASE_EP_FILTER = BASE_EP_FILTER_PREFIX + '/endpoint_groups/{endpoint_group_id}'
 BASE_ACCESS_TOKEN = (
     '/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}')
 
@@ -476,6 +477,12 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
         'href-template': BASE_EP_FILTER + '/endpoints',
         'href-vars': {'endpoint_group_id':
                       ENDPOINT_GROUP_ID_PARAMETER_RELATION, }},
+    _build_ep_filter_rel(resource_name='project_endpoint_groups'):
+    {
+        'href-template': (BASE_EP_FILTER_PREFIX + '/projects/{project_id}' +
+                          '/endpoint_groups'),
+        'href-vars': {'project_id':
+                      json_home.Parameters.PROJECT_ID, }},
     _build_ep_filter_rel(resource_name='project_endpoint'):
     {
         'href-template': ('/OS-EP-FILTER/projects/{project_id}'

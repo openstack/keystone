@@ -642,6 +642,16 @@ class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
                 'ext/OS-EP-FILTER/1.0/param/endpoint_group_id',
             },
         },
+        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        '1.0/rel/project_endpoint_groups': {
+            'href-template': '/OS-EP-FILTER/projects/{project_id}/'
+            'endpoint_groups',
+            'href-vars': {
+                'project_id':
+                'http://docs.openstack.org/api/openstack-identity/3/param/'
+                'project_id',
+            },
+        },
     }
 
 
@@ -889,6 +899,40 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         url = self._get_project_endpoint_group_url(
             endpoint_group_id, project_id)
         self.get(url, expected_status=404)
+
+    def test_list_endpoint_groups_in_project(self):
+        """GET /OS-EP-FILTER/projects/{project_id}/endpoint_groups."""
+        # create an endpoint group to work with
+        endpoint_group_id = self._create_valid_endpoint_group(
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # associate endpoint group with project
+        url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.project_id)
+        self.put(url)
+
+        url = ('/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' %
+               {'project_id': self.project_id})
+        response = self.get(url)
+
+        self.assertEqual(
+            endpoint_group_id,
+            response.result['endpoint_groups'][0]['id'])
+
+    def test_list_endpoint_groups_in_invalid_project(self):
+        """Test retrieving from invalid project."""
+        project_id = uuid.uuid4().hex
+        url = ('/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' %
+               {'project_id': project_id})
+        self.get(url, expected_status=404)
+
+    def test_empty_endpoint_groups_in_project(self):
+        """Test when no endpoint groups associated with the project."""
+        url = ('/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' %
+               {'project_id': self.project_id})
+        response = self.get(url)
+
+        self.assertEqual(0, len(response.result['endpoint_groups']))
 
     def test_check_endpoint_group_to_project(self):
         """Test HEAD with a valid endpoint group and project association."""
