@@ -4291,7 +4291,9 @@ class TrustTests(object):
         trust_data = self.trust_api.get_trust(trust_id)
         self.assertEqual(new_id, trust_data['id'])
         self.trust_api.delete_trust(trust_id)
-        self.assertIsNone(self.trust_api.get_trust(trust_id))
+        self.assertRaises(exception.TrustNotFound,
+                          self.trust_api.get_trust,
+                          trust_id)
 
     def test_delete_trust_not_found(self):
         trust_id = uuid.uuid4().hex
@@ -4314,7 +4316,9 @@ class TrustTests(object):
         self.assertIsNotNone(trust_data)
         self.assertIsNone(trust_data['deleted_at'])
         self.trust_api.delete_trust(new_id)
-        self.assertIsNone(self.trust_api.get_trust(new_id))
+        self.assertRaises(exception.TrustNotFound,
+                          self.trust_api.get_trust,
+                          new_id)
         deleted_trust = self.trust_api.get_trust(trust_data['id'],
                                                  deleted=True)
         self.assertEqual(trust_data['id'], deleted_trust['id'])
@@ -4389,7 +4393,9 @@ class TrustTests(object):
         self.assertEqual(1, t['remaining_uses'])
         self.trust_api.consume_use(trust_data['id'])
         # This was the last use, the trust isn't available anymore
-        self.assertIsNone(self.trust_api.get_trust(trust_data['id']))
+        self.assertRaises(exception.TrustNotFound,
+                          self.trust_api.get_trust,
+                          trust_data['id'])
 
 
 class CatalogTests(object):

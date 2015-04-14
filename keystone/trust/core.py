@@ -179,9 +179,6 @@ class Manager(manager.Manager):
         Recursively remove given and redelegated trusts
         """
         trust = self.driver.get_trust(trust_id)
-        if not trust:
-            raise exception.TrustNotFound(trust_id)
-
         trusts = self.driver.list_trusts_for_trustor(
             trust['trustor_user_id'])
 

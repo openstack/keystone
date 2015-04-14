@@ -217,8 +217,6 @@ class AuthInfo(object):
             raise exception.ValidationError(attribute='trust_id',
                                             target='trust')
         trust = self.trust_api.get_trust(trust_id)
-        if not trust:
-            raise exception.TrustNotFound(trust_id=trust_id)
         return trust
 
     def _validate_and_normalize_scope_data(self):
