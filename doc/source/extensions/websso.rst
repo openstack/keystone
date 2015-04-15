@@ -211,4 +211,4 @@ automatically set that choice to be highlighted by default.
 
 .. code-block:: python
 
-  WEBSSO_CHOICES = "credentials"
+  WEBSSO_INITIAL_CHOICE = "credentials"
