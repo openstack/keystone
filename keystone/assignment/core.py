@@ -474,8 +474,6 @@ class Manager(manager.Manager):
                 # for invalidating tokens below, so extract them here.
                 for user in self.identity_api.list_users_in_group(group_id):
                     if user['id'] != user_id:
-                        self._emit_invalidate_user_token_persistence(
-                            user['id'])
                         self.revoke_api.revoke_by_grant(
                             user_id=user['id'], role_id=role_id,
                             domain_id=domain_id, project_id=project_id)
