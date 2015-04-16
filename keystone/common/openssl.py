@@ -20,7 +20,7 @@ from oslo_log import log
 
 from keystone.common import environment
 from keystone.common import utils
-from keystone.i18n import _LI, _LE
+from keystone.i18n import _LI, _LE, _LW
 
 LOG = log.getLogger(__name__)
 CONF = cfg.CONF
@@ -70,8 +70,8 @@ class BaseCertificateConfigure(object):
             if "OpenSSL 0." in openssl_ver:
                 self.ssl_dictionary['default_md'] = 'sha1'
         except OSError:
-            LOG.warn('Failed to invoke ``openssl version``, '
-                     'assuming is v1.0 or newer')
+            LOG.warn(_LW('Failed to invoke ``openssl version``, '
+                         'assuming is v1.0 or newer'))
         self.ssl_dictionary.update(kwargs)
 
     def exec_command(self, command):
