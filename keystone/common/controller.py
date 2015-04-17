@@ -747,7 +747,7 @@ class V3Controller(wsgi.Application):
 
     def _normalize_domain_id(self, context, ref):
         """Fill in domain_id if not specified in a v3 call."""
-        if 'domain_id' not in ref:
+        if not ref.get('domain_id'):
             ref['domain_id'] = self._get_domain_id_from_token(context)
         return ref
 

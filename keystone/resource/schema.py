@@ -19,7 +19,7 @@ _project_properties = {
     # NOTE(lbragstad): domain_id isn't nullable according to some backends.
     # The identity-api should be updated to be consistent with the
     # implementation.
-    'domain_id': parameter_types.id_string,
+    'domain_id': validation.nullable(parameter_types.id_string),
     'enabled': parameter_types.boolean,
     'is_domain': parameter_types.boolean,
     'parent_id': validation.nullable(parameter_types.id_string),

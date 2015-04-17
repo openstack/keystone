@@ -2492,7 +2492,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(DEFAULT_DOMAIN_ID, ref['domain_id'])
 
     @unit.skip_if_no_multiple_domains_support
-    @test_utils.wip('waiting for projects acting as domains implementation')
+    @test_utils.wip('waiting for sub projects acting as domains support')
     def test_is_domain_sub_project_has_parent_domain_id(self):
         project = {'id': uuid.uuid4().hex,
                    'description': '',
@@ -2542,10 +2542,28 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.delete_project(project['id'])
 
     @unit.skip_if_no_multiple_domains_support
-    @test_utils.wip('waiting for projects acting as domains implementation')
+    def test_create_subproject_acting_as_domain_fails(self):
+        root_project = {'id': uuid.uuid4().hex,
+                        'domain_id': DEFAULT_DOMAIN_ID,
+                        'name': uuid.uuid4().hex,
+                        'parent_id': None,
+                        'is_domain': True}
+        self.resource_api.create_project(root_project['id'], root_project)
+
+        sub_project = {'id': uuid.uuid4().hex,
+                       'domain_id': DEFAULT_DOMAIN_ID,
+                       'name': uuid.uuid4().hex,
+                       'parent_id': root_project['id'],
+                       'is_domain': True}
+
+        # Creation of sub projects acting as domains is not allowed yet
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.create_project,
+                          sub_project['id'], sub_project)
+
+    @unit.skip_if_no_multiple_domains_support
     def test_create_domain_under_regular_project_hierarchy_fails(self):
-        # Creating a regular project hierarchy. Projects acting as domains
-        # can't have a parent that is a regular project.
+        # Projects acting as domains can't have a regular project as parent
         projects_hierarchy = self._create_projects_hierarchy()
         parent = projects_hierarchy[1]
         project_id = uuid.uuid4().hex
@@ -2562,7 +2580,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           project['id'], project)
 
     @unit.skip_if_no_multiple_domains_support
-    @test_utils.wip('waiting for projects acting as domains implementation')
+    @test_utils.wip('waiting for sub projects acting as domains support')
     def test_create_project_under_domain_hierarchy(self):
         projects_hierarchy = self._create_projects_hierarchy(is_domain=True)
         parent = projects_hierarchy[1]
@@ -2591,6 +2609,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # The is_domain flag should be False by default
         self.assertFalse(ref['is_domain'])
 
+    @unit.skip_if_no_multiple_domains_support
     def test_create_project_passing_is_domain_flag_true(self):
         project = {'id': uuid.uuid4().hex,
                    'description': '',
