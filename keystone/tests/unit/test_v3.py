@@ -396,6 +396,29 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
         return project
 
+    def get_unscoped_token(self):
+        """Convenience method so that we can test authenticated requests."""
+        r = self.admin_request(
+            method='POST',
+            path='/v3/auth/tokens',
+            body={
+                'auth': {
+                    'identity': {
+                        'methods': ['password'],
+                        'password': {
+                            'user': {
+                                'name': self.user['name'],
+                                'password': self.user['password'],
+                                'domain': {
+                                    'id': self.user['domain_id']
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        return r.headers.get('X-Subject-Token')
+
     def get_scoped_token(self):
         """Convenience method so that we can test authenticated requests."""
         r = self.admin_request(
@@ -418,6 +441,34 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
                     'scope': {
                         'project': {
                             'id': self.project['id'],
+                        }
+                    }
+                }
+            })
+        return r.headers.get('X-Subject-Token')
+
+    def get_domain_scoped_token(self):
+        """Convenience method for requesting domain scoped token."""
+        r = self.admin_request(
+            method='POST',
+            path='/v3/auth/tokens',
+            body={
+                'auth': {
+                    'identity': {
+                        'methods': ['password'],
+                        'password': {
+                            'user': {
+                                'name': self.user['name'],
+                                'password': self.user['password'],
+                                'domain': {
+                                    'id': self.user['domain_id']
+                                }
+                            }
+                        }
+                    },
+                    'scope': {
+                        'domain': {
+                            'id': self.domain['id'],
                         }
                     }
                 }
@@ -1257,6 +1308,42 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         middleware.AuthContextMiddleware(application).process_request(req)
         self.assertDictEqual(req.environ.get(authorization.AUTH_CONTEXT_ENV),
                              {})
+
+    def test_unscoped_token_auth_context(self):
+        unscoped_token = self.get_unscoped_token()
+        req = self._mock_request_object(unscoped_token)
+        application = None
+        middleware.AuthContextMiddleware(application).process_request(req)
+        for key in ['project_id', 'domain_id', 'domain_name']:
+            self.assertNotIn(
+                key,
+                req.environ.get(authorization.AUTH_CONTEXT_ENV))
+
+    def test_project_scoped_token_auth_context(self):
+        project_scoped_token = self.get_scoped_token()
+        req = self._mock_request_object(project_scoped_token)
+        application = None
+        middleware.AuthContextMiddleware(application).process_request(req)
+        self.assertEqual(
+            self.project['id'],
+            req.environ.get(authorization.AUTH_CONTEXT_ENV)['project_id'])
+
+    def test_domain_scoped_token_auth_context(self):
+        # grant the domain role to user
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        domain_scoped_token = self.get_domain_scoped_token()
+        req = self._mock_request_object(domain_scoped_token)
+        application = None
+        middleware.AuthContextMiddleware(application).process_request(req)
+        self.assertEqual(
+            self.domain['id'],
+            req.environ.get(authorization.AUTH_CONTEXT_ENV)['domain_id'])
+        self.assertEqual(
+            self.domain['name'],
+            req.environ.get(authorization.AUTH_CONTEXT_ENV)['domain_name'])
 
 
 class JsonHomeTestMixin(object):
