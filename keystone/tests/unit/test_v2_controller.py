@@ -16,6 +16,7 @@
 import uuid
 
 from keystone.assignment import controllers as assignment_controllers
+from keystone import exception
 from keystone.resource import controllers as resource_controllers
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
@@ -93,4 +94,50 @@ class TenantTestCase(tests.TestCase):
             tenant_copy = tenant.copy()
             tenant_copy.pop('domain_id')
             tenant_copy.pop('parent_id')
+            tenant_copy.pop('is_domain')
             self.assertIn(tenant_copy, refs['tenants'])
+
+    def _create_is_domain_project(self):
+        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                   'domain_id': 'default', 'is_domain': True}
+        project_ref = self.resource_api.create_project(project['id'], project)
+        return self.tenant_controller.v3_to_v2_project(project_ref)
+
+    def test_update_is_domain_project_not_found(self):
+        """Test that update is_domain project is not allowed in v2."""
+        project = self._create_is_domain_project()
+
+        project['name'] = uuid.uuid4().hex
+        self.assertRaises(
+            exception.ProjectNotFound,
+            self.tenant_controller.update_project,
+            _ADMIN_CONTEXT,
+            project['id'],
+            project
+        )
+
+    def test_delete_is_domain_project_not_found(self):
+        """Test that delete is_domain project is not allowed in v2."""
+        project = self._create_is_domain_project()
+
+        self.assertRaises(
+            exception.ProjectNotFound,
+            self.tenant_controller.delete_project,
+            _ADMIN_CONTEXT,
+            project['id']
+        )
+
+    def test_list_is_domain_project_not_found(self):
+        """Test v2 get_all_projects having projects that act as a domain.
+
+           In v2 no project with the is_domain flag enabled should be
+           returned.
+        """
+        project1 = self._create_is_domain_project()
+        project2 = self._create_is_domain_project()
+
+        refs = self.tenant_controller.get_all_projects(_ADMIN_CONTEXT)
+        projects = refs.get('tenants')
+
+        self.assertNotIn(project1, projects)
+        self.assertNotIn(project2, projects)
