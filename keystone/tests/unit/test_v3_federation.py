@@ -1009,6 +1009,33 @@ class FederatedIdentityProviderTests(FederationTests):
         self.delete(url)
         self.get(url, expected_status=404)
 
+    def test_delete_idp_also_deletes_assigned_protocols(self):
+        """Deleting an IdP will delete its assigned protocol."""
+
+        # create default IdP
+        default_resp = self._create_default_idp()
+        default_idp = self._fetch_attribute_from_response(default_resp,
+                                                          'identity_provider')
+        idp_id = default_idp['id']
+        protocol_id = uuid.uuid4().hex
+
+        url = self.base_url(suffix='%(idp_id)s/protocols/%(protocol_id)s')
+        idp_url = self.base_url(suffix=idp_id)
+
+        # assign protocol to IdP
+        kwargs = {'expected_status': 201}
+        resp, idp_id, proto = self._assign_protocol_to_idp(
+            url=url,
+            idp_id=idp_id,
+            proto=protocol_id,
+            **kwargs)
+
+        # removing IdP will remove the assigned protocol as well
+        self.assertEqual(1, len(self.federation_api.list_protocols(idp_id)))
+        self.delete(idp_url)
+        self.get(idp_url, expected_status=404)
+        self.assertEqual(0, len(self.federation_api.list_protocols(idp_id)))
+
     def test_delete_nonexisting_idp(self):
         """Delete nonexisting IdP.
 

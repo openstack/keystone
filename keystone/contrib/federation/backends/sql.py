@@ -166,6 +166,7 @@ class Federation(core.Driver):
 
     def delete_idp(self, idp_id):
         with sql.transaction() as session:
+            self._delete_assigned_protocols(session, idp_id)
             idp_ref = self._get_idp(session, idp_id)
             session.delete(idp_ref)
 
@@ -256,6 +257,11 @@ class Federation(core.Driver):
         with sql.transaction() as session:
             key_ref = self._get_protocol(session, idp_id, protocol_id)
             session.delete(key_ref)
+
+    def _delete_assigned_protocols(self, session, idp_id):
+        query = session.query(FederationProtocolModel)
+        query = query.filter_by(idp_id=idp_id)
+        query.delete()
 
     # Mapping CRUD
     def _get_mapping(self, session, mapping_id):
