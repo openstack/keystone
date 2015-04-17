@@ -20,6 +20,7 @@ from keystone.common import controller
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils
 
 
 CONF = cfg.CONF
@@ -538,6 +539,52 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.post('/projects',
                   body={'project': ref},
                   expected_status=501)
+
+    @utils.wip('waiting for projects acting as domains implementation')
+    def test_create_project_without_parent_id_and_without_domain_id(self):
+        """Call ``POST /projects``."""
+
+        # Grant a domain role for the user
+        collection_url = (
+            '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
+                'domain_id': self.domain_id,
+                'user_id': self.user['id']})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+        self.put(member_url)
+
+        # Create an authentication request for a domain scoped token
+        auth = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain_id)
+
+        # Without domain_id and parent_id, the domain_id should be
+        # normalized to the domain on the token, when using a domain
+        # scoped token.
+        ref = self.new_project_ref()
+        r = self.post(
+            '/projects',
+            auth=auth,
+            body={'project': ref})
+        ref['domain_id'] = self.domain['id']
+        self.assertValidProjectResponse(r, ref)
+
+    @utils.wip('waiting for projects acting as domains implementation')
+    def test_create_project_with_parent_id_and_no_domain_id(self):
+        """Call ``POST /projects``."""
+        # With only the parent_id, the domain_id should be
+        # normalized to the parent's domain_id
+        ref_child = self.new_project_ref(parent_id=self.project['id'])
+
+        r = self.post(
+            '/projects',
+            body={'project': ref_child})
+        self.assertEqual(r.result['project']['domain_id'],
+                         self.project['domain_id'])
+        ref_child['domain_id'] = self.domain['id']
+        self.assertValidProjectResponse(r, ref_child)
 
     def _create_projects_hierarchy(self, hierarchy_size=1):
         """Creates a single-branched project hierarchy with the specified size.
