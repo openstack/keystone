@@ -93,7 +93,8 @@
 # Define the notification format for Identity Service events. A "basic"
 # notification has information about the resource being operated on. A "cadf"
 # notification has the same information, as well as information about the
-# initiator of the event. Valid options are: basic and cadf (string value)
+# initiator of the event. (string value)
+# Allowed values: basic, cadf
 #notification_format = basic
 
 #
@@ -802,18 +803,18 @@
 # your LDAP server supports subtree deletion. (boolean value)
 #allow_subtree_delete = false
 
-# The LDAP scope for queries, this can be either "one" (onelevel/singleLevel)
-# or "sub" (subtree/wholeSubtree). (string value)
+# The LDAP scope for queries, "one" represents oneLevel/singleLevel and "sub"
+# represents subtree/wholeSubtree options. (string value)
+# Allowed values: one, sub
 #query_scope = one
 
 # Maximum results per page; a value of zero ("0") disables paging. (integer
 # value)
 #page_size = 0
 
-# The LDAP dereferencing option for queries. This can be either "never",
-# "searching", "always", "finding" or "default". The "default" option falls
-# back to using default dereferencing configured by your ldap.conf. (string
-# value)
+# The LDAP dereferencing option for queries. The "default" option falls back to
+# using default dereferencing configured by your ldap.conf. (string value)
+# Allowed values: never, searching, always, finding, default
 #alias_dereferencing = default
 
 # Sets the LDAP debugging level for LDAP calls. A value of 0 means that
@@ -1053,7 +1054,9 @@
 # Enable TLS for communicating with LDAP servers. (boolean value)
 #use_tls = false
 
-# Valid options for tls_req_cert are demand, never, and allow. (string value)
+# Specifies what checks to perform on client certificates in an incoming TLS
+# session. (string value)
+# Allowed values: demand, never, allow
 #tls_req_cert = demand
 
 # Enable LDAP connection pooling. (boolean value)
@@ -1593,8 +1596,9 @@
 # Telephone number of contact person. (string value)
 #idp_contact_telephone = <None>
 
-# Contact type. Allowed values are: technical, support, administrative billing,
-# and other (string value)
+# The contact type describing the main point of contact for the identity
+# provider. (string value)
+# Allowed values: technical, support, administrative, billing, other
 #idp_contact_type = other
 
 # Path to the Identity Provider Metadata file. This file should be generated
