@@ -633,6 +633,58 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
 
         return projects
 
+    def test_list_projects_filtering_by_parent_id(self):
+        """Call ``GET /projects?parent_id={project_id}``."""
+        projects = self._create_projects_hierarchy(hierarchy_size=2)
+
+        # Add another child to projects[1] - it will be projects[3]
+        new_ref = self.new_project_ref(
+            domain_id=self.domain_id,
+            parent_id=projects[1]['project']['id'])
+        resp = self.post('/projects',
+                         body={'project': new_ref})
+        self.assertValidProjectResponse(resp, new_ref)
+
+        projects.append(resp.result)
+
+        # Query for projects[0] immediate children - it will
+        # be only projects[1]
+        r = self.get(
+            '/projects?parent_id=%(project_id)s' % {
+                'project_id': projects[0]['project']['id']})
+        self.assertValidProjectListResponse(r)
+
+        projects_result = r.result['projects']
+        expected_list = [projects[1]['project']]
+
+        # projects[0] has projects[1] as child
+        self.assertEqual(expected_list, projects_result)
+
+        # Query for projects[1] immediate children - it will
+        # be projects[2] and projects[3]
+        r = self.get(
+            '/projects?parent_id=%(project_id)s' % {
+                'project_id': projects[1]['project']['id']})
+        self.assertValidProjectListResponse(r)
+
+        projects_result = r.result['projects']
+        expected_list = [projects[2]['project'], projects[3]['project']]
+
+        # projects[1] has projects[2] and projects[3] as children
+        self.assertEqual(expected_list, projects_result)
+
+        # Query for projects[2] immediate children - it will be an empty list
+        r = self.get(
+            '/projects?parent_id=%(project_id)s' % {
+                'project_id': projects[2]['project']['id']})
+        self.assertValidProjectListResponse(r)
+
+        projects_result = r.result['projects']
+        expected_list = []
+
+        # projects[2] has no child, projects_result must be an empty list
+        self.assertEqual(expected_list, projects_result)
+
     def test_create_hierarchical_project(self):
         """Call ``POST /projects``."""
         self._create_projects_hierarchy()
