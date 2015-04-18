@@ -3770,6 +3770,21 @@ class WebSSOTests(FederatedTokenTests):
                           self.api.federated_sso_auth,
                           context, self.PROTOCOL)
 
+    def test_federated_sso_host_in_trusted_dashboard(self):
+        trusted_dashboard = self.TRUSTED_DASHBOARD + '/' + uuid.uuid4().hex
+        malformed_url = uuid.uuid4().hex
+        self.config_fixture.config(
+            group='federation',
+            trusted_dashboard=[trusted_dashboard,
+                               malformed_url])
+
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        context = {'environment': environment}
+        query_string = {'origin': self.ORIGIN + '/' + uuid.uuid4().hex}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        resp = self.api.federated_sso_auth(context, self.PROTOCOL)
+        self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
+
     def test_federated_sso_untrusted_dashboard(self):
         environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
         context = {'environment': environment}
