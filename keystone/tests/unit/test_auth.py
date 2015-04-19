@@ -265,12 +265,12 @@ class AuthWithToken(AuthTest):
             self.user_foo['id'],
             self.tenant_bar['id'],
             self.role_member['id'])
-        # Get an unscoped tenant
+        # Get an unscoped token
         body_dict = _build_user_auth(
             username='FOO',
             password='foo2')
         unscoped_token = self.controller.authenticate({}, body_dict)
-        # Get a token on BAR tenant using the unscoped tenant
+        # Get a token on BAR tenant using the unscoped token
         body_dict = _build_user_auth(
             token=unscoped_token["access"]["token"],
             tenant_name="BAR")
