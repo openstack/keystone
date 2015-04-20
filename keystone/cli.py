@@ -21,7 +21,7 @@ from oslo_config import cfg
 from oslo_log import log
 import pbr.version
 
-from keystone import assignment
+from keystone import backends
 from keystone.common import driver_hints
 from keystone.common import openssl
 from keystone.common import sql
@@ -30,8 +30,6 @@ from keystone.common import utils
 from keystone import config
 from keystone import exception
 from keystone.i18n import _, _LW
-from keystone import identity
-from keystone import resource
 from keystone import token
 
 
@@ -296,16 +294,16 @@ class MappingPurge(BaseApp):
 
         def get_domain_id(name):
             try:
-                identity.Manager()
-                # init assignment manager to avoid KeyError in resource.core
-                assignment.Manager()
-                resource_manager = resource.Manager()
                 return resource_manager.get_domain_by_name(name)['id']
             except KeyError:
                 raise ValueError(_("Unknown domain '%(name)s' specified by "
                                    "--domain-name") % {'name': name})
 
         validate_options()
+        drivers = backends.load_backends()
+        resource_manager = drivers['resource_api']
+        mapping_manager = drivers['id_mapping_api']
+
         # Now that we have validated the options, we know that at least one
         # option has been specified, and if it was the --all option then this
         # was the only option specified.
@@ -322,7 +320,6 @@ class MappingPurge(BaseApp):
         if CONF.command.type is not None:
             mapping['type'] = CONF.command.type
 
-        mapping_manager = identity.MappingManager()
         mapping_manager.purge_mappings(mapping)
 
 
@@ -337,21 +334,9 @@ class DomainConfigUploadFiles(object):
         self.load_backends()
 
     def load_backends(self):
-        """Load the backends needed for uploading domain configs.
-
-        We only need the resource and domain_config managers, but there are
-        some dependencies which mean we have to load the assignment and
-        identity managers as well.
-
-        The order of loading the backends is important, since the resource
-        manager depends on the assignment manager, which in turn depends on
-        the identity manager.
-
-        """
-        identity.Manager()
-        assignment.Manager()
-        self.resource_manager = resource.Manager()
-        self.domain_config_manager = resource.DomainConfigManager()
+        drivers = backends.load_backends()
+        self.resource_manager = drivers['resource_api']
+        self.domain_config_manager = drivers['domain_config_api']
 
     def valid_options(self):
         """Validate the options, returning True if they are indeed valid.
