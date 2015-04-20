@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-29 06:05+0000\n"
-"PO-Revision-Date: 2015-03-27 15:26+0000\n"
+"POT-Creation-Date: 2015-04-20 06:05+0000\n"
+"PO-Revision-Date: 2015-04-16 00:58+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -21,19 +21,19 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: keystone/cli.py:160
+#: keystone/cli.py:157
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 "keystone-manage pki_setup n'est pas recommandé pour une utilisation en "
 "production."
 
-#: keystone/cli.py:179
+#: keystone/cli.py:176
 msgid "keystone-manage ssl_setup is not recommended for production use."
 msgstr ""
 "keystone-manage ssl_setup n'est pas recommandé pour une utilisation en "
 "production."
 
-#: keystone/cli.py:494
+#: keystone/cli.py:482
 #, python-format
 msgid "Ignoring file (%s) while scanning domain config directory"
 msgstr ""
@@ -54,21 +54,21 @@ msgid ""
 "%(role)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:449
+#: keystone/auth/controllers.py:447
 #, python-format
 msgid ""
 "User %(user_id)s doesn't have access to default project %(project_id)s. The "
 "token will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:457
+#: keystone/auth/controllers.py:455
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s is disabled. The token "
 "will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:466
+#: keystone/auth/controllers.py:464
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s not found. The token will "
@@ -96,6 +96,10 @@ msgstr ""
 msgid "No domain information specified as part of list request"
 msgstr ""
 
+#: keystone/common/openssl.py:73
+msgid "Failed to invoke ``openssl version``, assuming is v1.0 or newer"
+msgstr ""
+
 #: keystone/common/utils.py:103
 #, python-format
 msgid "Truncating user password to %d characters."
@@ -110,7 +114,7 @@ msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
 msgid "Invalid token in _get_trust_id_for_request"
 msgstr "Jeton invalide dans _get_trust_id_for_request"
 
-#: keystone/common/cache/backends/mongo.py:403
+#: keystone/common/cache/backends/mongo.py:407
 #, python-format
 msgid ""
 "TTL index already exists on db collection <%(c_name)s>, remove index <"
@@ -184,7 +188,7 @@ msgid ""
 "not found."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:539
+#: keystone/contrib/federation/utils.py:545
 msgid "Ignoring user name"
 msgstr ""
 
@@ -208,6 +212,13 @@ msgstr "Non de domaine trouvé non valide (%s) dans le fichier de configuration"
 msgid "Unable to locate domain config directory: %s"
 msgstr "Impossible de localiser le répertoire de configuration domaine: %s"
 
+#: keystone/identity/core.py:597
+#, python-format
+msgid ""
+"Found multiple domains being mapped to a driver that does not support that "
+"(e.g. LDAP) - Domain ID: %(domain)s, Default Driver: %(driver)s"
+msgstr ""
+
 #: keystone/middleware/core.py:149
 msgid ""
 "XML support has been removed as of the Kilo release and should not be "
@@ -230,7 +241,7 @@ msgstr ""
 msgid "pid %d not in child list"
 msgstr "PID %d absent de la liste d'enfants"
 
-#: keystone/resource/core.py:1222
+#: keystone/resource/core.py:1221
 #, python-format
 msgid ""
 "Found what looks like an unmatched config option substitution reference - "
@@ -238,7 +249,7 @@ msgid ""
 "Perhaps the config option to which it refers has yet to be added?"
 msgstr ""
 
-#: keystone/resource/core.py:1229
+#: keystone/resource/core.py:1228
 #, python-format
 msgid ""
 "Found what looks like an incorrectly constructed config option substitution "
@@ -246,7 +257,7 @@ msgid ""
 "%(value)s."
 msgstr ""
 
-#: keystone/token/persistence/core.py:227
+#: keystone/token/persistence/core.py:228
 #, python-format
 msgid ""
 "`token_api.%s` is deprecated as of Juno in favor of utilizing methods on "
