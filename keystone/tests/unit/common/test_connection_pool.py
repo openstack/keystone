@@ -10,9 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import threading
 import time
 
 import mock
+import six
 from six.moves import queue
 import testtools
 from testtools import matchers
@@ -117,3 +119,17 @@ class TestConnectionPool(core.TestCase):
         # after it is available.
         connection_pool.put_nowait(conn)
         _acquire_connection()
+
+
+class TestMemcacheClientOverrides(core.BaseTestCase):
+
+    def test_client_stripped_of_threading_local(self):
+        """threading.local overrides are restored for _MemcacheClient"""
+        client_class = _memcache_pool._MemcacheClient
+        # get the genuine thread._local from MRO
+        thread_local = client_class.__mro__[2]
+        self.assertTrue(thread_local is threading.local)
+        for field in six.iterkeys(thread_local.__dict__):
+            if field not in ('__dict__', '__weakref__'):
+                self.assertNotEqual(id(getattr(thread_local, field, None)),
+                                    id(getattr(client_class, field, None)))
