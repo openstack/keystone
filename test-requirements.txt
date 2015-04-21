@@ -12,7 +12,7 @@ pysqlite
 python-memcached>=1.48
 
 # Optional dogpile backend: MongoDB
-pymongo>=2.6.3
+pymongo>=2.6.3,<3.0
 
 # Optional backend: LDAP
 # authenticate against an existing LDAP server
