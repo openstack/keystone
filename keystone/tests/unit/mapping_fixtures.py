@@ -463,6 +463,30 @@ MAPPING_TESTER_REGEX = {
     ]
 }
 
+
+MAPPING_DIRECT_MAPPING_THROUGH_KEYWORD = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": "{0}"
+                },
+                {
+                    "group": TESTER_GROUP_ID
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName",
+                    "any_one_of": [
+                        "bwilliams"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
 MAPPING_DEVELOPER_REGEX = {
     "rules": [
         {

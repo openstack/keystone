@@ -437,6 +437,12 @@ class MetadataFileError(UnexpectedError):
     debug_message_format = _("Error while reading metadata file, %(reason)s")
 
 
+class DirectMappingError(UnexpectedError):
+    message_format = _("Local section in mapping %(mapping_id)s refers to a "
+                       "remote match that doesn't exist "
+                       "(e.g. {0} in a local section).")
+
+
 class AssignmentTypeCalculationError(UnexpectedError):
     debug_message_format = _(
         'Unexpected combination of grant attributes - '
