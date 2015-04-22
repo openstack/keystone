@@ -5077,6 +5077,29 @@ class CatalogTests(object):
 
         return service_ref, enabled_endpoint_ref, disabled_endpoint_ref
 
+    def test_list_endpoints(self):
+        service = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        self.catalog_api.create_service(service['id'], service.copy())
+
+        expected_ids = set([uuid.uuid4().hex for _ in range(3)])
+        for endpoint_id in expected_ids:
+            endpoint = {
+                'id': endpoint_id,
+                'region_id': None,
+                'service_id': service['id'],
+                'interface': 'public',
+                'url': uuid.uuid4().hex,
+            }
+            self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
+
+        endpoints = self.catalog_api.list_endpoints()
+        self.assertEqual(expected_ids, set(e['id'] for e in endpoints))
+
     def test_get_catalog_endpoint_disabled(self):
         """Get back only enabled endpoints when get the v2 catalog."""
 

@@ -227,6 +227,13 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
     def test_update_endpoint(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
+    def test_list_endpoints(self):
+        # NOTE(dstanek): a future commit will fix this functionality and
+        # this test
+        expected_ids = set()
+        endpoints = self.catalog_api.list_endpoints()
+        self.assertEqual(expected_ids, set(e['id'] for e in endpoints))
+
     @tests.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_endpoint(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
