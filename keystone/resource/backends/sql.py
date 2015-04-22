@@ -94,7 +94,7 @@ class Resource(keystone_resource.Driver):
             project = self._get_project(session, project_id).to_dict()
             children = self._get_children(session, [project['id']])
             subtree = []
-            examined = set(project['id'])
+            examined = set([project['id']])
             while children:
                 children_ids = set()
                 for ref in children:
@@ -106,7 +106,7 @@ class Resource(keystone_resource.Driver):
                         return
                     children_ids.add(ref['id'])
 
-                examined.union(children_ids)
+                examined.update(children_ids)
                 subtree += children
                 children = self._get_children(session, children_ids)
             return subtree

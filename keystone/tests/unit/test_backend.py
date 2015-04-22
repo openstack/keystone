@@ -2208,6 +2208,39 @@ class IdentityTests(object):
         subtree = self.resource_api.list_projects_in_subtree(project3['id'])
         self.assertEqual(0, len(subtree))
 
+    def test_list_projects_in_subtree_with_circular_reference(self):
+        project1_id = uuid.uuid4().hex
+        project2_id = uuid.uuid4().hex
+
+        project1 = {'id': project1_id,
+                    'description': '',
+                    'domain_id': DEFAULT_DOMAIN_ID,
+                    'enabled': True,
+                    'name': uuid.uuid4().hex}
+        self.resource_api.create_project(project1['id'], project1)
+
+        project2 = {'id': project2_id,
+                    'description': '',
+                    'domain_id': DEFAULT_DOMAIN_ID,
+                    'enabled': True,
+                    'name': uuid.uuid4().hex,
+                    'parent_id': project1_id}
+        self.resource_api.create_project(project2['id'], project2)
+
+        project1['parent_id'] = project2_id  # Adds cyclic reference
+
+        # NOTE(dstanek): The manager does not allow parent_id to be updated.
+        # Instead will directly use the driver to create the cyclic
+        # reference.
+        self.resource_api.driver.update_project(project1_id, project1)
+
+        subtree = self.resource_api.list_projects_in_subtree(project1_id)
+
+        # NOTE(dstanek): If a cyclic refence is detected the code bails
+        # and returns None instead of falling into the infinite
+        # recursion trap.
+        self.assertIsNone(subtree)
+
     def test_list_project_parents(self):
         projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=3)
         project1 = projects_hierarchy[0]
