@@ -199,18 +199,30 @@ class ServiceWrapper(object):
 
 
 class ProcessLauncher(object):
-    def __init__(self):
-        """Constructor."""
+    _signal_handlers_set = set()
 
+    @classmethod
+    def _handle_class_signals(cls, *args, **kwargs):
+        for handler in cls._signal_handlers_set:
+            handler(*args, **kwargs)
+
+    def __init__(self, wait_interval=0.01):
+        """Constructor.
+
+        :param wait_interval: The interval to sleep for between checks
+                              of child process exit.
+        """
         self.children = {}
         self.sigcaught = None
         self.running = True
+        self.wait_interval = wait_interval
         rfd, self.writepipe = os.pipe()
         self.readpipe = eventlet.greenio.GreenPipe(rfd, 'r')
         self.handle_signal()
 
     def handle_signal(self):
-        _set_signals_handler(self._handle_signal)
+        self._signal_handlers_set.add(self._handle_signal)
+        _set_signals_handler(self._handle_class_signals)
 
     def _handle_signal(self, signo, frame):
         self.sigcaught = signo
@@ -230,15 +242,12 @@ class ProcessLauncher(object):
 
     def _child_process_handle_signal(self):
         # Setup child signal handlers differently
-        def _sigterm(*args):
-            signal.signal(signal.SIGTERM, signal.SIG_DFL)
-            raise SignalExit(signal.SIGTERM)
-
         def _sighup(*args):
             signal.signal(signal.SIGHUP, signal.SIG_DFL)
             raise SignalExit(signal.SIGHUP)
 
-        signal.signal(signal.SIGTERM, _sigterm)
+        # Parent signals with SIGTERM when it wants us to go away.
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
         if _sighup_supported():
             signal.signal(signal.SIGHUP, _sighup)
         # Block SIGINT and let the parent send us a SIGTERM
@@ -329,8 +338,8 @@ class ProcessLauncher(object):
 
     def _wait_child(self):
         try:
-            # Block while any of child processes have exited
-            pid, status = os.waitpid(0, 0)
+            # Don't block if no child processes have exited
+            pid, status = os.waitpid(0, os.WNOHANG)
             if not pid:
                 return None
         except OSError as exc:
@@ -359,6 +368,10 @@ class ProcessLauncher(object):
         while self.running:
             wrap = self._wait_child()
             if not wrap:
+                # Yield to other threads if no children have exited
+                # Sleep for a short time to avoid excessive CPU usage
+                # (see bug #1095346)
+                eventlet.greenthread.sleep(self.wait_interval)
                 continue
             while self.running and len(wrap.children) < wrap.workers:
                 self._start_child(wrap)
@@ -383,8 +396,14 @@ class ProcessLauncher(object):
                 if not _is_sighup_and_daemon(self.sigcaught):
                     break
 
+                cfg.CONF.reload_config_files()
+                for service in set(
+                        [wrap.service for wrap in self.children.values()]):
+                    service.reset()
+
                 for pid in self.children:
                     os.kill(pid, signal.SIGHUP)
+
                 self.running = True
                 self.sigcaught = None
         except eventlet.greenlet.GreenletExit:
