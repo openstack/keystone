@@ -607,6 +607,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase):
         """Call ``POST /projects``."""
         self.post('/projects', body={'project': {}}, expected_status=400)
 
+    def test_create_project_invalid_domain_id(self):
+        """Call ``POST /projects``."""
+        self.new_project_ref(domain_id=uuid.uuid4().hex)
+        self.post('/projects', body={'project': {}}, expected_status=400)
+
     def _create_projects_hierarchy(self, hierarchy_size=1):
         """Creates a single-branched project hierarchy with the specified size.
 

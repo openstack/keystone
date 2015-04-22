@@ -1976,6 +1976,16 @@ class IdentityTests(object):
                           project['id'],
                           project)
 
+    def test_create_project_invalid_domain_id(self):
+        project = {'id': uuid.uuid4().hex,
+                   'name': uuid.uuid4().hex,
+                   'domain_id': uuid.uuid4().hex,
+                   'enabled': True}
+        self.assertRaises(exception.DomainNotFound,
+                          self.resource_api.create_project,
+                          project['id'],
+                          project)
+
     def test_create_user_invalid_enabled_type_string(self):
         user = {'name': uuid.uuid4().hex,
                 'domain_id': DEFAULT_DOMAIN_ID,
@@ -2818,7 +2828,8 @@ class IdentityTests(object):
                           project['id'],
                           project)
 
-    def test_create_leaf_project_with_invalid_domain(self):
+    @tests.skip_if_no_multiple_domains_support
+    def test_create_leaf_project_with_different_domain(self):
         root_project = {'id': uuid.uuid4().hex,
                         'name': uuid.uuid4().hex,
                         'description': '',
@@ -2827,10 +2838,13 @@ class IdentityTests(object):
                         'parent_id': None}
         self.resource_api.create_project(root_project['id'], root_project)
 
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                  'enabled': True}
+        self.resource_api.create_domain(domain['id'], domain)
         leaf_project = {'id': uuid.uuid4().hex,
                         'name': uuid.uuid4().hex,
                         'description': '',
-                        'domain_id': 'fake',
+                        'domain_id': domain['id'],
                         'enabled': True,
                         'parent_id': root_project['id']}
 
