@@ -412,7 +412,7 @@ class TestCase(BaseTestCase):
 
         for manager_name, manager in six.iteritems(drivers):
             setattr(self, manager_name, manager)
-        self.addCleanup(self.cleanup_instance(*drivers.keys()))
+        self.addCleanup(self.cleanup_instance(*list(drivers.keys())))
 
     def load_extra_backends(self):
         """Override to load managers that aren't loaded by default.

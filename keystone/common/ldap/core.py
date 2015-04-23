@@ -617,7 +617,7 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
                                 "or is not a directory") %
                               tls_cacertdir)
             ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
-        if tls_req_cert in LDAP_TLS_CERTS.values():
+        if tls_req_cert in list(LDAP_TLS_CERTS.values()):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
         else:
             LOG.debug("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s",
@@ -1440,8 +1440,8 @@ class BaseLdap(object):
         with self.get_connection() as conn:
             try:
                 attrs = list(set(([self.id_attr] +
-                                  self.attribute_mapping.values() +
-                                  self.extra_attr_mapping.keys())))
+                                  list(self.attribute_mapping.values()) +
+                                  list(self.extra_attr_mapping.keys()))))
                 res = conn.search_s(self.tree_dn,
                                     self.LDAP_SCOPE,
                                     query,
@@ -1460,8 +1460,8 @@ class BaseLdap(object):
         with self.get_connection() as conn:
             try:
                 attrs = list(set(([self.id_attr] +
-                                  self.attribute_mapping.values() +
-                                  self.extra_attr_mapping.keys())))
+                                  list(self.attribute_mapping.values()) +
+                                  list(self.extra_attr_mapping.keys()))))
                 return conn.search_s(self.tree_dn,
                                      self.LDAP_SCOPE,
                                      query,

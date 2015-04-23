@@ -254,7 +254,7 @@ class FakeLdap(core.LDAPHandler):
                 ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
             elif tls_cacertdir:
                 ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
-            if tls_req_cert in core.LDAP_TLS_CERTS.values():
+            if tls_req_cert in list(core.LDAP_TLS_CERTS.values()):
                 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
             else:
                 raise ValueError("invalid TLS_REQUIRE_CERT tls_req_cert=%s",

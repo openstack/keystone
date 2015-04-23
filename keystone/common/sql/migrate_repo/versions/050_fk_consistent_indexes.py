@@ -27,7 +27,8 @@ def upgrade(migrate_engine):
         # names, depending on version of MySQL used. We shoud make this naming
         # consistent, by reverting index name to a consistent condition.
         if any(i for i in endpoint.indexes if
-               i.columns.keys() == ['service_id'] and i.name != 'service_id'):
+               list(i.columns.keys()) == ['service_id']
+               and i.name != 'service_id'):
             # NOTE(i159): by this action will be made re-creation of an index
             # with the new name. This can be considered as renaming under the
             # MySQL rules.
@@ -37,5 +38,6 @@ def upgrade(migrate_engine):
                                          meta, autoload=True)
 
         if any(i for i in user_group_membership.indexes if
-               i.columns.keys() == ['group_id'] and i.name != 'group_id'):
+               list(i.columns.keys()) == ['group_id']
+               and i.name != 'group_id'):
             sa.Index('group_id', user_group_membership.c.group_id).create()

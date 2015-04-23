@@ -26,7 +26,8 @@ def upgrade(migrate_engine):
         # indexes create automatically. That those indexes will have different
         # names, depending on version of MySQL used. We shoud make this naming
         # consistent, by reverting index name to a consistent condition.
-        if any(i for i in table.indexes if i.columns.keys() == ['consumer_id']
+        if any(i for i in table.indexes if
+               list(i.columns.keys()) == ['consumer_id']
                and i.name != 'consumer_id'):
             # NOTE(i159): by this action will be made re-creation of an index
             # with the new name. This can be considered as renaming under the

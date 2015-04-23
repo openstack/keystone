@@ -160,7 +160,7 @@ class MockCollection(object):
             return new
         if isinstance(obj, dict):
             new = container()
-            for key, value in obj.items():
+            for key, value in list(obj.items()):
                 new[key] = self._copy_doc(value, container)
             return new
         else:

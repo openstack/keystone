@@ -195,7 +195,7 @@ class V2TokenDataHelper(object):
                 new_service_ref['endpoints'] = endpoints_ref
                 services[service] = new_service_ref
 
-        return services.values()
+        return list(services.values())
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'federation_api',

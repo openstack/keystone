@@ -1093,14 +1093,14 @@ class DomainConfigManager(manager.Manager):
                             'provided contains group %(group_other)s '
                             'instead') % {
                                 'group': group,
-                                'group_other': config.keys()[0]}
+                                'group_other': list(config.keys())[0]}
                     raise exception.InvalidDomainConfig(reason=msg)
                 if option and option not in config[group]:
                     msg = _('Trying to update option %(option)s in group '
                             '%(group)s, but config provided contains option '
                             '%(option_other)s instead') % {
                                 'group': group, 'option': option,
-                                'option_other': config[group].keys()[0]}
+                                'option_other': list(config[group].keys())[0]}
                     raise exception.InvalidDomainConfig(reason=msg)
 
                 # Finally, we need to check if the group/option specified

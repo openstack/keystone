@@ -21,7 +21,7 @@ from keystone.tests import unit as tests
 
 
 # List of 2-tuples, (pem_type, pem_header)
-headers = pemutils.PEM_TYPE_TO_HEADER.items()
+headers = list(pemutils.PEM_TYPE_TO_HEADER.items())
 
 
 def make_data(size, offset=0):

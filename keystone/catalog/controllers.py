@@ -88,7 +88,7 @@ class Endpoint(controller.V2Controller):
 
             # add the legacy endpoint with an interface url
             legacy_ep['%surl' % endpoint['interface']] = endpoint['url']
-        return {'endpoints': legacy_endpoints.values()}
+        return {'endpoints': list(legacy_endpoints.values())}
 
     @controller.v2_deprecated
     def create_endpoint(self, context, endpoint):

@@ -356,7 +356,7 @@ def transform_to_group_ids(group_names, mapping_id,
 def get_assertion_params_from_env(context):
     LOG.debug('Environment variables: %s', context['environment'])
     prefix = CONF.federation.assertion_prefix
-    for k, v in context['environment'].items():
+    for k, v in list(context['environment'].items()):
         if k.startswith(prefix):
             yield (k, v)
 

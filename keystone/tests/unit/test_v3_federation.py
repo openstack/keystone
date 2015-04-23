@@ -109,14 +109,14 @@ class FederatedSetupMixin(object):
         self.assertEqual(token_projects, projects_ref)
 
     def _check_scoped_token_attributes(self, token):
-        def xor_project_domain(iterable):
-            return sum(('project' in iterable, 'domain' in iterable)) % 2
+        def xor_project_domain(token_keys):
+            return sum(('project' in token_keys, 'domain' in token_keys)) % 2
 
         for obj in ('user', 'catalog', 'expires_at', 'issued_at',
                     'methods', 'roles'):
             self.assertIn(obj, token)
         # Check for either project or domain
-        if not xor_project_domain(token.keys()):
+        if not xor_project_domain(list(token.keys())):
             raise AssertionError("You must specify either"
                                  "project or domain.")
 

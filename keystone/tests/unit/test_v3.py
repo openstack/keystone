@@ -651,7 +651,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         of those in expected.
 
         """
-        for k, v in expected.iteritems():
+        for k, v in six.iteritems(expected):
             self.assertIn(k, actual)
             if isinstance(v, dict):
                 self.assertDictContainsSubset(v, actual[k])
@@ -803,7 +803,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertValidCatalog(resp.json['catalog'])
         self.assertIn('links', resp.json)
         self.assertIsInstance(resp.json['links'], dict)
-        self.assertEqual(['self'], resp.json['links'].keys())
+        self.assertEqual(['self'], list(resp.json['links'].keys()))
         self.assertEqual(
             'http://localhost/v3/auth/catalog',
             resp.json['links']['self'])

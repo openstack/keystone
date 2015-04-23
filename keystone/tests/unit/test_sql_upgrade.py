@@ -405,14 +405,16 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.upgrade(53)
         self.upgrade(54)
         table = sqlalchemy.Table('assignment', self.metadata, autoload=True)
-        index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
+        index_data = [(idx.name, list(idx.columns.keys()))
+                      for idx in table.indexes]
         self.assertIn(('ix_actor_id', ['actor_id']), index_data)
 
     def test_token_user_id_and_trust_id_index_upgrade(self):
         self.upgrade(54)
         self.upgrade(55)
         table = sqlalchemy.Table('token', self.metadata, autoload=True)
-        index_data = [(idx.name, idx.columns.keys()) for idx in table.indexes]
+        index_data = [(idx.name, list(idx.columns.keys()))
+                      for idx in table.indexes]
         self.assertIn(('ix_token_user_id', ['user_id']), index_data)
         self.assertIn(('ix_token_trust_id', ['trust_id']), index_data)
 

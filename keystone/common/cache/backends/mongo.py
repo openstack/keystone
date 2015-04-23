@@ -451,7 +451,7 @@ class MongoApi(object):
         doc_date = self._get_doc_date()
         insert_refs = []
         update_refs = []
-        existing_docs = self._get_results_as_dict(mapping.keys())
+        existing_docs = self._get_results_as_dict(list(mapping.keys()))
         for key, value in mapping.items():
             ref = self._get_cache_entry(key, value.payload, value.metadata,
                                         doc_date)
@@ -536,7 +536,7 @@ class BaseTransform(AbstractManipulator):
 
     def transform_incoming(self, son, collection):
         """Used while saving data to MongoDB."""
-        for (key, value) in son.items():
+        for (key, value) in list(son.items()):
             if isinstance(value, api.CachedValue):
                 son[key] = value.payload  # key is 'value' field here
                 son['meta'] = value.metadata
@@ -553,7 +553,7 @@ class BaseTransform(AbstractManipulator):
                                          ('_id', 'value', 'meta', 'doc_date')):
             payload = son.pop('value', None)
             metadata = son.pop('meta', None)
-        for (key, value) in son.items():
+        for (key, value) in list(son.items()):
             if isinstance(value, dict):
                 son[key] = self.transform_outgoing(value, collection)
         if metadata is not None:

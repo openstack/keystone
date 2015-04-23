@@ -178,7 +178,7 @@ def rotate_keys(keystone_user_id=None, keystone_group_id=None):
 
     LOG.info(_LI('Starting key rotation with %(count)s key files: %(list)s'), {
         'count': len(key_files),
-        'list': key_files.values()})
+        'list': list(key_files.values())})
 
     # determine the number of the new primary key
     current_primary_key = max(key_files.keys())
