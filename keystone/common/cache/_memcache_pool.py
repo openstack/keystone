@@ -27,7 +27,7 @@ import time
 
 import memcache
 from oslo_log import log
-from six.moves import queue
+from six.moves import queue, zip
 
 from keystone import exception
 from keystone.i18n import _

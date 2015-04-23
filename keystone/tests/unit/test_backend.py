@@ -22,6 +22,7 @@ import mock
 from oslo_config import cfg
 from oslo_utils import timeutils
 import six
+from six.moves import range
 from testtools import matchers
 
 from keystone.catalog import core

@@ -16,6 +16,7 @@ import uuid
 
 import mock
 from oslo_utils import timeutils
+from six.moves import range
 from testtools import matchers
 
 from keystone.contrib import revoke

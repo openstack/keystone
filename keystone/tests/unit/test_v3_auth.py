@@ -23,6 +23,7 @@ import mock
 from oslo_config import cfg
 from oslo_utils import timeutils
 import six
+from six.moves import range
 from testtools import matchers
 from testtools import testcase
 
@@ -2921,7 +2922,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
         # Create trust chain
         self.user_chain = list()
         self.trust_chain = list()
-        for _ in xrange(3):
+        for _ in range(3):
             user_ref = self.new_user_ref(domain_id=self.domain_id)
             user = self.identity_api.create_user(user_ref)
             user['password'] = user_ref['password']

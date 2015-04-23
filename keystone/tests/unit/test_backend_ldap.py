@@ -20,6 +20,7 @@ import uuid
 import ldap
 import mock
 from oslo_config import cfg
+from six.moves import range
 from testtools import matchers
 
 from keystone.common import cache

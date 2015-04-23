@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_utils import timeutils
+from six.moves import map
 
 
 # The set of attributes common between the RevokeEvent
@@ -111,7 +112,7 @@ class RevokeEvent(object):
 
 
 def attr_keys(event):
-    return map(event.key_for_name, _EVENT_NAMES)
+    return list(map(event.key_for_name, _EVENT_NAMES))
 
 
 class RevokeTree(object):
@@ -176,7 +177,7 @@ class RevokeTree(object):
                 del parent[key]
 
     def add_events(self, revoke_events):
-        return map(self.add_event, revoke_events or [])
+        return list(map(self.add_event, revoke_events or []))
 
     def is_revoked(self, token_data):
         """Check if a token matches the revocation event

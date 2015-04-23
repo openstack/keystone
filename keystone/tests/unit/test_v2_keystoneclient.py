@@ -21,6 +21,7 @@ import mock
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
+from six.moves import range
 import webob
 
 from keystone.tests import unit as tests

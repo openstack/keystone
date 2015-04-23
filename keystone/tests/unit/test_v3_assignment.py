@@ -15,6 +15,7 @@ import uuid
 
 from oslo_config import cfg
 import six
+from six.moves import range
 
 from keystone.common import controller
 from keystone import exception

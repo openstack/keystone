@@ -15,6 +15,8 @@
 import os
 import uuid
 
+from six.moves import zip
+
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database

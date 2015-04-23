@@ -23,6 +23,7 @@ from dogpile.cache import api
 from dogpile.cache.backends import memcached
 from oslo_config import cfg
 from oslo_log import log
+from six.moves import range
 
 from keystone.common.cache.backends import memcache_pool
 from keystone import exception

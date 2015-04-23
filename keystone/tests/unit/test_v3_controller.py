@@ -15,6 +15,7 @@
 import uuid
 
 import six
+from six.moves import range
 from testtools import matchers
 
 from keystone.common import controller
