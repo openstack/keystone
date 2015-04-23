@@ -14,6 +14,7 @@ import sqlalchemy as sql
 
 from keystone.common import sql as ks_sql
 
+
 WHITELIST_TABLE = 'whitelisted_config'
 SENSITIVE_TABLE = 'sensitive_config'
 

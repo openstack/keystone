@@ -28,6 +28,7 @@ from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
 
+
 CONF = cfg.CONF
 
 

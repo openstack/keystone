@@ -14,6 +14,7 @@ import sqlalchemy as sql
 
 from keystone.common.sql import migration_helpers
 
+
 _PROJECT_TABLE_NAME = 'project'
 _PARENT_ID_COLUMN_NAME = 'parent_id'
 

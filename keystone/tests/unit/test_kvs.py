@@ -28,6 +28,7 @@ from keystone.common.kvs import core
 from keystone import exception
 from keystone.tests import unit as tests
 
+
 NO_VALUE = api.NO_VALUE
 
 

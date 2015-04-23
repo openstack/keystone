@@ -29,6 +29,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LW
 
+
 LOG = log.getLogger(__name__)
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}

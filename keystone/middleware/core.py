@@ -25,6 +25,7 @@ from keystone.i18n import _LW
 from keystone.models import token_model
 from keystone.openstack.common import versionutils
 
+
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 

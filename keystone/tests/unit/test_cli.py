@@ -25,6 +25,7 @@ from keystone import resource
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import database
 
+
 CONF = cfg.CONF
 
 

@@ -32,6 +32,7 @@ from keystone.common import wsgi
 from keystone.contrib.ec2 import controllers
 from keystone import exception
 
+
 EXTENSION_DATA = {
     'name': 'OpenStack S3 API',
     'namespace': 'http://docs.openstack.org/identity/api/ext/'

@@ -12,6 +12,7 @@
 
 import sqlalchemy as sql
 
+
 _REGION_TABLE_NAME = 'region'
 
 

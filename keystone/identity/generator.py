@@ -23,6 +23,7 @@ from keystone.common import dependency
 from keystone.common import manager
 from keystone import exception
 
+
 CONF = cfg.CONF
 
 
