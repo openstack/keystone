@@ -420,7 +420,7 @@ class V3TokenDataHelper(object):
             versionutils.deprecated(
                 what='passing token data with "extras"',
                 as_of=versionutils.deprecated.KILO,
-                in_favor_of='well-defined APIs')
+                in_favor_of='well-defined APIs')(lambda: None)()
         token_data = {'methods': method_names,
                       'extras': extras}
 
