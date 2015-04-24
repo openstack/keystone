@@ -30,7 +30,8 @@ To install `mod_auth_openidc` on Ubuntu, perform the following:
 
   sudo apt-get install libapache2-mod-auth-openidc
 
-Note that this module is not available on Fedora/CentOS/Red Hat.
+This module is available for other distributions (Fedora/CentOS/Red Hat) from:
+https://github.com/pingidentity/mod_auth_openidc/releases
 
 In the keystone Apache site file, add the following as a top level option, to
 load the `mod_auth_openidc` module:
