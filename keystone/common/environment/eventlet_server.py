@@ -25,10 +25,14 @@ import sys
 import eventlet
 import eventlet.wsgi
 import greenlet
+from oslo_config import cfg
 from oslo_log import log
 from oslo_log import loggers
 
 from keystone.i18n import _LE, _LI
+
+
+CONF = cfg.CONF
 
 
 LOG = log.getLogger(__name__)
@@ -182,10 +186,12 @@ class Server(object):
     def _run(self, application, socket):
         """Start a WSGI server with a new green thread pool."""
         logger = log.getLogger('eventlet.wsgi.server')
+        socket_timeout = CONF.eventlet_server.client_socket_timeout or None
         try:
-            eventlet.wsgi.server(socket, application,
-                                 log=EventletFilteringLogger(logger),
-                                 debug=False)
+            eventlet.wsgi.server(
+                socket, application, log=EventletFilteringLogger(logger),
+                debug=False, keepalive=CONF.eventlet_server.wsgi_keep_alive,
+                socket_timeout=socket_timeout)
         except greenlet.GreenletExit:
             # Wait until all servers have completed running
             pass
