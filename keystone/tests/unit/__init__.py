@@ -26,7 +26,6 @@ if six.PY3:
     from unittest import mock  # noqa: our import detection is naive?
 
     sys.modules['oslo'].messaging = mock.Mock()
-    sys.modules['pycadf'] = mock.Mock()
     sys.modules['paste'] = mock.Mock()
 
 # NOTE(dstanek): oslo_i18n.enable_lazy() must be called before
