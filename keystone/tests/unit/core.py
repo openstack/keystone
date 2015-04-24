@@ -342,11 +342,11 @@ class TestCase(BaseTestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
-        self.addCleanup(self.cleanup_instance('config_fixture', 'logger'))
 
         self.addCleanup(CONF.reset)
 
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.addCleanup(delattr, self, 'config_fixture')
         self.config(self.config_files())
 
         # NOTE(morganfainberg): mock the auth plugin setup to use the config
@@ -354,13 +354,13 @@ class TestCase(BaseTestCase):
         # cleanup.
         def mocked_register_auth_plugin_opt(conf, opt):
             self.config_fixture.register_opt(opt, group='auth')
-        self.register_auth_plugin_opt_patch = self.useFixture(
-            mockpatch.PatchObject(common_cfg, '_register_auth_plugin_opt',
-                                  new=mocked_register_auth_plugin_opt))
+        self.useFixture(mockpatch.PatchObject(
+            common_cfg, '_register_auth_plugin_opt',
+            new=mocked_register_auth_plugin_opt))
 
         self.config_overrides()
 
-        self.logger = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+        self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
 
         # NOTE(morganfainberg): This code is a copy from the oslo-incubator
         # log module. This is not in a function or otherwise available to use
