@@ -17,7 +17,6 @@ from oslo_config import cfg
 from keystone.common import cache
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import core as common_ldap_core
-from keystone.common import sql
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
@@ -116,17 +115,13 @@ class BaseBackendLdapIdentitySqlEverythingElse(tests.SQLDriverOverrides):
         return config_files
 
     def setUp(self):
-        self.useFixture(database.Database())
+        sqldb = self.useFixture(database.Database())
         super(BaseBackendLdapIdentitySqlEverythingElse, self).setUp()
         self.clear_database()
         self.load_backends()
         cache.configure_cache_region(cache.REGION)
-        self.engine = sql.get_engine()
-        self.addCleanup(sql.cleanup)
 
-        sql.ModelBase.metadata.create_all(bind=self.engine)
-        self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
-
+        sqldb.recreate()
         self.load_fixtures(default_fixtures)
         # defaulted by the data load
         self.user_foo['enabled'] = True
