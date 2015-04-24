@@ -11,16 +11,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+import shutil
+import tempfile
 import uuid
 
 import ldap.dn
 import mock
 from oslo_config import cfg
 from testtools import matchers
-
-import os
-import shutil
-import tempfile
 
 from keystone.common import ldap as ks_ldap
 from keystone.common.ldap import core as common_ldap_core

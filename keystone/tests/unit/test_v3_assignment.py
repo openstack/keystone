@@ -11,10 +11,10 @@
 # under the License.
 
 import random
-import six
 import uuid
 
 from oslo_config import cfg
+import six
 
 from keystone.common import controller
 from keystone import exception
