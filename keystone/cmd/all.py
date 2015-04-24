@@ -18,9 +18,11 @@ import os
 import sys
 
 
-# If ../keystone/__init__.py exists, add ../ to Python search path, so that
-# it will override what happens to be installed in /usr/(local/)lib/python...
+# If ../../keystone/__init__.py exists, add ../../ to Python search path, so
+# that it will override what happens to be installed in
+# /usr/(local/)lib/python...
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(__file__),
+                                   os.pardir,
                                    os.pardir,
                                    os.pardir))
 if os.path.exists(os.path.join(possible_topdir,
@@ -32,5 +34,6 @@ if os.path.exists(os.path.join(possible_topdir,
 from keystone.server import eventlet as eventlet_server
 
 
-if __name__ == '__main__':
+# entry point.
+def main():
     eventlet_server.run(possible_topdir)
