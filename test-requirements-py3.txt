@@ -42,11 +42,12 @@ WebTest>=2.0
 # discussion: http://lists.openstack.org/pipermail/openstack-dev/2013-July/012484.html
 #mox>=0.5.3
 
-discover
 python-subunit>=0.0.18
 testrepository>=0.0.18
 testtools>=0.9.36,!=1.2.0
 
 # For documentation
 oslosphinx>=2.5.0  # Apache-2.0
+
+tempest-lib>=0.4.0
 

@@ -10,6 +10,7 @@ netaddr>=0.7.12
 PasteDeploy>=1.5.0
 Paste
 Routes>=1.12.3,!=2.0
+cryptography>=0.8 # Apache-2.0
 six>=1.9.0
 SQLAlchemy>=0.9.7,<=0.9.99
 sqlalchemy-migrate>=0.9.5
@@ -34,3 +35,4 @@ dogpile.cache>=0.5.3
 jsonschema>=2.0.0,<3.0.0
 pycadf>=0.8.0
 posix_ipc
+msgpack-python>=0.4.0
