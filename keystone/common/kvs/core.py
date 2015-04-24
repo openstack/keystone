@@ -147,24 +147,24 @@ class KeyValueStore(object):
                                             self._region.name)
 
     def _set_keymangler_on_backend(self, key_mangler):
-            try:
-                self._region.backend.key_mangler = key_mangler
-            except Exception as e:
-                # NOTE(morganfainberg): The setting of the key_mangler on the
-                # backend is used to allow the backend to
-                # calculate a hashed key value as needed. Not all backends
-                # require the ability to calculate hashed keys. If the
-                # backend does not support/require this feature log a
-                # debug line and move on otherwise raise the proper exception.
-                # Support of the feature is implied by the existence of the
-                # 'raw_no_expiry_keys' attribute.
-                if not hasattr(self._region.backend, 'raw_no_expiry_keys'):
-                    LOG.debug(('Non-expiring keys not supported/required by '
-                               '%(region)s backend; unable to set '
-                               'key_mangler for backend: %(err)s'),
-                              {'region': self._region.name, 'err': e})
-                else:
-                    raise
+        try:
+            self._region.backend.key_mangler = key_mangler
+        except Exception as e:
+            # NOTE(morganfainberg): The setting of the key_mangler on the
+            # backend is used to allow the backend to
+            # calculate a hashed key value as needed. Not all backends
+            # require the ability to calculate hashed keys. If the
+            # backend does not support/require this feature log a
+            # debug line and move on otherwise raise the proper exception.
+            # Support of the feature is implied by the existence of the
+            # 'raw_no_expiry_keys' attribute.
+            if not hasattr(self._region.backend, 'raw_no_expiry_keys'):
+                LOG.debug(('Non-expiring keys not supported/required by '
+                           '%(region)s backend; unable to set '
+                           'key_mangler for backend: %(err)s'),
+                          {'region': self._region.name, 'err': e})
+            else:
+                raise
 
     def _set_key_mangler(self, key_mangler):
         # Set the key_mangler that is appropriate for the given region being
