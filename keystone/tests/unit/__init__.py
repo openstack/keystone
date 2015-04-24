@@ -25,9 +25,6 @@ if six.PY3:
     import sys
     from unittest import mock  # noqa: our import detection is naive?
 
-    sys.modules['eventlet'] = mock.Mock()
-    sys.modules['eventlet.green'] = mock.Mock()
-    sys.modules['eventlet.wsgi'] = mock.Mock()
     sys.modules['oslo'].messaging = mock.Mock()
     sys.modules['pycadf'] = mock.Mock()
     sys.modules['paste'] = mock.Mock()
