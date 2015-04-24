@@ -228,10 +228,11 @@ class Application(BaseApplication):
         # response code between GET and HEAD requests. The HTTP status should
         # be the same.
         req_method = req.environ['REQUEST_METHOD'].upper()
-        LOG.info('%(req_method)s %(path)s?%(params)s', {
+        LOG.info('%(req_method)s %(path)s%(params)s', {
             'req_method': req_method,
             'path': context['path'],
-            'params': urllib.urlencode(req.params)})
+            'params': '?' + urllib.urlencode(req.params) if req.params else ''}
+        )
 
         params = self._normalize_dict(params)
 
