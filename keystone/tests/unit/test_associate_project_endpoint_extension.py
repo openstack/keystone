@@ -1030,6 +1030,25 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         self.delete(url)
         self.get(url, expected_status=404)
 
+    def test_remove_endpoint_group_with_project_association(self):
+        # create an endpoint group
+        endpoint_group_id = self._create_valid_endpoint_group(
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # create an endpoint_group project
+        project_endpoint_group_url = self._get_project_endpoint_group_url(
+            endpoint_group_id, self.default_domain_project_id)
+        self.put(project_endpoint_group_url)
+
+        # remove endpoint group, the associated endpoint_group project will
+        # be removed as well.
+        endpoint_group_url = ('/OS-EP-FILTER/endpoint_groups/'
+                              '%(endpoint_group_id)s'
+                              % {'endpoint_group_id': endpoint_group_id})
+        self.delete(endpoint_group_url)
+        self.get(endpoint_group_url, expected_status=404)
+        self.get(project_endpoint_group_url, expected_status=404)
+
     def _create_valid_endpoint_group(self, url, body):
         r = self.post(url, body=body)
         return r.result['endpoint_group']['id']
