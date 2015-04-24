@@ -47,11 +47,7 @@ class TestTestCase(tests.TestCase):
             lambda: warnings.warn('test sa warning error', exc.SAWarning),
             matchers.raises(exc.SAWarning))
 
-    def test_deprecations(self):
-        # If any deprecation warnings occur during testing it's raised as
-        # exception.
-
-        def use_deprecated():
-            warnings.warn('this is deprecated', DeprecationWarning)
-
-        self.assertThat(use_deprecated, matchers.raises(DeprecationWarning))
+    def test_deprecation_warnings_are_raised_as_exceptions_in_tests(self):
+        self.assertThat(
+            lambda: warnings.warn('this is deprecated', DeprecationWarning),
+            matchers.raises(DeprecationWarning))
