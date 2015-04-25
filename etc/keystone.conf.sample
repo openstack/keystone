@@ -153,9 +153,9 @@
 
 # (Optional) Enables or disables syslog rfc5424 format for logging. If enabled,
 # prefixes the MSG part of the syslog message with APP-NAME (RFC5424). The
-# format without the APP-NAME is deprecated in I, and will be removed in J.
-# (boolean value)
-#use_syslog_rfc_format = false
+# format without the APP-NAME is deprecated in K, and will be removed in L,
+# along with this option. (boolean value)
+#use_syslog_rfc_format = true
 
 # Syslog facility to receive log lines. (string value)
 #syslog_log_facility = LOG_USER
@@ -201,7 +201,7 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-#rpc_zmq_matchmaker = oslo_messaging._drivers.matchmaker.MatchMakerLocalhost
+#rpc_zmq_matchmaker = local
 
 # ZeroMQ receiver listening port. (integer value)
 #rpc_zmq_port = 9501
@@ -233,7 +233,8 @@
 # Size of RPC thread pool. (integer value)
 #rpc_thread_pool_size = 64
 
-# Driver or drivers to handle sending notifications. (multi valued)
+# The Drivers(s) to handle sending notifications. Possible values are
+# messaging, messagingv2, routing,log, test, noop (multi valued)
 #notification_driver =
 
 # AMQP topic used for OpenStack notifications. (list value)
@@ -381,6 +382,62 @@
 # Maximum number of entities that will be returned in a catalog collection.
 # (integer value)
 #list_limit = <None>
+
+
+[cors]
+
+#
+# From oslo.middleware
+#
+
+# Indicate whether this resource may be shared with the domain received in the
+# requests "origin" header. (string value)
+#allowed_origin = <None>
+
+# Indicate that the actual request can include user credentials (boolean value)
+#allow_credentials = true
+
+# Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
+# Headers. (list value)
+#expose_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+# Maximum cache age of CORS preflight requests. (integer value)
+#max_age = 3600
+
+# Indicate which methods can be used during the actual request. (list value)
+#allow_methods = GET,POST,PUT,DELETE,OPTIONS
+
+# Indicate which header field names may be used during the actual request.
+# (list value)
+#allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+
+[cors.subdomain]
+
+#
+# From oslo.middleware
+#
+
+# Indicate whether this resource may be shared with the domain received in the
+# requests "origin" header. (string value)
+#allowed_origin = <None>
+
+# Indicate that the actual request can include user credentials (boolean value)
+#allow_credentials = true
+
+# Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
+# Headers. (list value)
+#expose_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+# Maximum cache age of CORS preflight requests. (integer value)
+#max_age = 3600
+
+# Indicate which methods can be used during the actual request. (list value)
+#allow_methods = GET,POST,PUT,DELETE,OPTIONS
+
+# Indicate which header field names may be used during the actual request.
+# (list value)
+#allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
 
 
 [credential]
@@ -543,42 +600,67 @@
 # The number of worker processes to serve the public eventlet application.
 # Defaults to number of CPUs (minimum of 2). (integer value)
 # Deprecated group/name - [DEFAULT]/public_workers
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #public_workers = <None>
 
 # The number of worker processes to serve the admin eventlet application.
 # Defaults to number of CPUs (minimum of 2). (integer value)
 # Deprecated group/name - [DEFAULT]/admin_workers
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #admin_workers = <None>
 
 # The IP address of the network interface for the public service to listen on.
 # (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/public_bind_host
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #public_bind_host = 0.0.0.0
 
 # The port number which the public service listens on. (integer value)
 # Deprecated group/name - [DEFAULT]/public_port
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #public_port = 5000
 
 # The IP address of the network interface for the admin service to listen on.
 # (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/admin_bind_host
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #admin_bind_host = 0.0.0.0
 
 # The port number which the admin service listens on. (integer value)
 # Deprecated group/name - [DEFAULT]/admin_port
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #admin_port = 35357
+
+# If set to false, disables keepalives on the server; all connections will be
+# closed after serving one request. (boolean value)
+#wsgi_keep_alive = true
+
+# Timeout for socket operations on a client connection. If an incoming
+# connection is idle for this number of seconds it will be closed. A value of
+# '0' means wait forever. (integer value)
+#client_socket_timeout = 900
 
 # Set this to true if you want to enable TCP_KEEPALIVE on server sockets, i.e.
 # sockets used by the Keystone wsgi server for client connections. (boolean
 # value)
 # Deprecated group/name - [DEFAULT]/tcp_keepalive
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #tcp_keepalive = false
 
 # Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
 # applies if tcp_keepalive is true. (integer value)
 # Deprecated group/name - [DEFAULT]/tcp_keepidle
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #tcp_keepidle = 600
 
 
@@ -590,24 +672,34 @@
 
 # Toggle for SSL support on the Keystone eventlet servers. (boolean value)
 # Deprecated group/name - [ssl]/enable
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #enable = false
 
 # Path of the certfile for SSL. For non-production environments, you may be
 # interested in using `keystone-manage ssl_setup` to generate self-signed
 # certificates. (string value)
 # Deprecated group/name - [ssl]/certfile
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #certfile = /etc/keystone/ssl/certs/keystone.pem
 
 # Path of the keyfile for SSL. (string value)
 # Deprecated group/name - [ssl]/keyfile
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #keyfile = /etc/keystone/ssl/private/keystonekey.pem
 
 # Path of the CA cert file for SSL. (string value)
 # Deprecated group/name - [ssl]/ca_certs
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 
 # Require client certificate. (boolean value)
 # Deprecated group/name - [ssl]/cert_required
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #cert_required = false
 
 
@@ -1210,7 +1302,7 @@
 # Deprecated group/name - [amqp1]/trace
 #trace = false
 
-# CA certificate PEM file for verifing server certificate (string value)
+# CA certificate PEM file to verify server certificate (string value)
 # Deprecated group/name - [amqp1]/ssl_ca_file
 #ssl_ca_file =
 
@@ -1238,6 +1330,7 @@
 #
 
 # Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_durable_queues
 # Deprecated group/name - [DEFAULT]/rabbit_durable_queues
 #amqp_durable_queues = false
 
@@ -1304,6 +1397,7 @@
 #
 
 # Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_durable_queues
 # Deprecated group/name - [DEFAULT]/rabbit_durable_queues
 #amqp_durable_queues = false
 
@@ -1433,6 +1527,8 @@
 # directories to be searched.  Missing or empty directories are ignored. (multi
 # valued)
 # Deprecated group/name - [DEFAULT]/policy_dirs
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #policy_dirs = policy.d
 
 
