@@ -53,6 +53,10 @@ def response_truncated(f):
     return wrapper
 
 
+def load_driver(driver_name, *args):
+    return importutils.import_object(driver_name, *args)
+
+
 class Manager(object):
     """Base class for intermediary request layer.
 
@@ -67,7 +71,7 @@ class Manager(object):
     """
 
     def __init__(self, driver_name):
-        self.driver = importutils.import_object(driver_name)
+        self.driver = load_driver(driver_name)
 
     def __getattr__(self, name):
         """Forward calls to the underlying driver."""

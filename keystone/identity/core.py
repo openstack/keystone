@@ -21,7 +21,6 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_utils import importutils
 import six
 
 from keystone import clean
@@ -90,8 +89,8 @@ class DomainConfigs(dict):
     _any_sql = False
 
     def _load_driver(self, domain_config):
-        return importutils.import_object(
-            domain_config['cfg'].identity.driver, domain_config['cfg'])
+        return manager.load_driver(domain_config['cfg'].identity.driver,
+                                   domain_config['cfg'])
 
     def _assert_no_more_than_one_sql_driver(self, domain_id, new_config,
                                             config_file=None):
