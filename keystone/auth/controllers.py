@@ -65,7 +65,7 @@ def load_auth_methods():
             plugin_name = driver.method
         else:
             plugin_name = plugin
-            plugin_class = CONF.auth.get(plugin)
+            plugin_class = CONF.auth[plugin]
             driver = importutils.import_object(plugin_class)
         if plugin_name in AUTH_METHODS:
             raise ValueError(_('Auth plugin %(plugin)s is requesting '
