@@ -123,6 +123,14 @@ class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
                           auth_info,
                           auth_context)
 
+    def test_duplicate_method(self):
+        # Having the same method twice doesn't cause load_auth_methods to fail.
+        self.auth_plugin_config_override(
+            methods=['external', 'external'])
+        self.clear_auth_plugin_registry()
+        auth.controllers.load_auth_methods()
+        self.assertIn('external', auth.controllers.AUTH_METHODS)
+
 
 class TestAuthPluginDynamicOptions(TestAuthPlugin):
     def config_overrides(self):
