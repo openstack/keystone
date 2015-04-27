@@ -14,6 +14,7 @@
 
 import sqlalchemy as sql
 
+
 ASSIGNMENT_TABLE = 'assignment'
 
 

@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 """Migrated the endpoint 'region' column to 'region_id.
 
 In addition to the rename, the new column is made a foreign key to the

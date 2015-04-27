@@ -20,6 +20,7 @@ from keystone.catalog import core as catalog_core
 from keystone.common import dependency
 from keystone import exception
 
+
 CONF = cfg.CONF
 
 

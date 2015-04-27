@@ -21,6 +21,7 @@ import six
 from keystone.common import dependency
 from keystone import exception
 
+
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 

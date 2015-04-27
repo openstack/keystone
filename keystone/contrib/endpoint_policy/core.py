@@ -23,6 +23,7 @@ from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 
+
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 

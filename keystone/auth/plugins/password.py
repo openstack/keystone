@@ -20,6 +20,7 @@ from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
 
+
 METHOD_NAME = 'password'
 
 LOG = log.getLogger(__name__)

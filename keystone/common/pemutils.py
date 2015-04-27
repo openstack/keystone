@@ -12,7 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
 """
 PEM formatted data is used frequently in conjunction with X509 PKI as
 a data exchange mechanism for binary data. The acronym PEM stands for
