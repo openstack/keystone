@@ -598,8 +598,7 @@ class IdentityTests(object):
 
         def get_member_assignments():
             assignments = self.assignment_api.list_role_assignments()
-            return filter(lambda x: x['role_id'] == MEMBER_ROLE_ID,
-                          assignments)
+            return [x for x in assignments if x['role_id'] == MEMBER_ROLE_ID]
 
         orig_member_assignments = get_member_assignments()
 
@@ -3474,8 +3473,7 @@ class IdentityTests(object):
 
         def get_member_assignments():
             assignments = self.assignment_api.list_role_assignments()
-            return filter(lambda x: x['role_id'] == MEMBER_ROLE_ID,
-                          assignments)
+            return [x for x in assignments if x['role_id'] == MEMBER_ROLE_ID]
 
         orig_member_assignments = get_member_assignments()
 
