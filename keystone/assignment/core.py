@@ -902,12 +902,8 @@ class Driver(object):
 
         raise exception.NotImplemented()  # pragma: no cover
 
-    # TODO(henry-nash): Rename the following two methods to match the more
-    # meaningfully named ones above.
-
-# TODO(ayoung): determine what else these two functions raise
     @abc.abstractmethod
-    def delete_user(self, user_id):
+    def delete_user_assignments(self, user_id):
         """Deletes all assignments for a user.
 
         :raises: keystone.exception.RoleNotFound
@@ -916,7 +912,7 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def delete_group(self, group_id):
+    def delete_group_assignments(self, group_id):
         """Deletes all assignments for a group.
 
         :raises: keystone.exception.RoleNotFound
