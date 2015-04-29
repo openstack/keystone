@@ -20,7 +20,7 @@
 
 import copy
 import itertools
-import urllib
+import wsgiref.util
 
 from oslo_config import cfg
 import oslo_i18n
@@ -227,13 +227,10 @@ class Application(BaseApplication):
         # NOTE(morganfainberg): use the request method to normalize the
         # response code between GET and HEAD requests. The HTTP status should
         # be the same.
-        req_method = req.environ['REQUEST_METHOD'].upper()
-        path = req.environ.get('RAW_PATH_INFO') or req.environ['PATH_INFO']
-        LOG.info('%(req_method)s %(path)s%(params)s', {
-            'req_method': req_method,
-            'path': path,
-            'params': '?' + urllib.urlencode(req.params) if req.params else ''}
-        )
+        LOG.info('%(req_method)s %(uri)s', {
+            'req_method': req.environ['REQUEST_METHOD'].upper(),
+            'uri': wsgiref.util.request_uri(req.environ),
+        })
 
         params = self._normalize_dict(params)
 
@@ -272,7 +269,7 @@ class Application(BaseApplication):
 
         response_code = self._get_response_code(req)
         return render_response(body=result, status=response_code,
-                               method=req_method)
+                               method=req.environ['REQUEST_METHOD'])
 
     def _get_response_code(self, req):
         req_method = req.environ['REQUEST_METHOD']
@@ -770,7 +767,7 @@ def render_response(body=None, status=None, headers=None, method=None):
                           status='%s %s' % status,
                           headerlist=headers)
 
-    if method == 'HEAD':
+    if method and method.upper() == 'HEAD':
         # NOTE(morganfainberg): HEAD requests should return the same status
         # as a GET request and same headers (including content-type and
         # content-length). The webob.Response object automatically changes
