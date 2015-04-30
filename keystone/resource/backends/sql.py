@@ -91,10 +91,9 @@ class Resource(keystone_resource.Driver):
 
     def list_projects_in_subtree(self, project_id):
         with sql.transaction() as session:
-            project = self._get_project(session, project_id).to_dict()
-            children = self._get_children(session, [project['id']])
+            children = self._get_children(session, [project_id])
             subtree = []
-            examined = set([project['id']])
+            examined = set([project_id])
             while children:
                 children_ids = set()
                 for ref in children:

@@ -2250,6 +2250,15 @@ class IdentityTests(object):
         # recursion trap.
         self.assertIsNone(subtree)
 
+    def test_list_projects_in_subtree_invalid_project_id(self):
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.list_projects_in_subtree,
+                          None)
+
+        self.assertRaises(exception.ProjectNotFound,
+                          self.resource_api.list_projects_in_subtree,
+                          uuid.uuid4().hex)
+
     def test_list_project_parents(self):
         projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=3)
         project1 = projects_hierarchy[0]
@@ -2273,6 +2282,15 @@ class IdentityTests(object):
 
         parents = self.resource_api.list_project_parents(project1['id'])
         self.assertEqual(0, len(parents))
+
+    def test_list_project_parents_invalid_project_id(self):
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.list_project_parents,
+                          None)
+
+        self.assertRaises(exception.ProjectNotFound,
+                          self.resource_api.list_project_parents,
+                          uuid.uuid4().hex)
 
     def test_delete_project_with_role_assignments(self):
         tenant = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
