@@ -346,9 +346,12 @@ class Auth(auth_controllers.Auth):
             raise exception.ForbiddenAction(action=action)
 
         project = token_ref.project_name
+        # NOTE(rodrigods): the domain name is necessary in order to distinguish
+        # between projects with the same name in different domains.
+        domain = token_ref.project_domain_name
         generator = keystone_idp.SAMLGenerator()
         response = generator.samlize_token(issuer, sp_url, subject, roles,
-                                           project)
+                                           project, domain)
         return (response, service_provider)
 
     def _build_response_headers(self, service_provider):
