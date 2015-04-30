@@ -584,7 +584,7 @@ class CadfRoleAssignmentNotificationWrapper(object):
             audit_kwargs['inherited_to_projects'] = inherited
             audit_kwargs['role'] = role_id
 
-            # For backward compatability, send both old and new event_type.
+            # For backward compatibility, send both old and new event_type.
             # Deprecate old format and remove it in the next release.
             event_types = [self.deprecated_event_type, self.event_type]
             versionutils.deprecated(
