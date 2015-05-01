@@ -2345,7 +2345,7 @@ class TestAuth(test_v3.RestfulTestCase):
         self.v3_authenticate_token(auth_data, expected_status=401)
 
     def test_remote_user_no_realm(self):
-        CONF.auth.methods = 'external'
+        self.config_fixture.config(group='auth', methods='external')
         api = auth.controllers.Auth()
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
