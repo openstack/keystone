@@ -3173,7 +3173,7 @@ class SAMLGenerationTests(FederationTests):
         generator = keystone_idp.SAMLGenerator()
         response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
                                            self.SUBJECT, self.ROLES,
-                                           self.PROJECT)
+                                           self.PROJECT, self.DOMAIN)
 
         signature = response.assertion.signature
         self.assertIsNotNone(signature)
