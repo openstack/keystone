@@ -73,9 +73,10 @@ class SqlModels(SqlTests):
         :param string table: the name of the table to inspect
         :param tuple expected_schema: a tuple of tuples containing the
             expected schema
-        :raises: AssertionError
+        :raises AssertionError: when the database schema doesn't match the
+            expected schema
 
-        The expected_shema format is simply::
+        The expected_schema format is simply::
 
             (
                 ('column name', sql type, qualifying detail),
@@ -119,8 +120,7 @@ class SqlModels(SqlTests):
             else:
                 actual_schema.append((column.name, type(column.type), None))
 
-        self.assertEqual(list(sorted(expected_schema)),
-                         list(sorted(actual_schema)))
+        self.assertItemsEqual(expected_schema, actual_schema)
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
