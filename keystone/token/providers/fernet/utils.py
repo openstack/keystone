@@ -59,8 +59,8 @@ def _convert_to_integers(id_value):
     try:
         id_int = int(id_value)
     except ValueError as e:
-        msg = ('Unable to convert Keystone user or group ID. Error: %s', e)
-        LOG.error(msg)
+        msg = _LE('Unable to convert Keystone user or group ID. Error: %s')
+        LOG.error(msg, e)
         raise
 
     return id_int
