@@ -3013,12 +3013,18 @@ class SAMLGenerationTests(FederationTests):
 
     SP_AUTH_URL = ('http://beta.com:5000/v3/OS-FEDERATION/identity_providers'
                    '/BETA/protocols/saml2/auth')
+
+    ASSERTION_FILE = 'signed_saml2_assertion.xml'
+
+    # The values of the following variables match the attributes values found
+    # in ASSERTION_FILE
     ISSUER = 'https://acme.com/FIM/sps/openstack/saml20'
     RECIPIENT = 'http://beta.com/Shibboleth.sso/SAML2/POST'
     SUBJECT = 'test_user'
+    SUBJECT_DOMAIN = 'user_domain'
     ROLES = ['admin', 'member']
     PROJECT = 'development'
-    DOMAIN = 'Default'
+    PROJECT_DOMAIN = 'project_domain'
     SAML_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2'
     ECP_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2/ecp'
     ASSERTION_VERSION = "2.0"
@@ -3038,7 +3044,7 @@ class SAMLGenerationTests(FederationTests):
     def setUp(self):
         super(SAMLGenerationTests, self).setUp()
         self.signed_assertion = saml2.create_class_from_xml_string(
-            saml.Assertion, _load_xml('signed_saml2_assertion.xml'))
+            saml.Assertion, _load_xml(self.ASSERTION_FILE))
         self.sp = self.sp_ref()
         url = '/OS-FEDERATION/service_providers/' + self.SERVICE_PROVDIER_ID
         self.put(url, body={'service_provider': self.sp},
@@ -3056,8 +3062,10 @@ class SAMLGenerationTests(FederationTests):
                                return_value=self.signed_assertion):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
-                                               self.SUBJECT, self.ROLES,
-                                               self.PROJECT, self.DOMAIN)
+                                               self.SUBJECT,
+                                               self.SUBJECT_DOMAIN,
+                                               self.ROLES, self.PROJECT,
+                                               self.PROJECT_DOMAIN)
 
         assertion = response.assertion
         self.assertIsNotNone(assertion)
@@ -3069,17 +3077,22 @@ class SAMLGenerationTests(FederationTests):
         user_attribute = assertion.attribute_statement[0].attribute[0]
         self.assertEqual(self.SUBJECT, user_attribute.attribute_value[0].text)
 
-        role_attribute = assertion.attribute_statement[0].attribute[1]
+        user_domain_attribute = (
+            assertion.attribute_statement[0].attribute[1])
+        self.assertEqual(self.SUBJECT_DOMAIN,
+                         user_domain_attribute.attribute_value[0].text)
+
+        role_attribute = assertion.attribute_statement[0].attribute[2]
         for attribute_value in role_attribute.attribute_value:
             self.assertIn(attribute_value.text, self.ROLES)
 
-        project_attribute = assertion.attribute_statement[0].attribute[2]
+        project_attribute = assertion.attribute_statement[0].attribute[3]
         self.assertEqual(self.PROJECT,
                          project_attribute.attribute_value[0].text)
 
         project_domain_attribute = (
-            assertion.attribute_statement[0].attribute[3])
-        self.assertEqual(self.DOMAIN,
+            assertion.attribute_statement[0].attribute[4])
+        self.assertEqual(self.PROJECT_DOMAIN,
                          project_domain_attribute.attribute_value[0].text)
 
     def test_verify_assertion_object(self):
@@ -3093,8 +3106,10 @@ class SAMLGenerationTests(FederationTests):
                                side_effect=lambda x: x):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
-                                               self.SUBJECT, self.ROLES,
-                                               self.PROJECT, self.DOMAIN)
+                                               self.SUBJECT,
+                                               self.SUBJECT_DOMAIN,
+                                               self.ROLES, self.PROJECT,
+                                               self.PROJECT_DOMAIN)
         assertion = response.assertion
         self.assertEqual(self.ASSERTION_VERSION, assertion.version)
 
@@ -3110,8 +3125,10 @@ class SAMLGenerationTests(FederationTests):
                                return_value=self.signed_assertion):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
-                                               self.SUBJECT, self.ROLES,
-                                               self.PROJECT, self.DOMAIN)
+                                               self.SUBJECT,
+                                               self.SUBJECT_DOMAIN,
+                                               self.ROLES, self.PROJECT,
+                                               self.PROJECT_DOMAIN)
 
         saml_str = response.to_string()
         response = etree.fromstring(saml_str)
@@ -3124,15 +3141,18 @@ class SAMLGenerationTests(FederationTests):
         user_attribute = assertion[4][0]
         self.assertEqual(self.SUBJECT, user_attribute[0].text)
 
-        role_attribute = assertion[4][1]
+        user_domain_attribute = assertion[4][1]
+        self.assertEqual(self.SUBJECT_DOMAIN, user_domain_attribute[0].text)
+
+        role_attribute = assertion[4][2]
         for attribute_value in role_attribute:
             self.assertIn(attribute_value.text, self.ROLES)
 
-        project_attribute = assertion[4][2]
+        project_attribute = assertion[4][3]
         self.assertEqual(self.PROJECT, project_attribute[0].text)
 
-        project_domain_attribute = assertion[4][3]
-        self.assertEqual(self.DOMAIN, project_domain_attribute[0].text)
+        project_domain_attribute = assertion[4][4]
+        self.assertEqual(self.PROJECT_DOMAIN, project_domain_attribute[0].text)
 
     def test_assertion_using_explicit_namespace_prefixes(self):
         def mocked_subprocess_check_output(*popenargs, **kwargs):
@@ -3148,8 +3168,10 @@ class SAMLGenerationTests(FederationTests):
                         side_effect=mocked_subprocess_check_output):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
-                                               self.SUBJECT, self.ROLES,
-                                               self.PROJECT, self.DOMAIN)
+                                               self.SUBJECT,
+                                               self.SUBJECT_DOMAIN,
+                                               self.ROLES, self.PROJECT,
+                                               self.PROJECT_DOMAIN)
             assertion_xml = response.assertion.to_string()
             # make sure we have the proper tag and prefix for the assertion
             # namespace
@@ -3172,8 +3194,9 @@ class SAMLGenerationTests(FederationTests):
 
         generator = keystone_idp.SAMLGenerator()
         response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
-                                           self.SUBJECT, self.ROLES,
-                                           self.PROJECT, self.DOMAIN)
+                                           self.SUBJECT, self.SUBJECT_DOMAIN,
+                                           self.ROLES, self.PROJECT,
+                                           self.PROJECT_DOMAIN)
 
         signature = response.assertion.signature
         self.assertIsNotNone(signature)
@@ -3276,13 +3299,16 @@ class SAMLGenerationTests(FederationTests):
         user_attribute = assertion[4][0]
         self.assertIsInstance(user_attribute[0].text, str)
 
-        role_attribute = assertion[4][1]
+        user_domain_attribute = assertion[4][1]
+        self.assertIsInstance(user_domain_attribute[0].text, str)
+
+        role_attribute = assertion[4][2]
         self.assertIsInstance(role_attribute[0].text, str)
 
-        project_attribute = assertion[4][2]
+        project_attribute = assertion[4][3]
         self.assertIsInstance(project_attribute[0].text, str)
 
-        project_domain_attribute = assertion[4][3]
+        project_domain_attribute = assertion[4][4]
         self.assertIsInstance(project_domain_attribute[0].text, str)
 
     def test_invalid_scope_body(self):
@@ -3388,13 +3414,16 @@ class SAMLGenerationTests(FederationTests):
         user_attribute = assertion[4][0]
         self.assertIsInstance(user_attribute[0].text, str)
 
-        role_attribute = assertion[4][1]
+        user_domain_attribute = assertion[4][1]
+        self.assertIsInstance(user_domain_attribute[0].text, str)
+
+        role_attribute = assertion[4][2]
         self.assertIsInstance(role_attribute[0].text, str)
 
-        project_attribute = assertion[4][2]
+        project_attribute = assertion[4][3]
         self.assertIsInstance(project_attribute[0].text, str)
 
-        project_domain_attribute = assertion[4][3]
+        project_domain_attribute = assertion[4][4]
         self.assertIsInstance(project_domain_attribute[0].text, str)
 
 
