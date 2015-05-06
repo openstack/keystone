@@ -26,8 +26,8 @@ The original source of truth for the v2.0 API is defined by a set of WADL and
 XSD files. The original source of truth for the v3 API is defined by
 documentation.
 
-.. _`Identity API v2.0`: https://github.com/openstack/identity-api/tree/master/v2.0/src
-.. _`Identity API v3`: https://github.com/openstack/identity-api/tree/master/v3/src/markdown
+.. _`Identity API v2.0`: https://git.openstack.org/cgit/openstack-attic/identity-api/tree/v2.0/src
+.. _`Identity API v3`: https://git.openstack.org/cgit/openstack-attic/identity-api/tree/v3/src/markdown
 
 History
 =======
@@ -125,7 +125,7 @@ Keystone clients can use to automatically detect available API versions.
 With unversioned ``identity`` endpoints in the service catalog, you should be
 able to `authenticate with keystoneclient`_ successfully.
 
-.. _`latest sample configuration`: https://github.com/openstack/keystone/blob/master/etc/keystone-paste.ini
+.. _`latest sample configuration`: https://git.openstack.org/cgit/openstack/keystone/tree/etc/keystone-paste.ini
 .. _`authenticate with keystoneclient`: http://docs.openstack.org/developer/python-keystoneclient/using-api-v3.html#authenticating
 
 I have a Python client
@@ -148,7 +148,7 @@ I have a non-Python client
 You'll likely need to heavily reference our `API documentation`_ to port your
 application to Identity API v3.
 
-.. _`API documentation`: https://github.com/openstack/identity-api/blob/master/v3/src/markdown/identity-api-v3.md
+.. _`API documentation`: https://git.openstack.org/cgit/openstack-attic/identity-api/tree/v3/src/markdown/identity-api-v3.md
 
 The most common operation would be password-based authentication including a
 tenant name (i.e. project name) to specify an authorization scope. In Identity

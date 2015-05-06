@@ -10,7 +10,7 @@ such as LDAP.
 Developer documentation, the source of which is in ``doc/source/``, is
 published at:
 
-    http://keystone.openstack.org/
+    http://docs.openstack.org/developer/keystone/
 
 The API specification and documentation are available at:
 
@@ -18,7 +18,7 @@ The API specification and documentation are available at:
 
 The canonical client library is available at:
 
-    https://github.com/openstack/python-keystoneclient
+    https://git.openstack.org/cgit/openstack/python-keystoneclient
 
 Documentation for cloud administrators is available at:
 
@@ -26,7 +26,7 @@ Documentation for cloud administrators is available at:
 
 The source of documentation for cloud administrators is available at:
 
-    https://github.com/openstack/openstack-manuals
+    https://git.openstack.org/cgit/openstack/openstack-manuals
 
 Information about our team meeting is available at:
 

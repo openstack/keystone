@@ -867,7 +867,7 @@ To build your service catalog using this driver, see the built-in help:
     $ openstack help endpoint create
 
 You can also refer to `an example in Keystone (tools/sample_data.sh)
-<https://github.com/openstack/keystone/blob/master/tools/sample_data.sh>`_.
+<https://git.openstack.org/cgit/openstack/keystone/tree/tools/sample_data.sh>`_.
 
 File-based Service Catalog (``templated.Catalog``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -897,7 +897,7 @@ Keystone, however you should create your own to reflect your deployment.
 
 Another such example is `available in devstack
 (files/default_catalog.templates)
-<https://github.com/openstack-dev/devstack/blob/master/files/default_catalog.templates>`_.
+<https://git.openstack.org/cgit/openstack-dev/devstack/tree/files/default_catalog.templates>`_.
 
 Logging
 -------
