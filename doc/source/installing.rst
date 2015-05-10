@@ -42,7 +42,7 @@ Clone the Keystone repository:
 
 .. code-block:: bash
 
-    $ git clone http://github.com/openstack/keystone.git
+    $ git clone https://git.openstack.org/openstack/keystone.git
     $ cd keystone
 
 Install the Keystone web service:

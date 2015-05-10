@@ -18,13 +18,13 @@
 Setting up a Keystone development environment
 =============================================
 
-This document describes getting the source from keystone's `GitHub repository`_
+This document describes getting the source from keystone's `Git repository`_
 for development purposes.
 
 To install Keystone from packaging, refer instead to Keystone's `User
 Documentation`_.
 
-.. _`GitHub Repository`: http://github.com/openstack/keystone
+.. _`Git Repository`: http://git.openstack.org/cgit/openstack/keystone
 .. _`User Documentation`: http://docs.openstack.org/
 
 Prerequisites
@@ -54,11 +54,11 @@ different version of the above, please document your configuration here!
 Getting the latest code
 =======================
 
-Make a clone of the code from our `Github repository`:
+Make a clone of the code from our `Git repository`:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/openstack/keystone.git
+    $ git clone https://git.openstack.org/openstack/keystone.git
 
 When that is complete, you can:
 

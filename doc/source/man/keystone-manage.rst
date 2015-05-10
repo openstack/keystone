@@ -124,5 +124,5 @@ SEE ALSO
 SOURCE
 ======
 
-* Keystone is sourced in GitHub `Keystone <http://github.com/openstack/keystone>`__
+* Keystone is sourced in Gerrit git `Keystone <https://git.openstack.org/cgit/openstack/keystone>`__
 * Keystone bugs are managed at Launchpad `Keystone <https://bugs.launchpad.net/keystone>`__

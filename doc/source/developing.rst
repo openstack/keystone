@@ -74,7 +74,7 @@ place:
 
     $ bin/keystone-manage db_sync
 
-.. _`python-keystoneclient`: https://github.com/openstack/python-keystoneclient
+.. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
 
 If the above commands result in a ``KeyError``, or they fail on a
 ``.pyc`` file with the message, ``You can only have one Python script per
@@ -398,7 +398,7 @@ You may also be interested in either the
 
 .. _devstack: http://devstack.org/
 .. _OpenStack Continuous Integration Infrastructure: http://ci.openstack.org
-.. _OpenStack Integration Testing Project: https://github.com/openstack/tempest
+.. _OpenStack Integration Testing Project: https://git.openstack.org/cgit/openstack/tempest
 
 
 LDAP Tests
