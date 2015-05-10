@@ -189,42 +189,25 @@ class SAMLGenerator(object):
         :return: XML <AttributeStatement> object
 
         """
-        openstack_user = 'openstack_user'
-        user_attribute = saml.Attribute()
-        user_attribute.name = openstack_user
-        user_value = saml.AttributeValue()
-        user_value.set_text(user)
-        user_attribute.attribute_value = user_value
 
-        openstack_user_domain = 'openstack_user_domain'
-        user_domain_attribute = saml.Attribute()
-        user_domain_attribute.name = openstack_user_domain
-        user_domain_value = saml.AttributeValue()
-        user_domain_value.set_text(user_domain_name)
-        user_domain_attribute.attribute_value = user_domain_value
+        def _build_attribute(attribute_name, attribute_values):
+            attribute = saml.Attribute()
+            attribute.name = attribute_name
 
-        openstack_roles = 'openstack_roles'
-        roles_attribute = saml.Attribute()
-        roles_attribute.name = openstack_roles
+            for value in attribute_values:
+                attribute_value = saml.AttributeValue()
+                attribute_value.set_text(value)
+                attribute.attribute_value.append(attribute_value)
 
-        for role in roles:
-            role_value = saml.AttributeValue()
-            role_value.set_text(role)
-            roles_attribute.attribute_value.append(role_value)
+            return attribute
 
-        openstack_project = 'openstack_project'
-        project_attribute = saml.Attribute()
-        project_attribute.name = openstack_project
-        project_value = saml.AttributeValue()
-        project_value.set_text(project)
-        project_attribute.attribute_value = project_value
-
-        openstack_project_domain = 'openstack_project_domain'
-        project_domain_attribute = saml.Attribute()
-        project_domain_attribute.name = openstack_project_domain
-        project_domain_value = saml.AttributeValue()
-        project_domain_value.set_text(project_domain_name)
-        project_domain_attribute.attribute_value = project_domain_value
+        user_attribute = _build_attribute('openstack_user', [user])
+        roles_attribute = _build_attribute('openstack_roles', roles)
+        project_attribute = _build_attribute('openstack_project', [project])
+        project_domain_attribute = _build_attribute(
+            'openstack_project_domain', [project_domain_name])
+        user_domain_attribute = _build_attribute(
+            'openstack_user_domain', [user_domain_name])
 
         attribute_statement = saml.AttributeStatement()
         attribute_statement.attribute.append(user_attribute)
