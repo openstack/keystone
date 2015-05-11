@@ -83,9 +83,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def config_overrides(self):
         super(LiveLDAPIdentity, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
+        self.config_fixture.config(group='identity', driver='ldap')
 
     def test_build_tree(self):
         """Regression test for building the tree names

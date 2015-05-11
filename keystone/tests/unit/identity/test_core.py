@@ -144,7 +144,7 @@ class TestDatabaseDomainConfigs(tests.TestCase):
         conf = {'ldap': {'url': uuid.uuid4().hex,
                          'suffix': uuid.uuid4().hex},
                 'identity': {
-                    'driver': 'keystone.identity.backends.ldap.Identity'}}
+                    'driver': 'ldap'}}
         self.domain_config_api.create_config(domain['id'], conf)
         fake_standard_driver = None
         domain_config = identity.DomainConfigs()

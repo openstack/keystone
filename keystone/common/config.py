@@ -149,8 +149,7 @@ FILE_OPTIONS = {
                         'identity configuration files if '
                         'domain_specific_drivers_enabled is set to true.'),
         cfg.StrOpt('driver',
-                   default=('keystone.identity.backends'
-                            '.sql.Identity'),
+                   default='sql',
                    help='Identity backend driver.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for identity caching. This has no '
@@ -168,12 +167,10 @@ FILE_OPTIONS = {
     ],
     'identity_mapping': [
         cfg.StrOpt('driver',
-                   default=('keystone.identity.mapping_backends'
-                            '.sql.Mapping'),
+                   default='sql',
                    help='Keystone Identity Mapping backend driver.'),
         cfg.StrOpt('generator',
-                   default=('keystone.identity.id_generators'
-                            '.sha256.Generator'),
+                   default='sha256',
                    help='Public ID generator for user and group entities. '
                         'The Keystone identity mapper only supports '
                         'generators that produce no more than 64 characters.'),
@@ -209,7 +206,7 @@ FILE_OPTIONS = {
         cfg.IntOpt('max_redelegation_count', default=3,
                    help='Maximum depth of trust redelegation.'),
         cfg.StrOpt('driver',
-                   default='keystone.trust.backends.sql.Trust',
+                   default='sql',
                    help='Trust backend driver.')],
     'os_inherit': [
         cfg.BoolOpt('enabled', default=False,
@@ -245,13 +242,12 @@ FILE_OPTIONS = {
                    help='Amount of time a token should remain valid '
                         '(in seconds).'),
         cfg.StrOpt('provider',
-                   default='keystone.token.providers.uuid.Provider',
+                   default='uuid',
                    help='Controls the token construction, validation, and '
                         'revocation operations. Core providers are '
-                        '"keystone.token.providers.[fernet|pkiz|pki|uuid].'
-                        'Provider".'),
+                        '[fernet|pkiz|pki|uuid].'),
         cfg.StrOpt('driver',
-                   default='keystone.token.persistence.backends.sql.Token',
+                   default='sql',
                    help='Token persistence backend driver.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for token system caching. This has no '
@@ -282,7 +278,7 @@ FILE_OPTIONS = {
     ],
     'revoke': [
         cfg.StrOpt('driver',
-                   default='keystone.contrib.revoke.backends.sql.Revoke',
+                   default='sql',
                    help='An implementation of the backend for persisting '
                         'revocation events.'),
         cfg.IntOpt('expiration_buffer', default=1800,
@@ -448,8 +444,7 @@ FILE_OPTIONS = {
     ],
     'domain_config': [
         cfg.StrOpt('driver',
-                   default='keystone.resource.config_backends.sql.'
-                           'DomainConfig',
+                   default='sql',
                    help='Domain config backend driver.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for domain config caching. This has no '
@@ -477,13 +472,12 @@ FILE_OPTIONS = {
     ],
     'credential': [
         cfg.StrOpt('driver',
-                   default=('keystone.credential.backends'
-                            '.sql.Credential'),
+                   default='sql',
                    help='Credential backend driver.'),
     ],
     'oauth1': [
         cfg.StrOpt('driver',
-                   default='keystone.contrib.oauth1.backends.sql.OAuth1',
+                   default='sql',
                    help='Credential backend driver.'),
         cfg.IntOpt('request_token_duration', default=28800,
                    help='Duration (in seconds) for the OAuth Request Token.'),
@@ -492,8 +486,7 @@ FILE_OPTIONS = {
     ],
     'federation': [
         cfg.StrOpt('driver',
-                   default='keystone.contrib.federation.'
-                           'backends.sql.Federation',
+                   default='sql',
                    help='Federation backend driver.'),
         cfg.StrOpt('assertion_prefix', default='',
                    help='Value to be used when filtering assertion parameters '
@@ -526,7 +519,7 @@ FILE_OPTIONS = {
     ],
     'policy': [
         cfg.StrOpt('driver',
-                   default='keystone.policy.backends.sql.Policy',
+                   default='sql',
                    help='Policy backend driver.'),
         cfg.IntOpt('list_limit',
                    help='Maximum number of entities that will be returned '
@@ -534,8 +527,7 @@ FILE_OPTIONS = {
     ],
     'endpoint_filter': [
         cfg.StrOpt('driver',
-                   default='keystone.contrib.endpoint_filter.backends'
-                           '.sql.EndpointFilter',
+                   default='sql',
                    help='Endpoint Filter backend driver'),
         cfg.BoolOpt('return_all_endpoints_if_no_filter', default=True,
                     help='Toggle to return all active endpoints if no filter '
@@ -543,8 +535,7 @@ FILE_OPTIONS = {
     ],
     'endpoint_policy': [
         cfg.StrOpt('driver',
-                   default='keystone.contrib.endpoint_policy.backends'
-                           '.sql.EndpointPolicy',
+                   default='sql',
                    help='Endpoint policy backend driver'),
     ],
     'ldap': [
@@ -889,7 +880,7 @@ FILE_OPTIONS = {
                    help='Catalog template file name for use with the '
                         'template catalog backend.'),
         cfg.StrOpt('driver',
-                   default='keystone.catalog.backends.sql.Catalog',
+                   default='sql',
                    help='Catalog backend driver.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for catalog caching. This has no '

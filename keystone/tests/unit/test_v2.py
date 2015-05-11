@@ -1375,12 +1375,10 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 class RevokeApiTestCase(V2TestCase):
     def config_overrides(self):
         super(RevokeApiTestCase, self).config_overrides()
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Provider',
+            provider='pki',
             revoke_by_id=False)
 
     def test_fetch_revocation_list_admin_200(self):
@@ -1412,9 +1410,7 @@ class TestFernetTokenProviderV2(RestfulTestCase):
 
     def config_overrides(self):
         super(TestFernetTokenProviderV2, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='keystone.token.providers.fernet.Provider')
+        self.config_fixture.config(group='token', provider='fernet')
 
     def test_authenticate_unscoped_token(self):
         unscoped_token = self.get_unscoped_token()

@@ -187,24 +187,20 @@ class RevokeTests(object):
 class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
     def config_overrides(self):
         super(SqlRevokeTests, self).config_overrides()
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.sql.Revoke')
+        self.config_fixture.config(group='revoke', driver='sql')
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Provider',
+            provider='pki',
             revoke_by_id=False)
 
 
 class KvsRevokeTests(tests.TestCase, RevokeTests):
     def config_overrides(self):
         super(KvsRevokeTests, self).config_overrides()
-        self.config_fixture.config(
-            group='revoke',
-            driver='keystone.contrib.revoke.backends.kvs.Revoke')
+        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
-            provider='keystone.token.providers.pki.Provider',
+            provider='pki',
             revoke_by_id=False)
 
     def setUp(self):

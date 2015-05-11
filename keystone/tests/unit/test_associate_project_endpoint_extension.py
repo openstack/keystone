@@ -28,9 +28,7 @@ class TestExtensionCase(test_v3.RestfulTestCase):
     def config_overrides(self):
         super(TestExtensionCase, self).config_overrides()
         self.config_fixture.config(
-            group='catalog',
-            driver='keystone.contrib.endpoint_filter.backends.catalog_sql.'
-                   'EndpointFilterCatalog')
+            group='catalog', driver='endpoint_filter.sql')
 
     def setUp(self):
         super(TestExtensionCase, self).setUp()

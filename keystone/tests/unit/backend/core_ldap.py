@@ -66,9 +66,7 @@ class BaseBackendLdapCommon(object):
 
     def config_overrides(self):
         super(BaseBackendLdapCommon, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
+        self.config_fixture.config(group='identity', driver='ldap')
 
     def config_files(self):
         config_files = super(BaseBackendLdapCommon, self).config_files()
@@ -129,15 +127,9 @@ class BaseBackendLdapIdentitySqlEverythingElse(tests.SQLDriverOverrides):
     def config_overrides(self):
         super(BaseBackendLdapIdentitySqlEverythingElse,
               self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
-        self.config_fixture.config(
-            group='resource',
-            driver='keystone.resource.backends.sql.Resource')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='resource', driver='sql')
+        self.config_fixture.config(group='assignment', driver='sql')
 
 
 class BaseBackendLdapIdentitySqlEverythingElseWithMapping(object):

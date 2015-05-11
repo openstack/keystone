@@ -79,9 +79,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def config_overrides(self):
         super(BaseLDAPIdentity, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
+        self.config_fixture.config(group='identity', driver='ldap')
 
     def config_files(self):
         config_files = super(BaseLDAPIdentity, self).config_files()
@@ -2129,15 +2127,9 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
 
     def config_overrides(self):
         super(LdapIdentitySqlAssignment, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
-        self.config_fixture.config(
-            group='resource',
-            driver='keystone.resource.backends.sql.Resource')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='resource', driver='sql')
+        self.config_fixture.config(group='assignment', driver='sql')
 
     def test_domain_crud(self):
         pass
@@ -2415,15 +2407,9 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         super(MultiLDAPandSQLIdentity, self).config_overrides()
         # Make sure identity and assignment are actually SQL drivers,
         # BaseLDAPIdentity sets these options to use LDAP.
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.sql.Identity')
-        self.config_fixture.config(
-            group='resource',
-            driver='keystone.resource.backends.sql.Resource')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='identity', driver='sql')
+        self.config_fixture.config(group='resource', driver='sql')
+        self.config_fixture.config(group='assignment', driver='sql')
 
     def _setup_initial_users(self):
         # Create some identity entities BEFORE we switch to multi-backend, so
@@ -2667,14 +2653,14 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
                      'user': 'cn=Admin',
                      'password': 'password',
                      'suffix': 'cn=example,cn=com'},
-            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}
+            'identity': {'driver': 'ldap'}
         }
         domain1_config = {
             'ldap': {'url': 'fake://memory1',
                      'user': 'cn=Admin',
                      'password': 'password',
                      'suffix': 'cn=example,cn=com'},
-            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}
+            'identity': {'driver': 'ldap'}
         }
         domain2_config = {
             'ldap': {'url': 'fake://memory',
@@ -2683,7 +2669,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
                      'suffix': 'cn=myroot,cn=com',
                      'group_tree_dn': 'ou=UserGroups,dc=myroot,dc=org',
                      'user_tree_dn': 'ou=Users,dc=myroot,dc=org'},
-            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}
+            'identity': {'driver': 'ldap'}
         }
 
         self.domain_config_api.create_config(CONF.identity.default_domain_id,
@@ -2731,7 +2717,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
         # current settings.
         new_config = {
             'ldap': {'url': uuid.uuid4().hex},
-            'identity': {'driver': 'keystone.identity.backends.ldap.Identity'}}
+            'identity': {'driver': 'ldap'}}
         self.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
         default_config = (
@@ -2757,8 +2743,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
     def test_setting_sql_driver_raises_exception(self):
         """Ensure setting of domain specific sql driver is prevented."""
 
-        new_config = {
-            'identity': {'driver': 'keystone.identity.backends.sql.Identity'}}
+        new_config = {'identity': {'driver': 'sql'}}
         self.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
         self.assertRaises(exception.InvalidDomainConfig,
@@ -2810,12 +2795,8 @@ class DomainSpecificLDAPandSQLIdentity(
         super(DomainSpecificLDAPandSQLIdentity, self).config_overrides()
         # Make sure resource & assignment are actually SQL drivers,
         # BaseLDAPIdentity causes this option to use LDAP.
-        self.config_fixture.config(
-            group='resource',
-            driver='keystone.resource.backends.sql.Resource')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='resource', driver='sql')
+        self.config_fixture.config(group='assignment', driver='sql')
 
     def reload_backends(self, domain_id):
         # Just reload the driver for this domain - which will pickup
@@ -2963,15 +2944,9 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
 
     def config_overrides(self):
         super(DomainSpecificSQLIdentity, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
-        self.config_fixture.config(
-            group='resource',
-            driver='keystone.resource.backends.sql.Resource')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='resource', driver='sql')
+        self.config_fixture.config(group='assignment', driver='sql')
 
     def get_config(self, domain_id):
         if domain_id == CONF.identity.default_domain_id:
@@ -2990,25 +2965,17 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
     def test_default_sql_plus_sql_specific_driver_fails(self):
         # First confirm that if ldap is default driver, domain1 can be
         # loaded as sql
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='assignment', driver='sql')
         self.load_backends()
         # Make any identity call to initiate the lazy loading of configs
         self.identity_api.list_users(
             domain_scope=CONF.identity.default_domain_id)
         self.assertIsNotNone(self.get_config(self.domains['domain1']['id']))
 
-        # Now re-initialize, but with sql as the default identity driver
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.sql.Identity')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        # Now re-initialize, but with sql as the identity driver
+        self.config_fixture.config(group='identity', driver='sql')
+        self.config_fixture.config(group='assignment', driver='sql')
         self.load_backends()
         # Make any identity call to initiate the lazy loading of configs, which
         # should fail since we would now have two sql drivers.
@@ -3017,12 +2984,8 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
                           domain_scope=CONF.identity.default_domain_id)
 
     def test_multiple_sql_specific_drivers_fails(self):
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
-        self.config_fixture.config(
-            group='assignment',
-            driver='keystone.assignment.backends.sql.Assignment')
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='assignment', driver='sql')
         self.load_backends()
         # Ensure default, domain1 and domain2 exist
         self.domain_count = 3
@@ -3061,9 +3024,7 @@ class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
 
     def config_overrides(self):
         super(LdapFilterTests, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            driver='keystone.identity.backends.ldap.Identity')
+        self.config_fixture.config(group='identity', driver='ldap')
 
     def config_files(self):
         config_files = super(LdapFilterTests, self).config_files()

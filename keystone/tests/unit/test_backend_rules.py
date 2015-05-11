@@ -25,9 +25,7 @@ class RulesPolicy(tests.TestCase, test_backend.PolicyTests):
 
     def config_overrides(self):
         super(RulesPolicy, self).config_overrides()
-        self.config_fixture.config(
-            group='policy',
-            driver='keystone.policy.backends.rules.Policy')
+        self.config_fixture.config(group='policy', driver='rules')
 
     def test_create(self):
         self.assertRaises(exception.NotImplemented,

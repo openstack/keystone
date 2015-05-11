@@ -47,7 +47,7 @@ class Resource(resource.Driver):
         self.project = ProjectApi(CONF)
 
     def default_assignment_driver(self):
-        return 'keystone.assignment.backends.ldap.Assignment'
+        return 'ldap'
 
     def _set_default_parent_project(self, ref):
         """If the parent project ID has not been set, set it to None."""

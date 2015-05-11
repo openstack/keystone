@@ -53,10 +53,10 @@ class AssignmentType(object):
 class Assignment(keystone_assignment.Driver):
 
     def default_role_driver(self):
-        return "keystone.assignment.role_backends.sql.Role"
+        return 'sql'
 
     def default_resource_driver(self):
-        return 'keystone.resource.backends.sql.Resource'
+        return 'sql'
 
     def list_user_ids_for_project(self, tenant_id):
         with sql.transaction() as session:

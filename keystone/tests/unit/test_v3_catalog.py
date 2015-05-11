@@ -637,9 +637,7 @@ class TestCatalogAPISQL(tests.TestCase):
 
     def config_overrides(self):
         super(TestCatalogAPISQL, self).config_overrides()
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.sql.Catalog')
+        self.config_fixture.config(group='catalog', driver='sql')
 
     def new_endpoint_ref(self, service_id):
         return {
@@ -740,9 +738,7 @@ class TestCatalogAPISQLRegions(tests.TestCase):
 
     def config_overrides(self):
         super(TestCatalogAPISQLRegions, self).config_overrides()
-        self.config_fixture.config(
-            group='catalog',
-            driver='keystone.catalog.backends.sql.Catalog')
+        self.config_fixture.config(group='catalog', driver='sql')
 
     def new_endpoint_ref(self, service_id):
         return {
