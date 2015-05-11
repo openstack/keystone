@@ -18,6 +18,7 @@ import uuid
 import ldap
 import ldap.modlist
 from oslo_config import cfg
+from six.moves import range
 
 from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap

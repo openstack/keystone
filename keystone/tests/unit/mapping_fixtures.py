@@ -12,6 +12,9 @@
 
 """Fixtures for Federation Mapping."""
 
+from six.moves import range, zip
+
+
 EMPLOYEE_GROUP_ID = "0cd5e9"
 CONTRACTOR_GROUP_ID = "85a868"
 TESTER_GROUP_ID = "123"
@@ -989,8 +992,8 @@ MALFORMED_TESTER_ASSERTION = {
     'LastName': 'Account',
     'orgPersonType': 'Tester',
     'object': object(),
-    'dictionary': dict(zip('teststring', xrange(10))),
-    'tuple': tuple(xrange(5))
+    'dictionary': dict(zip('teststring', range(10))),
+    'tuple': tuple(range(5))
 }
 
 DEVELOPER_ASSERTION = {

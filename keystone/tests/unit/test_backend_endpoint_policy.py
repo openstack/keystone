@@ -14,6 +14,7 @@
 
 import uuid
 
+from six.moves import range
 from testtools import matchers
 
 from keystone import exception

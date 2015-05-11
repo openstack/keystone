@@ -25,7 +25,7 @@ from oslotest import mockpatch
 import saml2
 from saml2 import saml
 from saml2 import sigver
-from six.moves import urllib
+from six.moves import range, urllib, zip
 import xmldsig
 
 from keystone.auth import controllers as auth_controllers
@@ -2155,7 +2155,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         context = {
             'environment': {
                 'malformed_object': object(),
-                'another_bad_idea': tuple(xrange(10)),
+                'another_bad_idea': tuple(range(10)),
                 'yet_another_bad_param': dict(zip(uuid.uuid4().hex,
                                                   range(32)))
             }

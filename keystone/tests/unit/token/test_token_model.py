@@ -15,6 +15,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_utils import timeutils
+from six.moves import range
 
 from keystone import exception
 from keystone.models import token_model

@@ -15,6 +15,7 @@
 import uuid
 
 from oslo_config import cfg
+from six.moves import range
 
 
 CONF = cfg.CONF

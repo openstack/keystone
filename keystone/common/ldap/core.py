@@ -24,6 +24,7 @@ import ldap.filter
 import ldappool
 from oslo_log import log
 import six
+from six.moves import map, zip
 
 from keystone import exception
 from keystone.i18n import _
@@ -939,7 +940,7 @@ class KeystoneLDAPHandler(LDAPHandler):
             if attrlist is None:
                 attrlist_utf8 = None
             else:
-                attrlist_utf8 = map(utf8_encode, attrlist)
+                attrlist_utf8 = list(map(utf8_encode, attrlist))
             ldap_result = self.conn.search_s(base_utf8, scope,
                                              filterstr_utf8,
                                              attrlist_utf8, attrsonly)
@@ -990,7 +991,7 @@ class KeystoneLDAPHandler(LDAPHandler):
             attrlist_utf8 = None
         else:
             attrlist = [attr for attr in attrlist if attr is not None]
-            attrlist_utf8 = map(utf8_encode, attrlist)
+            attrlist_utf8 = list(map(utf8_encode, attrlist))
         msgid = self.conn.search_ext(base_utf8,
                                      scope,
                                      filterstr_utf8,

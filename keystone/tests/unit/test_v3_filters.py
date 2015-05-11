@@ -17,6 +17,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_serialization import jsonutils
+from six.moves import range
 
 from keystone.tests.unit import filtering
 from keystone.tests.unit.ksfixtures import temporaryfile

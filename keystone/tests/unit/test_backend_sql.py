@@ -20,6 +20,7 @@ import mock
 from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options
+from six.moves import range
 import sqlalchemy
 from sqlalchemy import exc
 from testtools import matchers
