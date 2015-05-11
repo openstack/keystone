@@ -29,7 +29,6 @@ To enable the OAuth1 extension:
 
     [auth]
     methods = external,password,token,oauth1
-    oauth1 = keystone.auth.plugins.oauth1.OAuth
 
 3. Add the ``oauth1_extension`` filter to the ``api_v3`` pipeline in
    ``keystone-paste.ini``. This must be added after ``json_body`` and before

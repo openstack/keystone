@@ -1995,9 +1995,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
 
     def auth_plugin_config_override(self):
         methods = ['saml2']
-        method_classes = {'saml2': 'keystone.auth.plugins.saml2.Saml2'}
-        super(FederatedTokenTests, self).auth_plugin_config_override(
-            methods, **method_classes)
+        super(FederatedTokenTests, self).auth_plugin_config_override(methods)
 
     def setUp(self):
         super(FederatedTokenTests, self).setUp()
@@ -2919,10 +2917,8 @@ class FernetFederatedTokenTests(FederationTests, FederatedSetupMixin):
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token', 'password']
-        method_classes = dict(
-            saml2='keystone.auth.plugins.saml2.Saml2')
         super(FernetFederatedTokenTests,
-              self).auth_plugin_config_override(methods, **method_classes)
+              self).auth_plugin_config_override(methods)
 
     def test_federated_unscoped_token(self):
         resp = self._issue_unscoped_token()
@@ -2976,10 +2972,8 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token']
-        method_classes = dict(
-            saml2='keystone.auth.plugins.saml2.Saml2')
         super(FederatedTokenTests,
-              self).auth_plugin_config_override(methods, **method_classes)
+              self).auth_plugin_config_override(methods)
 
 
 class JsonHomeTests(FederationTests, test_v3.JsonHomeTestMixin):
