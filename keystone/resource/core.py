@@ -53,6 +53,9 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+
+    driver_namespace = 'keystone.resource'
+
     _DOMAIN = 'domain'
     _PROJECT = 'project'
 
@@ -804,6 +807,8 @@ class DomainConfigManager(manager.Manager):
     #
     # Only those options that affect the domain-specific driver support in
     # the identity manager are supported.
+
+    driver_namespace = 'keystone.resource.domain_config'
 
     whitelisted_options = {
         'identity': ['driver'],

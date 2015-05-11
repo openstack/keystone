@@ -40,6 +40,8 @@ class Manager(manager.Manager):
 
     """
 
+    driver_namespace = 'keystone.credential'
+
     def __init__(self):
         super(Manager, self).__init__(CONF.credential.driver)
 

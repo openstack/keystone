@@ -110,6 +110,8 @@ class Manager(manager.Manager):
 
     """
 
+    driver_namespace = 'keystone.token.provider'
+
     V2 = V2
     V3 = V3
     VERSIONS = VERSIONS

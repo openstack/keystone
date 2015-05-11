@@ -151,6 +151,9 @@ class Manager(manager.Manager):
     dynamically calls the backend.
 
     """
+
+    driver_namespace = 'keystone.oauth1'
+
     _ACCESS_TOKEN = "OS-OAUTH1:access_token"
     _REQUEST_TOKEN = "OS-OAUTH1:request_token"
     _CONSUMER = "OS-OAUTH1:consumer"
