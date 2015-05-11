@@ -369,7 +369,7 @@
 #template_file = default_catalog.templates
 
 # Catalog backend driver. (string value)
-#driver = keystone.catalog.backends.sql.Catalog
+#driver = sql
 
 # Toggle for catalog caching. This has no effect unless global caching is
 # enabled. (boolean value)
@@ -440,6 +440,62 @@
 #allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
 
 
+[cors]
+
+#
+# From oslo.middleware
+#
+
+# Indicate whether this resource may be shared with the domain received in the
+# requests "origin" header. (string value)
+#allowed_origin = <None>
+
+# Indicate that the actual request can include user credentials (boolean value)
+#allow_credentials = true
+
+# Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
+# Headers. (list value)
+#expose_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+# Maximum cache age of CORS preflight requests. (integer value)
+#max_age = 3600
+
+# Indicate which methods can be used during the actual request. (list value)
+#allow_methods = GET,POST,PUT,DELETE,OPTIONS
+
+# Indicate which header field names may be used during the actual request.
+# (list value)
+#allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+
+[cors.subdomain]
+
+#
+# From oslo.middleware
+#
+
+# Indicate whether this resource may be shared with the domain received in the
+# requests "origin" header. (string value)
+#allowed_origin = <None>
+
+# Indicate that the actual request can include user credentials (boolean value)
+#allow_credentials = true
+
+# Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
+# Headers. (list value)
+#expose_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+# Maximum cache age of CORS preflight requests. (integer value)
+#max_age = 3600
+
+# Indicate which methods can be used during the actual request. (list value)
+#allow_methods = GET,POST,PUT,DELETE,OPTIONS
+
+# Indicate which header field names may be used during the actual request.
+# (list value)
+#allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+
+
 [credential]
 
 #
@@ -447,7 +503,7 @@
 #
 
 # Credential backend driver. (string value)
-#driver = keystone.credential.backends.sql.Credential
+#driver = sql
 
 
 [database]
@@ -557,7 +613,7 @@
 #
 
 # Domain config backend driver. (string value)
-#driver = keystone.resource.config_backends.sql.DomainConfig
+#driver = sql
 
 # Toggle for domain config caching. This has no effect unless global caching is
 # enabled. (boolean value)
@@ -575,7 +631,7 @@
 #
 
 # Endpoint Filter backend driver (string value)
-#driver = keystone.contrib.endpoint_filter.backends.sql.EndpointFilter
+#driver = sql
 
 # Toggle to return all active endpoints if no filter exists. (boolean value)
 #return_all_endpoints_if_no_filter = true
@@ -588,7 +644,7 @@
 #
 
 # Endpoint policy backend driver (string value)
-#driver = keystone.contrib.endpoint_policy.backends.sql.EndpointPolicy
+#driver = sql
 
 
 [eventlet_server]
@@ -710,7 +766,7 @@
 #
 
 # Federation backend driver. (string value)
-#driver = keystone.contrib.federation.backends.sql.Federation
+#driver = sql
 
 # Value to be used when filtering assertion parameters from the environment.
 # (string value)
@@ -792,7 +848,7 @@
 #domain_config_dir = /etc/keystone/domains
 
 # Identity backend driver. (string value)
-#driver = keystone.identity.backends.sql.Identity
+#driver = sql
 
 # Toggle for identity caching. This has no effect unless global caching is
 # enabled. (boolean value)
@@ -818,12 +874,12 @@
 #
 
 # Keystone Identity Mapping backend driver. (string value)
-#driver = keystone.identity.mapping_backends.sql.Mapping
+#driver = sql
 
 # Public ID generator for user and group entities. The Keystone identity mapper
 # only supports generators that produce no more than 64 characters. (string
 # value)
-#generator = keystone.identity.id_generators.sha256.Generator
+#generator = sha256
 
 # The format of user and group IDs changed in Juno for backends that do not
 # generate UUIDs (e.g. LDAP), with keystone providing a hash mapping to the
@@ -1252,7 +1308,7 @@
 #
 
 # Credential backend driver. (string value)
-#driver = keystone.contrib.oauth1.backends.sql.OAuth1
+#driver = sql
 
 # Duration (in seconds) for the OAuth Request Token. (integer value)
 #request_token_duration = 28800
@@ -1550,7 +1606,7 @@
 #
 
 # Policy backend driver. (string value)
-#driver = keystone.policy.backends.sql.Policy
+#driver = sql
 
 # Maximum number of entities that will be returned in a policy collection.
 # (integer value)
@@ -1591,7 +1647,7 @@
 
 # An implementation of the backend for persisting revocation events. (string
 # value)
-#driver = keystone.contrib.revoke.backends.sql.Revoke
+#driver = sql
 
 # This value (calculated in seconds) is added to token expiration before a
 # revocation event may be removed from the backend. (integer value)
@@ -1779,12 +1835,11 @@
 #expiration = 3600
 
 # Controls the token construction, validation, and revocation operations. Core
-# providers are "keystone.token.providers.[fernet|pkiz|pki|uuid].Provider".
-# (string value)
-#provider = keystone.token.providers.uuid.Provider
+# providers are [fernet|pkiz|pki|uuid]. (string value)
+#provider = uuid
 
 # Token persistence backend driver. (string value)
-#driver = keystone.token.persistence.backends.sql.Token
+#driver = sql
 
 # Toggle for token system caching. This has no effect unless global caching is
 # enabled. (boolean value)
@@ -1830,4 +1885,4 @@
 #max_redelegation_count = 3
 
 # Trust backend driver. (string value)
-#driver = keystone.trust.backends.sql.Trust
+#driver = sql
