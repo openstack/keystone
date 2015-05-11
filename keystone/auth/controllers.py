@@ -50,7 +50,7 @@ def load_auth_methods():
     # config.setup_authentication should be idempotent, call it to ensure we
     # have setup all the appropriate configuration options we may need.
     config.setup_authentication()
-    for plugin in CONF.auth.methods:
+    for plugin in set(CONF.auth.methods):
         if '.' in plugin:
             # NOTE(morganfainberg): if '.' is in the plugin name, it should be
             # imported rather than used as a plugin identifier.
