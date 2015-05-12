@@ -29,11 +29,9 @@ LOG = log.getLogger(__name__)
 @dependency.requires('identity_api')
 class Password(auth.AuthMethodHandler):
 
-    method = METHOD_NAME
-
     def authenticate(self, context, auth_payload, auth_context):
         """Try to authenticate against the identity backend."""
-        user_info = auth_plugins.UserAuthInfo.create(auth_payload, self.method)
+        user_info = auth_plugins.UserAuthInfo.create(auth_payload, METHOD_NAME)
 
         # FIXME(gyee): identity.authenticate() can use some refactoring since
         # all we care is password matches

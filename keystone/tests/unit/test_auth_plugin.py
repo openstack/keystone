@@ -28,9 +28,6 @@ DEMO_USER_ID = uuid.uuid4().hex
 
 
 class SimpleChallengeResponse(auth.AuthMethodHandler):
-
-    method = METHOD_NAME
-
     def authenticate(self, context, auth_payload, user_context):
         if 'response' in auth_payload:
             if auth_payload['response'] != EXPECTED_RESPONSE:
@@ -38,20 +35,6 @@ class SimpleChallengeResponse(auth.AuthMethodHandler):
             user_context['user_id'] = DEMO_USER_ID
         else:
             return {"challenge": "What's the name of your high school?"}
-
-
-class DuplicateAuthPlugin(SimpleChallengeResponse):
-    """Duplicate simple challenge response auth plugin."""
-
-
-class MismatchedAuthPlugin(SimpleChallengeResponse):
-    method = uuid.uuid4().hex
-
-
-class NoMethodAuthPlugin(auth.AuthMethodHandler):
-    """An auth plugin that does not supply a method attribute."""
-    def authenticate(self, context, auth_payload, auth_context):
-        pass
 
 
 class TestAuthPlugin(tests.SQLDriverOverrides, tests.TestCase):
@@ -143,25 +126,6 @@ class TestAuthPluginDynamicOptions(TestAuthPlugin):
         config_files = super(TestAuthPluginDynamicOptions, self).config_files()
         config_files.append(tests.dirs.tests_conf('test_auth_plugin.conf'))
         return config_files
-
-
-class TestInvalidAuthMethodRegistration(tests.TestCase):
-    def test_duplicate_auth_method_registration(self):
-        self.config_fixture.config(
-            group='auth',
-            methods=[
-                'keystone.tests.unit.test_auth_plugin.SimpleChallengeResponse',
-                'keystone.tests.unit.test_auth_plugin.DuplicateAuthPlugin'])
-        self.clear_auth_plugin_registry()
-        self.assertRaises(ValueError, auth.controllers.load_auth_methods)
-
-    def test_no_method_attribute_auth_method_by_class_name_registration(self):
-        self.config_fixture.config(
-            group='auth',
-            methods=['keystone.tests.unit.test_auth_plugin.NoMethodAuthPlugin']
-        )
-        self.clear_auth_plugin_registry()
-        self.assertRaises(ValueError, auth.controllers.load_auth_methods)
 
 
 class TestMapped(tests.TestCase):

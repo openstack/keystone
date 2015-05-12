@@ -33,8 +33,6 @@ CONF = cfg.CONF
 @dependency.requires('federation_api', 'identity_api', 'token_provider_api')
 class Token(auth.AuthMethodHandler):
 
-    method = 'token'
-
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
         response = self.token_provider_api.validate_token(token_id)
@@ -44,7 +42,7 @@ class Token(auth.AuthMethodHandler):
     def authenticate(self, context, auth_payload, user_context):
         if 'id' not in auth_payload:
             raise exception.ValidationError(attribute='id',
-                                            target=self.method)
+                                            target='token')
         token_ref = self._get_token_ref(auth_payload)
         if token_ref.is_federated_user and self.federation_api:
             mapped.handle_scoped_token(
