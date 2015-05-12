@@ -9,7 +9,7 @@ bashate>=0.2 # Apache-2.0
 python-memcached>=1.48
 
 # Optional dogpile backend: MongoDB
-pymongo>=2.6.3,<3.0
+pymongo>=2.6.3
 
 # Optional backend: LDAP
 # authenticate against an existing LDAP server
