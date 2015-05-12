@@ -1183,10 +1183,10 @@ The following attributes are available
   would ensure that the user object that is being deleted is in the same
   domain as the token provided.
 
-Every target object has an `id` and a `name` available as `target.<object>.id`
-and `target.<object>.name`. Other attributes are retrieved from the database
-and vary between object types. Moreover, some database fields are filtered out
-(e.g. user passwords).
+Every target object (except token) has an `id` and a `name` available as
+`target.<object>.id` and `target.<object>.name`. Other attributes are retrieved
+from the database and vary between object types. Moreover, some database fields
+are filtered out (e.g. user passwords).
 
 List of object attributes:
 
@@ -1219,6 +1219,10 @@ List of object attributes:
     * target.project.enabled
     * target.project.id
     * target.project.name
+
+* token
+    * target.token.user_id
+    * target.token.user.domain.id
 
 The default policy.json file supplied provides a somewhat basic example of API
 protection, and does not assume any particular use of domains. For multi-domain
