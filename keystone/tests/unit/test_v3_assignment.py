@@ -2759,3 +2759,113 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
         r = self.get('/roles?domain_id=%s' % self.domainA['id'])
         self.assertValidRoleListResponse(r, expected_length=1)
         self.assertRoleInListResponse(r, self.domainA_role2)
+
+
+class ListUserProjectsTestCase(test_v3.RestfulTestCase):
+    """Tests for /users/<user>/projects"""
+
+    def load_sample_data(self):
+        # do not load base class's data, keep it focused on the tests
+
+        self.auths = []
+        self.domains = []
+        self.projects = []
+        self.roles = []
+        self.users = []
+
+        # Create 3 sets of domain, roles, projects, and users to demonstrate
+        # the right user's data is loaded and only projects they can access
+        # are returned.
+
+        for _ in range(3):
+            domain = unit.new_domain_ref()
+            self.resource_api.create_domain(domain['id'], domain)
+
+            user = unit.create_user(self.identity_api, domain_id=domain['id'])
+
+            role = unit.new_role_ref()
+            self.role_api.create_role(role['id'], role)
+
+            self.assignment_api.create_grant(role['id'],
+                                             user_id=user['id'],
+                                             domain_id=domain['id'])
+
+            project = unit.new_project_ref(domain_id=domain['id'])
+            self.resource_api.create_project(project['id'], project)
+
+            self.assignment_api.create_grant(role['id'],
+                                             user_id=user['id'],
+                                             project_id=project['id'])
+
+            auth = self.build_authentication_request(
+                user_id=user['id'],
+                password=user['password'],
+                domain_id=domain['id'])
+
+            self.auths.append(auth)
+            self.domains.append(domain)
+            self.projects.append(project)
+            self.roles.append(role)
+            self.users.append(user)
+
+    def test_list_all(self):
+        for i in range(len(self.users)):
+            user = self.users[i]
+            auth = self.auths[i]
+
+            url = '/users/%s/projects' % user['id']
+            result = self.get(url, auth=auth)
+            projects_result = result.json['projects']
+            self.assertEqual(1, len(projects_result))
+            self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
+
+    def test_list_enabled(self):
+        for i in range(len(self.users)):
+            user = self.users[i]
+            auth = self.auths[i]
+
+            # There are no disabled projects
+            url = '/users/%s/projects?enabled=True' % user['id']
+            result = self.get(url, auth=auth)
+            projects_result = result.json['projects']
+            self.assertEqual(1, len(projects_result))
+            self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
+
+    def test_list_disabled(self):
+        for i in range(len(self.users)):
+            user = self.users[i]
+            auth = self.auths[i]
+            project = self.projects[i]
+
+            # There are no disabled projects
+            url = '/users/%s/projects?enabled=False' % user['id']
+            result = self.get(url, auth=auth)
+            self.assertEqual(0, len(result.json['projects']))
+
+            # disable this one and check again
+            project['enabled'] = False
+            self.resource_api.update_project(project['id'], project)
+            result = self.get(url, auth=auth)
+            projects_result = result.json['projects']
+            self.assertEqual(1, len(projects_result))
+            self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
+
+    def test_list_by_domain_id(self):
+        for i in range(len(self.users)):
+            user = self.users[i]
+            domain = self.domains[i]
+            auth = self.auths[i]
+
+            # Try looking for projects with a non-existent domain_id
+            url = '/users/%s/projects?domain_id=%s' % (user['id'],
+                                                       uuid.uuid4().hex)
+            result = self.get(url, auth=auth)
+            self.assertEqual(0, len(result.json['projects']))
+
+            # Now try a valid one
+            url = '/users/%s/projects?domain_id=%s' % (user['id'],
+                                                       domain['id'])
+            result = self.get(url, auth=auth)
+            projects_result = result.json['projects']
+            self.assertEqual(1, len(projects_result))
+            self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])

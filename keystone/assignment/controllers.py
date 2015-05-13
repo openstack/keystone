@@ -267,7 +267,7 @@ class ProjectAssignmentV3(controller.V3Controller):
         super(ProjectAssignmentV3, self).__init__()
         self.get_member_from_driver = self.resource_api.get_project
 
-    @controller.filterprotected('enabled', 'name')
+    @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_user_projects(self, context, filters, user_id):
         hints = ProjectAssignmentV3.build_driver_hints(context, filters)
         refs = self.assignment_api.list_projects_for_user(user_id,
