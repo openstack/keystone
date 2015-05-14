@@ -397,7 +397,7 @@ You may also be interested in either the
 `OpenStack Integration Testing Project`_.
 
 .. _devstack: http://devstack.org/
-.. _OpenStack Continuous Integration Infrastructure: http://ci.openstack.org
+.. _OpenStack Continuous Integration Infrastructure: http://docs.openstack.org/infra/system-config
 .. _OpenStack Integration Testing Project: https://git.openstack.org/cgit/openstack/tempest
 
 
