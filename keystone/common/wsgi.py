@@ -49,9 +49,11 @@ LOG = log.getLogger(__name__)
 # Environment variable used to pass the request context
 CONTEXT_ENV = 'openstack.context'
 
-
 # Environment variable used to pass the request params
 PARAMS_ENV = 'openstack.params'
+
+JSON_ENCODE_CONTENT_TYPES = set(['application/json',
+                                 'application/json-home'])
 
 
 def validate_token_bind(context, token_ref):
@@ -755,8 +757,6 @@ def render_response(body=None, status=None, headers=None, method=None):
         else:
             content_type = None
 
-        JSON_ENCODE_CONTENT_TYPES = ('application/json',
-                                     'application/json-home',)
         if content_type is None or content_type in JSON_ENCODE_CONTENT_TYPES:
             body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
             if content_type is None:
