@@ -32,14 +32,6 @@ FILE_OPTIONS = {
                         'AdminTokenAuthMiddleware from your paste '
                         'application pipelines (for example, in '
                         'keystone-paste.ini).'),
-        cfg.IntOpt('compute_port', default=8774,
-                   help='(Deprecated) The port which the OpenStack Compute '
-                        'service listens on. This option was only used for '
-                        'string replacement in the templated catalog backend. '
-                        'Templated catalogs should replace the '
-                        '"$(compute_port)s" substitution with the static port '
-                        'of the compute service. As of Juno, this option is '
-                        'deprecated and will be removed in the L release.'),
         cfg.StrOpt('public_endpoint',
                    help='The base public endpoint URL for Keystone that is '
                         'advertised to clients (NOTE: this does NOT affect '
