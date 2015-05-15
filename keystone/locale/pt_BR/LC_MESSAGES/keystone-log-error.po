@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-03-09 06:03+0000\n"
-"PO-Revision-Date: 2015-03-07 04:31+0000\n"
+"POT-Creation-Date: 2015-05-15 06:07+0000\n"
+"PO-Revision-Date: 2015-05-06 18:27+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/"
 "keystone/language/pt_BR/)\n"
@@ -19,54 +19,14 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: keystone/notifications.py:304
-msgid "Failed to construct notifier"
-msgstr ""
-
-#: keystone/notifications.py:389
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr "Falha ao enviar notificação %(res_id)s %(event_type)s"
 
-#: keystone/notifications.py:606
-#, python-format
-msgid "Failed to send %(action)s %(event_type)s notification"
-msgstr ""
-
-#: keystone/catalog/core.py:62
-#, python-format
-msgid "Malformed endpoint - %(url)r is not a string"
-msgstr ""
-
-#: keystone/catalog/core.py:66
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr "Endpoint mal formado %(url)s - chave desconhecida %(keyerror)s"
 
-#: keystone/catalog/core.py:71
-#, python-format
-msgid ""
-"Malformed endpoint '%(url)s'. The following type error occurred during "
-"string substitution: %(typeerror)s"
-msgstr ""
-
-#: keystone/catalog/core.py:77
-#, python-format
-msgid ""
-"Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
-msgstr ""
-
-#: keystone/common/openssl.py:93
-#, python-format
-msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
-msgstr ""
-
-#: keystone/common/openssl.py:121
-#, python-format
-msgid "Failed to remove file %(file_path)r: %(error)s"
-msgstr ""
-
-#: keystone/common/utils.py:239
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-url "
 "has the format <host>:<port> and that a debugger processes is listening on "
@@ -76,7 +36,6 @@ msgstr ""
 "possui o formato <host>:<port> e que o processo debugger está escutando "
 "nesta porta."
 
-#: keystone/common/cache/core.py:100
 #, python-format
 msgid ""
 "Unable to build cache config-key. Expected format \"<argname>:<value>\". "
@@ -85,95 +44,22 @@ msgstr ""
 "Não é possível construir chave de configuração do cache. Formato esperado "
 "\"<argname>:<value>\".  Pulando formato desconhecido: %s"
 
-#: keystone/common/environment/eventlet_server.py:99
-#, python-format
-msgid "Could not bind to %(host)s:%(port)s"
-msgstr ""
-
-#: keystone/common/environment/eventlet_server.py:185
 msgid "Server error"
 msgstr "Erro do servidor"
 
-#: keystone/contrib/endpoint_policy/core.py:129
-#: keystone/contrib/endpoint_policy/core.py:228
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found in region tree - %(region_id)s."
-msgstr ""
-
-#: keystone/contrib/federation/idp.py:410
-#, python-format
-msgid "Error when signing assertion, reason: %(reason)s"
-msgstr ""
-
-#: keystone/contrib/oauth1/core.py:136
-msgid "Cannot retrieve Authorization headers"
-msgstr ""
-
-#: keystone/openstack/common/loopingcall.py:95
 msgid "in fixed duration looping call"
 msgstr "em uma chamada de laço de duração fixa"
 
-#: keystone/openstack/common/loopingcall.py:138
 msgid "in dynamic looping call"
 msgstr "em chamada de laço dinâmico"
 
-#: keystone/openstack/common/service.py:268
 msgid "Unhandled exception"
 msgstr "Exceção não tratada"
 
-#: keystone/resource/core.py:477
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found projects hierarchy - "
-"%(project_id)s."
-msgstr ""
-
-#: keystone/resource/core.py:939
-#, python-format
-msgid ""
-"Unexpected results in response for domain config - %(count)s responses, "
-"first option is %(option)s, expected option %(expected)s"
-msgstr ""
-
-#: keystone/resource/backends/sql.py:102 keystone/resource/backends/sql.py:121
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found in projects hierarchy - "
-"%(project_id)s."
-msgstr ""
-
-#: keystone/token/provider.py:292
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
 "Erro inesperado ou token mal formado ao determinar validade do token: %s"
 
-#: keystone/token/persistence/backends/kvs.py:226
-#, python-format
-msgid ""
-"Reinitializing revocation list due to error in loading revocation list from "
-"backend.  Expected `list` type got `%(type)s`. Old revocation list data: "
-"%(list)r"
-msgstr ""
-
-#: keystone/token/providers/common.py:611
 msgid "Failed to validate token"
 msgstr "Falha ao validar token"
-
-#: keystone/token/providers/pki.py:47
-msgid "Unable to sign token"
-msgstr ""
-
-#: keystone/token/providers/fernet/utils.py:38
-#, python-format
-msgid ""
-"Either [fernet_tokens] key_repository does not exist or Keystone does not "
-"have sufficient permission to access it: %s"
-msgstr ""
-
-#: keystone/token/providers/fernet/utils.py:79
-msgid ""
-"Failed to create [fernet_tokens] key_repository: either it already exists or "
-"you don't have sufficient permissions to create it"
-msgstr ""

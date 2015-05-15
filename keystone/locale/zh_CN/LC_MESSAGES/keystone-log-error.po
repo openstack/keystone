@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-04-20 06:05+0000\n"
-"PO-Revision-Date: 2015-04-17 05:11+0000\n"
-"Last-Translator: 刘俊朋 <liujunpeng@inspur.com>\n"
+"POT-Creation-Date: 2015-05-15 06:07+0000\n"
+"PO-Revision-Date: 2015-05-06 18:27+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/keystone/"
 "language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -21,31 +21,25 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: keystone/notifications.py:328
 msgid "Failed to construct notifier"
 msgstr "构造通知器失败"
 
-#: keystone/notifications.py:423
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr "发送%(res_id)s %(event_type)s 通知失败"
 
-#: keystone/notifications.py:692
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr "发送 %(action)s %(event_type)s 通知失败"
 
-#: keystone/catalog/core.py:63
 #, python-format
 msgid "Malformed endpoint - %(url)r is not a string"
 msgstr "端点 - %(url)r 不是一个字符串"
 
-#: keystone/catalog/core.py:68
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr "端点 %(url)s 的格式不正确 - 键 %(keyerror)s 未知"
 
-#: keystone/catalog/core.py:76
 #, python-format
 msgid ""
 "Malformed endpoint '%(url)s'. The following type error occurred during "
@@ -53,23 +47,19 @@ msgid ""
 msgstr ""
 "端点 '%(url)s' 的格式不正确。在字符串替换时发生以下类型错误：%(typeerror)s"
 
-#: keystone/catalog/core.py:82
 #, python-format
 msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
 msgstr "端点 %s 的格式不完整 - (是否缺少了类型通告者?)"
 
-#: keystone/common/openssl.py:93
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
 msgstr "命令 %(to_exec)s 已退出，退出码及输出为 %(retcode)s- %(output)s"
 
-#: keystone/common/openssl.py:121
 #, python-format
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr "无法删除文件%(file_path)r: %(error)s"
 
-#: keystone/common/utils.py:239
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-url "
 "has the format <host>:<port> and that a debugger processes is listening on "
@@ -78,58 +68,46 @@ msgstr ""
 "设置调试环境出错。请确保选项--debug-url 的格式是这样的<host>:<port> ，和确保"
 "有一个调试进程正在监听那个端口"
 
-#: keystone/common/cache/core.py:100
 #, python-format
 msgid ""
 "Unable to build cache config-key. Expected format \"<argname>:<value>\". "
 "Skipping unknown format: %s"
 msgstr "无法构建缓存配置键值对。期望格式“<参数>:<值>”。跳过未知的格式:  %s"
 
-#: keystone/common/environment/eventlet_server.py:107
 #, python-format
 msgid "Could not bind to %(host)s:%(port)s"
 msgstr "无法绑定至 %(host)s:%(port)s"
 
-#: keystone/common/environment/eventlet_server.py:193
 msgid "Server error"
 msgstr "服务器报错"
 
-#: keystone/contrib/endpoint_policy/core.py:129
-#: keystone/contrib/endpoint_policy/core.py:228
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in region tree - %(region_id)s."
 msgstr "在域树- %(region_id)s 中发现循环引用或重复项。"
 
-#: keystone/contrib/federation/idp.py:411
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr "对断言进行签名时出错，原因：%(reason)s"
 
-#: keystone/contrib/oauth1/core.py:136
 msgid "Cannot retrieve Authorization headers"
 msgstr "无法获取认证头信息"
 
-#: keystone/openstack/common/loopingcall.py:95
 msgid "in fixed duration looping call"
 msgstr "在固定时段内循环调用"
 
-#: keystone/openstack/common/loopingcall.py:138
 msgid "in dynamic looping call"
 msgstr "在动态循环调用中"
 
-#: keystone/openstack/common/service.py:264
 msgid "Unhandled exception"
 msgstr "存在未处理的异常"
 
-#: keystone/resource/core.py:471
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
 
-#: keystone/resource/core.py:934
 #, python-format
 msgid ""
 "Unexpected results in response for domain config - %(count)s responses, "
@@ -138,19 +116,16 @@ msgstr ""
 "针对域配置- %(count)s 结果，响应中出现不是预期结果，第一参数是%(option)s，期"
 "望参数是 %(expected)s 。"
 
-#: keystone/resource/backends/sql.py:102 keystone/resource/backends/sql.py:121
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in projects hierarchy - "
 "%(project_id)s."
 msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
 
-#: keystone/token/provider.py:282
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr "决策令牌预计超期时间 :%s 时，出现未知错误或变形的令牌"
 
-#: keystone/token/persistence/backends/kvs.py:226
 #, python-format
 msgid ""
 "Reinitializing revocation list due to error in loading revocation list from "
@@ -160,22 +135,18 @@ msgstr ""
 "由于从后端加载撤销列表出现错误，重新初始化撤销列表。期望“列表”类型是  `"
 "%(type)s`。旧的撤销列表数据是: %(list)r"
 
-#: keystone/token/providers/common.py:672
 msgid "Failed to validate token"
 msgstr "token验证失败"
 
-#: keystone/token/providers/pki.py:47
 msgid "Unable to sign token"
 msgstr "无法签名令牌"
 
-#: keystone/token/providers/fernet/utils.py:38
 #, python-format
 msgid ""
 "Either [fernet_tokens] key_repository does not exist or Keystone does not "
 "have sufficient permission to access it: %s"
 msgstr "[fernet_tokens] 键仓库不存在或者ketystone没有足够的权限去访问它: %s。"
 
-#: keystone/token/providers/fernet/utils.py:79
 msgid ""
 "Failed to create [fernet_tokens] key_repository: either it already exists or "
 "you don't have sufficient permissions to create it"

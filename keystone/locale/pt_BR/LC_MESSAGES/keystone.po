@@ -10,1548 +10,349 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-04-20 06:05+0000\n"
-"PO-Revision-Date: 2015-04-18 11:26+0000\n"
+"POT-Creation-Date: 2015-05-15 06:07+0000\n"
+"PO-Revision-Date: 2015-05-12 01:46+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language-Team: Portuguese (Brazil) "
-"(http://www.transifex.com/projects/p/keystone/language/pt_BR/)\n"
+"Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/"
+"keystone/language/pt_BR/)\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: keystone/clean.py:24
 #, python-format
 msgid "%s cannot be empty."
 msgstr "%s não pode estar vazio."
 
-#: keystone/clean.py:26
 #, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s não pode ter menos de %(min_length)s caracteres."
 
-#: keystone/clean.py:31
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr "%(property_name)s não deve ter mais de %(max_length)s caracteres."
 
-#: keystone/clean.py:40
 #, python-format
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr "%(property_name)s não é um %(display_expected_type)s"
 
-#: keystone/cli.py:285
-msgid "At least one option must be provided"
-msgstr ""
-
-#: keystone/cli.py:292
-msgid "--all option cannot be mixed with other options"
-msgstr ""
-
-#: keystone/cli.py:299
-#, python-format
-msgid "Unknown domain '%(name)s' specified by --domain-name"
-msgstr ""
-
-#: keystone/cli.py:354 keystone/tests/unit/test_cli.py:213
-msgid "At least one option must be provided, use either --all or --domain-name"
-msgstr ""
-
-#: keystone/cli.py:360 keystone/tests/unit/test_cli.py:229
-msgid "The --all option cannot be used with the --domain-name option"
-msgstr ""
-
-#: keystone/cli.py:386 keystone/tests/unit/test_cli.py:246
-#, python-format
-msgid ""
-"Invalid domain name: %(domain)s found in config file name: %(file)s - "
-"ignoring this file."
-msgstr ""
-
-#: keystone/cli.py:394 keystone/tests/unit/test_cli.py:187
-#, python-format
-msgid ""
-"Domain: %(domain)s already has a configuration defined - ignoring file: "
-"%(file)s."
-msgstr ""
-
-#: keystone/cli.py:408
-#, python-format
-msgid "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
-msgstr ""
-
-#: keystone/cli.py:441
-#, python-format
-msgid ""
-"To get a more detailed information on this error, re-run this command for"
-" the specific domain, i.e.: keystone-manage domain_config_upload "
-"--domain-name %s"
-msgstr ""
-
-#: keystone/cli.py:459
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr "Não é possível localizar diretório de configuração de domínio: %s"
 
-#: keystone/cli.py:492
-msgid ""
-"Unable to access the keystone database, please check it is configured "
-"correctly."
-msgstr ""
-
-#: keystone/exception.py:79
-#, python-format
-msgid ""
-"Expecting to find %(attribute)s in %(target)s - the server could not "
-"comply with the request since it is either malformed or otherwise "
-"incorrect. The client is assumed to be in error."
-msgstr ""
-
-#: keystone/exception.py:90
-#, python-format
-msgid "%(detail)s"
-msgstr ""
-
-#: keystone/exception.py:94
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
-"request since it is either malformed or otherwise incorrect. The client "
-"is assumed to be in error."
+"request since it is either malformed or otherwise incorrect. The client is "
+"assumed to be in error."
 msgstr ""
 "A data não está no formato especificado. O servidor não pôde realizar a "
-"requisição pois ela está mal formada ou incorreta. Assume-se que o "
-"cliente está com erro."
+"requisição pois ela está mal formada ou incorreta. Assume-se que o cliente "
+"está com erro."
 
-#: keystone/exception.py:103
 #, python-format
 msgid ""
-"String length exceeded.The length of string '%(string)s' exceeded the "
-"limit of column %(type)s(CHAR(%(length)d))."
+"String length exceeded.The length of string '%(string)s' exceeded the limit "
+"of column %(type)s(CHAR(%(length)d))."
 msgstr ""
-"Comprimento de string excedido. O comprimento de string '%(string)s' "
-"excedeu o limite da coluna %(type)s(CHAR(%(length)d))."
+"Comprimento de string excedido. O comprimento de string '%(string)s' excedeu "
+"o limite da coluna %(type)s(CHAR(%(length)d))."
 
-#: keystone/exception.py:109
 #, python-format
 msgid ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. "
-"The server could not comply with the request because the attribute size "
-"is invalid (too large). The client is assumed to be in error."
+"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
+"server could not comply with the request because the attribute size is "
+"invalid (too large). The client is assumed to be in error."
 msgstr ""
-"Atributo de requisição %(attribute)s deve ser menor ou igual a %(size)i. "
-"O servidor não pôde atender a requisição porque o tamanho do atributo é "
+"Atributo de requisição %(attribute)s deve ser menor ou igual a %(size)i. O "
+"servidor não pôde atender a requisição porque o tamanho do atributo é "
 "inválido (muito grande). Assume-se que o cliente está em erro."
 
-#: keystone/exception.py:119
-#, python-format
-msgid ""
-"The specified parent region %(parent_region_id)s would create a circular "
-"region hierarchy."
-msgstr ""
-
-#: keystone/exception.py:126
-#, python-format
-msgid ""
-"The password length must be less than or equal to %(size)i. The server "
-"could not comply with the request because the password is invalid."
-msgstr ""
-
-#: keystone/exception.py:134
-#, python-format
-msgid ""
-"Unable to delete region %(region_id)s because it or its child regions "
-"have associated endpoints."
-msgstr ""
-
-#: keystone/exception.py:141
-msgid ""
-"The certificates you requested are not available. It is likely that this "
-"server does not use PKI tokens otherwise this is the result of "
-"misconfiguration."
-msgstr ""
-
-#: keystone/exception.py:150
-msgid "(Disable debug mode to suppress these details.)"
-msgstr ""
-
-#: keystone/exception.py:155
-#, python-format
-msgid "%(message)s %(amendment)s"
-msgstr ""
-
-#: keystone/exception.py:163
 msgid "The request you have made requires authentication."
 msgstr "A requisição que você fez requer autenticação."
 
-#: keystone/exception.py:169
 msgid "Authentication plugin error."
 msgstr "Erro do plugin de autenticação."
 
-#: keystone/exception.py:177
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr ""
-
-#: keystone/exception.py:182
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "Tentativa de autenticação com um método não suportado."
 
-#: keystone/exception.py:190
 msgid "Additional authentications steps required."
 msgstr "Passos de autenticação adicionais requeridos."
 
-#: keystone/exception.py:198
 msgid "You are not authorized to perform the requested action."
 msgstr "Você não está autorizado à realizar a ação solicitada."
 
-#: keystone/exception.py:205
-#, python-format
-msgid "You are not authorized to perform the requested action: %(action)s"
-msgstr ""
-
-#: keystone/exception.py:210
-#, python-format
-msgid ""
-"Could not change immutable attribute(s) '%(attributes)s' in target "
-"%(target)s"
-msgstr ""
-
-#: keystone/exception.py:215
-#, python-format
-msgid ""
-"Group membership across backend boundaries is not allowed, group in "
-"question is %(group_id)s, user is %(user_id)s"
-msgstr ""
-
-#: keystone/exception.py:221
-#, python-format
-msgid ""
-"Invalid mix of entities for policy association - only Endpoint, Service "
-"or Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, "
-"Service: %(service_id)s, Region: %(region_id)s"
-msgstr ""
-
-#: keystone/exception.py:228
-#, python-format
-msgid "Invalid domain specific configuration: %(reason)s"
-msgstr ""
-
-#: keystone/exception.py:232
-#, python-format
-msgid "Could not find: %(target)s"
-msgstr ""
-
-#: keystone/exception.py:238
-#, python-format
-msgid "Could not find endpoint: %(endpoint_id)s"
-msgstr ""
-
-#: keystone/exception.py:245
 msgid "An unhandled exception has occurred: Could not find metadata."
 msgstr "Uma exceção não tratada ocorreu: Não foi possível encontrar metadados."
 
-#: keystone/exception.py:250
-#, python-format
-msgid "Could not find policy: %(policy_id)s"
-msgstr ""
-
-#: keystone/exception.py:254
-msgid "Could not find policy association"
-msgstr ""
-
-#: keystone/exception.py:258
-#, python-format
-msgid "Could not find role: %(role_id)s"
-msgstr ""
-
-#: keystone/exception.py:262
-#, python-format
-msgid ""
-"Could not find role assignment with role: %(role_id)s, user or group: "
-"%(actor_id)s, project or domain: %(target_id)s"
-msgstr ""
-
-#: keystone/exception.py:268
-#, python-format
-msgid "Could not find region: %(region_id)s"
-msgstr ""
-
-#: keystone/exception.py:272
-#, python-format
-msgid "Could not find service: %(service_id)s"
-msgstr ""
-
-#: keystone/exception.py:276
-#, python-format
-msgid "Could not find domain: %(domain_id)s"
-msgstr ""
-
-#: keystone/exception.py:280
-#, python-format
-msgid "Could not find project: %(project_id)s"
-msgstr ""
-
-#: keystone/exception.py:284
-#, python-format
-msgid "Cannot create project with parent: %(project_id)s"
-msgstr ""
-
-#: keystone/exception.py:288
-#, python-format
-msgid "Could not find token: %(token_id)s"
-msgstr ""
-
-#: keystone/exception.py:292
-#, python-format
-msgid "Could not find user: %(user_id)s"
-msgstr ""
-
-#: keystone/exception.py:296
-#, python-format
-msgid "Could not find group: %(group_id)s"
-msgstr ""
-
-#: keystone/exception.py:300
-#, python-format
-msgid "Could not find mapping: %(mapping_id)s"
-msgstr ""
-
-#: keystone/exception.py:304
-#, python-format
-msgid "Could not find trust: %(trust_id)s"
-msgstr ""
-
-#: keystone/exception.py:308
-#, python-format
-msgid "No remaining uses for trust: %(trust_id)s"
-msgstr ""
-
-#: keystone/exception.py:312
-#, python-format
-msgid "Could not find credential: %(credential_id)s"
-msgstr ""
-
-#: keystone/exception.py:316
-#, python-format
-msgid "Could not find version: %(version)s"
-msgstr ""
-
-#: keystone/exception.py:320
-#, python-format
-msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
-msgstr ""
-
-#: keystone/exception.py:324
-#, python-format
-msgid "Could not find Identity Provider: %(idp_id)s"
-msgstr ""
-
-#: keystone/exception.py:328
-#, python-format
-msgid "Could not find Service Provider: %(sp_id)s"
-msgstr ""
-
-#: keystone/exception.py:332
-#, python-format
-msgid ""
-"Could not find federated protocol %(protocol_id)s for Identity Provider: "
-"%(idp_id)s"
-msgstr ""
-
-#: keystone/exception.py:343
-#, python-format
-msgid ""
-"Could not find %(group_or_option)s in domain configuration for domain "
-"%(domain_id)s"
-msgstr ""
-
-#: keystone/exception.py:348
-#, python-format
-msgid "Conflict occurred attempting to store %(type)s - %(details)s"
-msgstr ""
-
-#: keystone/exception.py:356
-msgid "An unexpected error prevented the server from fulfilling your request."
-msgstr ""
-
-#: keystone/exception.py:359
-#, python-format
-msgid ""
-"An unexpected error prevented the server from fulfilling your request: "
-"%(exception)s"
-msgstr ""
-
-#: keystone/exception.py:382
-#, python-format
-msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
-msgstr ""
-
-#: keystone/exception.py:387
-msgid ""
-"Expected signing certificates are not available on the server. Please "
-"check Keystone configuration."
-msgstr ""
-
-#: keystone/exception.py:393
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr ""
 "URL de endpoint mal-formada (%(endpoint)s), veja o log de ERROS para "
 "detalhes."
 
-#: keystone/exception.py:398
-#, python-format
-msgid ""
-"Group %(group_id)s returned by mapping %(mapping_id)s was not found in "
-"the backend."
-msgstr ""
-
-#: keystone/exception.py:403
-#, python-format
-msgid "Error while reading metadata file, %(reason)s"
-msgstr ""
-
-#: keystone/exception.py:407
-#, python-format
-msgid ""
-"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
-"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
-msgstr ""
-
-#: keystone/exception.py:414
 msgid "The action you have requested has not been implemented."
 msgstr "A ação que você solicitou não foi implementada."
 
-#: keystone/exception.py:421
-msgid "The service you have requested is no longer available on this server."
-msgstr ""
-
-#: keystone/exception.py:428
-#, python-format
-msgid "The Keystone configuration file %(config_file)s could not be found."
-msgstr ""
-
-#: keystone/exception.py:433
-msgid ""
-"No encryption keys found; run keystone-manage fernet_setup to bootstrap "
-"one."
-msgstr ""
-
-#: keystone/exception.py:438
-#, python-format
-msgid ""
-"The Keystone domain-specific configuration has specified more than one "
-"SQL driver (only one is permitted): %(source)s."
-msgstr ""
-
-#: keystone/exception.py:445
-#, python-format
-msgid ""
-"%(mod_name)s doesn't provide database migrations. The migration "
-"repository path at %(path)s doesn't exist or isn't a directory."
-msgstr ""
-
-#: keystone/exception.py:457
-#, python-format
-msgid ""
-"Unable to sign SAML assertion. It is likely that this server does not "
-"have xmlsec1 installed, or this is the result of misconfiguration. Reason"
-" %(reason)s"
-msgstr ""
-
-#: keystone/exception.py:465
-msgid ""
-"No Authorization headers found, cannot proceed with OAuth related calls, "
-"if running under HTTPd or Apache, ensure WSGIPassAuthorization is set to "
-"On."
-msgstr ""
-
-#: keystone/notifications.py:271
-#, python-format
-msgid "%(event)s is not a valid notification event, must be one of: %(actions)s"
-msgstr ""
-
-#: keystone/notifications.py:280
-#, python-format
-msgid "Method not callable: %s"
-msgstr ""
-
-#: keystone/assignment/controllers.py:107 keystone/identity/controllers.py:69
-#: keystone/resource/controllers.py:78
 msgid "Name field is required and cannot be empty"
 msgstr "Campo nome é requerido e não pode ser vazio"
 
-#: keystone/assignment/controllers.py:163
-#: keystone/assignment/controllers.py:182
-msgid "User roles not supported: tenant_id required"
-msgstr ""
-
-#: keystone/assignment/controllers.py:346
-#: keystone/assignment/controllers.py:769
 msgid "Specify a domain or project, not both"
 msgstr "Especifique um domínio ou projeto, não ambos"
 
-#: keystone/assignment/controllers.py:349
-msgid "Specify one of domain or project"
-msgstr ""
-
-#: keystone/assignment/controllers.py:354
-#: keystone/assignment/controllers.py:774
 msgid "Specify a user or group, not both"
 msgstr "Epecifique um usuário ou grupo, não ambos"
 
-#: keystone/assignment/controllers.py:357
-msgid "Specify one of user or group"
-msgstr ""
-
-#: keystone/assignment/controllers.py:758
-msgid "Combining effective and group filter will always result in an empty list."
-msgstr ""
-
-#: keystone/assignment/controllers.py:763
-msgid ""
-"Combining effective, domain and inherited filters will always result in "
-"an empty list."
-msgstr ""
-
-#: keystone/assignment/core.py:228
-msgid "Must specify either domain or project"
-msgstr ""
-
-#: keystone/assignment/core.py:529
 #, python-format
 msgid "Project (%s)"
 msgstr "Projeto (%s)"
 
-#: keystone/assignment/core.py:531
 #, python-format
 msgid "Domain (%s)"
 msgstr "Domínio (%s)"
 
-#: keystone/assignment/core.py:533
 msgid "Unknown Target"
 msgstr "Alvo Desconhecido"
 
-#: keystone/assignment/backends/ldap.py:92
-msgid "Domain metadata not supported by LDAP"
-msgstr ""
-
-#: keystone/assignment/backends/ldap.py:381
-#, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-
-#: keystone/assignment/backends/ldap.py:387
 #, python-format
 msgid "Role %s not found"
 msgstr "Role %s não localizada"
 
-#: keystone/assignment/backends/ldap.py:402
-#: keystone/assignment/backends/sql.py:335
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "Não é possível remover role que não foi concedido, %s"
 
-#: keystone/assignment/backends/sql.py:356
-#, python-format
-msgid "Unexpected assignment type encountered, %s"
-msgstr ""
-
-#: keystone/assignment/role_backends/ldap.py:61 keystone/catalog/core.py:110
-#: keystone/common/ldap/core.py:1400 keystone/resource/backends/ldap.py:149
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "ID duplicado, %s."
 
-#: keystone/assignment/role_backends/ldap.py:69
-#: keystone/common/ldap/core.py:1390
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Nome duplicado, %s."
 
-#: keystone/assignment/role_backends/ldap.py:119
-#, python-format
-msgid "Cannot duplicate name %s"
-msgstr ""
-
-#: keystone/auth/controllers.py:60
-#, python-format
-msgid ""
-"Cannot load an auth-plugin by class-name without a \"method\" attribute "
-"defined: %s"
-msgstr ""
-
-#: keystone/auth/controllers.py:71
-#, python-format
-msgid ""
-"Auth plugin %(plugin)s is requesting previously registered method "
-"%(method)s"
-msgstr ""
-
-#: keystone/auth/controllers.py:115
-#, python-format
-msgid ""
-"Unable to reconcile identity attribute %(attribute)s as it has "
-"conflicting values %(new)s and %(old)s"
-msgstr ""
-
-#: keystone/auth/controllers.py:334
 msgid "Scoping to both domain and project is not allowed"
 msgstr "A definição de escopo para o domínio e o projeto não é permitida"
 
-#: keystone/auth/controllers.py:337
 msgid "Scoping to both domain and trust is not allowed"
 msgstr "A definição de escopo para o domínio e a trust não é permitida"
 
-#: keystone/auth/controllers.py:340
 msgid "Scoping to both project and trust is not allowed"
 msgstr "A definição de escopo para o projeto e a trust não é permitida"
 
-#: keystone/auth/controllers.py:510
 msgid "User not found"
 msgstr "Usuário não localizado"
 
-#: keystone/auth/controllers.py:614
-msgid "A project-scoped token is required to produce a service catalog."
-msgstr ""
-
-#: keystone/auth/plugins/external.py:46
 msgid "No authenticated user"
 msgstr "Nenhum usuário autenticado"
 
-#: keystone/auth/plugins/external.py:56
 #, python-format
 msgid "Unable to lookup user %s"
 msgstr "Não é possível consultar o usuário %s"
 
-#: keystone/auth/plugins/external.py:107
-msgid "auth_type is not Negotiate"
-msgstr ""
-
-#: keystone/auth/plugins/mapped.py:244
-msgid "Could not map user"
-msgstr ""
-
-#: keystone/auth/plugins/oauth1.py:39
-#, python-format
-msgid "%s not supported"
-msgstr ""
-
-#: keystone/auth/plugins/oauth1.py:57
 msgid "Access token is expired"
 msgstr "Token de acesso expirou"
 
-#: keystone/auth/plugins/oauth1.py:71
-msgid "Could not validate the access token"
-msgstr ""
-
-#: keystone/auth/plugins/password.py:46
 msgid "Invalid username or password"
 msgstr "Nome de usuário ou senha inválidos"
 
-#: keystone/auth/plugins/token.py:72 keystone/token/controllers.py:161
-msgid "rescope a scoped token"
-msgstr ""
-
-#: keystone/catalog/controllers.py:168
-#, python-format
-msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
-msgstr ""
-
-#: keystone/common/authorization.py:47 keystone/common/wsgi.py:64
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr ""
-
-#: keystone/common/base64utils.py:66
-msgid "pad must be single character"
-msgstr ""
-
-#: keystone/common/base64utils.py:215
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr ""
-
-#: keystone/common/base64utils.py:219
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-
-#: keystone/common/base64utils.py:225
-#, python-format
-msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr ""
-
-#: keystone/common/base64utils.py:244 keystone/common/base64utils.py:265
-msgid "padded base64url text must be multiple of 4 characters"
-msgstr ""
-
-#: keystone/common/controller.py:237 keystone/token/providers/common.py:589
 msgid "Non-default domain is not supported"
 msgstr "O domínio não padrão não é suportado"
 
-#: keystone/common/controller.py:311 keystone/common/controller.py:339
-#: keystone/identity/core.py:501 keystone/resource/core.py:760
-#: keystone/resource/backends/ldap.py:61
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Esperado dict ou list: %s"
 
-#: keystone/common/controller.py:352
 msgid "Marker could not be found"
 msgstr "Marcador não pôde ser encontrado"
 
-#: keystone/common/controller.py:363
 msgid "Invalid limit value"
 msgstr "Valor limite inválido"
 
-#: keystone/common/controller.py:671
-msgid "Cannot change Domain ID"
-msgstr ""
-
-#: keystone/common/controller.py:700
-msgid "domain_id is required as part of entity"
-msgstr ""
-
-#: keystone/common/controller.py:735
-msgid "A domain-scoped token must be used"
-msgstr ""
-
-#: keystone/common/dependency.py:68
-#, python-format
-msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr ""
-
-#: keystone/common/dependency.py:108
-msgid "event_callbacks must be a dict"
-msgstr ""
-
-#: keystone/common/dependency.py:113
-#, python-format
-msgid "event_callbacks[%s] must be a dict"
-msgstr ""
-
-#: keystone/common/json_home.py:78
-#, python-format
-msgid "Unexpected status requested for JSON Home response, %s"
-msgstr ""
-
-#: keystone/common/pemutils.py:223
-#, python-format
-msgid "unknown pem_type \"%(pem_type)s\", valid types are: %(valid_pem_types)s"
-msgstr ""
-
-#: keystone/common/pemutils.py:242
-#, python-format
-msgid ""
-"unknown pem header \"%(pem_header)s\", valid headers are: "
-"%(valid_pem_headers)s"
-msgstr ""
-
-#: keystone/common/pemutils.py:298
-#, python-format
-msgid "failed to find end matching \"%s\""
-msgstr ""
-
-#: keystone/common/pemutils.py:302
-#, python-format
-msgid ""
-"beginning & end PEM headers do not match (%(begin_pem_header)s!= "
-"%(end_pem_header)s)"
-msgstr ""
-
-#: keystone/common/pemutils.py:377
-#, python-format
-msgid "unknown pem_type: \"%s\""
-msgstr ""
-
-#: keystone/common/pemutils.py:389
-#, python-format
-msgid ""
-"failed to base64 decode %(pem_type)s PEM at position%(position)d: "
-"%(err_msg)s"
-msgstr ""
-
-#: keystone/common/utils.py:164 keystone/credential/controllers.py:44
 msgid "Invalid blob in credential"
 msgstr "BLOB inválido na credencial"
 
-#: keystone/common/wsgi.py:330
-#, python-format
-msgid "%s field is required and cannot be empty"
-msgstr ""
-
-#: keystone/common/wsgi.py:342
-#, python-format
-msgid "%s field(s) cannot be empty"
-msgstr ""
-
-#: keystone/common/wsgi.py:563
 msgid "The resource could not be found."
 msgstr "O recurso não pôde ser localizado."
 
-#: keystone/common/cache/_memcache_pool.py:124
-#, python-format
-msgid "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr ""
-
-#: keystone/common/cache/core.py:132
 msgid "region not type dogpile.cache.CacheRegion"
 msgstr "região não é do tipo dogpile.cache.CacheRegion"
 
-#: keystone/common/cache/backends/mongo.py:231
-msgid "db_hosts value is required"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:236
-msgid "database db_name is required"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:241
-msgid "cache_collection name is required"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:252
-msgid "integer value expected for w (write concern attribute)"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:260
-msgid "replicaset_name required when use_replica is True"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:275
-msgid "integer value expected for mongo_ttl_seconds"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:301
-msgid "no ssl support available"
-msgstr ""
-
-#: keystone/common/cache/backends/mongo.py:310
-#, python-format
-msgid ""
-"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\","
-" \"REQUIRED\""
-msgstr ""
-
-#: keystone/common/kvs/core.py:71
-#, python-format
-msgid "Lock Timeout occurred for key, %(target)s"
-msgstr ""
-
-#: keystone/common/kvs/core.py:106
-#, python-format
-msgid "KVS region %s is already configured. Cannot reconfigure."
-msgstr ""
-
-#: keystone/common/kvs/core.py:145
-#, python-format
-msgid "Key Value Store not configured: %s"
-msgstr ""
-
-#: keystone/common/kvs/core.py:198
-msgid "`key_mangler` option must be a function reference"
-msgstr ""
-
-#: keystone/common/kvs/core.py:353
-#, python-format
-msgid "Lock key must match target key: %(lock)s != %(target)s"
-msgstr ""
-
-#: keystone/common/kvs/core.py:357
-msgid "Must be called within an active lock context."
-msgstr ""
-
-#: keystone/common/kvs/backends/memcached.py:68
-#, python-format
-msgid "Maximum lock attempts on %s occurred."
-msgstr ""
-
-#: keystone/common/kvs/backends/memcached.py:107
-#, python-format
-msgid ""
-"Backend `%(driver)s` is not a valid memcached backend. Valid drivers: "
-"%(driver_list)s"
-msgstr ""
-
-#: keystone/common/kvs/backends/memcached.py:183
-msgid "`key_mangler` functions must be callable."
-msgstr ""
-
-#: keystone/common/ldap/core.py:191
-#, python-format
-msgid "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:201
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
 msgstr ""
 "Opção de certificado LADP TLS inválida: %(option)s. Escolha uma de: "
 "%(options)s"
 
-#: keystone/common/ldap/core.py:213
 #, python-format
 msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
 msgstr "Escopo LDAP inválido: %(scope)s. Escolha um de: %(options)s"
 
-#: keystone/common/ldap/core.py:588
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Combinação TLS / LADPS inválida"
 
-#: keystone/common/ldap/core.py:593
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
 msgstr "Opção LDAP TLS_AVAIL inválida: %s. TLS não dsponível"
 
-#: keystone/common/ldap/core.py:603
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
 
-#: keystone/common/ldap/core.py:615
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
 
-#: keystone/common/ldap/core.py:1325
-#, python-format
-msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
-msgstr ""
-
-#: keystone/common/ldap/core.py:1369
 #, python-format
 msgid "LDAP %s create"
 msgstr "Criação de LDAP %s"
 
-#: keystone/common/ldap/core.py:1374
 #, python-format
 msgid "LDAP %s update"
 msgstr "Atualização de LDAP %s"
 
-#: keystone/common/ldap/core.py:1379
 #, python-format
 msgid "LDAP %s delete"
 msgstr "Exclusão de LDAP %s"
 
-#: keystone/common/ldap/core.py:1521
-msgid ""
-"Disabling an entity where the 'enable' attribute is ignored by "
-"configuration."
-msgstr ""
-
-#: keystone/common/ldap/core.py:1532
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
 msgstr "Não é possível alterar %(option_name)s %(attr)s"
 
-#: keystone/common/ldap/core.py:1619
-#, python-format
-msgid "Member %(member)s is already a member of group %(group)s"
-msgstr ""
-
-#: keystone/common/sql/core.py:219
-msgid ""
-"Cannot truncate a driver call without hints list as first parameter after"
-" self "
-msgstr ""
-
-#: keystone/common/sql/core.py:398
-msgid "Duplicate Entry"
-msgstr ""
-
-#: keystone/common/sql/core.py:414
-#, python-format
-msgid "An unexpected error occurred when trying to store %s"
-msgstr ""
-
-#: keystone/common/sql/migration_helpers.py:200
-#: keystone/common/sql/migration_helpers.py:261
-#, python-format
-msgid "%s extension does not exist."
-msgstr ""
-
-#: keystone/common/validation/validators.py:54
-#, python-format
-msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
-msgstr ""
-
-#: keystone/contrib/ec2/controllers.py:332
 msgid "Token belongs to another user"
 msgstr "O token pertence à outro usuário"
 
-#: keystone/contrib/ec2/controllers.py:360
 msgid "Credential belongs to another user"
 msgstr "A credencial pertence à outro usuário"
 
-#: keystone/contrib/endpoint_filter/backends/sql.py:69
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr "Endpoint %(endpoint_id)s não encontrado no projeto %(project_id)s"
 
-#: keystone/contrib/endpoint_filter/backends/sql.py:180
-msgid "Endpoint Group Project Association not found"
-msgstr ""
-
-#: keystone/contrib/endpoint_policy/core.py:258
-#, python-format
-msgid "No policy is associated with endpoint %(endpoint_id)s."
-msgstr ""
-
-#: keystone/contrib/federation/controllers.py:274
-msgid "Missing entity ID from environment"
-msgstr ""
-
-#: keystone/contrib/federation/controllers.py:282
-msgid "Request must have an origin query parameter"
-msgstr ""
-
-#: keystone/contrib/federation/controllers.py:296
-#, python-format
-msgid "%(host)s is not a trusted dashboard host"
-msgstr ""
-
-#: keystone/contrib/federation/controllers.py:328
-msgid "Use a project scoped token when attempting to create a SAML assertion"
-msgstr ""
-
-#: keystone/contrib/federation/idp.py:455
-#, python-format
-msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
-msgstr ""
-
-#: keystone/contrib/federation/idp.py:522
-msgid "Ensure configuration option idp_entity_id is set."
-msgstr ""
-
-#: keystone/contrib/federation/idp.py:525
-msgid "Ensure configuration option idp_sso_endpoint is set."
-msgstr ""
-
-#: keystone/contrib/federation/idp.py:545
-msgid ""
-"idp_contact_type must be one of: [technical, other, support, "
-"administrative or billing."
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:178
-msgid "Federation token is expired"
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:231
-msgid "Could not find Identity Provider identifier in environment"
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:235
-msgid ""
-"Incoming identity provider identifier not included among the accepted "
-"identifiers."
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:523
-#, python-format
-msgid "User type %s not supported"
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:559
-#, python-format
-msgid ""
-"Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords "
-"must be specified."
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:775
-#, python-format
-msgid "Identity Provider %(idp)s is disabled"
-msgstr ""
-
-#: keystone/contrib/federation/utils.py:783
-#, python-format
-msgid "Service Provider %(sp)s is disabled"
-msgstr ""
-
-#: keystone/contrib/oauth1/controllers.py:99
 msgid "Cannot change consumer secret"
 msgstr "Não é possível alterar segredo do consumidor"
 
-#: keystone/contrib/oauth1/controllers.py:131
-msgid "Cannot list request tokens with a token issued via delegation."
-msgstr ""
-
-#: keystone/contrib/oauth1/controllers.py:192
-#: keystone/contrib/oauth1/backends/sql.py:270
 msgid "User IDs do not match"
 msgstr "ID de usuário não confere"
 
-#: keystone/contrib/oauth1/controllers.py:199
 msgid "Could not find role"
 msgstr "Não é possível encontrar role"
 
-#: keystone/contrib/oauth1/controllers.py:248
-msgid "Invalid signature"
-msgstr ""
-
-#: keystone/contrib/oauth1/controllers.py:299
-#: keystone/contrib/oauth1/controllers.py:377
 msgid "Request token is expired"
 msgstr "Token de requisição expirou"
 
-#: keystone/contrib/oauth1/controllers.py:313
 msgid "There should not be any non-oauth parameters"
 msgstr "Não deve haver nenhum parâmetro não oauth"
 
-#: keystone/contrib/oauth1/controllers.py:317
 msgid "provided consumer key does not match stored consumer key"
 msgstr ""
 "Chave de consumidor fornecida não confere com a chave de consumidor "
 "armazenada"
 
-#: keystone/contrib/oauth1/controllers.py:321
 msgid "provided verifier does not match stored verifier"
 msgstr "Verificador fornecido não confere com o verificador armazenado"
 
-#: keystone/contrib/oauth1/controllers.py:325
 msgid "provided request key does not match stored request key"
 msgstr ""
 "Chave de requisição do provedor não confere com a chave de requisição "
 "armazenada"
 
-#: keystone/contrib/oauth1/controllers.py:329
 msgid "Request Token does not have an authorizing user id"
 msgstr "Token de Requisição não possui um ID de usuário autorizado"
 
-#: keystone/contrib/oauth1/controllers.py:366
-msgid "Cannot authorize a request token with a token issued via delegation."
-msgstr ""
-
-#: keystone/contrib/oauth1/controllers.py:396
 msgid "authorizing user does not have role required"
 msgstr "Usuário autorizado não possui o role necessário"
 
-#: keystone/contrib/oauth1/controllers.py:409
 msgid "User is not a member of the requested project"
 msgstr "Usuário não é um membro do projeto requisitado"
 
-#: keystone/contrib/oauth1/backends/sql.py:91
 msgid "Consumer not found"
 msgstr "Consumidor não encontrado"
 
-#: keystone/contrib/oauth1/backends/sql.py:186
 msgid "Request token not found"
 msgstr "Token de requisição não encontrado"
 
-#: keystone/contrib/oauth1/backends/sql.py:250
 msgid "Access token not found"
 msgstr "Token de acesso não encontrado"
 
-#: keystone/contrib/revoke/controllers.py:33
-#, python-format
-msgid "invalid date format %s"
-msgstr ""
-
-#: keystone/contrib/revoke/core.py:150
-msgid ""
-"The revoke call must not have both domain_id and project_id. This is a "
-"bug in the Keystone server. The current request is aborted."
-msgstr ""
-
-#: keystone/contrib/revoke/core.py:218 keystone/token/provider.py:195
-#: keystone/token/provider.py:218 keystone/token/provider.py:284
-#: keystone/token/provider.py:291
 msgid "Failed to validate token"
 msgstr "Falha ao validar token"
 
-#: keystone/identity/controllers.py:72
 msgid "Enabled field must be a boolean"
 msgstr "Campo habilitado precisa ser um booleano"
 
-#: keystone/identity/controllers.py:98
 msgid "Enabled field should be a boolean"
 msgstr "Campo habilitado deve ser um booleano"
 
-#: keystone/identity/core.py:112
-#, python-format
-msgid "Database at /domains/%s/config"
-msgstr ""
-
-#: keystone/identity/core.py:189
-#, python-format
-msgid ""
-"Domain specific sql drivers are not supported via the Identity API. One "
-"is specified in /domains/%s/config"
-msgstr ""
-
-#: keystone/identity/core.py:360 keystone/identity/backends/ldap.py:59
-#: keystone/identity/backends/ldap.py:61 keystone/identity/backends/ldap.py:67
-#: keystone/identity/backends/ldap.py:69 keystone/identity/backends/sql.py:104
-#: keystone/identity/backends/sql.py:106
-msgid "Invalid user / password"
-msgstr ""
-
-#: keystone/identity/core.py:766
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
 
-#: keystone/identity/core.py:808
-msgid "Cannot change user ID"
-msgstr ""
-
-#: keystone/identity/backends/ldap.py:99
-msgid "Cannot change user name"
-msgstr ""
-
-#: keystone/identity/backends/ldap.py:188 keystone/identity/backends/sql.py:188
-#: keystone/identity/backends/sql.py:206
-#, python-format
-msgid "User '%(user_id)s' not found in group '%(group_id)s'"
-msgstr ""
-
-#: keystone/identity/backends/ldap.py:339
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
 msgstr "Usuário %(user_id)s já é membro do grupo %(group_id)s"
 
-#: keystone/models/token_model.py:61
-msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:108
 #, python-format
 msgid ""
-"%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s and "
-"may be removed in %(remove_in)s."
+"%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s and may "
+"be removed in %(remove_in)s."
 msgstr ""
-"%(what)s está deprecado desde %(as_of)s em favor de %(in_favor_of)s e "
-"pode ser removido em %(remove_in)s."
+"%(what)s está deprecado desde %(as_of)s em favor de %(in_favor_of)s e pode "
+"ser removido em %(remove_in)s."
 
-#: keystone/openstack/common/versionutils.py:112
 #, python-format
 msgid ""
-"%(what)s is deprecated as of %(as_of)s and may be removed in "
-"%(remove_in)s. It will not be superseded."
+"%(what)s is deprecated as of %(as_of)s and may be removed in %(remove_in)s. "
+"It will not be superseded."
 msgstr ""
 "%(what)s está deprecado desde %(as_of)s e pode ser removido em "
 "%(remove_in)s. Ele não será substituído."
 
-#: keystone/openstack/common/versionutils.py:116
-#, python-format
-msgid "%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:119
-#, python-format
-msgid "%(what)s is deprecated as of %(as_of)s. It will not be superseded."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:241
 #, python-format
 msgid "Deprecated: %s"
 msgstr "Deprecado: %s"
 
-#: keystone/openstack/common/versionutils.py:259
 #, python-format
 msgid "Fatal call to deprecated config: %(msg)s"
 msgstr "Chamada fatal à configuração deprecada: %(msg)s"
 
-#: keystone/resource/controllers.py:231
-msgid ""
-"Cannot use parents_as_list and parents_as_ids query params at the same "
-"time."
-msgstr ""
-
-#: keystone/resource/controllers.py:237
-msgid ""
-"Cannot use subtree_as_list and subtree_as_ids query params at the same "
-"time."
-msgstr ""
-
-#: keystone/resource/core.py:79
-#, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr ""
-
-#: keystone/resource/core.py:96
-msgid "cannot create a project within a different domain than its parents."
-msgstr ""
-
-#: keystone/resource/core.py:100
-#, python-format
-msgid "cannot create a project in a branch containing a disabled project: %s"
-msgstr ""
-
-#: keystone/resource/core.py:122
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "O domínio está desativado: %s"
 
-#: keystone/resource/core.py:140
-#, python-format
-msgid "Domain cannot be named %s"
-msgstr ""
-
-#: keystone/resource/core.py:143
-#, python-format
-msgid "Domain cannot have ID %s"
-msgstr ""
-
-#: keystone/resource/core.py:155
 #, python-format
 msgid "Project is disabled: %s"
 msgstr "O projeto está desativado: %s"
 
-#: keystone/resource/core.py:175
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr ""
-
-#: keystone/resource/core.py:183
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr ""
-
-#: keystone/resource/core.py:194
-msgid "Update of `parent_id` is not allowed."
-msgstr ""
-
-#: keystone/resource/core.py:221
-#, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr ""
-
-#: keystone/resource/core.py:375
-msgid "Multiple domains are not supported"
-msgstr ""
-
-#: keystone/resource/core.py:428
-msgid "delete the default domain"
-msgstr ""
-
-#: keystone/resource/core.py:439
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr ""
-
-#: keystone/resource/core.py:843
 msgid "No options specified"
 msgstr "Nenhuma opção especificada"
 
-#: keystone/resource/core.py:849
-#, python-format
-msgid ""
-"The value of group %(group)s specified in the config should be a "
-"dictionary of options"
-msgstr ""
-
-#: keystone/resource/core.py:873
-#, python-format
-msgid ""
-"Option %(option)s found with no group specified while checking domain "
-"configuration request"
-msgstr ""
-
-#: keystone/resource/core.py:880
-#, python-format
-msgid "Group %(group)s is not supported for domain specific configurations"
-msgstr ""
-
-#: keystone/resource/core.py:887
-#, python-format
-msgid ""
-"Option %(option)s in group %(group)s is not supported for domain specific"
-" configurations"
-msgstr ""
-
-#: keystone/resource/core.py:940
-msgid "An unexpected error occurred when retrieving domain configs"
-msgstr ""
-
-#: keystone/resource/core.py:1019 keystone/resource/core.py:1103
-#: keystone/resource/core.py:1174 keystone/resource/config_backends/sql.py:70
-#, python-format
-msgid "option %(option)s in group %(group)s"
-msgstr ""
-
-#: keystone/resource/core.py:1022 keystone/resource/core.py:1108
-#: keystone/resource/core.py:1170
-#, python-format
-msgid "group %(group)s"
-msgstr ""
-
-#: keystone/resource/core.py:1024
-msgid "any options"
-msgstr ""
-
-#: keystone/resource/core.py:1068
-#, python-format
-msgid ""
-"Trying to update option %(option)s in group %(group)s, so that, and only "
-"that, option must be specified  in the config"
-msgstr ""
-
-#: keystone/resource/core.py:1073
-#, python-format
-msgid ""
-"Trying to update group %(group)s, so that, and only that, group must be "
-"specified in the config"
-msgstr ""
-
-#: keystone/resource/core.py:1082
-#, python-format
-msgid ""
-"request to update group %(group)s, but config provided contains group "
-"%(group_other)s instead"
-msgstr ""
-
-#: keystone/resource/core.py:1089
-#, python-format
-msgid ""
-"Trying to update option %(option)s in group %(group)s, but config "
-"provided contains option %(option_other)s instead"
-msgstr ""
-
-#: keystone/resource/backends/ldap.py:151
-#: keystone/resource/backends/ldap.py:159
-#: keystone/resource/backends/ldap.py:163
-msgid "Domains are read-only against LDAP"
-msgstr ""
-
-#: keystone/server/eventlet.py:77
-msgid ""
-"Running keystone via eventlet is deprecated as of Kilo in favor of "
-"running in a WSGI server (e.g. mod_wsgi). Support for keystone under "
-"eventlet will be removed in the \"M\"-Release."
-msgstr ""
-
-#: keystone/server/eventlet.py:90
-#, python-format
-msgid "Failed to start the %(name)s server"
-msgstr ""
-
-#: keystone/token/controllers.py:393
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "Usuário %(u_id)s  não está autorizado para o tenant %(t_id)s"
 
-#: keystone/token/controllers.py:412 keystone/token/controllers.py:415
 msgid "Token does not belong to specified tenant."
 msgstr "O token não pertence ao tenant especificado."
 
-#: keystone/token/persistence/backends/kvs.py:133
-#, python-format
-msgid "Unknown token version %s"
-msgstr ""
-
-#: keystone/token/providers/common.py:250
-#: keystone/token/providers/common.py:355
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr "O usuário %(user_id)s não tem acesso ao projeto %(project_id)s"
 
-#: keystone/token/providers/common.py:255
-#: keystone/token/providers/common.py:360
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr "O usuário %(user_id)s não tem acesso ao domínio %(domain_id)s"
 
-#: keystone/token/providers/common.py:282
 msgid "Trustor is disabled."
 msgstr "O fiador está desativado."
 
-#: keystone/token/providers/common.py:346
 msgid "Trustee has no delegated roles."
 msgstr "Fiador não possui roles delegados."
 
-#: keystone/token/providers/common.py:407
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr ""
-
-#: keystone/token/providers/common.py:435
 msgid "User is not a trustee."
 msgstr "Usuário não é confiável."
 
-#: keystone/token/providers/common.py:579
-msgid ""
-"Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
-"Authentication"
-msgstr ""
-
-#: keystone/token/providers/common.py:597
 msgid "Domain scoped token is not supported"
 msgstr "O token de escopo de domínio não é suportado"
 
-#: keystone/token/providers/pki.py:48 keystone/token/providers/pkiz.py:30
 msgid "Unable to sign token."
 msgstr "Não é possível assinar o token."
-
-#: keystone/token/providers/fernet/core.py:215
-msgid ""
-"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
-"tokens."
-msgstr ""
-
-#: keystone/token/providers/fernet/token_formatters.py:189
-#, python-format
-msgid "This is not a recognized Fernet payload version: %s"
-msgstr ""
-
-#: keystone/trust/controllers.py:146
-msgid "Redelegation allowed for delegated by trust only"
-msgstr ""
-
-#: keystone/trust/controllers.py:179
-msgid "The authenticated user should match the trustor."
-msgstr ""
-
-#: keystone/trust/controllers.py:184
-msgid "At least one role should be specified."
-msgstr ""
-
-#: keystone/trust/core.py:57
-#, python-format
-msgid ""
-"Remaining redelegation depth of %(redelegation_depth)d out of allowed "
-"range of [0..%(max_count)d]"
-msgstr ""
-
-#: keystone/trust/core.py:66
-#, python-format
-msgid ""
-"Field \"remaining_uses\" is set to %(value)s while it must not be set in "
-"order to redelegate a trust"
-msgstr ""
-
-#: keystone/trust/core.py:77
-msgid "Requested expiration time is more than redelegated trust can provide"
-msgstr ""
-
-#: keystone/trust/core.py:87
-msgid "Some of requested roles are not in redelegated trust"
-msgstr ""
-
-#: keystone/trust/core.py:116
-msgid "One of the trust agents is disabled or deleted"
-msgstr ""
-
-#: keystone/trust/core.py:135
-msgid "remaining_uses must be a positive integer or null."
-msgstr ""
-
-#: keystone/trust/core.py:141
-#, python-format
-msgid ""
-"Requested redelegation depth of %(requested_count)d is greater than "
-"allowed %(max_count)d"
-msgstr ""
-
-#: keystone/trust/core.py:147
-msgid "remaining_uses must not be set if redelegation is allowed"
-msgstr ""
-
-#: keystone/trust/core.py:157
-msgid ""
-"Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting"
-" this parameter is advised."
-msgstr ""
-
