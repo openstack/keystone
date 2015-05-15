@@ -471,18 +471,18 @@ generated based upon all of the options available within Keystone. These options
 are sourced from the many files around Keystone as well as some external libraries.
 
 If new options are added, primarily located in ``keystone.common.config``, a new
-sample configuration file needs to be generated. Generating a new sample configuration
+sample configuration file needs to be generated. To generate a new sample configuration
 to be included in a commit run:
 
 .. code-block:: bash
 
-    $ tox -esample_config -r
+    $ tox -egenconfig -r
 
 The tox command will place an updated sample config in ``etc/keystone.conf.sample``.
 
 If there is a new external library (e.g. ``oslo.messaging``) that utilizes the
 ``oslo.config`` package for configuration, it can be added to the list of libraries
-found in ``tools/config/oslo.config.generator.rc``.
+found in ``config-generator/keystone.conf``.
 
 
 Translated responses
