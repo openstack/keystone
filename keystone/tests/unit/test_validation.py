@@ -21,7 +21,6 @@ from keystone.catalog import schema as catalog_schema
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 from keystone.common.validation import validators
-from keystone.contrib.endpoint_filter import schema as endpoint_filter_schema
 from keystone.credential import schema as credential_schema
 from keystone import exception
 from keystone.federation import schema as federation_schema
@@ -1298,8 +1297,8 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
     def setUp(self):
         super(EndpointGroupValidationTestCase, self).setUp()
 
-        create = endpoint_filter_schema.endpoint_group_create
-        update = endpoint_filter_schema.endpoint_group_update
+        create = catalog_schema.endpoint_group_create
+        update = catalog_schema.endpoint_group_update
         self.create_endpoint_grp_validator = validators.SchemaValidator(create)
         self.update_endpoint_grp_validator = validators.SchemaValidator(update)
 
