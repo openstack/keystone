@@ -143,35 +143,6 @@ class JsonBodyMiddleware(wsgi.Middleware):
         request.environ[PARAMS_ENV] = params
 
 
-class XmlBodyMiddleware(wsgi.Middleware):
-    """De/serialize XML to/from JSON."""
-
-    def print_warning(self):
-        LOG.warning(_LW('XML support has been removed as of the Kilo release '
-                        'and should not be referenced or used in deployment. '
-                        'Please remove references to XmlBodyMiddleware from '
-                        'your configuration. This compatibility stub will be '
-                        'removed in the L release'))
-
-    def __init__(self, *args, **kwargs):
-        super(XmlBodyMiddleware, self).__init__(*args, **kwargs)
-        self.print_warning()
-
-
-class XmlBodyMiddlewareV2(XmlBodyMiddleware):
-    """De/serialize XML to/from JSON for v2.0 API."""
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-
-class XmlBodyMiddlewareV3(XmlBodyMiddleware):
-    """De/serialize XML to/from JSON for v3 API."""
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-
 class NormalizingFilter(wsgi.Middleware):
     """Middleware filter to handle URL normalization."""
 
