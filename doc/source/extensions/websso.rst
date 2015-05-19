@@ -35,9 +35,9 @@ prevent man-in-the-middle (MITM) attacks.
 
 2. Update httpd vhost file with websso information.
 
-The `/v3/auth/OS-FEDERATION/websso/` route must be protected by the chosen
-httpd module. This is performed so the request that originates from horizon
-will use the same identity provider that is configured in keystone.
+The `/v3/auth/OS-FEDERATION/websso/<protocol>` route must be protected by the
+chosen httpd module. This is performed so the request that originates from
+horizon will use the same identity provider that is configured in keystone.
 
 If `mod_shib` is used, then use the following as an example:
 
@@ -50,7 +50,8 @@ If `mod_shib` is used, then use the following as an example:
       <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
         AuthType shibboleth
         Require valid-user
-      </LocationMatch>
+        ...
+      </Location>
   </VirtualHost>
 
 If `mod_auth_openidc` is used, then use the following as an example:
@@ -66,7 +67,8 @@ If `mod_auth_openidc` is used, then use the following as an example:
       <Location ~ "/v3/auth/OS-FEDERATION/websso/oidc">
         AuthType openid-connect
         Require valid-user
-      </LocationMatch>
+        ...
+      </Location>
   </VirtualHost>
 
 If `mod_auth_kerb` is used, then use the following as an example:
@@ -83,8 +85,15 @@ If `mod_auth_kerb` is used, then use the following as an example:
         KrbMethodNegotiate on
         KrbMethodK5Passwd off
         Krb5Keytab /etc/apache2/http.keytab
-      </LocationMatch>
+        ...
+      </Location>
   </VirtualHost>
+
+.. NOTE::
+    If you are also using SSO via the API, don't forget to make the Location
+    settings match your configuration used for the keystone identity provider
+    location:
+    `/v3/OS-FEDERATION/identity_providers/<idp>/protocols/<protocol>/auth`
 
 3. Update `remote_id_attribute` in keystone.conf.
 
