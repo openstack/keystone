@@ -21,7 +21,6 @@ from oslotest import mockpatch
 import saml2
 from saml2 import saml
 from saml2 import sigver
-import xmldsig
 
 from keystone.auth import controllers as auth_controllers
 from keystone.common import dependency
@@ -32,11 +31,16 @@ from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
 from keystone import notifications
+from keystone.openstack.common import importutils
 from keystone.openstack.common import jsonutils
 from keystone.openstack.common import log
 from keystone.tests import federation_fixtures
 from keystone.tests import mapping_fixtures
 from keystone.tests import test_v3
+
+xmldsig = importutils.try_import("saml2.xmldsig")
+if not xmldsig:
+    xmldsig = importutils.try_import("xmldsig")
 
 
 CONF = config.CONF

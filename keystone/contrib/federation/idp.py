@@ -20,14 +20,18 @@ from saml2 import md
 from saml2 import saml
 from saml2 import samlp
 from saml2 import sigver
-import xmldsig
 
 from keystone.common import config
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone.openstack.common import fileutils
+from keystone.openstack.common import importutils
 from keystone.openstack.common import log
 from keystone.openstack.common import timeutils
+
+xmldsig = importutils.try_import("saml2.xmldsig")
+if not xmldsig:
+    xmldsig = importutils.try_import("xmldsig")
 
 
 LOG = log.getLogger(__name__)
