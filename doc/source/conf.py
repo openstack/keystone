@@ -24,14 +24,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))  # NOTE(dstanek): path for our
-                                           # Sphinx extension
 
 # NOTE(dstanek): adds _ to the builtins so keystone modules can be imported
 __builtins__['_'] = str
@@ -49,10 +43,6 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.viewcode',
               'oslosphinx',
-              # NOTE(dstanek): Uncomment the [pbr] section in setup.cfg and
-              # remove this Sphinx extension when
-              # https://launchpad.net/bugs/1260495 is fixed.
-              'ext.apidoc',
               ]
 
 todo_include_todos = True
