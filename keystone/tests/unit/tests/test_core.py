@@ -52,11 +52,6 @@ class TestTestCase(tests.TestCase):
         # exception.
 
         def use_deprecated():
-            # DeprecationWarning: BaseException.message has been deprecated as
-            # of Python 2.6
-            try:
-                raise Exception('something')
-            except Exception as e:
-                e.message
+            warnings.warn('this is deprecated', DeprecationWarning)
 
         self.assertThat(use_deprecated, matchers.raises(DeprecationWarning))
