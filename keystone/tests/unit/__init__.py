@@ -26,6 +26,7 @@ if six.PY3:
     from unittest import mock  # noqa: our import detection is naive?
 
     sys.modules['ldappool'] = mock.Mock()
+    sys.modules['memcache'] = mock.Mock()
     sys.modules['oslo_messaging'] = mock.Mock()
     sys.modules['paste'] = mock.Mock()
 
