@@ -2912,6 +2912,11 @@ class FernetFederatedTokenTests(FederationTests, FederatedSetupMixin):
         super(FernetFederatedTokenTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()
 
+    def config_overrides(self):
+        super(FernetFederatedTokenTests, self).config_overrides()
+        self.config_fixture.config(group='token', provider='fernet')
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token', 'password']
         method_classes = dict(
@@ -2920,8 +2925,6 @@ class FernetFederatedTokenTests(FederationTests, FederatedSetupMixin):
             saml2='keystone.auth.plugins.saml2.Saml2')
         super(FernetFederatedTokenTests,
               self).auth_plugin_config_override(methods, **method_classes)
-        self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
     def test_federated_unscoped_token(self):
         resp = self._issue_unscoped_token()
