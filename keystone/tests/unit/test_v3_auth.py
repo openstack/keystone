@@ -1599,7 +1599,6 @@ class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
             token='keystone.auth.plugins.token.Token')
 
     def test_remote_user_no_realm(self):
-        self.config_fixture.config(group='auth', methods='external')
         api = auth.controllers.Auth()
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
@@ -2336,7 +2335,6 @@ class TestAuth(test_v3.RestfulTestCase):
         self.v3_authenticate_token(auth_data, expected_status=401)
 
     def test_remote_user_no_realm(self):
-        self.config_fixture.config(group='auth', methods='external')
         api = auth.controllers.Auth()
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
@@ -2604,12 +2602,8 @@ class TestAuth(test_v3.RestfulTestCase):
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
     content_type = 'json'
 
-    def config_overrides(self):
-        super(TestAuthJSONExternal, self).config_overrides()
-        self.config_fixture.config(group='auth', methods='')
-
     def auth_plugin_config_override(self, methods=None, **method_classes):
-        self.config_fixture.config(group='auth', methods='')
+        self.config_fixture.config(group='auth', methods=[])
 
     def test_remote_user_no_method(self):
         api = auth.controllers.Auth()
