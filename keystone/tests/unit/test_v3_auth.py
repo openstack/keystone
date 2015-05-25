@@ -1590,9 +1590,9 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
 class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
-    def config_overrides(self):
-        super(TestAuthExternalLegacyDefaultDomain, self).config_overrides()
-        self.auth_plugin_config_override(
+    def auth_plugin_config_override(self):
+        super(TestAuthExternalLegacyDefaultDomain,
+              self).auth_plugin_config_override(
             methods=['external', 'password', 'token'],
             external='keystone.auth.plugins.external.LegacyDefaultDomain',
             password='keystone.auth.plugins.password.Password',
@@ -1620,9 +1620,8 @@ class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
 class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
     content_type = 'json'
 
-    def config_overrides(self):
-        super(TestAuthExternalLegacyDomain, self).config_overrides()
-        self.auth_plugin_config_override(
+    def auth_plugin_config_override(self):
+        super(TestAuthExternalLegacyDomain, self).auth_plugin_config_override(
             methods=['external', 'password', 'token'],
             external='keystone.auth.plugins.external.LegacyDomain',
             password='keystone.auth.plugins.password.Password',
