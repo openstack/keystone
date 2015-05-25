@@ -1801,25 +1801,24 @@ class EnabledEmuMixIn(BaseLdap):
                            utf8_decode(naming_rdn[1]))
         self.enabled_emulation_naming_attr = naming_attr
 
-    def _get_enabled(self, object_id):
+    def _get_enabled(self, object_id, conn):
         dn = self._id_to_dn(object_id)
         query = '(member=%s)' % dn
-        with self.get_connection() as conn:
-            try:
-                enabled_value = conn.search_s(self.enabled_emulation_dn,
-                                              ldap.SCOPE_BASE,
-                                              query, ['cn'])
-            except ldap.NO_SUCH_OBJECT:
-                return False
-            else:
-                return bool(enabled_value)
+        try:
+            enabled_value = conn.search_s(self.enabled_emulation_dn,
+                                          ldap.SCOPE_BASE,
+                                          query, ['cn'])
+        except ldap.NO_SUCH_OBJECT:
+            return False
+        else:
+            return bool(enabled_value)
 
     def _add_enabled(self, object_id):
-        if not self._get_enabled(object_id):
-            modlist = [(ldap.MOD_ADD,
-                        'member',
-                        [self._id_to_dn(object_id)])]
-            with self.get_connection() as conn:
+        with self.get_connection() as conn:
+            if not self._get_enabled(object_id, conn):
+                modlist = [(ldap.MOD_ADD,
+                            'member',
+                            [self._id_to_dn(object_id)])]
                 try:
                     conn.modify_s(self.enabled_emulation_dn, modlist)
                 except ldap.NO_SUCH_OBJECT:
@@ -1853,10 +1852,12 @@ class EnabledEmuMixIn(BaseLdap):
             return super(EnabledEmuMixIn, self).create(values)
 
     def get(self, object_id, ldap_filter=None):
-        ref = super(EnabledEmuMixIn, self).get(object_id, ldap_filter)
-        if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
-            ref['enabled'] = self._get_enabled(object_id)
-        return ref
+        with self.get_connection() as conn:
+            ref = super(EnabledEmuMixIn, self).get(object_id, ldap_filter)
+            if 'enabled' not in self.attribute_ignore and \
+               self.enabled_emulation:
+                ref['enabled'] = self._get_enabled(object_id, conn)
+            return ref
 
     def get_all(self, ldap_filter=None):
         if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
@@ -1864,8 +1865,10 @@ class EnabledEmuMixIn(BaseLdap):
             tenant_list = [self._ldap_res_to_model(x)
                            for x in self._ldap_get_all(ldap_filter)
                            if x[0] != self.enabled_emulation_dn]
-            for tenant_ref in tenant_list:
-                tenant_ref['enabled'] = self._get_enabled(tenant_ref['id'])
+            with self.get_connection() as conn:
+                for tenant_ref in tenant_list:
+                    tenant_ref['enabled'] = self._get_enabled(
+                        tenant_ref['id'], conn)
             return tenant_list
         else:
             return super(EnabledEmuMixIn, self).get_all(ldap_filter)
