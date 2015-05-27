@@ -30,15 +30,11 @@ Documentation`_.
 Prerequisites
 =============
 
-This document assumes you are using:
-
-- Ubuntu, Fedora or openSUSE (SLE)
-- `Python 2.7`_
-
-.. _`Python 2.7`: http://www.python.org/
+This document assumes you are using Ubuntu, Fedora or openSUSE (SLE)
 
 And that you have the following tools available on your system:
 
+- Python_ 2.7 and 3.4
 - git_
 - setuptools_
 - pip_
@@ -48,6 +44,7 @@ And that you have the following tools available on your system:
 **Reminder**: If you're successfully using a different platform, or a
 different version of the above, please document your configuration here!
 
+.. _Python: http://www.python.org/
 .. _git: http://git-scm.com/
 .. _setuptools: http://pypi.python.org/pypi/setuptools
 
@@ -90,7 +87,8 @@ Ubuntu 14.04:
 
 .. code-block:: bash
 
-    $ sudo apt-get install python-dev libxml2-dev libxslt1-dev libsasl2-dev libsqlite3-dev libssl-dev libldap2-dev libffi-dev
+    $ sudo apt-get install python-dev python3-dev libxml2-dev libxslt1-dev \
+        libsasl2-dev libsqlite3-dev libssl-dev libldap2-dev libffi-dev
 
 
 Fedora 19+:
