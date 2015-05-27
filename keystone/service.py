@@ -26,6 +26,7 @@ from keystone import catalog
 from keystone.common import wsgi
 from keystone import controllers
 from keystone import credential
+from keystone import endpoint_policy
 from keystone import identity
 from keystone import policy
 from keystone import resource
@@ -103,10 +104,19 @@ def v3_app_factory(global_conf, **local_conf):
     sub_routers = []
     _routers = []
 
-    router_modules = [assignment, auth, catalog, credential, identity, policy,
+    router_modules = [assignment,
+                      auth,
+                      catalog,
+                      credential,
+                      identity,
+                      policy,
                       resource]
+
     if CONF.trust.enabled:
         router_modules.append(trust)
+
+    if CONF.endpoint_policy.enabled:
+        router_modules.append(endpoint_policy)
 
     for module in router_modules:
         routers_instance = module.routers.Routers()

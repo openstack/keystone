@@ -526,6 +526,9 @@ FILE_OPTIONS = {
                          'exists.'),
     ],
     'endpoint_policy': [
+        cfg.BoolOpt('enabled',
+                    default=True,
+                    help='Enable endpoint_policy functionality.'),
         cfg.StrOpt('driver',
                    default='sql',
                    help='Endpoint policy backend driver'),
