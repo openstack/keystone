@@ -1720,6 +1720,62 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         self.assertEqual(token['bind']['kerberos'], self.user['name'])
 
 
+class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
+    content_type = 'json'
+
+    def config_overrides(self):
+        super(TestAuthExternalDefaultDomain, self).config_overrides()
+        self.kerberos = False
+        self.auth_plugin_config_override(
+            external='keystone.auth.plugins.external.DefaultDomain')
+
+    def test_remote_user_with_default_domain(self):
+        api = auth.controllers.Auth()
+        remote_user = self.default_domain_user['name']
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user, kerberos=self.kerberos)
+
+        api.authenticate(context, auth_info, auth_context)
+        self.assertEqual(self.default_domain_user['id'],
+                         auth_context['user_id'])
+
+        # Now test to make sure the user name can, itself, contain the
+        # '@' character.
+        user = {'name': 'myname@mydivision'}
+        self.identity_api.update_user(self.default_domain_user['id'], user)
+        remote_user = user['name']
+        context, auth_info, auth_context = self.build_external_auth_request(
+            remote_user, kerberos=self.kerberos)
+
+        api.authenticate(context, auth_info, auth_context)
+        self.assertEqual(self.default_domain_user['id'],
+                         auth_context['user_id'])
+
+    def test_project_id_scoped_with_remote_user(self):
+        self.config_fixture.config(group='token', bind=['kerberos'])
+        auth_data = self.build_authentication_request(
+            project_id=self.default_domain_project['id'],
+            kerberos=self.kerberos)
+        remote_user = self.default_domain_user['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'AUTH_TYPE': 'Negotiate'})
+        r = self.v3_authenticate_token(auth_data)
+        token = self.assertValidProjectScopedTokenResponse(r)
+        self.assertEqual(self.default_domain_user['name'],
+                         token['bind']['kerberos'])
+
+    def test_unscoped_bind_with_remote_user(self):
+        self.config_fixture.config(group='token', bind=['kerberos'])
+        auth_data = self.build_authentication_request(kerberos=self.kerberos)
+        remote_user = self.default_domain_user['name']
+        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                             'AUTH_TYPE': 'Negotiate'})
+        r = self.v3_authenticate_token(auth_data)
+        token = self.assertValidUnscopedTokenResponse(r)
+        self.assertEqual(self.default_domain_user['name'],
+                         token['bind']['kerberos'])
+
+
 class TestAuthKerberos(TestAuthExternalDomain):
 
     def config_overrides(self):
