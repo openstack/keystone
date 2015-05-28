@@ -38,4 +38,4 @@ oslosphinx<=2.5.0
 # Used only by oslo
 kombu>=2.5.0,<=3.0.7
 lockfile>=0.8,<=0.10.2
-stevedore>=0.14,<1.2
+stevedore>=0.14
