@@ -42,6 +42,12 @@
 # environment variables. A common default password for all the services can be used by
 # setting the "SERVICE_PASSWORD" environment variable.
 
+# Test to verify that the openstackclient is installed, if not exit
+type openstack >/dev/null 2>&1 || {
+    echo >&2 "openstackclient is not installed. Please install it to use this script. Aborting."
+    exit 1
+    }
+
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-secrete}
 NOVA_PASSWORD=${NOVA_PASSWORD:-${SERVICE_PASSWORD:-nova}}
 GLANCE_PASSWORD=${GLANCE_PASSWORD:-${SERVICE_PASSWORD:-glance}}
@@ -95,141 +101,138 @@ function get_id () {
 #
 # Default tenant
 #
-DEMO_TENANT=$(get_id keystone tenant-create --name=demo \
-                                            --description "Default Tenant")
+openstack project create demo \
+                         --description "Default Tenant"
 
-ADMIN_USER=$(get_id keystone user-create --name=admin \
-                                         --pass="${ADMIN_PASSWORD}")
+openstack user create admin --project demo \
+                      --password "${ADMIN_PASSWORD}"
 
-ADMIN_ROLE=$(get_id keystone role-create --name=admin)
+openstack role create admin
 
-keystone user-role-add --user-id $ADMIN_USER \
-                       --role-id $ADMIN_ROLE \
-                       --tenant-id $DEMO_TENANT
+openstack role add --user admin \
+                   --project demo\
+                   admin
 
 #
 # Service tenant
 #
-SERVICE_TENANT=$(get_id keystone tenant-create --name=service \
-                                               --description "Service Tenant")
+openstack project create service \
+                  --description "Service Tenant"
 
-GLANCE_USER=$(get_id keystone user-create --name=glance \
-                                          --pass="${GLANCE_PASSWORD}")
+openstack user create glance --project service\
+                      --password "${GLANCE_PASSWORD}"
 
-keystone user-role-add --user-id $GLANCE_USER \
-                       --role-id $ADMIN_ROLE \
-                       --tenant-id $SERVICE_TENANT
+openstack role add --user glance \
+                   --project service \
+                   admin
 
-NOVA_USER=$(get_id keystone user-create --name=nova \
-                                        --pass="${NOVA_PASSWORD}" \
-                                        --tenant-id $SERVICE_TENANT)
+openstack user create nova --project service\
+                      --password "${NOVA_PASSWORD}"
 
-keystone user-role-add --user-id $NOVA_USER \
-                       --role-id $ADMIN_ROLE \
-                       --tenant-id $SERVICE_TENANT
+openstack role add --user nova \
+                   --project service \
+                   admin
 
-EC2_USER=$(get_id keystone user-create --name=ec2 \
-                                       --pass="${EC2_PASSWORD}" \
-                                       --tenant-id $SERVICE_TENANT)
+openstack user create ec2 --project service \
+                      --password "${EC2_PASSWORD}"
 
-keystone user-role-add --user-id $EC2_USER \
-                       --role-id $ADMIN_ROLE \
-                       --tenant-id $SERVICE_TENANT
+openstack role add --user ec2 \
+                   --project service \
+                   admin
 
-SWIFT_USER=$(get_id keystone user-create --name=swift \
-                                         --pass="${SWIFT_PASSWORD}" \
-                                         --tenant-id $SERVICE_TENANT)
+openstack user create swift --project service \
+                      --password "${SWIFT_PASSWORD}" \
 
-keystone user-role-add --user-id $SWIFT_USER \
-                       --role-id $ADMIN_ROLE \
-                       --tenant-id $SERVICE_TENANT
+openstack role add --user swift \
+                   --project service \
+                   admin
 
 #
 # Keystone service
 #
-KEYSTONE_SERVICE=$(get_id \
-keystone service-create --name=keystone \
-                        --type=identity \
-                        --description="Keystone Identity Service")
+openstack service create --name keystone \
+                         --description "Keystone Identity Service" \
+                         identity
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    keystone endpoint-create --region RegionOne --service-id $KEYSTONE_SERVICE \
+    openstack endpoint create --region RegionOne \
         --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:\$(public_port)s/v2.0" \
         --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:\$(admin_port)s/v2.0" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(public_port)s/v2.0"
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(public_port)s/v2.0" \
+        keystone
 fi
 
 #
 # Nova service
 #
-NOVA_SERVICE=$(get_id \
-keystone service-create --name=nova \
-                        --type=compute \
-                        --description="Nova Compute Service")
+openstack service create --name=nova \
+                         --description="Nova Compute Service" \
+                         compute
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    keystone endpoint-create --region RegionOne --service-id $NOVA_SERVICE \
+    openstack endpoint create --region RegionOne \
         --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8774/v2/\$(tenant_id)s" \
         --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8774/v2/\$(tenant_id)s" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2/\$(tenant_id)s"
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2/\$(tenant_id)s" \
+        nova
 fi
 
 #
 # Volume service
 #
-VOLUME_SERVICE=$(get_id \
-keystone service-create --name=volume \
-                        --type=volume \
-                        --description="Nova Volume Service")
+openstack service create --name=volume \
+                         --description="Cinder Volume Service" \
+                         volume
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    keystone endpoint-create --region RegionOne --service-id $VOLUME_SERVICE \
+    openstack endpoint create --region RegionOne \
         --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v1/\$(tenant_id)s" \
         --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8776/v1/\$(tenant_id)s" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v1/\$(tenant_id)s"
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v1/\$(tenant_id)s" \
+        volume
 fi
 
 #
 # Image service
 #
-GLANCE_SERVICE=$(get_id \
-keystone service-create --name=glance \
-                        --type=image \
-                        --description="Glance Image Service")
+openstack service create --name=glance \
+                         --description="Glance Image Service" \
+                         image
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    keystone endpoint-create --region RegionOne --service-id $GLANCE_SERVICE \
+    openstack endpoint create --region RegionOne  \
         --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:9292" \
         --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:9292" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9292"
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9292" \
+        glance
 fi
 
 #
 # EC2 service
 #
-EC2_SERVICE=$(get_id \
-keystone service-create --name=ec2 \
-                        --type=ec2 \
-                        --description="EC2 Compatibility Layer")
+openstack service create --name=ec2 \
+                         --description="EC2 Compatibility Layer" \
+                         ec2
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    keystone endpoint-create --region RegionOne --service-id $EC2_SERVICE \
+    openstack endpoint create --region RegionOne \
         --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8773/services/Cloud" \
         --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8773/services/Admin" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8773/services/Cloud"
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8773/services/Cloud" \
+        ec2
 fi
 
 #
 # Swift service
 #
-SWIFT_SERVICE=$(get_id \
-keystone service-create --name=swift \
-                        --type="object-store" \
-                        --description="Swift Service")
+openstack service create --name=swift \
+                         --description="Swift Service" \
+                         object-store
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    keystone endpoint-create --region RegionOne --service-id $SWIFT_SERVICE \
+    openstack endpoint create --region RegionOne \
         --publicurl   "http://$CONTROLLER_PUBLIC_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
         --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:8080/v1" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s"
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
+        swift
 fi
 
 # create ec2 creds and parse the secret and access key returned
-RESULT=$(keystone ec2-credentials-create --tenant-id=$SERVICE_TENANT --user-id=$ADMIN_USER)
+RESULT=$(openstack ec2 credentials create --project service --user $ADMIN_USER)
 ADMIN_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
 ADMIN_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
 
