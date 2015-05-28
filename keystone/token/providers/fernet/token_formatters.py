@@ -25,7 +25,7 @@ from six.moves import map, urllib
 
 from keystone.auth import plugins as auth_plugins
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LI
 from keystone.token import provider
 from keystone.token.providers.fernet import utils
 
@@ -150,6 +150,17 @@ class TokenFormatter(object):
         versioned_payload = (version,) + payload
         serialized_payload = msgpack.packb(versioned_payload)
         token = self.pack(serialized_payload)
+
+        # NOTE(lbragstad): We should warn against Fernet tokens that are over
+        # 255 characters in length. This is mostly due to persisting the tokens
+        # in a backend store of some kind that might have a limit of 255
+        # characters. Even though Keystone isn't storing a Fernet token
+        # anywhere, we can't say it isn't being stored somewhere else with
+        # those kind of backend constraints.
+        if len(token) > 255:
+            LOG.info(_LI('Fernet token created with length of %d '
+                         'characters, which exceeds 255 characters'),
+                     len(token))
 
         return token
 
