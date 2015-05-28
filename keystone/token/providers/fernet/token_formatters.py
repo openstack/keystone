@@ -414,7 +414,7 @@ class ProjectScopedPayload(BasePayload):
         """
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
-        b_project_id = cls.convert_uuid_hex_to_bytes(project_id)
+        b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
         expires_at_int = cls._convert_time_string_to_int(expires_at)
         b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
                            audit_ids))
@@ -431,7 +431,7 @@ class ProjectScopedPayload(BasePayload):
         """
         user_id = cls.attempt_convert_uuid_bytes_to_hex(payload[0])
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
-        project_id = cls.convert_uuid_bytes_to_hex(payload[2])
+        project_id = cls.attempt_convert_uuid_bytes_to_hex(payload[2])
         expires_at_str = cls._convert_int_to_time_string(payload[3])
         audit_ids = list(map(provider.base64_encode, payload[4]))
 
@@ -457,7 +457,7 @@ class TrustScopedPayload(BasePayload):
         """
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
-        b_project_id = cls.convert_uuid_hex_to_bytes(project_id)
+        b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
         b_trust_id = cls.convert_uuid_hex_to_bytes(trust_id)
         expires_at_int = cls._convert_time_string_to_int(expires_at)
         b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
@@ -477,7 +477,7 @@ class TrustScopedPayload(BasePayload):
         """
         user_id = cls.attempt_convert_uuid_bytes_to_hex(payload[0])
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
-        project_id = cls.convert_uuid_bytes_to_hex(payload[2])
+        project_id = cls.attempt_convert_uuid_bytes_to_hex(payload[2])
         expires_at_str = cls._convert_int_to_time_string(payload[3])
         audit_ids = list(map(provider.base64_encode, payload[4]))
         trust_id = cls.convert_uuid_bytes_to_hex(payload[5])
