@@ -779,6 +779,35 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.upgrade(75)
         self.assertTableColumns(config_registration, ['type', 'domain_id'])
 
+    def test_endpoint_filter_upgrade(self):
+        def assert_tables_columns_exist():
+            self.assertTableColumns('project_endpoint',
+                                    ['endpoint_id', 'project_id'])
+            self.assertTableColumns('endpoint_group',
+                                    ['id', 'name', 'description', 'filters'])
+            self.assertTableColumns('project_endpoint_group',
+                                    ['endpoint_group_id', 'project_id'])
+
+        self.assertTableDoesNotExist('project_endpoint')
+        self.upgrade(85)
+        assert_tables_columns_exist()
+
+    @mock.patch.object(migration_helpers, 'get_db_version', return_value=2)
+    def test_endpoint_filter_already_migrated(self, mock_endpoint_filter):
+
+        # By setting the return value to 2, the migration has already been
+        # run, and there's no need to create the table again.
+        self.upgrade(85)
+
+        mock_endpoint_filter.assert_any_call(extension='endpoint_filter',
+                                             engine=mock.ANY)
+
+        # It won't exist because we are mocking it, but we can verify
+        # that 085 did not create the table.
+        self.assertTableDoesNotExist('project_endpoint')
+        self.assertTableDoesNotExist('endpoint_group')
+        self.assertTableDoesNotExist('project_endpoint_group')
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
