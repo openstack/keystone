@@ -326,19 +326,28 @@ token for ``BETA`` once the SAML assertion is sent.
 Testing it all out
 ------------------
 
-Lastly, if a scoped token and a Service Provider region are presented to
-Keystone, the result will be a full SAML Assertion, signed by the IdP
-Keystone, specifically intended for the Service Provider Keystone.
+Lastly, if a scoped token and a Service Provider scope are presented to the
+local Keystone, the result will be a full ECP wrapped SAML Assertion,
+specifically intended for the Service Provider Keystone.
+
+.. NOTE::
+    ECP stands for Enhanced Client or Proxy, an extension from the SAML2
+    protocol used in non-browser interfaces, like in the following example
+    with cURL.
 
 .. code-block:: bash
 
     $ curl -s -X POST \
       -H "Content-Type: application/json" \
       -d '{"auth": {"scope": {"service_provider": {"id": "BETA"}}, "identity": {"token": {"id": "d793d935b9c343f783955cf39ee7dc3c"}, "methods": ["token"]}}}' \
-      http://localhost:5000/v3/auth/OS-FEDERATION/saml2
+      http://localhost:5000/v3/auth/OS-FEDERATION/saml2/ecp
 
-At this point the SAML Assertion can be sent to the Service Provider Keystone
-using the provided ``auth_url`` in the ``X-Auth-Url`` header present in the
-response containing the SAML Assertion, and a valid OpenStack token, issued by
-a Service Provider Keystone, will be returned.
+.. NOTE::
+    Use URL http://localhost:5000/v3/auth/OS-FEDERATION/saml2 to request for
+    pure SAML Assertions.
+
+At this point the ECP wrapped SAML Assertion can be sent to the Service
+Provider Keystone using the provided ``auth_url`` in the ``X-Auth-Url`` header
+present in the response containing the Assertion, and a valid OpenStack
+token, issued by a Service Provider Keystone, will be returned.
 
