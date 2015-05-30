@@ -13,7 +13,6 @@
 # under the License.
 
 import gettext
-import random
 import socket
 import uuid
 
@@ -447,24 +446,22 @@ class ServerTest(tests.TestCase):
     def test_client_socket_timeout(self):
         # mocking server method of eventlet.wsgi to check it is called with
         # configured 'client_socket_timeout' value.
-
-        # setting random socket_timeout between 1 to 10, so that after given
-        # seconds client connection will be closed if it is idle.
-        socket_timeout = random.randint(1, 10)
-        self.config_fixture.config(group='eventlet_server',
-                                   client_socket_timeout=socket_timeout)
-        server = environment.Server(mock.MagicMock(), host=self.host,
-                                    port=self.port)
-        with mock.patch.object(eventlet.wsgi, 'server') as mock_server:
-            fake_application = uuid.uuid4().hex
-            fake_socket = uuid.uuid4().hex
-            server._run(fake_application, fake_socket)
-            mock_server.assert_called_once_with(fake_socket,
-                                                fake_application,
-                                                debug=mock.ANY,
-                                                socket_timeout=socket_timeout,
-                                                log=mock.ANY,
-                                                keepalive=mock.ANY)
+        for socket_timeout in xrange(1, 10):
+            self.config_fixture.config(group='eventlet_server',
+                                       client_socket_timeout=socket_timeout)
+            server = environment.Server(mock.MagicMock(), host=self.host,
+                                        port=self.port)
+            with mock.patch.object(eventlet.wsgi, 'server') as mock_server:
+                fake_application = uuid.uuid4().hex
+                fake_socket = uuid.uuid4().hex
+                server._run(fake_application, fake_socket)
+                mock_server.assert_called_once_with(
+                    fake_socket,
+                    fake_application,
+                    debug=mock.ANY,
+                    socket_timeout=socket_timeout,
+                    log=mock.ANY,
+                    keepalive=mock.ANY)
 
     def test_wsgi_keep_alive(self):
         # mocking server method of eventlet.wsgi to check it is called with
