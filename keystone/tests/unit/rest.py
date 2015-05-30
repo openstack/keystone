@@ -61,7 +61,7 @@ class RestfulTestCase(tests.TestCase):
         # Will need to reset the plug-ins
         self.addCleanup(setattr, auth_controllers, 'AUTH_METHODS', {})
 
-        self.useFixture(database.Database(extensions=self.get_extensions()))
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
