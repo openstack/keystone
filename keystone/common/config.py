@@ -470,7 +470,7 @@ FILE_OPTIONS = {
     'oauth1': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Credential backend driver.'),
+                   help='OAuth backend driver.'),
         cfg.IntOpt('request_token_duration', default=28800,
                    help='Duration (in seconds) for the OAuth Request Token.'),
         cfg.IntOpt('access_token_duration', default=86400,
