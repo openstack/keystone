@@ -75,6 +75,7 @@ place:
     $ bin/keystone-manage db_sync
 
 .. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
+.. _`openstackclient`: https://git.openstack.org/cgit/openstack/python-openstackclient
 
 If the above commands result in a ``KeyError``, or they fail on a
 ``.pyc`` file with the message, ``You can only have one Python script per
@@ -165,11 +166,17 @@ authentication.  The default value "ADMIN" is from the ``admin_token``
 option in the ``[DEFAULT]`` section in ``etc/keystone.conf``.
 
 Once run, you can see the sample data that has been created by using the
-`python-keystoneclient`_ command-line interface:
+`openstackclient`_ command-line interface:
 
 .. code-block:: bash
 
-    $ tools/with_venv.sh keystone --os-token ADMIN --os-endpoint http://127.0.0.1:35357/v2.0/ user-list
+    $ tools/with_venv.sh openstack --os-token ADMIN --os-url http://127.0.0.1:35357/v2.0/ user list
+
+The `openstackclient`_ can be installed using the following:
+
+.. code-block:: bash
+
+    $ tools/with_venv.sh pip install python-openstackclient
 
 Filtering responsibilities between controllers and drivers
 ----------------------------------------------------------
