@@ -31,7 +31,7 @@ exclude_dirs:
 profiles:
     keystone_conservative:
         include:
-            - blacklist_functions
+            - blacklist_calls
             - blacklist_imports
             - request_with_no_cert_validation
             - exec_used
@@ -43,7 +43,7 @@ profiles:
 
     keystone_verbose:
         include:
-            - blacklist_functions
+            - blacklist_calls
             - blacklist_imports
             - request_with_no_cert_validation
             - exec_used
@@ -55,7 +55,7 @@ profiles:
             - ssl_with_bad_version
             - ssl_with_bad_defaults
 
-blacklist_functions:
+blacklist_calls:
     bad_name_sets:
         - pickle:
             qualnames: [pickle.loads, pickle.load, pickle.Unpickler,
