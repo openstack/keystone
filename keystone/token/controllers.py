@@ -387,7 +387,8 @@ class Auth(controller.V2Controller):
                 role_list = self.assignment_api.get_roles_for_user_and_project(
                     user_id, tenant_id)
             except exception.ProjectNotFound:
-                pass
+                msg = _('Project ID not found: %(t_id)s') % {'t_id': tenant_id}
+                raise exception.Unauthorized(msg)
 
             if not role_list:
                 msg = _('User %(u_id)s is unauthorized for tenant %(t_id)s')
