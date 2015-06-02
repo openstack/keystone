@@ -5276,12 +5276,10 @@ class InheritanceTests(object):
         grants = self.assignment_api.list_role_assignments_for_role(role['id'])
         self.assertEqual([], grants)
 
-    @test_utils.wip('Waiting on bug #1403539')
     def test_crud_inherited_and_direct_assignment_for_user_on_domain(self):
         self._test_crud_inherited_and_direct_assignment(
             user_id=self.user_foo['id'], domain_id=DEFAULT_DOMAIN_ID)
 
-    @test_utils.wip('Waiting on bug #1403539')
     def test_crud_inherited_and_direct_assignment_for_group_on_domain(self):
         group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
         group = self.identity_api.create_group(group)
@@ -5289,12 +5287,10 @@ class InheritanceTests(object):
         self._test_crud_inherited_and_direct_assignment(
             group_id=group['id'], domain_id=DEFAULT_DOMAIN_ID)
 
-    @test_utils.wip('Waiting on bug #1403539')
     def test_crud_inherited_and_direct_assignment_for_user_on_project(self):
         self._test_crud_inherited_and_direct_assignment(
             user_id=self.user_foo['id'], project_id=self.tenant_baz['id'])
 
-    @test_utils.wip('Waiting on bug #1403539')
     def test_crud_inherited_and_direct_assignment_for_group_on_project(self):
         group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
         group = self.identity_api.create_group(group)
