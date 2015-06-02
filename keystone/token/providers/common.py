@@ -21,6 +21,7 @@ from six.moves.urllib import parse
 
 from keystone.common import controller as common_controller
 from keystone.common import dependency
+from keystone.common import utils
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
@@ -99,7 +100,7 @@ class V2TokenDataHelper(object):
         expires = token_ref.get('expires', provider.default_expire_time())
         if expires is not None:
             if not isinstance(expires, six.text_type):
-                expires = timeutils.isotime(expires)
+                expires = utils.isotime(expires)
 
         token_data = token_ref.get('token_data')
         if token_data:
@@ -393,10 +394,10 @@ class V3TokenDataHelper(object):
         if not expires:
             expires = provider.default_expire_time()
         if not isinstance(expires, six.string_types):
-            expires = timeutils.isotime(expires, subsecond=True)
+            expires = utils.isotime(expires, subsecond=True)
         token_data['expires_at'] = expires
         token_data['issued_at'] = (issued_at or
-                                   timeutils.isotime(subsecond=True))
+                                   utils.isotime(subsecond=True))
 
     def _populate_audit_info(self, token_data, audit_info=None):
         if audit_info is None or isinstance(audit_info, six.string_types):

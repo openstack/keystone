@@ -13,6 +13,8 @@
 from oslo_utils import timeutils
 from six.moves import map
 
+from keystone.common import utils
+
 
 # The set of attributes common between the RevokeEvent
 # and the dictionaries created from the token Data.
@@ -101,10 +103,10 @@ class RevokeEvent(object):
         if self.consumer_id is not None:
             event['OS-OAUTH1:access_token_id'] = self.access_token_id
         if self.expires_at is not None:
-            event['expires_at'] = timeutils.isotime(self.expires_at)
+            event['expires_at'] = utils.isotime(self.expires_at)
         if self.issued_before is not None:
-            event['issued_before'] = timeutils.isotime(self.issued_before,
-                                                       subsecond=True)
+            event['issued_before'] = utils.isotime(self.issued_before,
+                                                   subsecond=True)
         return event
 
     def key_for_name(self, name):

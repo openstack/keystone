@@ -15,6 +15,7 @@
 import datetime
 import sys
 
+from keystone.common import utils
 from keystoneclient.common import cms
 from oslo_config import cfg
 from oslo_log import log
@@ -205,7 +206,7 @@ class Auth(controller.V2Controller):
                 raise exception.Forbidden()
             if ('expires' in trust_ref) and (trust_ref['expires']):
                 expiry = trust_ref['expires']
-                if expiry < timeutils.parse_isotime(timeutils.isotime()):
+                if expiry < timeutils.parse_isotime(utils.isotime()):
                     raise exception.Forbidden()
             user_id = trust_ref['trustor_user_id']
             trustor_user_ref = self.identity_api.get_user(
@@ -463,7 +464,7 @@ class Auth(controller.V2Controller):
         for t in tokens:
             expires = t['expires']
             if expires and isinstance(expires, datetime.datetime):
-                t['expires'] = timeutils.isotime(expires)
+                t['expires'] = utils.isotime(expires)
         data = {'revoked': tokens}
         json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,

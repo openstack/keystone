@@ -18,6 +18,7 @@ from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 
+from keystone.common import utils
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit import test_backend
@@ -67,13 +68,13 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         valid_token_ref = token_persistence.get_token(valid_token_id)
         expired_token_ref = token_persistence.get_token(expired_token_id)
         expected_user_token_list = [
-            (valid_token_id, timeutils.isotime(valid_token_ref['expires'],
-                                               subsecond=True)),
-            (expired_token_id, timeutils.isotime(expired_token_ref['expires'],
-                                                 subsecond=True))]
+            (valid_token_id, utils.isotime(valid_token_ref['expires'],
+                                           subsecond=True)),
+            (expired_token_id, utils.isotime(expired_token_ref['expires'],
+                                             subsecond=True))]
         self.assertEqual(expected_user_token_list, user_token_list)
         new_expired_data = (expired_token_id,
-                            timeutils.isotime(
+                            utils.isotime(
                                 (timeutils.utcnow() - expire_delta),
                                 subsecond=True))
         self._update_user_token_index_direct(user_key, expired_token_id,
@@ -82,10 +83,10 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
             user_id=user_id)
         valid_token_ref_2 = token_persistence.get_token(valid_token_id_2)
         expected_user_token_list = [
-            (valid_token_id, timeutils.isotime(valid_token_ref['expires'],
-                                               subsecond=True)),
-            (valid_token_id_2, timeutils.isotime(valid_token_ref_2['expires'],
-                                                 subsecond=True))]
+            (valid_token_id, utils.isotime(valid_token_ref['expires'],
+                                           subsecond=True)),
+            (valid_token_id_2, utils.isotime(valid_token_ref_2['expires'],
+                                             subsecond=True))]
         user_token_list = token_persistence.driver._store.get(user_key)
         self.assertEqual(expected_user_token_list, user_token_list)
 
@@ -94,10 +95,10 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         new_token_id, data = self.create_token_sample_data(user_id=user_id)
         new_token_ref = token_persistence.get_token(new_token_id)
         expected_user_token_list = [
-            (valid_token_id, timeutils.isotime(valid_token_ref['expires'],
-                                               subsecond=True)),
-            (new_token_id, timeutils.isotime(new_token_ref['expires'],
-                                             subsecond=True))]
+            (valid_token_id, utils.isotime(valid_token_ref['expires'],
+                                           subsecond=True)),
+            (new_token_id, utils.isotime(new_token_ref['expires'],
+                                         subsecond=True))]
         user_token_list = token_persistence.driver._store.get(user_key)
         self.assertEqual(expected_user_token_list, user_token_list)
 

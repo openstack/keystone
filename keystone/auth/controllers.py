@@ -19,11 +19,11 @@ from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
-from oslo_utils import timeutils
 import six
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import utils
 from keystone.common import wsgi
 from keystone import config
 from keystone.contrib import federation
@@ -526,7 +526,7 @@ class Auth(controller.V3Controller):
         for t in tokens:
             expires = t['expires']
             if not (expires and isinstance(expires, six.text_type)):
-                t['expires'] = timeutils.isotime(expires)
+                t['expires'] = utils.isotime(expires)
         data = {'revoked': tokens}
         json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,

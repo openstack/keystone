@@ -18,6 +18,7 @@ from oslo_config import cfg
 from oslo_utils import timeutils
 
 from keystone.common import dependency
+from keystone.common import utils
 from keystone import exception
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import database
@@ -657,8 +658,8 @@ def create_v2_token():
     return {
         "access": {
             "token": {
-                "expires": timeutils.isotime(timeutils.utcnow() +
-                                             FUTURE_DELTA),
+                "expires": utils.isotime(timeutils.utcnow() +
+                                         FUTURE_DELTA),
                 "issued_at": "2013-05-21T00:02:43.941473Z",
                 "tenant": {
                     "enabled": True,
@@ -673,7 +674,7 @@ def create_v2_token():
 SAMPLE_V2_TOKEN_EXPIRED = {
     "access": {
         "token": {
-            "expires": timeutils.isotime(CURRENT_DATE),
+            "expires": utils.isotime(CURRENT_DATE),
             "issued_at": "2013-05-21T00:02:43.941473Z",
             "tenant": {
                 "enabled": True,
@@ -689,7 +690,7 @@ def create_v3_token():
     return {
         "token": {
             'methods': [],
-            "expires_at": timeutils.isotime(timeutils.utcnow() + FUTURE_DELTA),
+            "expires_at": utils.isotime(timeutils.utcnow() + FUTURE_DELTA),
             "issued_at": "2013-05-21T00:02:43.941473Z",
         }
     }
@@ -697,7 +698,7 @@ def create_v3_token():
 
 SAMPLE_V3_TOKEN_EXPIRED = {
     "token": {
-        "expires_at": timeutils.isotime(CURRENT_DATE),
+        "expires_at": utils.isotime(CURRENT_DATE),
         "issued_at": "2013-05-21T00:02:43.941473Z",
     }
 }

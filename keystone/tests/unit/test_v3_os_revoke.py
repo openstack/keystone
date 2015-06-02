@@ -17,6 +17,7 @@ from oslo_utils import timeutils
 import six
 from testtools import matchers
 
+from keystone.common import utils
 from keystone.contrib.revoke import model
 from keystone.tests.unit import test_v3
 from keystone.token import provider
@@ -25,7 +26,7 @@ from keystone.token import provider
 def _future_time_string():
     expire_delta = datetime.timedelta(seconds=1000)
     future_time = timeutils.utcnow() + expire_delta
-    return timeutils.isotime(future_time)
+    return utils.isotime(future_time)
 
 
 class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
@@ -55,13 +56,13 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertTrue(
             before_time <= event_issued_before,
             'invalid event issued_before time; %s is not later than %s.' % (
-                timeutils.isotime(event_issued_before, subsecond=True),
-                timeutils.isotime(before_time, subsecond=True)))
+                utils.isotime(event_issued_before, subsecond=True),
+                utils.isotime(before_time, subsecond=True)))
         self.assertTrue(
             event_issued_before <= after_time,
             'invalid event issued_before time; %s is not earlier than %s.' % (
-                timeutils.isotime(event_issued_before, subsecond=True),
-                timeutils.isotime(after_time, subsecond=True)))
+                utils.isotime(event_issued_before, subsecond=True),
+                utils.isotime(after_time, subsecond=True)))
         del (event['issued_before'])
         self.assertEqual(sample, event)
 
@@ -76,7 +77,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         expires_at = provider.default_expire_time()
         sample = self._blank_event()
         sample['user_id'] = six.text_type(user_id)
-        sample['expires_at'] = six.text_type(timeutils.isotime(expires_at))
+        sample['expires_at'] = six.text_type(utils.isotime(expires_at))
         before_time = timeutils.utcnow()
         self.revoke_api.revoke_by_expiration(user_id, expires_at)
         resp = self.get('/OS-REVOKE/events')

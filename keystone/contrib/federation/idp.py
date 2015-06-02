@@ -31,6 +31,7 @@ xmldsig = importutils.try_import("saml2.xmldsig")
 if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
+from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone.openstack.common import fileutils
@@ -94,7 +95,7 @@ class SAMLGenerator(object):
             expires_in = CONF.saml.assertion_expiration_time
         now = timeutils.utcnow()
         future = now + datetime.timedelta(seconds=expires_in)
-        return timeutils.isotime(future, subsecond=True)
+        return utils.isotime(future, subsecond=True)
 
     def _create_status(self):
         """Create an object that represents a SAML Status.
@@ -240,7 +241,7 @@ class SAMLGenerator(object):
 
         """
         authn_statement = saml.AuthnStatement()
-        authn_statement.authn_instant = timeutils.isotime()
+        authn_statement.authn_instant = utils.isotime()
         authn_statement.session_index = uuid.uuid4().hex
         authn_statement.session_not_on_or_after = expiration_time
 
@@ -277,7 +278,7 @@ class SAMLGenerator(object):
         """
         assertion = saml.Assertion()
         assertion.id = self.assertion_id
-        assertion.issue_instant = timeutils.isotime()
+        assertion.issue_instant = utils.isotime()
         assertion.version = '2.0'
         assertion.issuer = issuer
         assertion.signature = signature
@@ -305,7 +306,7 @@ class SAMLGenerator(object):
         response = samlp.Response()
         response.id = uuid.uuid4().hex
         response.destination = recipient
-        response.issue_instant = timeutils.isotime()
+        response.issue_instant = utils.isotime()
         response.version = '2.0'
         response.issuer = issuer
         response.status = status

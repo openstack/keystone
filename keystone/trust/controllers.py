@@ -22,6 +22,7 @@ import six
 from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import utils
 from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
@@ -81,7 +82,7 @@ class TrustV3(controller.V3Controller):
 
     def _fill_in_roles(self, context, trust, all_roles):
         if trust.get('expires_at') is not None:
-            trust['expires_at'] = (timeutils.isotime
+            trust['expires_at'] = (utils.isotime
                                    (trust['expires_at'],
                                     subsecond=True))
 
@@ -243,7 +244,7 @@ class TrustV3(controller.V3Controller):
             if 'roles' in trust:
                 del trust['roles']
             if trust.get('expires_at') is not None:
-                trust['expires_at'] = (timeutils.isotime
+                trust['expires_at'] = (utils.isotime
                                        (trust['expires_at'],
                                         subsecond=True))
         return TrustV3.wrap_collection(context, trusts)

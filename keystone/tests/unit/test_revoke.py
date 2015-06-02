@@ -19,6 +19,7 @@ from oslo_utils import timeutils
 from six.moves import range
 from testtools import matchers
 
+from keystone.common import utils
 from keystone.contrib import revoke
 from keystone.contrib.revoke import model
 from keystone import exception
@@ -147,8 +148,8 @@ class RevokeTests(object):
     def test_expired_events_removed_validate_token_success(self, mock_utcnow):
         def _sample_token_values():
             token = _sample_blank_token()
-            token['expires_at'] = timeutils.isotime(_future_time(),
-                                                    subsecond=True)
+            token['expires_at'] = utils.isotime(_future_time(),
+                                                subsecond=True)
             return token
 
         now = datetime.datetime.utcnow()
@@ -175,7 +176,7 @@ class RevokeTests(object):
 
     def test_revoke_by_expiration_project_and_domain_fails(self):
         user_id = _new_id()
-        expires_at = timeutils.isotime(_future_time(), subsecond=True)
+        expires_at = utils.isotime(_future_time(), subsecond=True)
         domain_id = _new_id()
         project_id = _new_id()
         self.assertThat(

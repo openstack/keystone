@@ -28,6 +28,7 @@ from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
+from keystone.common import utils
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit as tests
@@ -1560,8 +1561,8 @@ class TestTokenRevokeApi(TestTokenRevokeById):
                           expected_status=200).json_body['events']
 
         self.assertEqual(2, len(events))
-        future = timeutils.isotime(timeutils.utcnow() +
-                                   datetime.timedelta(seconds=1000))
+        future = utils.isotime(timeutils.utcnow() +
+                               datetime.timedelta(seconds=1000))
 
         events = self.get('/OS-REVOKE/events?since=%s' % (future),
                           expected_status=200).json_body['events']
@@ -3921,9 +3922,9 @@ class TestAuthContext(tests.TestCase):
         self.auth_context = auth.controllers.AuthContext()
 
     def test_pick_lowest_expires_at(self):
-        expires_at_1 = timeutils.isotime(timeutils.utcnow())
-        expires_at_2 = timeutils.isotime(timeutils.utcnow() +
-                                         datetime.timedelta(seconds=10))
+        expires_at_1 = utils.isotime(timeutils.utcnow())
+        expires_at_2 = utils.isotime(timeutils.utcnow() +
+                                     datetime.timedelta(seconds=10))
         # make sure auth_context picks the lowest value
         self.auth_context['expires_at'] = expires_at_1
         self.auth_context['expires_at'] = expires_at_2

@@ -24,6 +24,7 @@ import six
 from six.moves import map, urllib
 
 from keystone.auth import plugins as auth_plugins
+from keystone.common import utils as ks_utils
 from keystone import exception
 from keystone.i18n import _, _LI
 from keystone.token import provider
@@ -204,9 +205,9 @@ class TokenFormatter(object):
         # rather than appearing in the payload, the creation time is encoded
         # into the token format itself
         created_at = TokenFormatter.creation_time(token)
-        created_at = timeutils.isotime(at=created_at, subsecond=True)
+        created_at = ks_utils.isotime(at=created_at, subsecond=True)
         expires_at = timeutils.parse_isotime(expires_at)
-        expires_at = timeutils.isotime(at=expires_at, subsecond=True)
+        expires_at = ks_utils.isotime(at=expires_at, subsecond=True)
 
         return (user_id, methods, audit_ids, domain_id, project_id, trust_id,
                 federated_info, created_at, expires_at)
@@ -285,7 +286,7 @@ class BasePayload(object):
 
         """
         time_object = datetime.datetime.utcfromtimestamp(int(time_int))
-        return timeutils.isotime(time_object)
+        return ks_utils.isotime(time_object)
 
     @classmethod
     def attempt_convert_uuid_hex_to_bytes(cls, value):
