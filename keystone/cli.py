@@ -19,6 +19,7 @@ import os
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_serialization import jsonutils
 import pbr.version
 
 from keystone import backends
@@ -544,6 +545,96 @@ class SamlIdentityProviderMetadata(BaseApp):
         print(metadata.to_string())
 
 
+class MappingEngineTester(BaseApp):
+    """Execute mapping engine locally."""
+
+    name = 'mapping_engine'
+
+    @staticmethod
+    def read_rules(path):
+        try:
+            with open(path) as file:
+                return jsonutils.load(file)
+        except ValueError as e:
+            raise SystemExit(_('Error while parsing rules '
+                               '%(path)s: %(err)s') % {'path': path, 'err': e})
+
+    @staticmethod
+    def read_file(path):
+        try:
+            with open(path) as file:
+                return file.read().strip()
+        except IOError as e:
+            raise SystemExit(_("Error while opening file "
+                               "%(path)s: %(err)s") % {'path': path, 'err': e})
+
+    @staticmethod
+    def normalize_assertion(assertion):
+        def split(line):
+            try:
+                k, v = line.split(':', 1)
+                return k.strip(), v.strip()
+            except ValueError as e:
+                msg = _("Error while parsing line: '%(line)s': %(err)s")
+                raise SystemExit(msg % {'line': line, 'err': e})
+        assertion = assertion.split('\n')
+        assertion_dict = {}
+        prefix = CONF.command.prefix
+        for line in assertion:
+            k, v = split(line)
+            if prefix:
+                if k.startswith(prefix):
+                    assertion_dict[k] = v
+            else:
+                assertion_dict[k] = v
+        return assertion_dict
+
+    @classmethod
+    def main(cls):
+        from keystone.contrib.federation import utils as mapping_engine
+        if not CONF.command.engine_debug:
+            mapping_engine.LOG.logger.setLevel('WARN')
+
+        rules = MappingEngineTester.read_rules(CONF.command.rules)
+        mapping_engine.validate_mapping_structure(rules)
+
+        assertion = MappingEngineTester.read_file(CONF.command.input)
+        assertion = MappingEngineTester.normalize_assertion(assertion)
+        rp = mapping_engine.RuleProcessor(rules['rules'])
+        print(jsonutils.dumps(rp.process(assertion), indent=2))
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(MappingEngineTester,
+                       cls).add_argument_parser(subparsers)
+
+        parser.add_argument('--rules', default=None, required=True,
+                            help=("Path to the file with "
+                                  "rules to be executed. "
+                                  "Content must be a proper JSON structure, "
+                                  "with a top-level key 'rules' and "
+                                  "corresponding value being a list."))
+        parser.add_argument('--input', default=None, required=True,
+                            help=("Path to the file with input attributes. "
+                                  "The content consists of ':' separated "
+                                  "parameter names and their values. "
+                                  "There is only one key-value pair per line. "
+                                  "A ';' in the value is a separator and then "
+                                  "a value is treated as a list. Example:\n "
+                                  "EMAIL: me@example.com\n"
+                                  "LOGIN: me\n"
+                                  "GROUPS: group1;group2;group3"))
+        parser.add_argument('--prefix', default=None,
+                            help=("A prefix used for each environment "
+                                  "variable in the assertion. For example, "
+                                  "all environment variables may have the "
+                                  "prefix ASDF_."))
+        parser.add_argument('--engine-debug',
+                            default=False, action="store_true",
+                            help=("Enable debug messages from the mapping "
+                                  "engine."))
+
+
 CMDS = [
     DbSync,
     DbVersion,
@@ -551,6 +642,7 @@ CMDS = [
     FernetRotate,
     FernetSetup,
     MappingPurge,
+    MappingEngineTester,
     PKISetup,
     SamlIdentityProviderMetadata,
     SSLSetup,
