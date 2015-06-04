@@ -5804,6 +5804,40 @@ class FilterTests(filtering.FilterTests):
         self._delete_test_data('user', user_list)
         self._delete_test_data('group', group_list)
 
+    def _get_user_name_field_size(self):
+        """Return the size of the user name field for the backend.
+
+        Subclasses can override this method to indicate that the user name
+        field is limited in length. The user name is the field used in the test
+        that validates that a filter value works even if it's longer than a
+        field.
+
+        If the backend doesn't limit the value length then return None.
+
+        """
+        return None
+
+    def test_filter_value_wider_than_field(self):
+        # If a filter value is given that's larger than the field in the
+        # backend then no values are returned.
+
+        user_name_field_size = self._get_user_name_field_size()
+
+        if user_name_field_size is None:
+            # The backend doesn't limit the size of the user name, so pass this
+            # test.
+            return
+
+        # Create some users just to make sure would return something if the
+        # filter was ignored.
+        self._create_test_data('user', 2)
+
+        hints = driver_hints.Hints()
+        value = 'A' * (user_name_field_size + 1)
+        hints.add_filter('name', value)
+        users = self.identity_api.list_users(hints=hints)
+        self.assertEqual([], users)
+
 
 class LimitTests(filtering.FilterTests):
     ENTITIES = ['user', 'group', 'project']

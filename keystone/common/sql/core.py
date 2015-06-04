@@ -239,6 +239,39 @@ def truncated(f):
     return wrapper
 
 
+class _WontMatch(Exception):
+    """Raised to indicate that the filter won't match.
+
+    This is raised to short-circuit the computation of the filter as soon as
+    it's discovered that the filter requested isn't going to match anything.
+
+    A filter isn't going to match anything if the value is too long for the
+    field, for example.
+
+    """
+
+    @classmethod
+    def check(cls, value, col_attr):
+        """Check if the value can match given the column attributes.
+
+        Raises this class if the value provided can't match any value in the
+        column in the table given the column's attributes. For example, if the
+        column is a string and the value is longer than the column then it
+        won't match any value in the column in the table.
+
+        """
+        col = col_attr.property.columns[0]
+        if isinstance(col.type, sql.types.Boolean):
+            # The column is a Boolean, we should have already validated input.
+            return
+        if not col.type.length:
+            # The column doesn't have a length so can't validate anymore.
+            return
+        if len(value) > col.type.length:
+            raise cls()
+        # Otherwise the value could match a value in the column.
+
+
 def _filter(model, query, hints):
     """Applies filtering to a query.
 
@@ -276,10 +309,13 @@ def _filter(model, query, hints):
             return query
 
         if filter_['comparator'] == 'contains':
+            _WontMatch.check(filter_['value'], column_attr)
             query_term = column_attr.ilike('%%%s%%' % filter_['value'])
         elif filter_['comparator'] == 'startswith':
+            _WontMatch.check(filter_['value'], column_attr)
             query_term = column_attr.ilike('%s%%' % filter_['value'])
         elif filter_['comparator'] == 'endswith':
+            _WontMatch.check(filter_['value'], column_attr)
             query_term = column_attr.ilike('%%%s' % filter_['value'])
         else:
             # It's a filter we don't understand, so let the caller
@@ -299,33 +335,40 @@ def _filter(model, query, hints):
 
         """
         key = filter_['name']
-        if isinstance(getattr(model, key).property.columns[0].type,
-                      sql.types.Boolean):
+
+        col = getattr(model, key)
+        if isinstance(col.property.columns[0].type, sql.types.Boolean):
             cumulative_filter_dict[key] = (
                 utils.attr_as_boolean(filter_['value']))
         else:
+            _WontMatch.check(filter_['value'], col)
             cumulative_filter_dict[key] = filter_['value']
 
-    filter_dict = {}
-    satisfied_filters = []
-    for filter_ in hints.filters:
-        if filter_['name'] not in model.attributes:
-            continue
-        if filter_['comparator'] == 'equals':
-            exact_filter(model, filter_, filter_dict)
-            satisfied_filters.append(filter_)
-        else:
-            query = inexact_filter(model, query, filter_, satisfied_filters)
+    try:
+        filter_dict = {}
+        satisfied_filters = []
+        for filter_ in hints.filters:
+            if filter_['name'] not in model.attributes:
+                continue
+            if filter_['comparator'] == 'equals':
+                exact_filter(model, filter_, filter_dict)
+                satisfied_filters.append(filter_)
+            else:
+                query = inexact_filter(model, query, filter_,
+                                       satisfied_filters)
 
-    # Apply any exact filters we built up
-    if filter_dict:
-        query = query.filter_by(**filter_dict)
+        # Apply any exact filters we built up
+        if filter_dict:
+            query = query.filter_by(**filter_dict)
 
-    # Remove satisfied filters, then the caller will know remaining filters
-    for filter_ in satisfied_filters:
-        hints.filters.remove(filter_)
+        # Remove satisfied filters, then the caller will know remaining filters
+        for filter_ in satisfied_filters:
+            hints.filters.remove(filter_)
 
-    return query
+        return query
+    except _WontMatch:
+        hints.cannot_match = True
+        return
 
 
 def _limit(query, hints):
@@ -365,6 +408,10 @@ def filter_limit_query(model, query, hints):
 
     # First try and satisfy any filters
     query = _filter(model, query, hints)
+
+    if hints.cannot_match:
+        # Nothing's going to match, so don't bother with the query.
+        return []
 
     # NOTE(henry-nash): Any unsatisfied filters will have been left in
     # the hints list for the controller to handle. We can only try and
