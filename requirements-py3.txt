@@ -16,7 +16,7 @@ SQLAlchemy>=0.9.7,<=0.9.99
 sqlalchemy-migrate>=0.9.6
 passlib
 iso8601>=0.1.9
-python-keystoneclient>=1.3.0
+python-keystoneclient>=1.6.0
 keystonemiddleware>=1.5.0
 oslo.concurrency>=1.8.0         # Apache-2.0
 oslo.config>=1.11.0  # Apache-2.0
