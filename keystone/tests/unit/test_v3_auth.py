@@ -99,8 +99,8 @@ class TestAuthInfo(test_v3.AuthTestMixin, testcase.TestCase):
                                             'password', 'password']
         context = None
         auth_info = auth.controllers.AuthInfo.create(context, auth_data)
-        self.assertEqual(auth_info.get_method_names(),
-                         ['password', 'token'])
+        self.assertEqual(['password', 'token'],
+                         auth_info.get_method_names())
 
     def test_get_method_data_invalid_method(self):
         auth_data = self.build_authentication_request(
@@ -1601,8 +1601,8 @@ class TestAuthExternalLegacyDefaultDomain(test_v3.RestfulTestCase):
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'],
-                         self.default_domain_user['id'])
+        self.assertEqual(self.default_domain_user['id'],
+                         auth_context['user_id'])
 
     def test_remote_user_no_domain(self):
         api = auth.controllers.Auth()
@@ -1629,7 +1629,7 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
             remote_user)
 
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'], self.user['id'])
+        self.assertEqual(self.user['id'], auth_context['user_id'])
 
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
@@ -1640,7 +1640,7 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
             remote_user)
 
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'], self.user['id'])
+        self.assertEqual(self.user['id'], auth_context['user_id'])
 
     def test_project_id_scoped_with_remote_user(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -1651,7 +1651,7 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_authenticate_token(auth_data)
         token = self.assertValidProjectScopedTokenResponse(r)
-        self.assertEqual(token['bind']['kerberos'], self.user['name'])
+        self.assertEqual(self.user['name'], token['bind']['kerberos'])
 
     def test_unscoped_bind_with_remote_user(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -1661,7 +1661,7 @@ class TestAuthExternalLegacyDomain(test_v3.RestfulTestCase):
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_authenticate_token(auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
-        self.assertEqual(token['bind']['kerberos'], self.user['name'])
+        self.assertEqual(self.user['name'], token['bind']['kerberos'])
 
 
 class TestAuthExternalDomain(test_v3.RestfulTestCase):
@@ -1681,7 +1681,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
 
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'], self.user['id'])
+        self.assertEqual(self.user['id'], auth_context['user_id'])
 
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
@@ -1692,7 +1692,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
 
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'], self.user['id'])
+        self.assertEqual(self.user['id'], auth_context['user_id'])
 
     def test_project_id_scoped_with_remote_user(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -1706,7 +1706,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_authenticate_token(auth_data)
         token = self.assertValidProjectScopedTokenResponse(r)
-        self.assertEqual(token['bind']['kerberos'], self.user['name'])
+        self.assertEqual(self.user['name'], token['bind']['kerberos'])
 
     def test_unscoped_bind_with_remote_user(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -1718,7 +1718,7 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_authenticate_token(auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
-        self.assertEqual(token['bind']['kerberos'], self.user['name'])
+        self.assertEqual(self.user['name'], token['bind']['kerberos'])
 
 
 class TestAuthKerberos(TestAuthExternalDomain):
@@ -1794,7 +1794,7 @@ class TestAuth(test_v3.RestfulTestCase):
             password=self.user['password'])
         r = self.v3_authenticate_token(auth_data)
         self.assertValidProjectScopedTokenResponse(r)
-        self.assertEqual(r.result['token']['project']['id'], project['id'])
+        self.assertEqual(project['id'], r.result['token']['project']['id'])
 
     def test_default_project_id_scoped_token_with_user_id_no_catalog(self):
         project = self._second_project_as_default()
@@ -1805,7 +1805,7 @@ class TestAuth(test_v3.RestfulTestCase):
             password=self.user['password'])
         r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
-        self.assertEqual(r.result['token']['project']['id'], project['id'])
+        self.assertEqual(project['id'], r.result['token']['project']['id'])
 
     def test_explicit_unscoped_token(self):
         self._second_project_as_default()
@@ -1829,8 +1829,8 @@ class TestAuth(test_v3.RestfulTestCase):
             project_id=self.project['id'])
         r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
-        self.assertEqual(r.result['token']['project']['id'],
-                         self.project['id'])
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
 
     def test_auth_catalog_attributes(self):
         auth_data = self.build_authentication_request(
@@ -2328,8 +2328,8 @@ class TestAuth(test_v3.RestfulTestCase):
         context, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'],
-                         self.default_domain_user['id'])
+        self.assertEqual(self.default_domain_user['id'],
+                         auth_context['user_id'])
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
         user = {'name': 'myname@mydivision'}
@@ -2337,8 +2337,8 @@ class TestAuth(test_v3.RestfulTestCase):
         context, auth_info, auth_context = self.build_external_auth_request(
             user["name"])
         api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(auth_context['user_id'],
-                         self.default_domain_user['id'])
+        self.assertEqual(self.default_domain_user['id'],
+                         auth_context['user_id'])
 
     def test_remote_user_no_domain(self):
         api = auth.controllers.Auth()
@@ -2419,8 +2419,8 @@ class TestAuth(test_v3.RestfulTestCase):
         headers = {'X-Subject-Token': token}
         r = self.get('/auth/tokens', headers=headers, token=token)
         token = self.assertValidProjectScopedTokenResponse(r)
-        self.assertEqual(token['bind']['kerberos'],
-                         self.default_domain_user['name'])
+        self.assertEqual(self.default_domain_user['name'],
+                         token['bind']['kerberos'])
 
     def test_auth_with_bind_token(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -2433,7 +2433,7 @@ class TestAuth(test_v3.RestfulTestCase):
 
         # the unscoped token should have bind information in it
         token = self.assertValidUnscopedTokenResponse(r)
-        self.assertEqual(token['bind']['kerberos'], remote_user)
+        self.assertEqual(remote_user, token['bind']['kerberos'])
 
         token = r.headers.get('X-Subject-Token')
 
@@ -2444,7 +2444,7 @@ class TestAuth(test_v3.RestfulTestCase):
         token = self.assertValidProjectScopedTokenResponse(r)
 
         # the bind information should be carried over from the original token
-        self.assertEqual(token['bind']['kerberos'], remote_user)
+        self.assertEqual(remote_user, token['bind']['kerberos'])
 
     def test_v2_v3_bind_token_intermix(self):
         self.config_fixture.config(group='token', bind='kerberos')
@@ -2462,7 +2462,7 @@ class TestAuth(test_v3.RestfulTestCase):
         v2_token_data = resp.result
 
         bind = v2_token_data['access']['token']['bind']
-        self.assertEqual(bind['kerberos'], self.default_domain_user['name'])
+        self.assertEqual(self.default_domain_user['name'], bind['kerberos'])
 
         v2_token_id = v2_token_data['access']['token']['id']
         # NOTE(gyee): self.get() will try to obtain an auth token if one
@@ -2869,7 +2869,7 @@ class TestTrustRedelegation(test_v3.RestfulTestCase):
         # Check that allow_redelegation == False caused redelegation_count
         # to be set to 0, while allow_redelegation is removed
         self.assertNotIn('allow_redelegation', trust)
-        self.assertEqual(trust['redelegation_count'], 0)
+        self.assertEqual(0, trust['redelegation_count'])
         trust_token = self._get_trust_token(trust)
 
         # Build third trust, same as second
@@ -3111,7 +3111,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             expected_status=200)
         trust = r.result.get('trust')
         self.assertIsNotNone(trust)
-        self.assertEqual(trust['remaining_uses'], 1)
+        self.assertEqual(1, trust['remaining_uses'])
 
     def test_create_one_time_use_trust(self):
         trust = self._initialize_test_consume_trust(1)
@@ -3466,18 +3466,18 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trust_id=trust['id'])
         r = self.v3_authenticate_token(auth_data)
         self.assertValidProjectTrustScopedTokenResponse(r, self.trustee_user)
-        self.assertEqual(r.result['token']['user']['id'],
-                         self.trustee_user['id'])
-        self.assertEqual(r.result['token']['user']['name'],
-                         self.trustee_user['name'])
-        self.assertEqual(r.result['token']['user']['domain']['id'],
-                         self.domain['id'])
-        self.assertEqual(r.result['token']['user']['domain']['name'],
-                         self.domain['name'])
-        self.assertEqual(r.result['token']['project']['id'],
-                         self.project['id'])
-        self.assertEqual(r.result['token']['project']['name'],
-                         self.project['name'])
+        self.assertEqual(self.trustee_user['id'],
+                         r.result['token']['user']['id'])
+        self.assertEqual(self.trustee_user['name'],
+                         r.result['token']['user']['name'])
+        self.assertEqual(self.domain['id'],
+                         r.result['token']['user']['domain']['id'])
+        self.assertEqual(self.domain['name'],
+                         r.result['token']['user']['domain']['name'])
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
+        self.assertEqual(self.project['name'],
+                         r.result['token']['project']['name'])
 
     def test_exercise_trust_scoped_token_with_impersonation(self):
         ref = self.new_trust_ref(
@@ -3497,16 +3497,16 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trust_id=trust['id'])
         r = self.v3_authenticate_token(auth_data)
         self.assertValidProjectTrustScopedTokenResponse(r, self.user)
-        self.assertEqual(r.result['token']['user']['id'], self.user['id'])
-        self.assertEqual(r.result['token']['user']['name'], self.user['name'])
-        self.assertEqual(r.result['token']['user']['domain']['id'],
-                         self.domain['id'])
-        self.assertEqual(r.result['token']['user']['domain']['name'],
-                         self.domain['name'])
-        self.assertEqual(r.result['token']['project']['id'],
-                         self.project['id'])
-        self.assertEqual(r.result['token']['project']['name'],
-                         self.project['name'])
+        self.assertEqual(self.user['id'], r.result['token']['user']['id'])
+        self.assertEqual(self.user['name'], r.result['token']['user']['name'])
+        self.assertEqual(self.domain['id'],
+                         r.result['token']['user']['domain']['id'])
+        self.assertEqual(self.domain['name'],
+                         r.result['token']['user']['domain']['name'])
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
+        self.assertEqual(self.project['name'],
+                         r.result['token']['project']['name'])
 
     def test_impersonation_token_cannot_create_new_trust(self):
         ref = self.new_trust_ref(
