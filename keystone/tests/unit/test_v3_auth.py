@@ -3292,26 +3292,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             role_names=[uuid.uuid4().hex])
         self.post('/OS-TRUST/trusts', body={'trust': ref}, expected_status=404)
 
-    def test_create_expired_trust(self):
-        ref = self.new_trust_ref(
-            trustor_user_id=self.user_id,
-            trustee_user_id=self.trustee_user_id,
-            project_id=self.project_id,
-            expires=dict(seconds=-1),
-            role_ids=[self.role_id])
-        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
-        trust = self.assertValidTrustResponse(r, ref)
-
-        self.get('/OS-TRUST/trusts/%(trust_id)s' % {
-            'trust_id': trust['id']},
-            expected_status=404)
-
-        auth_data = self.build_authentication_request(
-            user_id=self.trustee_user['id'],
-            password=self.trustee_user['password'],
-            trust_id=trust['id'])
-        self.v3_authenticate_token(auth_data, expected_status=401)
-
     def test_v3_v2_intermix_trustor_not_in_default_domain_failed(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,

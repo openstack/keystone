@@ -205,9 +205,12 @@ class TrustV3(controller.V3Controller):
         if not expiration_date.endswith('Z'):
             expiration_date += 'Z'
         try:
-            return timeutils.parse_isotime(expiration_date)
+            expiration_time = timeutils.parse_isotime(expiration_date)
         except ValueError:
             raise exception.ValidationTimeStampError()
+        if timeutils.is_older_than(expiration_time, 0):
+            raise exception.ValidationExpirationError()
+        return expiration_time
 
     def _check_role_for_trust(self, context, trust_id, role_id):
         """Checks if a role has been assigned to a trust."""
