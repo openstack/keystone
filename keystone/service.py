@@ -104,8 +104,11 @@ def v3_app_factory(global_conf, **local_conf):
     sub_routers = []
     _routers = []
 
-    router_modules = [assignment,
-                      auth,
+    # NOTE(dstanek): Routers should be ordered by their frequency of use in
+    # a live system. This is due to the routes implementation. The most
+    # frequently used routers should appear first.
+    router_modules = [auth,
+                      assignment,
                       catalog,
                       credential,
                       identity,
