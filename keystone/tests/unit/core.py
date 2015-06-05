@@ -530,11 +530,6 @@ class TestCase(BaseTestCase):
     def assertNotEmpty(self, l):
         self.assertTrue(len(l))
 
-    def assertDictEqual(self, d1, d2, msg=None):
-        self.assertIsInstance(d1, dict)
-        self.assertIsInstance(d2, dict)
-        self.assertEqual(d1, d2, msg)
-
     def assertRaisesRegexp(self, expected_exception, expected_regexp,
                            callable_obj, *args, **kwargs):
         """Asserts that the message in a raised exception matches a regexp.
@@ -561,43 +556,6 @@ class TestCase(BaseTestCase):
             else:
                 excName = str(expected_exception)
             raise self.failureException("%s not raised" % excName)
-
-    def assertDictContainsSubset(self, expected, actual, msg=None):
-        """Checks whether actual is a superset of expected."""
-
-        def safe_repr(obj, short=False):
-            _MAX_LENGTH = 80
-            try:
-                result = repr(obj)
-            except Exception:
-                result = object.__repr__(obj)
-            if not short or len(result) < _MAX_LENGTH:
-                return result
-            return result[:_MAX_LENGTH] + ' [truncated]...'
-
-        missing = []
-        mismatched = []
-        for key, value in six.iteritems(expected):
-            if key not in actual:
-                missing.append(key)
-            elif value != actual[key]:
-                mismatched.append('%s, expected: %s, actual: %s' %
-                                  (safe_repr(key), safe_repr(value),
-                                   safe_repr(actual[key])))
-
-        if not (missing or mismatched):
-            return
-
-        standardMsg = ''
-        if missing:
-            standardMsg = 'Missing: %s' % ','.join(safe_repr(m) for m in
-                                                   missing)
-        if mismatched:
-            if standardMsg:
-                standardMsg += '; '
-            standardMsg += 'Mismatched values: %s' % ','.join(mismatched)
-
-        self.fail(self._formatMessage(msg, standardMsg))
 
     @property
     def ipv6_enabled(self):

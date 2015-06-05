@@ -644,20 +644,6 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
         return entity
 
-    def assertDictContainsSubset(self, expected, actual):
-        """"Asserts if dictionary actual is a superset of expected.
-
-        Tests whether the key/value pairs in dictionary actual are a superset
-        of those in expected.
-
-        """
-        for k, v in six.iteritems(expected):
-            self.assertIn(k, actual)
-            if isinstance(v, dict):
-                self.assertDictContainsSubset(v, actual[k])
-            else:
-                self.assertEqual(v, actual[k])
-
     # auth validation
 
     def assertValidISO8601ExtendedFormatDatetime(self, dt):
