@@ -622,7 +622,7 @@ FILE_OPTIONS = {
                         'the typical value is "512". This is typically used '
                         'when "user_enabled_attribute = userAccountControl".'),
         cfg.ListOpt('user_attribute_ignore',
-                    default=['default_project_id', 'tenants'],
+                    default=['default_project_id'],
                     help='List of attributes stripped off the user on '
                          'update.'),
         cfg.StrOpt('user_default_project_id_attribute',
