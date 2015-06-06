@@ -602,7 +602,7 @@ class ExtensionRouter(Router):
             mapper = routes.Mapper()
         self.application = application
         self.add_routes(mapper)
-        mapper.connect('{path_info:.*}', controller=self.application)
+        mapper.connect('/{path_info:.*}', controller=self.application)
         super(ExtensionRouter, self).__init__(mapper)
 
     def add_routes(self, mapper):
