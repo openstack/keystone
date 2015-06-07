@@ -93,7 +93,6 @@ class Domain(Base):
         return user_ref
 
 
-@dependency.requires('assignment_api', 'identity_api')
 class KerberosDomain(Domain):
     """Allows `kerberos` as a method."""
     def _authenticate(self, remote_user, context):
