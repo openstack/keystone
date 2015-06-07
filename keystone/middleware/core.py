@@ -52,8 +52,7 @@ class TokenAuthMiddleware(wsgi.Middleware):
         context = request.environ.get(CONTEXT_ENV, {})
         context['token_id'] = token
         if SUBJECT_TOKEN_HEADER in request.headers:
-            context['subject_token_id'] = (
-                request.headers.get(SUBJECT_TOKEN_HEADER))
+            context['subject_token_id'] = request.headers[SUBJECT_TOKEN_HEADER]
         request.environ[CONTEXT_ENV] = context
 
 
