@@ -21,6 +21,7 @@ import socket
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 import oslo_messaging
 import pycadf
 from pycadf import cadftaxonomy as taxonomy
@@ -30,7 +31,6 @@ from pycadf import eventfactory
 from pycadf import resource
 
 from keystone.i18n import _, _LE
-from keystone.openstack.common import versionutils
 
 
 notifier_opts = [

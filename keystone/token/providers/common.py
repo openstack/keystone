@@ -14,6 +14,7 @@
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 import six
@@ -25,7 +26,6 @@ from keystone.common import utils
 from keystone.contrib import federation
 from keystone import exception
 from keystone.i18n import _, _LE
-from keystone.openstack.common import versionutils
 from keystone import token
 from keystone.token import provider
 

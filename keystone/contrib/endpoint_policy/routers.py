@@ -12,8 +12,9 @@
 
 import logging
 
+from oslo_log import versionutils
+
 from keystone.common import wsgi
-from keystone.openstack.common import versionutils
 
 LOG = logging.getLogger(__name__)
 

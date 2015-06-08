@@ -17,6 +17,7 @@ import ldap as ldap
 import ldap.filter
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 
 from keystone import assignment
 from keystone.assignment.role_backends import ldap as ldap_role
@@ -25,7 +26,6 @@ from keystone.common import models
 from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import ldap as ldap_identity
-from keystone.openstack.common import versionutils
 
 
 CONF = cfg.CONF

@@ -20,6 +20,7 @@ import mock
 from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options
+from oslo_log import versionutils
 from six.moves import range
 import sqlalchemy
 from sqlalchemy import exc
@@ -29,7 +30,6 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
-from keystone.openstack.common import versionutils
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
