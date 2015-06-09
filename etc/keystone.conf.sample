@@ -128,8 +128,8 @@
 # Deprecated group/name - [DEFAULT]/logdir
 #log_dir = <None>
 
-# Use syslog for logging. Existing syslog format is DEPRECATED during I, and
-# changed in J to honor RFC5424. (boolean value)
+# Use syslog for logging. Existing syslog format is DEPRECATED and will be
+# changed later to honor RFC5424. (boolean value)
 #use_syslog = false
 
 # (Optional) Enables or disables syslog rfc5424 format for logging. If enabled,
@@ -270,7 +270,8 @@
 # From keystone
 #
 
-# Assignment backend driver. (string value)
+# Entrypoint for the assignment backend driver in the keystone.assignment
+# namespace. (string value)
 #driver = <None>
 
 
@@ -280,20 +281,24 @@
 # From keystone
 #
 
-# Default auth methods. (list value)
+# Allowed authentication methods. (list value)
 #methods = external,password,token,oauth1
 
-# The password auth plugin module. (string value)
-#password = keystone.auth.plugins.password.Password
+# Entrypoint for the password auth plugin module in the keystone.auth.password
+# namespace. (string value)
+#password = <None>
 
-# The token auth plugin module. (string value)
-#token = keystone.auth.plugins.token.Token
+# Entrypoint for the token auth plugin module in the keystone.auth.token
+# namespace. (string value)
+#token = <None>
 
-# The external (REMOTE_USER) auth plugin module. (string value)
-#external = keystone.auth.plugins.external.DefaultDomain
+# Entrypoint for the external (REMOTE_USER) auth plugin module in the
+# keystone.auth.external namespace. (string value)
+#external = <None>
 
-# The oAuth1.0 auth plugin module. (string value)
-#oauth1 = keystone.auth.plugins.oauth1.OAuth
+# Entrypoint for the oAuth1.0 auth plugin module in the keystone.auth.oauth1
+# namespace. (string value)
+#oauth1 = <None>
 
 
 [cache]
@@ -374,7 +379,8 @@
 # value)
 #template_file = default_catalog.templates
 
-# Catalog backend driver. (string value)
+# Entrypoint for the catalog backend driver in the keystone.catalog namespace.
+# (string value)
 #driver = sql
 
 # Toggle for catalog caching. This has no effect unless global caching is
@@ -452,7 +458,8 @@
 # From keystone
 #
 
-# Credential backend driver. (string value)
+# Entrypoint for the credential backend driver in the keystone.credential
+# namespace. (string value)
 #driver = sql
 
 
@@ -562,7 +569,8 @@
 # From keystone
 #
 
-# Domain config backend driver. (string value)
+# Entrypoint for the domain config backend driver in the
+# keystone.resource.domain_config namespace. (string value)
 #driver = sql
 
 # Toggle for domain config caching. This has no effect unless global caching is
@@ -580,7 +588,8 @@
 # From keystone
 #
 
-# Endpoint Filter backend driver (string value)
+# Entrypoint for the endpoint filter backend driver in the
+# keystone.endpoint_filter namespace. (string value)
 #driver = sql
 
 # Toggle to return all active endpoints if no filter exists. (boolean value)
@@ -596,7 +605,8 @@
 # Enable endpoint_policy functionality. (boolean value)
 #enabled = true
 
-# Endpoint policy backend driver (string value)
+# Entrypoint for the endpoint policy backend driver in the
+# keystone.endpoint_policy namespace. (string value)
 #driver = sql
 
 
@@ -718,7 +728,8 @@
 # From keystone
 #
 
-# Federation backend driver. (string value)
+# Entrypoint for the federation backend driver in the keystone.federation
+# namespace. (string value)
 #driver = sql
 
 # Value to be used when filtering assertion parameters from the environment.
@@ -800,7 +811,8 @@
 # if domain_specific_drivers_enabled is set to true. (string value)
 #domain_config_dir = /etc/keystone/domains
 
-# Identity backend driver. (string value)
+# Entrypoint for the identity backend driver in the keystone.identity
+# namespace. (string value)
 #driver = sql
 
 # Toggle for identity caching. This has no effect unless global caching is
@@ -826,12 +838,13 @@
 # From keystone
 #
 
-# Keystone Identity Mapping backend driver. (string value)
+# Entrypoint for the identity mapping backend driver in the
+# keystone.identity.id_mapping namespace. (string value)
 #driver = sql
 
-# Public ID generator for user and group entities. The Keystone identity mapper
-# only supports generators that produce no more than 64 characters. (string
-# value)
+# Entrypoint for the public ID generator for user and group entities in the
+# keystone.identity.id_generator namespace. The Keystone identity mapper only
+# supports generators that produce no more than 64 characters. (string value)
 #generator = sha256
 
 # The format of user and group IDs changed in Juno for backends that do not
@@ -1260,7 +1273,8 @@
 # From keystone
 #
 
-# OAuth backend driver. (string value)
+# Entrypoint for hte OAuth backend driver in the keystone.oauth1 namespace.
+# (string value)
 #driver = sql
 
 # Duration (in seconds) for the OAuth Request Token. (integer value)
@@ -1532,6 +1546,11 @@
 # Deprecated group/name - [DEFAULT]/max_request_body_size
 #max_request_body_size = 114688
 
+# The HTTP Header that will be used to determine what the original request
+# protocol scheme was, even if it was hidden by an SSL termination proxy.
+# (string value)
+#secure_proxy_ssl_header = X-Forwarded-Proto
+
 
 [oslo_policy]
 
@@ -1575,7 +1594,8 @@
 # From keystone
 #
 
-# Policy backend driver. (string value)
+# Entrypoint for the policy backend driver in the keystone.policy namespace.
+# (string value)
 #driver = sql
 
 # Maximum number of entities that will be returned in a policy collection.
@@ -1589,8 +1609,9 @@
 # From keystone
 #
 
-# Resource backend driver. If a resource driver is not specified, the
-# assignment driver will choose the resource driver. (string value)
+# Entrypoint for the resource backend driver in the keystone.resource
+# namespace. If a resource driver is not specified, the assignment driver will
+# choose the resource driver. (string value)
 #driver = <None>
 
 # Toggle for resource caching. This has no effect unless global caching is
@@ -1615,8 +1636,8 @@
 # From keystone
 #
 
-# An implementation of the backend for persisting revocation events. (string
-# value)
+# Entrypoint for an implementation of the backend for persisting revocation
+# events in the keystone.revoke namespace. (string value)
 #driver = sql
 
 # This value (calculated in seconds) is added to token expiration before a
@@ -1640,7 +1661,8 @@
 # From keystone
 #
 
-# Role backend driver. (string value)
+# Entrypoint for the role backend driver in the keystone.role namespace.
+# (string value)
 #driver = <None>
 
 # Toggle for role caching. This has no effect unless global caching is enabled.
@@ -1804,11 +1826,13 @@
 # Amount of time a token should remain valid (in seconds). (integer value)
 #expiration = 3600
 
-# Controls the token construction, validation, and revocation operations. Core
-# providers are [fernet|pkiz|pki|uuid]. (string value)
+# Controls the token construction, validation, and revocation operations.
+# Entrypoint in the keystone.token.provider namespace. Core providers are
+# [fernet|pkiz|pki|uuid]. (string value)
 #provider = uuid
 
-# Token persistence backend driver. (string value)
+# Entrypoint for the token persistence backend driver in the
+# keystone.token.persistence namespace. (string value)
 #driver = sql
 
 # Toggle for token system caching. This has no effect unless global caching is
@@ -1854,5 +1878,6 @@
 # Maximum depth of trust redelegation. (integer value)
 #max_redelegation_count = 3
 
-# Trust backend driver. (string value)
+# Entrypoint for the trust backend driver in the keystone.trust namespace.
+# (string value)
 #driver = sql
