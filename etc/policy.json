@@ -6,6 +6,7 @@
     "admin_or_owner": "rule:admin_required or rule:owner",
     "token_subject": "user_id:%(target.token.user_id)s",
     "admin_or_token_subject": "rule:admin_required or rule:token_subject",
+    "service_admin_or_token_subject": "rule:service_or_admin or rule:token_subject",
 
     "default": "rule:admin_required",
 
@@ -88,8 +89,8 @@
     "identity:update_policy": "rule:admin_required",
     "identity:delete_policy": "rule:admin_required",
 
-    "identity:check_token": "rule:admin_required",
-    "identity:validate_token": "rule:service_or_admin",
+    "identity:check_token": "rule:admin_or_token_subject",
+    "identity:validate_token": "rule:service_admin_or_token_subject",
     "identity:validate_token_head": "rule:service_or_admin",
     "identity:revocation_list": "rule:service_or_admin",
     "identity:revoke_token": "rule:admin_or_token_subject",

@@ -391,23 +391,18 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         # Given a non-admin user token, the token can be used to validate
         # itself.
         # This is GET /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
-        # FIXME(blk-u): This test fails, a user can't validate their own token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'])
         token = self.get_requested_token(auth)
 
-        # FIXME(blk-u): remove expected_status=403.
         self.get('/auth/tokens', token=token,
-                 headers={'X-Subject-Token': token}, expected_status=403)
+                 headers={'X-Subject-Token': token})
 
     def test_user_validate_user_token(self):
         # A user can validate one of their own tokens.
         # This is GET /v3/auth/tokens
-        # FIXME(blk-u): This test fails, a user can't validate their own token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
@@ -415,9 +410,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         token1 = self.get_requested_token(auth)
         token2 = self.get_requested_token(auth)
 
-        # FIXME(blk-u): remove expected_status=403.
         self.get('/auth/tokens', token=token1,
-                 headers={'X-Subject-Token': token2}, expected_status=403)
+                 headers={'X-Subject-Token': token2})
 
     def test_user_validate_other_user_token_rejected(self):
         # A user cannot validate another user's token.
@@ -458,23 +452,18 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         # Given a non-admin user token, the token can be used to check
         # itself.
         # This is HEAD /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
-        # FIXME(blk-u): This test fails, a user can't check the same token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'])
         token = self.get_requested_token(auth)
 
-        # FIXME(blk-u): change to expected_status=200
         self.head('/auth/tokens', token=token,
-                  headers={'X-Subject-Token': token}, expected_status=403)
+                  headers={'X-Subject-Token': token}, expected_status=200)
 
     def test_user_check_user_token(self):
         # A user can check one of their own tokens.
         # This is HEAD /v3/auth/tokens
-        # FIXME(blk-u): This test fails, a user can't check the same token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
@@ -482,9 +471,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         token1 = self.get_requested_token(auth)
         token2 = self.get_requested_token(auth)
 
-        # FIXME(blk-u): change to expected_status=200
         self.head('/auth/tokens', token=token1,
-                  headers={'X-Subject-Token': token2}, expected_status=403)
+                  headers={'X-Subject-Token': token2}, expected_status=200)
 
     def test_user_check_other_user_token_rejected(self):
         # A user cannot check another user's token.
@@ -976,23 +964,18 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         # Given a non-admin user token, the token can be used to validate
         # itself.
         # This is GET /v3/auth/tokens, with X-Auth-Token == X-Subject-Token
-        # FIXME(blk-u): This test fails, a user can't validate their own token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'])
         token = self.get_requested_token(auth)
 
-        # FIXME(blk-u): remove expected_status=403.
         self.get('/auth/tokens', token=token,
-                 headers={'X-Subject-Token': token}, expected_status=403)
+                 headers={'X-Subject-Token': token})
 
     def test_user_validate_user_token(self):
         # A user can validate one of their own tokens.
         # This is GET /v3/auth/tokens
-        # FIXME(blk-u): This test fails, a user can't validate their own token,
-        # see bug 1421825.
 
         auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
@@ -1000,9 +983,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
         token1 = self.get_requested_token(auth)
         token2 = self.get_requested_token(auth)
 
-        # FIXME(blk-u): remove expected_status=403.
         self.get('/auth/tokens', token=token1,
-                 headers={'X-Subject-Token': token2}, expected_status=403)
+                 headers={'X-Subject-Token': token2})
 
     def test_user_validate_other_user_token_rejected(self):
         # A user cannot validate another user's token.
