@@ -103,11 +103,7 @@ class AuthContext(dict):
         return super(AuthContext, self).__setitem__(key, val)
 
 
-# TODO(blk-u): this class doesn't use identity_api directly, but makes it
-# available for consumers. Consumers should probably not be getting
-# identity_api from this since it's available in global registry, then
-# identity_api should be removed from this list.
-@dependency.requires('identity_api', 'resource_api', 'trust_api')
+@dependency.requires('resource_api', 'trust_api')
 class AuthInfo(object):
     """Encapsulation of "auth" request."""
 
