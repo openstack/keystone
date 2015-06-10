@@ -46,6 +46,15 @@ _TOKEN_KEYS = ['identity_domain_id',
                'trustor_id',
                'trustee_id']
 
+# Alternative names to be checked in token for every field in
+# revoke tree.
+ALTERNATIVES = {
+    'user_id': ['user_id', 'trustor_id', 'trustee_id'],
+    'domain_id': ['identity_domain_id', 'assignment_domain_id'],
+    # For a domain-scoped token, the domain is in assignment_domain_id.
+    'domain_scope_id': ['assignment_domain_id', ],
+}
+
 
 REVOKE_KEYS = _NAMES + _EVENT_ARGS
 
@@ -181,6 +190,51 @@ class RevokeTree(object):
     def add_events(self, revoke_events):
         return list(map(self.add_event, revoke_events or []))
 
+    @staticmethod
+    def _next_level_keys(name, token_data):
+        """Generate keys based on current field name and token data
+
+        Generate all keys to look for in the next iteration of revocation
+        event tree traversal.
+        """
+        yield '*'
+        if name == 'role_id':
+            # Roles are very special since a token has a list of them.
+            # If the revocation event matches any one of them,
+            # revoke the token.
+            for role_id in token_data.get('roles', []):
+                yield role_id
+        else:
+            # For other fields we try to get any branch that concur
+            # with any alternative field in the token.
+            for alt_name in ALTERNATIVES.get(name, [name]):
+                yield token_data[alt_name]
+
+    def _search(self, revoke_map, names, token_data):
+        """Search for revocation event by token_data
+
+        Traverse the revocation events tree looking for event matching token
+        data issued after the token.
+        """
+        if not names:
+            # The last (leaf) level is checked in a special way because we
+            # verify issued_at field differently.
+            try:
+                return revoke_map['issued_before'] > token_data['issued_at']
+            except KeyError:
+                return False
+
+        name, remaining_names = names[0], names[1:]
+
+        for key in self._next_level_keys(name, token_data):
+            subtree = revoke_map.get('%s=%s' % (name, key))
+            if subtree and self._search(subtree, remaining_names, token_data):
+                return True
+
+        # If we made it out of the loop then no element in revocation tree
+        # corresponds to our token and it is good.
+        return False
+
     def is_revoked(self, token_data):
         """Check if a token matches the revocation event
 
@@ -198,58 +252,7 @@ class RevokeTree(object):
            'consumer_id', 'access_token_id'
 
         """
-        # Alternative names to be checked in token for every field in
-        # revoke tree.
-        alternatives = {
-            'user_id': ['user_id', 'trustor_id', 'trustee_id'],
-            'domain_id': ['identity_domain_id', 'assignment_domain_id'],
-            # For a domain-scoped token, the domain is in assignment_domain_id.
-            'domain_scope_id': ['assignment_domain_id', ],
-        }
-        # Contains current forest (collection of trees) to be checked.
-        partial_matches = [self.revoke_map]
-        # We iterate over every layer of our revoke tree (except the last one).
-        for name in _EVENT_NAMES:
-            # bundle is the set of partial matches for the next level down
-            # the tree
-            bundle = []
-            wildcard = '%s=*' % (name,)
-            # For every tree in current forest.
-            for tree in partial_matches:
-                # If there is wildcard node on current level we take it.
-                bundle.append(tree.get(wildcard))
-                if name == 'role_id':
-                    # Roles are very special since a token has a list of them.
-                    # If the revocation event matches any one of them,
-                    # revoke the token.
-                    for role_id in token_data.get('roles', []):
-                        bundle.append(tree.get('role_id=%s' % role_id))
-                else:
-                    # For other fields we try to get any branch that concur
-                    # with any alternative field in the token.
-                    for alt_name in alternatives.get(name, [name]):
-                        bundle.append(
-                            tree.get('%s=%s' % (name, token_data[alt_name])))
-            # tree.get returns `None` if there is no match, so `bundle.append`
-            # adds a 'None' entry. This call remoes the `None` entries.
-            partial_matches = [x for x in bundle if x is not None]
-            if not partial_matches:
-                # If we end up with no branches to follow means that the token
-                # is definitely not in the revoke tree and all further
-                # iterations will be for nothing.
-                return False
-
-        # The last (leaf) level is checked in a special way because we verify
-        # issued_at field differently.
-        for leaf in partial_matches:
-            try:
-                if leaf['issued_before'] > token_data['issued_at']:
-                    return True
-            except KeyError:
-                pass
-        # If we made it out of the loop then no element in revocation tree
-        # corresponds to our token and it is good.
-        return False
+        return self._search(self.revoke_map, _EVENT_NAMES, token_data)
 
 
 def build_token_values_v2(access, default_domain_id):
