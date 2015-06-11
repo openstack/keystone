@@ -46,7 +46,6 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
-from keystone.models import token_model
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
@@ -319,14 +318,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
         :raises exception.Forbidden: when token is invalid
 
         """
-        try:
-            token_data = self.token_provider_api.validate_token(
-                context['token_id'])
-        except exception.TokenNotFound as e:
-            raise exception.Unauthorized(e)
-
-        token_ref = token_model.KeystoneToken(token_id=context['token_id'],
-                                              token_data=token_data)
+        token_ref = utils.get_token_ref(context)
 
         if token_ref.user_id != user_id:
             raise exception.Forbidden(_('Token belongs to another user'))

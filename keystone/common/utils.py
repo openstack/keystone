@@ -32,6 +32,7 @@ import passlib.hash
 import six
 from six import moves
 
+from keystone.common import authorization
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 
@@ -504,3 +505,20 @@ def isotime(at=None, subsecond=False):
 def strtime():
     at = timeutils.utcnow()
     return at.strftime(timeutils.PERFECT_TIME_FORMAT)
+
+
+def get_token_ref(context):
+    """Retrieves KeystoneToken object from the auth context and returns it.
+
+    :param dict context: The request context.
+    :raises: exception.Unauthorized if auth context cannot be found.
+    :returns: The KeystoneToken object.
+    """
+    try:
+        # Retrieve the auth context that was prepared by AuthContextMiddleware.
+        auth_context = (context['environment']
+                        [authorization.AUTH_CONTEXT_ENV])
+        return auth_context['token']
+    except KeyError:
+        LOG.warning(_LW("Couldn't find the auth context."))
+        raise exception.Unauthorized()
