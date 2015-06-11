@@ -893,6 +893,12 @@ class AuthWithTrust(AuthTest):
                           self.create_trust, self.sample_data,
                           self.trustor['name'], expires_at="Z")
 
+    def test_create_trust_expires_older_than_now(self):
+        self.assertRaises(exception.ValidationExpirationError,
+                          self.create_trust, self.sample_data,
+                          self.trustor['name'],
+                          expires_at="2010-06-04T08:44:31.999999Z")
+
     def test_create_trust_without_project_id(self):
         """Verify that trust can be created without project id and
         token can be generated with that trust.
@@ -1096,13 +1102,19 @@ class AuthWithTrust(AuthTest):
             self.controller.authenticate, {}, request_body)
 
     def test_expired_trust_get_token_fails(self):
-        expiry = "1999-02-18T10:10:00Z"
+        expires_at = timeutils.strtime(timeutils.utcnow() +
+                                       datetime.timedelta(minutes=5),
+                                       fmt=TIME_FORMAT)
+        time_expired = timeutils.utcnow() + datetime.timedelta(minutes=10)
         new_trust = self.create_trust(self.sample_data, self.trustor['name'],
-                                      expiry)
-        request_body = self.build_v2_token_request('TWO', 'two2', new_trust)
-        self.assertRaises(
-            exception.Forbidden,
-            self.controller.authenticate, {}, request_body)
+                                      expires_at)
+        with mock.patch.object(timeutils, 'utcnow') as mock_now:
+            mock_now.return_value = time_expired
+            request_body = self.build_v2_token_request('TWO', 'two2',
+                                                       new_trust)
+            self.assertRaises(
+                exception.Forbidden,
+                self.controller.authenticate, {}, request_body)
 
     def test_token_from_trust_with_wrong_role_fails(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
