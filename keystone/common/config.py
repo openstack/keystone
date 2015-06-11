@@ -73,10 +73,10 @@ FILE_OPTIONS = {
                    help='This is the role name used in combination with the '
                         'member_role_id option; see that option for more '
                         'detail.'),
-        # NOTE(lbragstd/morganfainberg): This value of 10k was
+        # NOTE(lbragstad/morganfainberg): This value of 10k was
         # measured as having an approximate 30% clock-time savings
         # over the old default of 40k.  The passlib default is not
-        # static and grows over time to constatly approximate ~300ms
+        # static and grows over time to constantly approximate ~300ms
         # of CPU time to hash; this was considered too high.  This
         # value still exceeds the glibc default of 5k.
         cfg.IntOpt('crypt_strength', default=10000,
