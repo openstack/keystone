@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
-"PO-Revision-Date: 2015-05-06 18:27+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
+"PO-Revision-Date: 2015-06-09 19:39+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/keystone/"
 "language/es/)\n"
@@ -20,9 +20,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #, python-format
-msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
-msgstr ""
-"Punto final formado incorrectamente %(url)s - clave desconocida %(keyerror)s"
+msgid "Could not bind to %(host)s:%(port)s"
+msgstr "No se puede asociar a %(host)s:%(port)s"
 
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-url "
@@ -33,21 +32,22 @@ msgstr ""
 "url tiene el formato <host>:<port> y que un proceso de depuración está "
 "publicado en ese host y puerto"
 
+msgid "Failed to validate token"
+msgstr "Ha fallado la validación del token"
+
 #, python-format
-msgid "Could not bind to %(host)s:%(port)s"
-msgstr "No se puede asociar a %(host)s:%(port)s"
+msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
+msgstr ""
+"Punto final formado incorrectamente %(url)s - clave desconocida %(keyerror)s"
 
 msgid "Server error"
 msgstr "Error del servidor"
 
-msgid "in fixed duration looping call"
-msgstr "en llamada en bucle de duración fija"
+msgid "Unhandled exception"
+msgstr "Excepción no controlada"
 
 msgid "in dynamic looping call"
 msgstr "en llamada en bucle dinámica"
 
-msgid "Unhandled exception"
-msgstr "Excepción no controlada"
-
-msgid "Failed to validate token"
-msgstr "Ha fallado la validación del token"
+msgid "in fixed duration looping call"
+msgstr "en llamada en bucle de duración fija"

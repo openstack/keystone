@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.2.0.dev171\n"
+"Project-Id-Version: keystone 2015.2.0.dev220\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,21 +46,21 @@ msgid ""
 "%(role)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:429
+#: keystone/auth/controllers.py:425
 #, python-format
 msgid ""
 "User %(user_id)s doesn't have access to default project %(project_id)s. "
 "The token will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:437
+#: keystone/auth/controllers.py:433
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s is disabled. The token "
 "will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:446
+#: keystone/auth/controllers.py:442
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s not found. The token "
@@ -71,7 +71,7 @@ msgstr ""
 msgid "RBAC: Invalid user data in token"
 msgstr ""
 
-#: keystone/common/controller.py:79 keystone/middleware/core.py:225
+#: keystone/common/controller.py:79 keystone/middleware/core.py:195
 msgid "RBAC: Invalid token"
 msgstr ""
 
@@ -92,17 +92,17 @@ msgstr ""
 msgid "Failed to invoke ``openssl version``, assuming is v1.0 or newer"
 msgstr ""
 
-#: keystone/common/utils.py:103
+#: keystone/common/utils.py:104
 #, python-format
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/wsgi.py:241
+#: keystone/common/wsgi.py:243
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr ""
 
-#: keystone/common/wsgi.py:360
+#: keystone/common/wsgi.py:362
 msgid "Invalid token in _get_trust_id_for_request"
 msgstr ""
 
@@ -151,37 +151,37 @@ msgid ""
 "entries %(entries)s%(dots)s"
 msgstr ""
 
-#: keystone/contrib/endpoint_policy/core.py:94
+#: keystone/contrib/federation/utils.py:545
+msgid "Ignoring user name"
+msgstr ""
+
+#: keystone/endpoint_policy/core.py:94
 #, python-format
 msgid ""
 "Endpoint %(endpoint_id)s referenced in association for policy "
 "%(policy_id)s not found."
 msgstr ""
 
-#: keystone/contrib/endpoint_policy/core.py:182
+#: keystone/endpoint_policy/core.py:182
 #, python-format
 msgid ""
 "Unsupported policy association found - Policy %(policy_id)s, Endpoint "
 "%(endpoint_id)s, Service %(service_id)s, Region %(region_id)s, "
 msgstr ""
 
-#: keystone/contrib/endpoint_policy/core.py:198
+#: keystone/endpoint_policy/core.py:198
 #, python-format
 msgid ""
 "Policy %(policy_id)s referenced in association for endpoint "
 "%(endpoint_id)s not found."
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:545
-msgid "Ignoring user name"
-msgstr ""
-
-#: keystone/identity/controllers.py:139
+#: keystone/identity/controllers.py:141
 #, python-format
 msgid "Unable to remove user %(user)s from %(tenant)s."
 msgstr ""
 
-#: keystone/identity/controllers.py:158
+#: keystone/identity/controllers.py:160
 #, python-format
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr ""
@@ -203,15 +203,7 @@ msgid ""
 "that (e.g. LDAP) - Domain ID: %(domain)s, Default Driver: %(driver)s"
 msgstr ""
 
-#: keystone/middleware/core.py:150
-msgid ""
-"XML support has been removed as of the Kilo release and should not be "
-"referenced or used in deployment. Please remove references to "
-"XmlBodyMiddleware from your configuration. This compatibility stub will "
-"be removed in the L release"
-msgstr ""
-
-#: keystone/middleware/core.py:235
+#: keystone/middleware/core.py:205
 msgid "Auth context already exists in the request environment"
 msgstr ""
 
@@ -220,7 +212,7 @@ msgstr ""
 msgid "task %(func_name)r run outlasted interval by %(delay).2f sec"
 msgstr ""
 
-#: keystone/openstack/common/service.py:360
+#: keystone/openstack/common/service.py:353
 #, python-format
 msgid "pid %d not in child list"
 msgstr ""
@@ -249,19 +241,19 @@ msgid ""
 "`token_provider_api` and may be removed in Kilo."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:57
+#: keystone/token/persistence/backends/kvs.py:58
 msgid ""
 "It is recommended to only use the base key-value-store implementation for"
 " the token driver for testing purposes. Please use 'memcache' or 'sql' "
 "instead."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:204
+#: keystone/token/persistence/backends/kvs.py:205
 #, python-format
 msgid "Token `%s` is expired, not adding to the revocation list."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:238
+#: keystone/token/persistence/backends/kvs.py:239
 #, python-format
 msgid ""
 "Removing `%s` from revocation list due to invalid expires data in "

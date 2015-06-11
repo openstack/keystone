@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
-"PO-Revision-Date: 2015-05-12 01:46+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
+"PO-Revision-Date: 2015-06-10 18:41+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/"
 "keystone/language/pt_BR/)\n"
@@ -22,41 +22,164 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 
 #, python-format
-msgid "%s cannot be empty."
-msgstr "%s não pode estar vazio."
-
-#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s não pode ter menos de %(min_length)s caracteres."
-
-#, python-format
-msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s não deve ter mais de %(max_length)s caracteres."
 
 #, python-format
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr "%(property_name)s não é um %(display_expected_type)s"
 
 #, python-format
-msgid "Unable to locate domain config directory: %s"
-msgstr "Não é possível localizar diretório de configuração de domínio: %s"
-
-msgid ""
-"Timestamp not in expected format. The server could not comply with the "
-"request since it is either malformed or otherwise incorrect. The client is "
-"assumed to be in error."
-msgstr ""
-"A data não está no formato especificado. O servidor não pôde realizar a "
-"requisição pois ela está mal formada ou incorreta. Assume-se que o cliente "
-"está com erro."
+msgid "%(property_name)s should not be greater than %(max_length)s characters."
+msgstr "%(property_name)s não deve ter mais de %(max_length)s caracteres."
 
 #, python-format
-msgid ""
-"String length exceeded.The length of string '%(string)s' exceeded the limit "
-"of column %(type)s(CHAR(%(length)d))."
+msgid "%s cannot be empty."
+msgstr "%s não pode estar vazio."
+
+msgid "Access token is expired"
+msgstr "Token de acesso expirou"
+
+msgid "Access token not found"
+msgstr "Token de acesso não encontrado"
+
+msgid "Additional authentications steps required."
+msgstr "Passos de autenticação adicionais requeridos."
+
+msgid "An unhandled exception has occurred: Could not find metadata."
+msgstr "Uma exceção não tratada ocorreu: Não foi possível encontrar metadados."
+
+msgid "Attempted to authenticate with an unsupported method."
+msgstr "Tentativa de autenticação com um método não suportado."
+
+msgid "Authentication plugin error."
+msgstr "Erro do plugin de autenticação."
+
+#, python-format
+msgid "Cannot change %(option_name)s %(attr)s"
+msgstr "Não é possível alterar %(option_name)s %(attr)s"
+
+msgid "Cannot change consumer secret"
+msgstr "Não é possível alterar segredo do consumidor"
+
+#, python-format
+msgid "Cannot remove role that has not been granted, %s"
+msgstr "Não é possível remover role que não foi concedido, %s"
+
+msgid "Consumer not found"
+msgstr "Consumidor não encontrado"
+
+msgid "Could not find role"
+msgstr "Não é possível encontrar role"
+
+msgid "Credential belongs to another user"
+msgstr "A credencial pertence à outro usuário"
+
+#, python-format
+msgid "Domain (%s)"
+msgstr "Domínio (%s)"
+
+#, python-format
+msgid "Domain is disabled: %s"
+msgstr "O domínio está desativado: %s"
+
+msgid "Domain scoped token is not supported"
+msgstr "O token de escopo de domínio não é suportado"
+
+#, python-format
+msgid "Duplicate ID, %s."
+msgstr "ID duplicado, %s."
+
+#, python-format
+msgid "Duplicate name, %s."
+msgstr "Nome duplicado, %s."
+
+msgid "Enabled field must be a boolean"
+msgstr "Campo habilitado precisa ser um booleano"
+
+msgid "Enabled field should be a boolean"
+msgstr "Campo habilitado deve ser um booleano"
+
+#, python-format
+msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
+msgstr "Endpoint %(endpoint_id)s não encontrado no projeto %(project_id)s"
+
+#, python-format
+msgid "Expected dict or list: %s"
+msgstr "Esperado dict ou list: %s"
+
+msgid "Failed to validate token"
+msgstr "Falha ao validar token"
+
+#, python-format
+msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
 msgstr ""
-"Comprimento de string excedido. O comprimento de string '%(string)s' excedeu "
-"o limite da coluna %(type)s(CHAR(%(length)d))."
+"Opção de certificado LADP TLS inválida: %(option)s. Escolha uma de: "
+"%(options)s"
+
+#, python-format
+msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
+msgstr "Opção LDAP TLS_AVAIL inválida: %s. TLS não dsponível"
+
+#, python-format
+msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
+msgstr "Escopo LDAP inválido: %(scope)s. Escolha um de: %(options)s"
+
+msgid "Invalid TLS / LDAPS combination"
+msgstr "Combinação TLS / LADPS inválida"
+
+msgid "Invalid blob in credential"
+msgstr "BLOB inválido na credencial"
+
+msgid "Invalid limit value"
+msgstr "Valor limite inválido"
+
+msgid "Invalid username or password"
+msgstr "Nome de usuário ou senha inválidos"
+
+#, python-format
+msgid "LDAP %s create"
+msgstr "Criação de LDAP %s"
+
+#, python-format
+msgid "LDAP %s delete"
+msgstr "Exclusão de LDAP %s"
+
+#, python-format
+msgid "LDAP %s update"
+msgstr "Atualização de LDAP %s"
+
+#, python-format
+msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
+msgstr ""
+"URL de endpoint mal-formada (%(endpoint)s), veja o log de ERROS para "
+"detalhes."
+
+msgid "Marker could not be found"
+msgstr "Marcador não pôde ser encontrado"
+
+msgid "Name field is required and cannot be empty"
+msgstr "Campo nome é requerido e não pode ser vazio"
+
+msgid "No authenticated user"
+msgstr "Nenhum usuário autenticado"
+
+msgid "No options specified"
+msgstr "Nenhuma opção especificada"
+
+msgid "Non-default domain is not supported"
+msgstr "O domínio não padrão não é suportado"
+
+#, python-format
+msgid "Project (%s)"
+msgstr "Projeto (%s)"
+
+#, python-format
+msgid "Project is disabled: %s"
+msgstr "O projeto está desativado: %s"
+
+msgid "Request Token does not have an authorizing user id"
+msgstr "Token de Requisição não possui um ID de usuário autorizado"
 
 #, python-format
 msgid ""
@@ -68,68 +191,15 @@ msgstr ""
 "servidor não pôde atender a requisição porque o tamanho do atributo é "
 "inválido (muito grande). Assume-se que o cliente está em erro."
 
-msgid "The request you have made requires authentication."
-msgstr "A requisição que você fez requer autenticação."
+msgid "Request token is expired"
+msgstr "Token de requisição expirou"
 
-msgid "Authentication plugin error."
-msgstr "Erro do plugin de autenticação."
-
-msgid "Attempted to authenticate with an unsupported method."
-msgstr "Tentativa de autenticação com um método não suportado."
-
-msgid "Additional authentications steps required."
-msgstr "Passos de autenticação adicionais requeridos."
-
-msgid "You are not authorized to perform the requested action."
-msgstr "Você não está autorizado à realizar a ação solicitada."
-
-msgid "An unhandled exception has occurred: Could not find metadata."
-msgstr "Uma exceção não tratada ocorreu: Não foi possível encontrar metadados."
-
-#, python-format
-msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
-msgstr ""
-"URL de endpoint mal-formada (%(endpoint)s), veja o log de ERROS para "
-"detalhes."
-
-msgid "The action you have requested has not been implemented."
-msgstr "A ação que você solicitou não foi implementada."
-
-msgid "Name field is required and cannot be empty"
-msgstr "Campo nome é requerido e não pode ser vazio"
-
-msgid "Specify a domain or project, not both"
-msgstr "Especifique um domínio ou projeto, não ambos"
-
-msgid "Specify a user or group, not both"
-msgstr "Epecifique um usuário ou grupo, não ambos"
-
-#, python-format
-msgid "Project (%s)"
-msgstr "Projeto (%s)"
-
-#, python-format
-msgid "Domain (%s)"
-msgstr "Domínio (%s)"
-
-msgid "Unknown Target"
-msgstr "Alvo Desconhecido"
+msgid "Request token not found"
+msgstr "Token de requisição não encontrado"
 
 #, python-format
 msgid "Role %s not found"
 msgstr "Role %s não localizada"
-
-#, python-format
-msgid "Cannot remove role that has not been granted, %s"
-msgstr "Não é possível remover role que não foi concedido, %s"
-
-#, python-format
-msgid "Duplicate ID, %s."
-msgstr "ID duplicado, %s."
-
-#, python-format
-msgid "Duplicate name, %s."
-msgstr "Nome duplicado, %s."
 
 msgid "Scoping to both domain and project is not allowed"
 msgstr "A definição de escopo para o domínio e o projeto não é permitida"
@@ -140,219 +210,125 @@ msgstr "A definição de escopo para o domínio e a trust não é permitida"
 msgid "Scoping to both project and trust is not allowed"
 msgstr "A definição de escopo para o projeto e a trust não é permitida"
 
-msgid "User not found"
-msgstr "Usuário não localizado"
+msgid "Specify a domain or project, not both"
+msgstr "Especifique um domínio ou projeto, não ambos"
 
-msgid "No authenticated user"
-msgstr "Nenhum usuário autenticado"
+msgid "Specify a user or group, not both"
+msgstr "Epecifique um usuário ou grupo, não ambos"
+
+#, python-format
+msgid ""
+"String length exceeded.The length of string '%(string)s' exceeded the limit "
+"of column %(type)s(CHAR(%(length)d))."
+msgstr ""
+"Comprimento de string excedido. O comprimento de string '%(string)s' excedeu "
+"o limite da coluna %(type)s(CHAR(%(length)d))."
+
+msgid "The action you have requested has not been implemented."
+msgstr "A ação que você solicitou não foi implementada."
+
+msgid "The request you have made requires authentication."
+msgstr "A requisição que você fez requer autenticação."
+
+msgid "The resource could not be found."
+msgstr "O recurso não pôde ser localizado."
+
+msgid "There should not be any non-oauth parameters"
+msgstr "Não deve haver nenhum parâmetro não oauth"
+
+msgid ""
+"Timestamp not in expected format. The server could not comply with the "
+"request since it is either malformed or otherwise incorrect. The client is "
+"assumed to be in error."
+msgstr ""
+"A data não está no formato especificado. O servidor não pôde realizar a "
+"requisição pois ela está mal formada ou incorreta. Assume-se que o cliente "
+"está com erro."
+
+msgid "Token belongs to another user"
+msgstr "O token pertence à outro usuário"
+
+msgid "Token does not belong to specified tenant."
+msgstr "O token não pertence ao tenant especificado."
+
+msgid "Trustee has no delegated roles."
+msgstr "Fiador não possui roles delegados."
+
+msgid "Trustor is disabled."
+msgstr "O fiador está desativado."
+
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr "Não é possível localizar diretório de configuração de domínio: %s"
 
 #, python-format
 msgid "Unable to lookup user %s"
 msgstr "Não é possível consultar o usuário %s"
 
-msgid "Access token is expired"
-msgstr "Token de acesso expirou"
+msgid "Unable to sign token."
+msgstr "Não é possível assinar o token."
 
-msgid "Invalid username or password"
-msgstr "Nome de usuário ou senha inválidos"
-
-msgid "Non-default domain is not supported"
-msgstr "O domínio não padrão não é suportado"
-
-#, python-format
-msgid "Expected dict or list: %s"
-msgstr "Esperado dict ou list: %s"
-
-msgid "Marker could not be found"
-msgstr "Marcador não pôde ser encontrado"
-
-msgid "Invalid limit value"
-msgstr "Valor limite inválido"
-
-msgid "Invalid blob in credential"
-msgstr "BLOB inválido na credencial"
-
-msgid "The resource could not be found."
-msgstr "O recurso não pôde ser localizado."
-
-msgid "region not type dogpile.cache.CacheRegion"
-msgstr "região não é do tipo dogpile.cache.CacheRegion"
-
-#, python-format
-msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
-msgstr ""
-"Opção de certificado LADP TLS inválida: %(option)s. Escolha uma de: "
-"%(options)s"
-
-#, python-format
-msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
-msgstr "Escopo LDAP inválido: %(scope)s. Escolha um de: %(options)s"
-
-msgid "Invalid TLS / LDAPS combination"
-msgstr "Combinação TLS / LADPS inválida"
-
-#, python-format
-msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
-msgstr "Opção LDAP TLS_AVAIL inválida: %s. TLS não dsponível"
-
-#, python-format
-msgid "tls_cacertfile %s not found or is not a file"
-msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
-
-#, python-format
-msgid "tls_cacertdir %s not found or is not a directory"
-msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
-
-#, python-format
-msgid "LDAP %s create"
-msgstr "Criação de LDAP %s"
-
-#, python-format
-msgid "LDAP %s update"
-msgstr "Atualização de LDAP %s"
-
-#, python-format
-msgid "LDAP %s delete"
-msgstr "Exclusão de LDAP %s"
-
-#, python-format
-msgid "Cannot change %(option_name)s %(attr)s"
-msgstr "Não é possível alterar %(option_name)s %(attr)s"
-
-msgid "Token belongs to another user"
-msgstr "O token pertence à outro usuário"
-
-msgid "Credential belongs to another user"
-msgstr "A credencial pertence à outro usuário"
-
-#, python-format
-msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
-msgstr "Endpoint %(endpoint_id)s não encontrado no projeto %(project_id)s"
-
-msgid "Cannot change consumer secret"
-msgstr "Não é possível alterar segredo do consumidor"
-
-msgid "User IDs do not match"
-msgstr "ID de usuário não confere"
-
-msgid "Could not find role"
-msgstr "Não é possível encontrar role"
-
-msgid "Request token is expired"
-msgstr "Token de requisição expirou"
-
-msgid "There should not be any non-oauth parameters"
-msgstr "Não deve haver nenhum parâmetro não oauth"
-
-msgid "provided consumer key does not match stored consumer key"
-msgstr ""
-"Chave de consumidor fornecida não confere com a chave de consumidor "
-"armazenada"
-
-msgid "provided verifier does not match stored verifier"
-msgstr "Verificador fornecido não confere com o verificador armazenado"
-
-msgid "provided request key does not match stored request key"
-msgstr ""
-"Chave de requisição do provedor não confere com a chave de requisição "
-"armazenada"
-
-msgid "Request Token does not have an authorizing user id"
-msgstr "Token de Requisição não possui um ID de usuário autorizado"
-
-msgid "authorizing user does not have role required"
-msgstr "Usuário autorizado não possui o role necessário"
-
-msgid "User is not a member of the requested project"
-msgstr "Usuário não é um membro do projeto requisitado"
-
-msgid "Consumer not found"
-msgstr "Consumidor não encontrado"
-
-msgid "Request token not found"
-msgstr "Token de requisição não encontrado"
-
-msgid "Access token not found"
-msgstr "Token de acesso não encontrado"
-
-msgid "Failed to validate token"
-msgstr "Falha ao validar token"
-
-msgid "Enabled field must be a boolean"
-msgstr "Campo habilitado precisa ser um booleano"
-
-msgid "Enabled field should be a boolean"
-msgstr "Campo habilitado deve ser um booleano"
-
-#, python-format
-msgid "User is disabled: %s"
-msgstr "O usuário está desativado: %s"
-
-#, python-format
-msgid "User %(user_id)s is already a member of group %(group_id)s"
-msgstr "Usuário %(user_id)s já é membro do grupo %(group_id)s"
-
-#, python-format
-msgid ""
-"%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s and may "
-"be removed in %(remove_in)s."
-msgstr ""
-"%(what)s está deprecado desde %(as_of)s em favor de %(in_favor_of)s e pode "
-"ser removido em %(remove_in)s."
-
-#, python-format
-msgid ""
-"%(what)s is deprecated as of %(as_of)s and may be removed in %(remove_in)s. "
-"It will not be superseded."
-msgstr ""
-"%(what)s está deprecado desde %(as_of)s e pode ser removido em "
-"%(remove_in)s. Ele não será substituído."
-
-#, python-format
-msgid "Deprecated: %s"
-msgstr "Deprecado: %s"
-
-#, python-format
-msgid "Fatal call to deprecated config: %(msg)s"
-msgstr "Chamada fatal à configuração deprecada: %(msg)s"
-
-#, python-format
-msgid "Domain is disabled: %s"
-msgstr "O domínio está desativado: %s"
-
-#, python-format
-msgid "Project is disabled: %s"
-msgstr "O projeto está desativado: %s"
-
-msgid "No options specified"
-msgstr "Nenhuma opção especificada"
+msgid "Unknown Target"
+msgstr "Alvo Desconhecido"
 
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "Usuário %(u_id)s  não está autorizado para o tenant %(t_id)s"
 
-msgid "Token does not belong to specified tenant."
-msgstr "O token não pertence ao tenant especificado."
+#, python-format
+msgid "User %(user_id)s has no access to domain %(domain_id)s"
+msgstr "O usuário %(user_id)s não tem acesso ao domínio %(domain_id)s"
 
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr "O usuário %(user_id)s não tem acesso ao projeto %(project_id)s"
 
 #, python-format
-msgid "User %(user_id)s has no access to domain %(domain_id)s"
-msgstr "O usuário %(user_id)s não tem acesso ao domínio %(domain_id)s"
+msgid "User %(user_id)s is already a member of group %(group_id)s"
+msgstr "Usuário %(user_id)s já é membro do grupo %(group_id)s"
 
-msgid "Trustor is disabled."
-msgstr "O fiador está desativado."
+msgid "User IDs do not match"
+msgstr "ID de usuário não confere"
 
-msgid "Trustee has no delegated roles."
-msgstr "Fiador não possui roles delegados."
+#, python-format
+msgid "User is disabled: %s"
+msgstr "O usuário está desativado: %s"
+
+msgid "User is not a member of the requested project"
+msgstr "Usuário não é um membro do projeto requisitado"
 
 msgid "User is not a trustee."
 msgstr "Usuário não é confiável."
 
-msgid "Domain scoped token is not supported"
-msgstr "O token de escopo de domínio não é suportado"
+msgid "User not found"
+msgstr "Usuário não localizado"
 
-msgid "Unable to sign token."
-msgstr "Não é possível assinar o token."
+msgid "You are not authorized to perform the requested action."
+msgstr "Você não está autorizado à realizar a ação solicitada."
+
+msgid "authorizing user does not have role required"
+msgstr "Usuário autorizado não possui o role necessário"
+
+msgid "provided consumer key does not match stored consumer key"
+msgstr ""
+"Chave de consumidor fornecida não confere com a chave de consumidor "
+"armazenada"
+
+msgid "provided request key does not match stored request key"
+msgstr ""
+"Chave de requisição do provedor não confere com a chave de requisição "
+"armazenada"
+
+msgid "provided verifier does not match stored verifier"
+msgstr "Verificador fornecido não confere com o verificador armazenado"
+
+msgid "region not type dogpile.cache.CacheRegion"
+msgstr "região não é do tipo dogpile.cache.CacheRegion"
+
+#, python-format
+msgid "tls_cacertdir %s not found or is not a directory"
+msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
+
+#, python-format
+msgid "tls_cacertfile %s not found or is not a file"
+msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"

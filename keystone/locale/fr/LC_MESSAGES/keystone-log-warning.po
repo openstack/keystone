@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
-"PO-Revision-Date: 2015-05-11 20:08+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
+"PO-Revision-Date: 2015-05-16 02:25+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -21,58 +21,25 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-msgid "keystone-manage pki_setup is not recommended for production use."
-msgstr ""
-"keystone-manage pki_setup n'est pas recommandé pour une utilisation en "
-"production."
-
-msgid "keystone-manage ssl_setup is not recommended for production use."
-msgstr ""
-"keystone-manage ssl_setup n'est pas recommandé pour une utilisation en "
-"production."
-
-#, python-format
-msgid "Authentication failed: %s"
-msgstr "L'authentification a échoué: %s"
-
-msgid "RBAC: Invalid user data in token"
-msgstr "RBAC: Donnée utilisation non valide dans le token"
-
-msgid "RBAC: Invalid token"
-msgstr "RBAC : Jeton non valide"
-
-msgid "RBAC: Bypassing authorization"
-msgstr "RBAC : Autorisation ignorée"
-
-#, python-format
-msgid "Authorization failed. %(exception)s from %(remote_addr)s"
-msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
-
-msgid "Invalid token in _get_trust_id_for_request"
-msgstr "Jeton invalide dans _get_trust_id_for_request"
-
 #, python-format
 msgid "%s is not a dogpile.proxy.ProxyBackend"
 msgstr "%s n'est pas un dogpile.proxy.ProxyBackend"
 
 #, python-format
-msgid "KVS lock released (timeout reached) for: %s"
-msgstr "Verrou KVS relaché (temps limite atteint) pour : %s"
+msgid "Authentication failed: %s"
+msgstr "L'authentification a échoué: %s"
 
-msgid ""
-"LDAP Server does not support paging. Disable paging in keystone.conf to "
-"avoid this message."
-msgstr ""
-"Le serveur LDAP ne prend pas en charge la pagination. Désactivez la "
-"pagination dans keystone.conf pour éviter de recevoir ce message."
+#, python-format
+msgid "Authorization failed. %(exception)s from %(remote_addr)s"
+msgstr "Echec d'autorisation. %(exception)s depuis %(remote_addr)s"
 
 #, python-format
 msgid ""
-"Invalid additional attribute mapping: \"%s\". Format must be "
-"<ldap_attribute>:<keystone_attribute>"
+"Endpoint %(endpoint_id)s referenced in association for policy %(policy_id)s "
+"not found."
 msgstr ""
-"Mauvais mappage d'attribut additionnel: \"%s\". Le format doit être "
-"<ldap_attribute>:<keystone_attribute>"
+"Le point d'entrée %(endpoint_id)s référencé en association avec la politique "
+"%(policy_id)s est introuvable."
 
 #, python-format
 msgid ""
@@ -85,27 +52,60 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Endpoint %(endpoint_id)s referenced in association for policy %(policy_id)s "
-"not found."
+"Invalid additional attribute mapping: \"%s\". Format must be "
+"<ldap_attribute>:<keystone_attribute>"
 msgstr ""
-"Le point d'entrée %(endpoint_id)s référencé en association avec la politique "
-"%(policy_id)s est introuvable."
+"Mauvais mappage d'attribut additionnel: \"%s\". Le format doit être "
+"<ldap_attribute>:<keystone_attribute>"
 
 #, python-format
-msgid "Unable to remove user %(user)s from %(tenant)s."
-msgstr "Impossible de supprimer l'utilisateur %(user)s depuis %(tenant)s."
+msgid "Invalid domain name (%s) found in config file name"
+msgstr "Non de domaine trouvé non valide (%s) dans le fichier de configuration"
+
+msgid "Invalid token in _get_trust_id_for_request"
+msgstr "Jeton invalide dans _get_trust_id_for_request"
+
+#, python-format
+msgid "KVS lock released (timeout reached) for: %s"
+msgstr "Verrou KVS relaché (temps limite atteint) pour : %s"
+
+msgid ""
+"LDAP Server does not support paging. Disable paging in keystone.conf to "
+"avoid this message."
+msgstr ""
+"Le serveur LDAP ne prend pas en charge la pagination. Désactivez la "
+"pagination dans keystone.conf pour éviter de recevoir ce message."
+
+msgid "RBAC: Bypassing authorization"
+msgstr "RBAC : Autorisation ignorée"
+
+msgid "RBAC: Invalid token"
+msgstr "RBAC : Jeton non valide"
+
+msgid "RBAC: Invalid user data in token"
+msgstr "RBAC: Donnée utilisation non valide dans le token"
 
 #, python-format
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr "Impossible d'ajouter l'utilisateur %(user)s à %(tenant)s."
 
 #, python-format
-msgid "Invalid domain name (%s) found in config file name"
-msgstr "Non de domaine trouvé non valide (%s) dans le fichier de configuration"
-
-#, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr "Impossible de localiser le répertoire de configuration domaine: %s"
+
+#, python-format
+msgid "Unable to remove user %(user)s from %(tenant)s."
+msgstr "Impossible de supprimer l'utilisateur %(user)s depuis %(tenant)s."
+
+msgid "keystone-manage pki_setup is not recommended for production use."
+msgstr ""
+"keystone-manage pki_setup n'est pas recommandé pour une utilisation en "
+"production."
+
+msgid "keystone-manage ssl_setup is not recommended for production use."
+msgstr ""
+"keystone-manage ssl_setup n'est pas recommandé pour une utilisation en "
+"production."
 
 #, python-format
 msgid "pid %d not in child list"

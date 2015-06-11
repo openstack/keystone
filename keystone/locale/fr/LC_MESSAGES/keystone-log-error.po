@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
-"PO-Revision-Date: 2015-05-06 18:27+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
+"PO-Revision-Date: 2015-05-31 04:42+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -21,47 +21,20 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-msgid "Failed to construct notifier"
-msgstr "Échec de construction de la notification"
-
-#, python-format
-msgid "Failed to send %(res_id)s %(event_type)s notification"
-msgstr "Échec de l'envoi de la notification %(res_id)s %(event_type)s"
-
-#, python-format
-msgid "Failed to send %(action)s %(event_type)s notification"
-msgstr "Échec de l'envoi de la notification %(action)s %(event_type)s "
-
-#, python-format
-msgid "Malformed endpoint - %(url)r is not a string"
-msgstr "Critère mal formé - %(url)r n'est pas une chaine de caractère"
-
-#, python-format
-msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
-msgstr "Noeud final incorrect %(url)s - clé inconnue %(keyerror)s"
-
 #, python-format
 msgid ""
-"Malformed endpoint '%(url)s'. The following type error occurred during "
-"string substitution: %(typeerror)s"
+"Circular reference or a repeated entry found in region tree - %(region_id)s."
 msgstr ""
-"Noeud final incorrect '%(url)s'. L'erreur suivante est survenue pendant la "
-"substitution de chaine : %(typeerror)s"
-
-#, python-format
-msgid ""
-"Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
-msgstr ""
-"Noeud final incorrect '%s - Format incomplet (un type de notification manque-"
-"t-il ?)"
+"Référence circulaire ou entrée dupliquée trouvée dans l'arbre de la région - "
+"%(region_id)s."
 
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
 msgstr "La commande %(to_exec)s a retourné %(retcode)s- %(output)s"
 
 #, python-format
-msgid "Failed to remove file %(file_path)r: %(error)s"
-msgstr "Échec de la suppression du fichier %(file_path)r: %(error)s"
+msgid "Could not bind to %(host)s:%(port)s"
+msgstr "Impossible de s'attacher à %(host)s:%(port)s"
 
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-url "
@@ -73,34 +46,61 @@ msgstr ""
 "débogage écoute sur ce port."
 
 #, python-format
-msgid "Could not bind to %(host)s:%(port)s"
-msgstr "Impossible de s'attacher à %(host)s:%(port)s"
-
-msgid "Server error"
-msgstr "Erreur serveur"
-
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found in region tree - %(region_id)s."
-msgstr ""
-"Référence circulaire ou entrée dupliquée trouvée dans l'arbre de la région - "
-"%(region_id)s."
-
-#, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr "Erreur lors de la signature d'une assertion : %(reason)s"
 
-msgid "in fixed duration looping call"
-msgstr "dans l'appel en boucle de durée fixe"
+msgid "Failed to construct notifier"
+msgstr "Échec de construction de la notification"
 
-msgid "in dynamic looping call"
-msgstr "dans l'appel en boucle dynamique"
+#, python-format
+msgid "Failed to remove file %(file_path)r: %(error)s"
+msgstr "Échec de la suppression du fichier %(file_path)r: %(error)s"
 
-msgid "Unhandled exception"
-msgstr "Exception non gérée"
+#, python-format
+msgid "Failed to send %(action)s %(event_type)s notification"
+msgstr "Échec de l'envoi de la notification %(action)s %(event_type)s "
+
+#, python-format
+msgid "Failed to send %(res_id)s %(event_type)s notification"
+msgstr "Échec de l'envoi de la notification %(res_id)s %(event_type)s"
 
 msgid "Failed to validate token"
 msgstr "Echec de validation du token"
 
+#, python-format
+msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
+msgstr "Noeud final incorrect %(url)s - clé inconnue %(keyerror)s"
+
+#, python-format
+msgid ""
+"Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
+msgstr ""
+"Noeud final incorrect '%s - Format incomplet (un type de notification manque-"
+"t-il ?)"
+
+#, python-format
+msgid ""
+"Malformed endpoint '%(url)s'. The following type error occurred during "
+"string substitution: %(typeerror)s"
+msgstr ""
+"Noeud final incorrect '%(url)s'. L'erreur suivante est survenue pendant la "
+"substitution de chaine : %(typeerror)s"
+
+#, python-format
+msgid "Malformed endpoint - %(url)r is not a string"
+msgstr "Critère mal formé - %(url)r n'est pas une chaine de caractère"
+
+msgid "Server error"
+msgstr "Erreur serveur"
+
 msgid "Unable to sign token"
 msgstr "Impossible de signer le jeton"
+
+msgid "Unhandled exception"
+msgstr "Exception non gérée"
+
+msgid "in dynamic looping call"
+msgstr "dans l'appel en boucle dynamique"
+
+msgid "in fixed duration looping call"
+msgstr "dans l'appel en boucle de durée fixe"

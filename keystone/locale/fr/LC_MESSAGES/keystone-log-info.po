@@ -5,13 +5,13 @@
 # Translators:
 # Bruno Cornec <bruno.cornec@hp.com>, 2014
 # Maxime COQUEREL <max.coquerel@gmail.com>, 2014
-# Andrew_Melim <nokostya.translation@gmail.com>, 2014
+# Andrew Melim <nokostya.translation@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
-"PO-Revision-Date: 2015-05-12 01:46+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
+"PO-Revision-Date: 2015-06-01 20:22+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/keystone/language/"
 "fr/)\n"
@@ -23,10 +23,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #, python-format
-msgid "Creating the default role %s because it does not exist."
-msgstr "Création du rôle par défaut %s, car il n'existe pas"
-
-#, python-format
 msgid ""
 "\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
 "the earliest value."
@@ -35,25 +31,28 @@ msgstr ""
 "Utilsation de la première valeur."
 
 #, python-format
-msgid "Running command - %s"
-msgstr "Exécution de la commande %s"
-
-msgid "No bind information present in token"
-msgstr "Aucune information d'attachement n'est présente dans le jeton"
+msgid "Adding proxy '%(proxy)s' to KVS %(name)s."
+msgstr "Ahour du mandataire '%(proxy)s' au KVS %(name)s."
 
 #, python-format
-msgid "Named bind mode %s not in bind information"
-msgstr ""
-"Le mode d'attachement nommé %s n'est pas dans l'information d'attachement"
+msgid "Caught %s, exiting"
+msgstr "%s interceptée, sortie"
 
-msgid "Kerberos credentials required and not present"
-msgstr "L'identitification Kerberos est requise mais non présente"
+#, python-format
+msgid "Caught %s, stopping children"
+msgstr "%s interceptée, arrêt de l'enfant"
 
-msgid "Kerberos credentials do not match those in bind"
-msgstr "L'identification Kerberos ne correspond pas à celle de l'attachement"
+#, python-format
+msgid "Child %(pid)d killed by signal %(sig)d"
+msgstr "Enfant %(pid)d arrêté par le signal %(sig)d"
 
-msgid "Kerberos bind authentication successful"
-msgstr "Attachement Kerberos identifié correctement"
+#, python-format
+msgid "Child %(pid)s exited with status %(code)d"
+msgstr "Processus fils %(pid)s terminé avec le status %(code)d"
+
+#, python-format
+msgid "Child caught %s, exiting"
+msgstr "L'enfant a reçu %s, sortie"
 
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
@@ -62,12 +61,67 @@ msgstr ""
 "%(identifier)s}"
 
 #, python-format
+msgid "Creating the default role %s because it does not exist."
+msgstr "Création du rôle par défaut %s, car il n'existe pas"
+
+#, python-format
+msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
+msgstr "Eventlet backdoor en écoute sur le port %(port)s for process %(pid)d"
+
+msgid "Forking too fast, sleeping"
+msgstr "Bifurcation trop rapide, pause"
+
+#, python-format
+msgid "KVS region %s key_mangler disabled."
+msgstr "Région KVS %s key_mangler désactivée"
+
+msgid "Kerberos bind authentication successful"
+msgstr "Attachement Kerberos identifié correctement"
+
+msgid "Kerberos credentials do not match those in bind"
+msgstr "L'identification Kerberos ne correspond pas à celle de l'attachement"
+
+msgid "Kerberos credentials required and not present"
+msgstr "L'identitification Kerberos est requise mais non présente"
+
+#, python-format
+msgid "Named bind mode %s not in bind information"
+msgstr ""
+"Le mode d'attachement nommé %s n'est pas dans l'information d'attachement"
+
+msgid "No bind information present in token"
+msgstr "Aucune information d'attachement n'est présente dans le jeton"
+
+msgid "Parent process has died unexpectedly, exiting"
+msgstr "Processus parent arrêté de manière inattendue, sortie"
+
+#, python-format
+msgid ""
+"Received the following notification: service %(service)s, resource_type: "
+"%(resource_type)s, operation %(operation)s payload %(payload)s"
+msgstr ""
+"Réception de la notification suivante: service %(service)s, resource_type: "
+"%(resource_type)s, operation %(operation)s payload %(payload)s"
+
+#, python-format
+msgid "Running command - %s"
+msgstr "Exécution de la commande %s"
+
+#, python-format
+msgid "Started child %d"
+msgstr "Enfant démarré %d"
+
+#, python-format
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr "Démarrage de %(arg0)s sur %(host)s:%(port)s"
 
 #, python-format
-msgid "Adding proxy '%(proxy)s' to KVS %(name)s."
-msgstr "Ahour du mandataire '%(proxy)s' au KVS %(name)s."
+msgid "Starting %d workers"
+msgstr "Démarrage des travailleurs %d"
+
+#, python-format
+msgid "Total expired tokens removed: %d"
+msgstr "Total des jetons expirés effacés: %d"
 
 #, python-format
 msgid "Using %(func)s as KVS region %(name)s key_mangler"
@@ -79,63 +133,9 @@ msgstr ""
 "Utilisation du dogpile sha1_mangle_key par défaut comme région KVS %s "
 "key_mangler"
 
-#, python-format
-msgid "KVS region %s key_mangler disabled."
-msgstr "Région KVS %s key_mangler désactivée"
-
-#, python-format
-msgid ""
-"Received the following notification: service %(service)s, resource_type: "
-"%(resource_type)s, operation %(operation)s payload %(payload)s"
-msgstr ""
-"Réception de la notification suivante: service %(service)s, resource_type: "
-"%(resource_type)s, operation %(operation)s payload %(payload)s"
-
-#, python-format
-msgid "Eventlet backdoor listening on %(port)s for process %(pid)d"
-msgstr "Eventlet backdoor en écoute sur le port %(port)s for process %(pid)d"
-
-#, python-format
-msgid "Caught %s, exiting"
-msgstr "%s interceptée, sortie"
-
-msgid "Parent process has died unexpectedly, exiting"
-msgstr "Processus parent arrêté de manière inattendue, sortie"
-
-#, python-format
-msgid "Child caught %s, exiting"
-msgstr "L'enfant a reçu %s, sortie"
-
-msgid "Forking too fast, sleeping"
-msgstr "Bifurcation trop rapide, pause"
-
-#, python-format
-msgid "Started child %d"
-msgstr "Enfant démarré %d"
-
-#, python-format
-msgid "Starting %d workers"
-msgstr "Démarrage des travailleurs %d"
-
-#, python-format
-msgid "Child %(pid)d killed by signal %(sig)d"
-msgstr "Enfant %(pid)d arrêté par le signal %(sig)d"
-
-#, python-format
-msgid "Child %(pid)s exited with status %(code)d"
-msgstr "Processus fils %(pid)s terminé avec le status %(code)d"
-
-#, python-format
-msgid "Caught %s, stopping children"
-msgstr "%s interceptée, arrêt de l'enfant"
-
 msgid "Wait called after thread killed. Cleaning up."
 msgstr "Pause demandée après suppression de thread. Nettoyage."
 
 #, python-format
 msgid "Waiting on %d children to exit"
 msgstr "En attente %d enfants pour sortie"
-
-#, python-format
-msgid "Total expired tokens removed: %d"
-msgstr "Total des jetons expirés effacés: %d"

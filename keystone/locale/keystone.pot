@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.2.0.dev171\n"
+"Project-Id-Version: keystone 2015.2.0.dev220\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -463,7 +463,7 @@ msgstr ""
 msgid "Method not callable: %s"
 msgstr ""
 
-#: keystone/assignment/controllers.py:107 keystone/identity/controllers.py:69
+#: keystone/assignment/controllers.py:107 keystone/identity/controllers.py:71
 #: keystone/resource/controllers.py:78
 msgid "Name field is required and cannot be empty"
 msgstr ""
@@ -568,36 +568,36 @@ msgid ""
 "conflicting values %(new)s and %(old)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:316
+#: keystone/auth/controllers.py:312
 msgid "Scoping to both domain and project is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:319
+#: keystone/auth/controllers.py:315
 msgid "Scoping to both domain and trust is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:322
+#: keystone/auth/controllers.py:318
 msgid "Scoping to both project and trust is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:492
+#: keystone/auth/controllers.py:488
 msgid "User not found"
 msgstr ""
 
-#: keystone/auth/controllers.py:596
+#: keystone/auth/controllers.py:592
 msgid "A project-scoped token is required to produce a service catalog."
 msgstr ""
 
-#: keystone/auth/plugins/external.py:43
+#: keystone/auth/plugins/external.py:42
 msgid "No authenticated user"
 msgstr ""
 
-#: keystone/auth/plugins/external.py:53
+#: keystone/auth/plugins/external.py:52
 #, python-format
 msgid "Unable to lookup user %s"
 msgstr ""
 
-#: keystone/auth/plugins/external.py:102
+#: keystone/auth/plugins/external.py:100
 msgid "auth_type is not Negotiate"
 msgstr ""
 
@@ -617,7 +617,7 @@ msgstr ""
 msgid "Invalid username or password"
 msgstr ""
 
-#: keystone/auth/plugins/token.py:70 keystone/token/controllers.py:161
+#: keystone/auth/plugins/token.py:70 keystone/token/controllers.py:162
 msgid "rescope a scoped token"
 msgstr ""
 
@@ -626,7 +626,7 @@ msgstr ""
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
 
-#: keystone/common/authorization.py:47 keystone/common/wsgi.py:64
+#: keystone/common/authorization.py:47 keystone/common/wsgi.py:66
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
@@ -654,7 +654,7 @@ msgstr ""
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr ""
 
-#: keystone/common/controller.py:237 keystone/token/providers/common.py:589
+#: keystone/common/controller.py:237 keystone/token/providers/common.py:590
 msgid "Non-default domain is not supported"
 msgstr ""
 
@@ -740,21 +740,21 @@ msgid ""
 "%(err_msg)s"
 msgstr ""
 
-#: keystone/common/utils.py:164 keystone/credential/controllers.py:44
+#: keystone/common/utils.py:165 keystone/credential/controllers.py:44
 msgid "Invalid blob in credential"
 msgstr ""
 
-#: keystone/common/wsgi.py:329
+#: keystone/common/wsgi.py:331
 #, python-format
 msgid "%s field is required and cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:341
+#: keystone/common/wsgi.py:343
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr ""
 
-#: keystone/common/wsgi.py:562
+#: keystone/common/wsgi.py:564
 msgid "The resource could not be found."
 msgstr ""
 
@@ -835,14 +835,14 @@ msgstr ""
 msgid "Maximum lock attempts on %s occurred."
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:108
+#: keystone/common/kvs/backends/memcached.py:109
 #, python-format
 msgid ""
-"Backend `%(driver)s` is not a valid memcached backend. Valid drivers: "
-"%(driver_list)s"
+"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
+"%(backend_list)s"
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:184
+#: keystone/common/kvs/backends/memcached.py:185
 msgid "`key_mangler` functions must be callable."
 msgstr ""
 
@@ -922,11 +922,11 @@ msgid ""
 " self "
 msgstr ""
 
-#: keystone/common/sql/core.py:398
+#: keystone/common/sql/core.py:445
 msgid "Duplicate Entry"
 msgstr ""
 
-#: keystone/common/sql/core.py:414
+#: keystone/common/sql/core.py:461
 #, python-format
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
@@ -959,42 +959,37 @@ msgstr ""
 msgid "Endpoint Group Project Association not found"
 msgstr ""
 
-#: keystone/contrib/endpoint_policy/core.py:261
-#, python-format
-msgid "No policy is associated with endpoint %(endpoint_id)s."
-msgstr ""
-
-#: keystone/contrib/federation/controllers.py:290
+#: keystone/contrib/federation/controllers.py:274
 msgid "Missing entity ID from environment"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:298
+#: keystone/contrib/federation/controllers.py:282
 msgid "Request must have an origin query parameter"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:312
+#: keystone/contrib/federation/controllers.py:296
 #, python-format
 msgid "%(host)s is not a trusted dashboard host"
 msgstr ""
 
-#: keystone/contrib/federation/controllers.py:342
+#: keystone/contrib/federation/controllers.py:326
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:467
+#: keystone/contrib/federation/idp.py:471
 #, python-format
 msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:534
+#: keystone/contrib/federation/idp.py:538
 msgid "Ensure configuration option idp_entity_id is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:537
+#: keystone/contrib/federation/idp.py:541
 msgid "Ensure configuration option idp_sso_endpoint is set."
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:557
+#: keystone/contrib/federation/idp.py:561
 msgid ""
 "idp_contact_type must be one of: [technical, other, support, "
 "administrative or billing."
@@ -1045,7 +1040,7 @@ msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
 
 #: keystone/contrib/oauth1/controllers.py:192
-#: keystone/contrib/oauth1/backends/sql.py:270
+#: keystone/contrib/oauth1/backends/sql.py:271
 msgid "User IDs do not match"
 msgstr ""
 
@@ -1094,15 +1089,15 @@ msgstr ""
 msgid "User is not a member of the requested project"
 msgstr ""
 
-#: keystone/contrib/oauth1/backends/sql.py:91
+#: keystone/contrib/oauth1/backends/sql.py:92
 msgid "Consumer not found"
 msgstr ""
 
-#: keystone/contrib/oauth1/backends/sql.py:186
+#: keystone/contrib/oauth1/backends/sql.py:187
 msgid "Request token not found"
 msgstr ""
 
-#: keystone/contrib/oauth1/backends/sql.py:250
+#: keystone/contrib/oauth1/backends/sql.py:251
 msgid "Access token not found"
 msgstr ""
 
@@ -1123,11 +1118,16 @@ msgstr ""
 msgid "Failed to validate token"
 msgstr ""
 
-#: keystone/identity/controllers.py:72
+#: keystone/endpoint_policy/core.py:261
+#, python-format
+msgid "No policy is associated with endpoint %(endpoint_id)s."
+msgstr ""
+
+#: keystone/identity/controllers.py:74
 msgid "Enabled field must be a boolean"
 msgstr ""
 
-#: keystone/identity/controllers.py:98
+#: keystone/identity/controllers.py:100
 msgid "Enabled field should be a boolean"
 msgstr ""
 
@@ -1176,40 +1176,6 @@ msgstr ""
 
 #: keystone/models/token_model.py:61
 msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:108
-#, python-format
-msgid ""
-"%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s and "
-"may be removed in %(remove_in)s."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:112
-#, python-format
-msgid ""
-"%(what)s is deprecated as of %(as_of)s and may be removed in "
-"%(remove_in)s. It will not be superseded."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:116
-#, python-format
-msgid "%(what)s is deprecated as of %(as_of)s in favor of %(in_favor_of)s."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:119
-#, python-format
-msgid "%(what)s is deprecated as of %(as_of)s. It will not be superseded."
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:241
-#, python-format
-msgid "Deprecated: %s"
-msgstr ""
-
-#: keystone/openstack/common/versionutils.py:259
-#, python-format
-msgid "Fatal call to deprecated config: %(msg)s"
 msgstr ""
 
 #: keystone/resource/controllers.py:234
@@ -1389,56 +1355,61 @@ msgstr ""
 msgid "Failed to start the %(name)s server"
 msgstr ""
 
-#: keystone/token/controllers.py:393
+#: keystone/token/controllers.py:391
+#, python-format
+msgid "Project ID not found: %(t_id)s"
+msgstr ""
+
+#: keystone/token/controllers.py:395
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr ""
 
-#: keystone/token/controllers.py:412 keystone/token/controllers.py:415
+#: keystone/token/controllers.py:414 keystone/token/controllers.py:417
 msgid "Token does not belong to specified tenant."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:131
+#: keystone/token/persistence/backends/kvs.py:132
 #, python-format
 msgid "Unknown token version %s"
 msgstr ""
 
-#: keystone/token/providers/common.py:250
-#: keystone/token/providers/common.py:355
+#: keystone/token/providers/common.py:251
+#: keystone/token/providers/common.py:356
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr ""
 
-#: keystone/token/providers/common.py:255
-#: keystone/token/providers/common.py:360
+#: keystone/token/providers/common.py:256
+#: keystone/token/providers/common.py:361
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr ""
 
-#: keystone/token/providers/common.py:282
+#: keystone/token/providers/common.py:283
 msgid "Trustor is disabled."
 msgstr ""
 
-#: keystone/token/providers/common.py:346
+#: keystone/token/providers/common.py:347
 msgid "Trustee has no delegated roles."
 msgstr ""
 
-#: keystone/token/providers/common.py:407
+#: keystone/token/providers/common.py:408
 #, python-format
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
 msgstr ""
 
-#: keystone/token/providers/common.py:435
+#: keystone/token/providers/common.py:436
 msgid "User is not a trustee."
 msgstr ""
 
-#: keystone/token/providers/common.py:579
+#: keystone/token/providers/common.py:580
 msgid ""
 "Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
 "Authentication"
 msgstr ""
 
-#: keystone/token/providers/common.py:597
+#: keystone/token/providers/common.py:598
 msgid "Domain scoped token is not supported"
 msgstr ""
 
@@ -1452,20 +1423,20 @@ msgid ""
 "tokens."
 msgstr ""
 
-#: keystone/token/providers/fernet/token_formatters.py:189
+#: keystone/token/providers/fernet/token_formatters.py:201
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr ""
 
-#: keystone/trust/controllers.py:146
+#: keystone/trust/controllers.py:147
 msgid "Redelegation allowed for delegated by trust only"
 msgstr ""
 
-#: keystone/trust/controllers.py:179
+#: keystone/trust/controllers.py:180
 msgid "The authenticated user should match the trustor."
 msgstr ""
 
-#: keystone/trust/controllers.py:184
+#: keystone/trust/controllers.py:185
 msgid "At least one role should be specified."
 msgstr ""
 

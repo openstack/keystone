@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 2015.2.0.dev171\n"
+"Project-Id-Version: keystone 2015.2.0.dev220\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,7 +65,7 @@ msgstr ""
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr ""
 
-#: keystone/common/utils.py:239
+#: keystone/common/utils.py:240
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
@@ -88,21 +88,20 @@ msgstr ""
 msgid "Server error"
 msgstr ""
 
-#: keystone/contrib/endpoint_policy/core.py:132
-#: keystone/contrib/endpoint_policy/core.py:231
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found in region tree - "
-"%(region_id)s."
-msgstr ""
-
-#: keystone/contrib/federation/idp.py:423
+#: keystone/contrib/federation/idp.py:427
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr ""
 
 #: keystone/contrib/oauth1/core.py:136
 msgid "Cannot retrieve Authorization headers"
+msgstr ""
+
+#: keystone/endpoint_policy/core.py:132 keystone/endpoint_policy/core.py:231
+#, python-format
+msgid ""
+"Circular reference or a repeated entry found in region tree - "
+"%(region_id)s."
 msgstr ""
 
 #: keystone/openstack/common/loopingcall.py:95
@@ -113,8 +112,20 @@ msgstr ""
 msgid "in dynamic looping call"
 msgstr ""
 
-#: keystone/openstack/common/service.py:273
+#: keystone/openstack/common/service.py:266
 msgid "Unhandled exception"
+msgstr ""
+
+#: keystone/openstack/common/threadgroup.py:103
+msgid "Error stopping thread."
+msgstr ""
+
+#: keystone/openstack/common/threadgroup.py:110
+msgid "Error stopping timer."
+msgstr ""
+
+#: keystone/openstack/common/threadgroup.py:137
+msgid "Error waiting on ThreadGroup."
 msgstr ""
 
 #: keystone/resource/core.py:484
@@ -143,7 +154,7 @@ msgstr ""
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:224
+#: keystone/token/persistence/backends/kvs.py:225
 #, python-format
 msgid ""
 "Reinitializing revocation list due to error in loading revocation list "
@@ -151,7 +162,7 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:672
+#: keystone/token/providers/common.py:673
 msgid "Failed to validate token"
 msgstr ""
 

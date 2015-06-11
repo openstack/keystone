@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-05-15 06:07+0000\n"
-"PO-Revision-Date: 2015-05-06 18:27+0000\n"
+"POT-Creation-Date: 2015-06-11 06:04+0000\n"
+"PO-Revision-Date: 2015-05-31 04:42+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/keystone/"
 "language/zh_CN/)\n"
@@ -21,44 +21,39 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "Failed to construct notifier"
-msgstr "构造通知器失败"
-
-#, python-format
-msgid "Failed to send %(res_id)s %(event_type)s notification"
-msgstr "发送%(res_id)s %(event_type)s 通知失败"
-
-#, python-format
-msgid "Failed to send %(action)s %(event_type)s notification"
-msgstr "发送 %(action)s %(event_type)s 通知失败"
-
-#, python-format
-msgid "Malformed endpoint - %(url)r is not a string"
-msgstr "端点 - %(url)r 不是一个字符串"
-
-#, python-format
-msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
-msgstr "端点 %(url)s 的格式不正确 - 键 %(keyerror)s 未知"
+msgid "Cannot retrieve Authorization headers"
+msgstr "无法获取认证头信息"
 
 #, python-format
 msgid ""
-"Malformed endpoint '%(url)s'. The following type error occurred during "
-"string substitution: %(typeerror)s"
-msgstr ""
-"端点 '%(url)s' 的格式不正确。在字符串替换时发生以下类型错误：%(typeerror)s"
+"Circular reference or a repeated entry found in projects hierarchy - "
+"%(project_id)s."
+msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
 
 #, python-format
 msgid ""
-"Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
-msgstr "端点 %s 的格式不完整 - (是否缺少了类型通告者?)"
+"Circular reference or a repeated entry found in region tree - %(region_id)s."
+msgstr "在域树- %(region_id)s 中发现循环引用或重复项。"
+
+#, python-format
+msgid ""
+"Circular reference or a repeated entry found projects hierarchy - "
+"%(project_id)s."
+msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
 
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
 msgstr "命令 %(to_exec)s 已退出，退出码及输出为 %(retcode)s- %(output)s"
 
 #, python-format
-msgid "Failed to remove file %(file_path)r: %(error)s"
-msgstr "无法删除文件%(file_path)r: %(error)s"
+msgid "Could not bind to %(host)s:%(port)s"
+msgstr "无法绑定至 %(host)s:%(port)s"
+
+#, python-format
+msgid ""
+"Either [fernet_tokens] key_repository does not exist or Keystone does not "
+"have sufficient permission to access it: %s"
+msgstr "[fernet_tokens] 键仓库不存在或者ketystone没有足够的权限去访问它: %s。"
 
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-url "
@@ -69,62 +64,51 @@ msgstr ""
 "有一个调试进程正在监听那个端口"
 
 #, python-format
-msgid ""
-"Unable to build cache config-key. Expected format \"<argname>:<value>\". "
-"Skipping unknown format: %s"
-msgstr "无法构建缓存配置键值对。期望格式“<参数>:<值>”。跳过未知的格式:  %s"
-
-#, python-format
-msgid "Could not bind to %(host)s:%(port)s"
-msgstr "无法绑定至 %(host)s:%(port)s"
-
-msgid "Server error"
-msgstr "服务器报错"
-
-#, python-format
-msgid ""
-"Circular reference or a repeated entry found in region tree - %(region_id)s."
-msgstr "在域树- %(region_id)s 中发现循环引用或重复项。"
-
-#, python-format
 msgid "Error when signing assertion, reason: %(reason)s"
 msgstr "对断言进行签名时出错，原因：%(reason)s"
 
-msgid "Cannot retrieve Authorization headers"
-msgstr "无法获取认证头信息"
+msgid "Failed to construct notifier"
+msgstr "构造通知器失败"
 
-msgid "in fixed duration looping call"
-msgstr "在固定时段内循环调用"
+msgid ""
+"Failed to create [fernet_tokens] key_repository: either it already exists or "
+"you don't have sufficient permissions to create it"
+msgstr "创建[Fernet_tokens] 键仓库失败：它已存在或你没有足够的权限去创建它。"
 
-msgid "in dynamic looping call"
-msgstr "在动态循环调用中"
+#, python-format
+msgid "Failed to remove file %(file_path)r: %(error)s"
+msgstr "无法删除文件%(file_path)r: %(error)s"
 
-msgid "Unhandled exception"
-msgstr "存在未处理的异常"
+#, python-format
+msgid "Failed to send %(action)s %(event_type)s notification"
+msgstr "发送 %(action)s %(event_type)s 通知失败"
+
+#, python-format
+msgid "Failed to send %(res_id)s %(event_type)s notification"
+msgstr "发送%(res_id)s %(event_type)s 通知失败"
+
+msgid "Failed to validate token"
+msgstr "token验证失败"
+
+#, python-format
+msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
+msgstr "端点 %(url)s 的格式不正确 - 键 %(keyerror)s 未知"
 
 #, python-format
 msgid ""
-"Circular reference or a repeated entry found projects hierarchy - "
-"%(project_id)s."
-msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
+"Malformed endpoint %s - incomplete format (are you missing a type notifier ?)"
+msgstr "端点 %s 的格式不完整 - (是否缺少了类型通告者?)"
 
 #, python-format
 msgid ""
-"Unexpected results in response for domain config - %(count)s responses, "
-"first option is %(option)s, expected option %(expected)s"
+"Malformed endpoint '%(url)s'. The following type error occurred during "
+"string substitution: %(typeerror)s"
 msgstr ""
-"针对域配置- %(count)s 结果，响应中出现不是预期结果，第一参数是%(option)s，期"
-"望参数是 %(expected)s 。"
+"端点 '%(url)s' 的格式不正确。在字符串替换时发生以下类型错误：%(typeerror)s"
 
 #, python-format
-msgid ""
-"Circular reference or a repeated entry found in projects hierarchy - "
-"%(project_id)s."
-msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
-
-#, python-format
-msgid "Unexpected error or malformed token determining token expiry: %s"
-msgstr "决策令牌预计超期时间 :%s 时，出现未知错误或变形的令牌"
+msgid "Malformed endpoint - %(url)r is not a string"
+msgstr "端点 - %(url)r 不是一个字符串"
 
 #, python-format
 msgid ""
@@ -135,19 +119,35 @@ msgstr ""
 "由于从后端加载撤销列表出现错误，重新初始化撤销列表。期望“列表”类型是  `"
 "%(type)s`。旧的撤销列表数据是: %(list)r"
 
-msgid "Failed to validate token"
-msgstr "token验证失败"
+msgid "Server error"
+msgstr "服务器报错"
+
+#, python-format
+msgid ""
+"Unable to build cache config-key. Expected format \"<argname>:<value>\". "
+"Skipping unknown format: %s"
+msgstr "无法构建缓存配置键值对。期望格式“<参数>:<值>”。跳过未知的格式:  %s"
 
 msgid "Unable to sign token"
 msgstr "无法签名令牌"
 
 #, python-format
-msgid ""
-"Either [fernet_tokens] key_repository does not exist or Keystone does not "
-"have sufficient permission to access it: %s"
-msgstr "[fernet_tokens] 键仓库不存在或者ketystone没有足够的权限去访问它: %s。"
+msgid "Unexpected error or malformed token determining token expiry: %s"
+msgstr "决策令牌预计超期时间 :%s 时，出现未知错误或变形的令牌"
 
+#, python-format
 msgid ""
-"Failed to create [fernet_tokens] key_repository: either it already exists or "
-"you don't have sufficient permissions to create it"
-msgstr "创建[Fernet_tokens] 键仓库失败：它已存在或你没有足够的权限去创建它。"
+"Unexpected results in response for domain config - %(count)s responses, "
+"first option is %(option)s, expected option %(expected)s"
+msgstr ""
+"针对域配置- %(count)s 结果，响应中出现不是预期结果，第一参数是%(option)s，期"
+"望参数是 %(expected)s 。"
+
+msgid "Unhandled exception"
+msgstr "存在未处理的异常"
+
+msgid "in dynamic looping call"
+msgstr "在动态循环调用中"
+
+msgid "in fixed duration looping call"
+msgstr "在固定时段内循环调用"
