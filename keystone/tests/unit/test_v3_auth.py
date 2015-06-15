@@ -134,32 +134,6 @@ class TokenAPITests(object):
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
 
-    def verify_token(self, *args, **kwargs):
-        return cms.verify_token(*args, **kwargs)
-
-    def test_v3_token_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        resp = self.v3_authenticate_token(auth_data)
-        token_data = resp.result
-        token_id = resp.headers.get('X-Subject-Token')
-        self.assertIn('expires_at', token_data['token'])
-
-        decoded_token = self.verify_token(token_id, CONF.signing.certfile,
-                                          CONF.signing.ca_certs)
-        decoded_token_dict = json.loads(decoded_token)
-
-        token_resp_dict = json.loads(resp.body)
-
-        self.assertEqual(decoded_token_dict, token_resp_dict)
-        # should be able to validate hash PKI token as well
-        hash_token_id = cms.cms_hash_token(token_id)
-        headers = {'X-Subject-Token': hash_token_id}
-        resp = self.get('/auth/tokens', headers=headers)
-        expected_token_data = resp.result
-        self.assertDictEqual(expected_token_data, token_data)
-
     def test_v3_v2_intermix_non_default_domain_failed(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -283,31 +257,6 @@ class TokenAPITests(object):
         token = resp.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
-        path = '/v2.0/tokens/%s' % (token)
-        resp = self.admin_request(path=path,
-                                  token='ADMIN',
-                                  method='GET')
-        v2_token = resp.result
-        self.assertEqual(v2_token['access']['user']['id'],
-                         token_data['token']['user']['id'])
-        # v2 token time has not fraction of second precision so
-        # just need to make sure the non fraction part agrees
-        self.assertIn(v2_token['access']['token']['expires'][:-1],
-                      token_data['token']['expires_at'])
-        self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
-                         token_data['token']['roles'][0]['id'])
-
-    def test_v3_v2_hashed_pki_token_intermix(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.default_domain_user['id'],
-            password=self.default_domain_user['password'],
-            project_id=self.default_domain_project['id'])
-        resp = self.v3_authenticate_token(auth_data)
-        token_data = resp.result
-        token = resp.headers.get('X-Subject-Token')
-
-        # should be able to validate a hash PKI token in v2 too
-        token = cms.cms_hash_token(token)
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
                                   token='ADMIN',
@@ -493,19 +442,65 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
         super(TestPKITokenAPIs, self).setUp()
         self.doSetUp()
 
-
-class TestPKIZTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
-
     def verify_token(self, *args, **kwargs):
-        return cms.pkiz_verify(*args, **kwargs)
+        return cms.verify_token(*args, **kwargs)
 
+    def test_v3_token_id(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        resp = self.v3_authenticate_token(auth_data)
+        token_data = resp.result
+        token_id = resp.headers.get('X-Subject-Token')
+        self.assertIn('expires_at', token_data['token'])
+
+        decoded_token = self.verify_token(token_id, CONF.signing.certfile,
+                                          CONF.signing.ca_certs)
+        decoded_token_dict = json.loads(decoded_token)
+
+        token_resp_dict = json.loads(resp.body)
+
+        self.assertEqual(decoded_token_dict, token_resp_dict)
+        # should be able to validate hash PKI token as well
+        hash_token_id = cms.cms_hash_token(token_id)
+        headers = {'X-Subject-Token': hash_token_id}
+        resp = self.get('/auth/tokens', headers=headers)
+        expected_token_data = resp.result
+        self.assertDictEqual(expected_token_data, token_data)
+
+    def test_v3_v2_hashed_pki_token_intermix(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project['id'])
+        resp = self.v3_authenticate_token(auth_data)
+        token_data = resp.result
+        token = resp.headers.get('X-Subject-Token')
+
+        # should be able to validate a hash PKI token in v2 too
+        token = cms.cms_hash_token(token)
+        path = '/v2.0/tokens/%s' % (token)
+        resp = self.admin_request(path=path,
+                                  token='ADMIN',
+                                  method='GET')
+        v2_token = resp.result
+        self.assertEqual(v2_token['access']['user']['id'],
+                         token_data['token']['user']['id'])
+        # v2 token time has not fraction of second precision so
+        # just need to make sure the non fraction part agrees
+        self.assertIn(v2_token['access']['token']['expires'][:-1],
+                      token_data['token']['expires_at'])
+        self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
+                         token_data['token']['roles'][0]['id'])
+
+
+class TestPKIZTokenAPIs(TestPKITokenAPIs):
     def config_overrides(self):
         super(TestPKIZTokenAPIs, self).config_overrides()
         self.config_fixture.config(group='token', provider='pkiz')
 
-    def setUp(self):
-        super(TestPKIZTokenAPIs, self).setUp()
-        self.doSetUp()
+    def verify_token(self, *args, **kwargs):
+        return cms.pkiz_verify(*args, **kwargs)
 
 
 class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
@@ -526,11 +521,6 @@ class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
         token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
         self.assertFalse(cms.is_asn1_token(token_id))
-
-    def test_v3_v2_hashed_pki_token_intermix(self):
-        # this test is only applicable for PKI tokens
-        # skipping it for UUID tokens
-        pass
 
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
