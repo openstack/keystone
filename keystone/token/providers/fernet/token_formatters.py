@@ -61,7 +61,7 @@ class TokenFormatter(object):
         if not keys:
             raise exception.KeysNotFound()
 
-        fernet_instances = [fernet.Fernet(key) for key in utils.load_keys()]
+        fernet_instances = [fernet.Fernet(key) for key in keys]
         return fernet.MultiFernet(fernet_instances)
 
     def pack(self, payload):
