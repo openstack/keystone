@@ -460,6 +460,7 @@ class Manager(manager.Manager):
         # Delete any database stored domain config
         self.domain_config_api.delete_config_options(domain_id)
         self.domain_config_api.delete_config_options(domain_id, sensitive=True)
+        self.domain_config_api.release_registration(domain_id)
         # TODO(henry-nash): Although the controller will ensure deletion of
         # all users & groups within the domain (which will cause all
         # assignments for those users/groups to also be deleted), there
@@ -1369,6 +1370,45 @@ class DomainConfigDriverV8(object):
         :param option: optional option name. If group is None, then this
                        parameter is ignored
         :param sensitive: whether the option is sensitive
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def obtain_registration(self, domain_id, type):
+        """Try and register this domain to use the type specified.
+
+        :param domain_id: the domain required
+        :param type: type of registration
+        :returns: True if the domain was registered, False otherwise. Failing
+                  to register means that someone already has it (which could
+                  even be the domain being requested).
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def read_registration(self, type):
+        """Get the domain ID of who is registered to use this type.
+
+        :param type: type of registration
+        :returns: domain_id of who is registered.
+        :raises: keystone.exception.ConfigRegistrationNotFound: nobody is
+                 registered.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def release_registration(self, domain_id, type=None):
+        """Release registration if it is held by the domain specified.
+
+        If the specified domain is registered for this domain then free it,
+        if it is not then do nothing - no exception is raised.
+
+        :param domain_id: the domain in question
+        :param type: type of registration, if None then all registrations
+                     for this domain will be freed
 
         """
         raise exception.NotImplemented()  # pragma: no cover

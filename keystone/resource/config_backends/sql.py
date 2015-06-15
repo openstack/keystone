@@ -42,6 +42,12 @@ class SensitiveConfig(sql.ModelBase, sql.ModelDictMixin):
         return d
 
 
+class ConfigRegister(sql.ModelBase, sql.ModelDictMixin):
+    __tablename__ = 'config_register'
+    type = sql.Column(sql.String(64), primary_key=True)
+    domain_id = sql.Column(sql.String(64), nullable=False)
+
+
 class DomainConfig(resource.DomainConfigDriverV8):
 
     def choose_table(self, sensitive):
@@ -116,4 +122,31 @@ class DomainConfig(resource.DomainConfigDriverV8):
                 query = query.filter_by(group=group)
                 if option:
                     query = query.filter_by(option=option)
+            query.delete(False)
+
+    def obtain_registration(self, domain_id, type):
+        try:
+            with sql.transaction() as session:
+                ref = ConfigRegister(type=type, domain_id=domain_id)
+                session.add(ref)
+            return True
+        except sql.DBDuplicateEntry:
+            pass
+        return False
+
+    def read_registration(self, type):
+        with sql.transaction() as session:
+            ref = session.query(ConfigRegister).get(type)
+            if not ref:
+                raise exception.ConfigRegistrationNotFound()
+        return ref.domain_id
+
+    def release_registration(self, domain_id, type=None):
+        """Silently delete anything registered for the domain specified."""
+
+        with sql.transaction() as session:
+            query = session.query(ConfigRegister)
+            if type:
+                query = query.filter_by(type=type)
+            query = query.filter_by(domain_id=domain_id)
             query.delete(False)

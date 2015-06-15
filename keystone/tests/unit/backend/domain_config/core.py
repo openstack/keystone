@@ -549,3 +549,53 @@ class DomainConfigTests(object):
             {},
             self.domain_config_api.get_config_with_sensitive_info(
                 self.domain['id']))
+
+    def test_config_registration(self):
+        type = uuid.uuid4().hex
+        self.domain_config_api.obtain_registration(
+            self.domain['id'], type)
+        self.domain_config_api.release_registration(
+            self.domain['id'], type=type)
+
+        # Make sure that once someone has it, nobody else can get it.
+        # This includes the domain who already has it.
+        self.domain_config_api.obtain_registration(
+            self.domain['id'], type)
+        self.assertFalse(
+            self.domain_config_api.obtain_registration(
+                self.domain['id'], type))
+
+        # Make sure we can read who does have it
+        self.assertEqual(
+            self.domain['id'],
+            self.domain_config_api.read_registration(type))
+
+        # Make sure releasing it is silent if the domain specified doesn't
+        # have the registration
+        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.resource_api.create_domain(domain2['id'], domain2)
+        self.domain_config_api.release_registration(
+            domain2['id'], type=type)
+
+        # If nobody has the type registered, then trying to read it should
+        # raise ConfigRegistrationNotFound
+        self.domain_config_api.release_registration(
+            self.domain['id'], type=type)
+        self.assertRaises(exception.ConfigRegistrationNotFound,
+                          self.domain_config_api.read_registration,
+                          type)
+
+        # Finally check multiple registrations are cleared if you free the
+        # registration without specifying the type
+        type2 = uuid.uuid4().hex
+        self.domain_config_api.obtain_registration(
+            self.domain['id'], type)
+        self.domain_config_api.obtain_registration(
+            self.domain['id'], type2)
+        self.domain_config_api.release_registration(self.domain['id'])
+        self.assertRaises(exception.ConfigRegistrationNotFound,
+                          self.domain_config_api.read_registration,
+                          type)
+        self.assertRaises(exception.ConfigRegistrationNotFound,
+                          self.domain_config_api.read_registration,
+                          type2)
