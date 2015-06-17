@@ -91,4 +91,4 @@ Tips
 
 2. Don't forget to add oidc as an [auth] plugin in keystone.conf, see `Step 2`_
 
-.. _`Step 2`: federation.html
+.. _`Step 2`: federation/federation.html
