@@ -51,6 +51,8 @@ Getting Started
     installing
     configuration
     configure_federation
+    mapping_combinations
+    mapping_schema
     configuringservices
     extensions
     key_terms
