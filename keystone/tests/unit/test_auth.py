@@ -18,6 +18,7 @@ import uuid
 
 import mock
 from oslo_config import cfg
+import oslo_utils.fixture
 from oslo_utils import timeutils
 import six
 from testtools import matchers
@@ -75,6 +76,7 @@ class AuthTest(tests.TestCase):
     def setUp(self):
         self.useFixture(database.Database())
         super(AuthTest, self).setUp()
+        self.time_fixture = self.useFixture(oslo_utils.fixture.TimeFixture())
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -493,10 +495,13 @@ class AuthWithToken(AuthTest):
         body_dict = _build_user_auth(username='FOO', password='foo2')
         unscoped_token = self.controller.authenticate(context, body_dict)
         token_id = unscoped_token['access']['token']['id']
+        self.time_fixture.advance_time_seconds(1)
+
         # get a second token
         body_dict = _build_user_auth(token=unscoped_token["access"]["token"])
         unscoped_token_2 = self.controller.authenticate(context, body_dict)
         token_2_id = unscoped_token_2['access']['token']['id']
+        self.time_fixture.advance_time_seconds(1)
 
         self.token_provider_api.revoke_token(token_id, revoke_chain=True)
 
@@ -515,10 +520,13 @@ class AuthWithToken(AuthTest):
         body_dict = _build_user_auth(username='FOO', password='foo2')
         unscoped_token = self.controller.authenticate(context, body_dict)
         token_id = unscoped_token['access']['token']['id']
+        self.time_fixture.advance_time_seconds(1)
+
         # get a second token
         body_dict = _build_user_auth(token=unscoped_token["access"]["token"])
         unscoped_token_2 = self.controller.authenticate(context, body_dict)
         token_2_id = unscoped_token_2['access']['token']['id']
+        self.time_fixture.advance_time_seconds(1)
 
         self.token_provider_api.revoke_token(token_2_id, revoke_chain=True)
 
@@ -545,13 +553,17 @@ class AuthWithToken(AuthTest):
             body_dict = _build_user_auth(username='FOO', password='foo2')
             unscoped_token = self.controller.authenticate(context, body_dict)
             token_id = unscoped_token['access']['token']['id']
+            self.time_fixture.advance_time_seconds(1)
+
             # get a second token
             body_dict = _build_user_auth(
                 token=unscoped_token['access']['token'])
             unscoped_token_2 = self.controller.authenticate(context, body_dict)
             token_2_id = unscoped_token_2['access']['token']['id']
+            self.time_fixture.advance_time_seconds(1)
 
             self.token_provider_api.revoke_token(token_id, revoke_chain=True)
+            self.time_fixture.advance_time_seconds(1)
 
             revoke_events = self.revoke_api.list_events()
             self.assertThat(revoke_events, matchers.HasLength(1))
@@ -571,15 +583,18 @@ class AuthWithToken(AuthTest):
             body_dict = _build_user_auth(username='FOO', password='foo2')
             unscoped_token = self.controller.authenticate(context, body_dict)
             token_id = unscoped_token['access']['token']['id']
+            self.time_fixture.advance_time_seconds(1)
             # get a second token
             body_dict = _build_user_auth(
                 token=unscoped_token['access']['token'])
             unscoped_token_2 = self.controller.authenticate(context, body_dict)
             token_2_id = unscoped_token_2['access']['token']['id']
+            self.time_fixture.advance_time_seconds(1)
 
             # Revoke by audit_id, no audit_info means both parent and child
             # token are revoked.
             self.token_provider_api.revoke_token(token_id)
+            self.time_fixture.advance_time_seconds(1)
 
             revoke_events = self.revoke_api.list_events()
             self.assertThat(revoke_events, matchers.HasLength(2))
