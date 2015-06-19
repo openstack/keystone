@@ -17,6 +17,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_utils import strutils
 import six
 
 from keystone.common import authorization
@@ -52,9 +53,12 @@ def v2_deprecated(f):
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):
+    kwargs_str = ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])
+    kwargs_str = strutils.mask_password(kwargs_str)
+
     LOG.debug('RBAC: Authorizing %(action)s(%(kwargs)s)', {
         'action': action,
-        'kwargs': ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])})
+        'kwargs': kwargs_str})
 
     # see if auth context has already been created. If so use it.
     if ('environment' in context and
