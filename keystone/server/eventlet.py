@@ -20,6 +20,8 @@ import socket
 from oslo_concurrency import processutils
 from oslo_config import cfg
 import oslo_i18n
+from oslo_service import service
+from oslo_service import systemd
 import pbr.version
 
 
@@ -34,8 +36,6 @@ from keystone.common import environment
 from keystone.common import utils
 from keystone import config
 from keystone.i18n import _
-from keystone.openstack.common import service
-from keystone.openstack.common import systemd
 from keystone.server import common
 from keystone import service as keystone_service
 
@@ -79,9 +79,9 @@ def serve(*servers):
                       'Support for keystone under eventlet will be removed in '
                       'the "M"-Release.'))
     if max([server[1].workers for server in servers]) > 1:
-        launcher = service.ProcessLauncher()
+        launcher = service.ProcessLauncher(CONF)
     else:
-        launcher = service.ServiceLauncher()
+        launcher = service.ServiceLauncher(CONF)
 
     for name, server in servers:
         try:
