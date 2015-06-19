@@ -2994,6 +2994,7 @@ class SAMLGenerationTests(FederationTests):
     SUBJECT = 'test_user'
     ROLES = ['admin', 'member']
     PROJECT = 'development'
+    DOMAIN = 'Default'
     SAML_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2'
     ECP_GENERATION_ROUTE = '/auth/OS-FEDERATION/saml2/ecp'
     ASSERTION_VERSION = "2.0"
@@ -3032,7 +3033,7 @@ class SAMLGenerationTests(FederationTests):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
                                                self.SUBJECT, self.ROLES,
-                                               self.PROJECT)
+                                               self.PROJECT, self.DOMAIN)
 
         assertion = response.assertion
         self.assertIsNotNone(assertion)
@@ -3052,6 +3053,11 @@ class SAMLGenerationTests(FederationTests):
         self.assertEqual(self.PROJECT,
                          project_attribute.attribute_value[0].text)
 
+        project_domain_attribute = (
+            assertion.attribute_statement[0].attribute[3])
+        self.assertEqual(self.DOMAIN,
+                         project_domain_attribute.attribute_value[0].text)
+
     def test_verify_assertion_object(self):
         """Test that the Assertion object is built properly.
 
@@ -3064,7 +3070,7 @@ class SAMLGenerationTests(FederationTests):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
                                                self.SUBJECT, self.ROLES,
-                                               self.PROJECT)
+                                               self.PROJECT, self.DOMAIN)
         assertion = response.assertion
         self.assertEqual(self.ASSERTION_VERSION, assertion.version)
 
@@ -3081,7 +3087,7 @@ class SAMLGenerationTests(FederationTests):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
                                                self.SUBJECT, self.ROLES,
-                                               self.PROJECT)
+                                               self.PROJECT, self.DOMAIN)
 
         saml_str = response.to_string()
         response = etree.fromstring(saml_str)
@@ -3101,6 +3107,9 @@ class SAMLGenerationTests(FederationTests):
         project_attribute = assertion[4][2]
         self.assertEqual(self.PROJECT, project_attribute[0].text)
 
+        project_domain_attribute = assertion[4][3]
+        self.assertEqual(self.DOMAIN, project_domain_attribute[0].text)
+
     def test_assertion_using_explicit_namespace_prefixes(self):
         def mocked_subprocess_check_output(*popenargs, **kwargs):
             # the last option is the assertion file to be signed
@@ -3116,7 +3125,7 @@ class SAMLGenerationTests(FederationTests):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
                                                self.SUBJECT, self.ROLES,
-                                               self.PROJECT)
+                                               self.PROJECT, self.DOMAIN)
             assertion_xml = response.assertion.to_string()
             # make sure we have the proper tag and prefix for the assertion
             # namespace
@@ -3249,6 +3258,9 @@ class SAMLGenerationTests(FederationTests):
         project_attribute = assertion[4][2]
         self.assertIsInstance(project_attribute[0].text, str)
 
+        project_domain_attribute = assertion[4][3]
+        self.assertIsInstance(project_domain_attribute[0].text, str)
+
     def test_invalid_scope_body(self):
         """Test that missing the scope in request body raises an exception.
 
@@ -3357,6 +3369,9 @@ class SAMLGenerationTests(FederationTests):
 
         project_attribute = assertion[4][2]
         self.assertIsInstance(project_attribute[0].text, str)
+
+        project_domain_attribute = assertion[4][3]
+        self.assertIsInstance(project_domain_attribute[0].text, str)
 
 
 class IdPMetadataGenerationTests(FederationTests):
