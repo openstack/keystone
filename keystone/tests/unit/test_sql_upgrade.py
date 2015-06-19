@@ -193,7 +193,8 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
                 all_fks.extend(fks)
 
             for fkc in all_fks:
-                conn.execute(schema.DropConstraint(fkc))
+                if self.engine.name != 'sqlite':
+                    conn.execute(schema.DropConstraint(fkc))
 
             for table in tbs:
                 conn.execute(schema.DropTable(table))
