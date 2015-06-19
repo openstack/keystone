@@ -44,10 +44,6 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
         config_files.append(tests.dirs.tests_conf('backend_tls_liveldap.conf'))
         return config_files
 
-    def config_overrides(self):
-        super(LiveTLSLDAPIdentity, self).config_overrides()
-        self.config_fixture.config(group='identity', driver='ldap')
-
     def test_tls_certfile_demand_option(self):
         self.config_fixture.config(group='ldap',
                                    use_tls=True,

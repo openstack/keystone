@@ -82,10 +82,6 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         config_files.append(tests.dirs.tests_conf('backend_liveldap.conf'))
         return config_files
 
-    def config_overrides(self):
-        super(LiveLDAPIdentity, self).config_overrides()
-        self.config_fixture.config(group='identity', driver='ldap')
-
     def test_build_tree(self):
         """Regression test for building the tree names
         """
