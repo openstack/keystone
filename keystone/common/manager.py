@@ -14,9 +14,13 @@
 
 import functools
 
+from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import importutils
 import stevedore
+
+
+LOG = log.getLogger(__name__)
 
 
 def response_truncated(f):
@@ -62,9 +66,9 @@ def load_driver(namespace, driver_name, *args):
                                                  invoke_on_load=True,
                                                  invoke_args=args)
         return driver_manager.driver
-    except RuntimeError:
-        # Ignore failure to load driver using stevedore and continue on.
-        pass
+    except RuntimeError as e:
+        LOG.debug('Failed to load %r using stevedore: %s', driver_name, e)
+        # Ignore failure and continue on.
 
     @versionutils.deprecated(as_of=versionutils.deprecated.LIBERTY,
                              in_favor_of='entrypoints',
