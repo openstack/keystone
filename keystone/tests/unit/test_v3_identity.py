@@ -439,8 +439,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_create_user_password_not_logged(self):
         # When a user is created, the password isn't logged at any level.
 
-        # FIXME(blk-u): This doesn't work as expected, see bug 1465922
-
         log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
 
         ref = self.new_user_ref(domain_id=self.domain_id)
@@ -448,14 +446,11 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             '/users',
             body={'user': ref})
 
-        # This should be assert*Not*In, see bug 1465922
-        self.assertIn(ref['password'], log_fix.output)
+        self.assertNotIn(ref['password'], log_fix.output)
 
     def test_update_password_not_logged(self):
         # When admin modifies user password, the password isn't logged at any
         # level.
-
-        # FIXME(blk-u): This doesn't work as expected, see bug 1465922
 
         log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
 
@@ -471,9 +466,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                    expected_status=200)
 
         self.assertNotIn(password, log_fix.output)
-
-        # This should be assert*Not*In, see bug 1465922
-        self.assertIn(new_password, log_fix.output)
+        self.assertNotIn(new_password, log_fix.output)
 
 
 class IdentityV3toV2MethodsTestCase(tests.TestCase):
@@ -628,8 +621,6 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         # When a user changes their password, the password isn't logged at any
         # level.
 
-        # FIXME(blk-u): This doesn't work as expected, see bug 1465922
-
         log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
 
         # change password
@@ -638,6 +629,5 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
                              original_password=self.user_ref['password'],
                              expected_status=204)
 
-        # These should be assert*Not*In, see bug 1465922
-        self.assertIn(self.user_ref['password'], log_fix.output)
-        self.assertIn(new_password, log_fix.output)
+        self.assertNotIn(self.user_ref['password'], log_fix.output)
+        self.assertNotIn(new_password, log_fix.output)
