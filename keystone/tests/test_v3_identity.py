@@ -12,8 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import uuid
 
+import fixtures
 from oslo.config import cfg
 from testtools import matchers
 
@@ -1657,6 +1659,45 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertRoleAssignmentInListResponse(r, up1_entity,
                                                 link_url=gp1_url)
 
+    def test_create_user_password_not_logged(self):
+        # When a user is created, the password isn't logged at any level.
+
+        # FIXME(blk-u): This doesn't work as expected, see bug 1465922
+
+        log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+
+        ref = self.new_user_ref(domain_id=self.domain_id)
+        self.post(
+            '/users',
+            body={'user': ref})
+
+        # This should be assert*Not*In, see bug 1465922
+        self.assertIn(ref['password'], log_fix.output)
+
+    def test_update_password_not_logged(self):
+        # When admin modifies user password, the password isn't logged at any
+        # level.
+
+        # FIXME(blk-u): This doesn't work as expected, see bug 1465922
+
+        log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+
+        # bootstrap a user as admin
+        user_ref = self.new_user_ref(domain_id=self.domain['id'])
+        password = user_ref['password']
+        user_ref = self.identity_api.create_user(user_ref)
+
+        # administrative password reset
+        new_password = uuid.uuid4().hex
+        self.patch('/users/%s' % user_ref['id'],
+                   body={'user': {'password': new_password}},
+                   expected_status=200)
+
+        self.assertNotIn(password, log_fix.output)
+
+        # This should be assert*Not*In, see bug 1465922
+        self.assertIn(new_password, log_fix.output)
+
 
 class IdentityInheritanceTestCase(test_v3.RestfulTestCase):
     """Test inheritance crud and its effects."""
@@ -2300,3 +2341,21 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         self.change_password(password=uuid.uuid4().hex,
                              original_password=self.user_ref['password'],
                              expected_status=401)
+
+    def test_changing_password_not_logged(self):
+        # When a user changes their password, the password isn't logged at any
+        # level.
+
+        # FIXME(blk-u): This doesn't work as expected, see bug 1465922
+
+        log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+
+        # change password
+        new_password = uuid.uuid4().hex
+        self.change_password(password=new_password,
+                             original_password=self.user_ref['password'],
+                             expected_status=204)
+
+        # These should be assert*Not*In, see bug 1465922
+        self.assertIn(self.user_ref['password'], log_fix.output)
+        self.assertIn(new_password, log_fix.output)
