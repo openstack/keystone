@@ -446,7 +446,7 @@ class ServerTest(tests.TestCase):
     def test_client_socket_timeout(self):
         # mocking server method of eventlet.wsgi to check it is called with
         # configured 'client_socket_timeout' value.
-        for socket_timeout in xrange(1, 10):
+        for socket_timeout in range(1, 10):
             self.config_fixture.config(group='eventlet_server',
                                        client_socket_timeout=socket_timeout)
             server = environment.Server(mock.MagicMock(), host=self.host,
