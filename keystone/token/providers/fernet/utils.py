@@ -199,22 +199,24 @@ def rotate_keys(keystone_user_id=None, keystone_group_id=None):
     # add a new key to the rotation, which will be the *next* primary
     _create_new_key(keystone_user_id, keystone_group_id)
 
+    max_active_keys = CONF.fernet_tokens.max_active_keys
     # check for bad configuration
-    if CONF.fernet_tokens.max_active_keys < 1:
+    if max_active_keys < 1:
         LOG.warning(_LW(
             '[fernet_tokens] max_active_keys must be at least 1 to maintain a '
             'primary key.'))
-        CONF.fernet_tokens.max_active_keys = 1
+        max_active_keys = 1
 
     # purge excess keys
-    keys = sorted(key_files.keys())
-    number_of_keys_to_purge = max(
-        0, len(key_files) - CONF.fernet_tokens.max_active_keys + 1)
-    if number_of_keys_to_purge > 0:
-        excess_keys = keys[:number_of_keys_to_purge]
-        LOG.info(_LI('Excess keys to purge: %s'), excess_keys)
-        for i in excess_keys:
-            os.remove(key_files[i])
+
+    # Note that key_files doesn't contain the new active key that was created,
+    # only the old active keys.
+    keys = sorted(key_files.keys(), reverse=True)
+    while len(keys) > (max_active_keys - 1):
+        index_to_purge = keys.pop()
+        key_to_purge = key_files[index_to_purge]
+        LOG.info(_LI('Excess key to purge: %s'), key_to_purge)
+        os.remove(key_to_purge)
 
 
 def load_keys():
