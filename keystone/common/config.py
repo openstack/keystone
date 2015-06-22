@@ -148,7 +148,8 @@ FILE_OPTIONS = {
                         'domain_specific_drivers_enabled is set to true.'),
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Identity backend driver.'),
+                   help='Entrypoint for the identity backend driver in the '
+                        'keystone.identity namespace.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for identity caching. This has no '
                          'effect unless global caching is enabled.'),
@@ -166,12 +167,15 @@ FILE_OPTIONS = {
     'identity_mapping': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Keystone Identity Mapping backend driver.'),
+                   help='Entrypoint for the identity mapping backend driver '
+                        'in the keystone.identity.id_mapping namespace.'),
         cfg.StrOpt('generator',
                    default='sha256',
-                   help='Public ID generator for user and group entities. '
-                        'The Keystone identity mapper only supports '
-                        'generators that produce no more than 64 characters.'),
+                   help='Entrypoint for the public ID generator for user and '
+                        'group entities in the keystone.identity.id_generator '
+                        'namespace. The Keystone identity mapper only '
+                        'supports generators that produce no more than 64 '
+                        'characters.'),
         cfg.BoolOpt('backward_compatible_ids',
                     default=True,
                     help='The format of user and group IDs changed '
@@ -205,7 +209,8 @@ FILE_OPTIONS = {
                    help='Maximum depth of trust redelegation.'),
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Trust backend driver.')],
+                   help='Entrypoint for the trust backend driver in the '
+                        'keystone.trust namespace.')],
     'os_inherit': [
         cfg.BoolOpt('enabled', default=False,
                     help='role-assignment inheritance to projects from '
@@ -242,11 +247,13 @@ FILE_OPTIONS = {
         cfg.StrOpt('provider',
                    default='uuid',
                    help='Controls the token construction, validation, and '
-                        'revocation operations. Core providers are '
-                        '[fernet|pkiz|pki|uuid].'),
+                        'revocation operations. Entrypoint in the '
+                        'keystone.token.provider namespace. Core providers '
+                        'are [fernet|pkiz|pki|uuid].'),
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Token persistence backend driver.'),
+                   help='Entrypoint for the token persistence backend driver '
+                        'in the keystone.token.persistence namespace.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for token system caching. This has no '
                          'effect unless global caching is enabled.'),
@@ -277,8 +284,9 @@ FILE_OPTIONS = {
     'revoke': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='An implementation of the backend for persisting '
-                        'revocation events.'),
+                   help='Entrypoint for an implementation of the backend for '
+                        'persisting revocation events in the keystone.revoke '
+                        'namespace.'),
         cfg.IntOpt('expiration_buffer', default=1800,
                    help='This value (calculated in seconds) is added to token '
                         'expiration before a revocation event may be removed '
@@ -417,11 +425,13 @@ FILE_OPTIONS = {
         # If assignment driver is not specified, the identity driver chooses
         # the backend
         cfg.StrOpt('driver',
-                   help='Assignment backend driver.'),
+                   help='Entrypoint for the assignment backend driver in the '
+                        'keystone.assignment namespace.'),
     ],
     'resource': [
         cfg.StrOpt('driver',
-                   help='Resource backend driver. If a resource driver is '
+                   help='Entrypoint for the resource backend driver in the '
+                        'keystone.resource namespace. If a resource driver is '
                         'not specified, the assignment driver will choose '
                         'the resource driver.'),
         cfg.BoolOpt('caching', default=True,
@@ -443,7 +453,8 @@ FILE_OPTIONS = {
     'domain_config': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Domain config backend driver.'),
+                   help='Entrypoint for the domain config backend driver in '
+                        'the keystone.resource.domain_config namespace.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for domain config caching. This has no '
                          'effect unless global caching is enabled.'),
@@ -457,7 +468,8 @@ FILE_OPTIONS = {
         # If role driver is not specified, the assignment driver chooses
         # the backend
         cfg.StrOpt('driver',
-                   help='Role backend driver.'),
+                   help='Entrypoint for the role backend driver in the '
+                        'keystone.role namespace.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for role caching. This has no effect '
                          'unless global caching is enabled.'),
@@ -471,12 +483,14 @@ FILE_OPTIONS = {
     'credential': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Credential backend driver.'),
+                   help='Entrypoint for the credential backend driver in the '
+                        'keystone.credential namespace.'),
     ],
     'oauth1': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='OAuth backend driver.'),
+                   help='Entrypoint for hte OAuth backend driver in the '
+                        'keystone.oauth1 namespace.'),
         cfg.IntOpt('request_token_duration', default=28800,
                    help='Duration (in seconds) for the OAuth Request Token.'),
         cfg.IntOpt('access_token_duration', default=86400,
@@ -485,7 +499,8 @@ FILE_OPTIONS = {
     'federation': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Federation backend driver.'),
+                   help='Entrypoint for the federation backend driver in the '
+                        'keystone.federation namespace.'),
         cfg.StrOpt('assertion_prefix', default='',
                    help='Value to be used when filtering assertion parameters '
                         'from the environment.'),
@@ -518,7 +533,8 @@ FILE_OPTIONS = {
     'policy': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Policy backend driver.'),
+                   help='Entrypoint for the policy backend driver in the '
+                        'keystone.policy namespace.'),
         cfg.IntOpt('list_limit',
                    help='Maximum number of entities that will be returned '
                         'in a policy collection.'),
@@ -526,7 +542,8 @@ FILE_OPTIONS = {
     'endpoint_filter': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Endpoint Filter backend driver'),
+                   help='Entrypoint for the endpoint filter backend driver in '
+                        'the keystone.endpoint_filter namespace.'),
         cfg.BoolOpt('return_all_endpoints_if_no_filter', default=True,
                     help='Toggle to return all active endpoints if no filter '
                          'exists.'),
@@ -537,7 +554,8 @@ FILE_OPTIONS = {
                     help='Enable endpoint_policy functionality.'),
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Endpoint policy backend driver'),
+                   help='Entrypoint for the endpoint policy backend driver in '
+                        'the keystone.endpoint_policy namespace.'),
     ],
     'ldap': [
         cfg.StrOpt('url', default='ldap://localhost',
@@ -824,15 +842,19 @@ FILE_OPTIONS = {
         cfg.ListOpt('methods', default=_DEFAULT_AUTH_METHODS,
                     help='Allowed authentication methods.'),
         cfg.StrOpt('password',
-                   help='Entrypoint for the password auth plugin module.'),
+                   help='Entrypoint for the password auth plugin module in '
+                        'the keystone.auth.password namespace.'),
         cfg.StrOpt('token',
-                   help='Entrypoint for the token auth plugin module.'),
+                   help='Entrypoint for the token auth plugin module in the '
+                        'keystone.auth.token namespace.'),
         # deals with REMOTE_USER authentication
         cfg.StrOpt('external',
                    help='Entrypoint for the external (REMOTE_USER) auth '
-                        'plugin module.'),
+                        'plugin module in the keystone.auth.external '
+                        'namespace.'),
         cfg.StrOpt('oauth1',
-                   help='Entrypoint for the oAuth1.0 auth plugin module.'),
+                   help='Entrypoint for the oAuth1.0 auth plugin module in '
+                        'the keystone.auth.oauth1 namespace.'),
     ],
     'paste_deploy': [
         cfg.StrOpt('config_file', default='keystone-paste.ini',
@@ -879,7 +901,8 @@ FILE_OPTIONS = {
                         'template catalog backend.'),
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Catalog backend driver.'),
+                   help='Entrypoint for the catalog backend driver in the '
+                        'keystone.catalog namespace.'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for catalog caching. This has no '
                          'effect unless global caching is enabled.'),
