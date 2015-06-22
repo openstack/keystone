@@ -50,3 +50,11 @@ def initialize_application(name):
     _unused, application = common.setup_backends(
         startup_application_fn=loadapp)
     return application
+
+
+def initialize_admin_application():
+    return initialize_application('admin')
+
+
+def initialize_public_application():
+    return initialize_application('main')
