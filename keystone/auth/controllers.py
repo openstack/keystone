@@ -41,6 +41,11 @@ AUTH_METHODS = {}
 AUTH_PLUGINS_LOADED = False
 
 
+def load_auth_method(method):
+    plugin_name = CONF.auth[method]
+    return importutils.import_object(plugin_name)
+
+
 def load_auth_methods():
     global AUTH_PLUGINS_LOADED
 
@@ -51,9 +56,7 @@ def load_auth_methods():
     # have setup all the appropriate configuration options we may need.
     config.setup_authentication()
     for plugin in set(CONF.auth.methods):
-        plugin_class = CONF.auth[plugin]
-        driver = importutils.import_object(plugin_class)
-        AUTH_METHODS[plugin] = driver
+        AUTH_METHODS[plugin] = load_auth_method(plugin)
     AUTH_PLUGINS_LOADED = True
 
 
