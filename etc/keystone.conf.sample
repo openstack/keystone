@@ -50,7 +50,7 @@
 
 # The value passed as the keyword "rounds" to passlib's encrypt method.
 # (integer value)
-#crypt_strength = 40000
+#crypt_strength = 10000
 
 # The maximum number of entities that will be returned in a collection, with no
 # limit set by default. This global limit may be then overridden for a specific
@@ -195,6 +195,7 @@
 #
 
 # Size of RPC connection pool. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_conn_pool_size
 #rpc_conn_pool_size = 30
 
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
@@ -1342,6 +1343,16 @@
 # Deprecated group/name - [DEFAULT]/amqp_auto_delete
 #amqp_auto_delete = false
 
+# Send a single AMQP reply to call message. The current behaviour since oslo-
+# incubator is to send two AMQP replies - first one with the payload, a second
+# one to ensure the other have finish to send the payload. We are going to
+# remove it in the N release, but we must keep backward compatible at the same
+# time. This option provides such compatibility - it defaults to False in
+# Liberty and can be turned on for early adopters with a new installations or
+# for testing. Please note, that this option will be removed in M release.
+# (boolean value)
+#send_single_reply = false
+
 # Qpid broker hostname. (string value)
 # Deprecated group/name - [DEFAULT]/qpid_hostname
 #qpid_hostname = localhost
@@ -1405,6 +1416,16 @@
 # Deprecated group/name - [DEFAULT]/amqp_auto_delete
 #amqp_auto_delete = false
 
+# Send a single AMQP reply to call message. The current behaviour since oslo-
+# incubator is to send two AMQP replies - first one with the payload, a second
+# one to ensure the other have finish to send the payload. We are going to
+# remove it in the N release, but we must keep backward compatible at the same
+# time. This option provides such compatibility - it defaults to False in
+# Liberty and can be turned on for early adopters with a new installations or
+# for testing. Please note, that this option will be removed in M release.
+# (boolean value)
+#send_single_reply = false
+
 # SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
 # SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
 # distributions. (string value)
@@ -1427,6 +1448,10 @@
 # notification. (floating point value)
 # Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
 #kombu_reconnect_delay = 1.0
+
+# How long to wait before considering a reconnect attempt to have failed. This
+# value should not be longer than rpc_response_timeout. (integer value)
+#kombu_reconnect_timeout = 60
 
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
