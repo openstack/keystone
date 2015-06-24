@@ -481,9 +481,13 @@ Keystone's sample configuration file ``etc/keystone.conf.sample`` is automatical
 generated based upon all of the options available within Keystone. These options
 are sourced from the many files around Keystone as well as some external libraries.
 
-If new options are added, primarily located in ``keystone.common.config``, a new
-sample configuration file needs to be generated. To generate a new sample configuration
-to be included in a commit run:
+The sample configuration file is now kept up to date by an infra job that
+generates the config file and if there are any changes will propose a review
+as the OpenStack Proposal Bot. Developers should *NOT* generate the config file
+and propose it as part of their patches since the proposal bot will do this for
+you.
+
+To generate a new sample configuration to see what it looks like, run:
 
 .. code-block:: bash
 
