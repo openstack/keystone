@@ -589,6 +589,13 @@ class MappingEngineTester(BaseApp):
                 assertion_dict[k] = v
         return assertion_dict
 
+    @staticmethod
+    def normalize_rules(rules):
+        if isinstance(rules, list):
+            return {'rules': rules}
+        else:
+            return rules
+
     @classmethod
     def main(cls):
         from keystone.contrib.federation import utils as mapping_engine
@@ -596,6 +603,7 @@ class MappingEngineTester(BaseApp):
             mapping_engine.LOG.logger.setLevel('WARN')
 
         rules = MappingEngineTester.read_rules(CONF.command.rules)
+        rules = MappingEngineTester.normalize_rules(rules)
         mapping_engine.validate_mapping_structure(rules)
 
         assertion = MappingEngineTester.read_file(CONF.command.input)
