@@ -46,10 +46,8 @@ class ConfigTestCase(tests.TestCase):
                          config.find_paste_config())
 
     def test_config_default(self):
-        self.assertEqual('keystone.auth.plugins.password.Password',
-                         CONF.auth.password)
-        self.assertEqual('keystone.auth.plugins.token.Token',
-                         CONF.auth.token)
+        self.assertIs(None, CONF.auth.password)
+        self.assertIs(None, CONF.auth.token)
 
 
 class DeprecatedTestCase(tests.TestCase):

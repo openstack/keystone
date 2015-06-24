@@ -28,15 +28,14 @@ To configure the plugin that should be used set the ``external`` option again
 in the ``auth`` section. There are two external authentication method plugins
 provided by Keystone:
 
-* ``keystone.auth.plugins.external.Default``: This plugin won't take into
-  account the domain information that the external authentication method may
-  pass down to Keystone and will always use the configured default domain. The
-  ``REMOTE_USER`` variable is the username.
+* ``DefaultDomain``: This plugin won't take into account the domain information
+  that the external authentication method may pass down to Keystone and will
+  always use the configured default domain. The ``REMOTE_USER`` variable is the
+  username. This is the default if no plugin is given.
 
-* ``keystone.auth.plugins.external.Domain``: This plugin expects that the
-  ``REMOTE_DOMAIN`` variable contains the domain for the user. If this variable
-  is not present, the configured default domain will be used. The
-  ``REMOTE_USER`` variable is the username.
+* ``Domain``: This plugin expects that the ``REMOTE_DOMAIN`` variable contains
+  the domain for the user. If this variable is not present, the configured
+  default domain will be used. The ``REMOTE_USER`` variable is the username.
 
 Using HTTPD authentication
 ==========================

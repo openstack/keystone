@@ -31,8 +31,6 @@ To enable the federation extension:
 
        [auth]
        methods = external,password,token,saml2,oidc
-       saml2 = keystone.auth.plugins.mapped.Mapped
-       oidc = keystone.auth.plugins.mapped.Mapped
 
 .. NOTE::
     The ``external`` method should be dropped to avoid any interference with

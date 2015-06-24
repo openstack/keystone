@@ -44,7 +44,7 @@ AUTH_PLUGINS_LOADED = False
 
 
 def load_auth_method(method):
-    plugin_name = CONF.auth[method]
+    plugin_name = CONF.auth.get(method) or 'default'
     try:
         namespace = 'keystone.auth.%s' % method
         driver_manager = stevedore.DriverManager(namespace, plugin_name,
