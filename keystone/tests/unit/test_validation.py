@@ -13,6 +13,7 @@
 
 import uuid
 
+import six
 import testtools
 
 from keystone.assignment import schema as assignment_schema
@@ -118,11 +119,26 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
     def do_something(self, entity):
         pass
 
+    @validation.validated(entity_create, 'entity')
+    def create_entity(self, entity):
+        pass
+
+    @validation.validated(entity_update, 'entity')
+    def update_entity(self, entity_id, entity):
+        pass
+
+    def _assert_call_entity_method_fails(self, method, *args, **kwargs):
+        e = self.assertRaises(exception.ValidationError, method,
+                              *args, **kwargs)
+
+        self.assertIn('Expecting to find entity in request body',
+                      six.text_type(e))
+
     def test_calling_with_valid_entity_kwarg_succeeds(self):
         self.do_something(entity=self.valid_entity)
 
     def test_calling_with_invalid_entity_kwarg_fails(self):
-        self.assertRaises(exception.SchemaValidationError,
+        self.assertRaises(exception.ValidationError,
                           self.do_something,
                           entity=self.invalid_entity)
 
@@ -130,7 +146,7 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
         self.do_something(self.valid_entity)
 
     def test_calling_with_invalid_entity_arg_fails(self):
-        self.assertRaises(exception.SchemaValidationError,
+        self.assertRaises(exception.ValidationError,
                           self.do_something,
                           self.invalid_entity)
 
@@ -139,6 +155,25 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
             @validation.validated(self.entity_schema, 'entity_')
             def function(entity):
                 pass
+
+    def test_create_entity_no_request_body_with_decorator(self):
+        """Test the case when request body is not provided."""
+        self._assert_call_entity_method_fails(self.create_entity)
+
+    def test_create_entity_empty_request_body_with_decorator(self):
+        """Test the case when client passing in an empty entity reference."""
+        self._assert_call_entity_method_fails(self.create_entity, entity={})
+
+    def test_update_entity_no_request_body_with_decorator(self):
+        """Test the case when request body is not provided."""
+        self._assert_call_entity_method_fails(self.update_entity,
+                                              uuid.uuid4().hex)
+
+    def test_update_entity_empty_request_body_with_decorator(self):
+        """Test the case when client passing in an empty entity reference."""
+        self._assert_call_entity_method_fails(self.update_entity,
+                                              uuid.uuid4().hex,
+                                              entity={})
 
 
 class EntityValidationTestCase(unit.BaseTestCase):

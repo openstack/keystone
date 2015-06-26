@@ -15,6 +15,7 @@ import functools
 import inspect
 
 from keystone.common.validation import validators
+from keystone import exception
 from keystone.i18n import _
 
 
@@ -26,6 +27,9 @@ def validated(request_body_schema, resource_to_validate):
 
     :param request_body_schema: a schema to validate the resource reference
     :param resource_to_validate: the reference to validate
+    :raises keystone.exception.ValidationError: if `resource_to_validate` is
+            not passed by or passed with an empty value (see wrapper method
+            below).
     :raises TypeError: at decoration time when the expected resource to
                        validate isn't found in the decorated method's
                        signature
@@ -45,10 +49,25 @@ def validated(request_body_schema, resource_to_validate):
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            if resource_to_validate in kwargs:
+            if kwargs.get(resource_to_validate):
                 schema_validator.validate(kwargs[resource_to_validate])
             else:
-                schema_validator.validate(args[arg_index])
+                try:
+                    resource = args[arg_index]
+                    # If resource to be validated is empty, no need to do
+                    # validation since the message given by jsonschema doesn't
+                    # help in this case.
+                    if resource:
+                        schema_validator.validate(resource)
+                    else:
+                        raise exception.ValidationError(
+                            attribute=resource_to_validate,
+                            target='request body')
+                # We cannot find the resource neither from kwargs nor args.
+                except IndexError:
+                    raise exception.ValidationError(
+                        attribute=resource_to_validate,
+                        target='request body')
             return func(*args, **kwargs)
         return wrapper
     return add_validator
