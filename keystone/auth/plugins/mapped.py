@@ -13,7 +13,6 @@
 import functools
 
 from oslo_log import log
-from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 
@@ -187,7 +186,7 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
     utils.validate_idp(idp, protocol, assertion)
     mapping = federation_api.get_mapping_from_idp_and_protocol(
         identity_provider, protocol)
-    rules = jsonutils.loads(mapping['rules'])
+    rules = mapping['rules']
     LOG.debug('using the following rules: %s', rules)
     rule_processor = utils.RuleProcessor(rules)
     mapped_properties = rule_processor.process(assertion)
