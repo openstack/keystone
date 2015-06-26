@@ -91,18 +91,6 @@
 #notification_format = basic
 
 #
-# From keystone.openstack.common.eventlet_backdoor
-#
-
-# Enable eventlet backdoor.  Acceptable values are 0, <port>, and
-# <start>:<end>, where 0 results in listening on a random tcp port number;
-# <port> results in listening on the specified port number (and not enabling
-# backdoor if that port is in use); and <start>:<end> results in listening on
-# the smallest unused port number within the specified range of port numbers.
-# The chosen port is displayed in the service's log file. (string value)
-#backdoor_port = <None>
-
-#
 # From oslo.log
 #
 
@@ -258,6 +246,22 @@
 # The default exchange under which topics are scoped. May be overridden by an
 # exchange name specified in the transport_url option. (string value)
 #control_exchange = keystone
+
+#
+# From oslo.service.service
+#
+
+# Enable eventlet backdoor.  Acceptable values are 0, <port>, and
+# <start>:<end>, where 0 results in listening on a random tcp port number;
+# <port> results in listening on the specified port number (and not enabling
+# backdoor if that port is in use); and <start>:<end> results in listening on
+# the smallest unused port number within the specified range of port numbers.
+# The chosen port is displayed in the service's log file. (string value)
+#backdoor_port = <None>
+
+# Enables or disables logging values of all registered options when starting a
+# service (at DEBUG level). (boolean value)
+#log_options = true
 
 
 [assignment]
