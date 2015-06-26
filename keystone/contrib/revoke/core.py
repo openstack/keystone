@@ -54,7 +54,7 @@ EXTENSION_DATA = {
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
-MEMOIZE = cache.get_memoization_decorator(section='revoke')
+MEMOIZE = cache.get_memoization_decorator(group='revoke')
 
 
 def revoked_before_cutoff_time():

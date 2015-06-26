@@ -168,7 +168,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def load_backends(self):
         # ensure the cache region instance is setup
-        cache.configure_cache_region(cache.REGION)
+        cache.configure_cache()
 
         super(RestfulTestCase, self).load_backends()
 

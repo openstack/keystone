@@ -39,7 +39,7 @@ CONF = cfg.CONF
 
 LOG = log.getLogger(__name__)
 
-MEMOIZE = cache.get_memoization_decorator(section='identity')
+MEMOIZE = cache.get_memoization_decorator(group='identity')
 
 DOMAIN_CONF_FHEAD = 'keystone.'
 DOMAIN_CONF_FTAIL = '.conf'

@@ -2311,7 +2311,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, unit.SQLDriverOverrides,
         super(LdapIdentitySqlAssignment, self).setUp()
         self.ldapdb.clear()
         self.load_backends()
-        cache.configure_cache_region(cache.REGION)
+        cache.configure_cache()
 
         sqldb.recreate()
         self.load_fixtures(default_fixtures)
