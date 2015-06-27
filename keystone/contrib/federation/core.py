@@ -21,6 +21,7 @@ import six
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
+from keystone.contrib.federation import utils
 from keystone import exception
 
 
@@ -81,6 +82,13 @@ class Manager(manager.Manager):
 
         service_providers = self.driver.get_enabled_service_providers()
         return [normalize(sp) for sp in service_providers]
+
+    def evaluate(self, idp_id, protocol_id, assertion_data):
+        mapping = self.get_mapping_from_idp_and_protocol(idp_id, protocol_id)
+        rules = mapping['rules']
+        rule_processor = utils.RuleProcessor(rules)
+        mapped_properties = rule_processor.process(assertion_data)
+        return mapped_properties, mapping['id']
 
 
 @six.add_metaclass(abc.ABCMeta)
