@@ -60,6 +60,9 @@ class Provider(common.BaseProvider):
         if token_ref.get('tenant'):
             project_id = token_ref['tenant']['id']
 
+        # maintain expiration time across rescopes
+        expires = token_ref.get('expires')
+
         parent_audit_id = token_ref.get('parent_audit_id')
         # If parent_audit_id is defined then a token authentication was made
         if parent_audit_id:
@@ -81,7 +84,8 @@ class Provider(common.BaseProvider):
             project_id=project_id,
             token=token_ref,
             include_catalog=False,
-            audit_info=audit_ids)
+            audit_info=audit_ids,
+            expires=expires)
 
         expires_at = v3_token_data['token']['expires_at']
         token_id = self.token_formatter.create_token(user_id, expires_at,
