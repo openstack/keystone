@@ -28,6 +28,7 @@ import greenlet
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import loggers
+from oslo_service import service
 
 from keystone.i18n import _LE, _LI
 
@@ -66,7 +67,7 @@ class EventletFilteringLogger(loggers.WritableLogger):
             self.logger.log(self.level, msg.rstrip())
 
 
-class Server(object):
+class Server(service.ServiceBase):
     """Server class to manage multiple WSGI sockets and applications."""
 
     def __init__(self, application, host=None, port=None, keepalive=False,
