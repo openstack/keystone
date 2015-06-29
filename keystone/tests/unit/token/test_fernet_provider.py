@@ -37,11 +37,8 @@ class TestFernetTokenProvider(tests.TestCase):
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
         self.provider = fernet.Provider()
 
-    def test_get_token_id_raises_not_implemented(self):
-        """Test that an exception is raised when calling _get_token_id."""
-        token_data = {}
-        self.assertRaises(exception.NotImplemented,
-                          self.provider._get_token_id, token_data)
+    def test_supports_bind_authentication_returns_false(self):
+        self.assertFalse(self.provider._supports_bind_authentication)
 
     def test_invalid_v3_token_raises_401(self):
         self.assertRaises(

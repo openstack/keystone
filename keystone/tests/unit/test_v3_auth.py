@@ -4033,7 +4033,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
             trustor_user_id=self.user_id,
             trustee_user_id=trustee_user['id'],
             project_id=self.project_id,
-            impersonation=True,
+            impersonation=False,
             role_ids=[self.role_id])
 
         # Create a trust
