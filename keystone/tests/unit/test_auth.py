@@ -879,9 +879,8 @@ class AuthWithTrust(AuthTest):
                           context, trust=self.sample_data)
 
     def test_create_trust(self):
-        expires_at = timeutils.strtime(timeutils.utcnow() +
-                                       datetime.timedelta(minutes=10),
-                                       fmt=TIME_FORMAT)
+        expires_at = (timeutils.utcnow() +
+                      datetime.timedelta(minutes=10)).strftime(TIME_FORMAT)
         new_trust = self.create_trust(self.sample_data, self.trustor['name'],
                                       expires_at=expires_at)
         self.assertEqual(self.trustor['id'], new_trust['trustor_user_id'])
@@ -1117,9 +1116,8 @@ class AuthWithTrust(AuthTest):
             self.controller.authenticate, {}, request_body)
 
     def test_expired_trust_get_token_fails(self):
-        expires_at = timeutils.strtime(timeutils.utcnow() +
-                                       datetime.timedelta(minutes=5),
-                                       fmt=TIME_FORMAT)
+        expires_at = (timeutils.utcnow() +
+                      datetime.timedelta(minutes=5)).strftime(TIME_FORMAT)
         time_expired = timeutils.utcnow() + datetime.timedelta(minutes=10)
         new_trust = self.create_trust(self.sample_data, self.trustor['name'],
                                       expires_at)

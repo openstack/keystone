@@ -362,9 +362,9 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         if isinstance(expires, six.string_types):
             ref['expires_at'] = expires
         elif isinstance(expires, dict):
-            ref['expires_at'] = timeutils.strtime(
-                timeutils.utcnow() + datetime.timedelta(**expires),
-                fmt=TIME_FORMAT)
+            ref['expires_at'] = (
+                timeutils.utcnow() + datetime.timedelta(**expires)
+            ).strftime(TIME_FORMAT)
         elif expires is None:
             pass
         else:

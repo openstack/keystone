@@ -16,7 +16,6 @@ from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
-from oslo_utils import timeutils
 import six
 from six.moves.urllib import parse
 
@@ -113,7 +112,7 @@ class V2TokenDataHelper(object):
 
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,
-                                  'issued_at': timeutils.strtime(),
+                                  'issued_at': utils.strtime(),
                                   'audit_ids': audit_info
                                   },
                         'user': {'id': user_ref['id'],
