@@ -253,19 +253,19 @@ class Manager(manager.Manager):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
 
-        unique_id = utils.generate_unique_id(token_id)
         # NOTE(lbragstad): Only go to persistent storage if we have a token to
         # fetch from the backend (the driver persists the token). Otherwise
         # the information about the token must be in the token id.
         if not self._needs_persistence:
-            token_ref = token_id
+            token_ref = self.validate_non_persistent_token(token_id)
         else:
+            unique_id = utils.generate_unique_id(token_id)
             # NOTE(morganfainberg): Ensure we never use the long-form token_id
             # (PKI) as part of the cache_key.
             token_ref = self._persistence.get_token(unique_id)
-        token = self._validate_v3_token(token_ref)
-        self._is_valid_token(token)
-        return token
+            token_ref = self._validate_v3_token(token_ref)
+        self._is_valid_token(token_ref)
+        return token_ref
 
     @MEMOIZE
     def _validate_token(self, token_id):
@@ -273,7 +273,9 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(_('No token in the request'))
 
         if not self._needs_persistence:
-            return self.driver.validate_v3_token(token_id)
+            # NOTE(lbragstad): This will validate v2 and v3 non-persistent
+            # tokens.
+            return self.driver.validate_non_persistent_token(token_id)
         token_ref = self._persistence.get_token(token_id)
         version = self.get_token_version(token_ref)
         if version == self.V3:
@@ -574,6 +576,17 @@ class Provider(object):
         :returns: token data
         :raises keystone.exception.TokenNotFound: If the token doesn't exist.
 
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def validate_non_persistent_token(self, token_id):
+        """Validate a given non-persistent token id and return the token_data.
+
+        :param token_id: the token id
+        :type token_id: string
+        :returns: token data
+        :raises keystone.exception.TokenNotFound: When the token is invalid
         """
         raise exception.NotImplemented()  # pragma: no cover
 

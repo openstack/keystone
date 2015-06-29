@@ -49,10 +49,14 @@ class TestFernetTokenProvider(unit.TestCase):
         self.assertFalse(self.provider.needs_persistence())
 
     def test_invalid_v3_token_raises_token_not_found(self):
+        # NOTE(lbragstad): Here we use the validate_non_persistent_token()
+        # methods because the validate_v3_token() method is strictly for
+        # validating UUID formatted tokens. It is written to assume cached
+        # tokens from a backend, where validate_non_persistent_token() is not.
         token_id = uuid.uuid4().hex
         e = self.assertRaises(
             exception.TokenNotFound,
-            self.provider.validate_v3_token,
+            self.provider.validate_non_persistent_token,
             token_id)
         self.assertIn(token_id, u'%s' % e)
 
