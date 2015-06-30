@@ -60,6 +60,8 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertEqual(
             self.v3_sample_token['token']['project']['domain']['name'],
             token_data.project_domain_name)
+        self.assertEqual(
+            self.v3_sample_token['token']['is_domain'], token_data.is_domain)
         self.assertEqual(self.v3_sample_token['token']['OS-TRUST:trust']['id'],
                          token_data.trust_id)
         self.assertEqual(

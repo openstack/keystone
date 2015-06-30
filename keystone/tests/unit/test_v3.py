@@ -47,7 +47,7 @@ class AuthTestMixin(object):
     def build_auth_scope(self, project_id=None, project_name=None,
                          project_domain_id=None, project_domain_name=None,
                          domain_id=None, domain_name=None, trust_id=None,
-                         unscoped=None):
+                         unscoped=None, is_domain=None):
         scope_data = {}
         if unscoped:
             scope_data['unscoped'] = {}
@@ -57,6 +57,8 @@ class AuthTestMixin(object):
                 scope_data['project']['id'] = project_id
             else:
                 scope_data['project']['name'] = project_name
+                if is_domain is not None:
+                    scope_data['is_domain'] = is_domain
                 if project_domain_id or project_domain_name:
                     project_domain_json = {}
                     if project_domain_id:
@@ -203,6 +205,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             properties['is_admin_project'] = {'type': 'boolean'}
             properties['catalog'] = {'type': 'array'}
             properties['roles'] = {'type': 'array'}
+            properties['is_domain'] = {'type': 'boolean'}
             properties['project'] = {
                 'type': ['object'],
                 'required': ['id', 'name', 'domain'],
@@ -240,6 +243,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             schema['optional'].append('catalog')
             schema['optional'].append('OS-TRUST:trust')
             schema['optional'].append('is_admin_project')
+            schema['optional'].append('is_domain')
 
         return schema
 

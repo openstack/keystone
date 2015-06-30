@@ -318,6 +318,7 @@ SAMPLE_V3_TOKEN = {
             "id": "01257",
             "name": "service"
         },
+        "is_domain": False,
         "roles": [
             {
                 "id": "9fe2ff9ee4384b1894a90878d3e92bab",
