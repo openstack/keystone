@@ -1354,3 +1354,88 @@ class JsonHomeTestMixin(object):
         for rel in self.JSON_HOME_DATA:
             self.assertThat(resp_data['resources'][rel],
                             matchers.Equals(self.JSON_HOME_DATA[rel]))
+
+
+class AssignmentTestMixin(object):
+    """To hold assignment helper functions."""
+
+    def build_role_assignment_query_url(self, effective=False, **filters):
+        """Build and return a role assignment query url with provided params.
+
+        Available filters are: domain_id, project_id, user_id, group_id,
+        role_id and inherited_to_projects.
+        """
+
+        query_params = '?effective' if effective else ''
+
+        for k, v in six.iteritems(filters):
+            query_params += '?' if not query_params else '&'
+
+            if k == 'inherited_to_projects':
+                query_params += 'scope.OS-INHERIT:inherited_to=projects'
+            else:
+                if k in ['domain_id', 'project_id']:
+                    query_params += 'scope.'
+                elif k not in ['user_id', 'group_id', 'role_id']:
+                    raise ValueError(
+                        'Invalid key \'%s\' in provided filters.' % k)
+
+                query_params += '%s=%s' % (k.replace('_', '.'), v)
+
+        return '/role_assignments%s' % query_params
+
+    def build_role_assignment_link(self, **attribs):
+        """Build and return a role assignment link with provided attributes.
+
+        Provided attributes are expected to contain: domain_id or project_id,
+        user_id or group_id, role_id and, optionally, inherited_to_projects.
+        """
+
+        if attribs.get('domain_id'):
+            link = '/domains/' + attribs['domain_id']
+        else:
+            link = '/projects/' + attribs['project_id']
+
+        if attribs.get('user_id'):
+            link += '/users/' + attribs['user_id']
+        else:
+            link += '/groups/' + attribs['group_id']
+
+        link += '/roles/' + attribs['role_id']
+
+        if attribs.get('inherited_to_projects'):
+            return '/OS-INHERIT%s/inherited_to_projects' % link
+
+        return link
+
+    def build_role_assignment_entity(self, link=None, **attribs):
+        """Build and return a role assignment entity with provided attributes.
+
+        Provided attributes are expected to contain: domain_id or project_id,
+        user_id or group_id, role_id and, optionally, inherited_to_projects.
+        """
+
+        entity = {'links': {'assignment': (
+            link or self.build_role_assignment_link(**attribs))}}
+
+        if attribs.get('domain_id'):
+            entity['scope'] = {'domain': {'id': attribs['domain_id']}}
+        else:
+            entity['scope'] = {'project': {'id': attribs['project_id']}}
+
+        if attribs.get('user_id'):
+            entity['user'] = {'id': attribs['user_id']}
+
+            if attribs.get('group_id'):
+                entity['links']['membership'] = ('/groups/%s/users/%s' %
+                                                 (attribs['group_id'],
+                                                  attribs['user_id']))
+        else:
+            entity['group'] = {'id': attribs['group_id']}
+
+        entity['role'] = {'id': attribs['role_id']}
+
+        if attribs.get('inherited_to_projects'):
+            entity['scope']['OS-INHERIT:inherited_to'] = 'projects'
+
+        return entity
