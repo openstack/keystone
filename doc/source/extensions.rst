@@ -86,26 +86,6 @@ a policy ID.
 
 * `API Specification for Endpoint Policy <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-endpoint-policy.html>`__
 
-----------
-Federation
-----------
-
-The Federation extension provides the ability for users to manage Identity
-Providers (IdPs) and establish a set of rules to map federation protocol
-attributes to Identity API attributes.
-
-.. NOTE:: Support status for Federation
-
-   *Experimental* (Icehouse, Juno)
-   *Stable* (Kilo)
-
-.. toctree::
-   :maxdepth: 1
-
-   extensions/federation.rst
-
-* `API Specification for Federation <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html>`__
-
 -------
 Inherit
 -------

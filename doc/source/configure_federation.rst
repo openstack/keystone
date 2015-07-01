@@ -34,24 +34,24 @@ Keystone as a Service Provider (SP)
 Prerequisites
 -------------
 
-This approach to federation supports Keystone as a Service Provider, consuming
+This approach to federation supports keystone as a Service Provider, consuming
 identity properties issued by an external Identity Provider, such as SAML
 assertions or OpenID Connect claims.
 
-Federated users are not mirrored in the Keystone identity backend
+Federated users are not mirrored in the keystone identity backend
 (for example, using the SQL driver). The external Identity Provider is
 responsible for authenticating users, and communicates the result of
-authentication to Keystone using identity properties. Keystone maps these
-values to Keystone user groups and assignments created in Keystone.
+authentication to keystone using identity properties. Keystone maps these
+values to keystone user groups and assignments created in keystone.
 
 The following configuration steps were performed on a machine running
 Ubuntu 12.04 and Apache 2.2.22.
 
 To enable federation, you'll need to:
 
-1. Run Keystone under Apache, rather than using ``keystone-all``.
+1. Run keystone under Apache, rather than using ``keystone-all``.
 2. Configure Apache to use a federation capable authentication method.
-3. Enable ``OS-FEDERATION`` extension.
+3. Configure ``federation`` in keystone.
 
 Configure Apache to use a federation capable authentication method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,34 +62,39 @@ Using Shibboleth and OpenID Connect are documented so far.
 * To use Shibboleth, follow the steps outlined at: `Setup Shibboleth`_.
 * To use OpenID Connect, follow the steps outlined at: `Setup OpenID Connect`_.
 
-.. _`Setup Shibboleth`: extensions/shibboleth.html
-.. _`Setup OpenID Connect`: extensions/openidc.html
+.. _`Setup Shibboleth`: federation/shibboleth.html
+.. _`Setup OpenID Connect`: federation/openidc.html
 
-Configure Keystone and Horizon for Single Sign-On
+Configure keystone and Horizon for Single Sign-On
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * To configure horizon to access a federated keystone,
   follow the steps outlined at: `Keystone Federation and Horizon`_.
 
-.. _`Keystone Federation and Horizon`: extensions/websso.html
+.. _`Keystone Federation and Horizon`: federation/websso.html
 
-Enable the ``OS-FEDERATION`` extension
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring Federation in Keystone
+-----------------------------------
 
-Follow the steps outlined at: `Enabling Federation Extension`_.
+Now that the Identity Provider and keystone are communicating we can start to
+configure ``federation``.
 
-.. _`Enabling Federation Extension`: extensions/federation.html
+1. Configure authentication drivers in ``keystone.conf``
+2. Add local keystone groups and roles
+3. Add Identity Provider(s), Mapping(s), and Protocol(s)
 
-Configuring Federation
-----------------------
+Configure authentication drivers in ``keystone.conf``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that the Identity Provider and Keystone are communicating we can start to
-configure the ``OS-FEDERATION`` extension.
+Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
+Names should be equal to protocol names added via Identity API v3. Here we use
+examples ``saml2`` and ``openid``.
+.. code-block:: bash
 
-1. Add local Keystone groups and roles
-2. Add Identity Provider(s), Mapping(s), and Protocol(s)
+       [auth]
+       methods = external,password,token,saml2,openid
 
-Create Keystone groups and assign roles
+Create keystone groups and assign roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As mentioned earlier, no new users will be added to the Identity backend, but
@@ -117,14 +122,14 @@ To utilize federation the following must be created in the Identity Service:
 * Mapping
 * Protocol
 
-More information on ``OS-FEDERATION`` can be found `here
+More information on ``federation in keystone`` can be found `here
 <http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html>`__.
 
 ~~~~~~~~~~~~~~~~~
 Identity Provider
 ~~~~~~~~~~~~~~~~~
 
-Create an Identity Provider object in Keystone, which represents the Identity
+Create an Identity Provider object in keystone, which represents the Identity
 Provider we will use to authenticate end users.
 
 More information on identity providers can be found `here
@@ -158,7 +163,7 @@ you want to use with the combination of the IdP and Protocol.
 Performing federated authentication
 -----------------------------------
 
-1. Authenticate externally and generate an unscoped token in Keystone
+1. Authenticate externally and generate an unscoped token in keystone
 2. Determine accessible resources
 3. Get a scoped token
 
@@ -251,11 +256,22 @@ Keystone as an Identity Provider (IdP)
     that will not be backported). These issues have been fixed and this feature
     is considered stable and supported as of the Kilo release.
 
+.. NOTE::
+
+    This feature requires installation of the xmlsec1 tool via your
+    distribution packaging system (for instance apt or yum)
+
+    Example for apt:
+
+    .. code-block:: bash
+
+            $ apt-get install xmlsec1
+
 Configuration Options
 ---------------------
 
 There are certain settings in ``keystone.conf`` that must be setup, prior to
-attempting to federate multiple Keystone deployments.
+attempting to federate multiple keystone deployments.
 
 Within ``keystone.conf``, assign values to the ``[saml]`` related fields, for
 example:
@@ -294,7 +310,7 @@ Generate Metadata
 -----------------
 
 In order to create a trust between the IdP and SP, metadata must be exchanged.
-To create metadata for your Keystone IdP, run the ``keystone-manage`` command
+To create metadata for your keystone IdP, run the ``keystone-manage`` command
 and pipe the output to a file. For example:
 
 .. code-block:: bash
@@ -312,7 +328,7 @@ In this example we are creating a new Service Provider with an ID of ``BETA``,
 a ``sp_url`` of ``http://beta.example.com/Shibboleth.sso/POST/ECP`` and a
 ``auth_url`` of ``http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth``
 . The ``sp_url`` will be used when creating a SAML assertion for ``BETA`` and
-signed by the current Keystone IdP. The ``auth_url`` is used to retrieve the
+signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
 token for ``BETA`` once the SAML assertion is sent. Although the ``enabled``
 field is optional we are passing it set to ``true`` otherwise it will be set to
 ``false`` by default.
@@ -329,8 +345,8 @@ Testing it all out
 ------------------
 
 Lastly, if a scoped token and a Service Provider scope are presented to the
-local Keystone, the result will be a full ECP wrapped SAML Assertion,
-specifically intended for the Service Provider Keystone.
+local keystone, the result will be a full ECP wrapped SAML Assertion,
+specifically intended for the Service Provider keystone.
 
 .. NOTE::
     ECP stands for Enhanced Client or Proxy, an extension from the SAML2
@@ -349,7 +365,7 @@ specifically intended for the Service Provider Keystone.
     pure SAML Assertions.
 
 At this point the ECP wrapped SAML Assertion can be sent to the Service
-Provider Keystone using the provided ``auth_url`` in the ``X-Auth-Url`` header
+Provider keystone using the provided ``auth_url`` in the ``X-Auth-Url`` header
 present in the response containing the Assertion, and a valid OpenStack
-token, issued by a Service Provider Keystone, will be returned.
+token, issued by a Service Provider keystone, will be returned.
 
