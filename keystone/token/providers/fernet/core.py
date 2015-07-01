@@ -36,65 +36,10 @@ class Provider(common.BaseProvider):
         """Should the token be written to a backend."""
         return False
 
-    def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
-        """Issue a V2 formatted token.
-
-        :param token_ref: reference describing the token
-        :param roles_ref: reference describing the roles for the token
-        :param catalog_ref: reference describing the token's catalog
-        :returns: tuple containing the ID of the token and the token data
-
-        """
-        # TODO(lbragstad): Currently, Fernet tokens don't support bind in the
-        # token format. Raise a 501 if we're dealing with bind.
-        if token_ref.get('bind'):
-            raise exception.NotImplemented()
-
-        user_id = token_ref['user']['id']
-        # Default to password since methods not provided by token_ref
-        method_names = ['password']
-        project_id = None
-        # Verify that tenant is not None in token_ref
-        if token_ref.get('tenant'):
-            project_id = token_ref['tenant']['id']
-
-        # maintain expiration time across rescopes
-        expires = token_ref.get('expires')
-
-        parent_audit_id = token_ref.get('parent_audit_id')
-        # If parent_audit_id is defined then a token authentication was made
-        if parent_audit_id:
-            method_names.append('token')
-
-        audit_ids = provider.audit_info(parent_audit_id)
-
-        # Get v3 token data and exclude building v3 specific catalog. This is
-        # due to the fact that the V2TokenDataHelper.format_token() method
-        # doesn't build any of the token_reference from other Keystone APIs.
-        # Instead, it builds it from what is persisted in the token reference.
-        # Here we are going to leverage the V3TokenDataHelper.get_token_data()
-        # method written for V3 because it goes through and populates the token
-        # reference dynamically. Once we have a V3 token reference, we can
-        # attempt to convert it to a V2 token response.
-        v3_token_data = self.v3_token_data_helper.get_token_data(
-            user_id,
-            method_names,
-            project_id=project_id,
-            token=token_ref,
-            include_catalog=False,
-            audit_info=audit_ids,
-            expires=expires)
-
-        expires_at = v3_token_data['token']['expires_at']
-        token_id = self.token_formatter.create_token(user_id, expires_at,
-                                                     audit_ids,
-                                                     methods=method_names,
-                                                     project_id=project_id)
-        self._build_issued_at_info(token_id, v3_token_data)
-        # Convert v3 to v2 token data and build v2 catalog
-        token_data = self.v2_token_data_helper.v3_to_v2_token(v3_token_data)
-        token_data['access']['token']['id'] = token_id
-
+    def issue_v2_token(self, *args, **kwargs):
+        token_id, token_data = super(Provider, self).issue_v2_token(
+            *args, **kwargs)
+        self._build_issued_at_info(token_id, token_data)
         return token_id, token_data
 
     def issue_v3_token(self, *args, **kwargs):
@@ -115,8 +60,12 @@ class Provider(common.BaseProvider):
         # that we have to rely on when we validate the token.
         fernet_creation_datetime_obj = self.token_formatter.creation_time(
             token_id)
-        token_data['token']['issued_at'] = ks_utils.isotime(
-            at=fernet_creation_datetime_obj, subsecond=True)
+        if token_data.get('access'):
+            token_data['access']['token']['issued_at'] = ks_utils.isotime(
+                at=fernet_creation_datetime_obj, subsecond=True)
+        else:
+            token_data['token']['issued_at'] = ks_utils.isotime(
+                at=fernet_creation_datetime_obj, subsecond=True)
 
     def _build_federated_info(self, token_data):
         """Extract everything needed for federated tokens.
@@ -193,6 +142,7 @@ class Provider(common.BaseProvider):
         self.v3_token_data_helper.populate_roles_for_groups(
             token_dict, group_ids, project_id, domain_id, user_id)
 
+    # FIXME(lbragstad): Consolidate this into BaseProvider.validate_v2_token()
     def validate_v2_token(self, token_ref):
         """Validate a V2 formatted token.
 
@@ -230,6 +180,38 @@ class Provider(common.BaseProvider):
         token_data['access']['token']['id'] = token_ref
         return token_data
 
+    def _extract_v2_token_data(self, token_data):
+        user_id = token_data['access']['user']['id']
+        expires_at = token_data['access']['token']['expires']
+        audit_ids = token_data['access']['token'].get('audit_ids')
+        methods = ['password']
+        if audit_ids:
+            parent_audit_id = token_data['access']['token'].get(
+                'parent_audit_id')
+            audit_ids = provider.audit_info(parent_audit_id)
+            if parent_audit_id:
+                methods.append('token')
+        project_id = token_data['access']['token'].get('tenant', {}).get('id')
+        domain_id = None
+        trust_id = None
+        federated_info = None
+        return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
+                trust_id, federated_info)
+
+    def _extract_v3_token_data(self, token_data):
+        """Extract information from a v3 token reference."""
+        user_id = token_data['token']['user']['id']
+        expires_at = token_data['token']['expires_at']
+        audit_ids = token_data['token']['audit_ids']
+        methods = token_data['token'].get('methods')
+        domain_id = token_data['token'].get('domain', {}).get('id')
+        project_id = token_data['token'].get('project', {}).get('id')
+        trust_id = token_data['token'].get('OS-TRUST:trust', {}).get('id')
+        federated_info = self._build_federated_info(token_data)
+
+        return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
+                trust_id, federated_info)
+
     def _get_token_id(self, token_data):
         """Generate the token_id based upon the data in token_data.
 
@@ -238,16 +220,25 @@ class Provider(common.BaseProvider):
         :rtype: six.text_type
 
         """
-        return self.token_formatter.create_token(
-            token_data['token']['user']['id'],
-            token_data['token']['expires_at'],
-            token_data['token']['audit_ids'],
-            methods=token_data['token'].get('methods'),
-            domain_id=token_data['token'].get('domain', {}).get('id'),
-            project_id=token_data['token'].get('project', {}).get('id'),
-            trust_id=token_data['token'].get('OS-TRUST:trust', {}).get('id'),
-            federated_info=self._build_federated_info(token_data)
-        )
+        # NOTE(lbragstad): Only v2.0 token responses include an 'access'
+        # attribute.
+        if token_data.get('access'):
+            (user_id, expires_at, audit_ids, methods, domain_id, project_id,
+                trust_id, federated_info) = self._extract_v2_token_data(
+                    token_data)
+        else:
+            (user_id, expires_at, audit_ids, methods, domain_id, project_id,
+                trust_id, federated_info) = self._extract_v3_token_data(
+                    token_data)
+
+        return self.token_formatter.create_token(user_id,
+                                                 expires_at,
+                                                 audit_ids,
+                                                 methods=methods,
+                                                 domain_id=domain_id,
+                                                 project_id=project_id,
+                                                 trust_id=trust_id,
+                                                 federated_info=federated_info)
 
     @property
     def _supports_bind_authentication(self):

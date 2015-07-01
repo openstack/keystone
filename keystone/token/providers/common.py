@@ -511,6 +511,11 @@ class BaseProvider(provider.Provider):
 
     def issue_v2_token(self, token_ref, roles_ref=None,
                        catalog_ref=None):
+        if token_ref.get('bind') and not self._supports_bind_authentication:
+            msg = _('The configured token provider does not support bind '
+                    'authentication.')
+            raise exception.NotImplemented(message=msg)
+
         metadata_ref = token_ref['metadata']
         trust_ref = None
         if CONF.trust.enabled and metadata_ref and 'trust_id' in metadata_ref:
