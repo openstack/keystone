@@ -8,7 +8,7 @@ eventlet>=0.17.4
 greenlet>=0.3.2
 PasteDeploy>=1.5.0
 Paste
-Routes!=2.0,>=1.12.3
+Routes!=2.0,!=2.1,>=1.12.3
 cryptography>=0.8.2 # Apache-2.0
 six>=1.9.0
 SQLAlchemy<1.1.0,>=0.9.7
@@ -20,7 +20,7 @@ keystonemiddleware>=1.5.0
 oslo.concurrency>=2.1.0 # Apache-2.0
 oslo.config>=1.11.0 # Apache-2.0
 oslo.messaging!=1.12.0,>=1.8.0 # Apache-2.0
-oslo.db>=1.10.0 # Apache-2.0
+oslo.db>=1.12.0 # Apache-2.0
 oslo.i18n>=1.5.0 # Apache-2.0
 oslo.log>=1.2.0 # Apache-2.0
 oslo.middleware!=2.0.0,>=1.2.0 # Apache-2.0
