@@ -43,6 +43,9 @@ class TestFernetTokenProvider(tests.TestCase):
         self.assertRaises(exception.NotImplemented,
                           self.provider._get_token_id, token_data)
 
+    def test_needs_persistence_returns_false(self):
+        self.assertFalse(self.provider.needs_persistence())
+
     def test_invalid_v3_token_raises_401(self):
         self.assertRaises(
             exception.Unauthorized,
