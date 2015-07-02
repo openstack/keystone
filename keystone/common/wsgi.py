@@ -288,6 +288,19 @@ class Application(BaseApplication):
         return {self._normalize_arg(k): v for (k, v) in six.iteritems(d)}
 
     def assert_admin(self, context):
+        """Ensure the user is an admin.
+
+        An Unauthorized exception will be raised if
+        a token could not be found/authorized, a user
+        is invalid, or a tenant is invalid/not scoped.
+
+        Additionally, a Forbidden exception will be
+        raised if the user is not an admin and does
+        not have the admin role.
+
+        :raises exception.Unauthorized, exception.Forbidden
+        """
+
         if not context['is_admin']:
             try:
                 user_token_ref = token_model.KeystoneToken(
