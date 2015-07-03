@@ -617,6 +617,27 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
         self.assertEqual(endpoint_v2['region'], endpoint_v3['region_id'])
 
+    def test_deleting_endpoint_with_space_in_url(self):
+        # create a v3 endpoint ref
+        ref = self.new_endpoint_ref(service_id=self.service['id'])
+
+        # add a space to all urls (intentional "i d" to test bug)
+        url_with_space = "http://127.0.0.1:8774 /v1.1/\$(tenant_i d)s"
+        ref['publicurl'] = url_with_space
+        ref['internalurl'] = url_with_space
+        ref['adminurl'] = url_with_space
+        ref['url'] = url_with_space
+
+        # add the endpoint to the database
+        r = self.post('/endpoints', body={'endpoint': ref})
+        endpoint = r.result['endpoint']
+
+        # delete the endpoint
+        self.delete('/endpoints/%s' % endpoint['id'])
+
+        # make sure it's deleted (GET should return 404)
+        self.get('/endpoints/%s' % endpoint['id'], expected_status=404)
+
 
 class TestCatalogAPISQL(tests.TestCase):
     """Tests for the catalog Manager against the SQL backend.
