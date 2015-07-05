@@ -116,6 +116,7 @@ class MappingModel(sql.ModelBase, sql.DictBase):
     @classmethod
     def from_dict(cls, dictionary):
         new_dictionary = dictionary.copy()
+        new_dictionary['rules'] = jsonutils.dumps(new_dictionary['rules'])
         return cls(**new_dictionary)
 
     def to_dict(self):
@@ -123,6 +124,7 @@ class MappingModel(sql.ModelBase, sql.DictBase):
         d = dict()
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
+        d['rules'] = jsonutils.loads(d['rules'])
         return d
 
 
@@ -274,7 +276,7 @@ class Federation(core.Driver):
     def create_mapping(self, mapping_id, mapping):
         ref = {}
         ref['id'] = mapping_id
-        ref['rules'] = jsonutils.dumps(mapping.get('rules'))
+        ref['rules'] = mapping.get('rules')
         with sql.transaction() as session:
             mapping_ref = MappingModel.from_dict(ref)
             session.add(mapping_ref)
@@ -299,7 +301,7 @@ class Federation(core.Driver):
     def update_mapping(self, mapping_id, mapping):
         ref = {}
         ref['id'] = mapping_id
-        ref['rules'] = jsonutils.dumps(mapping.get('rules'))
+        ref['rules'] = mapping.get('rules')
         with sql.transaction() as session:
             mapping_ref = self._get_mapping(session, mapping_id)
             old_mapping = mapping_ref.to_dict()

@@ -20,7 +20,6 @@ from lxml import etree
 import mock
 from oslo_config import cfg
 from oslo_log import log
-from oslo_serialization import jsonutils
 from oslo_utils import importutils
 from oslotest import mockpatch
 import saml2
@@ -1274,7 +1273,7 @@ class MappingCRUDTests(FederationTests):
         self.assertIsNotNone(entity.get('id'))
         self.assertIsNotNone(entity.get('rules'))
         if ref:
-            self.assertEqual(jsonutils.loads(entity['rules']), ref['rules'])
+            self.assertEqual(entity['rules'], ref['rules'])
         return entity
 
     def _create_default_mapping_entry(self):
