@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from six.moves import http_client
 from testtools import matchers
 
 from keystone.tests.unit import test_v3
@@ -48,7 +49,9 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         # Test when the resource does not exist also ensures
         # that there is not a false negative after creation.
 
-        self.assert_head_and_get_return_same_response(url, expected_status=404)
+        self.assert_head_and_get_return_same_response(
+            url,
+            expected_status=http_client.NOT_FOUND)
 
         self.put(url, expected_status=204)
 
@@ -58,7 +61,9 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.delete(url, expected_status=204)
 
         # test that the deleted resource is no longer accessible
-        self.assert_head_and_get_return_same_response(url, expected_status=404)
+        self.assert_head_and_get_return_same_response(
+            url,
+            expected_status=http_client.NOT_FOUND)
 
     def test_crud_for_policy_for_explicit_endpoint(self):
         """PUT, HEAD and DELETE for explicit endpoint policy."""
@@ -136,7 +141,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.delete('/endpoints/%(endpoint_id)s' % {
             'endpoint_id': self.endpoint['id']})
 
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_region_service_association_cleanup_when_region_deleted(self):
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
@@ -151,7 +156,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.delete('/regions/%(region_id)s' % {
             'region_id': self.region['id']})
 
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_region_service_association_cleanup_when_service_deleted(self):
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
@@ -166,7 +171,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.delete('/services/%(service_id)s' % {
             'service_id': self.service['id']})
 
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_service_association_cleanup_when_service_deleted(self):
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
@@ -180,7 +185,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.delete('/policies/%(policy_id)s' % {
             'policy_id': self.policy['id']})
 
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_service_association_cleanup_when_policy_deleted(self):
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
@@ -194,7 +199,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.delete('/services/%(service_id)s' % {
             'service_id': self.service['id']})
 
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
 
 class JsonHomeTests(test_v3.JsonHomeTestMixin):

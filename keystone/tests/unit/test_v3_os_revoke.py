@@ -15,6 +15,7 @@ import uuid
 
 from oslo_utils import timeutils
 import six
+from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import utils
@@ -112,7 +113,8 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_list_since_invalid(self):
-        self.get('/OS-REVOKE/events?since=blah', expected_status=400)
+        self.get('/OS-REVOKE/events?since=blah',
+                 expected_status=http_client.BAD_REQUEST)
 
     def test_list_since_valid(self):
         resp = self.get('/OS-REVOKE/events?since=2013-02-27T18:30:59.999999Z')

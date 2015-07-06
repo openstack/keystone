@@ -14,6 +14,7 @@ import copy
 import uuid
 
 from oslo_config import cfg
+from six.moves import http_client
 
 from keystone import exception
 from keystone.tests.unit import test_v3
@@ -103,21 +104,24 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
     def test_get_non_existant_config(self):
         """Call ``GET /domains{domain_id}/config when no config defined``."""
         self.get('/domains/%(domain_id)s/config' % {
-            'domain_id': self.domain['id']}, expected_status=404)
+            'domain_id': self.domain['id']},
+            expected_status=http_client.NOT_FOUND)
 
     def test_get_non_existant_config_group(self):
         """Call ``GET /domains{domain_id}/config/{group_not_exist}``."""
         config = {'ldap': {'url': uuid.uuid4().hex}}
         self.domain_config_api.create_config(self.domain['id'], config)
         self.get('/domains/%(domain_id)s/config/identity' % {
-            'domain_id': self.domain['id']}, expected_status=404)
+            'domain_id': self.domain['id']},
+            expected_status=http_client.NOT_FOUND)
 
     def test_get_non_existant_config_option(self):
         """Call ``GET /domains{domain_id}/config/group/{option_not_exist}``."""
         config = {'ldap': {'url': uuid.uuid4().hex}}
         self.domain_config_api.create_config(self.domain['id'], config)
         self.get('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
-            'domain_id': self.domain['id']}, expected_status=404)
+            'domain_id': self.domain['id']},
+            expected_status=http_client.NOT_FOUND)
 
     def test_update_config(self):
         """Call ``PATCH /domains/{domain_id}/config``."""
@@ -163,7 +167,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.patch('/domains/%(domain_id)s/config/%(invalid_group)s' % {
             'domain_id': self.domain['id'], 'invalid_group': invalid_group},
             body={'config': new_config},
-            expected_status=403)
+            expected_status=http_client.FORBIDDEN)
         # Trying to update a valid group, but one that is not in the current
         # config should result in NotFound
         config = {'ldap': {'suffix': uuid.uuid4().hex}}
@@ -172,7 +176,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.patch('/domains/%(domain_id)s/config/identity' % {
             'domain_id': self.domain['id']},
             body={'config': new_config},
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)
 
     def test_update_config_option(self):
         """Call ``PATCH /domains/{domain_id}/config/{group}/{option}``."""
@@ -199,7 +203,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
                 'domain_id': self.domain['id'],
                 'invalid_option': invalid_option},
             body={'config': new_config},
-            expected_status=403)
+            expected_status=http_client.FORBIDDEN)
         # Trying to update a valid option, but one that is not in the current
         # config should result in NotFound
         new_config = {'suffix': uuid.uuid4().hex}
@@ -207,4 +211,4 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             '/domains/%(domain_id)s/config/ldap/suffix' % {
                 'domain_id': self.domain['id']},
             body={'config': new_config},
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)

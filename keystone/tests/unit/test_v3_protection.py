@@ -17,6 +17,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_serialization import jsonutils
+from six.moves import http_client
 
 from keystone import exception
 from keystone.policy.backends import rules
@@ -428,7 +429,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         user2_token = self.get_requested_token(user2_auth)
 
         self.get('/auth/tokens', token=user1_token,
-                 headers={'X-Subject-Token': user2_token}, expected_status=403)
+                 headers={'X-Subject-Token': user2_token},
+                 expected_status=http_client.FORBIDDEN)
 
     def test_admin_validate_user_token(self):
         # An admin can validate a user's token.
@@ -490,7 +492,7 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
 
         self.head('/auth/tokens', token=user1_token,
                   headers={'X-Subject-Token': user2_token},
-                  expected_status=403)
+                  expected_status=http_client.FORBIDDEN)
 
     def test_admin_check_user_token(self):
         # An admin can check a user's token.
@@ -552,7 +554,7 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
 
         self.delete('/auth/tokens', token=user1_token,
                     headers={'X-Subject-Token': user2_token},
-                    expected_status=403)
+                    expected_status=http_client.FORBIDDEN)
 
     def test_admin_revoke_user_token(self):
         # An admin can revoke a user's token.
@@ -948,7 +950,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         collection_url = self.build_role_assignment_query_url(
             domain_id=self.domainB['id'])
-        self.get(collection_url, auth=self.auth, expected_status=403)
+        self.get(collection_url, auth=self.auth,
+                 expected_status=http_client.FORBIDDEN)
 
     def test_domain_user_list_assignments_of_domain_failed(self):
         self.auth = self.build_authentication_request(
@@ -958,7 +961,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         collection_url = self.build_role_assignment_query_url(
             domain_id=self.domainA['id'])
-        self.get(collection_url, auth=self.auth, expected_status=403)
+        self.get(collection_url, auth=self.auth,
+                 expected_status=http_client.FORBIDDEN)
 
     def test_cloud_admin_list_assignments_of_project(self):
         self.auth = self.build_authentication_request(
@@ -1021,7 +1025,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         collection_url = self.build_role_assignment_query_url(
             project_id=self.project['id'])
-        self.get(collection_url, auth=self.auth, expected_status=403)
+        self.get(collection_url, auth=self.auth,
+                 expected_status=http_client.FORBIDDEN)
 
     def test_cloud_admin(self):
         self.auth = self.build_authentication_request(
@@ -1145,7 +1150,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         user2_token = self.get_requested_token(user2_auth)
 
         self.get('/auth/tokens', token=user1_token,
-                 headers={'X-Subject-Token': user2_token}, expected_status=403)
+                 headers={'X-Subject-Token': user2_token},
+                 expected_status=http_client.FORBIDDEN)
 
     def test_admin_validate_user_token(self):
         # An admin can validate a user's token.
@@ -1207,7 +1213,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         self.head('/auth/tokens', token=user1_token,
                   headers={'X-Subject-Token': user2_token},
-                  expected_status=403)
+                  expected_status=http_client.FORBIDDEN)
 
     def test_admin_check_user_token(self):
         # An admin can check a user's token.
@@ -1269,7 +1275,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         self.delete('/auth/tokens', token=user1_token,
                     headers={'X-Subject-Token': user2_token},
-                    expected_status=403)
+                    expected_status=http_client.FORBIDDEN)
 
     def test_admin_revoke_user_token(self):
         # An admin can revoke a user's token.

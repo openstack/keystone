@@ -22,6 +22,7 @@ import mock
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
+from six.moves import http_client
 from six.moves import range
 import webob
 
@@ -1032,7 +1033,8 @@ class ClientDrivenTestCase(tests.TestCase):
                     (new_password, self.user_two['password']))
         self.public_server.application(req.environ,
                                        responseobject.start_fake_response)
-        self.assertEqual(403, responseobject.response_status)
+        self.assertEqual(http_client.FORBIDDEN,
+                         responseobject.response_status)
 
         self.user_two['password'] = new_password
         self.assertRaises(client_exceptions.Unauthorized,
