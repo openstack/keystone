@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Extension supporting Federation."""
+"""Main entry point into the Federation service."""
 
 import abc
 

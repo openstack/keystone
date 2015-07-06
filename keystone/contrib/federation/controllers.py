@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Extensions supporting Federation."""
+"""Workflow logic for the Federation service."""
 
 import string
 
