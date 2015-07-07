@@ -164,9 +164,6 @@
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
 
-# Enables or disables fatal status of deprecations. (boolean value)
-#fatal_deprecations = false
-
 # The format for an instance that is passed with the log message. (string
 # value)
 #instance_format = "[instance: %(uuid)s] "
