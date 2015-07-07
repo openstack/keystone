@@ -14,6 +14,7 @@
 
 import uuid
 
+import mock
 from oslo_config import cfg
 import oslo_context.context
 from oslo_serialization import jsonutils
@@ -28,6 +29,7 @@ from keystone.common import cache
 from keystone.common.validation import validators
 from keystone import exception
 from keystone import middleware
+from keystone.middleware import auth as middleware_auth
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import rest
@@ -1345,12 +1347,27 @@ class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
         self.assertEqual('body', resp.text)  # just to make sure it worked
         return resp.request
 
-    def test_admin_token_auth_context(self):
-        # test to make sure AuthContextMiddleware does not attempt to build
-        # auth context if the incoming auth token is the special admin token
+    def test_admin_auth_context(self):
+        # test to make sure AuthContextMiddleware does not attempt to build the
+        # auth context if the admin_token middleware indicates it's admin
+        # already.
+        token_id = uuid.uuid4().hex  # token doesn't matter.
+        # the admin_token middleware sets is_admin in the context.
+        extra_environ = {middleware.CONTEXT_ENV: {'is_admin': True}}
+        req = self._middleware_request(token_id, extra_environ)
+        auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
+        self.assertDictEqual({}, auth_context)
+
+    @mock.patch.object(middleware_auth.versionutils,
+                       'report_deprecated_feature')
+    def test_admin_token_auth_context_deprecated(self, mock_report_deprecated):
+        # For backwards compatibility AuthContextMiddleware will check that the
+        # admin token (as configured in the CONF file) is present and not
+        # attempt to build the auth context. This is deprecated.
         req = self._middleware_request(CONF.admin_token)
         auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertDictEqual({}, auth_context)
+        self.assertEqual(1, mock_report_deprecated.call_count)
 
 
 # NOTE(gyee): test AuthContextMiddleware here instead of test_middleware.py
