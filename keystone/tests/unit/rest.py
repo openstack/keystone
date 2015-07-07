@@ -119,7 +119,7 @@ class RestfulTestCase(tests.TestCase):
         self.assertEqual(
             response.status_code,
             expected_status,
-            'Status code %s is not %s, as expected)\n\n%s' %
+            'Status code %s is not %s, as expected\n\n%s' %
             (response.status_code, expected_status, response.body))
 
     def assertValidResponseHeaders(self, response):
