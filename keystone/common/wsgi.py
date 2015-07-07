@@ -290,15 +290,12 @@ class Application(BaseApplication):
     def assert_admin(self, context):
         """Ensure the user is an admin.
 
-        An Unauthorized exception will be raised if
-        a token could not be found/authorized, a user
-        is invalid, or a tenant is invalid/not scoped.
+        :raises keystone.exception.Unauthorized: if a token could not be
+            found/authorized, a user is invalid, or a tenant is
+            invalid/not scoped.
+        :raises keystone.exception.Forbidden: if the user is not an admin and
+            does not have the admin role
 
-        Additionally, a Forbidden exception will be
-        raised if the user is not an admin and does
-        not have the admin role.
-
-        :raises exception.Unauthorized, exception.Forbidden
         """
 
         if not context['is_admin']:
