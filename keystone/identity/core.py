@@ -971,6 +971,19 @@ class Manager(manager.Manager):
         """
         pass
 
+    @notifications.internal(
+        notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE)
+    def emit_invalidate_grant_token_persistence(self, user_project):
+        """Emit a notification to the callback system to revoke grant tokens.
+
+        This method and associated callback listener removes the need for
+        making a direct call to another manager to delete and revoke tokens.
+
+        :param user_project: {'user_id': user_id, 'project_id': project_id}
+        :type user_project: dict
+        """
+        pass
+
     @manager.response_truncated
     @domains_configured
     @exception_translated('user')
