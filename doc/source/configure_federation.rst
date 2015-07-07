@@ -89,6 +89,7 @@ Configure authentication drivers in ``keystone.conf``
 Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
 Names should be equal to protocol names added via Identity API v3. Here we use
 examples ``saml2`` and ``openid``.
+
 .. code-block:: bash
 
        [auth]
