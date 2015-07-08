@@ -13,7 +13,9 @@
 """Utilities for Federation Extension."""
 
 import ast
+import os
 import re
+import tempfile
 
 import jsonschema
 from oslo_config import cfg
@@ -783,3 +785,22 @@ def assert_enabled_service_provider_object(service_provider):
         msg = _('Service Provider %(sp)s is disabled') % {'sp': sp_id}
         LOG.debug(msg)
         raise exception.Forbidden(msg)
+
+
+def write_to_tempfile(content, suffix='', prefix='tmp'):
+    """Create temporary file or use existing file.
+
+    This util is needed for creating temporary file with
+    specified content, suffix and prefix.
+
+    :param content: content for temporary file.
+    :param suffix: same as parameter 'suffix' for mkstemp
+    :param prefix: same as parameter 'prefix' for mkstemp
+    """
+    (fd, path) = tempfile.mkstemp(suffix=suffix, dir=None, prefix=prefix)
+
+    try:
+        os.write(fd, content)
+    finally:
+        os.close(fd)
+    return path
