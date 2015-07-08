@@ -736,7 +736,7 @@ class V3Controller(wsgi.Application):
         except (exception.TokenNotFound,
                 exception.UnsupportedTokenVersionException):
             LOG.warning(_LW('Invalid token found while getting domain ID '
-                            'for list request'))
+                            'for create request'))
             raise exception.Unauthorized()
 
         if token_ref.domain_scoped:
