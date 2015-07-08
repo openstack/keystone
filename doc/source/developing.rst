@@ -48,7 +48,7 @@ To run the Keystone Admin and API server instances, use:
 
 .. code-block:: bash
 
-    $ tools/with_venv.sh bin/keystone-all
+    $ tools/with_venv.sh keystone-all
 
 This runs Keystone with the configuration the etc/ directory of the project.
 See :doc:`configuration` for details on how Keystone is configured. By default,
