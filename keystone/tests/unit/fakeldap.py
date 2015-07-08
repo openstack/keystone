@@ -87,7 +87,7 @@ def _internal_attr(attr_name, value_or_values):
     return [attr_fn(value_or_values)]
 
 
-def _match_query(query, attrs):
+def _match_query(query, attrs, attrs_checked):
     """Match an ldap query to an attribute dictionary.
 
     The characters &, |, and ! are supported in the query. No syntax checking
@@ -102,12 +102,14 @@ def _match_query(query, attrs):
             matchfn = any
         # cut off the & or |
         groups = _paren_groups(inner[1:])
-        return matchfn(_match_query(group, attrs) for group in groups)
+        return matchfn(_match_query(group, attrs, attrs_checked)
+                       for group in groups)
     if inner.startswith('!'):
         # cut off the ! and the nested parentheses
-        return not _match_query(query[2:-1], attrs)
+        return not _match_query(query[2:-1], attrs, attrs_checked)
 
     (k, _sep, v) = inner.partition('=')
+    attrs_checked.add(k.lower())
     return _match(k, v, attrs)
 
 
@@ -451,6 +453,10 @@ class FakeLdap(core.LDAPHandler):
         if server_fail:
             raise ldap.SERVER_DOWN
 
+        if (not filterstr) and (scope != ldap.SCOPE_BASE):
+            raise AssertionError('Search without filter on onelevel or '
+                                 'subtree scope')
+
         if scope == ldap.SCOPE_BASE:
             try:
                 item_dict = self.db[self.key(base)]
@@ -509,7 +515,13 @@ class FakeLdap(core.LDAPHandler):
             id_val = core.utf8_decode(id_val)
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
-            if not filterstr or _match_query(filterstr, match_attrs):
+            attrs_checked = set()
+            if not filterstr or _match_query(filterstr, match_attrs,
+                                             attrs_checked):
+                if (filterstr and
+                        (scope != ldap.SCOPE_BASE) and
+                        ('objectclass' not in attrs_checked)):
+                    raise AssertionError('No objectClass in search filter')
                 # filter the attributes by attrlist
                 attrs = {k: v for k, v in six.iteritems(attrs)
                          if not attrlist or k in attrlist}
