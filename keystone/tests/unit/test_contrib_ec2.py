@@ -193,3 +193,17 @@ class TestCredentialEc2(tests.TestCase):
         self.assertRaises(exception.Unauthorized,
                           self.controller.check_signature,
                           creds_ref, sig_ref)
+
+    def test_check_non_admin_user(self):
+        """Checking if user is admin causes uncaught error.
+
+           When checking if a user is an admin,
+           keystone.exception.Unauthorized is raised but
+           not caught if the user is not an admin.
+        """
+        # make a non-admin user
+        context = {'is_admin': False, 'token_id': uuid.uuid4().hex}
+
+        # check if user is admin
+        # no exceptions should be raised
+        self.controller._is_admin(context)

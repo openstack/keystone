@@ -343,7 +343,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
             # to properly perform policy enforcement.
             self.assert_admin(context)
             return True
-        except exception.Forbidden:
+        except (exception.Forbidden, exception.Unauthorized):
             return False
 
     def _assert_owner(self, user_id, credential_id):
