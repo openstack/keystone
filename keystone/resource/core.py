@@ -96,14 +96,14 @@ class Manager(manager.Manager):
             parents_list.append(parent_ref)
             for ref in parents_list:
                 if ref.get('domain_id') != tenant.get('domain_id'):
-                    raise exception.ForbiddenAction(
-                        action=_('cannot create a project within a different '
-                                 'domain than its parents.'))
+                    raise exception.ValidationError(
+                        message=_('cannot create a project within a different '
+                                  'domain than its parents.'))
                 if not ref.get('enabled', True):
-                    raise exception.ForbiddenAction(
-                        action=_('cannot create a project in a '
-                                 'branch containing a disabled '
-                                 'project: %s') % ref['id'])
+                    raise exception.ValidationError(
+                        message=_('cannot create a project in a '
+                                  'branch containing a disabled '
+                                  'project: %s') % ref['id'])
             self._assert_max_hierarchy_depth(tenant.get('parent_id'),
                                              parents_list)
 

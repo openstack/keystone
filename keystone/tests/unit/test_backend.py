@@ -2899,7 +2899,7 @@ class IdentityTests(object):
                         'enabled': True,
                         'parent_id': root_project['id']}
 
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ValidationError,
                           self.resource_api.create_project,
                           leaf_project['id'],
                           leaf_project)
@@ -2958,7 +2958,7 @@ class IdentityTests(object):
 
         # It's not possible to create a project under a disabled one in the
         # hierarchy
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ValidationError,
                           self.resource_api.create_project,
                           project2['id'],
                           project2)
