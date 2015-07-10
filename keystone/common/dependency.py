@@ -15,9 +15,9 @@
 """This module provides support for dependency injection.
 
 Providers are registered via the ``@provider()`` decorator, and dependencies on
-them are registered with ``@requires()`` or ``@optional()``. Providers are
-available to their consumers via an attribute. See the documentation for the
-individual functions for more detail.
+them are registered with ``@requires()``. Providers are available to their
+consumers via an attribute. See the documentation for the individual functions
+for more detail.
 
 See also:
 
@@ -35,7 +35,6 @@ from keystone.i18n import _
 _REGISTRY = {}
 
 _future_dependencies = {}
-_future_optionals = {}
 _factories = {}
 
 
@@ -122,7 +121,6 @@ def _process_dependencies(obj):
             setattr(obj, dependency, get_provider(dependency))
 
     process(obj, '_dependencies', _future_dependencies)
-    process(obj, '_optionals', _future_optionals)
 
 
 def requires(*dependencies):
@@ -175,34 +173,6 @@ def requires(*dependencies):
     return wrapped
 
 
-def optional(*dependencies):
-    """Similar to ``@requires()``, except that the dependencies are optional.
-
-    If no provider is available, the attributes will be set to ``None``.
-
-    """
-    def wrapper(self, *args, **kwargs):
-        """Inject each dependency from the registry."""
-        self.__wrapped_init__(*args, **kwargs)
-        _process_dependencies(self)
-
-    def wrapped(cls):
-        """Note the optional dependencies on the object for later injection.
-
-        The dependencies of the parent class are combined with that of the
-        child class to create a new set of dependencies.
-
-        """
-        existing_optionals = getattr(cls, '_optionals', set())
-        cls._optionals = existing_optionals.union(dependencies)
-        if not hasattr(cls, '__wrapped_init__'):
-            cls.__wrapped_init__ = cls.__init__
-            cls.__init__ = wrapper
-        return cls
-
-    return wrapped
-
-
 def resolve_future_dependencies(__provider_name=None):
     """Forces injection of all dependencies.
 
@@ -224,24 +194,11 @@ def resolve_future_dependencies(__provider_name=None):
         # A provider was registered, so take care of any objects depending on
         # it.
         targets = _future_dependencies.pop(__provider_name, [])
-        targets.extend(_future_optionals.pop(__provider_name, []))
 
         for target in targets:
             setattr(target, __provider_name, get_provider(__provider_name))
 
         return
-
-    # Resolve optional dependencies, sets the attribute to None if there's no
-    # provider registered.
-    for dependency, targets in six.iteritems(_future_optionals.copy()):
-        provider = get_provider(dependency, optional=GET_OPTIONAL)
-        if provider is None:
-            factory = _factories.get(dependency)
-            if factory:
-                provider = factory()
-                new_providers[dependency] = provider
-        for target in targets:
-            setattr(target, dependency, provider)
 
     # Resolve future dependencies, raises UnresolvableDependencyException if
     # there's no provider registered.
@@ -273,4 +230,3 @@ def reset():
 
     _REGISTRY.clear()
     _future_dependencies.clear()
-    _future_optionals.clear()
