@@ -32,7 +32,7 @@ if not xmldsig:
 
 from keystone.auth import controllers as auth_controllers
 from keystone.auth.plugins import mapped
-from keystone.contrib import federation
+from keystone.contrib.federation import constants as federation_constants
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import idp as keystone_idp
 from keystone.contrib.federation import utils as mapping_utils
@@ -1431,7 +1431,7 @@ class MappingRuleEngineTests(FederationTests):
         self.assertIn('domain', user)
         domain = user['domain']
         domain_name_or_id = domain.get('id') or domain.get('name')
-        domain_ref = domain_id or federation.FEDERATED_DOMAIN_KEYWORD
+        domain_ref = domain_id or federation_constants.FEDERATED_DOMAIN_KEYWORD
         self.assertEqual(domain_ref, domain_name_or_id)
 
     def test_rule_engine_any_one_of_and_direct_mapping(self):

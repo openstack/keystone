@@ -21,7 +21,7 @@ from oslo_log import log
 from oslo_utils import timeutils
 import six
 
-from keystone.contrib import federation
+from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
 from keystone.i18n import _, _LW
 
@@ -529,7 +529,7 @@ class RuleProcessor(object):
             if user_type == UserType.EPHEMERAL:
                 user['domain'] = {
                     'id': (CONF.federation.federated_domain_name or
-                           federation.FEDERATED_DOMAIN_KEYWORD)
+                           federation_constants.FEDERATED_DOMAIN_KEYWORD)
                 }
 
         # initialize the group_ids as a set to eliminate duplicates

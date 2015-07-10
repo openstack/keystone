@@ -22,7 +22,7 @@ from six.moves.urllib import parse
 from keystone.common import controller as common_controller
 from keystone.common import dependency
 from keystone.common import utils
-from keystone.contrib import federation
+from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
 from keystone.i18n import _, _LE
 from keystone import token
@@ -490,8 +490,8 @@ class BaseProvider(provider.Provider):
         return token_id, token_data
 
     def _is_mapped_token(self, auth_context):
-        return (federation.IDENTITY_PROVIDER in auth_context and
-                federation.PROTOCOL in auth_context)
+        return (federation_constants.IDENTITY_PROVIDER in auth_context and
+                federation_constants.PROTOCOL in auth_context)
 
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
@@ -538,18 +538,18 @@ class BaseProvider(provider.Provider):
     def _handle_mapped_tokens(self, auth_context, project_id, domain_id):
         def get_federated_domain():
             return (CONF.federation.federated_domain_name or
-                    federation.FEDERATED_DOMAIN_KEYWORD)
+                    federation_constants.FEDERATED_DOMAIN_KEYWORD)
 
         federated_domain = get_federated_domain()
         user_id = auth_context['user_id']
         group_ids = auth_context['group_ids']
-        idp = auth_context[federation.IDENTITY_PROVIDER]
-        protocol = auth_context[federation.PROTOCOL]
+        idp = auth_context[federation_constants.IDENTITY_PROVIDER]
+        protocol = auth_context[federation_constants.PROTOCOL]
         token_data = {
             'user': {
                 'id': user_id,
                 'name': parse.unquote(user_id),
-                federation.FEDERATION: {
+                federation_constants.FEDERATION: {
                     'identity_provider': {'id': idp},
                     'protocol': {'id': protocol}
                 },
@@ -565,7 +565,7 @@ class BaseProvider(provider.Provider):
                 group_ids, project_id, domain_id, user_id)
             token_data.update({'roles': roles})
         else:
-            token_data['user'][federation.FEDERATION].update({
+            token_data['user'][federation_constants.FEDERATION].update({
                 'groups': [{'id': x} for x in group_ids]
             })
         return token_data

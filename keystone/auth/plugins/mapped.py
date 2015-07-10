@@ -19,7 +19,7 @@ from six.moves.urllib import parse
 from keystone import auth
 from keystone.auth import plugins as auth_plugins
 from keystone.common import dependency
-from keystone.contrib import federation
+from keystone.contrib.federation import constants as federation_constants
 from keystone.contrib.federation import utils
 from keystone import exception
 from keystone.i18n import _
@@ -100,8 +100,8 @@ def handle_scoped_token(context, auth_payload, auth_context, token_ref,
 
     auth_context['user_id'] = user_id
     auth_context['group_ids'] = group_ids
-    auth_context[federation.IDENTITY_PROVIDER] = identity_provider
-    auth_context[federation.PROTOCOL] = protocol
+    auth_context[federation_constants.IDENTITY_PROVIDER] = identity_provider
+    auth_context[federation_constants.PROTOCOL] = protocol
 
 
 def handle_unscoped_token(context, auth_payload, auth_context,
@@ -114,8 +114,9 @@ def handle_unscoped_token(context, auth_payload, auth_context,
                                      identity_provider, protocol):
         auth_context['user_id'] = user['id']
         auth_context['group_ids'] = mapped_properties['group_ids']
-        auth_context[federation.IDENTITY_PROVIDER] = identity_provider
-        auth_context[federation.PROTOCOL] = protocol
+        auth_context[federation_constants.IDENTITY_PROVIDER] = (
+            identity_provider)
+        auth_context[federation_constants.PROTOCOL] = protocol
 
     def build_local_user_context(auth_context, mapped_properties):
         user_info = auth_plugins.UserAuthInfo.create(mapped_properties,
