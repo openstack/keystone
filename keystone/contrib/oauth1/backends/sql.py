@@ -18,7 +18,6 @@ import uuid
 
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
-import six
 
 from keystone.common import sql
 from keystone.common import utils
@@ -59,7 +58,7 @@ class RequestToken(sql.ModelBase, sql.DictBase):
         return cls(**user_dict)
 
     def to_dict(self):
-        return dict(six.iteritems(self))
+        return dict(self.items())
 
 
 class AccessToken(sql.ModelBase, sql.DictBase):
@@ -82,7 +81,7 @@ class AccessToken(sql.ModelBase, sql.DictBase):
         return cls(**user_dict)
 
     def to_dict(self):
-        return dict(six.iteritems(self))
+        return dict(self.items())
 
 
 class OAuth1(object):

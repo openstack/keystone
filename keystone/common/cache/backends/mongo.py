@@ -399,7 +399,7 @@ class MongoApi(object):
         Refer to MongoDB documentation around TTL index for further details.
         """
         indexes = collection.index_information()
-        for indx_name, index_data in six.iteritems(indexes):
+        for indx_name, index_data in indexes.items():
             if all(k in index_data for k in ('key', 'expireAfterSeconds')):
                 existing_value = index_data['expireAfterSeconds']
                 fld_present = 'doc_date' in index_data['key'][0]

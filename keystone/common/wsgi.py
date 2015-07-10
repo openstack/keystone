@@ -86,7 +86,7 @@ def validate_token_bind(context, token_ref):
         LOG.info(_LI("Named bind mode %s not in bind information"), name)
         raise exception.Unauthorized()
 
-    for bind_type, identifier in six.iteritems(bind):
+    for bind_type, identifier in bind.items():
         if bind_type == 'kerberos':
             if not (context['environment'].get('AUTH_TYPE', '').lower()
                     == 'negotiate'):
@@ -197,8 +197,8 @@ class Application(BaseApplication):
 
         # allow middleware up the stack to provide context, params and headers.
         context = req.environ.get(CONTEXT_ENV, {})
-        context['query_string'] = dict(six.iteritems(req.params))
-        context['headers'] = dict(six.iteritems(req.headers))
+        context['query_string'] = dict(req.params.items())
+        context['headers'] = dict(req.headers.items())
         context['path'] = req.environ['PATH_INFO']
         scheme = (None if not CONF.secure_proxy_ssl_header
                   else req.environ.get(CONF.secure_proxy_ssl_header))
@@ -285,7 +285,7 @@ class Application(BaseApplication):
         return arg.replace(':', '_').replace('-', '_')
 
     def _normalize_dict(self, d):
-        return {self._normalize_arg(k): v for (k, v) in six.iteritems(d)}
+        return {self._normalize_arg(k): v for (k, v) in d.items()}
 
     def assert_admin(self, context):
         """Ensure the user is an admin.
@@ -367,8 +367,7 @@ class Application(BaseApplication):
 
         if url:
             substitutions = dict(
-                itertools.chain(six.iteritems(CONF),
-                                six.iteritems(CONF.eventlet_server)))
+                itertools.chain(CONF.items(), CONF.eventlet_server.items()))
 
             url = url % substitutions
         else:
@@ -487,7 +486,7 @@ class Debug(Middleware):
         resp = req.get_response(self.application)
         if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
             LOG.debug('%s %s %s', ('*' * 20), 'RESPONSE HEADERS', ('*' * 20))
-            for (key, value) in six.iteritems(resp.headers):
+            for (key, value) in resp.headers.items():
                 LOG.debug('%s = %s', key, value)
             LOG.debug('')
 
@@ -773,7 +772,7 @@ def render_response(body=None, status=None, headers=None, method=None):
         # both py2x and py3x.
         stored_headers = resp.headers.copy()
         resp.body = b''
-        for header, value in six.iteritems(stored_headers):
+        for header, value in stored_headers.items():
             resp.headers[header] = value
 
     return resp
@@ -808,8 +807,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
                 url = 'http://localhost:%d' % CONF.eventlet_server.public_port
         else:
             substitutions = dict(
-                itertools.chain(six.iteritems(CONF),
-                                six.iteritems(CONF.eventlet_server)))
+                itertools.chain(CONF.items(), CONF.eventlet_server.items()))
             url = url % substitutions
 
         headers.append(('WWW-Authenticate', 'Keystone uri="%s"' % url))

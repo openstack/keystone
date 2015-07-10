@@ -1368,7 +1368,7 @@ class AssignmentTestMixin(object):
 
         query_params = '?effective' if effective else ''
 
-        for k, v in six.iteritems(filters):
+        for k, v in filters.items():
             query_params += '?' if not query_params else '&'
 
             if k == 'inherited_to_projects':

@@ -358,7 +358,7 @@ class FakeLdap(core.LDAPHandler):
         return self.delete_ext_s(dn, serverctrls=[])
 
     def _getChildren(self, dn):
-        return [k for k, v in six.iteritems(self.db)
+        return [k for k, v in self.db.items()
                 if re.match('%s.*,%s' % (
                             re.escape(self.__prefix),
                             re.escape(self.dn(dn))), k)]
@@ -479,7 +479,7 @@ class FakeLdap(core.LDAPHandler):
                 raise ldap.NO_SUCH_OBJECT
             results = [(base, item_dict)]
             extraresults = [(k[len(self.__prefix):], v)
-                            for k, v in six.iteritems(self.db)
+                            for k, v in self.db.items()
                             if re.match('%s.*,%s' %
                                         (re.escape(self.__prefix),
                                          re.escape(self.dn(base))), k)]
@@ -490,7 +490,7 @@ class FakeLdap(core.LDAPHandler):
                 base_dn = ldap.dn.str2dn(core.utf8_encode(base))
                 base_len = len(base_dn)
 
-                for k, v in six.iteritems(self.db):
+                for k, v in self.db.items():
                     if not k.startswith(self.__prefix):
                         continue
                     k_dn_str = k[len(self.__prefix):]
@@ -523,7 +523,7 @@ class FakeLdap(core.LDAPHandler):
                         ('objectclass' not in attrs_checked)):
                     raise AssertionError('No objectClass in search filter')
                 # filter the attributes by attrlist
-                attrs = {k: v for k, v in six.iteritems(attrs)
+                attrs = {k: v for k, v in attrs.items()
                          if not attrlist or k in attrlist}
                 objects.append((dn, attrs))
 

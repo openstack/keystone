@@ -161,7 +161,7 @@ def convert_ldap_result(ldap_result):
             at_least_one_referral = True
             continue
 
-        for kind, values in six.iteritems(attrs):
+        for kind, values in attrs.items():
             try:
                 val2py = enabled2py if kind == 'enabled' else ldap2py
                 ldap_attrs[kind] = [val2py(x) for x in values]
@@ -739,7 +739,7 @@ class PooledLDAPHandler(LDAPHandler):
         # if connection has a lifetime, then it already has options specified
         if conn.get_lifetime() > 30:
             return
-        for option, invalue in six.iteritems(self.conn_options):
+        for option, invalue in self.conn_options.items():
             conn.set_option(option, invalue)
 
     def _get_pool_connection(self):
@@ -1085,7 +1085,7 @@ def register_handler(prefix, handler):
 
 
 def _get_connection(conn_url, use_pool=False, use_auth_pool=False):
-    for prefix, handler in six.iteritems(_HANDLERS):
+    for prefix, handler in _HANDLERS.items():
         if conn_url.startswith(prefix):
             return handler()
 
@@ -1171,7 +1171,7 @@ class BaseLdap(object):
             self.object_class = (getattr(conf.ldap, objclass)
                                  or self.DEFAULT_OBJECTCLASS)
 
-            for k, v in six.iteritems(self.attribute_options_names):
+            for k, v in self.attribute_options_names.items():
                 v = '%s_%s_attribute' % (self.options_name, v)
                 self.attribute_mapping[k] = getattr(conf.ldap, v)
 
@@ -1320,7 +1320,7 @@ class BaseLdap(object):
         # in a case-insensitive way.  We use the case specified in the
         # mapping for the model to ensure we have a predictable way of
         # retrieving values later.
-        lower_res = {k.lower(): v for k, v in six.iteritems(res[1])}
+        lower_res = {k.lower(): v for k, v in res[1].items()}
 
         id_attrs = lower_res.get(self.id_attr.lower())
         if not id_attrs:
@@ -1406,7 +1406,7 @@ class BaseLdap(object):
         self.affirm_unique(values)
         object_classes = self.structural_classes + [self.object_class]
         attrs = [('objectClass', object_classes)]
-        for k, v in six.iteritems(values):
+        for k, v in values.items():
             if k in self.attribute_ignore:
                 continue
             if k == 'id':
@@ -1418,7 +1418,7 @@ class BaseLdap(object):
                 if attr_type is not None:
                     attrs.append((attr_type, [v]))
                 extra_attrs = [attr for attr, name
-                               in six.iteritems(self.extra_attr_mapping)
+                               in self.extra_attr_mapping.items()
                                if name == k]
                 for attr in extra_attrs:
                     attrs.append((attr, [v]))
@@ -1481,7 +1481,7 @@ class BaseLdap(object):
 
             query = (u'(&%s%s)' %
                      (query, ''.join([calc_filter(k, v) for k, v in
-                                      six.iteritems(query_params)])))
+                                      query_params.items()])))
         with self.get_connection() as conn:
             return conn.search_s(search_base, scope, query, attrlist)
 
@@ -1511,7 +1511,7 @@ class BaseLdap(object):
             old_obj = self.get(object_id)
 
         modlist = []
-        for k, v in six.iteritems(values):
+        for k, v in values.items():
             if k == 'id':
                 # id can't be modified.
                 continue
@@ -1650,7 +1650,7 @@ class BaseLdap(object):
                      (query, ''.join(['(%s=%s)'
                                       % (k, ldap.filter.escape_filter_chars(v))
                                       for k, v in
-                                      six.iteritems(query_params)])))
+                                      query_params.items()])))
         not_deleted_nodes = []
         with self.get_connection() as conn:
             try:

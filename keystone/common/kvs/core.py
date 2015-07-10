@@ -25,7 +25,6 @@ from dogpile.core import nameregistry
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import importutils
-import six
 
 from keystone import exception
 from keystone.i18n import _
@@ -232,7 +231,7 @@ class KeyValueStore(object):
         if config_args['lock_timeout'] > 0:
             config_args['lock_timeout'] += LOCK_WINDOW
 
-        for argument, value in six.iteritems(config_args):
+        for argument, value in config_args.items():
             arg_key = '.'.join([prefix, 'arguments', argument])
             conf_dict[arg_key] = value
 

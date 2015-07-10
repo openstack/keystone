@@ -49,7 +49,7 @@ class _ControllerBase(controller.V3Controller):
 
         for endpoint in endpoints:
             is_candidate = True
-            for key, value in six.iteritems(filters):
+            for key, value in filters.items():
                 if endpoint[key] != value:
                     is_candidate = False
                     break

@@ -14,7 +14,6 @@
 
 from oslo_config import cfg
 from oslo_log import log
-import six
 import sqlalchemy
 from sqlalchemy.sql.expression import false
 
@@ -415,4 +414,4 @@ class RoleAssignment(sql.ModelBase, sql.DictBase):
         RoleAssignment doesn't have non-indexed 'extra' attributes, so the
         parent implementation is not applicable.
         """
-        return dict(six.iteritems(self))
+        return dict(self.items())

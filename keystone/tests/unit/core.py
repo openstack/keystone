@@ -216,7 +216,7 @@ class TestClient(object):
 
         req = webob.Request.blank(path)
         req.method = method
-        for k, v in six.iteritems(headers):
+        for k, v in headers.items():
             req.headers[k] = v
         if body:
             req.body = body
@@ -401,7 +401,7 @@ class TestCase(BaseTestCase):
         drivers, _unused = common.setup_backends(
             load_extra_backends_fn=self.load_extra_backends)
 
-        for manager_name, manager in six.iteritems(drivers):
+        for manager_name, manager in drivers.items():
             setattr(self, manager_name, manager)
         self.addCleanup(self.cleanup_instance(*list(drivers.keys())))
 

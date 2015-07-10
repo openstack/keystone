@@ -22,7 +22,6 @@ from keystoneclient.common import cms
 import mock
 from oslo_config import cfg
 from oslo_utils import timeutils
-import six
 from six.moves import range
 from testtools import matchers
 from testtools import testcase
@@ -1493,7 +1492,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     def assertValidRevokedTokenResponse(self, events_response, **kwargs):
         events = events_response['events']
         self.assertEqual(1, len(events))
-        for k, v in six.iteritems(kwargs):
+        for k, v in kwargs.items():
             self.assertEqual(v, events[0].get(k))
         self.assertIsNotNone(events[0]['issued_before'])
         self.assertIsNotNone(events_response['links'])
@@ -1563,7 +1562,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     def assertEventDataInList(self, events, **kwargs):
         found = False
         for e in events:
-            for key, value in six.iteritems(kwargs):
+            for key, value in kwargs.items():
                 try:
                     if e[key] != value:
                         break
@@ -1581,8 +1580,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
                         'find event with key-value pairs. Expected: '
                         '"%(expected)s" Events: "%(events)s"' %
                         {'expected': ','.join(
-                            ["'%s=%s'" % (k, v) for k, v in six.iteritems(
-                                kwargs)]),
+                            ["'%s=%s'" % (k, v) for k, v in kwargs.items()]),
                          'events': events})
 
     def test_list_delete_token_shows_in_event_list(self):

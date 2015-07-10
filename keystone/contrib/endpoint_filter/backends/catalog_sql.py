@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_config import cfg
-import six
 
 from keystone.catalog.backends import sql
 from keystone.catalog import core as catalog_core
@@ -27,7 +26,7 @@ CONF = cfg.CONF
 @dependency.requires('endpoint_filter_api')
 class EndpointFilterCatalog(sql.Catalog):
     def get_v3_catalog(self, user_id, project_id):
-        substitutions = dict(six.iteritems(CONF))
+        substitutions = dict(CONF.items())
         substitutions.update({'tenant_id': project_id, 'user_id': user_id})
 
         services = {}
@@ -67,7 +66,7 @@ class EndpointFilterCatalog(sql.Catalog):
 
         # format catalog
         catalog = []
-        for service_id, service in six.iteritems(services):
+        for service_id, service in services.items():
             formatted_service = {}
             formatted_service['id'] = service['id']
             formatted_service['type'] = service['type']
