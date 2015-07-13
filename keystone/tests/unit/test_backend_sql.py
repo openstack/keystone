@@ -20,6 +20,7 @@ import mock
 from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options
+from oslo_log import log
 from oslo_log import versionutils
 from six.moves import range
 import sqlalchemy
@@ -938,6 +939,14 @@ class SqlCredential(SqlTests):
 
 
 class DeprecatedDecorators(SqlTests):
+
+    def setUp(self):
+        super(DeprecatedDecorators, self).setUp()
+
+        # The only reason this is here is because report_deprecated_feature()
+        # registers the fatal_deprecations option which these tests use.
+        versionutils.report_deprecated_feature(
+            log.getLogger(__name__), 'ignore this message')
 
     def test_assignment_to_role_api(self):
         """Test that calling one of the methods does call LOG.deprecated.
