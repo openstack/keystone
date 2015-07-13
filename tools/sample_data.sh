@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# Sample initial data for Keystone using python-keystoneclient
+# Sample initial data for Keystone using python-openstackclient
 #
 # This script is based on the original DevStack keystone_data.sh script.
 #
@@ -221,7 +221,7 @@ fi
 # Swift service
 #
 openstack service create --name=swift \
-                         --description="Swift Service" \
+                         --description="Swift Object Storage Service" \
                          object-store
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
