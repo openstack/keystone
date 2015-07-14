@@ -573,7 +573,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
                     headers={'X-Subject-Token': user_token})
 
 
-class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
+class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
+                                      test_v3.AssignmentTestMixin):
     """Test policy enforcement of the sample v3 cloud policy file."""
 
     def setUp(self):
@@ -886,6 +887,141 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase):
             domain_id=self.domainA['id'])
 
         self._test_grants('projects', self.project['id'])
+
+    def test_cloud_admin_list_assignments_of_domain(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            domain_id=self.admin_domain['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            domain_id=self.domainA['id'])
+        r = self.get(collection_url, auth=self.auth)
+        self.assertValidRoleAssignmentListResponse(
+            r, expected_length=2, resource_url=collection_url)
+
+        domainA_admin_entity = self.build_role_assignment_entity(
+            domain_id=self.domainA['id'],
+            user_id=self.domain_admin_user['id'],
+            role_id=self.admin_role['id'],
+            inherited_to_projects=False)
+        domainA_user_entity = self.build_role_assignment_entity(
+            domain_id=self.domainA['id'],
+            user_id=self.just_a_user['id'],
+            role_id=self.role['id'],
+            inherited_to_projects=False)
+
+        self.assertRoleAssignmentInListResponse(r, domainA_admin_entity)
+        self.assertRoleAssignmentInListResponse(r, domainA_user_entity)
+
+    def test_domain_admin_list_assignments_of_domain(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            domain_id=self.domainA['id'])
+        r = self.get(collection_url, auth=self.auth)
+        self.assertValidRoleAssignmentListResponse(
+            r, expected_length=2, resource_url=collection_url)
+
+        domainA_admin_entity = self.build_role_assignment_entity(
+            domain_id=self.domainA['id'],
+            user_id=self.domain_admin_user['id'],
+            role_id=self.admin_role['id'],
+            inherited_to_projects=False)
+        domainA_user_entity = self.build_role_assignment_entity(
+            domain_id=self.domainA['id'],
+            user_id=self.just_a_user['id'],
+            role_id=self.role['id'],
+            inherited_to_projects=False)
+
+        self.assertRoleAssignmentInListResponse(r, domainA_admin_entity)
+        self.assertRoleAssignmentInListResponse(r, domainA_user_entity)
+
+    def test_domain_admin_list_assignments_of_another_domain_failed(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            domain_id=self.domainB['id'])
+        self.get(collection_url, auth=self.auth, expected_status=403)
+
+    def test_domain_user_list_assignments_of_domain_failed(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'],
+            domain_id=self.domainA['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            domain_id=self.domainA['id'])
+        self.get(collection_url, auth=self.auth, expected_status=403)
+
+    def test_cloud_admin_list_assignments_of_project(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            domain_id=self.admin_domain['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            project_id=self.project['id'])
+        r = self.get(collection_url, auth=self.auth)
+        self.assertValidRoleAssignmentListResponse(
+            r, expected_length=2, resource_url=collection_url)
+
+        project_admin_entity = self.build_role_assignment_entity(
+            project_id=self.project['id'],
+            user_id=self.project_admin_user['id'],
+            role_id=self.admin_role['id'],
+            inherited_to_projects=False)
+        project_user_entity = self.build_role_assignment_entity(
+            project_id=self.project['id'],
+            user_id=self.just_a_user['id'],
+            role_id=self.role['id'],
+            inherited_to_projects=False)
+
+        self.assertRoleAssignmentInListResponse(r, project_admin_entity)
+        self.assertRoleAssignmentInListResponse(r, project_user_entity)
+
+    @tests.utils.wip('waiting on bug #1437407')
+    def test_domain_admin_list_assignments_of_project(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            project_id=self.project['id'])
+        r = self.get(collection_url, auth=self.auth)
+        self.assertValidRoleAssignmentListResponse(
+            r, expected_length=2, resource_url=collection_url)
+
+        project_admin_entity = self.build_role_assignment_entity(
+            project_id=self.project['id'],
+            user_id=self.project_admin_user['id'],
+            role_id=self.admin_role['id'],
+            inherited_to_projects=False)
+        project_user_entity = self.build_role_assignment_entity(
+            project_id=self.project['id'],
+            user_id=self.just_a_user['id'],
+            role_id=self.role['id'],
+            inherited_to_projects=False)
+
+        self.assertRoleAssignmentInListResponse(r, project_admin_entity)
+        self.assertRoleAssignmentInListResponse(r, project_user_entity)
+
+    def test_domain_user_list_assignments_of_project_failed(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'],
+            domain_id=self.domainA['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            project_id=self.project['id'])
+        self.get(collection_url, auth=self.auth, expected_status=403)
 
     def test_cloud_admin(self):
         self.auth = self.build_authentication_request(
