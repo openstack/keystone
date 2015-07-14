@@ -1521,7 +1521,7 @@
 # Number of seconds after which the Rabbit broker is considered down if
 # heartbeat's keep-alive fails (0 disable the heartbeat). EXPERIMENTAL (integer
 # value)
-#heartbeat_timeout_threshold = 0
+#heartbeat_timeout_threshold = 60
 
 # How often times during the heartbeat_timeout_threshold we check the
 # heartbeat. (integer value)
