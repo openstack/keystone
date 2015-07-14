@@ -135,7 +135,7 @@ see virtualenv_.
 .. _virtualenv: http://www.virtualenv.org/
 
 If you want to run Keystone outside of a virtualenv, you can install the
-dependencies directly into your system from the requires files:
+dependencies directly into your system from the requirements files:
 
 .. code-block:: bash
 
