@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Extensions supporting OAuth1."""
+"""Main entry point into the OAuth1 service."""
 
 from __future__ import absolute_import
 

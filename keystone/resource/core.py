@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Main entry point into the resource service."""
+"""Main entry point into the Resource service."""
 
 import abc
 
@@ -47,7 +47,7 @@ def calc_default_domain():
 @dependency.requires('assignment_api', 'credential_api', 'domain_config_api',
                      'identity_api', 'revoke_api')
 class Manager(manager.Manager):
-    """Default pivot point for the resource backend.
+    """Default pivot point for the Resource backend.
 
     See :mod:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.

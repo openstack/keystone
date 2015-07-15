@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+"""Main entry point into the Revoke service."""
+
 import abc
 import datetime
 
@@ -64,9 +66,12 @@ def revoked_before_cutoff_time():
 
 @dependency.provider('revoke_api')
 class Manager(manager.Manager):
-    """Revoke API Manager.
+    """Default pivot point for the Revoke backend.
 
     Performs common logic for recording revocations.
+
+    See :mod:`keystone.common.manager.Manager` for more details on
+    how this dynamically calls the backend.
 
     """
 

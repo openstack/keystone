@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Main entry point into the Token persistence service."""
+"""Main entry point into the Token Persistence service."""
 
 import abc
 import copy
@@ -40,7 +40,7 @@ REVOCATION_MEMOIZE = cache.get_memoization_decorator(
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',
                      'token_provider_api', 'trust_api')
 class PersistenceManager(manager.Manager):
-    """Default pivot point for the Token backend.
+    """Default pivot point for the Token Persistence backend.
 
     See :mod:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.
