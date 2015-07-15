@@ -17,6 +17,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_utils import fileutils
 from oslo_utils import importutils
 from oslo_utils import timeutils
 import saml2
@@ -32,7 +33,6 @@ if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
 from keystone.common import utils
-from keystone.contrib.federation import utils as federation_utils
 from keystone import exception
 from keystone.i18n import _, _LE
 
@@ -418,7 +418,7 @@ def _sign_assertion(assertion):
         # NOTE(gyee): need to make the namespace prefixes explicit so
         # they won't get reassigned when we wrap the assertion into
         # SAML2 response
-        file_path = federation_utils.write_to_tempfile(assertion.to_string(
+        file_path = fileutils.write_to_tempfile(assertion.to_string(
             nspair={'saml': saml2.NAMESPACE,
                     'xmldsig': xmldsig.NAMESPACE}))
         command_list.append(file_path)
