@@ -123,8 +123,8 @@ class Provider(common.BaseProvider):
     def _build_federated_info(self, token_data):
         """Extract everything needed for federated tokens.
 
-        This dictionary is passed to the FederatedPayload token formatter,
-        which unpacks the values and builds the Fernet token.
+        This dictionary is passed to federated token formatters, which unpack
+        the values and build federated Fernet tokens.
 
         """
         idp_id = token_data['token'].get('user', {}).get(
@@ -147,11 +147,10 @@ class Provider(common.BaseProvider):
     def _rebuild_federated_info(self, federated_dict, user_id):
         """Format federated information into the token reference.
 
-        The federated_dict is passed back from the FederatedPayload token
-        formatter. The responsibility of this method is to format the
-        information passed back from the token formatter into the token
-        reference before constructing the token data from the
-        V3TokenDataHelper.
+        The federated_dict is passed back from the federated token formatters.
+        The responsibility of this method is to format the information passed
+        back from the token formatter into the token reference before
+        constructing the token data from the V3TokenDataHelper.
 
         """
         g_ids = federated_dict['group_ids']
