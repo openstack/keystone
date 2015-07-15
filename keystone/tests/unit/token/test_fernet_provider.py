@@ -334,6 +334,58 @@ class TestPayloads(tests.TestCase):
         self.assertEqual(exp_federated_info['protocol_id'],
                          federated_info['protocol_id'])
 
+    def test_federated_project_scoped_payload(self):
+        exp_user_id = 'someNonUuidUserId'
+        exp_methods = ['token']
+        exp_project_id = uuid.uuid4().hex
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
+        exp_audit_ids = [provider.random_urlsafe_str()]
+        exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
+                              'idp_id': uuid.uuid4().hex,
+                              'protocol_id': uuid.uuid4().hex}
+
+        payload = token_formatters.FederatedProjectScopedPayload.assemble(
+            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
+            exp_audit_ids, exp_federated_info)
+
+        (user_id, methods, project_id, expires_at, audit_ids,
+         federated_info) = (
+            token_formatters.FederatedProjectScopedPayload.disassemble(
+                payload))
+
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
+        self.assertEqual(exp_project_id, project_id)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
+        self.assertDictEqual(exp_federated_info, federated_info)
+
+    def test_federated_domain_scoped_payload(self):
+        exp_user_id = 'someNonUuidUserId'
+        exp_methods = ['token']
+        exp_domain_id = uuid.uuid4().hex
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
+        exp_audit_ids = [provider.random_urlsafe_str()]
+        exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
+                              'idp_id': uuid.uuid4().hex,
+                              'protocol_id': uuid.uuid4().hex}
+
+        payload = token_formatters.FederatedDomainScopedPayload.assemble(
+            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
+            exp_audit_ids, exp_federated_info)
+
+        (user_id, methods, domain_id, expires_at, audit_ids,
+         federated_info) = (
+            token_formatters.FederatedDomainScopedPayload.disassemble(
+                payload))
+
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
+        self.assertEqual(exp_domain_id, domain_id)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
+        self.assertDictEqual(exp_federated_info, federated_info)
+
 
 class TestFernetKeyRotation(tests.TestCase):
     def setUp(self):
