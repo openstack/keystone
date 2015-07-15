@@ -26,7 +26,7 @@ lxml>=2.3
 # mock object framework
 mock>=1.1;python_version!='2.6'
 mock==1.0.1;python_version=='2.6'
-oslotest>=1.5.1 # Apache-2.0
+oslotest>=1.7.0 # Apache-2.0
 # required to build documentation
 sphinx!=1.2.0,!=1.3b1,<1.3,>=1.1.2
 # test wsgi apps without starting an http server
