@@ -2783,7 +2783,7 @@ class TestTrustRedelegation(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': self.chained_trust_ref},
                   token=trust_token,
-                  expected_status=403)
+                  expected_status=400)
 
     def test_roles_subset(self):
         # Build second role
