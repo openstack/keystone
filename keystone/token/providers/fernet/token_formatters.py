@@ -533,7 +533,7 @@ class FederatedPayload(BasePayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Validate a federated paylod.
+        """Validate a federated payload.
 
         :param token_string: a string representing the token
         :return: a tuple containing the user_id, auth methods, audit_ids, and
