@@ -422,10 +422,13 @@ def _sign_assertion(assertion):
             nspair={'saml': saml2.NAMESPACE,
                     'xmldsig': xmldsig.NAMESPACE}))
         command_list.append(file_path)
-        stdout = subprocess.check_output(command_list)
+        stdout = subprocess.check_output(command_list,
+                                         stderr=subprocess.STDOUT)
     except Exception as e:
         msg = _LE('Error when signing assertion, reason: %(reason)s')
         msg = msg % {'reason': e}
+        if hasattr(e, 'output'):
+            msg += ' output: %(output)s' % {'output': e.output}
         LOG.error(msg)
         raise exception.SAMLSigningError(reason=e)
     finally:
