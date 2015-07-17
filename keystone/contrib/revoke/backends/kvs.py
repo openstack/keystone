@@ -45,29 +45,30 @@ class Revoke(revoke.Driver):
         except exception.NotFound:
             return []
 
-    def _prune_expired_events_and_get(self, last_fetch=None, new_event=None):
-        pruned = []
+    def list_events(self, last_fetch=None):
         results = []
+
+        with self._store.get_lock(_EVENT_KEY):
+            events = self._list_events()
+
+        for event in events:
+            revoked_at = event.revoked_at
+            if last_fetch is None or revoked_at > last_fetch:
+                results.append(event)
+        return results
+
+    def revoke(self, event):
+        pruned = []
         expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
         oldest = timeutils.utcnow() - expire_delta
-        # TODO(ayoung): Store the time of the oldest event so that the
-        # prune process can be skipped if none of the events have timed out.
+
         with self._store.get_lock(_EVENT_KEY) as lock:
             events = self._list_events()
-            if new_event is not None:
-                events.append(new_event)
+            if event:
+                events.append(event)
 
             for event in events:
                 revoked_at = event.revoked_at
                 if revoked_at > oldest:
                     pruned.append(event)
-                    if last_fetch is None or revoked_at > last_fetch:
-                        results.append(event)
             self._store.set(_EVENT_KEY, pruned, lock)
-        return results
-
-    def list_events(self, last_fetch=None):
-        return self._prune_expired_events_and_get(last_fetch=last_fetch)
-
-    def revoke(self, event):
-        self._prune_expired_events_and_get(new_event=event)
