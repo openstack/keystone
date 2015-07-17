@@ -19,7 +19,7 @@ import mock
 from oslo_config import cfg
 from six.moves import range
 
-from keystone import cli
+from keystone.cmd import cli
 from keystone.common import dependency
 from keystone.i18n import _
 from keystone import resource

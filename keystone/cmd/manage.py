@@ -29,7 +29,7 @@ if os.path.exists(os.path.join(possible_topdir,
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-from keystone import cli
+from keystone.cmd import cli
 from keystone.common import environment
 
 
