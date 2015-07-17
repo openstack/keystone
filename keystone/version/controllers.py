@@ -28,8 +28,8 @@ MEDIA_TYPE_JSON = 'application/vnd.openstack.identity-%s+json'
 
 _VERSIONS = []
 
-# NOTE(blk-u): latest_app will be set by keystone.service.loadapp(). It gets
-# set to the application that was just loaded. In the case of keystone-all,
+# NOTE(blk-u): latest_app will be set by keystone.version.service.loadapp(). It
+# gets set to the application that was just loaded. In the case of keystone-all
 # loadapp() gets called twice, once for the public app and once for the admin
 # app. In the case of httpd/keystone, loadapp() gets called once for the public
 # app if this is the public instance or loadapp() gets called for the admin app
