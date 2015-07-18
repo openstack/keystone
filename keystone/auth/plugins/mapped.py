@@ -139,7 +139,7 @@ def handle_unscoped_token(context, auth_payload, auth_context,
     user_id = None
 
     try:
-        mapped_properties = apply_mapping_filter(
+        mapped_properties, mapping_id = apply_mapping_filter(
             identity_provider, protocol, assertion, assignment_api,
             federation_api, identity_api)
 
@@ -147,9 +147,7 @@ def handle_unscoped_token(context, auth_payload, auth_context,
             user = setup_username(context, mapped_properties)
             user_id = user['id']
             group_ids = mapped_properties['group_ids']
-            mapping = federation_api.get_mapping_from_idp_and_protocol(
-                identity_provider, protocol)
-            utils.validate_groups_cardinality(group_ids, mapping['id'])
+            utils.validate_groups_cardinality(group_ids, mapping_id)
             build_ephemeral_user_context(auth_context, user,
                                          mapped_properties,
                                          identity_provider, protocol)
@@ -185,12 +183,9 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
                          assignment_api, federation_api, identity_api):
     idp = federation_api.get_idp(identity_provider)
     utils.validate_idp(idp, protocol, assertion)
-    mapping = federation_api.get_mapping_from_idp_and_protocol(
-        identity_provider, protocol)
-    rules = mapping['rules']
-    LOG.debug('using the following rules: %s', rules)
-    rule_processor = utils.RuleProcessor(rules)
-    mapped_properties = rule_processor.process(assertion)
+
+    mapped_properties, mapping_id = federation_api.evaluate(
+        identity_provider, protocol, assertion)
 
     # NOTE(marek-denis): We update group_ids only here to avoid fetching
     # groups identified by name/domain twice.
@@ -200,14 +195,14 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
     # objects.
     group_ids = mapped_properties['group_ids']
     utils.validate_groups_in_backend(group_ids,
-                                     mapping['id'],
+                                     mapping_id,
                                      identity_api)
     group_ids.extend(
         utils.transform_to_group_ids(
-            mapped_properties['group_names'], mapping['id'],
+            mapped_properties['group_names'], mapping_id,
             identity_api, assignment_api))
     mapped_properties['group_ids'] = list(set(group_ids))
-    return mapped_properties
+    return mapped_properties, mapping_id
 
 
 def setup_username(context, mapped_properties):
