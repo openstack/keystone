@@ -14,7 +14,7 @@ from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common import dependency
-from keystone.contrib import federation
+from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
 from keystone.i18n import _
 from keystone.token import provider
@@ -101,11 +101,12 @@ class Provider(common.BaseProvider):
 
         """
         group_ids = token_data['token'].get('user', {}).get(
-            federation.FEDERATION, {}).get('groups')
+            federation_constants.FEDERATION, {}).get('groups')
         idp_id = token_data['token'].get('user', {}).get(
-            federation.FEDERATION, {}).get('identity_provider', {}).get('id')
+            federation_constants.FEDERATION, {}).get(
+                'identity_provider', {}).get('id')
         protocol_id = token_data['token'].get('user', {}).get(
-            federation.FEDERATION, {}).get('protocol', {}).get('id')
+            federation_constants.FEDERATION, {}).get('protocol', {}).get('id')
         if not group_ids:
             group_ids = list()
         if group_ids:
@@ -130,7 +131,8 @@ class Provider(common.BaseProvider):
         federated_info = dict(groups=g_ids,
                               identity_provider=dict(id=idp_id),
                               protocol=dict(id=protocol_id))
-        token_dict = {'user': {federation.FEDERATION: federated_info}}
+        token_dict = {'user': {
+            federation_constants.FEDERATION: federated_info}}
         token_dict['user']['id'] = user_id
         token_dict['user']['name'] = user_id
         return token_dict
