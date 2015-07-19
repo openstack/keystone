@@ -57,6 +57,7 @@ _ACTIONS = collections.namedtuple(
     'created, deleted, disabled, updated, internal')
 ACTIONS = _ACTIONS(created='created', deleted='deleted', disabled='disabled',
                    updated='updated', internal='internal')
+"""The actions on resources."""
 
 CADF_TYPE_MAP = {
     'group': taxonomy.SECURITY_GROUP,
@@ -301,7 +302,7 @@ def listener(cls):
     is a dictionary where the key is the type of event and the value is a
     dictionary containing a mapping of resource types to callback(s).
 
-    ``keystone.notifications.ACTIONS`` contains constants for the currently
+    :data:`.ACTIONS` contains constants for the currently
     supported events. There is currently no single place to find constants for
     the resource types.
 
