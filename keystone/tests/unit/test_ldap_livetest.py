@@ -15,7 +15,6 @@
 import subprocess
 import uuid
 
-import ldap
 import ldap.modlist
 from oslo_config import cfg
 from six.moves import range
