@@ -57,8 +57,13 @@ base64url_non_alphabet_re = re.compile(r'[^A-Za-z0-9---_=]+')
 
 _strip_formatting_re = re.compile(r'\s+')
 
-_base64_to_base64url_trans = string.maketrans('+/', '-_')
-_base64url_to_base64_trans = string.maketrans('-_', '+/')
+if six.PY2:
+    str_ = string
+else:
+    str_ = str
+
+_base64_to_base64url_trans = str_.maketrans('+/', '-_')
+_base64url_to_base64_trans = str_.maketrans('-_', '+/')
 
 
 def _check_padding_length(pad):
