@@ -16,6 +16,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 
 from keystone.common import clean
 from keystone.common import driver_hints
@@ -32,6 +33,10 @@ LOG = log.getLogger(__name__)
 
 
 class Resource(resource.ResourceDriverV8):
+    @versionutils.deprecated(
+        versionutils.deprecated.LIBERTY,
+        remove_in=+1,
+        what='ldap resource')
     def __init__(self):
         super(Resource, self).__init__()
         self.LDAP_URL = CONF.ldap.url
