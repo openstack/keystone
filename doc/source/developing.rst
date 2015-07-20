@@ -469,6 +469,10 @@ require that these messages are descriptive and accurate.
     def test():
         pass
 
+.. NOTE::
+   Another strategy is to not use the wip decorator and instead show how the
+   code currently incorrectly works. Which strategy is chosen is up to the
+   developer.
 
 Generating Updated Sample Config File
 -------------------------------------
