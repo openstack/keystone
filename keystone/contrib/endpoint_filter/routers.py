@@ -36,29 +36,32 @@ class EndpointFilterExtension(wsgi.V3ExtensionRouter):
 
     The API looks like::
 
-        PUT /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
-        GET /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
-        HEAD /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
-        DELETE /OS-EP-FILTER/projects/$project_id/endpoints/$endpoint_id
-        GET /OS-EP-FILTER/endpoints/$endpoint_id/projects
-        GET /OS-EP-FILTER/projects/$project_id/endpoints
-        GET /OS-EP-FILTER/projects/$project_id/endpoint_groups
+        PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        GET /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
+        GET /OS-EP-FILTER/projects/{project_id}/endpoints
+        GET /OS-EP-FILTER/projects/{project_id}/endpoint_groups
 
         GET /OS-EP-FILTER/endpoint_groups
         POST /OS-EP-FILTER/endpoint_groups
-        GET /OS-EP-FILTER/endpoint_groups/$endpoint_group_id
-        HEAD /OS-EP-FILTER/endpoint_groups/$endpoint_group_id
-        PATCH /OS-EP-FILTER/endpoint_groups/$endpoint_group_id
-        DELETE /OS-EP-FILTER/endpoint_groups/$endpoint_group_id
+        GET /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        DELETE /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
 
-        GET /OS-EP-FILTER/endpoint_groups/$endpoint_group_id/projects
-        GET /OS-EP-FILTER/endpoint_groups/$endpoint_group_id/endpoints
+        GET /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}/projects
+        GET /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}/endpoints
 
-        PUT /OS-EP-FILTER/endpoint_groups/$endpoint_group/projects/$project_id
-        GET /OS-EP-FILTER/endpoint_groups/$endpoint_group/projects/$project_id
-        HEAD /OS-EP-FILTER/endpoint_groups/$endpoint_group/projects/$project_id
-        DELETE /OS-EP-FILTER/endpoint_groups/$endpoint_group/projects/
-            $project_id
+        PUT /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects/
+            {project_id}
+        GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects/
+            {project_id}
+        HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects/
+            {project_id}
+        DELETE /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects/
+            {project_id}
 
     """
     PATH_PREFIX = '/OS-EP-FILTER'

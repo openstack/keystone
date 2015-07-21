@@ -44,17 +44,17 @@ class OAuth1Extension(wsgi.V3ExtensionRouter):
       # Basic admin-only consumer crud
       POST /OS-OAUTH1/consumers
       GET /OS-OAUTH1/consumers
-      PATCH /OS-OAUTH1/consumers/$consumer_id
-      GET /OS-OAUTH1/consumers/$consumer_id
-      DELETE /OS-OAUTH1/consumers/$consumer_id
+      PATCH /OS-OAUTH1/consumers/{consumer_id}
+      GET /OS-OAUTH1/consumers/{consumer_id}
+      DELETE /OS-OAUTH1/consumers/{consumer_id}
 
       # User access token crud
-      GET /users/$user_id/OS-OAUTH1/access_tokens
-      GET /users/$user_id/OS-OAUTH1/access_tokens/$access_token_id
+      GET /users/{user_id}/OS-OAUTH1/access_tokens
+      GET /users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}
       GET /users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/roles
       GET /users/{user_id}/OS-OAUTH1/access_tokens
           /{access_token_id}/roles/{role_id}
-      DELETE /users/$user_id/OS-OAUTH1/access_tokens/$access_token_id
+      DELETE /users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}
 
       # OAuth interfaces
       POST /OS-OAUTH1/request_token  # create a request token

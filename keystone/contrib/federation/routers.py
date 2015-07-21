@@ -36,42 +36,42 @@ class FederationExtension(wsgi.V3ExtensionRouter):
 
     The API looks like::
 
-        PUT /OS-FEDERATION/identity_providers/$identity_provider
+        PUT /OS-FEDERATION/identity_providers/{identity_provider}
         GET /OS-FEDERATION/identity_providers
-        GET /OS-FEDERATION/identity_providers/$identity_provider
-        DELETE /OS-FEDERATION/identity_providers/$identity_provider
-        PATCH /OS-FEDERATION/identity_providers/$identity_provider
+        GET /OS-FEDERATION/identity_providers/{identity_provider}
+        DELETE /OS-FEDERATION/identity_providers/{identity_provider}
+        PATCH /OS-FEDERATION/identity_providers/{identity_provider}
 
         PUT /OS-FEDERATION/identity_providers/
-            $identity_provider/protocols/$protocol
+            {identity_provider}/protocols/{protocol}
         GET /OS-FEDERATION/identity_providers/
-            $identity_provider/protocols
+            {identity_provider}/protocols
         GET /OS-FEDERATION/identity_providers/
-            $identity_provider/protocols/$protocol
+            {identity_provider}/protocols/{protocol}
         PATCH /OS-FEDERATION/identity_providers/
-            $identity_provider/protocols/$protocol
+            {identity_provider}/protocols/{protocol}
         DELETE /OS-FEDERATION/identity_providers/
-            $identity_provider/protocols/$protocol
+            {identity_provider}/protocols/{protocol}
 
         PUT /OS-FEDERATION/mappings
         GET /OS-FEDERATION/mappings
-        PATCH /OS-FEDERATION/mappings/$mapping_id
-        GET /OS-FEDERATION/mappings/$mapping_id
-        DELETE /OS-FEDERATION/mappings/$mapping_id
+        PATCH /OS-FEDERATION/mappings/{mapping_id}
+        GET /OS-FEDERATION/mappings/{mapping_id}
+        DELETE /OS-FEDERATION/mappings/{mapping_id}
 
         GET /OS-FEDERATION/projects
         GET /OS-FEDERATION/domains
 
-        PUT /OS-FEDERATION/service_providers/$service_provider
+        PUT /OS-FEDERATION/service_providers/{service_provider}
         GET /OS-FEDERATION/service_providers
-        GET /OS-FEDERATION/service_providers/$service_provider
-        DELETE /OS-FEDERATION/service_providers/$service_provider
-        PATCH /OS-FEDERATION/service_providers/$service_provider
+        GET /OS-FEDERATION/service_providers/{service_provider}
+        DELETE /OS-FEDERATION/service_providers/{service_provider}
+        PATCH /OS-FEDERATION/service_providers/{service_provider}
 
-        GET /OS-FEDERATION/identity_providers/$identity_provider/
-            protocols/$protocol/auth
-        POST /OS-FEDERATION/identity_providers/$identity_provider/
-            protocols/$protocol/auth
+        GET /OS-FEDERATION/identity_providers/{identity_provider}/
+            protocols/{protocol}/auth
+        POST /OS-FEDERATION/identity_providers/{identity_provider}/
+            protocols/{protocol}/auth
 
         POST /auth/OS-FEDERATION/saml2
         POST /auth/OS-FEDERATION/saml2/ecp
