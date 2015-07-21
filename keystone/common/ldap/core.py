@@ -1673,7 +1673,7 @@ class BaseLdap(object):
                       'entries': not_deleted_nodes[:3],
                       'dots': '...' if len(not_deleted_nodes) > 3 else ''})
 
-    def filter_query(self, hints, query=''):
+    def filter_query(self, hints, query=None):
         """Applies filtering to a query.
 
         :param hints: contains the list of filters, which may be None,
@@ -1739,6 +1739,11 @@ class BaseLdap(object):
                 return
 
             return query_term
+
+        if query is None:
+            # make sure query is a string so the ldap filter is properly
+            # constructed from filter_list later
+            query = ''
 
         if hints is None:
             return query
