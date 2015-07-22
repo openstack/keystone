@@ -36,22 +36,22 @@ class FederationExtension(wsgi.V3ExtensionRouter):
 
     The API looks like::
 
-        PUT /OS-FEDERATION/identity_providers/{identity_provider}
+        PUT /OS-FEDERATION/identity_providers/{idp_id}
         GET /OS-FEDERATION/identity_providers
-        GET /OS-FEDERATION/identity_providers/{identity_provider}
-        DELETE /OS-FEDERATION/identity_providers/{identity_provider}
-        PATCH /OS-FEDERATION/identity_providers/{identity_provider}
+        GET /OS-FEDERATION/identity_providers/{idp_id}
+        DELETE /OS-FEDERATION/identity_providers/{idp_id}
+        PATCH /OS-FEDERATION/identity_providers/{idp_id}
 
         PUT /OS-FEDERATION/identity_providers/
-            {identity_provider}/protocols/{protocol}
+            {idp_id}/protocols/{protocol_id}
         GET /OS-FEDERATION/identity_providers/
-            {identity_provider}/protocols
+            {idp_id}/protocols
         GET /OS-FEDERATION/identity_providers/
-            {identity_provider}/protocols/{protocol}
+            {idp_id}/protocols/{protocol_id}
         PATCH /OS-FEDERATION/identity_providers/
-            {identity_provider}/protocols/{protocol}
+            {idp_id}/protocols/{protocol_id}
         DELETE /OS-FEDERATION/identity_providers/
-            {identity_provider}/protocols/{protocol}
+            {idp_id}/protocols/{protocol_id}
 
         PUT /OS-FEDERATION/mappings
         GET /OS-FEDERATION/mappings
@@ -62,11 +62,11 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         GET /OS-FEDERATION/projects
         GET /OS-FEDERATION/domains
 
-        PUT /OS-FEDERATION/service_providers/{service_provider}
+        PUT /OS-FEDERATION/service_providers/{sp_id}
         GET /OS-FEDERATION/service_providers
-        GET /OS-FEDERATION/service_providers/{service_provider}
-        DELETE /OS-FEDERATION/service_providers/{service_provider}
-        PATCH /OS-FEDERATION/service_providers/{service_provider}
+        GET /OS-FEDERATION/service_providers/{sp_id}
+        DELETE /OS-FEDERATION/service_providers/{sp_id}
+        PATCH /OS-FEDERATION/service_providers/{sp_id}
 
         GET /OS-FEDERATION/identity_providers/{identity_provider}/
             protocols/{protocol}/auth
@@ -192,6 +192,8 @@ class FederationExtension(wsgi.V3ExtensionRouter):
             path=self._construct_url('projects'),
             get_action='list_projects_for_groups',
             rel=build_resource_relation(resource_name='projects'))
+
+        # Auth operations
         self._add_resource(
             mapper, auth_controller,
             path=self._construct_url('identity_providers/{identity_provider}/'
@@ -203,8 +205,6 @@ class FederationExtension(wsgi.V3ExtensionRouter):
                 'identity_provider': IDP_ID_PARAMETER_RELATION,
                 'protocol': PROTOCOL_ID_PARAMETER_RELATION,
             })
-
-        # Auth operations
         self._add_resource(
             mapper, auth_controller,
             path='/auth' + self._construct_url('saml2'),
