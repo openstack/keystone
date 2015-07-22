@@ -98,7 +98,7 @@ the argument(s) passed as input and is/are also present in the whitelist.
     ``empty``, ``blacklist`` and ``whitelist`` are the only conditions that can
     be used in direct mapping ({0}, {1}, etc.)
 
-You can combine multiple conditions in a single rule.The schema that needs to be
+You can combine multiple conditions in a single rule. The schema that needs to be
 followed for the mapping rules can be seen in the :doc:`mapping_schema` page.
 
 Mappings Examples
@@ -390,7 +390,7 @@ Combinations of mappings conditions can also be done.
 
 ``empty``, ``any_one_of``, and ``not_any_of`` can all be used in the same rule,
 but cannot be repeated within the same condition. ``any_one_of`` and
-``not_any_of`` are mutually exclusive within a condition's scope .So are
+``not_any_of`` are mutually exclusive within a condition's scope. So are
 ``whitelist`` and ``blacklist``.
 
 .. code-block:: javascript
