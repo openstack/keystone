@@ -174,11 +174,6 @@ class NotificationsWrapperTestCase(unit.BaseTestCase):
 
 
 class NotificationsTestCase(unit.BaseTestCase):
-    def setUp(self):
-        super(NotificationsTestCase, self).setUp()
-
-        fixture = self.useFixture(config_fixture.Config(CONF))
-        fixture.config(rpc_backend='fake', notification_driver=['fake'])
 
     def test_send_notification(self):
         """Test the private method _send_notification to ensure event_type,
