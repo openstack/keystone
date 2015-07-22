@@ -207,7 +207,7 @@ configuration options for a domain are cached in the keystone server, and in
 multi-process and multi-threaded keystone configurations, the new
 configuration options may not become active until the cache has timed out. The
 cache settings for domain config options can be adjusted in the general
-keystone configuration file (option ``cache_time`` in the ``domain-config``
+keystone configuration file (option ``cache_time`` in the ``domain_config``
 group).
 
 .. NOTE::
