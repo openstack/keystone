@@ -3035,3 +3035,14 @@ class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
     def clear_database(self):
         for shelf in fakeldap.FakeShelves:
             fakeldap.FakeShelves[shelf].clear()
+
+    def test_list_users_in_group_filtered(self):
+        # The LDAP identity driver currently does not support filtering on the
+        # listing users for a given group, so will fail this test.
+        try:
+            super(LdapFilterTests, self).test_list_users_in_group_filtered()
+        except matchers.MismatchError:
+            return
+        # We shouldn't get here...if we do, it means someone has implemented
+        # filtering, so we can remove this test override.
+        self.assertTrue(False)

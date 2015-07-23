@@ -5838,6 +5838,31 @@ class FilterTests(filtering.FilterTests):
         users = self.identity_api.list_users(hints=hints)
         self.assertEqual([], users)
 
+    def test_list_users_in_group_filtered(self):
+        number_of_users = 10
+        user_name_data = {
+            1: 'Arthur Conan Doyle',
+            3: 'Arthur Rimbaud',
+            9: 'Arthur Schopenhauer',
+        }
+        user_list = self._create_test_data(
+            'user', number_of_users,
+            domain_id=DEFAULT_DOMAIN_ID, name_dict=user_name_data)
+        group = self._create_one_entity('group',
+                                        DEFAULT_DOMAIN_ID, 'Great Writers')
+        for i in range(7):
+            self.identity_api.add_user_to_group(user_list[i]['id'],
+                                                group['id'])
+
+        hints = driver_hints.Hints()
+        hints.add_filter('name', 'Arthur', comparator='startswith')
+        users = self.identity_api.list_users_in_group(group['id'], hints=hints)
+        self.assertThat(len(users), matchers.Equals(2))
+        self.assertIn(user_list[1]['id'], [users[0]['id'], users[1]['id']])
+        self.assertIn(user_list[3]['id'], [users[0]['id'], users[1]['id']])
+        self._delete_test_data('user', user_list)
+        self._delete_entity('group')(group['id'])
+
 
 class LimitTests(filtering.FilterTests):
     ENTITIES = ['user', 'group', 'project']

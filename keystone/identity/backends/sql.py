@@ -211,28 +211,19 @@ class Identity(identity.Driver):
             session.delete(membership_ref)
 
     def list_groups_for_user(self, user_id, hints):
-        # TODO(henry-nash) We could implement full filtering here by enhancing
-        # the join below.  However, since it is likely to be a fairly rare
-        # occurrence to filter on more than the user_id already being used
-        # here, this is left as future enhancement and until then we leave
-        # it for the controller to do for us.
         session = sql.get_session()
         self.get_user(user_id)
         query = session.query(Group).join(UserGroupMembership)
         query = query.filter(UserGroupMembership.user_id == user_id)
+        query = sql.filter_limit_query(Group, query, hints)
         return [g.to_dict() for g in query]
 
     def list_users_in_group(self, group_id, hints):
-        # TODO(henry-nash) We could implement full filtering here by enhancing
-        # the join below.  However, since it is likely to be a fairly rare
-        # occurrence to filter on more than the group_id already being used
-        # here, this is left as future enhancement and until then we leave
-        # it for the controller to do for us.
         session = sql.get_session()
         self.get_group(group_id)
         query = session.query(User).join(UserGroupMembership)
         query = query.filter(UserGroupMembership.group_id == group_id)
-
+        query = sql.filter_limit_query(User, query, hints)
         return [identity.filter_user(u.to_dict()) for u in query]
 
     def delete_user(self, user_id):

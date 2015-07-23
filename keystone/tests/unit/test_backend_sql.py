@@ -815,21 +815,6 @@ class SqlFilterTests(SqlTests, test_backend.FilterTests):
         groups = self.identity_api.list_groups()
         self.assertTrue(len(groups) > 0)
 
-    def test_groups_for_user_filtered(self):
-        # The SQL identity driver currently does not support filtering on the
-        # listing groups for a given user, so will fail this test. This is
-        # raised as bug #1412447.
-        try:
-            super(SqlFilterTests, self).test_groups_for_user_filtered()
-        except matchers.MismatchError:
-            return
-        # We shouldn't get here...if we do, it means someone has fixed the
-        # above defect, so we can remove this test override. As an aside, it
-        # would be nice to have used self.assertRaises() around the call above
-        # to achieve the logic here...but that does not seem to work when
-        # wrapping another assert (it won't seem to catch the error).
-        self.assertTrue(False)
-
 
 class SqlLimitTests(SqlTests, test_backend.LimitTests):
     def setUp(self):
