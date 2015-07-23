@@ -4144,7 +4144,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         unscoped_token = self._get_unscoped_token()
         tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
                           unscoped_token[50 + 32:])
-        self._validate_token(tampered_token, expected_status=401)
+        self._validate_token(tampered_token, expected_status=404)
 
     def test_revoke_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
@@ -4224,7 +4224,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         project_scoped_token = self._get_project_scoped_token()
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
-        self._validate_token(tampered_token, expected_status=401)
+        self._validate_token(tampered_token, expected_status=404)
 
     def test_revoke_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
@@ -4332,7 +4332,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         # Get a trust scoped token
         tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
                           trust_scoped_token[50 + 32:])
-        self._validate_token(tampered_token, expected_status=401)
+        self._validate_token(tampered_token, expected_status=404)
 
     def test_revoke_trust_scoped_token(self):
         trustee_user, trust = self._create_trust()
