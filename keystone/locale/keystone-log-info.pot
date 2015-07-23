@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.0.0b2.dev56\n"
+"Project-Id-Version: keystone 8.0.0.0b2.dev133\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-07-09 06:09+0000\n"
+"POT-Creation-Date: 2015-07-23 06:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,7 +90,7 @@ msgstr ""
 msgid "KVS region %s key_mangler disabled."
 msgstr ""
 
-#: keystone/contrib/example/core.py:66 keystone/contrib/example/core.py:75
+#: keystone/contrib/example/core.py:69 keystone/contrib/example/core.py:78
 #, python-format
 msgid ""
 "Received the following notification: service %(service)s, resource_type: "
@@ -144,12 +144,12 @@ msgstr ""
 msgid "Promoted key 0 to be the primary: %s"
 msgstr ""
 
-#: keystone/token/providers/fernet/utils.py:215
+#: keystone/token/providers/fernet/utils.py:218
 #, python-format
-msgid "Excess keys to purge: %s"
+msgid "Excess key to purge: %s"
 msgstr ""
 
-#: keystone/token/providers/fernet/utils.py:239
+#: keystone/token/providers/fernet/utils.py:241
 #, python-format
 msgid "Loaded %(count)s encryption keys from: %(dir)s"
 msgstr ""
