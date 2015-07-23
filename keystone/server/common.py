@@ -14,10 +14,10 @@
 
 from oslo_config import cfg
 
-from keystone import backends
 from keystone.common import dependency
 from keystone.common import sql
 from keystone import config
+from keystone.server import backends
 
 
 CONF = cfg.CONF
