@@ -128,6 +128,93 @@ class V2CatalogTestCase(rest.RestfulTestCase):
     def test_endpoint_create_with_empty_service_id(self):
         self._endpoint_create(expected_status=400, service_id='')
 
+    def test_endpoint_create_with_valid_url(self):
+        """Create endpoint with valid url should be tested,too."""
+        # list one valid url is enough, no need to list too much
+        valid_url = 'http://127.0.0.1:8774/v1.1/$(tenant_id)s'
+
+        # baseline tests that all valid URLs works
+        self._endpoint_create(expected_status=200,
+                              publicurl=valid_url,
+                              internalurl=valid_url,
+                              adminurl=valid_url)
+
+    def test_endpoint_create_with_invalid_url(self):
+        """Test the invalid cases: substitutions is not exactly right.
+        """
+        invalid_urls = [
+            # using a substitution that is not whitelisted - KeyError
+            'http://127.0.0.1:8774/v1.1/$(nonexistent)s',
+
+            # invalid formatting - ValueError
+            'http://127.0.0.1:8774/v1.1/$(tenant_id)',
+            'http://127.0.0.1:8774/v1.1/$(tenant_id)t',
+            'http://127.0.0.1:8774/v1.1/$(tenant_id',
+
+            # invalid type specifier - TypeError
+            # admin_url is a string not an int
+            'http://127.0.0.1:8774/v1.1/$(admin_url)d',
+        ]
+
+        # list one valid url is enough, no need to list too much
+        valid_url = 'http://127.0.0.1:8774/v1.1/$(tenant_id)s'
+
+        # Case one: publicurl, internalurl and adminurl are
+        # all invalid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=invalid_url,
+                                  internalurl=invalid_url,
+                                  adminurl=invalid_url)
+
+        # Case two: publicurl, internalurl are invalid
+        # and adminurl is valid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=invalid_url,
+                                  internalurl=invalid_url,
+                                  adminurl=valid_url)
+
+        # Case three: publicurl, adminurl are invalid
+        # and internalurl is valid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=invalid_url,
+                                  internalurl=valid_url,
+                                  adminurl=invalid_url)
+
+        # Case four: internalurl, adminurl are invalid
+        # and publicurl is valid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=valid_url,
+                                  internalurl=invalid_url,
+                                  adminurl=invalid_url)
+
+        # Case five: publicurl is invalid, internalurl
+        # and adminurl are valid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=invalid_url,
+                                  internalurl=valid_url,
+                                  adminurl=valid_url)
+
+        # Case six: internalurl is invalid, publicurl
+        # and adminurl are valid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=valid_url,
+                                  internalurl=invalid_url,
+                                  adminurl=valid_url)
+
+        # Case seven: adminurl is invalid, publicurl
+        # and internalurl are valid
+        for invalid_url in invalid_urls:
+            self._endpoint_create(expected_status=400,
+                                  publicurl=valid_url,
+                                  internalurl=valid_url,
+                                  adminurl=invalid_url)
+
 
 class TestV2CatalogAPISQL(tests.TestCase):
 
