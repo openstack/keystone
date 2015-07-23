@@ -13,7 +13,7 @@
 from oslo_config import cfg
 from oslo_log import log
 
-from keystone import clean
+from keystone.common import clean
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _LE

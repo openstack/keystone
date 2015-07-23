@@ -17,7 +17,7 @@ import uuid
 from oslo_config import cfg
 from oslo_log import log
 
-from keystone import clean
+from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
 from keystone.common import models
