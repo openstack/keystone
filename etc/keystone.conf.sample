@@ -1015,106 +1015,160 @@
 
 # Search base for projects (string value)
 # Deprecated group/name - [ldap]/tenant_tree_dn
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_tree_dn = <None>
 
 # LDAP search filter for projects. (string value)
 # Deprecated group/name - [ldap]/tenant_filter
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_filter = <None>
 
 # LDAP objectclass for projects. (string value)
 # Deprecated group/name - [ldap]/tenant_objectclass
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_objectclass = groupOfNames
 
 # LDAP attribute mapped to project id. (string value)
 # Deprecated group/name - [ldap]/tenant_id_attribute
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_id_attribute = cn
 
 # LDAP attribute mapped to project membership for user. (string value)
 # Deprecated group/name - [ldap]/tenant_member_attribute
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_member_attribute = member
 
 # LDAP attribute mapped to project name. (string value)
 # Deprecated group/name - [ldap]/tenant_name_attribute
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_name_attribute = ou
 
 # LDAP attribute mapped to project description. (string value)
 # Deprecated group/name - [ldap]/tenant_desc_attribute
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_desc_attribute = description
 
 # LDAP attribute mapped to project enabled. (string value)
 # Deprecated group/name - [ldap]/tenant_enabled_attribute
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_enabled_attribute = enabled
 
 # LDAP attribute mapped to project domain_id. (string value)
 # Deprecated group/name - [ldap]/tenant_domain_id_attribute
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_domain_id_attribute = businessCategory
 
 # List of attributes stripped off the project on update. (list value)
 # Deprecated group/name - [ldap]/tenant_attribute_ignore
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_attribute_ignore =
 
 # Allow project creation in LDAP backend. (boolean value)
 # Deprecated group/name - [ldap]/tenant_allow_create
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_allow_create = true
 
 # Allow project update in LDAP backend. (boolean value)
 # Deprecated group/name - [ldap]/tenant_allow_update
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_allow_update = true
 
 # Allow project deletion in LDAP backend. (boolean value)
 # Deprecated group/name - [ldap]/tenant_allow_delete
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_allow_delete = true
 
 # If true, Keystone uses an alternative method to determine if a project is
 # enabled or not by checking if they are a member of the
 # "project_enabled_emulation_dn" group. (boolean value)
 # Deprecated group/name - [ldap]/tenant_enabled_emulation
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_enabled_emulation = false
 
 # DN of the group entry to hold enabled projects when using enabled emulation.
 # (string value)
 # Deprecated group/name - [ldap]/tenant_enabled_emulation_dn
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_enabled_emulation_dn = <None>
 
 # Additional attribute mappings for projects. Attribute mapping format is
 # <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
 # and user_attr is the Identity API attribute. (list value)
 # Deprecated group/name - [ldap]/tenant_additional_attribute_mapping
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #project_additional_attribute_mapping =
 
 # Search base for roles. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_tree_dn = <None>
 
 # LDAP search filter for roles. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_filter = <None>
 
 # LDAP objectclass for roles. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_objectclass = organizationalRole
 
 # LDAP attribute mapped to role id. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_id_attribute = cn
 
 # LDAP attribute mapped to role name. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_name_attribute = ou
 
 # LDAP attribute mapped to role membership. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_member_attribute = roleOccupant
 
 # List of attributes stripped off the role on update. (list value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_attribute_ignore =
 
 # Allow role creation in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_allow_create = true
 
 # Allow role update in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_allow_update = true
 
 # Allow role deletion in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_allow_delete = true
 
 # Additional attribute mappings for roles. Attribute mapping format is
 # <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
 # and user_attr is the Identity API attribute. (list value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #role_additional_attribute_mapping =
 
 # Search base for groups. (string value)
