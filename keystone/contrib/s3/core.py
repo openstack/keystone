@@ -25,6 +25,8 @@ import base64
 import hashlib
 import hmac
 
+import six
+
 from keystone.common import extension
 from keystone.common import json_home
 from keystone.common import utils
@@ -66,9 +68,15 @@ class S3Extension(wsgi.V3ExtensionRouter):
 class S3Controller(controllers.Ec2Controller):
     def check_signature(self, creds_ref, credentials):
         msg = base64.urlsafe_b64decode(str(credentials['token']))
-        key = str(creds_ref['secret'])
-        signed = base64.encodestring(
-            hmac.new(key, msg, hashlib.sha1).digest()).strip()
+        key = str(creds_ref['secret']).encode('utf-8')
+
+        if six.PY2:
+            b64_encode = base64.encodestring
+        else:
+            b64_encode = base64.encodebytes
+
+        signed = b64_encode(
+            hmac.new(key, msg, hashlib.sha1).digest()).decode('utf-8').strip()
 
         if not utils.auth_str_equal(credentials['signature'], signed):
             raise exception.Unauthorized('Credential signature mismatch')
