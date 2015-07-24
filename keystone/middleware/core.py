@@ -160,15 +160,9 @@ class XmlBodyMiddleware(wsgi.Middleware):
 class XmlBodyMiddlewareV2(XmlBodyMiddleware):
     """De/serialize XML to/from JSON for v2.0 API."""
 
-    def __init__(self, *args, **kwargs):
-        pass
-
 
 class XmlBodyMiddlewareV3(XmlBodyMiddleware):
     """De/serialize XML to/from JSON for v3 API."""
-
-    def __init__(self, *args, **kwargs):
-        pass
 
 
 class NormalizingFilter(wsgi.Middleware):
