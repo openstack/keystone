@@ -89,6 +89,22 @@ If `mod_auth_kerb` is used, then use the following as an example:
       </Location>
   </VirtualHost>
 
+If `mod_auth_mellon` is used, then use the following as an example:
+
+.. code-block:: xml
+
+  <VirtualHost *:5000>
+
+      ...
+
+      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
+        AuthType Mellon
+        MellonEnable auth
+        Require valid-user
+        ...
+      </Location>
+  </VirtualHost>
+
 .. NOTE::
     If you are also using SSO via the API, don't forget to make the Location
     settings match your configuration used for the keystone identity provider
@@ -101,7 +117,7 @@ A remote id attribute indicates the header to retrieve from the WSGI
 environment. This header contains information about the identity
 of the identity provider. For `mod_shib` this would be
 ``Shib-Identity-Provider``, for `mod_auth_openidc`, this could be
-``HTTP_OIDC_ISS``.
+``HTTP_OIDC_ISS``.  For `mod_auth_mellon`, this could be ``MELLON_IDP``.
 
 It is recommended that this option be set on a per-protocol basis.
 
