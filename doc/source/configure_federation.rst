@@ -297,7 +297,7 @@ also be setup. It is recommended that these values be URL safe.
     idp_organization_display_name=Example Corp.
     idp_organization_url=example.com
 
-As with the Organizaion options, the Contact options, are not necessary, but
+As with the Organization options, the Contact options, are not necessary, but
 it's advisable to set these values too.
 
 .. code-block:: ini

@@ -811,7 +811,7 @@ following states:
   deployment at all times). In a multi-node Keystone deployment this would
   allow for the *staged* key to be replicated to all Keystone nodes before
   being promoted to *primary* on a single node. This prevents the case where a
-  *primary* key is created on one Keystone node and tokens encryted/signed with
+  *primary* key is created on one Keystone node and tokens encrypted/signed with
   that new *primary* are rejected on another Keystone node because the new
   *primary* doesn't exist there yet.
 
@@ -1715,7 +1715,7 @@ information such users, groups, and group membership from the directory, while
 resources, roles and assignment related information will be provided by the SQL
 backend. Also note that if there is an LDAP Identity, and no resource,
 assignment or role backend is specified, they will default to LDAP. Although
-this may seem counterintuitive, it is provided for backwards compatibility.
+this may seem counter intuitive, it is provided for backwards compatibility.
 Nonetheless, the explicit option will always override the implicit option, so
 specifying the options as shown above will always be correct.  Finally, it is
 also worth noting that whether or not the LDAP accessible directory is to be
@@ -1732,7 +1732,7 @@ section:
 
 .. NOTE::
 
-    While having identity related infomration backed by LDAP while other
+    While having identity related information backed by LDAP while other
     information is backed by SQL is a supported configuration, as shown above;
     the opposite is not true. If either resource or assignment drivers are
     configured for LDAP, then Identity must also be configured for LDAP.
@@ -1743,7 +1743,7 @@ Connection Pooling
 Various LDAP backends in Keystone use a common LDAP module to interact with
 LDAP data. By default, a new connection is established for LDAP operations.
 This can become highly expensive when TLS support is enabled which is a likely
-configuraton in enterprise setup. Re-using of connectors from a connection pool
+configuration in enterprise setup. Re-using of connectors from a connection pool
 drastically reduces overhead of initiating a new connection for every LDAP
 operation.
 
