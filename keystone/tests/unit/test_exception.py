@@ -87,7 +87,10 @@ class ExceptionTestCase(tests.BaseTestCase):
         e = exception.ValidationError(attribute='xx',
                                       target='Long \xe2\x80\x93 Dash')
 
-        self.assertIn(u'\u2013', six.text_type(e))
+        if six.PY2:
+            self.assertIn(u'\u2013', six.text_type(e))
+        else:
+            self.assertIn('Long \xe2\x80\x93 Dash', six.text_type(e))
 
     def test_invalid_unicode_string(self):
         # NOTE(jamielennox): This is a complete failure case so what is
@@ -95,7 +98,12 @@ class ExceptionTestCase(tests.BaseTestCase):
         # as there is an error with a message
         e = exception.ValidationError(attribute='xx',
                                       target='\xe7a va')
-        self.assertIn('%(attribute)', six.text_type(e))
+
+        if six.PY2:
+            self.assertIn('%(attribute)', six.text_type(e))
+        else:
+            # There's no UnicodeDecodeError on python 3.
+            self.assertIn('\xe7a va', six.text_type(e))
 
 
 class UnexpectedExceptionTestCase(ExceptionTestCase):
