@@ -335,7 +335,7 @@ class AssignmentTestHelperMixin(object):
             self.assignment_api.create_grant(**args)
         return test_data
 
-    def execute_assignment_tests(self, test_plan, test_data):
+    def execute_assignment_cases(self, test_plan, test_data):
         """Execute the test plan, based on the created test_data."""
 
         def check_results(expected, actual, param_arg_count):
@@ -392,7 +392,7 @@ class AssignmentTestHelperMixin(object):
             results = self.assignment_api.list_role_assignments(**args)
             check_results(test['results'], results, len(args))
 
-    def execute_assignment_test_plan(self, test_plan):
+    def execute_assignment_plan(self, test_plan):
         """Create entities, assignments and execute the test plan.
 
         The standard method to call to create entities and assignments and
@@ -408,7 +408,7 @@ class AssignmentTestHelperMixin(object):
         if 'assignments' in test_plan:
             test_data = self.create_assignments(test_plan['assignments'],
                                                 test_data)
-        self.execute_assignment_tests(test_plan, test_data)
+        self.execute_assignment_cases(test_plan, test_data)
         return test_data
 
 
@@ -904,7 +904,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                              {'group': 0, 'role': 2, 'project': 0}]}
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_role_assignments_filtered_by_role(self):
         """Test listing of role assignments filtered by role ID."""
@@ -927,7 +927,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                              {'group': 0, 'role': 2, 'project': 0}]}
             ]
         }
-        test_data = self.execute_assignment_test_plan(test_plan)
+        test_data = self.execute_assignment_plan(test_plan)
 
         # Also test that list_role_assignments_for_role() gives the same answer
         assignment_list = self.assignment_api.list_role_assignments_for_role(
@@ -960,7 +960,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                  'results': [{'group': 0, 'role': 0, 'project': 0}]}
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_role_assignments_bad_role(self):
         assignment_list = self.assignment_api.list_role_assignments_for_role(
@@ -2016,7 +2016,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                  'results': []},
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_role_assignment_by_user_with_domain_group_roles(self):
         """Test listing assignments by user, with group roles on a domain."""
@@ -2062,7 +2062,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                  'results': []},
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_delete_domain_with_user_group_project_links(self):
         # TODO(chungg):add test case once expected behaviour defined
@@ -4769,7 +4769,7 @@ class TokenTests(object):
 
     def _test_predictable_revoked_pki_token_id(self, hash_fn):
         token_id = self._create_token_id()
-        token_id_hash = hash_fn(token_id).hexdigest()
+        token_id_hash = hash_fn(token_id.encode('utf-8')).hexdigest()
         token = {'user': {'id': uuid.uuid4().hex}}
 
         self.token_provider_api._persistence.create_token(token_id, token)
@@ -5885,7 +5885,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             ]
         }
         self.config_fixture.config(group='os_inherit', enabled=True)
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_inherited_role_assignments_excluded_if_os_inherit_false(self):
         test_plan = {
@@ -5916,7 +5916,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             ]
         }
         self.config_fixture.config(group='os_inherit', enabled=False)
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def _test_crud_inherited_and_direct_assignment(self, **kwargs):
         """Tests inherited and direct assignments for the actor and target
@@ -6098,7 +6098,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
                  'results': [{'user': 0, 'role': 1, 'domain': 0}]},
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_inherited_role_grants_for_group(self):
         """Test inherited group roles.
@@ -6217,7 +6217,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
                               'indirect': {'domain': 0, 'group': 1}}]}
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_projects_for_user_with_inherited_grants(self):
         """Test inherited user roles.
@@ -6287,7 +6287,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
                               'indirect': {'domain': 1}}]}
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_projects_for_user_with_inherited_user_project_grants(self):
         """Test inherited role assignments for users on nested projects.
@@ -6387,10 +6387,10 @@ class InheritanceTests(AssignmentTestHelperMixin):
             ]
         }
         self.config_fixture.config(group='os_inherit', enabled=True)
-        test_data = self.execute_assignment_test_plan(test_plan)
+        test_data = self.execute_assignment_plan(test_plan)
         self.config_fixture.config(group='os_inherit', enabled=False)
         # Pass the existing test data in to allow execution of 2nd test plan
-        self.execute_assignment_tests(
+        self.execute_assignment_cases(
             test_plan_with_os_inherit_disabled, test_data)
 
     def test_list_projects_for_user_with_inherited_group_grants(self):
@@ -6497,7 +6497,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
                               'indirect': {'domain': 2}}]}
             ]
         }
-        self.execute_assignment_test_plan(test_plan)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_projects_for_user_with_inherited_group_project_grants(self):
         """Test inherited role assignments for groups on nested projects.
@@ -6603,10 +6603,10 @@ class InheritanceTests(AssignmentTestHelperMixin):
             ]
         }
         self.config_fixture.config(group='os_inherit', enabled=True)
-        test_data = self.execute_assignment_test_plan(test_plan)
+        test_data = self.execute_assignment_plan(test_plan)
         self.config_fixture.config(group='os_inherit', enabled=False)
         # Pass the existing test data in to allow execution of 2nd test plan
-        self.execute_assignment_tests(
+        self.execute_assignment_cases(
             test_plan_with_os_inherit_disabled, test_data)
 
 
