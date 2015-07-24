@@ -25,6 +25,7 @@ from testtools import matchers as tt_matchers
 from keystone.common import json_home
 from keystone import controllers
 from keystone.tests import unit as tests
+from keystone.tests.unit import utils
 
 
 CONF = cfg.CONF
@@ -644,9 +645,11 @@ class VersionTestCase(tests.TestCase):
 
     def config_overrides(self):
         super(VersionTestCase, self).config_overrides()
-        port = random.randint(10000, 30000)
-        self.config_fixture.config(group='eventlet_server', public_port=port,
-                                   admin_port=port)
+        admin_port = random.randint(10000, 30000)
+        public_port = random.randint(40000, 60000)
+        self.config_fixture.config(group='eventlet_server',
+                                   public_port=public_port,
+                                   admin_port=admin_port)
 
     def _paste_in_port(self, response, port):
         for link in response['links']:
@@ -750,6 +753,7 @@ class VersionTestCase(tests.TestCase):
                             CONF.eventlet_server.public_port)
         self.assertEqual(expected, data)
 
+    @utils.wip('waiting on bug #1381961')
     def test_admin_version_v3(self):
         client = tests.TestClient(self.public_app)
         resp = client.get('/v3/')
@@ -940,9 +944,11 @@ class VersionSingleAppTestCase(tests.TestCase):
 
     def config_overrides(self):
         super(VersionSingleAppTestCase, self).config_overrides()
-        port = random.randint(10000, 30000)
-        self.config_fixture.config(group='eventlet_server', public_port=port,
-                                   admin_port=port)
+        admin_port = random.randint(10000, 30000)
+        public_port = random.randint(40000, 60000)
+        self.config_fixture.config(group='eventlet_server',
+                                   public_port=public_port,
+                                   admin_port=admin_port)
 
     def _paste_in_port(self, response, port):
         for link in response['links']:
@@ -970,6 +976,7 @@ class VersionSingleAppTestCase(tests.TestCase):
     def test_public(self):
         self._test_version('main')
 
+    @utils.wip('waiting on bug #1381961')
     def test_admin(self):
         self._test_version('admin')
 
@@ -987,9 +994,11 @@ class VersionInheritEnabledTestCase(tests.TestCase):
 
     def config_overrides(self):
         super(VersionInheritEnabledTestCase, self).config_overrides()
-        port = random.randint(10000, 30000)
-        self.config_fixture.config(group='eventlet_server', public_port=port,
-                                   admin_port=port)
+        admin_port = random.randint(10000, 30000)
+        public_port = random.randint(40000, 60000)
+        self.config_fixture.config(group='eventlet_server',
+                                   public_port=public_port,
+                                   admin_port=admin_port)
 
         self.config_fixture.config(group='os_inherit', enabled=True)
 
