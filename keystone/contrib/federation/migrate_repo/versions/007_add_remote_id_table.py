@@ -32,7 +32,9 @@ def upgrade(migrate_engine):
 
     remote_id_table.create(migrate_engine, checkfirst=True)
 
-    select = orm.sql.select([idp_table.c.id, idp_table.c.remote_id])
+    select = orm.sql.select([idp_table.c.id, idp_table.c.remote_id]).where(
+        idp_table.c.remote_id.isnot(None))
+
     for identity in migrate_engine.execute(select):
         remote_idp_entry = {'idp_id': identity.id,
                             'remote_id': identity.remote_id}
