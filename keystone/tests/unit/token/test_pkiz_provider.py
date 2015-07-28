@@ -23,4 +23,4 @@ class TestPkizTokenProvider(tests.TestCase):
         self.assertTrue(self.provider._supports_bind_authentication)
 
     def test_need_persistence_return_true(self):
-        self.assertTrue(self.provider.needs_persistence)
+        self.assertIs(True, self.provider.needs_persistence())
