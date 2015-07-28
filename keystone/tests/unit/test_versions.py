@@ -755,7 +755,7 @@ class VersionTestCase(tests.TestCase):
 
     @utils.wip('waiting on bug #1381961')
     def test_admin_version_v3(self):
-        client = tests.TestClient(self.public_app)
+        client = tests.TestClient(self.admin_app)
         resp = client.get('/v3/')
         self.assertEqual(200, resp.status_int)
         data = jsonutils.loads(resp.body)
