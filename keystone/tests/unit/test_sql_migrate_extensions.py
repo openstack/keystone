@@ -180,6 +180,7 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         self.federation_protocol = 'federation_protocol'
         self.service_provider = 'service_provider'
         self.mapping = 'mapping'
+        self.remote_id_table = 'idp_remote_ids'
 
     def repo_package(self):
         return federation
@@ -309,6 +310,68 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
         sp = session.query(sp_table).filter(sp_table.c.id == sp3['id'])[0]
         self.assertEqual('', sp.auth_url)
         self.assertEqual('', sp.sp_url)
+
+    def test_propagate_remote_id_to_separate_column(self):
+        """Make sure empty remote_id is not propagated.
+        Test scenario:
+        - Upgrade database to version 6 where identity_provider table has a
+          remote_id column
+        - Add 3 identity provider objects, where idp1 and idp2 have valid
+          remote_id parameter set, and idp3 has it empty (None).
+        - Upgrade database to version 7 and expect migration scripts to
+          properly move data rom identity_provider.remote_id column into
+          separate table idp_remote_ids.
+        - In the idp_remote_ids table expect to find entries for idp1 and idp2
+          and not find anything for idp3 (identitified by idp's id)
+
+        """
+        session = self.Session()
+        idp1 = {'id': uuid.uuid4().hex,
+                'remote_id': uuid.uuid4().hex,
+                'description': uuid.uuid4().hex,
+                'enabled': True}
+        idp2 = {'id': uuid.uuid4().hex,
+                'remote_id': uuid.uuid4().hex,
+                'description': uuid.uuid4().hex,
+                'enabled': True}
+        idp3 = {'id': uuid.uuid4().hex,
+                'remote_id': None,
+                'description': uuid.uuid4().hex,
+                'enabled': True}
+        self.upgrade(6, repository=self.repo_path)
+        self.assertTableColumns(self.identity_provider,
+                                ['id', 'description', 'enabled', 'remote_id'])
+
+        self.insert_dict(session, self.identity_provider, idp1)
+        self.insert_dict(session, self.identity_provider, idp2)
+        self.insert_dict(session, self.identity_provider, idp3)
+
+        session.close()
+        self.upgrade(7, repository=self.repo_path)
+
+        self.assertTableColumns(self.identity_provider,
+                                ['id', 'description', 'enabled'])
+        remote_id_table = sqlalchemy.Table(self.remote_id_table,
+                                           self.metadata,
+                                           autoload=True)
+
+        session = self.Session()
+        self.metadata.clear()
+
+        idp = session.query(remote_id_table).filter(
+            remote_id_table.c.idp_id == idp1['id'])[0]
+        self.assertEqual(idp1['remote_id'], idp.remote_id)
+
+        idp = session.query(remote_id_table).filter(
+            remote_id_table.c.idp_id == idp2['id'])[0]
+        self.assertEqual(idp2['remote_id'], idp.remote_id)
+
+        idp = session.query(remote_id_table).filter(
+            remote_id_table.c.idp_id == idp3['id'])
+        # NOTE(marek-denis): As idp3 had empty 'remote_id' attribute we expect
+        # not to find it in the 'remote_id_table' table, hence count should be
+        # 0.real
+        self.assertEqual(0, idp.count())
 
     def test_add_relay_state_column(self):
         self.upgrade(8, repository=self.repo_path)
