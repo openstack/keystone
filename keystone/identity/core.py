@@ -21,6 +21,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 import six
 
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
@@ -877,6 +878,14 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref_list, domain_scope, driver, mapping.EntityType.USER)
 
+    def _check_update_of_domain_id(self, new_domain, old_domain):
+        if new_domain != old_domain:
+            versionutils.report_deprecated_feature(
+                LOG,
+                _('update of domain_id is deprecated as of Mitaka '
+                    'and will be removed in O.')
+            )
+
     @domains_configured
     @exception_translated('user')
     def update_user(self, user_id, user_ref, initiator=None):
@@ -887,6 +896,8 @@ class Manager(manager.Manager):
         if 'enabled' in user:
             user['enabled'] = clean.user_enabled(user['enabled'])
         if 'domain_id' in user:
+            self._check_update_of_domain_id(user['domain_id'],
+                                            old_user_ref['domain_id'])
             self.resource_api.get_domain(user['domain_id'])
         if 'id' in user:
             if user_id != user['id']:
@@ -980,6 +991,9 @@ class Manager(manager.Manager):
     @exception_translated('group')
     def update_group(self, group_id, group, initiator=None):
         if 'domain_id' in group:
+            old_group_ref = self.get_group(group_id)
+            self._check_update_of_domain_id(group['domain_id'],
+                                            old_group_ref['domain_id'])
             self.resource_api.get_domain(group['domain_id'])
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
