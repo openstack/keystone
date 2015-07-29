@@ -45,6 +45,7 @@ from keystone.common import config as common_cfg
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
+from keystone.common import sql
 from keystone import config
 from keystone import controllers
 from keystone import exception
@@ -379,6 +380,7 @@ class TestCase(BaseTestCase):
         self.addCleanup(setattr, controllers, '_VERSIONS', [])
 
     def config(self, config_files):
+        sql.initialize()
         CONF(args=[], project='keystone', default_config_files=config_files)
 
     def load_backends(self):
