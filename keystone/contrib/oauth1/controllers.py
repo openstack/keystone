@@ -20,12 +20,12 @@ from oslo_utils import timeutils
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import utils
 from keystone.common import wsgi
 from keystone.contrib.oauth1 import core as oauth1
 from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.i18n import _
-from keystone.models import token_model
 from keystone import notifications
 
 
@@ -84,10 +84,7 @@ class ConsumerCrudV3(controller.V3Controller):
 
     @controller.protected()
     def delete_consumer(self, context, consumer_id):
-        user_token_ref = token_model.KeystoneToken(
-            token_id=context['token_id'],
-            token_data=self.token_provider_api.validate_token(
-                context['token_id']))
+        user_token_ref = utils.get_token_ref(context)
         payload = {'user_id': user_token_ref.user_id,
                    'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
@@ -382,10 +379,7 @@ class OAuthControllerV3(controller.V3Controller):
             authed_roles.add(role['id'])
 
         # verify the authorizing user has the roles
-        user_token = token_model.KeystoneToken(
-            token_id=context['token_id'],
-            token_data=self.token_provider_api.validate_token(
-                context['token_id']))
+        user_token = utils.get_token_ref(context)
         user_id = user_token.user_id
         project_id = req_token['requested_project_id']
         user_roles = self.assignment_api.get_roles_for_user_and_project(
