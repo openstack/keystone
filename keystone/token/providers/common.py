@@ -550,6 +550,7 @@ class BaseProvider(provider.Provider):
                 'id': user_id,
                 'name': parse.unquote(user_id),
                 federation_constants.FEDERATION: {
+                    'groups': [{'id': x} for x in group_ids],
                     'identity_provider': {'id': idp},
                     'protocol': {'id': protocol}
                 },
@@ -561,13 +562,11 @@ class BaseProvider(provider.Provider):
         }
 
         if project_id or domain_id:
-            roles = self.v3_token_data_helper._populate_roles_for_groups(
-                group_ids, project_id, domain_id, user_id)
-            token_data.update({'roles': roles})
-        else:
-            token_data['user'][federation_constants.FEDERATION].update({
-                'groups': [{'id': x} for x in group_ids]
-            })
+            token_data['roles'] = (
+                self.v3_token_data_helper._populate_roles_for_groups(
+                    group_ids, project_id, domain_id, user_id)
+            )
+
         return token_data
 
     def _verify_token_ref(self, token_ref):
