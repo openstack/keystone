@@ -666,7 +666,7 @@ class RuleProcessor(object):
             }
 
         :returns: identity values used to update local
-        :rtype: keystone.contrib.federation.utils.DirectMaps
+        :rtype: keystone.contrib.federation.utils.DirectMaps or None
 
         """
 
