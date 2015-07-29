@@ -123,7 +123,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         self.assertNotIn(self.exc_str, six.text_type(e))
 
     def test_unexpected_error_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(exception=self.exc_str)
         self.assertIn(self.exc_str, six.text_type(e))
 
@@ -135,7 +135,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
                          six.text_type(e))
 
     def test_unexpected_error_subclass_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
         subclass = self.SubClassExc
 
         e = subclass(debug_info=self.exc_str)
@@ -151,14 +151,14 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
                          six.text_type(e))
 
     def test_unexpected_error_custom_message_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(self.exc_str)
         self.assertEqual(
             '%s %s' % (self.exc_str, exception.SecurityError.amendment),
             six.text_type(e))
 
     def test_unexpected_error_custom_message_exception_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
         orig_e = exception.NotFound(target=uuid.uuid4().hex)
         e = exception.UnexpectedError(orig_e)
         self.assertEqual(
@@ -167,7 +167,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
             six.text_type(e))
 
     def test_unexpected_error_custom_message_binary_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
         binary_msg = b'something'
         e = exception.UnexpectedError(binary_msg)
         self.assertEqual(
@@ -192,7 +192,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(risky_info, six.text_type(e))
 
     def test_unauthorized_exposure_in_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
 
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
@@ -208,7 +208,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(risky_info, six.text_type(e))
 
     def test_forbidden_exposure_in_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
 
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
@@ -232,7 +232,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         self.assertNotIn(exception.SecurityError.amendment, six.text_type(e))
 
     def test_forbidden_action_exposure_in_debug(self):
-        self.config_fixture.config(debug=True)
+        self.config_fixture.config(debug=True, insecure_debug=True)
 
         risky_info = uuid.uuid4().hex
         action = uuid.uuid4().hex

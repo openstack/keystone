@@ -161,13 +161,15 @@ class PKITokenExpected(Error):
 
 
 class SecurityError(Error):
-    """Avoids exposing details of security failures, unless in debug mode."""
+    """Avoids exposing details of security failures, unless in insecure_debug
+    mode.
+    """
 
-    amendment = _('(Disable debug mode to suppress these details.)')
+    amendment = _('(Disable insecure_debug mode to suppress these details.)')
 
     def _build_message(self, message, **kwargs):
-        """Only returns detailed messages in debug mode."""
-        if message and CONF.debug:
+        """Only returns detailed messages in insecure_debug mode."""
+        if message and CONF.insecure_debug:
             if isinstance(message, six.string_types):
                 # Only do replacement if message is string. The message is
                 # sometimes a different exception or bytes, which would raise
@@ -381,7 +383,7 @@ class Conflict(Error):
 
 
 class UnexpectedError(SecurityError):
-    """Avoids exposing details of failures, unless in debug mode."""
+    """Avoids exposing details of failures, unless in insecure_debug mode."""
 
     message_format = _("An unexpected error prevented the server "
                        "from fulfilling your request.")
