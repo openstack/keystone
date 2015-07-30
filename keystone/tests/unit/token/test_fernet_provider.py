@@ -387,3 +387,28 @@ class TestFernetKeyRotation(tests.TestCase):
                 exp_keys.append(key_no)
                 key_no += 1
                 self.assertEqual(exp_keys, self.keys)
+
+    def test_non_numeric_files(self):
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        evil_file = os.path.join(CONF.fernet_tokens.key_repository, '99.bak')
+        with open(evil_file, 'w'):
+            pass
+        fernet_utils.rotate_keys()
+        self.assertTrue(os.path.isfile(evil_file))
+        keys = 0
+        for x in os.listdir(CONF.fernet_tokens.key_repository):
+            if x == '99.bak':
+                continue
+            keys += 1
+        self.assertEqual(3, keys)
+
+
+class TestLoadKeys(tests.TestCase):
+    def test_non_numeric_files(self):
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        evil_file = os.path.join(CONF.fernet_tokens.key_repository, '~1')
+        with open(evil_file, 'w'):
+            pass
+        keys = fernet_utils.load_keys()
+        self.assertEqual(2, len(keys))
+        self.assertTrue(len(keys[0]))

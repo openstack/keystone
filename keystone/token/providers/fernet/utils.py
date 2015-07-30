@@ -174,7 +174,12 @@ def rotate_keys(keystone_user_id=None, keystone_group_id=None):
     for filename in os.listdir(CONF.fernet_tokens.key_repository):
         path = os.path.join(CONF.fernet_tokens.key_repository, str(filename))
         if os.path.isfile(path):
-            key_files[int(filename)] = path
+            try:
+                key_id = int(filename)
+            except ValueError:
+                pass
+            else:
+                key_files[key_id] = path
 
     LOG.info(_LI('Starting key rotation with %(count)s key files: %(list)s'), {
         'count': len(key_files),
@@ -236,7 +241,12 @@ def load_keys():
         path = os.path.join(CONF.fernet_tokens.key_repository, str(filename))
         if os.path.isfile(path):
             with open(path, 'r') as key_file:
-                keys[int(filename)] = key_file.read()
+                try:
+                    key_id = int(filename)
+                except ValueError:
+                    pass
+                else:
+                    keys[key_id] = key_file.read()
 
     LOG.info(_LI(
         'Loaded %(count)s encryption keys from: %(dir)s'), {
