@@ -5,13 +5,6 @@
 hacking<0.11,>=0.10.0
 bashate>=0.2 # Apache-2.0
 
-# Optional backend: Memcache
-python-memcached>=1.56
-
-# Optional dogpile backend: MongoDB
-pymongo>=3.0.2
-
-# Testing
 # computes code coverage percentages
 coverage>=3.6
 # fixture stubbing
