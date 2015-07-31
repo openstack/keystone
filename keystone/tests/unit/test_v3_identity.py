@@ -478,27 +478,26 @@ class IdentityV3toV2MethodsTestCase(tests.TestCase):
         self.user_id = uuid.uuid4().hex
         self.default_project_id = uuid.uuid4().hex
         self.tenant_id = uuid.uuid4().hex
-        self.domain_id = uuid.uuid4().hex
         # User with only default_project_id in ref
         self.user1 = {'id': self.user_id,
                       'name': self.user_id,
                       'default_project_id': self.default_project_id,
-                      'domain_id': self.domain_id}
+                      'domain_id': CONF.identity.default_domain_id}
         # User without default_project_id or tenantId in ref
         self.user2 = {'id': self.user_id,
                       'name': self.user_id,
-                      'domain_id': self.domain_id}
+                      'domain_id': CONF.identity.default_domain_id}
         # User with both tenantId and default_project_id in ref
         self.user3 = {'id': self.user_id,
                       'name': self.user_id,
                       'default_project_id': self.default_project_id,
                       'tenantId': self.tenant_id,
-                      'domain_id': self.domain_id}
+                      'domain_id': CONF.identity.default_domain_id}
         # User with only tenantId in ref
         self.user4 = {'id': self.user_id,
                       'name': self.user_id,
                       'tenantId': self.tenant_id,
-                      'domain_id': self.domain_id}
+                      'domain_id': CONF.identity.default_domain_id}
 
         # Expected result if the user is meant to have a tenantId element
         self.expected_user = {'id': self.user_id,

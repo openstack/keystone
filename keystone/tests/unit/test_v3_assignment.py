@@ -120,8 +120,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assignment_api.add_user_to_project(self.project2['id'],
                                                 self.user2['id'])
 
-        # First check a user in that domain can authenticate, via
-        # Both v2 and v3
+        # First check a user in that domain can authenticate. The v2 user
+        # cannot authenticate because they exist outside the default domain.
         body = {
             'auth': {
                 'passwordCredentials': {
@@ -131,7 +131,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                 'tenantId': self.project2['id']
             }
         }
-        self.admin_request(path='/v2.0/tokens', method='POST', body=body)
+        self.admin_request(
+            path='/v2.0/tokens', method='POST', body=body, expected_status=401)
 
         auth_data = self.build_authentication_request(
             user_id=self.user2['id'],
@@ -3037,7 +3038,7 @@ class AssignmentV3toV2MethodsTestCase(tests.TestCase):
     """Test domain V3 to V2 conversion methods."""
     def _setup_initial_projects(self):
         self.project_id = uuid.uuid4().hex
-        self.domain_id = uuid.uuid4().hex
+        self.domain_id = CONF.identity.default_domain_id
         self.parent_id = uuid.uuid4().hex
         # Project with only domain_id in ref
         self.project1 = {'id': self.project_id,
@@ -3060,7 +3061,7 @@ class AssignmentV3toV2MethodsTestCase(tests.TestCase):
     def test_v2controller_filter_domain_id(self):
         # V2.0 is not domain aware, ensure domain_id is popped off the ref.
         other_data = uuid.uuid4().hex
-        domain_id = uuid.uuid4().hex
+        domain_id = CONF.identity.default_domain_id
         ref = {'domain_id': domain_id,
                'other_data': other_data}
 
