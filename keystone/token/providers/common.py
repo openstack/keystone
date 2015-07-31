@@ -48,7 +48,23 @@ class V2TokenDataHelper(object):
         token['issued_at'] = v3_token.get('issued_at')
         token['audit_ids'] = v3_token.get('audit_ids')
 
+        # Bail immediately if this is a domain-scoped token, which is not
+        # supported by the v2 API at all.
+        if 'domain' in v3_token:
+            raise exception.Unauthorized(_(
+                'Domains are not supported by the v2 API. Please use the v3 '
+                'API instead.'))
+
+        # Bail if this is a project-scoped token outside the default domain,
+        # which may result in a namespace collision with a project inside the
+        # default domain.
         if 'project' in v3_token:
+            if (v3_token['project']['domain']['id'] !=
+                    CONF.identity.default_domain_id):
+                raise exception.Unauthorized(_(
+                    'Project not found in the default domain (please use the '
+                    'v3 API instead): %s') % v3_token['project']['id'])
+
             # v3 token_data does not contain all tenant attributes
             tenant = self.resource_api.get_project(
                 v3_token['project']['id'])
@@ -58,6 +74,16 @@ class V2TokenDataHelper(object):
 
         # Build v2 user
         v3_user = v3_token['user']
+
+        # Bail if this is a token outside the default domain,
+        # which may result in a namespace collision with a project inside the
+        # default domain.
+        if ('domain' in v3_user and v3_user['domain']['id'] !=
+                CONF.identity.default_domain_id):
+            raise exception.Unauthorized(_(
+                'User not found in the default domain (please use the v3 API '
+                'instead): %s') % v3_user['id'])
+
         user = common_controller.V2Controller.v3_to_v2_user(v3_user)
 
         # Set user roles

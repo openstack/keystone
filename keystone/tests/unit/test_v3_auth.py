@@ -32,7 +32,6 @@ from keystone.policy.backends import rules
 from keystone.tests import unit as tests
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = cfg.CONF
@@ -216,12 +215,49 @@ class TokenAPITests(object):
             project_id=self.project['id'])
         token = self.get_requested_token(auth_data)
 
-        # now validate the v3 token with v2 API
-        path = '/v2.0/tokens/%s' % (token)
-        self.admin_request(path=path,
-                           token='ADMIN',
-                           method='GET',
-                           expected_status=401)
+        # v2 cannot reference projects outside the default domain
+        self.admin_request(
+            method='GET',
+            path='/v2.0/tokens/%s' % token,
+            token='ADMIN',
+            expected_status=401)
+
+    def test_v3_v2_intermix_non_default_user_failed(self):
+        self.assignment_api.create_grant(
+            self.role['id'],
+            user_id=self.user['id'],
+            project_id=self.default_domain_project['id'])
+
+        # self.user is in a non-default domain
+        v3_token = self.get_requested_token(self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.default_domain_project['id']))
+
+        # v2 cannot reference projects outside the default domain
+        self.admin_request(
+            method='GET',
+            path='/v2.0/tokens/%s' % v3_token,
+            token=CONF.admin_token,
+            expected_status=401)
+
+    def test_v3_v2_intermix_domain_scope_failed(self):
+        self.assignment_api.create_grant(
+            self.role['id'],
+            user_id=self.default_domain_user['id'],
+            domain_id=self.domain['id'])
+
+        v3_token = self.get_requested_token(self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            domain_id=self.domain['id']))
+
+        # v2 cannot reference projects outside the default domain
+        self.admin_request(
+            path='/v2.0/tokens/%s' % v3_token,
+            token=CONF.admin_token,
+            method='GET',
+            expected_status=401)
 
     def test_v3_v2_unscoped_token_intermix(self):
         auth_data = self.build_authentication_request(
@@ -274,8 +310,8 @@ class TokenAPITests(object):
         body = {
             'auth': {
                 'passwordCredentials': {
-                    'userId': self.user['id'],
-                    'password': self.user['password']
+                    'userId': self.default_domain_user['id'],
+                    'password': self.default_domain_user['password']
                 }
             }}
         resp = self.admin_request(path='/v2.0/tokens',
@@ -297,10 +333,10 @@ class TokenAPITests(object):
         body = {
             'auth': {
                 'passwordCredentials': {
-                    'userId': self.user['id'],
-                    'password': self.user['password']
+                    'userId': self.default_domain_user['id'],
+                    'password': self.default_domain_user['password']
                 },
-                'tenantId': self.project['id']
+                'tenantId': self.default_domain_project['id']
             }}
         resp = self.admin_request(path='/v2.0/tokens',
                                   method='POST',
@@ -370,10 +406,10 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def _v2_token(self):
         body = {
             'auth': {
-                "tenantId": self.project['id'],
+                "tenantId": self.default_domain_project['id'],
                 'passwordCredentials': {
-                    'userId': self.user['id'],
-                    'password': self.user['password']
+                    'userId': self.default_domain_user['id'],
+                    'password': self.default_domain_user['password']
                 }
             }}
         resp = self.admin_request(path='/v2.0/tokens',
@@ -539,11 +575,6 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
     def setUp(self):
         super(TestFernetTokenAPIs, self).setUp()
         self.doSetUp()
-
-    @test_utils.wip('Failing due to bug 1475762.')
-    def test_v3_v2_intermix_non_default_project_failed(self):
-        super(TestFernetTokenAPIs,
-              self).test_v3_v2_intermix_non_default_project_failed()
 
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
