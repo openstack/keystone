@@ -956,6 +956,11 @@ class VersionSingleAppTestCase(tests.TestCase):
                 link['href'] = port
 
     def _test_version(self, app_name):
+        def app_port():
+            if app_name == 'admin':
+                return CONF.eventlet_server.admin_port
+            else:
+                return CONF.eventlet_server.public_port
         app = self.loadapp('keystone', app_name)
         client = tests.TestClient(app)
         resp = client.get('/')
@@ -965,18 +970,15 @@ class VersionSingleAppTestCase(tests.TestCase):
         for version in expected['versions']['values']:
             if version['id'].startswith('v3'):
                 self._paste_in_port(
-                    version, 'http://localhost:%s/v3/' %
-                    CONF.eventlet_server.public_port)
+                    version, 'http://localhost:%s/v3/' % app_port())
             elif version['id'] == 'v2.0':
                 self._paste_in_port(
-                    version, 'http://localhost:%s/v2.0/' %
-                    CONF.eventlet_server.public_port)
+                    version, 'http://localhost:%s/v2.0/' % app_port())
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_public(self):
         self._test_version('main')
 
-    @utils.wip('waiting on bug #1381961')
     def test_admin(self):
         self._test_version('admin')
 
