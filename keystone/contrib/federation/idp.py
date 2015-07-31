@@ -46,8 +46,8 @@ class SAMLGenerator(object):
     def __init__(self):
         self.assertion_id = uuid.uuid4().hex
 
-    def samlize_token(self, issuer, recipient, user, roles, project,
-                      project_domain_name, expires_in=None):
+    def samlize_token(self, issuer, recipient, user, user_domain_name, roles,
+                      project, project_domain_name, expires_in=None):
         """Convert Keystone attributes to a SAML assertion.
 
         :param issuer: URL of the issuing party
@@ -56,6 +56,8 @@ class SAMLGenerator(object):
         :type recipient: string
         :param user: User name
         :type user: string
+        :param user_domain_name: User Domain name
+        :type user_domain_name: string
         :param roles: List of role names
         :type roles: list
         :param project: Project name
@@ -73,7 +75,7 @@ class SAMLGenerator(object):
         saml_issuer = self._create_issuer(issuer)
         subject = self._create_subject(user, expiration_time, recipient)
         attribute_statement = self._create_attribute_statement(
-            user, roles, project, project_domain_name)
+            user, user_domain_name, roles, project, project_domain_name)
         authn_statement = self._create_authn_statement(issuer, expiration_time)
         signature = self._create_signature()
 
@@ -158,14 +160,18 @@ class SAMLGenerator(object):
         subject.name_id = name_id
         return subject
 
-    def _create_attribute_statement(self, user, roles, project,
-                                    project_domain_name):
+    def _create_attribute_statement(self, user, user_domain_name, roles,
+                                    project, project_domain_name):
         """Create an object that represents a SAML AttributeStatement.
 
         <ns0:AttributeStatement>
             <ns0:Attribute Name="openstack_user">
                 <ns0:AttributeValue
                   xsi:type="xs:string">test_user</ns0:AttributeValue>
+            </ns0:Attribute>
+            <ns0:Attribute Name="openstack_user_domain">
+                <ns0:AttributeValue
+                  xsi:type="xs:string">Default</ns0:AttributeValue>
             </ns0:Attribute>
             <ns0:Attribute Name="openstack_roles">
                 <ns0:AttributeValue
@@ -192,6 +198,13 @@ class SAMLGenerator(object):
         user_value = saml.AttributeValue()
         user_value.set_text(user)
         user_attribute.attribute_value = user_value
+
+        openstack_user_domain = 'openstack_user_domain'
+        user_domain_attribute = saml.Attribute()
+        user_domain_attribute.name = openstack_user_domain
+        user_domain_value = saml.AttributeValue()
+        user_domain_value.set_text(user_domain_name)
+        user_domain_attribute.attribute_value = user_domain_value
 
         openstack_roles = 'openstack_roles'
         roles_attribute = saml.Attribute()
@@ -221,6 +234,7 @@ class SAMLGenerator(object):
         attribute_statement.attribute.append(roles_attribute)
         attribute_statement.attribute.append(project_attribute)
         attribute_statement.attribute.append(project_domain_attribute)
+        attribute_statement.attribute.append(user_domain_attribute)
         return attribute_statement
 
     def _create_authn_statement(self, issuer, expiration_time):
