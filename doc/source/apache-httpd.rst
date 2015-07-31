@@ -31,18 +31,23 @@ Running Keystone in HTTPD
 Files
 -----
 
-Copy the file httpd/wsgi-keystone.conf to the appropriate location for your
-Apache server, most likely::
+Copy the ``httpd/wsgi-keystone.conf`` sample configuration file to the
+appropriate location for your Apache server::
 
-    /etc/httpd/conf.d/wsgi-keystone.conf
+    /etc/$APACHE_DIR/conf.d/sites-available/wsgi-keystone.conf
 
-Update this file to match your system configuration (for example, some
-distributions put httpd logs in the ``apache2`` directory and some in the
-``httpd`` directory; also, enable TLS).
+Where ``$APACHE_DIR`` is ``httpd`` on Fedora-based systems and ``apache2`` on
+Debian/Ubuntu systems.
+
+Update the file to match your system configuration. Note the following:
+
+* Make sure the correct log directory is used. Some distributions put httpd
+  server logs in the ``apache2`` directory and some in the ``httpd`` directory.
+* Enable TLS by supplying the correct certificates.
 
 Create the directory ``/var/www/cgi-bin/keystone/``. You can either hardlink or
 softlink the files ``main`` and ``admin`` to the file ``keystone.py`` in this
-directory. For a distribution appropriate place, it should probably be copied
+directory. For a distribution-appropriate place, it should probably be copied
 to::
 
     /usr/share/openstack/keystone/httpd/keystone.py
@@ -50,6 +55,14 @@ to::
 Keystone's primary configuration file (``etc/keystone.conf``) and the
 PasteDeploy configuration file (``etc/keystone-paste.ini``) must be readable to
 HTTPD in one of the default locations described in :doc:`configuration`.
+
+Enable the site by creating a symlink from ``sites-enabled`` to the file in
+``sites-available``::
+
+  ln -s /etc/$APACHE_DIR/sites-available/keystone.conf /etc/$APACHE_DIR/sites-enabled/
+
+Restart Apache to have it start serving keystone.
+
 
 Access Control
 --------------
