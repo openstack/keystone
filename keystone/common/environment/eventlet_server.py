@@ -187,7 +187,12 @@ class Server(service.ServiceBase):
     def _run(self, application, socket):
         """Start a WSGI server with a new green thread pool."""
         logger = log.getLogger('eventlet.wsgi.server')
+
+        # NOTE(dolph): [eventlet_server] client_socket_timeout is required to
+        # be an integer in keystone.conf, but in order to make
+        # eventlet.wsgi.server() wait forever, we pass None instead of 0.
         socket_timeout = CONF.eventlet_server.client_socket_timeout or None
+
         try:
             eventlet.wsgi.server(
                 socket, application, log=EventletFilteringLogger(logger),
