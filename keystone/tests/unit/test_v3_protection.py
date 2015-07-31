@@ -1039,6 +1039,14 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         self._test_domain_management()
 
+    def test_domain_admin_get_domain(self):
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+        entity_url = '/domains/%s' % self.domainA['id']
+        self.get(entity_url, auth=self.auth, expected_status=200)
+
     def test_list_user_credentials(self):
         self.credential_user = self.new_credential_ref(self.just_a_user['id'])
         self.credential_api.create_credential(self.credential_user['id'],
