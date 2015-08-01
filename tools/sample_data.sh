@@ -232,6 +232,7 @@ if [[ -z "$DISABLE_ENDPOINTS" ]]; then
 fi
 
 # create ec2 creds and parse the secret and access key returned
+ADMIN_USER=$(get_id openstack user show admin)
 RESULT=$(openstack ec2 credentials create --project service --user $ADMIN_USER)
 ADMIN_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
 ADMIN_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
