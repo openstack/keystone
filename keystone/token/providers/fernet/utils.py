@@ -248,10 +248,18 @@ def load_keys():
                 else:
                     keys[key_id] = key_file.read()
 
-    LOG.info(_LI(
-        'Loaded %(count)s encryption keys from: %(dir)s'), {
-            'count': len(keys),
-            'dir': CONF.fernet_tokens.key_repository})
+    if len(keys) != CONF.fernet_tokens.max_active_keys:
+        # If there haven't been enough key rotations to reach max_active_keys,
+        # or if the configured value of max_active_keys has changed since the
+        # last rotation, then reporting the discrepancy might be useful. Once
+        # the number of keys matches max_active_keys, this log entry is too
+        # repetitive to be useful.
+        LOG.info(_LI(
+            'Loaded %(count)d encryption keys (max_active_keys=%(max)d) from: '
+            '%(dir)s'), {
+                'count': len(keys),
+                'max': CONF.fernet_tokens.max_active_keys,
+                'dir': CONF.fernet_tokens.key_repository})
 
     # return the encryption_keys, sorted by key number, descending
     return [keys[x] for x in sorted(keys.keys(), reverse=True)]
