@@ -126,7 +126,9 @@ class FederatedSetupMixin(object):
         os_federation = token['user']['OS-FEDERATION']
         self.assertEqual(self.IDP, os_federation['identity_provider']['id'])
         self.assertEqual(self.PROTOCOL, os_federation['protocol']['id'])
-        self.assertListEqual(sorted(['identity_provider', 'protocol']),
+        self.assertListEqual(sorted(['groups',
+                                     'identity_provider',
+                                     'protocol']),
                              sorted(os_federation.keys()))
 
     def _issue_unscoped_token(self,
