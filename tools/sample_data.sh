@@ -36,6 +36,7 @@
 # service              nova      admin
 # service              ec2       admin
 # service              swift     admin
+# service              neutron   admin
 
 # By default, passwords used are those in the OpenStack Install and Deploy Manual.
 # One can override these (publicly known, and hence, insecure) passwords by setting the appropriate
@@ -53,6 +54,7 @@ NOVA_PASSWORD=${NOVA_PASSWORD:-${SERVICE_PASSWORD:-nova}}
 GLANCE_PASSWORD=${GLANCE_PASSWORD:-${SERVICE_PASSWORD:-glance}}
 EC2_PASSWORD=${EC2_PASSWORD:-${SERVICE_PASSWORD:-ec2}}
 SWIFT_PASSWORD=${SWIFT_PASSWORD:-${SERVICE_PASSWORD:-swiftpass}}
+NEUTRON_PASSWORD=${NEUTRON_PASSWORD:-${SERVICE_PASSWORD:-neutron}}
 
 CONTROLLER_PUBLIC_ADDRESS=${CONTROLLER_PUBLIC_ADDRESS:-localhost}
 CONTROLLER_ADMIN_ADDRESS=${CONTROLLER_ADMIN_ADDRESS:-localhost}
@@ -147,6 +149,13 @@ openstack role add --user swift \
                    --project service \
                    admin
 
+openstack user create neutron --project service \
+                      --password "${NEUTRON_PASSWORD}" \
+
+openstack role add --user neutron \
+                   --project service \
+                   admin
+
 #
 # Keystone service
 #
@@ -229,6 +238,20 @@ if [[ -z "$DISABLE_ENDPOINTS" ]]; then
         --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:8080/v1" \
         --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
         swift
+fi
+
+#
+# Neutron service
+#
+openstack service create --name=neutron \
+                         --description="Neutron Network Service" \
+                         network
+if [[ -z "$DISABLE_ENDPOINTS" ]]; then
+    openstack endpoint create --region RegionOne \
+        --publicurl   "http://$CONTROLLER_PUBLIC_ADDRESS:9696" \
+        --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:9696" \
+        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9696" \
+        neutron
 fi
 
 # create ec2 creds and parse the secret and access key returned
