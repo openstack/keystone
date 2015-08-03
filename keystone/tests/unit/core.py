@@ -329,7 +329,7 @@ def new_credential_ref(user_id, project_id=None, cred_type=None):
     ref['user_id'] = user_id
     if cred_type == 'ec2':
         ref['type'] = 'ec2'
-        ref['blob'] = {'blah': 'test'}
+        ref['blob'] = uuid.uuid4().hex
     else:
         ref['type'] = 'cert'
         ref['blob'] = uuid.uuid4().hex
