@@ -159,7 +159,7 @@ data for use with keystone:
 
 .. code-block:: bash
 
-    $ OS_SERVICE_TOKEN=ADMIN tools/with_venv.sh tools/sample_data.sh
+    $ OS_TOKEN=ADMIN tools/with_venv.sh tools/sample_data.sh
 
 Notice it requires a service token read from an environment variable for
 authentication.  The default value "ADMIN" is from the ``admin_token``
