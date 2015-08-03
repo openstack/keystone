@@ -333,11 +333,10 @@ def listener(cls):
         return __new_init__
 
     def _register_event_callbacks(self):
-        for event in self.event_callbacks:
-            for resource_type in self.event_callbacks[event]:
+        for event, resource_types in self.event_callbacks.items():
+            for resource_type, callbacks in resource_types.items():
                 # Make sure we register the provider for each event it
                 # cares to call back.
-                callbacks = self.event_callbacks[event][resource_type]
                 if not callbacks:
                     continue
                 if not hasattr(callbacks, '__iter__'):
