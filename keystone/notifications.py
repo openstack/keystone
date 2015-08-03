@@ -329,21 +329,11 @@ def listener(cls):
         @functools.wraps(init)
         def __new_init__(self, *args, **kwargs):
             init(self, *args, **kwargs)
-            if not hasattr(self, 'event_callbacks'):
-                msg = _("%r object has no attribute 'event_callbacks'")
-                raise AttributeError(msg % self.__class__.__name)
             _register_event_callbacks(self)
         return __new_init__
 
     def _register_event_callbacks(self):
-        if not isinstance(self.event_callbacks, dict):
-            msg = _('event_callbacks must be a dict')
-            raise ValueError(msg)
-
         for event in self.event_callbacks:
-            if not isinstance(self.event_callbacks[event], dict):
-                msg = _('event_callbacks[%s] must be a dict') % event
-                raise ValueError(msg)
             for resource_type in self.event_callbacks[event]:
                 # Make sure we register the provider for each event it
                 # cares to call back.

@@ -716,7 +716,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
             def __init__(self):
                 self.event_callbacks = 'bogus'
 
-        self.assertRaises(ValueError, Foo)
+        self.assertRaises(TypeError, Foo)
 
     def test_invalid_event_callbacks_event(self):
         @notifications.listener
@@ -724,7 +724,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
             def __init__(self):
                 self.event_callbacks = {CREATED_OPERATION: 'bogus'}
 
-        self.assertRaises(ValueError, Foo)
+        self.assertRaises(TypeError, Foo)
 
 
 class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
