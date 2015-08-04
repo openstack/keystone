@@ -236,7 +236,10 @@ def setup_username(context, mapped_properties):
     user_name = user.get('name') or context['environment'].get('REMOTE_USER')
 
     if not any([user_id, user_name]):
-        raise exception.Unauthorized(_("Could not map user"))
+        msg = _("Could not map user while setting ephemeral user identity. "
+                "Either mapping rules must specify user id/name or "
+                "REMOTE_USER environment variable must be set.")
+        raise exception.Unauthorized(msg)
 
     elif not user_name:
         user['name'] = user_id
