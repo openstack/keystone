@@ -608,7 +608,7 @@ class RuleProcessor(object):
         LOG.debug('direct_maps: %s', direct_maps)
         LOG.debug('local: %s', local)
         new = {}
-        for k, v in six.iteritems(local):
+        for k, v in local.items():
             if isinstance(v, dict):
                 new_value = self._update_local_mapping(v, direct_maps)
             else:

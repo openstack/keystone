@@ -15,8 +15,6 @@
 
 import uuid
 
-import six
-
 from keystone.catalog import core
 from keystone.catalog import schema
 from keystone.common import controller
@@ -133,7 +131,7 @@ class Endpoint(controller.V2Controller):
                 legacy_endpoint_ref.pop(url)
 
         legacy_endpoint_id = uuid.uuid4().hex
-        for interface, url in six.iteritems(urls):
+        for interface, url in urls.items():
             endpoint_ref = endpoint.copy()
             endpoint_ref['id'] = uuid.uuid4().hex
             endpoint_ref['legacy_endpoint_id'] = legacy_endpoint_id

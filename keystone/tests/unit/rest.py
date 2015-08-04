@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_serialization import jsonutils
-import six
 import webtest
 
 from keystone.auth import controllers as auth_controllers
@@ -75,7 +74,7 @@ class RestfulTestCase(tests.TestCase):
     def request(self, app, path, body=None, headers=None, token=None,
                 expected_status=None, **kwargs):
         if headers:
-            headers = {str(k): str(v) for k, v in six.iteritems(headers)}
+            headers = {str(k): str(v) for k, v in headers.items()}
         else:
             headers = {}
 

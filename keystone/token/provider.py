@@ -147,7 +147,7 @@ class Manager(manager.Manager):
             ]
         }
 
-        for event, cb_info in six.iteritems(callbacks):
+        for event, cb_info in callbacks.items():
             for resource_type, callback_fns in cb_info:
                 notifications.register_event_callback(event, resource_type,
                                                       callback_fns)

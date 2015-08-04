@@ -17,7 +17,6 @@ import os.path
 
 from oslo_config import cfg
 from oslo_log import log
-import six
 
 from keystone.catalog.backends import kvs
 from keystone.catalog import core
@@ -121,8 +120,7 @@ class Catalog(kvs.Catalog):
 
         """
         substitutions = dict(
-            itertools.chain(six.iteritems(CONF),
-                            six.iteritems(CONF.eventlet_server)))
+            itertools.chain(CONF.items(), CONF.eventlet_server.items()))
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if tenant_id:
@@ -134,12 +132,12 @@ class Catalog(kvs.Catalog):
         # TODO(davechen): If there is service with no endpoints, we should
         # skip the service instead of keeping it in the catalog.
         # see bug #1436704.
-        for region, region_ref in six.iteritems(self.templates):
+        for region, region_ref in self.templates.items():
             catalog[region] = {}
-            for service, service_ref in six.iteritems(region_ref):
+            for service, service_ref in region_ref.items():
                 service_data = {}
                 try:
-                    for k, v in six.iteritems(service_ref):
+                    for k, v in service_ref.items():
                         formatted_value = core.format_url(
                             v, substitutions,
                             silent_keyerror_failures=silent_keyerror_failures)

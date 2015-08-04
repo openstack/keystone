@@ -17,7 +17,6 @@ from oslo_log import log
 from oslo_log import versionutils
 from oslo_middleware import sizelimit
 from oslo_serialization import jsonutils
-import six
 
 from keystone.common import authorization
 from keystone.common import wsgi
@@ -82,7 +81,7 @@ class PostParamsMiddleware(wsgi.Middleware):
     def process_request(self, request):
         params_parsed = request.params
         params = {}
-        for k, v in six.iteritems(params_parsed):
+        for k, v in params_parsed.items():
             if k in ('self', 'context'):
                 continue
             if k.startswith('_'):
@@ -132,7 +131,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
             return wsgi.render_exception(e, request=request)
 
         params = {}
-        for k, v in six.iteritems(params_parsed):
+        for k, v in params_parsed.items():
             if k in ('self', 'context'):
                 continue
             if k.startswith('_'):

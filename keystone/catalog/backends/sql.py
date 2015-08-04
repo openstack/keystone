@@ -16,7 +16,6 @@
 import itertools
 
 from oslo_config import cfg
-import six
 import sqlalchemy
 from sqlalchemy.sql import true
 
@@ -284,8 +283,7 @@ class Catalog(catalog.Driver):
 
         """
         substitutions = dict(
-            itertools.chain(six.iteritems(CONF),
-                            six.iteritems(CONF.eventlet_server)))
+            itertools.chain(CONF.items(), CONF.eventlet_server.items()))
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if tenant_id:
@@ -342,8 +340,7 @@ class Catalog(catalog.Driver):
 
         """
         d = dict(
-            itertools.chain(six.iteritems(CONF),
-                            six.iteritems(CONF.eventlet_server)))
+            itertools.chain(CONF.items(), CONF.eventlet_server.items()))
         d.update({'user_id': user_id})
         silent_keyerror_failures = []
         if tenant_id:

@@ -15,7 +15,6 @@
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import encodeutils
-import six
 
 from keystone.i18n import _, _LW
 
@@ -63,7 +62,7 @@ class Error(Exception):
             except UnicodeDecodeError:
                 try:
                     kwargs = {k: encodeutils.safe_decode(v)
-                              for k, v in six.iteritems(kwargs)}
+                              for k, v in kwargs.items()}
                 except UnicodeDecodeError:
                     # NOTE(jamielennox): This is the complete failure case
                     # at least by showing the template we have some idea

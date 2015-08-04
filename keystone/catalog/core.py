@@ -514,14 +514,14 @@ class Driver(object):
         v2_catalog = self.get_catalog(user_id, tenant_id)
         v3_catalog = []
 
-        for region_name, region in six.iteritems(v2_catalog):
-            for service_type, service in six.iteritems(region):
+        for region_name, region in v2_catalog.items():
+            for service_type, service in region.items():
                 service_v3 = {
                     'type': service_type,
                     'endpoints': []
                 }
 
-                for attr, value in six.iteritems(service):
+                for attr, value in service.items():
                     # Attributes that end in URL are interfaces. In the V2
                     # catalog, these are internalURL, publicURL, and adminURL.
                     # For example, <region_name>.publicURL=<URL> in the V2

@@ -13,8 +13,6 @@
 # under the License.
 
 
-import six
-
 from keystone import exception
 from keystone.i18n import _
 
@@ -82,7 +80,7 @@ class Status(object):
 def translate_urls(json_home, new_prefix):
     """Given a JSON Home document, sticks new_prefix on each of the urls."""
 
-    for dummy_rel, resource in six.iteritems(json_home['resources']):
+    for dummy_rel, resource in json_home['resources'].items():
         if 'href' in resource:
             resource['href'] = new_prefix + resource['href']
         elif 'href-template' in resource:

@@ -27,8 +27,6 @@ See also:
 
 import traceback
 
-import six
-
 from keystone.i18n import _
 
 
@@ -203,7 +201,7 @@ def resolve_future_dependencies(__provider_name=None):
     # Resolve future dependencies, raises UnresolvableDependencyException if
     # there's no provider registered.
     try:
-        for dependency, targets in six.iteritems(_future_dependencies.copy()):
+        for dependency, targets in _future_dependencies.copy().items():
             if dependency not in _REGISTRY:
                 # a Class was registered that could fulfill the dependency, but
                 # it has not yet been initialized.

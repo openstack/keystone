@@ -512,8 +512,8 @@ class Auth(controller.V2Controller):
             return {}
 
         endpoints = []
-        for region_name, region_ref in six.iteritems(catalog_ref):
-            for service_type, service_ref in six.iteritems(region_ref):
+        for region_name, region_ref in catalog_ref.items():
+            for service_type, service_ref in region_ref.items():
                 endpoints.append({
                     'id': service_ref.get('id'),
                     'name': service_ref.get('name'),

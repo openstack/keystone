@@ -14,8 +14,6 @@
 
 import uuid
 
-import six
-
 from keystone import catalog
 from keystone.tests import unit as tests
 from keystone.tests.unit.ksfixtures import database
@@ -93,7 +91,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         req_body, response = self._endpoint_create()
         self.assertIn('endpoint', response.result)
         self.assertIn('id', response.result['endpoint'])
-        for field, value in six.iteritems(req_body['endpoint']):
+        for field, value in req_body['endpoint'].items():
             self.assertEqual(response.result['endpoint'][field], value)
 
     def test_endpoint_create_with_null_adminurl(self):

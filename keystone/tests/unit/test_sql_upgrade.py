@@ -38,7 +38,6 @@ from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import migration
 from oslo_db.sqlalchemy import session as db_session
-import six
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
 from sqlalchemy import schema
@@ -780,7 +779,7 @@ class VersionTests(SqlMigrateBase):
 
     def test_extension_initial(self):
         """When get the initial version of an extension, it's 0."""
-        for name, extension in six.iteritems(EXTENSIONS):
+        for name, extension in EXTENSIONS.items():
             abs_path = migration_helpers.find_migrate_repo(extension)
             migration.db_version_control(sql.get_engine(), abs_path)
             version = migration_helpers.get_db_version(extension=name)
@@ -789,7 +788,7 @@ class VersionTests(SqlMigrateBase):
 
     def test_extension_migrated(self):
         """When get the version after migrating an extension, it's not 0."""
-        for name, extension in six.iteritems(EXTENSIONS):
+        for name, extension in EXTENSIONS.items():
             abs_path = migration_helpers.find_migrate_repo(extension)
             migration.db_version_control(sql.get_engine(), abs_path)
             migration.db_sync(sql.get_engine(), abs_path)
