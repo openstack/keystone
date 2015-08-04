@@ -517,7 +517,9 @@ class BaseProvider(provider.Provider):
             # NOTE(lbragstad): Check if the token provider being used actually
             # supports bind authentication methods before proceeding.
             if not self._supports_bind_authentication:
-                raise exception.NotImplemented()
+                raise exception.NotImplemented(_(
+                    'The configured token provider does not support bind '
+                    'authentication.'))
 
         # for V2, trust is stashed in metadata_ref
         if (CONF.trust.enabled and not trust and metadata_ref and
