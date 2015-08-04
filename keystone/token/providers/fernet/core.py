@@ -157,9 +157,13 @@ class Provider(common.BaseProvider):
         g_ids = federated_dict['group_ids']
         idp_id = federated_dict['idp_id']
         protocol_id = federated_dict['protocol_id']
-        federated_info = dict(groups=g_ids,
-                              identity_provider=dict(id=idp_id),
-                              protocol=dict(id=protocol_id))
+
+        federated_info = {
+            'groups': g_ids,
+            'identity_provider': {'id': idp_id},
+            'protocol': {'id': protocol_id}
+        }
+
         token_dict = {
             'user': {
                 federation_constants.FEDERATION: federated_info,
