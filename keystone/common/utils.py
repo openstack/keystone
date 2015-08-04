@@ -83,7 +83,7 @@ class SmarterEncoder(jsonutils.json.JSONEncoder):
     """Help for JSON encoding dict-like objects."""
     def default(self, obj):
         if not isinstance(obj, dict) and hasattr(obj, 'iteritems'):
-            return dict(six.iteritems(obj))
+            return dict(obj.iteritems())
         return super(SmarterEncoder, self).default(obj)
 
 
