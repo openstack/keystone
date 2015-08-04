@@ -13,6 +13,8 @@
 
 import uuid
 
+import testtools
+
 from keystone.assignment import schema as assignment_schema
 from keystone.catalog import schema as catalog_schema
 from keystone.common import validation
@@ -94,6 +96,49 @@ _VALID_FILTERS = [{'interface': 'admin'},
                    'interface': 'internal'}]
 
 _INVALID_FILTERS = ['some string', 1, 0, True, False]
+
+
+class ValidatedDecoratorTests(unit.BaseTestCase):
+
+    entity_schema = {
+        'type': 'object',
+        'properties': {
+            'name': parameter_types.name,
+        },
+        'required': ['name'],
+    }
+
+    valid_entity = {
+        'name': uuid.uuid4().hex,
+    }
+
+    invalid_entity = {}
+
+    @validation.validated(entity_schema, 'entity')
+    def do_something(self, entity):
+        pass
+
+    def test_calling_with_valid_entity_kwarg_succeeds(self):
+        self.do_something(entity=self.valid_entity)
+
+    def test_calling_with_invalid_entity_kwarg_fails(self):
+        self.assertRaises(exception.SchemaValidationError,
+                          self.do_something,
+                          entity=self.invalid_entity)
+
+    def test_calling_with_valid_entity_arg_succeeds(self):
+        self.do_something(self.valid_entity)
+
+    def test_calling_with_invalid_entity_arg_fails(self):
+        self.assertRaises(exception.SchemaValidationError,
+                          self.do_something,
+                          self.invalid_entity)
+
+    def test_using_the_wrong_name_with_the_decorator_fails(self):
+        with testtools.ExpectedException(TypeError):
+            @validation.validated(self.entity_schema, 'entity_')
+            def function(entity):
+                pass
 
 
 class EntityValidationTestCase(unit.BaseTestCase):
