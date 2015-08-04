@@ -627,8 +627,8 @@ class IdentityTests(object):
         expected_member_assignments = orig_member_assignments + [{
             'group_id': new_group['id'], 'project_id': new_project['id'],
             'role_id': MEMBER_ROLE_ID}]
-        self.assertThat(new_member_assignments,
-                        matchers.Equals(expected_member_assignments))
+        self.assertItemsEqual(expected_member_assignments,
+                              new_member_assignments)
 
     def test_list_role_assignments_bad_role(self):
         assignment_list = self.assignment_api.list_role_assignments_for_role(
