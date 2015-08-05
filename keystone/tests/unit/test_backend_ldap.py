@@ -33,9 +33,9 @@ from keystone.identity.mapping_backends import mapping as map
 from keystone import resource
 from keystone.tests import unit as tests
 from keystone.tests.unit import default_fixtures
-from keystone.tests.unit import fakeldap
 from keystone.tests.unit import identity_mapping as mapping_sql
 from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit.ksfixtures import ldapdb
 from keystone.tests.unit import test_backend
 
 
@@ -119,21 +119,14 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def setUp(self):
         super(BaseLDAPIdentity, self).setUp()
-        self.clear_database()
+        self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
 
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
         self.load_backends()
         self.load_fixtures(default_fixtures)
-
-        self.addCleanup(common_ldap_core._HANDLERS.clear)
 
     def _get_domain_fixture(self):
         """Domains in LDAP are read-only, so just return the static one."""
         return self.resource_api.get_domain(CONF.identity.default_domain_id)
-
-    def clear_database(self):
-        for shelf in fakeldap.FakeShelves:
-            fakeldap.FakeShelves[shelf].clear()
 
     def reload_backends(self, domain_id):
         # Only one backend unless we are using separate domain backends
@@ -533,7 +526,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_list_role_assignments_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -558,7 +551,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_list_user_ids_for_project_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -632,7 +625,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_list_group_members_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -1099,7 +1092,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 
     def test_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
         dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
@@ -1112,7 +1105,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
             group='ldap', project_name_attribute='ou',
             project_desc_attribute='description',
             project_enabled_attribute='enabled')
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
         # NOTE(morganfainberg): CONF.ldap.project_name_attribute,
@@ -1157,7 +1150,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         self.config_fixture.config(
             group='ldap',
             project_attribute_ignore=['name', 'description', 'enabled'])
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
         # NOTE(morganfainberg): CONF.ldap.project_attribute_ignore will not be
@@ -1177,7 +1170,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(group='ldap', user_enabled_mask=2,
                                    user_enabled_default='512')
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -1225,7 +1218,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
     def test_user_enabled_invert(self):
         self.config_fixture.config(group='ldap', user_enabled_invert=True,
                                    user_enabled_default=False)
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -2003,7 +1996,7 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def setUp(self):
         super(LDAPIdentityEnabledEmulation, self).setUp()
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
@@ -2100,7 +2093,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def test_user_enabled_invert(self):
         self.config_fixture.config(group='ldap', user_enabled_invert=True,
                                    user_enabled_default=False)
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -2190,7 +2183,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
     def setUp(self):
         sqldb = self.useFixture(database.Database())
         super(LdapIdentitySqlAssignment, self).setUp()
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_backends()
         cache.configure_cache_region(cache.REGION)
 
@@ -2477,7 +2470,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         # for separate backends per domain.
         self.enable_multi_domain()
 
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_fixtures(default_fixtures)
         self.create_users_across_domains()
         self.assert_backends()
@@ -2889,7 +2882,7 @@ class DomainSpecificLDAPandSQLIdentity(
         self.setup_initial_domains()
         self.users = {}
 
-        self.clear_database()
+        self.ldapdb.clear()
         self.load_fixtures(default_fixtures)
         self.create_users_across_domains()
 
@@ -3130,15 +3123,12 @@ class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
     def setUp(self):
         super(LdapFilterTests, self).setUp()
         sqldb = self.useFixture(database.Database())
-        self.clear_database()
+        self.useFixture(ldapdb.LDAPDatabase())
 
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
         self.load_backends()
         self.load_fixtures(default_fixtures)
         sqldb.recreate()
         _assert_backends(self, assignment='ldap', identity='ldap')
-
-        self.addCleanup(common_ldap_core._HANDLERS.clear)
 
     def config_overrides(self):
         super(LdapFilterTests, self).config_overrides()
@@ -3148,10 +3138,6 @@ class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
         config_files = super(LdapFilterTests, self).config_files()
         config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
         return config_files
-
-    def clear_database(self):
-        for shelf in fakeldap.FakeShelves:
-            fakeldap.FakeShelves[shelf].clear()
 
     def test_list_users_in_group_filtered(self):
         # The LDAP identity driver currently does not support filtering on the
