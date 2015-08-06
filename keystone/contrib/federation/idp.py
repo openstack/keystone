@@ -414,6 +414,7 @@ def _sign_assertion(assertion):
     command_list = [xmlsec_binary, '--sign', '--privkey-pem', certificates,
                     '--id-attr:ID', 'Assertion']
 
+    file_path = None
     try:
         # NOTE(gyee): need to make the namespace prefixes explicit so
         # they won't get reassigned when we wrap the assertion into
@@ -433,7 +434,8 @@ def _sign_assertion(assertion):
         raise exception.SAMLSigningError(reason=e)
     finally:
         try:
-            os.remove(file_path)
+            if file_path:
+                os.remove(file_path)
         except OSError:
             pass
 
