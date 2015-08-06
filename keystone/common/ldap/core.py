@@ -1859,8 +1859,8 @@ class EnabledEmuMixIn(BaseLdap):
     def get(self, object_id, ldap_filter=None):
         with self.get_connection() as conn:
             ref = super(EnabledEmuMixIn, self).get(object_id, ldap_filter)
-            if 'enabled' not in self.attribute_ignore and \
-               self.enabled_emulation:
+            if ('enabled' not in self.attribute_ignore and
+                    self.enabled_emulation):
                 ref['enabled'] = self._get_enabled(object_id, conn)
             return ref
 
