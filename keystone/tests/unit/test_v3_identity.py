@@ -16,6 +16,7 @@ import logging
 import uuid
 
 import fixtures
+import mock
 from oslo_config import cfg
 from six.moves import http_client
 from testtools import matchers
@@ -97,11 +98,17 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             user_id=self.user['id'],
             password=self.user['password'],
             project_id=self.project['id'])
-        r = self.post('/users', body={'user': ref_nd}, auth=auth)
+
         # TODO(henry-nash): Due to bug #1283539 we currently automatically
         # use the default domain_id if a domain scoped token is not being
-        # used. Change the code below to expect a failure once this bug is
+        # used. For now we just check that a deprecation warning has been
+        # issued. Change the code below to expect a failure once this bug is
         # fixed.
+        with mock.patch(
+                'oslo_log.versionutils.report_deprecated_feature') as mock_dep:
+            r = self.post('/users', body={'user': ref_nd}, auth=auth)
+            self.assertTrue(mock_dep.called)
+
         ref['domain_id'] = CONF.identity.default_domain_id
         return self.assertValidUserResponse(r, ref)
 
