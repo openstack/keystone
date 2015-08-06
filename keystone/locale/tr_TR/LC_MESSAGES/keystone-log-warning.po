@@ -1,0 +1,256 @@
+# Translations template for keystone.
+# Copyright (C) 2015 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+#
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: Keystone\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2015-08-06 06:28+0000\n"
+"PO-Revision-Date: 2015-08-05 11:29+0000\n"
+"Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
+"Language-Team: Turkish (Turkey) (http://www.transifex.com/openstack/keystone/"
+"language/tr_TR/)\n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#, python-format
+msgid "%s is not a dogpile.proxy.ProxyBackend"
+msgstr "%s dogpile.proxy.ProxyBackend değil"
+
+msgid "Auth context already exists in the request environment"
+msgstr "Yetki içeriği istenen ortamda zaten var"
+
+#, python-format
+msgid "Authorization failed. %(exception)s from %(remote_addr)s"
+msgstr "Yetkilendirme başarısız. %(remote_addr)s den %(exception)s"
+
+#, python-format
+msgid ""
+"Endpoint %(endpoint_id)s referenced in association for policy %(policy_id)s "
+"not found."
+msgstr ""
+"%(policy_id)s ile ilişkisi için başvurulan bitiş noktası %(endpoint_id)s "
+"bulunamadı."
+
+msgid "Failed to invoke ``openssl version``, assuming is v1.0 or newer"
+msgstr ""
+"``openssl version`` çalıştırılamadı, v1.0 ya da daha yeni olarak varsayılıyor"
+
+#, python-format
+msgid ""
+"Found multiple domains being mapped to a driver that does not support that "
+"(e.g. LDAP) - Domain ID: %(domain)s, Default Driver: %(driver)s"
+msgstr ""
+"Bunu desteklemeyen bir sürücüye eşleştirilen birden fazla alan bulundu (örn. "
+"LDAP) - Alan ID: %(domain)s, Varsayılan Sürücü: %(driver)s"
+
+#, python-format
+msgid ""
+"Found what looks like an incorrectly constructed config option substitution "
+"reference - domain: %(domain)s, group: %(group)s, option: %(option)s, value: "
+"%(value)s."
+msgstr ""
+"Düzgün inşa edilmemiş yapılandırma seçeneği yer değiştirme referansına "
+"benzeyen bir şey bulundu - alan: %(domain)s, grup: %(group)s, seçenek: "
+"%(option)s, değer: %(value)s."
+
+#, python-format
+msgid ""
+"Found what looks like an unmatched config option substitution reference - "
+"domain: %(domain)s, group: %(group)s, option: %(option)s, value: %(value)s. "
+"Perhaps the config option to which it refers has yet to be added?"
+msgstr ""
+"Eşleşmemiş yapılandırma seçeneği yer değiştirme referansı gibi görünen bir "
+"şey bulundu - alan: %(domain)s, grup: %(group)s, seçenek: %(option)s, değer: "
+"%(value)s. Belki başvurduğu yapılandırma seçeneği henüz eklenmemiştir?"
+
+#, python-format
+msgid ""
+"Group %(group)s not found for role-assignment - %(target)s with Role: "
+"%(role)s"
+msgstr ""
+"Grup %(group)s rol atama için bulunamadı - %(role)s rolüne sahip %(target)s "
+
+#, python-format
+msgid "Ignoring file (%s) while scanning domain config directory"
+msgstr "Alan yapılandırma dizini taranırken dosya (%s) atlanıyor"
+
+msgid "Ignoring user name"
+msgstr "Kullanıcı adı atlanıyor"
+
+#, python-format
+msgid ""
+"Invalid additional attribute mapping: \"%s\". Format must be "
+"<ldap_attribute>:<keystone_attribute>"
+msgstr ""
+"Geçersiz ek öznitelik eşleştirmesi: \"%s\". Biçim <ldap_attribute>:"
+"<keystone_attribute> olmalı"
+
+#, python-format
+msgid "Invalid domain name (%s) found in config file name"
+msgstr "Yapılandırma dosyası isminde geçersiz alan adı (%s) bulundu"
+
+msgid ""
+"It is recommended to only use the base key-value-store implementation for "
+"the token driver for testing purposes. Please use 'memcache' or 'sql' "
+"instead."
+msgstr ""
+"Jeton sürücüsü için temel anahtar-değer-depolama uygulamasının yalnızca test "
+"amaçlı kullanımı önerilir. Lütfen 'memcache' ya da 'sql' kullanın."
+
+#, python-format
+msgid "KVS lock released (timeout reached) for: %s"
+msgstr "KVS kilidi kaldırıldı (zaman aşımına uğradı): %s"
+
+msgid ""
+"LDAP Server does not support paging. Disable paging in keystone.conf to "
+"avoid this message."
+msgstr ""
+"LDAP Sunucu sayfalamayı desteklemiyor. Bu iletiyi almamak için sayfalamayı "
+"keystone.conf'da kapatın."
+
+msgid "No domain information specified as part of list request"
+msgstr "Listeleme isteğinin parçası olarak alan bilgisi belirtilmedi"
+
+#, python-format
+msgid ""
+"Policy %(policy_id)s referenced in association for endpoint %(endpoint_id)s "
+"not found."
+msgstr ""
+"%(endpoint_id)s bitiş noktası için ilişkisi için başvurulan %(policy_id)s "
+"ilkesi bulunamadı."
+
+msgid "RBAC: Bypassing authorization"
+msgstr "RBAC: Yetkilendirme baypas ediliyor"
+
+msgid "RBAC: Invalid token"
+msgstr "RBAC: Geçersiz jeton"
+
+msgid "RBAC: Invalid user data in token"
+msgstr "RBAC: Jetonda geçersiz kullanıcı verisi"
+
+#, python-format
+msgid ""
+"Removing `%s` from revocation list due to invalid expires data in revocation "
+"list."
+msgstr ""
+"feshetme listesindeki geçersiz sona erme tarihi verisi sebebiyle `%s` "
+"feshetme listesinden kaldırılıyor."
+
+#, python-format
+msgid ""
+"TTL index already exists on db collection <%(c_name)s>, remove index <"
+"%(indx_name)s> first to make updated mongo_ttl_seconds value to be  effective"
+msgstr ""
+"TTL indisi zaten <%(c_name)s> db koleksiyonunda mevcut, güncellenmiş "
+"mongo_ttl_seconds değerini etkin yapmak için önce  <%(indx_name)s> indisini "
+"kaldırın"
+
+#, python-format
+msgid "Token `%s` is expired, not adding to the revocation list."
+msgstr "`%s` jetonunun süresi dolmuş, feshetme listesine eklenmiyor."
+
+#, python-format
+msgid "Truncating user password to %d characters."
+msgstr "Kullanıcı parolası %d karaktere kırpılıyor."
+
+#, python-format
+msgid "Unable to add user %(user)s to %(tenant)s."
+msgstr "Kullanıcı %(user)s %(tenant)s'e eklenemiyor."
+
+#, python-format
+msgid ""
+"Unable to change the ownership of [fernet_tokens] key_repository without a "
+"keystone user ID and keystone group ID both being provided: %s"
+msgstr ""
+"Hem keystone kullanıcı kimliği hem keystone grup kimliği verilmeden "
+"[fernet_tokens] key_repository sahipliği değiştirilemiyor: %s"
+
+#, python-format
+msgid ""
+"Unable to change the ownership of the new key without a keystone user ID and "
+"keystone group ID both being provided: %s"
+msgstr ""
+"Hem keystone kullanıcı kimliği hem keystone grup kimliği verilmeden yeni "
+"anahtarın sahipliği değiştirilemiyor: %s"
+
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr "Alan yapılandırma dizini bulunamadı: %s"
+
+#, python-format
+msgid "Unable to remove user %(user)s from %(tenant)s."
+msgstr "Kullanıcı %(user)s %(tenant)s'den çıkarılamadı."
+
+#, python-format
+msgid ""
+"Unsupported policy association found - Policy %(policy_id)s, Endpoint "
+"%(endpoint_id)s, Service %(service_id)s, Region %(region_id)s, "
+msgstr ""
+"Desteklenmeyen ilke ilişkilendirmesi bulundu - İlke %(policy_id)s, Bitiş "
+"noktası %(endpoint_id)s, Servis %(service_id)s, Bölge %(region_id)s, "
+
+#, python-format
+msgid ""
+"User %(user_id)s doesn't have access to default project %(project_id)s. The "
+"token will be unscoped rather than scoped to the project."
+msgstr ""
+"%(user_id)s kullanıcısı varsayılan proje %(project_id)s erişimine sahip "
+"değil. Jeton projeye kapsamsız olacak, kapsamlı değil."
+
+#, python-format
+msgid ""
+"User %(user_id)s's default project %(project_id)s is disabled. The token "
+"will be unscoped rather than scoped to the project."
+msgstr ""
+"%(user_id)s kullanıcısının varsayılan projesi %(project_id)s kapalı. Jeton "
+"projeye kapsamsız olacak, kapsamlı değil."
+
+#, python-format
+msgid ""
+"User %(user_id)s's default project %(project_id)s not found. The token will "
+"be unscoped rather than scoped to the project."
+msgstr ""
+"%(user_id)s kullanıcısının varsayılan projesi %(project_id)s bulunamadı. "
+"Jeton projeye kapsamsız olacak, kapsamlı değil."
+
+#, python-format
+msgid ""
+"When deleting entries for %(search_base)s, could not delete nonexistent "
+"entries %(entries)s%(dots)s"
+msgstr ""
+"%(search_base)s için girdiler silinirken, mevcut olmayan girdiler %(entries)s"
+"%(dots)s silinemedi"
+
+#, python-format
+msgid "[fernet_tokens] key_repository is world readable: %s"
+msgstr "[fernet_tokens] key_repository herkesçe okunabilir: %s"
+
+msgid ""
+"[fernet_tokens] max_active_keys must be at least 1 to maintain a primary key."
+msgstr ""
+"[fernet_tokens] max_active_keys bir birincil anahtarı korumak için en az 1 "
+"olmalı."
+
+#, python-format
+msgid ""
+"`token_api.%s` is deprecated as of Juno in favor of utilizing methods on "
+"`token_provider_api` and may be removed in Kilo."
+msgstr ""
+"`token_provider_api` üzerindeki yöntemlerden faydalanmak için `token_api.%s` "
+"Juno'dan sonra tercih edilmeyecek ve Kilo'da kaldırılabilir."
+
+msgid "keystone-manage pki_setup is not recommended for production use."
+msgstr "keystone-manage pki_setup üretimde kullanmak için tavsiye edilmez."
+
+msgid "keystone-manage ssl_setup is not recommended for production use."
+msgstr "keystone-manage ssl_setup üretimde kullanmak için tavsiye edilmez."
+
+msgid "missing exception kwargs (programmer error)"
+msgstr "istisna kwargs eksik (programcı hatası)"
