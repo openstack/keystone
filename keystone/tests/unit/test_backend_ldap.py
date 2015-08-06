@@ -20,6 +20,7 @@ import uuid
 import ldap
 import mock
 from oslo_config import cfg
+import pkg_resources
 from six.moves import range
 from testtools import matchers
 
@@ -39,6 +40,70 @@ from keystone.tests.unit import test_backend
 
 
 CONF = cfg.CONF
+
+
+def _assert_backends(testcase, **kwargs):
+
+    def _get_backend_cls(testcase, subsystem):
+        observed_backend = getattr(testcase, subsystem + '_api').driver
+        return observed_backend.__class__
+
+    def _get_domain_specific_backend_cls(manager, domain):
+        observed_backend = manager.domain_configs.get_domain_driver(domain)
+        return observed_backend.__class__
+
+    def _get_entrypoint_cls(subsystem, name):
+        entrypoint = entrypoint_map['keystone.' + subsystem][name]
+        return entrypoint.resolve()
+
+    def _load_domain_specific_configs(manager):
+        if (not manager.domain_configs.configured and
+                CONF.identity.domain_specific_drivers_enabled):
+            manager.domain_configs.setup_domain_drivers(
+                manager.driver, manager.resource_api)
+
+    def _assert_equal(expected_cls, observed_cls, subsystem,
+                      domain=None):
+        msg = ('subsystem %(subsystem)s expected %(expected_cls)r, '
+               'but observed %(observed_cls)r')
+        if domain:
+            subsystem = '%s[domain=%s]' % (subsystem, domain)
+        assert expected_cls == observed_cls, msg % {
+            'expected_cls': expected_cls,
+            'observed_cls': observed_cls,
+            'subsystem': subsystem,
+        }
+
+    env = pkg_resources.Environment()
+    keystone_dist = env['keystone'][0]
+    entrypoint_map = pkg_resources.get_entry_map(keystone_dist)
+
+    for subsystem, entrypoint_name in kwargs.items():
+        if isinstance(entrypoint_name, str):
+            observed_cls = _get_backend_cls(testcase, subsystem)
+            expected_cls = _get_entrypoint_cls(subsystem, entrypoint_name)
+            _assert_equal(expected_cls, observed_cls, subsystem)
+
+        elif isinstance(entrypoint_name, dict):
+            manager = getattr(testcase, subsystem + '_api')
+            _load_domain_specific_configs(manager)
+
+            for domain, entrypoint_name in entrypoint_name.items():
+                if domain is None:
+                    observed_cls = _get_backend_cls(testcase, subsystem)
+                    expected_cls = _get_entrypoint_cls(
+                        subsystem, entrypoint_name)
+                    _assert_equal(expected_cls, observed_cls, subsystem)
+                    continue
+
+                observed_cls = _get_domain_specific_backend_cls(
+                    manager, domain)
+                expected_cls = _get_entrypoint_cls(subsystem, entrypoint_name)
+                _assert_equal(expected_cls, observed_cls, subsystem, domain)
+
+        else:
+            raise ValueError('%r is not an expected value for entrypoint name'
+                             % entrypoint_name)
 
 
 def create_group_container(identity_api):
@@ -928,6 +993,10 @@ class LDAPIdentity(BaseLDAPIdentity, tests.TestCase):
         # credentials) that require a database.
         self.useFixture(database.Database())
         super(LDAPIdentity, self).setUp()
+        _assert_backends(self,
+                         assignment='ldap',
+                         identity='ldap',
+                         resource='ldap')
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
@@ -1940,6 +2009,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
             obj.setdefault('enabled', True)
+        _assert_backends(self,
+                         assignment='ldap',
+                         identity='ldap',
+                         resource='ldap')
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
@@ -2125,6 +2198,10 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.load_fixtures(default_fixtures)
         # defaulted by the data load
         self.user_foo['enabled'] = True
+        _assert_backends(self,
+                         assignment='sql',
+                         identity='ldap',
+                         resource='sql')
 
     def config_overrides(self):
         super(LdapIdentitySqlAssignment, self).config_overrides()
@@ -2403,6 +2480,18 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.clear_database()
         self.load_fixtures(default_fixtures)
         self.create_users_across_domains()
+        self.assert_backends()
+
+    def assert_backends(self):
+        _assert_backends(self,
+                         assignment='sql',
+                         identity={
+                             None: 'sql',
+                             self.domains['domain_default']['id']: 'ldap',
+                             self.domains['domain1']['id']: 'ldap',
+                             self.domains['domain2']['id']: 'ldap',
+                         },
+                         resource='sql')
 
     def config_overrides(self):
         super(MultiLDAPandSQLIdentity, self).config_overrides()
@@ -2646,6 +2735,18 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
     database.
 
     """
+
+    def assert_backends(self):
+        _assert_backends(self,
+                         assignment='sql',
+                         identity={
+                             None: 'sql',
+                             self.domains['domain_default']['id']: 'ldap',
+                             self.domains['domain1']['id']: 'ldap',
+                             self.domains['domain2']['id']: 'ldap',
+                         },
+                         resource='sql')
+
     def enable_multi_domain(self):
         # The values below are the same as in the domain_configs_multi_ldap
         # cdirectory of test config_files.
@@ -2791,6 +2892,16 @@ class DomainSpecificLDAPandSQLIdentity(
         self.clear_database()
         self.load_fixtures(default_fixtures)
         self.create_users_across_domains()
+
+        _assert_backends(
+            self,
+            assignment='sql',
+            identity={
+                None: 'ldap',
+                'default': 'ldap',
+                self.domains['domain1']['id']: 'sql',
+            },
+            resource='sql')
 
     def config_overrides(self):
         super(DomainSpecificLDAPandSQLIdentity, self).config_overrides()
@@ -2943,6 +3054,11 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         self.load_fixtures(default_fixtures)
         self.create_users_across_domains()
 
+        _assert_backends(self,
+                         assignment='sql',
+                         identity='ldap',
+                         resource='sql')
+
     def config_overrides(self):
         super(DomainSpecificSQLIdentity, self).config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
@@ -3020,6 +3136,7 @@ class LdapFilterTests(test_backend.FilterTests, tests.TestCase):
         self.load_backends()
         self.load_fixtures(default_fixtures)
         sqldb.recreate()
+        _assert_backends(self, assignment='ldap', identity='ldap')
 
         self.addCleanup(common_ldap_core._HANDLERS.clear)
 
