@@ -13,7 +13,6 @@
 # under the License.
 from __future__ import absolute_import
 
-import ldap as ldap
 import ldap.filter
 from oslo_config import cfg
 from oslo_log import log

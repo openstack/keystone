@@ -13,7 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import ldap
 import ldap.modlist
 from oslo_config import cfg
 

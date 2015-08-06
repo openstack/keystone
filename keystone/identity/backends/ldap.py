@@ -14,7 +14,6 @@
 from __future__ import absolute_import
 import uuid
 
-import ldap
 import ldap.filter
 from oslo_config import cfg
 from oslo_log import log
