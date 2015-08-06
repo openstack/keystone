@@ -262,8 +262,8 @@ class TokenAPITests(object):
         # just need to make sure the non fraction part agrees
         self.assertIn(v2_token_data['access']['token']['expires'][:-1],
                       v3_token_data['token']['expires_at'])
-        self.assertEqual(v2_token_data['access']['user']['roles'][0]['id'],
-                         v3_token_data['token']['roles'][0]['id'])
+        self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
+                         v3_token_data['token']['roles'][0]['name'])
 
     def test_v2_v3_unscoped_token_intermix(self):
         r = self.admin_request(
@@ -539,22 +539,6 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests):
     def setUp(self):
         super(TestFernetTokenAPIs, self).setUp()
         self.doSetUp()
-
-    @test_utils.wip('Failing due to bug 1459790.')
-    def test_v3_v2_token_intermix(self):
-        super(TestFernetTokenAPIs, self).test_v3_v2_token_intermix()
-
-    @test_utils.wip('Failing due to bug 1459790.')
-    def test_v3_v2_unscoped_token_intermix(self):
-        super(TestFernetTokenAPIs, self).test_v3_v2_unscoped_token_intermix()
-
-    @test_utils.wip('Failing due to bug 1459790.')
-    def test_v2_v3_token_intermix(self):
-        super(TestFernetTokenAPIs, self).test_v2_v3_token_intermix()
-
-    @test_utils.wip('Failing due to bug 1459790.')
-    def test_rescoping_token(self):
-        super(TestFernetTokenAPIs, self).test_rescoping_token()
 
     @test_utils.wip('Failing due to bug 1475762.')
     def test_v3_v2_intermix_non_default_project_failed(self):

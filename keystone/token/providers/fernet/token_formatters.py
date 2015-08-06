@@ -286,8 +286,8 @@ class BasePayload(object):
         :returns: a time formatted strings
 
         """
-        time_object = datetime.datetime.utcfromtimestamp(int(time_int))
-        return ks_utils.isotime(time_object)
+        time_object = datetime.datetime.utcfromtimestamp(time_int)
+        return ks_utils.isotime(time_object, subsecond=True)
 
     @classmethod
     def attempt_convert_uuid_hex_to_bytes(cls, value):
