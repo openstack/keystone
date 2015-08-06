@@ -462,7 +462,7 @@ class RoleAssignmentV3(controller.V3Controller):
         If it is an inherited role, then this is also indicated. Examples:
 
         {'user_id': user_id,
-         'project_id': domain_id,
+         'project_id': project_id,
          'role_id': role_id}
 
         or, for an inherited role:
@@ -483,7 +483,7 @@ class RoleAssignmentV3(controller.V3Controller):
                 'domain': {
                     {'id': domain_id}
                 },
-                'OS-INHERIT:inherited_to': 'projects
+                'OS-INHERIT:inherited_to': 'projects'
             },
             'role': {
                 {'id': role_id}
