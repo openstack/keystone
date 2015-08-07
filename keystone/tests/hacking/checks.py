@@ -403,17 +403,6 @@ class CheckForLoggingIssues(BaseASTChecker):
                     return False
 
 
-def check_oslo_namespace_imports(logical_line, blank_before, filename):
-    oslo_namespace_imports = re.compile(
-        r"(((from)|(import))\s+oslo\.)|(from\s+oslo\s+import\s+)")
-
-    if re.match(oslo_namespace_imports, logical_line):
-        msg = ("K333: '%s' must be used instead of '%s'.") % (
-            logical_line.replace('oslo.', 'oslo_'),
-            logical_line)
-        yield(0, msg)
-
-
 def dict_constructor_with_sequence_copy(logical_line):
     """Should use a dict comprehension instead of a dict constructor.
 
@@ -442,5 +431,4 @@ def factory(register):
     register(block_comments_begin_with_a_space)
     register(CheckForAssertingNoneEquality)
     register(CheckForLoggingIssues)
-    register(check_oslo_namespace_imports)
     register(dict_constructor_with_sequence_copy)
