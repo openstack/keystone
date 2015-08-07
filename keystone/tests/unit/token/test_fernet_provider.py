@@ -73,7 +73,7 @@ class TestPayloads(tests.TestCase):
     def test_time_string_to_int_conversions(self):
         payload_cls = token_formatters.BasePayload
 
-        expected_time_str = utils.isotime()
+        expected_time_str = utils.isotime(subsecond=True)
         time_obj = timeutils.parse_isotime(expected_time_str)
         expected_time_int = (
             (timeutils.normalize_time(time_obj) -
@@ -90,7 +90,7 @@ class TestPayloads(tests.TestCase):
     def test_unscoped_payload(self):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.UnscopedPayload.assemble(
@@ -108,7 +108,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
         exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.ProjectScopedPayload.assemble(
@@ -128,7 +128,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
         exp_domain_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.DomainScopedPayload.assemble(
@@ -148,7 +148,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
         exp_domain_id = CONF.identity.default_domain_id
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.DomainScopedPayload.assemble(
@@ -168,7 +168,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
         exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_trust_id = uuid.uuid4().hex
 
@@ -189,7 +189,7 @@ class TestPayloads(tests.TestCase):
     def test_unscoped_payload_with_non_uuid_user_id(self):
         exp_user_id = 'someNonUuidUserId'
         exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.UnscopedPayload.assemble(
@@ -207,7 +207,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = 'someNonUuidUserId'
         exp_methods = ['password']
         exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.ProjectScopedPayload.assemble(
@@ -227,7 +227,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
         exp_project_id = 'someNonUuidProjectId'
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.ProjectScopedPayload.assemble(
@@ -247,7 +247,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = 'someNonUuidUserId'
         exp_methods = ['password']
         exp_domain_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = token_formatters.DomainScopedPayload.assemble(
@@ -267,7 +267,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = 'someNonUuidUserId'
         exp_methods = ['password']
         exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_trust_id = uuid.uuid4().hex
 
@@ -289,7 +289,7 @@ class TestPayloads(tests.TestCase):
         exp_user_id = uuid.uuid4().hex
         exp_methods = ['password']
         exp_project_id = 'someNonUuidProjectId'
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_trust_id = uuid.uuid4().hex
 
@@ -310,7 +310,7 @@ class TestPayloads(tests.TestCase):
     def test_federated_payload_with_non_uuid_ids(self):
         exp_user_id = 'someNonUuidUserId'
         exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow())
+        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
                               'idp_id': uuid.uuid4().hex,
