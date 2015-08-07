@@ -11,11 +11,6 @@ python-memcached>=1.56
 # Optional dogpile backend: MongoDB
 pymongo>=3.0.2
 
-# Optional backend: LDAP
-# authenticate against an existing LDAP server
-python-ldap>=2.4;python_version=='2.7'
-ldappool>=1.0 # MPL
-
 # Testing
 # computes code coverage percentages
 coverage>=3.6
