@@ -483,13 +483,13 @@ class LDAPHandler(object):
 
 
 class PythonLDAPHandler(LDAPHandler):
-    '''Implementation of the LDAPHandler interface which calls the
-    python-ldap API.
+    """LDAPHandler implementation which calls the python-ldap API.
 
-    Note, the python-ldap API requires all string values to be UTF-8
-    encoded. The KeystoneLDAPHandler enforces this prior to invoking
-    the methods in this class.
-    '''
+    Note, the python-ldap API requires all string values to be UTF-8 encoded.
+    The KeystoneLDAPHandler enforces this prior to invoking the methods in this
+    class.
+
+    """
 
     def __init__(self, conn=None):
         super(PythonLDAPHandler, self).__init__(conn=conn)
@@ -571,10 +571,7 @@ class PythonLDAPHandler(LDAPHandler):
 def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
                                 tls_cacertdir=None, tls_req_cert=None,
                                 debug_level=None):
-    '''Method for common ldap initialization between PythonLDAPHandler and
-    PooledLDAPHandler.
-    '''
-
+    """LDAP initialization for PythonLDAPHandler and PooledLDAPHandler."""
     LOG.debug("LDAP init: url=%s", url)
     LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
               'tls_req_cert=%s tls_avail=%s',
@@ -644,8 +641,7 @@ def use_conn_pool(func):
 
 
 class PooledLDAPHandler(LDAPHandler):
-    '''Implementation of the LDAPHandler interface which uses pooled
-    connection manager.
+    """LDAPHandler implementation which uses pooled connection manager.
 
     Pool specific configuration is defined in [ldap] section.
     All other LDAP configuration is still used from [ldap] section
@@ -665,8 +661,8 @@ class PooledLDAPHandler(LDAPHandler):
     Note, the python-ldap API requires all string values to be UTF-8
     encoded. The KeystoneLDAPHandler enforces this prior to invoking
     the methods in this class.
-    '''
 
+    """
     # Added here to allow override for testing
     Connector = ldappool.StateConnector
     auth_pool_prefix = 'auth_pool_'
@@ -747,9 +743,8 @@ class PooledLDAPHandler(LDAPHandler):
 
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
-        '''Not using use_conn_pool decorator here as this API takes cred as
-        input.
-        '''
+        # Not using use_conn_pool decorator here as this API takes cred as
+        # input.
         self.who = who
         self.cred = cred
         with self._get_pool_connection() as conn:
@@ -775,16 +770,17 @@ class PooledLDAPHandler(LDAPHandler):
                    filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
                    serverctrls=None, clientctrls=None,
                    timeout=-1, sizelimit=0):
-        '''This API is asynchoronus API which returns MsgId instance to be used
-        in result3 call.
+        """Asynchronous API to return a ``MsgId`` instance.
 
-        To work with result3 API in predicatable manner, same LDAP connection
-        is needed which provided msgid. So wrapping used connection and msgid
-        in MsgId class. The connection associated with search_ext is released
-        once last hard reference to MsgId object is freed. This will happen
-        when the method is done with returned MsgId usage.
-        '''
+        The ``MsgId`` instance can be safely used in a call to ``result3()``.
 
+        To work with ``result3()`` API in predictable manner, the same LDAP
+        connection is needed which originally provided the ``msgid``. So, this
+        method wraps the existing connection and ``msgid`` in a new ``MsgId``
+        instance. The connection associated with ``search_ext`` is released
+        once last hard reference to the ``MsgId`` instance is freed.
+
+        """
         conn_ctxt = self._get_pool_connection()
         conn = conn_ctxt.__enter__()
         try:

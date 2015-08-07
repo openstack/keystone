@@ -548,11 +548,11 @@ class FakeLdap(core.LDAPHandler):
 
 
 class FakeLdapPool(FakeLdap):
-    '''Emulate the python-ldap API with pooled connections using existing
-    FakeLdap logic.
+    """Emulate the python-ldap API with pooled connections.
 
     This class is used as connector class in PooledLDAPHandler.
-    '''
+
+    """
 
     def __init__(self, uri, retry_max=None, retry_delay=None, conn=None):
         super(FakeLdapPool, self).__init__(conn=conn)

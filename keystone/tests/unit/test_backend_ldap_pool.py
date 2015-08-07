@@ -210,9 +210,7 @@ class LdapPoolCommonTestMixin(object):
 class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
                                 test_backend_ldap.LdapIdentitySqlAssignment,
                                 tests.TestCase):
-    '''Executes existing base class 150+ tests with pooled LDAP handler to make
-    sure it works without any error.
-    '''
+    """Executes tests in existing base class with pooled LDAP handler."""
     def setUp(self):
         self.useFixture(mockpatch.PatchObject(
             ldap_core.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))

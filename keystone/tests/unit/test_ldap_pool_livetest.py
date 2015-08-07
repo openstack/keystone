@@ -30,10 +30,10 @@ CONF = cfg.CONF
 
 class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
                            test_ldap_livetest.LiveLDAPIdentity):
-    """Executes existing LDAP live test with pooled LDAP handler to make
-    sure it works without any error.
+    """Executes existing LDAP live test with pooled LDAP handler.
 
     Also executes common pool specific tests via Mixin class.
+
     """
 
     def setUp(self):

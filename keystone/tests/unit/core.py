@@ -146,8 +146,9 @@ def remove_generated_paste_config(extension_name):
 
 
 def skip_if_cache_disabled(*sections):
-    """This decorator is used to skip a test if caching is disabled either
-    globally or for the specific section.
+    """This decorator is used to skip a test if caching is disabled.
+
+    Caching can be disabled either globally or for a specific section.
 
     In the code fragment::
 
@@ -164,6 +165,7 @@ def skip_if_cache_disabled(*sections):
     If a specified configuration section does not define the `caching` option,
     this decorator makes the same assumption as the `should_cache_fn` in
     keystone.common.cache that caching should be enabled.
+
     """
     def wrapper(f):
         @functools.wraps(f)
@@ -181,9 +183,7 @@ def skip_if_cache_disabled(*sections):
 
 
 def skip_if_no_multiple_domains_support(f):
-    """This decorator is used to skip a test if an identity driver
-    does not support multiple domains.
-    """
+    """Decorator to skip tests for identity drivers limited to one domain."""
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         test_obj = args[0]
@@ -527,8 +527,7 @@ class TestCase(BaseTestCase):
 
     def assertRaisesRegexp(self, expected_exception, expected_regexp,
                            callable_obj, *args, **kwargs):
-        """Asserts that the message in a raised exception matches a regexp.
-        """
+        """Asserts that the message in a raised exception matches a regexp."""
         try:
             callable_obj(*args, **kwargs)
         except expected_exception as exc_value:

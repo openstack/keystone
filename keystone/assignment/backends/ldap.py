@@ -312,9 +312,7 @@ class ProjectApi(common_ldap.ProjectLdapStructureMixin,
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
     def get_user_projects(self, user_dn, associations):
-        """Returns list of tenants a user has access to
-        """
-
+        """Returns the list of tenants to which a user has access."""
         project_ids = set()
         for assoc in associations:
             project_ids.add(self._dn_to_id(assoc.project_dn))
@@ -496,9 +494,7 @@ class RoleApi(ldap_role.RoleLdapStructureMixin, common_ldap.BaseLdap):
             self.id_attr: role_id})
 
     def list_role_assignments(self, project_tree_dn):
-        """Returns a list of all the role assignments linked to project_tree_dn
-        attribute.
-        """
+        """List the role assignments linked to project_tree_dn attribute."""
         try:
             roles = self._ldap_get_list(project_tree_dn, ldap.SCOPE_SUBTREE,
                                         attrlist=[self.member_attribute])
