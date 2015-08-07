@@ -21,7 +21,7 @@ To enable the endpoint policy extension:
    ``[endpoint_policy]`` section in ``keystone.conf``. For example::
 
     [endpoint_policy]
-    driver = keystone.contrib.endpoint_policy.backends.sql.EndpointPolicy
+    driver = sql
 
 2. Add the ``endpoint_policy_extension`` policy to the ``api_v3`` pipeline in
    ``keystone-paste.ini``. This must be added after ``json_body`` and before

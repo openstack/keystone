@@ -68,20 +68,20 @@ between processes.
 
 .. WARNING::
 
-    The KVS (``keystone.token.persistence.backends.kvs.Token``) token
-    persistence driver cannot be shared between processes so must not be used
-    when running keystone under HTTPD (the tokens will not be shared between
-    the processes of the server and validation will fail).
+    The KVS (``kvs``) token persistence driver cannot be shared between
+    processes so must not be used when running keystone under HTTPD (the tokens
+    will not be shared between the processes of the server and validation will
+    fail).
 
 For SQL, in ``/etc/keystone/keystone.conf`` set::
 
     [token]
-    driver = keystone.token.persistence.backends.sql.Token
+    driver = sql
 
 For memcached, in ``/etc/keystone/keystone.conf`` set::
 
     [token]
-    driver = keystone.token.persistence.backends.memcache.Token
+    driver = memcache
 
 All servers that are storing tokens need a shared backend. This means that
 either all servers use the same database server or use a common memcached pool.

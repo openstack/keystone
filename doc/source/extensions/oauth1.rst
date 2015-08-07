@@ -23,7 +23,7 @@ To enable the OAuth1 extension:
 1. Optionally, add the oauth1 extension driver to the ``[oauth1]`` section in ``keystone.conf``. For example::
 
     [oauth1]
-    driver = keystone.contrib.oauth1.backends.sql.OAuth1
+    driver = sql
 
 2. Add the ``oauth1`` authentication method to the ``[auth]`` section in ``keystone.conf``::
 

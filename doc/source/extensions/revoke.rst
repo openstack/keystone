@@ -27,7 +27,7 @@ Enabling the Revocation Extension
    in ``keystone.conf``. For example::
 
     [revoke]
-    driver = keystone.contrib.revoke.backends.sql.Revoke
+    driver = sql
 
 2. Add the required ``filter`` to the ``pipeline`` in ``keystone-paste.ini``.
    This must be added after ``json_body`` and before the last entry in the
