@@ -19,7 +19,6 @@ import copy
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
 import six
 
 from keystone.common import cache
@@ -35,40 +34,6 @@ from keystone import notifications
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 MEMOIZE = cache.get_memoization_decorator(section='role')
-
-
-def deprecated_to_role_api(f):
-    """Specialized deprecation wrapper for assignment to role api.
-
-    This wraps the standard deprecation wrapper and fills in the method
-    names automatically.
-
-    """
-    @six.wraps(f)
-    def wrapper(*args, **kwargs):
-        x = versionutils.deprecated(
-            what='assignment.' + f.__name__ + '()',
-            as_of=versionutils.deprecated.KILO,
-            in_favor_of='role.' + f.__name__ + '()')
-        return x(f)
-    return wrapper()
-
-
-def deprecated_to_resource_api(f):
-    """Specialized deprecation wrapper for assignment to resource api.
-
-    This wraps the standard deprecation wrapper and fills in the method
-    names automatically.
-
-    """
-    @six.wraps(f)
-    def wrapper(*args, **kwargs):
-        x = versionutils.deprecated(
-            what='assignment.' + f.__name__ + '()',
-            as_of=versionutils.deprecated.KILO,
-            in_favor_of='resource.' + f.__name__ + '()')
-        return x(f)
-    return wrapper()
 
 
 @dependency.provider('assignment_api')
@@ -943,98 +908,6 @@ class Manager(manager.Manager):
         # project_id so the token provider can invalidate the tokens
         # from persistence if persistence is enabled.
         pass
-
-    @deprecated_to_role_api
-    def create_role(self, role_id, role):
-        return self.role_api.create_role(role_id, role)
-
-    @deprecated_to_role_api
-    def get_role(self, role_id):
-        return self.role_api.get_role(role_id)
-
-    @deprecated_to_role_api
-    def update_role(self, role_id, role):
-        return self.role_api.update_role(role_id, role)
-
-    @deprecated_to_role_api
-    def delete_role(self, role_id):
-        return self.role_api.delete_role(role_id)
-
-    @deprecated_to_role_api
-    def list_roles(self, hints=None):
-        return self.role_api.list_roles(hints=hints)
-
-    @deprecated_to_resource_api
-    def create_project(self, project_id, project):
-        return self.resource_api.create_project(project_id, project)
-
-    @deprecated_to_resource_api
-    def get_project_by_name(self, tenant_name, domain_id):
-        return self.resource_api.get_project_by_name(tenant_name, domain_id)
-
-    @deprecated_to_resource_api
-    def get_project(self, project_id):
-        return self.resource_api.get_project(project_id)
-
-    @deprecated_to_resource_api
-    def update_project(self, project_id, project):
-        return self.resource_api.update_project(project_id, project)
-
-    @deprecated_to_resource_api
-    def delete_project(self, project_id):
-        return self.resource_api.delete_project(project_id)
-
-    @deprecated_to_resource_api
-    def list_projects(self, hints=None):
-        return self.resource_api.list_projects(hints=hints)
-
-    @deprecated_to_resource_api
-    def list_projects_in_domain(self, domain_id):
-        return self.resource_api.list_projects_in_domain(domain_id)
-
-    @deprecated_to_resource_api
-    def create_domain(self, domain_id, domain):
-        return self.resource_api.create_domain(domain_id, domain)
-
-    @deprecated_to_resource_api
-    def get_domain_by_name(self, domain_name):
-        return self.resource_api.get_domain_by_name(domain_name)
-
-    @deprecated_to_resource_api
-    def get_domain(self, domain_id):
-        return self.resource_api.get_domain(domain_id)
-
-    @deprecated_to_resource_api
-    def update_domain(self, domain_id, domain):
-        return self.resource_api.update_domain(domain_id, domain)
-
-    @deprecated_to_resource_api
-    def delete_domain(self, domain_id):
-        return self.resource_api.delete_domain(domain_id)
-
-    @deprecated_to_resource_api
-    def list_domains(self, hints=None):
-        return self.resource_api.list_domains(hints=hints)
-
-    @deprecated_to_resource_api
-    def assert_domain_enabled(self, domain_id, domain=None):
-        return self.resource_api.assert_domain_enabled(domain_id, domain)
-
-    @deprecated_to_resource_api
-    def assert_project_enabled(self, project_id, project=None):
-        return self.resource_api.assert_project_enabled(project_id, project)
-
-    @deprecated_to_resource_api
-    def is_leaf_project(self, project_id):
-        return self.resource_api.is_leaf_project(project_id)
-
-    @deprecated_to_resource_api
-    def list_project_parents(self, project_id, user_id=None):
-        return self.resource_api.list_project_parents(project_id, user_id)
-
-    @deprecated_to_resource_api
-    def list_projects_in_subtree(self, project_id, user_id=None):
-        return self.resource_api.list_projects_in_subtree(project_id, user_id)
 
 
 @six.add_metaclass(abc.ABCMeta)
