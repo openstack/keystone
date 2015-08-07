@@ -422,26 +422,26 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         for domain in create_domains():
             self.assertRaises(
-                AssertionError, self.assignment_api.create_domain,
+                AssertionError, self.resource_api.create_domain,
                 domain['id'], domain)
             self.assertRaises(
-                AssertionError, self.assignment_api.update_domain,
+                AssertionError, self.resource_api.update_domain,
                 domain['id'], domain)
             self.assertRaises(
-                exception.DomainNotFound, self.assignment_api.delete_domain,
+                exception.DomainNotFound, self.resource_api.delete_domain,
                 domain['id'])
 
             # swap 'name' with 'id' and try again, expecting the request to
             # gracefully fail
             domain['id'], domain['name'] = domain['name'], domain['id']
             self.assertRaises(
-                AssertionError, self.assignment_api.create_domain,
+                AssertionError, self.resource_api.create_domain,
                 domain['id'], domain)
             self.assertRaises(
-                AssertionError, self.assignment_api.update_domain,
+                AssertionError, self.resource_api.update_domain,
                 domain['id'], domain)
             self.assertRaises(
-                exception.DomainNotFound, self.assignment_api.delete_domain,
+                exception.DomainNotFound, self.resource_api.delete_domain,
                 domain['id'])
 
     def test_forbid_operations_on_defined_federated_domain(self):
@@ -457,13 +457,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         domain = self.new_domain_ref()
         domain['name'] = non_default_name
         self.assertRaises(AssertionError,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           domain['id'], domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.delete_domain,
+                          self.resource_api.delete_domain,
                           domain['id'])
         self.assertRaises(AssertionError,
-                          self.assignment_api.update_domain,
+                          self.resource_api.update_domain,
                           domain['id'], domain)
 
     def test_set_federated_domain_when_config_empty(self):
@@ -479,25 +479,25 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         domain = self.new_domain_ref()
         domain['id'] = federated_name
         self.assertRaises(AssertionError,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           domain['id'], domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.delete_domain,
+                          self.resource_api.delete_domain,
                           domain['id'])
         self.assertRaises(AssertionError,
-                          self.assignment_api.update_domain,
+                          self.resource_api.update_domain,
                           domain['id'], domain)
 
         # swap id with name
         domain['id'], domain['name'] = domain['name'], domain['id']
         self.assertRaises(AssertionError,
-                          self.assignment_api.create_domain,
+                          self.resource_api.create_domain,
                           domain['id'], domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.delete_domain,
+                          self.resource_api.delete_domain,
                           domain['id'])
         self.assertRaises(AssertionError,
-                          self.assignment_api.update_domain,
+                          self.resource_api.update_domain,
                           domain['id'], domain)
 
     # Project CRUD tests
@@ -1761,8 +1761,8 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
             for i in range(breadth):
                 subprojects.append(self.new_project_ref(
                     domain_id=self.domain_id, parent_id=parent_id))
-                self.assignment_api.create_project(subprojects[-1]['id'],
-                                                   subprojects[-1])
+                self.resource_api.create_project(subprojects[-1]['id'],
+                                                 subprojects[-1])
 
             new_parent = subprojects[random.randint(0, breadth - 1)]
             create_project_hierarchy(new_parent['id'], depth - 1)
@@ -1772,12 +1772,12 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         # Create a domain
         self.domain = self.new_domain_ref()
         self.domain_id = self.domain['id']
-        self.assignment_api.create_domain(self.domain_id, self.domain)
+        self.resource_api.create_domain(self.domain_id, self.domain)
 
         # Create a project hierarchy
         self.project = self.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
-        self.assignment_api.create_project(self.project_id, self.project)
+        self.resource_api.create_project(self.project_id, self.project)
 
         # Create a random project hierarchy
         create_project_hierarchy(self.project_id,
@@ -1810,7 +1810,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         # Create a role
         self.role = self.new_role_ref()
         self.role_id = self.role['id']
-        self.assignment_api.create_role(self.role_id, self.role)
+        self.role_api.create_role(self.role_id, self.role)
 
         # Set default user and group to be used on tests
         self.default_user_id = self.user_ids[0]
@@ -2106,11 +2106,11 @@ class RoleAssignmentEffectiveTestCase(RoleAssignmentInheritedTestCase):
         project_ids = [None]
         if filters.get('domain_id'):
             project_ids = [project['id'] for project in
-                           self.assignment_api.list_projects_in_domain(
+                           self.resource_api.list_projects_in_domain(
                                filters.pop('domain_id'))]
         else:
             project_ids = [project['id'] for project in
-                           self.assignment_api.list_projects_in_subtree(
+                           self.resource_api.list_projects_in_subtree(
                                self.project_id)]
 
         # Compute expected role assignments

@@ -42,19 +42,49 @@ class FilterTests(object):
             self.assertTrue(found)
 
     def _create_entity(self, entity_type):
+        """Find the create_<entity_type> method.
+
+        Searches through the [identity_api, resource_api, assignment_api]
+        managers for a method called create_<entity_type> and returns the first
+        one.
+
+        """
+
         f = getattr(self.identity_api, 'create_%s' % entity_type, None)
+        if f is None:
+            f = getattr(self.resource_api, 'create_%s' % entity_type, None)
         if f is None:
             f = getattr(self.assignment_api, 'create_%s' % entity_type)
         return f
 
     def _delete_entity(self, entity_type):
+        """Find the delete_<entity_type> method.
+
+        Searches through the [identity_api, resource_api, assignment_api]
+        managers for a method called delete_<entity_type> and returns the first
+        one.
+
+        """
+
         f = getattr(self.identity_api, 'delete_%s' % entity_type, None)
+        if f is None:
+            f = getattr(self.resource_api, 'delete_%s' % entity_type, None)
         if f is None:
             f = getattr(self.assignment_api, 'delete_%s' % entity_type)
         return f
 
     def _list_entities(self, entity_type):
+        """Find the list_<entity_type> method.
+
+        Searches through the [identity_api, resource_api, assignment_api]
+        managers for a method called list_<entity_type> and returns the first
+        one.
+
+        """
+
         f = getattr(self.identity_api, 'list_%ss' % entity_type, None)
+        if f is None:
+            f = getattr(self.resource_api, 'list_%ss' % entity_type, None)
         if f is None:
             f = getattr(self.assignment_api, 'list_%ss' % entity_type)
         return f

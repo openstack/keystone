@@ -158,7 +158,8 @@ class Manager(manager.Manager):
                 except (exception.MetadataNotFound, exception.NotImplemented):
                     pass
                 # As well inherited roles from parent projects
-                for p in self.list_project_parents(project_ref['id']):
+                for p in self.resource_api.list_project_parents(
+                        project_ref['id']):
                     p_roles = self.list_grants(
                         user_id=user_id, project_id=p['id'],
                         inherited_to_projects=True)
@@ -210,7 +211,7 @@ class Manager(manager.Manager):
             return self._roles_from_role_dicts(
                 metadata_ref.get('roles', {}), False)
 
-        self.get_domain(domain_id)
+        self.resource_api.get_domain(domain_id)
         user_role_list = _get_user_domain_roles(user_id, domain_id)
         group_role_list = _get_group_domain_roles(user_id, domain_id)
         # Use set() to process the list to remove any duplicates

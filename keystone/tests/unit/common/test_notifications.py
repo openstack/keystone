@@ -316,7 +316,7 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_create_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         self._assert_last_note(
             project_ref['id'], CREATED_OPERATION, 'project')
         self._assert_last_audit(project_ref['id'], CREATED_OPERATION,
@@ -363,8 +363,8 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_delete_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
-        self.assignment_api.delete_project(project_ref['id'])
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.delete_project(project_ref['id'])
         self._assert_last_note(
             project_ref['id'], DELETED_OPERATION, 'project')
         self._assert_last_audit(project_ref['id'], DELETED_OPERATION,
@@ -395,19 +395,19 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_update_domain(self):
         domain_ref = self.new_domain_ref()
-        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['description'] = uuid.uuid4().hex
-        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self.resource_api.update_domain(domain_ref['id'], domain_ref)
         self._assert_last_note(domain_ref['id'], UPDATED_OPERATION, 'domain')
         self._assert_last_audit(domain_ref['id'], UPDATED_OPERATION, 'domain',
                                 cadftaxonomy.SECURITY_DOMAIN)
 
     def test_delete_domain(self):
         domain_ref = self.new_domain_ref()
-        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['enabled'] = False
-        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
-        self.assignment_api.delete_domain(domain_ref['id'])
+        self.resource_api.update_domain(domain_ref['id'], domain_ref)
+        self.resource_api.delete_domain(domain_ref['id'])
         self._assert_last_note(domain_ref['id'], DELETED_OPERATION, 'domain')
         self._assert_last_audit(domain_ref['id'], DELETED_OPERATION, 'domain',
                                 cadftaxonomy.SECURITY_DOMAIN)
@@ -534,19 +534,19 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_disable_domain(self):
         domain_ref = self.new_domain_ref()
-        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['enabled'] = False
-        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self.resource_api.update_domain(domain_ref['id'], domain_ref)
         self._assert_notify_sent(domain_ref['id'], 'disabled', 'domain',
                                  public=False)
 
     def test_disable_of_disabled_domain_does_not_notify(self):
         domain_ref = self.new_domain_ref()
         domain_ref['enabled'] = False
-        self.assignment_api.create_domain(domain_ref['id'], domain_ref)
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
         # The domain_ref above is not changed during the create process. We
         # can use the same ref to perform the update.
-        self.assignment_api.update_domain(domain_ref['id'], domain_ref)
+        self.resource_api.update_domain(domain_ref['id'], domain_ref)
         self._assert_notify_not_sent(domain_ref['id'], 'disabled', 'domain',
                                      public=False)
 
@@ -560,8 +560,8 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_update_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
-        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.update_project(project_ref['id'], project_ref)
         self._assert_notify_sent(
             project_ref['id'], UPDATED_OPERATION, 'project', public=True)
         self._assert_last_audit(project_ref['id'], UPDATED_OPERATION,
@@ -569,27 +569,27 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_disable_project(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = False
-        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self.resource_api.update_project(project_ref['id'], project_ref)
         self._assert_notify_sent(project_ref['id'], 'disabled', 'project',
                                  public=False)
 
     def test_disable_of_disabled_project_does_not_notify(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         project_ref['enabled'] = False
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         # The project_ref above is not changed during the create process. We
         # can use the same ref to perform the update.
-        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self.resource_api.update_project(project_ref['id'], project_ref)
         self._assert_notify_not_sent(project_ref['id'], 'disabled', 'project',
                                      public=False)
 
     def test_update_project_does_not_send_disable(self):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = True
-        self.assignment_api.update_project(project_ref['id'], project_ref)
+        self.resource_api.update_project(project_ref['id'], project_ref)
         self._assert_last_note(
             project_ref['id'], UPDATED_OPERATION, 'project')
         self._assert_notify_not_sent(project_ref['id'], 'disabled', 'project')
@@ -657,7 +657,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
     def test_notification_received(self):
         callback = register_callback(CREATED_OPERATION, 'project')
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         self.assertTrue(callback.called)
 
     def test_notification_method_not_callable(self):
@@ -702,7 +702,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
         Foo()
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         self.assertEqual([True], callback_called)
 
     def test_provider_event_callbacks_subscription(self):

@@ -420,7 +420,7 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def test_rescoped_domain_token_disabled(self):
 
         self.domainA = self.new_domain_ref()
-        self.assignment_api.create_domain(self.domainA['id'], self.domainA)
+        self.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.user['id'],
                                          domain_id=self.domainA['id'])
@@ -2827,7 +2827,7 @@ class TestTrustRedelegation(test_v3.RestfulTestCase):
     def test_roles_subset(self):
         # Build second role
         role = self.new_role_ref()
-        self.assignment_api.create_role(role['id'], role)
+        self.role_api.create_role(role['id'], role)
         # assign a new role to the user
         self.assignment_api.create_grant(role_id=role['id'],
                                          user_id=self.user_id,
@@ -2895,7 +2895,7 @@ class TestTrustRedelegation(test_v3.RestfulTestCase):
 
         # Build second trust with a role not in parent's roles
         role = self.new_role_ref()
-        self.assignment_api.create_role(role['id'], role)
+        self.role_api.create_role(role['id'], role)
         # assign a new role to the user
         self.assignment_api.create_grant(role_id=role['id'],
                                          user_id=self.user_id,

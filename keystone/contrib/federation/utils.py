@@ -287,7 +287,7 @@ def validate_groups(group_ids, mapping_id, identity_api):
 # TODO(marek-denis): Optimize this function, so the number of calls to the
 # backend are minimized.
 def transform_to_group_ids(group_names, mapping_id,
-                           identity_api, assignment_api):
+                           identity_api, resource_api):
     """Transform groups identitified by name/domain to their ids
 
     Function accepts list of groups identified by a name and domain giving
@@ -318,7 +318,7 @@ def transform_to_group_ids(group_names, mapping_id,
     :type mapping_id: str
 
     :param identity_api: identity_api object
-    :param assignment_api: assignment_api object
+    :param resource_api: resource manager object
 
     :returns: generator object with group ids
 
@@ -339,7 +339,7 @@ def transform_to_group_ids(group_names, mapping_id,
 
         """
         domain_id = (domain.get('id') or
-                     assignment_api.get_domain_by_name(
+                     resource_api.get_domain_by_name(
                      domain.get('name')).get('id'))
         return domain_id
 
