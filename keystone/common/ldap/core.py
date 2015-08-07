@@ -1111,7 +1111,6 @@ def filter_entity(entity_ref):
 
 
 class BaseLdap(object):
-    DEFAULT_SUFFIX = "dc=example,dc=com"
     DEFAULT_OU = None
     DEFAULT_STRUCTURAL_CLASSES = None
     DEFAULT_ID_ATTR = 'cn'
@@ -1158,8 +1157,6 @@ class BaseLdap(object):
 
         if self.options_name is not None:
             self.suffix = conf.ldap.suffix
-            if self.suffix is None:
-                self.suffix = self.DEFAULT_SUFFIX
             dn = '%s_tree_dn' % self.options_name
             self.tree_dn = (getattr(conf.ldap, dn)
                             or '%s,%s' % (self.DEFAULT_OU, self.suffix))
