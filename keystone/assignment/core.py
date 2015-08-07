@@ -702,26 +702,6 @@ class Driver(object):
                 role_list.append(d['id'])
         return role_list
 
-    def _add_role_to_role_dicts(self, role_id, inherited, dict_list,
-                                allow_existing=True):
-        # There is a difference in error semantics when trying to
-        # assign a role that already exists between the coded v2 and v3
-        # API calls.  v2 will error if the assignment already exists,
-        # while v3 is silent. Setting the 'allow_existing' parameter
-        # appropriately lets this call be used for both.
-        role_set = set([frozenset(r.items()) for r in dict_list])
-        key = frozenset(self._role_to_dict(role_id, inherited).items())
-        if not allow_existing and key in role_set:
-            raise KeyError
-        role_set.add(key)
-        return [dict(r) for r in role_set]
-
-    def _remove_role_from_role_dicts(self, role_id, inherited, dict_list):
-        role_set = set([frozenset(r.items()) for r in dict_list])
-        role_set.remove(frozenset(self._role_to_dict(role_id,
-                                                     inherited).items()))
-        return [dict(r) for r in role_set]
-
     def _get_list_limit(self):
         return CONF.assignment.list_limit or CONF.list_limit
 
