@@ -686,14 +686,14 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
                                               resource_type,
                                               self._project_deleted_callback)
 
-    def test_provider_event_callbacks_subscription(self):
+    def test_provider_event_callback_subscription(self):
         callback_called = []
 
         @notifications.listener
         class Foo(object):
             def __init__(self):
                 self.event_callbacks = {
-                    CREATED_OPERATION: {'project': [self.foo_callback]}}
+                    CREATED_OPERATION: {'project': self.foo_callback}}
 
             def foo_callback(self, service, resource_type, operation,
                              payload):
@@ -704,6 +704,29 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         project_ref = self.new_project_ref(domain_id=self.domain_id)
         self.assignment_api.create_project(project_ref['id'], project_ref)
         self.assertEqual([True], callback_called)
+
+    def test_provider_event_callbacks_subscription(self):
+        callback_called = []
+
+        @notifications.listener
+        class Foo(object):
+            def __init__(self):
+                self.event_callbacks = {
+                    CREATED_OPERATION: {
+                        'project': [self.callback_0, self.callback_1]}}
+
+            def callback_0(self, service, resource_type, operation, payload):
+                # uses callback_called from the closure
+                callback_called.append('cb0')
+
+            def callback_1(self, service, resource_type, operation, payload):
+                # uses callback_called from the closure
+                callback_called.append('cb1')
+
+        Foo()
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.assertItemsEqual(['cb1', 'cb0'], callback_called)
 
     def test_invalid_event_callbacks(self):
         @notifications.listener
