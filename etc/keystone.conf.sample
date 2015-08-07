@@ -940,7 +940,7 @@
 # value)
 #chase_referrals = <None>
 
-# Search base for users. (string value)
+# Search base for users. Defaults to the suffix value. (string value)
 #user_tree_dn = <None>
 
 # LDAP search filter for users. (string value)
@@ -1016,7 +1016,7 @@
 # Identity API attribute. (list value)
 #user_additional_attribute_mapping =
 
-# Search base for projects (string value)
+# Search base for projects. Defaults to the suffix value. (string value)
 # Deprecated group/name - [ldap]/tenant_tree_dn
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1117,7 +1117,7 @@
 # Its value may be silently ignored in the future.
 #project_additional_attribute_mapping =
 
-# Search base for roles. (string value)
+# Search base for roles. Defaults to the suffix value. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #role_tree_dn = <None>
@@ -1174,7 +1174,7 @@
 # Its value may be silently ignored in the future.
 #role_additional_attribute_mapping =
 
-# Search base for groups. (string value)
+# Search base for groups. Defaults to the suffix value. (string value)
 #group_tree_dn = <None>
 
 # LDAP search filter for groups. (string value)
