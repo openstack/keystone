@@ -157,6 +157,7 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
         # create and share a single sqlalchemy engine for testing
         self.engine = sql.get_engine()
         self.Session = db_session.get_maker(self.engine, autocommit=False)
+        self.addCleanup(sqlalchemy.orm.session.Session.close_all)
 
         self.initialize_sql()
         self.repo_path = migration_helpers.find_migrate_repo(
@@ -168,8 +169,12 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
         # auto-detect the highest available schema version in the migrate_repo
         self.max_version = self.schema.repository.version().version
 
-    def tearDown(self):
-        sqlalchemy.orm.session.Session.close_all()
+        self.addCleanup(sql.cleanup)
+
+        # drop tables and FKs.
+        self.addCleanup(self._cleanupDB)
+
+    def _cleanupDB(self):
         meta = sqlalchemy.MetaData()
         meta.bind = self.engine
         meta.reflect(self.engine)
@@ -197,9 +202,6 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
 
             for table in tbs:
                 conn.execute(schema.DropTable(table))
-
-        sql.cleanup()
-        super(SqlMigrateBase, self).tearDown()
 
     def select_table(self, name):
         table = sqlalchemy.Table(name,
