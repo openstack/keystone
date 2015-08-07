@@ -4977,7 +4977,6 @@ class CatalogTests(object):
 
         endpoint = {
             'id': uuid.uuid4().hex,
-            'region_id': None,
             'service_id': service['id'],
             'interface': 'public',
             'url': uuid.uuid4().hex,
