@@ -29,7 +29,7 @@
     "identity:update_endpoint": "rule:cloud_admin",
     "identity:delete_endpoint": "rule:cloud_admin",
 
-    "identity:get_domain": "rule:cloud_admin",
+    "identity:get_domain": "rule:cloud_admin or rule:admin_and_matching_domain_id",
     "identity:list_domains": "rule:cloud_admin",
     "identity:create_domain": "rule:cloud_admin",
     "identity:update_domain": "rule:cloud_admin",
