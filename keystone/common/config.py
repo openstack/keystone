@@ -600,7 +600,8 @@ FILE_OPTIONS = {
                     help='Override the system\'s default referral chasing '
                          'behavior for queries.'),
         cfg.StrOpt('user_tree_dn',
-                   help='Search base for users.'),
+                   help='Search base for users. '
+                        'Defaults to the suffix value.'),
         cfg.StrOpt('user_filter',
                    help='LDAP search filter for users.'),
         cfg.StrOpt('user_objectclass', default='inetOrgPerson',
@@ -672,7 +673,8 @@ FILE_OPTIONS = {
                    deprecated_opts=[cfg.DeprecatedOpt(
                        'tenant_tree_dn', group='ldap')],
                    deprecated_for_removal=True,
-                   help='Search base for projects'),
+                   help='Search base for projects. '
+                        'Defaults to the suffix value.'),
         cfg.StrOpt('project_filter',
                    deprecated_opts=[cfg.DeprecatedOpt(
                        'tenant_filter', group='ldap')],
@@ -763,7 +765,8 @@ FILE_OPTIONS = {
 
         cfg.StrOpt('role_tree_dn',
                    deprecated_for_removal=True,
-                   help='Search base for roles.'),
+                   help='Search base for roles. '
+                        'Defaults to the suffix value.'),
         cfg.StrOpt('role_filter',
                    deprecated_for_removal=True,
                    help='LDAP search filter for roles.'),
@@ -801,7 +804,8 @@ FILE_OPTIONS = {
                          'user_attr is the Identity API attribute.'),
 
         cfg.StrOpt('group_tree_dn',
-                   help='Search base for groups.'),
+                   help='Search base for groups. '
+                        'Defaults to the suffix value.'),
         cfg.StrOpt('group_filter',
                    help='LDAP search filter for groups.'),
         cfg.StrOpt('group_objectclass', default='groupOfNames',
