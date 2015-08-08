@@ -17,13 +17,7 @@ from testtools import matchers
 from keystone.tests.unit import test_v3
 
 
-class TestExtensionCase(test_v3.RestfulTestCase):
-
-    EXTENSION_NAME = 'endpoint_policy'
-    EXTENSION_TO_ADD = 'endpoint_policy_extension'
-
-
-class EndpointPolicyTestCase(TestExtensionCase):
+class EndpointPolicyTestCase(test_v3.RestfulTestCase):
     """Test endpoint policy CRUD.
 
     In general, the controller layer of the endpoint policy extension is really
@@ -203,7 +197,7 @@ class EndpointPolicyTestCase(TestExtensionCase):
         self.head(url, expected_status=404)
 
 
-class JsonHomeTests(TestExtensionCase, test_v3.JsonHomeTestMixin):
+class JsonHomeTests(test_v3.JsonHomeTestMixin):
     EXTENSION_LOCATION = ('http://docs.openstack.org/api/openstack-identity/3/'
                           'ext/OS-ENDPOINT-POLICY/1.0/rel')
     PARAM_LOCATION = 'http://docs.openstack.org/api/openstack-identity/3/param'
