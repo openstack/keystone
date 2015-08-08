@@ -725,7 +725,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
         Foo()
         project_ref = self.new_project_ref(domain_id=self.domain_id)
-        self.assignment_api.create_project(project_ref['id'], project_ref)
+        self.resource_api.create_project(project_ref['id'], project_ref)
         self.assertItemsEqual(['cb1', 'cb0'], callback_called)
 
     def test_invalid_event_callbacks(self):
