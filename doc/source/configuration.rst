@@ -1741,32 +1741,31 @@ Connection Pooling
 ------------------
 
 Various LDAP backends in Keystone use a common LDAP module to interact with
-LDAP data. By default, a new connection is established for LDAP operations.
-This can become highly expensive when TLS support is enabled which is a likely
-configuration in enterprise setup. Re-using of connectors from a connection pool
-drastically reduces overhead of initiating a new connection for every LDAP
+LDAP data. By default, a new connection is established for each LDAP operation.
+This can become highly expensive when TLS support is enabled, which is a likely
+configuration in an enterprise setup. Reuse of connectors from a connection
+pool drastically reduces overhead of initiating a new connection for every LDAP
 operation.
 
-Keystone now provides connection pool support via configuration. This change
-will keep LDAP connectors alive and re-use for subsequent LDAP operations. A
-connection lifespan is going to be configurable with other pooling specific
-attributes. The change is made in LDAP handler layer logic which is primarily
-responsible for LDAP connection and shared common operations.
+Keystone provides connection pool support via configuration. This will keep
+LDAP connectors alive and reused for subsequent LDAP operations. The connection
+lifespan is configurable as other pooling specific attributes.
 
-In LDAP identity driver, Keystone authenticates end user by LDAP bind with user
-DN and provided password. These kind of auth binds can fill up the pool pretty
-quickly so a separate pool is provided for those end user auth bind calls. If a
-deployment does not want to use pool for those binds, then it can disable
-pooling selectively by ``use_auth_pool`` as false. If a deployment wants to use
-pool for those auth binds, then ``use_auth_pool`` needs to be true. For auth
-pool, a different pool size (``auth_pool_size``) and connection lifetime
-(``auth_pool_connection_lifetime``) can be specified. With enabled auth pool,
-its connection lifetime should be kept short so that pool frequently re-binds
-the connection with provided creds and works reliably in end user password
-change case. When ``use_pool`` is false (disabled), then auth pool
-configuration is also not used.
+In the LDAP identity driver, Keystone authenticates end users via an LDAP bind
+with the user's DN and provided password. This kind of authentication bind
+can fill up the pool pretty quickly, so a separate pool is provided for end
+user authentication bind calls. If a deployment does not want to use a pool for
+those binds, then it can disable pooling selectively by setting
+``use_auth_pool`` to false. If a deployment wants to use a pool for those 
+authentication binds, then ``use_auth_pool`` needs to be set to true. For the
+authentication pool, a different pool size (``auth_pool_size``) and connection
+lifetime (``auth_pool_connection_lifetime``) can be specified. With an enabled
+authentication pool, its connection lifetime should be kept short so that the
+pool frequently re-binds the connection with the provided credentials and works
+reliably in the end user password change case. When ``use_pool`` is false
+(disabled), then the authentication pool configuration is also not used.
 
-Connection pool configuration is added in ``[ldap]`` configuration section:
+Connection pool configuration is part of the ``[ldap]`` configuration section:
 
 .. code-block:: ini
 
