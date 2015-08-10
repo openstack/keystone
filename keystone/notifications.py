@@ -311,17 +311,18 @@ def listener(cls):
         @listener
         class Something(object):
 
-            event_callbacks = {
-                notifications.ACTIONS.created: {
-                    'user': self._user_created_callback,
-                },
-                notifications.ACTIONS.deleted: {
-                    'project': [
-                        self._project_deleted_callback,
-                        self._do_cleanup,
-                    ]
-                },
-            }
+            def __init__(self):
+                self.event_callbacks = {
+                    notifications.ACTIONS.created: {
+                        'user': self._user_created_callback,
+                    },
+                    notifications.ACTIONS.deleted: {
+                        'project': [
+                            self._project_deleted_callback,
+                            self._do_cleanup,
+                        ]
+                    },
+                }
 
     """
 
