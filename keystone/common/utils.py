@@ -246,7 +246,7 @@ def setup_remote_pydev_debug():
 
 
 def get_unix_user(user=None):
-    '''Get the uid and user name.
+    """Get the uid and user name.
 
     This is a convenience utility which accepts a variety of input
     which might represent a unix user. If successful it returns the uid
@@ -272,7 +272,8 @@ def get_unix_user(user=None):
                         lookup.
 
     :return: tuple of (uid, name)
-    '''
+
+    """
 
     if isinstance(user, six.string_types):
         try:
@@ -301,7 +302,7 @@ def get_unix_user(user=None):
 
 
 def get_unix_group(group=None):
-    '''Get the gid and group name.
+    """Get the gid and group name.
 
     This is a convenience utility which accepts a variety of input
     which might represent a unix group. If successful it returns the gid
@@ -328,7 +329,8 @@ def get_unix_group(group=None):
                          lookup.
 
     :return: tuple of (gid, name)
-    '''
+
+    """
 
     if isinstance(group, six.string_types):
         try:
@@ -359,7 +361,7 @@ def get_unix_group(group=None):
 
 
 def set_permissions(path, mode=None, user=None, group=None, log=None):
-    '''Set the ownership and permissions on the pathname.
+    """Set the ownership and permissions on the pathname.
 
     Each of the mode, user and group are optional, if None then
     that aspect is not modified.
@@ -376,7 +378,8 @@ def set_permissions(path, mode=None, user=None, group=None, log=None):
                          if None do not set.
     :param logger log: logging.logger object, used to emit log messages,
                        if None no logging is performed.
-    '''
+
+    """
 
     if user is None:
         user_uid, user_name = None, None
@@ -422,7 +425,7 @@ def set_permissions(path, mode=None, user=None, group=None, log=None):
 
 
 def make_dirs(path, mode=None, user=None, group=None, log=None):
-    '''Assure directory exists, set ownership and permissions.
+    """Assure directory exists, set ownership and permissions.
 
     Assure the directory exists and optionally set its ownership
     and permissions.
@@ -442,7 +445,8 @@ def make_dirs(path, mode=None, user=None, group=None, log=None):
                          if None do not set.
     :param logger log: logging.logger object, used to emit log messages,
                        if None no logging is performed.
-    '''
+
+    """
 
     if log:
         if mode is None:
