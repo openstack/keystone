@@ -480,7 +480,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', None)
         refs = self.resource_api.list_projects(hints)
-        self.assertThat(refs, matchers.HasLength(2))
+        self.assertThat(refs, matchers.HasLength(2 + self.domain_count))
         self.assertIn(project, refs)
         self.assertIn(project2, refs)
 
@@ -532,6 +532,11 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
             self.assertRaises(exception.DomainNotFound,
                               driver.list_projects_in_domain,
                               ref_id)
+
+            project_ids = [
+                x['id'] for x in
+                driver.list_projects_acting_as_domain(driver_hints.Hints())]
+            self.assertNotIn(ref_id, project_ids)
 
             projects = driver.list_projects_in_subtree(ref_id)
             self.assertThat(projects, matchers.HasLength(0))

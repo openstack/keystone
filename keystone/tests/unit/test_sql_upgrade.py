@@ -832,6 +832,99 @@ class SqlUpgradeTests(SqlMigrateBase):
         implied_roles = self.role_api.list_implied_roles(role_id_list[0])
         self.assertThat(implied_roles, matchers.HasLength(0))
 
+    def test_domain_as_project_upgrade(self):
+
+        def _populate_domain_and_project_tables(session):
+            # Three domains, with various different attributes
+            self.domains = [{'id': uuid.uuid4().hex,
+                             'name': uuid.uuid4().hex,
+                             'enabled': True,
+                             'extra': {'description': uuid.uuid4().hex,
+                                       'another_attribute': True}},
+                            {'id': uuid.uuid4().hex,
+                             'name': uuid.uuid4().hex,
+                             'enabled': True,
+                             'extra': {'description': uuid.uuid4().hex}},
+                            {'id': uuid.uuid4().hex,
+                             'name': uuid.uuid4().hex,
+                             'enabled': False}]
+            # Four projects, two top level, two children
+            self.projects = []
+            self.projects.append(unit.new_project_ref(
+                domain_id=self.domains[0]['id'],
+                parent_id=None))
+            self.projects.append(unit.new_project_ref(
+                domain_id=self.domains[0]['id'],
+                parent_id=self.projects[0]['id']))
+            self.projects.append(unit.new_project_ref(
+                domain_id=self.domains[1]['id'],
+                parent_id=None))
+            self.projects.append(unit.new_project_ref(
+                domain_id=self.domains[1]['id'],
+                parent_id=self.projects[2]['id']))
+
+            for domain in self.domains:
+                this_domain = domain.copy()
+                if 'extra' in this_domain:
+                    this_domain['extra'] = json.dumps(this_domain['extra'])
+                self.insert_dict(session, 'domain', this_domain)
+            for project in self.projects:
+                self.insert_dict(session, 'project', project)
+
+        def _check_projects(projects):
+
+            def _assert_domain_matches_project(project):
+                for domain in self.domains:
+                    if project.id == domain['id']:
+                        self.assertEqual(domain['name'], project.name)
+                        self.assertEqual(domain['enabled'], project.enabled)
+                        if domain['id'] == self.domains[0]['id']:
+                            self.assertEqual(domain['extra']['description'],
+                                             project.description)
+                            self.assertEqual({'another_attribute': True},
+                                             json.loads(project.extra))
+                        elif domain['id'] == self.domains[1]['id']:
+                            self.assertEqual(domain['extra']['description'],
+                                             project.description)
+                            self.assertEqual({}, json.loads(project.extra))
+
+            # We had domains 3 we created, which should now be projects acting
+            # as domains, To this we add the 4 original projects, plus the root
+            # of all domains row.
+            self.assertEqual(8, projects.count())
+
+            project_ids = []
+            for project in projects:
+                if project.is_domain:
+                    self.assertEqual(NULL_DOMAIN_ID, project.domain_id)
+                    self.assertIsNone(project.parent_id)
+                else:
+                    self.assertIsNotNone(project.domain_id)
+                    self.assertIsNotNone(project.parent_id)
+                project_ids.append(project.id)
+
+            for domain in self.domains:
+                self.assertIn(domain['id'], project_ids)
+            for project in self.projects:
+                self.assertIn(project['id'], project_ids)
+
+            # Now check the attributes of the domains came across OK
+            for project in projects:
+                _assert_domain_matches_project(project)
+
+        NULL_DOMAIN_ID = '<<keystone.domain.root>>'
+        self.upgrade(92)
+
+        session = self.Session()
+
+        _populate_domain_and_project_tables(session)
+
+        self.upgrade(93)
+        proj_table = sqlalchemy.Table('project', self.metadata, autoload=True)
+
+        projects = session.query(proj_table)
+        _check_projects(projects)
+
 
 class VersionTests(SqlMigrateBase):
 

@@ -78,9 +78,10 @@ FILE_OPTIONS = {
                         '(e.g. /prefix/v3) or the endpoint should be found '
                         'on a different server.'),
         cfg.IntOpt('max_project_tree_depth', default=5,
-                   help='Maximum depth of the project hierarchy. WARNING: '
-                        'setting it to a large value may adversely impact '
-                        'performance.'),
+                   help='Maximum depth of the project hierarchy, excluding '
+                        'the project acting as a domain at the top of the '
+                        'hierarchy. WARNING: setting it to a large value may '
+                        'adversely impact  performance.'),
         cfg.IntOpt('max_param_size', default=64,
                    help='Limit the sizes of user & project ID/names.'),
         # we allow tokens to be a bit larger to accommodate PKI

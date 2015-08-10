@@ -334,7 +334,9 @@ def build_token_values(token_data):
     project = token_data.get('project', token_data.get('tenant'))
     if project is not None:
         token_values['project_id'] = project['id']
-        token_values['assignment_domain_id'] = project['domain']['id']
+        # The domain_id of projects acting as domains is None
+        token_values['assignment_domain_id'] = (
+            project['domain']['id'] if project['domain'] else None)
     else:
         token_values['project_id'] = None
 

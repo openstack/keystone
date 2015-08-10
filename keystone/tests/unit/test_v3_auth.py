@@ -1860,15 +1860,19 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         expected_response = {'events': [{'project_id': project_id}]}
         self.assertEqual(expected_response, events_response)
 
-    def assertDomainInList(self, events_response, domain_id):
+    def assertDomainAndProjectInList(self, events_response, domain_id):
         events = events_response['events']
-        self.assertEqual(1, len(events))
-        self.assertEqual(domain_id, events[0]['domain_id'])
+        self.assertEqual(2, len(events))
+        self.assertEqual(domain_id, events[0]['project_id'])
+        self.assertEqual(domain_id, events[1]['domain_id'])
         self.assertIsNotNone(events[0]['issued_before'])
+        self.assertIsNotNone(events[1]['issued_before'])
         self.assertIsNotNone(events_response['links'])
         del (events_response['events'][0]['issued_before'])
+        del (events_response['events'][1]['issued_before'])
         del (events_response['links'])
-        expected_response = {'events': [{'domain_id': domain_id}]}
+        expected_response = {'events': [{'project_id': domain_id},
+                                        {'domain_id': domain_id}]}
         self.assertEqual(expected_response, events_response)
 
     def assertValidRevokedTokenResponse(self, events_response, **kwargs):
@@ -1935,7 +1939,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
         events = self.get('/OS-REVOKE/events').json_body
 
-        self.assertDomainInList(events, self.domainA['id'])
+        self.assertDomainAndProjectInList(events, self.domainA['id'])
 
     def assertEventDataInList(self, events, **kwargs):
         found = False
@@ -2967,18 +2971,22 @@ class TestAuth(test_v3.RestfulTestCase):
 
     def test_disabled_scope_project_domain_result_in_401(self):
         # create a disabled domain
-        domain = unit.new_domain_ref(enabled=False)
-        self.resource_api.create_domain(domain['id'], domain)
+        domain = unit.new_domain_ref()
+        domain = self.resource_api.create_domain(domain['id'], domain)
 
-        # create a project in the disabled domain
+        # create a project in the domain
         project = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project['id'], project)
 
-        # assign some role to self.user for the project in the disabled domain
+        # assign some role to self.user for the project in the domain
         self.assignment_api.add_role_to_user_and_project(
             self.user['id'],
             project['id'],
             self.role_id)
+
+        # Disable the domain
+        domain['enabled'] = False
+        self.resource_api.update_domain(domain['id'], domain)
 
         # user should not be able to auth with project_id
         auth_data = self.build_authentication_request(

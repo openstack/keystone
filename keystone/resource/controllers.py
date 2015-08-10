@@ -231,19 +231,19 @@ class ProjectV3(controller.V3Controller):
     def create_project(self, context, project):
         ref = self._assign_unique_id(self._normalize_dict(project))
 
-        if not ref.get('parent_id') and not ref.get('domain_id'):
+        if not ref.get('is_domain'):
             ref = self._normalize_domain_id(context, ref)
-
-        if ref.get('is_domain'):
-            msg = _('The creation of projects acting as domains is not '
-                    'allowed yet.')
-            raise exception.NotImplemented(msg)
+        # Our API requires that you specify the location in the hierarchy
+        # unambiguously. This could be by parent_id or, if it is a top level
+        # project, just by providing a domain_id.
+        if not ref.get('parent_id'):
+            ref['parent_id'] = ref.get('domain_id')
 
         initiator = notifications._get_request_audit_info(context)
         try:
             ref = self.resource_api.create_project(ref['id'], ref,
                                                    initiator=initiator)
-        except exception.DomainNotFound as e:
+        except (exception.DomainNotFound, exception.ProjectNotFound) as e:
             raise exception.ValidationError(e)
         return ProjectV3.wrap_member(context, ref)
 

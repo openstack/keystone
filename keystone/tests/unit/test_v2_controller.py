@@ -16,6 +16,8 @@
 import copy
 import uuid
 
+from testtools import matchers
+
 from keystone.assignment import controllers as assignment_controllers
 from keystone import exception
 from keystone.resource import controllers as resource_controllers
@@ -79,10 +81,14 @@ class TenantTestCase(unit.TestCase):
         self.resource_api.create_domain(domain['id'], domain)
         project1 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project1['id'], project1)
-        # Check the real total number of projects, we should have the above
-        # plus those in the default features
+        # Check the real total number of projects, we should have the:
+        # - tenants in the default fixtures
+        # - the project representing the default domain
+        # - the project representing the domain we created above
+        # - the project we created above
         refs = self.resource_api.list_projects()
-        self.assertEqual(len(default_fixtures.TENANTS) + 1, len(refs))
+        self.assertThat(
+            refs, matchers.HasLength(len(default_fixtures.TENANTS) + 3))
 
         # Now list all projects using the v2 API - we should only get
         # back those in the default features, since only those are in the
@@ -97,8 +103,7 @@ class TenantTestCase(unit.TestCase):
             self.assertIn(tenant_copy, refs['tenants'])
 
     def _create_is_domain_project(self):
-        project = unit.new_project_ref(domain_id='default',
-                                       is_domain=True)
+        project = unit.new_project_ref(is_domain=True)
         project_ref = self.resource_api.create_project(project['id'], project)
         return self.tenant_controller.v3_to_v2_project(project_ref)
 

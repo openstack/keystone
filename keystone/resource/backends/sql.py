@@ -28,6 +28,14 @@ class Resource(keystone_resource.ResourceDriverV9):
     def default_assignment_driver(self):
         return 'sql'
 
+    def _encode_domain_id(self, ref):
+        if 'domain_id' in ref and ref['domain_id'] is None:
+            new_ref = ref.copy()
+            new_ref['domain_id'] = keystone_resource.NULL_DOMAIN_ID
+            return new_ref
+        else:
+            return ref
+
     def _is_hidden_ref(self, ref):
         return ref.id == keystone_resource.NULL_DOMAIN_ID
 
@@ -99,12 +107,19 @@ class Resource(keystone_resource.ResourceDriverV9):
 
     def list_projects_in_domain(self, domain_id):
         with sql.session_for_read() as session:
-            self._get_domain(session, domain_id)
+            try:
+                self._get_project(session, domain_id)
+            except exception.ProjectNotFound:
+                raise exception.DomainNotFound(domain_id=domain_id)
             query = session.query(Project)
-            project_refs = query.filter_by(domain_id=domain_id)
+            project_refs = query.filter(Project.domain_id == domain_id)
             return [project_ref.to_dict() for project_ref in project_refs]
 
-    def _get_children(self, session, project_ids):
+    def list_projects_acting_as_domain(self, hints):
+        hints.add_filter('is_domain', True)
+        return self.list_projects(hints)
+
+    def _get_children(self, session, project_ids, domain_id=None):
         query = session.query(Project)
         query = query.filter(Project.parent_id.in_(project_ids))
         project_refs = query.all()
@@ -308,7 +323,7 @@ class Project(sql.ModelBase, sql.DictBase):
                   'parent_id', 'is_domain']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), nullable=False)
-    domain_id = sql.Column(sql.String(64), sql.ForeignKey('domain.id'),
+    domain_id = sql.Column(sql.String(64), sql.ForeignKey('project.id'),
                            nullable=False)
     description = sql.Column(sql.Text())
     enabled = sql.Column(sql.Boolean)
