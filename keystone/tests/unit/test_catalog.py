@@ -127,7 +127,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         self._endpoint_create(expected_status=400, service_id='')
 
     def test_endpoint_create_with_valid_url(self):
-        """Create endpoint with valid url should be tested,too."""
+        """Create endpoint with valid URL should be tested, too."""
         # list one valid url is enough, no need to list too much
         valid_url = 'http://127.0.0.1:8774/v1.1/$(tenant_id)s'
 
@@ -138,8 +138,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
                               adminurl=valid_url)
 
     def test_endpoint_create_with_invalid_url(self):
-        """Test the invalid cases: substitutions is not exactly right.
-        """
+        """Test the invalid cases: substitutions is not exactly right."""
         invalid_urls = [
             # using a substitution that is not whitelisted - KeyError
             'http://127.0.0.1:8774/v1.1/$(nonexistent)s',
