@@ -43,7 +43,7 @@ class Mapped(auth.AuthMethodHandler):
                                          token_data=response)
 
     def authenticate(self, context, auth_payload, auth_context):
-        """Authenticate mapped user and return an authentication context.
+        """Authenticate mapped user and set an authentication context.
 
         :param context: keystone's request context
         :param auth_payload: the content of the authentication for a
