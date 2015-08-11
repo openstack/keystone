@@ -335,7 +335,62 @@ class Assignment(keystone_assignment.Driver):
                     'Cannot remove role that has not been granted, %s') %
                     role_id)
 
-    def list_role_assignments(self):
+    def _get_user_assignment_types(self):
+        return [AssignmentType.USER_PROJECT, AssignmentType.USER_DOMAIN]
+
+    def _get_group_assignment_types(self):
+        return [AssignmentType.GROUP_PROJECT, AssignmentType.GROUP_DOMAIN]
+
+    def _get_project_assignment_types(self):
+        return [AssignmentType.USER_PROJECT, AssignmentType.GROUP_PROJECT]
+
+    def _get_domain_assignment_types(self):
+        return [AssignmentType.USER_DOMAIN, AssignmentType.GROUP_DOMAIN]
+
+    def _get_assignment_types(self, user, group, project, domain):
+        """Returns a list of role assignment types based on provided entities
+
+        If one of user or group (the "actor") as well as one of project or
+        domain (the "target") are provided, the list will contain the role
+        assignment type for that specific pair of actor and target.
+
+        If only an actor or target is provided, the list will contain the
+        role assignment types that satisfy the speficied entity.
+
+        For example, if user and project are provided, the return will be:
+
+            [AssignmentType.USER_PROJECT]
+
+        However, if only user was provided, the return would be:
+
+            [AssignmentType.USER_PROJECT, AssignmentType.USER_DOMAIN]
+
+        It is not expected that user and group (or project and domain) are
+        specified - but if they are, the most fine-grained value will be
+        chosen (i.e. user over group, project over domain).
+
+        """
+        actor_types = []
+        if user:
+            actor_types = self._get_user_assignment_types()
+        elif group:
+            actor_types = self._get_group_assignment_types()
+
+        target_types = []
+        if project:
+            target_types = self._get_project_assignment_types()
+        elif domain:
+            target_types = self._get_domain_assignment_types()
+
+        if actor_types and target_types:
+            return list(set(actor_types).intersection(target_types))
+
+        return actor_types or target_types
+
+    def list_role_assignments(self, role_id=None,
+                              user_id=None, group_ids=None,
+                              domain_id=None, project_ids=None,
+                              inherited_to_projects=None):
 
         def denormalize_role(ref):
             assignment = {}
@@ -361,8 +416,35 @@ class Assignment(keystone_assignment.Driver):
             return assignment
 
         with sql.transaction() as session:
-            refs = session.query(RoleAssignment).all()
-            return [denormalize_role(ref) for ref in refs]
+            assignment_types = self._get_assignment_types(
+                user_id, group_ids, project_ids, domain_id)
+
+            targets = None
+            if project_ids:
+                targets = project_ids
+            elif domain_id:
+                targets = [domain_id]
+
+            actors = None
+            if group_ids:
+                actors = group_ids
+            elif user_id:
+                actors = [user_id]
+
+            query = session.query(RoleAssignment)
+
+            if role_id:
+                query = query.filter_by(role_id=role_id)
+            if actors:
+                query = query.filter(RoleAssignment.actor_id.in_(actors))
+            if targets:
+                query = query.filter(RoleAssignment.target_id.in_(targets))
+            if assignment_types:
+                query = query.filter(RoleAssignment.type.in_(assignment_types))
+            if inherited_to_projects is not None:
+                query = query.filter_by(inherited=inherited_to_projects)
+
+            return [denormalize_role(ref) for ref in query.all()]
 
     def delete_project_assignments(self, project_id):
         with sql.transaction() as session:
