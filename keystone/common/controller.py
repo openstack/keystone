@@ -223,7 +223,11 @@ class V2Controller(wsgi.Application):
     @staticmethod
     def filter_domain_id(ref):
         """Remove domain_id since v2 calls are not domain-aware."""
-        ref.pop('domain_id', None)
+        if 'domain_id' in ref:
+            if ref['domain_id'] != CONF.identity.default_domain_id:
+                raise exception.Unauthorized(
+                    _('Non-default domain is not supported'))
+            del ref['domain_id']
         return ref
 
     @staticmethod
@@ -276,9 +280,12 @@ class V2Controller(wsgi.Application):
     def v3_to_v2_user(ref):
         """Convert a user_ref from v3 to v2 compatible.
 
-        * v2.0 users are not domain aware, and should have domain_id removed
-        * v2.0 users expect the use of tenantId instead of default_project_id
-        * v2.0 users have a username attribute
+        - v2.0 users are not domain aware, and should have domain_id validated
+          to be the default domain, and then removed.
+
+        - v2.0 users expect the use of tenantId instead of default_project_id.
+
+        - v2.0 users have a username attribute.
 
         This method should only be applied to user_refs being returned from the
         v2.0 controller(s).
