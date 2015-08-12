@@ -525,7 +525,7 @@ class Manager(manager.Manager):
     # The methods _expand_indirect_assignment, _list_direct_role_assignments
     # and _list_effective_role_assignments below are only used on
     # list_role_assignments, but they are not in its scope as nested functions
-    # since it would significantly increase McCabe complexitiy, that should be
+    # since it would significantly increase McCabe complexity, that should be
     # kept as it is in order to detect unnecessarily complex code, which is not
     # this case.
 

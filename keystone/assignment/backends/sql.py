@@ -355,7 +355,7 @@ class Assignment(keystone_assignment.Driver):
         assignment type for that specific pair of actor and target.
 
         If only an actor or target is provided, the list will contain the
-        role assignment types that satisfy the speficied entity.
+        role assignment types that satisfy the specified entity.
 
         For example, if user and project are provided, the return will be:
 
