@@ -461,9 +461,9 @@ class MigrationNotProvided(Exception):
         ) % {'mod_name': mod_name, 'path': path})
 
 
-class UnsupportedTokenVersionException(Exception):
-    """Token version is unrecognizable or unsupported."""
-    pass
+class UnsupportedTokenVersionException(UnexpectedError):
+    message_format = _('Token version is unrecognizable or '
+                       'unsupported.')
 
 
 class SAMLSigningError(UnexpectedError):
