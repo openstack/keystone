@@ -201,7 +201,8 @@ class DomainConfigs(dict):
         for group in specific_config:
             for option in specific_config[group]:
                 domain_config['cfg'].set_override(
-                    option, specific_config[group][option], group)
+                    option, specific_config[group][option],
+                    group, enforce_type=True)
 
         domain_config['cfg_overrides'] = specific_config
         domain_config['driver'] = self._load_driver(domain_config)

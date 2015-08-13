@@ -142,7 +142,8 @@ class TestDatabaseDomainConfigs(tests.TestCase):
         self.resource_api.create_domain(domain['id'], domain)
         # Override two config options for our domain
         conf = {'ldap': {'url': uuid.uuid4().hex,
-                         'suffix': uuid.uuid4().hex},
+                         'suffix': uuid.uuid4().hex,
+                         'use_tls': 'True'},
                 'identity': {
                     'driver': 'ldap'}}
         self.domain_config_api.create_config(domain['id'], conf)
@@ -156,6 +157,11 @@ class TestDatabaseDomainConfigs(tests.TestCase):
         self.assertEqual(conf['ldap']['suffix'], res.ldap.suffix)
         self.assertEqual(CONF.ldap.query_scope, res.ldap.query_scope)
 
+        # Make sure the override is not changing the type of the config value
+        use_tls_type = type(CONF.ldap.use_tls)
+        self.assertEqual(use_tls_type(conf['ldap']['use_tls']),
+                         res.ldap.use_tls)
+
         # Now turn off using database domain configuration and check that the
         # default config file values are now seen instead of the overrides.
         CONF.set_override('domain_configurations_from_database', False,
@@ -166,4 +172,5 @@ class TestDatabaseDomainConfigs(tests.TestCase):
         res = domain_config.get_domain_conf(domain['id'])
         self.assertEqual(CONF.ldap.url, res.ldap.url)
         self.assertEqual(CONF.ldap.suffix, res.ldap.suffix)
+        self.assertEqual(CONF.ldap.use_tls, res.ldap.use_tls)
         self.assertEqual(CONF.ldap.query_scope, res.ldap.query_scope)
