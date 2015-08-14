@@ -212,7 +212,7 @@ FakeShelves = {}
 
 
 class FakeLdap(core.LDAPHandler):
-    '''Emulate the python-ldap API.
+    """Emulate the python-ldap API.
 
     The python-ldap API requires all strings to be UTF-8 encoded. This
     is assured by the caller of this interface
@@ -225,7 +225,8 @@ class FakeLdap(core.LDAPHandler):
     strings, decodes them to unicode for operations internal to this
     emulation, and encodes them back to UTF-8 when returning values
     from the emulation.
-    '''
+
+    """
 
     __prefix = 'ldap:'
 
@@ -583,7 +584,7 @@ class FakeLdapPool(FakeLdap):
                                                 clientctrls=clientctrls)
 
     def unbind_ext_s(self):
-        '''Added to extend FakeLdap as connector class.'''
+        """Added to extend FakeLdap as connector class."""
         pass
 
 

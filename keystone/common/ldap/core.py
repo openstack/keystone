@@ -329,7 +329,7 @@ def dn_startswith(descendant_dn, dn):
 
 @six.add_metaclass(abc.ABCMeta)
 class LDAPHandler(object):
-    '''Abstract class which defines methods for a LDAP API provider.
+    """Abstract class which defines methods for a LDAP API provider.
 
     Native Keystone values cannot be passed directly into and from the
     python-ldap API. Type conversion must occur at the LDAP API
@@ -417,7 +417,8 @@ class LDAPHandler(object):
     method to any derivations of the abstract class the code will fail
     to load and run making it impossible to forget updating all the
     derived classes.
-    '''
+
+    """
     @abc.abstractmethod
     def __init__(self, conn=None):
         self.conn = conn
@@ -623,15 +624,16 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
 
 
 class MsgId(list):
-    '''Wrapper class to hold connection and msgid.'''
+    """Wrapper class to hold connection and msgid."""
     pass
 
 
 def use_conn_pool(func):
-    '''Use this only for connection pool specific ldap API.
+    """Use this only for connection pool specific ldap API.
 
     This adds connection object to decorated API as next argument after self.
-    '''
+
+    """
     def wrapper(self, *args, **kwargs):
         # assert isinstance(self, PooledLDAPHandler)
         with self._get_pool_connection() as conn:
@@ -798,11 +800,12 @@ class PooledLDAPHandler(LDAPHandler):
 
     def result3(self, msgid, all=1, timeout=None,
                 resp_ctrl_classes=None):
-        '''This method is used to wait for and return the result of an
-        operation previously initiated by one of the LDAP asynchronous
-        operation routines (eg search_ext()) It returned an invocation
-        identifier (a message id) upon successful initiation of their
-        operation.
+        """This method is used to wait for and return result.
+
+        This method returns the result of an operation previously initiated by
+        one of the LDAP asynchronous operation routines (eg search_ext()). It
+        returned an invocation identifier (a message id) upon successful
+        initiation of their operation.
 
         Input msgid is expected to be instance of class MsgId which has LDAP
         session/connection used to execute search_ext and message idenfier.
@@ -810,7 +813,8 @@ class PooledLDAPHandler(LDAPHandler):
         The connection associated with search_ext is released once last hard
         reference to MsgId object is freed. This will happen when function
         which requested msgId and used it in result3 exits.
-        '''
+
+        """
 
         conn, msg_id = msgid
         return conn.result3(msg_id, all, timeout)
@@ -829,7 +833,7 @@ class PooledLDAPHandler(LDAPHandler):
 
 
 class KeystoneLDAPHandler(LDAPHandler):
-    '''Convert data types and perform logging.
+    """Convert data types and perform logging.
 
     This LDAP inteface wraps the python-ldap based interfaces. The
     python-ldap interfaces require string values encoded in UTF-8. The
@@ -852,7 +856,8 @@ class KeystoneLDAPHandler(LDAPHandler):
     Data returned from the LDAP call is converted back from UTF-8
     encoded strings into the Python data type used internally in
     OpenStack.
-    '''
+
+    """
 
     def __init__(self, conn=None):
         super(KeystoneLDAPHandler, self).__init__(conn=conn)
