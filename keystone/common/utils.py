@@ -259,7 +259,7 @@ def get_unix_user(user=None):
         lookup as a uid.
 
     int
-        An integer is interpretted as a uid.
+        An integer is interpreted as a uid.
 
     None
         None is interpreted to mean use the current process's
@@ -314,7 +314,7 @@ def get_unix_group(group=None):
         lookup as a gid.
 
     int
-        An integer is interpretted as a gid.
+        An integer is interpreted as a gid.
 
     None
         None is interpreted to mean use the current process's
