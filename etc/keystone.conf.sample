@@ -987,7 +987,7 @@
 #user_enabled_default = True
 
 # List of attributes stripped off the user on update. (list value)
-#user_attribute_ignore = default_project_id,tenants
+#user_attribute_ignore = default_project_id
 
 # LDAP attribute mapped to default_project_id for users. (string value)
 #user_default_project_id_attribute = <None>
