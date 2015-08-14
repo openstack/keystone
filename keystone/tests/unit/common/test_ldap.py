@@ -22,6 +22,7 @@ import os
 import shutil
 import tempfile
 
+from keystone.common import driver_hints
 from keystone.common import ldap as ks_ldap
 from keystone.common.ldap import core as common_ldap_core
 from keystone.tests import unit as tests
@@ -500,3 +501,56 @@ class CommonLdapTestCase(tests.BaseTestCase):
             py_result = ks_ldap.convert_ldap_result(result)
             # The user name should still be a string value.
             self.assertEqual(user_name, py_result[0][1]['user_name'][0])
+
+
+class LDAPFilterQueryCompositionTest(tests.TestCase):
+    """These test cases test LDAP filter generation."""
+
+    def setUp(self):
+        super(LDAPFilterQueryCompositionTest, self).setUp()
+
+        self.base_ldap = ks_ldap.BaseLdap(self.config_fixture.conf)
+
+        # The tests need an attribute mapping to use.
+        self.attribute_name = uuid.uuid4().hex
+        self.filter_attribute_name = uuid.uuid4().hex
+        self.base_ldap.attribute_mapping = {
+            self.attribute_name: self.filter_attribute_name
+        }
+
+    def test_return_query_with_no_hints(self):
+        hints = driver_hints.Hints()
+        # NOTE: doesn't have to be a real query, we just need to make sure the
+        # same string is returned if there are no hints.
+        query = uuid.uuid4().hex
+        self.assertEqual(query,
+                         self.base_ldap.filter_query(hints=hints, query=query))
+
+        # make sure the default query is an empty string
+        self.assertEqual('', self.base_ldap.filter_query(hints=hints))
+
+    def test_filter_with_empty_query_and_hints_set(self):
+        hints = driver_hints.Hints()
+        username = uuid.uuid4().hex
+        hints.add_filter(name=self.attribute_name,
+                         value=username,
+                         comparator='equals',
+                         case_sensitive=False)
+        expected_ldap_filter = '(&(%s=%s))' % (
+            self.filter_attribute_name, username)
+        self.assertEqual(expected_ldap_filter,
+                         self.base_ldap.filter_query(hints=hints))
+
+    def test_filter_with_both_query_and_hints_set(self):
+        hints = driver_hints.Hints()
+        # NOTE: doesn't have to be a real query, we just need to make sure the
+        # filter string is concatenated correctly
+        query = uuid.uuid4().hex
+        username = uuid.uuid4().hex
+        expected_result = '(&%(query)s(%(user_name_attr)s=%(username)s))' % (
+            {'query': query,
+             'user_name_attr': self.filter_attribute_name,
+             'username': username})
+        hints.add_filter(self.attribute_name, username)
+        self.assertEqual(expected_result,
+                         self.base_ldap.filter_query(hints=hints, query=query))
