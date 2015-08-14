@@ -18,7 +18,7 @@ passlib
 iso8601>=0.1.9
 python-keystoneclient<1.4.0,>=1.2.0
 keystonemiddleware<1.6.0,>=1.5.0
-oslo.concurrency<1.9.0,>=1.8.0 # Apache-2.0
+oslo.concurrency<1.9.0,>=1.8.2 # Apache-2.0
 oslo.config<1.10.0,>=1.9.3 # Apache-2.0
 # oslo.messaging tries to pull in eventlet
 # oslo.messaging>=1.6.0  # Apache-2.0
