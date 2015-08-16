@@ -3,15 +3,16 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
+# Alper Çiftçi <alprciftci@gmail.com>, 2015
 # Andreas Jaeger <jaegerandi@gmail.com>, 2015
 # catborise <muhammetalisag@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version:  Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-08-06 06:28+0000\n"
-"PO-Revision-Date: 2015-08-05 11:31+0000\n"
-"Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
+"POT-Creation-Date: 2015-08-16 06:06+0000\n"
+"PO-Revision-Date: 2015-08-15 18:05+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/openstack/keystone/"
 "language/tr_TR/)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -162,6 +163,10 @@ msgstr "Kullanıcı ID'si değiştirilemiyor"
 
 msgid "Cannot change user name"
 msgstr "Kullanıcı adı değiştirilemiyor"
+
+#, python-format
+msgid "Cannot create an endpoint with an invalid URL: %(url)s"
+msgstr "%(url)s geçersiz URL' si ile bir bitiş noktası yaratılamıyor"
 
 #, python-format
 msgid "Cannot create project with parent: %(project_id)s"
@@ -387,6 +392,9 @@ msgid ""
 msgstr ""
 "Alan: %(domain)s zaten tanımlanmış bir yapılandırmaya sahip - dosya "
 "atlanıyor: %(file)s."
+
+msgid "Domains are not supported by the v2 API. Please use the v3 API instead."
+msgstr "v2 API alanları desteklemiyor. Bunun yerine lütfen v3 API kullanın"
 
 msgid "Domains are read-only against LDAP"
 msgstr "Alanlar LDAP'a karşı yalnızca-okunur"
