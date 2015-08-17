@@ -506,7 +506,7 @@ class IdentityTests(object):
                           'fake2')
 
     def test_list_role_assignments_unfiltered(self):
-        """Test for unfiltered listing role assignments.
+        """Test unfiltered listing of role assignments.
 
         Test Plan:
 
@@ -534,9 +534,6 @@ class IdentityTests(object):
 
         # First check how many role grants already exist
         existing_assignments = len(self.assignment_api.list_role_assignments())
-        existing_assignments_for_role = len(
-            self.assignment_api.list_role_assignments_for_role(
-                role_id='admin'))
 
         # Now create the grants (roles are defined in default_fixtures)
         self.assignment_api.create_grant(user_id=new_user['id'],
@@ -574,6 +571,48 @@ class IdentityTests(object):
              'role_id': 'admin'},
             assignment_list)
 
+    def test_list_role_assignments_filtered_by_role(self):
+        """Test listing of role assignments filtered by role ID.
+
+        Test Plan:
+
+        - Create a user, group & project
+        - Find how many role assignments already exist (from default
+          fixtures)
+        - Create a grant of each type (user/group on project/domain)
+        - Check that if we list assignments by role_id, then we get back
+          assignments that only contain that role.
+
+        """
+        new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
+                    'enabled': True, 'domain_id': DEFAULT_DOMAIN_ID}
+        new_user = self.identity_api.create_user(new_user)
+        new_group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        new_group = self.identity_api.create_group(new_group)
+        new_project = {'id': uuid.uuid4().hex,
+                       'name': uuid.uuid4().hex,
+                       'domain_id': DEFAULT_DOMAIN_ID}
+        self.resource_api.create_project(new_project['id'], new_project)
+
+        # First check how many role grants already exist
+        existing_assignments_for_role = len(
+            self.assignment_api.list_role_assignments_for_role(
+                role_id='admin'))
+
+        # Now create the grants (roles are defined in default_fixtures)
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         domain_id=DEFAULT_DOMAIN_ID,
+                                         role_id='member')
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=new_project['id'],
+                                         role_id='other')
+        self.assignment_api.create_grant(group_id=new_group['id'],
+                                         domain_id=DEFAULT_DOMAIN_ID,
+                                         role_id='admin')
+        self.assignment_api.create_grant(group_id=new_group['id'],
+                                         project_id=new_project['id'],
+                                         role_id='admin')
+
         # Read back the list of assignments for just the admin role, checking
         # this only goes up by two.
         assignment_list = self.assignment_api.list_role_assignments_for_role(
@@ -583,7 +622,7 @@ class IdentityTests(object):
 
         # Now check that each of our two new entries are in the list
         self.assertIn(
-            {'group_id': new_group['id'], 'domain_id': new_domain['id'],
+            {'group_id': new_group['id'], 'domain_id': DEFAULT_DOMAIN_ID,
              'role_id': 'admin'},
             assignment_list)
         self.assertIn(
