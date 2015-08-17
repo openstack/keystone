@@ -197,7 +197,15 @@ class Application(BaseApplication):
 
         # allow middleware up the stack to provide context, params and headers.
         context = req.environ.get(CONTEXT_ENV, {})
-        context['query_string'] = dict(req.params.items())
+
+        try:
+            context['query_string'] = dict(req.params.items())
+        except UnicodeDecodeError as e:
+            # The webob package throws UnicodeError when a request cannot be
+            # decoded. Raise ValidationError instead to avoid an UnknownError.
+            msg = _('Query string is not UTF-8 encoded')
+            raise exception.ValidationError(msg)
+
         context['headers'] = dict(req.headers.items())
         context['path'] = req.environ['PATH_INFO']
         scheme = (None if not CONF.secure_proxy_ssl_header
@@ -213,8 +221,8 @@ class Application(BaseApplication):
         context['host_url'] = req.host_url
         params = req.environ.get(PARAMS_ENV, {})
         # authentication and authorization attributes are set as environment
-        # values by the container and processed by the pipeline.  the complete
-        # set is not yet know.
+        # values by the container and processed by the pipeline. The complete
+        # set is not yet known.
         context['environment'] = req.environ
         context['accept_header'] = req.accept
         req.environ = None
