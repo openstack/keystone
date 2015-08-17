@@ -30,7 +30,6 @@ CONF = cfg.CONF
 class TestKeystoneTokenModel(core.TestCase):
     def setUp(self):
         super(TestKeystoneTokenModel, self).setUp()
-        self.load_backends()
         self.v2_sample_token = copy.deepcopy(
             test_token_provider.SAMPLE_V2_TOKEN)
         self.v3_sample_token = copy.deepcopy(
