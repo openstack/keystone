@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import shutil
-import tempfile
-
 import fixtures
 
 from keystone.token.providers.fernet import utils
@@ -25,8 +22,7 @@ class KeyRepository(fixtures.Fixture):
 
     def setUp(self):
         super(KeyRepository, self).setUp()
-        directory = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, directory)
+        directory = self.useFixture(fixtures.TempDir()).path
         self.config_fixture.config(group='fernet_tokens',
                                    key_repository=directory)
 
