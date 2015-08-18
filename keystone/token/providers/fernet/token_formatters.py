@@ -504,7 +504,7 @@ class FederatedPayload(BasePayload):
 
         """
         def pack_group_ids(group_dict):
-            return cls.convert_uuid_hex_to_bytes(group_dict['id'])
+            return cls.attempt_convert_uuid_hex_to_bytes(group_dict['id'])
 
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
@@ -530,7 +530,7 @@ class FederatedPayload(BasePayload):
 
         """
         def unpack_group_ids(group_id_in_bytes):
-            group_id = cls.convert_uuid_bytes_to_hex(group_id_in_bytes)
+            group_id = cls.attempt_convert_uuid_bytes_to_hex(group_id_in_bytes)
             return {'id': group_id}
 
         user_id = cls.attempt_convert_uuid_bytes_to_hex(payload[0])

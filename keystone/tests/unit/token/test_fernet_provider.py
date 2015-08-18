@@ -260,3 +260,30 @@ class TestPayloads(tests.TestCase):
         self.assertEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
         self.assertEqual(exp_trust_id, trust_id)
+
+    def test_federated_payload_with_non_uuid_ids(self):
+        exp_user_id = 'someNonUuidUserId'
+        exp_methods = ['password']
+        exp_expires_at = timeutils.isotime(timeutils.utcnow())
+        exp_audit_ids = [provider.random_urlsafe_str()]
+        exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
+                              'idp_id': uuid.uuid4().hex,
+                              'protocol_id': uuid.uuid4().hex}
+
+        payload = token_formatters.FederatedPayload.assemble(
+            exp_user_id, exp_methods, exp_expires_at, exp_audit_ids,
+            exp_federated_info)
+
+        (user_id, methods, expires_at, audit_ids, federated_info) = (
+            token_formatters.FederatedPayload.disassemble(payload))
+
+        self.assertEqual(exp_user_id, user_id)
+        self.assertEqual(exp_methods, methods)
+        self.assertEqual(exp_expires_at, expires_at)
+        self.assertEqual(exp_audit_ids, audit_ids)
+        self.assertEqual(exp_federated_info['group_ids'][0]['id'],
+                         federated_info['group_ids'][0]['id'])
+        self.assertEqual(exp_federated_info['idp_id'],
+                         federated_info['idp_id'])
+        self.assertEqual(exp_federated_info['protocol_id'],
+                         federated_info['protocol_id'])
