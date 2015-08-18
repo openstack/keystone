@@ -132,6 +132,8 @@ class TestValidate(unit.TestCase):
         exp_user_info = {
             'id': user_ref['id'],
             'name': user_ref['id'],
+            'domain': {'id': CONF.federation.federated_domain_name,
+                       'name': CONF.federation.federated_domain_name, },
             federation_constants.FEDERATION: {
                 'groups': [{'id': group_id} for group_id in group_ids],
                 'identity_provider': {'id': identity_provider, },
