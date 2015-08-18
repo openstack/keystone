@@ -122,15 +122,12 @@ class TrustV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.trust_create, 'trust')
-    def create_trust(self, context, trust=None):
+    def create_trust(self, context, trust):
         """Create a new trust.
 
         The user creating the trust must be the trustor.
 
         """
-        if not trust:
-            raise exception.ValidationError(attribute='trust',
-                                            target='request')
 
         auth_context = context.get('environment',
                                    {}).get('KEYSTONE_AUTH_CONTEXT', {})
