@@ -37,13 +37,12 @@ CONF = cfg.CONF
 class V2TokenDataHelper(object):
     """Creates V2 token data."""
 
-    def v3_to_v2_token(self, token_id, v3_token_data):
+    def v3_to_v2_token(self, v3_token_data):
         token_data = {}
         # Build v2 token
         v3_token = v3_token_data['token']
 
         token = {}
-        token['id'] = token_id
         token['expires'] = v3_token.get('expires_at')
         token['issued_at'] = v3_token.get('issued_at')
         token['audit_ids'] = v3_token.get('audit_ids')
