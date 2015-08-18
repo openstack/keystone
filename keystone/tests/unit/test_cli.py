@@ -12,12 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import os
 import uuid
 
 import fixtures
 import mock
-from oslo_config import fixture as config_fixture
+import oslo_config.fixture
 from oslo_log import log
 from oslotest import mockpatch
 from six.moves import range
@@ -65,7 +66,7 @@ class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
 class CliNoConfigTestCase(unit.BaseTestCase):
 
     def setUp(self):
-        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
         self.useFixture(mockpatch.Patch(
             'oslo_config.cfg.find_config_files', return_value=[]))
@@ -313,6 +314,8 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
             domain_config_dir=unit.TESTCONF + '/domain_configs_multi_ldap')
         self.domain_count = 3
         self.setup_initial_domains()
+        self.logging = self.useFixture(
+            fixtures.FakeLogger(level=logging.INFO))
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
@@ -552,7 +555,7 @@ class CliDBSyncTestCase(unit.BaseTestCase):
 
     def setUp(self):
         super(CliDBSyncTestCase, self).setUp()
-        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
         upgrades.offline_sync_database_to_version = mock.Mock()
         upgrades.expand_schema = mock.Mock()
@@ -660,3 +663,36 @@ class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
                 'entity_type': identity_mapping.EntityType.USER}
             self.assertIsNotNone(
                 self.id_mapping_api.get_public_id(local_entity))
+
+
+class CliDomainConfigUploadNothing(unit.BaseTestCase):
+
+    def setUp(self):
+        super(CliDomainConfigUploadNothing, self).setUp()
+
+        config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
+        config_fixture.register_cli_opt(cli.command_opt)
+
+        # NOTE(dstanek): since this is not testing any database
+        # functionality there is no need to go through the motions and
+        # setup a test database.
+        def fake_load_backends(self):
+            self.resource_manager = mock.Mock()
+        self.useFixture(mockpatch.PatchObject(
+            cli.DomainConfigUploadFiles, 'load_backends', fake_load_backends))
+
+        tempdir = self.useFixture(fixtures.TempDir())
+        config_fixture.config(group='identity', domain_config_dir=tempdir.path)
+
+        self.logging = self.useFixture(
+            fixtures.FakeLogger(level=logging.DEBUG))
+
+    def test_uploading_all_from_an_empty_directory(self):
+        CONF(args=['domain_config_upload', '--all'], project='keystone',
+             default_config_files=[])
+        cli.DomainConfigUpload.main()
+
+        expected_msg = ('No domain configs uploaded from %r' %
+                        CONF.identity.domain_config_dir)
+        self.assertThat(self.logging.output,
+                        matchers.Contains(expected_msg))
