@@ -11,9 +11,11 @@
 # under the License.
 
 import datetime
+import os
 import uuid
 
 from oslo_utils import timeutils
+import six
 
 from keystone.common import config
 from keystone import exception
@@ -22,6 +24,7 @@ from keystone.tests.unit import ksfixtures
 from keystone.token import provider
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
+from keystone.token.providers.fernet import utils as fernet_utils
 
 
 CONF = config.CONF
@@ -329,3 +332,38 @@ class TestPayloads(tests.TestCase):
                          federated_info['idp_id'])
         self.assertEqual(exp_federated_info['protocol_id'],
                          federated_info['protocol_id'])
+
+
+class TestFernetKeyRotation(tests.TestCase):
+    @property
+    def key_repository_size(self):
+        """The number of keys in the key repository."""
+        return len(os.listdir(CONF.fernet_tokens.key_repository))
+
+    def test_rotation(self):
+        # Initializing a key repository results in this many keys. We don't
+        # support max_active_keys being set any lower.
+        min_active_keys = 2
+
+        # Simulate every rotation strategy up to "rotating once a week while
+        # maintaining a year's worth of keys."
+        for max_active_keys in six.moves.range(min_active_keys, 52 + 1):
+            self.config_fixture.config(group='fernet_tokens',
+                                       max_active_keys=max_active_keys)
+
+            # Ensure that resetting the key repository always results in 2
+            # active keys.
+            self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+            self.assertEqual(min_active_keys, self.key_repository_size)
+
+            # Rotate the keys just enough times to fully populate the key
+            # repository.
+            for rotation in six.moves.range(max_active_keys - min_active_keys):
+                fernet_utils.rotate_keys()
+            self.assertEqual(max_active_keys, self.key_repository_size)
+
+            # Rotate an additional number of times to ensure that we maintain
+            # the desired number of active keys.
+            for rotation in six.moves.range(10):
+                fernet_utils.rotate_keys()
+                self.assertEqual(self.key_repository_size, max_active_keys)
