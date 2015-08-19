@@ -3858,6 +3858,16 @@ class WebSSOTests(FederatedTokenTests):
                           self.api.federated_sso_auth,
                           context, self.PROTOCOL)
 
+    def test_identity_provider_specific_federated_authentication(self):
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        context = {'environment': environment}
+        query_string = {'origin': self.ORIGIN}
+        self._inject_assertion(context, 'EMPLOYEE_ASSERTION', query_string)
+        resp = self.api.federated_idp_specific_sso_auth(context,
+                                                        self.idp['id'],
+                                                        self.PROTOCOL)
+        self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
+
 
 class K2KServiceCatalogTests(FederationTests):
     SP1 = 'SP1'
