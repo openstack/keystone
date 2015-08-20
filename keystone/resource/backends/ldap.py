@@ -60,6 +60,14 @@ class Resource(resource.Driver):
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
+    def _set_default_is_domain_project(self, ref):
+        if isinstance(ref, dict):
+            return dict(ref, is_domain=False)
+        elif isinstance(ref, list):
+            return [self._set_default_is_domain_project(x) for x in ref]
+        else:
+            raise ValueError(_('Expected dict or list: %s') % type(ref))
+
     def _validate_parent_project_is_none(self, ref):
         """If a parent_id different from None was given,
            raises InvalidProjectException.
@@ -69,8 +77,15 @@ class Resource(resource.Driver):
         if parent_id is not None:
             raise exception.InvalidParentProject(parent_id)
 
+    def _validate_is_domain_field_is_false(self, ref):
+        is_domain = ref.pop('is_domain', None)
+        if is_domain:
+            raise exception.ValidationError(_('LDAP does not support projects '
+                                              'with is_domain flag enabled'))
+
     def _set_default_attributes(self, project_ref):
         project_ref = self._set_default_domain(project_ref)
+        project_ref = self._set_default_is_domain_project(project_ref)
         return self._set_default_parent_project(project_ref)
 
     def get_project(self, tenant_id):
@@ -117,6 +132,7 @@ class Resource(resource.Driver):
     def create_project(self, tenant_id, tenant):
         self.project.check_allow_create()
         self._validate_parent_project_is_none(tenant)
+        self._validate_is_domain_field_is_false(tenant)
         tenant['name'] = clean.project_name(tenant['name'])
         data = tenant.copy()
         if 'id' not in data or data['id'] is None:
@@ -129,6 +145,7 @@ class Resource(resource.Driver):
     def update_project(self, tenant_id, tenant):
         self.project.check_allow_update()
         tenant = self._validate_default_domain(tenant)
+        self._validate_is_domain_field_is_false(tenant)
         if 'name' in tenant:
             tenant['name'] = clean.project_name(tenant['name'])
         return self._set_default_attributes(

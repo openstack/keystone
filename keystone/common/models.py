@@ -130,11 +130,12 @@ class Project(Model):
     Optional Keys:
         description
         enabled (bool, default True)
+        is_domain (bool, default False)
 
     """
 
     required_keys = ('id', 'name', 'domain_id')
-    optional_keys = ('description', 'enabled')
+    optional_keys = ('description', 'enabled', 'is_domain')
 
 
 class Role(Model):

@@ -21,6 +21,7 @@ _project_properties = {
     # implementation.
     'domain_id': parameter_types.id_string,
     'enabled': parameter_types.boolean,
+    'is_domain': parameter_types.boolean,
     'parent_id': validation.nullable(parameter_types.id_string),
     'name': {
         'type': 'string',

@@ -156,7 +156,8 @@ class SqlModels(SqlTests):
                 ('domain_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
                 ('extra', sql.JsonBlob, None),
-                ('parent_id', sql.String, 64))
+                ('parent_id', sql.String, 64),
+                ('is_domain', sql.Boolean, False))
         self.assertExpectedSchema('project', cols)
 
     def test_role_assignment_model(self):

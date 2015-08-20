@@ -88,6 +88,7 @@ class Manager(manager.Manager):
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         tenant.setdefault('description', '')
         tenant.setdefault('parent_id', None)
+        tenant.setdefault('is_domain', False)
 
         self.get_domain(tenant.get('domain_id'))
         if tenant.get('parent_id') is not None:
@@ -197,6 +198,11 @@ class Manager(manager.Manager):
         if 'parent_id' in tenant and tenant.get('parent_id') != parent_id:
             raise exception.ForbiddenAction(
                 action=_('Update of `parent_id` is not allowed.'))
+
+        if ('is_domain' in tenant and
+                tenant['is_domain'] != original_tenant['is_domain']):
+            raise exception.ValidationError(
+                message=_('Update of `is_domain` is not allowed.'))
 
         if 'enabled' in tenant:
             tenant['enabled'] = clean.project_enabled(tenant['enabled'])

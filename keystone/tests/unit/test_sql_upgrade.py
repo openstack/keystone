@@ -629,6 +629,13 @@ class SqlUpgradeTests(SqlMigrateBase):
             self.assertFalse(self._does_index_exist('assignment',
                                                     'assignment_role_id_fkey'))
 
+    def test_project_is_domain_upgrade(self):
+        self.upgrade(74)
+        self.assertTableColumns('project',
+                                ['id', 'name', 'extra', 'description',
+                                 'enabled', 'domain_id', 'parent_id',
+                                 'is_domain'])
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
