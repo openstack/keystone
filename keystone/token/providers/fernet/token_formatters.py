@@ -74,8 +74,9 @@ class TokenFormatter(object):
 
         try:
             return self.crypto.decrypt(token)
-        except fernet.InvalidToken as e:
-            raise exception.Unauthorized(six.text_type(e))
+        except fernet.InvalidToken:
+            raise exception.ValidationError(
+                _('This is not a recognized Fernet token'))
 
     @classmethod
     def creation_time(cls, fernet_token):
@@ -185,8 +186,8 @@ class TokenFormatter(object):
             (user_id, methods, expires_at, audit_ids, federated_info) = (
                 FederatedPayload.disassemble(payload))
         else:
-            # If the token_format is not recognized, raise Unauthorized.
-            raise exception.Unauthorized(_(
+            # If the token_format is not recognized, raise ValidationError.
+            raise exception.ValidationError(_(
                 'This is not a recognized Fernet payload version: %s') %
                 version)
 
