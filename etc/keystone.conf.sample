@@ -136,8 +136,8 @@
 
 # (Optional) Enables or disables syslog rfc5424 format for logging. If enabled,
 # prefixes the MSG part of the syslog message with APP-NAME (RFC5424). The
-# format without the APP-NAME is deprecated in K, and will be removed in M,
-# along with this option. (boolean value)
+# format without the APP-NAME is deprecated in Kilo, and will be removed in
+# Mitaka, along with this option. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #use_syslog_rfc_format = true
@@ -1421,8 +1421,8 @@
 # remove it in the N release, but we must keep backward compatible at the same
 # time. This option provides such compatibility - it defaults to False in
 # Liberty and can be turned on for early adopters with a new installations or
-# for testing. Please note, that this option will be removed in M release.
-# (boolean value)
+# for testing. Please note, that this option will be removed in the Mitaka
+# release. (boolean value)
 #send_single_reply = false
 
 # Qpid broker hostname. (string value)
@@ -1494,8 +1494,8 @@
 # remove it in the N release, but we must keep backward compatible at the same
 # time. This option provides such compatibility - it defaults to False in
 # Liberty and can be turned on for early adopters with a new installations or
-# for testing. Please note, that this option will be removed in M release.
-# (boolean value)
+# for testing. Please note, that this option will be removed in the Mitaka
+# release. (boolean value)
 #send_single_reply = false
 
 # SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
