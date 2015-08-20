@@ -40,7 +40,7 @@ def v2_deprecated(f):
     This is a placeholder for the pending deprecation of v2. The implementation
     of this decorator can be replaced with::
 
-        from keystone.openstack.common import versionutils
+        from oslo_log import versionutils
 
 
         v2_deprecated = versionutils.deprecated(

@@ -144,7 +144,7 @@ class CheckForLoggingIssues(BaseASTChecker):
     DEBUG_CHECK_DESC = 'K005 Using translated string in debug logging'
     NONDEBUG_CHECK_DESC = 'K006 Not using translating helper for logging'
     EXCESS_HELPER_CHECK_DESC = 'K007 Using hints when _ is necessary'
-    LOG_MODULES = ('logging', 'keystone.openstack.common.log')
+    LOG_MODULES = ('logging', 'oslo_log.log')
     I18N_MODULES = (
         'keystone.i18n._',
         'keystone.i18n._LI',
