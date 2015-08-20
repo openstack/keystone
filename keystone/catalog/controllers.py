@@ -315,7 +315,7 @@ class EndpointV3(controller.V3Controller):
         ref = self.catalog_api.create_endpoint(ref['id'], ref, initiator)
         return EndpointV3.wrap_member(context, ref)
 
-    @controller.filterprotected('interface', 'service_id')
+    @controller.filterprotected('interface', 'service_id', 'region_id')
     def list_endpoints(self, context, filters):
         hints = EndpointV3.build_driver_hints(context, filters)
         refs = self.catalog_api.list_endpoints(hints=hints)

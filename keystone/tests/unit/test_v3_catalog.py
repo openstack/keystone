@@ -414,6 +414,133 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         r = self.get('/endpoints')
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
 
+    def _create_random_endpoint(self, interface='public',
+                                parent_region_id=None):
+        region = self._create_region_with_parent_id(
+            parent_id=parent_region_id)
+        service = self._create_random_service()
+        ref = self.new_endpoint_ref(
+            service_id=service['id'],
+            interface=interface,
+            region_id=region.result['region']['id'])
+
+        response = self.post(
+            '/endpoints',
+            body={'endpoint': ref})
+        return response.json['endpoint']
+
+    def test_list_endpoints_filtered_by_interface(self):
+        """Call ``GET /endpoints?interface={interface}``."""
+        ref = self._create_random_endpoint(interface='internal')
+
+        response = self.get('/endpoints?interface=%s' % ref['interface'])
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['interface'], endpoint['interface'])
+
+    def test_list_endpoints_filtered_by_service_id(self):
+        """Call ``GET /endpoints?service_id={service_id}``."""
+        ref = self._create_random_endpoint()
+
+        response = self.get('/endpoints?service_id=%s' % ref['service_id'])
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['service_id'], endpoint['service_id'])
+
+    def test_list_endpoints_filtered_by_region_id(self):
+        """Call ``GET /endpoints?region_id={region_id}``."""
+        ref = self._create_random_endpoint()
+
+        response = self.get('/endpoints?region_id=%s' % ref['region_id'])
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['region_id'], endpoint['region_id'])
+
+    def test_list_endpoints_filtered_by_parent_region_id(self):
+        """Call ``GET /endpoints?region_id={region_id}``.
+
+        Ensure passing the parent_region_id as filter returns an
+        empty list.
+
+        """
+        parent_region = self._create_region_with_parent_id()
+        parent_region_id = parent_region.result['region']['id']
+        self._create_random_endpoint(parent_region_id=parent_region_id)
+
+        response = self.get('/endpoints?region_id=%s' % parent_region_id)
+        self.assertEqual(0, len(response.json['endpoints']))
+
+    def test_list_endpoints_with_multiple_filters(self):
+        """Call ``GET /endpoints?interface={interface}...``.
+
+        Ensure passing different combinations of interface, region_id and
+        service_id as filters will return the correct result.
+
+        """
+        # interface and region_id specified
+        ref = self._create_random_endpoint(interface='internal')
+        response = self.get('/endpoints?interface=%s&region_id=%s' %
+                            (ref['interface'], ref['region_id']))
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['interface'], endpoint['interface'])
+            self.assertEqual(ref['region_id'], endpoint['region_id'])
+
+        # interface and service_id specified
+        ref = self._create_random_endpoint(interface='internal')
+        response = self.get('/endpoints?interface=%s&service_id=%s' %
+                            (ref['interface'], ref['service_id']))
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['interface'], endpoint['interface'])
+            self.assertEqual(ref['service_id'], endpoint['service_id'])
+
+        # region_id and service_id specified
+        ref = self._create_random_endpoint(interface='internal')
+        response = self.get('/endpoints?region_id=%s&service_id=%s' %
+                            (ref['region_id'], ref['service_id']))
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['region_id'], endpoint['region_id'])
+            self.assertEqual(ref['service_id'], endpoint['service_id'])
+
+        # interface, region_id and service_id specified
+        ref = self._create_random_endpoint(interface='internal')
+        response = self.get(('/endpoints?interface=%s&region_id=%s'
+                             '&service_id=%s') %
+                            (ref['interface'], ref['region_id'],
+                             ref['service_id']))
+        self.assertValidEndpointListResponse(response, ref=ref)
+
+        for endpoint in response.json['endpoints']:
+            self.assertEqual(ref['interface'], endpoint['interface'])
+            self.assertEqual(ref['region_id'], endpoint['region_id'])
+            self.assertEqual(ref['service_id'], endpoint['service_id'])
+
+    def test_list_endpoints_with_random_filter_values(self):
+        """Call ``GET /endpoints?interface={interface}...``.
+
+        Ensure passing random values for: interface, region_id and
+        service_id will return an empty list.
+
+        """
+        self._create_random_endpoint(interface='internal')
+
+        response = self.get('/endpoints?interface=%s' % uuid.uuid4().hex)
+        self.assertEqual(0, len(response.json['endpoints']))
+
+        response = self.get('/endpoints?region_id=%s' % uuid.uuid4().hex)
+        self.assertEqual(0, len(response.json['endpoints']))
+
+        response = self.get('/endpoints?service_id=%s' % uuid.uuid4().hex)
+        self.assertEqual(0, len(response.json['endpoints']))
+
     def test_create_endpoint_no_enabled(self):
         """Call ``POST /endpoints``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
