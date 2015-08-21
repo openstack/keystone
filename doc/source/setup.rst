@@ -95,7 +95,7 @@ Fedora 19+:
 
 .. code-block:: bash
 
-    $ sudo yum install python-sqlite2 python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel python-devel libxslt-devel openssl-devel
+    $ sudo yum install python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel python-devel libxslt-devel openssl-devel libffi-devel
 
 openSUSE 13.2 (SLE 12):
 
