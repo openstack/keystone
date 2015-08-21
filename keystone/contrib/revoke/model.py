@@ -220,7 +220,7 @@ class RevokeTree(object):
             # The last (leaf) level is checked in a special way because we
             # verify issued_at field differently.
             try:
-                return revoke_map['issued_before'] > token_data['issued_at']
+                return revoke_map['issued_before'] >= token_data['issued_at']
             except KeyError:
                 return False
 
