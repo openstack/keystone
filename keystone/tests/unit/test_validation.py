@@ -884,6 +884,14 @@ class RegionValidationTestCase(unit.BaseTestCase):
                                'parent_region_id': uuid.uuid4().hex}
         self.create_region_validator.validate(request_to_validate)
 
+    def test_validate_region_create_fails_with_invalid_region_id(self):
+        """Exception raised when passing invalid `id` in request."""
+        request_to_validate = {'id': 1234,
+                               'description': 'US East Region'}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_region_validator.validate,
+                          request_to_validate)
+
     def test_validate_region_create_succeeds_with_extra_parameters(self):
         """Validate create region request with extra values."""
         request_to_validate = {'other_attr': uuid.uuid4().hex}
@@ -1176,6 +1184,26 @@ class EndpointValidationTestCase(unit.BaseTestCase):
                           self.create_endpoint_validator.validate,
                           request_to_validate)
 
+    def test_validate_endpoint_create_fails_with_invalid_region_id(self):
+        """Exception raised when passing invalid `region(_id)` in request."""
+        request_to_validate = {'interface': 'admin',
+                               'region_id': 1234,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_endpoint_validator.validate,
+                          request_to_validate)
+
+        request_to_validate = {'interface': 'admin',
+                               'region': 1234,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_endpoint_validator.validate,
+                          request_to_validate)
+
     def test_validate_endpoint_update_fails_with_invalid_enabled(self):
         """Exception raised when `enabled` is boolean-like value."""
         for invalid_enabled in _INVALID_ENABLED_FORMATS:
@@ -1242,6 +1270,26 @@ class EndpointValidationTestCase(unit.BaseTestCase):
             self.assertRaises(exception.SchemaValidationError,
                               self.update_endpoint_validator.validate,
                               request_to_validate)
+
+    def test_validate_endpoint_update_fails_with_invalid_region_id(self):
+        """Exception raised when passing invalid `region(_id)` in request."""
+        request_to_validate = {'interface': 'admin',
+                               'region_id': 1234,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_endpoint_validator.validate,
+                          request_to_validate)
+
+        request_to_validate = {'interface': 'admin',
+                               'region': 1234,
+                               'service_id': uuid.uuid4().hex,
+                               'url': 'https://service.example.com:5000/'}
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_endpoint_validator.validate,
+                          request_to_validate)
 
 
 class EndpointGroupValidationTestCase(unit.BaseTestCase):
