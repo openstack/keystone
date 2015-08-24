@@ -381,7 +381,10 @@ class Manager(manager.Manager):
 
         self.driver.remove_role_from_user_and_project(user_id, project_id,
                                                       role_id)
-        self.identity_api.emit_invalidate_user_token_persistence(user_id)
+        if project_id:
+            self._emit_invalidate_grant_token_persistence(user_id, project_id)
+        else:
+            self.identity_api.emit_invalidate_user_token_persistence(user_id)
         self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
                                         project_id=project_id)
 
