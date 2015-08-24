@@ -672,15 +672,18 @@ class RuleProcessor(object):
 
         for requirement in requirements:
             requirement_type = requirement['type']
+            direct_map_values = assertion.get(requirement_type)
             regex = requirement.get('regex', False)
+
+            if not direct_map_values:
+                return None
 
             any_one_values = requirement.get(self._EvalType.ANY_ONE_OF)
             if any_one_values is not None:
                 if self._evaluate_requirement(any_one_values,
-                                              requirement_type,
+                                              direct_map_values,
                                               self._EvalType.ANY_ONE_OF,
-                                              regex,
-                                              assertion):
+                                              regex):
                     continue
                 else:
                     return None
@@ -688,10 +691,9 @@ class RuleProcessor(object):
             not_any_values = requirement.get(self._EvalType.NOT_ANY_OF)
             if not_any_values is not None:
                 if self._evaluate_requirement(not_any_values,
-                                              requirement_type,
+                                              direct_map_values,
                                               self._EvalType.NOT_ANY_OF,
-                                              regex,
-                                              assertion):
+                                              regex):
                     continue
                 else:
                     return None
@@ -699,23 +701,21 @@ class RuleProcessor(object):
             # If 'any_one_of' or 'not_any_of' are not found, then values are
             # within 'type'. Attempt to find that 'type' within the assertion,
             # and filter these values if 'whitelist' or 'blacklist' is set.
-            direct_map_values = assertion.get(requirement_type)
-            if direct_map_values:
-                blacklisted_values = requirement.get(self._EvalType.BLACKLIST)
-                whitelisted_values = requirement.get(self._EvalType.WHITELIST)
+            blacklisted_values = requirement.get(self._EvalType.BLACKLIST)
+            whitelisted_values = requirement.get(self._EvalType.WHITELIST)
 
-                # If a blacklist or whitelist is used, we want to map to the
-                # whole list instead of just its values separately.
-                if blacklisted_values is not None:
-                    direct_map_values = [v for v in direct_map_values
-                                         if v not in blacklisted_values]
-                elif whitelisted_values is not None:
-                    direct_map_values = [v for v in direct_map_values
-                                         if v in whitelisted_values]
+            # If a blacklist or whitelist is used, we want to map to the
+            # whole list instead of just its values separately.
+            if blacklisted_values is not None:
+                direct_map_values = [v for v in direct_map_values
+                                     if v not in blacklisted_values]
+            elif whitelisted_values is not None:
+                direct_map_values = [v for v in direct_map_values
+                                     if v in whitelisted_values]
 
-                direct_maps.add(direct_map_values)
+            direct_maps.add(direct_map_values)
 
-                LOG.debug('updating a direct mapping: %s', direct_map_values)
+            LOG.debug('updating a direct mapping: %s', direct_map_values)
 
         return direct_maps
 
@@ -726,8 +726,8 @@ class RuleProcessor(object):
                     return True
         return False
 
-    def _evaluate_requirement(self, values, requirement_type,
-                              eval_type, regex, assertion):
+    def _evaluate_requirement(self, values, assertion_values,
+                              eval_type, regex):
         """Evaluate the incoming requirement and assertion.
 
         If the requirement type does not exist in the assertion data, then
@@ -737,23 +737,16 @@ class RuleProcessor(object):
 
         :param values: list of allowed values, defined in the requirement
         :type values: list
-        :param requirement_type: key to look for in the assertion
-        :type requirement_type: string
+        :param assertion_values: The values from the assertion to evaluate
+        :type assertion_values: list/string
         :param eval_type: determine how to evaluate requirements
         :type eval_type: string
         :param regex: perform evaluation with regex
         :type regex: boolean
-        :param assertion: dict of attributes from the IdP
-        :type assertion: dict
 
         :returns: boolean, whether requirement is valid or not.
 
         """
-
-        assertion_values = assertion.get(requirement_type)
-        if not assertion_values:
-            return False
-
         if regex:
             any_match = self._evaluate_values_by_regex(values,
                                                        assertion_values)
