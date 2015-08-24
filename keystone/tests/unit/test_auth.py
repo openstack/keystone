@@ -460,6 +460,44 @@ class AuthWithToken(AuthTest):
             dict(is_admin=True, query_string={}),
             token_id=token_id)
 
+    def test_deleting_role_assignment_does_not_revoke_unscoped_token(self):
+        no_context = {}
+        admin_context = dict(is_admin=True, query_string={})
+
+        project = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'domain_id': DEFAULT_DOMAIN_ID}
+        self.resource_api.create_project(project['id'], project)
+        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.role_api.create_role(role['id'], role)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'], project['id'], role['id'])
+
+        # Get an unscoped token.
+        token = self.controller.authenticate(no_context, _build_user_auth(
+            username=self.user_foo['name'],
+            password=self.user_foo['password']))
+        token_id = token['access']['token']['id']
+
+        # Ensure it is valid
+        self.controller.validate_token(admin_context, token_id=token_id)
+
+        # Delete the role assignment, which should not invalidate the token,
+        # because we're not consuming it with just an unscoped token.
+        self.assignment_api.remove_role_from_user_and_project(
+            self.user_foo['id'], project['id'], role['id'])
+
+        # Ensure it is still valid
+        # FIXME(dolph): Due to bug 1488208, the unscoped token is actually
+        # invalid. The assertRaises() should be removed and the token should
+        # validate without error.
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.controller.validate_token,
+            admin_context,
+            token_id=token_id)
+
     def test_only_original_audit_id_is_kept(self):
         context = {}
 
