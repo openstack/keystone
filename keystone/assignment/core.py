@@ -667,13 +667,13 @@ class Manager(manager.Manager):
                 # in this domain
                 project_ids = (
                     [x['id'] for x in
-                        self.list_projects_in_domain(
+                        self.resource_api.list_projects_in_domain(
                             ref['domain_id'])])
             else:
                 # It must be a project assignment, so apply it to the subtree
                 project_ids = (
                     [x['id'] for x in
-                        self.list_projects_in_subtree(
+                        self.resource_api.list_projects_in_subtree(
                             ref['project_id'])])
 
             new_refs = []
@@ -764,7 +764,8 @@ class Manager(manager.Manager):
                     # any of its parents.
 
                     # List inherited assignments from the project's domain
-                    proj_domain_id = self.get_project(project_id)['domain_id']
+                    proj_domain_id = self.resource_api.get_project(
+                        project_id)['domain_id']
                     inherited_refs += self.driver.list_role_assignments(
                         role_id=role_id, domain_id=proj_domain_id,
                         user_id=user_id, group_ids=group_ids,
@@ -773,7 +774,8 @@ class Manager(manager.Manager):
                     # And those assignments that could be inherited from the
                     # project's parents.
                     parent_ids = [project['id'] for project in
-                                  self.list_project_parents(project_id)]
+                                  self.resource_api.list_project_parents(
+                                      project_id)]
                     if parent_ids:
                         inherited_refs += self.driver.list_role_assignments(
                             role_id=role_id, project_ids=parent_ids,
