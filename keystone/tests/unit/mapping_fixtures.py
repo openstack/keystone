@@ -897,6 +897,45 @@ MAPPING_GROUPS_WHITELIST_AND_BLACKLIST = {
     ]
 }
 
+MAPPING_GROUPS_WHITELIST_PASS_THROUGH = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "UserName"
+                }
+            ],
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {
+                            "id": DEVELOPER_GROUP_DOMAIN_ID
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "whitelist": ['Developer']
+                }
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": DEVELOPER_GROUP_DOMAIN_ID
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',

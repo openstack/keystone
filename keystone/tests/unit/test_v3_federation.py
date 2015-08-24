@@ -1963,6 +1963,28 @@ class MappingRuleEngineTests(FederationTests):
         self.assertEqual('bwilliams', mapped_properties['user']['name'])
         self.assertEqual('abc123', mapped_properties['user']['id'])
 
+    def test_whitelist_pass_through(self):
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_PASS_THROUGH
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        assertion = mapping_fixtures.DEVELOPER_ASSERTION
+        mapped_properties = rp.process(assertion)
+        self.assertValidMappedUserObject(mapped_properties)
+
+        self.assertEqual('developacct', mapped_properties['user']['name'])
+        self.assertEqual('Developer',
+                         mapped_properties['group_names'][0]['name'])
+
+    def test_type_not_in_assertion(self):
+        """Test that if the remote "type" is not in the assertion it fails."""
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_PASS_THROUGH
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        assertion = {uuid.uuid4().hex: uuid.uuid4().hex}
+        mapped_properties = rp.process(assertion)
+        self.assertValidMappedUserObject(mapped_properties)
+
+        self.assertNotIn('id', mapped_properties['user'])
+        self.assertNotIn('name', mapped_properties['user'])
+
 
 class FederatedTokenTests(FederationTests, FederatedSetupMixin):
 
