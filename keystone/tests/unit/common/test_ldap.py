@@ -12,10 +12,10 @@
 # under the License.
 
 import os
-import shutil
 import tempfile
 import uuid
 
+import fixtures
 import ldap.dn
 import mock
 from oslo_config import cfg
@@ -310,8 +310,7 @@ class SslTlsTest(tests.TestCase):
 
     def test_certdir_trust_tls(self):
         # We need this to actually exist, so we create a tempdir.
-        certdir = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, certdir)
+        certdir = self.useFixture(fixtures.TempDir()).path
         self.config_fixture.config(group='ldap',
                                    url='ldap://localhost',
                                    use_tls=True,
@@ -339,8 +338,7 @@ class SslTlsTest(tests.TestCase):
 
     def test_certdir_trust_ldaps(self):
         # We need this to actually exist, so we create a tempdir.
-        certdir = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, certdir)
+        certdir = self.useFixture(fixtures.TempDir()).path
         self.config_fixture.config(group='ldap',
                                    url='ldaps://localhost',
                                    use_tls=False,
