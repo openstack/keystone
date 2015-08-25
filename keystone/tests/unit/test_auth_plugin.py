@@ -137,8 +137,9 @@ class TestMapped(tests.TestCase):
         config_files.append(tests.dirs.tests_conf('test_auth_plugin.conf'))
         return config_files
 
-    def config_overrides(self):
-        # don't override configs so we can use test_auth_plugin.conf only
+    def auth_plugin_config_override(self, methods=None, **method_classes):
+        # Do not apply the auth plugin overrides so that the config file is
+        # tested
         pass
 
     def _test_mapped_invocation_with_method_name(self, method_name):
