@@ -515,9 +515,7 @@ FILE_OPTIONS = {
                         'an admin will not be able to create a domain with '
                         'this name or update an existing domain to this '
                         'name. You are not advised to change this value '
-                        'unless you really have to. Changing this option '
-                        'to empty string or None will not have any impact and '
-                        'default name will be used.'),
+                        'unless you really have to.'),
         cfg.MultiStrOpt('trusted_dashboard', default=[],
                         help='A list of trusted dashboard hosts. Before '
                              'accepting a Single Sign-On request to return a '

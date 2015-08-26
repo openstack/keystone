@@ -23,7 +23,6 @@ from keystone.common import clean
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 from keystone import notifications
@@ -139,15 +138,13 @@ class Manager(manager.Manager):
         """
         # NOTE(marek-denis): We cannot create this attribute in the __init__ as
         # config values are always initialized to default value.
-        federated_domain = (
-            CONF.federation.federated_domain_name or
-            federation_constants.FEDERATED_DOMAIN_KEYWORD).lower()
+        federated_domain = CONF.federation.federated_domain_name.lower()
         if (domain.get('name') and domain['name'].lower() == federated_domain):
             raise AssertionError(_('Domain cannot be named %s')
-                                 % federated_domain)
+                                 % domain['name'])
         if (domain_id.lower() == federated_domain):
             raise AssertionError(_('Domain cannot have ID %s')
-                                 % federated_domain)
+                                 % domain_id)
 
     def assert_project_enabled(self, project_id, project=None):
         """Assert the project is enabled and its associated domain is enabled.
