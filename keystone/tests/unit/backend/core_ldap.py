@@ -56,10 +56,6 @@ class BaseBackendLdapCommon(object):
         for shelf in fakeldap.FakeShelves:
             fakeldap.FakeShelves[shelf].clear()
 
-    def reload_backends(self, domain_id):
-        # Only one backend unless we are using separate domain backends
-        self.load_backends()
-
     def get_config(self, domain_id):
         # Only one conf structure unless we are using separate domain backends
         return CONF

@@ -167,8 +167,10 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
                 negative_user['id'])
             self.assertEqual(0, len(group_refs))
 
-        self.config_fixture.config(group='ldap', group_filter='(dn=xx)')
-        self.reload_backends(CONF.identity.default_domain_id)
+        driver = self.identity_api._select_identity_driver(
+            CONF.identity.default_domain_id)
+        driver.group.ldap_filter = '(dn=xx)'
+
         group_refs = self.identity_api.list_groups_for_user(
             positive_user['id'])
         self.assertEqual(0, len(group_refs))
@@ -176,9 +178,8 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
             negative_user['id'])
         self.assertEqual(0, len(group_refs))
 
-        self.config_fixture.config(group='ldap',
-                                   group_filter='(objectclass=*)')
-        self.reload_backends(CONF.identity.default_domain_id)
+        driver.group.ldap_filter = '(objectclass=*)'
+
         group_refs = self.identity_api.list_groups_for_user(
             positive_user['id'])
         self.assertEqual(GROUP_COUNT, len(group_refs))
