@@ -744,6 +744,32 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
         self.assertRaises(AttributeError, Foo)
 
+    def test_using_an_unbound_method_as_a_callback_fails(self):
+        # NOTE(dstanek): An unbound method is when you reference a method
+        # from a class object. You'll get a method that isn't bound to a
+        # particular instance so there is no magic 'self'. You can call it,
+        # but you have to pass in the instance manually like: C.m(C()).
+        # If you reference the method from an instance then you get a method
+        # that effectively curries the self argument for you
+        # (think functools.partial). Obviously is we don't have an
+        # instance then we can't call the method.
+        @notifications.listener
+        class Foo(object):
+            def __init__(self):
+                self.event_callbacks = {CREATED_OPERATION:
+                                        {'project': Foo.callback}}
+
+            def callback(self, *args):
+                pass
+
+        # TODO(dstanek): it would probably be nice to fail early using
+        # something like:
+        #     self.assertRaises(TypeError, Foo)
+        Foo()
+        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        self.assertRaises(TypeError, self.resource_api.create_project,
+                          project_ref['id'], project_ref)
+
 
 class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
 
