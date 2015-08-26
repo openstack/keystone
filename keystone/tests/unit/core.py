@@ -28,6 +28,7 @@ import warnings
 import fixtures
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
+from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
 import oslotest.base as oslotest
@@ -223,11 +224,6 @@ class UnexpectedExit(Exception):
     pass
 
 
-class BadLog(Exception):
-    """Raised on invalid call to logging (parameter mismatch)."""
-    pass
-
-
 class TestClient(object):
     def __init__(self, app=None, token=None):
         self.app = app
@@ -402,8 +398,7 @@ class BaseTestCase(oslotest.BaseTestCase):
         super(BaseTestCase, self).setUp()
         self.useFixture(mockpatch.PatchObject(sys, 'exit',
                                               side_effect=UnexpectedExit))
-        self.useFixture(mockpatch.PatchObject(logging.Handler, 'handleError',
-                                              side_effect=BadLog))
+        self.useFixture(log_fixture.get_logging_handle_error_fixture())
 
         warnings.filterwarnings('error', category=DeprecationWarning,
                                 module='^keystone\\.')
