@@ -789,6 +789,7 @@ MAPPING_USER_IDS = {
                 {
                     "user": {
                         "name": "{0}",
+                        "id": "abc123@example.com",
                         "domain": {
                             "id": "federated"
                         }
@@ -831,7 +832,7 @@ MAPPING_USER_IDS = {
             "local": [
                 {
                     "user": {
-                        "id": "abc123",
+                        "id": "abc123@example.com",
                         "name": "{0}",
                         "domain": {
                             "id": "federated"
@@ -966,6 +967,7 @@ TESTER_ASSERTION = {
 }
 
 ANOTHER_TESTER_ASSERTION = {
+    'Email': 'testacct@example.com',
     'UserName': 'IamTester'
 }
 
