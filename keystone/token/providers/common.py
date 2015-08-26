@@ -85,12 +85,20 @@ class V2TokenDataHelper(object):
 
         user = common_controller.V2Controller.v3_to_v2_user(v3_user)
 
+        # Maintain Trust Data
+        if 'OS-TRUST:trust' in v3_token:
+            v3_trust_data = v3_token['OS-TRUST:trust']
+            token_data['trust'] = {
+                'trustee_user_id': v3_trust_data['trustee_user']['id'],
+                'id': v3_trust_data['id'],
+                'trustor_user_id': v3_trust_data['trustor_user']['id'],
+                'impersonation': v3_trust_data['impersonation']
+            }
+
         # Set user roles
         user['roles'] = []
         role_ids = []
         for role in v3_token.get('roles', []):
-            # Filter role id since it's not included in v2 token response
-            role_ids.append(role.pop('id'))
             user['roles'].append(role)
         user['roles_links'] = []
 
@@ -683,30 +691,10 @@ class BaseProvider(provider.Provider):
             # management layer is now pluggable, one can always provide
             # their own implementation to suit their needs.
             token_data = token_ref.get('token_data')
-            if (not token_data or
-                    self.get_token_version(token_data) !=
-                    token.provider.V2):
-                # token is created by old v2 logic
-                metadata_ref = token_ref['metadata']
-                roles_ref = []
-                for role_id in metadata_ref.get('roles', []):
-                    roles_ref.append(self.role_api.get_role(role_id))
-
-                # Get a service catalog if possible
-                # This is needed for on-behalf-of requests
-                catalog_ref = None
-                if token_ref.get('tenant'):
-                    catalog_ref = self.catalog_api.get_catalog(
-                        token_ref['user']['id'],
-                        token_ref['tenant']['id'])
-
-                trust_ref = None
-                if CONF.trust.enabled and 'trust_id' in metadata_ref:
-                    trust_ref = self.trust_api.get_trust(
-                        metadata_ref['trust_id'])
-
-                token_data = self.v2_token_data_helper.format_token(
-                    token_ref, roles_ref, catalog_ref, trust_ref)
+            if (self.get_token_version(token_data) != token.provider.V2):
+                # Validate the V3 token as V2
+                token_data = self.v2_token_data_helper.v3_to_v2_token(
+                    token_data)
 
             trust_id = token_data['access'].get('trust', {}).get('id')
             if trust_id:
