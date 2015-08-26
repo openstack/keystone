@@ -345,13 +345,13 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
         'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
     json_home.build_v3_resource_relation('users'): {'href': '/users'},
     _build_federation_rel(resource_name='domains'): {
-        'href': '/OS-FEDERATION/domains'},
+        'href': '/auth/domains'},
     _build_federation_rel(resource_name='websso'): {
         'href-template': '/auth/OS-FEDERATION/websso/{protocol_id}',
         'href-vars': {
             'protocol_id': PROTOCOL_ID_PARAM_RELATION, }},
     _build_federation_rel(resource_name='projects'): {
-        'href': '/OS-FEDERATION/projects'},
+        'href': '/auth/projects'},
     _build_federation_rel(resource_name='saml2'): {
         'href': '/auth/OS-FEDERATION/saml2'},
     _build_federation_rel(resource_name='ecp'): {
