@@ -127,20 +127,22 @@ class Provider(common.BaseProvider):
         which unpacks the values and builds the Fernet token.
 
         """
-        group_ids = token_data['token'].get('user', {}).get(
-            federation_constants.FEDERATION, {}).get('groups')
         idp_id = token_data['token'].get('user', {}).get(
             federation_constants.FEDERATION, {}).get(
                 'identity_provider', {}).get('id')
         protocol_id = token_data['token'].get('user', {}).get(
             federation_constants.FEDERATION, {}).get('protocol', {}).get('id')
-        if not group_ids:
-            group_ids = list()
-        if group_ids:
-            federated_dict = dict(group_ids=group_ids, idp_id=idp_id,
-                                  protocol_id=protocol_id)
-            return federated_dict
-        return None
+        # If we don't have an identity provider ID and a protocol ID, it's safe
+        # to assume we aren't dealing with a federated token.
+        if not (idp_id and protocol_id):
+            return None
+
+        group_ids = token_data['token'].get('user', {}).get(
+            federation_constants.FEDERATION, {}).get('groups')
+
+        return {'group_ids': group_ids,
+                'idp_id': idp_id,
+                'protocol_id': protocol_id}
 
     def _rebuild_federated_info(self, federated_dict, user_id):
         """Format federated information into the token reference.
@@ -158,11 +160,35 @@ class Provider(common.BaseProvider):
         federated_info = dict(groups=g_ids,
                               identity_provider=dict(id=idp_id),
                               protocol=dict(id=protocol_id))
-        token_dict = {'user': {
-            federation_constants.FEDERATION: federated_info}}
-        token_dict['user']['id'] = user_id
-        token_dict['user']['name'] = user_id
+        token_dict = {
+            'user': {
+                federation_constants.FEDERATION: federated_info,
+                'id': user_id,
+                'name': user_id
+            }
+        }
+
         return token_dict
+
+    def _rebuild_federated_token_roles(self, token_dict, federated_dict,
+                                       user_id, project_id, domain_id):
+        """Populate roles based on (groups, project/domain) pair.
+
+        We must populate roles from (groups, project/domain) as ephemeral users
+        don't exist in the backend. Upon success, a ``roles`` key will be added
+        to ``token_dict``.
+
+        :param token_dict: dictionary with data used for building token
+        :param federated_dict: federated information such as identity provider
+            protocol and set of group IDs
+        :param user_id: user ID
+        :param project_id: project ID the token is being scoped to
+        :param domain_id: domain ID the token is being scoped to
+
+        """
+        group_ids = [x['id'] for x in federated_dict['group_ids']]
+        self.v3_token_data_helper.populate_roles_for_groups(
+            token_dict, group_ids, project_id, domain_id, user_id)
 
     def validate_v2_token(self, token_ref):
         """Validate a V2 formatted token.
@@ -220,6 +246,10 @@ class Provider(common.BaseProvider):
         trust_ref = None
         if federated_info:
             token_dict = self._rebuild_federated_info(federated_info, user_id)
+            if project_id or domain_id:
+                self._rebuild_federated_token_roles(token_dict, federated_info,
+                                                    user_id, project_id,
+                                                    domain_id)
         if trust_id:
             trust_ref = self.trust_api.get_trust(trust_id)
 
