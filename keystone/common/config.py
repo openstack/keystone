@@ -79,7 +79,7 @@ FILE_OPTIONS = {
         # static and grows over time to constantly approximate ~300ms
         # of CPU time to hash; this was considered too high.  This
         # value still exceeds the glibc default of 5k.
-        cfg.IntOpt('crypt_strength', default=10000,
+        cfg.IntOpt('crypt_strength', default=10000, min=1000, max=100000,
                    help='The value passed as the keyword "rounds" to '
                         'passlib\'s encrypt method.'),
         cfg.IntOpt('list_limit',
@@ -381,7 +381,7 @@ FILE_OPTIONS = {
         cfg.StrOpt('ca_key',
                    default='/etc/keystone/ssl/private/cakey.pem',
                    help='Path of the CA key file for SSL.'),
-        cfg.IntOpt('key_size', default=1024,
+        cfg.IntOpt('key_size', default=1024, min=1024,
                    help='SSL key length (in bits) (auto generated '
                         'certificate).'),
         cfg.IntOpt('valid_days', default=3650,
@@ -408,7 +408,7 @@ FILE_OPTIONS = {
         cfg.StrOpt('ca_key',
                    default='/etc/keystone/ssl/private/cakey.pem',
                    help='Path of the CA key for token signing.'),
-        cfg.IntOpt('key_size', default=2048,
+        cfg.IntOpt('key_size', default=2048, min=1024,
                    help='Key size (in bits) for token signing cert '
                         '(auto generated certificate).'),
         cfg.IntOpt('valid_days', default=3650,
@@ -1054,7 +1054,8 @@ FILE_OPTIONS = {
                    deprecated_for_removal=True,
                    help='The IP address of the network interface for the '
                         'public service to listen on.'),
-        cfg.IntOpt('public_port', default=5000, deprecated_name='public_port',
+        cfg.IntOpt('public_port', default=5000, min=1, max=65535,
+                   deprecated_name='public_port',
                    deprecated_group='DEFAULT',
                    deprecated_for_removal=True,
                    help='The port number which the public service listens '
@@ -1068,7 +1069,8 @@ FILE_OPTIONS = {
                    deprecated_for_removal=True,
                    help='The IP address of the network interface for the '
                         'admin service to listen on.'),
-        cfg.IntOpt('admin_port', default=35357, deprecated_name='admin_port',
+        cfg.IntOpt('admin_port', default=35357, min=1, max=65535,
+                   deprecated_name='admin_port',
                    deprecated_group='DEFAULT',
                    deprecated_for_removal=True,
                    help='The port number which the admin service listens '
@@ -1160,7 +1162,7 @@ def configure(conf=None):
         cfg.StrOpt('pydev-debug-host',
                    help='Host to connect to for remote debugger.'))
     conf.register_cli_opt(
-        cfg.IntOpt('pydev-debug-port',
+        cfg.IntOpt('pydev-debug-port', min=1, max=65535,
                    help='Port to connect to for remote debugger.'))
 
     for section in FILE_OPTIONS:
