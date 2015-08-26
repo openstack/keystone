@@ -2460,8 +2460,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
 
         r = self._issue_unscoped_token()
         employee_unscoped_token_id = r.headers.get('X-Subject-Token')
-        r = self.get('/OS-FEDERATION/projects',
-                     token=employee_unscoped_token_id)
+        r = self.get('/auth/projects', token=employee_unscoped_token_id)
         projects = r.result['projects']
         random_project = random.randint(0, len(projects)) - 1
         project = projects[random_project]
@@ -2997,8 +2996,7 @@ class FernetFederatedTokenTests(FederationTests, FederatedSetupMixin):
         """
         resp = self._issue_unscoped_token()
         unscoped_token = resp.headers.get('X-Subject-Token')
-        resp = self.get('/OS-FEDERATION/projects',
-                        token=unscoped_token)
+        resp = self.get('/auth/projects', token=unscoped_token)
         projects = resp.result['projects']
         random_project = random.randint(0, len(projects)) - 1
         project = projects[random_project]
