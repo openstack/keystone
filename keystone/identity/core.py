@@ -194,7 +194,8 @@ class DomainConfigs(dict):
         domain_config = {}
         domain_config['cfg'] = cfg.ConfigOpts()
         config.configure(conf=domain_config['cfg'])
-        domain_config['cfg'](args=[], project='keystone')
+        domain_config['cfg'](args=[], project='keystone',
+                             default_config_files=[])
 
         # Override any options that have been passed in as specified in the
         # database.
