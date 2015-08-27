@@ -26,8 +26,8 @@ The original source of truth for the v2.0 API is defined by a set of WADL and
 XSD files. The original source of truth for the v3 API is defined by
 documentation.
 
-.. _`Identity API v2.0`: https://git.openstack.org/cgit/openstack-attic/identity-api/tree/v2.0/src
-.. _`Identity API v3`: https://git.openstack.org/cgit/openstack-attic/identity-api/tree/v3/src/markdown
+.. _`Identity API v2.0`: http://specs.openstack.org/openstack/keystone-specs/#v2-0-api
+.. _`Identity API v3`: http://specs.openstack.org/openstack/keystone-specs/#v3-api
 
 History
 =======
