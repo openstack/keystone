@@ -1453,9 +1453,10 @@ class BaseLdap(object):
             return None
 
     def _ldap_get_all(self, ldap_filter=None):
-        query = u'(&%s(objectClass=%s))' % (ldap_filter or
-                                            self.ldap_filter or
-                                            '', self.object_class)
+        query = u'(&%s(objectClass=%s)(%s=*))' % (
+            ldap_filter or self.ldap_filter or '',
+            self.object_class,
+            self.id_attr)
         with self.get_connection() as conn:
             try:
                 attrs = list(set(([self.id_attr] +
