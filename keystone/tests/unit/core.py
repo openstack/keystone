@@ -275,6 +275,11 @@ class TestCase(BaseTestCase):
         return []
 
     def config_overrides(self):
+        # NOTE(morganfainberg): enforce config_overrides can only ever be
+        # called a single time.
+        assert self.__config_overrides_called is False
+        self.__config_overrides_called = True
+
         signing_certfile = 'examples/pki/certs/signing_cert.pem'
         signing_keyfile = 'examples/pki/private/signing_key.pem'
         self.config_fixture.config(group='oslo_policy',
@@ -330,11 +335,13 @@ class TestCase(BaseTestCase):
         if method_classes:
             self.config_fixture.config(group='auth', **method_classes)
 
+    def _assert_config_overrides_called(self):
+        assert self.__config_overrides_called is True
+
     def setUp(self):
         super(TestCase, self).setUp()
-
+        self.__config_overrides_called = False
         self.addCleanup(CONF.reset)
-
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.addCleanup(delattr, self, 'config_fixture')
         self.config(self.config_files())
@@ -349,6 +356,8 @@ class TestCase(BaseTestCase):
             new=mocked_register_auth_plugin_opt))
 
         self.config_overrides()
+        # NOTE(morganfainberg): ensure config_overrides has been called.
+        self.addCleanup(self._assert_config_overrides_called)
 
         self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
 
