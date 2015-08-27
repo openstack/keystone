@@ -316,12 +316,12 @@ class TestPayloads(tests.TestCase):
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
 
-        payload = token_formatters.FederatedPayload.assemble(
+        payload = token_formatters.FederatedUnscopedPayload.assemble(
             exp_user_id, exp_methods, exp_expires_at, exp_audit_ids,
             exp_federated_info)
 
         (user_id, methods, expires_at, audit_ids, federated_info) = (
-            token_formatters.FederatedPayload.disassemble(payload))
+            token_formatters.FederatedUnscopedPayload.disassemble(payload))
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_methods, methods)
