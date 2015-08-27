@@ -178,7 +178,7 @@ class Server(service.ServiceBase):
 
         The service interface is used by the launcher when receiving a
         SIGHUP. The service interface is defined in
-        keystone.openstack.common.service.Service.
+        oslo_service.service.Service.
 
         Keystone does not need to do anything here.
         """
