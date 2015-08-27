@@ -89,9 +89,9 @@
     "identity:create_grant": "rule:cloud_admin or rule:domain_admin_for_grants or rule:project_admin_for_grants",
     "identity:revoke_grant": "rule:cloud_admin or rule:domain_admin_for_grants or rule:project_admin_for_grants",
 
-    "admin_on_domain_filter" : "rule:cloud_admin or (rule:admin_required and domain_id:%(scope.domain.id)s)",
-    "admin_on_project_filter" : "rule:cloud_admin or (rule:admin_required and project_id:%(scope.project.id)s)",
-    "identity:list_role_assignments": "rule:admin_on_domain_filter or rule:admin_on_project_filter",
+    "admin_on_domain_filter" : "rule:admin_required and domain_id:%(scope.domain.id)s",
+    "admin_on_project_filter" : "rule:admin_required and project_id:%(scope.project.id)s",
+    "identity:list_role_assignments": "rule:cloud_admin or rule:admin_on_domain_filter or rule:admin_on_project_filter",
 
     "identity:get_policy": "rule:cloud_admin",
     "identity:list_policies": "rule:cloud_admin",
