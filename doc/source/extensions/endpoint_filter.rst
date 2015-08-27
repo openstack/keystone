@@ -24,7 +24,7 @@ To enable the endpoint filter extension:
    in ``keystone.conf``. For example::
 
     [catalog]
-    driver = keystone.contrib.endpoint_filter.backends.catalog_sql.EndpointFilterCatalog
+    driver = catalog_sql
 
 2. Add the ``endpoint_filter_extension`` filter to the ``api_v3`` pipeline in
    ``keystone-paste.ini``. This must be added after ``json_body`` and before

@@ -70,7 +70,7 @@ must follow the config file conventions and introduce a dedicated section.
 Example::
 
     [example]
-    driver = keystone.contrib.example.backends.sql.mySQLClass
+    driver = sql
 
     [my_other_extension]
     extension_flag = False
@@ -81,7 +81,7 @@ extensions are disabled.
 Example::
 
     [example]
-    #driver = keystone.contrib.example.backends.sql.mySQLClass
+    #driver = sql
 
     [my_other_extension]
     #extension_flag = False

@@ -336,8 +336,8 @@ wish to make use of other generator algorithms that have a different trade-off
 of attributes. A different generator can be installed by configuring the
 following property:
 
-* ``generator`` - identity mapping generator. Defaults to
-  ``keystone.identity.generators.sha256.Generator``
+* ``generator`` - identity mapping generator. Defaults to ``sha256``
+  (implemented by :class:`keystone.identity.id_generators.sha256.Generator`)
 
 .. WARNING::
 
@@ -371,7 +371,7 @@ How to Implement an Authentication Plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All authentication plugins must extend the
-``keystone.auth.core.AuthMethodHandler`` class and implement the
+:class:`keystone.auth.core.AuthMethodHandler` class and implement the
 ``authenticate()`` method. The ``authenticate()`` method expects the following
 parameters.
 
@@ -394,7 +394,7 @@ return the payload in the form of a dictionary for the next authentication
 step.
 
 If authentication is unsuccessful, the ``authenticate()`` method must raise a
-``keystone.exception.Unauthorized`` exception.
+:class:`keystone.exception.Unauthorized` exception.
 
 Simply add the new plugin name to the ``methods`` list along with your plugin
 class configuration in the ``[auth]`` sections of the configuration file to
@@ -427,30 +427,28 @@ provides three non-test persistence backends. These can be set with the
 
 The drivers Keystone provides are:
 
-* ``keystone.token.persistence.backends.memcache_pool.Token`` - The pooled
-  memcached token persistence engine. This backend supports the concept of
-  pooled memcache client object (allowing for the re-use of the client
-  objects). This backend has a number of extra tunable options in the
-  ``[memcache]`` section of the config.
+* ``memcache_pool`` - The pooled memcached token persistence engine. This
+  backend supports the concept of pooled memcache client object (allowing for
+  the re-use of the client objects). This backend has a number of extra tunable
+  options in the ``[memcache]`` section of the config. Implemented by
+  :class:`keystone.token.persistence.backends.memcache_pool.Token`
 
-* ``keystone.token.persistence.backends.sql.Token`` - The SQL-based (default)
-  token persistence engine.
+* ``sql`` - The SQL-based (default) token persistence engine. Implemented by
+  :class:`keystone.token.persistence.backends.sql.Token`
 
-* ``keystone.token.persistence.backends.memcache.Token`` - The memcached based
-  token persistence backend. This backend relies on ``dogpile.cache`` and
-  stores the token data in a set of memcached servers. The servers URLs are
-  specified in the ``[memcache]\servers`` configuration option in the Keystone
-  config.
+* ``memcache`` - The memcached based token persistence backend. This backend
+  relies on ``dogpile.cache`` and stores the token data in a set of memcached
+  servers. The servers URLs are specified in the ``[memcache]\servers``
+  configuration option in the Keystone config. Implemented by
+  :class:`keystone.token.persistence.backends.memcache.Token`
 
 
 .. WARNING::
-    It is recommended you use the
-    ``keystone.token.persistence.backends.memcache_pool.Token`` backend instead
-    of ``keystone.token.persistence.backends.memcache.Token`` as the token
-    persistence driver if you are deploying Keystone under eventlet instead of
-    Apache + mod_wsgi. This recommendation is due to known issues with the use
-    of ``thread.local`` under eventlet that can allow the leaking of memcache
-    client objects and consumption of extra sockets.
+    It is recommended you use the ``memcache_pool`` backend instead of
+    ``memcache`` as the token persistence driver if you are deploying Keystone
+    under eventlet instead of Apache + mod_wsgi. This recommendation is due to
+    known issues with the use of ``thread.local`` under eventlet that can allow
+    the leaking of memcache client objects and consumption of extra sockets.
 
 
 Token Provider
@@ -461,8 +459,8 @@ Keystone supports customizable token provider and it is specified in the
 PKI token providers. However, users may register their own token provider by
 configuring the following property.
 
-* ``provider`` - token provider driver. Defaults to
-  ``keystone.token.providers.uuid.Provider``
+* ``provider`` - token provider driver. Defaults to ``uuid``. Implemented by
+  :class:`keystone.token.providers.uuid.Provider`
 
 
 UUID, PKI, PKIZ, or Fernet?
@@ -852,7 +850,7 @@ A dynamic database-backed driver fully supporting persistent configuration.
 .. code-block:: ini
 
     [catalog]
-    driver = keystone.catalog.backends.sql.Catalog
+    driver = sql
 
 .. NOTE::
 
@@ -888,7 +886,7 @@ catalog will not change very much over time.
 .. code-block:: ini
 
     [catalog]
-    driver = keystone.catalog.backends.templated.Catalog
+    driver = templated
     template_file = /opt/stack/keystone/etc/default_catalog.templates
 
 The value of ``template_file`` is expected to be an absolute path to your
@@ -1252,7 +1250,7 @@ Ensure that your ``keystone.conf`` is configured to use a SQL driver:
 .. code-block:: ini
 
     [identity]
-    driver = keystone.identity.backends.sql.Identity
+    driver = sql
 
 You may also want to configure your ``[database]`` settings to better reflect
 your environment:
@@ -1699,16 +1697,16 @@ enable this option, you must have the following ``keystone.conf`` options set:
 .. code-block:: ini
 
   [identity]
-  driver = keystone.identity.backends.ldap.Identity
+  driver = ldap
 
   [resource]
-  driver = keystone.resource.backends.sql.Resource
+  driver = sql
 
   [assignment]
-  driver = keystone.assignment.backends.sql.Assignment
+  driver = sql
 
   [role]
-  driver = keystone.assignment.role_backends.sql.Role
+  driver = sql
 
 With the above configuration, Keystone will only lookup identity related
 information such users, groups, and group membership from the directory, while
