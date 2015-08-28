@@ -520,6 +520,13 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         after_assignments = len(self.assignment_api.list_role_assignments())
         self.assertEqual(existing_assignments + 2, after_assignments)
 
+    def test_list_role_assignments_filtered_by_role(self):
+        # Domain roles are not supported by the LDAP Assignment backend
+        self.assertRaises(
+            exception.NotImplemented,
+            super(BaseLDAPIdentity, self).
+            test_list_role_assignments_filtered_by_role)
+
     def test_list_role_assignments_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
         self.ldapdb.clear()
@@ -2329,6 +2336,11 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.skipTest("Doesn't apply since LDAP configuration is ignored for "
                       "SQL assignment backend.")
 
+    def test_list_role_assignments_filtered_by_role(self):
+        # Domain roles are supported by the SQL Assignment backend
+        base = super(BaseLDAPIdentity, self)
+        base.test_list_role_assignments_filtered_by_role()
+
 
 class LdapIdentitySqlAssignmentWithMapping(LdapIdentitySqlAssignment):
     """Class to test mapping of default LDAP backend.
@@ -2765,6 +2777,11 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, tests.SQLDriverOverrides,
         self.skipTest("Doesn't apply since LDAP configuration is ignored for "
                       "SQL assignment backend.")
 
+    def test_list_role_assignments_filtered_by_role(self):
+        # Domain roles are supported by the SQL Assignment backend
+        base = super(BaseLDAPIdentity, self)
+        base.test_list_role_assignments_filtered_by_role()
+
 
 class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
     """Class to test the use of domain configs stored in the database.
@@ -3050,6 +3067,11 @@ class DomainSpecificLDAPandSQLIdentity(
         # Override
         self.skipTest("Doesn't apply since LDAP configuration is ignored for "
                       "SQL assignment backend.")
+
+    def test_list_role_assignments_filtered_by_role(self):
+        # Domain roles are supported by the SQL Assignment backend
+        base = super(BaseLDAPIdentity, self)
+        base.test_list_role_assignments_filtered_by_role()
 
 
 class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
