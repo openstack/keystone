@@ -14,6 +14,7 @@
 
 from oslo_config import cfg
 import oslo_messaging
+import passlib.utils
 
 
 _DEFAULT_AUTH_METHODS = ['external', 'password', 'token', 'oauth1']
@@ -159,6 +160,7 @@ FILE_OPTIONS = {
                         'no effect unless global and identity caching are '
                         'enabled.'),
         cfg.IntOpt('max_password_length', default=4096,
+                   max=passlib.utils.MAX_PASSWORD_SIZE,
                    help='Maximum supported length for user passwords; '
                         'decrease to improve performance.'),
         cfg.IntOpt('list_limit',
