@@ -30,7 +30,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         self.useFixture(database.Database())
 
         self.service_id = uuid.uuid4().hex
-        self.service = self.new_service_ref()
+        self.service = tests.new_service_ref()
         self.service['id'] = self.service_id
         self.catalog_api.create_service(
             self.service_id,
@@ -46,19 +46,6 @@ class V2CatalogTestCase(rest.RestfulTestCase):
     def config_overrides(self):
         super(V2CatalogTestCase, self).config_overrides()
         self.config_fixture.config(group='catalog', driver='sql')
-
-    def new_ref(self):
-        """Populates a ref with attributes common to all API entities."""
-        return {
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'enabled': True}
-
-    def new_service_ref(self):
-        ref = self.new_ref()
-        ref['type'] = uuid.uuid4().hex
-        return ref
 
     def _get_token_id(self, r):
         """Applicable only to JSON."""
