@@ -587,11 +587,6 @@ class BaseProvider(provider.Provider):
         return token_id, token_data
 
     def _handle_mapped_tokens(self, auth_context, project_id, domain_id):
-        def get_federated_domain():
-            return (CONF.federation.federated_domain_name or
-                    federation_constants.FEDERATED_DOMAIN_KEYWORD)
-
-        federated_domain = get_federated_domain()
         user_id = auth_context['user_id']
         group_ids = auth_context['group_ids']
         idp = auth_context[federation_constants.IDENTITY_PROVIDER]
@@ -606,8 +601,8 @@ class BaseProvider(provider.Provider):
                     'protocol': {'id': protocol}
                 },
                 'domain': {
-                    'id': federated_domain,
-                    'name': federated_domain
+                    'id': CONF.federation.federated_domain_name,
+                    'name': CONF.federation.federated_domain_name
                 }
             }
         }

@@ -467,40 +467,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                           self.resource_api.update_domain,
                           domain['id'], domain)
 
-    def test_set_federated_domain_when_config_empty(self):
-        """Make sure we are operable even if config value is not properly
-        set.
-
-        This includes operations like create, update, delete.
-
-        """
-        federated_name = 'Federated'
-        self.config_fixture.config(group='federation',
-                                   federated_domain_name='')
-        domain = self.new_domain_ref()
-        domain['id'] = federated_name
-        self.assertRaises(AssertionError,
-                          self.resource_api.create_domain,
-                          domain['id'], domain)
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.delete_domain,
-                          domain['id'])
-        self.assertRaises(AssertionError,
-                          self.resource_api.update_domain,
-                          domain['id'], domain)
-
-        # swap id with name
-        domain['id'], domain['name'] = domain['name'], domain['id']
-        self.assertRaises(AssertionError,
-                          self.resource_api.create_domain,
-                          domain['id'], domain)
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.delete_domain,
-                          domain['id'])
-        self.assertRaises(AssertionError,
-                          self.resource_api.update_domain,
-                          domain['id'], domain)
-
     # Project CRUD tests
 
     def test_list_projects(self):
