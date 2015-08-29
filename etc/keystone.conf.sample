@@ -50,6 +50,8 @@
 
 # The value passed as the keyword "rounds" to passlib's encrypt method.
 # (integer value)
+# Minimum value: 1000
+# Maximum value: 100000
 #crypt_strength = 10000
 
 # The maximum number of entities that will be returned in a collection, with no
@@ -271,7 +273,9 @@
 #
 
 # Entrypoint for the assignment backend driver in the keystone.assignment
-# namespace. (string value)
+# namespace. Supplied drivers are ldap and sql. If an assignment driver is not
+# specified, the identity driver will choose the assignment driver. (string
+# value)
 #driver = <None>
 
 
@@ -293,7 +297,8 @@
 #token = <None>
 
 # Entrypoint for the external (REMOTE_USER) auth plugin module in the
-# keystone.auth.external namespace. (string value)
+# keystone.auth.external namespace. Supplied drivers are DefaultDomain and
+# Domain. The default driver is DefaultDomain. (string value)
 #external = <None>
 
 # Entrypoint for the oAuth1.0 auth plugin module in the keystone.auth.oauth1
@@ -380,7 +385,8 @@
 #template_file = default_catalog.templates
 
 # Entrypoint for the catalog backend driver in the keystone.catalog namespace.
-# (string value)
+# Supplied drivers are kvs, sql, templated, and endpoint_filter.sql (string
+# value)
 #driver = sql
 
 # Toggle for catalog caching. This has no effect unless global caching is
@@ -639,6 +645,8 @@
 #public_bind_host = 0.0.0.0
 
 # The port number which the public service listens on. (integer value)
+# Minimum value: 1
+# Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/public_port
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -653,6 +661,8 @@
 #admin_bind_host = 0.0.0.0
 
 # The port number which the admin service listens on. (integer value)
+# Minimum value: 1
+# Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/admin_port
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -744,9 +754,7 @@
 # A domain name that is reserved to allow federated ephemeral users to have a
 # domain concept. Note that an admin will not be able to create a domain with
 # this name or update an existing domain to this name. You are not advised to
-# change this value unless you really have to. Changing this option to empty
-# string or None will not have any impact and default name will be used.
-# (string value)
+# change this value unless you really have to. (string value)
 #federated_domain_name = Federated
 
 # A list of trusted dashboard hosts. Before accepting a Single Sign-On request
@@ -812,7 +820,7 @@
 #domain_config_dir = /etc/keystone/domains
 
 # Entrypoint for the identity backend driver in the keystone.identity
-# namespace. (string value)
+# namespace. Supplied drivers are ldap and sql. (string value)
 #driver = sql
 
 # Toggle for identity caching. This has no effect unless global caching is
@@ -825,6 +833,7 @@
 
 # Maximum supported length for user passwords; decrease to improve performance.
 # (integer value)
+# Maximum value: 4096
 #max_password_length = 4096
 
 # Maximum number of entities that will be returned in an identity collection.
@@ -1600,6 +1609,10 @@
 # Deprecated group/name - [DEFAULT]/max_request_body_size
 #max_request_body_size = 114688
 
+#
+# From oslo.middleware
+#
+
 # The HTTP Header that will be used to determine what the original request
 # protocol scheme was, even if it was hidden by an SSL termination proxy.
 # (string value)
@@ -1649,7 +1662,7 @@
 #
 
 # Entrypoint for the policy backend driver in the keystone.policy namespace.
-# (string value)
+# Supplied drivers are rules and sql. (string value)
 #driver = sql
 
 # Maximum number of entities that will be returned in a policy collection.
@@ -1664,8 +1677,9 @@
 #
 
 # Entrypoint for the resource backend driver in the keystone.resource
-# namespace. If a resource driver is not specified, the assignment driver will
-# choose the resource driver. (string value)
+# namespace. Supplied drivers are ldap and sql. If a resource driver is not
+# specified, the assignment driver will choose the resource driver. (string
+# value)
 #driver = <None>
 
 # Toggle for resource caching. This has no effect unless global caching is
@@ -1691,7 +1705,8 @@
 #
 
 # Entrypoint for an implementation of the backend for persisting revocation
-# events in the keystone.revoke namespace. (string value)
+# events in the keystone.revoke namespace. Supplied drivers are kvs and sql.
+# (string value)
 #driver = sql
 
 # This value (calculated in seconds) is added to token expiration before a
@@ -1716,7 +1731,7 @@
 #
 
 # Entrypoint for the role backend driver in the keystone.role namespace.
-# (string value)
+# Supplied drivers are ldap and sql. (string value)
 #driver = <None>
 
 # Toggle for role caching. This has no effect unless global caching is enabled.
@@ -1830,6 +1845,7 @@
 
 # Key size (in bits) for token signing cert (auto generated certificate).
 # (integer value)
+# Minimum value: 1024
 #key_size = 2048
 
 # Days the token signing cert is valid for (auto generated certificate).
@@ -1851,6 +1867,7 @@
 #ca_key = /etc/keystone/ssl/private/cakey.pem
 
 # SSL key length (in bits) (auto generated certificate). (integer value)
+# Minimum value: 1024
 #key_size = 1024
 
 # Days the certificate is valid for once signed (auto generated certificate).
@@ -1886,7 +1903,8 @@
 #provider = uuid
 
 # Entrypoint for the token persistence backend driver in the
-# keystone.token.persistence namespace. (string value)
+# keystone.token.persistence namespace. Supplied drivers are kvs, memcache,
+# memcache_pool, and sql. (string value)
 #driver = sql
 
 # Toggle for token system caching. This has no effect unless global caching is
