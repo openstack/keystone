@@ -156,17 +156,19 @@ variety of environments and needs. The backend for each service is defined in
 the keystone.conf file with the key ``driver`` under a group associated with
 each service.
 
-A general class under each backend named ``Driver`` exists to provide an
+A general class exists under each backend to provide an
 abstract base class for any implementations, identifying the expected service
-implementations. The drivers for the services are:
+implementations. The classes are named after the keystone release in which
+they were introduced. For eg. ``DriverV8`` for keystone release version 8.
+The corresponding drivers for the services are:
 
-* :mod:`keystone.assignment.core.Driver`
-* :mod:`keystone.assignment.core.RoleDriver`
-* :mod:`keystone.catalog.core.Driver`
-* :mod:`keystone.identity.core.Driver`
-* :mod:`keystone.policy.core.Driver`
-* :mod:`keystone.resource.core.Driver`
-* :mod:`keystone.token.core.Driver`
+* :mod:`keystone.assignment.core.AssignmentDriverV8`
+* :mod:`keystone.assignment.core.RoleDriverV8`
+* :mod:`keystone.catalog.core.CatalogDriverV8`
+* :mod:`keystone.identity.core.IdentityDriverV8`
+* :mod:`keystone.policy.core.PolicyDriverV8`
+* :mod:`keystone.resource.core.ResourceDriverV8`
+* :mod:`keystone.token.core.TokenDriverV8`
 
 If you implement a backend driver for one of the Keystone services, you're
 expected to subclass from these classes.

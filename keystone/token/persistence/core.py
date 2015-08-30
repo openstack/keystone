@@ -230,7 +230,7 @@ class Manager(object):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class TokenDriverV8(object):
     """Interface description for a Token driver."""
 
     @abc.abstractmethod
@@ -357,3 +357,6 @@ class Driver(object):
         """Archive or delete tokens that have expired.
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+Driver = manager.create_legacy_driver(TokenDriverV8)

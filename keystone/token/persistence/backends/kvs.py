@@ -33,7 +33,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class Token(token.persistence.Driver):
+class Token(token.persistence.TokenDriverV8):
     """KeyValueStore backend for tokens.
 
     This is the base implementation for any/all key-value-stores (e.g.

@@ -42,7 +42,7 @@ class SensitiveConfig(sql.ModelBase, sql.ModelDictMixin):
         return d
 
 
-class DomainConfig(resource.DomainConfigDriver):
+class DomainConfig(resource.DomainConfigDriverV8):
 
     def choose_table(self, sensitive):
         if sensitive:

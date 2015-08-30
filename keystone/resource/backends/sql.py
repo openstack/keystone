@@ -24,7 +24,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class Resource(keystone_resource.Driver):
+class Resource(keystone_resource.ResourceDriverV8):
 
     def default_assignment_driver(self):
         return 'sql'

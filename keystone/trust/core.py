@@ -204,7 +204,7 @@ class Manager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class TrustDriverV8(object):
 
     @abc.abstractmethod
     def create_trust(self, trust_id, trust, roles):
@@ -251,3 +251,6 @@ class Driver(object):
                  keystone.exception.TrustNotFound
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+Driver = manager.create_legacy_driver(TrustDriverV8)

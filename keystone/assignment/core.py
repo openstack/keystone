@@ -911,7 +911,7 @@ class Manager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class AssignmentDriverV8(object):
 
     def _role_to_dict(self, role_id, inherited):
         role_dict = {'id': role_id}
@@ -1158,6 +1158,9 @@ class Driver(object):
         raise exception.NotImplemented()  # pragma: no cover
 
 
+Driver = manager.create_legacy_driver(AssignmentDriverV8)
+
+
 @dependency.provider('role_api')
 @dependency.requires('assignment_api')
 class RoleManager(manager.Manager):
@@ -1219,7 +1222,7 @@ class RoleManager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class RoleDriver(object):
+class RoleDriverV8(object):
 
     def _get_list_limit(self):
         return CONF.role.list_limit or CONF.list_limit
@@ -1287,3 +1290,6 @@ class RoleDriver(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+RoleDriver = manager.create_legacy_driver(RoleDriverV8)

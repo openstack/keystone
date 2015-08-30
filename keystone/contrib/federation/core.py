@@ -92,7 +92,7 @@ class Manager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class FederationDriverV8(object):
 
     @abc.abstractmethod
     def create_idp(self, idp_id, idp):
@@ -350,3 +350,6 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+Driver = manager.create_legacy_driver(FederationDriverV8)

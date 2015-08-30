@@ -27,7 +27,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class Role(assignment.RoleDriver):
+class Role(assignment.RoleDriverV8):
 
     def __init__(self):
         super(Role, self).__init__()
