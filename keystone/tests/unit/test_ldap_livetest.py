@@ -21,7 +21,7 @@ from six.moves import range
 
 from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import test_backend_ldap
 
 
@@ -78,7 +78,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def config_files(self):
         config_files = super(LiveLDAPIdentity, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_liveldap.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_liveldap.conf'))
         return config_files
 
     def test_build_tree(self):

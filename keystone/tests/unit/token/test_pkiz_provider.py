@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.token.providers import pkiz
 
 
-class TestPkizTokenProvider(tests.TestCase):
+class TestPkizTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestPkizTokenProvider, self).setUp()
         self.provider = pkiz.Provider()

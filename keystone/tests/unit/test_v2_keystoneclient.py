@@ -25,7 +25,7 @@ from oslo_utils import timeutils
 from six.moves import range
 import webob
 
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import appserver
 from keystone.tests.unit.ksfixtures import database
@@ -35,11 +35,11 @@ CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class ClientDrivenTestCase(tests.TestCase):
+class ClientDrivenTestCase(unit.TestCase):
 
     def config_files(self):
         config_files = super(ClientDrivenTestCase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def setUp(self):

@@ -23,7 +23,7 @@ from oslo_config import cfg
 
 from keystone.common import cache
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 CONF = cfg.CONF
@@ -76,7 +76,7 @@ class TestProxyValue(object):
         self.cached = False
 
 
-class CacheRegionTest(tests.TestCase):
+class CacheRegionTest(unit.TestCase):
 
     def setUp(self):
         super(CacheRegionTest, self).setUp()
@@ -293,7 +293,7 @@ class CacheRegionTest(tests.TestCase):
                           "bogus")
 
 
-class CacheNoopBackendTest(tests.TestCase):
+class CacheNoopBackendTest(unit.TestCase):
 
     def setUp(self):
         super(CacheNoopBackendTest, self).setUp()

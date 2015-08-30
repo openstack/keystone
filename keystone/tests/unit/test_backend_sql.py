@@ -29,7 +29,7 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_backend
@@ -40,7 +40,7 @@ CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
-class SqlTests(tests.SQLDriverOverrides, tests.TestCase):
+class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         super(SqlTests, self).setUp()
@@ -54,7 +54,7 @@ class SqlTests(tests.SQLDriverOverrides, tests.TestCase):
 
     def config_files(self):
         config_files = super(SqlTests, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
 
@@ -840,7 +840,7 @@ class FakeTable(sql.ModelBase):
         raise KeyError
 
 
-class SqlDecorators(tests.TestCase):
+class SqlDecorators(unit.TestCase):
 
     def test_initialization_fail(self):
         self.assertRaises(exception.StringLengthExceeded,
@@ -863,7 +863,7 @@ class SqlDecorators(tests.TestCase):
         self.assertRaises(KeyError, FakeTable().lookup)
 
 
-class SqlModuleInitialization(tests.TestCase):
+class SqlModuleInitialization(unit.TestCase):
 
     @mock.patch.object(sql.core, 'CONF')
     @mock.patch.object(options, 'set_defaults')

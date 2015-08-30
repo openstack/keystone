@@ -18,7 +18,7 @@ from six.moves import range
 
 from keystone.common import controller
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils
 
@@ -3075,7 +3075,7 @@ class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
         self.delete(member_url, expected_status=404)
 
 
-class AssignmentV3toV2MethodsTestCase(tests.TestCase):
+class AssignmentV3toV2MethodsTestCase(unit.TestCase):
     """Test domain V3 to V2 conversion methods."""
     def _setup_initial_projects(self):
         self.project_id = uuid.uuid4().hex

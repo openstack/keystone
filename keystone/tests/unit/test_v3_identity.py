@@ -21,7 +21,7 @@ from testtools import matchers
 
 from keystone.common import controller
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
@@ -469,7 +469,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertNotIn(new_password, log_fix.output)
 
 
-class IdentityV3toV2MethodsTestCase(tests.TestCase):
+class IdentityV3toV2MethodsTestCase(unit.TestCase):
     """Test users V3 to V2 conversion methods."""
 
     def setUp(self):

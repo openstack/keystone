@@ -23,17 +23,17 @@ from keystone.cmd import cli
 from keystone.common import dependency
 from keystone.i18n import _
 from keystone import resource
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
 
 CONF = cfg.CONF
 
 
-class CliTestCase(tests.SQLDriverOverrides, tests.TestCase):
+class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
     def config_files(self):
         config_files = super(CliTestCase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def test_token_flush(self):
@@ -42,7 +42,7 @@ class CliTestCase(tests.SQLDriverOverrides, tests.TestCase):
         cli.TokenFlush.main()
 
 
-class CliDomainConfigAllTestCase(tests.SQLDriverOverrides, tests.TestCase):
+class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         self.useFixture(database.Database())
@@ -50,7 +50,7 @@ class CliDomainConfigAllTestCase(tests.SQLDriverOverrides, tests.TestCase):
         self.load_backends()
         self.config_fixture.config(
             group='identity',
-            domain_config_dir=tests.TESTCONF + '/domain_configs_multi_ldap')
+            domain_config_dir=unit.TESTCONF + '/domain_configs_multi_ldap')
         self.domain_count = 3
         self.setup_initial_domains()
 
@@ -58,7 +58,7 @@ class CliDomainConfigAllTestCase(tests.SQLDriverOverrides, tests.TestCase):
         self.config_fixture.register_cli_opt(cli.command_opt)
         self.addCleanup(self.cleanup)
         config_files = super(CliDomainConfigAllTestCase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def cleanup(self):

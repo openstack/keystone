@@ -18,7 +18,7 @@ import uuid
 from keystone.assignment import controllers as assignment_controllers
 from keystone import exception
 from keystone.resource import controllers as resource_controllers
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
@@ -26,7 +26,7 @@ from keystone.tests.unit.ksfixtures import database
 _ADMIN_CONTEXT = {'is_admin': True, 'query_string': {}}
 
 
-class TenantTestCase(tests.TestCase):
+class TenantTestCase(unit.TestCase):
     """Tests for the V2 Tenant controller.
 
     These tests exercise :class:`keystone.assignment.controllers.Tenant`.

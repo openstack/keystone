@@ -19,28 +19,28 @@ from oslo_log import log
 from sqlalchemy import exc
 from testtools import matchers
 
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 LOG = log.getLogger(__name__)
 
 
-class BaseTestTestCase(tests.BaseTestCase):
+class BaseTestTestCase(unit.BaseTestCase):
 
     def test_unexpected_exit(self):
         # if a test calls sys.exit it raises rather than exiting.
         self.assertThat(lambda: sys.exit(),
-                        matchers.raises(tests.UnexpectedExit))
+                        matchers.raises(unit.UnexpectedExit))
 
 
-class TestTestCase(tests.TestCase):
+class TestTestCase(unit.TestCase):
 
     def test_bad_log(self):
         # If the arguments are invalid for the string in a log it raises an
         # exception during testing.
         self.assertThat(
             lambda: LOG.warn('String %(p1)s %(p2)s', {'p1': 'something'}),
-            matchers.raises(tests.BadLog))
+            matchers.raises(unit.BadLog))
 
     def test_sa_warning(self):
         self.assertThat(

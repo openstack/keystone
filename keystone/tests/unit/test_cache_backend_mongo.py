@@ -24,7 +24,7 @@ from six.moves import range
 
 from keystone.common.cache.backends import mongo
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 # Mock database structure sample where 'ks_cache' is database and
@@ -278,7 +278,7 @@ class MyTransformer(mongo.BaseTransform):
         return super(MyTransformer, self).transform_outgoing(son, collection)
 
 
-class MongoCache(tests.BaseTestCase):
+class MongoCache(unit.BaseTestCase):
     def setUp(self):
         super(MongoCache, self).setUp()
         global COLLECTIONS

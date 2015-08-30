@@ -18,7 +18,7 @@ import mock
 from six.moves import zip
 
 from keystone import catalog
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_backend
@@ -28,7 +28,7 @@ BROKEN_WRITE_FUNCTIONALITY_MSG = ("Templated backend doesn't correctly "
                                   "implement write operations")
 
 
-class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
+class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
 
     DEFAULT_FIXTURE = {
         'RegionOne': {
@@ -60,7 +60,7 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
         self.config_fixture.config(
             group='catalog',
             driver='templated',
-            template_file=tests.dirs.tests('default_catalog.templates'))
+            template_file=unit.dirs.tests('default_catalog.templates'))
 
     def test_get_catalog(self):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
@@ -161,11 +161,11 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
     def test_region_crud(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    @tests.skip_if_cache_disabled('catalog')
+    @unit.skip_if_cache_disabled('catalog')
     def test_cache_layer_region_crud(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    @tests.skip_if_cache_disabled('catalog')
+    @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_region(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
@@ -189,11 +189,11 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
     def test_service_crud(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    @tests.skip_if_cache_disabled('catalog')
+    @unit.skip_if_cache_disabled('catalog')
     def test_cache_layer_service_crud(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    @tests.skip_if_cache_disabled('catalog')
+    @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_service(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
@@ -234,6 +234,6 @@ class TestTemplatedCatalog(tests.TestCase, test_backend.CatalogTests):
         endpoints = self.catalog_api.list_endpoints()
         self.assertEqual(expected_ids, set(e['id'] for e in endpoints))
 
-    @tests.skip_if_cache_disabled('catalog')
+    @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_endpoint(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)

@@ -30,7 +30,7 @@ from keystone import auth
 from keystone.common import utils
 from keystone import exception
 from keystone.policy.backends import rules
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
@@ -637,7 +637,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         super(TestTokenRevokeSelfAndAdmin, self).config_overrides()
         self.config_fixture.config(
             group='oslo_policy',
-            policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
+            policy_file=unit.dirs.etc('policy.v3cloudsample.json'))
 
     def test_user_revokes_own_token(self):
         user_token = self.get_requested_token(
@@ -4001,7 +4001,7 @@ class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
         self.assertEqual(200, r.status_code)
 
 
-class TestAuthContext(tests.TestCase):
+class TestAuthContext(unit.TestCase):
     def setUp(self):
         super(TestAuthContext, self).setUp()
         self.auth_context = auth.controllers.AuthContext()

@@ -24,11 +24,11 @@ from testtools import matchers
 
 from keystone import exception
 from keystone.policy.backends import rules
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import temporaryfile
 
 
-class BasePolicyTestCase(tests.TestCase):
+class BasePolicyTestCase(unit.TestCase):
     def setUp(self):
         super(BasePolicyTestCase, self).setUp()
         rules.reset()
@@ -214,15 +214,15 @@ class DefaultPolicyTestCase(BasePolicyTestCase):
                           self.credentials, "example:noexist", {})
 
 
-class PolicyJsonTestCase(tests.TestCase):
+class PolicyJsonTestCase(unit.TestCase):
 
     def _load_entries(self, filename):
         return set(json.load(open(filename)))
 
     def test_json_examples_have_matching_entries(self):
-        policy_keys = self._load_entries(tests.dirs.etc('policy.json'))
+        policy_keys = self._load_entries(unit.dirs.etc('policy.json'))
         cloud_policy_keys = self._load_entries(
-            tests.dirs.etc('policy.v3cloudsample.json'))
+            unit.dirs.etc('policy.v3cloudsample.json'))
 
         policy_extra_keys = ['admin_or_token_subject',
                              'service_admin_or_token_subject',
@@ -236,7 +236,7 @@ class PolicyJsonTestCase(tests.TestCase):
         # All the targets in the sample policy file must be documented in
         # doc/source/policy_mapping.rst.
 
-        policy_keys = self._load_entries(tests.dirs.etc('policy.json'))
+        policy_keys = self._load_entries(unit.dirs.etc('policy.json'))
 
         # These keys are in the policy.json but aren't targets.
         policy_rule_keys = [
@@ -249,7 +249,7 @@ class PolicyJsonTestCase(tests.TestCase):
             # targets.
 
             doc_path = os.path.join(
-                tests.ROOTDIR, 'doc', 'source', 'policy_mapping.rst')
+                unit.ROOTDIR, 'doc', 'source', 'policy_mapping.rst')
             with open(doc_path) as doc_file:
                 for line in doc_file:
                     if line.startswith('Target'):

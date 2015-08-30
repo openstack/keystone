@@ -15,7 +15,7 @@
 import webob
 
 from keystone import middleware
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 class FakeApp(object):
@@ -26,7 +26,7 @@ class FakeApp(object):
         return resp(env, start_response)
 
 
-class UrlMiddlewareTest(tests.TestCase):
+class UrlMiddlewareTest(unit.TestCase):
     def setUp(self):
         self.middleware = middleware.NormalizingFilter(FakeApp())
         self.response_status = None

@@ -20,7 +20,7 @@ from oslo_utils import timeutils
 from keystone.common import dependency
 from keystone.common import utils
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
 from keystone.token.providers import fernet
@@ -712,7 +712,7 @@ SAMPLE_MALFORMED_TOKEN = {
 }
 
 
-class TestTokenProvider(tests.TestCase):
+class TestTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestTokenProvider, self).setUp()
         self.useFixture(database.Database())
@@ -817,7 +817,7 @@ class PKIProviderTests(object):
                           token_data)
 
 
-class TestPKIProviderWithEventlet(PKIProviderTests, tests.TestCase):
+class TestPKIProviderWithEventlet(PKIProviderTests, unit.TestCase):
 
     def setUp(self):
         # force keystoneclient.common.cms to use eventlet's subprocess
@@ -827,7 +827,7 @@ class TestPKIProviderWithEventlet(PKIProviderTests, tests.TestCase):
         super(TestPKIProviderWithEventlet, self).setUp()
 
 
-class TestPKIProviderWithStdlib(PKIProviderTests, tests.TestCase):
+class TestPKIProviderWithStdlib(PKIProviderTests, unit.TestCase):
 
     def setUp(self):
         # force keystoneclient.common.cms to use the stdlib subprocess

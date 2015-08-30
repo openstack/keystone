@@ -26,7 +26,7 @@ from keystone.common.kvs.backends import inmemdb
 from keystone.common.kvs.backends import memcached
 from keystone.common.kvs import core
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 NO_VALUE = api.NO_VALUE
@@ -147,7 +147,7 @@ class TestMemcacheDriver(api.CacheBackend):
         self.client.set_multi(mapping, **self.set_arguments)
 
 
-class KVSTest(tests.TestCase):
+class KVSTest(unit.TestCase):
     def setUp(self):
         super(KVSTest, self).setUp()
         self.key_foo = 'foo_' + uuid.uuid4().hex
@@ -569,7 +569,7 @@ class KVSTest(tests.TestCase):
                           key=test_key)
 
 
-class TestMemcachedBackend(tests.TestCase):
+class TestMemcachedBackend(unit.TestCase):
 
     @mock.patch('keystone.common.kvs.backends.memcached._', six.text_type)
     def test_invalid_backend_fails_initialization(self):

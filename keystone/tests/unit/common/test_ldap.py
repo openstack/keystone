@@ -24,7 +24,7 @@ from testtools import matchers
 from keystone.common import driver_hints
 from keystone.common import ldap as ks_ldap
 from keystone.common.ldap import core as common_ldap_core
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
 
@@ -32,7 +32,7 @@ from keystone.tests.unit import fakeldap
 CONF = cfg.CONF
 
 
-class DnCompareTest(tests.BaseTestCase):
+class DnCompareTest(unit.BaseTestCase):
     """Tests for the DN comparison functions in keystone.common.ldap.core."""
 
     def test_prep(self):
@@ -200,7 +200,7 @@ class DnCompareTest(tests.BaseTestCase):
         self.assertTrue(ks_ldap.dn_startswith(child, parent))
 
 
-class LDAPDeleteTreeTest(tests.TestCase):
+class LDAPDeleteTreeTest(unit.TestCase):
 
     def setUp(self):
         super(LDAPDeleteTreeTest, self).setUp()
@@ -223,7 +223,7 @@ class LDAPDeleteTreeTest(tests.TestCase):
 
     def config_files(self):
         config_files = super(LDAPDeleteTreeTest, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
     def test_deleteTree(self):
@@ -283,7 +283,7 @@ class LDAPDeleteTreeTest(tests.TestCase):
                           conn.search_s, grandchild_dn, ldap.SCOPE_BASE)
 
 
-class SslTlsTest(tests.TestCase):
+class SslTlsTest(unit.TestCase):
     """Tests for the SSL/TLS functionality in keystone.common.ldap.core."""
 
     @mock.patch.object(ks_ldap.core.KeystoneLDAPHandler, 'simple_bind_s')
@@ -350,7 +350,7 @@ class SslTlsTest(tests.TestCase):
         self.assertEqual(certdir, ldap.get_option(ldap.OPT_X_TLS_CACERTDIR))
 
 
-class LDAPPagedResultsTest(tests.TestCase):
+class LDAPPagedResultsTest(unit.TestCase):
     """Tests the paged results functionality in keystone.common.ldap.core."""
 
     def setUp(self):
@@ -373,7 +373,7 @@ class LDAPPagedResultsTest(tests.TestCase):
 
     def config_files(self):
         config_files = super(LDAPPagedResultsTest, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_ldap.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
     @mock.patch.object(fakeldap.FakeLdap, 'search_ext')
@@ -390,7 +390,7 @@ class LDAPPagedResultsTest(tests.TestCase):
                              'objectclass=*')
 
 
-class CommonLdapTestCase(tests.BaseTestCase):
+class CommonLdapTestCase(unit.BaseTestCase):
     """These test cases call functions in keystone.common.ldap."""
 
     def test_binary_attribute_values(self):
@@ -497,7 +497,7 @@ class CommonLdapTestCase(tests.BaseTestCase):
             self.assertEqual(user_name, py_result[0][1]['user_name'][0])
 
 
-class LDAPFilterQueryCompositionTest(tests.TestCase):
+class LDAPFilterQueryCompositionTest(unit.TestCase):
     """These test cases test LDAP filter generation."""
 
     def setUp(self):

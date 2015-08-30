@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.token.providers import uuid
 
 
-class TestUuidTokenProvider(tests.TestCase):
+class TestUuidTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestUuidTokenProvider, self).setUp()
         self.provider = uuid.Provider()

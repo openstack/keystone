@@ -18,12 +18,12 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 
 from keystone.contrib.ec2 import controllers
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
-class TestCredentialEc2(tests.TestCase):
+class TestCredentialEc2(unit.TestCase):
     # TODO(davechen): more testcases for ec2 credential are expected here and
     # the file name would be renamed to "test_credential" to correspond with
     # "test_v3_credential.py".

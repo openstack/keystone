@@ -14,7 +14,7 @@
 from sqlalchemy.ext import declarative
 
 from keystone.common import sql
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import utils
 
 
@@ -27,7 +27,7 @@ class TestModel(ModelBase, sql.ModelDictMixin):
     text = sql.Column(sql.String(64), nullable=False)
 
 
-class TestModelDictMixin(tests.BaseTestCase):
+class TestModelDictMixin(unit.BaseTestCase):
 
     def test_creating_a_model_instance_from_a_dict(self):
         d = {'id': utils.new_uuid(), 'text': utils.new_uuid()}

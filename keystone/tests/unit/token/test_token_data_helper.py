@@ -16,11 +16,11 @@ import uuid
 from testtools import matchers
 
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.token.providers import common
 
 
-class TestTokenDataHelper(tests.TestCase):
+class TestTokenDataHelper(unit.TestCase):
     def setUp(self):
         super(TestTokenDataHelper, self).setUp()
         self.load_backends()

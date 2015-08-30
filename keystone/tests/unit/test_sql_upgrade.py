@@ -48,7 +48,7 @@ from keystone.common.sql import migration_helpers
 from keystone.contrib import federation
 from keystone.contrib import revoke
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
@@ -124,14 +124,14 @@ EXTENSIONS = {'federation': federation,
               'revoke': revoke}
 
 
-class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
+class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
     def initialize_sql(self):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
 
     def config_files(self):
         config_files = super(SqlMigrateBase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def repo_package(self):
@@ -141,15 +141,15 @@ class SqlMigrateBase(tests.SQLDriverOverrides, tests.TestCase):
         super(SqlMigrateBase, self).setUp()
         database.initialize_sql_session()
         conn_str = CONF.database.connection
-        if (conn_str != tests.IN_MEM_DB_CONN_STRING and
+        if (conn_str != unit.IN_MEM_DB_CONN_STRING and
                 conn_str.startswith('sqlite') and
-                conn_str[10:] == tests.DEFAULT_TEST_DB_FILE):
+                conn_str[10:] == unit.DEFAULT_TEST_DB_FILE):
             # Override the default with a DB that is specific to the migration
             # tests only if the DB Connection string is the same as the global
             # default. This is required so that no conflicts occur due to the
             # global default DB already being under migrate control. This is
             # only needed if the DB is not-in-memory
-            db_file = tests.dirs.tmp('keystone_migrate_test.db')
+            db_file = unit.dirs.tmp('keystone_migrate_test.db')
             self.config_fixture.config(
                 group='database',
                 connection='sqlite:///%s' % db_file)

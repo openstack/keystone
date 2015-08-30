@@ -29,7 +29,7 @@ from keystone.common import authorization
 from keystone import config
 from keystone import exception
 from keystone.models import token_model
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
@@ -72,7 +72,7 @@ def _build_user_auth(token=None, user_id=None, username=None,
     return auth_json
 
 
-class AuthTest(tests.TestCase):
+class AuthTest(unit.TestCase):
     def setUp(self):
         self.useFixture(database.Database())
         super(AuthTest, self).setUp()
@@ -1285,14 +1285,14 @@ class TokenExpirationTest(AuthTest):
         self._maintain_token_expiration()
 
 
-class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
+class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
     """Tests for the catalog provided in the auth response."""
 
     def config_files(self):
         config_files = super(AuthCatalog, self).config_files()
         # We need to use a backend that supports disabled endpoints, like the
         # SQL backend.
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def _create_endpoints(self):
@@ -1402,7 +1402,7 @@ class AuthCatalog(tests.SQLDriverOverrides, AuthTest):
         self.assertEqual(exp_endpoint, endpoint)
 
 
-class NonDefaultAuthTest(tests.TestCase):
+class NonDefaultAuthTest(unit.TestCase):
 
     def test_add_non_default_auth_method(self):
         self.config_fixture.config(group='auth',
