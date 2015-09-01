@@ -29,6 +29,7 @@ from oslo_config import fixture as config_fixture
 from oslo_log import log
 import oslotest.base as oslotest
 from oslotest import mockpatch
+from paste.deploy import loadwsgi
 import six
 from sqlalchemy import exc
 from testtools import testcase
@@ -111,6 +112,26 @@ class dirs(object):
 
 # keystone.common.sql.initialize() for testing.
 DEFAULT_TEST_DB_FILE = dirs.tmp('test.db')
+
+
+class EggLoader(loadwsgi.EggLoader):
+    _basket = {}
+
+    def find_egg_entry_point(self, object_type, name=None):
+        egg_key = '%s:%s' % (object_type, name)
+        egg_ep = self._basket.get(egg_key)
+        if not egg_ep:
+            egg_ep = super(EggLoader, self).find_egg_entry_point(
+                object_type, name=name)
+            self._basket[egg_key] = egg_ep
+        return egg_ep
+
+
+# NOTE(dstanek): class paths were remove from the keystone-paste.ini in
+# favor of using entry points. This caused tests to slow to a crawl
+# since we reload the application object for test RESTful test. This
+# monkey-patching adds caching to paste deploy's egg lookup.
+loadwsgi.EggLoader = EggLoader
 
 
 @atexit.register
