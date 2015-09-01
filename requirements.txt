@@ -13,7 +13,7 @@ Routes!=2.0,>=1.12.3
 cryptography>=0.8 # Apache-2.0
 six>=1.9.0
 SQLAlchemy<=0.9.99,>=0.9.7
-sqlalchemy-migrate>=0.9.5
+sqlalchemy-migrate!=0.9.8,<0.10.0,>=0.9.5
 passlib
 iso8601>=0.1.9
 python-keystoneclient<1.4.0,>=1.2.0
