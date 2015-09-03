@@ -32,7 +32,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class Identity(identity.Driver):
+class Identity(identity.IdentityDriverV8):
     def __init__(self, conf=None):
         super(Identity, self).__init__()
         if conf is None:

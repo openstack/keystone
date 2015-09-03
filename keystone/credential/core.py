@@ -51,7 +51,7 @@ class Manager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class CredentialDriverV8(object):
     # credential crud
 
     @abc.abstractmethod
@@ -140,3 +140,6 @@ class Driver(object):
                 except exception.CredentialNotFound:
                     LOG.debug('Deletion of credential is not required: %s',
                               cr['id'])
+
+
+Driver = manager.create_legacy_driver(CredentialDriverV8)

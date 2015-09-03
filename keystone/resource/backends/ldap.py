@@ -31,7 +31,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class Resource(resource.Driver):
+class Resource(resource.ResourceDriverV8):
     def __init__(self):
         super(Resource, self).__init__()
         self.LDAP_URL = CONF.ldap.url

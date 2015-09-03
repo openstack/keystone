@@ -65,7 +65,7 @@ class Manager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class EndpointFilterDriverV8(object):
     """Interface description for an Endpoint Filter driver."""
 
     @abc.abstractmethod
@@ -291,3 +291,6 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+Driver = manager.create_legacy_driver(EndpointFilterDriverV8)

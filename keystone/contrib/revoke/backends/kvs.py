@@ -27,7 +27,7 @@ _EVENT_KEY = 'os-revoke-events'
 _KVS_BACKEND = 'openstack.kvs.Memory'
 
 
-class Revoke(revoke.Driver):
+class Revoke(revoke.RevokeDriverV8):
 
     @versionutils.deprecated(
         versionutils.deprecated.JUNO,

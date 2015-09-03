@@ -82,7 +82,7 @@ class Manager(manager.Manager):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Driver(object):
+class PolicyDriverV8(object):
 
     def _get_list_limit(self):
         return CONF.policy.list_limit or CONF.list_limit
@@ -136,3 +136,6 @@ class Driver(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+Driver = manager.create_legacy_driver(PolicyDriverV8)

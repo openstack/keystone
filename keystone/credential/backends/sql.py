@@ -29,7 +29,7 @@ class CredentialModel(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class Credential(credential.Driver):
+class Credential(credential.CredentialDriverV8):
 
     # credential crud
 
