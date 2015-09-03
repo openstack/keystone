@@ -129,9 +129,9 @@ class AuthInfo(object):
     """Encapsulation of "auth" request."""
 
     @staticmethod
-    def create(context, auth=None):
+    def create(context, auth=None, scope_only=False):
         auth_info = AuthInfo(context, auth=auth)
-        auth_info._validate_and_normalize_auth_data()
+        auth_info._validate_and_normalize_auth_data(scope_only)
         return auth_info
 
     def __init__(self, context, auth=None):
@@ -272,14 +272,25 @@ class AuthInfo(object):
             if method_name not in AUTH_METHODS:
                 raise exception.AuthMethodNotSupported()
 
-    def _validate_and_normalize_auth_data(self):
-        """Make sure "auth" is valid."""
+    def _validate_and_normalize_auth_data(self, scope_only=False):
+        """Make sure "auth" is valid.
+
+        :param scope_only: If it is True, auth methods will not be
+                           validated but only the scope data.
+        :type scope_only: boolean
+        """
         # make sure "auth" exist
         if not self.auth:
             raise exception.ValidationError(attribute='auth',
                                             target='request body')
 
-        self._validate_auth_methods()
+        # NOTE(chioleong): Tokenless auth does not provide auth methods,
+        # we only care about using this method to validate the scope
+        # information. Therefore, validating the auth methods here is
+        # insignificant and we can skip it when scope_only is set to
+        # true.
+        if scope_only is False:
+            self._validate_auth_methods()
         self._validate_and_normalize_scope_data()
 
     def get_method_names(self):

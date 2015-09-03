@@ -894,6 +894,32 @@ FILE_OPTIONS = {
                    help='Entrypoint for the oAuth1.0 auth plugin module in '
                         'the keystone.auth.oauth1 namespace.'),
     ],
+    'tokenless_auth': [
+        cfg.MultiStrOpt('trusted_issuer', default=[],
+                        help='The list of trusted issuers to further filter '
+                             'the certificates that are allowed to '
+                             'participate in the X.509 tokenless '
+                             'authorization. If the option is absent then '
+                             'no certificates will be allowed. '
+                             'The naming format for the attributes of a '
+                             'Distinguished Name(DN) must be separated by a '
+                             'comma and contain no spaces. This configuration '
+                             'option may be repeated for multiple values. '
+                             'For example: '
+                             'trusted_issuer=CN=john,OU=keystone,O=openstack '
+                             'trusted_issuer=CN=mary,OU=eng,O=abc'),
+        cfg.StrOpt('protocol', default='x509',
+                   help='The protocol name for the X.509 tokenless '
+                        'authorization along with the option issuer_attribute '
+                        'below can look up its corresponding mapping.'),
+        cfg.StrOpt('issuer_attribute', default='SSL_CLIENT_I_DN',
+                   help='The issuer attribute that is served as an IdP ID '
+                        'for the X.509 tokenless authorization along with '
+                        'the protocol to look up its corresponding mapping. '
+                        'It is the environment variable in the WSGI '
+                        'environment that references to the issuer of the '
+                        'client certificate.'),
+    ],
     'paste_deploy': [
         cfg.StrOpt('config_file', default='keystone-paste.ini',
                    help='Name of the paste configuration file that defines '

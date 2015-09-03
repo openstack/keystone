@@ -480,3 +480,9 @@ class OAuthHeadersMissingError(UnexpectedError):
                              'HTTPd or Apache, ensure WSGIPassAuthorization '
                              'is set to On.')
     title = 'Error retrieving OAuth headers'
+
+
+class TokenlessAuthConfigError(ValidationError):
+    message_format = _('Could not determine Identity Provider ID. The '
+                       'configuration option %(issuer_attribute)s '
+                       'was not found in the request environment.')

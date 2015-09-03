@@ -901,6 +901,251 @@ MAPPING_GROUPS_WHITELIST_AND_BLACKLIST = {
     ]
 }
 
+# Mapping used by tokenless test cases, it maps the user_name
+# and domain_name.
+MAPPING_WITH_USERNAME_AND_DOMAINNAME = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'name': '{0}',
+                        'domain': {
+                            'name': '{1}'
+                        },
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_NAME'
+                },
+                {
+                    'type': 'SSL_CLIENT_DOMAIN_NAME'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the user_id
+# and domain_name.
+MAPPING_WITH_USERID_AND_DOMAINNAME = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'id': '{0}',
+                        'domain': {
+                            'name': '{1}'
+                        },
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_ID'
+                },
+                {
+                    'type': 'SSL_CLIENT_DOMAIN_NAME'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the user_name
+# and domain_id.
+MAPPING_WITH_USERNAME_AND_DOMAINID = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'name': '{0}',
+                        'domain': {
+                            'id': '{1}'
+                        },
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_NAME'
+                },
+                {
+                    'type': 'SSL_CLIENT_DOMAIN_ID'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the user_id
+# and domain_id.
+MAPPING_WITH_USERID_AND_DOMAINID = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'id': '{0}',
+                        'domain': {
+                            'id': '{1}'
+                        },
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_ID'
+                },
+                {
+                    'type': 'SSL_CLIENT_DOMAIN_ID'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the domain_id only.
+MAPPING_WITH_DOMAINID_ONLY = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'domain': {
+                            'id': '{0}'
+                        },
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_DOMAIN_ID'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the domain_name only.
+MAPPING_WITH_DOMAINNAME_ONLY = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'domain': {
+                            'name': '{0}'
+                        },
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_DOMAIN_NAME'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the user_name only.
+MAPPING_WITH_USERNAME_ONLY = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'name': '{0}',
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_NAME'
+                }
+            ]
+        }
+    ]
+}
+
+# Mapping used by tokenless test cases, it maps the user_id only.
+MAPPING_WITH_USERID_ONLY = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'id': '{0}',
+                        'type': 'local'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_ID'
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_FOR_EPHEMERAL_USER = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'name': '{0}',
+                        'type': 'ephemeral'
+                    },
+                    'group': {
+                        'id': 'dummy'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_NAME'
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_FOR_DEFAULT_EPHEMERAL_USER = {
+    'rules': [
+        {
+            'local': [
+                {
+                    'user': {
+                        'name': '{0}'
+                    },
+                    'group': {
+                        'id': 'dummy'
+                    }
+                }
+            ],
+            'remote': [
+                {
+                    'type': 'SSL_CLIENT_USER_NAME'
+                }
+            ]
+        }
+    ]
+}
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',
