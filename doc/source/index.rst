@@ -74,6 +74,7 @@ Developers Documentation
    :maxdepth: 1
 
    developing
+   developing_drivers
    architecture
    middlewarearchitecture
    http-api

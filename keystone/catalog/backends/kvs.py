@@ -18,7 +18,7 @@ from keystone.common import driver_hints
 from keystone.common import kvs
 
 
-class Catalog(kvs.Base, catalog.Driver):
+class Catalog(kvs.Base, catalog.CatalogDriverV8):
     # Public interface
     def get_catalog(self, user_id, tenant_id):
         return self.db.get('catalog-%s-%s' % (tenant_id, user_id))
