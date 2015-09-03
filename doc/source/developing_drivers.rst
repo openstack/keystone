@@ -78,7 +78,7 @@ Driver Versioning
 In the past the driver class was named ``Driver`` and changes would
 sometimes be devastating to developers that depend on our driver
 contracts. To help alleviate some of the issues we are now creating
-version driver classes, e.g. ``Driver11``.
+version driver classes, e.g. ``DriverV8``.
 
 We'll be supporting the current driver version for at least one version back.
 This gives developers a full cycle to update their drivers. Some cases, such
@@ -95,7 +95,7 @@ Removing Methods
 ~~~~~~~~~~~~~~~~
 
 Newer driver interfaces may remove methods that are currently required.
-Methods are removed when the are no longer required or invoked by Keystone.
+Methods are removed when they are no longer required or invoked by Keystone.
 There is no reason why methods removed from the Keystone interface need to be
 removed from custom drivers.
 
@@ -109,8 +109,8 @@ an ``abc.abstractmethod`` that must be implemented by driver
 implementations. When possible we'll also go back to our supported drivers and
 add the method, with a default implementation.
 
-For example, given a ``thing.DriverV11`` that added a new method
-``list_things_by_name()``, we will go back to ``thing.Driver10`` and
+For example, given a ``thing.DriverV8`` that added a new method
+``list_things_by_name()``, we will go back to ``thing.DriverV7`` and
 implement that method. This is good because in many cases your driver
 will just work, but there are a couple of unfortunate side effects.
 First if you have already used that method name you will have to rename
@@ -124,7 +124,7 @@ Updating Methods
 We will try not to update existing methods in ways that will break old
 driver implementations. That means that:
 
-* we will respect existing parameters and not just delete them. If they are
-  to be removed we will respect their behavior and deprecate then in older
+* We will respect existing parameters and not just delete them. If they are
+  to be removed we will respect their behavior and deprecate them in older
   versions.
-* we will add new parameters as optional with backward compatible defaults.
+* We will add new parameters as optional with backward compatible defaults.
