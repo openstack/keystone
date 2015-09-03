@@ -109,7 +109,10 @@ class AssignmentTestHelperMixin(object):
                          {'user': 0, 'role': 2, 'project': 0}]},
             {'params': {'role': 2},
              'results': [{'group': 0, 'role': 2, 'domain': 0},
-                         {'user': 0, 'role': 2, 'project': 0}]}]}
+                         {'user': 0, 'role': 2, 'project': 0}]}]
+
+        # The 'params' key also supports the 'effective' and
+        # 'inherited_to_projects' options to list_role_assignments.}
 
     """
     def create_entities(self, entity_pattern):
@@ -242,11 +245,14 @@ class AssignmentTestHelperMixin(object):
             # make the create_grant() call.
             args = {}
             for param in assignment:
-                # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
-                # where entity in user, group, project or domain
-                key, value = self._convert_entity_shorthand(
-                    param, assignment, test_data)
-                args[key] = value
+                if param == 'inherited_to_projects':
+                    args[param] = assignment[param]
+                else:
+                    # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
+                    # where entity in user, group, project or domain
+                    key, value = self._convert_entity_shorthand(
+                        param, assignment, test_data)
+                    args[key] = value
             self.assignment_api.create_grant(**args)
         return test_data
 
@@ -267,11 +273,26 @@ class AssignmentTestHelperMixin(object):
             for each_expected in expected:
                 expected_assignment = {}
                 for param in each_expected:
-                    # Convert a simple shorthand entry into a full
-                    # entity reference
-                    key, value = self._convert_entity_shorthand(
-                        param, each_expected, test_data)
-                    expected_assignment[key] = value
+                    if param == 'inherited_to_projects':
+                        expected_assignment[param] = each_expected[param]
+                    elif param == 'indirect':
+                        # We're expecting the result to contain an indirect
+                        # dict with the details how the role came to be placed
+                        # on this entity - so convert the key/value pairs of
+                        # that dict into real entity references.
+                        indirect_term = {}
+                        for indirect_param in each_expected[param]:
+                            key, value = self._convert_entity_shorthand(
+                                indirect_param, each_expected[param],
+                                test_data)
+                            indirect_term[key] = value
+                        expected_assignment[param] = indirect_term
+                    else:
+                        # Convert a simple shorthand entry into a full
+                        # entity reference
+                        key, value = self._convert_entity_shorthand(
+                            param, each_expected, test_data)
+                        expected_assignment[key] = value
                 self.assertIn(expected_assignment, actual)
 
         # Go through each test in the array, processing the input params, which
@@ -280,11 +301,15 @@ class AssignmentTestHelperMixin(object):
         for test in test_plan.get('tests', []):
             args = {}
             for param in test['params']:
-                # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
-                # where entity in user, group, project or domain
-                key, value = self._convert_entity_shorthand(
-                    param, test['params'], test_data)
-                args[key] = value
+                if param in ['effective', 'inherited']:
+                    # Just pass the value into the args
+                    args[param] = test['params'][param]
+                else:
+                    # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
+                    # where entity in user, group, project or domain
+                    key, value = self._convert_entity_shorthand(
+                        param, test['params'], test_data)
+                    args[key] = value
             results = self.assignment_api.list_role_assignments(**args)
             check_results(test['results'], results, len(args))
 
@@ -5648,7 +5673,65 @@ class PolicyTests(object):
                           uuid.uuid4().hex)
 
 
-class InheritanceTests(object):
+class InheritanceTests(AssignmentTestHelperMixin):
+
+    def test_role_assignments_user_domain_to_project_inheritance(self):
+        test_plan = {
+            'entities': {'domains': {'users': 2, 'projects': 1},
+                         'roles': 3},
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'user': 0, 'role': 1, 'project': 0},
+                            {'user': 0, 'role': 2, 'domain': 0,
+                             'inherited_to_projects': True},
+                            {'user': 1, 'role': 1, 'project': 0}],
+            'tests': [
+                # List all direct assignments for user[0]
+                {'params': {'user': 0},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'project': 0},
+                             {'user': 0, 'role': 2, 'domain': 0,
+                              'inherited_to_projects': 'projects'}]},
+                # Now the effective ones - so the domain role should turn into
+                # a project role
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'project': 0},
+                             {'user': 0, 'role': 2, 'project': 0,
+                              'indirect': {'domain': 0}}]},
+                # Narrow down to effective roles for user[0] and project[0]
+                {'params': {'user': 0, 'project': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 1, 'project': 0},
+                             {'user': 0, 'role': 2, 'project': 0,
+                              'indirect': {'domain': 0}}]}
+            ]
+        }
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        self.execute_assignment_test_plan(test_plan)
+
+    def test_inherited_role_assignments_excluded_if_os_inherit_false(self):
+        test_plan = {
+            'entities': {'domains': {'users': 2, 'projects': 1},
+                         'roles': 3},
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'user': 0, 'role': 1, 'project': 0},
+                            {'user': 0, 'role': 2, 'domain': 0,
+                             'inherited_to_projects': True},
+                            {'user': 1, 'role': 1, 'project': 0}],
+            'tests': [
+                # List all direct assignments for user[0], since os-inherit is
+                # disabled, we should not see the inherited role
+                {'params': {'user': 0},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'project': 0}]},
+                # Same in effective mode - inherited roles should not be
+                # included or expanded
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'domain': 0},
+                             {'user': 0, 'role': 1, 'project': 0}]},
+            ]
+        }
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        self.execute_assignment_test_plan(test_plan)
 
     def _test_crud_inherited_and_direct_assignment(self, **kwargs):
         """Tests inherited and direct assignments for the actor and target
@@ -5795,6 +5878,42 @@ class InheritanceTests(object):
             user1['id'], domain1['id'])
         self.assertEqual(1, len(combined_role_list))
         self.assertIn(role_list[1]['id'], combined_role_list)
+
+        # TODO(henry-nash): The test above uses get_roles_for_user_and_project
+        # and get_roles_for_user_and_domain, which will, in a subsequent patch,
+        # be re-implemeted to simply call list_role_assignments (see blueprint
+        # remove-role-metadata).
+        #
+        # The test plan below therefore mirrors this test, to ensure that
+        # list_role_assignments works the same. Once get_roles_for_user_and
+        # project/domain have been re-implemented then the manual tests above
+        # can be refactored to simply ensure it gives the same answers.
+        test_plan = {
+            # A domain with a user & project, plus 3 roles.
+            'entities': {'domains': {'users': 1, 'projects': 1},
+                         'roles': 3},
+            'assignments': [{'user': 0, 'role': 0, 'project': 0},
+                            {'user': 0, 'role': 1, 'domain': 0},
+                            {'user': 0, 'role': 2, 'domain': 0,
+                             'inherited_to_projects': True}],
+            'tests': [
+                # List all effective assignments for user[0] on project[0].
+                # Should get one direct role and one inherited role.
+                {'params': {'user': 0, 'project': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0},
+                             {'user': 0, 'role': 2, 'project': 0,
+                              'indirect': {'domain': 0}}]},
+                # Ensure effective mode on the domain does not list the
+                # inherited role on that domain
+                {'params': {'user': 0, 'domain': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 1, 'domain': 0}]},
+                # Ensure non-inherited mode also only returns the non-inherited
+                # role on the domain
+                {'params': {'user': 0, 'domain': 0, 'inherited': False},
+                 'results': [{'user': 0, 'role': 1, 'domain': 0}]},
+            ]
+        }
+        self.execute_assignment_test_plan(test_plan)
 
     def test_inherited_role_grants_for_group(self):
         """Test inherited group roles.
