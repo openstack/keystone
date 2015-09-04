@@ -79,6 +79,7 @@ identity:create_grant                                      PUT `grant_resources`
 identity:revoke_grant                                      DELETE `grant_resources`_
 
 identity:list_role_assignments                             GET /v3/role_assignments
+identity:list_role_assignments_for_tree                    GET /v3/role_assignments?include_subtree
 
 identity:get_policy                                        GET /v3/policy/{policy_id}
 identity:list_policies                                     GET /v3/policy

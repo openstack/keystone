@@ -162,7 +162,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, controllers.RoleAssignmentV3(),
             path='/role_assignments',
-            get_action='list_role_assignments',
+            get_action='list_role_assignments_wrapper',
             rel=json_home.build_v3_resource_relation('role_assignments'))
 
         if CONF.os_inherit.enabled:
