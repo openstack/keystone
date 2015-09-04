@@ -127,18 +127,18 @@ class Provider(common.BaseProvider):
         the values and build federated Fernet tokens.
 
         """
-        idp_id = token_data['token'].get('user', {}).get(
-            federation_constants.FEDERATION, {}).get(
-                'identity_provider', {}).get('id')
-        protocol_id = token_data['token'].get('user', {}).get(
-            federation_constants.FEDERATION, {}).get('protocol', {}).get('id')
-        # If we don't have an identity provider ID and a protocol ID, it's safe
-        # to assume we aren't dealing with a federated token.
-        if not (idp_id and protocol_id):
-            return None
+        token_data = token_data['token']
+        try:
+            user = token_data['user']
+            federation = user[federation_constants.FEDERATION]
+            idp_id = federation['identity_provider']['id']
+            protocol_id = federation['protocol']['id']
+        except KeyError:
+            # The token data doesn't have federated info, so we aren't dealing
+            # with a federated token and no federated info to build.
+            return
 
-        group_ids = token_data['token'].get('user', {}).get(
-            federation_constants.FEDERATION, {}).get('groups')
+        group_ids = federation.get('groups')
 
         return {'group_ids': group_ids,
                 'idp_id': idp_id,
