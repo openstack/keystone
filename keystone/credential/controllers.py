@@ -81,7 +81,7 @@ class CredentialV3(controller.V3Controller):
         else:
             return ref
 
-    @controller.filterprotected('user_id')
+    @controller.filterprotected('user_id', 'type')
     def list_credentials(self, context, filters):
         hints = CredentialV3.build_driver_hints(context, filters)
         refs = self.credential_api.list_credentials(hints)
