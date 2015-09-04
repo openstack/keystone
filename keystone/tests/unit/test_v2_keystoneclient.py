@@ -1110,10 +1110,10 @@ class ClientDrivenTestCase(tests.TestCase):
         if not client:
             client = self.default_client
         url = '%s/ec2tokens' % self.default_client.auth_url
-        (resp, token) = client.request(
+        resp = client.session.request(
             url=url, method='POST',
-            body={'credentials': credentials})
-        return resp, token
+            json={'credentials': credentials})
+        return resp, resp.json()
 
     def _generate_default_user_ec2_credentials(self):
         cred = self. default_client.ec2.create(
