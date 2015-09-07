@@ -19,21 +19,21 @@ import ssl
 from oslo_config import cfg
 
 from keystone.common import environment
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import appserver
 
 
 CONF = cfg.CONF
 
-CERTDIR = tests.dirs.root('examples', 'pki', 'certs')
-KEYDIR = tests.dirs.root('examples', 'pki', 'private')
+CERTDIR = unit.dirs.root('examples', 'pki', 'certs')
+KEYDIR = unit.dirs.root('examples', 'pki', 'private')
 CERT = os.path.join(CERTDIR, 'ssl_cert.pem')
 KEY = os.path.join(KEYDIR, 'ssl_key.pem')
 CA = os.path.join(CERTDIR, 'cacert.pem')
 CLIENT = os.path.join(CERTDIR, 'middleware.pem')
 
 
-class SSLTestCase(tests.TestCase):
+class SSLTestCase(unit.TestCase):
     def setUp(self):
         super(SSLTestCase, self).setUp()
         raise self.skipTest('SSL Version and Ciphers cannot be configured '

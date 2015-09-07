@@ -16,7 +16,7 @@ import uuid
 from oslo_config import cfg
 
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.backend import core_ldap
 from keystone.tests.unit.backend.role import core as core_role
 from keystone.tests.unit import default_fixtures
@@ -35,7 +35,7 @@ class LdapRoleCommon(core_ldap.BaseBackendLdapCommon, core_role.RoleTests):
     pass
 
 
-class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, tests.TestCase):
+class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, unit.TestCase):
     """Test in an all-LDAP configuration.
 
     Include additional tests that are unique to LDAP (or need to be overridden)
@@ -149,7 +149,7 @@ class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, tests.TestCase):
 
 class LdapIdentitySqlEverythingElseRole(
     core_ldap.BaseBackendLdapIdentitySqlEverythingElse, LdapRoleCommon,
-        tests.TestCase):
+        unit.TestCase):
     """Test Identity in LDAP, Everything else in SQL."""
     pass
 

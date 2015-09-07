@@ -18,10 +18,10 @@ import copy
 from testtools import matchers
 
 from keystone.common import json_home
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
-class JsonHomeTest(tests.BaseTestCase):
+class JsonHomeTest(unit.BaseTestCase):
     def test_build_v3_resource_relation(self):
         resource_name = self.getUniqueString()
         relation = json_home.build_v3_resource_relation(resource_name)

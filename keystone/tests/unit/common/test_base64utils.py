@@ -13,7 +13,7 @@
 #    under the License.
 
 from keystone.common import base64utils
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 base64_alphabet = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                    'abcdefghijklmnopqrstuvwxyz'
@@ -26,7 +26,7 @@ base64url_alphabet = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                       '-_=')    # includes pad char
 
 
-class TestValid(tests.BaseTestCase):
+class TestValid(unit.BaseTestCase):
     def test_valid_base64(self):
         self.assertTrue(base64utils.is_valid_base64('+/=='))
         self.assertTrue(base64utils.is_valid_base64('+/+='))
@@ -68,7 +68,7 @@ class TestValid(tests.BaseTestCase):
         self.assertTrue(base64utils.is_valid_base64url('-_=='))
 
 
-class TestBase64Padding(tests.BaseTestCase):
+class TestBase64Padding(unit.BaseTestCase):
 
     def test_filter(self):
         self.assertEqual('', base64utils.filter_formatting(''))
@@ -189,7 +189,7 @@ class TestBase64Padding(tests.BaseTestCase):
                           base64utils.base64url_percent_decode, 'AB%3D%3')
 
 
-class TestTextWrap(tests.BaseTestCase):
+class TestTextWrap(unit.BaseTestCase):
 
     def test_wrapping(self):
         raw_text = 'abcdefgh'

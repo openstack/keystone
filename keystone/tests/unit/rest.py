@@ -16,12 +16,12 @@ from oslo_serialization import jsonutils
 import webtest
 
 from keystone.auth import controllers as auth_controllers
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
-class RestfulTestCase(tests.TestCase):
+class RestfulTestCase(unit.TestCase):
     """Performs restful tests against the WSGI app over HTTP.
 
     This class launches public & admin WSGI servers for every test, which can

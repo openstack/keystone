@@ -20,7 +20,7 @@ from oslo_utils import timeutils
 from keystone.common import config
 from keystone.common import utils
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.token import provider
 from keystone.token.providers import fernet
@@ -31,7 +31,7 @@ from keystone.token.providers.fernet import utils as fernet_utils
 CONF = config.CONF
 
 
-class TestFernetTokenProvider(tests.TestCase):
+class TestFernetTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestFernetTokenProvider, self).setUp()
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
@@ -56,7 +56,7 @@ class TestFernetTokenProvider(tests.TestCase):
             uuid.uuid4().hex)
 
 
-class TestPayloads(tests.TestCase):
+class TestPayloads(unit.TestCase):
     def test_uuid_hex_to_byte_conversions(self):
         payload_cls = token_formatters.BasePayload
 
@@ -387,7 +387,7 @@ class TestPayloads(tests.TestCase):
         self.assertDictEqual(exp_federated_info, federated_info)
 
 
-class TestFernetKeyRotation(tests.TestCase):
+class TestFernetKeyRotation(unit.TestCase):
     def setUp(self):
         super(TestFernetKeyRotation, self).setUp()
 
@@ -512,7 +512,7 @@ class TestFernetKeyRotation(tests.TestCase):
         self.assertEqual(3, keys)
 
 
-class TestLoadKeys(tests.TestCase):
+class TestLoadKeys(unit.TestCase):
     def test_non_numeric_files(self):
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '~1')

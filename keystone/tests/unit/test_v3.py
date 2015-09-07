@@ -26,14 +26,14 @@ from keystone.common import cache
 from keystone import exception
 from keystone import middleware
 from keystone.policy.backends import rules
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import rest
 
 
 CONF = cfg.CONF
 DEFAULT_DOMAIN_ID = 'default'
 
-TIME_FORMAT = tests.TIME_FORMAT
+TIME_FORMAT = unit.TIME_FORMAT
 
 
 class AuthTestMixin(object):
@@ -115,11 +115,11 @@ class AuthTestMixin(object):
         return {'auth': auth_data}
 
 
-class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
+class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                       AuthTestMixin):
     def config_files(self):
         config_files = super(RestfulTestCase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_sql.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def get_extensions(self):
@@ -131,7 +131,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
     def generate_paste_config(self):
         new_paste_file = None
         try:
-            new_paste_file = tests.generate_paste_config(self.EXTENSION_TO_ADD)
+            new_paste_file = unit.generate_paste_config(self.EXTENSION_TO_ADD)
         except AttributeError:
             # no need to report this error here, as most tests will not have
             # EXTENSION_TO_ADD defined.
@@ -141,7 +141,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
     def remove_generated_paste_config(self):
         try:
-            tests.remove_generated_paste_config(self.EXTENSION_TO_ADD)
+            unit.remove_generated_paste_config(self.EXTENSION_TO_ADD)
         except AttributeError:
             pass
 
@@ -175,7 +175,7 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
         self.load_sample_data()
 
     def _populate_default_domain(self):
-        if CONF.database.connection == tests.IN_MEM_DB_CONN_STRING:
+        if CONF.database.connection == unit.IN_MEM_DB_CONN_STRING:
             # NOTE(morganfainberg): If an in-memory db is being used, be sure
             # to populate the default domain, this is typically done by
             # a migration, but the in-mem db uses model definitions  to create
@@ -265,47 +265,47 @@ class RestfulTestCase(tests.SQLDriverOverrides, rest.RestfulTestCase,
 
     def new_ref(self):
         """Populates a ref with attributes common to some API entities."""
-        return tests.new_ref()
+        return unit.new_ref()
 
     def new_region_ref(self):
-        return tests.new_region_ref()
+        return unit.new_region_ref()
 
     def new_service_ref(self):
-        return tests.new_service_ref()
+        return unit.new_service_ref()
 
     def new_endpoint_ref(self, service_id, interface='public', **kwargs):
-        return tests.new_endpoint_ref(
+        return unit.new_endpoint_ref(
             service_id, interface=interface, default_region_id=self.region_id,
             **kwargs)
 
     def new_domain_ref(self):
-        return tests.new_domain_ref()
+        return unit.new_domain_ref()
 
     def new_project_ref(self, domain_id=None, parent_id=None, is_domain=False):
-        return tests.new_project_ref(domain_id=domain_id, parent_id=parent_id,
-                                     is_domain=is_domain)
+        return unit.new_project_ref(domain_id=domain_id, parent_id=parent_id,
+                                    is_domain=is_domain)
 
     def new_user_ref(self, domain_id, project_id=None):
-        return tests.new_user_ref(domain_id, project_id=project_id)
+        return unit.new_user_ref(domain_id, project_id=project_id)
 
     def new_group_ref(self, domain_id):
-        return tests.new_group_ref(domain_id)
+        return unit.new_group_ref(domain_id)
 
     def new_credential_ref(self, user_id, project_id=None, cred_type=None):
-        return tests.new_credential_ref(user_id, project_id=project_id,
-                                        cred_type=cred_type)
+        return unit.new_credential_ref(user_id, project_id=project_id,
+                                       cred_type=cred_type)
 
     def new_role_ref(self):
-        return tests.new_role_ref()
+        return unit.new_role_ref()
 
     def new_policy_ref(self):
-        return tests.new_policy_ref()
+        return unit.new_policy_ref()
 
     def new_trust_ref(self, trustor_user_id, trustee_user_id, project_id=None,
                       impersonation=None, expires=None, role_ids=None,
                       role_names=None, remaining_uses=None,
                       allow_redelegation=False):
-        return tests.new_trust_ref(
+        return unit.new_trust_ref(
             trustor_user_id, trustee_user_id, project_id=project_id,
             impersonation=impersonation, expires=expires, role_ids=role_ids,
             role_names=role_names, remaining_uses=remaining_uses,

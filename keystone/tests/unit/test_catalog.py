@@ -15,7 +15,7 @@
 import uuid
 
 from keystone import catalog
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import rest
 
@@ -30,7 +30,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         self.useFixture(database.Database())
 
         self.service_id = uuid.uuid4().hex
-        self.service = tests.new_service_ref()
+        self.service = unit.new_service_ref()
         self.service['id'] = self.service_id
         self.catalog_api.create_service(
             self.service_id,
@@ -200,7 +200,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
                                   adminurl=invalid_url)
 
 
-class TestV2CatalogAPISQL(tests.TestCase):
+class TestV2CatalogAPISQL(unit.TestCase):
 
     def setUp(self):
         super(TestV2CatalogAPISQL, self).setUp()

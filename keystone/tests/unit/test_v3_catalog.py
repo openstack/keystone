@@ -18,7 +18,7 @@ import uuid
 from testtools import matchers
 
 from keystone import catalog
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_v3
 
@@ -801,7 +801,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
                       expected_status=400)
 
 
-class TestCatalogAPISQL(tests.TestCase):
+class TestCatalogAPISQL(unit.TestCase):
     """Tests for the catalog Manager against the SQL backend.
 
     """
@@ -909,7 +909,7 @@ class TestCatalogAPISQL(tests.TestCase):
 
 # TODO(dstanek): this needs refactoring with the test above, but we are in a
 # crunch so that will happen in a future patch.
-class TestCatalogAPISQLRegions(tests.TestCase):
+class TestCatalogAPISQLRegions(unit.TestCase):
     """Tests for the catalog Manager against the SQL backend.
 
     """

@@ -16,14 +16,14 @@
 from oslo_config import cfg
 
 from keystone.common import environment
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import appserver
 
 
 CONF = cfg.CONF
 
 
-class IPv6TestCase(tests.TestCase):
+class IPv6TestCase(unit.TestCase):
 
     def setUp(self):
         self.skip_if_no_ipv6()

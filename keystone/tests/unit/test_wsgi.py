@@ -29,7 +29,7 @@ import webob
 from keystone.common import environment
 from keystone.common import wsgi
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 class FakeApp(wsgi.Application):
@@ -52,7 +52,7 @@ class FakeAttributeCheckerApp(wsgi.Application):
         self._require_attributes(ref, attr)
 
 
-class RouterTest(tests.TestCase):
+class RouterTest(unit.TestCase):
     def setUp(self):
         self.router = wsgi.RoutersBase()
         super(RouterTest, self).setUp()
@@ -68,7 +68,7 @@ class RouterTest(tests.TestCase):
                           status=uuid.uuid4().hex)
 
 
-class BaseWSGITest(tests.TestCase):
+class BaseWSGITest(unit.TestCase):
     def setUp(self):
         self.app = FakeApp()
         super(BaseWSGITest, self).setUp()
@@ -311,7 +311,7 @@ class MiddlewareTest(BaseWSGITest):
         self.assertEqual("test", app.kwargs["testkey"])
 
 
-class LocalizedResponseTest(tests.TestCase):
+class LocalizedResponseTest(unit.TestCase):
     def test_request_match_default(self):
         # The default language if no Accept-Language is provided is None
         req = webob.Request.blank('/')
@@ -409,7 +409,7 @@ class LocalizedResponseTest(tests.TestCase):
             self.assertThat(xlation_mock.called, matchers.Equals(True))
 
 
-class ServerTest(tests.TestCase):
+class ServerTest(unit.TestCase):
 
     def setUp(self):
         super(ServerTest, self).setUp()

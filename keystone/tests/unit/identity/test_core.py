@@ -22,20 +22,20 @@ from oslo_config import fixture as config_fixture
 
 from keystone import exception
 from keystone import identity
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
 
 CONF = cfg.CONF
 
 
-class TestDomainConfigs(tests.BaseTestCase):
+class TestDomainConfigs(unit.BaseTestCase):
 
     def setUp(self):
         super(TestDomainConfigs, self).setUp()
         self.addCleanup(CONF.reset)
 
-        self.tmp_dir = tests.dirs.tmp()
+        self.tmp_dir = unit.dirs.tmp()
 
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(domain_config_dir=self.tmp_dir,
@@ -125,7 +125,7 @@ class TestDomainConfigs(tests.BaseTestCase):
                     self.assertEqual(3, load_driver_mock.call_count)
 
 
-class TestDatabaseDomainConfigs(tests.TestCase):
+class TestDatabaseDomainConfigs(unit.TestCase):
 
     def setUp(self):
         super(TestDatabaseDomainConfigs, self).setUp()

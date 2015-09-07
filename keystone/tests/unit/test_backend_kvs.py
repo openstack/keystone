@@ -20,14 +20,14 @@ import six
 
 from keystone.common import utils
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import test_backend
 
 
 CONF = cfg.CONF
 
 
-class KvsToken(tests.TestCase, test_backend.TokenTests):
+class KvsToken(unit.TestCase, test_backend.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
         self.load_backends()
@@ -103,7 +103,7 @@ class KvsToken(tests.TestCase, test_backend.TokenTests):
         self.assertEqual(expected_user_token_list, user_token_list)
 
 
-class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
+class KvsCatalog(unit.TestCase, test_backend.CatalogTests):
     def setUp(self):
         super(KvsCatalog, self).setUp()
         self.load_backends()
@@ -157,7 +157,7 @@ class KvsCatalog(tests.TestCase, test_backend.CatalogTests):
         self.skipTest("kvs backend doesn't support filtering")
 
 
-class KvsTokenCacheInvalidation(tests.TestCase,
+class KvsTokenCacheInvalidation(unit.TestCase,
                                 test_backend.TokenCacheInvalidation):
     def setUp(self):
         super(KvsTokenCacheInvalidation, self).setUp()

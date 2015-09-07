@@ -19,7 +19,7 @@ from oslo_config import cfg
 from oslo_db import options as db_options
 
 from keystone.common import sql
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 CONF = cfg.CONF
@@ -47,7 +47,7 @@ def initialize_sql_session():
     # test cases.
     db_options.set_defaults(
         CONF,
-        connection=tests.IN_MEM_DB_CONN_STRING)
+        connection=unit.IN_MEM_DB_CONN_STRING)
 
 
 @run_once

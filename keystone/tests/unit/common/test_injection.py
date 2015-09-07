@@ -15,10 +15,10 @@
 import uuid
 
 from keystone.common import dependency
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
-class TestDependencyInjection(tests.BaseTestCase):
+class TestDependencyInjection(unit.BaseTestCase):
     def setUp(self):
         super(TestDependencyInjection, self).setUp()
         dependency.reset()

@@ -22,13 +22,13 @@ from testtools import matchers
 from keystone.common import environment
 from keystone.common import openssl
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import rest
 from keystone import token
 
 
-SSLDIR = tests.dirs.tmp('ssl')
-CONF = tests.CONF
+SSLDIR = unit.dirs.tmp('ssl')
+CONF = unit.CONF
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
@@ -219,7 +219,7 @@ class CertSetupTestCase(rest.RestfulTestCase):
         self.assertEqual(cert_file1, cert_file2)
 
 
-class TestExecCommand(tests.TestCase):
+class TestExecCommand(unit.TestCase):
 
     @mock.patch.object(environment.subprocess.Popen, 'poll')
     def test_running_a_successful_command(self, mock_poll):

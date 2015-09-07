@@ -16,7 +16,7 @@ import copy
 import uuid
 
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 
 
@@ -87,7 +87,7 @@ class RoleTests(object):
         expected_role_ids = set(role['id'] for role in default_fixtures.ROLES)
         self.assertEqual(expected_role_ids, role_ids)
 
-    @tests.skip_if_cache_disabled('role')
+    @unit.skip_if_cache_disabled('role')
     def test_cache_layer_role_crud(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         role_id = role['id']

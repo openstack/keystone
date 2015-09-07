@@ -18,31 +18,31 @@ from oslo_config import cfg
 
 from keystone import config
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 CONF = cfg.CONF
 
 
-class ConfigTestCase(tests.TestCase):
+class ConfigTestCase(unit.TestCase):
 
     def config_files(self):
         config_files = super(ConfigTestCase, self).config_files()
         # Insert the keystone sample as the first config file to be loaded
         # since it is used in one of the code paths to determine the paste-ini
         # location.
-        config_files.insert(0, tests.dirs.etc('keystone.conf.sample'))
+        config_files.insert(0, unit.dirs.etc('keystone.conf.sample'))
         return config_files
 
     def test_paste_config(self):
-        self.assertEqual(tests.dirs.etc('keystone-paste.ini'),
+        self.assertEqual(unit.dirs.etc('keystone-paste.ini'),
                          config.find_paste_config())
         self.config_fixture.config(group='paste_deploy',
                                    config_file=uuid.uuid4().hex)
         self.assertRaises(exception.ConfigFileNotFound,
                           config.find_paste_config)
         self.config_fixture.config(group='paste_deploy', config_file='')
-        self.assertEqual(tests.dirs.etc('keystone.conf.sample'),
+        self.assertEqual(unit.dirs.etc('keystone.conf.sample'),
                          config.find_paste_config())
 
     def test_config_default(self):
@@ -50,12 +50,12 @@ class ConfigTestCase(tests.TestCase):
         self.assertIs(None, CONF.auth.token)
 
 
-class DeprecatedTestCase(tests.TestCase):
+class DeprecatedTestCase(unit.TestCase):
     """Test using the original (deprecated) name for renamed options."""
 
     def config_files(self):
         config_files = super(DeprecatedTestCase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('deprecated.conf'))
+        config_files.append(unit.dirs.tests_conf('deprecated.conf'))
         return config_files
 
     def test_sql(self):
@@ -66,12 +66,12 @@ class DeprecatedTestCase(tests.TestCase):
         self.assertEqual(54321, CONF.database.idle_timeout)
 
 
-class DeprecatedOverrideTestCase(tests.TestCase):
+class DeprecatedOverrideTestCase(unit.TestCase):
     """Test using the deprecated AND new name for renamed options."""
 
     def config_files(self):
         config_files = super(DeprecatedOverrideTestCase, self).config_files()
-        config_files.append(tests.dirs.tests_conf('deprecated_override.conf'))
+        config_files.append(unit.dirs.tests_conf('deprecated_override.conf'))
         return config_files
 
     def test_sql(self):

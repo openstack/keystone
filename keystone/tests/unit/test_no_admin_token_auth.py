@@ -16,10 +16,10 @@ import os
 
 import webtest
 
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
-class TestNoAdminTokenAuth(tests.TestCase):
+class TestNoAdminTokenAuth(unit.TestCase):
     def setUp(self):
         super(TestNoAdminTokenAuth, self).setUp()
         self.load_backends()
@@ -27,7 +27,7 @@ class TestNoAdminTokenAuth(tests.TestCase):
         self._generate_paste_config()
 
         self.admin_app = webtest.TestApp(
-            self.loadapp(tests.dirs.tmp('no_admin_token_auth'), name='admin'),
+            self.loadapp(unit.dirs.tmp('no_admin_token_auth'), name='admin'),
             extra_environ=dict(REMOTE_ADDR='127.0.0.1'))
         self.addCleanup(setattr, self, 'admin_app', None)
 
@@ -35,12 +35,12 @@ class TestNoAdminTokenAuth(tests.TestCase):
         # Generate a file, based on keystone-paste.ini, that doesn't include
         # admin_token_auth in the pipeline
 
-        with open(tests.dirs.etc('keystone-paste.ini'), 'r') as f:
+        with open(unit.dirs.etc('keystone-paste.ini'), 'r') as f:
             contents = f.read()
 
         new_contents = contents.replace(' admin_token_auth ', ' ')
 
-        filename = tests.dirs.tmp('no_admin_token_auth-paste.ini')
+        filename = unit.dirs.tmp('no_admin_token_auth-paste.ini')
         with open(filename, 'w') as f:
             f.write(new_contents)
         self.addCleanup(os.remove, filename)

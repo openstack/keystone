@@ -18,7 +18,7 @@ import uuid
 from keystone.common import wsgi
 from keystone import exception
 from keystone.models import token_model
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import test_token_provider
 
 
@@ -26,7 +26,7 @@ KERBEROS_BIND = 'USER@REALM'
 ANY = 'any'
 
 
-class BindTest(tests.TestCase):
+class BindTest(unit.TestCase):
     """Test binding tokens to a Principal.
 
     Even though everything in this file references kerberos the same concepts

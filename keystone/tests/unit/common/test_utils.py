@@ -20,7 +20,7 @@ from oslo_serialization import jsonutils
 from keystone.common import utils as common_utils
 from keystone import exception
 from keystone import service
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import utils
 
 
@@ -29,7 +29,7 @@ CONF = cfg.CONF
 TZ = utils.TZ
 
 
-class UtilsTestCase(tests.BaseTestCase):
+class UtilsTestCase(unit.BaseTestCase):
     OPTIONAL = object()
 
     def setUp(self):
@@ -154,11 +154,11 @@ class UtilsTestCase(tests.BaseTestCase):
         self.assertEqual(expected_json, json)
 
 
-class ServiceHelperTests(tests.BaseTestCase):
+class ServiceHelperTests(unit.BaseTestCase):
 
     @service.fail_gracefully
     def _do_test(self):
         raise Exception("Test Exc")
 
     def test_fail_gracefully(self):
-        self.assertRaises(tests.UnexpectedExit, self._do_test)
+        self.assertRaises(unit.UnexpectedExit, self._do_test)

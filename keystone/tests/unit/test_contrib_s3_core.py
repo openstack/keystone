@@ -16,10 +16,10 @@ import uuid
 
 from keystone.contrib import s3
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
-class S3ContribCore(tests.TestCase):
+class S3ContribCore(unit.TestCase):
     def setUp(self):
         super(S3ContribCore, self).setUp()
 

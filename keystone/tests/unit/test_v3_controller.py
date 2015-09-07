@@ -20,10 +20,10 @@ from testtools import matchers
 
 from keystone.common import controller
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
-class V3ControllerTestCase(tests.TestCase):
+class V3ControllerTestCase(unit.TestCase):
     """Tests for the V3Controller class."""
     def setUp(self):
         super(V3ControllerTestCase, self).setUp()

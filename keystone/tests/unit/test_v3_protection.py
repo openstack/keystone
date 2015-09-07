@@ -20,7 +20,7 @@ from oslo_serialization import jsonutils
 
 from keystone import exception
 from keystone.policy.backends import rules
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
 
@@ -607,7 +607,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         rules.reset()
         self.config_fixture.config(
             group='oslo_policy',
-            policy_file=tests.dirs.etc('policy.v3cloudsample.json'))
+            policy_file=unit.dirs.etc('policy.v3cloudsample.json'))
 
     def load_sample_data(self):
         # Start by creating a couple of domains
@@ -986,7 +986,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, project_admin_entity)
         self.assertRoleAssignmentInListResponse(r, project_user_entity)
 
-    @tests.utils.wip('waiting on bug #1437407')
+    @unit.utils.wip('waiting on bug #1437407')
     def test_domain_admin_list_assignments_of_project(self):
         self.auth = self.build_authentication_request(
             user_id=self.domain_admin_user['id'],

@@ -21,10 +21,10 @@ import six
 
 from keystone.common import wsgi
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
-class ExceptionTestCase(tests.BaseTestCase):
+class ExceptionTestCase(unit.BaseTestCase):
     def assertValidJsonRendering(self, e):
         resp = wsgi.render_exception(e)
         self.assertEqual(e.code, resp.status_int)

@@ -21,7 +21,7 @@ from oslotest import mockpatch
 
 from keystone.common.ldap import core as ldap_core
 from keystone.identity.backends import ldap
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import fakeldap
 from keystone.tests.unit import test_backend_ldap
 
@@ -209,7 +209,7 @@ class LdapPoolCommonTestMixin(object):
 
 class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
                                 test_backend_ldap.LdapIdentitySqlAssignment,
-                                tests.TestCase):
+                                unit.TestCase):
     """Executes tests in existing base class with pooled LDAP handler."""
     def setUp(self):
         self.useFixture(mockpatch.PatchObject(
@@ -226,7 +226,7 @@ class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
 
     def config_files(self):
         config_files = super(LdapIdentitySqlAssignment, self).config_files()
-        config_files.append(tests.dirs.tests_conf('backend_ldap_pool.conf'))
+        config_files.append(unit.dirs.tests_conf('backend_ldap_pool.conf'))
         return config_files
 
     @mock.patch.object(ldap_core, 'utf8_encode')

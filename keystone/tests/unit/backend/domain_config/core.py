@@ -17,7 +17,7 @@ import mock
 from testtools import matchers
 
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 
 
 class DomainConfigTests(object):
@@ -523,7 +523,7 @@ class DomainConfigTests(object):
         # The escaping '%' should have been removed
         self.assertEqual('my_url/%(password)s', res['ldap']['url'])
 
-    @tests.skip_if_cache_disabled('domain_config')
+    @unit.skip_if_cache_disabled('domain_config')
     def test_cache_layer_get_sensitive_config(self):
         config = {'ldap': {'url': uuid.uuid4().hex,
                            'user_tree_dn': uuid.uuid4().hex,

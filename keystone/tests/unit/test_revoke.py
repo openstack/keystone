@@ -22,7 +22,7 @@ from testtools import matchers
 from keystone.common import utils
 from keystone.contrib.revoke import model
 from keystone import exception
-from keystone.tests import unit as tests
+from keystone.tests import unit
 from keystone.tests.unit import test_backend_sql
 from keystone.token import provider
 
@@ -191,7 +191,7 @@ class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
             revoke_by_id=False)
 
 
-class KvsRevokeTests(tests.TestCase, RevokeTests):
+class KvsRevokeTests(unit.TestCase, RevokeTests):
     def config_overrides(self):
         super(KvsRevokeTests, self).config_overrides()
         self.config_fixture.config(group='revoke', driver='kvs')
@@ -205,7 +205,7 @@ class KvsRevokeTests(tests.TestCase, RevokeTests):
         self.load_backends()
 
 
-class RevokeTreeTests(tests.TestCase):
+class RevokeTreeTests(unit.TestCase):
     def setUp(self):
         super(RevokeTreeTests, self).setUp()
         self.events = []
