@@ -29,13 +29,23 @@ AUTH_CONTEXT_ENV = 'KEYSTONE_AUTH_CONTEXT'
 Auth context is essentially the user credential used for policy enforcement.
 It is a dictionary with the following attributes:
 
+* ``token``: Token from the request
 * ``user_id``: user ID of the principal
 * ``project_id`` (optional): project ID of the scoped project if auth is
                              project-scoped
 * ``domain_id`` (optional): domain ID of the scoped domain if auth is
                             domain-scoped
+* ``domain_name`` (optional): domain name of the scoped domain if auth is
+                              domain-scoped
+* ``is_delegated_auth``: True if this is delegated (via trust or oauth)
+* ``trust_id``: Trust ID if trust-scoped, or None
+* ``trustor_id``: Trustor ID if trust-scoped, or None
+* ``trustee_id``: Trustee ID if trust-scoped, or None
+* ``consumer_id``: OAuth consumer ID, or None
+* ``access_token_id``: OAuth access token ID, or None
 * ``roles`` (optional): list of role names for the given scope
-* ``group_ids``: list of group IDs for which the API user has membership
+* ``group_ids`` (optional): list of group IDs for which the API user has
+                            membership if token was for a federated user
 
 """
 
