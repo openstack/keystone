@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.0.0b3.dev122\n"
+"Project-Id-Version: keystone 8.0.0.0b4.dev16\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-08-16 06:06+0000\n"
+"POT-Creation-Date: 2015-09-08 06:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,21 +21,21 @@ msgstr ""
 msgid "missing exception kwargs (programmer error)"
 msgstr ""
 
-#: keystone/auth/controllers.py:446
+#: keystone/auth/controllers.py:457
 #, python-format
 msgid ""
 "User %(user_id)s doesn't have access to default project %(project_id)s. "
 "The token will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:454
+#: keystone/auth/controllers.py:465
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s is disabled. The token "
 "will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/auth/controllers.py:463
+#: keystone/auth/controllers.py:474
 #, python-format
 msgid ""
 "User %(user_id)s's default project %(project_id)s not found. The token "
@@ -59,16 +59,16 @@ msgstr ""
 msgid "RBAC: Invalid user data in token"
 msgstr ""
 
-#: keystone/common/controller.py:83 keystone/middleware/core.py:194
+#: keystone/common/controller.py:83 keystone/middleware/core.py:198
 msgid "RBAC: Invalid token"
 msgstr ""
 
 #: keystone/common/controller.py:108 keystone/common/controller.py:205
-#: keystone/common/controller.py:755
+#: keystone/common/controller.py:762
 msgid "RBAC: Bypassing authorization"
 msgstr ""
 
-#: keystone/common/controller.py:710
+#: keystone/common/controller.py:717
 msgid "No domain information specified as part of list request"
 msgstr ""
 
@@ -85,7 +85,7 @@ msgstr ""
 msgid "Couldn't find the auth context."
 msgstr ""
 
-#: keystone/common/wsgi.py:243
+#: keystone/common/wsgi.py:251
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr ""
@@ -128,14 +128,14 @@ msgid ""
 "therefore cannot be used as an ID. Will get the ID from DN instead"
 msgstr ""
 
-#: keystone/common/ldap/core.py:1668
+#: keystone/common/ldap/core.py:1669
 #, python-format
 msgid ""
 "When deleting entries for %(search_base)s, could not delete nonexistent "
 "entries %(entries)s%(dots)s"
 msgstr ""
 
-#: keystone/contrib/federation/utils.py:545
+#: keystone/contrib/federation/utils.py:543
 msgid "Ignoring user name"
 msgstr ""
 
@@ -180,18 +180,20 @@ msgstr ""
 msgid "Unable to locate domain config directory: %s"
 msgstr ""
 
-#: keystone/identity/core.py:602
+#: keystone/identity/core.py:603
 #, python-format
 msgid ""
 "Found multiple domains being mapped to a driver that does not support "
 "that (e.g. LDAP) - Domain ID: %(domain)s, Default Driver: %(driver)s"
 msgstr ""
 
-#: keystone/middleware/core.py:204
-msgid "Auth context already exists in the request environment"
+#: keystone/middleware/core.py:284
+msgid ""
+"Auth context already exists in the request environment; it will be used "
+"for authorization instead of creating a new one."
 msgstr ""
 
-#: keystone/resource/core.py:1237
+#: keystone/resource/core.py:1253
 #, python-format
 msgid ""
 "Found what looks like an unmatched config option substitution reference -"
@@ -200,7 +202,7 @@ msgid ""
 "added?"
 msgstr ""
 
-#: keystone/resource/core.py:1244
+#: keystone/resource/core.py:1260
 #, python-format
 msgid ""
 "Found what looks like an incorrectly constructed config option "

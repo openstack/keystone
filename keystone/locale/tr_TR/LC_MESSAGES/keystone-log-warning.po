@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-08-16 06:06+0000\n"
-"PO-Revision-Date: 2015-08-11 08:29+0000\n"
+"POT-Creation-Date: 2015-09-08 06:08+0000\n"
+"PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/openstack/keystone/"
 "language/tr_TR/)\n"
@@ -22,9 +22,6 @@ msgstr ""
 #, python-format
 msgid "%s is not a dogpile.proxy.ProxyBackend"
 msgstr "%s dogpile.proxy.ProxyBackend değil"
-
-msgid "Auth context already exists in the request environment"
-msgstr "Yetki içeriği istenen ortamda zaten var"
 
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
