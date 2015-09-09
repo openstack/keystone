@@ -32,12 +32,14 @@ Files
 -----
 
 Copy the ``httpd/wsgi-keystone.conf`` sample configuration file to the
-appropriate location for your Apache server::
+appropriate location for your Apache server, on Debian/Ubuntu systems
+it is::
 
-    /etc/$APACHE_DIR/conf.d/sites-available/wsgi-keystone.conf
+    /etc/apache2/sites-available/wsgi-keystone.conf
 
-Where ``$APACHE_DIR`` is ``httpd`` on Fedora-based systems and ``apache2`` on
-Debian/Ubuntu systems.
+On Red Hat based systems it is::
+
+    /etc/httpd/conf.d/wsgi-keystone.conf
 
 Update the file to match your system configuration. Note the following:
 
@@ -49,10 +51,11 @@ Keystone's primary configuration file (``etc/keystone.conf``) and the
 PasteDeploy configuration file (``etc/keystone-paste.ini``) must be readable to
 HTTPD in one of the default locations described in :doc:`configuration`.
 
-Enable the site by creating a symlink from ``sites-enabled`` to the file in
-``sites-available``::
+Enable the site by creating a symlink from the file in ``sites-available`` to
+``sites-enabled``, for example, on Debian/Ubuntu systems
+(not required on Red Hat based systems)::
 
-  ln -s /etc/$APACHE_DIR/sites-available/keystone.conf /etc/$APACHE_DIR/sites-enabled/
+  ln -s /etc/apache2/sites-available/keystone.conf /etc/apache2/sites-enabled/
 
 Restart Apache to have it start serving keystone.
 
