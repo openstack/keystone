@@ -282,7 +282,7 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
             require_catalog=True,
             endpoint_filter=True,
             ep_filter_assoc=1)
-        self.assertEqual(r.result['token']['project']['id'], project['id'])
+        self.assertEqual(project['id'], r.result['token']['project']['id'])
 
     def test_default_scoped_token_using_endpoint_filter(self):
         """Verify endpoints from default scoped token filtered."""
@@ -302,8 +302,8 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
             require_catalog=True,
             endpoint_filter=True,
             ep_filter_assoc=1)
-        self.assertEqual(r.result['token']['project']['id'],
-                         self.project['id'])
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
 
     def test_scoped_token_with_no_catalog_using_endpoint_filter(self):
         """Verify endpoint filter does not affect no catalog."""
@@ -320,8 +320,8 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
         self.assertValidProjectScopedTokenResponse(
             r,
             require_catalog=False)
-        self.assertEqual(r.result['token']['project']['id'],
-                         self.project['id'])
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
 
     def test_invalid_endpoint_project_association(self):
         """Verify an invalid endpoint-project association is handled."""
@@ -360,8 +360,8 @@ class EndpointFilterTokenRequestTestCase(TestExtensionCase):
             require_catalog=True,
             endpoint_filter=True,
             ep_filter_assoc=1)
-        self.assertEqual(r.result['token']['project']['id'],
-                         self.project['id'])
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
 
     def test_disabled_endpoint(self):
         """Test that a disabled endpoint is handled."""
@@ -941,7 +941,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             'project_id': self.default_domain_project_id}
         r = self.get(endpoints_url)
         endpoints = self.assertValidEndpointListResponse(r)
-        self.assertEqual(len(endpoints), 2)
+        self.assertEqual(2, len(endpoints))
 
         # Now remove project endpoint group association
         url = self._get_project_endpoint_group_url(
@@ -955,7 +955,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         r = self.get(endpoints_url)
         endpoints = self.assertValidEndpointListResponse(r)
-        self.assertEqual(len(endpoints), 1)
+        self.assertEqual(1, len(endpoints))
 
     def test_endpoint_group_project_cleanup_with_project(self):
         # create endpoint group

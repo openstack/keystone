@@ -30,7 +30,7 @@ class FormatUrlTests(unit.BaseTestCase):
         actual_url = core.format_url(url_template, values)
 
         expected_url = 'http://server:9090/A/B'
-        self.assertEqual(actual_url, expected_url)
+        self.assertEqual(expected_url, actual_url)
 
     def test_raises_malformed_on_missing_key(self):
         self.assertRaises(exception.MalformedEndpoint,

@@ -85,7 +85,7 @@ class ApplicationTest(BaseWSGITest):
     def test_response_content_type(self):
         req = self._make_request()
         resp = req.get_response(self.app)
-        self.assertEqual(resp.content_type, 'application/json')
+        self.assertEqual('application/json', resp.content_type)
 
     def test_query_string_available(self):
         class FakeApp(wsgi.Application):
@@ -93,7 +93,7 @@ class ApplicationTest(BaseWSGITest):
                 return context['query_string']
         req = self._make_request(url='/?1=2')
         resp = req.get_response(FakeApp())
-        self.assertEqual(jsonutils.loads(resp.body), {'1': '2'})
+        self.assertEqual({'1': '2'}, jsonutils.loads(resp.body))
 
     def test_headers_available(self):
         class FakeApp(wsgi.Application):
@@ -182,7 +182,7 @@ class ApplicationTest(BaseWSGITest):
         resp = wsgi.render_response({'id': uuid.uuid4().hex}, method='HEAD')
         self.assertEqual(http_client.OK, resp.status_int)
         self.assertEqual(b'', resp.body)
-        self.assertNotEqual(resp.headers.get('Content-Length'), '0')
+        self.assertNotEqual('0', resp.headers.get('Content-Length'))
         self.assertEqual('application/json', resp.headers.get('Content-Type'))
 
     def test_application_local_config(self):
@@ -346,8 +346,8 @@ class LocalizedResponseTest(unit.TestCase):
     def test_static_translated_string_is_lazy_translatable(self):
         # Statically created message strings are an object that can get
         # lazy-translated rather than a regular string.
-        self.assertNotEqual(type(exception.Unauthorized.message_format),
-                            six.text_type)
+        self.assertNotEqual(six.text_type,
+                            type(exception.Unauthorized.message_format))
 
     @mock.patch.object(oslo_i18n, 'get_available_languages')
     def test_get_localized_response(self, mock_gal):
