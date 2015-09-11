@@ -40,7 +40,7 @@ class TestTestCase(unit.TestCase):
         # exception during testing.
         self.assertThat(
             lambda: LOG.warn('String %(p1)s %(p2)s', {'p1': 'something'}),
-            matchers.raises(unit.BadLog))
+            matchers.raises(KeyError))
 
     def test_sa_warning(self):
         self.assertThat(
