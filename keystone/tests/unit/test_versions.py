@@ -20,6 +20,7 @@ import random
 import mock
 from oslo_config import cfg
 from oslo_serialization import jsonutils
+from six.moves import http_client
 from testtools import matchers as tt_matchers
 
 from keystone.common import json_home
@@ -788,7 +789,7 @@ class VersionTestCase(unit.TestCase):
         client = unit.TestClient(self.public_app)
         # request to /v2.0 should fail
         resp = client.get('/v2.0/')
-        self.assertEqual(404, resp.status_int)
+        self.assertEqual(http_client.NOT_FOUND, resp.status_int)
 
         # request to /v3 should pass
         resp = client.get('/v3/')
@@ -821,7 +822,7 @@ class VersionTestCase(unit.TestCase):
         client = unit.TestClient(self.public_app)
         # request to /v3 should fail
         resp = client.get('/v3/')
-        self.assertEqual(404, resp.status_int)
+        self.assertEqual(http_client.NOT_FOUND, resp.status_int)
 
         # request to /v2.0 should pass
         resp = client.get('/v2.0/')

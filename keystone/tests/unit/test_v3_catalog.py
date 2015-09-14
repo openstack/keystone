@@ -15,6 +15,7 @@
 import copy
 import uuid
 
+from six.moves import http_client
 from testtools import matchers
 
 from keystone import catalog
@@ -184,7 +185,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.put(
             '/regions/%s' % uuid.uuid4().hex,
             body={'region': ref},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_list_regions(self):
         """Call ``GET /regions``."""
@@ -326,19 +327,22 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``POST /services``."""
         ref = self.new_service_ref()
         ref['enabled'] = 'True'
-        self.post('/services', body={'service': ref}, expected_status=400)
+        self.post('/services', body={'service': ref},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_create_service_enabled_str_false(self):
         """Call ``POST /services``."""
         ref = self.new_service_ref()
         ref['enabled'] = 'False'
-        self.post('/services', body={'service': ref}, expected_status=400)
+        self.post('/services', body={'service': ref},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_create_service_enabled_str_random(self):
         """Call ``POST /services``."""
         ref = self.new_service_ref()
         ref['enabled'] = 'puppies'
-        self.post('/services', body={'service': ref}, expected_status=400)
+        self.post('/services', body={'service': ref},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_list_services(self):
         """Call ``GET /services``."""
@@ -575,7 +579,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.post(
             '/endpoints',
             body={'endpoint': ref},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_create_endpoint_enabled_str_false(self):
         """Call ``POST /endpoints`` with enabled: 'False'."""
@@ -584,7 +588,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.post(
             '/endpoints',
             body={'endpoint': ref},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_create_endpoint_enabled_str_random(self):
         """Call ``POST /endpoints`` with enabled: 'puppies'."""
@@ -593,13 +597,14 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.post(
             '/endpoints',
             body={'endpoint': ref},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_create_endpoint_with_invalid_region_id(self):
         """Call ``POST /endpoints``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
         ref["region_id"] = uuid.uuid4().hex
-        self.post('/endpoints', body={'endpoint': ref}, expected_status=400)
+        self.post('/endpoints', body={'endpoint': ref},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_create_endpoint_with_region(self):
         """EndpointV3 creates the region before creating the endpoint, if
@@ -623,7 +628,8 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``POST /endpoints``."""
         ref = self.new_endpoint_ref(service_id=self.service_id)
         ref["url"] = ''
-        self.post('/endpoints', body={'endpoint': ref}, expected_status=400)
+        self.post('/endpoints', body={'endpoint': ref},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_get_endpoint(self):
         """Call ``GET /endpoints/{endpoint_id}``."""
@@ -667,7 +673,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             '/endpoints/%(endpoint_id)s' % {
                 'endpoint_id': self.endpoint_id},
             body={'endpoint': {'enabled': 'True'}},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_update_endpoint_enabled_str_false(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: 'False'."""
@@ -675,7 +681,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             '/endpoints/%(endpoint_id)s' % {
                 'endpoint_id': self.endpoint_id},
             body={'endpoint': {'enabled': 'False'}},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_update_endpoint_enabled_str_random(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: 'kitties'."""
@@ -683,7 +689,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             '/endpoints/%(endpoint_id)s' % {
                 'endpoint_id': self.endpoint_id},
             body={'endpoint': {'enabled': 'kitties'}},
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
 
     def test_delete_endpoint(self):
         """Call ``DELETE /endpoints/{endpoint_id}``."""
@@ -762,7 +768,8 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.delete('/endpoints/%s' % ref['id'])
 
         # make sure it's deleted (GET should return 404)
-        self.get('/endpoints/%s' % ref['id'], expected_status=404)
+        self.get('/endpoints/%s' % ref['id'],
+                 expected_status=http_client.NOT_FOUND)
 
     def test_endpoint_create_with_valid_url(self):
         """Create endpoint with valid url should be tested,too."""
@@ -798,7 +805,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             ref['url'] = invalid_url
             self.post('/endpoints',
                       body={'endpoint': ref},
-                      expected_status=400)
+                      expected_status=http_client.BAD_REQUEST)
 
 
 class TestCatalogAPISQL(unit.TestCase):

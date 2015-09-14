@@ -18,6 +18,7 @@ import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_config import cfg
+from six.moves import http_client
 from testtools import matchers
 
 from keystone import exception
@@ -252,10 +253,10 @@ class CredentialTestCase(CredentialBaseTestCase):
                 "secret": uuid.uuid4().hex}
         ref['blob'] = json.dumps(blob)
         ref['type'] = 'ec2'
-        # Assert 400 status for bad request with missing project_id
+        # Assert bad request status when missing project_id
         self.post(
             '/credentials',
-            body={'credential': ref}, expected_status=400)
+            body={'credential': ref}, expected_status=http_client.BAD_REQUEST)
 
     def test_create_ec2_credential_with_invalid_blob(self):
         """Call ``POST /credentials`` for creating ec2
@@ -265,11 +266,10 @@ class CredentialTestCase(CredentialBaseTestCase):
                                       project_id=self.project_id)
         ref['blob'] = '{"abc":"def"d}'
         ref['type'] = 'ec2'
-        # Assert 400 status for bad request containing invalid
-        # blob
+        # Assert bad request status when request contains invalid blob
         response = self.post(
             '/credentials',
-            body={'credential': ref}, expected_status=400)
+            body={'credential': ref}, expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(response)
 
     def test_create_credential_with_admin_token(self):

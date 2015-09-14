@@ -19,6 +19,7 @@ import uuid
 from keystoneclient.common import cms
 from oslo_config import cfg
 import six
+from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
@@ -70,13 +71,13 @@ class CoreApiTests(object):
     def test_public_not_found(self):
         r = self.public_request(
             path='/%s' % uuid.uuid4().hex,
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)
         self.assertValidErrorResponse(r)
 
     def test_admin_not_found(self):
         r = self.admin_request(
             path='/%s' % uuid.uuid4().hex,
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)
         self.assertValidErrorResponse(r)
 
     def test_public_multiple_choice(self):
@@ -107,11 +108,11 @@ class CoreApiTests(object):
 
     def test_admin_extensions_404(self):
         self.admin_request(path='/v2.0/extensions/invalid-extension',
-                           expected_status=404)
+                           expected_status=http_client.NOT_FOUND)
 
     def test_public_osksadm_extension_404(self):
         self.public_request(path='/v2.0/extensions/OS-KSADM',
-                            expected_status=404)
+                            expected_status=http_client.NOT_FOUND)
 
     def test_admin_osksadm_extension(self):
         r = self.admin_request(path='/v2.0/extensions/OS-KSADM')
@@ -170,7 +171,7 @@ class CoreApiTests(object):
                 'token_id': 'invalid',
             },
             token=token,
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)
 
     def test_validate_token_service_role(self):
         self.md_foobar = self.assignment_api.add_role_to_user_and_project(
@@ -204,7 +205,7 @@ class CoreApiTests(object):
         r = self.admin_request(
             path='/v2.0/tokens/%s' % token,
             token=token,
-            expected_status=401)
+            expected_status=http_client.UNAUTHORIZED)
 
     def test_validate_token_belongs_to(self):
         token = self.get_scoped_token()
@@ -306,7 +307,7 @@ class CoreApiTests(object):
                 },
             },
             token=token,
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(r)
 
         r = self.admin_request(
@@ -321,7 +322,7 @@ class CoreApiTests(object):
                 },
             },
             token=token,
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(r)
 
         # Test UPDATE request
@@ -338,7 +339,7 @@ class CoreApiTests(object):
                 },
             },
             token=token,
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(r)
 
         r = self.admin_request(
@@ -351,7 +352,7 @@ class CoreApiTests(object):
                 },
             },
             token=token,
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(r)
 
     def test_create_update_user_valid_enabled_type(self):
@@ -373,7 +374,8 @@ class CoreApiTests(object):
 
     def test_error_response(self):
         """This triggers assertValidErrorResponse by convention."""
-        self.public_request(path='/v2.0/tenants', expected_status=401)
+        self.public_request(path='/v2.0/tenants',
+                            expected_status=http_client.UNAUTHORIZED)
 
     def test_invalid_parameter_error_response(self):
         token = self.get_scoped_token()
@@ -387,13 +389,13 @@ class CoreApiTests(object):
                                  path='/v2.0/OS-KSADM/services',
                                  body=bad_body,
                                  token=token,
-                                 expected_status=400)
+                                 expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(res)
         res = self.admin_request(method='POST',
                                  path='/v2.0/users',
                                  body=bad_body,
                                  token=token,
-                                 expected_status=400)
+                                 expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(res)
 
     def _get_user_id(self, r):
@@ -552,7 +554,7 @@ class CoreApiTests(object):
                 },
             },
             token=token,
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)
 
     def test_update_user_with_invalid_tenant_no_prev_tenant(self):
         token = self.get_scoped_token()
@@ -584,7 +586,7 @@ class CoreApiTests(object):
                 },
             },
             token=token,
-            expected_status=404)
+            expected_status=http_client.NOT_FOUND)
 
     def test_update_user_with_old_tenant(self):
         token = self.get_scoped_token()
@@ -669,13 +671,13 @@ class CoreApiTests(object):
                     },
                 },
             },
-            expected_status=401)
+            expected_status=http_client.UNAUTHORIZED)
         self.assertValidErrorResponse(r)
 
     def test_www_authenticate_header(self):
         r = self.public_request(
             path='/v2.0/tenants',
-            expected_status=401)
+            expected_status=http_client.UNAUTHORIZED)
         self.assertEqual('Keystone uri="http://localhost"',
                          r.headers.get('WWW-Authenticate'))
 
@@ -684,7 +686,7 @@ class CoreApiTests(object):
         self.config_fixture.config(public_endpoint=test_url)
         r = self.public_request(
             path='/v2.0/tenants',
-            expected_status=401)
+            expected_status=http_client.UNAUTHORIZED)
         self.assertEqual('Keystone uri="%s"' % test_url,
                          r.headers.get('WWW-Authenticate'))
 
@@ -1141,8 +1143,9 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         return r.result['user'][attribute_name]
 
     def test_service_crud_requires_auth(self):
-        """Service CRUD should 401 without an X-Auth-Token (bug 1006822)."""
-        # values here don't matter because we should 401 before they're checked
+        """Service CRUD should return unauthorized without an X-Auth-Token."""
+        # values here don't matter because it will be unauthorized before
+        # they're checked (bug 1006822).
         service_path = '/v2.0/OS-KSADM/services/%s' % uuid.uuid4().hex
         service_body = {
             'OS-KSADM:service': {
@@ -1153,41 +1156,43 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
         r = self.admin_request(method='GET',
                                path='/v2.0/OS-KSADM/services',
-                               expected_status=401)
+                               expected_status=http_client.UNAUTHORIZED)
         self.assertValidErrorResponse(r)
 
         r = self.admin_request(method='POST',
                                path='/v2.0/OS-KSADM/services',
                                body=service_body,
-                               expected_status=401)
+                               expected_status=http_client.UNAUTHORIZED)
         self.assertValidErrorResponse(r)
 
         r = self.admin_request(method='GET',
                                path=service_path,
-                               expected_status=401)
+                               expected_status=http_client.UNAUTHORIZED)
         self.assertValidErrorResponse(r)
 
         r = self.admin_request(method='DELETE',
                                path=service_path,
-                               expected_status=401)
+                               expected_status=http_client.UNAUTHORIZED)
         self.assertValidErrorResponse(r)
 
     def test_user_role_list_requires_auth(self):
-        """User role list should 401 without an X-Auth-Token (bug 1006815)."""
-        # values here don't matter because we should 401 before they're checked
+        """User role list return unauthorized without an X-Auth-Token."""
+        # values here don't matter because it will be unauthorized before
+        # they're checked (bug 1006815).
         path = '/v2.0/tenants/%(tenant_id)s/users/%(user_id)s/roles' % {
             'tenant_id': uuid.uuid4().hex,
             'user_id': uuid.uuid4().hex,
         }
 
-        r = self.admin_request(path=path, expected_status=401)
+        r = self.admin_request(path=path,
+                               expected_status=http_client.UNAUTHORIZED)
         self.assertValidErrorResponse(r)
 
     def test_fetch_revocation_list_nonadmin_fails(self):
         self.admin_request(
             method='GET',
             path='/v2.0/tokens/revoked',
-            expected_status=401)
+            expected_status=http_client.UNAUTHORIZED)
 
     def test_fetch_revocation_list_admin_200(self):
         token = self.get_scoped_token()
@@ -1278,7 +1283,7 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
                 },
             },
             token=token,
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(r)
 
         # Test UPDATE request
@@ -1294,7 +1299,7 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
                 },
             },
             token=token,
-            expected_status=400)
+            expected_status=http_client.BAD_REQUEST)
         self.assertValidErrorResponse(r)
 
     def test_authenticating_a_user_with_an_OSKSADM_password(self):

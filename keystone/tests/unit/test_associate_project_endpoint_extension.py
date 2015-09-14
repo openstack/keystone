@@ -15,6 +15,7 @@
 import copy
 import uuid
 
+from six.moves import http_client
 from testtools import matchers
 
 from keystone.tests.unit import test_v3
@@ -60,7 +61,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': uuid.uuid4().hex,
                      'endpoint_id': self.endpoint_id},
-                 expected_status=404)
+                 expected_status=http_client.NOT_FOUND)
 
     def test_create_endpoint_project_association_with_invalid_endpoint(self):
         """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
@@ -72,7 +73,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                  '/endpoints/%(endpoint_id)s' % {
                      'project_id': self.default_domain_project_id,
                      'endpoint_id': uuid.uuid4().hex},
-                 expected_status=404)
+                 expected_status=http_client.NOT_FOUND)
 
     def test_create_endpoint_project_association_with_unexpected_body(self):
         """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
@@ -109,7 +110,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                   '/endpoints/%(endpoint_id)s' % {
                       'project_id': uuid.uuid4().hex,
                       'endpoint_id': self.endpoint_id},
-                  expected_status=404)
+                  expected_status=http_client.NOT_FOUND)
 
     def test_check_endpoint_project_association_with_invalid_endpoint(self):
         """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
@@ -122,7 +123,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                   '/endpoints/%(endpoint_id)s' % {
                       'project_id': self.default_domain_project_id,
                       'endpoint_id': uuid.uuid4().hex},
-                  expected_status=404)
+                  expected_status=http_client.NOT_FOUND)
 
     def test_list_endpoints_associated_with_valid_project(self):
         """GET /OS-EP-FILTER/projects/{project_id}/endpoints
@@ -146,7 +147,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
         self.put(self.default_request_url)
         self.get('/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
                  'project_id': uuid.uuid4().hex},
-                 expected_status=404)
+                 expected_status=http_client.NOT_FOUND)
 
     def test_list_projects_associated_with_endpoint(self):
         """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
@@ -180,7 +181,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
         """
         self.get('/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' %
                  {'endpoint_id': uuid.uuid4().hex},
-                 expected_status=404)
+                 expected_status=http_client.NOT_FOUND)
 
     def test_remove_endpoint_project_association(self):
         """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
@@ -206,7 +207,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                     '/endpoints/%(endpoint_id)s' % {
                         'project_id': uuid.uuid4().hex,
                         'endpoint_id': self.endpoint_id},
-                    expected_status=404)
+                    expected_status=http_client.NOT_FOUND)
 
     def test_remove_endpoint_project_association_with_invalid_endpoint(self):
         """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
@@ -219,7 +220,7 @@ class EndpointFilterCRUDTestCase(TestExtensionCase):
                     '/endpoints/%(endpoint_id)s' % {
                         'project_id': self.default_domain_project_id,
                         'endpoint_id': uuid.uuid4().hex},
-                    expected_status=404)
+                    expected_status=http_client.NOT_FOUND)
 
     def test_endpoint_project_association_cleanup_when_project_deleted(self):
         self.put(self.default_request_url)
@@ -589,7 +590,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         invalid_body['endpoint_group']['filters'] = {'foobar': 'admin'}
         self.post(self.DEFAULT_ENDPOINT_GROUP_URL,
                   body=invalid_body,
-                  expected_status=400)
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_get_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -624,7 +625,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoint_group_id = 'foobar'
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
             'endpoint_group_id': endpoint_group_id}
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_check_endpoint_group(self):
         """HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
@@ -648,7 +649,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoint_group_id = 'foobar'
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
             'endpoint_group_id': endpoint_group_id}
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_patch_endpoint_group(self):
         """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -685,7 +686,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         }
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
             'endpoint_group_id': 'ABC'}
-        self.patch(url, body=body, expected_status=404)
+        self.patch(url, body=body, expected_status=http_client.NOT_FOUND)
 
     def test_patch_invalid_endpoint_group(self):
         """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -707,7 +708,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
             'endpoint_group_id': endpoint_group_id}
-        self.patch(url, body=body, expected_status=400)
+        self.patch(url, body=body, expected_status=http_client.BAD_REQUEST)
 
         # Perform a GET call to ensure that the content remains
         # the same (as DEFAULT_ENDPOINT_GROUP_BODY) after attempting to update
@@ -731,7 +732,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
             'endpoint_group_id': endpoint_group_id}
         self.delete(url)
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_delete_invalid_endpoint_group(self):
         """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
@@ -742,7 +743,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoint_group_id = 'foobar'
         url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
             'endpoint_group_id': endpoint_group_id}
-        self.delete(url, expected_status=404)
+        self.delete(url, expected_status=http_client.NOT_FOUND)
 
     def test_add_endpoint_group_to_project(self):
         """Create a valid endpoint group and project association."""
@@ -761,7 +762,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         project_id = uuid.uuid4().hex
         url = self._get_project_endpoint_group_url(
             endpoint_group_id, project_id)
-        self.put(url, expected_status=404)
+        self.put(url, expected_status=http_client.NOT_FOUND)
 
     def test_get_endpoint_group_in_project(self):
         """Test retrieving project endpoint group association."""
@@ -787,7 +788,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         project_id = uuid.uuid4().hex
         url = self._get_project_endpoint_group_url(
             endpoint_group_id, project_id)
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_list_endpoint_groups_in_project(self):
         """GET /OS-EP-FILTER/projects/{project_id}/endpoint_groups."""
@@ -813,7 +814,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         project_id = uuid.uuid4().hex
         url = ('/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' %
                {'project_id': project_id})
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_empty_endpoint_groups_in_project(self):
         """Test when no endpoint groups associated with the project."""
@@ -848,7 +849,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         project_id = uuid.uuid4().hex
         url = self._get_project_endpoint_group_url(
             endpoint_group_id, project_id)
-        self.head(url, expected_status=404)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_list_endpoint_groups(self):
         """GET /OS-EP-FILTER/endpoint_groups."""
@@ -992,7 +993,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         # endpoint group association again
         self.delete('/projects/%(project_id)s' % {
             'project_id': project['id']})
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_endpoint_group_project_cleanup_with_endpoint_group(self):
         # create endpoint group
@@ -1012,7 +1013,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         # now remove the project endpoint group association
         self.delete(url)
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_removing_an_endpoint_group_project(self):
         # create an endpoint group
@@ -1026,7 +1027,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         # remove the endpoint group project
         self.delete(url)
-        self.get(url, expected_status=404)
+        self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_remove_endpoint_group_with_project_association(self):
         # create an endpoint group
@@ -1044,8 +1045,9 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
                               '%(endpoint_group_id)s'
                               % {'endpoint_group_id': endpoint_group_id})
         self.delete(endpoint_group_url)
-        self.get(endpoint_group_url, expected_status=404)
-        self.get(project_endpoint_group_url, expected_status=404)
+        self.get(endpoint_group_url, expected_status=http_client.NOT_FOUND)
+        self.get(project_endpoint_group_url,
+                 expected_status=http_client.NOT_FOUND)
 
     def _create_valid_endpoint_group(self, url, body):
         r = self.post(url, body=body)

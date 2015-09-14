@@ -17,6 +17,7 @@ import uuid
 
 import fixtures
 from oslo_config import cfg
+from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import controller
@@ -104,9 +105,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         ref['domain_id'] = CONF.identity.default_domain_id
         return self.assertValidUserResponse(r, ref)
 
-    def test_create_user_400(self):
+    def test_create_user_bad_request(self):
         """Call ``POST /users``."""
-        self.post('/users', body={'user': {}}, expected_status=400)
+        self.post('/users', body={'user': {}},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_list_users(self):
         """Call ``GET /users``."""
@@ -300,10 +302,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                    expected_status=200)
 
         # auth as user with original password should not work after change
-        self.v3_authenticate_token(old_password_auth, expected_status=401)
+        self.v3_authenticate_token(old_password_auth,
+                                   expected_status=http_client.UNAUTHORIZED)
 
         # auth as user with an old token should not work after change
-        self.v3_authenticate_token(old_token_auth, expected_status=404)
+        self.v3_authenticate_token(old_token_auth,
+                                   expected_status=http_client.NOT_FOUND)
 
         # new password should work
         new_password_auth = self.build_authentication_request(
@@ -389,9 +393,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             body={'group': ref})
         return self.assertValidGroupResponse(r, ref)
 
-    def test_create_group_400(self):
+    def test_create_group_bad_request(self):
         """Call ``POST /groups``."""
-        self.post('/groups', body={'group': {}}, expected_status=400)
+        self.post('/groups', body={'group': {}},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_list_groups(self):
         """Call ``GET /groups``."""
@@ -581,30 +586,32 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
                              expected_status=204)
 
         # old password fails
-        self.get_request_token(self.user_ref['password'], expected_status=401)
+        self.get_request_token(self.user_ref['password'],
+                               expected_status=http_client.UNAUTHORIZED)
 
         # old token fails
-        self.v3_authenticate_token(old_token_auth, expected_status=404)
+        self.v3_authenticate_token(old_token_auth,
+                                   expected_status=http_client.NOT_FOUND)
 
         # new password works
         self.get_request_token(new_password, expected_status=201)
 
     def test_changing_password_with_missing_original_password_fails(self):
         r = self.change_password(password=uuid.uuid4().hex,
-                                 expected_status=400)
+                                 expected_status=http_client.BAD_REQUEST)
         self.assertThat(r.result['error']['message'],
                         matchers.Contains('original_password'))
 
     def test_changing_password_with_missing_password_fails(self):
         r = self.change_password(original_password=self.user_ref['password'],
-                                 expected_status=400)
+                                 expected_status=http_client.BAD_REQUEST)
         self.assertThat(r.result['error']['message'],
                         matchers.Contains('password'))
 
     def test_changing_password_with_incorrect_password_fails(self):
         self.change_password(password=uuid.uuid4().hex,
                              original_password=uuid.uuid4().hex,
-                             expected_status=401)
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_changing_password_with_disabled_user_fails(self):
         # disable the user account
@@ -614,7 +621,7 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
 
         self.change_password(password=uuid.uuid4().hex,
                              original_password=self.user_ref['password'],
-                             expected_status=401)
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_changing_password_not_logged(self):
         # When a user changes their password, the password isn't logged at any
