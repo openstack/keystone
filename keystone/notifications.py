@@ -242,19 +242,20 @@ def internal(*args, **kwargs):
 def _get_callback_info(callback):
     """Return list containing callback's module and name.
 
-    If the callback is an instance method also return the class name.
+    If the callback is a bound instance method also return the class name.
 
     :param callback: Function to call
     :type callback: function
     :returns: List containing parent module, (optional class,) function name
     :rtype: list
     """
-    if getattr(callback, 'im_class', None):
-        return [getattr(callback, '__module__', None),
-                callback.im_class.__name__,
-                callback.__name__]
+    module_name = getattr(callback, '__module__', None)
+    func_name = callback.__name__
+    if inspect.ismethod(callback):
+        class_name = callback.__self__.__class__.__name__
+        return [module_name, class_name, func_name]
     else:
-        return [getattr(callback, '__module__', None), callback.__name__]
+        return [module_name, func_name]
 
 
 def register_event_callback(event, resource_type, callbacks):
