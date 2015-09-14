@@ -7,9 +7,9 @@ Keystone Startup Command
 ------------------------
 
 :Author: openstack@lists.openstack.org
-:Date:   2014-10-16
+:Date:   2015-10-15
 :Copyright: OpenStack Foundation
-:Version: 2014.2
+:Version: 8.0.0
 :Manual section: 1
 :Manual group: cloud computing
 
