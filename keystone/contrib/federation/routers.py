@@ -75,6 +75,10 @@ class FederationExtension(wsgi.V3ExtensionRouter):
         GET /auth/OS-FEDERATION/identity_providers/
             {idp_id}/protocols/{protocol_id}/websso
             ?origin=https%3A//horizon.example.com
+        POST /auth/OS-FEDERATION/identity_providers/
+            {idp_id}/protocols/{protocol_id}/websso
+            ?origin=https%3A//horizon.example.com
+
 
         POST /auth/OS-FEDERATION/saml2
         POST /auth/OS-FEDERATION/saml2/ecp
