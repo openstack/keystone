@@ -22,7 +22,7 @@ The schema for mapping is a description of how a mapping should be created.
 It shows all the requirements and possibilities for a JSON to be used for mapping.
 
 Mapping schema is validated with `JSON Schema
-<http://http://json-schema.org/documentation.html>`__
+<http://json-schema.org/documentation.html>`__
 
 Mapping Schema
 --------------
