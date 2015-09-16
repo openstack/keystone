@@ -426,11 +426,10 @@ def _sign_assertion(assertion):
         stdout = subprocess.check_output(command_list,
                                          stderr=subprocess.STDOUT)
     except Exception as e:
-        msg = _LE('Error when signing assertion, reason: %(reason)s')
-        msg = msg % {'reason': e}
-        if hasattr(e, 'output'):
-            msg += ' output: %(output)s' % {'output': e.output}
-        LOG.error(msg)
+        msg = _LE('Error when signing assertion, reason: %(reason)s%(output)s')
+        LOG.error(msg,
+                  {'reason': e,
+                   'output': ' ' + e.output if hasattr(e, 'output') else ''})
         raise exception.SAMLSigningError(reason=e)
     finally:
         try:

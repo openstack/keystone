@@ -2930,12 +2930,15 @@ class SAMLGenerationTests(FederationTests):
             returncode=sample_returncode, cmd=CONF.saml.xmlsec1_binary,
             output=sample_output)
 
-        # FIXME(blk-u): This should raise exception.SAMLSigningError instead,
-        # but fails with TypeError due to concatenating string to Message, see
-        # bug 1484735.
-        self.assertRaises(TypeError,
+        logger_fixture = self.useFixture(fixtures.LoggerFixture())
+        self.assertRaises(exception.SAMLSigningError,
                           keystone_idp._sign_assertion,
                           self.signed_assertion)
+        expected_log = (
+            "Error when signing assertion, reason: Command '%s' returned "
+            "non-zero exit status %s %s\n" %
+            (CONF.saml.xmlsec1_binary, sample_returncode, sample_output))
+        self.assertEqual(expected_log, logger_fixture.output)
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
     def test__sign_assertion_fileutils_exc(self, write_to_tempfile_mock):
