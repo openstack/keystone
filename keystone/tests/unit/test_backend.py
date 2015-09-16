@@ -87,6 +87,20 @@ class AssignmentTestHelperMixin(object):
         # 'entities': {'domains': [{'id': DEFAULT_DOMAIN, 'users': 3},
         #                          {'projects': 3}, 5]},
         #
+        # A project hierarchy can be specified within the 'projects' section by
+        # nesting the 'project' key, for example to create a project with three
+        # sub-projects you would use:
+
+                     'projects': {'project': 3}
+
+        # A more complex hierarchy can also be defined, for example the
+        # following would define three projects each containing a
+        # sub-project, each of which contain a further three sub-projects.
+
+                     'projects': [{'project': {'project': 3}},
+                                  {'project': {'project': 3}},
+                                  {'project': {'project': 3}}]
+
         # A list of groups and their members. In this case make users with
         # index 0 and 1 members of group with index 0. Users and Groups are
         # indexed in the order they appear in the 'entities' key above.
@@ -122,31 +136,54 @@ class AssignmentTestHelperMixin(object):
         # 'inherited_to_projects' options to list_role_assignments.}
 
     """
-    def create_entities(self, entity_pattern):
-        """Create the entities specified in the test plan.
+    def _handle_project_spec(self, test_data, domain_id, project_spec,
+                             parent_id=None):
+        """Handle the creation of a project or hierarchy of projects.
 
-        Process the 'entities' key in the test plan, creating the requested
-        entities. Each created entity will be added to the array of entities
-        stored in the returned test_data object, e.g.:
+        project_spec may either be a count of the number of projects to
+        create, or it may be a list of the form:
 
-        test_data['users'] = [user[0], user[1]....]
+        [{'project': project_spec}, {'project': project_spec}, ...]
+
+        This method is called recursively to handle the creation of a
+        hierarchy of projects.
 
         """
-        def _create_entity_in_domain(entity_type, domain_id):
-            new_entity = {'name': uuid.uuid4().hex, 'domain_id': domain_id}
-            if entity_type == 'users':
-                new_entity = self.identity_api.create_user(new_entity)
-            elif entity_type == 'groups':
-                new_entity = self.identity_api.create_group(new_entity)
-            elif entity_type == 'projects':
-                new_entity['id'] = uuid.uuid4().hex
-                new_entity = self.resource_api.create_project(new_entity['id'],
-                                                              new_entity)
-            else:
-                # Must be a bad test plan
-                raise exception.NotImplemented()
-            return new_entity
+        def _create_project(domain_id, parent_id):
+            new_project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
+                           'domain_id': domain_id, 'parent_id': parent_id}
+            new_project = self.resource_api.create_project(new_project['id'],
+                                                           new_project)
+            return new_project
 
+        if isinstance(project_spec, list):
+            for this_spec in project_spec:
+                self._handle_project_spec(
+                    test_data, domain_id, this_spec, parent_id=parent_id)
+        elif isinstance(project_spec, dict):
+            new_proj = _create_project(domain_id, parent_id)
+            test_data['projects'].append(new_proj)
+            self._handle_project_spec(
+                test_data, domain_id, project_spec['project'],
+                parent_id=new_proj['id'])
+        else:
+            for _ in range(project_spec):
+                test_data['projects'].append(
+                    _create_project(domain_id, parent_id))
+
+    def _handle_domain_spec(self, test_data, domain_spec):
+        """Handle the creation of domains and their contents.
+
+        domain_spec may either be a count of the number of empty domains to
+        create, a dict describing the domain contents, or a list of
+        domain_specs.
+
+        In the case when a list is provided, this method calls itself
+        recursively to handle the list elements.
+
+        This method will insert any entities created into test_data
+
+        """
         def _create_domain(domain_id=None):
             if domain_id is None:
                 new_domain = {'id': uuid.uuid4().hex,
@@ -158,40 +195,59 @@ class AssignmentTestHelperMixin(object):
                 # The test plan specified an existing domain to use
                 return self.resource_api.get_domain(domain_id)
 
-        def _create_role():
-            new_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-            return self.role_api.create_role(new_role['id'], new_role)
+        def _create_entity_in_domain(entity_type, domain_id):
+            """Create a user or group entity in the domain."""
 
-        def _handle_domain_spec(domain_spec):
-            """Handle the creation of domains and their contents.
+            new_entity = {'name': uuid.uuid4().hex, 'domain_id': domain_id}
+            if entity_type == 'users':
+                new_entity = self.identity_api.create_user(new_entity)
+            elif entity_type == 'groups':
+                new_entity = self.identity_api.create_group(new_entity)
+            else:
+                # Must be a bad test plan
+                raise exception.NotImplemented()
+            return new_entity
 
-            domain_spec may either be a count of the number of empty domains to
-            create, a dict describing the domain contents, or a list of
-            domain_specs.
-
-            In the case when a list is provided, this method calls itself
-            recursively to handle the list elements.
-
-            """
-            if isinstance(domain_spec, list):
-                for x in domain_spec:
-                    _handle_domain_spec(x)
-            elif isinstance(domain_spec, dict):
-                # If there is a domain ID specified, then use it
-                the_domain = _create_domain(domain_id=domain_spec.get('id'))
-                test_data['domains'].append(the_domain)
-                for entity_type, count in domain_spec.items():
-                    if entity_type == 'id':
-                        # We already used this above to determine whether to
-                        # use and existing domain
-                        continue
-                    for _ in range(count):
+        if isinstance(domain_spec, list):
+            for x in domain_spec:
+                self._handle_domain_spec(test_data, x)
+        elif isinstance(domain_spec, dict):
+            # If there is a domain ID specified, then use it
+            the_domain = _create_domain(domain_spec.get('id'))
+            test_data['domains'].append(the_domain)
+            for entity_type, value in domain_spec.items():
+                if entity_type == 'id':
+                    # We already used this above to determine whether to
+                    # use and existing domain
+                    continue
+                if entity_type == 'projects':
+                    # If it's projects, we need to handle the potential
+                    # specification of a project hierarchy
+                    self._handle_project_spec(
+                        test_data, the_domain['id'], value)
+                else:
+                    # It's a count of number of entities
+                    for _ in range(value):
                         test_data[entity_type].append(
                             _create_entity_in_domain(
                                 entity_type, the_domain['id']))
-            else:
-                for _ in range(domain_spec):
-                    test_data['domains'].append(_create_domain())
+        else:
+            for _ in range(domain_spec):
+                test_data['domains'].append(_create_domain())
+
+    def create_entities(self, entity_pattern):
+        """Create the entities specified in the test plan.
+
+        Process the 'entities' key in the test plan, creating the requested
+        entities. Each created entity will be added to the array of entities
+        stored in the returned test_data object, e.g.:
+
+        test_data['users'] = [user[0], user[1]....]
+
+        """
+        def _create_role():
+            new_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            return self.role_api.create_role(new_role['id'], new_role)
 
         test_data = {}
         for entity in ['users', 'groups', 'domains', 'projects', 'roles']:
@@ -200,7 +256,7 @@ class AssignmentTestHelperMixin(object):
         # Create any domains requested and, if specified, any entities within
         # those domains
         if 'domains' in entity_pattern:
-            _handle_domain_spec(entity_pattern['domains'])
+            self._handle_domain_spec(test_data, entity_pattern['domains'])
 
         # Create any roles requested
         if 'roles' in entity_pattern:
@@ -6272,6 +6328,50 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertEqual(1, len(user_projects))
         self.assertIn(root_project, user_projects)
 
+        # TODO(henry-nash): The test above uses list_projects_for_user
+        # which may, in a subsequent patch, be re-implemeted to call
+        # list_role_assignments and then report only the distinct projects.
+        #
+        # The test plan below therefore mirrors this test, to ensure that
+        # list_role_assignments works the same. Once list_projects_for_user
+        # has been re-implemented then the manual tests above can be
+        # refactored.
+        test_plan = {
+            # A domain with a project and sub-project, plus a user.
+            # Also, create 2 roles.
+            'entities': {
+                'domains': {'id': DEFAULT_DOMAIN_ID, 'users': 1,
+                            'projects': {'project': 1}},
+                'roles': 2},
+            # A direct role and an inherited role on the parent
+            'assignments': [{'user': 0, 'role': 0, 'project': 0},
+                            {'user': 0, 'role': 1, 'project': 0,
+                             'inherited_to_projects': True}],
+            'tests': [
+                # List all effective assignments for user[0] - should get back
+                # one direct role plus one inherited role.
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0},
+                             {'user': 0, 'role': 1, 'project': 1,
+                              'indirect': {'project': 0}}]}
+            ]
+        }
+
+        test_plan_with_os_inherit_disabled = {
+            'tests': [
+                # List all effective assignments for user[0] - should only get
+                # back the one direct role.
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0}]}
+            ]
+        }
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        test_data = self.execute_assignment_test_plan(test_plan)
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        # Pass the existing test data in to allow execution of 2nd test plan
+        self.execute_assignment_tests(
+            test_plan_with_os_inherit_disabled, test_data)
+
     def test_list_projects_for_user_with_inherited_group_grants(self):
         """Test inherited group roles.
 
@@ -6440,6 +6540,53 @@ class InheritanceTests(AssignmentTestHelperMixin):
         user_projects = self.assignment_api.list_projects_for_user(user['id'])
         self.assertEqual(1, len(user_projects))
         self.assertIn(root_project, user_projects)
+
+        # TODO(henry-nash): The test above uses list_projects_for_user
+        # which may, in a subsequent patch, be re-implemeted to call
+        # list_role_assignments and then report only the distinct projects.
+        #
+        # The test plan below therefore mirrors this test, to ensure that
+        # list_role_assignments works the same. Once list_projects_for_user
+        # has been re-implemented then the manual tests above can be
+        # refactored.
+        test_plan = {
+            # A domain with a project ans sub-project, plus a user.
+            # Also, create 2 roles.
+            'entities': {
+                'domains': {'id': DEFAULT_DOMAIN_ID, 'users': 1, 'groups': 1,
+                            'projects': {'project': 1}},
+                'roles': 2},
+            'group_memberships': [{'group': 0, 'users': [0]}],
+            # A direct role and an inherited role on the parent
+            'assignments': [{'group': 0, 'role': 0, 'project': 0},
+                            {'group': 0, 'role': 1, 'project': 0,
+                             'inherited_to_projects': True}],
+            'tests': [
+                # List all effective assignments for user[0] - should get back
+                # one direct role plus one inherited role.
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0,
+                              'indirect': {'group': 0}},
+                             {'user': 0, 'role': 1, 'project': 1,
+                              'indirect': {'group': 0, 'project': 0}}]}
+            ]
+        }
+
+        test_plan_with_os_inherit_disabled = {
+            'tests': [
+                # List all effective assignments for user[0] - should only get
+                # back the one direct role.
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0,
+                              'indirect': {'group': 0}}]}
+            ]
+        }
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        test_data = self.execute_assignment_test_plan(test_plan)
+        self.config_fixture.config(group='os_inherit', enabled=False)
+        # Pass the existing test data in to allow execution of 2nd test plan
+        self.execute_assignment_tests(
+            test_plan_with_os_inherit_disabled, test_data)
 
 
 class FilterTests(filtering.FilterTests):
