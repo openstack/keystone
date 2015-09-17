@@ -124,6 +124,30 @@ class TenantTestCase(unit.TestCase):
             context
         )
 
+    def test_create_is_domain_project_fails(self):
+        """Test that the creation of a project acting as a domain fails."""
+        project = {'name': uuid.uuid4().hex, 'domain_id': 'default',
+                   'is_domain': True}
+
+        self.assertRaises(
+            exception.ValidationError,
+            self.tenant_controller.create_project,
+            _ADMIN_CONTEXT,
+            project
+        )
+
+    def test_create_project_passing_is_domain_false_fails(self):
+        """Test that passing is_domain=False is not allowed."""
+        project = {'name': uuid.uuid4().hex, 'domain_id': 'default',
+                   'is_domain': False}
+
+        self.assertRaises(
+            exception.ValidationError,
+            self.tenant_controller.create_project,
+            _ADMIN_CONTEXT,
+            project
+        )
+
     def test_update_is_domain_project_not_found(self):
         """Test that update is_domain project is not allowed in v2."""
         project = self._create_is_domain_project()
