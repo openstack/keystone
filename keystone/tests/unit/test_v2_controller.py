@@ -103,6 +103,24 @@ class TenantTestCase(unit.TestCase):
         project_ref = self.resource_api.create_project(project['id'], project)
         return self.tenant_controller.v3_to_v2_project(project_ref)
 
+    def test_get_is_domain_project_not_found(self):
+        """Test that get project does not return is_domain projects."""
+        project = self._create_is_domain_project()
+
+        self.assertRaises(
+            exception.ProjectNotFound,
+            self.tenant_controller.get_project_by_name,
+            _ADMIN_CONTEXT,
+            project['name']
+        )
+
+        self.assertRaises(
+            exception.ProjectNotFound,
+            self.tenant_controller.get_project,
+            _ADMIN_CONTEXT,
+            project['id']
+        )
+
     def test_update_is_domain_project_not_found(self):
         """Test that update is_domain project is not allowed in v2."""
         project = self._create_is_domain_project()
