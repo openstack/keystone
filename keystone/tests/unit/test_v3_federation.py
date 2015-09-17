@@ -813,7 +813,7 @@ class FederatedIdentityProviderTests(FederationTests):
         if body is None:
             body = self._http_idp_input()
         resp = self.put(url, body={'identity_provider': body},
-                        expected_status=201)
+                        expected_status=http_client.CREATED)
         return resp
 
     def _http_idp_input(self, **kwargs):
@@ -1025,7 +1025,7 @@ class FederatedIdentityProviderTests(FederationTests):
         url = self.base_url(suffix=uuid.uuid4().hex)
         body = self._http_idp_input()
         self.put(url, body={'identity_provider': body},
-                 expected_status=201)
+                 expected_status=http_client.CREATED)
         self.put(url, body={'identity_provider': body},
                  expected_status=http_client.CONFLICT)
 
@@ -1082,7 +1082,7 @@ class FederatedIdentityProviderTests(FederationTests):
         idp_url = self.base_url(suffix=idp_id)
 
         # assign protocol to IdP
-        kwargs = {'expected_status': 201}
+        kwargs = {'expected_status': http_client.CREATED}
         resp, idp_id, proto = self._assign_protocol_to_idp(
             url=url,
             idp_id=idp_id,
@@ -1177,7 +1177,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_assign_protocol_to_idp(self):
         """Assign a protocol to existing IdP."""
 
-        self._assign_protocol_to_idp(expected_status=201)
+        self._assign_protocol_to_idp(expected_status=http_client.CREATED)
 
     def test_protocol_composite_pk(self):
         """Test whether Keystone let's add two entities with identical
@@ -1191,7 +1191,7 @@ class FederatedIdentityProviderTests(FederationTests):
         """
         url = self.base_url(suffix='%(idp_id)s/protocols/%(protocol_id)s')
 
-        kwargs = {'expected_status': 201}
+        kwargs = {'expected_status': http_client.CREATED}
         self._assign_protocol_to_idp(proto='saml2',
                                      url=url, **kwargs)
 
@@ -1207,7 +1207,7 @@ class FederatedIdentityProviderTests(FederationTests):
         """
         url = self.base_url(suffix='%(idp_id)s/protocols/%(protocol_id)s')
 
-        kwargs = {'expected_status': 201}
+        kwargs = {'expected_status': http_client.CREATED}
         resp, idp_id, proto = self._assign_protocol_to_idp(proto='saml2',
                                                            url=url, **kwargs)
         kwargs = {'expected_status': http_client.CONFLICT}
@@ -1233,7 +1233,8 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_get_protocol(self):
         """Create and later fetch protocol tied to IdP."""
 
-        resp, idp_id, proto = self._assign_protocol_to_idp(expected_status=201)
+        resp, idp_id, proto = self._assign_protocol_to_idp(
+            expected_status=http_client.CREATED)
         proto_id = self._fetch_attribute_from_response(resp, 'protocol')['id']
         url = "%s/protocols/%s" % (idp_id, proto_id)
         url = self.base_url(suffix=url)
@@ -1252,12 +1253,14 @@ class FederatedIdentityProviderTests(FederationTests):
         Compare input and output id sets.
 
         """
-        resp, idp_id, proto = self._assign_protocol_to_idp(expected_status=201)
+        resp, idp_id, proto = self._assign_protocol_to_idp(
+            expected_status=http_client.CREATED)
         iterations = random.randint(0, 16)
         protocol_ids = []
         for _ in range(iterations):
-            resp, _, proto = self._assign_protocol_to_idp(idp_id=idp_id,
-                                                          expected_status=201)
+            resp, _, proto = self._assign_protocol_to_idp(
+                idp_id=idp_id,
+                expected_status=http_client.CREATED)
             proto_id = self._fetch_attribute_from_response(resp, 'protocol')
             proto_id = proto_id['id']
             protocol_ids.append(proto_id)
@@ -1276,7 +1279,8 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_update_protocols_attribute(self):
         """Update protocol's attribute."""
 
-        resp, idp_id, proto = self._assign_protocol_to_idp(expected_status=201)
+        resp, idp_id, proto = self._assign_protocol_to_idp(
+            expected_status=http_client.CREATED)
         new_mapping_id = uuid.uuid4().hex
 
         url = "%s/protocols/%s" % (idp_id, proto)
@@ -1297,7 +1301,8 @@ class FederatedIdentityProviderTests(FederationTests):
         """
         url = self.base_url(suffix='/%(idp_id)s/'
                                    'protocols/%(protocol_id)s')
-        resp, idp_id, proto = self._assign_protocol_to_idp(expected_status=201)
+        resp, idp_id, proto = self._assign_protocol_to_idp(
+            expected_status=http_client.CREATED)
         url = url % {'idp_id': idp_id,
                      'protocol_id': proto}
         self.delete(url)
@@ -1338,7 +1343,7 @@ class MappingCRUDTests(FederationTests):
         url = self.MAPPING_URL + uuid.uuid4().hex
         resp = self.put(url,
                         body={'mapping': mapping_fixtures.MAPPING_LARGE},
-                        expected_status=201)
+                        expected_status=http_client.CREATED)
         return resp
 
     def _get_id_from_response(self, resp):
@@ -1355,7 +1360,7 @@ class MappingCRUDTests(FederationTests):
         resp = self.get(url)
         entities = resp.result.get('mappings')
         self.assertIsNotNone(entities)
-        self.assertResponseStatus(resp, 200)
+        self.assertResponseStatus(resp, http_client.OK)
         self.assertValidListLinks(resp.result.get('links'))
         self.assertEqual(1, len(entities))
 
@@ -1365,7 +1370,7 @@ class MappingCRUDTests(FederationTests):
         mapping_id = self._get_id_from_response(resp)
         url = url % {'mapping_id': str(mapping_id)}
         resp = self.delete(url)
-        self.assertResponseStatus(resp, 204)
+        self.assertResponseStatus(resp, http_client.NO_CONTENT)
         self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_mapping_get(self):
@@ -2521,7 +2526,7 @@ class SAMLGenerationTests(FederationTests):
         self.sp = self.sp_ref()
         url = '/OS-FEDERATION/service_providers/' + self.SERVICE_PROVDIER_ID
         self.put(url, body={'service_provider': self.sp},
-                 expected_status=201)
+                 expected_status=http_client.CREATED)
 
     def test_samlize_token_values(self):
         """Test the SAML generator produces a SAML object.
@@ -2755,7 +2760,7 @@ class SAMLGenerationTests(FederationTests):
                                return_value=self.signed_assertion):
             http_response = self.post(self.SAML_GENERATION_ROUTE, body=body,
                                       response_content_type='text/xml',
-                                      expected_status=200)
+                                      expected_status=http_client.OK)
 
         response = etree.fromstring(http_response.result)
         issuer = response[0]
@@ -2871,7 +2876,7 @@ class SAMLGenerationTests(FederationTests):
                                return_value=self.signed_assertion):
             http_response = self.post(self.ECP_GENERATION_ROUTE, body=body,
                                       response_content_type='text/xml',
-                                      expected_status=200)
+                                      expected_status=http_client.OK)
 
         env_response = etree.fromstring(http_response.result)
         header = env_response[0]
@@ -3076,8 +3081,7 @@ class IdPMetadataGenerationTests(FederationTests):
     def test_get_metadata(self):
         self.config_fixture.config(
             group='saml', idp_metadata_path=XMLDIR + '/idp_saml2_metadata.xml')
-        r = self.get(self.METADATA_URL, response_content_type='text/xml',
-                     expected_status=200)
+        r = self.get(self.METADATA_URL, response_content_type='text/xml')
         self.assertEqual('text/xml', r.headers.get('Content-Type'))
 
         reference_file = _load_xml('idp_saml2_metadata.xml')
@@ -3100,7 +3104,7 @@ class ServiceProviderTests(FederationTests):
         self.SP_REF = self.sp_ref()
         self.SERVICE_PROVIDER = self.put(
             url, body={'service_provider': self.SP_REF},
-            expected_status=201).result
+            expected_status=http_client.CREATED).result
 
     def sp_ref(self):
         ref = {
@@ -3119,7 +3123,7 @@ class ServiceProviderTests(FederationTests):
 
     def test_get_service_provider(self):
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
-        resp = self.get(url, expected_status=200)
+        resp = self.get(url)
         self.assertValidEntity(resp.result['service_provider'],
                                keys_to_check=self.SP_KEYS)
 
@@ -3131,7 +3135,7 @@ class ServiceProviderTests(FederationTests):
         url = self.base_url(suffix=uuid.uuid4().hex)
         sp = self.sp_ref()
         resp = self.put(url, body={'service_provider': sp},
-                        expected_status=201)
+                        expected_status=http_client.CREATED)
         self.assertValidEntity(resp.result['service_provider'],
                                keys_to_check=self.SP_KEYS)
 
@@ -3141,7 +3145,7 @@ class ServiceProviderTests(FederationTests):
         sp = self.sp_ref()
         del sp['relay_state_prefix']
         resp = self.put(url, body={'service_provider': sp},
-                        expected_status=201)
+                        expected_status=http_client.CREATED)
         sp_result = resp.result['service_provider']
         self.assertEqual(CONF.saml.relay_state_prefix,
                          sp_result['relay_state_prefix'])
@@ -3153,7 +3157,7 @@ class ServiceProviderTests(FederationTests):
         non_default_prefix = uuid.uuid4().hex
         sp['relay_state_prefix'] = non_default_prefix
         resp = self.put(url, body={'service_provider': sp},
-                        expected_status=201)
+                        expected_status=http_client.CREATED)
         sp_result = resp.result['service_provider']
         self.assertEqual(non_default_prefix,
                          sp_result['relay_state_prefix'])
@@ -3180,7 +3184,8 @@ class ServiceProviderTests(FederationTests):
         }
         for id, sp in ref_service_providers.items():
             url = self.base_url(suffix=id)
-            self.put(url, body={'service_provider': sp}, expected_status=201)
+            self.put(url, body={'service_provider': sp},
+                     expected_status=http_client.CREATED)
 
         # Insert ids into service provider object, we will compare it with
         # responses from server and those include 'id' attribute.
@@ -3207,15 +3212,14 @@ class ServiceProviderTests(FederationTests):
         """
         new_sp_ref = self.sp_ref()
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
-        resp = self.patch(url, body={'service_provider': new_sp_ref},
-                          expected_status=200)
+        resp = self.patch(url, body={'service_provider': new_sp_ref})
         patch_result = resp.result
         new_sp_ref['id'] = self.SERVICE_PROVIDER_ID
         self.assertValidEntity(patch_result['service_provider'],
                                ref=new_sp_ref,
                                keys_to_check=self.SP_KEYS)
 
-        resp = self.get(url, expected_status=200)
+        resp = self.get(url)
         get_result = resp.result
 
         self.assertDictEqual(patch_result['service_provider'],
@@ -3253,15 +3257,14 @@ class ServiceProviderTests(FederationTests):
         non_default_prefix = uuid.uuid4().hex
         new_sp_ref['relay_state_prefix'] = non_default_prefix
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
-        resp = self.patch(url, body={'service_provider': new_sp_ref},
-                          expected_status=200)
+        resp = self.patch(url, body={'service_provider': new_sp_ref})
         sp_result = resp.result['service_provider']
         self.assertEqual(non_default_prefix,
                          sp_result['relay_state_prefix'])
 
     def test_delete_service_provider(self):
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
-        self.delete(url, expected_status=204)
+        self.delete(url)
 
     def test_delete_service_provider_404(self):
         url = self.base_url(suffix=uuid.uuid4().hex)

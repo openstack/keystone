@@ -1137,7 +1137,7 @@ class ClientDrivenTestCase(unit.TestCase):
         credentials, signature = self._generate_default_user_ec2_credentials()
         credentials['signature'] = signature
         resp, token = self._send_ec2_auth_request(credentials)
-        self.assertEqual(200, resp.status_code)
+        self.assertEqual(http_client.OK, resp.status_code)
         self.assertIn('access', token)
 
     def test_ec2_auth_success_trust(self):
@@ -1169,7 +1169,7 @@ class ClientDrivenTestCase(unit.TestCase):
             cred.access, cred.secret)
         credentials['signature'] = signature
         resp, token = self._send_ec2_auth_request(credentials)
-        self.assertEqual(200, resp.status_code)
+        self.assertEqual(http_client.OK, resp.status_code)
         self.assertEqual(trust_id, token['access']['trust']['id'])
         # TODO(shardy) we really want to check the roles and trustee
         # but because of where the stubbing happens we don't seem to

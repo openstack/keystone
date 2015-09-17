@@ -461,7 +461,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         token = self.get_requested_token(auth)
 
         self.head('/auth/tokens', token=token,
-                  headers={'X-Subject-Token': token}, expected_status=200)
+                  headers={'X-Subject-Token': token},
+                  expected_status=http_client.OK)
 
     def test_user_check_user_token(self):
         # A user can check one of their own tokens.
@@ -474,7 +475,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         token2 = self.get_requested_token(auth)
 
         self.head('/auth/tokens', token=token1,
-                  headers={'X-Subject-Token': token2}, expected_status=200)
+                  headers={'X-Subject-Token': token2},
+                  expected_status=http_client.OK)
 
     def test_user_check_other_user_token_rejected(self):
         # A user cannot check another user's token.
@@ -510,7 +512,8 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         user_token = self.get_requested_token(user_auth)
 
         self.head('/auth/tokens', token=admin_token,
-                  headers={'X-Subject-Token': user_token}, expected_status=200)
+                  headers={'X-Subject-Token': user_token},
+                  expected_status=http_client.OK)
 
     def test_user_revoke_same_token(self):
         # Given a non-admin user token, the token can be used to revoke
@@ -683,7 +686,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         # Return the expected return codes for APIs with and without data
         # with any specified status overriding the normal values
         if expected_status is None:
-            return (200, 201, 204)
+            return (http_client.OK, http_client.CREATED,
+                    http_client.NO_CONTENT)
         else:
             return (expected_status, expected_status, expected_status)
 
@@ -1050,7 +1054,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             password=self.domain_admin_user['password'],
             domain_id=self.domainA['id'])
         entity_url = '/domains/%s' % self.domainA['id']
-        self.get(entity_url, auth=self.auth, expected_status=200)
+        self.get(entity_url, auth=self.auth)
 
     def test_list_user_credentials(self):
         self.credential_user = self.new_credential_ref(self.just_a_user['id'])
@@ -1182,7 +1186,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         token = self.get_requested_token(auth)
 
         self.head('/auth/tokens', token=token,
-                  headers={'X-Subject-Token': token}, expected_status=200)
+                  headers={'X-Subject-Token': token},
+                  expected_status=http_client.OK)
 
     def test_user_check_user_token(self):
         # A user can check one of their own tokens.
@@ -1195,7 +1200,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         token2 = self.get_requested_token(auth)
 
         self.head('/auth/tokens', token=token1,
-                  headers={'X-Subject-Token': token2}, expected_status=200)
+                  headers={'X-Subject-Token': token2},
+                  expected_status=http_client.OK)
 
     def test_user_check_other_user_token_rejected(self):
         # A user cannot check another user's token.
@@ -1231,7 +1237,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         user_token = self.get_requested_token(user_auth)
 
         self.head('/auth/tokens', token=admin_token,
-                  headers={'X-Subject-Token': user_token}, expected_status=200)
+                  headers={'X-Subject-Token': user_token},
+                  expected_status=http_client.OK)
 
     def test_user_revoke_same_token(self):
         # Given a non-admin user token, the token can be used to revoke

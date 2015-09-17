@@ -18,6 +18,7 @@ import uuid
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
+from six.moves import http_client
 from testtools import matchers
 
 from keystone import auth
@@ -411,7 +412,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         r = self.v3_authenticate_token(auth)
         return r.headers.get('X-Subject-Token')
 
-    def v3_authenticate_token(self, auth, expected_status=201):
+    def v3_authenticate_token(self, auth, expected_status=http_client.CREATED):
         return self.admin_request(method='POST',
                                   path='/v3/auth/tokens',
                                   body=auth,
@@ -443,38 +444,38 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def get(self, path, **kwargs):
         r = self.v3_request(method='GET', path=path, **kwargs)
         if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, 200)
+            self.assertResponseStatus(r, http_client.OK)
         return r
 
     def head(self, path, **kwargs):
         r = self.v3_request(method='HEAD', path=path, **kwargs)
         if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, 204)
+            self.assertResponseStatus(r, http_client.NO_CONTENT)
         self.assertEqual('', r.body)
         return r
 
     def post(self, path, **kwargs):
         r = self.v3_request(method='POST', path=path, **kwargs)
         if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, 201)
+            self.assertResponseStatus(r, http_client.CREATED)
         return r
 
     def put(self, path, **kwargs):
         r = self.v3_request(method='PUT', path=path, **kwargs)
         if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, 204)
+            self.assertResponseStatus(r, http_client.NO_CONTENT)
         return r
 
     def patch(self, path, **kwargs):
         r = self.v3_request(method='PATCH', path=path, **kwargs)
         if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, 200)
+            self.assertResponseStatus(r, http_client.OK)
         return r
 
     def delete(self, path, **kwargs):
         r = self.v3_request(method='DELETE', path=path, **kwargs)
         if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, 204)
+            self.assertResponseStatus(r, http_client.NO_CONTENT)
         return r
 
     def assertValidErrorResponse(self, r):
