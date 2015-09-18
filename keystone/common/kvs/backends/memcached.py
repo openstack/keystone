@@ -63,7 +63,9 @@ class MemcachedLock(object):
             elif not wait:
                 return False
             else:
-                sleep_time = random.random()
+                sleep_time = random.random()  # nosec : random is not used for
+                # crypto or security, it's just the time to delay between
+                # retries.
                 time.sleep(sleep_time)
         raise exception.UnexpectedError(
             _('Maximum lock attempts on %s occurred.') % self.key)
