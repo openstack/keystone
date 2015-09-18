@@ -11,9 +11,9 @@ plugin_name_pattern: '*.py'
 #output_colors:
 #    DEFAULT: '\033[0m'
 #    HEADER: '\033[95m'
-#    INFO: '\033[94m'
-#    WARN: '\033[93m'
-#    ERROR: '\033[91m'
+#    LOW: '\033[94m'
+#    MEDIUM: '\033[93m'
+#    HIGH: '\033[91m'
 
 # optional: log format string
 #log_format: "[%(module)s]\t%(levelname)s\t%(message)s"
@@ -31,14 +31,73 @@ exclude_dirs:
 profiles:
     gate:
         include:
+
+            # TODO:
+            # - any_other_function_with_shell_equals_true
+
+            # TODO:
+            # - assert_used
+
             - blacklist_calls
+
+            # TODO:
+            # - blacklist_import_func
+
             - blacklist_imports
-            - request_with_no_cert_validation
             - exec_used
+
+            # TODO:
+            # - execute_with_run_as_root_equals_true
+
+            # TODO:
+            # - hardcoded_bind_all_interfaces
+
+            # Not working because wordlist/default-passwords file not bundled,
+            # see https://bugs.launchpad.net/bandit/+bug/1451575 :
+            # - hardcoded_password
+
+            # Not used because it's prone to false positives:
+            # - hardcoded_sql_expressions
+
+            # TODO:
+            # - hardcoded_tmp_directory
+
+            # TODO:
+            # - jinja2_autoescape_false
+
+            - linux_commands_wildcard_injection
+
+            # TODO:
+            # - paramiko_calls
+
+            # TODO:
+            # - password_config_option_not_marked_secret
+
+            - request_with_no_cert_validation
             - set_bad_file_permissions
             - subprocess_popen_with_shell_equals_true
-            - linux_commands_wildcard_injection
+
+            # TODO:
+            # - subprocess_without_shell_equals_true
+
+            # TODO:
+            # - start_process_with_a_shell
+
+            # TODO:
+            # - start_process_with_no_shell
+
+            # TODO:
+            # - start_process_with_partial_path
+
+            - ssl_with_bad_defaults
             - ssl_with_bad_version
+            - ssl_with_no_version
+
+            # TODO:
+            # - try_except_pass
+
+            # TODO:
+            # - use_of_mako_templates
 
 blacklist_calls:
     bad_name_sets:
@@ -50,8 +109,8 @@ blacklist_calls:
             qualnames: [marshal.load, marshal.loads]
             message: "Deserialization with the marshal module is possibly dangerous."
         - md5:
-            qualnames: [hashlib.md5]
-            message: "Use of insecure MD5 hash function."
+            qualnames: [hashlib.md5, Crypto.Hash.MD2.new, Crypto.Hash.MD4.new, Crypto.Hash.MD5.new, cryptography.hazmat.primitives.hashes.MD5]
+            message: "Use of insecure MD2, MD4, or MD5 hash function."
         - mktemp_q:
             qualnames: [tempfile.mktemp]
             message: "Use of insecure and deprecated function (mktemp)."
@@ -92,8 +151,13 @@ blacklist_imports:
             level: ERROR
             message: "Telnet is considered insecure. Use SSH or some other encrypted protocol."
 
+hardcoded_tmp_directory:
+    tmp_dirs:  ['/tmp', '/var/tmp', '/dev/shm']
+
 hardcoded_password:
-    word_list: "wordlist/default-passwords"
+    # Support for full path, relative path and special "%(site_data_dir)s"
+    # substitution (/usr/{local}/share)
+    word_list: "%(site_data_dir)s/wordlist/default-passwords"
 
 ssl_with_bad_version:
     bad_protocol_versions:
@@ -117,3 +181,6 @@ execute_with_run_as_root_equals_true:
         - neutron.agent.linux.utils.execute
         - nova.utils.execute
         - nova.utils.trycmd
+
+try_except_pass:
+  check_typed_exception: True
