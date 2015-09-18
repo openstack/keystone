@@ -80,7 +80,7 @@ above:
 
 .. code-block:: ini
 
-    [app:app_v3]
+    [pipeline:api_v3]
     pipeline = ... service_v3
 
 Replace "..." with whatever middleware you'd like to run in front of the API
