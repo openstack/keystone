@@ -32,16 +32,10 @@ profiles:
     gate:
         include:
 
-            # TODO:
-            # - any_other_function_with_shell_equals_true
-
-            # TODO:
-            # - assert_used
-
+            - any_other_function_with_shell_equals_true
+            - assert_used
             - blacklist_calls
-
-            # TODO:
-            # - blacklist_import_func
+            - blacklist_import_func
 
             # One of the blacklisted imports is the subprocess module. Keystone
             # has to import the subprocess module in a single module for
@@ -54,7 +48,7 @@ profiles:
 
             - exec_used
 
-            # TODO:
+            # Keystone doesn't use rootwrap and never will.
             # - execute_with_run_as_root_equals_true
 
             # TODO:
@@ -67,15 +61,14 @@ profiles:
             # Not used because it's prone to false positives:
             # - hardcoded_sql_expressions
 
-            # TODO:
-            # - hardcoded_tmp_directory
+            - hardcoded_tmp_directory
 
-            # TODO:
+            # Keystone has no use for jinja2.
             # - jinja2_autoescape_false
 
             - linux_commands_wildcard_injection
 
-            # TODO:
+            # Keystone has no use for paramiko.
             # - paramiko_calls
 
             # TODO:
@@ -88,15 +81,9 @@ profiles:
             # TODO:
             # - subprocess_without_shell_equals_true
 
-            # TODO:
-            # - start_process_with_a_shell
-
-            # TODO:
-            # - start_process_with_no_shell
-
-            # TODO:
-            # - start_process_with_partial_path
-
+            - start_process_with_a_shell
+            - start_process_with_no_shell
+            - start_process_with_partial_path
             - ssl_with_bad_defaults
             - ssl_with_bad_version
             - ssl_with_no_version
@@ -104,7 +91,7 @@ profiles:
             # TODO:
             # - try_except_pass
 
-            # TODO:
+            # Keystone has no use for mako.
             # - use_of_mako_templates
 
 blacklist_calls:
