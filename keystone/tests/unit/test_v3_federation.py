@@ -12,7 +12,6 @@
 
 import os
 import random
-import subprocess
 from testtools import matchers
 import uuid
 
@@ -33,6 +32,7 @@ if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
 from keystone.auth import controllers as auth_controllers
+from keystone.common import environment
 from keystone.contrib.federation import controllers as federation_controllers
 from keystone.contrib.federation import idp as keystone_idp
 from keystone import exception
@@ -44,6 +44,8 @@ from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
 from keystone.token.providers import common as token_common
 
+
+subprocess = environment.subprocess
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
@@ -2637,8 +2639,8 @@ class SAMLGenerationTests(FederationTests):
             # the assertion as is without signing it
             return assertion_content
 
-        with mock.patch('subprocess.check_output',
-                        side_effect=mocked_subprocess_check_output):
+        with mock.patch.object(subprocess, 'check_output',
+                               side_effect=mocked_subprocess_check_output):
             generator = keystone_idp.SAMLGenerator()
             response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
                                                self.SUBJECT,
@@ -2906,7 +2908,7 @@ class SAMLGenerationTests(FederationTests):
 
     @mock.patch('saml2.create_class_from_xml_string')
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
-    @mock.patch('subprocess.check_output')
+    @mock.patch.object(subprocess, 'check_output')
     def test__sign_assertion(self, check_output_mock,
                              write_to_tempfile_mock, create_class_mock):
         write_to_tempfile_mock.return_value = 'tmp_path'
@@ -2917,7 +2919,7 @@ class SAMLGenerationTests(FederationTests):
         create_class_mock.assert_called_with(saml.Assertion, 'fakeoutput')
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
-    @mock.patch('subprocess.check_output')
+    @mock.patch.object(subprocess, 'check_output')
     def test__sign_assertion_exc(self, check_output_mock,
                                  write_to_tempfile_mock):
         # If the command fails the command output is logged.
