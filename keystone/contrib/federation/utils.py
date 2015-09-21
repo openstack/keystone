@@ -203,7 +203,8 @@ def get_remote_id_parameter(protocol):
                           group=protocol)
         try:
             remote_id_parameter = CONF[protocol]['remote_id_attribute']
-        except AttributeError:
+        except AttributeError:  # nosec
+            # No remote ID attr, will be logged and use the default instead.
             pass
     if not remote_id_parameter:
         LOG.debug('Cannot find "remote_id_attribute" in configuration '

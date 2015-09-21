@@ -81,9 +81,7 @@ profiles:
             - ssl_with_bad_defaults
             - ssl_with_bad_version
             - ssl_with_no_version
-
-            # TODO:
-            # - try_except_pass
+            - try_except_pass
 
             # Keystone has no use for mako.
             # - use_of_mako_templates

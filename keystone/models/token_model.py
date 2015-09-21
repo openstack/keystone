@@ -116,7 +116,7 @@ class KeystoneToken(dict):
                 return self['user']['domain']['name']
             elif 'user' in self:
                 return "Default"
-        except KeyError:
+        except KeyError:  # nosec
             # Do not raise KeyError, raise UnexpectedError
             pass
         raise exception.UnexpectedError()
@@ -128,7 +128,7 @@ class KeystoneToken(dict):
                 return self['user']['domain']['id']
             elif 'user' in self:
                 return CONF.identity.default_domain_id
-        except KeyError:
+        except KeyError:  # nosec
             # Do not raise KeyError, raise UnexpectedError
             pass
         raise exception.UnexpectedError()
@@ -184,7 +184,7 @@ class KeystoneToken(dict):
                 return self['project']['domain']['id']
             elif 'tenant' in self['token']:
                 return CONF.identity.default_domain_id
-        except KeyError:
+        except KeyError:  # nosec
             # Do not raise KeyError, raise UnexpectedError
             pass
 
@@ -197,7 +197,7 @@ class KeystoneToken(dict):
                 return self['project']['domain']['name']
             if 'tenant' in self['token']:
                 return 'Default'
-        except KeyError:
+        except KeyError:  # nosec
             # Do not raise KeyError, raise UnexpectedError
             pass
 

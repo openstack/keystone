@@ -317,7 +317,8 @@ class TokenDriverV8(object):
         for token in token_list:
             try:
                 self.delete_token(token)
-            except exception.NotFound:
+            except exception.NotFound:  # nosec
+                # The token is already gone, good.
                 pass
         return token_list
 

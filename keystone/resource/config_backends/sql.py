@@ -130,7 +130,8 @@ class DomainConfig(resource.DomainConfigDriverV8):
                 ref = ConfigRegister(type=type, domain_id=domain_id)
                 session.add(ref)
             return True
-        except sql.DBDuplicateEntry:
+        except sql.DBDuplicateEntry:  # nosec
+            # Continue on and return False to indicate failure.
             pass
         return False
 
