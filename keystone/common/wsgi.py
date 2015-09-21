@@ -20,6 +20,7 @@
 
 import copy
 import itertools
+import re
 import wsgiref.util
 
 from oslo_config import cfg
@@ -376,13 +377,19 @@ class Application(BaseApplication):
                 itertools.chain(CONF.items(), CONF.eventlet_server.items()))
 
             url = url % substitutions
+        elif 'environment' in context:
+            url = wsgiref.util.application_uri(context['environment'])
+            # remove version from the URL as it may be part of SCRIPT_NAME but
+            # it should not be part of base URL
+            url = re.sub(r'/v(3|(2\.0))/*$', '', url)
+
+            # now remove the standard port
+            url = utils.remove_standard_port(url)
         else:
-            # NOTE(jamielennox): If url is not set via the config file we
-            # should set it relative to the url that the user used to get here
-            # so as not to mess with version discovery. This is not perfect.
-            # host_url omits the path prefix, but there isn't another good
-            # solution that will work for all urls.
-            url = context['host_url']
+            # if we don't have enough information to come up with a base URL,
+            # then fall back to localhost. This should never happen in
+            # production environment.
+            url = 'http://localhost:%d' % CONF.eventlet_server.public_port
 
         return url.rstrip('/')
 
@@ -812,18 +819,15 @@ def render_exception(error, context=None, request=None, user_locale=None):
     if isinstance(error, exception.AuthPluginException):
         body['error']['identity'] = error.authentication
     elif isinstance(error, exception.Unauthorized):
-        url = CONF.public_endpoint
-        if not url:
-            if request:
-                context = {'host_url': request.host_url}
-            if context:
-                url = Application.base_url(context, 'public')
-            else:
-                url = 'http://localhost:%d' % CONF.eventlet_server.public_port
-        else:
-            substitutions = dict(
-                itertools.chain(CONF.items(), CONF.eventlet_server.items()))
-            url = url % substitutions
+        # NOTE(gyee): we only care about the request environment in the
+        # context. Also, its OK to pass the environemt as it is read-only in
+        # Application.base_url()
+        local_context = {}
+        if request:
+            local_context = {'environment': request.environ}
+        elif context and 'environment' in context:
+            local_context = {'environment': context['environment']}
+        url = Application.base_url(local_context, 'public')
 
         headers.append(('WWW-Authenticate', 'Keystone uri="%s"' % url))
     return render_response(status=(error.code, error.title),
