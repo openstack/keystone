@@ -5,12 +5,13 @@
 # Translators:
 # Bruno Cornec <bruno.cornec@hp.com>, 2014
 # Maxime COQUEREL <max.coquerel@gmail.com>, 2014
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: Keystone\n"
+"Project-Id-Version: keystone 8.0.0.0b4.dev56\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-08-06 06:28+0000\n"
-"PO-Revision-Date: 2015-06-26 17:13+0000\n"
+"POT-Creation-Date: 2015-09-21 06:08+0000\n"
+"PO-Revision-Date: 2015-06-26 05:13+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: French (http://www.transifex.com/openstack/keystone/language/"
 "fr/)\n"
@@ -20,6 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.0\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Zanata 3.7.1\n"
 
 #, python-format
 msgid ""
@@ -44,10 +46,6 @@ msgstr ""
 "Erreur de configuration de l'environnement de débogage. Vérifiez que "
 "l'option --debug-url a le format <host>:<port> et que le processus de "
 "débogage écoute sur ce port."
-
-#, python-format
-msgid "Error when signing assertion, reason: %(reason)s"
-msgstr "Erreur lors de la signature d'une assertion : %(reason)s"
 
 msgid "Failed to construct notifier"
 msgstr "Échec de construction de la notification"

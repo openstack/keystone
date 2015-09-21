@@ -3,21 +3,23 @@
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: Keystone\n"
+"Project-Id-Version: keystone 8.0.0.0b4.dev56\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-08-06 06:28+0000\n"
-"PO-Revision-Date: 2015-08-04 13:50+0000\n"
+"POT-Creation-Date: 2015-09-21 06:08+0000\n"
+"PO-Revision-Date: 2015-08-04 01:50+0000\n"
 "Last-Translator: İşbaran Akçayır <isbaran@gmail.com>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/openstack/keystone/"
 "language/tr_TR/)\n"
-"Language: tr_TR\n"
+"Language: tr-TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Zanata 3.7.1\n"
 
 msgid "Cannot retrieve Authorization headers"
 msgstr "Yetkilendirme başlıkları alınamıyor"
@@ -69,10 +71,6 @@ msgstr ""
 "Hata ayıklama ortamının ayarlanmasında hata. --debug-url seçeneğinin "
 "<istemci>:<bağlantı noktası> biçimine sahip olduğunu ve bu bağlantı "
 "noktasında hata ayıklama sürecinin dinlediğini doğrulayın."
-
-#, python-format
-msgid "Error when signing assertion, reason: %(reason)s"
-msgstr "Teyit imzalanırken hata, sebep: %(reason)s"
 
 msgid "Failed to construct notifier"
 msgstr "Bildirici inşa etme başarısız"
