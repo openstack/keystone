@@ -73,7 +73,8 @@ class Server(service.ServiceBase):
     def __init__(self, application, host=None, port=None, keepalive=False,
                  keepidle=None):
         self.application = application
-        self.host = host or '0.0.0.0'
+        self.host = host or '0.0.0.0'  # nosec : Bind to all interfaces by
+        # default for backwards compatibility.
         self.port = port or 0
         # Pool for a green thread in which wsgi server will be running
         self.pool = eventlet.GreenPool(POOL_SIZE)
