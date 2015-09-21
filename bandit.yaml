@@ -70,9 +70,7 @@ profiles:
             # Keystone has no use for paramiko.
             # - paramiko_calls
 
-            # TODO:
-            # - password_config_option_not_marked_secret
-
+            - password_config_option_not_marked_secret
             - request_with_no_cert_validation
             - set_bad_file_permissions
             - subprocess_popen_with_shell_equals_true
