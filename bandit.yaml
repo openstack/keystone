@@ -74,10 +74,7 @@ profiles:
             - request_with_no_cert_validation
             - set_bad_file_permissions
             - subprocess_popen_with_shell_equals_true
-
-            # TODO:
-            # - subprocess_without_shell_equals_true
-
+            - subprocess_without_shell_equals_true
             - start_process_with_a_shell
             - start_process_with_no_shell
             - start_process_with_partial_path
