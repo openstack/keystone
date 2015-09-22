@@ -760,8 +760,8 @@
 # A list of trusted dashboard hosts. Before accepting a Single Sign-On request
 # to return a token, the origin host must be a member of the trusted_dashboard
 # list. This configuration option may be repeated for multiple values. For
-# example: trusted_dashboard=http://acme.com trusted_dashboard=http://beta.com
-# (multi valued)
+# example: trusted_dashboard=http://acme.com/auth/websso
+# trusted_dashboard=http://beta.com/auth/websso (multi valued)
 #trusted_dashboard =
 
 # Location of Single Sign-On callback handler, will return a token to a trusted
