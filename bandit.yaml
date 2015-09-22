@@ -29,7 +29,7 @@ exclude_dirs:
     - '/tests/'
 
 profiles:
-    keystone_conservative:
+    gate:
         include:
             - blacklist_calls
             - blacklist_imports
@@ -39,21 +39,6 @@ profiles:
             - subprocess_popen_with_shell_equals_true
             - linux_commands_wildcard_injection
             - ssl_with_bad_version
-
-
-    keystone_verbose:
-        include:
-            - blacklist_calls
-            - blacklist_imports
-            - request_with_no_cert_validation
-            - exec_used
-            - set_bad_file_permissions
-            - hardcoded_tmp_directory
-            - subprocess_popen_with_shell_equals_true
-            - any_other_function_with_shell_equals_true
-            - linux_commands_wildcard_injection
-            - ssl_with_bad_version
-            - ssl_with_bad_defaults
 
 blacklist_calls:
     bad_name_sets:
