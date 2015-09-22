@@ -5,21 +5,23 @@
 # Translators:
 # Xiao Xi LIU <liuxx@cn.ibm.com>, 2014
 # 刘俊朋 <liujunpeng@inspur.com>, 2015
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: Keystone\n"
+"Project-Id-Version: keystone 8.0.0.0b4.dev56\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-08-06 06:28+0000\n"
-"PO-Revision-Date: 2015-06-26 17:13+0000\n"
+"POT-Creation-Date: 2015-09-21 06:08+0000\n"
+"PO-Revision-Date: 2015-06-26 05:13+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/openstack/keystone/"
 "language/zh_CN/)\n"
-"Language: zh_CN\n"
+"Language: zh-CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Zanata 3.7.1\n"
 
 msgid "Cannot retrieve Authorization headers"
 msgstr "无法获取认证头信息"
@@ -62,10 +64,6 @@ msgid ""
 msgstr ""
 "设置调试环境出错。请确保选项--debug-url 的格式是这样的<host>:<port> ，和确保"
 "有一个调试进程正在监听那个端口"
-
-#, python-format
-msgid "Error when signing assertion, reason: %(reason)s"
-msgstr "对断言进行签名时出错，原因：%(reason)s"
 
 msgid "Failed to construct notifier"
 msgstr "构造通知器失败"
