@@ -255,9 +255,9 @@ class Auth(auth_controllers.Auth):
         value belongs to a list of trusted dashboards.
 
         :param context: request's context
-        :raises: exception.ValidationError: ``origin`` query parameter was not
-            specified. The URL is deemed invalid.
-        :raises: exception.Unauthorized: URL specified in origin query
+        :raises keystone.exception.ValidationError: ``origin`` query parameter
+            was not specified. The URL is deemed invalid.
+        :raises keystone.exception.Unauthorized: URL specified in origin query
             parameter does not exist in list of websso trusted dashboards.
         :returns: URL with the originating dashboard
 

@@ -1474,8 +1474,8 @@ class DomainConfigDriverV8(object):
 
         :param type: type of registration
         :returns: domain_id of who is registered.
-        :raises: keystone.exception.ConfigRegistrationNotFound: nobody is
-                 registered.
+        :raises keystone.exception.ConfigRegistrationNotFound: If nobody is
+            registered.
 
         """
         raise exception.NotImplemented()  # pragma: no cover

@@ -89,6 +89,6 @@ class AuthMethodHandler(object):
                   Authentication payload in the form of a dictionary for the
                   next authentication step if this is a multi step
                   authentication.
-        :raises: exception.Unauthorized for authentication failure
+        :raises keystone.exception.Unauthorized: for authentication failure
         """
         raise exception.Unauthorized()

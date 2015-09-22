@@ -370,11 +370,10 @@ class DomainConfigUploadFiles(object):
         :param file_name: the file containing the config options
         :param domain_name: the domain name
 
-        :raises: ValueError: the domain does not exist or already has domain
-                             specific configurations defined
-        :raises: Exceptions from oslo config: there is an issue with options
-                                              defined in the config file or its
-                                              format
+        :raises ValueError: the domain does not exist or already has domain
+            specific configurations defined.
+        :raises Exceptions from oslo config: there is an issue with options
+            defined in the config file or its format.
 
         The caller of this method should catch the errors raised and handle
         appropriately in order that the best UX experience can be provided for

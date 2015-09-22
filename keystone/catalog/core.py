@@ -349,8 +349,9 @@ class CatalogDriverV8(object):
     def create_region(self, region_ref):
         """Creates a new region.
 
-        :raises: keystone.exception.Conflict
-        :raises: keystone.exception.RegionNotFound (if parent region invalid)
+        :raises keystone.exception.Conflict: If the region already exists.
+        :raises keystone.exception.RegionNotFound: If the parent region
+            is invalid.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -373,7 +374,7 @@ class CatalogDriverV8(object):
         """Get region by id.
 
         :returns: region_ref dict
-        :raises: keystone.exception.RegionNotFound
+        :raises keystone.exception.RegionNotFound: If the region doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -383,7 +384,7 @@ class CatalogDriverV8(object):
         """Update region by id.
 
         :returns: region_ref dict
-        :raises: keystone.exception.RegionNotFound
+        :raises keystone.exception.RegionNotFound: If the region doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -392,7 +393,7 @@ class CatalogDriverV8(object):
     def delete_region(self, region_id):
         """Deletes an existing region.
 
-        :raises: keystone.exception.RegionNotFound
+        :raises keystone.exception.RegionNotFound: If the region doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -401,7 +402,7 @@ class CatalogDriverV8(object):
     def create_service(self, service_id, service_ref):
         """Creates a new service.
 
-        :raises: keystone.exception.Conflict
+        :raises keystone.exception.Conflict: If a duplicate service exists.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -424,7 +425,8 @@ class CatalogDriverV8(object):
         """Get service by id.
 
         :returns: service_ref dict
-        :raises: keystone.exception.ServiceNotFound
+        :raises keystone.exception.ServiceNotFound: If the service doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -434,7 +436,8 @@ class CatalogDriverV8(object):
         """Update service by id.
 
         :returns: service_ref dict
-        :raises: keystone.exception.ServiceNotFound
+        :raises keystone.exception.ServiceNotFound: If the service doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -443,7 +446,8 @@ class CatalogDriverV8(object):
     def delete_service(self, service_id):
         """Deletes an existing service.
 
-        :raises: keystone.exception.ServiceNotFound
+        :raises keystone.exception.ServiceNotFound: If the service doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -452,8 +456,9 @@ class CatalogDriverV8(object):
     def create_endpoint(self, endpoint_id, endpoint_ref):
         """Creates a new endpoint for a service.
 
-        :raises: keystone.exception.Conflict,
-                 keystone.exception.ServiceNotFound
+        :raises keystone.exception.Conflict: If a duplicate endpoint exists.
+        :raises keystone.exception.ServiceNotFound: If the service doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -463,7 +468,8 @@ class CatalogDriverV8(object):
         """Get endpoint by id.
 
         :returns: endpoint_ref dict
-        :raises: keystone.exception.EndpointNotFound
+        :raises keystone.exception.EndpointNotFound: If the endpoint doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -486,8 +492,10 @@ class CatalogDriverV8(object):
         """Get endpoint by id.
 
         :returns: endpoint_ref dict
-        :raises: keystone.exception.EndpointNotFound
-                 keystone.exception.ServiceNotFound
+        :raises keystone.exception.EndpointNotFound: If the endpoint doesn't
+            exist.
+        :raises keystone.exception.ServiceNotFound: If the service doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -496,7 +504,8 @@ class CatalogDriverV8(object):
     def delete_endpoint(self, endpoint_id):
         """Deletes an endpoint for a service.
 
-        :raises: keystone.exception.EndpointNotFound
+        :raises keystone.exception.EndpointNotFound: If the endpoint doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -521,7 +530,7 @@ class CatalogDriverV8(object):
 
         :returns: A nested dict representing the service catalog or an
                   empty dict.
-        :raises: keystone.exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -553,7 +562,7 @@ class CatalogDriverV8(object):
             }]
 
         :returns: A list representing the service catalog or an empty list
-        :raises: keystone.exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint doesn't exist.
 
         """
         v2_catalog = self.get_catalog(user_id, tenant_id)
@@ -597,7 +606,8 @@ class CatalogDriverV8(object):
         :type endpoint_id: string
         :param project_id: identity of the project to be associated with
         :type project_id: string
-        :raises: keystone.exception.Conflict,
+        :raises: keystone.exception.Conflict: If the endpoint was already
+            added to project.
         :returns: None.
 
         """
@@ -611,7 +621,8 @@ class CatalogDriverV8(object):
         :type endpoint_id: string
         :param project_id: identity of the project associated with
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint was not found
+            in the project.
         :returns: None.
 
         """
@@ -625,7 +636,8 @@ class CatalogDriverV8(object):
         :type endpoint_id: string
         :param project_id: identity of the project associated with
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint was not found
+            in the project.
         :returns: None.
 
         """
@@ -681,7 +693,8 @@ class CatalogDriverV8(object):
 
         :param endpoint_group: endpoint group to create
         :type endpoint_group: dictionary
-        :raises: keystone.exception.Conflict,
+        :raises: keystone.exception.Conflict: If a duplicate endpoint group
+            already exists.
         :returns: an endpoint group representation.
 
         """
@@ -693,7 +706,8 @@ class CatalogDriverV8(object):
 
         :param endpoint_group_id: identity of endpoint group to retrieve
         :type endpoint_group_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group was not
+            found.
         :returns: an endpoint group representation.
 
         """
@@ -707,7 +721,8 @@ class CatalogDriverV8(object):
         :type endpoint_group_id: string
         :param endpoint_group: A full or partial endpoint_group
         :type endpoint_group: dictionary
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group was not
+            found.
         :returns: an endpoint group representation.
 
         """
@@ -719,7 +734,8 @@ class CatalogDriverV8(object):
 
         :param endpoint_group_id: identity of endpoint group to delete
         :type endpoint_group_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group was not
+            found.
         :returns: None.
 
         """
@@ -733,7 +749,8 @@ class CatalogDriverV8(object):
         :type endpoint_group_id: string
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: keystone.exception.Conflict,
+        :raises keystone.exception.Conflict: If the endpoint group was already
+            added to the project.
         :returns: None.
 
         """
@@ -747,7 +764,8 @@ class CatalogDriverV8(object):
         :type endpoint_group_id: string
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group to the
+            project association was not found.
         :returns: a project endpoint group representation.
 
         """
@@ -757,7 +775,6 @@ class CatalogDriverV8(object):
     def list_endpoint_groups(self):
         """List all endpoint groups.
 
-        :raises: exception.NotFound
         :returns: None.
 
         """
@@ -769,7 +786,6 @@ class CatalogDriverV8(object):
 
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: exception.NotFound
         :returns: None.
 
         """
@@ -781,7 +797,6 @@ class CatalogDriverV8(object):
 
         :param endpoint_group_id: identity of endpoint to associate
         :type endpoint_group_id: string
-        :raises: exception.NotFound
         :returns: None.
 
         """
@@ -796,7 +811,8 @@ class CatalogDriverV8(object):
         :type endpoint_group_id: string
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If endpoint group project
+            association was not found.
         :returns: None.
 
         """

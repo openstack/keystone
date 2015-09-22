@@ -62,7 +62,7 @@ def utf8_encode(value):
 
     :param value: A basestring
     :returns: UTF-8 encoded version of value
-    :raises: TypeError if value is not basestring
+    :raises TypeError: If value is not basestring
     """
     if isinstance(value, six.text_type):
         return _utf8_encoder(value)[0]
@@ -84,7 +84,7 @@ def utf8_decode(value):
 
     :param value: value to be returned as unicode
     :returns: value as unicode
-    :raises: UnicodeDecodeError for invalid UTF-8 encoding
+    :raises UnicodeDecodeError: for invalid UTF-8 encoding
     """
     if isinstance(value, six.binary_type):
         return _utf8_decoder(value)[0]
@@ -1611,8 +1611,8 @@ class BaseLdap(object):
         :param member_list_dn: DN of group to which the
                                member will be added.
 
-        :raises: exception.Conflict: If the user was already a member.
-                 self.NotFound: If the group entry didn't exist.
+        :raises keystone.exception.Conflict: If the user was already a member.
+        :raises self.NotFound: If the group entry didn't exist.
         """
         with self.get_connection() as conn:
             try:
@@ -1634,8 +1634,8 @@ class BaseLdap(object):
         :param member_list_dn: DN of group from which the
                                member will be removed.
 
-        :raises: self.NotFound: If the group entry didn't exist.
-                 ldap.NO_SUCH_ATTRIBUTE: If the user wasn't a member.
+        :raises self.NotFound: If the group entry didn't exist.
+        :raises ldap.NO_SUCH_ATTRIBUTE: If the user wasn't a member.
         """
         with self.get_connection() as conn:
             try:

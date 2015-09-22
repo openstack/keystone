@@ -247,7 +247,7 @@ class Ec2ControllerCommon(object):
         """Return credentials from an ID.
 
         :param credential_id: id of credential
-        :raises exception.Unauthorized: when credential id is invalid
+        :raises keystone.exception.Unauthorized: when credential id is invalid
         :returns: credential: dict of ec2 credential.
         """
         ec2_credential_id = utils.hash_access_key(credential_id)
@@ -314,7 +314,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
         :param context: standard context
         :param user_id: id of user
-        :raises exception.Forbidden: when token is invalid
+        :raises keystone.exception.Forbidden: when token is invalid
 
         """
         token_ref = utils.get_token_ref(context)
@@ -342,7 +342,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
         :param user_id: expected credential owner
         :param credential_id: id of credential object
-        :raises exception.Forbidden: on failure
+        :raises keystone.exception.Forbidden: on failure
 
         """
         ec2_credential_id = utils.hash_access_key(credential_id)

@@ -288,7 +288,7 @@ class V3TokenDataHelper(object):
         :domain_id: domain ID to scope to
         :user_id: user ID
 
-        :raises: exception.Unauthorized - when no roles were found for a
+        :raises keystone.exception.Unauthorized: when no roles were found for a
             (group_ids, project_id) or (group_ids, domain_id) pairs.
 
         """

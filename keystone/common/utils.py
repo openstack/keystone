@@ -512,7 +512,7 @@ def get_token_ref(context):
     """Retrieves KeystoneToken object from the auth context and returns it.
 
     :param dict context: The request context.
-    :raises: exception.Unauthorized if auth context cannot be found.
+    :raises keystone.exception.Unauthorized: If auth context cannot be found.
     :returns: The KeystoneToken object.
     """
     try:

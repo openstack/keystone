@@ -55,7 +55,7 @@ class Error(Exception):
     def _build_message(self, message, **kwargs):
         """Builds and returns an exception message.
 
-        :raises: KeyError given insufficient kwargs
+        :raises KeyError: given insufficient kwargs
 
         """
         if not message:

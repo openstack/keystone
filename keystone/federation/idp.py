@@ -464,8 +464,8 @@ class MetadataGenerator(object):
         consumed by a federated Service Provider.
 
         :return: XML <EntityDescriptor> object.
-        :raises: keystone.exception.ValidationError: Raises if the required
-                                                     config options aren't set.
+        :raises keystone.exception.ValidationError: If the required
+            config options aren't set.
 
         """
         self._ensure_required_values_present()

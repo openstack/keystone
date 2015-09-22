@@ -91,7 +91,8 @@ class Manager(manager.Manager):
         inheritance.
 
         :returns: a list of role ids.
-        :raises: keystone.exception.ProjectNotFound
+        :raises keystone.exception.ProjectNotFound: If the project doesn't
+            exist.
 
         """
         self.resource_api.get_project(tenant_id)
@@ -104,7 +105,7 @@ class Manager(manager.Manager):
         """Get the roles associated with a user within given domain.
 
         :returns: a list of role ids.
-        :raises: keystone.exception.DomainNotFound
+        :raises keystone.exception.DomainNotFound: If the domain doesn't exist.
 
         """
         self.resource_api.get_domain(domain_id)
@@ -131,8 +132,9 @@ class Manager(manager.Manager):
     def add_user_to_project(self, tenant_id, user_id):
         """Add user to a tenant by creating a default role relationship.
 
-        :raises: keystone.exception.ProjectNotFound,
-                 keystone.exception.UserNotFound
+        :raises keystone.exception.ProjectNotFound: If the project doesn't
+            exist.
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
 
         """
         self.resource_api.get_project(tenant_id)
@@ -182,8 +184,9 @@ class Manager(manager.Manager):
     def remove_user_from_project(self, tenant_id, user_id):
         """Remove user from a tenant
 
-        :raises: keystone.exception.ProjectNotFound,
-                 keystone.exception.UserNotFound
+        :raises keystone.exception.ProjectNotFound: If the project doesn't
+            exist.
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
 
         """
         roles = self.get_roles_for_user_and_project(user_id, tenant_id)
@@ -915,8 +918,8 @@ class AssignmentDriverV8(object):
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         """Add a role to a user within given tenant.
 
-        :raises: keystone.exception.Conflict
-
+        :raises keystone.exception.Conflict: If a duplicate role assignment
+            exists.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -925,7 +928,7 @@ class AssignmentDriverV8(object):
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         """Remove a role from a user within given tenant.
 
-        :raises: keystone.exception.RoleNotFound
+        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -958,7 +961,8 @@ class AssignmentDriverV8(object):
                             inherited_to_projects=False):
         """Checks an assignment/grant role id.
 
-        :raises: keystone.exception.RoleAssignmentNotFound
+        :raises keystone.exception.RoleAssignmentNotFound: If the role
+            assignment doesn't exist.
         :returns: None or raises an exception if grant not found
 
         """
@@ -970,7 +974,8 @@ class AssignmentDriverV8(object):
                      inherited_to_projects=False):
         """Deletes assignments/grants.
 
-        :raises: keystone.exception.RoleAssignmentNotFound
+        :raises keystone.exception.RoleAssignmentNotFound: If the role
+            assignment doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1099,7 +1104,8 @@ class AssignmentDriverV8(object):
     def delete_project_assignments(self, project_id):
         """Deletes all assignments for a project.
 
-        :raises: keystone.exception.ProjectNotFound
+        :raises keystone.exception.ProjectNotFound: If the project doesn't
+            exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1113,7 +1119,7 @@ class AssignmentDriverV8(object):
     def delete_user_assignments(self, user_id):
         """Deletes all assignments for a user.
 
-        :raises: keystone.exception.RoleNotFound
+        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1122,7 +1128,7 @@ class AssignmentDriverV8(object):
     def delete_group_assignments(self, group_id):
         """Deletes all assignments for a group.
 
-        :raises: keystone.exception.RoleNotFound
+        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1190,7 +1196,7 @@ class RoleDriverV8(object):
     def create_role(self, role_id, role):
         """Creates a new role.
 
-        :raises: keystone.exception.Conflict
+        :raises keystone.exception.Conflict: If a duplicate role exists.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1226,7 +1232,7 @@ class RoleDriverV8(object):
         """Get a role by ID.
 
         :returns: role_ref
-        :raises: keystone.exception.RoleNotFound
+        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1235,8 +1241,8 @@ class RoleDriverV8(object):
     def update_role(self, role_id, role):
         """Updates an existing role.
 
-        :raises: keystone.exception.RoleNotFound,
-                 keystone.exception.Conflict
+        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
+        :raises keystone.exception.Conflict: If a duplicate role exists.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1245,7 +1251,7 @@ class RoleDriverV8(object):
     def delete_role(self, role_id):
         """Deletes an existing role.
 
-        :raises: keystone.exception.RoleNotFound
+        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
         """
         raise exception.NotImplemented()  # pragma: no cover

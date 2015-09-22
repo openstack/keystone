@@ -164,7 +164,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_id: string
         :param project_id: identity of the project to be associated with
         :type project_id: string
-        :raises: keystone.exception.Conflict,
+        :raises: keystone.exception.Conflict: If the endpoint was already
+            added to project.
         :returns: None.
 
         """
@@ -177,7 +178,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_id: string
         :param project_id: identity of the project associated with
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint was not found
+            in the project.
         :returns: None.
 
         """
@@ -190,7 +192,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_id: string
         :param project_id: identity of the project associated with
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint was not found
+            in the project.
         :returns: None.
 
         """
@@ -241,7 +244,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
 
         :param endpoint_group: endpoint group to create
         :type endpoint_group: dictionary
-        :raises: keystone.exception.Conflict,
+        :raises: keystone.exception.Conflict: If a duplicate endpoint group
+            already exists.
         :returns: an endpoint group representation.
 
         """
@@ -252,7 +256,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
 
         :param endpoint_group_id: identity of endpoint group to retrieve
         :type endpoint_group_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group was not
+            found.
         :returns: an endpoint group representation.
 
         """
@@ -265,7 +270,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_group_id: string
         :param endpoint_group: A full or partial endpoint_group
         :type endpoint_group: dictionary
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group was not
+            found.
         :returns: an endpoint group representation.
 
         """
@@ -276,7 +282,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
 
         :param endpoint_group_id: identity of endpoint group to delete
         :type endpoint_group_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group was not
+            found.
         :returns: None.
 
         """
@@ -289,7 +296,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_group_id: string
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: keystone.exception.Conflict,
+        :raises keystone.exception.Conflict: If the endpoint group was already
+            added to the project.
         :returns: None.
 
         """
@@ -302,7 +310,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_group_id: string
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If the endpoint group to the
+            project association was not found.
         :returns: a project endpoint group representation.
 
         """
@@ -311,7 +320,6 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
     def list_endpoint_groups(self):
         """List all endpoint groups.
 
-        :raises: exception.NotFound
         :returns: None.
 
         """
@@ -322,7 +330,6 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
 
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: exception.NotFound
         :returns: None.
 
         """
@@ -333,7 +340,6 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
 
         :param endpoint_group_id: identity of endpoint to associate
         :type endpoint_group_id: string
-        :raises: exception.NotFound
         :returns: None.
 
         """
@@ -347,7 +353,8 @@ class Catalog(kvs.Base, catalog.CatalogDriverV8):
         :type endpoint_group_id: string
         :param project_id: identity of project to associate
         :type project_id: string
-        :raises: exception.NotFound
+        :raises keystone.exception.NotFound: If endpoint group project
+            association was not found.
         :returns: None.
 
         """

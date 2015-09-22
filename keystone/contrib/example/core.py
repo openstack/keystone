@@ -90,7 +90,8 @@ class ExampleDriver(object):
 
         :param data: example data
         :type data: string
-        :raises: keystone.exception,
+        :raises keystone.exception.NotImplemented: If the operation was not
+            implemented.
         :returns: None.
 
         """

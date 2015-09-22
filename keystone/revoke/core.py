@@ -220,7 +220,7 @@ class Manager(manager.Manager):
                              differences between v2 and v3. The checked values
                              are a subset of the attributes of model.TokenEvent
 
-        :raises exception.TokenNotFound: if the token is invalid
+        :raises keystone.exception.TokenNotFound: If the token is invalid.
 
         """
         if self._get_revoke_tree().is_revoked(token_values):
