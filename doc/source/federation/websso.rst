@@ -35,9 +35,17 @@ prevent man-in-the-middle (MITM) attacks.
 
 2. Update httpd vhost file with websso information.
 
-The `/v3/auth/OS-FEDERATION/websso/<protocol>` route must be protected by the
-chosen httpd module. This is performed so the request that originates from
-horizon will use the same identity provider that is configured in keystone.
+The `/v3/auth/OS-FEDERATION/websso/<protocol>` and
+`/v3/auth/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/websso`
+routes must be protected by the chosen httpd module. This is performed so the
+request that originates from horizon will use the same identity provider that
+is configured in keystone.
+
+.. WARNING::
+    By using the IdP specific route, a user will no longer leverage the Remote
+    ID of a specific Identity Provider, and will be unable to verify that the
+    Identity Provider is trusted, the mapping will remain as the only means to
+    controlling authorization.
 
 If `mod_shib` is used, then use the following as an example:
 
@@ -52,6 +60,11 @@ If `mod_shib` is used, then use the following as an example:
         Require valid-user
         ...
       </Location>
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/saml2/websso">
+        AuthType shibboleth
+        Require valid-user
+        ...
+      </Location>
   </VirtualHost>
 
 If `mod_auth_openidc` is used, then use the following as an example:
@@ -61,10 +74,16 @@ If `mod_auth_openidc` is used, then use the following as an example:
   <VirtualHost *:5000>
 
       OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/websso/redirect
+      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocol/oidc/websso/redirect
 
       ...
 
       <Location ~ "/v3/auth/OS-FEDERATION/websso/oidc">
+        AuthType openid-connect
+        Require valid-user
+        ...
+      </Location>
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/oidc/websso">
         AuthType openid-connect
         Require valid-user
         ...
@@ -87,6 +106,14 @@ If `mod_auth_kerb` is used, then use the following as an example:
         Krb5Keytab /etc/apache2/http.keytab
         ...
       </Location>
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/kerberos/websso">
+        AuthType Kerberos
+        AuthName "Acme Corporation"
+        KrbMethodNegotiate on
+        KrbMethodK5Passwd off
+        Krb5Keytab /etc/apache2/http.keytab
+        ...
+      </Location>
   </VirtualHost>
 
 If `mod_auth_mellon` is used, then use the following as an example:
@@ -98,6 +125,12 @@ If `mod_auth_mellon` is used, then use the following as an example:
       ...
 
       <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
+        AuthType Mellon
+        MellonEnable auth
+        Require valid-user
+        ...
+      </Location>
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/saml2/websso">
         AuthType Mellon
         MellonEnable auth
         Require valid-user
@@ -182,6 +215,9 @@ Horizon Changes
 
     Django OpenStack Auth version 1.2.0 or higher is required for these steps.
 
+    Identity provider and federation protocol specific webSSO is only available
+    in Django OpenStack Auth version 2.0.0 or higher.
+
 1. Set the Identity Service version to 3
 
 Ensure the `OPENSTACK_API_VERSIONS` option in horizon's local_settings.py has
@@ -214,20 +250,45 @@ this will provide users with an updated login screen for horizon.
 4. (Optional) Create a list of authentication methods with the
    `WEBSSO_CHOICES` option.
 
-Within horizon's settings.py file, a list of supported authentication methods
-can be specified. The entries in the list map to keystone federation protocols,
-with the exception of ``credentials`` which is reserved by horizon, and maps to
-the user name and password used by keystone's identity backend.
+Within horizon's settings.py file, a list of supported authentication methods can be
+specified. The list includes Keystone federation protocols such as OpenID Connect and
+SAML, and also keys that map to specific identity provider and federation protocol
+combinations (as defined in `WEBSSO_IDP_MAPPING`). With the exception of ``credentials``
+which is reserved by horizon, and maps to the user name and password used by keystone's
+identity backend.
 
 .. code-block:: python
 
   WEBSSO_CHOICES = (
         ("credentials", _("Keystone Credentials")),
         ("oidc", _("OpenID Connect")),
-        ("saml2", _("Security Assertion Markup Language"))
+        ("saml2", _("Security Assertion Markup Language")),
+        ("idp_1_oidc", "Acme Corporation - OpenID Connect"),
+        ("idp_1_saml2", "Acme Corporation - SAML2")
       )
 
-5. (Optional) Specify an initial choice with the `WEBSSO_INITIAL_CHOICE`
+5. (Optional) Create a dictionary of specific identity provider and federation
+   protocol combinations.
+
+A dictionary of specific identity provider and federation protocol combinations.
+From the selected authentication mechanism, the value will be looked up as keys
+in the dictionary. If a match is found, it will redirect the user to a identity
+provider and federation protocol specific WebSSO endpoint in keystone, otherwise
+it will use the value as the protocol_id when redirecting to the WebSSO by
+protocol endpoint.
+
+.. code-block:: python
+
+  WEBSSO_IDP_MAPPING = {
+        "idp_1_oidc": ("idp_1", "oidc"),
+        "idp_1_saml2": ("idp_1", "saml2")
+      }
+
+.. NOTE::
+
+    The value is expected to be a tuple formatted as: (<idp_id>, <protocol_id>).
+
+6. (Optional) Specify an initial choice with the `WEBSSO_INITIAL_CHOICE`
    option.
 
 The list set by the `WEBSSO_CHOICES` option will be generated in a drop-down
