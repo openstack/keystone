@@ -13,14 +13,17 @@
 
 
 from oslo_config import cfg
+from oslo_log import log
 
 from keystone.common import dependency
 from keystone.common import sql
 from keystone import config
+from keystone.i18n import _LW
 from keystone.server import backends
 
 
 CONF = cfg.CONF
+LOG = log.getLogger(__name__)
 
 
 def configure(version=None, config_files=None,
@@ -34,6 +37,11 @@ def configure(version=None, config_files=None,
 
     pre_setup_logging_fn()
     config.setup_logging()
+
+    if CONF.debug:
+        LOG.warn(_LW(
+            'debug is enabled so responses may include sensitive '
+            'information.'))
 
 
 def setup_backends(load_extra_backends_fn=lambda: {},
