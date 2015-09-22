@@ -20,9 +20,11 @@ from oslo_utils import timeutils
 
 from keystone.common import config
 from keystone.common import utils
+from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
+from keystone.tests.unit.ksfixtures import database
 from keystone.token import provider
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
@@ -55,6 +57,149 @@ class TestFernetTokenProvider(unit.TestCase):
             exception.TokenNotFound,
             self.provider.validate_v2_token,
             uuid.uuid4().hex)
+
+
+class TestValidate(unit.TestCase):
+    def setUp(self):
+        super(TestValidate, self).setUp()
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(database.Database())
+        self.load_backends()
+
+    def config_overrides(self):
+        super(TestValidate, self).config_overrides()
+        self.config_fixture.config(group='token', provider='fernet')
+
+    def test_validate_v3_token_simple(self):
+        # Check the fields in the token result when use validate_v3_token
+        # with a simple token.
+
+        domain_ref = unit.new_domain_ref()
+        domain_ref = self.resource_api.create_domain(domain_ref['id'],
+                                                     domain_ref)
+
+        user_ref = unit.new_user_ref(domain_ref['id'])
+        user_ref = self.identity_api.create_user(user_ref)
+
+        method_names = ['password']
+        token_id, token_data_ = self.token_provider_api.issue_v3_token(
+            user_ref['id'], method_names)
+
+        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token = token_data['token']
+        self.assertIsInstance(token['audit_ids'], list)
+        self.assertIsInstance(token['expires_at'], str)
+        self.assertEqual({}, token['extras'])
+        self.assertIsInstance(token['issued_at'], str)
+        self.assertEqual(method_names, token['methods'])
+        exp_user_info = {
+            'id': user_ref['id'],
+            'name': user_ref['name'],
+            'domain': {
+                'id': domain_ref['id'],
+                'name': domain_ref['name'],
+            },
+        }
+        self.assertEqual(exp_user_info, token['user'])
+
+    def test_validate_v3_token_federated_info(self):
+        # Check the user fields in the token result when use validate_v3_token
+        # when the token has federated info.
+
+        domain_ref = unit.new_domain_ref()
+        domain_ref = self.resource_api.create_domain(domain_ref['id'],
+                                                     domain_ref)
+
+        user_ref = unit.new_user_ref(domain_ref['id'])
+        user_ref = self.identity_api.create_user(user_ref)
+
+        method_names = ['mapped']
+
+        group_ids = [uuid.uuid4().hex, ]
+        identity_provider = uuid.uuid4().hex
+        protocol = uuid.uuid4().hex
+        auth_context = {
+            'user_id': user_ref['id'],
+            'group_ids': group_ids,
+            federation_constants.IDENTITY_PROVIDER: identity_provider,
+            federation_constants.PROTOCOL: protocol,
+        }
+        token_id, token_data_ = self.token_provider_api.issue_v3_token(
+            user_ref['id'], method_names, auth_context=auth_context)
+
+        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token = token_data['token']
+        exp_user_info = {
+            'id': user_ref['id'],
+            'name': user_ref['id'],
+            federation_constants.FEDERATION: {
+                'groups': [{'id': group_id} for group_id in group_ids],
+                'identity_provider': {'id': identity_provider, },
+                'protocol': {'id': protocol, },
+            },
+        }
+        self.assertEqual(exp_user_info, token['user'])
+
+    def test_validate_v3_token_trust(self):
+        # Check the trust fields in the token result when use validate_v3_token
+        # when the token has trust info.
+
+        domain_ref = unit.new_domain_ref()
+        domain_ref = self.resource_api.create_domain(domain_ref['id'],
+                                                     domain_ref)
+
+        user_ref = unit.new_user_ref(domain_ref['id'])
+        user_ref = self.identity_api.create_user(user_ref)
+
+        trustor_user_ref = unit.new_user_ref(domain_ref['id'])
+        trustor_user_ref = self.identity_api.create_user(trustor_user_ref)
+
+        project_ref = unit.new_project_ref(domain_id=domain_ref['id'])
+        project_ref = self.resource_api.create_project(project_ref['id'],
+                                                       project_ref)
+
+        role_ref = unit.new_role_ref()
+        role_ref = self.role_api.create_role(role_ref['id'], role_ref)
+
+        self.assignment_api.create_grant(
+            role_ref['id'], user_id=user_ref['id'],
+            project_id=project_ref['id'])
+
+        self.assignment_api.create_grant(
+            role_ref['id'], user_id=trustor_user_ref['id'],
+            project_id=project_ref['id'])
+
+        trustor_user_id = trustor_user_ref['id']
+        trustee_user_id = user_ref['id']
+        trust_ref = unit.new_trust_ref(
+            trustor_user_id, trustee_user_id, project_id=project_ref['id'],
+            role_ids=[role_ref['id'], ])
+        trust_ref = self.trust_api.create_trust(trust_ref['id'], trust_ref,
+                                                trust_ref['roles'])
+
+        method_names = ['password']
+
+        token_id, token_data_ = self.token_provider_api.issue_v3_token(
+            user_ref['id'], method_names, project_id=project_ref['id'],
+            trust=trust_ref)
+
+        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token = token_data['token']
+        exp_trust_info = {
+            'id': trust_ref['id'],
+            'impersonation': False,
+            'trustee_user': {'id': user_ref['id'], },
+            'trustor_user': {'id': trustor_user_ref['id'], },
+        }
+        self.assertEqual(exp_trust_info, token['OS-TRUST:trust'])
+
+    def test_validate_v3_token_validation_error_exc(self):
+        # When the token format isn't recognized, TokenNotFound is raised.
+
+        # A uuid string isn't a valid fernet token.
+        token_id = uuid.uuid4().hex
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_v3_token, token_id)
 
 
 class TestTokenFormatter(unit.TestCase):
