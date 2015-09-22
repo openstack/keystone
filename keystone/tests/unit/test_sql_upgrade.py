@@ -636,6 +636,13 @@ class SqlUpgradeTests(SqlMigrateBase):
                                  'enabled', 'domain_id', 'parent_id',
                                  'is_domain'])
 
+    def test_add_config_registration(self):
+        config_registration = 'config_register'
+        self.upgrade(74)
+        self.assertTableDoesNotExist(config_registration)
+        self.upgrade(75)
+        self.assertTableColumns(config_registration, ['type', 'domain_id'])
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

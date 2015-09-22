@@ -2943,15 +2943,100 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
             domain_cfgs.get_domain_conf(CONF.identity.default_domain_id))
         self.assertEqual(CONF.ldap.url, default_config.ldap.url)
 
-    def test_setting_sql_driver_raises_exception(self):
-        """Ensure setting of domain specific sql driver is prevented."""
+    def test_setting_multiple_sql_driver_raises_exception(self):
+        """Ensure setting multiple domain specific sql drivers is prevented."""
 
         new_config = {'identity': {'driver': 'sql'}}
         self.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
-        self.assertRaises(exception.InvalidDomainConfig,
+        self.identity_api.domain_configs.get_domain_conf(
+            CONF.identity.default_domain_id)
+        self.domain_config_api.create_config(self.domains['domain1']['id'],
+                                             new_config)
+        self.assertRaises(exception.MultipleSQLDriversInConfig,
                           self.identity_api.domain_configs.get_domain_conf,
-                          CONF.identity.default_domain_id)
+                          self.domains['domain1']['id'])
+
+    def test_same_domain_gets_sql_driver(self):
+        """Ensure we can set an SQL driver if we have had it before."""
+
+        new_config = {'identity': {'driver': 'sql'}}
+        self.domain_config_api.create_config(
+            CONF.identity.default_domain_id, new_config)
+        self.identity_api.domain_configs.get_domain_conf(
+            CONF.identity.default_domain_id)
+
+        # By using a slightly different config, we cause the driver to be
+        # reloaded...and hence check if we can reuse the sql driver
+        new_config = {'identity': {'driver': 'sql'},
+                      'ldap': {'url': 'fake://memory1'}}
+        self.domain_config_api.create_config(
+            CONF.identity.default_domain_id, new_config)
+        self.identity_api.domain_configs.get_domain_conf(
+            CONF.identity.default_domain_id)
+
+    def test_delete_domain_clears_sql_registration(self):
+        """Ensure registration is deleted when a domain is deleted."""
+
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = self.resource_api.create_domain(domain['id'], domain)
+        new_config = {'identity': {'driver': 'sql'}}
+        self.domain_config_api.create_config(domain['id'], new_config)
+        self.identity_api.domain_configs.get_domain_conf(domain['id'])
+
+        # First show that trying to set SQL for another driver fails
+        self.domain_config_api.create_config(self.domains['domain1']['id'],
+                                             new_config)
+        self.assertRaises(exception.MultipleSQLDriversInConfig,
+                          self.identity_api.domain_configs.get_domain_conf,
+                          self.domains['domain1']['id'])
+        self.domain_config_api.delete_config(self.domains['domain1']['id'])
+
+        # Now we delete the domain
+        domain['enabled'] = False
+        self.resource_api.update_domain(domain['id'], domain)
+        self.resource_api.delete_domain(domain['id'])
+
+        # The registration should now be available
+        self.domain_config_api.create_config(self.domains['domain1']['id'],
+                                             new_config)
+        self.identity_api.domain_configs.get_domain_conf(
+            self.domains['domain1']['id'])
+
+    def test_orphaned_registration_does_not_prevent_getting_sql_driver(self):
+        """Ensure we self heal an orphaned sql registration."""
+
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = self.resource_api.create_domain(domain['id'], domain)
+        new_config = {'identity': {'driver': 'sql'}}
+        self.domain_config_api.create_config(domain['id'], new_config)
+        self.identity_api.domain_configs.get_domain_conf(domain['id'])
+
+        # First show that trying to set SQL for another driver fails
+        self.domain_config_api.create_config(self.domains['domain1']['id'],
+                                             new_config)
+        self.assertRaises(exception.MultipleSQLDriversInConfig,
+                          self.identity_api.domain_configs.get_domain_conf,
+                          self.domains['domain1']['id'])
+
+        # Now we delete the domain by using the backend driver directly,
+        # which causes the domain to be deleted without any of the cleanup
+        # that is in the manager (this is simulating a server process crashing
+        # in the middle of a delete domain operation, and somehow leaving the
+        # domain config settings in place, but the domain is deleted). We
+        # should still be able to set another domain to SQL, since we should
+        # self heal this issue.
+
+        self.resource_api.driver.delete_domain(domain['id'])
+        # Invalidate cache (so we will see the domain has gone)
+        self.resource_api.get_domain.invalidate(
+            self.resource_api, domain['id'])
+
+        # The registration should now be available
+        self.domain_config_api.create_config(self.domains['domain1']['id'],
+                                             new_config)
+        self.identity_api.domain_configs.get_domain_conf(
+            self.domains['domain1']['id'])
 
 
 class DomainSpecificLDAPandSQLIdentity(
