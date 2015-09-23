@@ -1974,7 +1974,8 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
             token_id, 'project',
             self.project_all['id'])
 
-        self.v3_authenticate_token(scoped_token, expected_status=500)
+        self.v3_authenticate_token(
+            scoped_token, expected_status=http_client.INTERNAL_SERVER_ERROR)
 
     def test_lists_with_missing_group_in_backend(self):
         """Test a mapping that points to a group that does not exist
@@ -3076,7 +3077,8 @@ class IdPMetadataGenerationTests(FederationTests):
                           self.generator.generate_metadata)
 
     def test_get_metadata_with_no_metadata_file_configured(self):
-        self.get(self.METADATA_URL, expected_status=500)
+        self.get(self.METADATA_URL,
+                 expected_status=http_client.INTERNAL_SERVER_ERROR)
 
     def test_get_metadata(self):
         self.config_fixture.config(

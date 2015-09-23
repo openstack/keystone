@@ -118,9 +118,10 @@ class ApplicationTest(BaseWSGITest):
         self.assertEqual(str(len(body)), resp.headers.get('Content-Length'))
 
     def test_render_response_custom_status(self):
-        resp = wsgi.render_response(status=(501, 'Not Implemented'))
+        resp = wsgi.render_response(
+            status=(http_client.NOT_IMPLEMENTED, 'Not Implemented'))
         self.assertEqual('501 Not Implemented', resp.status)
-        self.assertEqual(501, resp.status_int)
+        self.assertEqual(http_client.NOT_IMPLEMENTED, resp.status_int)
 
     def test_successful_require_attribute(self):
         app = FakeAttributeCheckerApp()

@@ -56,4 +56,4 @@ class TestSimpleCert(BaseTestCase):
             self.request(app=self.public_app,
                          method='GET',
                          path=path,
-                         expected_status=500)
+                         expected_status=http_client.INTERNAL_SERVER_ERROR)
