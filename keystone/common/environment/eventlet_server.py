@@ -144,8 +144,13 @@ class Server(service.ServiceBase):
             dup_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
 
             if self.keepidle is not None:
-                dup_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE,
-                                      self.keepidle)
+                if hasattr(socket, 'TCP_KEEPIDLE'):
+                    dup_socket.setsockopt(socket.IPPROTO_TCP,
+                                          socket.TCP_KEEPIDLE,
+                                          self.keepidle)
+                else:
+                    LOG.warning("System does not support TCP_KEEPIDLE but "
+                                "tcp_keepidle has been set. Ignoring.")
 
         self.greenthread = self.pool.spawn(self._run,
                                            self.application,
