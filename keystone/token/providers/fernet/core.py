@@ -198,7 +198,8 @@ class Provider(common.BaseProvider):
     def validate_v2_token(self, token_ref):
         """Validate a V2 formatted token.
 
-        :param token_ref: reference describing the token to validate
+        :param token_ref: reference describing the token to validate. Note that
+                          token_ref is going to be a token ID.
         :returns: the token data
         :raises keystone.exception.TokenNotFound: if token format is invalid
         :raises keystone.exception.Unauthorized: if v3 token is used
@@ -210,8 +211,8 @@ class Provider(common.BaseProvider):
              project_id, trust_id,
              federated_info, created_at,
              expires_at) = self.token_formatter.validate_token(token_ref)
-        except exception.ValidationError as e:
-            raise exception.TokenNotFound(e)
+        except exception.ValidationError:
+            raise exception.TokenNotFound(token_id=token_ref)
 
         if trust_id or domain_id or federated_info:
             msg = _('This is not a v2.0 Fernet token. Use v3 for trust, '
@@ -244,8 +245,8 @@ class Provider(common.BaseProvider):
             (user_id, methods, audit_ids, domain_id, project_id, trust_id,
                 federated_info, created_at, expires_at) = (
                     self.token_formatter.validate_token(token))
-        except exception.ValidationError as e:
-            raise exception.TokenNotFound(e)
+        except exception.ValidationError:
+            raise exception.TokenNotFound(token_id=token)
 
         token_dict = None
         trust_ref = None
