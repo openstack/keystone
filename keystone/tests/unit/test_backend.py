@@ -4671,7 +4671,7 @@ class TokenTests(object):
 
     def test_list_revoked_tokens_for_multiple_tokens(self):
         self.check_list_revoked_tokens([self.delete_token()
-                                        for x in six.moves.range(2)])
+                                        for x in range(2)])
 
     def test_flush_expired_token(self):
         token_id = uuid.uuid4().hex
