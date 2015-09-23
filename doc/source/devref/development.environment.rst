@@ -167,4 +167,4 @@ You should then be able to `import keystone` using Python without issue:
     $ python -c "import keystone"
 
 If you can import Keystone without a traceback, you should be ready to move on
-to :doc:`developing`.
+to :doc:`../developing`.

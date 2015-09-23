@@ -21,7 +21,7 @@ Installing Keystone
 
 This document describes how to install Keystone in order to use it. If you are
 intending to develop on or with Keystone, please read :doc:`developing` and
-:doc:`setup`.
+:doc:`devref/development.environment`.
 
 Installing from Source
 ----------------------

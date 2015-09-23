@@ -47,7 +47,7 @@ Getting Started
 .. toctree::
     :maxdepth: 1
 
-    setup
+    devref/development.environment
     installing
     configuration
     policy_mapping
