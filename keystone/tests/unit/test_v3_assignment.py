@@ -511,7 +511,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         ref = self.new_project_ref(domain_id=self.domain_id, is_domain=True)
         self.post('/projects',
                   body={'project': ref},
-                  expected_status=501)
+                  expected_status=http_client.NOT_IMPLEMENTED)
 
     @utils.wip('waiting for projects acting as domains implementation')
     def test_create_project_without_parent_id_and_without_domain_id(self):

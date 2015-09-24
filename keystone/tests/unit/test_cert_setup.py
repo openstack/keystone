@@ -149,7 +149,7 @@ class CertSetupTestCase(rest.RestfulTestCase):
     def test_failure(self):
         for path in ['/v2.0/certificates/signing', '/v2.0/certificates/ca']:
             self.request(self.public_app, path, method='GET',
-                         expected_status=500)
+                         expected_status=http_client.INTERNAL_SERVER_ERROR)
 
     def test_pki_certs_rebuild(self):
         self.test_create_pki_certs()

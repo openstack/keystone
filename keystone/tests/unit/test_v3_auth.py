@@ -4547,7 +4547,8 @@ class TestAuthFernetTokenProvider(TestAuth):
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
                                              'AUTH_TYPE': 'Negotiate'})
         # Bind not current supported by Fernet, see bug 1433311.
-        self.v3_authenticate_token(auth_data, expected_status=501)
+        self.v3_authenticate_token(auth_data,
+                                   expected_status=http_client.NOT_IMPLEMENTED)
 
     def test_v2_v3_bind_token_intermix(self):
         self.config_fixture.config(group='token', bind='kerberos')
@@ -4562,7 +4563,7 @@ class TestAuthFernetTokenProvider(TestAuth):
         self.admin_request(path='/v2.0/tokens',
                            method='POST',
                            body=body,
-                           expected_status=501)
+                           expected_status=http_client.NOT_IMPLEMENTED)
 
     def test_auth_with_bind_token(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -4572,4 +4573,5 @@ class TestAuthFernetTokenProvider(TestAuth):
         self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
                                              'AUTH_TYPE': 'Negotiate'})
         # Bind not current supported by Fernet, see bug 1433311.
-        self.v3_authenticate_token(auth_data, expected_status=501)
+        self.v3_authenticate_token(auth_data,
+                                   expected_status=http_client.NOT_IMPLEMENTED)

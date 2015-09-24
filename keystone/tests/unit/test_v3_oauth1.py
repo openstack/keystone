@@ -753,7 +753,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         # NOTE(stevemar): To simulate this error, we remove the Authorization
         # header from the post request.
         del headers['Authorization']
-        self.post(endpoint, headers=headers, expected_status=500)
+        self.post(endpoint, headers=headers,
+                  expected_status=http_client.INTERNAL_SERVER_ERROR)
 
 
 class OAuthNotificationTests(OAuth1Tests,
