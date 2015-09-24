@@ -1,0 +1,1213 @@
+# Korean (South Korea) translations for keystone.
+# Copyright (C) 2015 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+#
+# Translators:
+# Sungjin Kang <potopro@gmail.com>, 2013
+# Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: keystone 9.0.0.dev14\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2015-09-24 06:09+0000\n"
+"PO-Revision-Date: 2015-09-03 12:54+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"Language-Team: Korean (Korea) (http://www.transifex.com/openstack/keystone/"
+"language/ko_KR/)\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.0\n"
+
+#, python-format
+msgid "%(detail)s"
+msgstr "%(detail)s"
+
+#, python-format
+msgid ""
+"%(event)s is not a valid notification event, must be one of: %(actions)s"
+msgstr ""
+"%(event)s은(는) 올바른 알림 이벤트가 아니며 %(actions)s 중 하나여야 합니다."
+
+#, python-format
+msgid "%(host)s is not a trusted dashboard host"
+msgstr "%(host)s이(가) 신뢰 대시보드 호스트가 아님"
+
+#, python-format
+msgid "%(message)s %(amendment)s"
+msgstr "%(message)s %(amendment)s"
+
+#, python-format
+msgid ""
+"%(mod_name)s doesn't provide database migrations. The migration repository "
+"path at %(path)s doesn't exist or isn't a directory."
+msgstr ""
+"%(mod_name)s은(는) 데이터베이스 마이그레이션을 제공하지 않습니다. 마이그레이"
+"션 저장소 경로가 %(path)s에 존재하지 않거나 디렉토리가 아닙니다."
+
+#, python-format
+msgid "%(property_name)s cannot be less than %(min_length)s characters."
+msgstr "%(property_name)s은(는) %(min_length)s자 미만일 수 없습니다. "
+
+#, python-format
+msgid "%(property_name)s is not a %(display_expected_type)s"
+msgstr "%(property_name)s이(가) %(display_expected_type)s이(가) 아님"
+
+#, python-format
+msgid "%(property_name)s should not be greater than %(max_length)s characters."
+msgstr "%(property_name)s은(는) %(max_length)s자 이하여야 합니다. "
+
+#, python-format
+msgid "%s cannot be empty."
+msgstr "%s은(는) 공백일 수 없습니다. "
+
+#, python-format
+msgid "%s extension does not exist."
+msgstr "%s 확장자가 존재하지 않습니다."
+
+#, python-format
+msgid "%s field is required and cannot be empty"
+msgstr "%s 필드가 필요하며 비어 있을 수 없음"
+
+#, python-format
+msgid "%s field(s) cannot be empty"
+msgstr "%s 필드는 비어 있을 수 없음"
+
+msgid "(Disable debug mode to suppress these details.)"
+msgstr ""
+"(이러한 세부사항을 억제하려면 디버그 모드를 사용 안함으로 설정하십시오.)"
+
+msgid "--all option cannot be mixed with other options"
+msgstr "--all 옵션은 다른 옵션과 함께 사용할 수 없음"
+
+msgid "A project-scoped token is required to produce a service catalog."
+msgstr "서비스 카탈로그를 생성하려면 프로젝트 범위 토큰이 필요합니다."
+
+msgid "Access token is expired"
+msgstr "액세스 토큰이 만료됨"
+
+msgid "Access token not found"
+msgstr "액세스 토큰을 찾을 수 없음"
+
+msgid "Additional authentications steps required."
+msgstr "추가 인증 단계가 필요합니다."
+
+msgid "An unexpected error occurred when retrieving domain configs"
+msgstr "도메인 구성 검색 중 예상치 못한 오류 발생"
+
+#, python-format
+msgid "An unexpected error occurred when trying to store %s"
+msgstr "%s을(를) 저장하려 할 때 예기치 않은 오류가 발생했음"
+
+msgid "An unexpected error prevented the server from fulfilling your request."
+msgstr "예상치 않은 오류가 발생하여 서버가 사용자 요청을 이행하지 못함."
+
+#, python-format
+msgid ""
+"An unexpected error prevented the server from fulfilling your request: "
+"%(exception)s"
+msgstr ""
+"예상치 않은 오류가 발생하여 서버가 사용자 요청을 이행하지 못함:%(exception)s"
+
+msgid "An unhandled exception has occurred: Could not find metadata."
+msgstr "처리되지 않은 예외가 발생함: 메타데이터를 찾을 수 없음."
+
+msgid "At least one option must be provided"
+msgstr "하나 이상의 옵션을 제공해야 함"
+
+msgid "At least one option must be provided, use either --all or --domain-name"
+msgstr ""
+"하나 이상의 옵션을 제공해야 합니다. --all 또는 --domain-name을 사용하십시오. "
+
+msgid "At least one role should be specified."
+msgstr "최소한 하나의 역할을 지정해야 합니다."
+
+msgid "Attempted to authenticate with an unsupported method."
+msgstr "지원되지 않는 방법으로 인증을 시도했습니다."
+
+msgid ""
+"Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
+"Authentication"
+msgstr ""
+"V2 ID 서비스에서 OS-FEDERATION 토큰을 사용할 경우 V3 인증을 사용하십시오."
+
+msgid "Authentication plugin error."
+msgstr "인증 플러그인 오류."
+
+msgid "Cannot authorize a request token with a token issued via delegation."
+msgstr "위임을 통해 발행된 토큰으로 요청 토큰에 권한을 부여할 수 없습니다."
+
+#, python-format
+msgid "Cannot change %(option_name)s %(attr)s"
+msgstr "%(option_name)s %(attr)s을(를) 변경할 수 없음"
+
+msgid "Cannot change Domain ID"
+msgstr "도메인 ID를 변경할 수 없음"
+
+msgid "Cannot change consumer secret"
+msgstr "이용자 본인확인정보를 변경할 수 없음"
+
+msgid "Cannot change user ID"
+msgstr "사용자 ID를 변경할 수 없음"
+
+msgid "Cannot change user name"
+msgstr "사용자 이름을 변경할 수 없음"
+
+#, python-format
+msgid "Cannot create project with parent: %(project_id)s"
+msgstr "상위로 프로젝트를 작성할 수 없음: %(project_id)s"
+
+#, python-format
+msgid "Cannot duplicate name %s"
+msgstr "%s 이름을 복제할 수 없습니다."
+
+msgid "Cannot list request tokens with a token issued via delegation."
+msgstr "위임을 통해 발행된 토큰으로 요청 토큰을 나열할 수 없습니다."
+
+#, python-format
+msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
+msgstr "%(cert_file)s 인증서를 열수 없습니다. 이유: %(reason)s"
+
+#, python-format
+msgid "Cannot remove role that has not been granted, %s"
+msgstr "권한이 부여되지 않은 역할을 제거할 수 없음: %s"
+
+msgid ""
+"Cannot truncate a driver call without hints list as first parameter after "
+"self "
+msgstr ""
+"자신 뒤의 첫 번째 매개변수와 같은 힌트 목록 없이 드라이버 호출을 자를 수 없음"
+
+msgid ""
+"Cannot use parents_as_list and parents_as_ids query params at the same time."
+msgstr ""
+"parents_as_list 및 parents_as_ids 조회 매개변수를 동시에 사용할 수 없습니다."
+
+msgid ""
+"Cannot use subtree_as_list and subtree_as_ids query params at the same time."
+msgstr ""
+"subtree_as_list 및 subtree_as_ids 조회 매개변수를 동시에 사용할 수 없습니다."
+
+msgid ""
+"Combining effective and group filter will always result in an empty list."
+msgstr "결합에 효율적인 그룹 필터는 항상 빈 목록을 생성합니다."
+
+msgid ""
+"Combining effective, domain and inherited filters will always result in an "
+"empty list."
+msgstr "결합에 효율적인 도메인과 상속 필터는 항상 빈 목록을 생성합니다."
+
+#, python-format
+msgid "Conflict occurred attempting to store %(type)s - %(details)s"
+msgstr "%(type)s을(를) 저장하는 중에 충돌이 발생함 - %(details)s"
+
+#, python-format
+msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
+msgstr "지정된 리젼 ID가 충돌함: \"%(url_id)s\" != \"%(ref_id)s\""
+
+msgid "Consumer not found"
+msgstr "이용자를 찾을 수 없음"
+
+#, python-format
+msgid ""
+"Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
+msgstr "%(target)s 대상에서 불변 속성 '%(attributes)s'을(를) 변경할 수 없음"
+
+#, python-format
+msgid ""
+"Could not find %(group_or_option)s in domain configuration for domain "
+"%(domain_id)s"
+msgstr ""
+"다음 도메인의 도메인 구성에서 %(group_or_option)s을(를) 찾을 수 없습니다. "
+"%(domain_id)s"
+
+#, python-format
+msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
+msgstr "엔드포인트 그룹을 찾을 수 없음: %(endpoint_group_id)s"
+
+msgid "Could not find Identity Provider identifier in environment"
+msgstr "환경에서 ID 제공자의 ID를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find Identity Provider: %(idp_id)s"
+msgstr "%(idp_id)s ID 제공자를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find Service Provider: %(sp_id)s"
+msgstr "서비스 제공자를 찾을 수 없음: %(sp_id)s"
+
+#, python-format
+msgid "Could not find credential: %(credential_id)s"
+msgstr "%(credential_id)s 신임 정보를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find domain: %(domain_id)s"
+msgstr "%(domain_id)s 도메인을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find endpoint: %(endpoint_id)s"
+msgstr "%(endpoint_id)s 엔드포인트를 찾을 수 없음"
+
+#, python-format
+msgid ""
+"Could not find federated protocol %(protocol_id)s for Identity Provider: "
+"%(idp_id)s"
+msgstr ""
+"ID 제공자 %(idp_id)s에 대한 연합 프로토콜 %(protocol_id)s을(를) 찾을 수 없음"
+
+#, python-format
+msgid "Could not find group: %(group_id)s"
+msgstr "%(group_id)s 그룹을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find mapping: %(mapping_id)s"
+msgstr "%(mapping_id)s 맵핑을 찾을 수 없음"
+
+msgid "Could not find policy association"
+msgstr "정책 연관을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find policy: %(policy_id)s"
+msgstr "%(policy_id)s 정책을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find project: %(project_id)s"
+msgstr "%(project_id)s 프로젝트를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find region: %(region_id)s"
+msgstr "%(region_id)s 리젼을 찾을 수 없음"
+
+msgid "Could not find role"
+msgstr "역할을 찾을 수 없음"
+
+#, python-format
+msgid ""
+"Could not find role assignment with role: %(role_id)s, user or group: "
+"%(actor_id)s, project or domain: %(target_id)s"
+msgstr ""
+"%(role_id)s 역할에 대한 역할 지정을 찾을 수 없음. 사용자 또는 그룹: "
+"%(actor_id)s, 프로젝트 또는 도메인: %(target_id)s"
+
+#, python-format
+msgid "Could not find role: %(role_id)s"
+msgstr "%(role_id)s 규칙을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find service: %(service_id)s"
+msgstr "%(service_id)s 서비스를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find token: %(token_id)s"
+msgstr "%(token_id)s 토큰을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find trust: %(trust_id)s"
+msgstr "%(trust_id)s 신뢰를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find user: %(user_id)s"
+msgstr "%(user_id)s 사용자를 찾을 수 없음"
+
+#, python-format
+msgid "Could not find version: %(version)s"
+msgstr "%(version)s 버전을 찾을 수 없음"
+
+#, python-format
+msgid "Could not find: %(target)s"
+msgstr "%(target)s을(를) 찾을 수 없음"
+
+msgid "Could not validate the access token"
+msgstr "액세스 토큰을 유효성 검증할 수 없음"
+
+msgid "Credential belongs to another user"
+msgstr "신임 정보가 다른 사용자에 속함"
+
+#, python-format
+msgid "Database at /domains/%s/config"
+msgstr "/domains/%s/config의 데이터베이스"
+
+msgid ""
+"Disabling an entity where the 'enable' attribute is ignored by configuration."
+msgstr "구성에서 'enable' 속성이 있는 엔티티의 사용 안함 설정을 무시합니다."
+
+#, python-format
+msgid "Domain (%s)"
+msgstr "도메인(%s)"
+
+#, python-format
+msgid "Domain cannot be named %s"
+msgstr "도메인 이름은 %s일 수 없음"
+
+#, python-format
+msgid "Domain cannot have ID %s"
+msgstr "도메인 ID가 %s일 수 없음"
+
+#, python-format
+msgid "Domain is disabled: %s"
+msgstr "도메인을 사용 안함: %s"
+
+msgid "Domain metadata not supported by LDAP"
+msgstr "도메인 메타데이터가 LDAP에 의해 지원되지 않음"
+
+msgid "Domain scoped token is not supported"
+msgstr "도메인 범위 지정 토큰은 지원되지 않음"
+
+#, python-format
+msgid ""
+"Domain: %(domain)s already has a configuration defined - ignoring file: "
+"%(file)s."
+msgstr ""
+"%(domain)s 도메인에 이미 정의된 구성이 있음 - 다음 파일을 무시하십시오. "
+"%(file)s."
+
+msgid "Domains are read-only against LDAP"
+msgstr "LDAP에 대한 도메인이 읽기 전용입니다."
+
+msgid "Duplicate Entry"
+msgstr "중복 항목"
+
+#, python-format
+msgid "Duplicate ID, %s."
+msgstr "중복 ID, %s."
+
+#, python-format
+msgid "Duplicate name, %s."
+msgstr "중복 이름, %s."
+
+msgid "Enabled field must be a boolean"
+msgstr "사용으로 설정된 필드는 부울이어야 함"
+
+msgid "Enabled field should be a boolean"
+msgstr "사용으로 설정된 필드는 부울이어야 함"
+
+#, python-format
+msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
+msgstr "%(endpoint_id)s 엔드포인트가 %(project_id)s 프로젝트에 없음 "
+
+msgid "Endpoint Group Project Association not found"
+msgstr "엔드포인트 그룹 프로젝트 연관을 찾을 수 없음"
+
+msgid "Ensure configuration option idp_entity_id is set."
+msgstr "구성 옵션 idp_entity_id가 설정되어 있는지 확인하십시오."
+
+msgid "Ensure configuration option idp_sso_endpoint is set."
+msgstr "구성 옵션 idp_sso_endpoint가 설정되어 있는지 확인하십시오."
+
+#, python-format
+msgid ""
+"Error parsing configuration file for domain: %(domain)s, file: %(file)s."
+msgstr ""
+"%(domain)s 도메인에 대한 구성 파일을 구문 분석하는 중 오류 발생. 파일: "
+"%(file)s."
+
+#, python-format
+msgid "Error while reading metadata file, %(reason)s"
+msgstr "메타데이터 파일을 읽는 중에 오류 발생, %(reason)s"
+
+#, python-format
+msgid "Expected dict or list: %s"
+msgstr "예상된 사전 또는 목록: %s"
+
+msgid ""
+"Expected signing certificates are not available on the server. Please check "
+"Keystone configuration."
+msgstr ""
+"예상 서명 인증서를 서버에서 사용할 수 없습니다. 키스톤 구성을 확인하십시오."
+
+#, python-format
+msgid ""
+"Expecting to find %(attribute)s in %(target)s - the server could not comply "
+"with the request since it is either malformed or otherwise incorrect. The "
+"client is assumed to be in error."
+msgstr ""
+"%(target)s에 %(attribute)s이(가) 있어야 합니다- 서버의 형식이나 다른 항목이 "
+"올바르지 않기 때문에 서버가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태"
+"로 간주됩니다."
+
+#, python-format
+msgid "Failed to start the %(name)s server"
+msgstr "%(name)s 서버를 시작하지 못함"
+
+msgid "Failed to validate token"
+msgstr "토큰을 유효성 검증하지 못했음"
+
+msgid "Federation token is expired"
+msgstr "연합 토큰이 만료됨"
+
+#, python-format
+msgid ""
+"Field \"remaining_uses\" is set to %(value)s while it must not be set in "
+"order to redelegate a trust"
+msgstr ""
+"필드 \"remaining_uses\"가 %(value)s(으)로 설정되었으나 신뢰를 재위임하려면 설"
+"정하지 않아야 함"
+
+msgid "Found invalid token: scoped to both project and domain."
+msgstr ""
+"올바르지 않은 토큰이 있습니다. 프로젝트와 도메인 둘 다 범위에 포함됩니다."
+
+#, python-format
+msgid "Group %(group)s is not supported for domain specific configurations"
+msgstr "도메인 특정 구성에 대해 %(group)s 그룹이 지원되지 않음"
+
+#, python-format
+msgid ""
+"Group %(group_id)s returned by mapping %(mapping_id)s was not found in the "
+"backend."
+msgstr ""
+"맵핑 %(mapping_id)s별로 리턴된 그룹 %(group_id)s을(를) 백엔드에서 찾지 못했습"
+"니다."
+
+#, python-format
+msgid ""
+"Group membership across backend boundaries is not allowed, group in question "
+"is %(group_id)s, user is %(user_id)s"
+msgstr ""
+"경계를 초월한 그룹 멤버십이 허용되지 않습니다. 관련 그룹은 %(group_id)s이고 "
+"사용자는 %(user_id)s입니다."
+
+#, python-format
+msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
+msgstr "ID 속성 %(id_attr)s을(를) LDAP 오브젝트 %(dn)s에서 찾을 수 없음"
+
+#, python-format
+msgid "Identity Provider %(idp)s is disabled"
+msgstr "ID 제공자 %(idp)s이(가) 사용 안함으로 설정됨"
+
+msgid ""
+"Incoming identity provider identifier not included among the accepted "
+"identifiers."
+msgstr "승인 ID에 수신 ID 제공자가 포함되지 않습니다."
+
+#, python-format
+msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
+msgstr ""
+"올바르지 않은 LDAP TLS 인증 옵션: %(option)s. 다음 중 하나 선택: %(options)s"
+
+#, python-format
+msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
+msgstr "올바르지 않은 LDAP TLS_AVAIL 옵션: %s. TLS를 사용할 수 없음"
+
+#, python-format
+msgid "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
+msgstr ""
+"올바르지 않은 LDAP deref 옵션: %(option)s. 다음 중 하나 선택: %(options)s"
+
+#, python-format
+msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
+msgstr "올바르지 않은 LDAP 범위: %(scope)s. 다음 중 하나를 선택: %(options)s"
+
+msgid "Invalid TLS / LDAPS combination"
+msgstr "잘못된 TLS / LDAPS 결합."
+
+#, python-format
+msgid "Invalid audit info data type: %(data)s (%(type)s)"
+msgstr "올바르지 않은 감사 정보 데이터 유형: %(data)s (%(type)s)"
+
+msgid "Invalid blob in credential"
+msgstr "신임 정보에 올바르지 blob가 있음"
+
+#, python-format
+msgid ""
+"Invalid domain name: %(domain)s found in config file name: %(file)s - "
+"ignoring this file."
+msgstr ""
+"구성 파일 이름에 올바르지 않은 도메인 이름 %(domain)s이(가) 있음: %(file)s - "
+"이 파일을 무시하십시오."
+
+#, python-format
+msgid "Invalid domain specific configuration: %(reason)s"
+msgstr "올바르지 않은 도메인 특정 구성: %(reason)s"
+
+#, python-format
+msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
+msgstr "'%(path)s' 필드에 올바르지 않은 입력입니다. 값은 '%(value)s'입니다."
+
+msgid "Invalid limit value"
+msgstr "올바르지 않은 한계 값"
+
+#, python-format
+msgid ""
+"Invalid mix of entities for policy association - only Endpoint, Service or "
+"Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
+"%(service_id)s, Region: %(region_id)s"
+msgstr ""
+"정책 연관에 대한 엔티티의 올바르지 않은 조합인 엔드포인트, 서비스 또는 리젼"
+"+서비스가 허용되었습니다. 요청은 엔드포인트: %(endpoint_id)s, 서비스: "
+"%(service_id)s, 리젼: %(region_id)s입니다."
+
+#, python-format
+msgid ""
+"Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
+"be specified."
+msgstr ""
+"올바르지 않은 규칙: %(identity_value)s. 'groups' 및 'domain' 키워드가 둘 다 "
+"지정되어야 합니다."
+
+msgid "Invalid signature"
+msgstr "올바르지 않은 서명"
+
+#, python-format
+msgid ""
+"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
+"\"REQUIRED\""
+msgstr ""
+"%s의 ssl_cert_reqs 값이 올바르지 않음, \"NONE\", \"OPTIONAL\", \"REQUIRED\" "
+"중 하나여야 함 "
+
+msgid "Invalid user / password"
+msgstr "올바르지 않은 사용자 / 비밀번호"
+
+msgid "Invalid username or password"
+msgstr "올바르지 않은 사용자 이름 또는 비밀번호"
+
+#, python-format
+msgid "KVS region %s is already configured. Cannot reconfigure."
+msgstr "KVS 리젼 %s이(가) 이미 구성되어 있습니다. 재구성할 수 없습니다."
+
+#, python-format
+msgid "Key Value Store not configured: %s"
+msgstr "키 값 저장소가 구성되지 않음: %s"
+
+#, python-format
+msgid "LDAP %s create"
+msgstr "LDAP %s 작성"
+
+#, python-format
+msgid "LDAP %s delete"
+msgstr "LDAP %s 삭제"
+
+#, python-format
+msgid "LDAP %s update"
+msgstr "LDAP %s 업데이트"
+
+#, python-format
+msgid "Lock Timeout occurred for key, %(target)s"
+msgstr "키 %(target)s에 대해 잠금 제한시간 초과가 발생함"
+
+#, python-format
+msgid "Lock key must match target key: %(lock)s != %(target)s"
+msgstr "잠금 키가 대상 키와 일치해야 함: %(lock)s != %(target)s"
+
+#, python-format
+msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
+msgstr ""
+"잘못된 형식의 엔드포인트 URL(%(endpoint)s). 세부사항은 오류 로그를 참조하십시"
+"오."
+
+msgid "Marker could not be found"
+msgstr "마커를 찾을 수 없음"
+
+#, python-format
+msgid "Maximum lock attempts on %s occurred."
+msgstr "%s에서 최대 잠금 시도가 발생했습니다."
+
+#, python-format
+msgid "Member %(member)s is already a member of group %(group)s"
+msgstr "%(member)s 구성원은 이미 %(group)s 그룹의 구성원임"
+
+#, python-format
+msgid "Method not callable: %s"
+msgstr "메소드를 호출할 수 없음: %s"
+
+msgid "Missing entity ID from environment"
+msgstr "환경에서 엔티티 ID가 누락됨"
+
+msgid ""
+"Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting "
+"this parameter is advised."
+msgstr ""
+"재위임 시 \"redelegation_count\"를 수정할 수 없습니다. 이 매개변수는 생략하"
+"는 것이 좋습니다."
+
+msgid "Multiple domains are not supported"
+msgstr "여러 도메인이 지원되지 않음"
+
+msgid "Must be called within an active lock context."
+msgstr "활성 잠금 컨텍스트 내에서 호출되어야 합니다."
+
+msgid "Must specify either domain or project"
+msgstr "도메인 프로젝트 중 하나를 지정해야 함"
+
+msgid "Name field is required and cannot be empty"
+msgstr "이름 필드가 필요하며 비어 있을 수 없음"
+
+msgid ""
+"No Authorization headers found, cannot proceed with OAuth related calls, if "
+"running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
+msgstr ""
+"권한 부여 헤더를 찾을 수 없습니다. HTTPd 또는 Apache에서 실행 중인 경우 "
+"OAuth 관련 호출을 사용하여 계속 진행할 수 없습니다. WSGIPassAuthorization이 "
+"On으로 설정되어 있는지 확인하십시오."
+
+msgid "No authenticated user"
+msgstr "인증된 사용자가 없음"
+
+msgid ""
+"No encryption keys found; run keystone-manage fernet_setup to bootstrap one."
+msgstr ""
+"암호화 키를 찾을 수 없음: keystone-manage fernet_setup을 부트스트랩 1로 실행"
+"하십시오."
+
+msgid "No options specified"
+msgstr "지정된 옵션 없음"
+
+#, python-format
+msgid "No policy is associated with endpoint %(endpoint_id)s."
+msgstr "엔드포인트 %(endpoint_id)s과(와) 연관된 정책이 없습니다."
+
+#, python-format
+msgid "No remaining uses for trust: %(trust_id)s"
+msgstr "신뢰 %(trust_id)s에 대해 남아 있는 사용이 없음"
+
+msgid "Non-default domain is not supported"
+msgstr "기본이 아닌 도메인은 지원되지 않음"
+
+msgid "One of the trust agents is disabled or deleted"
+msgstr "신뢰 에이전트 중 하나가 사용 안함으로 설정되었거나 삭제됨"
+
+#, python-format
+msgid ""
+"Option %(option)s found with no group specified while checking domain "
+"configuration request"
+msgstr ""
+"%(option)s 옵션은 도메인 구성 요청 확인 중에 지정된 그룹이 없음을 발견함"
+
+#, python-format
+msgid ""
+"Option %(option)s in group %(group)s is not supported for domain specific "
+"configurations"
+msgstr ""
+"도메인 특정 구성에 대해 %(group)s 그룹의 %(option)s 옵션이 지원되지않음"
+
+#, python-format
+msgid "Project (%s)"
+msgstr "프로젝트(%s)"
+
+#, python-format
+msgid "Project is disabled: %s"
+msgstr "프로젝트를 사용 안함: %s"
+
+msgid "Redelegation allowed for delegated by trust only"
+msgstr "신뢰에서 위임한 경우에만 재위임 허용"
+
+#, python-format
+msgid ""
+"Remaining redelegation depth of %(redelegation_depth)d out of allowed range "
+"of [0..%(max_count)d]"
+msgstr ""
+"%(redelegation_depth)d의 나머지 재위임 깊이가 허용 범위 [0..%(max_count)d]을"
+"(를) 벗어남"
+
+msgid "Request Token does not have an authorizing user id"
+msgstr "요청 토큰에 인증하는 사용자 ID가 없음"
+
+#, python-format
+msgid ""
+"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
+"server could not comply with the request because the attribute size is "
+"invalid (too large). The client is assumed to be in error."
+msgstr ""
+"요청 속성 %(attribute)s이(가) %(size)i 이하여야 합니다. 속성 크기가 올바르지 "
+"않기 때문에(너무 큼) 서버가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태"
+"로 간주됩니다."
+
+msgid "Request must have an origin query parameter"
+msgstr "요청에는 원본 조회 매개변수가 있어야 함"
+
+msgid "Request token is expired"
+msgstr "요청 토큰이 만료됨"
+
+msgid "Request token not found"
+msgstr "요청 토큰을 찾을 수 없음"
+
+msgid "Requested expiration time is more than redelegated trust can provide"
+msgstr "요청된 만기 시간이 재위임된 신뢰에서 제공할 수 있는 시간보다 큼"
+
+#, python-format
+msgid ""
+"Requested redelegation depth of %(requested_count)d is greater than allowed "
+"%(max_count)d"
+msgstr ""
+"%(requested_count)d의 요청된 재위임 깊이가 허용되는 %(max_count)d보다 깊음"
+
+#, python-format
+msgid "Role %s not found"
+msgstr "%s 역할을 찾을 수 없음"
+
+msgid ""
+"Running keystone via eventlet is deprecated as of Kilo in favor of running "
+"in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
+"be removed in the \"M\"-Release."
+msgstr ""
+"eventlet을 통한 키스톤 실행은 WSGI 서버 실행의 플레이버에 있는 Kilo부터  더 "
+"이상 사용되지 않습니다(예: mod_wsgi). eventlet 아래의 키스톤에 대한 지원은 "
+"\"M\"-릴리스에서 제거됩니다."
+
+msgid "Scoping to both domain and project is not allowed"
+msgstr "도메인과 프로젝트에 대한 범위 지정이 허용되지 않음"
+
+msgid "Scoping to both domain and trust is not allowed"
+msgstr "도메인과 신뢰에 대한 범위 지정이 허용되지 않음"
+
+msgid "Scoping to both project and trust is not allowed"
+msgstr "프로젝트와 신뢰에 대한 범위 지정이 허용되지 않음"
+
+#, python-format
+msgid "Service Provider %(sp)s is disabled"
+msgstr "서비스 제공자 %(sp)s이(가) 사용 안함으로 설정됨"
+
+msgid "Some of requested roles are not in redelegated trust"
+msgstr "요청된 일부 역할이 재위임된 신뢰에 없음"
+
+msgid "Specify a domain or project, not both"
+msgstr "도메인 또는 프로젝트 중 하나 지정"
+
+msgid "Specify a user or group, not both"
+msgstr "사용자 또는 그룹 중 하나 지정"
+
+msgid "Specify one of domain or project"
+msgstr "도메인 또는 프로젝트 중 하나 지정"
+
+msgid "Specify one of user or group"
+msgstr "사용자 또는 그룹 중 하나 지정"
+
+#, python-format
+msgid ""
+"String length exceeded.The length of string '%(string)s' exceeded the limit "
+"of column %(type)s(CHAR(%(length)d))."
+msgstr ""
+"문자열 길이 제한을 초과합니다. '%(string)s' 문자열 길이가 열의 한도 "
+"%(type)s(CHAR(%(length)d))을(를) 초과합니다."
+
+msgid "The --all option cannot be used with the --domain-name option"
+msgstr "--all 옵션은 --domain-name 옵션과 함께 사용할 수 없습니다."
+
+#, python-format
+msgid "The Keystone configuration file %(config_file)s could not be found."
+msgstr "키스톤 구성 파일 %(config_file)s을(를) 찾을 수 없습니다."
+
+#, python-format
+msgid ""
+"The Keystone domain-specific configuration has specified more than one SQL "
+"driver (only one is permitted): %(source)s."
+msgstr ""
+"키스톤 도메인 특정 구성에 하나 이상의 SQL 드라이버가  지정됨(하나만 허용됨): "
+"%(source)s."
+
+msgid "The action you have requested has not been implemented."
+msgstr "요청한 조치가 구현되지 않았습니다."
+
+msgid "The authenticated user should match the trustor."
+msgstr "인증된 사용자는 trustor와 일치해야 합니다."
+
+msgid ""
+"The certificates you requested are not available. It is likely that this "
+"server does not use PKI tokens otherwise this is the result of "
+"misconfiguration."
+msgstr ""
+"요청한 인증서를 사용할 수 없습니다. 서버가 PKI 토큰을 사용하지 않거나 잘못된 "
+"구성의 결과로 인해 발생했을 수 있습니다."
+
+#, python-format
+msgid ""
+"The password length must be less than or equal to %(size)i. The server could "
+"not comply with the request because the password is invalid."
+msgstr ""
+"비밀번호 길이는 %(size)i 이하여야 합니다. 비밀번호가 올바르지 않아 서버가 요"
+"청을 준수할 수 없습니다."
+
+msgid "The request you have made requires authentication."
+msgstr "요청에 인증이 필요합니다."
+
+msgid "The resource could not be found."
+msgstr "자원을 찾을 수 없습니다. "
+
+msgid ""
+"The revoke call must not have both domain_id and project_id. This is a bug "
+"in the Keystone server. The current request is aborted."
+msgstr ""
+"취소 호출은 domain_id와 project_id가 둘 다 있으면 안됩니다.키스톤 서버에서 이"
+"는 버그입니다. 현재 요청이 중단됩니다."
+
+msgid "The service you have requested is no longer available on this server."
+msgstr "요청한 서비스를 더 이상 이 서버에서 사용할 수 없습니다."
+
+#, python-format
+msgid ""
+"The specified parent region %(parent_region_id)s would create a circular "
+"region hierarchy."
+msgstr "지정된 상위 리젼 %(parent_region_id)s에서 순환 리젼 계층을 작성합니다."
+
+#, python-format
+msgid ""
+"The value of group %(group)s specified in the config should be a dictionary "
+"of options"
+msgstr "구성에 지정된 %(group)s 그룹의 값은 옵션의 사전이어야 함"
+
+msgid "There should not be any non-oauth parameters"
+msgstr "non-oauth 매개변수가 없어야 함"
+
+#, python-format
+msgid "This is not a recognized Fernet payload version: %s"
+msgstr "인식되는 Fernet 페이로드 버전이 아님: %s"
+
+msgid ""
+"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
+"tokens."
+msgstr ""
+"이는 v2.0 Fernet 토큰이 아닙니다. 신뢰, 도메인 또는 연합 토큰의 경우 v3를 사"
+"용하십시오."
+
+msgid ""
+"Timestamp not in expected format. The server could not comply with the "
+"request since it is either malformed or otherwise incorrect. The client is "
+"assumed to be in error."
+msgstr ""
+"시간소인이 예상된 형식이 아닙니다. 잘못 구성되었거나 올바르지 않으므로 서버"
+"가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태로 간주됩니다."
+
+#, python-format
+msgid ""
+"To get a more detailed information on this error, re-run this command for "
+"the specific domain, i.e.: keystone-manage domain_config_upload --domain-"
+"name %s"
+msgstr ""
+"이 오류에 대한 자세한 정보를 보려면 특정 도메인에 대해 이 명령을 다시 실행하"
+"십시오. 예: keystone-manage domain_config_upload --domain-name %s"
+
+msgid "Token belongs to another user"
+msgstr "토큰이 다른 사용자에 속함"
+
+msgid "Token does not belong to specified tenant."
+msgstr "토큰이 지정된 테넌트에 속하지 않습니다."
+
+msgid "Trustee has no delegated roles."
+msgstr "Trustee에 위임된 역할이 없습니다. "
+
+msgid "Trustor is disabled."
+msgstr "Trustor를 사용하지 않습니다. "
+
+#, python-format
+msgid ""
+"Trying to update group %(group)s, so that, and only that, group must be "
+"specified in the config"
+msgstr "구성에서 그룹만 지정되도록 %(group)s 그룹을 업데이트하려고 합니다. "
+
+#, python-format
+msgid ""
+"Trying to update option %(option)s in group %(group)s, but config provided "
+"contains option %(option_other)s instead"
+msgstr ""
+"%(group)s 그룹에서 %(option)s 옵션을 업데이트하려고 했지만 제공된 구성에 "
+"%(option_other)s 옵션이 대신 포함되어 있습니다."
+
+#, python-format
+msgid ""
+"Trying to update option %(option)s in group %(group)s, so that, and only "
+"that, option must be specified  in the config"
+msgstr ""
+"구성에서 옵션만 지정되도록 %(group)s 그룹에서 %(option)s 옵션을 업데이트하려"
+"고 합니다."
+
+msgid ""
+"Unable to access the keystone database, please check it is configured "
+"correctly."
+msgstr ""
+"키스톤 데이터베이스를 액세스할 수 없습니다. 데이터베이스가 제대로 구성되어 있"
+"는지 확인하십시오. "
+
+#, python-format
+msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
+msgstr "%(trust_id)s 신뢰를 이용할 수 없어서 잠금을 획득할 수 없습니다."
+
+#, python-format
+msgid ""
+"Unable to delete region %(region_id)s because it or its child regions have "
+"associated endpoints."
+msgstr ""
+"리젼 %(region_id)s 또는 하위 리젼에 연관된 엔드포인트가 있어 삭제할 수 없습니"
+"다."
+
+#, python-format
+msgid "Unable to find valid groups while using mapping %(mapping_id)s"
+msgstr "%(mapping_id)s 맵핑을 사용하는 중에 올바른 그룹을 찾을 수 없음 "
+
+#, python-format
+msgid ""
+"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
+msgstr "풀 id %(id)s에서 %(seconds)s분 후에 연결할 수 없습니다."
+
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr "%s: 도메인 설정 디렉토리를 찾을 수 없습니다."
+
+#, python-format
+msgid "Unable to lookup user %s"
+msgstr "%s 사용자를 검색할 수 없음"
+
+#, python-format
+msgid ""
+"Unable to reconcile identity attribute %(attribute)s as it has conflicting "
+"values %(new)s and %(old)s"
+msgstr ""
+"ID 속성 %(attribute)s에 서로 충돌하는 %(new)s 및 %(old)s 값이 있으므로 이 ID "
+"속성을 조정할 수 없음"
+
+#, python-format
+msgid ""
+"Unable to sign SAML assertion. It is likely that this server does not have "
+"xmlsec1 installed, or this is the result of misconfiguration. Reason "
+"%(reason)s"
+msgstr ""
+"SAML 어설션에 서명할 수 없습니다. 이 서버에 xmlsec1이 설치되지 않았거나 잘못 "
+"구성된 결과입니다. 이유%(reason)s"
+
+msgid "Unable to sign token."
+msgstr "토큰을 부호화할 수 없습니다."
+
+#, python-format
+msgid "Unexpected assignment type encountered, %s"
+msgstr "예상치 못한 지정 유형 발생, %s"
+
+#, python-format
+msgid ""
+"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
+"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
+msgstr ""
+"grant 속성의 예상치 못한 조합 - 사용자: %(user_id)s, 그룹: %(group_id)s, 프로"
+"젝트: %(project_id)s, 도메인: %(domain_id)s"
+
+#, python-format
+msgid "Unexpected status requested for JSON Home response, %s"
+msgstr "JSON 홈 응답에 대해 예상치 못한 상태가 요청됨. %s"
+
+msgid "Unknown Target"
+msgstr "알 수 없는 대상"
+
+#, python-format
+msgid "Unknown domain '%(name)s' specified by --domain-name"
+msgstr "--domain-name으로 알 수 없는 도메인 '%(name)s'을(를) 지정했음"
+
+#, python-format
+msgid "Unknown token version %s"
+msgstr "알 수 없는 토큰 버전 %s"
+
+#, python-format
+msgid "Unregistered dependency: %(name)s for %(targets)s"
+msgstr "등록되지 않은 종속성: %(targets)s의 %(name)s"
+
+msgid "Update of `parent_id` is not allowed."
+msgstr "`parent_id` 업데이트가 허용되지 않습니다."
+
+msgid "Use a project scoped token when attempting to create a SAML assertion"
+msgstr "SAML 어설션을 작성할 때 프로젝트 범위 지정 토큰 사용"
+
+#, python-format
+msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
+msgstr "사용자 %(u_id)s이(는) 테넌트 %(t_id)s에 대한 권한이 없습니다. "
+
+#, python-format
+msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
+msgstr ""
+"사용자 %(user_id)s이(가) 테넌트 %(tenant_id)s에서 역할 %(role_id)s을(를) 이"
+"미 가집니다. "
+
+#, python-format
+msgid "User %(user_id)s has no access to domain %(domain_id)s"
+msgstr ""
+"%(user_id)s 사용자는 %(domain_id)s 도메인에 대한 액세스 권한이 없습니다. "
+
+#, python-format
+msgid "User %(user_id)s has no access to project %(project_id)s"
+msgstr ""
+"%(user_id)s 사용자는 %(project_id)s 프로젝트에 대한 액세스 권한이 없습니다. "
+
+#, python-format
+msgid "User %(user_id)s is already a member of group %(group_id)s"
+msgstr "%(user_id)s 사용자는 이미 %(group_id)s 그룹의 구성원임"
+
+#, python-format
+msgid "User '%(user_id)s' not found in group '%(group_id)s'"
+msgstr "'%(group_id)s' 그룹에 '%(user_id)s' 사용자가 없음"
+
+msgid "User IDs do not match"
+msgstr "사용자 ID가 일치하지 않음"
+
+#, python-format
+msgid "User is disabled: %s"
+msgstr "사용자를 사용 안함: %s"
+
+msgid "User is not a member of the requested project"
+msgstr "사용자가 요청한 프로젝트의 구성원이 아님"
+
+msgid "User is not a trustee."
+msgstr "사용자는 trustee가 아닙니다."
+
+msgid "User not found"
+msgstr "사용자를 찾을 수 없음"
+
+#, python-format
+msgid "User type %s not supported"
+msgstr "사용자 유형 %s이(가) 지원되지 않음"
+
+msgid "You are not authorized to perform the requested action."
+msgstr "요청한 조치를 수행할 권한이 없습니다."
+
+#, python-format
+msgid "You are not authorized to perform the requested action: %(action)s"
+msgstr "요청한 조치(%(action)s)를 수행할 권한이 없습니다."
+
+msgid "`key_mangler` functions must be callable."
+msgstr "`key_mangler` 기능을 호출할 수 있어야 합니다."
+
+msgid "`key_mangler` option must be a function reference"
+msgstr "`key_mangler` 옵션은 기능 참조여야 함"
+
+msgid "any options"
+msgstr "옵션"
+
+msgid "auth_type is not Negotiate"
+msgstr "auth_type이 Negotiate가 아님"
+
+msgid "authorizing user does not have role required"
+msgstr "인증하는 사용자에게 필요한 역할이 없음"
+
+msgid "cache_collection name is required"
+msgstr "cache_collection 이름이 필요함"
+
+#, python-format
+msgid "cannot create a project in a branch containing a disabled project: %s"
+msgstr ""
+"사용 안함으로 설정된 프로젝트가 포함된 분기에 프로젝트를 작성할 수 없습니다. "
+"%s"
+
+msgid "cannot create a project within a different domain than its parents."
+msgstr "상위와 다른 도메인 내에 프로젝트를 작성할 수 없습니다."
+
+msgid "cannot delete a domain that is enabled, please disable it first."
+msgstr ""
+"사용으로 설정된 도메인을 삭제할 수 없습니다. 먼저 해당 도메인을 사용 안함으"
+"로 설정하십시오."
+
+#, python-format
+msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
+msgstr "계층 내의 리프가 아니므로 프로젝트 %s을(를) 삭제할 수 없습니다."
+
+#, python-format
+msgid "cannot disable project %s since its subtree contains enabled projects"
+msgstr ""
+"서브트리에 사용 설정된 프로젝트가 있어서 프로젝트 %s을(를) 사용 안함으로 설정"
+"할 수 없음"
+
+#, python-format
+msgid "cannot enable project %s since it has disabled parents"
+msgstr "프로젝트 %s에 사용 안함으로 설정된 상위가 있어서 이를 사용할 수 없음"
+
+msgid "database db_name is required"
+msgstr "database db_name이 필요함"
+
+msgid "db_hosts value is required"
+msgstr "db_hosts 값이 필요함"
+
+msgid "delete the default domain"
+msgstr "기본 도메인 삭제"
+
+#, python-format
+msgid "group %(group)s"
+msgstr "%(group)s 그룹"
+
+msgid ""
+"idp_contact_type must be one of: [technical, other, support, administrative "
+"or billing."
+msgstr ""
+"idp_contact_type은 [기술, 기타, 지원, 관리 또는 비용 청구 중 하나여야 합니다."
+
+msgid "integer value expected for mongo_ttl_seconds"
+msgstr "mongo_ttl_seconds에 대해 정수 값이 예상됨 "
+
+msgid "integer value expected for w (write concern attribute)"
+msgstr "w(write concern 속성)에 대해 정수 값이 예상됨"
+
+#, python-format
+msgid "invalid date format %s"
+msgstr "올바르지 않은 날짜 형식 %s"
+
+#, python-format
+msgid "max hierarchy depth reached for %s branch."
+msgstr "%s 분기에 대한 최대 계층 깊이에 도달했습니다."
+
+msgid "no ssl support available"
+msgstr "사용 가능한 ssl 지원이 없음"
+
+#, python-format
+msgid "option %(option)s in group %(group)s"
+msgstr "%(group)s 그룹의 %(option)s 옵션"
+
+msgid "pad must be single character"
+msgstr "패드는 단일 문자여야 함"
+
+msgid "padded base64url text must be multiple of 4 characters"
+msgstr "채워진 base64url 텍스트는 4의 배수여야 함"
+
+msgid "provided consumer key does not match stored consumer key"
+msgstr "제공된 이용자 키가 저장된 이용자 키와 일치하지 않음"
+
+msgid "provided request key does not match stored request key"
+msgstr "제공된 요청 키가 저장된 요청 키와 일치하지 않음"
+
+msgid "provided verifier does not match stored verifier"
+msgstr "제공된 확인자가 저장된 확인자와 일치하지 않음 "
+
+msgid "region not type dogpile.cache.CacheRegion"
+msgstr "리젼이 dogpile.cache.CacheRegion 유형이 아님 "
+
+msgid "remaining_uses must be a positive integer or null."
+msgstr "remaining_uses는 양의 정수 또는 널이어야 합니다."
+
+msgid "remaining_uses must not be set if redelegation is allowed"
+msgstr "재위임을 허용하는 경우 remaining_uses를 설정하지 않아야 함"
+
+msgid "replicaset_name required when use_replica is True"
+msgstr "use_replica가 True인 경우 replicaset_name이 필요함 "
+
+#, python-format
+msgid ""
+"request to update group %(group)s, but config provided contains group "
+"%(group_other)s instead"
+msgstr ""
+"%(group)s 그룹을 업데이트하도록 요청했지만 제공된 구성에 %(group_other)s 그룹"
+"이 대신 포함되어 있습니다."
+
+msgid "rescope a scoped token"
+msgstr "범위 지정된 토큰의 범위 재지정"
+
+#, python-format
+msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
+msgstr ""
+"텍스트가 4의 배수이지만 패드 \"%s\"이(가) 두 번째 앞에서부터 마지막 문자까지 "
+"발생함"
+
+#, python-format
+msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
+msgstr ""
+"텍스트가 4의 배수이지만 패드 \"%s\"이(가) 비패드 마지막 문자 앞에서 발생함"
+
+#, python-format
+msgid "text is not a multiple of 4, but contains pad \"%s\""
+msgstr "텍스트가 4의 배수이지만 패드 \"%s\"을(를) 포함함"
+
+#, python-format
+msgid "tls_cacertdir %s not found or is not a directory"
+msgstr "tls_cacertdir %s를 찾을 수 없으며, 이 디렉토리에 존재하지 않습니다."
+
+#, python-format
+msgid "tls_cacertfile %s not found or is not a file"
+msgstr "tls_cacertfile %s를 찾을 수 없스며, 그런 파일이 없습니다."
+
+#, python-format
+msgid "token reference must be a KeystoneToken type, got: %s"
+msgstr "토큰 참조는 KeystoneToken 유형이어야 합니다. %s을(를) 가져왔습니다."
