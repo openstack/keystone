@@ -232,10 +232,8 @@ class Manager(manager.Manager):
     def validate_v3_token(self, token_id):
         unique_id = utils.generate_unique_id(token_id)
         # NOTE(lbragstad): Only go to persistent storage if we have a token to
-        # fetch from the backend. If the Fernet token provider is being used
-        # this step isn't necessary. The Fernet token reference is persisted in
-        # the token_id, so in this case set the token_ref as the identifier of
-        # the token.
+        # fetch from the backend (the driver persists the token). Otherwise
+        # the information about the token must be in the token id.
         if not self._needs_persistence:
             token_ref = token_id
         else:
