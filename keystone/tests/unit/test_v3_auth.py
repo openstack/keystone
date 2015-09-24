@@ -3814,8 +3814,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             user_id=self.trustee_user['id'],
             password=self.trustee_user['password'],
             trust_id=trust['id'])
-        self.v3_authenticate_token(auth_data,
-                                   expected_status=http_client.CREATED)
+        self.v3_authenticate_token(auth_data)
 
         self.disable_user(self.user)
 
@@ -3843,8 +3842,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             user_id=self.trustee_user['id'],
             password=self.trustee_user['password'],
             trust_id=trust['id'])
-        self.v3_authenticate_token(auth_data,
-                                   expected_status=http_client.CREATED)
+        self.v3_authenticate_token(auth_data)
 
         self.disable_user(self.trustee_user)
 
