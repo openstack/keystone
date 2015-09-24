@@ -442,29 +442,29 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         return self.admin_request(path=path, token=token, **kwargs)
 
     def get(self, path, expected_status=http_client.OK, **kwargs):
-        return self.v3_request(method='GET', path=path,
+        return self.v3_request(path, method='GET',
                                expected_status=expected_status, **kwargs)
 
     def head(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
-        r = self.v3_request(method='HEAD', path=path,
+        r = self.v3_request(path, method='HEAD',
                             expected_status=expected_status, **kwargs)
         self.assertEqual('', r.body)
         return r
 
     def post(self, path, expected_status=http_client.CREATED, **kwargs):
-        return self.v3_request(method='POST', path=path,
+        return self.v3_request(path, method='POST',
                                expected_status=expected_status, **kwargs)
 
     def put(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
-        return self.v3_request(method='PUT', path=path,
+        return self.v3_request(path, method='PUT',
                                expected_status=expected_status, **kwargs)
 
     def patch(self, path, expected_status=http_client.OK, **kwargs):
-        return self.v3_request(method='PATCH', path=path,
+        return self.v3_request(path, method='PATCH',
                                expected_status=expected_status, **kwargs)
 
     def delete(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
-        return self.v3_request(method='DELETE', path=path,
+        return self.v3_request(path, method='DELETE',
                                expected_status=expected_status, **kwargs)
 
     def assertValidErrorResponse(self, r):
