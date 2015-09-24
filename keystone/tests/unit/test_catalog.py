@@ -53,7 +53,8 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         """Applicable only to JSON."""
         return r.result['access']['token']['id']
 
-    def _endpoint_create(self, expected_status=200, service_id=SERVICE_FIXTURE,
+    def _endpoint_create(self, expected_status=http_client.OK,
+                         service_id=SERVICE_FIXTURE,
                          publicurl='http://localhost:8080',
                          internalurl='http://localhost:8080',
                          adminurl='http://localhost:8080'):
@@ -125,7 +126,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         valid_url = 'http://127.0.0.1:8774/v1.1/$(tenant_id)s'
 
         # baseline tests that all valid URLs works
-        self._endpoint_create(expected_status=200,
+        self._endpoint_create(expected_status=http_client.OK,
                               publicurl=valid_url,
                               internalurl=valid_url,
                               adminurl=valid_url)

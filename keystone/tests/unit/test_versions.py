@@ -751,7 +751,7 @@ class VersionTestCase(unit.TestCase):
     def test_public_version_v2(self):
         client = TestClient(self.public_app)
         resp = client.get('/v2.0/')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v2_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
@@ -762,7 +762,7 @@ class VersionTestCase(unit.TestCase):
     def test_admin_version_v2(self):
         client = TestClient(self.admin_app)
         resp = client.get('/v2.0/')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v2_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
@@ -775,7 +775,7 @@ class VersionTestCase(unit.TestCase):
         for app in (self.public_app, self.admin_app):
             client = TestClient(app)
             resp = client.get('/v2.0/')
-            self.assertEqual(200, resp.status_int)
+            self.assertEqual(http_client.OK, resp.status_int)
             data = jsonutils.loads(resp.body)
             expected = v2_VERSION_RESPONSE
             self._paste_in_port(expected['version'], 'http://localhost/v2.0/')
@@ -784,7 +784,7 @@ class VersionTestCase(unit.TestCase):
     def test_public_version_v3(self):
         client = TestClient(self.public_app)
         resp = client.get('/v3/')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
@@ -796,7 +796,7 @@ class VersionTestCase(unit.TestCase):
     def test_admin_version_v3(self):
         client = TestClient(self.admin_app)
         resp = client.get('/v3/')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
@@ -809,7 +809,7 @@ class VersionTestCase(unit.TestCase):
         for app in (self.public_app, self.admin_app):
             client = TestClient(app)
             resp = client.get('/v3/')
-            self.assertEqual(200, resp.status_int)
+            self.assertEqual(http_client.OK, resp.status_int)
             data = jsonutils.loads(resp.body)
             expected = v3_VERSION_RESPONSE
             self._paste_in_port(expected['version'], 'http://localhost/v3/')
@@ -824,7 +824,7 @@ class VersionTestCase(unit.TestCase):
 
         # request to /v3 should pass
         resp = client.get('/v3/')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
@@ -857,7 +857,7 @@ class VersionTestCase(unit.TestCase):
 
         # request to /v2.0 should pass
         resp = client.get('/v2.0/')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v2_VERSION_RESPONSE
         self._paste_in_port(expected['version'],

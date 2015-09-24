@@ -112,7 +112,7 @@ class ApplicationTest(BaseWSGITest):
 
         resp = wsgi.render_response(body=data)
         self.assertEqual('200 OK', resp.status)
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         self.assertEqual(body, resp.body)
         self.assertEqual('X-Auth-Token', resp.headers.get('Vary'))
         self.assertEqual(str(len(body)), resp.headers.get('Content-Length'))
@@ -172,14 +172,14 @@ class ApplicationTest(BaseWSGITest):
     def test_render_response_no_body(self):
         resp = wsgi.render_response()
         self.assertEqual('204 No Content', resp.status)
-        self.assertEqual(204, resp.status_int)
+        self.assertEqual(http_client.NO_CONTENT, resp.status_int)
         self.assertEqual(b'', resp.body)
         self.assertEqual('0', resp.headers.get('Content-Length'))
         self.assertIsNone(resp.headers.get('Content-Type'))
 
     def test_render_response_head_with_body(self):
         resp = wsgi.render_response({'id': uuid.uuid4().hex}, method='HEAD')
-        self.assertEqual(200, resp.status_int)
+        self.assertEqual(http_client.OK, resp.status_int)
         self.assertEqual(b'', resp.body)
         self.assertNotEqual(resp.headers.get('Content-Length'), '0')
         self.assertEqual('application/json', resp.headers.get('Content-Type'))

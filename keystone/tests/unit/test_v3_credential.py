@@ -382,7 +382,7 @@ class TestCredentialEc2(CredentialBaseTestCase):
         r = self.post(
             '/ec2tokens',
             body={'ec2Credentials': sig_ref},
-            expected_status=200)
+            expected_status=http_client.OK)
         self.assertValidTokenResponse(r)
 
     def test_ec2_credential_signature_validate(self):

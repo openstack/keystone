@@ -17,6 +17,7 @@ import os
 import shutil
 
 import mock
+from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import environment
@@ -113,11 +114,13 @@ class CertSetupTestCase(rest.RestfulTestCase):
         # requests don't have some of the normal information
         signing_resp = self.request(self.public_app,
                                     '/v2.0/certificates/signing',
-                                    method='GET', expected_status=200)
+                                    method='GET',
+                                    expected_status=http_client.OK)
 
         cacert_resp = self.request(self.public_app,
                                    '/v2.0/certificates/ca',
-                                   method='GET', expected_status=200)
+                                   method='GET',
+                                   expected_status=http_client.OK)
 
         with open(CONF.signing.certfile) as f:
             self.assertEqual(f.read(), signing_resp.text)
@@ -133,7 +136,7 @@ class CertSetupTestCase(rest.RestfulTestCase):
             for accept in [None, 'text/html', 'application/json', 'text/xml']:
                 headers = {'Accept': accept} if accept else {}
                 resp = self.request(self.public_app, path, method='GET',
-                                    expected_status=200,
+                                    expected_status=http_client.OK,
                                     headers=headers)
 
                 self.assertEqual('text/html', resp.content_type)

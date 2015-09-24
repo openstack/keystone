@@ -363,14 +363,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # validates the returned token and it should be valid.
         self.head('/auth/tokens',
                   headers={'x-subject-token': subject_token},
-                  expected_status=200)
+                  expected_status=http_client.OK)
 
         # now disable the domain
         self.domain['enabled'] = False
         url = "/domains/%(domain_id)s" % {'domain_id': self.domain['id']}
         self.patch(url,
-                   body={'domain': {'enabled': False}},
-                   expected_status=200)
+                   body={'domain': {'enabled': False}})
 
         # validates the same token again and it should be 'not found'
         # as the domain has already been disabled.
@@ -1290,9 +1289,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         member_url = ('%(collection_url)s/%(role_id)s' % {
             'collection_url': collection_url,
             'role_id': self.role_id})
-        self.put(member_url, expected_status=204)
+        self.put(member_url)
         # Check the user has the role assigned
-        self.head(member_url, expected_status=204)
+        self.head(member_url)
         return member_url, user_ref
 
     def test_delete_user_before_removing_role_assignment_succeeds(self):
@@ -1301,7 +1300,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Delete the user from identity backend
         self.identity_api.driver.delete_user(user['id'])
         # Clean up the role assignment
-        self.delete(member_url, expected_status=204)
+        self.delete(member_url)
         # Make sure the role is gone
         self.head(member_url, expected_status=http_client.NOT_FOUND)
 
@@ -1344,7 +1343,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # validates the returned token; it should be valid.
         self.head('/auth/tokens',
                   headers={'x-subject-token': token},
-                  expected_status=200)
+                  expected_status=http_client.OK)
 
         # revokes the grant from group on project.
         self.assignment_api.delete_grant(role_id=self.role['id'],
@@ -1869,7 +1868,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         self.default_user_id = self.user_ids[0]
         self.default_group_id = self.group_ids[0]
 
-    def get_role_assignments(self, expected_status=200, **filters):
+    def get_role_assignments(self, expected_status=http_client.OK, **filters):
         """Returns the result from querying role assignment API + queried URL.
 
         Calls GET /v3/role_assignments?<params> and returns its result, where
