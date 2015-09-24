@@ -441,42 +441,31 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
         return self.admin_request(path=path, token=token, **kwargs)
 
-    def get(self, path, **kwargs):
-        r = self.v3_request(method='GET', path=path, **kwargs)
-        if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, http_client.OK)
-        return r
+    def get(self, path, expected_status=http_client.OK, **kwargs):
+        return self.v3_request(method='GET', path=path,
+                               expected_status=expected_status, **kwargs)
 
-    def head(self, path, **kwargs):
-        r = self.v3_request(method='HEAD', path=path, **kwargs)
-        if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, http_client.NO_CONTENT)
+    def head(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
+        r = self.v3_request(method='HEAD', path=path,
+                            expected_status=expected_status, **kwargs)
         self.assertEqual('', r.body)
         return r
 
-    def post(self, path, **kwargs):
-        r = self.v3_request(method='POST', path=path, **kwargs)
-        if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, http_client.CREATED)
-        return r
+    def post(self, path, expected_status=http_client.CREATED, **kwargs):
+        return self.v3_request(method='POST', path=path,
+                               expected_status=expected_status, **kwargs)
 
-    def put(self, path, **kwargs):
-        r = self.v3_request(method='PUT', path=path, **kwargs)
-        if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, http_client.NO_CONTENT)
-        return r
+    def put(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
+        return self.v3_request(method='PUT', path=path,
+                               expected_status=expected_status, **kwargs)
 
-    def patch(self, path, **kwargs):
-        r = self.v3_request(method='PATCH', path=path, **kwargs)
-        if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, http_client.OK)
-        return r
+    def patch(self, path, expected_status=http_client.OK, **kwargs):
+        return self.v3_request(method='PATCH', path=path,
+                               expected_status=expected_status, **kwargs)
 
-    def delete(self, path, **kwargs):
-        r = self.v3_request(method='DELETE', path=path, **kwargs)
-        if 'expected_status' not in kwargs:
-            self.assertResponseStatus(r, http_client.NO_CONTENT)
-        return r
+    def delete(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
+        return self.v3_request(method='DELETE', path=path,
+                               expected_status=expected_status, **kwargs)
 
     def assertValidErrorResponse(self, r):
         resp = r.result
