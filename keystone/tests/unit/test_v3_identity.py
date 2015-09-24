@@ -348,7 +348,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """
         # First check the credential for this user is present
         r = self.credential_api.get_credential(self.credential['id'])
-        self.assertDictEqual(r, self.credential)
+        self.assertDictEqual(self.credential, r)
         # Create a second credential with a different user
         self.user2 = self.new_user_ref(
             domain_id=self.domain['id'],
@@ -387,7 +387,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertEqual(0, len(tokens))
         # But the credential for user2 is unaffected
         r = self.credential_api.get_credential(self.credential2['id'])
-        self.assertDictEqual(r, self.credential2)
+        self.assertDictEqual(self.credential2, r)
 
     # group crud tests
 
@@ -524,16 +524,16 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
 
         updated_user1 = controller.V2Controller.v3_to_v2_user(self.user1)
         self.assertIs(self.user1, updated_user1)
-        self.assertDictEqual(self.user1, self.expected_user)
+        self.assertDictEqual(self.expected_user, self.user1)
         updated_user2 = controller.V2Controller.v3_to_v2_user(self.user2)
         self.assertIs(self.user2, updated_user2)
-        self.assertDictEqual(self.user2, self.expected_user_no_tenant_id)
+        self.assertDictEqual(self.expected_user_no_tenant_id, self.user2)
         updated_user3 = controller.V2Controller.v3_to_v2_user(self.user3)
         self.assertIs(self.user3, updated_user3)
-        self.assertDictEqual(self.user3, self.expected_user)
+        self.assertDictEqual(self.expected_user, self.user3)
         updated_user4 = controller.V2Controller.v3_to_v2_user(self.user4)
         self.assertIs(self.user4, updated_user4)
-        self.assertDictEqual(self.user4, self.expected_user_no_tenant_id)
+        self.assertDictEqual(self.expected_user_no_tenant_id, self.user4)
 
     def test_v3_to_v2_user_method_list(self):
         user_list = [self.user1, self.user2, self.user3, self.user4]
@@ -545,10 +545,10 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
             # Order should not change.
             self.assertIs(ref, user_list[i])
 
-        self.assertDictEqual(self.user1, self.expected_user)
-        self.assertDictEqual(self.user2, self.expected_user_no_tenant_id)
-        self.assertDictEqual(self.user3, self.expected_user)
-        self.assertDictEqual(self.user4, self.expected_user_no_tenant_id)
+        self.assertDictEqual(self.expected_user, self.user1)
+        self.assertDictEqual(self.expected_user_no_tenant_id, self.user2)
+        self.assertDictEqual(self.expected_user, self.user3)
+        self.assertDictEqual(self.expected_user_no_tenant_id, self.user4)
 
 
 class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):

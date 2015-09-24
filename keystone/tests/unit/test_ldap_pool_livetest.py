@@ -183,7 +183,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         user_ref = self.identity_api.authenticate(
             context={}, user_id=user['id'], password=old_password)
 
-        self.assertDictEqual(user_ref, user)
+        self.assertDictEqual(user, user_ref)
 
     def test_password_change_with_auth_pool_enabled_no_lifetime(self):
         self.config_fixture.config(group='ldap',

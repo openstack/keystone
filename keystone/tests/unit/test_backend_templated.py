@@ -64,7 +64,7 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
 
     def test_get_catalog(self):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
-        self.assertDictEqual(catalog_ref, self.DEFAULT_FIXTURE)
+        self.assertDictEqual(self.DEFAULT_FIXTURE, catalog_ref)
 
     def test_catalog_ignored_malformed_urls(self):
         # both endpoints are in the catalog

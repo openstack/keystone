@@ -3434,7 +3434,7 @@ class K2KServiceCatalogTests(FederationTests):
         for entity in service_providers:
             id = entity.get('id')
             ref_entity = self.sp_response(id, ref.get(id))
-            self.assertDictEqual(ref_entity, entity)
+            self.assertDictEqual(entity, ref_entity)
 
     def test_service_providers_in_token(self):
         """Check if service providers are listed in service catalog."""

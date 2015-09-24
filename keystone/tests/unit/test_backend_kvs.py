@@ -133,7 +133,7 @@ class KvsCatalog(unit.TestCase, test_backend.CatalogTests):
 
     def test_get_catalog(self):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
-        self.assertDictEqual(catalog_ref, self.catalog_foobar)
+        self.assertDictEqual(self.catalog_foobar, catalog_ref)
 
     def test_get_catalog_endpoint_disabled(self):
         # This test doesn't apply to KVS because with the KVS backend the

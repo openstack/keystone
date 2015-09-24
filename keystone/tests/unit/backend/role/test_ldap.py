@@ -80,7 +80,7 @@ class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, unit.TestCase):
 
     def test_role_filter(self):
         role_ref = self.role_api.get_role(self.role_member['id'])
-        self.assertDictEqual(role_ref, self.role_member)
+        self.assertDictEqual(self.role_member, role_ref)
 
         self.config_fixture.config(group='ldap',
                                    role_filter='(CN=DOES_NOT_MATCH)')

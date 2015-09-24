@@ -492,15 +492,15 @@ class KVSTest(unit.TestCase):
 
         # Ensure the set_arguments are correct
         self.assertDictEqual(
-            kvs._region.backend._get_set_arguments_driver_attr(),
-            expected_set_args)
+            expected_set_args,
+            kvs._region.backend._get_set_arguments_driver_attr())
 
         # Set a key that would have an expiry and verify the correct result
         # occurred and that the correct set_arguments were passed.
         kvs.set(self.key_foo, self.value_foo)
         self.assertDictEqual(
-            kvs._region.backend.driver.client.set_arguments_passed,
-            expected_set_args)
+            expected_set_args,
+            kvs._region.backend.driver.client.set_arguments_passed)
         observed_foo_keys = list(kvs_driver.client.keys_values.keys())
         self.assertEqual(expected_foo_keys, observed_foo_keys)
         self.assertEqual(
@@ -511,8 +511,8 @@ class KVSTest(unit.TestCase):
         # occurred and that the correct set_arguments were passed.
         kvs.set(self.key_bar, self.value_bar)
         self.assertDictEqual(
-            kvs._region.backend.driver.client.set_arguments_passed,
-            expected_no_expiry_args)
+            expected_no_expiry_args,
+            kvs._region.backend.driver.client.set_arguments_passed)
         observed_bar_keys = list(kvs_driver.client.keys_values.keys())
         self.assertEqual(expected_bar_keys, observed_bar_keys)
         self.assertEqual(
@@ -523,8 +523,8 @@ class KVSTest(unit.TestCase):
         # result occurred and that the correct set_arguments were passed.
         kvs.set_multi(mapping_foo)
         self.assertDictEqual(
-            kvs._region.backend.driver.client.set_arguments_passed,
-            expected_set_args)
+            expected_set_args,
+            kvs._region.backend.driver.client.set_arguments_passed)
         observed_foo_keys = list(kvs_driver.client.keys_values.keys())
         self.assertEqual(expected_foo_keys, observed_foo_keys)
         self.assertEqual(
@@ -535,8 +535,8 @@ class KVSTest(unit.TestCase):
         # result occurred and that the correct set_arguments were passed.
         kvs.set_multi(mapping_bar)
         self.assertDictEqual(
-            kvs._region.backend.driver.client.set_arguments_passed,
-            expected_no_expiry_args)
+            expected_no_expiry_args,
+            kvs._region.backend.driver.client.set_arguments_passed)
         observed_bar_keys = list(kvs_driver.client.keys_values.keys())
         self.assertEqual(expected_bar_keys, observed_bar_keys)
         self.assertEqual(
