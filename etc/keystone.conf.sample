@@ -1336,7 +1336,7 @@
 # From keystone
 #
 
-# Entrypoint for hte OAuth backend driver in the keystone.oauth1 namespace.
+# Entrypoint for the OAuth backend driver in the keystone.oauth1 namespace.
 # (string value)
 #driver = sql
 
