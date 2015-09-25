@@ -496,7 +496,7 @@ FILE_OPTIONS = {
     'oauth1': [
         cfg.StrOpt('driver',
                    default='sql',
-                   help='Entrypoint for hte OAuth backend driver in the '
+                   help='Entrypoint for the OAuth backend driver in the '
                         'keystone.oauth1 namespace.'),
         cfg.IntOpt('request_token_duration', default=28800,
                    help='Duration (in seconds) for the OAuth Request Token.'),
