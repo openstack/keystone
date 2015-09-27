@@ -108,13 +108,15 @@ class Role(controller.V2Controller):
             role_id = uuid.uuid4().hex
 
         role['id'] = role_id
-        role_ref = self.role_api.create_role(role_id, role)
+        initiator = notifications._get_request_audit_info(context)
+        role_ref = self.role_api.create_role(role_id, role, initiator)
         return {'role': role_ref}
 
     @controller.v2_deprecated
     def delete_role(self, context, role_id):
         self.assert_admin(context)
-        self.role_api.delete_role(role_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.role_api.delete_role(role_id, initiator)
 
     @controller.v2_deprecated
     def get_roles(self, context):
