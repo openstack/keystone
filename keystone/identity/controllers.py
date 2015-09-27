@@ -82,8 +82,9 @@ class User(controller.V2Controller):
 
         # The manager layer will generate the unique ID for users
         user_ref = self._normalize_domain_id(context, user.copy())
+        initiator = notifications._get_request_audit_info(context)
         new_user_ref = self.v3_to_v2_user(
-            self.identity_api.create_user(user_ref))
+            self.identity_api.create_user(user_ref, initiator))
 
         if default_project_id is not None:
             self.assignment_api.add_user_to_project(default_project_id,
@@ -120,8 +121,9 @@ class User(controller.V2Controller):
             # user update.
             self.resource_api.get_project(default_project_id)
 
+        initiator = notifications._get_request_audit_info(context)
         user_ref = self.v3_to_v2_user(
-            self.identity_api.update_user(user_id, user))
+            self.identity_api.update_user(user_id, user, initiator))
 
         # If 'tenantId' is in either ref, we might need to add or remove the
         # user from a project.
@@ -166,7 +168,8 @@ class User(controller.V2Controller):
     @controller.v2_deprecated
     def delete_user(self, context, user_id):
         self.assert_admin(context)
-        self.identity_api.delete_user(user_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.identity_api.delete_user(user_id, initiator)
 
     @controller.v2_deprecated
     def set_user_enabled(self, context, user_id, user):
