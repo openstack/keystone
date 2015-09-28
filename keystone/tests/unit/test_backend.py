@@ -1014,8 +1014,8 @@ class IdentityTests(AssignmentTestHelperMixin):
             user_id=user_ref['id'],
             tenant_id=project_ref['id'])
 
-        self.assertEqual(set(role_list),
-                         set([r['id'] for r in role_ref_list]))
+        self.assertEqual(set([r['id'] for r in role_ref_list]),
+                         set(role_list))
 
     def test_get_role_by_user_and_project(self):
         roles_ref = self.assignment_api.get_roles_for_user_and_project(
@@ -2746,7 +2746,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         ref = self.resource_api.create_project(sub_project['id'], sub_project)
 
         # The parent_id should be set to the domain_id
-        self.assertEqual(ref['parent_id'], project['id'])
+        self.assertEqual(project['id'], ref['parent_id'])
 
     def test_check_leaf_projects(self):
         projects_hierarchy = self._create_projects_hierarchy()
@@ -3552,7 +3552,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.update_project(leaf_project['id'], leaf_project)
 
         project_ref = self.resource_api.get_project(leaf_project['id'])
-        self.assertEqual(project_ref['enabled'], leaf_project['enabled'])
+        self.assertEqual(leaf_project['enabled'], project_ref['enabled'])
 
     def test_disable_hierarchical_not_leaf_project(self):
         projects_hierarchy = self._create_projects_hierarchy()
@@ -6600,7 +6600,7 @@ class FilterTests(filtering.FilterTests):
             hints.add_filter('name', entity_list[10]['name'])
             entities = self._list_entities(entity)(hints=hints)
             self.assertEqual(1, len(entities))
-            self.assertEqual(entities[0]['id'], entity_list[10]['id'])
+            self.assertEqual(entity_list[10]['id'], entities[0]['id'])
             # Check the driver has removed the filter from the list hints
             self.assertFalse(hints.get_exact_filter_by_name('name'))
             self._delete_test_data(entity, entity_list)

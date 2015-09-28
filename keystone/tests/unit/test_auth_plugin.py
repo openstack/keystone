@@ -183,7 +183,7 @@ class TestMapped(unit.TestCase):
             # make sure Mapped plugin got invoked with the correct payload
             ((context, auth_payload, auth_context),
              kwargs) = authenticate.call_args
-            self.assertEqual(auth_payload['protocol'], method_name)
+            self.assertEqual(method_name, auth_payload['protocol'])
 
     def test_supporting_multiple_methods(self):
         for method_name in ['saml2', 'openid', 'x509']:

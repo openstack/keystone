@@ -82,7 +82,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         self.assertIn('endpoint', response.result)
         self.assertIn('id', response.result['endpoint'])
         for field, value in req_body['endpoint'].items():
-            self.assertEqual(response.result['endpoint'][field], value)
+            self.assertEqual(value, response.result['endpoint'][field])
 
     def test_endpoint_create_with_null_adminurl(self):
         req_body, response = self._endpoint_create(adminurl=None)

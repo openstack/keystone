@@ -256,9 +256,9 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
             return
         self.assertTrue(len(self._notifications) > 0)
         note = self._notifications[-1]
-        self.assertEqual(note['operation'], operation)
-        self.assertEqual(note['resource_id'], resource_id)
-        self.assertEqual(note['resource_type'], resource_type)
+        self.assertEqual(operation, note['operation'])
+        self.assertEqual(resource_id, note['resource_id'])
+        self.assertEqual(resource_type, note['resource_type'])
         self.assertTrue(note['send_notification_called'])
 
     def _assert_last_audit(self, resource_id, operation, resource_type,
@@ -810,13 +810,13 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
     def _assert_last_note(self, action, user_id, event_type=None):
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
-        self.assertEqual(note['action'], action)
+        self.assertEqual(action, note['action'])
         initiator = note['initiator']
-        self.assertEqual(initiator.id, user_id)
-        self.assertEqual(initiator.host.address, self.LOCAL_HOST)
+        self.assertEqual(user_id, initiator.id)
+        self.assertEqual(self.LOCAL_HOST, initiator.host.address)
         self.assertTrue(note['send_notification_called'])
         if event_type:
-            self.assertEqual(note['event_type'], event_type)
+            self.assertEqual(event_type, note['event_type'])
 
     def _assert_event(self, role_id, project=None, domain=None,
                       user=None, group=None, inherit=False):
@@ -944,7 +944,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
 
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
-        self.assertEqual(note['action'], 'created.role_assignment')
+        self.assertEqual('created.role_assignment', note['action'])
         self.assertTrue(note['send_notification_called'])
 
         self._assert_event(self.role_id, project=tenant_id, user=self.user_id)
@@ -958,7 +958,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
 
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
-        self.assertEqual(note['action'], 'deleted.role_assignment')
+        self.assertEqual('deleted.role_assignment', note['action'])
         self.assertTrue(note['send_notification_called'])
 
         self._assert_event(self.role_id, project=self.project_id,

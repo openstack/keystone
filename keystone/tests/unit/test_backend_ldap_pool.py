@@ -151,22 +151,22 @@ class LdapPoolCommonTestMixin(object):
 
         # Open 3 connections first
         with _get_conn() as _:  # conn1
-            self.assertEqual(len(ldappool_cm), 1)
+            self.assertEqual(1, len(ldappool_cm))
             with _get_conn() as _:  # conn2
-                self.assertEqual(len(ldappool_cm), 2)
+                self.assertEqual(2, len(ldappool_cm))
                 with _get_conn() as _:  # conn2
                     _.unbind_ext_s()
-                    self.assertEqual(len(ldappool_cm), 3)
+                    self.assertEqual(3, len(ldappool_cm))
 
         # Then open 3 connections again and make sure size does not grow
         # over 3
         with _get_conn() as _:  # conn1
-            self.assertEqual(len(ldappool_cm), 1)
+            self.assertEqual(1, len(ldappool_cm))
             with _get_conn() as _:  # conn2
-                self.assertEqual(len(ldappool_cm), 2)
+                self.assertEqual(2, len(ldappool_cm))
                 with _get_conn() as _:  # conn3
                     _.unbind_ext_s()
-                    self.assertEqual(len(ldappool_cm), 3)
+                    self.assertEqual(3, len(ldappool_cm))
 
     def test_password_change_with_pool(self):
         old_password = self.user_sna['password']

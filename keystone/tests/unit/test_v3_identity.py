@@ -539,7 +539,7 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
         user_list = [self.user1, self.user2, self.user3, self.user4]
         updated_list = controller.V2Controller.v3_to_v2_user(user_list)
 
-        self.assertEqual(len(updated_list), len(user_list))
+        self.assertEqual(len(user_list), len(updated_list))
 
         for i, ref in enumerate(updated_list):
             # Order should not change.

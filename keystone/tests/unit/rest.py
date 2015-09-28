@@ -117,8 +117,7 @@ class RestfulTestCase(unit.TestCase):
             self.assertResponseStatus(response, http_client.NO_CONTENT)
         """
         self.assertEqual(
-            response.status_code,
-            expected_status,
+            expected_status, response.status_code,
             'Status code %s is not %s, as expected\n\n%s' %
             (response.status_code, expected_status, response.body))
 
@@ -133,9 +132,9 @@ class RestfulTestCase(unit.TestCase):
         Subclasses can override this function based on the expected response.
 
         """
-        self.assertEqual(response.status_code, expected_status)
+        self.assertEqual(expected_status, response.status_code)
         error = response.result['error']
-        self.assertEqual(error['code'], response.status_code)
+        self.assertEqual(response.status_code, error['code'])
         self.assertIsNotNone(error.get('title'))
 
     def _to_content_type(self, body, headers, content_type=None):
