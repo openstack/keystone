@@ -246,13 +246,14 @@ class Provider(common.BaseProvider):
             raise exception.TokenNotFound(e)
 
         token_dict = None
-        trust_ref = None
         if federated_info:
             token_dict = self._rebuild_federated_info(federated_info, user_id)
             if project_id or domain_id:
                 self._rebuild_federated_token_roles(token_dict, federated_info,
                                                     user_id, project_id,
                                                     domain_id)
+
+        trust_ref = None
         if trust_id:
             trust_ref = self.trust_api.get_trust(trust_id)
 
