@@ -47,7 +47,7 @@ KEYSTONE_HEADERS = [
 ]
 
 
-def initialize_application(name):
+def initialize_application(name, post_log_configured_function=lambda: None):
     common.configure()
 
     # Log the options used when starting if we're in debug mode...
@@ -55,6 +55,8 @@ def initialize_application(name):
         CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
 
     environment.use_stdlib()
+
+    post_log_configured_function()
 
     def loadapp():
         return keystone_service.loadapp(
