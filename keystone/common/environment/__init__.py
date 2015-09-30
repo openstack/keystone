@@ -21,7 +21,7 @@ from oslo_log import log
 LOG = log.getLogger(__name__)
 
 
-__all__ = ['Server', 'httplib', 'subprocess']
+__all__ = ('Server', 'httplib', 'subprocess')
 
 _configured = False
 

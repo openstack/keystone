@@ -13,4 +13,4 @@
 from keystone.token.persistence.core import *  # noqa
 
 
-__all__ = ['Manager', 'Driver']
+__all__ = ('Manager', 'Driver')
