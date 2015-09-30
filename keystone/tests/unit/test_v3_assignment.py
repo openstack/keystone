@@ -263,16 +263,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # ...and that all self.domain entities are still here
         r = self.resource_api.get_domain(self.domain['id'])
-        self.assertDictEqual(r, self.domain)
+        self.assertDictEqual(self.domain, r)
         r = self.resource_api.get_project(self.project['id'])
-        self.assertDictEqual(r, self.project)
+        self.assertDictEqual(self.project, r)
         r = self.identity_api.get_group(self.group['id'])
-        self.assertDictEqual(r, self.group)
+        self.assertDictEqual(self.group, r)
         r = self.identity_api.get_user(self.user['id'])
         self.user.pop('password')
-        self.assertDictEqual(r, self.user)
+        self.assertDictEqual(self.user, r)
         r = self.credential_api.get_credential(self.credential['id'])
-        self.assertDictEqual(r, self.credential)
+        self.assertDictEqual(self.credential, r)
 
     def test_delete_default_domain_fails(self):
         # Attempting to delete the default domain results in 403 Forbidden.
@@ -1025,7 +1025,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         """
         # First check the credential for this project is present
         r = self.credential_api.get_credential(self.credential['id'])
-        self.assertDictEqual(r, self.credential)
+        self.assertDictEqual(self.credential, r)
         # Create a second credential with a different project
         self.project2 = self.new_project_ref(
             domain_id=self.domain['id'])
@@ -1049,7 +1049,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                           credential_id=self.credential['id'])
         # But the credential for project2 is unaffected
         r = self.credential_api.get_credential(self.credential2['id'])
-        self.assertDictEqual(r, self.credential2)
+        self.assertDictEqual(self.credential2, r)
 
     def test_delete_not_leaf_project(self):
         """Call ``DELETE /projects/{project_id}``."""
@@ -3142,11 +3142,11 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
 
         updated_ref = controller.V2Controller.filter_domain_id(ref)
         self.assertIs(ref, updated_ref)
-        self.assertDictEqual(ref, expected_ref)
+        self.assertDictEqual(expected_ref, ref)
         # Make sure we don't error/muck up data if domain_id isn't present
         updated_ref = controller.V2Controller.filter_domain_id(ref_no_domain)
         self.assertIs(ref_no_domain, updated_ref)
-        self.assertDictEqual(ref_no_domain, expected_ref)
+        self.assertDictEqual(expected_ref, ref_no_domain)
 
     def test_v3controller_filter_domain_id(self):
         # No data should be filtered out in this case.
@@ -3158,7 +3158,7 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
         expected_ref = ref.copy()
         updated_ref = controller.V3Controller.filter_domain_id(ref)
         self.assertIs(ref, updated_ref)
-        self.assertDictEqual(ref, expected_ref)
+        self.assertDictEqual(expected_ref, ref)
 
     def test_v2controller_filter_domain(self):
         other_data = uuid.uuid4().hex
@@ -3185,27 +3185,27 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
 
         updated_ref = controller.V2Controller.filter_project_parent_id(ref)
         self.assertIs(ref, updated_ref)
-        self.assertDictEqual(ref, expected_ref)
+        self.assertDictEqual(expected_ref, ref)
         # Make sure we don't error/muck up data if parent_id isn't present
         updated_ref = controller.V2Controller.filter_project_parent_id(
             ref_no_parent)
         self.assertIs(ref_no_parent, updated_ref)
-        self.assertDictEqual(ref_no_parent, expected_ref)
+        self.assertDictEqual(expected_ref, ref_no_parent)
 
     def test_v3_to_v2_project_method(self):
         self._setup_initial_projects()
         updated_project1 = controller.V2Controller.v3_to_v2_project(
             self.project1)
         self.assertIs(self.project1, updated_project1)
-        self.assertDictEqual(self.project1, self.expected_project)
+        self.assertDictEqual(self.expected_project, self.project1)
         updated_project2 = controller.V2Controller.v3_to_v2_project(
             self.project2)
         self.assertIs(self.project2, updated_project2)
-        self.assertDictEqual(self.project2, self.expected_project)
+        self.assertDictEqual(self.expected_project, self.project2)
         updated_project3 = controller.V2Controller.v3_to_v2_project(
             self.project3)
         self.assertIs(self.project3, updated_project3)
-        self.assertDictEqual(self.project3, self.expected_project)
+        self.assertDictEqual(self.expected_project, self.project2)
 
     def test_v3_to_v2_project_method_list(self):
         self._setup_initial_projects()
@@ -3218,6 +3218,6 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
             # Order should not change.
             self.assertIs(ref, project_list[i])
 
-        self.assertDictEqual(self.project1, self.expected_project)
-        self.assertDictEqual(self.project2, self.expected_project)
-        self.assertDictEqual(self.project3, self.expected_project)
+        self.assertDictEqual(self.expected_project, self.project1)
+        self.assertDictEqual(self.expected_project, self.project2)
+        self.assertDictEqual(self.expected_project, self.project3)

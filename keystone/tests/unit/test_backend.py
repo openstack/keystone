@@ -479,7 +479,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         #               not be returned by the api
         self.user_sna.pop('password')
         self.user_sna['enabled'] = True
-        self.assertDictEqual(user_ref, self.user_sna)
+        self.assertDictEqual(self.user_sna, user_ref)
 
     def test_authenticate_and_get_roles_no_metadata(self):
         user = {
@@ -529,7 +529,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_get_project(self):
         tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
-        self.assertDictEqual(tenant_ref, self.tenant_bar)
+        self.assertDictEqual(self.tenant_bar, tenant_ref)
 
     def test_get_project_404(self):
         self.assertRaises(exception.ProjectNotFound,
@@ -540,7 +540,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         tenant_ref = self.resource_api.get_project_by_name(
             self.tenant_bar['name'],
             DEFAULT_DOMAIN_ID)
-        self.assertDictEqual(tenant_ref, self.tenant_bar)
+        self.assertDictEqual(self.tenant_bar, tenant_ref)
 
     def test_get_project_by_name_404(self):
         self.assertRaises(exception.ProjectNotFound,
@@ -597,7 +597,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
-        self.assertDictEqual(user_ref, self.user_foo)
+        self.assertDictEqual(self.user_foo, user_ref)
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_get_user(self):
@@ -649,7 +649,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
-        self.assertDictEqual(user_ref, self.user_foo)
+        self.assertDictEqual(self.user_foo, user_ref)
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_get_user_by_name(self):
@@ -1194,7 +1194,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
-        self.assertDictEqual(roles_ref[0], self.role_member)
+        self.assertDictEqual(self.role_member, roles_ref[0])
 
         self.assignment_api.delete_grant(user_id=self.user_foo['id'],
                                          project_id=self.tenant_baz['id'],
@@ -1281,7 +1281,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
-        self.assertDictEqual(roles_ref[0], self.role_member)
+        self.assertDictEqual(self.role_member, roles_ref[0])
 
         self.assignment_api.delete_grant(group_id=new_group['id'],
                                          project_id=self.tenant_bar['id'],
@@ -1319,7 +1319,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
-        self.assertDictEqual(roles_ref[0], self.role_member)
+        self.assertDictEqual(self.role_member, roles_ref[0])
 
         self.assignment_api.delete_grant(group_id=new_group['id'],
                                          domain_id=new_domain['id'],
@@ -1376,7 +1376,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
-        self.assertDictEqual(roles_ref[0], self.role_member)
+        self.assertDictEqual(self.role_member, roles_ref[0])
 
         self.assignment_api.delete_grant(group_id=new_group['id'],
                                          domain_id=new_domain['id'],
@@ -1407,7 +1407,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             user_id=new_user['id'],
             domain_id=new_domain['id'])
-        self.assertDictEqual(roles_ref[0], self.role_member)
+        self.assertDictEqual(self.role_member, roles_ref[0])
 
         self.assignment_api.delete_grant(user_id=new_user['id'],
                                          domain_id=new_domain['id'],
@@ -1454,11 +1454,11 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain1['id'])
-        self.assertDictEqual(roles_ref[0], group1_domain1_role)
+        self.assertDictEqual(group1_domain1_role, roles_ref[0])
         roles_ref = self.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain2['id'])
-        self.assertDictEqual(roles_ref[0], group1_domain2_role)
+        self.assertDictEqual(group1_domain2_role, roles_ref[0])
 
         self.assignment_api.delete_grant(group_id=group1['id'],
                                          domain_id=domain2['id'],
@@ -1504,11 +1504,11 @@ class IdentityTests(AssignmentTestHelperMixin):
         roles_ref = self.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain1['id'])
-        self.assertDictEqual(roles_ref[0], user1_domain1_role)
+        self.assertDictEqual(user1_domain1_role, roles_ref[0])
         roles_ref = self.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain2['id'])
-        self.assertDictEqual(roles_ref[0], user1_domain2_role)
+        self.assertDictEqual(user1_domain2_role, roles_ref[0])
 
         self.assignment_api.delete_grant(user_id=user1['id'],
                                          domain_id=domain2['id'],
@@ -1565,7 +1565,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             group_id=group1['id'],
             project_id=project1['id'])
         self.assertEqual(1, len(roles_ref))
-        self.assertDictEqual(roles_ref[0], role2)
+        self.assertDictEqual(role2, roles_ref[0])
 
     def test_role_grant_by_user_and_cross_domain_project(self):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -1609,7 +1609,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(1, len(roles_ref))
-        self.assertDictEqual(roles_ref[0], role2)
+        self.assertDictEqual(role2, roles_ref[0])
 
     def test_delete_user_grant_no_user(self):
         # Can delete a grant where the user doesn't exist.
@@ -3272,7 +3272,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         group_ref = self.identity_api.get_group_by_name(
             group_name, DEFAULT_DOMAIN_ID)
-        self.assertDictEqual(group_ref, group)
+        self.assertDictEqual(group, group_ref)
 
     def test_get_group_by_name_404(self):
         self.assertRaises(exception.GroupNotFound,
@@ -3423,7 +3423,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         leaf_project['description'] = 'new description'
         self.resource_api.update_project(leaf_project['id'], leaf_project)
         proj_ref = self.resource_api.get_project(leaf_project['id'])
-        self.assertDictEqual(proj_ref, leaf_project)
+        self.assertDictEqual(leaf_project, proj_ref)
 
         # update the parent_id is not allowed
         leaf_project['parent_id'] = root_project1['id']
@@ -3623,7 +3623,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.update_project(project['id'], project)
 
         project_ref = self.resource_api.get_project(project['id'])
-        self.assertDictEqual(project_ref, project)
+        self.assertDictEqual(project, project_ref)
 
     def test_project_update_missing_attrs_with_a_falsey_value(self):
         # Creating a project with no description attribute.
@@ -3640,19 +3640,19 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.update_project(project['id'], project)
 
         project_ref = self.resource_api.get_project(project['id'])
-        self.assertDictEqual(project_ref, project)
+        self.assertDictEqual(project, project_ref)
 
     def test_domain_crud(self):
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
         self.resource_api.create_domain(domain['id'], domain)
         domain_ref = self.resource_api.get_domain(domain['id'])
-        self.assertDictEqual(domain_ref, domain)
+        self.assertDictEqual(domain, domain_ref)
 
         domain['name'] = uuid.uuid4().hex
         self.resource_api.update_domain(domain['id'], domain)
         domain_ref = self.resource_api.get_domain(domain['id'])
-        self.assertDictEqual(domain_ref, domain)
+        self.assertDictEqual(domain, domain_ref)
 
         # Ensure an 'enabled' domain cannot be deleted
         self.assertRaises(exception.ForbiddenAction,
@@ -4045,7 +4045,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertIs(False, updated_project_ref['enabled'])
 
         project_ref = self.resource_api.get_project(project['id'])
-        self.assertDictEqual(project_ref, updated_project_ref)
+        self.assertDictEqual(updated_project_ref, project_ref)
 
     def test_user_update_and_user_get_return_same_response(self):
         user = {
@@ -4066,7 +4066,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertIs(False, updated_user_ref['enabled'])
 
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertDictEqual(user_ref, updated_user_ref)
+        self.assertDictEqual(updated_user_ref, user_ref)
 
     def test_delete_group_removes_role_assignments(self):
         # When a group is deleted any role assignments for the group are
@@ -4434,7 +4434,7 @@ class TokenTests(object):
         self.assertIsInstance(expires, datetime.datetime)
         data_ref.pop('id')
         data.pop('id')
-        self.assertDictEqual(data_ref, data)
+        self.assertDictEqual(data, data_ref)
 
         new_data_ref = self.token_provider_api._persistence.get_token(token_id)
         expires = new_data_ref.pop('expires')
@@ -4615,7 +4615,7 @@ class TokenTests(object):
         data_ref = self.token_provider_api._persistence.create_token(token_id,
                                                                      data)
         data_ref.pop('user_id')
-        self.assertDictEqual(data_ref, data)
+        self.assertDictEqual(data, data_ref)
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._persistence.get_token,
                           token_id)
@@ -4683,7 +4683,7 @@ class TokenTests(object):
         data_ref = self.token_provider_api._persistence.create_token(token_id,
                                                                      data)
         data_ref.pop('user_id')
-        self.assertDictEqual(data_ref, data)
+        self.assertDictEqual(data, data_ref)
 
         token_id = uuid.uuid4().hex
         expire_time = timeutils.utcnow() + datetime.timedelta(minutes=1)
@@ -4694,7 +4694,7 @@ class TokenTests(object):
         data_ref = self.token_provider_api._persistence.create_token(token_id,
                                                                      data)
         data_ref.pop('user_id')
-        self.assertDictEqual(data_ref, data)
+        self.assertDictEqual(data, data_ref)
 
         self.token_provider_api._persistence.flush_expired_tokens()
         tokens = self.token_provider_api._persistence._list_tokens(
@@ -5066,7 +5066,7 @@ class CatalogTests(object):
         # the endpoint, with None value.
         expected_region = new_region.copy()
         expected_region['parent_region_id'] = None
-        self.assertDictEqual(res, expected_region)
+        self.assertDictEqual(expected_region, res)
 
         # Test adding another region with the one above
         # as its parent. We will check below whether deleting

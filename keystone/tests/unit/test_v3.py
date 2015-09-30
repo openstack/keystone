@@ -1212,8 +1212,8 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         req = self._mock_request_object(CONF.admin_token)
         application = None
         middleware.AuthContextMiddleware(application).process_request(req)
-        self.assertDictEqual(req.environ.get(authorization.AUTH_CONTEXT_ENV),
-                             {})
+        self.assertDictEqual({}, req.environ.get(
+            authorization.AUTH_CONTEXT_ENV))
 
     def test_unscoped_token_auth_context(self):
         unscoped_token = self.get_unscoped_token()
