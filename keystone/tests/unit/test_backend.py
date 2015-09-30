@@ -2696,7 +2696,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # The is_domain flag should be False by default
         self.assertFalse(ref['is_domain'])
 
-    def test_create_is_domain_project(self):
+    def test_create_project_passing_is_domain_flag_true(self):
         project = {'id': uuid.uuid4().hex,
                    'description': '',
                    'domain_id': DEFAULT_DOMAIN_ID,
@@ -2707,6 +2707,18 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         ref = self.resource_api.create_project(project['id'], project)
         self.assertTrue(ref['is_domain'])
+
+    def test_create_project_passing_is_domain_flag_false(self):
+        project = {'id': uuid.uuid4().hex,
+                   'description': '',
+                   'domain_id': DEFAULT_DOMAIN_ID,
+                   'enabled': True,
+                   'name': uuid.uuid4().hex,
+                   'parent_id': None,
+                   'is_domain': False}
+
+        ref = self.resource_api.create_project(project['id'], project)
+        self.assertIs(False, ref['is_domain'])
 
     @test_utils.wip('waiting for projects acting as domains implementation')
     def test_create_project_with_parent_id_and_without_domain_id(self):
