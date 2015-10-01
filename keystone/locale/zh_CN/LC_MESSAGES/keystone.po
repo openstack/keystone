@@ -1,11 +1,12 @@
-# Portuguese (Brazil) translations for keystone.
+# Chinese (Simplified, China) translations for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
-# Gabriel Wainer, 2013
-# Lucas Ribeiro <lucasribeiro1990@gmail.com>, 2014
-# Volmar Oliveira Junior <volmar.oliveira.jr@gmail.com>, 2013
+# Zhong Chaoliang <charliezon@gmail.com>, 2013
+# Dongliang Yu <yudl.nju@gmail.com>, 2013
+# Lee Yao <yaoli111144@gmail.com>, 2013
+# 颜海峰 <yanheven@gmail.com>, 2014
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
@@ -15,10 +16,10 @@ msgstr ""
 "POT-Creation-Date: 2015-10-01 06:09+0000\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language: pt_BR\n"
-"Language-Team: Portuguese (Brazil) (http://www.transifex.com/openstack/"
-"keystone/language/pt_BR/)\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/openstack/keystone/"
+"language/zh_CN/)\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,12 +32,11 @@ msgstr "%(detail)s"
 #, python-format
 msgid ""
 "%(event)s is not a valid notification event, must be one of: %(actions)s"
-msgstr ""
-"%(event)s não é um evento de notificação válido, deve ser um de: %(actions)s"
+msgstr "%(event)s 不是有效通知事件，必须是下列其中一项：%(actions)s"
 
 #, python-format
 msgid "%(host)s is not a trusted dashboard host"
-msgstr "%(host)s não é um host do painel confiável"
+msgstr "%(host)s 不是可信的仪表板主机"
 
 #, python-format
 msgid "%(message)s %(amendment)s"
@@ -47,399 +47,364 @@ msgid ""
 "%(mod_name)s doesn't provide database migrations. The migration repository "
 "path at %(path)s doesn't exist or isn't a directory."
 msgstr ""
-"%(mod_name)s não fornece migrações de banco de dados. O caminho do "
-"repositório de migração %(path)s não existe ou não é um diretório."
+"%(mod_name)s 未提供数据库迁移。%(path)s 处的迁移存储库路径不存在或者不是目"
+"录。"
 
 #, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
-msgstr "%(property_name)s não pode ter menos de %(min_length)s caracteres."
+msgstr "%(property_name)s 不能少于 %(min_length)s 个字符。"
 
 #, python-format
 msgid "%(property_name)s is not a %(display_expected_type)s"
-msgstr "%(property_name)s não é um %(display_expected_type)s"
+msgstr "%(property_name)s 不在 %(display_expected_type)s 之中"
 
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s não deve ter mais de %(max_length)s caracteres."
+msgstr "%(property_name)s 不应该超过 %(max_length)s 个字符。"
 
 #, python-format
 msgid "%s cannot be empty."
-msgstr "%s não pode estar vazio."
+msgstr "%s 不能为空。"
 
 #, python-format
 msgid "%s extension does not exist."
-msgstr "Extensão %s não existe."
+msgstr "%s 扩展不存在。"
 
 #, python-format
 msgid "%s field is required and cannot be empty"
-msgstr "campo %s é obrigatório e não pode estar vazio"
+msgstr "%s 字段是必填字段，不能为空"
 
 #, python-format
 msgid "%s field(s) cannot be empty"
-msgstr "%s campo(s) não podem estar vazios"
+msgstr "%s 字段不能为空"
 
 msgid "(Disable debug mode to suppress these details.)"
-msgstr "(Desative o modo de depuração para suprimir esses detalhes.)"
+msgstr "（禁用调试方式以避免显示这些详细信息。）"
 
 msgid "--all option cannot be mixed with other options"
-msgstr "A opção --all não pode ser combinada com outras opções"
+msgstr "--all 选项不能与其他选项一起使用"
 
 msgid "A project-scoped token is required to produce a service catalog."
-msgstr ""
-"Um token de projeto com escopo é necessário para produzir um catálogo de "
-"serviços."
+msgstr "产生服务目录时需要项目范围的令牌。"
 
 msgid "Access token is expired"
-msgstr "Token de acesso expirou"
+msgstr "访问令牌已过期"
 
 msgid "Access token not found"
-msgstr "Token de acesso não encontrado"
+msgstr "找不到访问令牌"
 
 msgid "Additional authentications steps required."
-msgstr "Passos de autenticação adicionais requeridos."
+msgstr "需要额外身份验证"
 
 msgid "An unexpected error occurred when retrieving domain configs"
-msgstr "Ocorreu um erro inesperado ao recuperar as configurações de domínio"
+msgstr "检索域配置时发生意外错误"
 
 #, python-format
 msgid "An unexpected error occurred when trying to store %s"
-msgstr "Ocorreu um erro inesperado ao tentar armazenar %s"
+msgstr "尝试存储 %s 时发生意外错误"
 
 msgid "An unexpected error prevented the server from fulfilling your request."
-msgstr "Um erro inesperado evitou que o servidor cumprisse sua solicitação."
+msgstr "意外错误阻止了服务器完成您的请求。"
 
 #, python-format
 msgid ""
 "An unexpected error prevented the server from fulfilling your request: "
 "%(exception)s"
-msgstr ""
-"Um erro inesperado evitou que o servidor cumprisse sua solicitação: "
-"%(exception)s"
+msgstr "意外错误导致服务器无法完成您的请求：%(exception)s"
 
 msgid "An unhandled exception has occurred: Could not find metadata."
-msgstr "Uma exceção não tratada ocorreu: Não foi possível encontrar metadados."
+msgstr "存在无法处理的异常：找不到元数据。"
 
 msgid "At least one option must be provided"
-msgstr "Pelo menos uma opção deve ser fornecida"
+msgstr "必须至少提供一个选项"
 
 msgid "At least one option must be provided, use either --all or --domain-name"
-msgstr "Pelo menos uma opção deve ser fornecida, use --all ou --domain-name"
+msgstr "必须至少提供一个选项，请使用 --all 或 --domain-name"
 
 msgid "At least one role should be specified."
-msgstr "Pelo menos uma função deve ser especificada."
+msgstr "应该至少指定一个角色。"
 
 msgid "Attempted to authenticate with an unsupported method."
-msgstr "Tentativa de autenticação com um método não suportado."
+msgstr "尝试使用未支持的方法进行验证"
 
 msgid ""
 "Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
 "Authentication"
-msgstr ""
-"Ao tentar usar o token OS-FEDERATION com Serviço de identidade V2, use "
-"autenticação V3"
+msgstr "正在尝试将 OS-FEDERATION 令牌与 V2 身份服务配合使用，请使用 V3 认证"
 
 msgid "Authentication plugin error."
-msgstr "Erro do plugin de autenticação."
+msgstr "认证插件错误"
 
 msgid "Cannot authorize a request token with a token issued via delegation."
-msgstr ""
-"Não é possível autorizar um token de solicitação com um token emitido por "
-"meio de delegação."
+msgstr "无法对带有通过代理发出的令牌的请求令牌授权。"
 
 #, python-format
 msgid "Cannot change %(option_name)s %(attr)s"
-msgstr "Não é possível alterar %(option_name)s %(attr)s"
+msgstr "无法更改 %(option_name)s %(attr)s"
 
 msgid "Cannot change Domain ID"
-msgstr "Não é possível alterar o ID do Domínio"
+msgstr "无法更改域标识"
 
 msgid "Cannot change consumer secret"
-msgstr "Não é possível alterar segredo do consumidor"
+msgstr "不能改变用户密码"
 
 msgid "Cannot change user ID"
-msgstr "Não é possível alterar o ID do usuário"
+msgstr "无法更改用户标识"
 
 msgid "Cannot change user name"
-msgstr "Não é possível alterar o nome de usuário"
+msgstr "无法更改用户名"
 
 #, python-format
 msgid "Cannot create project with parent: %(project_id)s"
-msgstr "Não é possível criar o projeto com o pai: %(project_id)s"
+msgstr "无法创建具有父代的项目：%(project_id)s"
 
 #, python-format
 msgid "Cannot duplicate name %s"
-msgstr "Não é possível duplicar o nome %s"
+msgstr "不能重复名称 %s"
 
 msgid "Cannot list request tokens with a token issued via delegation."
-msgstr ""
-"Não é possível listar os tokens de solicitação com um token emitido por meio "
-"de delegação."
+msgstr "无法列示带有通过代理发出的令牌的请求令牌。"
 
 #, python-format
 msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
-msgstr "Não é possível abrir o certificado %(cert_file)s. Motivo: %(reason)s"
+msgstr "无法打开证书 %(cert_file)s。原因：%(reason)s"
 
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
-msgstr "Não é possível remover role que não foi concedido, %s"
+msgstr "无法除去尚未授予的角色 %s"
 
 msgid ""
 "Cannot truncate a driver call without hints list as first parameter after "
 "self "
 msgstr ""
-"Não é possível truncar uma chamada de driver sem lista de sugestões como "
-"primeiro parâmetro após self "
+"在没有将 hints list 用作 self 后面的第一个参数的情况下，无法截断驱动程序调用"
 
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
-msgstr ""
-"Não é possível usar parâmetros de consulta parents_as_list e parents_as_ids "
-"ao mesmo tempo."
+msgstr "无法同时使用 parents_as_list 和 parents_as_ids 查询参数。"
 
 msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same time."
-msgstr ""
-"Não é possível usar parâmetros de consulta subtree_as_list e subtree_as_ids "
-"ao mesmo tempo."
+msgstr "无法同时使用 subtree_as_list 和 subtree_as_ids 查询参数。"
 
 msgid ""
 "Combining effective and group filter will always result in an empty list."
-msgstr ""
-"Combinar efetivo e filtro de grupo sempre resultará em uma lista vazia."
+msgstr "将有效过滤器与组过滤器进行组合将始终产生空列表。"
 
 msgid ""
 "Combining effective, domain and inherited filters will always result in an "
 "empty list."
-msgstr ""
-"Combinar efetivo, domínio e filtros herdados sempre resultará em uma lista "
-"vazia."
+msgstr "将有效过滤器、域过滤器和继承的过滤器进行组合将始终产生空列表。"
 
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
-msgstr "Ocorreu um conflito ao tentar armazenar %(type)s -%(details)s"
+msgstr "尝试存储 %(type)s 时发生冲突 - %(details)s"
 
 #, python-format
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
-msgstr ""
-"IDs de região de conflito especificados: \"%(url_id)s\" != \"%(ref_id)s\""
+msgstr "指定的区域标识有冲突：“%(url_id)s”不等于“%(ref_id)s”"
 
 msgid "Consumer not found"
-msgstr "Consumidor não encontrado"
+msgstr "找不到使用者"
 
 #, python-format
 msgid ""
 "Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
-msgstr ""
-"Não foi possível alterar o atributo imutável '%(attributes)s' no destino "
-"%(target)s"
+msgstr "未能更改目标 %(target)s 中的不可变属性 %(attributes)s  "
 
 #, python-format
 msgid ""
 "Could not find %(group_or_option)s in domain configuration for domain "
 "%(domain_id)s"
-msgstr ""
-"Não foi possível localizar %(group_or_option)s na configuração de domínio "
-"para o domínio %(domain_id)s"
+msgstr "在以下域的域配置中找不到 %(group_or_option)s：%(domain_id)s"
 
 #, python-format
 msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
-msgstr "Não foi possível localizar o Grupo do Terminal: %(endpoint_group_id)s"
+msgstr "找不到端点组：%(endpoint_group_id)s"
 
 msgid "Could not find Identity Provider identifier in environment"
-msgstr ""
-"Não foi possível localizar o identificador do Provedor de Identidade no "
-"ambiente"
+msgstr "在环境中，找不到“身份提供者”标识"
 
 #, python-format
 msgid "Could not find Identity Provider: %(idp_id)s"
-msgstr "Não foi possível localizar o Provedor de Identidade: %(idp_id)s"
+msgstr "找不到身份提供者：%(idp_id)s"
 
 #, python-format
 msgid "Could not find Service Provider: %(sp_id)s"
-msgstr "Não foi possível localizar o Provedor de Serviços: %(sp_id)s"
+msgstr "找不到服务提供程序：%(sp_id)s"
 
 #, python-format
 msgid "Could not find credential: %(credential_id)s"
-msgstr "Não foi possível localizar a credencial: %(credential_id)s"
+msgstr "找不到凭证：%(credential_id)s"
 
 #, python-format
 msgid "Could not find domain: %(domain_id)s"
-msgstr "Não foi possível localizar o domínio: %(domain_id)s"
+msgstr "找不到域：%(domain_id)s"
 
 #, python-format
 msgid "Could not find endpoint: %(endpoint_id)s"
-msgstr "Não foi possível localizar terminal: %(endpoint_id)s"
+msgstr "找不到端点：%(endpoint_id)s"
 
 #, python-format
 msgid ""
 "Could not find federated protocol %(protocol_id)s for Identity Provider: "
 "%(idp_id)s"
-msgstr ""
-"Não foi possível localizar o protocolo federado %(protocol_id)s para o "
-"Provedor de Identidade: %(idp_id)s"
+msgstr "找不到身份提供者 %(idp_id)s 的联合协议 %(protocol_id)s  "
 
 #, python-format
 msgid "Could not find group: %(group_id)s"
-msgstr "Não foi possível localizar o grupo: %(group_id)s"
+msgstr "找不到组：%(group_id)s"
 
 #, python-format
 msgid "Could not find mapping: %(mapping_id)s"
-msgstr "Não foi possível localizar o mapeamento: %(mapping_id)s"
+msgstr "找不到映射：%(mapping_id)s"
 
 msgid "Could not find policy association"
-msgstr "Não foi possível localizar a associação de política"
+msgstr "找不到策略关联"
 
 #, python-format
 msgid "Could not find policy: %(policy_id)s"
-msgstr "Não foi possível localizar a política: %(policy_id)s"
+msgstr "找不到策略：%(policy_id)s"
 
 #, python-format
 msgid "Could not find project: %(project_id)s"
-msgstr "Não foi possível localizar o projeto: %(project_id)s"
+msgstr "找不到项目：%(project_id)s"
 
 #, python-format
 msgid "Could not find region: %(region_id)s"
-msgstr "Não foi possível localizar a região: %(region_id)s"
+msgstr "找不到区域：%(region_id)s"
 
 msgid "Could not find role"
-msgstr "Não é possível encontrar role"
+msgstr "找不到角色"
 
 #, python-format
 msgid ""
 "Could not find role assignment with role: %(role_id)s, user or group: "
 "%(actor_id)s, project or domain: %(target_id)s"
 msgstr ""
-"Não foi possível localizar a designação de função com a função: %(role_id)s, "
-"usuário ou grupo: %(actor_id)s, projeto ou domínio: %(target_id)s"
+"找不到角色分配，角色为 %(role_id)s，用户或组为 %(actor_id)s，项目或域为 "
+"%(target_id)s"
 
 #, python-format
 msgid "Could not find role: %(role_id)s"
-msgstr "Não foi possível localizar a função: %(role_id)s"
+msgstr "找不到角色：%(role_id)s"
 
 #, python-format
 msgid "Could not find service: %(service_id)s"
-msgstr "Não foi possível localizar o serviço: %(service_id)s"
+msgstr "找不到服务：%(service_id)s"
 
 #, python-format
 msgid "Could not find token: %(token_id)s"
-msgstr "Não foi possível localizar o token: %(token_id)s"
+msgstr "找不到令牌：%(token_id)s"
 
 #, python-format
 msgid "Could not find trust: %(trust_id)s"
-msgstr "Não foi possível localizar a confiança: %(trust_id)s"
+msgstr "找不到信任：%(trust_id)s"
 
 #, python-format
 msgid "Could not find user: %(user_id)s"
-msgstr "Não foi possível localizar o usuário: %(user_id)s"
+msgstr "找不到用户：%(user_id)s"
 
 #, python-format
 msgid "Could not find version: %(version)s"
-msgstr "Não foi possível localizar a versão: %(version)s"
+msgstr "找不到版本：%(version)s"
 
 #, python-format
 msgid "Could not find: %(target)s"
-msgstr "Não foi possível localizar: %(target)s"
+msgstr "找不到 %(target)s"
 
 msgid "Could not validate the access token"
-msgstr "Não foi possível validar o token de acesso"
+msgstr "未能验证访问令牌"
 
 msgid "Credential belongs to another user"
-msgstr "A credencial pertence à outro usuário"
+msgstr "凭证属于另一用户"
 
 #, python-format
 msgid "Database at /domains/%s/config"
-msgstr "Banco de dados em /domains/%s/config"
+msgstr "位于 /domains/%s/config 处的数据库"
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
-msgstr ""
-"A desativação de uma entidade em que o atributo ‘enable' é ignorado pelo "
-"configuração."
+msgstr "正在禁用实体，在此情况下，“enable”属性已由配置忽略。"
 
 #, python-format
 msgid "Domain (%s)"
-msgstr "Domínio (%s)"
+msgstr "域 (%s)"
 
 #, python-format
 msgid "Domain cannot be named %s"
-msgstr "O domínio não pode ser chamado %s"
+msgstr "无法将域命名为 %s"
 
 #, python-format
 msgid "Domain cannot have ID %s"
-msgstr "O domínio não pode ter o ID de %s"
+msgstr "域不能具有标识 %s"
 
 #, python-format
 msgid "Domain is disabled: %s"
-msgstr "O domínio está desativado: %s"
+msgstr "域已禁用：%s"
 
 msgid "Domain metadata not supported by LDAP"
-msgstr "Metadados de domínio não suportados por LDAP"
+msgstr "LDAP 不支持域元数据"
 
 msgid "Domain scoped token is not supported"
-msgstr "O token de escopo de domínio não é suportado"
+msgstr "作用域限定到域的令牌不受支持"
 
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
 "%(file)s."
-msgstr ""
-"Domínio: %(domain)s já possui uma configuração definida - ignorando arquivo: "
-"%(file)s."
+msgstr "域 %(domain)s 已定义配置 - 正在忽略以下文件：%(file)s。"
 
 msgid "Domains are read-only against LDAP"
-msgstr "Domínios são somente leitura no LDAP"
+msgstr "对于 LDAP，域为只读"
 
 msgid "Duplicate Entry"
-msgstr "Entrada Duplicada"
+msgstr "重复条目"
 
 #, python-format
 msgid "Duplicate ID, %s."
-msgstr "ID duplicado, %s."
+msgstr "标识 %s 重复。"
 
 #, python-format
 msgid "Duplicate name, %s."
-msgstr "Nome duplicado, %s."
+msgstr "名称 %s 重复。"
 
 msgid "Enabled field must be a boolean"
-msgstr "Campo habilitado precisa ser um booleano"
+msgstr "已启用的字段必须为布尔值"
 
 msgid "Enabled field should be a boolean"
-msgstr "Campo habilitado deve ser um booleano"
+msgstr "已启用的字段应该为布尔值"
 
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
-msgstr "Endpoint %(endpoint_id)s não encontrado no projeto %(project_id)s"
+msgstr "在项目 %(project_id)s 中找不到端点 %(endpoint_id)s"
 
 msgid "Endpoint Group Project Association not found"
-msgstr "Associação de Projeto do Grupo do Terminal não localizada"
+msgstr "找不到端点组项目关联"
 
 msgid "Ensure configuration option idp_entity_id is set."
-msgstr "Assegure que a opção de configuração idp_entity_id esteja definida."
+msgstr "请确保设置了配置选项 idp_entity_id。"
 
 msgid "Ensure configuration option idp_sso_endpoint is set."
-msgstr "Assegure que a opção de configuração idp_sso_endpoint esteja definida."
+msgstr "请确保设置了配置选项 idp_sso_endpoint。"
 
 #, python-format
 msgid ""
 "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
-msgstr ""
-"Erro ao analisar o arquivo de configuração para o domínio: %(domain)s, "
-"arquivo: %(file)s."
+msgstr "解析域 %(domain)s 的配置文件时出错，文件为 %(file)s。"
 
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
-msgstr "Erro ao ler arquivo de metadados, %(reason)s"
+msgstr "读取元数据文件时出错，原因为 %(reason)s"
 
 #, python-format
 msgid "Expected dict or list: %s"
-msgstr "Esperado dict ou list: %s"
+msgstr "期望字典或者列表: %s"
 
 msgid ""
 "Expected signing certificates are not available on the server. Please check "
 "Keystone configuration."
-msgstr ""
-"Certificados de assinatura esperados não estão disponíveis no servidor. "
-"Verifique configuração de Keystone."
+msgstr "在服务器上，期望的签名证书不可用。请检查 Keystone 配置。"
 
 #, python-format
 msgid ""
@@ -447,114 +412,102 @@ msgid ""
 "with the request since it is either malformed or otherwise incorrect. The "
 "client is assumed to be in error."
 msgstr ""
-"Esperando localizar %(attribute)s em %(target)s - o servidor não pôde "
-"obedecer à solicitação porque ela está malformada ou de alguma maneira "
-"incorreta. O cliente deve estar em erro."
+"期望在 %(target)s 中找到 %(attribute)s - 服务器未能遵照请求，因为它的格式或者"
+"其他方面不正确。客户机被认为发生错误。"
 
 #, python-format
 msgid "Failed to start the %(name)s server"
-msgstr "Falha ao iniciar o servidor do %(name)s"
+msgstr "未能启动 %(name)s 服务器"
 
 msgid "Failed to validate token"
-msgstr "Falha ao validar token"
+msgstr "token验证失败"
 
 msgid "Federation token is expired"
-msgstr "O token de federação está expirado"
+msgstr "联合令牌已到期"
 
 #, python-format
 msgid ""
 "Field \"remaining_uses\" is set to %(value)s while it must not be set in "
 "order to redelegate a trust"
 msgstr ""
-"O campo \"remaining_uses\" está configurado como %(value)s enquanto ele não "
-"deve ser configurado para delegar novamente uma confiança"
+"字段“remaining_uses”已设置为 %(value)s，尽管为了重新委派信任，不能设置该字段"
 
 msgid "Found invalid token: scoped to both project and domain."
-msgstr "Token inválido encontrado: escopo para ambos o projeto e o domínio."
+msgstr "发现无效令牌：范围同时为项目和域。"
 
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
-msgstr ""
-"O grupo %(group)s não é suportado para configurações específicas do domínio"
+msgstr "特定于域的配置不支持组 %(group)s"
 
 #, python-format
 msgid ""
 "Group %(group_id)s returned by mapping %(mapping_id)s was not found in the "
 "backend."
-msgstr ""
-"Grupo %(group_id)s retornou mapeando %(mapping_id)s não foi localizado no "
-"backend."
+msgstr "在后端中，找不到由映射 %(mapping_id)s 返回的组 %(group_id)s。"
 
 #, python-format
 msgid ""
 "Group membership across backend boundaries is not allowed, group in question "
 "is %(group_id)s, user is %(user_id)s"
 msgstr ""
-"Associação ao grupo pelos limites de backend não é permitida, o grupo em "
-"questão é %(group_id)s, o usuário é %(user_id)s"
+"不允许使用跨后端边界的组成员资格，所提到的组为%(group_id)s，用户为 "
+"%(user_id)s"
 
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
-msgstr "Atributo do ID %(id_attr)s não localizado no objeto LDAP %(dn)s"
+msgstr "在 LDAP 对象 %(dn)s 中，找不到标识属性 %(id_attr)s"
 
 #, python-format
 msgid "Identity Provider %(idp)s is disabled"
-msgstr "O Provedor de Identidade %(idp)s está desativado"
+msgstr "身份提供者 %(idp)s 已禁用"
 
 msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
-msgstr ""
-"O identificador do provedor de identidade recebido não está incluído entre "
-"os identificadores aceitos."
+msgstr "新的“身份提供者”标识未包含在已接受的标识中。"
 
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
-msgstr ""
-"Opção de certificado LADP TLS inválida: %(option)s. Escolha uma de: "
-"%(options)s"
+msgstr "LDAP TLS 证书选项 %(option)s 无效。请选择下列其中一项：%(options)s"
 
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
-msgstr "Opção LDAP TLS_AVAIL inválida: %s. TLS não dsponível"
+msgstr "无效的LDAP TLS_AVAIL  选项: %s.TLS无效"
 
 #, python-format
 msgid "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
-msgstr "Opção deref LDAP inválida: %(option)s. Escolha uma destas: %(options)s"
+msgstr "LDAP deref 选项 %(option)s 无效。请选择下列其中一项：%(options)s"
 
 #, python-format
 msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
-msgstr "Escopo LDAP inválido: %(scope)s. Escolha um de: %(options)s"
+msgstr "无效的 LDAP作用域: %(scope)s.  选择以下选项之一: %(options)s"
 
 msgid "Invalid TLS / LDAPS combination"
-msgstr "Combinação TLS / LADPS inválida"
+msgstr "无效的 TLS / LDAPS 组合"
 
 #, python-format
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr ""
-"Tipo de dados de informações de auditoria inválido: %(data)s (%(type)s)"
+msgstr "无效审计信息数据类型：%(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
-msgstr "BLOB inválido na credencial"
+msgstr "凭证中的 BLOB 无效"
 
 #, python-format
 msgid ""
 "Invalid domain name: %(domain)s found in config file name: %(file)s - "
 "ignoring this file."
-msgstr ""
-"Nome de domínio inválido: %(domain)s localizado no nome do arquivo de "
-"configuração: %(file)s - ignorando este arquivo."
+msgstr "在配置文件名 %(file)s 中找到的域名 %(domain)s 无效 - 正在忽略此文件。"
 
 #, python-format
 msgid "Invalid domain specific configuration: %(reason)s"
-msgstr "Configuração específica de domínio inválida: %(reason)s"
+msgstr "特定于域的配置无效：%(reason)s"
 
 #, python-format
 msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
-msgstr "Entrada inválida para o campo '%(path)s'. O valor é '%(value)s'."
+msgstr "对字段“%(path)s”的输入无效。值为“%(value)s”。"
 
 msgid "Invalid limit value"
-msgstr "Valor limite inválido"
+msgstr "限制值无效"
 
 #, python-format
 msgid ""
@@ -562,178 +515,162 @@ msgid ""
 "Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
 "%(service_id)s, Region: %(region_id)s"
 msgstr ""
-"Combinação de entidades inválida para associação de política - somente "
-"Terminal, Serviço ou Região+Serviço permitido. A solicitação foi - Terminal: "
-"%(endpoint_id)s, Serviço: %(service_id)s, Região: %(region_id)s"
+"用于策略关联的实体混合无效 - 仅允许“端点”、“服务”或“区域 + 服务”。请求为 - 端"
+"点：%(endpoint_id)s，服务：%(service_id)s，区域：%(region_id)s"
 
 #, python-format
 msgid ""
 "Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
 "be specified."
-msgstr ""
-"Regra inválida: %(identity_value)s. As palavras-chave 'groups' e 'domain' "
-"devem ser especificadas."
+msgstr "规则 %(identity_value)s 无效。必须同时指定关键字“groups”和“domain”。"
 
 msgid "Invalid signature"
-msgstr "Assinatura inválida"
+msgstr "签名无效"
 
 #, python-format
 msgid ""
 "Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
 "\"REQUIRED\""
 msgstr ""
-"valor ssl_cert_reqs inválido de %s, deve ser um de \"NONE\", \"OPTIMAL\", "
-"\"REQUIRED\""
+"ssl_cert_reqs 值 %s 无效，必须是下列其中一项：“NONE”、“OPTIONAL”和“REQUIRED”"
 
 msgid "Invalid user / password"
-msgstr "Usuário / senha inválido"
+msgstr "用户/密码无效"
 
 msgid "Invalid username or password"
-msgstr "Nome de usuário ou senha inválidos"
+msgstr "无效用户名或密码"
 
 #, python-format
 msgid "KVS region %s is already configured. Cannot reconfigure."
-msgstr "Região KVS %s já está configurado. Não é possível reconfigurar."
+msgstr "KVS 区域 %s 已配置。无法重新配置。"
 
 #, python-format
 msgid "Key Value Store not configured: %s"
-msgstr "Armazenamento do Valor da Chave não configurado: %s"
+msgstr "未配置键值存储：%s"
 
 #, python-format
 msgid "LDAP %s create"
-msgstr "Criação de LDAP %s"
+msgstr "LDAP %s 创建"
 
 #, python-format
 msgid "LDAP %s delete"
-msgstr "Exclusão de LDAP %s"
+msgstr "LDAP %s 删除"
 
 #, python-format
 msgid "LDAP %s update"
-msgstr "Atualização de LDAP %s"
+msgstr "LDAP %s 更新"
 
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
-msgstr "Ocorreu um tempo limite de bloqueio para a chave, %(target)s"
+msgstr "对于键 %(target)s，发生锁定超时"
 
 #, python-format
 msgid "Lock key must match target key: %(lock)s != %(target)s"
-msgstr ""
-"Chave de bloqueio deve corresponder à chave de destino: %(lock)s !=%(target)s"
+msgstr "锁定键必须与目标键匹配：%(lock)s != %(target)s"
 
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
-msgstr ""
-"URL de endpoint mal-formada (%(endpoint)s), veja o log de ERROS para "
-"detalhes."
+msgstr "不正确的端点URL(%(endpoint)s), 查看错误日志获取详情"
 
 msgid "Marker could not be found"
-msgstr "Marcador não pôde ser encontrado"
+msgstr "找不到标记符"
 
 #, python-format
 msgid "Maximum lock attempts on %s occurred."
-msgstr "Máximo de tentativas de bloqueio em %s ocorreu."
+msgstr "已达到对 %s 的最大锁定尝试次数。"
 
 #, python-format
 msgid "Member %(member)s is already a member of group %(group)s"
-msgstr "O membro %(member)s já é membro do grupo %(group)s"
+msgstr "成员 %(member)s 已属于组 %(group)s"
 
 #, python-format
 msgid "Method not callable: %s"
-msgstr "Método não pode ser chamado: %s"
+msgstr "方法不可调用：%s"
 
 msgid "Missing entity ID from environment"
-msgstr "ID da entidade ausente a partir do ambiente"
+msgstr "环境中缺少实体标识"
 
 msgid ""
 "Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting "
 "this parameter is advised."
-msgstr ""
-"A modificação de \"redelegation_count\" é proibida. É recomendado omitir "
-"este parâmetro."
+msgstr "正在修改“redelegation_count”（当禁止重新委派时）。建议省略此参数。"
 
 msgid "Multiple domains are not supported"
-msgstr "Múltiplos domínios não são suportados"
+msgstr "多个域不受支持"
 
 msgid "Must be called within an active lock context."
-msgstr "Deve ser chamado dentro de um contexto de bloqueio ativo."
+msgstr "必须在处于活动状态的锁定上下文内调用。"
 
 msgid "Must specify either domain or project"
-msgstr "Deve especificar o domínio ou projeto"
+msgstr "必须指定 domain 或 project"
 
 msgid "Name field is required and cannot be empty"
-msgstr "Campo nome é requerido e não pode ser vazio"
+msgstr "名称字段是必填字段，不能为空"
 
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
 msgstr ""
-"Nenhum cabeçalho de autorização foi localizado, não é possível continuar com "
-"chamadas relacionadas OAuth, se estiver executando sob HTTPd ou Apache, se "
-"WSGIPassAuthorization for configurado para Ligado."
+"找不到任何授权头，无法继续进行与 OAuth 相关的调用，如果是通过 HTTP 或 Apache "
+"运行，请确保 WSGIPassAuthorization 设置为开启。"
 
 msgid "No authenticated user"
-msgstr "Nenhum usuário autenticado"
+msgstr "不存在任何已认证的用户"
 
 msgid ""
 "No encryption keys found; run keystone-manage fernet_setup to bootstrap one."
 msgstr ""
-"Nenhuma chave de criptografia foi localizada; execute keystone-manage "
-"fernet_setup para autoinicialização um."
+"找不到任何加密密钥；请针对引导程序 1 运行 keystone-manage fernet_setup。"
 
 msgid "No options specified"
-msgstr "Nenhuma opção especificada"
+msgstr "无选项指定"
 
 #, python-format
 msgid "No policy is associated with endpoint %(endpoint_id)s."
-msgstr "Nenhuma política associada ao terminal %(endpoint_id)s."
+msgstr "没有任何策略与端点 %(endpoint_id)s 关联。"
 
 #, python-format
 msgid "No remaining uses for trust: %(trust_id)s"
-msgstr "Nenhum uso restante para confiança: %(trust_id)s"
+msgstr "对于信任 %(trust_id)s，不存在其余使用"
 
 msgid "Non-default domain is not supported"
-msgstr "O domínio não padrão não é suportado"
+msgstr "非缺省域不受支持"
 
 msgid "One of the trust agents is disabled or deleted"
-msgstr "Um dos agentes de confiança está desativado ou excluído"
+msgstr "其中一个信任代理已禁用或删除"
 
 #, python-format
 msgid ""
 "Option %(option)s found with no group specified while checking domain "
 "configuration request"
-msgstr ""
-"A opção %(option)s localizada sem grupo especificado durante a verificação "
-"de domínio solicitação de configuração"
+msgstr "在检查域配置请求时，找到选项 %(option)s，但未指定任何组"
 
 #, python-format
 msgid ""
 "Option %(option)s in group %(group)s is not supported for domain specific "
 "configurations"
-msgstr ""
-"A opção %(option)s no grupo %(group)s não é suportada para configurações "
-"específicas de domínio"
+msgstr "特定于域的配置不支持组 %(group)s 中的选项 %(option)s"
 
 #, python-format
 msgid "Project (%s)"
-msgstr "Projeto (%s)"
+msgstr "项目 (%s)"
 
 #, python-format
 msgid "Project is disabled: %s"
-msgstr "O projeto está desativado: %s"
+msgstr "项目已禁用：%s"
 
 msgid "Redelegation allowed for delegated by trust only"
-msgstr "Nova delegação permitida para delegado pela confiança somente"
+msgstr "仅允许对“委派者”信任进行重新委派"
 
 #, python-format
 msgid ""
 "Remaining redelegation depth of %(redelegation_depth)d out of allowed range "
 "of [0..%(max_count)d]"
 msgstr ""
-"Profundidade da redelegação restante do %(redelegation_depth)d fora do "
-"intervalo permitido de [0..%(max_count)d]"
+"其余重新委派深度 %(redelegation_depth)d 超出允许的范围 [0..%(max_count)d]"
 
 msgid "Request Token does not have an authorizing user id"
-msgstr "Token de Requisição não possui um ID de usuário autorizado"
+msgstr "请求令牌没有授权用户标识"
 
 #, python-format
 msgid ""
@@ -741,175 +678,156 @@ msgid ""
 "server could not comply with the request because the attribute size is "
 "invalid (too large). The client is assumed to be in error."
 msgstr ""
-"Atributo de requisição %(attribute)s deve ser menor ou igual a %(size)i. O "
-"servidor não pôde atender a requisição porque o tamanho do atributo é "
-"inválido (muito grande). Assume-se que o cliente está em erro."
+"请求属性 %(attribute)s 必须小于或等于 %(size)i。服务器未能遵照请求，因为属性"
+"大小无效（太大）。客户机被认为发生错误。"
 
 msgid "Request must have an origin query parameter"
-msgstr "A solicitação deve ter um parâmetro de consulta de origem"
+msgstr "请求必须具有源查询参数"
 
 msgid "Request token is expired"
-msgstr "Token de requisição expirou"
+msgstr "请求令牌已过期"
 
 msgid "Request token not found"
-msgstr "Token de requisição não encontrado"
+msgstr "找不到请求令牌"
 
 msgid "Requested expiration time is more than redelegated trust can provide"
-msgstr ""
-"Prazo de expiração solicitado é maior do que a confiança delegada novamente "
-"pode fornecer"
+msgstr "请求的到期时间超过重新委派的信任可提供的到期时间"
 
 #, python-format
 msgid ""
 "Requested redelegation depth of %(requested_count)d is greater than allowed "
 "%(max_count)d"
-msgstr ""
-"Profundidade da nova delegação solicitada de %(requested_count)d é maior que "
-"a %(max_count)d permitida"
+msgstr "请求的重新委派深度 %(requested_count)d 超过允许的 %(max_count)d"
 
 #, python-format
 msgid "Role %s not found"
-msgstr "Role %s não localizada"
+msgstr "找不到角色 %s"
 
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
 "be removed in the \"M\"-Release."
 msgstr ""
-"Executar o keystone via eventlet foi descontinuado como Kilo em favor de "
-"executar em um servidor WSGI (por exemplo, mod_wsgi). Suporte para o "
-"keystone sob eventlet será removida no \"M\"-Release."
+"自 Kilo 开始，建议不要通过 eventlet 运行 keystone，改为在 WSGI 服务器（例如 "
+"mod_wsgi）中运行。在“M”发行版中，将移除对在 eventlet 下运行 keystone 的支持。"
 
 msgid "Scoping to both domain and project is not allowed"
-msgstr "A definição de escopo para o domínio e o projeto não é permitida"
+msgstr "不允许同时将作用域限定到域和项目"
 
 msgid "Scoping to both domain and trust is not allowed"
-msgstr "A definição de escopo para o domínio e a trust não é permitida"
+msgstr "不允许同时将作用域限定到域和信任"
 
 msgid "Scoping to both project and trust is not allowed"
-msgstr "A definição de escopo para o projeto e a trust não é permitida"
+msgstr "不允许同时将作用域限定到项目和信任"
 
 #, python-format
 msgid "Service Provider %(sp)s is disabled"
-msgstr "O Provedor de Serviços %(sp)s está desativado"
+msgstr "服务提供程序 %(sp)s 已禁用"
 
 msgid "Some of requested roles are not in redelegated trust"
-msgstr "Algumas funções de confiança não estão na confiança da nova delegação"
+msgstr "某些所请求角色未在重新委派的信任中"
 
 msgid "Specify a domain or project, not both"
-msgstr "Especifique um domínio ou projeto, não ambos"
+msgstr "请指定域或项目，但不是同时指定这两者"
 
 msgid "Specify a user or group, not both"
-msgstr "Epecifique um usuário ou grupo, não ambos"
+msgstr "请指定用户或组，但不是同时指定这两者"
 
 msgid "Specify one of domain or project"
-msgstr "Especifique um domínio ou projeto"
+msgstr "请指定域或项目"
 
 msgid "Specify one of user or group"
-msgstr "Especifique um usuário ou grupo"
+msgstr "请指定用户或组"
 
 #, python-format
 msgid ""
 "String length exceeded.The length of string '%(string)s' exceeded the limit "
 "of column %(type)s(CHAR(%(length)d))."
 msgstr ""
-"Comprimento de string excedido. O comprimento de string '%(string)s' excedeu "
-"o limite da coluna %(type)s(CHAR(%(length)d))."
+"字符串长度过长.字符串'%(string)s' 的长度超过列限制 %(type)s(字符"
+"(%(length)d))."
 
 msgid "The --all option cannot be used with the --domain-name option"
-msgstr "A opção --all não pode ser usada com a opção --domain-name"
+msgstr "--all 选项不能与 --domain-name 选项配合使用"
 
 #, python-format
 msgid "The Keystone configuration file %(config_file)s could not be found."
-msgstr ""
-"O arquivo de configuração do Keystone %(config_file)s não pôde ser "
-"localizado."
+msgstr "找不到 Keystone 配置文件 %(config_file)s。"
 
 #, python-format
 msgid ""
 "The Keystone domain-specific configuration has specified more than one SQL "
 "driver (only one is permitted): %(source)s."
 msgstr ""
-"A configuração específica de domínio Keystone especificou mais de um driver "
-"SQL (somente um é permitido): %(source)s."
+"特定于 Keystone 域的配置已指定多个 SQL 驱动程序（仅允许指定一个）："
+"%(source)s。"
 
 msgid "The action you have requested has not been implemented."
-msgstr "A ação que você solicitou não foi implementada."
+msgstr "您请求的操作暂未被执行"
 
 msgid "The authenticated user should match the trustor."
-msgstr "O usuário autenticado deve corresponder à confiança."
+msgstr "认证用户应匹配信任者。"
 
 msgid ""
 "The certificates you requested are not available. It is likely that this "
 "server does not use PKI tokens otherwise this is the result of "
 "misconfiguration."
 msgstr ""
-"Os certificados que você solicitou não estão disponíveis. É provável que "
-"esse servidor não utiliza tokens PKI, caso contrário, este é o resultado de "
-"configuração incorreta."
+"已请求的证书不可用。可能此服务器未使用 PKI 令牌，或者这是因为配置错误。"
 
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
 "not comply with the request because the password is invalid."
-msgstr ""
-"O comprimento da senha deve ser menor ou igual a %(size)i. O servidor não "
-"pôde obedecer à solicitação porque a senha é inválida."
+msgstr "密码长度必须小于或等于 %(size)i。服务器未能遵照请求，因为密码无效。"
 
 msgid "The request you have made requires authentication."
-msgstr "A requisição que você fez requer autenticação."
+msgstr "你的请求需要先授权"
 
 msgid "The resource could not be found."
-msgstr "O recurso não pôde ser localizado."
+msgstr "找不到该资源。"
 
 msgid ""
 "The revoke call must not have both domain_id and project_id. This is a bug "
 "in the Keystone server. The current request is aborted."
 msgstr ""
-"A chamada de revogação não deve ter ambos domain_id e project_id. Esse é um "
-"erro no servidor do Keystone. A solicitação atual foi interrompida."
+"撤销调用不能同时具有 domain_id 和 project_id。这是 Keystone 服务器中的错误。"
+"当前请求已异常中止。"
 
 msgid "The service you have requested is no longer available on this server."
-msgstr "O serviço que você solicitou não está mais disponível neste servidor."
+msgstr "在此服务器上，已请求的服务不再可用。"
 
 #, python-format
 msgid ""
 "The specified parent region %(parent_region_id)s would create a circular "
 "region hierarchy."
-msgstr ""
-"A região pai especificada %(parent_region_id)s criaria uma hierarquia de "
-"região circular."
+msgstr "指定的父区域 %(parent_region_id)s 将创建循环区域层次结构。"
 
 #, python-format
 msgid ""
 "The value of group %(group)s specified in the config should be a dictionary "
 "of options"
-msgstr ""
-"O valor do grupo %(group)s especificado na configuração deverá ser um "
-"dicionário de opções"
+msgstr "在配置中指定的组 %(group)s 的值应该是选项的字典"
 
 msgid "There should not be any non-oauth parameters"
-msgstr "Não deve haver nenhum parâmetro não oauth"
+msgstr "不应该存在任何非 oauth 参数"
 
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
-msgstr "Esta não é uma versão de carga útil do Fernet reconhecida: %s"
+msgstr "这不是可识别的 Fernet 有效内容版本：%s"
 
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
 "tokens."
-msgstr ""
-"Este não é um token Fernet v2.0. Use v3 para tokens de confiança, domínio, "
-"ou federados."
+msgstr "这不是 V2.0 Fernet 令牌。请将 V3 用于信任、域或联合的令牌。"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
 "request since it is either malformed or otherwise incorrect. The client is "
 "assumed to be in error."
 msgstr ""
-"A data não está no formato especificado. O servidor não pôde realizar a "
-"requisição pois ela está mal formada ou incorreta. Assume-se que o cliente "
-"está com erro."
+"时间戳记未采用所需格式。服务器未能遵照请求，因为它的格式或者其他方面不正确。"
+"客户机被认为发生错误。"
 
 #, python-format
 msgid ""
@@ -917,95 +835,80 @@ msgid ""
 "the specific domain, i.e.: keystone-manage domain_config_upload --domain-"
 "name %s"
 msgstr ""
-"Para obter uma obter informações mais detalhadas sobre este erro, execute "
-"novamente este comando para o domínio específico, ou seja: keystone-manage "
-"domain_config_upload --domain-name %s"
+"要获取有关此错误的更详细信息，请针对特定域重新运行此命令，即：keystone-"
+"manage domain_config_upload --domain-name %s"
 
 msgid "Token belongs to another user"
-msgstr "O token pertence à outro usuário"
+msgstr "令牌属于另一用户"
 
 msgid "Token does not belong to specified tenant."
-msgstr "O token não pertence ao tenant especificado."
+msgstr "令牌不属于指定的租户。"
 
 msgid "Trustee has no delegated roles."
-msgstr "Fiador não possui roles delegados."
+msgstr "托管人没有任何已委派的角色。"
 
 msgid "Trustor is disabled."
-msgstr "O fiador está desativado."
+msgstr "Trustor被禁用"
 
 #, python-format
 msgid ""
 "Trying to update group %(group)s, so that, and only that, group must be "
 "specified in the config"
-msgstr ""
-"Tentando atualizar o grupo %(group)s de modo que, e apenas que, o grupo deve "
-"ser especificado na configuração"
+msgstr "正在尝试更新组 %(group)s，因此仅存在以下要求：必须在配置中指定组"
 
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, but config provided "
 "contains option %(option_other)s instead"
 msgstr ""
-"Tentando atualizar a opção %(option)s no grupo %(group)s, mas a configuração "
-"fornecida contém %(option_other)s ao invés"
+"正在尝试更新组 %(group)s 中的选项 %(option)s，但所提供配置反而包含选项 "
+"%(option_other)s"
 
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, so that, and only "
 "that, option must be specified  in the config"
 msgstr ""
-"Tentando atualizar a opção %(option)s no grupo %(group)s, de modo que, e "
-"apenas que, a opção deve ser especificada na configuração"
+"正在尝试更新组 %(group)s 中的选项 %(option)s，因此仅存在以下要求：必须在配置"
+"中指定选项"
 
 msgid ""
 "Unable to access the keystone database, please check it is configured "
 "correctly."
-msgstr ""
-"Não é possível acessar o banco de dados keystone, verifique se ele está "
-"configurado corretamente."
+msgstr "无法访问 keystone 数据库，请检查它是否正确配置。"
 
 #, python-format
 msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
-msgstr ""
-"Não é possível consumir a confiança %(trust_id)s, não é possível adquirir o "
-"bloqueio."
+msgstr "无法使用信任 %(trust_id)s，无法获取锁定。"
 
 #, python-format
 msgid ""
 "Unable to delete region %(region_id)s because it or its child regions have "
 "associated endpoints."
-msgstr ""
-"Não foi possível excluir a região %(region_id)s, uma vez que ela ou suas "
-"regiões filhas possuem terminais associados."
+msgstr "无法删除区域 %(region_id)s，因为它或它的子区域具有关联的端点。"
 
 #, python-format
 msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr ""
-"Não é possível localizar os grupos válidos ao utilizar o mapeamento "
-"%(mapping_id)s"
+msgstr "使用映射 %(mapping_id)s 时，找不到有效组"
 
 #, python-format
 msgid ""
 "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr ""
-"Não é possível obter uma conexão do ID do conjunto %(id)s após %(seconds)s "
-"segundos."
+msgstr "在 %(seconds)s 秒之后，无法根据池标识 %(id)s 获取连接。"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
-msgstr "Não é possível localizar diretório de configuração de domínio: %s"
+msgstr "找不到指定的域配置目录：%s"
 
 #, python-format
 msgid "Unable to lookup user %s"
-msgstr "Não é possível consultar o usuário %s"
+msgstr "无法查找用户 %s"
 
 #, python-format
 msgid ""
 "Unable to reconcile identity attribute %(attribute)s as it has conflicting "
 "values %(new)s and %(old)s"
-msgstr ""
-"Não é possível reconciliar o atributo de identidade %(attribute)s, pois ele "
-"possui valores conflitantes %(new)s e %(old)s"
+msgstr "无法协调身份属性 %(attribute)s，因为它具有冲突值%(new)s 和 %(old)s"
 
 #, python-format
 msgid ""
@@ -1013,258 +916,237 @@ msgid ""
 "xmlsec1 installed, or this is the result of misconfiguration. Reason "
 "%(reason)s"
 msgstr ""
-"Não é possível assinar asserção SAML. Provavelmente esse servidor não possui "
-"o xmlsec1 instalado, ou isso é o resultado de uma configuração incorreta. "
-"Motivo %(reason)s"
+"无法对 SAML 断言进行签名。此服务器可能未安装 xmlsec1，或者这可能是由于配置错"
+"误导致的。原因 %(reason)s"
 
 msgid "Unable to sign token."
-msgstr "Não é possível assinar o token."
+msgstr "无法对令牌进行签名。"
 
 #, python-format
 msgid "Unexpected assignment type encountered, %s"
-msgstr "Tipo de designação inesperada encontrada, %s"
+msgstr "遇到意外的指派类型 %s"
 
 #, python-format
 msgid ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
 msgstr ""
-"Combinação inesperada de atributos de concessão – Usuário: %(user_id)s, "
-"Grupo: %(group_id)s, Projeto: %(project_id)s, Domínio: %(domain_id)s"
+"存在以下 grant 属性的意外组合 - 用户 %(user_id)s、组 %(group_id)s、项目 "
+"%(project_id)s 和域 %(domain_id)s"
 
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
-msgstr "Status inesperado solicitado para resposta JSON Home, %s"
+msgstr "请求 JSON 主页响应时处于意外状态，%s"
 
 msgid "Unknown Target"
-msgstr "Alvo Desconhecido"
+msgstr "目标未知"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
-msgstr "Domínio desconhecido '%(name)s' especificado pelo --domain-name"
+msgstr "--domain-name 指定的“%(name)s”是未知域"
 
 #, python-format
 msgid "Unknown token version %s"
-msgstr "Versão de token desconhecida %s"
+msgstr "令牌版本 %s 未知"
 
 #, python-format
 msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr "Dependência não registrada: %(name)s para %(targets)s"
+msgstr "已针对 %(targets)s 注销依赖关系 %(name)s"
 
 msgid "Update of `parent_id` is not allowed."
-msgstr "Atualização de ‘parent_id’ não é permitida."
+msgstr "不允许更新“parent_id”。"
 
 msgid "Use a project scoped token when attempting to create a SAML assertion"
-msgstr ""
-"Use um token com escopo definido do projeto ao tentar criar uma asserção SAML"
+msgstr "当尝试创建 SAML 断言时，请使用项目范围的令牌"
 
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
-msgstr "Usuário %(u_id)s  não está autorizado para o tenant %(t_id)s"
+msgstr "没有授权给用户%(u_id)s项目%(t_id)s的权限"
 
 #, python-format
 msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"Usuário %(user_id)s já possui a função %(role_id)s no locatário %(tenant_id)s"
+msgstr "在租户 %(tenant_id)s 中，用户 %(user_id)s 已具有角色 %(role_id)s"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
-msgstr "O usuário %(user_id)s não tem acesso ao domínio %(domain_id)s"
+msgstr "用户%(user_id)s对域%(domain_id)s没有任何访问权限"
 
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
-msgstr "O usuário %(user_id)s não tem acesso ao projeto %(project_id)s"
+msgstr "用户%(user_id)s 没有访问项目 %(project_id)s的权限"
 
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
-msgstr "Usuário %(user_id)s já é membro do grupo %(group_id)s"
+msgstr "用户%(user_id)s 已是组 %(group_id)s 的成员"
 
 #, python-format
 msgid "User '%(user_id)s' not found in group '%(group_id)s'"
-msgstr "Usuário '%(user_id)s' não localizado no grupo '%(group_id)s'"
+msgstr "在组“%(group_id)s”中找不到用户“%(user_id)s”"
 
 msgid "User IDs do not match"
-msgstr "ID de usuário não confere"
+msgstr "用户ID不匹配"
 
 #, python-format
 msgid "User is disabled: %s"
-msgstr "O usuário está desativado: %s"
+msgstr "用户已禁用：%s"
 
 msgid "User is not a member of the requested project"
-msgstr "Usuário não é um membro do projeto requisitado"
+msgstr "用户不是所请求项目的成员"
 
 msgid "User is not a trustee."
-msgstr "Usuário não é confiável."
+msgstr "用户不是受托人。"
 
 msgid "User not found"
-msgstr "Usuário não localizado"
+msgstr "找不到用户"
 
 #, python-format
 msgid "User type %s not supported"
-msgstr "Tipo de usuário %s não suportado"
+msgstr "用户类型 %s 不受支持"
 
 msgid "You are not authorized to perform the requested action."
-msgstr "Você não está autorizado à realizar a ação solicitada."
+msgstr "您没有授权完成所请求的操作。"
 
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s"
-msgstr "Você não está autorizado a executar a ação solicitada: %(action)s"
+msgstr "您无权执行请求的操作：%(action)s"
 
 msgid "`key_mangler` functions must be callable."
-msgstr "Funções `key_mangler` devem ser chamáveis."
+msgstr "“key_mangler”函数必须可调用。"
 
 msgid "`key_mangler` option must be a function reference"
-msgstr "opção `key_mangler` deve ser uma referência de função"
+msgstr "“key_mangler”选项必须为函数引用"
 
 msgid "any options"
-msgstr "quaisquer opções"
+msgstr "任何选项"
 
 msgid "auth_type is not Negotiate"
-msgstr "auth_type não é Negotiate"
+msgstr "auth_type 不是“Negotiate”"
 
 msgid "authorizing user does not have role required"
-msgstr "Usuário autorizado não possui o role necessário"
+msgstr "授权用户没有必需的角色"
 
 msgid "cache_collection name is required"
-msgstr "nome cache_collection é necessário"
+msgstr "需要 cache_collection 名称"
 
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
-msgstr ""
-"não é possível criar um projeto em uma ramificação que contém um projeto "
-"desativado: %s"
+msgstr "无法在包含已禁用项目的分支中创建项目：%s"
 
 msgid "cannot create a project within a different domain than its parents."
-msgstr "não é possível criar um projeto em um domínio diferente de seus pais."
+msgstr "如果某个域不是项目的父代所在的域，那么无法在该域内创建该项目。"
 
 msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr ""
-"não é possível excluir um domínio que esteja ativado, desative-o primeiro."
+msgstr "无法删除已启用的域，请先禁用该域。"
 
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr ""
-"não é possível excluir o projeto %s, pois ele não é uma folha na hierarquia."
+msgstr "无法删除项目 %s，因为它不是层次结构中的叶。"
 
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr ""
-"não é possível desativar o projeto %s desde que sua subárvore contenha "
-"projetos ativados"
+msgstr "无法禁用项目 %s，因为其子树包含已启用的项目"
 
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
-msgstr ""
-"não é possível ativar o projeto %s desde que ele tenha pais desativados"
+msgstr "无法启用项目 %s，因为它具有已禁用的父代"
 
 msgid "database db_name is required"
-msgstr "banco de dados db_name é necessário"
+msgstr "需要数据库 db_name"
 
 msgid "db_hosts value is required"
-msgstr "valor db_hosts é necessário"
+msgstr "需要 db_hosts 值"
 
 msgid "delete the default domain"
-msgstr "excluir o domínio padrão"
+msgstr "请删除缺省域"
 
 #, python-format
 msgid "group %(group)s"
-msgstr "grupo %(group)s"
+msgstr "组 %(group)s"
 
 msgid ""
 "idp_contact_type must be one of: [technical, other, support, administrative "
 "or billing."
 msgstr ""
-"idp_contact_type deve ser uma dessas opções: [técnico, outro, suporte, "
-"administrativo ou faturamento."
+"idp_contact_type 必须是下列其中一项：technical、other、support、"
+"administrative 或 billing。"
 
 msgid "integer value expected for mongo_ttl_seconds"
-msgstr "valor de número inteiro esperado para mongo_ttl_seconds"
+msgstr "mongo_ttl_seconds 需要整数值"
 
 msgid "integer value expected for w (write concern attribute)"
-msgstr "valor inteiro esperado para w (atributo relativo a gravação)"
+msgstr "w（写相关属性）需要整数值"
 
 #, python-format
 msgid "invalid date format %s"
-msgstr "formato de data inválido %s"
+msgstr "日期格式 %s 无效"
 
 #, python-format
 msgid "max hierarchy depth reached for %s branch."
-msgstr "profundidade máx. de hierarquia atingida para a ramificação %s."
+msgstr "对于 %s 分支，已达到最大层次结构深度。"
 
 msgid "no ssl support available"
-msgstr "suporte ssl não disponível"
+msgstr "未提供 ssl 支持"
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
-msgstr "opção %(option)s no grupo %(group)s"
+msgstr "组 %(group)s 中的选项 %(option)s"
 
 msgid "pad must be single character"
-msgstr "preenchimento deve ser caractere único"
+msgstr "填充项必须是单个字符"
 
 msgid "padded base64url text must be multiple of 4 characters"
-msgstr "texto base64url preenchido deve ser múltiplo de 4 caracteres"
+msgstr "填充的 base64url 文本的字符数必须是 4 的倍数"
 
 msgid "provided consumer key does not match stored consumer key"
-msgstr ""
-"Chave de consumidor fornecida não confere com a chave de consumidor "
-"armazenada"
+msgstr "提供的用户密钥与存储的用户密钥不符"
 
 msgid "provided request key does not match stored request key"
-msgstr ""
-"Chave de requisição do provedor não confere com a chave de requisição "
-"armazenada"
+msgstr "提供的请求密钥与存储的请求密钥不匹配"
 
 msgid "provided verifier does not match stored verifier"
-msgstr "Verificador fornecido não confere com o verificador armazenado"
+msgstr "提供的验证器与存储的验证器不匹配"
 
 msgid "region not type dogpile.cache.CacheRegion"
-msgstr "região não é do tipo dogpile.cache.CacheRegion"
+msgstr "区域的类型不是 dogpile.cache.CacheRegion"
 
 msgid "remaining_uses must be a positive integer or null."
-msgstr "remaining_uses deve ser um número inteiro positivo ou nulo."
+msgstr "remaining_uses 必须为正整数或 Null。"
 
 msgid "remaining_uses must not be set if redelegation is allowed"
-msgstr ""
-"remaining_uses não deverá ser definido se a nova delegação for permitida"
+msgstr "如果允许重新委派，那么不能设置 remaining_uses"
 
 msgid "replicaset_name required when use_replica is True"
-msgstr "replicaset_name necessário quando use_replica for True"
+msgstr "当 use_replica 为 True 时，需要 replicaset_name"
 
 #, python-format
 msgid ""
 "request to update group %(group)s, but config provided contains group "
 "%(group_other)s instead"
-msgstr ""
-"solicite atualizar o grupo %(group)s, mas a configuração fornecida contém o "
-"grupo %(group_other)s ao invés"
+msgstr "请求更新组 %(group)s，但所提供配置反而包含组 %(group_other)s"
 
 msgid "rescope a scoped token"
-msgstr "Defina novamente um escopo de um token com escopo"
+msgstr "请重新确定带范围的令牌的范围"
 
 #, python-format
 msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr ""
-"texto é múltiplo de 4, mas preenchimento \"%s\" ocorre antes do penúltimo "
-"caractere"
+msgstr "文本的字符数是 4 的倍数，但填充项“%s”出现在倒数第 2 个字符前面"
 
 #, python-format
 msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-"texto é múltiplo de 4, mas preenchimento \"%s\" ocorre antes do último "
-"caractere de não preenchimento"
+msgstr "文本的字符数是 4 的倍数，但填充项“%s”出现在非填充的最后一个字符前面"
 
 #, python-format
 msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr "texto não é um múltiplo de 4, mas contém preenchimento \"%s\""
+msgstr "文本的字符数不是 4 的倍数，但文本包含填充项“%s”"
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
-msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
+msgstr "tls_cacertdir %s 未找到或者不是一个目录"
 
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
-msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
+msgstr "tls_cacertfile %s 未找到或者不是一个文件"
 
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "referência de token deve ser um tipo KeystoneToken, obteve: %s"
+msgstr "令牌引用必须为 KeystoneToken 类型，但收到：%s"
