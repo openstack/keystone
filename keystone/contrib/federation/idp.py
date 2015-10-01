@@ -195,7 +195,6 @@ class SAMLGenerator(object):
         :return: XML <AttributeStatement> object
 
         """
-
         def _build_attribute(attribute_name, attribute_values):
             attribute = saml.Attribute()
             attribute.name = attribute_name
@@ -550,7 +549,6 @@ class MetadataGenerator(object):
 
     def _ensure_required_values_present(self):
         """Ensure idp_sso_endpoint and idp_entity_id have values."""
-
         if CONF.saml.idp_entity_id is None:
             msg = _('Ensure configuration option idp_entity_id is set.')
             raise exception.ValidationError(msg)
@@ -560,7 +558,6 @@ class MetadataGenerator(object):
 
     def _check_contact_person_values(self):
         """Determine if contact information is included in metadata."""
-
         # Check if we should include contact information
         params = [CONF.saml.idp_contact_company,
                   CONF.saml.idp_contact_name,
@@ -582,7 +579,6 @@ class MetadataGenerator(object):
 
     def _check_organization_values(self):
         """Determine if organization information is included in metadata."""
-
         params = [CONF.saml.idp_organization_name,
                   CONF.saml.idp_organization_display_name,
                   CONF.saml.idp_organization_url]

@@ -167,7 +167,6 @@ def protected(callback=None):
 
 def filterprotected(*filters):
     """Wraps filtered API calls with role based access controls (RBAC)."""
-
     def _filterprotected(f):
         @functools.wraps(f)
         def wrapper(self, context, **kwargs):
@@ -300,7 +299,6 @@ class V2Controller(wsgi.Application):
         If ref is a list type, we will iterate through each element and do the
         conversion.
         """
-
         def _format_default_project_id(ref):
             """Convert default_project_id to tenantId for v2 calls."""
             default_project_id = ref.pop('default_project_id', None)
@@ -342,7 +340,6 @@ class V2Controller(wsgi.Application):
         If ref is a list type, we will iterate through each element and do the
         conversion.
         """
-
         def _filter_project_properties(ref):
             """Run through the various filter methods."""
             V2Controller.filter_domain_id(ref)
@@ -450,7 +447,6 @@ class V3Controller(wsgi.Application):
         True, including the absence of a value
 
         """
-
         if (isinstance(filter_value, six.string_types) and
                 filter_value == '0'):
             val = False
@@ -545,7 +541,6 @@ class V3Controller(wsgi.Application):
     @classmethod
     def filter_by_attributes(cls, refs, hints):
         """Filters a list of references by filter values."""
-
         def _attr_match(ref_attr, val_attr):
             """Matches attributes allowing for booleans as strings.
 

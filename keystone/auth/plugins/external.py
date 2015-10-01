@@ -78,7 +78,6 @@ class Domain(Base):
         The domain will be extracted from the REMOTE_DOMAIN environment
         variable if present. If not, the default domain will be used.
         """
-
         username = remote_user
         try:
             domain_name = context['environment']['REMOTE_DOMAIN']

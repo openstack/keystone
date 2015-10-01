@@ -272,7 +272,6 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
 
     def is_user(self, dn):
         """Returns True if the entry is a user."""
-
         # NOTE(blk-u): It's easy to check if the DN is under the User tree,
         # but may not be accurate. A more accurate test would be to fetch the
         # entry to see if it's got the user objectclass, but this could be
@@ -349,7 +348,6 @@ class GroupApi(common_ldap.BaseLdap):
 
     def list_user_groups(self, user_dn):
         """Return a list of groups for which the user is a member."""
-
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
         query = '(%s=%s)%s' % (self.member_attribute,
                                user_dn_esc,
@@ -358,7 +356,6 @@ class GroupApi(common_ldap.BaseLdap):
 
     def list_user_groups_filtered(self, user_dn, hints):
         """Return a filtered list of groups for which the user is a member."""
-
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
         query = '(%s=%s)%s' % (self.member_attribute,
                                user_dn_esc,

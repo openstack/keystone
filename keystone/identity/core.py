@@ -424,7 +424,6 @@ def domains_configured(f):
 
 def exception_translated(exception_type):
     """Wraps API calls to map to correct exception."""
-
     def _exception_translated(f):
         @functools.wraps(f)
         def wrapper(self, *args, **kwargs):
@@ -485,7 +484,6 @@ class Manager(manager.Manager):
     mapping by default is a more prudent way to introduce this functionality.
 
     """
-
     driver_namespace = 'keystone.identity'
 
     _USER = 'user'

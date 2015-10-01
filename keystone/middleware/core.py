@@ -259,7 +259,6 @@ class AuthContextMiddleware(wsgi.Middleware):
         :type env: dict
         :returns: True if client_issuer is trusted; otherwise False
         """
-
         if not CONF.tokenless_auth.trusted_issuer:
             return False
 

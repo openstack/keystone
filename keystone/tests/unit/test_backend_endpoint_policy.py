@@ -51,7 +51,6 @@ class PolicyAssociationTests(object):
           5 - region 2, Service 0
 
         """
-
         def new_endpoint(region_id, service_id):
             endpoint = {'id': uuid.uuid4().hex, 'interface': 'test',
                         'region_id': region_id, 'service_id': service_id,

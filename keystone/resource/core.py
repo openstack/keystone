@@ -483,7 +483,6 @@ class Manager(manager.Manager):
         associated with them as well as revoking any relevant tokens.
 
         """
-
         def _delete_projects(project, projects, examined):
             if project['id'] in examined:
                 msg = _LE('Circular reference or a repeated entry found '
@@ -925,7 +924,6 @@ class DomainConfigManager(manager.Manager):
 
     def _config_to_list(self, config):
         """Build whitelisted and sensitive lists for use by backend drivers."""
-
         whitelisted = []
         sensitive = []
         for group in config:
@@ -1083,7 +1081,6 @@ class DomainConfigManager(manager.Manager):
         """
         def _assert_valid_update(domain_id, config, group=None, option=None):
             """Ensure the combination of config, group and option is valid."""
-
             self._assert_valid_config(config)
             self._assert_valid_group_and_option(group, option)
 
@@ -1142,7 +1139,6 @@ class DomainConfigManager(manager.Manager):
 
         def _update_or_create(domain_id, option, sensitive):
             """Update the option, if it doesn't exist then create it."""
-
             try:
                 self.create_config_option(
                     domain_id, option['group'], option['option'],

@@ -69,7 +69,6 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_crud_for_policy_for_explicit_endpoint(self):
         """PUT, HEAD and DELETE for explicit endpoint policy."""
-
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
                '/endpoints/%(endpoint_id)s') % {
                    'policy_id': self.policy['id'],
@@ -78,7 +77,6 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_crud_for_policy_for_service(self):
         """PUT, HEAD and DELETE for service endpoint policy."""
-
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
                '/services/%(service_id)s') % {
                    'policy_id': self.policy['id'],
@@ -87,7 +85,6 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_crud_for_policy_for_region_and_service(self):
         """PUT, HEAD and DELETE for region and service endpoint policy."""
-
         url = ('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
                '/services/%(service_id)s/regions/%(region_id)s') % {
                    'policy_id': self.policy['id'],
@@ -97,7 +94,6 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_get_policy_for_endpoint(self):
         """GET /endpoints/{endpoint_id}/policy."""
-
         self.put('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
                  '/endpoints/%(endpoint_id)s' % {
                      'policy_id': self.policy['id'],
@@ -115,7 +111,6 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_list_endpoints_for_policy(self):
         """GET /policies/%(policy_id}/endpoints."""
-
         self.put('/policies/%(policy_id)s/OS-ENDPOINT-POLICY'
                  '/endpoints/%(endpoint_id)s' % {
                      'policy_id': self.policy['id'],

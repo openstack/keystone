@@ -266,7 +266,6 @@ class Manager(manager.Manager):
 
     def _is_valid_token(self, token):
         """Verify the token is valid format and has not expired."""
-
         current_time = timeutils.normalize_time(timeutils.utcnow())
 
         try:

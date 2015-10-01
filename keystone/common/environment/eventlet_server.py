@@ -93,7 +93,6 @@ class Server(service.ServiceBase):
 
         Raises Exception if this has already been called.
         """
-
         # TODO(dims): eventlet's green dns/socket module does not actually
         # support IPv6 in getaddrinfo(). We need to get around this in the
         # future or monitor upstream for a fix.
@@ -121,7 +120,6 @@ class Server(service.ServiceBase):
 
     def start(self, key=None, backlog=128):
         """Run a WSGI server with the given application."""
-
         if self.socket is None:
             self.listen(key=key, backlog=backlog)
 

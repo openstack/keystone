@@ -225,6 +225,5 @@ def reset():
     This is useful for unit testing to ensure that tests don't use providers
     from previous tests.
     """
-
     _REGISTRY.clear()
     _future_dependencies.clear()

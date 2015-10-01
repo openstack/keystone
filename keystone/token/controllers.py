@@ -82,7 +82,6 @@ class Auth(controller.V2Controller):
         Alternatively, this call accepts auth with only a token and tenant
         that will return a token that is scoped to that tenant.
         """
-
         if auth is None:
             raise exception.ValidationError(attribute='auth',
                                             target='request body')
@@ -379,7 +378,6 @@ class Auth(controller.V2Controller):
 
     def _get_project_roles_and_ref(self, user_id, tenant_id):
         """Returns the project roles for this user, and the project ref."""
-
         tenant_ref = None
         role_list = []
         if tenant_id:

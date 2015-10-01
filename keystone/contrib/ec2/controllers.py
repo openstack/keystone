@@ -111,7 +111,6 @@ class Ec2ControllerCommon(object):
 
         :returns: user_ref, tenant_ref, metadata_ref, roles_ref, catalog_ref
         """
-
         # FIXME(ja): validate that a service token was used!
 
         # NOTE(termie): backwards compat hack
@@ -171,7 +170,6 @@ class Ec2ControllerCommon(object):
         :param tenant_id: id of tenant
         :returns: credential: dict of ec2 credential
         """
-
         self.identity_api.get_user(user_id)
         self.resource_api.get_project(tenant_id)
         trust_id = self._get_trust_id_for_request(context)
@@ -193,7 +191,6 @@ class Ec2ControllerCommon(object):
         :param user_id: id of user
         :returns: credentials: list of ec2 credential dicts
         """
-
         self.identity_api.get_user(user_id)
         credential_refs = self.credential_api.list_credentials_for_user(
             user_id)
@@ -210,7 +207,6 @@ class Ec2ControllerCommon(object):
         :param credential_id: access key for credentials
         :returns: credential: dict of ec2 credential
         """
-
         self.identity_api.get_user(user_id)
         return {'credential': self._get_credentials(credential_id)}
 
@@ -223,7 +219,6 @@ class Ec2ControllerCommon(object):
         :param credential_id: access key for credentials
         :returns: bool: success
         """
-
         self.identity_api.get_user(user_id)
         self._get_credentials(credential_id)
         ec2_credential_id = utils.hash_access_key(credential_id)

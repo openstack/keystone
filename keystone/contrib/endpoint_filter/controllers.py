@@ -153,7 +153,6 @@ class EndpointGroupV3Controller(_ControllerBase):
     @classmethod
     def base_url(cls, context, path=None):
         """Construct a path and pass it to V3Controller.base_url method."""
-
         path = '/OS-EP-FILTER/' + cls.collection_name
         return super(EndpointGroupV3Controller, cls).base_url(context,
                                                               path=path)

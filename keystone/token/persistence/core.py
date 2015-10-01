@@ -212,7 +212,6 @@ class Manager(object):
 
     def __getattr__(self, item):
         """Forward calls to the `token_provider_api` persistence manager."""
-
         # NOTE(morganfainberg): Prevent infinite recursion, raise an
         # AttributeError for 'token_provider_api' ensuring that the dep
         # injection doesn't infinitely try and lookup self.token_provider_api

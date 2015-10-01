@@ -39,7 +39,6 @@ def set_default_for_default_log_levels():
     This function needs to be called before CONF().
 
     """
-
     extra_log_level_defaults = [
         'dogpile=INFO',
         'routes=INFO',

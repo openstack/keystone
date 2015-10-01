@@ -582,7 +582,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         are returned.
 
         """
-
         # Create a group
         group = dict(name=uuid.uuid4().hex,
                      domain_id=CONF.identity.default_domain_id)
@@ -818,7 +817,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_user_id_comma(self):
         """Even if the user has a , in their ID, groups can be listed."""
-
         # Create a user with a , in their ID
         # NOTE(blk-u): the DN for this user is hard-coded in fakeldap!
 
@@ -871,7 +869,6 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_user_id_comma_grants(self):
         """List user and group grants, even with a comma in the user's ID."""
-
         # Create a user with a , in their ID
         # NOTE(blk-u): the DN for this user is hard-coded in fakeldap!
 
@@ -2483,7 +2480,6 @@ class BaseMultiLDAPandSQLIdentity(object):
 
     def create_users_across_domains(self):
         """Create a set of users, each with a role on their own domain."""
-
         # We also will check that the right number of id mappings get created
         initial_mappings = len(mapping_sql.list_id_mappings())
 
@@ -2952,7 +2948,6 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_reloading_domain_config(self):
         """Ensure domain drivers are reloaded on a config modification."""
-
         domain_cfgs = self.identity_api.domain_configs
 
         # Create a new config for the default domain, hence overwriting the
@@ -2984,7 +2979,6 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_setting_multiple_sql_driver_raises_exception(self):
         """Ensure setting multiple domain specific sql drivers is prevented."""
-
         new_config = {'identity': {'driver': 'sql'}}
         self.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
@@ -2998,7 +2992,6 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_same_domain_gets_sql_driver(self):
         """Ensure we can set an SQL driver if we have had it before."""
-
         new_config = {'identity': {'driver': 'sql'}}
         self.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
@@ -3016,7 +3009,6 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_delete_domain_clears_sql_registration(self):
         """Ensure registration is deleted when a domain is deleted."""
-
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         domain = self.resource_api.create_domain(domain['id'], domain)
         new_config = {'identity': {'driver': 'sql'}}
@@ -3044,7 +3036,6 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_orphaned_registration_does_not_prevent_getting_sql_driver(self):
         """Ensure we self heal an orphaned sql registration."""
-
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         domain = self.resource_api.create_domain(domain['id'], domain)
         new_config = {'identity': {'driver': 'sql'}}

@@ -45,7 +45,6 @@ class TokenlessAuthHelper(object):
             SSL_CLIENT_S_DN_CN, SSL_CLIENT_S_DN_O
         :type env: dict
         """
-
         self.env = env
 
     def _build_scope_info(self):

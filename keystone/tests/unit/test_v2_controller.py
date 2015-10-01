@@ -74,7 +74,6 @@ class TenantTestCase(unit.TestCase):
 
     def test_list_projects_default_domain(self):
         """Test that list projects only returns those in the default domain."""
-
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                   'enabled': True}
         self.resource_api.create_domain(domain['id'], domain)

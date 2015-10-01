@@ -71,7 +71,6 @@ class DomainConfigTests(object):
 
     def _list_domain_config(self, sensitive):
         """Test listing by combination of domain, group & option."""
-
         config1 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                    'value': uuid.uuid4().hex}
         # Put config2 in the same group as config1
@@ -113,7 +112,6 @@ class DomainConfigTests(object):
 
     def _delete_domain_configs(self, sensitive):
         """Test deleting by combination of domain, group & option."""
-
         config1 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                    'value': uuid.uuid4().hex}
         # Put config2 and config3 in the same group as config1
@@ -162,7 +160,6 @@ class DomainConfigTests(object):
 
     def _create_domain_config_twice(self, sensitive):
         """Test conflict error thrown if create the same option twice."""
-
         config = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                   'value': uuid.uuid4().hex}
 
@@ -182,7 +179,6 @@ class DomainConfigTests(object):
 
     def test_delete_domain_deletes_configs(self):
         """Test domain deletion clears the domain configs."""
-
         domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.resource_api.create_domain(domain['id'], domain)
         config1 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
@@ -479,7 +475,6 @@ class DomainConfigTests(object):
 
     def test_invalid_sensitive_substitution_in_domain_config(self):
         """Check that invalid substitutions raise warnings."""
-
         mock_log = mock.Mock()
 
         invalid_option_config = {
@@ -504,7 +499,6 @@ class DomainConfigTests(object):
 
     def test_escaped_sequence_in_domain_config(self):
         """Check that escaped '%(' doesn't get interpreted."""
-
         mock_log = mock.Mock()
 
         escaped_option_config = {

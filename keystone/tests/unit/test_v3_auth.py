@@ -981,7 +981,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
           the one for Project C
 
         """
-
         self.role_data_fixtures()
 
         # Now we are ready to start issuing requests
@@ -1281,7 +1280,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def test_removing_role_assignment_does_not_affect_other_users(self):
         """Revoking a role from one user should not affect other users."""
-
         # This group grant is not needed for the test
         self.delete(
             '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s' %
@@ -1990,7 +1988,6 @@ class TestAuth(test_v3.RestfulTestCase):
 
     def test_auth_catalog_disabled_endpoint(self):
         """On authenticate, get a catalog that excludes disabled endpoints."""
-
         # Create a disabled endpoint that's like the enabled one.
         disabled_endpoint_ref = copy.copy(self.endpoint)
         disabled_endpoint_id = uuid.uuid4().hex
@@ -2044,7 +2041,6 @@ class TestAuth(test_v3.RestfulTestCase):
           tokens
 
         """
-
         domainA = self.new_domain_ref()
         self.resource_api.create_domain(domainA['id'], domainA)
         projectA = self.new_project_ref(domain_id=domainA['id'])
@@ -4507,7 +4503,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         Test that validating an domain scoped token in v2.0
         returns unauthorized.
         """
-
         # Grant user access to domain
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.user['id'],
@@ -4524,7 +4519,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         Test that validating an trust scoped token in v2.0 returns
         unauthorized.
         """
-
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         self.assertRaises(exception.Unauthorized,

@@ -26,7 +26,6 @@ def upgrade(migrate_engine):
     assignment table with the new PK constraint and migrates the existing data.
 
     """
-
     ASSIGNMENT_TABLE_NAME = 'assignment'
 
     metadata = sql.MetaData()

@@ -326,7 +326,6 @@ def listener(cls):
                 }
 
     """
-
     def init_wrapper(init):
         @functools.wraps(init)
         def __new_init__(self, *args, **kwargs):
@@ -424,7 +423,6 @@ def _create_cadf_payload(operation, resource_type, resource_id,
     :param outcome: outcomes of the operation (SUCCESS, FAILURE, etc)
     :param initiator: CADF representation of the user that created the request
     """
-
     if resource_type not in CADF_TYPE_MAP:
         target_uri = taxonomy.UNKNOWN
     else:
@@ -484,7 +482,6 @@ def _get_request_audit_info(context, user_id=None):
     :returns: Auditing data about the request
     :rtype: :class:`pycadf.Resource`
     """
-
     remote_addr = None
     http_user_agent = None
     project_id = None
@@ -536,7 +533,6 @@ class CadfNotificationWrapper(object):
     def __call__(self, f):
         def wrapper(wrapped_self, context, user_id, *args, **kwargs):
             """Always send a notification."""
-
             initiator = _get_request_audit_info(context, user_id)
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             try:
@@ -583,9 +579,9 @@ class CadfRoleAssignmentNotificationWrapper(object):
 
     def __call__(self, f):
         def wrapper(wrapped_self, role_id, *args, **kwargs):
-            """Send a notification if the wrapped callable is successful."""
+            """Send a notification if the wrapped callable is successful.
 
-            """ NOTE(stevemar): The reason we go through checking kwargs
+            NOTE(stevemar): The reason we go through checking kwargs
             and args for possible target and actor values is because the
             create_grant() (and delete_grant()) method are called
             differently in various tests.
@@ -686,7 +682,6 @@ def send_saml_audit_notification(action, context, user_id, group_ids,
     :param outcome: One of :class:`pycadf.cadftaxonomy`
     :type outcome: str
     """
-
     initiator = _get_request_audit_info(context)
     target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
     audit_type = SAML_AUDIT_TYPE
@@ -718,7 +713,6 @@ def _send_audit_notification(action, initiator, outcome, target,
         key-value pairs to the CADF event.
 
     """
-
     event = eventfactory.EventFactory().new_event(
         eventType=cadftype.EVENTTYPE_ACTIVITY,
         outcome=outcome,

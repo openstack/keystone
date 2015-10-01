@@ -216,7 +216,6 @@ def get_remote_id_parameter(protocol):
 
 def validate_idp(idp, protocol, assertion):
     """The IdP providing the assertion should be registered for the mapping."""
-
     remote_id_parameter = get_remote_id_parameter(protocol)
     if not remote_id_parameter or not idp['remote_ids']:
         LOG.debug('Impossible to identify the IdP %s ', idp['id'])
@@ -324,7 +323,6 @@ def transform_to_group_ids(group_names, mapping_id,
         exist in the backend.
 
     """
-
     def resolve_domain(domain):
         """Return domain id.
 
@@ -385,7 +383,6 @@ class RuleProcessor(object):
         :type rules: dict
 
         """
-
         self.rules = rules
 
     def process(self, assertion_data):
@@ -438,7 +435,6 @@ class RuleProcessor(object):
             }
 
         """
-
         # Assertions will come in as string key-value pairs, and will use a
         # semi-colon to indicate multiple values, i.e. groups.
         # This will create a new dictionary where the values are arrays, and
@@ -505,7 +501,6 @@ class RuleProcessor(object):
         :rtype: dict
 
         """
-
         def extract_groups(groups_by_domain):
             for groups in list(groups_by_domain.values()):
                 for group in list({g['name']: g for g in groups}.values()):
@@ -513,7 +508,6 @@ class RuleProcessor(object):
 
         def normalize_user(user):
             """Parse and validate user mapping."""
-
             user_type = user.get('type')
 
             if user_type and user_type not in (UserType.EPHEMERAL,
@@ -601,7 +595,6 @@ class RuleProcessor(object):
             {'user': {'name': 'Bob Thompson', 'email': 'bob@example.org'}}
 
         """
-
         LOG.debug('direct_maps: %s', direct_maps)
         LOG.debug('local: %s', local)
         new = {}
@@ -666,7 +659,6 @@ class RuleProcessor(object):
         :rtype: keystone.contrib.federation.utils.DirectMaps or None
 
         """
-
         direct_maps = DirectMaps()
 
         for requirement in requirements:

@@ -121,7 +121,6 @@ def create_legacy_driver(driver_class):
         Driver = create_legacy_driver(CatalogDriverV8)
 
     """
-
     module_name = driver_class.__module__
     class_name = driver_class.__name__
 

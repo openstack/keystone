@@ -115,7 +115,6 @@ def best_match_language(req):
     """Determines the best available locale from the Accept-Language
     HTTP header passed in the request.
     """
-
     if not req.accept_language:
         return None
     return req.accept_language.best_match(
@@ -124,7 +123,6 @@ def best_match_language(req):
 
 class BaseApplication(object):
     """Base WSGI application wrapper. Subclasses need to implement __call__."""
-
     @classmethod
     def factory(cls, global_config, **local_config):
         """Used for paste app factories in paste.deploy config files.
@@ -305,7 +303,6 @@ class Application(BaseApplication):
             does not have the admin role
 
         """
-
         if not context['is_admin']:
             user_token_ref = utils.get_token_ref(context)
 
@@ -398,7 +395,6 @@ class Middleware(Application):
     behavior.
 
     """
-
     @classmethod
     def factory(cls, global_config, **local_config):
         """Used for paste app factories in paste.deploy config files.
@@ -477,7 +473,6 @@ class Debug(Middleware):
     about the request and response.
 
     """
-
     @webob.dec.wsgify()
     def __call__(self, req):
         if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
@@ -789,7 +784,6 @@ def render_response(body=None, status=None, headers=None, method=None):
 
 def render_exception(error, context=None, request=None, user_locale=None):
     """Forms a WSGI response based on the current error."""
-
     error_message = error.args[0]
     message = oslo_i18n.translate(error_message, desired_locale=user_locale)
     if message is error_message:
