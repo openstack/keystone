@@ -874,7 +874,7 @@ class OAuthNotificationTests(OAuth1Tests,
 class OAuthCADFNotificationTests(OAuthNotificationTests):
 
     def setUp(self):
-        """Repeat the tests for CADF notifications """
+        """Repeat the tests for CADF notifications."""
         super(OAuthCADFNotificationTests, self).setUp()
         self.config_fixture.config(notification_format='cadf')
 
