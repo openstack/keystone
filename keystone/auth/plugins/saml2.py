@@ -12,15 +12,17 @@
 
 from keystone.auth.plugins import mapped
 
-""" Provide an entry point to authenticate with SAML2
-
-This plugin subclasses mapped.Mapped, and may be specified in keystone.conf:
-
-  [auth]
-  methods = external,password,token,saml2
-  saml2 = keystone.auth.plugins.mapped.Mapped
-"""
-
 
 class Saml2(mapped.Mapped):
+    """Provide an entry point to authenticate with SAML2.
+
+    This plugin subclasses ``mapped.Mapped``, and may be specified in
+    keystone.conf::
+
+        [auth]
+        methods = external,password,token,saml2
+        saml2 = keystone.auth.plugins.mapped.Mapped
+
+    """
+
     pass
