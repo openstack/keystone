@@ -21,6 +21,7 @@ Unless marked otherwise, all fields are strings.
 
 class Model(dict):
     """Base model class."""
+
     def __hash__(self):
         return self['id'].__hash__()
 

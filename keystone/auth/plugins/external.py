@@ -93,6 +93,7 @@ class Domain(Base):
 
 class KerberosDomain(Domain):
     """Allows `kerberos` as a method."""
+
     def _authenticate(self, remote_user, context):
         auth_type = context['environment'].get('AUTH_TYPE')
         if auth_type != 'Negotiate':

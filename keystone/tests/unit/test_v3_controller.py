@@ -25,6 +25,7 @@ from keystone.tests import unit
 
 class V3ControllerTestCase(unit.TestCase):
     """Tests for the V3Controller class."""
+
     def setUp(self):
         super(V3ControllerTestCase, self).setUp()
 

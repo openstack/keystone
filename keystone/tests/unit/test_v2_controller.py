@@ -33,6 +33,7 @@ class TenantTestCase(unit.TestCase):
     These tests exercise :class:`keystone.assignment.controllers.Tenant`.
 
     """
+
     def setUp(self):
         super(TenantTestCase, self).setUp()
         self.useFixture(database.Database())

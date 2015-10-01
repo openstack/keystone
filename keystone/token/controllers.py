@@ -38,6 +38,7 @@ LOG = log.getLogger(__name__)
 
 class ExternalAuthNotApplicable(Exception):
     """External authentication is not applicable."""
+
     pass
 
 

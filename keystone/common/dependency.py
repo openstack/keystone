@@ -60,6 +60,7 @@ class UnresolvableDependencyException(Exception):
     See ``resolve_future_dependencies()`` for more details.
 
     """
+
     def __init__(self, name, targets):
         msg = _('Unregistered dependency: %(name)s for %(targets)s') % {
             'name': name, 'targets': targets}

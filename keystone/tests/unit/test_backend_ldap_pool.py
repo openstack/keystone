@@ -211,6 +211,7 @@ class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
                                 test_backend_ldap.LdapIdentitySqlAssignment,
                                 unit.TestCase):
     """Executes tests in existing base class with pooled LDAP handler."""
+
     def setUp(self):
         self.useFixture(mockpatch.PatchObject(
             ldap_core.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))

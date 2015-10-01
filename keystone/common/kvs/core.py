@@ -76,6 +76,7 @@ class KeyValueStore(object):
     This manager also supports the concept of locking a given key resource to
     allow for a guaranteed atomic transaction to the backend.
     """
+
     def __init__(self, kvs_region):
         self.locking = True
         self._lock_timeout = 0
@@ -251,6 +252,7 @@ class KeyValueStore(object):
 
     class _LockWrapper(object):
         """weakref-capable threading.Lock wrapper."""
+
         def __init__(self, lock_timeout):
             self.lock = threading.Lock()
             self.lock_timeout = lock_timeout
@@ -367,6 +369,7 @@ class KeyValueStoreLock(object):
 
     This is only a write lock, and will not prevent reads from occurring.
     """
+
     def __init__(self, mutex, key, locking_enabled=True, lock_timeout=0):
         self.mutex = mutex
         self.key = key

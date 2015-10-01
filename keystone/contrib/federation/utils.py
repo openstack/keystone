@@ -359,6 +359,7 @@ def get_assertion_params_from_env(context):
 
 class UserType(object):
     """User mapping type."""
+
     EPHEMERAL = 'ephemeral'
     LOCAL = 'local'
 
@@ -368,6 +369,7 @@ class RuleProcessor(object):
 
     class _EvalType(object):
         """Mapping rule evaluation types."""
+
         ANY_ONE_OF = 'any_one_of'
         NOT_ANY_OF = 'not_any_of'
         BLACKLIST = 'blacklist'

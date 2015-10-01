@@ -53,6 +53,7 @@ class CredentialBaseTestCase(test_v3.RestfulTestCase):
 
 class CredentialTestCase(CredentialBaseTestCase):
     """Test credential CRUD."""
+
     def setUp(self):
 
         super(CredentialTestCase, self).setUp()
@@ -284,6 +285,7 @@ class CredentialTestCase(CredentialBaseTestCase):
 
 class TestCredentialTrustScoped(test_v3.RestfulTestCase):
     """Test credential with trust scoped token."""
+
     def setUp(self):
         super(TestCredentialTrustScoped, self).setUp()
 
@@ -356,6 +358,7 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
 
 class TestCredentialEc2(CredentialBaseTestCase):
     """Test v3 credential compatibility with ec2tokens."""
+
     def setUp(self):
         super(TestCredentialEc2, self).setUp()
 

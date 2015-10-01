@@ -324,6 +324,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
 class IdentityTestListLimitCase(IdentityTestFilteredCase):
     """Test list limiting enforcement on the v3 Identity API."""
+
     content_type = 'json'
 
     def setUp(self):

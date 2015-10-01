@@ -2438,6 +2438,7 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
     way for scoping all the tokens.
 
     """
+
     AUTH_METHOD = 'token'
 
     def auth_plugin_config_override(self):

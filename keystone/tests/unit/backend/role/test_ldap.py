@@ -32,6 +32,7 @@ class LdapRoleCommon(core_ldap.BaseBackendLdapCommon, core_role.RoleTests):
     which should be run for all the various LDAP configurations we test.
 
     """
+
     pass
 
 
@@ -42,6 +43,7 @@ class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, unit.TestCase):
     which only need to be run in a basic LDAP configurations.
 
     """
+
     def test_configurable_allowed_role_actions(self):
         role = {'id': u'fäké1', 'name': u'fäké1'}
         self.role_api.create_role(u'fäké1', role)
@@ -151,6 +153,7 @@ class LdapIdentitySqlEverythingElseRole(
     core_ldap.BaseBackendLdapIdentitySqlEverythingElse, LdapRoleCommon,
         unit.TestCase):
     """Test Identity in LDAP, Everything else in SQL."""
+
     pass
 
 
@@ -158,4 +161,5 @@ class LdapIdentitySqlEverythingElseWithMappingRole(
     LdapIdentitySqlEverythingElseRole,
         core_ldap.BaseBackendLdapIdentitySqlEverythingElseWithMapping):
     """Test ID mapping of default LDAP backend."""
+
     pass

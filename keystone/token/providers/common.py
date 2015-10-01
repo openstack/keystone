@@ -235,6 +235,7 @@ class V2TokenDataHelper(object):
                      'identity_api', 'resource_api', 'role_api', 'trust_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
+
     def __init__(self):
         # Keep __init__ around to ensure dependency injection works.
         super(V3TokenDataHelper, self).__init__()

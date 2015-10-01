@@ -136,6 +136,7 @@ class AssignmentTestHelperMixin(object):
         # 'inherited_to_projects' options to list_role_assignments.}
 
     """
+
     def _handle_project_spec(self, test_data, domain_id, project_spec,
                              parent_id=None):
         """Handle the creation of a project or hierarchy of projects.

@@ -43,6 +43,7 @@ class _MemcacheClient(memcache.Client):
     methods overloaded by threading.local so we can reuse clients in
     different threads
     """
+
     __delattr__ = object.__delattr__
     __getattribute__ = object.__getattribute__
     __new__ = object.__new__
@@ -61,6 +62,7 @@ class ConnectionPool(queue.Queue):
     This class implements the basic connection pool logic as an abstract base
     class.
     """
+
     def __init__(self, maxsize, unused_timeout, conn_get_timeout=None):
         """Initialize the connection pool.
 

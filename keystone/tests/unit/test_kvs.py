@@ -89,6 +89,7 @@ class TestMemcacheDriver(api.CacheBackend):
     """A test dogpile.cache backend that conforms to the mixin-mechanism for
     overriding set and set_multi methods on dogpile memcached drivers.
     """
+
     class test_client(object):
         # FIXME(morganfainberg): Convert this test client over to using mock
         # and/or mock.MagicMock as appropriate

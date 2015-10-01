@@ -93,6 +93,7 @@ class AuthContext(dict):
     earliest value.
 
     """
+
     # identity attributes need to be reconciled among the auth plugins
     IDENTITY_ATTRIBUTES = frozenset(['user_id', 'project_id',
                                      'access_token_id', 'domain_id',

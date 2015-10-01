@@ -39,6 +39,7 @@ TIME_FORMAT = unit.TIME_FORMAT
 
 class AuthTestMixin(object):
     """To hold auth building helper functions."""
+
     def build_auth_scope(self, project_id=None, project_name=None,
                          project_domain_id=None, project_domain_name=None,
                          domain_id=None, domain_name=None, trust_id=None,
@@ -1284,6 +1285,7 @@ class JsonHomeTestMixin(object):
     data must be in the response.
 
     """
+
     def test_get_json_home(self):
         resp = self.get('/', convert=False,
                         headers={'Accept': 'application/json-home'})

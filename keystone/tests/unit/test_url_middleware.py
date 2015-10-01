@@ -20,6 +20,7 @@ from keystone.tests import unit
 
 class FakeApp(object):
     """Fakes a WSGI app URL normalized."""
+
     def __call__(self, env, start_response):
         resp = webob.Response()
         resp.body = 'SUCCESS'

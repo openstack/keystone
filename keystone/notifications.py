@@ -166,6 +166,7 @@ class ManagerNotificationWrapper(object):
                 notify_event_callbacks to in process listeners
 
     """
+
     def __init__(self, operation, resource_type, public=True,
                  resource_id_arg_index=1, result_id_arg_attr=None):
         self.operation = operation
