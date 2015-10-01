@@ -177,35 +177,12 @@ class TokenFormatter(object):
         versioned_payload = msgpack.unpackb(serialized_payload)
         version, payload = versioned_payload[0], versioned_payload[1:]
 
-        # depending on the formatter, these may or may not be defined
-        domain_id = None
-        project_id = None
-        trust_id = None
-        federated_info = None
-
-        if version == UnscopedPayload.version:
-            (user_id, methods, expires_at, audit_ids) = (
-                UnscopedPayload.disassemble(payload))
-        elif version == DomainScopedPayload.version:
-            (user_id, methods, domain_id, expires_at, audit_ids) = (
-                DomainScopedPayload.disassemble(payload))
-        elif version == ProjectScopedPayload.version:
-            (user_id, methods, project_id, expires_at, audit_ids) = (
-                ProjectScopedPayload.disassemble(payload))
-        elif version == TrustScopedPayload.version:
-            (user_id, methods, project_id, expires_at, audit_ids, trust_id) = (
-                TrustScopedPayload.disassemble(payload))
-        elif version == FederatedUnscopedPayload.version:
-            (user_id, methods, expires_at, audit_ids, federated_info) = (
-                FederatedUnscopedPayload.disassemble(payload))
-        elif version == FederatedProjectScopedPayload.version:
-            (user_id, methods, project_id, expires_at, audit_ids,
-             federated_info) = FederatedProjectScopedPayload.disassemble(
-                payload)
-        elif version == FederatedDomainScopedPayload.version:
-            (user_id, methods, domain_id, expires_at, audit_ids,
-             federated_info) = FederatedDomainScopedPayload.disassemble(
-                payload)
+        for payload_class in PAYLOAD_CLASSES:
+            if version == payload_class.version:
+                (user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info) = (
+                    payload_class.disassemble(payload))
+                break
         else:
             # If the token_format is not recognized, raise ValidationError.
             raise exception.ValidationError(_(
@@ -261,6 +238,17 @@ class BasePayload(object):
     @classmethod
     def disassemble(cls, payload):
         """Disassemble an unscoped payload into the component data.
+
+        The tuple consists of::
+
+            (user_id, methods, project_id, domain_id, expires_at_str,
+             audit_ids, trust_id, federated_info)
+
+        * ``methods`` are the auth methods.
+        * federated_info is a dict contains the group IDs, the identity
+          provider ID, the protocol ID, and the federated domain ID
+
+        Fields will be set to None if they didn't apply to this payload type.
 
         :param payload: this variant of payload
         :returns: a tuple of the payloads component data
@@ -368,20 +356,18 @@ class UnscopedPayload(BasePayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Disassemble an unscoped payload into the component data.
-
-        :param payload: the payload of an unscoped token
-        :return: a tuple containing the user_id, auth methods, expires_at, and
-                 audit_ids
-
-        """
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         expires_at_str = cls._convert_float_to_time_string(payload[2])
         audit_ids = list(map(provider.base64_encode, payload[3]))
-        return (user_id, methods, expires_at_str, audit_ids)
+        project_id = None
+        domain_id = None
+        trust_id = None
+        federated_info = None
+        return (user_id, methods, project_id, domain_id, expires_at_str,
+                audit_ids, trust_id, federated_info)
 
 
 class DomainScopedPayload(BasePayload):
@@ -411,13 +397,6 @@ class DomainScopedPayload(BasePayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Disassemble a payload into the component data.
-
-        :param payload: the payload of a token
-        :return: a tuple containing the user_id, auth methods, domain_id,
-                 expires_at_str, and audit_ids
-
-        """
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)
@@ -432,8 +411,12 @@ class DomainScopedPayload(BasePayload):
                 raise
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(provider.base64_encode, payload[4]))
+        project_id = None
+        trust_id = None
+        federated_info = None
 
-        return (user_id, methods, domain_id, expires_at_str, audit_ids)
+        return (user_id, methods, project_id, domain_id, expires_at_str,
+                audit_ids, trust_id, federated_info)
 
 
 class ProjectScopedPayload(BasePayload):
@@ -456,13 +439,6 @@ class ProjectScopedPayload(BasePayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Disassemble a payload into the component data.
-
-        :param payload: the payload of a token
-        :return: a tuple containing the user_id, auth methods, project_id,
-                 expires_at_str, and audit_ids
-
-        """
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)
@@ -472,8 +448,12 @@ class ProjectScopedPayload(BasePayload):
             project_id = cls.attempt_convert_uuid_bytes_to_hex(project_id)
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(provider.base64_encode, payload[4]))
+        domain_id = None
+        trust_id = None
+        federated_info = None
 
-        return (user_id, methods, project_id, expires_at_str, audit_ids)
+        return (user_id, methods, project_id, domain_id, expires_at_str,
+                audit_ids, trust_id, federated_info)
 
 
 class TrustScopedPayload(BasePayload):
@@ -499,13 +479,6 @@ class TrustScopedPayload(BasePayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Validate a trust-based payload.
-
-        :param token_string: a string representing the token
-        :returns: a tuple containing the user_id, auth methods, project_id,
-                  expires_at_str, audit_ids, and trust_id
-
-        """
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)
@@ -516,9 +489,11 @@ class TrustScopedPayload(BasePayload):
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(provider.base64_encode, payload[4]))
         trust_id = cls.convert_uuid_bytes_to_hex(payload[5])
+        domain_id = None
+        federated_info = None
 
-        return (user_id, methods, project_id, expires_at_str, audit_ids,
-                trust_id)
+        return (user_id, methods, project_id, domain_id, expires_at_str,
+                audit_ids, trust_id, federated_info)
 
 
 class FederatedUnscopedPayload(BasePayload):
@@ -558,15 +533,6 @@ class FederatedUnscopedPayload(BasePayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Validate a federated payload.
-
-        :param token_string: a string representing the token
-        :return: a tuple containing the user_id, auth methods, audit_ids, and a
-                 dictionary containing federated information such as the group
-                 IDs, the identity provider ID, the protocol ID, and the
-                 federated domain ID
-
-        """
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)
@@ -580,7 +546,11 @@ class FederatedUnscopedPayload(BasePayload):
         audit_ids = list(map(provider.base64_encode, payload[6]))
         federated_info = dict(group_ids=group_ids, idp_id=idp_id,
                               protocol_id=protocol_id)
-        return (user_id, methods, expires_at_str, audit_ids, federated_info)
+        project_id = None
+        domain_id = None
+        trust_id = None
+        return (user_id, methods, project_id, domain_id, expires_at_str,
+                audit_ids, trust_id, federated_info)
 
 
 class FederatedScopedPayload(FederatedUnscopedPayload):
@@ -607,16 +577,6 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
 
     @classmethod
     def disassemble(cls, payload):
-        """Validate a project-scoped federated payload.
-
-        :param token_string: a string representing the token
-        :returns: a tuple containing the user_id, auth methods, scope_id,
-                  expiration time (as str), audit_ids, and a dictionary
-                  containing federated information such as the the identity
-                  provider ID, the protocol ID, the federated domain ID and
-                  group IDs
-
-        """
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)
@@ -624,6 +584,12 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
         (is_stored_as_bytes, scope_id) = payload[2]
         if is_stored_as_bytes:
             scope_id = cls.attempt_convert_uuid_bytes_to_hex(scope_id)
+        project_id = (
+            scope_id
+            if cls.version == FederatedProjectScopedPayload.version else None)
+        domain_id = (
+            scope_id
+            if cls.version == FederatedDomainScopedPayload.version else None)
         group_ids = list(map(cls.unpack_group_id, payload[3]))
         (is_stored_as_bytes, idp_id) = payload[4]
         if is_stored_as_bytes:
@@ -633,8 +599,9 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
         audit_ids = list(map(provider.base64_encode, payload[7]))
         federated_info = dict(idp_id=idp_id, protocol_id=protocol_id,
                               group_ids=group_ids)
-        return (user_id, methods, scope_id, expires_at_str, audit_ids,
-                federated_info)
+        trust_id = None
+        return (user_id, methods, project_id, domain_id, expires_at_str,
+                audit_ids, trust_id, federated_info)
 
 
 class FederatedProjectScopedPayload(FederatedScopedPayload):
