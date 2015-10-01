@@ -68,25 +68,59 @@ class Endpoint(controller.V2Controller):
         """Merge matching v3 endpoint refs into legacy refs."""
         self.assert_admin(context)
         legacy_endpoints = {}
+        v3_endpoints = {}
         for endpoint in self.catalog_api.list_endpoints():
-            if not endpoint.get('legacy_endpoint_id'):
-                # endpoints created in v3 should not appear on the v2 API
+            if not endpoint.get('legacy_endpoint_id'):  # pure v3 endpoint
+                # tell endpoints apart by the combination of
+                # service_id and region_id.
+                # NOTE(muyu): in theory, it's possible that there are more than
+                # one endpoint of one service, one region and one interface,
+                # but in practice, it makes no sense because only one will be
+                # used.
+                key = (endpoint['service_id'], endpoint['region_id'])
+                v3_endpoints.setdefault(key, []).append(endpoint)
+            else:  # legacy endpoint
+                if endpoint['legacy_endpoint_id'] not in legacy_endpoints:
+                    legacy_ep = endpoint.copy()
+                    legacy_ep['id'] = legacy_ep.pop('legacy_endpoint_id')
+                    legacy_ep.pop('interface')
+                    legacy_ep.pop('url')
+                    legacy_ep['region'] = legacy_ep.pop('region_id')
+
+                    legacy_endpoints[endpoint['legacy_endpoint_id']] = (
+                        legacy_ep)
+                else:
+                    legacy_ep = (
+                        legacy_endpoints[endpoint['legacy_endpoint_id']])
+
+                # add the legacy endpoint with an interface url
+                legacy_ep['%surl' % endpoint['interface']] = endpoint['url']
+
+        # convert collected v3 endpoints into v2 endpoints
+        for endpoints in v3_endpoints.values():
+            legacy_ep = {}
+            # For v3 endpoints in the same group, contents of extra attributes
+            # can be different, which may cause confusion if a random one is
+            # used. So only necessary attributes are used here.
+            # It's different for legacy v2 endpoints, which are created
+            # with the same "extra" value when being migrated.
+            for key in ('service_id', 'enabled'):
+                legacy_ep[key] = endpoints[0][key]
+            legacy_ep['region'] = endpoints[0]['region_id']
+            for endpoint in endpoints:
+                # Public URL is required for v2 endpoints, so the generated v2
+                # endpoint uses public endpoint's id as its id, which can also
+                # be an indicator whether a public v3 endpoint is present.
+                # It's safe to do so is also because that there is no v2 API to
+                # get an endpoint by endpoint ID.
+                if endpoint['interface'] == 'public':
+                    legacy_ep['id'] = endpoint['id']
+                legacy_ep['%surl' % endpoint['interface']] = endpoint['url']
+
+            # this means there is no public URL of this group of v3 endpoints
+            if 'id' not in legacy_ep:
                 continue
-
-            # is this is a legacy endpoint we haven't indexed yet?
-            if endpoint['legacy_endpoint_id'] not in legacy_endpoints:
-                legacy_ep = endpoint.copy()
-                legacy_ep['id'] = legacy_ep.pop('legacy_endpoint_id')
-                legacy_ep.pop('interface')
-                legacy_ep.pop('url')
-                legacy_ep['region'] = legacy_ep.pop('region_id')
-
-                legacy_endpoints[endpoint['legacy_endpoint_id']] = legacy_ep
-            else:
-                legacy_ep = legacy_endpoints[endpoint['legacy_endpoint_id']]
-
-            # add the legacy endpoint with an interface url
-            legacy_ep['%surl' % endpoint['interface']] = endpoint['url']
+            legacy_endpoints[legacy_ep['id']] = legacy_ep
         return {'endpoints': list(legacy_endpoints.values())}
 
     @controller.v2_deprecated
