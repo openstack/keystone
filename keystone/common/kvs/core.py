@@ -32,8 +32,8 @@ from keystone.i18n import _LI
 from keystone.i18n import _LW
 
 
-__all__ = ['KeyValueStore', 'KeyValueStoreLock', 'LockTimeout',
-           'get_key_value_store']
+__all__ = ('KeyValueStore', 'KeyValueStoreLock', 'LockTimeout',
+           'get_key_value_store')
 
 
 BACKENDS_REGISTERED = False
