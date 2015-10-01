@@ -21,10 +21,10 @@ Developing with Keystone
 Setup
 -----
 
-Get your development environment set up according to :doc:`setup`. The
-instructions from here will assume that you have installed Keystone into a
-virtualenv. If you chose not to, simply exclude "tools/with_venv.sh" from the
-example commands below.
+Get your development environment set up according to
+:doc:`devref/development.environment`. The instructions from here will assume
+that you have installed Keystone into a virtualenv. If you chose not to, simply
+exclude "tools/with_venv.sh" from the example commands below.
 
 
 Configuring Keystone
@@ -247,7 +247,8 @@ Running Tests
 =============
 
 Before running tests, you should have ``tox`` installed and available in your
-environment (in addition to the other external dependencies in :doc:`setup`):
+environment (in addition to the other external dependencies in
+:doc:`devref/development.environment`):
 
 .. code-block:: bash
 
