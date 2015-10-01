@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import hashlib
 import uuid
 
@@ -617,7 +618,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
-        mapping = mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER.copy()
+        mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
         context = self._create_context(
             request=req,
@@ -637,7 +638,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         # this mapping does not have the user type defined
         # and it should defaults to 'ephemeral' which is
         # the expected type for the test case.
-        mapping = mapping_fixtures.MAPPING_FOR_DEFAULT_EPHEMERAL_USER.copy()
+        mapping = copy.deepcopy(
+            mapping_fixtures.MAPPING_FOR_DEFAULT_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
         context = self._create_context(
             request=req,
@@ -657,7 +659,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
-        mapping = mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER.copy()
+        mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
         context = self._create_context(
             request=req,
@@ -674,7 +676,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
-        mapping = mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER.copy()
+        mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
         context = self._create_context(
             request=req,
@@ -694,7 +696,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
-        mapping = mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER.copy()
+        mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = uuid.uuid4().hex
         context = self._create_context(
             request=req,
@@ -719,7 +721,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='x509')
         self.protocol_id = 'x509'
-        mapping = mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER.copy()
+        mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = uuid.uuid4().hex
         context = self._create_context(
             request=req,
