@@ -727,6 +727,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         user['domain_id'] = domain2['id']
         self.identity_api.update_user(user['id'], user)
 
+        updated_user_ref = self.identity_api.get_user(user['id'])
+        self.assertEqual(domain2['id'], updated_user_ref['domain_id'])
+
     def test_move_user_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -827,6 +830,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.create_project(project['id'], project)
         project['domain_id'] = domain2['id']
         self.resource_api.update_project(project['id'], project)
+
+        updated_project_ref = self.resource_api.get_project(project['id'])
+        self.assertEqual(domain2['id'], updated_project_ref['domain_id'])
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
@@ -3332,6 +3338,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         group = self.identity_api.create_group(group)
         group['domain_id'] = domain2['id']
         self.identity_api.update_group(group['id'], group)
+
+        updated_group_ref = self.identity_api.get_group(group['id'])
+        self.assertEqual(domain2['id'], updated_group_ref['domain_id'])
 
     def test_move_group_between_domains_with_clashing_names_fails(self):
         domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
