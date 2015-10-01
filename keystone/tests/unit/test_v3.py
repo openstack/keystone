@@ -147,9 +147,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             pass
 
     def setUp(self, app_conf='keystone'):
-        """Setup for v3 Restful Test Cases.
-
-        """
+        """Setup for v3 Restful Test Cases."""
         new_paste_file = self.generate_paste_config()
         self.addCleanup(self.remove_generated_paste_config)
         if new_paste_file:

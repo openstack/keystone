@@ -186,9 +186,7 @@ class CheckForLoggingIssues(BaseASTChecker):
                 self.visit(value)
 
     def _filter_imports(self, module_name, alias):
-        """Keeps lists of logging and i18n imports
-
-        """
+        """Keeps lists of logging and i18n imports."""
         if module_name in self.LOG_MODULES:
             self.logger_module_names.append(alias.asname or alias.name)
         elif module_name in self.I18N_MODULES:
@@ -284,9 +282,7 @@ class CheckForLoggingIssues(BaseASTChecker):
         return super(CheckForLoggingIssues, self).generic_visit(node)
 
     def visit_Call(self, node):
-        """Look for the 'LOG.*' calls.
-
-        """
+        """Look for the 'LOG.*' calls."""
 
         # obj.method
         if isinstance(node.func, ast.Attribute):

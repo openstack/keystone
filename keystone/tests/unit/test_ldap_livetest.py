@@ -82,8 +82,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         return config_files
 
     def test_build_tree(self):
-        """Regression test for building the tree names
-        """
+        """Regression test for building the tree names."""
         # logic is different from the fake backend.
         user_api = identity_ldap.UserApi(CONF)
         self.assertTrue(user_api)

@@ -43,9 +43,7 @@ class ArbitraryException(Exception):
 
 
 def register_callback(operation, resource_type=EXP_RESOURCE_TYPE):
-    """Helper for creating and registering a mock callback.
-
-    """
+    """Helper for creating and registering a mock callback."""
     callback = mock.Mock(__name__='callback',
                          im_class=mock.Mock(__name__='class'))
     notifications.register_event_callback(operation, resource_type, callback)

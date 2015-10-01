@@ -157,8 +157,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
             return None
 
     def test_build_tree(self):
-        """Regression test for building the tree names
-        """
+        """Regression test for building the tree names."""
         user_api = identity.backends.ldap.UserApi(CONF)
         self.assertTrue(user_api)
         self.assertEqual("ou=Users,%s" % CONF.ldap.suffix, user_api.tree_dn)
@@ -871,8 +870,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertThat(ref_list, matchers.Equals([group]))
 
     def test_user_id_comma_grants(self):
-        """Even if the user has a , in their ID, can get user and group grants.
-        """
+        """List user and group grants, even with a comma in the user's ID."""
 
         # Create a user with a , in their ID
         # NOTE(blk-u): the DN for this user is hard-coded in fakeldap!

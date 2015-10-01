@@ -215,8 +215,7 @@ def get_remote_id_parameter(protocol):
 
 
 def validate_idp(idp, protocol, assertion):
-    """Validate the IdP providing the assertion is registered for the mapping.
-    """
+    """The IdP providing the assertion should be registered for the mapping."""
 
     remote_id_parameter = get_remote_id_parameter(protocol)
     if not remote_id_parameter or not idp['remote_ids']:

@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-Keystone Memcached dogpile.cache backend implementation.
-"""
+"""Keystone Memcached dogpile.cache backend implementation."""
 
 import random as _random
 import time

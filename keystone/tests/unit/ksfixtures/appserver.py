@@ -29,8 +29,7 @@ ADMIN = 'admin'
 
 
 class AppServer(fixtures.Fixture):
-    """A fixture for managing an application server instance.
-    """
+    """A fixture for managing an application server instance."""
 
     def __init__(self, config, name, cert=None, key=None, ca=None,
                  cert_required=False, host='127.0.0.1', port=0):

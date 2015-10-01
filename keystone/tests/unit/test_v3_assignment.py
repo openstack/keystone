@@ -767,7 +767,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertEqual(1, len(r.result['project']['parents']))
 
     def test_get_project_with_parents_as_list_and_parents_as_ids(self):
-        """Call ``GET /projects/{project_id}?parents_as_list&parents_as_ids``.
+        """Attempt to list a project's parents as both a list and as IDs.
+
+        This uses ``GET /projects/{project_id}?parents_as_list&parents_as_ids``
+        which should fail with a Bad Request due to the conflicting query
+        strings.
 
         """
         projects = self._create_projects_hierarchy(hierarchy_size=2)
@@ -929,7 +933,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertEqual(1, len(r.result['project']['subtree']))
 
     def test_get_project_with_subtree_as_list_and_subtree_as_ids(self):
-        """Call ``GET /projects/{project_id}?subtree_as_list&subtree_as_ids``.
+        """Attempt to get a project subtree as both a list and as IDs.
+
+        This uses ``GET /projects/{project_id}?subtree_as_list&subtree_as_ids``
+        which should fail with a bad request due to the conflicting query
+        strings.
 
         """
         projects = self._create_projects_hierarchy(hierarchy_size=2)

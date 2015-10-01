@@ -855,9 +855,7 @@ class VersionTests(SqlMigrateBase):
                              'idp_remote_ids table')
 
     def test_unexpected_extension(self):
-        """The version for an extension that doesn't exist raises ImportError.
-
-        """
+        """The version for a non-existent extension raises ImportError."""
 
         extension_name = uuid.uuid4().hex
         self.assertRaises(ImportError,
@@ -865,9 +863,7 @@ class VersionTests(SqlMigrateBase):
                           extension=extension_name)
 
     def test_unversioned_extension(self):
-        """The version for extensions without migrations raise an exception.
-
-        """
+        """The version for extensions without migrations raise an exception."""
 
         self.assertRaises(exception.MigrationNotProvided,
                           migration_helpers.get_db_version,
