@@ -1243,7 +1243,7 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
     def test_fetch_revocation_list_md5(self):
         """If the server is configured for md5, then the revocation list has
-           tokens hashed with MD5.
+        tokens hashed with MD5.
         """
 
         # The default hash algorithm is md5.
@@ -1255,7 +1255,7 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 
     def test_fetch_revocation_list_sha256(self):
         """If the server is configured for sha256, then the revocation list has
-           tokens hashed with SHA256
+        tokens hashed with SHA256
         """
 
         hash_algorithm = 'sha256'

@@ -177,7 +177,7 @@ class NotificationsTestCase(unit.BaseTestCase):
 
     def test_send_notification(self):
         """Test the private method _send_notification to ensure event_type,
-           payload, and context are built and passed properly.
+        payload, and context are built and passed properly.
         """
         resource = uuid.uuid4().hex
         resource_type = EXP_RESOURCE_TYPE
