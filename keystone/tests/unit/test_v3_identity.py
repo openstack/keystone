@@ -295,12 +295,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         old_password_auth = self.build_authentication_request(
             user_id=user_ref['id'],
             password=password)
-        r = self.v3_authenticate_token(old_password_auth)
+        r = self.v3_create_token(old_password_auth)
         old_token = r.headers.get('X-Subject-Token')
 
         # auth as user with a token should work before a password change
         old_token_auth = self.build_authentication_request(token=old_token)
-        self.v3_authenticate_token(old_token_auth)
+        self.v3_create_token(old_token_auth)
 
         # administrative password reset
         new_password = uuid.uuid4().hex
@@ -308,18 +308,18 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                    body={'user': {'password': new_password}})
 
         # auth as user with original password should not work after change
-        self.v3_authenticate_token(old_password_auth,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(old_password_auth,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # auth as user with an old token should not work after change
-        self.v3_authenticate_token(old_token_auth,
-                                   expected_status=http_client.NOT_FOUND)
+        self.v3_create_token(old_token_auth,
+                             expected_status=http_client.NOT_FOUND)
 
         # new password should work
         new_password_auth = self.build_authentication_request(
             user_id=user_ref['id'],
             password=new_password)
-        self.v3_authenticate_token(new_password_auth)
+        self.v3_create_token(new_password_auth)
 
     def test_update_user_domain_id(self):
         """Call ``PATCH /users/{user_id}`` with domain_id."""
@@ -566,8 +566,8 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             user_id=self.user_ref['id'],
             password=password)
-        r = self.v3_authenticate_token(auth_data,
-                                       expected_status=expected_status)
+        r = self.v3_create_token(auth_data,
+                                 expected_status=expected_status)
         return r.headers.get('X-Subject-Token')
 
     def change_password(self, expected_status, **kwargs):
@@ -583,7 +583,7 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
                                           expected_status=http_client.CREATED)
         # original token works
         old_token_auth = self.build_authentication_request(token=token_id)
-        self.v3_authenticate_token(old_token_auth)
+        self.v3_create_token(old_token_auth)
 
         # change password
         new_password = uuid.uuid4().hex
@@ -596,8 +596,8 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
                                expected_status=http_client.UNAUTHORIZED)
 
         # old token fails
-        self.v3_authenticate_token(old_token_auth,
-                                   expected_status=http_client.NOT_FOUND)
+        self.v3_create_token(old_token_auth,
+                             expected_status=http_client.NOT_FOUND)
 
         # new password works
         self.get_request_token(new_password,

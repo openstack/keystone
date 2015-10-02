@@ -1654,13 +1654,13 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
 
     def test_scope_to_project_once_notify(self):
-        r = self.v3_authenticate_token(
+        r = self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
         user_id = r.json['token']['user']['id']
         self._assert_last_notify(self.ACTION, self.IDP, self.PROTOCOL, user_id)
 
     def test_scope_to_project_once(self):
-        r = self.v3_authenticate_token(
+        r = self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
         token_resp = r.result['token']
         project_id = token_resp['project']['id']
@@ -1690,14 +1690,14 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         """
         enabled_false = {'enabled': False}
         self.federation_api.update_idp(self.IDP, enabled_false)
-        self.v3_authenticate_token(
+        self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
             expected_status=http_client.FORBIDDEN)
 
     def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
 
-        self.v3_authenticate_token(
+        self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
             expected_status=http_client.UNAUTHORIZED)
 
@@ -1716,7 +1716,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         project_ids = (self.proj_employees['id'],
                        self.proj_customers['id'])
         for body, project_id_ref in zip(bodies, project_ids):
-            r = self.v3_authenticate_token(body)
+            r = self.v3_create_token(body)
             token_resp = r.result['token']
             self._check_project_scoped_token_attributes(token_resp,
                                                         project_id_ref)
@@ -1724,7 +1724,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
     def test_scope_to_project_with_only_inherited_roles(self):
         """Try to scope token whose only roles are inherited."""
         self.config_fixture.config(group='os_inherit', enabled=True)
-        r = self.v3_authenticate_token(
+        r = self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_INHERITED_FROM_CUSTOMER)
         token_resp = r.result['token']
         self._check_project_scoped_token_attributes(
@@ -1736,7 +1736,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
 
     def test_scope_token_from_nonexistent_unscoped_token(self):
         """Try to scope token from non-existent unscoped token."""
-        self.v3_authenticate_token(
+        self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_FROM_NONEXISTENT_TOKEN,
             expected_status=http_client.NOT_FOUND)
 
@@ -1760,7 +1760,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
                           assertion='CONTRACTOR_ASSERTION')
 
     def test_scope_to_domain_once(self):
-        r = self.v3_authenticate_token(self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER)
+        r = self.v3_create_token(self.TOKEN_SCOPE_DOMAIN_A_FROM_CUSTOMER)
         token_resp = r.result['token']
         self._check_domain_scoped_token_attributes(token_resp,
                                                    self.domainA['id'])
@@ -1783,14 +1783,14 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
                       self.domainC['id'])
 
         for body, domain_id_ref in zip(bodies, domain_ids):
-            r = self.v3_authenticate_token(body)
+            r = self.v3_create_token(body)
             token_resp = r.result['token']
             self._check_domain_scoped_token_attributes(token_resp,
                                                        domain_id_ref)
 
     def test_scope_to_domain_with_only_inherited_roles_fails(self):
         """Try to scope to a domain that has no direct roles."""
-        self.v3_authenticate_token(
+        self.v3_create_token(
             self.TOKEN_SCOPE_DOMAIN_D_FROM_CUSTOMER,
             expected_status=http_client.UNAUTHORIZED)
 
@@ -1904,7 +1904,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         v3_scope_request = self._scope_request(employee_unscoped_token_id,
                                                'project', project['id'])
 
-        r = self.v3_authenticate_token(v3_scope_request)
+        r = self.v3_create_token(v3_scope_request)
         token_resp = r.result['token']
         self._check_project_scoped_token_attributes(token_resp, project['id'])
 
@@ -1976,7 +1976,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
             token_id, 'project',
             self.project_all['id'])
 
-        self.v3_authenticate_token(
+        self.v3_create_token(
             scoped_token, expected_status=http_client.INTERNAL_SERVER_ERROR)
 
     def test_lists_with_missing_group_in_backend(self):
@@ -2368,7 +2368,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         self._check_domains_are_valid(r.json_body['token'])
 
     def test_scoped_token_has_user_domain(self):
-        r = self.v3_authenticate_token(
+        r = self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
         self._check_domains_are_valid(r.result['token'])
 
@@ -2442,7 +2442,7 @@ class FernetFederatedTokenTests(FederationTests, FederatedSetupMixin):
         v3_scope_request = self._scope_request(unscoped_token,
                                                'project', project['id'])
 
-        resp = self.v3_authenticate_token(v3_scope_request)
+        resp = self.v3_create_token(v3_scope_request)
         token_resp = resp.result['token']
         self._check_project_scoped_token_attributes(token_resp, project['id'])
 
@@ -2715,7 +2715,7 @@ class SAMLGenerationTests(FederationTests):
             user_id=self.user['id'],
             password=self.user['password'],
             project_id=self.project['id'])
-        resp = self.v3_authenticate_token(auth_data)
+        resp = self.v3_create_token(auth_data)
         token_id = resp.headers.get('X-Subject-Token')
         return token_id
 
@@ -2724,7 +2724,7 @@ class SAMLGenerationTests(FederationTests):
             user_id=self.user['id'],
             password=self.user['password'],
             user_domain_id=self.domain['id'])
-        resp = self.v3_authenticate_token(auth_data)
+        resp = self.v3_create_token(auth_data)
         token_id = resp.headers.get('X-Subject-Token')
         return token_id
 

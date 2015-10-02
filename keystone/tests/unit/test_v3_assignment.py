@@ -142,7 +142,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             user_id=self.user2['id'],
             password=self.user2['password'],
             project_id=self.project2['id'])
-        self.v3_authenticate_token(auth_data)
+        self.v3_create_token(auth_data)
 
         # Now disable the domain
         self.domain2['enabled'] = False
@@ -171,16 +171,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             user_id=self.user2['id'],
             password=self.user2['password'],
             project_id=self.project2['id'])
-        self.v3_authenticate_token(auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         auth_data = self.build_authentication_request(
             username=self.user2['name'],
             user_domain_id=self.domain2['id'],
             password=self.user2['password'],
             project_id=self.project2['id'])
-        self.v3_authenticate_token(auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_delete_enabled_domain_fails(self):
         """Call ``DELETE /domains/{domain_id}`` (when domain enabled)."""
@@ -2203,10 +2203,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             project_id=self.project_id)
 
         # Check the user cannot get a domain nor a project token
-        self.v3_authenticate_token(domain_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Grant non-inherited role for user on domain
         non_inher_ud_link = self.build_role_assignment_link(
@@ -2214,9 +2214,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(non_inher_ud_link)
 
         # Check the user can get only a domain token
-        self.v3_authenticate_token(domain_auth_data)
-        self.v3_authenticate_token(project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data)
+        self.v3_create_token(project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Create inherited role
         inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
@@ -2229,23 +2229,23 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(inher_ud_link)
 
         # Check the user can get both a domain and a project token
-        self.v3_authenticate_token(domain_auth_data)
-        self.v3_authenticate_token(project_auth_data)
+        self.v3_create_token(domain_auth_data)
+        self.v3_create_token(project_auth_data)
 
         # Delete inherited grant
         self.delete(inher_ud_link)
 
         # Check the user can only get a domain token
-        self.v3_authenticate_token(domain_auth_data)
-        self.v3_authenticate_token(project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data)
+        self.v3_create_token(project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Delete non-inherited grant
         self.delete(non_inher_ud_link)
 
         # Check the user cannot get a domain token anymore
-        self.v3_authenticate_token(domain_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_get_token_from_inherited_group_domain_role_grants(self):
         # Create a new group and put a new user in it to
@@ -2270,10 +2270,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             project_id=self.project_id)
 
         # Check the user cannot get a domain nor a project token
-        self.v3_authenticate_token(domain_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Grant non-inherited role for user on domain
         non_inher_gd_link = self.build_role_assignment_link(
@@ -2281,9 +2281,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(non_inher_gd_link)
 
         # Check the user can get only a domain token
-        self.v3_authenticate_token(domain_auth_data)
-        self.v3_authenticate_token(project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data)
+        self.v3_create_token(project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Create inherited role
         inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
@@ -2296,23 +2296,23 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(inher_gd_link)
 
         # Check the user can get both a domain and a project token
-        self.v3_authenticate_token(domain_auth_data)
-        self.v3_authenticate_token(project_auth_data)
+        self.v3_create_token(domain_auth_data)
+        self.v3_create_token(project_auth_data)
 
         # Delete inherited grant
         self.delete(inher_gd_link)
 
         # Check the user can only get a domain token
-        self.v3_authenticate_token(domain_auth_data)
-        self.v3_authenticate_token(project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data)
+        self.v3_create_token(project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Delete non-inherited grant
         self.delete(non_inher_gd_link)
 
         # Check the user cannot get a domain token anymore
-        self.v3_authenticate_token(domain_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(domain_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
     def _test_crud_inherited_and_direct_assignment_on_target(self, target_url):
         # Create a new role to avoid assignments loaded from sample data
@@ -2821,10 +2821,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             project_id=leaf_id)
 
         # Check the user cannot get a token on root nor leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Grant non-inherited role for user on leaf project
         non_inher_up_link = self.build_role_assignment_link(
@@ -2833,9 +2833,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(non_inher_up_link)
 
         # Check the user can only get a token on leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data)
 
         # Grant inherited role for user on root project
         inher_up_link = self.build_role_assignment_link(
@@ -2844,24 +2844,24 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(inher_up_link)
 
         # Check the user still can get a token only on leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data)
 
         # Delete non-inherited grant
         self.delete(non_inher_up_link)
 
         # Check the inherited role still applies for leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data)
 
         # Delete inherited grant
         self.delete(inher_up_link)
 
         # Check the user cannot get a token on leaf project anymore
-        self.v3_authenticate_token(leaf_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_get_token_from_inherited_group_project_role_grants(self):
         # Create default scenario
@@ -2884,10 +2884,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             project_id=leaf_id)
 
         # Check the user cannot get a token on root nor leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
         # Grant non-inherited role for group on leaf project
         non_inher_gp_link = self.build_role_assignment_link(
@@ -2896,9 +2896,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(non_inher_gp_link)
 
         # Check the user can only get a token on leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data)
 
         # Grant inherited role for group on root project
         inher_gp_link = self.build_role_assignment_link(
@@ -2907,22 +2907,22 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.put(inher_gp_link)
 
         # Check the user still can get a token only on leaf project
-        self.v3_authenticate_token(root_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
-        self.v3_authenticate_token(leaf_project_auth_data)
+        self.v3_create_token(root_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data)
 
         # Delete no-inherited grant
         self.delete(non_inher_gp_link)
 
         # Check the inherited role still applies for leaf project
-        self.v3_authenticate_token(leaf_project_auth_data)
+        self.v3_create_token(leaf_project_auth_data)
 
         # Delete inherited grant
         self.delete(inher_gp_link)
 
         # Check the user cannot get a token on leaf project anymore
-        self.v3_authenticate_token(leaf_project_auth_data,
-                                   expected_status=http_client.UNAUTHORIZED)
+        self.v3_create_token(leaf_project_auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_get_role_assignments_for_project_hierarchy(self):
         """Call ``GET /role_assignments``.

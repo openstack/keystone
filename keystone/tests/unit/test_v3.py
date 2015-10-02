@@ -408,10 +408,10 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def get_requested_token(self, auth):
         """Request the specific token we want."""
 
-        r = self.v3_authenticate_token(auth)
+        r = self.v3_create_token(auth)
         return r.headers.get('X-Subject-Token')
 
-    def v3_authenticate_token(self, auth, expected_status=http_client.CREATED):
+    def v3_create_token(self, auth, expected_status=http_client.CREATED):
         return self.admin_request(method='POST',
                                   path='/v3/auth/tokens',
                                   body=auth,
