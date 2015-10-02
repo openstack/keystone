@@ -43,7 +43,15 @@ profiles:
             # TODO:
             # - blacklist_import_func
 
-            - blacklist_imports
+            # One of the blacklisted imports is the subprocess module. Keystone
+            # has to import the subprocess module in a single module for
+            # eventlet support so in most cases bandit won't be able to detect
+            # that subprocess is even being imported. Also, Bandit's
+            # recommendation is just to check that the use is safe without any
+            # documentation on what safe or unsafe usage is. So this test is
+            # skipped.
+            # - blacklist_imports
+
             - exec_used
 
             # TODO:
@@ -197,8 +205,32 @@ blacklist_imports:
     bad_import_sets:
         - telnet:
             imports: [telnetlib]
-            level: ERROR
+            level: HIGH
             message: "Telnet is considered insecure. Use SSH or some other encrypted protocol."
+        - info_libs:
+            imports: [pickle, cPickle, subprocess, Crypto]
+            level: LOW
+            message: "Consider possible security implications associated with {module} module."
+
+        # Most of this is based off of Christian Heimes' work on defusedxml:
+        #   https://pypi.python.org/pypi/defusedxml/#defusedxml-sax
+
+        - xml_libs:
+            imports: [xml.etree.cElementTree,
+                      xml.etree.ElementTree,
+                      xml.sax.expatreader,
+                      xml.sax,
+                      xml.dom.expatbuilder,
+                      xml.dom.minidom,
+                      xml.dom.pulldom,
+                      lxml.etree,
+                      lxml]
+            message: "Using {module} to parse untrusted XML data is known to be vulnerable to XML attacks. Replace {module} with the equivilent defusedxml package."
+            level: LOW
+        - xml_libs_high:
+            imports: [xmlrpclib]
+            message: "Using {module} to parse untrusted XML data is known to be vulnerable to XML attacks. Use defused.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities."
+            level: HIGH
 
 hardcoded_tmp_directory:
     tmp_dirs:  ['/tmp', '/var/tmp', '/dev/shm']
