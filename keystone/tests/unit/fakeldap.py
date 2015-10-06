@@ -18,7 +18,7 @@
 
 This class does very little error checking, and knows nothing about ldap
 class definitions.  It implements the minimum emulation of the python ldap
-library to work with nova.
+library to work with keystone.
 
 """
 

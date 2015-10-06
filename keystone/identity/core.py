@@ -275,7 +275,7 @@ class DomainConfigs(dict):
             # being able to find who has it...either we were very very very
             # unlucky or something is awry.
             msg = _('Exceeded attempts to register domain %(domain)s to use '
-                    'the SQL driver, the last  domain that appears to have '
+                    'the SQL driver, the last domain that appears to have '
                     'had it is %(last_domain)s, giving up') % {
                         'domain': domain_id, 'last_domain': domain_registered}
             raise exception.UnexpectedError(msg)
@@ -710,7 +710,7 @@ class Manager(manager.Manager):
 
         Use the mapping table to look up the domain, driver and local entity
         that is represented by the provided public ID.  Handle the situations
-        were we do not use the mapping (e.g. single driver that understands
+        where we do not use the mapping (e.g. single driver that understands
         UUIDs etc.)
 
         """
