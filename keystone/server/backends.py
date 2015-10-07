@@ -32,11 +32,8 @@ def load_backends():
     cache.configure_cache()
     cache.configure_cache(region=catalog.COMPUTED_CATALOG_REGION)
 
-    # Ensure that the identity driver is created before the assignment manager
-    # and that the assignment driver is created before the resource manager.
-    # The default resource driver depends on assignment, which in turn
-    # depends on identity - hence we need to ensure the chain is available.
-    _IDENTITY_API = identity.Manager()
+    # Ensure that the assignment driver is created before the resource manager.
+    # The default resource driver depends on assignment.
     _ASSIGNMENT_API = assignment.Manager()
 
     DRIVERS = dict(
@@ -48,7 +45,7 @@ def load_backends():
         federation_api=federation.Manager(),
         id_generator_api=identity.generator.Manager(),
         id_mapping_api=identity.MappingManager(),
-        identity_api=_IDENTITY_API,
+        identity_api=identity.Manager(),
         oauth_api=oauth1.Manager(),
         policy_api=policy.Manager(),
         resource_api=resource.Manager(),

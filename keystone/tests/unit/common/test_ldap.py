@@ -27,6 +27,7 @@ from keystone.common.ldap import core as common_ldap_core
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
+from keystone.tests.unit.ksfixtures import database
 
 
 CONF = cfg.CONF
@@ -207,6 +208,8 @@ class LDAPDeleteTreeTest(unit.TestCase):
 
         ks_ldap.register_handler('fake://',
                                  fakeldap.FakeLdapNoSubtreeDelete)
+        self.useFixture(database.Database(self.sql_driver_version_overrides))
+
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
@@ -359,6 +362,7 @@ class LDAPPagedResultsTest(unit.TestCase):
 
         ks_ldap.register_handler('fake://', fakeldap.FakeLdap)
         self.addCleanup(common_ldap_core._HANDLERS.clear)
+        self.useFixture(database.Database(self.sql_driver_version_overrides))
 
         self.load_backends()
         self.load_fixtures(default_fixtures)

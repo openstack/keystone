@@ -26,3 +26,11 @@ other:
     [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
     Removed Catalog KVS backend (``keystone.catalog.backends.sql.Catalog``).
     This was deprecated in the Icehouse release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    The LDAP backend for Assignment has been removed. This was deprecated in
+    the Kilo release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    The LDAP backend for Resource has been removed. This was deprecated in
+    the Kilo release.
