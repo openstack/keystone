@@ -19,19 +19,20 @@ Service
     OpenStack servers like keystone, nova, glance, etc.
 
 Project
-    These are projects in keystone. They used to be called "tenant"s
-    and that term is still used all over the place.
+    A project is a namespace for a grouping of OpenStack entities. Users must
+    be assigned a role on a project in order to interact with it. Prior to the
+    introduction of the v3 API, projects were referred to as tenants and the
+    term is still used in reference to the v2.0 API.
 
 
 Token differences
 =================
 
-Keystone runs both v2 and v3, v2 requests go to /v2.0 and v3 requests
-go to /v3. You don't need to "enable" the v3 API in keystone, it is
-available by default if not disabled intentionally. If you get a token
-using the v2 API you can use it to do v3 operations (like list users
-and stuff). The reverse also works, get a v3 token and use it on v2
-works fine.
+The keystone service runs both v2 and v3, v2 requests go to /v2.0 and v3
+requests go to /v3. You don't need to "enable" the v3 API in keystone, it is
+available by default via a separate pipeline from v2.0. If you get a token
+using the v2 API you can use it to do v3 operations (like list users and
+stuff). The reverse also works, get a v3 token and use it on v2 works fine.
 
 You can get a v2 token using POST /v2.0/tokens. You can get a v3 token
 using POST /v3/auth/tokens. The response is different: the service
@@ -42,10 +43,11 @@ domain, project domain).
 Domains
 =======
 
-A major change to v3 is domains. Every project, user, and group is in a
-domain. This means they have a domain_id. You can have two users with
-the same name but they must be in different domains, so user names are
-not unique. However, roles are not in domains.
+A major change to v3 is domains. Every project, user, and group is in a domain.
+This means they have a domain_id. You can have two users with the same name but
+they must be in different domains, thus usernames are not globally unique
+across the deployment. Unique identifiers assigned to users from keystone are
+expected to be unique across the deployment. However, roles are not in domains.
 
 One of the great things about domains is that you can have one domain
 backed by SQL (for service users) and another backed by LDAP (the cloud
@@ -72,14 +74,13 @@ domain-scoped tokens.
 Auth Token middleware
 =====================
 
-The auth_token middleware handles token validation for the different
-services. Conceptually, what happens is that auth_token pulls the token
-out of the X-Auth-Token header, sends the token to keystone to validate
-the token and get info about the token (the user, project, and roles),
-and sets a bunch of environment variables with the user, project, and
-roles. The services typically take the environment variables, put them
-in the service's "context", and use the context for policy enforcement
-via oslo.policy.
+The auth_token middleware handles token validation for the different services.
+Conceptually, what happens is that auth_token pulls the token out of the
+X-Auth-Token header, sends the token to keystone to validate the token and get
+information about the token (the user, project, and roles), and sets a bunch of
+environment variables with the user, project, and roles. The services typically
+take the environment variables, put them in the service's "context", and use
+the context for policy enforcement via oslo.policy.
 
 Service tokens
 --------------
@@ -129,11 +130,12 @@ Picking the version
 Use version discovery to figure out what version the identity server
 supports rather than configuring the version.
 
-Use openstack CLI not keystone CLI
+Use OpenStack CLI not keystone CLI
 ----------------------------------
 
-keystone CLI is deprecated and will be removed soon. The openstack CLI
-has all the keystone commands and even supports v3.
+The keystone CLI is deprecated and will be removed soon. The `OpenStack CLI
+<http://docs.openstack.org/developer/python-openstackclient/>`_
+has all the keystone CLI commands and even supports v3.
 
 
 Hierarchical Multitenancy
