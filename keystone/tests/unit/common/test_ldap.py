@@ -554,3 +554,15 @@ class LDAPFilterQueryCompositionTest(tests.TestCase):
         hints.add_filter(self.attribute_name, username)
         self.assertEqual(expected_result,
                          self.base_ldap.filter_query(hints=hints, query=query))
+
+    def test_filter_with_hints_and_query_is_none(self):
+        hints = driver_hints.Hints()
+        username = uuid.uuid4().hex
+        hints.add_filter(name=self.attribute_name,
+                         value=username,
+                         comparator='equals',
+                         case_sensitive=False)
+        expected_ldap_filter = '(&(%s=%s))' % (
+            self.filter_attribute_name, username)
+        self.assertEqual(expected_ldap_filter,
+                         self.base_ldap.filter_query(hints=hints, query=None))
