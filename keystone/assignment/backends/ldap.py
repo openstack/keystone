@@ -330,18 +330,6 @@ class ProjectApi(common_ldap.ProjectLdapStructureMixin,
         self.member_attribute = (conf.ldap.project_member_attribute
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
-    def get_user_projects(self, user_dn, associations):
-        """Returns the list of tenants to which a user has access."""
-        project_ids = set()
-        for assoc in associations:
-            project_ids.add(self._dn_to_id(assoc.project_dn))
-        projects = []
-        for project_id in project_ids:
-            # slower to get them one at a time, but a huge list could blow out
-            # the connection.  This is the safer way
-            projects.append(self.get(project_id))
-        return projects
-
     def get_user_dns(self, tenant_id, rolegrants, role_dn=None):
         tenant = self._ldap_get(tenant_id)
         res = set()
