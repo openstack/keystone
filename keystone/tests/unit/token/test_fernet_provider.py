@@ -274,21 +274,28 @@ class TestPayloads(unit.TestCase):
             expected_uuid_in_bytes)
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
 
-    def test_time_string_to_int_conversions(self):
+    def test_time_string_to_float_conversions(self):
         payload_cls = token_formatters.BasePayload
 
         expected_time_str = utils.isotime(subsecond=True)
         time_obj = timeutils.parse_isotime(expected_time_str)
-        expected_time_int = (
+        expected_time_float = (
             (timeutils.normalize_time(time_obj) -
              datetime.datetime.utcfromtimestamp(0)).total_seconds())
 
-        actual_time_int = payload_cls._convert_time_string_to_int(
-            expected_time_str)
-        self.assertEqual(expected_time_int, actual_time_int)
+        # NOTE(lbragstad): The token expiration time for Fernet tokens is
+        # passed in the payload of the token. This is different from the token
+        # creation time, which is handled by Fernet and doesn't support
+        # subsecond precision because it is a timestamp integer.
+        self.assertIsInstance(expected_time_float, float)
 
-        actual_time_str = payload_cls._convert_int_to_time_string(
-            actual_time_int)
+        actual_time_float = payload_cls._convert_time_string_to_float(
+            expected_time_str)
+        self.assertIsInstance(actual_time_float, float)
+        self.assertEqual(expected_time_float, actual_time_float)
+
+        actual_time_str = payload_cls._convert_float_to_time_string(
+            actual_time_float)
         self.assertEqual(expected_time_str, actual_time_str)
 
     def test_unscoped_payload(self):
