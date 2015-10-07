@@ -15,6 +15,7 @@
 import uuid
 
 from oslo_config import cfg
+import oslo_context.context
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 from six.moves import http_client
@@ -1248,6 +1249,24 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         self.assertEqual(
             self.domain['name'],
             req.environ.get(authorization.AUTH_CONTEXT_ENV)['domain_name'])
+
+    def test_oslo_context(self):
+        # After AuthContextMiddleware runs, an
+        # oslo_context.context.RequestContext was created so that its fields
+        # can be logged. This test validates that the RequestContext was
+        # created and the fields are set as expected.
+
+        # Use a scoped token so more fields can be set.
+        token = self.get_scoped_token()
+        req = self._mock_request_object(token)
+
+        # oslo_middleware RequestId middleware sets openstack.request_id.
+        request_id = uuid.uuid4().hex
+        req.environ['openstack.request_id'] = request_id
+        middleware.AuthContextMiddleware(application=None).process_request(req)
+
+        req_context = oslo_context.context.get_current()
+        self.assertEqual(request_id, req_context.request_id)
 
 
 class JsonHomeTestMixin(object):
