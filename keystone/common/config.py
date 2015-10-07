@@ -646,47 +646,6 @@ FILE_OPTIONS = {
                          'mapping format is <ldap_attr>:<user_attr>, where '
                          'ldap_attr is the attribute in the LDAP entry and '
                          'user_attr is the Identity API attribute.'),
-
-        cfg.StrOpt('role_tree_dn',
-                   deprecated_for_removal=True,
-                   help='Search base for roles. '
-                        'Defaults to the suffix value.'),
-        cfg.StrOpt('role_filter',
-                   deprecated_for_removal=True,
-                   help='LDAP search filter for roles.'),
-        cfg.StrOpt('role_objectclass', default='organizationalRole',
-                   deprecated_for_removal=True,
-                   help='LDAP objectclass for roles.'),
-        cfg.StrOpt('role_id_attribute', default='cn',
-                   deprecated_for_removal=True,
-                   help='LDAP attribute mapped to role id.'),
-        cfg.StrOpt('role_name_attribute', default='ou',
-                   deprecated_for_removal=True,
-                   help='LDAP attribute mapped to role name.'),
-        cfg.StrOpt('role_member_attribute', default='roleOccupant',
-                   deprecated_for_removal=True,
-                   help='LDAP attribute mapped to role membership.'),
-        cfg.ListOpt('role_attribute_ignore', default=[],
-                    deprecated_for_removal=True,
-                    help='List of attributes stripped off the role on '
-                         'update.'),
-        cfg.BoolOpt('role_allow_create', default=True,
-                    deprecated_for_removal=True,
-                    help='Allow role creation in LDAP backend.'),
-        cfg.BoolOpt('role_allow_update', default=True,
-                    deprecated_for_removal=True,
-                    help='Allow role update in LDAP backend.'),
-        cfg.BoolOpt('role_allow_delete', default=True,
-                    deprecated_for_removal=True,
-                    help='Allow role deletion in LDAP backend.'),
-        cfg.ListOpt('role_additional_attribute_mapping',
-                    deprecated_for_removal=True,
-                    default=[],
-                    help='Additional attribute mappings for roles. Attribute '
-                         'mapping format is <ldap_attr>:<user_attr>, where '
-                         'ldap_attr is the attribute in the LDAP entry and '
-                         'user_attr is the Identity API attribute.'),
-
         cfg.StrOpt('group_tree_dn',
                    help='Search base for groups. '
                         'Defaults to the suffix value.'),
