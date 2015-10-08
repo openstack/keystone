@@ -40,11 +40,11 @@ class Tenant(controller.V2Controller):
     @controller.v2_deprecated
     def get_all_projects(self, context, **kw):
         """Gets a list of all tenants for an admin user."""
-        if 'name' in context['query_string']:
-            return self.get_project_by_name(
-                context, context['query_string'].get('name'))
-
         self.assert_admin(context)
+
+        if 'name' in context['query_string']:
+            return self._get_project_by_name(context['query_string']['name'])
+
         tenant_refs = self.resource_api.list_projects_in_domain(
             CONF.identity.default_domain_id)
         tenant_refs = [self.v3_to_v2_project(tenant_ref)
@@ -71,9 +71,7 @@ class Tenant(controller.V2Controller):
         self._assert_not_is_domain_project(tenant_id, ref)
         return {'tenant': self.v3_to_v2_project(ref)}
 
-    @controller.v2_deprecated
-    def get_project_by_name(self, context, tenant_name):
-        self.assert_admin(context)
+    def _get_project_by_name(self, tenant_name):
         # Projects acting as a domain should not be visible via v2
         ref = self.resource_api.get_project_by_name(
             tenant_name, CONF.identity.default_domain_id)

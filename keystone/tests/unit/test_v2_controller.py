@@ -13,6 +13,7 @@
 # under the License.
 
 
+import copy
 import uuid
 
 from keystone.assignment import controllers as assignment_controllers
@@ -107,18 +108,22 @@ class TenantTestCase(unit.TestCase):
         """Test that get project does not return is_domain projects."""
         project = self._create_is_domain_project()
 
-        self.assertRaises(
-            exception.ProjectNotFound,
-            self.tenant_controller.get_project_by_name,
-            _ADMIN_CONTEXT,
-            project['name']
-        )
+        context = copy.deepcopy(_ADMIN_CONTEXT)
+        context['query_string']['name'] = project['name']
 
         self.assertRaises(
             exception.ProjectNotFound,
-            self.tenant_controller.get_project,
-            _ADMIN_CONTEXT,
-            project['id']
+            self.tenant_controller.get_all_projects,
+            context
+        )
+
+        context = copy.deepcopy(_ADMIN_CONTEXT)
+        context['query_string']['name'] = project['id']
+
+        self.assertRaises(
+            exception.ProjectNotFound,
+            self.tenant_controller.get_all_projects,
+            context
         )
 
     def test_update_is_domain_project_not_found(self):
