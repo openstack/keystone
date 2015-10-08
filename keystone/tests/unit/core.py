@@ -647,6 +647,10 @@ class TestCase(BaseTestCase):
 
         :param delta: Maximum allowable time delta, defined in seconds.
         """
+        if a == b:
+            # Short-circuit if the values are the same.
+            return
+
         msg = '%s != %s within %s delta' % (a, b, delta)
 
         self.assertTrue(abs(a - b).seconds <= delta, msg)
