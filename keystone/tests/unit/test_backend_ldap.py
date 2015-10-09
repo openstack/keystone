@@ -3171,10 +3171,10 @@ class DomainSpecificLDAPandSQLIdentity(
                 domain_scope=self.domains['domain1']['id']),
             matchers.HasLength(1))
 
-    def test_add_role_grant_to_user_and_project_404(self):
+    def test_add_role_grant_to_user_and_project_returns_not_found(self):
         self.skipTest('Blocked by bug 1101287')
 
-    def test_get_role_grants_for_user_and_project_404(self):
+    def test_get_role_grants_for_user_and_project_returns_not_found(self):
         self.skipTest('Blocked by bug 1101287')
 
     def test_list_projects_for_user_with_grants(self):

@@ -47,14 +47,17 @@ class RulesPolicy(unit.TestCase, test_backend.PolicyTests):
         self.assertRaises(exception.NotImplemented,
                           super(RulesPolicy, self).test_delete)
 
-    def test_get_policy_404(self):
+    def test_get_policy_returns_not_found(self):
         self.assertRaises(exception.NotImplemented,
-                          super(RulesPolicy, self).test_get_policy_404)
+                          super(RulesPolicy,
+                                self).test_get_policy_returns_not_found)
 
-    def test_update_policy_404(self):
+    def test_update_policy_returns_not_found(self):
         self.assertRaises(exception.NotImplemented,
-                          super(RulesPolicy, self).test_update_policy_404)
+                          super(RulesPolicy,
+                                self).test_update_policy_returns_not_found)
 
-    def test_delete_policy_404(self):
+    def test_delete_policy_returns_not_found(self):
         self.assertRaises(exception.NotImplemented,
-                          super(RulesPolicy, self).test_delete_policy_404)
+                          super(RulesPolicy,
+                                self).test_delete_policy_returns_not_found)

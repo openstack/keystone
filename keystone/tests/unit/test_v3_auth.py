@@ -1342,7 +1342,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.delete(
             '/projects/%(project_id)s' % {'project_id': self.projectA['id']})
 
-        # Make sure that we get a NotFound(404) when heading that role.
+        # Make sure that we get a 404 Not Found when heading that role.
         self.head(role_path, expected_status=http_client.NOT_FOUND)
 
     def get_v2_token(self, token=None, project_id=None):
@@ -2730,7 +2730,7 @@ class TestTrustOptional(test_v3.RestfulTestCase):
         super(TestTrustOptional, self).config_overrides()
         self.config_fixture.config(group='trust', enabled=False)
 
-    def test_trusts_404(self):
+    def test_trusts_returns_not_found(self):
         self.get('/OS-TRUST/trusts', body={'trust': {}},
                  expected_status=http_client.NOT_FOUND)
         self.post('/OS-TRUST/trusts', body={'trust': {}},
@@ -3371,7 +3371,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
             expected_status=http_client.NOT_FOUND)
 
-    def test_create_trust_trustee_404(self):
+    def test_create_trust_trustee_returns_not_found(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=uuid.uuid4().hex,
@@ -3389,7 +3389,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts', body={'trust': ref},
                   expected_status=http_client.FORBIDDEN)
 
-    def test_create_trust_project_404(self):
+    def test_create_trust_project_returns_not_found(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id,
@@ -3398,7 +3398,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts', body={'trust': ref},
                   expected_status=http_client.NOT_FOUND)
 
-    def test_create_trust_role_id_404(self):
+    def test_create_trust_role_id_returns_not_found(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id,
@@ -3407,7 +3407,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts', body={'trust': ref},
                   expected_status=http_client.NOT_FOUND)
 
-    def test_create_trust_role_name_404(self):
+    def test_create_trust_role_name_returns_not_found(self):
         ref = self.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id,

@@ -106,11 +106,11 @@ class CoreApiTests(object):
         self.assertValidExtensionListResponse(
             r, keystone_extension.ADMIN_EXTENSIONS)
 
-    def test_admin_extensions_404(self):
+    def test_admin_extensions_returns_not_found(self):
         self.admin_request(path='/v2.0/extensions/invalid-extension',
                            expected_status=http_client.NOT_FOUND)
 
-    def test_public_osksadm_extension_404(self):
+    def test_public_osksadm_extension_returns_not_found(self):
         self.public_request(path='/v2.0/extensions/OS-KSADM',
                             expected_status=http_client.NOT_FOUND)
 
@@ -164,7 +164,7 @@ class CoreApiTests(object):
             token=token)
         self.assertValidAuthenticationResponse(r)
 
-    def test_invalid_token_404(self):
+    def test_invalid_token_returns_not_found(self):
         token = self.get_scoped_token()
         self.admin_request(
             path='/v2.0/tokens/%(token_id)s' % {

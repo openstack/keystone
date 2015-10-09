@@ -1047,7 +1047,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_get_nonexisting_idp(self):
         """Fetch nonexisting IdP entity.
 
-        Expected HTTP 404 status code.
+        Expected HTTP 404 Not Found status code.
 
         """
         idp_id = uuid.uuid4().hex
@@ -1059,7 +1059,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_delete_existing_idp(self):
         """Create and later delete IdP.
 
-        Expect HTTP 404 for the GET IdP call.
+        Expect HTTP 404 Not Found for the GET IdP call.
         """
         default_resp = self._create_default_idp()
         default_idp = self._fetch_attribute_from_response(default_resp,
@@ -1100,7 +1100,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_delete_nonexisting_idp(self):
         """Delete nonexisting IdP.
 
-        Expect HTTP 404 for the GET IdP call.
+        Expect HTTP 404 Not Found for the GET IdP call.
         """
         idp_id = uuid.uuid4().hex
         url = self.base_url(suffix=idp_id)
@@ -1165,7 +1165,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_update_nonexistent_idp(self):
         """Update nonexistent IdP
 
-        Expect HTTP 404 code.
+        Expect HTTP 404 Not Found code.
 
         """
         idp_id = uuid.uuid4().hex
@@ -1221,7 +1221,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_assign_protocol_to_nonexistent_idp(self):
         """Assign protocol to IdP that doesn't exist.
 
-        Expect HTTP 404 code.
+        Expect HTTP 404 Not Found code.
 
         """
 
@@ -1298,7 +1298,8 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_delete_protocol(self):
         """Delete protocol.
 
-        Expect HTTP 404 code for the GET call after the protocol is deleted.
+        Expect HTTP 404 Not Found code for the GET call after the protocol is
+        deleted.
 
         """
         url = self.base_url(suffix='/%(idp_id)s/'
@@ -2825,7 +2826,7 @@ class SAMLGenerationTests(FederationTests):
     def test_sp_not_found(self):
         """Test SAML generation with an invalid service provider ID.
 
-        Raises exception.ServiceProviderNotFound() - error code 404
+        Raises exception.ServiceProviderNotFound() - error Not Found 404
 
         """
         sp_id = uuid.uuid4().hex
@@ -2850,7 +2851,7 @@ class SAMLGenerationTests(FederationTests):
     def test_token_not_found(self):
         """Test that an invalid token in the request body raises an exception.
 
-        Raises exception.TokenNotFound() - error code 404
+        Raises exception.TokenNotFound() - error Not Found 404
 
         """
 
@@ -3248,7 +3249,7 @@ class ServiceProviderTests(FederationTests):
         self.patch(url, body={'service_provider': new_sp_ref},
                    expected_status=http_client.BAD_REQUEST)
 
-    def test_update_service_provider_404(self):
+    def test_update_service_provider_returns_not_found(self):
         new_sp_ref = self.sp_ref()
         new_sp_ref['description'] = uuid.uuid4().hex
         url = self.base_url(suffix=uuid.uuid4().hex)
@@ -3270,7 +3271,7 @@ class ServiceProviderTests(FederationTests):
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         self.delete(url)
 
-    def test_delete_service_provider_404(self):
+    def test_delete_service_provider_returns_not_found(self):
         url = self.base_url(suffix=uuid.uuid4().hex)
         self.delete(url, expected_status=http_client.NOT_FOUND)
 

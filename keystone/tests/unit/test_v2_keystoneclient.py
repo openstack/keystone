@@ -358,19 +358,19 @@ class ClientDrivenTestCase(unit.TestCase):
                           client.tenants.create,
                           tenant_name="")
 
-    def test_tenant_delete_404(self):
+    def test_tenant_delete_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.tenants.delete,
                           tenant=uuid.uuid4().hex)
 
-    def test_tenant_get_404(self):
+    def test_tenant_get_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.tenants.get,
                           tenant_id=uuid.uuid4().hex)
 
-    def test_tenant_update_404(self):
+    def test_tenant_update_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.tenants.update,
@@ -630,7 +630,7 @@ class ClientDrivenTestCase(unit.TestCase):
                           password=uuid.uuid4().hex,
                           email=uuid.uuid4().hex)
 
-    def test_user_create_404(self):
+    def test_user_create_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.users.create,
@@ -639,19 +639,19 @@ class ClientDrivenTestCase(unit.TestCase):
                           email=uuid.uuid4().hex,
                           tenant_id=uuid.uuid4().hex)
 
-    def test_user_get_404(self):
+    def test_user_get_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.users.get,
                           user=uuid.uuid4().hex)
 
-    def test_user_list_404(self):
+    def test_user_list_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.users.list,
                           tenant_id=uuid.uuid4().hex)
 
-    def test_user_update_404(self):
+    def test_user_update_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.users.update,
@@ -664,14 +664,14 @@ class ClientDrivenTestCase(unit.TestCase):
                                    tenant_id=tenant_id)
         self.assertEqual(tenant_id, user.tenant_id)
 
-    def test_user_update_password_404(self):
+    def test_user_update_password_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.users.update_password,
                           user=uuid.uuid4().hex,
                           password=uuid.uuid4().hex)
 
-    def test_user_delete_404(self):
+    def test_user_delete_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.users.delete,
@@ -732,19 +732,19 @@ class ClientDrivenTestCase(unit.TestCase):
         # the ID should be set as defined in CONF
         self.assertEqual(CONF.member_role_id, role.id)
 
-    def test_role_get_404(self):
+    def test_role_get_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.get,
                           role=uuid.uuid4().hex)
 
-    def test_role_delete_404(self):
+    def test_role_delete_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.delete,
                           role=uuid.uuid4().hex)
 
-    def test_role_list_404(self):
+    def test_role_list_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.roles_for_user,
@@ -800,19 +800,19 @@ class ClientDrivenTestCase(unit.TestCase):
         services = [x for x in client.services.list() if x.id == service.id]
         self.assertEqual(0, len(services))
 
-    def test_service_delete_404(self):
+    def test_service_delete_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.services.delete,
                           id=uuid.uuid4().hex)
 
-    def test_service_get_404(self):
+    def test_service_get_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.services.get,
                           id=uuid.uuid4().hex)
 
-    def test_endpoint_delete_404(self):
+    def test_endpoint_delete_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.endpoints.delete,
@@ -886,7 +886,7 @@ class ClientDrivenTestCase(unit.TestCase):
         user_refs = client.tenants.list_users(tenant=self.tenant_bar['id'])
         self.assertNotIn(self.user_two['id'], [x.id for x in user_refs])
 
-    def test_user_role_add_404(self):
+    def test_user_role_add_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.add_user_role,
@@ -906,7 +906,7 @@ class ClientDrivenTestCase(unit.TestCase):
                                    user=uuid.uuid4().hex,
                                    role=self.role_member['id'])
 
-    def test_user_role_remove_404(self):
+    def test_user_role_remove_returns_not_found(self):
         client = self.get_client(admin=True)
         self.assertRaises(client_exceptions.NotFound,
                           client.roles.remove_user_role,
@@ -1239,7 +1239,7 @@ class ClientDrivenTestCase(unit.TestCase):
                          sorted(creds, key=lambda x: x.access))
         self.assertNotIn(cred_4, creds)
 
-    def test_ec2_credentials_create_404(self):
+    def test_ec2_credentials_create_returns_not_found(self):
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.create,
                           user_id=uuid.uuid4().hex,
@@ -1249,19 +1249,19 @@ class ClientDrivenTestCase(unit.TestCase):
                           user_id=self.user_foo['id'],
                           tenant_id=uuid.uuid4().hex)
 
-    def test_ec2_credentials_delete_404(self):
+    def test_ec2_credentials_delete_returns_not_found(self):
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.delete,
                           user_id=uuid.uuid4().hex,
                           access=uuid.uuid4().hex)
 
-    def test_ec2_credentials_get_404(self):
+    def test_ec2_credentials_get_returns_not_found(self):
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.get,
                           user_id=uuid.uuid4().hex,
                           access=uuid.uuid4().hex)
 
-    def test_ec2_credentials_list_404(self):
+    def test_ec2_credentials_list_returns_not_found(self):
         self.assertRaises(client_exceptions.NotFound,
                           self.default_client.ec2.list,
                           user_id=uuid.uuid4().hex)
