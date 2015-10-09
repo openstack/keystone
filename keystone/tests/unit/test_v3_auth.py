@@ -1586,7 +1586,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             events_response,
             audit_id=response['audit_ids'][0])
 
-    def test_revoke_by_id_false_410(self):
+    def test_revoke_by_id_false_returns_gone(self):
         self.get('/auth/tokens/OS-PKI/revoked',
                  expected_status=http_client.GONE)
 
