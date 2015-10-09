@@ -4,15 +4,14 @@
 #
 # Translators:
 # Tomoyuki KATO <tomo@dream.daynight.jp>, 2012-2013
-# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
-# Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
+# Akihiro Motoki <amotoki@gmail.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev20\n"
+"Project-Id-Version: keystone 9.0.0.dev93\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-04 06:10+0000\n"
-"PO-Revision-Date: 2015-09-03 12:54+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"POT-Creation-Date: 2015-10-09 06:13+0000\n"
+"PO-Revision-Date: 2015-10-08 03:20+0000\n"
+"Last-Translator: Akihiro Motoki <amotoki@gmail.com>\n"
 "Language: ja\n"
 "Language-Team: Japanese (http://www.transifex.com/openstack/keystone/"
 "language/ja/)\n"
@@ -35,7 +34,7 @@ msgstr ""
 
 #, python-format
 msgid "%(host)s is not a trusted dashboard host"
-msgstr "%(host)s はトラステッド・ダッシュボード・ホストではありません"
+msgstr "%(host)s は信頼されたダッシュボードホストではありません"
 
 #, python-format
 msgid "%(message)s %(amendment)s"
@@ -46,13 +45,13 @@ msgid ""
 "%(mod_name)s doesn't provide database migrations. The migration repository "
 "path at %(path)s doesn't exist or isn't a directory."
 msgstr ""
-"%(mod_name)s はデータベース・マイグレーションを提供していません。%(path)s の"
-"マイグレーション・リポジトリー・パスは存在しないか、またはディレクトリーでは"
-"ありません。"
+"%(mod_name)s はデータベースマイグレーションを提供していません。%(path)s のマ"
+"イグレーションリポジトリーのパスが存在しないか、ディレクトリーではないかのい"
+"ずれかです。"
 
 #, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
-msgstr "%(property_name)s は %(min_length)s 文字より小さくできません。"
+msgstr "%(property_name)s は %(min_length)s 文字より短くできません。"
 
 #, python-format
 msgid "%(property_name)s is not a %(display_expected_type)s"
@@ -60,11 +59,11 @@ msgstr "%(property_name)s が %(display_expected_type)s ではありません。
 
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s は %(max_length)s 文字より大きくできません。"
+msgstr "%(property_name)s は %(max_length)s 文字より長くできません。"
 
 #, python-format
 msgid "%s cannot be empty."
-msgstr "%s は空にできません。"
+msgstr "%s は空にはできません。"
 
 #, python-format
 msgid "%s extension does not exist."
@@ -72,55 +71,55 @@ msgstr "%s 拡張が存在しません。"
 
 #, python-format
 msgid "%s field is required and cannot be empty"
-msgstr "%s フィールドは必須フィールドであるため、空にできません"
+msgstr "フィールド %s は必須フィールドであるため、空にできません"
 
 #, python-format
 msgid "%s field(s) cannot be empty"
-msgstr "%s フィールドを空にすることはできません"
+msgstr "フィールド %s を空にすることはできません"
 
 msgid "(Disable debug mode to suppress these details.)"
-msgstr "(これらの詳細を抑制するには、デバッグ・モードを無効にします。)"
+msgstr "(これらの詳細出力を抑制するには、デバッグモードを無効にします。)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all オプションを他のオプションと組み合わせて使用することはできません"
 
 msgid "A project-scoped token is required to produce a service catalog."
 msgstr ""
-"サービス・カタログを生成するには、プロジェクトにスコープ宣言されたトークンが"
+"サービスカタログを生成するには、プロジェクトにスコープが設定されたトークンが"
 "必要です。"
 
 msgid "Access token is expired"
-msgstr "アクセス・トークンの有効期限が切れています"
+msgstr "アクセストークンの有効期限が切れています"
 
 msgid "Access token not found"
-msgstr "アクセス・トークンが見つかりません"
+msgstr "アクセストークンが見つかりません"
 
 msgid "Additional authentications steps required."
 msgstr "追加認証手順が必要です。"
 
 msgid "An unexpected error occurred when retrieving domain configs"
-msgstr "ドメイン構成の取得中に予期しないエラーが発生しました"
+msgstr "ドメイン設定の取得中に予期しないエラーが発生しました"
 
 #, python-format
 msgid "An unexpected error occurred when trying to store %s"
-msgstr "%s を保管しようと試みているときに、予期しないエラーが発生しました"
+msgstr "%s の保存中に予期しないエラーが発生しました"
 
 msgid "An unexpected error prevented the server from fulfilling your request."
-msgstr "予期しないエラーが発生したため、サーバーは要求を満たすことが"
+msgstr "予期しないエラーが発生したため、サーバーが要求を完了できませんでした。"
 
 #, python-format
 msgid ""
 "An unexpected error prevented the server from fulfilling your request: "
 "%(exception)s"
 msgstr ""
-"予期しないエラーが発生したため、サーバーは要求を満たすことができませんでし"
-"た:  %(exception)s"
+"予期しないエラーが発生したため、サーバーが要求を完了できませんでした:  "
+"%(exception)s"
 
 msgid "An unhandled exception has occurred: Could not find metadata."
-msgstr "未処理例外が発生しました。メタデータが見つかりませんでした。"
+msgstr "処理できない例外が発生しました。メタデータが見つかりませんでした。"
 
 msgid "At least one option must be provided"
-msgstr "オプションを少なくとも 1 つは指定する必要があります"
+msgstr "少なくとも 1 つはオプションを指定する必要があります"
 
 msgid "At least one option must be provided, use either --all or --domain-name"
 msgstr ""
@@ -128,7 +127,7 @@ msgstr ""
 "name を使用してください"
 
 msgid "At least one role should be specified."
-msgstr "少なくとも 1 つの役割を指定する必要があります。"
+msgstr "少なくとも 1 つのロールを指定する必要があります。"
 
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "サポートされていないメソッドを使用して認証を行おうとしました。"
@@ -141,7 +140,7 @@ msgstr ""
 "証を使用してください"
 
 msgid "Authentication plugin error."
-msgstr "認証プラグイン・エラー。"
+msgstr "認証プラグインエラー。"
 
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
@@ -155,6 +154,7 @@ msgstr "%(option_name)s %(attr)s を変更できません"
 msgid "Cannot change Domain ID"
 msgstr "ドメイン ID を変更できません"
 
+#, fuzzy
 msgid "Cannot change consumer secret"
 msgstr "コンシューマーの秘密を変更できません"
 
@@ -164,7 +164,7 @@ msgstr "ユーザー ID を変更できません"
 msgid "Cannot change user name"
 msgstr "ユーザー名を変更できません"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "親を持つプロジェクトを作成できません: %(project_id)s"
 
@@ -185,44 +185,48 @@ msgstr "証明書 %(cert_file)s を開くことができません。理由: %(re
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "許可されていないロールを削除できません、%s"
 
+#, fuzzy
 msgid ""
 "Cannot truncate a driver call without hints list as first parameter after "
 "self "
 msgstr ""
-"セルフの後に最初のパラメーターとしてヒント・リストなしでドライバー呼び出しを"
-"切り捨てることはできません"
+"セルフの後に最初のパラメーターとしてヒントリストなしでドライバー呼び出しを切"
+"り捨てることはできません"
 
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
 msgstr ""
-"照会パラメーター parents_as_list と parents_as_ids を併用することはできませ"
-"ん。"
+"問い合わせパラメーター parents_as_list と parents_as_ids を同時に使用すること"
+"はできません。"
 
 msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same time."
 msgstr ""
-"照会パラメーター subtree_as_list と subtree_as_ids を併用することはできませ"
-"ん。"
+"問い合わせパラメーター subtree_as_list と subtree_as_ids を同時に使用すること"
+"はできません。"
 
+#, fuzzy
 msgid ""
 "Combining effective and group filter will always result in an empty list."
 msgstr ""
-"有効フィルターとグループ・フィルターの組み合わせは常に空のリストになります。"
+"有効フィルターとグループフィルターの組み合わせは常に空のリストになります。"
 
+#, fuzzy
 msgid ""
 "Combining effective, domain and inherited filters will always result in an "
 "empty list."
 msgstr ""
-"有効フィルター、ドメイン・フィルター、および継承フィルターの組み合わせは常に"
-"空のリストになります。"
+"有効フィルター、ドメインフィルター、および継承フィルターの組み合わせは常に空"
+"のリストになります。"
 
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
-msgstr "%(type)s を保管するときに競合が発生しました - %(details)s"
+msgstr "%(type)s を保存するときに競合が発生しました - %(details)s"
 
 #, python-format
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
-msgstr "矛盾する領域 ID が指定されました: \"%(url_id)s\" != \"%(ref_id)s\""
+msgstr ""
+"矛盾するリージョン ID が指定されました: \"%(url_id)s\" != \"%(ref_id)s\""
 
 msgid "Consumer not found"
 msgstr "コンシューマーが見つかりません"
@@ -231,44 +235,45 @@ msgstr "コンシューマーが見つかりません"
 msgid ""
 "Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
 msgstr ""
-"ターゲット %(target)s で不変の属性 '%(attributes)s' を変更できませんでした"
+"ターゲット %(target)s の変更不可の属性 '%(attributes)s' を変更できませんでし"
+"た"
 
 #, python-format
 msgid ""
 "Could not find %(group_or_option)s in domain configuration for domain "
 "%(domain_id)s"
 msgstr ""
-"%(group_or_option)s がドメイン %(domain_id)s のドメイン構成に見つかりませんで"
+"%(group_or_option)s がドメイン %(domain_id)s のドメイン設定に見つかりませんで"
 "した"
 
 #, python-format
 msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
-msgstr "エンドポイント・グループが見つかりませんでした: %(endpoint_group_id)s"
+msgstr "エンドポイントグループ %(endpoint_group_id)s が見つかりませんでした"
 
 msgid "Could not find Identity Provider identifier in environment"
-msgstr "Identity Provider ID が環境内に見つかりませんでした"
+msgstr "Identity Provider ID が環境情報内に見つかりませんでした"
 
 #, python-format
 msgid "Could not find Identity Provider: %(idp_id)s"
-msgstr "ID プロバイダーが見つかりませんでした: %(idp_id)s"
+msgstr "ID プロバイダー %(idp_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find Service Provider: %(sp_id)s"
-msgstr "サービス・プロバイダー %(sp_id)s が見つかりませんでした"
+msgstr "サービスプロバイダー %(sp_id)s が見つかりませんでした"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Could not find credential: %(credential_id)s"
 msgstr "資格情報が見つかりませんでした: %(credential_id)s"
 
 #, python-format
 msgid "Could not find domain: %(domain_id)s"
-msgstr "ドメインが見つかりませんでした: %(domain_id)s"
+msgstr "ドメイン %(domain_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find endpoint: %(endpoint_id)s"
-msgstr "エンドポイントが見つかりませんでした: %(endpoint_id)s"
+msgstr "エンドポイント %(endpoint_id)sが見つかりませんでした"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Could not find federated protocol %(protocol_id)s for Identity Provider: "
 "%(idp_id)s"
@@ -278,69 +283,70 @@ msgstr ""
 
 #, python-format
 msgid "Could not find group: %(group_id)s"
-msgstr "グループが見つかりませんでした: %(group_id)s"
+msgstr "グループ %(group_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find mapping: %(mapping_id)s"
-msgstr "マッピングが見つかりませんでした: %(mapping_id)s"
+msgstr "マッピング %(mapping_id)s が見つかりませんでした"
 
 msgid "Could not find policy association"
 msgstr "ポリシー関連付けが見つかりませんでした"
 
 #, python-format
 msgid "Could not find policy: %(policy_id)s"
-msgstr "ポリシーが見つかりませんでした: %(policy_id)s"
+msgstr "ポリシー %(policy_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find project: %(project_id)s"
-msgstr "プロジェクトが見つかりませんでした: %(project_id)s"
+msgstr "プロジェクト %(project_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find region: %(region_id)s"
-msgstr "領域が見つかりませんでした: %(region_id)s"
+msgstr "リージョン %(region_id)s が見つかりませんでした"
 
 msgid "Could not find role"
-msgstr "役割が見つかりませんでした"
+msgstr "ロールが見つかりませんでした"
 
 #, python-format
 msgid ""
 "Could not find role assignment with role: %(role_id)s, user or group: "
 "%(actor_id)s, project or domain: %(target_id)s"
 msgstr ""
-"役割 %(role_id)s を持つ割り当てが見つかりませんでした。ユーザーまたはグルー"
-"プ: %(actor_id)s、プロジェクトまたはドメイン: %(target_id)s"
+"ロール %(role_id)s を持つ割り当てが見つかりませんでした。ユーザーまたはグルー"
+"プは %(actor_id)s で、プロジェクトまたはドメインが %(target_id)s です"
 
 #, python-format
 msgid "Could not find role: %(role_id)s"
-msgstr "役割が見つかりませんでした: %(role_id)s"
+msgstr "ロール %(role_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find service: %(service_id)s"
-msgstr "サービスが見つかりませんでした: %(service_id)s"
+msgstr "サービス %(service_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find token: %(token_id)s"
-msgstr "トークンが見つかりませんでした: %(token_id)s"
+msgstr "トークン %(token_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find trust: %(trust_id)s"
-msgstr "トラストが見つかりませんでした: %(trust_id)s"
+msgstr "トラスト %(trust_id)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find user: %(user_id)s"
-msgstr "ユーザーが見つかりませんでした: %(user_id)s"
+msgstr "ユーザー %(user_id)s が見つかりませんでした:"
 
 #, python-format
 msgid "Could not find version: %(version)s"
-msgstr "バージョンが見つかりませんでした: %(version)s"
+msgstr "バージョン %(version)s が見つかりませんでした"
 
 #, python-format
 msgid "Could not find: %(target)s"
-msgstr "見つかりませんでした: %(target)s"
+msgstr "%(target)s が見つかりませんでした"
 
 msgid "Could not validate the access token"
-msgstr "アクセス・トークンを検証できませんでした"
+msgstr "アクセストークンを検証できませんでした"
 
+#, fuzzy
 msgid "Credential belongs to another user"
 msgstr "資格情報が別のユーザーに属しています"
 
@@ -350,7 +356,8 @@ msgstr "/domains/%s/config のデータベース"
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
-msgstr "「enable」属性が構成によって無視されているエンティティーを無効化中。"
+msgstr ""
+"「enable」属性が設定によって無視されているエンティティーを無効化中です。"
 
 #, python-format
 msgid "Domain (%s)"
@@ -366,24 +373,24 @@ msgstr "ドメインに %s という ID を付けることはできません"
 
 #, python-format
 msgid "Domain is disabled: %s"
-msgstr "ドメインが無効化されています: %s"
+msgstr "ドメイン %s が無効になっています"
 
 msgid "Domain metadata not supported by LDAP"
-msgstr "ドメイン・メタデータは LDAP ではサポートされません"
+msgstr "ドメインメタデータは LDAP ではサポートされません"
 
 msgid "Domain scoped token is not supported"
-msgstr "ドメインをスコープにしたトークンはサポートされません"
+msgstr "ドメインをスコープにしたトークンはサポートされていません"
 
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
 "%(file)s."
 msgstr ""
-"ドメイン %(domain)s には既に構成があります - ファイル %(file)s は無視されま"
-"す。"
+"ドメイン %(domain)s には既に定義された設定があります。ファイル %(file)s は無"
+"視されます。"
 
 msgid "Domains are read-only against LDAP"
-msgstr "ドメインが LDAP に対して読み取り専用です"
+msgstr "LDAP の場合はドメインは読み取り専用です"
 
 msgid "Duplicate Entry"
 msgstr "重複する項目"
@@ -405,37 +412,37 @@ msgstr "「有効」フィールドはブール値でなければなりません
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr ""
-"エンドポイント %(endpoint_id)s はプロジェクト %(project_id)s に見つかりません"
+"エンドポイント %(endpoint_id)s がプロジェクト %(project_id)s に見つかりません"
 
 msgid "Endpoint Group Project Association not found"
-msgstr "エンドポイント・グループ・プロジェクト関連付けが見つかりません"
+msgstr "エンドポイントグループとプロジェクトの関連付けが見つかりません"
 
 msgid "Ensure configuration option idp_entity_id is set."
-msgstr "構成オプション idp_entity_id が設定されていることを確認してください。"
+msgstr "設定オプション idp_entity_id が設定されていることを確認してください。"
 
 msgid "Ensure configuration option idp_sso_endpoint is set."
 msgstr ""
-"構成オプション idp_sso_endpoint が設定されていることを確認してください。"
+"設定オプション idp_sso_endpoint が設定されていることを確認してください。"
 
 #, python-format
 msgid ""
 "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
 msgstr ""
-"構成ファイルの構文解析エラー。ドメイン: %(domain)s、ファイル: %(file)s。"
+"ドメイン: %(domain)s、ファイル: %(file)s の設定ファイルの構文解析エラー。"
 
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
-msgstr "メタデータ・ファイルの読み取り中にエラーが発生しました。%(reason)s"
+msgstr "メタデータファイルの読み取り中にエラーが発生しました。%(reason)s"
 
 #, python-format
 msgid "Expected dict or list: %s"
-msgstr "期待される辞書または一覧: %s"
+msgstr "期待される辞書またはリスト: %s"
 
 msgid ""
 "Expected signing certificates are not available on the server. Please check "
 "Keystone configuration."
 msgstr ""
-"予期された署名証明書がサーバーにありません。Keystone の構成を確認してくださ"
+"想定された署名証明書がサーバーにありません。Keystone の設定を確認してくださ"
 "い。"
 
 #, python-format
@@ -444,17 +451,18 @@ msgid ""
 "with the request since it is either malformed or otherwise incorrect. The "
 "client is assumed to be in error."
 msgstr ""
-"%(target)s で %(attribute)s が検出されることが予期されています。要求の形式が"
-"誤っているか、または要求が正しくないため、サーバーは要求に従うことができませ"
-"んでした。クライアントでエラーが発生していると見なされます。"
+"%(target)s に %(attribute)s があることが想定されています。要求の形式が不正も"
+"しくは正しくないため、サーバーは要求に応じることができませんでした。クライア"
+"ントでエラーが発生していると考えられます。"
 
 #, python-format
 msgid "Failed to start the %(name)s server"
-msgstr "%(name)s サーバーの始動に失敗しました"
+msgstr "%(name)s サーバーの起動に失敗しました"
 
 msgid "Failed to validate token"
 msgstr "トークンの検証に失敗しました"
 
+#, fuzzy
 msgid "Federation token is expired"
 msgstr "連合トークンの有効期限が切れています"
 
@@ -463,33 +471,33 @@ msgid ""
 "Field \"remaining_uses\" is set to %(value)s while it must not be set in "
 "order to redelegate a trust"
 msgstr ""
-"フィールド「remaining_uses」が %(value)s に設定されていますが、トラストを再委"
-"任するにはこのフィールドを設定してはなりません"
+"フィールド \"remaining_uses\" は %(value)s になっていますが、トラストを再委任"
+"するにはこのフィールドが設定されていてはなりません"
 
 msgid "Found invalid token: scoped to both project and domain."
 msgstr ""
-"無効なトークンが見つかりました: プロジェクトとドメインの両方にスコープ宣言さ"
-"れています。"
+"無効なトークンが見つかりました: スコープがプロジェクトとドメインの両方に対し"
+"て設定されています。"
 
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
-msgstr "ドメイン固有の構成ではグループ %(group)s はサポートされません"
+msgstr "ドメイン固有の設定ではグループ %(group)s はサポートされません"
 
 #, python-format
 msgid ""
 "Group %(group_id)s returned by mapping %(mapping_id)s was not found in the "
 "backend."
 msgstr ""
-"マッピング %(mapping_id)s によって返されたグループ %(group_id)s がバックエン"
-"ドに見つかりませんでした。"
+"マッピング %(mapping_id)s が返したグループ %(group_id)s がバックエンドにあり"
+"ませんでした。"
 
 #, python-format
 msgid ""
 "Group membership across backend boundaries is not allowed, group in question "
 "is %(group_id)s, user is %(user_id)s"
 msgstr ""
-"バックエンド境界を越えるグループ・メンバーシップは許可されません。問題となっ"
-"ているグループは %(group_id)s、ユーザーは %(user_id)s です"
+"バックエンド境界をまたぐグループメンバーシップは許可されていません。問題と"
+"なっているグループは %(group_id)s、ユーザーは %(user_id)s です"
 
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
@@ -499,6 +507,7 @@ msgstr "ID 属性 %(id_attr)s が LDAP オブジェクト %(dn)s に見つかり
 msgid "Identity Provider %(idp)s is disabled"
 msgstr "ID プロバイダー %(idp)s は無効になっています"
 
+#, fuzzy
 msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
@@ -507,30 +516,33 @@ msgstr "着信 ID プロバイダー ID が受諾 ID に含まれていません
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
 msgstr ""
-"LDAP TLS 証明書オプション %(option)s が無効です。以下のいずれかを選択してくだ"
-"さい: %(options)s"
+"無効な LDAP TLS 証明書オプション %(option)s です。 %(options)s のいずれかを選"
+"択してください"
 
 #, python-format
 msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
-msgstr "無効な LDAP TLS_AVAIL オプション: %s。TLS が利用できません。"
+msgstr "無効な LDAP TLS_AVAIL オプション %s です。TLS が利用できません。"
 
 #, python-format
 msgid "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
 msgstr ""
-"LDAP deref オプションが無効です: %(option)s。%(options)s のいずれかを選択して"
-"ください"
+"無効な LDAP deref オプション %(option)s です。%(options)s のいずれかを選択し"
+"てください"
 
 #, python-format
 msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
-msgstr "無効な LDAP 範囲: %(scope)s。次のどれかを選んでください: %(options)s"
+msgstr ""
+"無効な LDAP スコープ %(scope)s です。 %(options)s のいずれかを選んでくださ"
+"い: "
 
 msgid "Invalid TLS / LDAPS combination"
-msgstr "無効な TLS / LDAPS の組み合わせ"
+msgstr "無効な TLS / LDAPS の組み合わせです"
 
 #, python-format
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "無効な監査情報データ・タイプ: %(data)s (%(type)s)"
+msgstr "無効な監査情報データタイプ %(data)s (%(type)s) です"
 
+#, fuzzy
 msgid "Invalid blob in credential"
 msgstr "資格情報内の blob が無効です"
 
@@ -539,17 +551,18 @@ msgid ""
 "Invalid domain name: %(domain)s found in config file name: %(file)s - "
 "ignoring this file."
 msgstr ""
-"無効なドメイン・ネーム %(domain)s が構成ファイル名 %(file)s に見つかりました "
-"- このファイルは無視されます。"
+"無効なドメイン名 %(domain)s が設定ファイル名 %(file)s に見つかりました。この"
+"ファイルは無視されます。"
 
 #, python-format
 msgid "Invalid domain specific configuration: %(reason)s"
-msgstr "ドメイン固有の構成が無効です: %(reason)s"
+msgstr "無効なドメイン固有の設定です: %(reason)s"
 
 #, python-format
 msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
 msgstr "フィールド '%(path)s' の入力が無効です。値は '%(value)s' です。"
 
+#, fuzzy
 msgid "Invalid limit value"
 msgstr "制限値が無効です"
 
@@ -586,13 +599,13 @@ msgid "Invalid user / password"
 msgstr "ユーザー/パスワードが無効です"
 
 msgid "Invalid username or password"
-msgstr "無効なユーザー名またはパスワード"
+msgstr "無効なユーザー名かパスワード"
 
 #, python-format
 msgid "KVS region %s is already configured. Cannot reconfigure."
 msgstr "KVS 領域 %s は既に構成されています。再構成はできません。"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Key Value Store not configured: %s"
 msgstr "キー値ストアが構成されていません: %s"
 
@@ -610,19 +623,18 @@ msgstr "LDAP %s の更新"
 
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
-msgstr "キー %(target)s についてロック・タイムアウトが発生しました"
+msgstr "キー %(target)s についてロックタイムアウトが発生しました"
 
 #, python-format
 msgid "Lock key must match target key: %(lock)s != %(target)s"
 msgstr ""
-"ロック・キーがターゲット・キーと一致しなければなりません: %(lock)s != "
-"%(target)s"
+"ロックキーはターゲットキーと一致しなければなりません: %(lock)s != %(target)s"
 
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr ""
-"エンドポイント URL (%(endpoint)s) の形式が正しくありません。詳しくはエラー・"
-"ログを参照してください。"
+"エンドポイント URL (%(endpoint)s) の形式が正しくありません。詳しくはエラーロ"
+"グを参照してください。"
 
 msgid "Marker could not be found"
 msgstr "マーカーが見つかりませんでした"
@@ -640,38 +652,39 @@ msgid "Method not callable: %s"
 msgstr "メソッドが呼び出し可能ではありません: %s"
 
 msgid "Missing entity ID from environment"
-msgstr "環境にエンティティー ID がありません"
+msgstr "環境情報にエンティティー ID が見つかりません"
 
 msgid ""
 "Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting "
 "this parameter is advised."
 msgstr ""
-"再委任時の「redelegation_count」の変更は禁止されています。このパラメーターを"
-"省略してください。"
+"再委任時の「redelegation_count」の変更は禁止されています。このパラメーターは"
+"指定しないでください。"
 
 msgid "Multiple domains are not supported"
 msgstr "複数のドメインはサポートされていません"
 
 msgid "Must be called within an active lock context."
-msgstr "アクティブ・ロック・コンテキスト内で呼び出されなければなりません。"
+msgstr "アクティブなロックコンテキスト内で呼び出されなければなりません。"
 
 msgid "Must specify either domain or project"
 msgstr "ドメインまたはプロジェクトのいずれかを指定する必要があります"
 
 msgid "Name field is required and cannot be empty"
-msgstr "「名前」フィールドは必須フィールドであるため、空にできません"
+msgstr "「名前」フィールドは必須フィールドであり、空にできません"
 
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
 msgstr ""
-"許可ヘッダーが見つかりません。OAuth 関連呼び出しを続行できません。HTTPd また"
-"は Apache の下で実行している場合は、WSGIPassAuthorization が On に設定されて"
-"いることを確認してください。"
+"認可に使用するヘッダーが見つからず、OAuth 関連の呼び出しを続行できません。"
+"HTTPd または Apache の下で実行している場合は、WSGIPassAuthorization が On に"
+"設定されていることを確認してください。"
 
 msgid "No authenticated user"
 msgstr "認証されていないユーザー"
 
+#, fuzzy
 msgid ""
 "No encryption keys found; run keystone-manage fernet_setup to bootstrap one."
 msgstr ""
@@ -679,38 +692,38 @@ msgstr ""
 "を行ってください。"
 
 msgid "No options specified"
-msgstr "オプション指定なし"
+msgstr "オプションが指定されていません"
 
 #, python-format
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr ""
 "エンドポイント %(endpoint_id)s に関連付けられているポリシーはありません。"
 
-#, python-format
+#, fuzzy, python-format
 msgid "No remaining uses for trust: %(trust_id)s"
 msgstr "トラストには使用が残っていません: %(trust_id)s"
 
 msgid "Non-default domain is not supported"
-msgstr "標準以外のドメインはサポートされません"
+msgstr "デフォルト以外のドメインはサポートされません"
 
 msgid "One of the trust agents is disabled or deleted"
-msgstr "トラスト・エージェントの 1 つが無効化または削除されています"
+msgstr "トラストエージェントの 1 つが無効になっているか削除されています"
 
 #, python-format
 msgid ""
 "Option %(option)s found with no group specified while checking domain "
 "configuration request"
 msgstr ""
-"ドメイン構成要求の検査中にオプション %(option)s にグループが指定されていない"
-"ことが検出されました"
+"ドメイン設定要求の検査中に、グループが指定されていないオプション %(option)s "
+"が見つかりました"
 
 #, python-format
 msgid ""
 "Option %(option)s in group %(group)s is not supported for domain specific "
 "configurations"
 msgstr ""
-"ドメイン固有の構成ではグループ %(group)s 内のオプション %(option)s はサポート"
-"されていません"
+"ドメイン固有の設定ではグループ %(group)s のオプション %(option)s はサポートさ"
+"れていません"
 
 #, python-format
 msgid "Project (%s)"
@@ -718,7 +731,7 @@ msgstr "プロジェクト (%s)"
 
 #, python-format
 msgid "Project is disabled: %s"
-msgstr "プロジェクトが無効化されています: %s"
+msgstr "プロジェクト %s が無効になっています"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "再委任はトラストによる委任にのみ許可されます"
@@ -732,7 +745,7 @@ msgstr ""
 "%(max_count)d] を超えています"
 
 msgid "Request Token does not have an authorizing user id"
-msgstr "要求トークンに許可ユーザー ID が含まれていません"
+msgstr "要求されたトークンに許可ユーザー ID が含まれていません"
 
 #, python-format
 msgid ""
@@ -740,10 +753,11 @@ msgid ""
 "server could not comply with the request because the attribute size is "
 "invalid (too large). The client is assumed to be in error."
 msgstr ""
-"要求属性 %(attribute)s は %(size)i 以下でなければなりません。属性のサイズが無"
-"効である (大きすぎる) ため、サーバーは要求に従うことができませんでした。クラ"
-"イアントでエラーが発生していると見なされます。"
+"要求された属性 %(attribute)s のサイズは %(size)i 以下でなければなりません。属"
+"性のサイズが無効である (大きすぎる) ため、サーバーは要求に応じることができま"
+"せんでした。クライアントでエラーが発生していると考えられます。"
 
+#, fuzzy
 msgid "Request must have an origin query parameter"
 msgstr "要求には起点照会パラメーターが必要です"
 
@@ -751,7 +765,7 @@ msgid "Request token is expired"
 msgstr "要求トークンの有効期限が切れています"
 
 msgid "Request token not found"
-msgstr "要求トークンが見つかりません"
+msgstr "要求されたトークンが見つかりません"
 
 msgid "Requested expiration time is more than redelegated trust can provide"
 msgstr "要求された有効期限は再委任されたトラストが提供可能な期間を超えています"
@@ -761,8 +775,8 @@ msgid ""
 "Requested redelegation depth of %(requested_count)d is greater than allowed "
 "%(max_count)d"
 msgstr ""
-"%(requested_count)d の要求された再委任の深さが、許可された %(max_count)d を超"
-"えています"
+"要求された再委任の深さ %(requested_count)d が、許可された上限 %(max_count)d "
+"を超えています"
 
 #, python-format
 msgid "Role %s not found"
@@ -775,23 +789,23 @@ msgid ""
 msgstr ""
 "eventlet を介した keystone の実行は Kilo 以降では推奨されておらず、WSGI サー"
 "バー (mod_wsgi など) での実行が推奨されています。eventlet 下での keystone の"
-"サポートは「M」-リリースで削除される予定です。"
+"サポートは「M」リリースで削除される予定です。"
 
 msgid "Scoping to both domain and project is not allowed"
-msgstr "ドメインとプロジェクトの両方をスコープとすることは許可されません"
+msgstr "ドメインとプロジェクトの両方にスコープを設定することはできません"
 
 msgid "Scoping to both domain and trust is not allowed"
-msgstr "ドメインとトラストの両方をスコープとすることは許可されません"
+msgstr "ドメインとトラストの両方にスコープを設定することはできません"
 
 msgid "Scoping to both project and trust is not allowed"
-msgstr "プロジェクトとトラストの両方をスコープとすることは許可されません"
+msgstr "プロジェクトとトラストの両方にスコープを設定することはできません"
 
 #, python-format
 msgid "Service Provider %(sp)s is disabled"
-msgstr "サービス・プロバイダー %(sp)s は無効になっています"
+msgstr "サービスプロバイダー %(sp)s は無効になっています"
 
 msgid "Some of requested roles are not in redelegated trust"
-msgstr "要求された役割の一部が再委任されたトラスト内にありません"
+msgstr "要求されたロールの一部が再委任されたトラスト内にありません"
 
 msgid "Specify a domain or project, not both"
 msgstr "ドメインかプロジェクトを指定してください。両方は指定しないでください"
@@ -810,27 +824,28 @@ msgid ""
 "String length exceeded.The length of string '%(string)s' exceeded the limit "
 "of column %(type)s(CHAR(%(length)d))."
 msgstr ""
-"ストリングの長さを超えました。ストリング %(string)s' の長さが列 "
-"%(type)s(CHAR(%(length)d)) の制限を超えました。"
+"文字列が長過ぎます。文字列 %(string)s' の長さが列 %(type)s(CHAR(%(length)d)) "
+"の制限を超えました。"
 
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "--all オプションを --domain-name オプションと併用することはできません"
 
 #, python-format
 msgid "The Keystone configuration file %(config_file)s could not be found."
-msgstr "Keystone 構成ファイル %(config_file)s が見つかりませんでした。"
+msgstr "Keystone 設定ファイル %(config_file)s が見つかりませんでした。"
 
 #, python-format
 msgid ""
 "The Keystone domain-specific configuration has specified more than one SQL "
 "driver (only one is permitted): %(source)s."
 msgstr ""
-"keystone ドメイン固有構成で複数の SQL ドライバーが指定されています (1 つのみ"
-"許可): %(source)s。"
+"keystone ドメイン固有設定で複数の SQL ドライバーが指定されています (1 つしか"
+"指定できません): %(source)s。"
 
 msgid "The action you have requested has not been implemented."
 msgstr "要求したアクションは実装されていません。"
 
+#, fuzzy
 msgid "The authenticated user should match the trustor."
 msgstr "認証ユーザーは委託者と一致している必要があります。"
 
@@ -839,8 +854,8 @@ msgid ""
 "server does not use PKI tokens otherwise this is the result of "
 "misconfiguration."
 msgstr ""
-"要求された証明書がありません。このサーバーでは PKI トークンが使用されないか、"
-"または結果的に構成が正しくないことが考えられます。 "
+"要求された証明書がありません。このサーバーでは PKI トークンが使用されていない"
+"か、そうでない場合は設定が間違っていると考えられます。 "
 
 #, python-format
 msgid ""
@@ -848,7 +863,7 @@ msgid ""
 "not comply with the request because the password is invalid."
 msgstr ""
 "パスワードの長さは %(size)i 以下でなければなりません。パスワードが無効である"
-"ため、サーバーは要求に従うことができませんでした。"
+"ため、サーバーは要求に応じることができませんでした。"
 
 msgid "The request you have made requires authentication."
 msgstr "実行された要求には認証が必要です。"
@@ -870,38 +885,40 @@ msgstr "要求したサービスは現在このサーバーでは使用できま
 msgid ""
 "The specified parent region %(parent_region_id)s would create a circular "
 "region hierarchy."
-msgstr "指定された親領域 %(parent_region_id)s は循環領域階層を作成します。"
+msgstr ""
+"指定された親リージョン %(parent_region_id)s では、リージョン階層構造でループ"
+"が発生してしまいます。"
 
 #, python-format
 msgid ""
 "The value of group %(group)s specified in the config should be a dictionary "
 "of options"
 msgstr ""
-"構成で指定されたグループ %(group)s の値はオプションのディクショナリーにする必"
-"要があります"
+"設定で指定されたグループ %(group)s の値はオプションの辞書にする必要があります"
 
 msgid "There should not be any non-oauth parameters"
-msgstr "非 oauth パラメーターが存在していてはなりません"
+msgstr "oauth 関連以外のパラメーターが含まれていてはいけません"
 
-#, python-format
+#, fuzzy, python-format
 msgid "This is not a recognized Fernet payload version: %s"
-msgstr "これは認識された Fernet ペイロード・バージョンではありません: %s"
+msgstr "これは認識された Fernet ペイロードバージョンではありません: %s"
 
+#, fuzzy
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
 "tokens."
 msgstr ""
-"これは v2.0 Fernet トークンではありません。トラスト・トークン、ドメイン・トー"
-"クン、または統合トークンには v3 を使用してください。"
+"これは v2.0 Fernet トークンではありません。トラストトークン、ドメイントーク"
+"ン、または統合トークンには v3 を使用してください。"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
 "request since it is either malformed or otherwise incorrect. The client is "
 "assumed to be in error."
 msgstr ""
-"タイム・スタンプが、予期された形式になっていません。要求の形式が誤っている"
-"か、または要求が正しくないため、サーバーは要求に応じることができませんでし"
-"た。クライアントはエラーになっているとみなされます。"
+"タイムスタンプが想定された形式になっていません。要求の形式が不正もしくは正し"
+"くないため、サーバーは要求に応じることができませんでした。クライアントでエ"
+"ラーが発生していると考えられます。"
 
 #, python-format
 msgid ""
@@ -909,8 +926,8 @@ msgid ""
 "the specific domain, i.e.: keystone-manage domain_config_upload --domain-"
 "name %s"
 msgstr ""
-"このエラーに関する詳細を得るには、次のように、特定ドメインに対してこのコマン"
-"ドを再実行してください: keystone-manage domain_config_upload --domain-name %s"
+"このエラーに関する詳細を得るには、特定ドメインに対してこのコマンドを再実行し"
+"てください: keystone-manage domain_config_upload --domain-name %s"
 
 msgid "Token belongs to another user"
 msgstr "トークンが別のユーザーに属しています"
@@ -918,9 +935,11 @@ msgstr "トークンが別のユーザーに属しています"
 msgid "Token does not belong to specified tenant."
 msgstr "トークンが指定されたテナントに所属していません。"
 
+#, fuzzy
 msgid "Trustee has no delegated roles."
 msgstr "受託者に委任された役割がありません。"
 
+#, fuzzy
 msgid "Trustor is disabled."
 msgstr "委託者は無効です。"
 
@@ -929,50 +948,51 @@ msgid ""
 "Trying to update group %(group)s, so that, and only that, group must be "
 "specified in the config"
 msgstr ""
-"グループ %(group)s を更新しようとしているため、そのオプションのみを構成で指定"
-"する必要があります"
+"グループ %(group)s を更新しようとしていますが、その場合は設定でグループのみを"
+"指定する必要があります"
 
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, but config provided "
 "contains option %(option_other)s instead"
 msgstr ""
-"グループ %(group)s 内のオプション %(option)s を更新しようとしていますが、指定"
-"された構成には代わりにオプション %(option_other)s が含まれています"
+"グループ %(group)s のオプション %(option)s を更新しようとしましたが、指定され"
+"た設定には代わりにオプション %(option_other)s が含まれています"
 
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, so that, and only "
 "that, option must be specified  in the config"
 msgstr ""
-"グループ %(group)s 内のオプション %(option)s を更新しようとしているため、その"
-"オプションのみを構成で指定する必要があります"
+"グループ %(group)s のオプション %(option)s を更新しようとしていますが、その場"
+"合は設定でオプションのみを指定する必要があります"
 
 msgid ""
 "Unable to access the keystone database, please check it is configured "
 "correctly."
 msgstr ""
-"keystone データベースにアクセスできません。このデータベースが正しく構成されて"
+"keystone データベースにアクセスできません。このデータベースが正しく設定されて"
 "いるかどうかを確認してください。"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
-msgstr "トラスト %(trust_id)s を使用できず、ロックを取得できません。"
+msgstr "トラスト %(trust_id)s を消費できず、ロックを取得できません。"
 
 #, python-format
 msgid ""
 "Unable to delete region %(region_id)s because it or its child regions have "
 "associated endpoints."
 msgstr ""
-"領域 %(region_id)s またはその子領域にエンドポイントが関連付けられているため、"
-"この領域を削除できません。"
+"リージョン %(region_id)s またはその子リージョンがエンドポイントに関連付けられ"
+"ているため、このリージョンを削除できません。"
 
 #, python-format
 msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr ""
-"マッピング %(mapping_id)s の使用中に有効なグループが見つかりませんでした"
+"マッピング %(mapping_id)s を使用する際に、有効なグループが見つかりませんでし"
+"た"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
 msgstr ""
@@ -980,13 +1000,13 @@ msgstr ""
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
-msgstr "ドメイン構成ディレクトリーが見つかりません: %s"
+msgstr "ドメイン設定ディレクトリーが見つかりません: %s"
 
 #, python-format
 msgid "Unable to lookup user %s"
 msgstr "ユーザー %s を検索できません"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Unable to reconcile identity attribute %(attribute)s as it has conflicting "
 "values %(new)s and %(old)s"
@@ -1001,12 +1021,12 @@ msgid ""
 "%(reason)s"
 msgstr ""
 "SAML アサーションに署名できません。このサーバーに xmlsec1 がインストールされ"
-"ていないか、誤った構成による結果と考えられます。理由: %(reason)s"
+"ていないか、設定が誤っているためと考えられます。理由: %(reason)s"
 
 msgid "Unable to sign token."
 msgstr "トークンに署名できません。"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Unexpected assignment type encountered, %s"
 msgstr "無効な割り当てタイプ %s が検出されました"
 
@@ -1015,10 +1035,10 @@ msgid ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
 msgstr ""
-"認可属性 (ユーザー: %(user_id)s、グループ: %(group_id)s、プロジェクト: "
-"%(project_id)s、ドメイン: %(domain_id)s) の組み合わせが正しくありません。"
+"認可属性 の組み合わせ (ユーザー: %(user_id)s、グループ: %(group_id)s、プロ"
+"ジェクト: %(project_id)s、ドメイン: %(domain_id)s) が正しくありません。"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
 msgstr "JSON ホーム応答に対して予期しない状況が要求されました。%s"
 
@@ -1027,23 +1047,23 @@ msgstr "不明なターゲット"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
-msgstr "不明なドメイン '%(name)s' が --domain-name によって指定されました"
+msgstr "不明なドメイン '%(name)s' が --domain-name で指定されました"
 
 #, python-format
 msgid "Unknown token version %s"
-msgstr "トークン・バージョン %s は不明です"
+msgstr "トークンバージョン %s は不明です"
 
 #, python-format
 msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr "未登録の依存関係: %(targets)s の %(name)s"
+msgstr "未登録の依存関係: %(targets)s に対する %(name)s"
 
 msgid "Update of `parent_id` is not allowed."
-msgstr "「parent_id」の更新は許可されていません。"
+msgstr "\"parent_id\" の更新は許可されていません。"
 
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
-"SAML アサーションの作成を試みるときは、プロジェクト範囲トークンを使用してくだ"
-"さい。"
+"SAML アサーションの作成を行うときは、プロジェクトにスコープが設定されたトーク"
+"ンを使用してください"
 
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
@@ -1052,19 +1072,19 @@ msgstr "ユーザー %(u_id)s はテナント %(t_id)s のアクセス権限が�
 #, python-format
 msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
 msgstr ""
-"ユーザー %(user_id)s には既に役割 %(role_id)s がテナント %(tenant_id)s にあり"
-"ます"
+"ユーザー %(user_id)s にはすでにテナント %(tenant_id)s でロール %(role_id)s が"
+"割り当てられています。"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr ""
-"ユーザー %(user_id)s にはドメイン %(domain_id)s へのアクセス権限がありません"
+"ユーザー %(user_id)s はドメイン %(domain_id)s へのアクセス権限がありません"
 
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr ""
-"ユーザー %(user_id)s にはプロジェクト %(project_id)s へのアクセス権限がありま"
-"せん"
+"ユーザー %(user_id)s はプロジェクト %(project_id)s へのアクセス権限がありませ"
+"ん"
 
 #, python-format
 msgid "User %(user_id)s is already a member of group %(group_id)s"
@@ -1079,20 +1099,21 @@ msgstr "ユーザー ID が一致しません"
 
 #, python-format
 msgid "User is disabled: %s"
-msgstr "ユーザーが無効化されています: %s"
+msgstr "ユーザーが無効になっています: %s"
 
 msgid "User is not a member of the requested project"
 msgstr "ユーザーは、要求されたプロジェクトのメンバーではありません"
 
+#, fuzzy
 msgid "User is not a trustee."
 msgstr "ユーザーは受託者ではありません。"
 
 msgid "User not found"
-msgstr "ユーザーが見つかりませんでした"
+msgstr "ユーザーが見つかりません"
 
-#, python-format
+#, fuzzy, python-format
 msgid "User type %s not supported"
-msgstr "ユーザー・タイプ %s はサポートされていません"
+msgstr "ユーザータイプ %s はサポートされていません"
 
 msgid "You are not authorized to perform the requested action."
 msgstr "要求されたアクションを実行する許可がありません。"
@@ -1110,30 +1131,34 @@ msgstr "`key_mangler` オプションは関数参照でなければなりませ�
 msgid "any options"
 msgstr "任意のオプション"
 
+#, fuzzy
 msgid "auth_type is not Negotiate"
 msgstr "auth_type は折衝されていません"
 
 msgid "authorizing user does not have role required"
-msgstr "許可を与えるユーザーに、必要な役割がありません"
+msgstr "ユーザーを認可するのに必要なロールがありません"
 
+#, fuzzy
 msgid "cache_collection name is required"
 msgstr "cache_collection name は必須です"
 
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
-"無効なプロジェクトを含むブランチにプロジェクトを作成することはできません: %s"
+"無効になっているプロジェクトを含むブランチにプロジェクトを作成することはでき"
+"ません: %s"
 
 msgid "cannot create a project within a different domain than its parents."
-msgstr "親とは別のドメイン内にプロジェクトを作成することはできません。"
+msgstr "プロジェクトは親とは別のドメイン内には作成できません。"
 
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
-"有効なドメインは削除できません。最初に有効なドメインを無効にしてください。"
+"有効になっているドメインは削除できません。最初にそのドメインを無効にしてくだ"
+"さい。"
 
 #, python-format
 msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr "プロジェクト %s は階層内のリーフではないため、削除できません。"
+msgstr "プロジェクト %s は階層内の末端ではないため、削除できません。"
 
 #, python-format
 msgid "cannot disable project %s since its subtree contains enabled projects"
@@ -1143,8 +1168,9 @@ msgstr ""
 
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
-msgstr "プロジェクト %s は無効になっている親を含むため、有効にできません"
+msgstr "親が無効になっているプロジェクト %s は有効にできません"
 
+#, fuzzy
 msgid "database db_name is required"
 msgstr "database db_name は必須です"
 
@@ -1152,7 +1178,7 @@ msgid "db_hosts value is required"
 msgstr "db_hosts 値は必須です"
 
 msgid "delete the default domain"
-msgstr "デフォルト・ドメインを削除してください"
+msgstr "デフォルトドメインを削除してください"
 
 #, python-format
 msgid "group %(group)s"
@@ -1162,8 +1188,8 @@ msgid ""
 "idp_contact_type must be one of: [technical, other, support, administrative "
 "or billing."
 msgstr ""
-"idp_contact_type は technical、other、support、administrative、または "
-"billing のいずれかでなければなりません。"
+"idp_contact_type は technical、other、support、administrative、billing のいず"
+"れかでなければなりません。"
 
 msgid "integer value expected for mongo_ttl_seconds"
 msgstr "mongo_ttl_seconds には整数値が必要です"
@@ -1184,23 +1210,28 @@ msgstr "使用可能な SSL サポートがありません"
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
-msgstr "グループ %(group)s 内のオプション %(option)s"
+msgstr "グループ %(group)s のオプション %(option)s"
 
+#, fuzzy
 msgid "pad must be single character"
 msgstr "埋め込みは単一文字でなければなりません"
 
+#, fuzzy
 msgid "padded base64url text must be multiple of 4 characters"
 msgstr "埋め込まれた base64url テキストは 4 の倍数の文字数でなければなりません"
 
 msgid "provided consumer key does not match stored consumer key"
-msgstr "指定されたコンシューマー鍵は保管済みコンシューマー鍵と一致しません"
+msgstr ""
+"指定されたコンシューマー鍵は保存されているコンシューマー鍵と一致しません"
 
 msgid "provided request key does not match stored request key"
-msgstr "指定された要求鍵は保管済み要求鍵と一致しません"
+msgstr "指定された要求鍵は保管されている要求鍵と一致しません"
 
+#, fuzzy
 msgid "provided verifier does not match stored verifier"
 msgstr "指定されたベリファイヤーは保管済みベリファイヤーと一致しません"
 
+#, fuzzy
 msgid "region not type dogpile.cache.CacheRegion"
 msgstr "領域のタイプが dogpile.cache.CacheRegion ではありません"
 
@@ -1211,45 +1242,43 @@ msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr "再委任が許可されている場合は remaining_uses を設定してはなりません"
 
 msgid "replicaset_name required when use_replica is True"
-msgstr "use_replica が TRUE の場合は replicaset_name が必要です"
+msgstr "use_replica が True の場合は replicaset_name が必要です"
 
 #, python-format
 msgid ""
 "request to update group %(group)s, but config provided contains group "
 "%(group_other)s instead"
 msgstr ""
-"グループ %(group)s の更新を要求しましたが、指定された構成には代わりにグルー"
+"グループ %(group)s の更新を要求しましたが、指定された設定には代わりにグルー"
 "プ %(group_other)s が含まれています"
 
 msgid "rescope a scoped token"
-msgstr "スコープ宣言されたトークンを再スコープ宣言します"
+msgstr "スコープが設定されたトークンのスコープを設定し直します"
 
-#, python-format
+#, fuzzy, python-format
 msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
 msgstr ""
 "テキストは 4 の倍数ですが、最後から2 つ目の文字の前に埋め込み \"%s\" あります"
 
-#, python-format
+#, fuzzy, python-format
 msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
 msgstr ""
 "テキストは 4 の倍数ですが、埋め込みではない最後の文字の前に埋め込み \"%s\" あ"
 "ります"
 
-#, python-format
+#, fuzzy, python-format
 msgid "text is not a multiple of 4, but contains pad \"%s\""
 msgstr "テキストは 4 の倍数ではありませんが、埋め込み \"%s\" が含まれています"
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr ""
-"tls_cacertdir %s が見つかりませんでした。または、ディレクトリではありません。"
+"tls_cacertdir %s が見つからない、もしくは、ディレクトリではありません。"
 
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
-msgstr ""
-"tls_cacertfile %s が見つかりませんでした。または、ファイルではありません。"
+msgstr "tls_cacertfile %s が見つからない、もしくは、ファイルではありません。"
 
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr ""
-"トークン参照は KeystoneToken タイプである必要があります。%s を受け取りました"
+msgstr "トークン参照は KeystoneToken 型である必要があります。%s を受信しました"
