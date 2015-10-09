@@ -14,6 +14,7 @@ from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common import clean
+from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _LE
@@ -50,7 +51,7 @@ class Resource(keystone_resource.ResourceDriverV8):
                 raise exception.ProjectNotFound(project_id=tenant_name)
             return project_ref.to_dict()
 
-    @sql.truncated
+    @driver_hints.truncated
     def list_projects(self, hints):
         with sql.transaction() as session:
             query = session.query(Project)
@@ -176,7 +177,7 @@ class Resource(keystone_resource.ResourceDriverV8):
             session.add(ref)
         return ref.to_dict()
 
-    @sql.truncated
+    @driver_hints.truncated
     def list_domains(self, hints):
         with sql.transaction() as session:
             query = session.query(Domain)
