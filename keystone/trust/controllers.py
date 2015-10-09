@@ -113,7 +113,7 @@ class TrustV3(controller.V3Controller):
                     trust_roles.append({'id':
                                         all_role_names[rolename]['id']})
                 else:
-                    raise exception.RoleNotFound("role %s is not defined" %
+                    raise exception.RoleNotFound(_("role %s is not defined") %
                                                  rolename)
             else:
                 raise exception.ValidationError(attribute='id or name',
