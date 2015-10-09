@@ -6,16 +6,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev14\n"
+"Project-Id-Version: keystone 9.0.0.dev93\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-09-24 06:09+0000\n"
+"POT-Creation-Date: 2015-10-09 06:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.0\n"
+"Generated-By: Babel 2.1.1\n"
 
 #: keystone/exception.py:78
 #, python-format
@@ -408,7 +408,7 @@ msgid "Method not callable: %s"
 msgstr ""
 
 #: keystone/assignment/controllers.py:99 keystone/identity/controllers.py:71
-#: keystone/resource/controllers.py:88
+#: keystone/resource/controllers.py:87
 msgid "Name field is required and cannot be empty"
 msgstr ""
 
@@ -467,17 +467,17 @@ msgstr ""
 msgid "Domain metadata not supported by LDAP"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:397
+#: keystone/assignment/backends/ldap.py:385
 #, python-format
 msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:403
+#: keystone/assignment/backends/ldap.py:391
 #, python-format
 msgid "Role %s not found"
 msgstr ""
 
-#: keystone/assignment/backends/ldap.py:418
+#: keystone/assignment/backends/ldap.py:406
 #: keystone/assignment/backends/sql.py:334
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -568,7 +568,7 @@ msgstr ""
 msgid "rescope a scoped token"
 msgstr ""
 
-#: keystone/catalog/controllers.py:175
+#: keystone/catalog/controllers.py:209
 #, python-format
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
@@ -647,7 +647,7 @@ msgstr ""
 msgid "Error while parsing line: '%(line)s': %(err)s"
 msgstr ""
 
-#: keystone/common/authorization.py:57 keystone/common/wsgi.py:66
+#: keystone/common/authorization.py:61 keystone/common/wsgi.py:66
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
@@ -833,19 +833,19 @@ msgstr ""
 msgid "Must be called within an active lock context."
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:69
+#: keystone/common/kvs/backends/memcached.py:71
 #, python-format
 msgid "Maximum lock attempts on %s occurred."
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:109
+#: keystone/common/kvs/backends/memcached.py:111
 #, python-format
 msgid ""
 "Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
 "%(backend_list)s"
 msgstr ""
 
-#: keystone/common/kvs/backends/memcached.py:185
+#: keystone/common/kvs/backends/memcached.py:187
 msgid "`key_mangler` functions must be callable."
 msgstr ""
 
@@ -1123,8 +1123,8 @@ msgid ""
 msgstr ""
 
 #: keystone/contrib/revoke/core.py:227 keystone/token/provider.py:197
-#: keystone/token/provider.py:221 keystone/token/provider.py:287
-#: keystone/token/provider.py:294
+#: keystone/token/provider.py:221 keystone/token/provider.py:285
+#: keystone/token/provider.py:292
 msgid "Failed to validate token"
 msgstr ""
 
@@ -1155,8 +1155,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Exceeded attempts to register domain %(domain)s to use the SQL driver, "
-"the last  domain that appears to have had it is %(last_domain)s, giving "
-"up"
+"the last domain that appears to have had it is %(last_domain)s, giving up"
 msgstr ""
 
 #: keystone/identity/core.py:451 keystone/identity/backends/ldap.py:58
@@ -1194,17 +1193,17 @@ msgstr ""
 msgid "Found invalid token: scoped to both project and domain."
 msgstr ""
 
-#: keystone/resource/controllers.py:218
+#: keystone/resource/controllers.py:217
 msgid "The creation of projects acting as domains is not allowed yet."
 msgstr ""
 
-#: keystone/resource/controllers.py:252
+#: keystone/resource/controllers.py:251
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same "
 "time."
 msgstr ""
 
-#: keystone/resource/controllers.py:258
+#: keystone/resource/controllers.py:257
 msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same "
 "time."
@@ -1465,17 +1464,17 @@ msgstr ""
 msgid "Unable to sign token."
 msgstr ""
 
-#: keystone/token/providers/fernet/core.py:215
+#: keystone/token/providers/fernet/core.py:217
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
 "tokens."
 msgstr ""
 
-#: keystone/token/providers/fernet/token_formatters.py:83
+#: keystone/token/providers/fernet/token_formatters.py:95
 msgid "This is not a recognized Fernet token"
 msgstr ""
 
-#: keystone/token/providers/fernet/token_formatters.py:246
+#: keystone/token/providers/fernet/token_formatters.py:258
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr ""
