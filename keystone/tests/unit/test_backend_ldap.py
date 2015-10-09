@@ -2039,10 +2039,6 @@ class LDAPLimitTests(unit.TestCase, test_backend.LimitTests):
         return config_files
 
     @wip("limiting doesn't work due to bug 1501698")
-    def test_list_users_filtered_and_limited(self):
-        self._test_list_entity_filtered_and_limited('user')
-
-    @wip("limiting doesn't work due to bug 1501698")
     def test_list_groups_filtered_and_limited(self):
         self._test_list_entity_filtered_and_limited('group')
 
