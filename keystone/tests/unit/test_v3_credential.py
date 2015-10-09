@@ -206,7 +206,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         # for conflict.
         self.post(
             '/credentials',
-            body={'credential': ref}, expected_status=409)
+            body={'credential': ref}, expected_status=http_client.CONFLICT)
 
     def test_get_ec2_dict_blob(self):
         """Ensure non-JSON blob data is correctly converted."""
@@ -351,7 +351,7 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
             '/credentials',
             body={'credential': ref},
             token=token_id,
-            expected_status=409)
+            expected_status=http_client.CONFLICT)
 
 
 class TestCredentialEc2(CredentialBaseTestCase):
