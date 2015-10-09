@@ -682,7 +682,7 @@ class AuthWithPasswordCredentials(AuthTest):
             {}, body_dict)
 
     def test_authenticate_blank_password_credentials(self):
-        """Sending empty dict as passwordCredentials raises a 400 error."""
+        """Sending empty dict as passwordCredentials raises 400 Bad Requset."""
         body_dict = {'passwordCredentials': {}, 'tenantName': 'demo'}
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,

@@ -1083,7 +1083,7 @@ class ClientDrivenTestCase(unit.TestCase):
         endpoint_internalurl = uuid.uuid4().hex
         endpoint_adminurl = uuid.uuid4().hex
 
-        # a non-existent service ID should trigger a 400
+        # a non-existent service ID should trigger a 400 Bad Request
         self.assertRaises(client_exceptions.BadRequest,
                           client.endpoints.create,
                           region=endpoint_region,

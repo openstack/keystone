@@ -1903,11 +1903,11 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
 class RoleAssignmentFailureTestCase(RoleAssignmentBaseTestCase):
     """Class for testing invalid query params on /v3/role_assignments API.
 
-    Querying domain and project, or user and group results in a HTTP 400, since
-    a role assignment must contain only a single pair of (actor, target). In
-    addition, since filtering on role assignments applies only to the final
-    result, effective mode cannot be combined with i) group or ii) domain and
-    inherited, because it would always result in an empty list.
+    Querying domain and project, or user and group results in a HTTP 400 Bad
+    Request, since a role assignment must contain only a single pair of (actor,
+    target). In addition, since filtering on role assignments applies only to
+    the final result, effective mode cannot be combined with i) group or ii)
+    domain and inherited, because it would always result in an empty list.
 
     """
 
