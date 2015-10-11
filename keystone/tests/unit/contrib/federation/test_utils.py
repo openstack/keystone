@@ -13,8 +13,8 @@
 import uuid
 
 from keystone.auth.plugins import mapped
-from keystone.contrib.federation import utils as mapping_utils
 from keystone import exception
+from keystone.federation import utils as mapping_utils
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
 

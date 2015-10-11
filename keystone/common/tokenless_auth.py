@@ -20,9 +20,9 @@ from oslo_log import log
 
 from keystone.auth import controllers
 from keystone.common import dependency
-from keystone.contrib.federation import constants as federation_constants
-from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.federation import constants as federation_constants
+from keystone.federation import utils
 from keystone.i18n import _
 
 

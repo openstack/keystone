@@ -17,8 +17,8 @@ import copy
 import uuid
 
 from keystone.common import authorization
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
+from keystone.federation import constants as federation_constants
 from keystone.models import token_model
 from keystone.tests import unit
 from keystone.tests.unit import test_token_provider

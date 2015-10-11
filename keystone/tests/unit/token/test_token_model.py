@@ -17,8 +17,8 @@ from oslo_config import cfg
 from oslo_utils import timeutils
 from six.moves import range
 
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
+from keystone.federation import constants as federation_constants
 from keystone.models import token_model
 from keystone.tests.unit import core
 from keystone.tests.unit import test_token_provider

@@ -21,8 +21,8 @@ import six
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
-from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.federation import utils
 
 
 CONF = cfg.CONF

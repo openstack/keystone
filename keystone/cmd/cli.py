@@ -29,6 +29,8 @@ from keystone.common.sql import migration_helpers
 from keystone.common import utils
 from keystone import config
 from keystone import exception
+from keystone.federation import idp
+from keystone.federation import utils as mapping_engine
 from keystone.i18n import _, _LW
 from keystone.server import backends
 from keystone import token
@@ -538,9 +540,6 @@ class SamlIdentityProviderMetadata(BaseApp):
 
     @staticmethod
     def main():
-        # NOTE(marek-denis): Since federation is currently an extension import
-        # corresponding modules only when they are really going to be used.
-        from keystone.contrib.federation import idp
         metadata = idp.MetadataGenerator().generate_metadata()
         print(metadata.to_string())
 
@@ -598,7 +597,6 @@ class MappingEngineTester(BaseApp):
 
     @classmethod
     def main(cls):
-        from keystone.contrib.federation import utils as mapping_engine
         if not CONF.command.engine_debug:
             mapping_engine.LOG.logger.setLevel('WARN')
 

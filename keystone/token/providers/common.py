@@ -22,8 +22,8 @@ from six.moves.urllib import parse
 from keystone.common import controller as common_controller
 from keystone.common import dependency
 from keystone.common import utils
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
+from keystone.federation import constants as federation_constants
 from keystone.i18n import _, _LE
 from keystone import token
 from keystone.token import provider

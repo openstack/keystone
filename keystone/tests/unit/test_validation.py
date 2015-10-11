@@ -22,9 +22,9 @@ from keystone.common import validation
 from keystone.common.validation import parameter_types
 from keystone.common.validation import validators
 from keystone.contrib.endpoint_filter import schema as endpoint_filter_schema
-from keystone.contrib.federation import schema as federation_schema
 from keystone.credential import schema as credential_schema
 from keystone import exception
+from keystone.federation import schema as federation_schema
 from keystone.identity import schema as identity_schema
 from keystone.policy import schema as policy_schema
 from keystone.resource import schema as resource_schema

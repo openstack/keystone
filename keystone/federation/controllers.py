@@ -26,10 +26,10 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
 from keystone.common import wsgi
-from keystone.contrib.federation import idp as keystone_idp
-from keystone.contrib.federation import schema
-from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.federation import idp as keystone_idp
+from keystone.federation import schema
+from keystone.federation import utils
 from keystone.i18n import _
 from keystone.models import token_model
 
