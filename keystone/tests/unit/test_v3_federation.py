@@ -1469,8 +1469,8 @@ class MappingCRUDTests(FederationTests):
     def test_create_mapping_with_blacklist_and_whitelist(self):
         """Test for adding whitelist and blacklist in the rule
 
-        Server should respond with HTTP 400 error upon discovering both
-        ``whitelist`` and ``blacklist`` keywords in the same rule.
+        Server should respond with HTTP 400 Bad Request error upon discovering
+        both ``whitelist`` and ``blacklist`` keywords in the same rule.
 
         """
         url = self.MAPPING_URL + uuid.uuid4().hex
@@ -2796,7 +2796,7 @@ class SAMLGenerationTests(FederationTests):
     def test_invalid_scope_body(self):
         """Test that missing the scope in request body raises an exception.
 
-        Raises exception.SchemaValidationError() - error code 400
+        Raises exception.SchemaValidationError() - error 400 Bad Request
 
         """
 
@@ -2811,7 +2811,7 @@ class SAMLGenerationTests(FederationTests):
     def test_invalid_token_body(self):
         """Test that missing the token in request body raises an exception.
 
-        Raises exception.SchemaValidationError() - error code 400
+        Raises exception.SchemaValidationError() - error 400 Bad Request
 
         """
 
