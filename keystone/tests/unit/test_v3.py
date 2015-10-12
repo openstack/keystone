@@ -572,6 +572,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         require_catalog = kwargs.pop('require_catalog', True)
         endpoint_filter = kwargs.pop('endpoint_filter', False)
         ep_filter_assoc = kwargs.pop('ep_filter_assoc', 0)
+        is_admin_project = kwargs.pop('is_admin_project', False)
         token = self.assertValidTokenResponse(r, *args, **kwargs)
 
         if require_catalog:
@@ -598,6 +599,11 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         for role in token['roles']:
             self.assertIn('id', role)
             self.assertIn('name', role)
+
+        if is_admin_project:
+            self.assertIs(True, token['is_admin_project'])
+        else:
+            self.assertNotIn('is_admin_project', token)
 
         return token
 
