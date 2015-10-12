@@ -118,7 +118,7 @@ class KvsCatalog(unit.TestCase, test_backend.CatalogTests):
             'foo', 'bar',
             {'RegionFoo': {'service_bar': {'foo': 'bar'}}})
 
-    def test_get_catalog_404(self):
+    def test_get_catalog_returns_not_found(self):
         # FIXME(dolph): this test should be moved up to test_backend
         # FIXME(dolph): exceptions should be UserNotFound and ProjectNotFound
         self.assertRaises(exception.NotFound,

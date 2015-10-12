@@ -22,7 +22,7 @@ from keystone.tests.unit import default_fixtures
 
 class RoleTests(object):
 
-    def test_get_role_404(self):
+    def test_get_role_returns_not_found(self):
         self.assertRaises(exception.RoleNotFound,
                           self.role_api.get_role,
                           uuid.uuid4().hex)
@@ -73,7 +73,7 @@ class RoleTests(object):
                           self.role_api.get_role,
                           role['id'])
 
-    def test_update_role_404(self):
+    def test_update_role_returns_not_found(self):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.assertRaises(exception.RoleNotFound,
                           self.role_api.update_role,

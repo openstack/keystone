@@ -633,7 +633,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.assertIsNone(catalog_endpoint.get('adminURL'))
         self.assertIsNone(catalog_endpoint.get('internalURL'))
 
-    def test_create_endpoint_region_404(self):
+    def test_create_endpoint_region_returns_not_found(self):
         service = {
             'id': uuid.uuid4().hex,
             'type': uuid.uuid4().hex,

@@ -531,7 +531,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(self.tenant_bar, tenant_ref)
 
-    def test_get_project_404(self):
+    def test_get_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.get_project,
                           uuid.uuid4().hex)
@@ -542,7 +542,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             DEFAULT_DOMAIN_ID)
         self.assertDictEqual(self.tenant_bar, tenant_ref)
 
-    def test_get_project_by_name_404(self):
+    def test_get_project_by_name_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.get_project_by_name,
                           uuid.uuid4().hex,
@@ -586,7 +586,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Ensure the user is only returned once
         self.assertEqual(1, len(user_ids))
 
-    def test_get_project_user_ids_404(self):
+    def test_get_project_user_ids_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.list_user_ids_for_project,
                           uuid.uuid4().hex)
@@ -637,7 +637,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
             user_updated)
 
-    def test_get_user_404(self):
+    def test_get_user_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           uuid.uuid4().hex)
@@ -687,7 +687,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
             user_updated)
 
-    def test_get_user_by_name_404(self):
+    def test_get_user_by_name_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user_by_name,
                           uuid.uuid4().hex,
@@ -1096,7 +1096,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
 
-    def test_get_roles_for_user_and_domain_404(self):
+    def test_get_roles_for_user_and_domain_returns_not_found(self):
         """Test errors raised when getting roles for user on a domain.
 
         Test Plan:
@@ -1120,7 +1120,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           new_user1['id'],
                           uuid.uuid4().hex)
 
-    def test_get_roles_for_user_and_project_404(self):
+    def test_get_roles_for_user_and_project_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
                           self.assignment_api.get_roles_for_user_and_project,
                           uuid.uuid4().hex,
@@ -1131,7 +1131,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           self.user_foo['id'],
                           uuid.uuid4().hex)
 
-    def test_add_role_to_user_and_project_404(self):
+    def test_add_role_to_user_and_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.add_role_to_user_and_project,
                           self.user_foo['id'],
@@ -2088,7 +2088,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         default_role = self.role_api.get_role(CONF.member_role_id)
         self.assertIsNotNone(default_role)
 
-    def test_add_user_to_project_404(self):
+    def test_add_user_to_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.add_user_to_project,
                           uuid.uuid4().hex,
@@ -2132,7 +2132,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             self.user_foo['id'])
         self.assertNotIn(self.tenant_baz, tenants)
 
-    def test_remove_user_from_project_404(self):
+    def test_remove_user_from_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.assignment_api.remove_user_from_project,
                           uuid.uuid4().hex,
@@ -2148,23 +2148,23 @@ class IdentityTests(AssignmentTestHelperMixin):
                           self.tenant_baz['id'],
                           self.user_foo['id'])
 
-    def test_list_user_project_ids_404(self):
+    def test_list_user_project_ids_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
                           self.assignment_api.list_projects_for_user,
                           uuid.uuid4().hex)
 
-    def test_update_project_404(self):
+    def test_update_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.update_project,
                           uuid.uuid4().hex,
                           dict())
 
-    def test_delete_project_404(self):
+    def test_delete_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.delete_project,
                           uuid.uuid4().hex)
 
-    def test_update_user_404(self):
+    def test_update_user_returns_not_found(self):
         user_id = uuid.uuid4().hex
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.update_user,
@@ -2198,12 +2198,12 @@ class IdentityTests(AssignmentTestHelperMixin):
                           self.assignment_api.list_projects_for_user,
                           user['id'])
 
-    def test_delete_user_404(self):
+    def test_delete_user_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.delete_user,
                           uuid.uuid4().hex)
 
-    def test_delete_role_404(self):
+    def test_delete_role_returns_not_found(self):
         self.assertRaises(exception.RoleNotFound,
                           self.role_api.delete_role,
                           uuid.uuid4().hex)
@@ -3049,7 +3049,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                 found = True
         self.assertTrue(found)
 
-    def test_add_user_to_group_404(self):
+    def test_add_user_to_group_returns_not_found(self):
         domain = self._get_domain_fixture()
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': domain['id']}
@@ -3108,7 +3108,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           new_user['id'],
                           new_group['id'])
 
-    def test_check_user_in_group_404(self):
+    def test_check_user_in_group_returns_not_found(self):
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': DEFAULT_DOMAIN_ID}
         new_user = self.identity_api.create_user(new_user)
@@ -3155,7 +3155,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             self.assertNotIn('password', x)
         self.assertTrue(found)
 
-    def test_list_users_in_group_404(self):
+    def test_list_users_in_group_returns_not_found(self):
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.list_users_in_group,
                           uuid.uuid4().hex)
@@ -3241,7 +3241,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         groups = self.identity_api.list_groups_for_user(new_user['id'])
         self.assertNotIn(new_group['id'], [x['id'] for x in groups])
 
-    def test_remove_user_from_group_404(self):
+    def test_remove_user_from_group_returns_not_found(self):
         domain = self._get_domain_fixture()
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': domain['id']}
@@ -3292,7 +3292,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             group_name, DEFAULT_DOMAIN_ID)
         self.assertDictEqual(group, group_ref)
 
-    def test_get_group_by_name_404(self):
+    def test_get_group_by_name_returns_not_found(self):
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group_by_name,
                           uuid.uuid4().hex,
@@ -4613,7 +4613,7 @@ class TokenTests(object):
         self.assertEqual(1, len(tokens))
         self.assertIn(token_id5, tokens)
 
-    def test_get_token_404(self):
+    def test_get_token_returns_not_found(self):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._persistence.get_token,
                           uuid.uuid4().hex)
@@ -4621,7 +4621,7 @@ class TokenTests(object):
                           self.token_provider_api._persistence.get_token,
                           None)
 
-    def test_delete_token_404(self):
+    def test_delete_token_returns_not_found(self):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._persistence.delete_token,
                           uuid.uuid4().hex)
@@ -5214,17 +5214,17 @@ class CatalogTests(object):
                           self.catalog_api.create_region,
                           new_region)
 
-    def test_get_region_404(self):
+    def test_get_region_returns_not_found(self):
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.get_region,
                           uuid.uuid4().hex)
 
-    def test_delete_region_404(self):
+    def test_delete_region_returns_not_found(self):
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.delete_region,
                           uuid.uuid4().hex)
 
-    def test_create_region_invalid_parent_region_404(self):
+    def test_create_region_invalid_parent_region_returns_not_found(self):
         region_id = uuid.uuid4().hex
         new_region = {
             'id': region_id,
@@ -5540,12 +5540,12 @@ class CatalogTests(object):
                           self.catalog_api.delete_endpoint,
                           second_endpoint['id'])
 
-    def test_get_service_404(self):
+    def test_get_service_returns_not_found(self):
         self.assertRaises(exception.ServiceNotFound,
                           self.catalog_api.get_service,
                           uuid.uuid4().hex)
 
-    def test_delete_service_404(self):
+    def test_delete_service_returns_not_found(self):
         self.assertRaises(exception.ServiceNotFound,
                           self.catalog_api.delete_service,
                           uuid.uuid4().hex)
@@ -5603,12 +5603,12 @@ class CatalogTests(object):
                           enabled_endpoint['id'],
                           new_endpoint)
 
-    def test_get_endpoint_404(self):
+    def test_get_endpoint_returns_not_found(self):
         self.assertRaises(exception.EndpointNotFound,
                           self.catalog_api.get_endpoint,
                           uuid.uuid4().hex)
 
-    def test_delete_endpoint_404(self):
+    def test_delete_endpoint_returns_not_found(self):
         self.assertRaises(exception.EndpointNotFound,
                           self.catalog_api.delete_endpoint,
                           uuid.uuid4().hex)
@@ -5834,19 +5834,19 @@ class PolicyTests(object):
         res = self.policy_api.list_policies()
         self.assertFalse(len([x for x in res if x['id'] == ref['id']]))
 
-    def test_get_policy_404(self):
+    def test_get_policy_returns_not_found(self):
         self.assertRaises(exception.PolicyNotFound,
                           self.policy_api.get_policy,
                           uuid.uuid4().hex)
 
-    def test_update_policy_404(self):
+    def test_update_policy_returns_not_found(self):
         ref = self._new_policy_ref()
         self.assertRaises(exception.PolicyNotFound,
                           self.policy_api.update_policy,
                           ref['id'],
                           ref)
 
-    def test_delete_policy_404(self):
+    def test_delete_policy_returns_not_found(self):
         self.assertRaises(exception.PolicyNotFound,
                           self.policy_api.delete_policy,
                           uuid.uuid4().hex)

@@ -745,7 +745,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # delete the endpoint
         self.delete('/endpoints/%s' % ref['id'])
 
-        # make sure it's deleted (GET should return 404)
+        # make sure it's deleted (GET should return Not Found)
         self.get('/endpoints/%s' % ref['id'],
                  expected_status=http_client.NOT_FOUND)
 

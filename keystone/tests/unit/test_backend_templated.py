@@ -172,10 +172,10 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
     def test_create_region_with_duplicate_id(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    def test_delete_region_404(self):
+    def test_delete_region_returns_not_found(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    def test_create_region_invalid_parent_region_404(self):
+    def test_create_region_invalid_parent_region_returns_not_found(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_avoid_creating_circular_references_in_regions_update(self):
@@ -203,7 +203,7 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
     def test_cache_layer_delete_service_with_endpoint(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    def test_delete_service_404(self):
+    def test_delete_service_returns_not_found(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_update_endpoint_nonexistent_service(self):
@@ -215,10 +215,10 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
     def test_update_endpoint_nonexistent_region(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    def test_get_endpoint_404(self):
+    def test_get_endpoint_returns_not_found(self):
         self.skipTest("Templated backend doesn't use IDs for endpoints.")
 
-    def test_delete_endpoint_404(self):
+    def test_delete_endpoint_returns_not_found(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_create_endpoint(self):
