@@ -3234,7 +3234,7 @@ class ServiceProviderTests(FederationTests):
         """Update immutable attributes in service provider.
 
         In this particular case the test will try to change ``id`` attribute.
-        The server should return an HTTP 403 error code.
+        The server should return an HTTP 403 Forbidden error code.
 
         """
         new_sp_ref = {'id': uuid.uuid4().hex}

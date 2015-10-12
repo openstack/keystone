@@ -67,7 +67,7 @@ class ExceptionTestCase(unit.BaseTestCase):
         self.assertValidJsonRendering(e)
         self.assertIn(target, six.text_type(e))
 
-    def test_403_title(self):
+    def test_forbidden_title(self):
         e = exception.Forbidden()
         resp = wsgi.render_exception(e)
         j = jsonutils.loads(resp.body)
