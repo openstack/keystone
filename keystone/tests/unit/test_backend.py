@@ -6508,44 +6508,26 @@ class LimitTests(filtering.FilterTests):
 
     def setUp(self):
         """Setup for Limit Test Cases."""
-        self.domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domain1['id'], self.domain1)
-        self.addCleanup(self.clean_up_domain)
-
         self.entity_lists = {}
-        self.domain1_entity_lists = {}
 
         for entity in self.ENTITIES:
-            # Create 20 entities, 14 of which are in domain1
-            self.entity_lists[entity] = self._create_test_data(entity, 6)
-            self.domain1_entity_lists[entity] = self._create_test_data(
-                entity, 14, self.domain1['id'])
+            # Create 20 entities
+            self.entity_lists[entity] = self._create_test_data(entity, 20)
         self.addCleanup(self.clean_up_entities)
-
-    def clean_up_domain(self):
-        """Clean up domain test data from Limit Test Cases."""
-        self.domain1['enabled'] = False
-        self.resource_api.update_domain(self.domain1['id'], self.domain1)
-        self.resource_api.delete_domain(self.domain1['id'])
-        del self.domain1
 
     def clean_up_entities(self):
         """Clean up entity test data from Limit Test Cases."""
         for entity in self.ENTITIES:
             self._delete_test_data(entity, self.entity_lists[entity])
-            self._delete_test_data(entity, self.domain1_entity_lists[entity])
         del self.entity_lists
-        del self.domain1_entity_lists
 
     def _test_list_entity_filtered_and_limited(self, entity):
         self.config_fixture.config(list_limit=10)
-        # Should get back just 10 entities in domain1
+        # Should get back just 10 entities
         hints = driver_hints.Hints()
-        hints.add_filter('domain_id', self.domain1['id'])
         entities = self._list_entities(entity)(hints=hints)
         self.assertEqual(hints.limit['limit'], len(entities))
         self.assertTrue(hints.limit['truncated'])
-        self._match_with_list(entities, self.domain1_entity_lists[entity])
 
         # Override with driver specific limit
         if entity == 'project':
@@ -6553,12 +6535,10 @@ class LimitTests(filtering.FilterTests):
         else:
             self.config_fixture.config(group='identity', list_limit=5)
 
-        # Should get back just 5 users in domain1
+        # Should get back just 5 users
         hints = driver_hints.Hints()
-        hints.add_filter('domain_id', self.domain1['id'])
         entities = self._list_entities(entity)(hints=hints)
         self.assertEqual(hints.limit['limit'], len(entities))
-        self._match_with_list(entities, self.domain1_entity_lists[entity])
 
         # Finally, let's pretend we want to get the full list of entities,
         # even with the limits set, as part of some internal calculation.
@@ -6567,6 +6547,7 @@ class LimitTests(filtering.FilterTests):
         # entities lying around created by other tests/setup).
         entities = self._list_entities(entity)()
         self.assertTrue(len(entities) >= 20)
+        self._match_with_list(self.entity_lists[entity], entities)
 
     def test_list_users_filtered_and_limited(self):
         self._test_list_entity_filtered_and_limited('user')
