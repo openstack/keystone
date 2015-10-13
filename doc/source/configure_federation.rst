@@ -332,7 +332,7 @@ Create a Service Provider (SP)
 ------------------------------
 
 In this example we are creating a new Service Provider with an ID of ``BETA``,
-a ``sp_url`` of ``http://beta.example.com/Shibboleth.sso/POST/ECP`` and a
+a ``sp_url`` of ``http://beta.example.com/Shibboleth.sso/SAML2/ECP`` and a
 ``auth_url`` of ``http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth``
 . The ``sp_url`` will be used when creating a SAML assertion for ``BETA`` and
 signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
@@ -345,8 +345,8 @@ field is optional we are passing it set to ``true`` otherwise it will be set to
     $ curl -s -X PUT \
       -H "X-Auth-Token: $OS_TOKEN" \
       -H "Content-Type: application/json" \
-      -d '{"service_provider": {"auth_url": "http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth", "sp_url": "https://example.com:5000/Shibboleth.sso/SAML2/ECP", "enabled": true}' \
-      http://localhost:5000/v3/service_providers/BETA | python -mjson.tool
+      -d '{"service_provider": {"auth_url": "http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth", "sp_url": "https://example.com:5000/Shibboleth.sso/SAML2/ECP", "enabled": true}}' \
+      http://localhost:5000/v3/OS-FEDERATION/service_providers/BETA | python -mjson.tool
 
 Testing it all out
 ------------------
