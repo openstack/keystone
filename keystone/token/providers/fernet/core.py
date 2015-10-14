@@ -237,7 +237,7 @@ class Provider(common.BaseProvider):
         :param token: a string describing the token to validate
         :returns: the token data
         :raises keystone.exception.TokenNotFound: if token format version isn't
-                                                 supported
+            supported
 
         """
         try:
@@ -274,7 +274,7 @@ class Provider(common.BaseProvider):
 
         :param token_data: token information
         :type token_data: dict
-        :raises keystone.exception.NotImplemented: when called
+
         """
         return self.token_formatter.create_token(
             token_data['token']['user']['id'],
@@ -292,5 +292,6 @@ class Provider(common.BaseProvider):
         """Return if the token provider supports bind authentication methods.
 
         :returns: False
+
         """
         return False
