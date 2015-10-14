@@ -29,6 +29,7 @@ from keystone import endpoint_policy
 from keystone import federation
 from keystone.i18n import _LW
 from keystone import identity
+from keystone import oauth1
 from keystone import policy
 from keystone import resource
 from keystone import token
@@ -131,7 +132,8 @@ def v3_app_factory(global_conf, **local_conf):
                       identity,
                       policy,
                       resource,
-                      federation]
+                      federation,
+                      oauth1]
 
     if CONF.trust.enabled:
         router_modules.append(trust)

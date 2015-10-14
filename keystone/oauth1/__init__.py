@@ -12,19 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import versionutils
-
-from keystone.oauth1.backends import sql
-
-
-_OLD = "keystone.contrib.oauth1.backends.sql.OAuth1"
-_NEW = "sql"
-
-
-class OAuth1(sql.OAuth1):
-
-    @versionutils.deprecated(versionutils.deprecated.MITAKA,
-                             in_favor_of=_NEW,
-                             what=_OLD)
-    def __init__(self, *args, **kwargs):
-        super(OAuth1, self).__init__(*args, **kwargs)
+from keystone.oauth1.core import *  # noqa
+from keystone.oauth1 import routers  # noqa
