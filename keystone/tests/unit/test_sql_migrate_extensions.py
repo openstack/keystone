@@ -29,12 +29,6 @@ WARNING::
    all data will be lost.
 """
 
-import sqlalchemy
-import uuid
-
-from oslo_db import exception as db_exception
-from oslo_db.sqlalchemy import utils
-
 from keystone.contrib import endpoint_filter
 from keystone.contrib import endpoint_policy
 from keystone.contrib import example
@@ -171,212 +165,18 @@ class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):
 
 
 class FederationExtension(test_sql_upgrade.SqlMigrateBase):
-    """Test class for ensuring the Federation SQL."""
 
-    def setUp(self):
-        super(FederationExtension, self).setUp()
-        self.identity_provider = 'identity_provider'
-        self.federation_protocol = 'federation_protocol'
-        self.service_provider = 'service_provider'
-        self.mapping = 'mapping'
-        self.remote_id_table = 'idp_remote_ids'
+    FEDERATION_MIGRATIONS = 8
 
     def repo_package(self):
         return federation
 
-    def insert_dict(self, session, table_name, d):
-        """Naively inserts key-value pairs into a table, given a dictionary."""
-        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
-        insert = table.insert().values(**d)
-        session.execute(insert)
-        session.commit()
-
     def test_upgrade(self):
-        self.assertTableDoesNotExist(self.identity_provider)
-        self.assertTableDoesNotExist(self.federation_protocol)
-        self.assertTableDoesNotExist(self.mapping)
-
-        self.upgrade(1, repository=self.repo_path)
-        self.assertTableColumns(self.identity_provider,
-                                ['id',
-                                 'enabled',
-                                 'description'])
-
-        self.assertTableColumns(self.federation_protocol,
-                                ['id',
-                                 'idp_id',
-                                 'mapping_id'])
-
-        self.upgrade(2, repository=self.repo_path)
-        self.assertTableColumns(self.mapping,
-                                ['id', 'rules'])
-
-        federation_protocol = utils.get_table(
-            self.engine,
-            'federation_protocol')
-        with self.engine.begin() as conn:
-            conn.execute(federation_protocol.insert(), id=0, idp_id=1)
-            self.upgrade(3, repository=self.repo_path)
-            federation_protocol = utils.get_table(
-                self.engine,
-                'federation_protocol')
-            self.assertFalse(federation_protocol.c.mapping_id.nullable)
-
-    def test_service_provider_attributes_cannot_be_null(self):
-        self.upgrade(6, repository=self.repo_path)
-        self.assertTableColumns(self.service_provider,
-                                ['id', 'description', 'enabled', 'auth_url',
-                                 'sp_url'])
-
-        session = self.Session()
-        sp1 = {'id': uuid.uuid4().hex,
-               'auth_url': None,
-               'sp_url': uuid.uuid4().hex,
-               'description': uuid.uuid4().hex,
-               'enabled': True}
-        sp2 = {'id': uuid.uuid4().hex,
-               'auth_url': uuid.uuid4().hex,
-               'sp_url': None,
-               'description': uuid.uuid4().hex,
-               'enabled': True}
-        sp3 = {'id': uuid.uuid4().hex,
-               'auth_url': None,
-               'sp_url': None,
-               'description': uuid.uuid4().hex,
-               'enabled': True}
-
-        # Insert with 'auth_url' or 'sp_url' set to null must fail
-        self.assertRaises(db_exception.DBError,
-                          self.insert_dict,
-                          session,
-                          self.service_provider,
-                          sp1)
-        self.assertRaises(db_exception.DBError,
-                          self.insert_dict,
-                          session,
-                          self.service_provider,
-                          sp2)
-        self.assertRaises(db_exception.DBError,
-                          self.insert_dict,
-                          session,
-                          self.service_provider,
-                          sp3)
-
-        session.close()
-
-    def test_fixup_service_provider_attributes(self):
-        session = self.Session()
-        sp1 = {'id': uuid.uuid4().hex,
-               'auth_url': None,
-               'sp_url': uuid.uuid4().hex,
-               'description': uuid.uuid4().hex,
-               'enabled': True}
-        sp2 = {'id': uuid.uuid4().hex,
-               'auth_url': uuid.uuid4().hex,
-               'sp_url': None,
-               'description': uuid.uuid4().hex,
-               'enabled': True}
-        sp3 = {'id': uuid.uuid4().hex,
-               'auth_url': None,
-               'sp_url': None,
-               'description': uuid.uuid4().hex,
-               'enabled': True}
-        self.upgrade(5, repository=self.repo_path)
-        self.assertTableColumns(self.service_provider,
-                                ['id', 'description', 'enabled', 'auth_url',
-                                 'sp_url'])
-
-        # Before the migration, the table should accept null values
-        self.insert_dict(session, self.service_provider, sp1)
-        self.insert_dict(session, self.service_provider, sp2)
-        self.insert_dict(session, self.service_provider, sp3)
-
-        # Check if null values are updated to empty string when migrating
-        session.close()
-        self.upgrade(6, repository=self.repo_path)
-        sp_table = sqlalchemy.Table(self.service_provider,
-                                    self.metadata,
-                                    autoload=True)
-        session = self.Session()
-        self.metadata.clear()
-
-        sp = session.query(sp_table).filter(sp_table.c.id == sp1['id'])[0]
-        self.assertEqual('', sp.auth_url)
-
-        sp = session.query(sp_table).filter(sp_table.c.id == sp2['id'])[0]
-        self.assertEqual('', sp.sp_url)
-
-        sp = session.query(sp_table).filter(sp_table.c.id == sp3['id'])[0]
-        self.assertEqual('', sp.auth_url)
-        self.assertEqual('', sp.sp_url)
-
-    def test_propagate_remote_id_to_separate_column(self):
-        """Make sure empty remote_id is not propagated.
-        Test scenario:
-        - Upgrade database to version 6 where identity_provider table has a
-          remote_id column
-        - Add 3 identity provider objects, where idp1 and idp2 have valid
-          remote_id parameter set, and idp3 has it empty (None).
-        - Upgrade database to version 7 and expect migration scripts to
-          properly move data rom identity_provider.remote_id column into
-          separate table idp_remote_ids.
-        - In the idp_remote_ids table expect to find entries for idp1 and idp2
-          and not find anything for idp3 (identified by idp's id)
-
-        """
-        session = self.Session()
-        idp1 = {'id': uuid.uuid4().hex,
-                'remote_id': uuid.uuid4().hex,
-                'description': uuid.uuid4().hex,
-                'enabled': True}
-        idp2 = {'id': uuid.uuid4().hex,
-                'remote_id': uuid.uuid4().hex,
-                'description': uuid.uuid4().hex,
-                'enabled': True}
-        idp3 = {'id': uuid.uuid4().hex,
-                'remote_id': None,
-                'description': uuid.uuid4().hex,
-                'enabled': True}
-        self.upgrade(6, repository=self.repo_path)
-        self.assertTableColumns(self.identity_provider,
-                                ['id', 'description', 'enabled', 'remote_id'])
-
-        self.insert_dict(session, self.identity_provider, idp1)
-        self.insert_dict(session, self.identity_provider, idp2)
-        self.insert_dict(session, self.identity_provider, idp3)
-
-        session.close()
-        self.upgrade(7, repository=self.repo_path)
-
-        self.assertTableColumns(self.identity_provider,
-                                ['id', 'description', 'enabled'])
-        remote_id_table = sqlalchemy.Table(self.remote_id_table,
-                                           self.metadata,
-                                           autoload=True)
-
-        session = self.Session()
-        self.metadata.clear()
-
-        idp = session.query(remote_id_table).filter(
-            remote_id_table.c.idp_id == idp1['id'])[0]
-        self.assertEqual(idp1['remote_id'], idp.remote_id)
-
-        idp = session.query(remote_id_table).filter(
-            remote_id_table.c.idp_id == idp2['id'])[0]
-        self.assertEqual(idp2['remote_id'], idp.remote_id)
-
-        idp = session.query(remote_id_table).filter(
-            remote_id_table.c.idp_id == idp3['id'])
-        # NOTE(marek-denis): As idp3 had empty 'remote_id' attribute we expect
-        # not to find it in the 'remote_id_table' table, hence count should be
-        # 0.real
-        self.assertEqual(0, idp.count())
-
-    def test_add_relay_state_column(self):
-        self.upgrade(8, repository=self.repo_path)
-        self.assertTableColumns(self.service_provider,
-                                ['id', 'description', 'enabled', 'auth_url',
-                                 'relay_state_prefix', 'sp_url'])
+        for version in range(self.FEDERATION_MIGRATIONS):
+            v = version + 1
+            self.assertRaises(exception.MigrationMovedFailure,
+                              self.upgrade, version=v,
+                              repository=self.repo_path)
 
 
 class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
