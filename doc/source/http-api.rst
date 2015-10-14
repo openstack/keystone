@@ -73,7 +73,7 @@ method:
 .. code-block:: ini
 
     [app:service_v3]
-    paste.app_factory = keystone.service:v3_app_factory
+    use = egg:keystone#service_v3
 
 Then define a v3 pipeline, which terminates with the v3 application you defined
 above:
