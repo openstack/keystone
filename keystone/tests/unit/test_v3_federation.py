@@ -886,7 +886,7 @@ class FederatedIdentityProviderTests(FederationTests):
         A remote_id is the same for both so the second IdP is not
         created because of the uniqueness of the remote_ids
 
-        Expect HTTP 409 code for the latter call.
+        Expect HTTP 409 Conflict code for the latter call.
 
         """
 
@@ -1021,7 +1021,7 @@ class FederatedIdentityProviderTests(FederationTests):
     def test_check_idp_uniqueness(self):
         """Add same IdP twice.
 
-        Expect HTTP 409 code for the latter call.
+        Expect HTTP 409 Conflict code for the latter call.
 
         """
         url = self.base_url(suffix=uuid.uuid4().hex)
@@ -1204,7 +1204,7 @@ class FederatedIdentityProviderTests(FederationTests):
         """Test whether Keystone checks for unique idp/protocol values.
 
         Add same protocol twice, expect Keystone to reject a latter call and
-        return HTTP 409 code.
+        return HTTP 409 Conflict code.
 
         """
         url = self.base_url(suffix='%(idp_id)s/protocols/%(protocol_id)s')

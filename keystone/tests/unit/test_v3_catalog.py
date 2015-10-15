@@ -64,7 +64,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # Create region again with duplicate id
         self.put(
             '/regions/myregion',
-            body={'region': ref}, expected_status=409)
+            body={'region': ref}, expected_status=http_client.CONFLICT)
 
     def test_create_region(self):
         """Call ``POST /regions`` with an ID in the request body."""
