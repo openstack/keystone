@@ -12,11 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sql
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    user_table = sql.Table('consumer', meta, autoload=True)
-    user_table.c.description.alter(nullable=True)
+    raise exception.MigrationMovedFailure(extension='oauth1')

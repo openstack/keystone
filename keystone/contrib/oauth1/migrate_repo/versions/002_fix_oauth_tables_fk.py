@@ -12,26 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sql
-
-from keystone.common.sql import migration_helpers
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    # Upgrade operations go here. Don't create your own engine; bind
-    # migrate_engine to your metadata
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    consumer_table = sql.Table('consumer', meta, autoload=True)
-    request_token_table = sql.Table('request_token', meta, autoload=True)
-    access_token_table = sql.Table('access_token', meta, autoload=True)
-
-    constraints = [{'table': request_token_table,
-                    'fk_column': 'consumer_id',
-                    'ref_column': consumer_table.c.id},
-                   {'table': access_token_table,
-                    'fk_column': 'consumer_id',
-                    'ref_column': consumer_table.c.id}]
-    if meta.bind != 'sqlite':
-        migration_helpers.add_constraints(constraints)
+    raise exception.MigrationMovedFailure(extension='oauth1')

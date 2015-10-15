@@ -623,6 +623,52 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('service_provider')
         self.assertTableDoesNotExist('idp_remote_ids')
 
+    def test_create_oauth_tables(self):
+        consumer = 'consumer'
+        request_token = 'request_token'
+        access_token = 'access_token'
+        self.assertTableDoesNotExist(consumer)
+        self.assertTableDoesNotExist(request_token)
+        self.assertTableDoesNotExist(access_token)
+        self.upgrade(83)
+        self.assertTableColumns(consumer,
+                                ['id',
+                                 'description',
+                                 'secret',
+                                 'extra'])
+        self.assertTableColumns(request_token,
+                                ['id',
+                                 'request_secret',
+                                 'verifier',
+                                 'authorizing_user_id',
+                                 'requested_project_id',
+                                 'role_ids',
+                                 'consumer_id',
+                                 'expires_at'])
+        self.assertTableColumns(access_token,
+                                ['id',
+                                 'access_secret',
+                                 'authorizing_user_id',
+                                 'project_id',
+                                 'role_ids',
+                                 'consumer_id',
+                                 'expires_at'])
+
+    @mock.patch.object(migration_helpers, 'get_db_version', return_value=5)
+    def test_oauth1_already_migrated(self, mock_oauth1):
+
+        # By setting the return value to 5, the migration has already been
+        # run, and there's no need to create the table again.
+        self.upgrade(83)
+
+        mock_oauth1.assert_any_call(extension='oauth1', engine=mock.ANY)
+
+        # It won't exist because we are mocking it, but we can verify
+        # that 083 did not create the table.
+        self.assertTableDoesNotExist('consumer')
+        self.assertTableDoesNotExist('request_token')
+        self.assertTableDoesNotExist('access_token')
+
     def test_fixup_service_name_value_upgrade(self):
         """Update service name data from `extra` to empty string."""
         def add_service(**extra_data):
