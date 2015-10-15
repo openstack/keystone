@@ -503,11 +503,11 @@ class TestPayloads(unit.TestCase):
         self.assertTimestampsEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
 
-    def test_project_scoped_payload_with_non_uuid_user_id(self):
+    def test_project_scoped_payload_with_non_uuid_ids(self):
         self._test_project_scoped_payload_with_ids('someNonUuidUserId',
                                                    'someNonUuidProjectId')
 
-    def test_project_scoped_payload_with_16_char_non_uuid_user_id(self):
+    def test_project_scoped_payload_with_16_char_non_uuid_ids(self):
         self._test_project_scoped_payload_with_ids('0123456789abcdef',
                                                    '0123456789abcdef')
 
@@ -563,11 +563,11 @@ class TestPayloads(unit.TestCase):
         self.assertEqual(exp_audit_ids, audit_ids)
         self.assertEqual(exp_trust_id, trust_id)
 
-    def test_trust_scoped_payload_with_non_uuid_user_id(self):
+    def test_trust_scoped_payload_with_non_uuid_ids(self):
         self._test_trust_scoped_payload_with_ids('someNonUuidUserId',
                                                  'someNonUuidProjectId')
 
-    def test_trust_scoped_payload_with_16_char_non_uuid_user_id(self):
+    def test_trust_scoped_payload_with_16_char_non_uuid_ids(self):
         self._test_trust_scoped_payload_with_ids('0123456789abcdef',
                                                  '0123456789abcdef')
 
