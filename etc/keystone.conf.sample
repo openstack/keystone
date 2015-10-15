@@ -108,46 +108,61 @@
 
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
-# files, see the Python logging module documentation. (string value)
+# files, see the Python logging module documentation. Note that when logging
+# configuration files are used then all logging configuration is set in the
+# configuration file and other logging configuration options are ignored (for
+# example, log_format). (string value)
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append = <None>
 
 # DEPRECATED. A logging.Formatter log message format string which may use any
 # of the available logging.LogRecord attributes. This option is deprecated.
 # Please use logging_context_format_string and logging_default_format_string
-# instead. (string value)
+# instead. This option is ignored if log_config_append is set. (string value)
 #log_format = <None>
 
-# Format string for %%(asctime)s in log records. Default: %(default)s . (string
-# value)
+# Format string for %%(asctime)s in log records. Default: %(default)s . This
+# option is ignored if log_config_append is set. (string value)
 #log_date_format = %Y-%m-%d %H:%M:%S
 
 # (Optional) Name of log file to output to. If no default is set, logging will
-# go to stdout. (string value)
+# go to stdout. This option is ignored if log_config_append is set. (string
+# value)
 # Deprecated group/name - [DEFAULT]/logfile
 #log_file = <None>
 
-# (Optional) The base directory used for relative --log-file paths. (string
-# value)
+# (Optional) The base directory used for relative --log-file paths. This option
+# is ignored if log_config_append is set. (string value)
 # Deprecated group/name - [DEFAULT]/logdir
 #log_dir = <None>
 
+# (Optional) Uses logging handler designed to watch file system. When log file
+# is moved or removed this handler will open a new log file with specified path
+# instantaneously. It makes sense only if log-file option is specified and
+# Linux platform is used. This option is ignored if log_config_append is set.
+# (boolean value)
+#watch_log_file = false
+
 # Use syslog for logging. Existing syslog format is DEPRECATED and will be
-# changed later to honor RFC5424. (boolean value)
+# changed later to honor RFC5424. This option is ignored if log_config_append
+# is set. (boolean value)
 #use_syslog = false
 
 # (Optional) Enables or disables syslog rfc5424 format for logging. If enabled,
 # prefixes the MSG part of the syslog message with APP-NAME (RFC5424). The
 # format without the APP-NAME is deprecated in Kilo, and will be removed in
-# Mitaka, along with this option. (boolean value)
+# Mitaka, along with this option. This option is ignored if log_config_append
+# is set. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #use_syslog_rfc_format = true
 
-# Syslog facility to receive log lines. (string value)
+# Syslog facility to receive log lines. This option is ignored if
+# log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
 
-# Log output to standard error. (boolean value)
+# Log output to standard error. This option is ignored if log_config_append is
+# set. (boolean value)
 #use_stderr = true
 
 # Format string to use for log messages with context. (string value)
@@ -162,7 +177,8 @@
 # Prefix each line of exception output with this format. (string value)
 #logging_exception_prefix = %(asctime)s.%(msecs)03d %(process)d ERROR %(name)s %(instance)s
 
-# List of logger=LEVEL pairs. (list value)
+# List of logger=LEVEL pairs. This option is ignored if log_config_append is
+# set. (list value)
 #default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN
 
 # Enables or disables publication of error events. (boolean value)
@@ -192,10 +208,13 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-#rpc_zmq_matchmaker = local
+#rpc_zmq_matchmaker = redis
 
-# ZeroMQ receiver listening port. (integer value)
-#rpc_zmq_port = 9501
+# Use REQ/REP pattern for all methods CALL/CAST/FANOUT. (boolean value)
+#rpc_zmq_all_req_rep = true
+
+# Type of concurrency used. Either "native" or "eventlet" (string value)
+#rpc_zmq_concurrency = eventlet
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
 #rpc_zmq_contexts = 1
@@ -215,11 +234,21 @@
 # (integer value)
 #rpc_cast_timeout = 30
 
-# Heartbeat frequency. (integer value)
-#matchmaker_heartbeat_freq = 300
+# The default number of seconds that poll should wait. Poll raises timeout
+# exception when timeout expired. (integer value)
+#rpc_poll_timeout = 1
 
-# Heartbeat time-to-live. (integer value)
-#matchmaker_heartbeat_ttl = 600
+# Shows whether zmq-messaging uses broker or not. (boolean value)
+#zmq_use_broker = true
+
+# Host to locate redis. (string value)
+#host = 127.0.0.1
+
+# Use this port to connect to redis host. (integer value)
+#port = 6379
+
+# Password for Redis server (optional). (string value)
+#password =
 
 # Size of executor thread pool. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
@@ -1281,18 +1310,7 @@
 #port = 6379
 
 # Password for Redis server (optional). (string value)
-#password = <None>
-
-
-[matchmaker_ring]
-
-#
-# From oslo.messaging
-#
-
-# Matchmaker ring file (JSON). (string value)
-# Deprecated group/name - [DEFAULT]/matchmaker_ringfile
-#ringfile = /etc/oslo/matchmaker_ring.json
+#password =
 
 
 [memcache]
@@ -1407,6 +1425,26 @@
 # Accept clients using either SSL or plain TCP (boolean value)
 # Deprecated group/name - [amqp1]/allow_insecure_clients
 #allow_insecure_clients = false
+
+# Space separated list of acceptable SASL mechanisms (string value)
+# Deprecated group/name - [amqp1]/sasl_mechanisms
+#sasl_mechanisms =
+
+# Path to directory that contains the SASL configuration (string value)
+# Deprecated group/name - [amqp1]/sasl_config_dir
+#sasl_config_dir =
+
+# Name of configuration file (without .conf suffix) (string value)
+# Deprecated group/name - [amqp1]/sasl_config_name
+#sasl_config_name =
+
+# User name for message broker authentication (string value)
+# Deprecated group/name - [amqp1]/username
+#username =
+
+# Password for message broker authentication (string value)
+# Deprecated group/name - [amqp1]/password
+#password =
 
 
 [oslo_messaging_qpid]
@@ -1616,6 +1654,8 @@
 # The HTTP Header that will be used to determine what the original request
 # protocol scheme was, even if it was hidden by an SSL termination proxy.
 # (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #secure_proxy_ssl_header = X-Forwarded-Proto
 
 
@@ -1639,8 +1679,6 @@
 # directories to be searched.  Missing or empty directories are ignored. (multi
 # valued)
 # Deprecated group/name - [DEFAULT]/policy_dirs
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
 #policy_dirs = policy.d
 
 
