@@ -1267,6 +1267,13 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
 
         req_context = oslo_context.context.get_current()
         self.assertEqual(request_id, req_context.request_id)
+        self.assertEqual(token, req_context.auth_token)
+        self.assertEqual(self.user['id'], req_context.user)
+        self.assertEqual(self.project['id'], req_context.tenant)
+        self.assertIsNone(req_context.domain)
+        self.assertEqual(self.user['domain_id'], req_context.user_domain)
+        self.assertEqual(self.project['domain_id'], req_context.project_domain)
+        self.assertFalse(req_context.is_admin)
 
 
 class JsonHomeTestMixin(object):
