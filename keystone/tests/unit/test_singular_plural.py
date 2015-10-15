@@ -18,7 +18,7 @@ from keystone.contrib.admin_crud import core as admin_crud_core
 from keystone.contrib.s3 import core as s3_core
 from keystone.contrib.user_crud import core as user_crud_core
 from keystone.identity import core as identity_core
-from keystone import service
+from keystone.version import service
 
 
 class TestSingularPlural(object):

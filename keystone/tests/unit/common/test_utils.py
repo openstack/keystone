@@ -19,9 +19,9 @@ from oslo_serialization import jsonutils
 
 from keystone.common import utils as common_utils
 from keystone import exception
-from keystone import service
 from keystone.tests import unit
 from keystone.tests.unit import utils
+from keystone.version import service
 
 
 CONF = cfg.CONF

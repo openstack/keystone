@@ -23,7 +23,7 @@ For example, the ``ComposableRouter`` for ``identity`` belongs in::
 
 
 from keystone.common import wsgi
-from keystone import controllers
+from keystone.version import controllers
 
 
 class Extension(wsgi.ComposableRouter):

@@ -30,7 +30,7 @@ from keystone.common import environment
 from keystone import config
 import keystone.middleware.core as middleware_core
 from keystone.server import common
-from keystone import service as keystone_service
+from keystone.version import service as keystone_service
 
 
 CONF = cfg.CONF
