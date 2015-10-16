@@ -265,7 +265,7 @@ environment variable is present so make sure Shibboleth doesn't set the
 ``/etc/shibboleth/shibboleth2.xml`` configuration file and remove the
 ``REMOTE_USER`` directives.
 
-Examine your attributes map file ``/etc/shibboleth/attributes-map.xml`` and adjust
+Examine your attributes map file ``/etc/shibboleth/attribute-map.xml`` and adjust
 your requirements if needed. For more information see
 `attributes documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
 
