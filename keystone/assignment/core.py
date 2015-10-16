@@ -33,7 +33,7 @@ from keystone import notifications
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-MEMOIZE = cache.get_memoization_decorator(section='role')
+MEMOIZE = cache.get_memoization_decorator(group='role')
 
 
 @dependency.provider('assignment_api')

@@ -35,7 +35,7 @@ from keystone import notifications
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-MEMOIZE = cache.get_memoization_decorator(section='catalog')
+MEMOIZE = cache.get_memoization_decorator(group='catalog')
 WHITELISTED_PROPERTIES = [
     'tenant_id', 'user_id', 'public_bind_host', 'admin_bind_host',
     'compute_host', 'admin_port', 'public_port',

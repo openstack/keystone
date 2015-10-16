@@ -30,7 +30,7 @@ from keystone import notifications
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-MEMOIZE = cache.get_memoization_decorator(section='resource')
+MEMOIZE = cache.get_memoization_decorator(group='resource')
 
 
 def calc_default_domain():
@@ -810,7 +810,7 @@ class ResourceDriverV8(object):
 Driver = manager.create_legacy_driver(ResourceDriverV8)
 
 
-MEMOIZE_CONFIG = cache.get_memoization_decorator(section='domain_config')
+MEMOIZE_CONFIG = cache.get_memoization_decorator(group='domain_config')
 
 
 @dependency.provider('domain_config_api')

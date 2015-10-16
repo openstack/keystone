@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_cache import core as cache
 from oslo_config import cfg
 import oslo_messaging
 import passlib.utils
@@ -305,82 +306,6 @@ FILE_OPTIONS = {
                         'global and token caching are enabled.',
                    deprecated_opts=[cfg.DeprecatedOpt(
                        'revocation_cache_time', group='token')]),
-    ],
-    'cache': [
-        cfg.StrOpt('config_prefix', default='cache.keystone',
-                   help='Prefix for building the configuration dictionary '
-                        'for the cache region. This should not need to be '
-                        'changed unless there is another dogpile.cache '
-                        'region with the same configuration name.'),
-        cfg.IntOpt('expiration_time', default=600,
-                   help='Default TTL, in seconds, for any cached item in '
-                        'the dogpile.cache region. This applies to any '
-                        'cached method that doesn\'t have an explicit '
-                        'cache expiration time defined for it.'),
-        # NOTE(morganfainberg): the dogpile.cache.memory acceptable in devstack
-        # and other such single-process/thread deployments. Running
-        # dogpile.cache.memory in any other configuration has the same pitfalls
-        # as the KVS token backend. It is recommended that either Redis or
-        # Memcached are used as the dogpile backend for real workloads. To
-        # prevent issues with the memory cache ending up in "production"
-        # unintentionally, we register a no-op as the keystone default caching
-        # backend.
-        cfg.StrOpt('backend', default='keystone.common.cache.noop',
-                   help='Dogpile.cache backend module. It is recommended '
-                        'that Memcache with pooling '
-                        '(keystone.cache.memcache_pool) or Redis '
-                        '(dogpile.cache.redis) be used in production '
-                        'deployments.  Small workloads (single process) '
-                        'like devstack can use the dogpile.cache.memory '
-                        'backend.'),
-        cfg.MultiStrOpt('backend_argument', default=[], secret=True,
-                        help='Arguments supplied to the backend module. '
-                             'Specify this option once per argument to be '
-                             'passed to the dogpile.cache backend. Example '
-                             'format: "<argname>:<value>".'),
-        cfg.ListOpt('proxies', default=[],
-                    help='Proxy classes to import that will affect the way '
-                         'the dogpile.cache backend functions. See the '
-                         'dogpile.cache documentation on '
-                         'changing-backend-behavior.'),
-        cfg.BoolOpt('enabled', default=False,
-                    help='Global toggle for all caching using the '
-                         'should_cache_fn mechanism.'),
-        cfg.BoolOpt('debug_cache_backend', default=False,
-                    help='Extra debugging from the cache backend (cache '
-                         'keys, get/set/delete/etc calls). This is only '
-                         'really useful if you need to see the specific '
-                         'cache-backend get/set/delete calls with the '
-                         'keys/values.  Typically this should be left set '
-                         'to false.'),
-        cfg.ListOpt('memcache_servers', default=['localhost:11211'],
-                    help='Memcache servers in the format of "host:port".'
-                    ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
-                    ' backends only).'),
-        cfg.IntOpt('memcache_dead_retry',
-                   default=5 * 60,
-                   help='Number of seconds memcached server is considered dead'
-                   ' before it is tried again. (dogpile.cache.memcache and'
-                   ' keystone.cache.memcache_pool backends only).'),
-        cfg.IntOpt('memcache_socket_timeout',
-                   default=3,
-                   help='Timeout in seconds for every call to a server.'
-                   ' (dogpile.cache.memcache and keystone.cache.memcache_pool'
-                   ' backends only).'),
-        cfg.IntOpt('memcache_pool_maxsize',
-                   default=10,
-                   help='Max total number of open connections to every'
-                   ' memcached server. (keystone.cache.memcache_pool backend'
-                   ' only).'),
-        cfg.IntOpt('memcache_pool_unused_timeout',
-                   default=60,
-                   help='Number of seconds a connection to memcached is held'
-                   ' unused in the pool before it is closed.'
-                   ' (keystone.cache.memcache_pool backend only).'),
-        cfg.IntOpt('memcache_pool_connection_get_timeout',
-                   default=10,
-                   help='Number of seconds that an operation will wait to get '
-                        'a memcache client connection.'),
     ],
     'ssl': [
         cfg.StrOpt('ca_key',
@@ -1212,6 +1137,8 @@ def configure(conf=None):
 
     # register any non-default auth methods here (used by extensions, etc)
     setup_authentication(conf)
+    # add oslo.cache related config options
+    cache.configure(conf)
 
 
 def list_opts():

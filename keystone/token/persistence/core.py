@@ -32,9 +32,9 @@ from keystone.token import utils
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-MEMOIZE = cache.get_memoization_decorator(section='token')
-REVOCATION_MEMOIZE = cache.get_memoization_decorator(
-    section='token', expiration_section='revoke')
+MEMOIZE = cache.get_memoization_decorator(group='token')
+REVOCATION_MEMOIZE = cache.get_memoization_decorator(group='token',
+                                                     expiration_group='revoke')
 
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',
