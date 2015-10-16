@@ -20,7 +20,7 @@ from oslo_log import versionutils
 
 
 @versionutils.deprecated(
-    versionutils.deprecated.LIBERTY,
+    versionutils.deprecated.MITAKA,
     what='keystone.cache.memcache_pool backend',
     in_favor_of='oslo_cache.memcache_pool backend',
     remove_in=+1)

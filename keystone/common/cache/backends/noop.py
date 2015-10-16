@@ -20,7 +20,7 @@ NO_VALUE = api.NO_VALUE
 
 
 @versionutils.deprecated(
-    versionutils.deprecated.LIBERTY,
+    versionutils.deprecated.MITAKA,
     what='keystone.common.cache.noop backend',
     in_favor_of="dogpile.cache's Null backend",
     remove_in=+1)
