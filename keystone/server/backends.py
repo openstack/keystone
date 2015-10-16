@@ -31,6 +31,7 @@ def load_backends():
 
     # Configure and build the cache
     cache.configure_cache()
+    cache.configure_cache(region=catalog.COMPUTED_CATALOG_REGION)
 
     # Ensure that the identity driver is created before the assignment manager
     # and that the assignment driver is created before the resource manager.

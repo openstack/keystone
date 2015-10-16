@@ -18,6 +18,7 @@
 import abc
 import itertools
 
+from oslo_cache import core as oslo_cache
 from oslo_config import cfg
 from oslo_log import log
 import six
@@ -35,11 +36,22 @@ from keystone import notifications
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
-MEMOIZE = cache.get_memoization_decorator(group='catalog')
 WHITELISTED_PROPERTIES = [
     'tenant_id', 'user_id', 'public_bind_host', 'admin_bind_host',
     'compute_host', 'admin_port', 'public_port',
     'public_endpoint', 'admin_endpoint', ]
+
+# This is a general cache region for catalog administration (CRUD operations).
+MEMOIZE = cache.get_memoization_decorator(group='catalog')
+
+# This builds a discrete cache region dedicated to complete service catalogs
+# computed for a given user + project pair. Any write operation to create,
+# modify or delete elements of the service catalog should invalidate this
+# entire cache region.
+COMPUTED_CATALOG_REGION = oslo_cache.create_region()
+MEMOIZE_COMPUTED_CATALOG = cache.get_memoization_decorator(
+    group='catalog',
+    region=COMPUTED_CATALOG_REGION)
 
 
 def format_url(url, substitutions, silent_keyerror_failures=None):
@@ -148,6 +160,7 @@ class Manager(manager.Manager):
             raise exception.RegionNotFound(region_id=parent_region_id)
 
         notifications.Audit.created(self._REGION, ret['id'], initiator)
+        COMPUTED_CATALOG_REGION.invalidate()
         return ret
 
     @MEMOIZE
@@ -166,6 +179,7 @@ class Manager(manager.Manager):
         ref = self.driver.update_region(region_id, region_ref)
         notifications.Audit.updated(self._REGION, region_id, initiator)
         self.get_region.invalidate(self, region_id)
+        COMPUTED_CATALOG_REGION.invalidate()
         return ref
 
     def delete_region(self, region_id, initiator=None):
@@ -173,6 +187,7 @@ class Manager(manager.Manager):
             ret = self.driver.delete_region(region_id)
             notifications.Audit.deleted(self._REGION, region_id, initiator)
             self.get_region.invalidate(self, region_id)
+            COMPUTED_CATALOG_REGION.invalidate()
             return ret
         except exception.NotFound:
             raise exception.RegionNotFound(region_id=region_id)
@@ -186,6 +201,7 @@ class Manager(manager.Manager):
         service_ref.setdefault('name', '')
         ref = self.driver.create_service(service_id, service_ref)
         notifications.Audit.created(self._SERVICE, service_id, initiator)
+        COMPUTED_CATALOG_REGION.invalidate()
         return ref
 
     @MEMOIZE
@@ -199,6 +215,7 @@ class Manager(manager.Manager):
         ref = self.driver.update_service(service_id, service_ref)
         notifications.Audit.updated(self._SERVICE, service_id, initiator)
         self.get_service.invalidate(self, service_id)
+        COMPUTED_CATALOG_REGION.invalidate()
         return ref
 
     def delete_service(self, service_id, initiator=None):
@@ -210,6 +227,7 @@ class Manager(manager.Manager):
             for endpoint in endpoints:
                 if endpoint['service_id'] == service_id:
                     self.get_endpoint.invalidate(self, endpoint['id'])
+            COMPUTED_CATALOG_REGION.invalidate()
             return ret
         except exception.NotFound:
             raise exception.ServiceNotFound(service_id=service_id)
@@ -240,6 +258,7 @@ class Manager(manager.Manager):
         ref = self.driver.create_endpoint(endpoint_id, endpoint_ref)
 
         notifications.Audit.created(self._ENDPOINT, endpoint_id, initiator)
+        COMPUTED_CATALOG_REGION.invalidate()
         return ref
 
     def update_endpoint(self, endpoint_id, endpoint_ref, initiator=None):
@@ -248,6 +267,7 @@ class Manager(manager.Manager):
         ref = self.driver.update_endpoint(endpoint_id, endpoint_ref)
         notifications.Audit.updated(self._ENDPOINT, endpoint_id, initiator)
         self.get_endpoint.invalidate(self, endpoint_id)
+        COMPUTED_CATALOG_REGION.invalidate()
         return ref
 
     def delete_endpoint(self, endpoint_id, initiator=None):
@@ -255,6 +275,7 @@ class Manager(manager.Manager):
             ret = self.driver.delete_endpoint(endpoint_id)
             notifications.Audit.deleted(self._ENDPOINT, endpoint_id, initiator)
             self.get_endpoint.invalidate(self, endpoint_id)
+            COMPUTED_CATALOG_REGION.invalidate()
             return ret
         except exception.NotFound:
             raise exception.EndpointNotFound(endpoint_id=endpoint_id)
@@ -270,11 +291,16 @@ class Manager(manager.Manager):
     def list_endpoints(self, hints=None):
         return self.driver.list_endpoints(hints or driver_hints.Hints())
 
+    @MEMOIZE_COMPUTED_CATALOG
     def get_catalog(self, user_id, tenant_id):
         try:
             return self.driver.get_catalog(user_id, tenant_id)
         except exception.NotFound:
             raise exception.NotFound('Catalog not found for user and tenant')
+
+    @MEMOIZE_COMPUTED_CATALOG
+    def get_v3_catalog(self, user_id, tenant_id):
+        return self.driver.get_v3_catalog(user_id, tenant_id)
 
 
 @six.add_metaclass(abc.ABCMeta)

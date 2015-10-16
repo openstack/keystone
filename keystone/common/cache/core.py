@@ -23,12 +23,16 @@ CONF = cfg.CONF
 CACHE_REGION = cache.create_region()
 
 
-def configure_cache():
-    cache.configure_cache_region(CONF, CACHE_REGION)
+def configure_cache(region=None):
+    if region is None:
+        region = CACHE_REGION
+    cache.configure_cache_region(CONF, region)
 
 
-def get_memoization_decorator(group, expiration_group=None):
-    return cache.get_memoization_decorator(CONF, CACHE_REGION, group,
+def get_memoization_decorator(group, expiration_group=None, region=None):
+    if region is None:
+        region = CACHE_REGION
+    return cache.get_memoization_decorator(CONF, region, group,
                                            expiration_group=expiration_group)
 
 
