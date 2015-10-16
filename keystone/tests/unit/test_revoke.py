@@ -20,8 +20,8 @@ from six.moves import range
 from testtools import matchers
 
 from keystone.common import utils
-from keystone.contrib.revoke import model
 from keystone import exception
+from keystone.revoke import model
 from keystone.tests import unit
 from keystone.tests.unit import test_backend_sql
 from keystone.token import provider
