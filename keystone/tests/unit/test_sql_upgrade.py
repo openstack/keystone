@@ -46,7 +46,6 @@ from sqlalchemy import schema
 from keystone.common import sql
 from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
-from keystone.contrib import revoke
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
@@ -109,18 +108,6 @@ INITIAL_TABLE_STRUCTURE = {
         'type', 'actor_id', 'target_id', 'role_id', 'inherited',
     ],
 }
-
-
-INITIAL_EXTENSION_TABLE_STRUCTURE = {
-    'revocation_event': [
-        'id', 'domain_id', 'project_id', 'user_id', 'role_id',
-        'trust_id', 'consumer_id', 'access_token_id',
-        'issued_before', 'expires_at', 'revoked_at', 'audit_id',
-        'audit_chain_id',
-    ],
-}
-
-EXTENSIONS = {'revoke': revoke}
 
 
 class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
@@ -669,6 +656,29 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('request_token')
         self.assertTableDoesNotExist('access_token')
 
+    def test_create_revoke_table(self):
+        self.assertTableDoesNotExist('revocation_event')
+        self.upgrade(84)
+        self.assertTableColumns('revocation_event',
+                                ['id', 'domain_id', 'project_id', 'user_id',
+                                 'role_id', 'trust_id', 'consumer_id',
+                                 'access_token_id', 'issued_before',
+                                 'expires_at', 'revoked_at',
+                                 'audit_chain_id', 'audit_id'])
+
+    @mock.patch.object(migration_helpers, 'get_db_version', return_value=2)
+    def test_revoke_already_migrated(self, mock_revoke):
+
+        # By setting the return value to 2, the migration has already been
+        # run, and there's no need to create the table again.
+        self.upgrade(84)
+
+        mock_revoke.assert_any_call(extension='revoke', engine=mock.ANY)
+
+        # It won't exist because we are mocking it, but we can verify
+        # that 084 did not create the table.
+        self.assertTableDoesNotExist('revocation_event')
+
     def test_fixup_service_name_value_upgrade(self):
         """Update service name data from `extra` to empty string."""
         def add_service(**extra_data):
@@ -919,32 +929,6 @@ class VersionTests(SqlMigrateBase):
                           migration_helpers.get_db_version,
                           extension='federation')
 
-    def test_extension_initial(self):
-        """When get the initial version of an extension, it's 0."""
-        for name, extension in EXTENSIONS.items():
-            abs_path = migration_helpers.find_migrate_repo(extension)
-            migration.db_version_control(sql.get_engine(), abs_path)
-            version = migration_helpers.get_db_version(extension=name)
-            self.assertEqual(0, version,
-                             'Migrate version for %s is not 0' % name)
-
-    def test_extension_migrated(self):
-        """When get the version after migrating an extension, it's not 0."""
-        for name, extension in EXTENSIONS.items():
-            abs_path = migration_helpers.find_migrate_repo(extension)
-            migration.db_version_control(sql.get_engine(), abs_path)
-            migration.db_sync(sql.get_engine(), abs_path)
-            version = migration_helpers.get_db_version(extension=name)
-            self.assertTrue(
-                version > 0,
-                "Version for %s didn't change after migrated?" % name)
-            # Verify downgrades cannot occur
-            self.assertRaises(
-                db_exception.DbMigrationError,
-                migration_helpers._sync_extension_repo,
-                extension=name,
-                version=0)
-
     def test_unexpected_extension(self):
         """The version for a non-existent extension raises ImportError."""
         extension_name = uuid.uuid4().hex
@@ -957,18 +941,3 @@ class VersionTests(SqlMigrateBase):
         self.assertRaises(exception.MigrationNotProvided,
                           migration_helpers.get_db_version,
                           extension='admin_crud')
-
-    def test_initial_with_extension_version_None(self):
-        """When performing a default migration, also migrate extensions."""
-        migration_helpers.sync_database_to_version(extension=None,
-                                                   version=None)
-        for table in INITIAL_EXTENSION_TABLE_STRUCTURE:
-            self.assertTableColumns(table,
-                                    INITIAL_EXTENSION_TABLE_STRUCTURE[table])
-
-    def test_initial_with_extension_version_max(self):
-        """When migrating to max version, do not migrate extensions."""
-        migration_helpers.sync_database_to_version(extension=None,
-                                                   version=self.max_version)
-        for table in INITIAL_EXTENSION_TABLE_STRUCTURE:
-            self.assertTableDoesNotExist(table)

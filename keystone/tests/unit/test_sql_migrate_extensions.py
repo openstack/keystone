@@ -121,16 +121,12 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
 
 class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
 
-    _REVOKE_COLUMN_NAMES = ['id', 'domain_id', 'project_id', 'user_id',
-                            'role_id', 'trust_id', 'consumer_id',
-                            'access_token_id', 'issued_before', 'expires_at',
-                            'revoked_at']
-
     def repo_package(self):
         return revoke
 
     def test_upgrade(self):
-        self.assertTableDoesNotExist('revocation_event')
-        self.upgrade(1, repository=self.repo_path)
-        self.assertTableColumns('revocation_event',
-                                self._REVOKE_COLUMN_NAMES)
+        for version in range(2):
+            v = version + 1
+            self.assertRaises(exception.MigrationMovedFailure,
+                              self.upgrade, version=v,
+                              repository=self.repo_path)
