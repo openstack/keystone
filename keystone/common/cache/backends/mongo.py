@@ -17,7 +17,7 @@ from oslo_log import versionutils
 
 
 @versionutils.deprecated(
-    versionutils.deprecated.LIBERTY,
+    versionutils.deprecated.MITAKA,
     what='keystone.cache.mongo backend',
     in_favor_of='oslo_cache.mongo backend',
     remove_in=+1)
