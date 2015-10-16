@@ -90,7 +90,7 @@ _VALID_URLS = ['https://example.com', 'http://EXAMPLE.com/v3',
 
 _INVALID_URLS = [False, 'this is not a URL', 1234, 'www.example.com',
                  'localhost', 'http//something.com',
-                 'https//something.com']
+                 'https//something.com', ' http://example.com']
 
 _VALID_FILTERS = [{'interface': 'admin'},
                   {'region': 'US-WEST',
