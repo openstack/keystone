@@ -648,7 +648,7 @@ class TestFernetKeyRotation(unit.TestCase):
         static set of keys, and simply shuffling them, would fail such a test).
 
         """
-        # Load the keys into a list.
+        # Load the keys into a list, keys is list of six.text_type.
         keys = fernet_utils.load_keys()
 
         # Sort the list of keys by the keys themselves (they were previously
@@ -658,7 +658,8 @@ class TestFernetKeyRotation(unit.TestCase):
         # Create the thumbprint using all keys in the repository.
         signature = hashlib.sha1()
         for key in keys:
-            signature.update(key)
+            # Need to convert key to six.binary_type for update.
+            signature.update(key.encode('utf-8'))
         return signature.hexdigest()
 
     def assertRepositoryState(self, expected_size):
