@@ -28,7 +28,7 @@ Tokens
 Default scope
 -------------
 
-Get an token with default scope (may be unscoped):
+Get a token with default scope (may be unscoped):
 
 .. code-block:: bash
 
