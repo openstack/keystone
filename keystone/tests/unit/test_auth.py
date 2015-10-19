@@ -26,7 +26,7 @@ from testtools import matchers
 from keystone import assignment
 from keystone import auth
 from keystone.common import authorization
-from keystone import config
+from keystone.common import config
 from keystone import exception
 from keystone.models import token_model
 from keystone.tests import unit

@@ -25,8 +25,8 @@ import oslo_i18n
 oslo_i18n.enable_lazy()
 
 
+from keystone.common import config
 from keystone.common import environment
-from keystone import config
 from keystone.server import common
 from keystone.version import service as keystone_service
 
