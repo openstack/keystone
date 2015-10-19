@@ -17,7 +17,6 @@ import uuid
 
 from dogpile.cache import api
 from dogpile.cache import proxy
-from dogpile.cache import util
 import mock
 import six
 from testtools import matchers
@@ -204,10 +203,10 @@ class KVSTest(unit.TestCase):
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.Memory')
 
-        self.assertIs(kvs._region.key_mangler, util.sha1_mangle_key)
+        self.assertIs(kvs._region.key_mangler, core.sha1_mangle_key)
         # The backend should also have the keymangler set the same as the
         # region now.
-        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        self.assertIs(kvs._region.backend.key_mangler, core.sha1_mangle_key)
 
     def test_kvs_key_mangler_configuration_backend(self):
         kvs = self._get_kvs_region()
@@ -218,7 +217,7 @@ class KVSTest(unit.TestCase):
     def test_kvs_key_mangler_configuration_forced_backend(self):
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.KVSBackendForcedKeyMangleFixture',
-                      key_mangler=util.sha1_mangle_key)
+                      key_mangler=core.sha1_mangle_key)
         expected = KVSBackendForcedKeyMangleFixture.key_mangler(self.key_foo)
         self.assertEqual(expected, kvs._region.key_mangler(self.key_foo))
 
@@ -237,7 +236,7 @@ class KVSTest(unit.TestCase):
 
         kvs = self._get_kvs_region()
         kvs.configure('openstack.kvs.Memory')
-        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        self.assertIs(kvs._region.backend.key_mangler, core.sha1_mangle_key)
         kvs._set_key_mangler(test_key_mangler)
         self.assertIs(kvs._region.backend.key_mangler, test_key_mangler)
 
@@ -433,7 +432,7 @@ class KVSTest(unit.TestCase):
                       no_expiry_keys=no_expiry_keys)
         calculated_keys = set([kvs._region.key_mangler(key)
                                for key in no_expiry_keys])
-        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        self.assertIs(kvs._region.backend.key_mangler, core.sha1_mangle_key)
         self.assertSetEqual(calculated_keys,
                             kvs._region.backend.no_expiry_hashed_keys)
         self.assertSetEqual(no_expiry_keys,
@@ -451,7 +450,7 @@ class KVSTest(unit.TestCase):
         kvs.configure('openstack.kvs.Memcached',
                       memcached_backend='TestDriver',
                       no_expiry_keys=no_expiry_keys)
-        self.assertIs(kvs._region.backend.key_mangler, util.sha1_mangle_key)
+        self.assertIs(kvs._region.backend.key_mangler, core.sha1_mangle_key)
         kvs._region.backend.key_mangler = None
         self.assertSetEqual(kvs._region.backend.raw_no_expiry_keys,
                             kvs._region.backend.no_expiry_hashed_keys)

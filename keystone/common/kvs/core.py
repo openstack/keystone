@@ -66,6 +66,23 @@ def _register_backends():
         BACKENDS_REGISTERED = True
 
 
+def sha1_mangle_key(key):
+    """Wrapper for dogpile's sha1_mangle_key.
+
+    Taken from oslo_cache.core._sha1_mangle_key
+
+    dogpile's sha1_mangle_key function expects an encoded string, so we
+    should take steps to properly handle multiple inputs before passing
+    the key through.
+    """
+    try:
+        key = key.encode('utf-8', errors='xmlcharrefreplace')
+    except (UnicodeError, AttributeError):  # nosec
+        # NOTE(stevemar): if encoding fails just continue anyway.
+        pass
+    return dogpile_util.sha1_mangle_key(key)
+
+
 class LockTimeout(exception.UnexpectedError):
     debug_message_format = _('Lock Timeout occurred for key, %(target)s')
 
@@ -197,14 +214,14 @@ class KeyValueStore(object):
                     raise exception.ValidationError(
                         _('`key_mangler` option must be a function reference'))
             else:
-                LOG.info(_LI('Using default dogpile sha1_mangle_key as KVS '
-                             'region %s key_mangler'), self._region.name)
-                # NOTE(morganfainberg): Sane 'default' keymangler is the
-                # dogpile sha1_mangle_key function.  This ensures that unless
-                # explicitly changed, we mangle keys.  This helps to limit
-                # unintended cases of exceeding cache-key in backends such
-                # as memcache.
-                self._region.key_mangler = dogpile_util.sha1_mangle_key
+                msg = _LI('Using default keystone.common.kvs.sha1_mangle_key '
+                          'as KVS region %s key_mangler')
+                LOG.info(msg, self._region.name)
+                # NOTE(morganfainberg): Use 'default' keymangler to ensure
+                # that unless explicitly changed, we mangle keys.  This helps
+                # to limit unintended cases of exceeding cache-key in backends
+                # such as memcache.
+                self._region.key_mangler = sha1_mangle_key
             self._set_keymangler_on_backend(self._region.key_mangler)
         else:
             LOG.info(_LI('KVS region %s key_mangler disabled.'),
