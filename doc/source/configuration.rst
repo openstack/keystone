@@ -423,7 +423,7 @@ Token Persistence Driver
 Keystone supports customizable token persistence drivers. These can be
 specified in the ``[token]`` section of the configuration file. Keystone
 provides three non-test persistence backends. These can be set with the
-``[token]\driver`` configuration option.
+``[token] driver`` configuration option.
 
 The drivers Keystone provides are:
 
@@ -438,7 +438,7 @@ The drivers Keystone provides are:
 
 * ``memcache`` - The memcached based token persistence backend. This backend
   relies on ``dogpile.cache`` and stores the token data in a set of memcached
-  servers. The servers URLs are specified in the ``[memcache]\servers``
+  servers. The servers URLs are specified in the ``[memcache] servers``
   configuration option in the Keystone config. Implemented by
   :class:`keystone.token.persistence.backends.memcache.Token`
 
