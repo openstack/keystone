@@ -206,12 +206,12 @@ In ``<other_condition>`` shown below, please supply one of the following:
                     {
                         "user": {
                             "name": "{0}"
-                        },
-                        "groups": {
-                            "name": "{1}",
-                            "domain": {
-                                "id": "0cd5e9"
-                            }
+                        }
+                    },
+                    {
+                        "groups": "{1}",
+                        "domain": {
+                            "id": "0cd5e9"
                         }
                     }
                 ],
