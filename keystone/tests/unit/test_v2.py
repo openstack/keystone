@@ -273,6 +273,14 @@ class CoreApiTests(object):
             token=token)
         self.assertValidRoleListResponse(r)
 
+    def test_get_user_roles_without_tenant(self):
+        token = self.get_scoped_token()
+        self.admin_request(
+            path='/v2.0/users/%(user_id)s/roles' % {
+                'user_id': self.user_foo['id'],
+            },
+            token=token, expected_status=http_client.NOT_IMPLEMENTED)
+
     def test_get_user(self):
         token = self.get_scoped_token()
         r = self.admin_request(

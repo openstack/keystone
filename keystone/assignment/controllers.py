@@ -138,6 +138,11 @@ class RoleAssignmentV2(controller.V2Controller):
 
         """
         self.assert_admin(context)
+        # NOTE(davechen): Router without project id is defined,
+        # but we don't plan on implementing this.
+        if tenant_id is None:
+            raise exception.NotImplemented(
+                message=_('User roles not supported: tenant_id required'))
         roles = self.assignment_api.get_roles_for_user_and_project(
             user_id, tenant_id)
         return {'roles': [self.role_api.get_role(x)
