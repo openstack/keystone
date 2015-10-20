@@ -157,14 +157,16 @@ function check_error {
 
 function generate_ca {
     echo 'Generating New CA Certificate ...'
-    openssl req -x509 -newkey rsa:2048 -days 21360 -out $CERTS_DIR/cacert.pem -keyout $PRIVATE_DIR/cakey.pem -outform PEM -config ca.conf -nodes
+    openssl req -x509 -newkey rsa:2048 -days 21360 -out $CERTS_DIR/cacert.pem \
+        -keyout $PRIVATE_DIR/cakey.pem -outform PEM -config ca.conf -nodes
     check_error $?
 }
 
 function ssl_cert_req {
     echo 'Generating SSL Certificate Request ...'
     generate_ssl_req_conf
-    openssl req -newkey rsa:2048 -keyout $PRIVATE_DIR/ssl_key.pem -keyform PEM -out ssl_req.pem -outform PEM -config ssl_req.conf -nodes
+    openssl req -newkey rsa:2048 -keyout $PRIVATE_DIR/ssl_key.pem \
+        -keyform PEM -out ssl_req.pem -outform PEM -config ssl_req.conf -nodes
     check_error $?
     #openssl req -in req.pem -text -noout
 }
@@ -172,7 +174,9 @@ function ssl_cert_req {
 function cms_signing_cert_req {
     echo 'Generating CMS Signing Certificate Request ...'
     generate_cms_signing_req_conf
-    openssl req -newkey rsa:2048 -keyout $PRIVATE_DIR/signing_key.pem -keyform PEM -out cms_signing_req.pem -outform PEM -config cms_signing_req.conf -nodes
+    openssl req -newkey rsa:2048 -keyout $PRIVATE_DIR/signing_key.pem \
+        -keyform PEM -out cms_signing_req.pem -outform PEM \
+        -config cms_signing_req.conf -nodes
     check_error $?
     #openssl req -in req.pem -text -noout
 }
@@ -187,7 +191,8 @@ function issue_certs {
     echo 'Issuing CMS Signing Certificate ...'
     openssl ca -in cms_signing_req.pem -config signing.conf -batch
     check_error $?
-    openssl x509 -in $CURRENT_DIR/newcerts/11.pem -out $CERTS_DIR/signing_cert.pem
+    openssl x509 -in $CURRENT_DIR/newcerts/11.pem \
+        -out $CERTS_DIR/signing_cert.pem
     check_error $?
 }
 
@@ -203,8 +208,15 @@ function check_openssl {
 }
 
 function gen_sample_cms {
-    for json_file in "${CMS_DIR}/auth_token_revoked.json" "${CMS_DIR}/auth_token_unscoped.json" "${CMS_DIR}/auth_token_scoped.json" "${CMS_DIR}/revocation_list.json"; do
-        openssl cms -sign -in $json_file -nosmimecap -signer $CERTS_DIR/signing_cert.pem -inkey $PRIVATE_DIR/signing_key.pem -outform PEM -nodetach -nocerts -noattr -out ${json_file/.json/.pem}
+    FILES="${CMS_DIR}/auth_token_revoked.json"
+    FILES+=" ${CMS_DIR}/auth_token_unscoped.json"
+    FILES+=" ${CMS_DIR}/auth_token_scoped.json"
+    FILES+=" ${CMS_DIR}/revocation_list.json"
+    for json_file in $FILES; do
+        openssl cms -sign -in $json_file -nosmimecap \
+            -signer $CERTS_DIR/signing_cert.pem \
+            -inkey $PRIVATE_DIR/signing_key.pem -outform PEM -nodetach \
+            -nocerts -noattr -out ${json_file/.json/.pem}
     done
 }
 
