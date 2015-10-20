@@ -100,7 +100,7 @@ the script, the version is the number before the underline.
 For example, if the script is named ``001_add_X_table.py`` then the
 version of the SQL migration is ``1``.
 
-.. _SQLAlchemy-migrate: https://github.com/stackforge/sqlalchemy-migrate
+.. _SQLAlchemy-migrate: https://git.openstack.org/cgit/openstack/sqlalchemy-migrate
 
 Extensions should be created as directories under ``keystone/contrib``. An
 extension that requires SQL migrations should not change the common repository,
