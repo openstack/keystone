@@ -548,13 +548,9 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.catalog_api.create_service(service['id'], service.copy())
 
         malformed_url = "http://192.168.1.104:8774/v2/$(tenant)s"
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': None,
-            'service_id': service['id'],
-            'interface': 'public',
-            'url': malformed_url,
-        }
+        endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                         url=malformed_url,
+                                         region_id=None)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
         # NOTE(dstanek): there are no valid URLs, so nothing is in the catalog
@@ -570,13 +566,8 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         }
         self.catalog_api.create_service(service['id'], service.copy())
 
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': None,
-            'interface': 'public',
-            'url': '',
-            'service_id': service['id'],
-        }
+        endpoint = unit.new_endpoint_ref(url='', service_id=service['id'],
+                                         region_id=None)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
         catalog = self.catalog_api.get_catalog('user', 'tenant')
@@ -596,13 +587,8 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         }
         self.catalog_api.create_service(service['id'], service.copy())
 
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': uuid.uuid4().hex,
-            'service_id': service['id'],
-            'interface': 'public',
-            'url': uuid.uuid4().hex,
-        }
+        endpoint = unit.new_endpoint_ref(region_id=uuid.uuid4().hex,
+                                         service_id=service['id'])
 
         self.assertRaises(exception.ValidationError,
                           self.catalog_api.create_endpoint,
@@ -655,26 +641,18 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service and child region
-        child_endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': child_region['id'],
-            'interface': uuid.uuid4().hex[:8],
-            'url': uuid.uuid4().hex,
-            'service_id': service['id'],
-        }
+        child_endpoint = unit.new_endpoint_ref(region_id=child_region['id'],
+                                               service_id=service['id'])
+
         self.catalog_api.create_endpoint(child_endpoint['id'], child_endpoint)
         self.assertRaises(exception.RegionDeletionError,
                           self.catalog_api.delete_region,
                           child_region['id'])
 
         # create an endpoint attached to the service and parent region
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': region['id'],
-            'interface': uuid.uuid4().hex[:8],
-            'url': uuid.uuid4().hex,
-            'service_id': service['id'],
-        }
+        endpoint = unit.new_endpoint_ref(region_id=region['id'],
+                                         service_id=service['id'])
+
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
         self.assertRaises(exception.RegionDeletionError,
                           self.catalog_api.delete_region,

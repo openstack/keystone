@@ -361,6 +361,8 @@ class SqlUpgradeTests(SqlMigrateBase):
         def add_endpoint(service_id, region):
             endpoint_id = uuid.uuid4().hex
 
+            # Can't use new_endpoint_ref to make the older style endpoint
+            # so make it by hand.
             endpoint = {
                 'id': endpoint_id,
                 'interface': uuid.uuid4().hex[:8],

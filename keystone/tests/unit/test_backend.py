@@ -5451,13 +5451,8 @@ class CatalogTests(object):
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region': uuid.uuid4().hex,
-            'interface': uuid.uuid4().hex[:8],
-            'url': uuid.uuid4().hex,
-            'service_id': service['id'],
-        }
+        endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                         region_id=None)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         # deleting the service should also delete the endpoint
@@ -5479,13 +5474,8 @@ class CatalogTests(object):
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': None,
-            'interface': uuid.uuid4().hex[:8],
-            'url': uuid.uuid4().hex,
-            'service_id': service['id'],
-        }
+        endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                         region_id=None)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
         # cache the result
         self.catalog_api.get_service(service['id'])
@@ -5507,13 +5497,8 @@ class CatalogTests(object):
                           self.catalog_api.delete_endpoint,
                           endpoint['id'])
         # multiple endpoints associated with a service
-        second_endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': None,
-            'interface': uuid.uuid4().hex[:8],
-            'url': uuid.uuid4().hex,
-            'service_id': service['id'],
-        }
+        second_endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                                region_id=None)
         self.catalog_api.create_service(service['id'], service)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
         self.catalog_api.create_endpoint(second_endpoint['id'],
@@ -5543,10 +5528,8 @@ class CatalogTests(object):
                           uuid.uuid4().hex)
 
     def test_create_endpoint_nonexistent_service(self):
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'service_id': uuid.uuid4().hex,
-        }
+        endpoint = unit.new_endpoint_ref(service_id=uuid.uuid4().hex,
+                                         region_id=None)
         self.assertRaises(exception.ValidationError,
                           self.catalog_api.create_endpoint,
                           endpoint['id'],
@@ -5555,9 +5538,7 @@ class CatalogTests(object):
     def test_update_endpoint_nonexistent_service(self):
         dummy_service, enabled_endpoint, dummy_disabled_endpoint = (
             self._create_endpoints())
-        new_endpoint = {
-            'service_id': uuid.uuid4().hex,
-        }
+        new_endpoint = unit.new_endpoint_ref(service_id=uuid.uuid4().hex)
         self.assertRaises(exception.ValidationError,
                           self.catalog_api.update_endpoint,
                           enabled_endpoint['id'],
@@ -5572,13 +5553,7 @@ class CatalogTests(object):
         }
         self.catalog_api.create_service(service['id'], service.copy())
 
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'service_id': service['id'],
-            'interface': 'public',
-            'url': uuid.uuid4().hex,
-            'region_id': uuid.uuid4().hex,
-        }
+        endpoint = unit.new_endpoint_ref(service_id=service['id'])
         self.assertRaises(exception.ValidationError,
                           self.catalog_api.create_endpoint,
                           endpoint['id'],
@@ -5587,9 +5562,7 @@ class CatalogTests(object):
     def test_update_endpoint_nonexistent_region(self):
         dummy_service, enabled_endpoint, dummy_disabled_endpoint = (
             self._create_endpoints())
-        new_endpoint = {
-            'region_id': uuid.uuid4().hex,
-        }
+        new_endpoint = unit.new_endpoint_ref(service_id=uuid.uuid4().hex)
         self.assertRaises(exception.ValidationError,
                           self.catalog_api.update_endpoint,
                           enabled_endpoint['id'],
@@ -5614,13 +5587,8 @@ class CatalogTests(object):
         }
         self.catalog_api.create_service(service['id'], service.copy())
 
-        endpoint = {
-            'id': uuid.uuid4().hex,
-            'region_id': None,
-            'service_id': service['id'],
-            'interface': 'public',
-            'url': uuid.uuid4().hex,
-        }
+        endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                         region_id=None)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
     def test_update_endpoint(self):
@@ -5642,16 +5610,13 @@ class CatalogTests(object):
         # disabled.
 
         def create_endpoint(service_id, region, **kwargs):
-            id_ = uuid.uuid4().hex
-            ref = {
-                'id': id_,
-                'interface': 'public',
-                'region_id': region,
-                'service_id': service_id,
-                'url': 'http://localhost/%s' % uuid.uuid4().hex,
-            }
-            ref.update(kwargs)
-            self.catalog_api.create_endpoint(id_, ref)
+            ref = unit.new_endpoint_ref(
+                service_id=service_id,
+                region_id=region,
+                url='http://localhost/%s' % uuid.uuid4().hex,
+                **kwargs)
+
+            self.catalog_api.create_endpoint(ref['id'], ref)
             return ref
 
         # Create a service for use with the endpoints.
@@ -5684,14 +5649,10 @@ class CatalogTests(object):
 
         expected_ids = set([uuid.uuid4().hex for _ in range(3)])
         for endpoint_id in expected_ids:
-            endpoint = {
-                'id': endpoint_id,
-                'region_id': None,
-                'service_id': service['id'],
-                'interface': 'public',
-                'url': uuid.uuid4().hex,
-            }
-            self.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
+            endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                             id=endpoint_id,
+                                             region_id=None)
+            self.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         endpoints = self.catalog_api.list_endpoints()
         self.assertEqual(expected_ids, set(e['id'] for e in endpoints))
@@ -5736,25 +5697,19 @@ class CatalogTests(object):
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
-        endpoint_id = uuid.uuid4().hex
-        endpoint = {
-            'id': endpoint_id,
-            'region_id': None,
-            'interface': uuid.uuid4().hex[:8],
-            'url': uuid.uuid4().hex,
-            'service_id': service['id'],
-        }
-        self.catalog_api.create_endpoint(endpoint_id, endpoint)
+        endpoint = unit.new_endpoint_ref(service_id=service['id'],
+                                         region_id=None)
+        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         # cache the endpoint
-        self.catalog_api.get_endpoint(endpoint_id)
+        self.catalog_api.get_endpoint(endpoint['id'])
 
         # update the endpoint via catalog api
         new_url = {'url': uuid.uuid4().hex}
-        self.catalog_api.update_endpoint(endpoint_id, new_url)
+        self.catalog_api.update_endpoint(endpoint['id'], new_url)
 
         # assert that we can get the new endpoint
-        current_endpoint = self.catalog_api.get_endpoint(endpoint_id)
+        current_endpoint = self.catalog_api.get_endpoint(endpoint['id'])
         self.assertEqual(new_url['url'], current_endpoint['url'])
 
 

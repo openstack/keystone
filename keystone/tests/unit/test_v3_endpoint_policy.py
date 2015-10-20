@@ -15,6 +15,7 @@
 from six.moves import http_client
 from testtools import matchers
 
+from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
@@ -35,7 +36,9 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.policy_api.create_policy(self.policy['id'], self.policy)
         self.service = self.new_service_ref()
         self.catalog_api.create_service(self.service['id'], self.service)
-        self.endpoint = self.new_endpoint_ref(self.service['id'], enabled=True)
+        self.endpoint = unit.new_endpoint_ref(self.service['id'], enabled=True,
+                                              interface='public',
+                                              region_id=self.region_id)
         self.catalog_api.create_endpoint(self.endpoint['id'], self.endpoint)
         self.region = self.new_region_ref()
         self.catalog_api.create_region(self.region)
