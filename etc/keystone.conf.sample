@@ -338,13 +338,13 @@
 [cache]
 
 #
-# From keystone
+# From oslo.cache
 #
 
 # Prefix for building the configuration dictionary for the cache region. This
 # should not need to be changed unless there is another dogpile.cache region
 # with the same configuration name. (string value)
-#config_prefix = cache.keystone
+#config_prefix = cache.oslo
 
 # Default TTL, in seconds, for any cached item in the dogpile.cache region.
 # This applies to any cached method that doesn't have an explicit cache
@@ -352,10 +352,10 @@
 #expiration_time = 600
 
 # Dogpile.cache backend module. It is recommended that Memcache with pooling
-# (keystone.cache.memcache_pool) or Redis (dogpile.cache.redis) be used in
+# (oslo_cache.memcache_pool) or Redis (dogpile.cache.redis) be used in
 # production deployments.  Small workloads (single process) like devstack can
 # use the dogpile.cache.memory backend. (string value)
-#backend = keystone.common.cache.noop
+#backend = dogpile.cache.null
 
 # Arguments supplied to the backend module. Specify this option once per
 # argument to be passed to the dogpile.cache backend. Example format:
@@ -367,8 +367,7 @@
 # (list value)
 #proxies =
 
-# Global toggle for all caching using the should_cache_fn mechanism. (boolean
-# value)
+# Global toggle for caching. (boolean value)
 #enabled = false
 
 # Extra debugging from the cache backend (cache keys, get/set/delete/etc
@@ -378,24 +377,24 @@
 #debug_cache_backend = false
 
 # Memcache servers in the format of "host:port". (dogpile.cache.memcache and
-# keystone.cache.memcache_pool backends only). (list value)
+# oslo_cache.memcache_pool backends only). (list value)
 #memcache_servers = localhost:11211
 
 # Number of seconds memcached server is considered dead before it is tried
-# again. (dogpile.cache.memcache and keystone.cache.memcache_pool backends
-# only). (integer value)
+# again. (dogpile.cache.memcache and oslo_cache.memcache_pool backends only).
+# (integer value)
 #memcache_dead_retry = 300
 
 # Timeout in seconds for every call to a server. (dogpile.cache.memcache and
-# keystone.cache.memcache_pool backends only). (integer value)
+# oslo_cache.memcache_pool backends only). (integer value)
 #memcache_socket_timeout = 3
 
 # Max total number of open connections to every memcached server.
-# (keystone.cache.memcache_pool backend only). (integer value)
+# (oslo_cache.memcache_pool backend only). (integer value)
 #memcache_pool_maxsize = 10
 
 # Number of seconds a connection to memcached is held unused in the pool before
-# it is closed. (keystone.cache.memcache_pool backend only). (integer value)
+# it is closed. (oslo_cache.memcache_pool backend only). (integer value)
 #memcache_pool_unused_timeout = 60
 
 # Number of seconds that an operation will wait to get a memcache client
