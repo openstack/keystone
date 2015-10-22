@@ -237,7 +237,7 @@ def validate_idp(idp, protocol, assertion):
 
 
 def validate_groups_in_backend(group_ids, mapping_id, identity_api):
-    """Iterate over group ids and make sure they are present in the backend/
+    """Iterate over group ids and make sure they are present in the backend.
 
     This call is not transactional.
     :param group_ids: IDs of the groups to be checked
