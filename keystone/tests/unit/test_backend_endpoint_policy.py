@@ -64,6 +64,8 @@ class PolicyAssociationTests(object):
         self.endpoint = []
         self.service = []
         self.region = []
+
+        parent_region_id = None
         for i in range(3):
             policy = {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex,
                       'blob': {'data': uuid.uuid4().hex}}
@@ -72,10 +74,9 @@ class PolicyAssociationTests(object):
             service = unit.new_service_ref()
             self.service.append(self.catalog_api.create_service(service['id'],
                                                                 service))
-            region = {'id': uuid.uuid4().hex, 'description': uuid.uuid4().hex}
-            # Link the 3 regions together as a hierarchy, [0] at the top
-            if i != 0:
-                region['parent_region_id'] = self.region[i - 1]['id']
+            region = unit.new_region_ref(parent_region_id=parent_region_id)
+            # Link the regions together as a hierarchy, [0] at the top
+            parent_region_id = region['id']
             self.region.append(self.catalog_api.create_region(region))
 
         new_endpoint(self.region[0]['id'], self.service[0]['id'])

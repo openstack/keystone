@@ -248,12 +248,13 @@ def new_ref():
         'enabled': True}
 
 
-def new_region_ref():
+def new_region_ref(parent_region_id=None, **kwargs):
     ref = new_ref()
     # Region doesn't have name or enabled.
     del ref['name']
     del ref['enabled']
-    ref['parent_region_id'] = None
+    ref['parent_region_id'] = parent_region_id
+    ref.update(kwargs)
     return ref
 
 

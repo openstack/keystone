@@ -40,7 +40,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
                                               interface='public',
                                               region_id=self.region_id)
         self.catalog_api.create_endpoint(self.endpoint['id'], self.endpoint)
-        self.region = self.new_region_ref()
+        self.region = unit.new_region_ref()
         self.catalog_api.create_region(self.region)
 
     def assert_head_and_get_return_same_response(self, url, expected_status):

@@ -75,8 +75,9 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         return body, r
 
     def _region_create(self):
-        region_id = uuid.uuid4().hex
-        self.catalog_api.create_region({'id': region_id})
+        region = unit.new_region_ref()
+        region_id = region['id']
+        self.catalog_api.create_region(region)
         return region_id
 
     def _service_create(self):

@@ -240,11 +240,9 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             self.default_domain_user_id, self.project_id,
             self.role_id)
 
-        self.region_id = uuid.uuid4().hex
-        self.region = self.new_region_ref()
-        self.region['id'] = self.region_id
-        self.catalog_api.create_region(
-            self.region.copy())
+        self.region = unit.new_region_ref()
+        self.region_id = self.region['id']
+        self.catalog_api.create_region(self.region.copy())
 
         self.service = unit.new_service_ref()
         self.service_id = self.service['id']
@@ -262,9 +260,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def new_ref(self):
         """Populates a ref with attributes common to some API entities."""
         return unit.new_ref()
-
-    def new_region_ref(self):
-        return unit.new_region_ref()
 
     def new_domain_ref(self):
         return unit.new_domain_ref()

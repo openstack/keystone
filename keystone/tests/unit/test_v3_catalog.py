@@ -31,7 +31,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_region_with_id(self):
         """Call ``PUT /regions/{region_id}`` w/o an ID in the request body."""
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref()
         region_id = ref.pop('id')
         r = self.put(
             '/regions/%s' % region_id,
@@ -44,7 +44,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_region_with_matching_ids(self):
         """Call ``PUT /regions/{region_id}`` with an ID in the request body."""
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref()
         region_id = ref['id']
         r = self.put(
             '/regions/%s' % region_id,
@@ -69,7 +69,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_create_region(self):
         """Call ``POST /regions`` with an ID in the request body."""
         # the ref will have an ID defined on it
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref()
         r = self.post(
             '/regions',
             body={'region': ref})
@@ -83,8 +83,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_region_with_empty_id(self):
         """Call ``POST /regions`` with an empty ID in the request body."""
-        ref = self.new_region_ref()
-        ref['id'] = ''
+        ref = unit.new_region_ref(id='')
 
         r = self.post('/regions', body={'region': ref})
         self.assertValidRegionResponse(r, ref)
@@ -92,7 +91,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_region_without_id(self):
         """Call ``POST /regions`` without an ID in the request body."""
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref()
 
         # instead of defining the ID ourselves...
         del ref['id']
@@ -103,7 +102,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_region_without_description(self):
         """Call ``POST /regions`` without description in the request body."""
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref(description=None)
 
         del ref['description']
 
@@ -118,13 +117,10 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``POST /regions`` with duplicate descriptions."""
         # NOTE(lbragstad): Make sure we can create two regions that have the
         # same description.
-        ref1 = self.new_region_ref()
-        ref2 = self.new_region_ref()
-
         region_desc = 'Some Region Description'
 
-        ref1['description'] = region_desc
-        ref2['description'] = region_desc
+        ref1 = unit.new_region_ref(description=region_desc)
+        ref2 = unit.new_region_ref(description=region_desc)
 
         resp1 = self.post('/regions', body={'region': ref1})
         self.assertValidRegionResponse(resp1, ref1)
@@ -137,8 +133,8 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # NOTE(lbragstad): Make sure we can create two regions that have
         # no description in the request body. The description should be
         # populated by Catalog Manager.
-        ref1 = self.new_region_ref()
-        ref2 = self.new_region_ref()
+        ref1 = unit.new_region_ref()
+        ref2 = unit.new_region_ref()
 
         del ref1['description']
         ref2['description'] = None
@@ -157,7 +153,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_create_region_with_conflicting_ids(self):
         """Call ``PUT /regions/{region_id}`` with conflicting region IDs."""
         # the region ref is created with an ID
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref()
 
         # but instead of using that ID, make up a new, conflicting one
         self.put(
@@ -171,8 +167,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidRegionListResponse(r, ref=self.region)
 
     def _create_region_with_parent_id(self, parent_id=None):
-        ref = self.new_region_ref()
-        ref['parent_region_id'] = parent_id
+        ref = unit.new_region_ref(parent_region_id=parent_id)
         return self.post(
             '/regions',
             body={'region': ref})
@@ -198,7 +193,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_update_region(self):
         """Call ``PATCH /regions/{region_id}``."""
-        region = self.new_region_ref()
+        region = unit.new_region_ref()
         del region['id']
         r = self.patch('/regions/%(region_id)s' % {
             'region_id': self.region_id},
@@ -207,7 +202,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_update_region_without_description_keeps_original(self):
         """Call ``PATCH /regions/{region_id}``."""
-        region_ref = self.new_region_ref()
+        region_ref = unit.new_region_ref()
 
         resp = self.post('/regions', body={'region': region_ref})
 
@@ -224,9 +219,8 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_update_region_with_null_description(self):
         """Call ``PATCH /regions/{region_id}``."""
-        region = self.new_region_ref()
+        region = unit.new_region_ref(description=None)
         del region['id']
-        region['description'] = None
         r = self.patch('/regions/%(region_id)s' % {
             'region_id': self.region_id},
             body={'region': region})
@@ -238,7 +232,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_delete_region(self):
         """Call ``DELETE /regions/{region_id}``."""
-        ref = self.new_region_ref()
+        ref = unit.new_region_ref()
         r = self.post(
             '/regions',
             body={'region': ref})

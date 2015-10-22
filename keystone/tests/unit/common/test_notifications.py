@@ -495,7 +495,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'service', cadftaxonomy.SECURITY_SERVICE)
 
     def test_create_region(self):
-        region_ref = self.new_region_ref()
+        region_ref = unit.new_region_ref()
         self.catalog_api.create_region(region_ref)
         self._assert_notify_sent(region_ref['id'], CREATED_OPERATION,
                                  'region')
@@ -503,7 +503,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'region', cadftaxonomy.SECURITY_REGION)
 
     def test_update_region(self):
-        region_ref = self.new_region_ref()
+        region_ref = unit.new_region_ref()
         self.catalog_api.create_region(region_ref)
         self.catalog_api.update_region(region_ref['id'], region_ref)
         self._assert_notify_sent(region_ref['id'], UPDATED_OPERATION,
@@ -512,7 +512,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'region', cadftaxonomy.SECURITY_REGION)
 
     def test_delete_region(self):
-        region_ref = self.new_region_ref()
+        region_ref = unit.new_region_ref()
         self.catalog_api.create_region(region_ref)
         self.catalog_api.delete_region(region_ref['id'])
         self._assert_notify_sent(region_ref['id'], DELETED_OPERATION,

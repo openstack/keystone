@@ -581,21 +581,16 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
                           endpoint.copy())
 
     def test_create_region_invalid_id(self):
-        region = {
-            'id': '0' * 256,
-            'description': '',
-            'extra': {},
-        }
+        region = unit.new_region_ref(id='0' * 256,
+                                     description='',
+                                     extra={})
 
         self.assertRaises(exception.StringLengthExceeded,
                           self.catalog_api.create_region,
                           region.copy())
 
     def test_create_region_invalid_parent_id(self):
-        region = {
-            'id': uuid.uuid4().hex,
-            'parent_region_id': '0' * 256,
-        }
+        region = unit.new_region_ref(parent_region_id='0' * 256)
 
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.create_region,
@@ -603,18 +598,11 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
     def test_delete_region_with_endpoint(self):
         # create a region
-        region = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        region = unit.new_region_ref()
         self.catalog_api.create_region(region)
 
         # create a child region
-        child_region = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'parent_id': region['id']
-        }
+        child_region = unit.new_region_ref(parent_region_id=region['id'])
         self.catalog_api.create_region(child_region)
         # create a service
         service = unit.new_service_ref()

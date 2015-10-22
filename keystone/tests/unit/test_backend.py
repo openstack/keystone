@@ -5050,12 +5050,9 @@ class CatalogTests(object):
     def test_region_crud(self):
         # create
         region_id = '0' * 255
-        new_region = {
-            'id': region_id,
-            'description': uuid.uuid4().hex,
-        }
-        res = self.catalog_api.create_region(
-            new_region.copy())
+        new_region = unit.new_region_ref(id=region_id)
+        res = self.catalog_api.create_region(new_region.copy())
+
         # Ensure that we don't need to have a
         # parent_region_id in the original supplied
         # ref dict, but that it will be returned from
@@ -5068,14 +5065,9 @@ class CatalogTests(object):
         # as its parent. We will check below whether deleting
         # the parent successfully deletes any child regions.
         parent_region_id = region_id
-        region_id = uuid.uuid4().hex
-        new_region = {
-            'id': region_id,
-            'description': uuid.uuid4().hex,
-            'parent_region_id': parent_region_id,
-        }
-        res = self.catalog_api.create_region(
-            new_region.copy())
+        new_region = unit.new_region_ref(parent_region_id=parent_region_id)
+        region_id = new_region['id']
+        res = self.catalog_api.create_region(new_region.copy())
         self.assertDictEqual(new_region, res)
 
         # list
@@ -5106,13 +5098,8 @@ class CatalogTests(object):
                           region_id)
 
     def _create_region_with_parent_id(self, parent_id=None):
-        new_region = {
-            'id': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'parent_region_id': parent_id
-        }
-        self.catalog_api.create_region(
-            new_region)
+        new_region = unit.new_region_ref(parent_region_id=parent_id)
+        self.catalog_api.create_region(new_region)
         return new_region
 
     def test_list_regions_filtered_by_parent_region_id(self):
@@ -5130,11 +5117,8 @@ class CatalogTests(object):
 
     @unit.skip_if_cache_disabled('catalog')
     def test_cache_layer_region_crud(self):
-        region_id = uuid.uuid4().hex
-        new_region = {
-            'id': region_id,
-            'description': uuid.uuid4().hex,
-        }
+        new_region = unit.new_region_ref()
+        region_id = new_region['id']
         self.catalog_api.create_region(new_region.copy())
         updated_region = copy.deepcopy(new_region)
         updated_region['description'] = uuid.uuid4().hex
@@ -5158,11 +5142,8 @@ class CatalogTests(object):
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_region(self):
-        region_id = uuid.uuid4().hex
-        new_region = {
-            'id': region_id,
-            'description': uuid.uuid4().hex
-        }
+        new_region = unit.new_region_ref()
+        region_id = new_region['id']
         self.catalog_api.create_region(new_region)
 
         # cache the region
@@ -5178,11 +5159,7 @@ class CatalogTests(object):
                          current_region['description'])
 
     def test_create_region_with_duplicate_id(self):
-        region_id = uuid.uuid4().hex
-        new_region = {
-            'id': region_id,
-            'description': uuid.uuid4().hex
-        }
+        new_region = unit.new_region_ref()
         self.catalog_api.create_region(new_region)
         # Create region again with duplicate id
         self.assertRaises(exception.Conflict,
@@ -5200,12 +5177,7 @@ class CatalogTests(object):
                           uuid.uuid4().hex)
 
     def test_create_region_invalid_parent_region_returns_not_found(self):
-        region_id = uuid.uuid4().hex
-        new_region = {
-            'id': region_id,
-            'description': uuid.uuid4().hex,
-            'parent_region_id': 'nonexisting'
-        }
+        new_region = unit.new_region_ref(parent_region_id='nonexisting')
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.create_region,
                           new_region)
@@ -5565,7 +5537,7 @@ class CatalogTests(object):
         service_id = service_ref['id']
         self.catalog_api.create_service(service_id, service_ref)
 
-        region = {'id': uuid.uuid4().hex}
+        region = unit.new_region_ref()
         self.catalog_api.create_region(region)
 
         # Create endpoints
