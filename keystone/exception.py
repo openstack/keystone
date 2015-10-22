@@ -420,11 +420,11 @@ class MappedGroupNotFound(UnexpectedError):
 
 
 class MetadataFileError(UnexpectedError):
-    message_format = _("Error while reading metadata file, %(reason)s")
+    debug_message_format = _("Error while reading metadata file, %(reason)s")
 
 
 class AssignmentTypeCalculationError(UnexpectedError):
-    message_format = _(
+    debug_message_format = _(
         'Unexpected combination of grant attributes - '
         'User: %(user_id)s, Group: %(group_id)s, Project: %(project_id)s, '
         'Domain: %(domain_id)s')
@@ -450,14 +450,14 @@ class ConfigFileNotFound(UnexpectedError):
 
 
 class KeysNotFound(UnexpectedError):
-    message_format = _('No encryption keys found; run keystone-manage '
-                       'fernet_setup to bootstrap one.')
+    debug_message_format = _('No encryption keys found; run keystone-manage '
+                             'fernet_setup to bootstrap one.')
 
 
 class MultipleSQLDriversInConfig(UnexpectedError):
-    message_format = _('The Keystone domain-specific configuration has '
-                       'specified more than one SQL driver (only one is '
-                       'permitted): %(source)s.')
+    debug_message_format = _('The Keystone domain-specific configuration has '
+                             'specified more than one SQL driver (only one is '
+                             'permitted): %(source)s.')
 
 
 class MigrationNotProvided(Exception):
@@ -469,8 +469,8 @@ class MigrationNotProvided(Exception):
 
 
 class UnsupportedTokenVersionException(UnexpectedError):
-    message_format = _('Token version is unrecognizable or '
-                       'unsupported.')
+    debug_message_format = _('Token version is unrecognizable or '
+                             'unsupported.')
 
 
 class SAMLSigningError(UnexpectedError):
