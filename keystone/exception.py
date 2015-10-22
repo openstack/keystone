@@ -15,6 +15,7 @@
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import encodeutils
+import six
 
 from keystone.i18n import _, _LW
 
@@ -166,9 +167,14 @@ class SecurityError(Error):
 
     def _build_message(self, message, **kwargs):
         """Only returns detailed messages in debug mode."""
-        if CONF.debug:
+        if message and CONF.debug:
+            if isinstance(message, six.string_types):
+                # Only do replacement if message is string. The message is
+                # sometimes a different exception or bytes, which would raise
+                # TypeError.
+                message = message % kwargs
             return _('%(message)s %(amendment)s') % {
-                'message': message or self.message_format % kwargs,
+                'message': message,
                 'amendment': self.amendment}
         else:
             return self.message_format % kwargs
@@ -377,26 +383,21 @@ class Conflict(Error):
 class UnexpectedError(SecurityError):
     """Avoids exposing details of failures, unless in debug mode."""
 
-    _message_format = _("An unexpected error prevented the server "
-                        "from fulfilling your request.")
+    message_format = _("An unexpected error prevented the server "
+                       "from fulfilling your request.")
 
     debug_message_format = _("An unexpected error prevented the server "
                              "from fulfilling your request: %(exception)s")
 
-    @property
-    def message_format(self):
-        """Return the generic message format string unless debug is enabled."""
-        if CONF.debug:
-            return self.debug_message_format
-        return self._message_format
-
     def _build_message(self, message, **kwargs):
-        if CONF.debug and 'exception' not in kwargs:
-            # Ensure that exception has a value to be extra defensive for
-            # substitutions and make sure the exception doesn't raise an
-            # exception.
-            kwargs['exception'] = ''
-        return super(UnexpectedError, self)._build_message(message, **kwargs)
+
+        # Ensure that exception has a value to be extra defensive for
+        # substitutions and make sure the exception doesn't raise an
+        # exception.
+        kwargs.setdefault('exception', '')
+
+        return super(UnexpectedError, self)._build_message(
+            message or self.debug_message_format, **kwargs)
 
     code = 500
     title = 'Internal Server Error'

@@ -131,7 +131,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         self.config_fixture.config(debug=False)
         e = UnexpectedExceptionTestCase.SubClassExc(
             debug_info=self.exc_str)
-        self.assertEqual(exception.UnexpectedError._message_format,
+        self.assertEqual(exception.UnexpectedError.message_format,
                          six.text_type(e))
 
     def test_unexpected_error_subclass_debug(self):
@@ -147,7 +147,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
     def test_unexpected_error_custom_message_no_debug(self):
         self.config_fixture.config(debug=False)
         e = exception.UnexpectedError(self.exc_str)
-        self.assertEqual(exception.UnexpectedError._message_format,
+        self.assertEqual(exception.UnexpectedError.message_format,
                          six.text_type(e))
 
     def test_unexpected_error_custom_message_debug(self):
@@ -245,7 +245,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         e = exception.ForbiddenAction(action=action)
         self.assertValidJsonRendering(e)
         self.assertIn(action, six.text_type(e))
-        self.assertIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertNotIn(exception.SecurityError.amendment, six.text_type(e))
 
     def test_forbidden_action_no_message(self):
         # When no custom message is given when the ForbiddenAction (or other
@@ -262,10 +262,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
 
         self.config_fixture.config(debug=True)
         e = exception.ForbiddenAction(action=action)
-        # Note that the message is the same it's just got the
-        # SecurityError.amendment added to it, see bug 1496530.
-        self.assertIn(exposed_message, six.text_type(e))
-        self.assertIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertEqual(exposed_message, six.text_type(e))
 
     def test_unicode_argument_message(self):
         self.config_fixture.config(debug=False)
