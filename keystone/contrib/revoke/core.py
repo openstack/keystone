@@ -216,13 +216,13 @@ class Manager(manager.Manager):
     def check_token(self, token_values):
         """Checks the values from a token against the revocation list
 
-        :param  token_values: dictionary of values from a token,
-         normalized for differences between v2 and v3. The checked values are a
-         subset of the attributes of model.TokenEvent
+        :param token_values: dictionary of values from a token, normalized for
+                             differences between v2 and v3. The checked values
+                             are a subset of the attributes of model.TokenEvent
 
         :raises exception.TokenNotFound: if the token is invalid
 
-         """
+        """
         if self._get_revoke_tree().is_revoked(token_values):
             raise exception.TokenNotFound(_('Failed to validate token'))
 

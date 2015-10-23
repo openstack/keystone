@@ -958,26 +958,27 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
     def test_deleting_role_revokes_token(self):
         """Test deleting a role revokes token.
 
-            Add some additional test data, namely:
-             - A third project (project C)
-             - Three additional users - user4 owned by domainB and user5 and 6
-               owned by domainA (different domain ownership should not affect
-               the test results, just provided to broaden test coverage)
-             - User5 is a member of group1
-             - Group1 gets an additional assignment - role1 on projectB as
-               well as its existing role1 on projectA
-             - User4 has role2 on Project C
-             - User6 has role1 on projectA and domainA
-             - This allows us to create 5 tokens by virtue of different types
-               of role assignment:
-               - user1, scoped to ProjectA by virtue of user role1 assignment
-               - user5, scoped to ProjectB by virtue of group role1 assignment
-               - user4, scoped to ProjectC by virtue of user role2 assignment
-               - user6, scoped to ProjectA by virtue of user role1 assignment
-               - user6, scoped to DomainA by virtue of user role1 assignment
-             - role1 is then deleted
-             - Check the tokens on Project A and B, and DomainA are revoked,
-               but not the one for Project C
+        Add some additional test data, namely:
+
+        - A third project (project C)
+        - Three additional users - user4 owned by domainB and user5 and 6 owned
+          by domainA (different domain ownership should not affect the test
+          results, just provided to broaden test coverage)
+        - User5 is a member of group1
+        - Group1 gets an additional assignment - role1 on projectB as well as
+          its existing role1 on projectA
+        - User4 has role2 on Project C
+        - User6 has role1 on projectA and domainA
+        - This allows us to create 5 tokens by virtue of different types of
+          role assignment:
+          - user1, scoped to ProjectA by virtue of user role1 assignment
+          - user5, scoped to ProjectB by virtue of group role1 assignment
+          - user4, scoped to ProjectC by virtue of user role2 assignment
+          - user6, scoped to ProjectA by virtue of user role1 assignment
+          - user6, scoped to DomainA by virtue of user role1 assignment
+        - role1 is then deleted
+        - Check the tokens on Project A and B, and DomainA are revoked, but not
+          the one for Project C
 
         """
 

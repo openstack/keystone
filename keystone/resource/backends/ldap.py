@@ -74,8 +74,8 @@ class Resource(resource.ResourceDriverV8):
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
     def _validate_parent_project_is_none(self, ref):
-        """If a parent_id different from None was given,
-           raises InvalidProjectException.
+        """If a parent_id different from None was given, raises
+        InvalidProjectException.
 
         """
         parent_id = ref.get('parent_id')

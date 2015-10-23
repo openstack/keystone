@@ -768,7 +768,7 @@ class V3Controller(wsgi.Application):
         additional entities or attributes (passed in target_attr), so that
         they can be referenced by policy rules.
 
-         """
+        """
         if 'is_admin' in context and context['is_admin']:
             LOG.warning(_LW('RBAC: Bypassing authorization'))
         else:

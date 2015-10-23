@@ -153,8 +153,7 @@ class TenantTestCase(unit.TestCase):
     def test_list_is_domain_project_not_found(self):
         """Test v2 get_all_projects having projects that act as a domain.
 
-           In v2 no project with the is_domain flag enabled should be
-           returned.
+        In v2 no project with the is_domain flag enabled should be returned.
         """
         project1 = self._create_is_domain_project()
         project2 = self._create_is_domain_project()
