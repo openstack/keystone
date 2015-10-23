@@ -4786,13 +4786,13 @@ class TrustTests(object):
     def create_sample_trust(self, new_id, remaining_uses=None):
         self.trustor = self.user_foo
         self.trustee = self.user_two
+        expires_at = datetime.datetime.utcnow().replace(year=2031)
         trust_data = (self.trust_api.create_trust
                       (new_id,
                        {'trustor_user_id': self.trustor['id'],
                         'trustee_user_id': self.user_two['id'],
                         'project_id': self.tenant_bar['id'],
-                        'expires_at': timeutils.
-                        parse_isotime('2031-02-18T18:10:00Z'),
+                        'expires_at': expires_at,
                         'impersonation': True,
                         'remaining_uses': remaining_uses},
                        roles=[{"id": "member"},
@@ -4913,6 +4913,26 @@ class TrustTests(object):
         self.assertRaises(exception.TrustNotFound,
                           self.trust_api.get_trust,
                           trust_data['id'])
+
+    def test_duplicate_trusts_not_allowed(self):
+        self.trustor = self.user_foo
+        self.trustee = self.user_two
+        trust_data = {'trustor_user_id': self.trustor['id'],
+                      'trustee_user_id': self.user_two['id'],
+                      'project_id': self.tenant_bar['id'],
+                      'expires_at': timeutils.parse_isotime(
+                          '2031-02-18T18:10:00Z'),
+                      'impersonation': True,
+                      'remaining_uses': None}
+        roles = [{"id": "member"},
+                 {"id": "other"},
+                 {"id": "browser"}]
+        self.trust_api.create_trust(uuid.uuid4().hex, trust_data, roles)
+        self.assertRaises(exception.Conflict,
+                          self.trust_api.create_trust,
+                          uuid.uuid4().hex,
+                          trust_data,
+                          roles)
 
 
 class CatalogTests(object):

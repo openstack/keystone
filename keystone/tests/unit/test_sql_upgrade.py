@@ -808,6 +808,13 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('endpoint_group')
         self.assertTableDoesNotExist('project_endpoint_group')
 
+    def test_add_trust_unique_constraint_upgrade(self):
+        self.upgrade(86)
+        inspector = reflection.Inspector.from_engine(self.engine)
+        constraints = inspector.get_unique_constraints('trust')
+        constraint_names = [constraint['name'] for constraint in constraints]
+        self.assertIn('duplicate_trust_constraint', constraint_names)
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
