@@ -491,7 +491,7 @@ class RoleAssignment(sql.ModelBase, sql.DictBase):
     )
 
     def to_dict(self):
-        """Override parent to_dict() method with a simpler implementation.
+        """Override parent method with a simpler implementation.
 
         RoleAssignment doesn't have non-indexed 'extra' attributes, so the
         parent implementation is not applicable.
