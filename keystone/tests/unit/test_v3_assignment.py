@@ -1804,7 +1804,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
 
         """
         def create_project_hierarchy(parent_id, depth):
-            "Creates a random project hierarchy."
+            """Creates a random project hierarchy."""
             if depth == 0:
                 return
 
