@@ -758,7 +758,7 @@ class Manager(manager.Manager):
             return non_inherited_refs + inherited_refs
 
         # If filtering by group or inherited domain assignment the list is
-        # guranteed to be empty
+        # guaranteed to be empty
         if group_id or (domain_id and inherited):
             return []
 
