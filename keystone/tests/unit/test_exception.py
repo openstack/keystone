@@ -140,9 +140,8 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
 
         e = subclass(debug_info=self.exc_str)
         expected = subclass.debug_message_format % {'debug_info': self.exc_str}
-        translated_amendment = six.text_type(exception.SecurityError.amendment)
         self.assertEqual(
-            expected + six.text_type(' ') + translated_amendment,
+            '%s %s' % (expected, exception.SecurityError.amendment),
             six.text_type(e))
 
     def test_unexpected_error_custom_message_no_debug(self):
@@ -154,9 +153,8 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
     def test_unexpected_error_custom_message_debug(self):
         self.config_fixture.config(debug=True)
         e = exception.UnexpectedError(self.exc_str)
-        translated_amendment = six.text_type(exception.SecurityError.amendment)
         self.assertEqual(
-            self.exc_str + six.text_type(' ') + translated_amendment,
+            '%s %s' % (self.exc_str, exception.SecurityError.amendment),
             six.text_type(e))
 
 
