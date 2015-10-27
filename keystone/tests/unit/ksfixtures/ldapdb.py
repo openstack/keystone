@@ -19,8 +19,7 @@ from keystone.tests.unit import fakeldap
 
 
 class LDAPDatabase(fixtures.Fixture):
-    """A fixture for setting up and tearing down an LDAP database.
-    """
+    """A fixture for setting up and tearing down an LDAP database."""
 
     def setUp(self):
         super(LDAPDatabase, self).setUp()

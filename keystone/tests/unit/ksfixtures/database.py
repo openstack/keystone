@@ -84,9 +84,7 @@ def _load_sqlalchemy_models():
 
 
 class Database(fixtures.Fixture):
-    """A fixture for setting up and tearing down a database.
-
-    """
+    """A fixture for setting up and tearing down a database."""
 
     def __init__(self):
         super(Database, self).__init__()

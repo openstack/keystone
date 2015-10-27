@@ -1321,8 +1321,7 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
         self.create_endpoint_grp_validator.validate(request_to_validate)
 
     def test_validate_endpoint_group_create_succeeds_with_valid_filters(self):
-        """Validate dict values as `filters` in endpoint group create requests.
-        """
+        """Validate `filters` in endpoint group create requests."""
         request_to_validate = {'description': 'endpoint group description',
                                'name': 'endpoint_group_name'}
         for valid_filters in _VALID_FILTERS:

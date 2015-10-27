@@ -354,8 +354,7 @@ class TokenDriverV8(object):
 
     @abc.abstractmethod
     def flush_expired_tokens(self):
-        """Archive or delete tokens that have expired.
-        """
+        """Archive or delete tokens that have expired."""
         raise exception.NotImplemented()  # pragma: no cover
 
 

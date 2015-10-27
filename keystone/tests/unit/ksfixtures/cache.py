@@ -17,7 +17,9 @@ from keystone.common import cache
 
 
 class Cache(fixtures.Fixture):
-    """A fixture for setting up and tearing down the cache between test cases.
+    """A fixture for setting up the cache between test cases.
+
+    This will also tear down an existing cache if one is already configured.
     """
 
     def setUp(self):
