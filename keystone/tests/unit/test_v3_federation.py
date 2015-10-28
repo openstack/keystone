@@ -1822,7 +1822,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
 
     # TODO(samueldmq): Create another test class for role inheritance tests.
     # The advantage would be to reduce the complexity of this test class and
-    # have tests specific to this fuctionality grouped, easing readability and
+    # have tests specific to this functionality grouped, easing readability and
     # maintenability.
     def test_list_projects_for_inherited_project_assignment(self):
         # Enable os_inherit extension
@@ -3257,7 +3257,7 @@ class ServiceProviderTests(FederationTests):
                    expected_status=http_client.NOT_FOUND)
 
     def test_update_sp_relay_state(self):
-        """Update an SP with custome relay state."""
+        """Update an SP with custom relay state."""
         new_sp_ref = self.sp_ref()
         non_default_prefix = uuid.uuid4().hex
         new_sp_ref['relay_state_prefix'] = non_default_prefix

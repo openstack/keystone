@@ -188,7 +188,7 @@ class LdapPoolCommonTestMixin(object):
         self.identity_api.update_user(user_ref['id'], user_ref)
 
         # now authenticate again to make sure new password works with
-        # conneciton pool
+        # connection pool
         user_ref2 = self.identity_api.authenticate(
             context={},
             user_id=self.user_sna['id'],

@@ -2889,7 +2889,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def enable_multi_domain(self):
         # The values below are the same as in the domain_configs_multi_ldap
-        # cdirectory of test config_files.
+        # directory of test config_files.
         default_config = {
             'ldap': {'url': 'fake://memory',
                      'user': 'cn=Admin',

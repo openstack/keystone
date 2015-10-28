@@ -286,7 +286,7 @@ def validate_groups(group_ids, mapping_id, identity_api):
 # backend are minimized.
 def transform_to_group_ids(group_names, mapping_id,
                            identity_api, resource_api):
-    """Transform groups identitified by name/domain to their ids
+    """Transform groups identified by name/domain to their ids
 
     Function accepts list of groups identified by a name and domain giving
     a list of group ids in return.

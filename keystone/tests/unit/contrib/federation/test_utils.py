@@ -444,7 +444,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual('tbo', mapped_properties['user']['name'])
 
     def test_mapping_federated_domain_specified(self):
-        """Test mapping engine when domain 'ephemeral' is explicitely set.
+        """Test mapping engine when domain 'ephemeral' is explicitly set.
 
         For that, we use mapping rule MAPPING_EPHEMERAL_USER and assertion
         EMPLOYEE_ASSERTION
@@ -515,7 +515,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         - Check if the user has property type set ('ephemeral')
         - Check if user's name is properly mapped from the assertion
         - Check if user's id is properly set and equal to name, as it was not
-        explicitely specified in the mapping.
+        explicitly specified in the mapping.
 
         """
         mapping = mapping_fixtures.MAPPING_USER_IDS
@@ -538,7 +538,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         - Check if the user has propert type set ('ephemeral')
         - Check if user's name is properly mapped from the assertion
         - Check if user's id is properly set and equal to name, as it was not
-        explicitely specified in the mapping.
+        explicitly specified in the mapping.
 
         """
         mapping = mapping_fixtures.MAPPING_USER_IDS
@@ -562,7 +562,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         - Check if the user has propert type set ('ephemeral')
         - Check if user's id is properly mapped from the assertion
         - Check if user's name is properly set and equal to id, as it was not
-        explicitely specified in the mapping.
+        explicitly specified in the mapping.
 
         """
         mapping = mapping_fixtures.MAPPING_USER_IDS

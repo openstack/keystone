@@ -101,7 +101,7 @@ class ClientDrivenTestCase(unit.TestCase):
                 # The fixture ID, however, is still used as part of the
                 # attribute name when storing the created object on the test
                 # case. This means that we need to use the fixture ID below to
-                # find the actial object so that we can get the ID as stored
+                # find the actual object so that we can get the ID as stored
                 # in the database to compare against.
                 if (getattr(self, 'user_%s' % user['id'])['id'] ==
                         user_ref['id']):

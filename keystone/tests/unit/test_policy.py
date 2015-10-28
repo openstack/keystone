@@ -160,7 +160,7 @@ class DefaultPolicyTestCase(BasePolicyTestCase):
         # its enforce() method even though rules has been initialized via
         # set_rules(). To make it easier to do our tests, we're going to
         # monkeypatch load_roles() so it does nothing. This seem like a bug in
-        # Oslo policy as we shoudn't have to reload the rules if they have
+        # Oslo policy as we shouldn't have to reload the rules if they have
         # already been set using set_rules().
         self._old_load_rules = rules._ENFORCER.load_rules
         self.addCleanup(setattr, rules._ENFORCER, 'load_rules',

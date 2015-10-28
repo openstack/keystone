@@ -115,7 +115,7 @@ class TestCheckForNonDebugLoggingIssues(BaseStyleCheck):
     def assert_has_errors(self, code, expected_errors=None):
         # pull out the parts of the error that we'll match against
         actual_errors = (e[:3] for e in self.run_check(code))
-        # adjust line numbers to make the fixure data more readable.
+        # adjust line numbers to make the fixture data more readable.
         import_lines = len(self.code_ex.shared_imports.split('\n')) - 1
         actual_errors = [(e[0] - import_lines, e[1], e[2])
                          for e in actual_errors]

@@ -63,7 +63,8 @@ class BaseCertificateConfigure(object):
                                'cert_subject': conf_obj.cert_subject}
 
         try:
-            # OpenSSL 1.0 and newer support default_md = default, olders do not
+            # OpenSSL 1.0 and newer support default_md = default,
+            # older versions do not
             openssl_ver = environment.subprocess.Popen(
                 ['openssl', 'version'],
                 stdout=environment.subprocess.PIPE).stdout.read()
