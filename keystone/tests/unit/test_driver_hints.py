@@ -27,7 +27,7 @@ class ListHintsTests(test.TestCase):
         self.assertEqual('t1', filter['name'])
         self.assertEqual('data1', filter['value'])
         self.assertEqual('equals', filter['comparator'])
-        self.assertEqual(False, filter['case_sensitive'])
+        self.assertFalse(filter['case_sensitive'])
 
         hints.filters.remove(filter)
         filter_count = 0

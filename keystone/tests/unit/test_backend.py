@@ -2356,7 +2356,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                    'domain_id': DEFAULT_DOMAIN_ID}
         self.resource_api.create_project(project['id'], project)
         project_ref = self.resource_api.get_project(project['id'])
-        self.assertEqual(True, project_ref['enabled'])
+        self.assertTrue(project_ref['enabled'])
 
         # Strings are not valid boolean values
         project['enabled'] = "false"
@@ -2924,7 +2924,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                 'domain_id': DEFAULT_DOMAIN_ID}
         user = self.identity_api.create_user(user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(True, user_ref['enabled'])
+        self.assertTrue(user_ref['enabled'])
 
         user['enabled'] = False
         self.identity_api.update_user(user['id'], user)
@@ -2935,7 +2935,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         del user['enabled']
         self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(False, user_ref['enabled'])
+        self.assertFalse(user_ref['enabled'])
 
         user['enabled'] = True
         self.identity_api.update_user(user['id'], user)
@@ -2945,19 +2945,19 @@ class IdentityTests(AssignmentTestHelperMixin):
         del user['enabled']
         self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(True, user_ref['enabled'])
+        self.assertTrue(user_ref['enabled'])
 
         # Integers are valid Python's booleans. Explicitly test it.
         user['enabled'] = 0
         self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(False, user_ref['enabled'])
+        self.assertFalse(user_ref['enabled'])
 
         # Any integers other than 0 are interpreted as True
         user['enabled'] = -42
         self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(True, user_ref['enabled'])
+        self.assertTrue(user_ref['enabled'])
 
     def test_update_user_name(self):
         user = {'name': uuid.uuid4().hex,
@@ -2987,7 +2987,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                 'domain_id': DEFAULT_DOMAIN_ID}
         user = self.identity_api.create_user(user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(True, user_ref['enabled'])
+        self.assertTrue(user_ref['enabled'])
 
         # Strings are not valid boolean values
         user['enabled'] = "false"
@@ -3001,7 +3001,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                   'domain_id': DEFAULT_DOMAIN_ID}
         self.resource_api.create_project('fake1', tenant)
         tenant_ref = self.resource_api.get_project('fake1')
-        self.assertEqual(True, tenant_ref['enabled'])
+        self.assertTrue(tenant_ref['enabled'])
 
         tenant['enabled'] = False
         self.resource_api.update_project('fake1', tenant)
@@ -3012,7 +3012,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         del tenant['enabled']
         self.resource_api.update_project('fake1', tenant)
         tenant_ref = self.resource_api.get_project('fake1')
-        self.assertEqual(False, tenant_ref['enabled'])
+        self.assertFalse(tenant_ref['enabled'])
 
         tenant['enabled'] = True
         self.resource_api.update_project('fake1', tenant)
@@ -3022,7 +3022,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         del tenant['enabled']
         self.resource_api.update_project('fake1', tenant)
         tenant_ref = self.resource_api.get_project('fake1')
-        self.assertEqual(True, tenant_ref['enabled'])
+        self.assertTrue(tenant_ref['enabled'])
 
     def test_add_user_to_group(self):
         domain = self._get_domain_fixture()
