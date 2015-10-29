@@ -35,11 +35,12 @@ from keystone.i18n import _
 
 CONF = cfg.CONF
 DEFAULT_EXTENSIONS = ['endpoint_filter',
-                      'endpoint_policy',
                       'federation',
                       'oauth1',
                       'revoke',
                       ]
+
+MIGRATED_EXTENSIONS = ['endpoint_policy']
 
 
 def get_default_domain():
@@ -161,6 +162,9 @@ def _assert_not_schema_downgrade(extension=None, version=None):
 
 
 def _sync_extension_repo(extension, version):
+    if extension in MIGRATED_EXTENSIONS:
+        raise exception.MigrationMovedFailure(extension=extension)
+
     init_version = 0
     engine = sql.get_engine()
 
