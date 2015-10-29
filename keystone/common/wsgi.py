@@ -123,6 +123,7 @@ def best_match_language(req):
 
 class BaseApplication(object):
     """Base WSGI application wrapper. Subclasses need to implement __call__."""
+
     @classmethod
     def factory(cls, global_config, **local_config):
         """Used for paste app factories in paste.deploy config files.
@@ -395,6 +396,7 @@ class Middleware(Application):
     behavior.
 
     """
+
     @classmethod
     def factory(cls, global_config, **local_config):
         """Used for paste app factories in paste.deploy config files.
@@ -473,6 +475,7 @@ class Debug(Middleware):
     about the request and response.
 
     """
+
     @webob.dec.wsgify()
     def __call__(self, req):
         if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
@@ -596,6 +599,7 @@ class ExtensionRouter(Router):
 
     Expects to be subclassed.
     """
+
     def __init__(self, application, mapper=None):
         if mapper is None:
             mapper = routes.Mapper()

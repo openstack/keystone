@@ -414,6 +414,7 @@ class LDAPHandler(object):
     derived classes.
 
     """
+
     @abc.abstractmethod
     def __init__(self, conn=None):
         self.conn = conn
@@ -620,6 +621,7 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
 
 class MsgId(list):
     """Wrapper class to hold connection and msgid."""
+
     pass
 
 
@@ -660,6 +662,7 @@ class PooledLDAPHandler(LDAPHandler):
     the methods in this class.
 
     """
+
     # Added here to allow override for testing
     Connector = ldappool.StateConnector
     auth_pool_prefix = 'auth_pool_'
@@ -852,6 +855,7 @@ class KeystoneLDAPHandler(LDAPHandler):
     OpenStack.
 
     """
+
     def __init__(self, conn=None):
         super(KeystoneLDAPHandler, self).__init__(conn=conn)
         self.page_size = 0
@@ -1898,6 +1902,7 @@ class ProjectLdapStructureMixin(object):
     This is shared between the resource and assignment LDAP backends.
 
     """
+
     DEFAULT_OU = 'ou=Groups'
     DEFAULT_STRUCTURAL_CLASSES = []
     DEFAULT_OBJECTCLASS = 'groupOfNames'

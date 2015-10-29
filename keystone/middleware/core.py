@@ -106,6 +106,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
     an underscore.
 
     """
+
     def process_request(self, request):
         # Abort early if we don't have any work to do
         params_json = request.body

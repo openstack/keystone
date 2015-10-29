@@ -37,6 +37,7 @@ def _parse_and_normalize_time(time_data):
 
 class KeystoneToken(dict):
     """An in-memory representation that unifies v2 and v3 tokens."""
+
     # TODO(morganfainberg): Align this in-memory representation with the
     # objects in keystoneclient. This object should be eventually updated
     # to be the source of token data with the ability to emit any version

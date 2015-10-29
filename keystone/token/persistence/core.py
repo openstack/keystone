@@ -206,6 +206,7 @@ class Manager(object):
     This class is a proxy class to the token_provider_api's persistence
     manager.
     """
+
     def __init__(self):
         # NOTE(morganfainberg): __init__ is required for dependency processing.
         super(Manager, self).__init__()

@@ -707,6 +707,7 @@ class TestCase(BaseTestCase):
 
 class SQLDriverOverrides(object):
     """A mixin for consolidating sql-specific test overrides."""
+
     def config_overrides(self):
         super(SQLDriverOverrides, self).config_overrides()
         # SQL specific driver overrides

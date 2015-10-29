@@ -33,6 +33,7 @@ class NoopCacheBackend(api.CacheBackend):
     mechanism to cleanup it's internal dict and therefore could cause run-away
     memory utilization.
     """
+
     def __init__(self, *args):
         return
 

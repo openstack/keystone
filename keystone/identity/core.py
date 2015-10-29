@@ -92,6 +92,7 @@ class DomainConfigs(dict):
     the identity manager and driver can use.
 
     """
+
     configured = False
     driver = None
     _any_sql = False
@@ -484,6 +485,7 @@ class Manager(manager.Manager):
     mapping by default is a more prudent way to introduce this functionality.
 
     """
+
     driver_namespace = 'keystone.identity'
 
     _USER = 'user'

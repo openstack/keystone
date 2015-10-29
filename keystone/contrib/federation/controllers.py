@@ -51,6 +51,7 @@ class _ControllerBase(controller.V3Controller):
 @dependency.requires('federation_api')
 class IdentityProvider(_ControllerBase):
     """Identity Provider representation."""
+
     collection_name = 'identity_providers'
     member_name = 'identity_provider'
 
@@ -129,6 +130,7 @@ class FederationProtocol(_ControllerBase):
     and _public_parameters class attributes.
 
     """
+
     collection_name = 'protocols'
     member_name = 'protocol'
 

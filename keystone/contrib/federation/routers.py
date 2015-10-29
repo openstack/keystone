@@ -91,6 +91,7 @@ class FederationExtension(wsgi.V3ExtensionRouter):
              ?origin=https%3A//horizon.example.com
 
     """
+
     def _construct_url(self, suffix):
         return "/OS-FEDERATION/%s" % suffix
 

@@ -210,6 +210,7 @@ def filterprotected(*filters):
 
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
+
     def _normalize_domain_id(self, context, ref):
         """Fill in domain_id since v2 calls are not domain-aware.
 

@@ -3099,6 +3099,7 @@ class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
 
 class AssignmentV3toV2MethodsTestCase(unit.TestCase):
     """Test domain V3 to V2 conversion methods."""
+
     def _setup_initial_projects(self):
         self.project_id = uuid.uuid4().hex
         self.domain_id = CONF.identity.default_domain_id

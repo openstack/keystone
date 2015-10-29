@@ -64,6 +64,7 @@ class EndpointFilterExtension(wsgi.V3ExtensionRouter):
             {project_id}
 
     """
+
     PATH_PREFIX = '/OS-EP-FILTER'
     PATH_PROJECT_ENDPOINT = '/projects/{project_id}/endpoints/{endpoint_id}'
     PATH_ENDPOINT_GROUPS = '/endpoint_groups/{endpoint_group_id}'

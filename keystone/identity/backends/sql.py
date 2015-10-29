@@ -61,6 +61,7 @@ class Group(sql.ModelBase, sql.DictBase):
 
 class UserGroupMembership(sql.ModelBase, sql.DictBase):
     """Group membership join table."""
+
     __tablename__ = 'user_group_membership'
     user_id = sql.Column(sql.String(64),
                          sql.ForeignKey('user.id'),

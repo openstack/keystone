@@ -20,6 +20,7 @@ from keystone.i18n import _
 
 class ProjectEndpoint(sql.ModelBase, sql.ModelDictMixin):
     """project-endpoint relationship table."""
+
     __tablename__ = 'project_endpoint'
     attributes = ['endpoint_id', 'project_id']
     endpoint_id = sql.Column(sql.String(64),
@@ -32,6 +33,7 @@ class ProjectEndpoint(sql.ModelBase, sql.ModelDictMixin):
 
 class EndpointGroup(sql.ModelBase, sql.ModelDictMixin):
     """Endpoint Groups table."""
+
     __tablename__ = 'endpoint_group'
     attributes = ['id', 'name', 'description', 'filters']
     mutable_attributes = frozenset(['name', 'description', 'filters'])
@@ -43,6 +45,7 @@ class EndpointGroup(sql.ModelBase, sql.ModelDictMixin):
 
 class ProjectEndpointGroupMembership(sql.ModelBase, sql.ModelDictMixin):
     """Project to Endpoint group relationship table."""
+
     __tablename__ = 'project_endpoint_group'
     attributes = ['endpoint_group_id', 'project_id']
     endpoint_group_id = sql.Column(sql.String(64),

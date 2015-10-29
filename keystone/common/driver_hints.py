@@ -45,6 +45,7 @@ class Hints(object):
     * ``type``: will always be 'filter'
 
     """
+
     def __init__(self):
         self.limit = None
         self.filters = list()

@@ -33,6 +33,7 @@ class Error(Exception):
     message_format.
 
     """
+
     code = None
     title = None
     message_format = None
@@ -160,6 +161,7 @@ class PKITokenExpected(Error):
 
 class SecurityError(Error):
     """Avoids exposing details of security failures, unless in debug mode."""
+
     amendment = _('(Disable debug mode to suppress these details.)')
 
     def _build_message(self, message, **kwargs):
@@ -255,6 +257,7 @@ class MetadataNotFound(NotFound):
     """(dolph): metadata is not a user-facing concept,
     so this exception should not be exposed
     """
+
     message_format = _("An unhandled exception has occurred:"
                        " Could not find metadata.")
 
@@ -373,6 +376,7 @@ class Conflict(Error):
 
 class UnexpectedError(SecurityError):
     """Avoids exposing details of failures, unless in debug mode."""
+
     _message_format = _("An unexpected error prevented the server "
                         "from fulfilling your request.")
 

@@ -38,6 +38,7 @@ class MemoryBackend(api.CacheBackend):
             'keystone.common.kvs.Memory'
         )
     """
+
     def __init__(self, arguments):
         self._db = {}
 
