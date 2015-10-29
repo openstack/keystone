@@ -329,7 +329,7 @@ Not all of the tests in the keystone/tests/unit directory are strictly unit
 tests. Keystone intentionally includes tests that run the service locally and
 drives the entire configuration to achieve basic functional testing.
 
-For the functional tests, an in-memory key-value store or in-memory sqlite
+For the functional tests, an in-memory key-value store or in-memory SQLite
 database is used to keep the tests fast.
 
 Within the tests directory, the general structure of the backend tests is a

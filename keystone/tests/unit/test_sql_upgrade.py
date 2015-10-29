@@ -432,7 +432,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTrue(self.does_fk_exist('assignment', 'role_id'))
         self.upgrade(62)
         if self.engine.name != 'sqlite':
-            # sqlite does not support FK deletions (or enforcement)
+            # SQLite does not support FK deletions (or enforcement)
             self.assertFalse(self.does_fk_exist('assignment', 'role_id'))
 
     def test_insert_assignment_inherited_pk(self):
