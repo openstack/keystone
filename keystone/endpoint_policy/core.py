@@ -127,7 +127,6 @@ class Manager(manager.Manager):
                 :returns: list of endpoints that match
 
                 """
-
                 if region_id in regions_examined:
                     msg = _LE('Circular reference or a repeated entry found '
                               'in region tree - %(region_id)s.')

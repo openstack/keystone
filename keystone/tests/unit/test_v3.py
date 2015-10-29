@@ -406,7 +406,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def get_requested_token(self, auth):
         """Request the specific token we want."""
-
         r = self.v3_create_token(auth)
         return r.headers.get('X-Subject-Token')
 
@@ -1307,7 +1306,6 @@ class AssignmentTestMixin(object):
         Available filters are: domain_id, project_id, user_id, group_id,
         role_id and inherited_to_projects.
         """
-
         query_params = '?effective' if effective else ''
 
         for k, v in filters.items():
@@ -1332,7 +1330,6 @@ class AssignmentTestMixin(object):
         Provided attributes are expected to contain: domain_id or project_id,
         user_id or group_id, role_id and, optionally, inherited_to_projects.
         """
-
         if attribs.get('domain_id'):
             link = '/domains/' + attribs['domain_id']
         else:
@@ -1356,7 +1353,6 @@ class AssignmentTestMixin(object):
         Provided attributes are expected to contain: domain_id or project_id,
         user_id or group_id, role_id and, optionally, inherited_to_projects.
         """
-
         entity = {'links': {'assignment': (
             link or self.build_role_assignment_link(**attribs))}}
 

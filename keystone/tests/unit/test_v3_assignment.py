@@ -184,7 +184,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_delete_enabled_domain_fails(self):
         """Call ``DELETE /domains/{domain_id}`` (when domain enabled)."""
-
         # Try deleting an enabled domain, which should fail
         self.delete('/domains/%(domain_id)s' % {
             'domain_id': self.domain['id']},
@@ -210,7 +209,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         - Check entities in self.domain are unaffected
 
         """
-
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = self.new_domain_ref()
         self.resource_api.create_domain(self.domain2['id'], self.domain2)
@@ -341,7 +339,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         becomes invalid once that domain is disabled.
 
         """
-
         self.domain = self.new_domain_ref()
         self.resource_api.create_domain(self.domain['id'], self.domain)
 
@@ -457,7 +454,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         This includes operations like create, update, delete.
 
         """
-
         non_default_name = 'beta_federated_domain'
         self.config_fixture.config(group='federation',
                                    federated_domain_name=non_default_name)
@@ -516,7 +512,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     @utils.wip('waiting for projects acting as domains implementation')
     def test_create_project_without_parent_id_and_without_domain_id(self):
         """Call ``POST /projects``."""
-
         # Grant a domain role for the user
         collection_url = (
             '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
@@ -716,7 +711,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           'project' and 'parent'.
 
         """
-
         # Create the project hierarchy
         parent, project, subproject = self._create_projects_hierarchy(2)
 
@@ -747,7 +741,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           'parent'.
 
         """
-
         # Create the project hierarchy
         parent, project, subproject = self._create_projects_hierarchy(2)
 
@@ -883,7 +876,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           and 'subproject'.
 
         """
-
         # Create the project hierarchy
         parent, project, subproject = self._create_projects_hierarchy(2)
 
@@ -913,7 +905,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         - Check that calling subtree_as_list on 'parent' returns 'subproject'.
 
         """
-
         # Create the project hierarchy
         parent, project, subproject = self._create_projects_hierarchy(2)
 
@@ -1153,7 +1144,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         returns Not Found for the user.
 
         """
-
         user_id = uuid.uuid4().hex
 
         collection_url = (
@@ -1192,7 +1182,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         returns 404 Not Found for the user.
 
         """
-
         user_id = uuid.uuid4().hex
 
         collection_url = (
@@ -1231,7 +1220,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         server returns 404 Not Found for the group.
 
         """
-
         group_id = uuid.uuid4().hex
 
         collection_url = (
@@ -1271,7 +1259,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         returns 404 Not Found for the group.
 
         """
-
         group_id = uuid.uuid4().hex
 
         collection_url = (
@@ -1392,7 +1379,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           been removed
 
         """
-
         # Since the default fixtures already assign some roles to the
         # user it creates, we also need a new user that will not have any
         # existing assignments
@@ -1641,7 +1627,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           token (all effective roles for a user on a project)
 
         """
-
         # Since the default fixtures already assign some roles to the
         # user it creates, we also need a new user that will not have any
         # existing assignments
@@ -1888,7 +1873,6 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
                   queried URL.
 
         """
-
         query_url = self._get_role_assignments_query_url(**filters)
         response = self.get(query_url, expected_status=expected_status)
 
@@ -1967,7 +1951,6 @@ class RoleAssignmentDirectTestCase(RoleAssignmentBaseTestCase):
                         group_id, user_id and inherited_to_projects.
 
         """
-
         # Fills default assignment with provided filters
         test_assignment = self._set_default_assignment_attributes(**filters)
 
@@ -2511,7 +2494,6 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
           shows up.
 
         """
-
         role_list = []
         for _ in range(4):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}

@@ -209,7 +209,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_list_groups_for_user(self):
         """Call ``GET /users/{user_id}/groups``."""
-
         self.user1 = self.new_user_ref(
             domain_id=self.domain['id'])
         password = self.user1['password']

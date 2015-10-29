@@ -197,7 +197,6 @@ class AssignmentTestHelperMixin(object):
 
         def _create_entity_in_domain(entity_type, domain_id):
             """Create a user or group entity in the domain."""
-
             new_entity = {'name': uuid.uuid4().hex, 'domain_id': domain_id}
             if entity_type == 'users':
                 new_entity = self.identity_api.create_user(new_entity)
@@ -288,7 +287,6 @@ class AssignmentTestHelperMixin(object):
 
     def create_group_memberships(self, group_pattern, test_data):
         """Create the group memberships specified in the test plan."""
-
         for group_spec in group_pattern:
             # Each membership specification is a dict of the form:
             #
@@ -304,7 +302,6 @@ class AssignmentTestHelperMixin(object):
 
     def create_assignments(self, assignment_pattern, test_data):
         """Create the assignments specified in the test plan."""
-
         # First store how many assignments are already in the system,
         # so during the tests we can check the number of new assignments
         # created.
@@ -337,7 +334,6 @@ class AssignmentTestHelperMixin(object):
 
     def execute_assignment_tests(self, test_plan, test_data):
         """Execute the test plan, based on the created test_data."""
-
         def check_results(expected, actual, param_arg_count):
             if param_arg_count == 0:
                 # It was an unfiltered call, so default fixture assignments
@@ -885,7 +881,6 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_list_role_assignments_unfiltered(self):
         """Test unfiltered listing of role assignments."""
-
         test_plan = {
             # Create a domain, with a user, group & project
             'entities': {'domains': {'users': 1, 'groups': 1, 'projects': 1},
@@ -908,7 +903,6 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_list_role_assignments_filtered_by_role(self):
         """Test listing of role assignments filtered by role ID."""
-
         test_plan = {
             # Create a user, group & project in the default domain
             'entities': {'domains': {'id': DEFAULT_DOMAIN_ID,
@@ -1647,7 +1641,6 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_grant_crud_throws_exception_if_invalid_role(self):
         """Ensure RoleNotFound thrown if role does not exist."""
-
         def assert_role_not_found_exception(f, **kwargs):
             self.assertRaises(exception.RoleNotFound, f,
                               role_id=uuid.uuid4().hex, **kwargs)
@@ -1990,7 +1983,6 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_list_role_assignment_by_domain(self):
         """Test listing of role assignment filtered by domain."""
-
         test_plan = {
             # A domain with 3 users, 1 group, a spoiler domain and 2 roles.
             'entities': {'domains': [{'users': 3, 'groups': 1}, 1],
@@ -2020,7 +2012,6 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_list_role_assignment_by_user_with_domain_group_roles(self):
         """Test listing assignments by user, with group roles on a domain."""
-
         test_plan = {
             # A domain with 3 users, 3 groups, a spoiler domain
             # plus 3 roles.
@@ -5706,7 +5697,6 @@ class CatalogTests(object):
 
     def test_get_catalog_endpoint_disabled(self):
         """Get back only enabled endpoints when get the v2 catalog."""
-
         service_ref, enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
             self._create_endpoints())
 
@@ -5725,7 +5715,6 @@ class CatalogTests(object):
 
     def test_get_v3_catalog_endpoint_disabled(self):
         """Get back only enabled endpoints when get the v3 catalog."""
-
         enabled_endpoint_ref = self._create_endpoints()[1]
 
         user_id = uuid.uuid4().hex
@@ -5927,7 +5916,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         ('project_id' or 'domain_id'), respectively.
 
         """
-
         # Create a new role to avoid assignments loaded from default fixtures
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         role = self.role_api.create_role(role['id'], role)
@@ -6700,7 +6688,6 @@ class FilterTests(filtering.FilterTests):
           name, both restrictions have been enforced on what is returned.
 
         """
-
         number_of_groups = 10
         group_name_data = {
             # entity index: name for entity
@@ -6800,7 +6787,6 @@ class LimitTests(filtering.FilterTests):
 
     def setUp(self):
         """Setup for Limit Test Cases."""
-
         self.domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.resource_api.create_domain(self.domain1['id'], self.domain1)
         self.addCleanup(self.clean_up_domain)
@@ -6817,7 +6803,6 @@ class LimitTests(filtering.FilterTests):
 
     def clean_up_domain(self):
         """Clean up domain test data from Limit Test Cases."""
-
         self.domain1['enabled'] = False
         self.resource_api.update_domain(self.domain1['id'], self.domain1)
         self.resource_api.delete_domain(self.domain1['id'])

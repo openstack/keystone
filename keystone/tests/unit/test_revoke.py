@@ -67,7 +67,6 @@ def _matches(event, token_values):
     :returns if the token matches the revocation event, indicating the
     token has been revoked
     """
-
     # The token has three attributes that can match the user_id
     if event.user_id is not None:
         for attribute_name in ['user_id', 'trustor_id', 'trustee_id']:

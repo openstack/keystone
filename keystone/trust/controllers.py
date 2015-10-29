@@ -56,7 +56,6 @@ class TrustV3(controller.V3Controller):
     @classmethod
     def base_url(cls, context, path=None):
         """Construct a path and pass it to V3Controller.base_url method."""
-
         # NOTE(stevemar): Overriding path to /OS-TRUST/trusts so that
         # V3Controller.base_url handles setting the self link correctly.
         path = '/OS-TRUST/' + cls.collection_name
@@ -128,7 +127,6 @@ class TrustV3(controller.V3Controller):
         The user creating the trust must be the trustor.
 
         """
-
         auth_context = context.get('environment',
                                    {}).get('KEYSTONE_AUTH_CONTEXT', {})
 

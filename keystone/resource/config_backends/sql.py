@@ -143,7 +143,6 @@ class DomainConfig(resource.DomainConfigDriverV8):
 
     def release_registration(self, domain_id, type=None):
         """Silently delete anything registered for the domain specified."""
-
         with sql.transaction() as session:
             query = session.query(ConfigRegister)
             if type:

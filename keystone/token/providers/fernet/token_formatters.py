@@ -596,7 +596,6 @@ class FederatedUnscopedPayload(BasePayload):
         :returns: the payload of a federated token
 
         """
-
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         b_group_ids = list(map(cls.pack_group_id,
@@ -622,7 +621,6 @@ class FederatedUnscopedPayload(BasePayload):
                  federated domain ID
 
         """
-
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.attempt_convert_uuid_bytes_to_hex(user_id)

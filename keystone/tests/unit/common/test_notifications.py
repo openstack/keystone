@@ -1004,7 +1004,6 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 'id': 'openstack:782689dd-f428-4f13-99c7-5c70f94a5ac1'
             }
         """
-
         note = self._notifications[-1]
         event = note['event']
         if project:

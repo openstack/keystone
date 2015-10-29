@@ -79,7 +79,6 @@ class Status(object):
 
 def translate_urls(json_home, new_prefix):
     """Given a JSON Home document, sticks new_prefix on each of the urls."""
-
     for dummy_rel, resource in json_home['resources'].items():
         if 'href' in resource:
             resource['href'] = new_prefix + resource['href']

@@ -52,7 +52,6 @@ def format_url(url, substitutions, silent_keyerror_failures=None):
     :returns: a formatted URL
 
     """
-
     substitutions = utils.WhiteListedItemFilter(
         WHITELISTED_PROPERTIES,
         substitutions)

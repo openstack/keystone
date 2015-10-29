@@ -49,7 +49,6 @@ class FilterTests(object):
         one.
 
         """
-
         f = getattr(self.identity_api, 'create_%s' % entity_type, None)
         if f is None:
             f = getattr(self.resource_api, 'create_%s' % entity_type, None)
@@ -65,7 +64,6 @@ class FilterTests(object):
         one.
 
         """
-
         f = getattr(self.identity_api, 'delete_%s' % entity_type, None)
         if f is None:
             f = getattr(self.resource_api, 'delete_%s' % entity_type, None)
@@ -81,7 +79,6 @@ class FilterTests(object):
         one.
 
         """
-
         f = getattr(self.identity_api, 'list_%ss' % entity_type, None)
         if f is None:
             f = getattr(self.resource_api, 'list_%ss' % entity_type, None)

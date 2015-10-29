@@ -147,7 +147,6 @@ class Manager(manager.Manager):
                  keystone.exception.DomainNotFound
 
         """
-
         def _get_group_domain_roles(user_id, domain_id):
             role_list = []
             group_ids = self._get_group_ids_for_user_id(user_id)
@@ -185,7 +184,6 @@ class Manager(manager.Manager):
 
     def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
         """Get a list of roles for this group on domain and/or project."""
-
         if project_id is not None:
             project = self.resource_api.get_project(project_id)
             role_ids = self.list_role_ids_for_groups_on_project(
@@ -509,10 +507,8 @@ class Manager(manager.Manager):
         filter the result on those values.
 
         """
-
         def create_group_assignment(base_ref, user_id):
             """Creates a group assignment from the provided ref."""
-
             ref = copy.deepcopy(base_ref)
 
             ref['user_id'] = user_id
@@ -682,7 +678,6 @@ class Manager(manager.Manager):
         specified, hence avoiding retrieving a huge list.
 
         """
-
         def list_role_assignments_for_actor(
                 role_id, inherited, user_id=None,
                 group_ids=None, project_id=None, domain_id=None):
@@ -711,7 +706,6 @@ class Manager(manager.Manager):
                       response are included.
 
             """
-
             # List direct project role assignments
             project_ids = [project_id] if project_id else None
 
@@ -827,7 +821,6 @@ class Manager(manager.Manager):
         inherited roles retrieval, inherited role assignments will be ignored.
 
         """
-
         if not CONF.os_inherit.enabled:
             if inherited:
                 return []
@@ -981,7 +974,6 @@ class AssignmentDriverV8(object):
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
         """Lists role ids for assignments/grants."""
-
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
@@ -1139,7 +1131,6 @@ class AssignmentDriverV8(object):
     @abc.abstractmethod
     def delete_role_assignments(self, role_id):
         """Deletes all assignments for a role."""
-
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod

@@ -33,7 +33,6 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
     def setUp(self):
         """Setup for Identity Filter Test Cases."""
-
         super(IdentityTestFilteredCase, self).setUp()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
@@ -329,7 +328,6 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
 
     def setUp(self):
         """Setup for Identity Limit Test Cases."""
-
         super(IdentityTestListLimitCase, self).setUp()
 
         # Create 10 entries for each of the entities we are going to test
@@ -359,18 +357,15 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
 
     def clean_up_entity(self, entity):
         """Clean up entity test data from Identity Limit Test Cases."""
-
         self._delete_test_data(entity, self.entity_lists[entity])
 
     def clean_up_service(self):
         """Clean up service test data from Identity Limit Test Cases."""
-
         for service in self.service_list:
             self.catalog_api.delete_service(service['id'])
 
     def clean_up_policy(self):
         """Clean up policy test data from Identity Limit Test Cases."""
-
         for policy in self.policy_list:
             self.policy_api.delete_policy(policy['id'])
 
@@ -430,7 +425,6 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
 
     def test_no_limit(self):
         """Check truncated attribute not set when list not limited."""
-
         self._set_policy({"identity:list_services": []})
         r = self.get('/services', auth=self.auth)
         self.assertEqual(10, len(r.result.get('services')))
@@ -438,7 +432,6 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
 
     def test_at_limit(self):
         """Check truncated attribute not set when list at max size."""
-
         # Test this by overriding the general limit with a higher
         # driver-specific limit (allowing all entities to be returned
         # in the collection), which should result in a non truncated list

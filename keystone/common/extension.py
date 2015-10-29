@@ -41,5 +41,4 @@ def register_admin_extension(url_prefix, extension_data):
 
 def register_public_extension(url_prefix, extension_data):
     """Same as register_admin_extension but for public extensions."""
-
     PUBLIC_EXTENSIONS[url_prefix] = extension_data

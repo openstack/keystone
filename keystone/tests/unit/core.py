@@ -515,7 +515,6 @@ class TestCase(BaseTestCase):
 
     def load_backends(self):
         """Initializes each manager and assigns them to an attribute."""
-
         # TODO(blk-u): Shouldn't need to clear the registry here, but some
         # tests call load_backends multiple times. These should be fixed to
         # only call load_backends once.

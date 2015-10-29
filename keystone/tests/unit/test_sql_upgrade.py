@@ -503,7 +503,6 @@ class SqlUpgradeTests(SqlMigrateBase):
 
     def does_pk_exist(self, table, pk_column):
         """Checks whether a column is primary key on a table."""
-
         inspector = reflection.Inspector.from_engine(self.engine)
         pk_columns = inspector.get_pk_constraint(table)['constrained_columns']
 
@@ -879,7 +878,6 @@ class VersionTests(SqlMigrateBase):
 
     def test_unexpected_extension(self):
         """The version for a non-existent extension raises ImportError."""
-
         extension_name = uuid.uuid4().hex
         self.assertRaises(ImportError,
                           migration_helpers.get_db_version,
@@ -887,7 +885,6 @@ class VersionTests(SqlMigrateBase):
 
     def test_unversioned_extension(self):
         """The version for extensions without migrations raise an exception."""
-
         self.assertRaises(exception.MigrationNotProvided,
                           migration_helpers.get_db_version,
                           extension='admin_crud')

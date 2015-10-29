@@ -748,7 +748,6 @@ class SqlFilterTests(SqlTests, test_backend.FilterTests):
 
     def clean_up_entities(self):
         """Clean up entity test data from Filter Test Cases."""
-
         for entity in ['user', 'group', 'project']:
             self._delete_test_data(entity, self.entity_list[entity])
             self._delete_test_data(entity, self.domain1_entity_list[entity])

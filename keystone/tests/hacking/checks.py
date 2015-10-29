@@ -283,7 +283,6 @@ class CheckForLoggingIssues(BaseASTChecker):
 
     def visit_Call(self, node):
         """Look for the 'LOG.*' calls."""
-
         # obj.method
         if isinstance(node.func, ast.Attribute):
             obj_name = self._find_name(node.func.value)

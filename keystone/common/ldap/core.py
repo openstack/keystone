@@ -110,7 +110,6 @@ def py2ldap(val):
 
 def enabled2py(val):
     """Similar to ldap2py, only useful for the enabled attribute."""
-
     try:
         return LDAP_VALUES[val]
     except KeyError:
@@ -239,7 +238,6 @@ def is_ava_value_equal(attribute_type, val1, val2):
     that function apply here.
 
     """
-
     return prep_case_insensitive(val1) == prep_case_insensitive(val2)
 
 
@@ -259,7 +257,6 @@ def is_rdn_equal(rdn1, rdn2):
     limitations of that function apply here.
 
     """
-
     if len(rdn1) != len(rdn2):
         return False
 
@@ -292,7 +289,6 @@ def is_dn_equal(dn1, dn2):
     :param dn2: Either a string DN or a DN parsed by ldap.dn.str2dn.
 
     """
-
     if not isinstance(dn1, list):
         dn1 = ldap.dn.str2dn(utf8_encode(dn1))
     if not isinstance(dn2, list):
@@ -314,7 +310,6 @@ def dn_startswith(descendant_dn, dn):
     :param dn: Either a string DN or a DN parsed by ldap.dn.str2dn.
 
     """
-
     if not isinstance(descendant_dn, list):
         descendant_dn = ldap.dn.str2dn(utf8_encode(descendant_dn))
     if not isinstance(dn, list):
@@ -815,7 +810,6 @@ class PooledLDAPHandler(LDAPHandler):
         which requested msgId and used it in result3 exits.
 
         """
-
         conn, msg_id = msgid
         return conn.result3(msg_id, all, timeout)
 
@@ -858,7 +852,6 @@ class KeystoneLDAPHandler(LDAPHandler):
     OpenStack.
 
     """
-
     def __init__(self, conn=None):
         super(KeystoneLDAPHandler, self).__init__(conn=conn)
         self.page_size = 0

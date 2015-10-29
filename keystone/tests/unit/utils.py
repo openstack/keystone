@@ -72,7 +72,6 @@ def wip(message):
       >>>     pass
 
     """
-
     def _wip(f):
         @six.wraps(f)
         def run_test(*args, **kwargs):

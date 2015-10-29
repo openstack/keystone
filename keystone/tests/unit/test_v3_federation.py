@@ -137,7 +137,6 @@ class FederatedSetupMixin(object):
 
     def assertValidMappedUser(self, token):
         """Check if user object meets all the criteria."""
-
         user = token['user']
         self.assertIn('id', user)
         self.assertIn('name', user)
@@ -209,7 +208,6 @@ class FederatedSetupMixin(object):
 
     def load_federation_sample_data(self):
         """Inject additional data."""
-
         # Create and add domains
         self.domainA = self.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'],
@@ -856,7 +854,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_create_idp(self):
         """Creates the IdentityProvider entity associated to remote_ids."""
-
         keys_to_check = list(self.idp_keys)
         body = self.default_body.copy()
         body['description'] = uuid.uuid4().hex
@@ -867,7 +864,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_create_idp_remote(self):
         """Creates the IdentityProvider entity associated to remote_ids."""
-
         keys_to_check = list(self.idp_keys)
         keys_to_check.append('remote_ids')
         body = self.default_body.copy()
@@ -889,7 +885,6 @@ class FederatedIdentityProviderTests(FederationTests):
         Expect HTTP 409 Conflict code for the latter call.
 
         """
-
         body = self.default_body.copy()
         repeated_remote_id = uuid.uuid4().hex
         body['remote_ids'] = [uuid.uuid4().hex,
@@ -906,7 +901,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_create_idp_remote_empty(self):
         """Creates an IdP with empty remote_ids."""
-
         keys_to_check = list(self.idp_keys)
         keys_to_check.append('remote_ids')
         body = self.default_body.copy()
@@ -919,7 +913,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_create_idp_remote_none(self):
         """Creates an IdP with a None remote_ids."""
-
         keys_to_check = list(self.idp_keys)
         keys_to_check.append('remote_ids')
         body = self.default_body.copy()
@@ -1072,7 +1065,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_delete_idp_also_deletes_assigned_protocols(self):
         """Deleting an IdP will delete its assigned protocol."""
-
         # create default IdP
         default_resp = self._create_default_idp()
         default_idp = self._fetch_attribute_from_response(default_resp,
@@ -1178,7 +1170,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_assign_protocol_to_idp(self):
         """Assign a protocol to existing IdP."""
-
         self._assign_protocol_to_idp(expected_status=http_client.CREATED)
 
     def test_protocol_composite_pk(self):
@@ -1224,7 +1215,6 @@ class FederatedIdentityProviderTests(FederationTests):
         Expect HTTP 404 Not Found code.
 
         """
-
         idp_id = uuid.uuid4().hex
         kwargs = {'expected_status': http_client.NOT_FOUND}
         self._assign_protocol_to_idp(proto='saml2',
@@ -1234,7 +1224,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_get_protocol(self):
         """Create and later fetch protocol tied to IdP."""
-
         resp, idp_id, proto = self._assign_protocol_to_idp(
             expected_status=http_client.CREATED)
         proto_id = self._fetch_attribute_from_response(resp, 'protocol')['id']
@@ -1280,7 +1269,6 @@ class FederatedIdentityProviderTests(FederationTests):
 
     def test_update_protocols_attribute(self):
         """Update protocol's attribute."""
-
         resp, idp_id, proto = self._assign_protocol_to_idp(
             expected_status=http_client.CREATED)
         new_mapping_id = uuid.uuid4().hex
@@ -1697,7 +1685,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
 
     def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
-
         self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
             expected_status=http_client.UNAUTHORIZED)
@@ -1711,7 +1698,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         * Employees' project
 
         """
-
         bodies = (self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN,
                   self.TOKEN_SCOPE_PROJECT_CUSTOMER_FROM_ADMIN)
         project_ids = (self.proj_employees['id'],
@@ -1892,7 +1878,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         * Scope token to one of available projects
 
         """
-
         r = self._issue_unscoped_token()
         token_resp = r.json_body['token']
         self.assertValidMappedUser(token_resp)
@@ -2054,7 +2039,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
            assigned
 
         """
-
         domain_id = self.domainA['id']
         domain_name = self.domainA['name']
 
@@ -2129,7 +2113,6 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
            assigned
 
         """
-
         domain_id = self.domainA['id']
         domain_name = self.domainA['name']
 
@@ -2799,7 +2782,6 @@ class SAMLGenerationTests(FederationTests):
         Raises exception.SchemaValidationError() - error 400 Bad Request
 
         """
-
         token_id = uuid.uuid4().hex
         body = self._create_generate_saml_request(token_id,
                                                   self.SERVICE_PROVDIER_ID)
@@ -2814,7 +2796,6 @@ class SAMLGenerationTests(FederationTests):
         Raises exception.SchemaValidationError() - error 400 Bad Request
 
         """
-
         token_id = uuid.uuid4().hex
         body = self._create_generate_saml_request(token_id,
                                                   self.SERVICE_PROVDIER_ID)
@@ -2837,7 +2818,6 @@ class SAMLGenerationTests(FederationTests):
 
     def test_sp_disabled(self):
         """Try generating assertion for disabled Service Provider."""
-
         # Disable Service Provider
         sp_ref = {'enabled': False}
         self.federation_api.update_sp(self.SERVICE_PROVDIER_ID, sp_ref)
@@ -2854,7 +2834,6 @@ class SAMLGenerationTests(FederationTests):
         Raises exception.TokenNotFound() - error Not Found 404
 
         """
-
         token_id = uuid.uuid4().hex
         body = self._create_generate_saml_request(token_id,
                                                   self.SERVICE_PROVDIER_ID)
@@ -2870,7 +2849,6 @@ class SAMLGenerationTests(FederationTests):
         The controller should return a SAML assertion that is wrapped in a
         SOAP envelope.
         """
-
         self.config_fixture.config(group='saml', idp_entity_id=self.ISSUER)
         token_id = self._fetch_valid_token()
         body = self._create_generate_saml_request(token_id,
@@ -3439,7 +3417,6 @@ class K2KServiceCatalogTests(FederationTests):
 
     def test_service_providers_in_token(self):
         """Check if service providers are listed in service catalog."""
-
         token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
         ref = {}
         for r in (self.sp_alpha, self.sp_beta, self.sp_gamma):

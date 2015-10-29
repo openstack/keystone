@@ -44,7 +44,6 @@ class _ControllerBase(controller.V3Controller):
     @classmethod
     def base_url(cls, context, path=None):
         """Construct a path and pass it to V3Controller.base_url method."""
-
         path = '/OS-FEDERATION/' + cls.collection_name
         return super(_ControllerBase, cls).base_url(context, path=path)
 
@@ -327,7 +326,6 @@ class Auth(auth_controllers.Auth):
 
     def render_html_response(self, host, token_id):
         """Forms an HTML Form from a template with autosubmit."""
-
         headers = [('Content-Type', 'text/html')]
 
         with open(CONF.federation.sso_callback_template) as template:
@@ -380,7 +378,6 @@ class Auth(auth_controllers.Auth):
         :param auth: Dictionary that contains a token and service provider ID
         :returns: SAML Assertion based on properties from the token
         """
-
         t = self._create_base_saml_assertion(context, auth)
         (response, service_provider) = t
 
@@ -396,7 +393,6 @@ class Auth(auth_controllers.Auth):
         :param auth: Dictionary that contains a token and service provider ID
         :returns: ECP Assertion based on properties from the token
         """
-
         t = self._create_base_saml_assertion(context, auth)
         (saml_assertion, service_provider) = t
         relay_state_prefix = service_provider.get('relay_state_prefix')

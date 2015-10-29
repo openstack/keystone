@@ -53,7 +53,6 @@ def _expiry_range_batched(session, upper_bound_func, batch_size):
     Return the timestamp of the next token that is `batch_size` rows from
     being the oldest expired token.
     """
-
     # This expiry strategy splits the tokens into roughly equal sized batches
     # to be deleted.  It does this by finding the timestamp of a token
     # `batch_size` rows from the oldest token and yielding that to the caller.
@@ -79,7 +78,6 @@ def _expiry_range_batched(session, upper_bound_func, batch_size):
 
 def _expiry_range_all(session, upper_bound_func):
     """Expires all tokens in one pass."""
-
     yield upper_bound_func()
 
 
@@ -245,7 +243,6 @@ class Token(token.persistence.TokenDriverV8):
         Based on the DB dialect, select an expiry range callable that is
         appropriate.
         """
-
         # DB2 and MySQL can both benefit from a batched strategy.  On DB2 the
         # transaction log can fill up and on MySQL w/Galera, large
         # transactions can exceed the maximum write set size.

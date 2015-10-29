@@ -801,7 +801,6 @@ class OAuthNotificationTests(OAuth1Tests,
         notifications for request token creation, and access token
         creation/deletion are emitted.
         """
-
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
         consumer_secret = consumer['secret']

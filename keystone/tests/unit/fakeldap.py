@@ -132,7 +132,6 @@ def _paren_groups(source):
 
 def _match(key, value, attrs):
     """Match a given key and value against an attribute list."""
-
     def match_with_wildcards(norm_val, val_list):
         # Case insensitive checking with wildcards
         if norm_val.startswith('*'):

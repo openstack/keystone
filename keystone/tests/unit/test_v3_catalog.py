@@ -238,7 +238,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_delete_region(self):
         """Call ``DELETE /regions/{region_id}``."""
-
         ref = self.new_region_ref()
         r = self.post(
             '/regions',

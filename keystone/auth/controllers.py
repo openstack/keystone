@@ -93,7 +93,6 @@ class AuthContext(dict):
     earliest value.
 
     """
-
     # identity attributes need to be reconciled among the auth plugins
     IDENTITY_ATTRIBUTES = frozenset(['user_id', 'project_id',
                                      'access_token_id', 'domain_id',
@@ -479,7 +478,6 @@ class Auth(controller.V3Controller):
 
     def authenticate(self, context, auth_info, auth_context):
         """Authenticate user."""
-
         # The 'external' method allows any 'REMOTE_USER' based authentication
         # In some cases the server can set REMOTE_USER as '' instead of
         # dropping it, so this must be filtered out
