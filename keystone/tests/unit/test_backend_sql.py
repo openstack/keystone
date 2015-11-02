@@ -849,11 +849,6 @@ class SqlDecorators(unit.TestCase):
         tt = FakeTable(col='a')
         self.assertEqual('a', tt.col)
 
-    def test_non_ascii_init(self):
-        # NOTE(I159): Non ASCII characters must cause UnicodeDecodeError
-        # if encoding is not provided explicitly.
-        self.assertRaises(UnicodeDecodeError, FakeTable, col='Я')
-
     def test_conflict_happend(self):
         self.assertRaises(exception.Conflict, FakeTable().insert)
         self.assertRaises(exception.UnexpectedError, FakeTable().update)
