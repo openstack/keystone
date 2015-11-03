@@ -257,9 +257,10 @@ def new_region_ref():
     return ref
 
 
-def new_service_ref():
+def new_service_ref(**kwargs):
     ref = new_ref()
     ref['type'] = uuid.uuid4().hex
+    ref.update(**kwargs)
     return ref
 
 

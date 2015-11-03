@@ -246,12 +246,9 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.catalog_api.create_region(
             self.region.copy())
 
-        self.service_id = uuid.uuid4().hex
-        self.service = self.new_service_ref()
-        self.service['id'] = self.service_id
-        self.catalog_api.create_service(
-            self.service_id,
-            self.service.copy())
+        self.service = unit.new_service_ref()
+        self.service_id = self.service['id']
+        self.catalog_api.create_service(self.service_id, self.service.copy())
 
         self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
                                               interface='public',
@@ -268,9 +265,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def new_region_ref(self):
         return unit.new_region_ref()
-
-    def new_service_ref(self):
-        return unit.new_service_ref()
 
     def new_domain_ref(self):
         return unit.new_domain_ref()

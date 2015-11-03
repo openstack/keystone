@@ -69,7 +69,7 @@ class PolicyAssociationTests(object):
                       'blob': {'data': uuid.uuid4().hex}}
             self.policy.append(self.policy_api.create_policy(policy['id'],
                                                              policy))
-            service = {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex}
+            service = unit.new_service_ref()
             self.service.append(self.catalog_api.create_service(service['id'],
                                                                 service))
             region = {'id': uuid.uuid4().hex, 'description': uuid.uuid4().hex}

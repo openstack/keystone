@@ -878,7 +878,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         """
         # create a service
-        service_ref = self.new_service_ref()
+        service_ref = unit.new_service_ref()
         response = self.post(
             '/services',
             body={'service': service_ref})
@@ -916,7 +916,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
 
         """
         # create a temporary service
-        service_ref = self.new_service_ref()
+        service_ref = unit.new_service_ref()
         response = self.post('/services', body={'service': service_ref})
         service_id2 = response.result['service']['id']
 
@@ -1059,7 +1059,7 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         """Creates an endpoint associated with service and project."""
         if not service_id:
             # create a new service
-            service_ref = self.new_service_ref()
+            service_ref = unit.new_service_ref()
             response = self.post(
                 '/services', body={'service': service_ref})
             service_id = response.result['service']['id']

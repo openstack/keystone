@@ -539,12 +539,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
     _enabled_default_to_true_when_creating_endpoint = True
 
     def test_catalog_ignored_malformed_urls(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service.copy())
 
         malformed_url = "http://192.168.1.104:8774/v2/$(tenant)s"
@@ -558,12 +553,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.assertEqual({}, catalog)
 
     def test_get_catalog_with_empty_public_url(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service.copy())
 
         endpoint = unit.new_endpoint_ref(url='', service_id=service['id'],
@@ -579,12 +569,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         self.assertIsNone(catalog_endpoint.get('internalURL'))
 
     def test_create_endpoint_region_returns_not_found(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service.copy())
 
         endpoint = unit.new_endpoint_ref(region_id=uuid.uuid4().hex,
@@ -632,12 +617,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
         }
         self.catalog_api.create_region(child_region)
         # create a service
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service and child region

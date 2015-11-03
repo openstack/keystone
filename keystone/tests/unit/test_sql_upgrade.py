@@ -348,7 +348,7 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         def add_service():
             service_id = uuid.uuid4().hex
-
+            # Older style service ref, must create by hand
             service = {
                 'id': service_id,
                 'type': uuid.uuid4().hex
@@ -571,7 +571,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         """Update service name data from `extra` to empty string."""
         def add_service(**extra_data):
             service_id = uuid.uuid4().hex
-
+            # Older style service ref, must create by hand
             service = {
                 'id': service_id,
                 'type': uuid.uuid4().hex,

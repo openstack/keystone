@@ -251,7 +251,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_service(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
+        ref = unit.new_service_ref()
         r = self.post(
             '/services',
             body={'service': ref})
@@ -259,7 +259,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_service_no_name(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
+        ref = unit.new_service_ref()
         del ref['name']
         r = self.post(
             '/services',
@@ -269,7 +269,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_service_no_enabled(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
+        ref = unit.new_service_ref()
         del ref['enabled']
         r = self.post(
             '/services',
@@ -280,8 +280,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_service_enabled_false(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
-        ref['enabled'] = False
+        ref = unit.new_service_ref(enabled=False)
         r = self.post(
             '/services',
             body={'service': ref})
@@ -290,8 +289,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_service_enabled_true(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
-        ref['enabled'] = True
+        ref = unit.new_service_ref(enabled=True)
         r = self.post(
             '/services',
             body={'service': ref})
@@ -300,22 +298,19 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_service_enabled_str_true(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
-        ref['enabled'] = 'True'
+        ref = unit.new_service_ref(enabled='True')
         self.post('/services', body={'service': ref},
                   expected_status=http_client.BAD_REQUEST)
 
     def test_create_service_enabled_str_false(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
-        ref['enabled'] = 'False'
+        ref = unit.new_service_ref(enabled='False')
         self.post('/services', body={'service': ref},
                   expected_status=http_client.BAD_REQUEST)
 
     def test_create_service_enabled_str_random(self):
         """Call ``POST /services``."""
-        ref = self.new_service_ref()
-        ref['enabled'] = 'puppies'
+        ref = unit.new_service_ref(enabled='puppies')
         self.post('/services', body={'service': ref},
                   expected_status=http_client.BAD_REQUEST)
 
@@ -325,8 +320,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidServiceListResponse(r, ref=self.service)
 
     def _create_random_service(self):
-        ref = self.new_service_ref()
-        ref['enabled'] = True
+        ref = unit.new_service_ref()
         response = self.post(
             '/services',
             body={'service': ref})
@@ -374,7 +368,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_update_service(self):
         """Call ``PATCH /services/{service_id}``."""
-        service = self.new_service_ref()
+        service = unit.new_service_ref()
         del service['id']
         r = self.patch('/services/%(service_id)s' % {
             'service_id': self.service_id},
@@ -788,8 +782,8 @@ class TestCatalogAPISQL(unit.TestCase):
         self.useFixture(database.Database())
         self.catalog_api = catalog.Manager()
 
-        self.service_id = uuid.uuid4().hex
-        service = {'id': self.service_id, 'name': uuid.uuid4().hex}
+        service = unit.new_service_ref()
+        self.service_id = service['id']
         self.catalog_api.create_service(self.service_id, service)
 
         self.create_endpoint(service_id=self.service_id)
@@ -848,19 +842,13 @@ class TestCatalogAPISQL(unit.TestCase):
         tenant_id = uuid.uuid4().hex
 
         # create a service, with a name
-        named_svc = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-        }
+        named_svc = unit.new_service_ref()
         self.catalog_api.create_service(named_svc['id'], named_svc)
         self.create_endpoint(service_id=named_svc['id'])
 
         # create a service, with no name
-        unnamed_svc = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex
-        }
+        unnamed_svc = unit.new_service_ref(name=None)
+        del unnamed_svc['name']
         self.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
         self.create_endpoint(service_id=unnamed_svc['id'])
 
@@ -890,8 +878,8 @@ class TestCatalogAPISQLRegions(unit.TestCase):
         self.config_fixture.config(group='catalog', driver='sql')
 
     def test_get_catalog_returns_proper_endpoints_with_no_region(self):
-        service_id = uuid.uuid4().hex
-        service = {'id': service_id, 'name': uuid.uuid4().hex}
+        service = unit.new_service_ref()
+        service_id = service['id']
         self.catalog_api.create_service(service_id, service)
 
         endpoint = unit.new_endpoint_ref(service_id=service_id,
@@ -907,8 +895,8 @@ class TestCatalogAPISQLRegions(unit.TestCase):
             catalog[0]['endpoints'][0], ref=endpoint)
 
     def test_get_catalog_returns_proper_endpoints_with_region(self):
-        service_id = uuid.uuid4().hex
-        service = {'id': service_id, 'name': uuid.uuid4().hex}
+        service = unit.new_service_ref()
+        service_id = service['id']
         self.catalog_api.create_service(service_id, service)
 
         endpoint = unit.new_endpoint_ref(service_id=service_id)

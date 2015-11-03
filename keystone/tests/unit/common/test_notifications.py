@@ -469,7 +469,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'endpoint', cadftaxonomy.SECURITY_ENDPOINT)
 
     def test_create_service(self):
-        service_ref = self.new_service_ref()
+        service_ref = unit.new_service_ref()
         self.catalog_api.create_service(service_ref['id'], service_ref)
         self._assert_notify_sent(service_ref['id'], CREATED_OPERATION,
                                  'service')
@@ -477,7 +477,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'service', cadftaxonomy.SECURITY_SERVICE)
 
     def test_update_service(self):
-        service_ref = self.new_service_ref()
+        service_ref = unit.new_service_ref()
         self.catalog_api.create_service(service_ref['id'], service_ref)
         self.catalog_api.update_service(service_ref['id'], service_ref)
         self._assert_notify_sent(service_ref['id'], UPDATED_OPERATION,
@@ -486,7 +486,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'service', cadftaxonomy.SECURITY_SERVICE)
 
     def test_delete_service(self):
-        service_ref = self.new_service_ref()
+        service_ref = unit.new_service_ref()
         self.catalog_api.create_service(service_ref['id'], service_ref)
         self.catalog_api.delete_service(service_ref['id'])
         self._assert_notify_sent(service_ref['id'], DELETED_OPERATION,

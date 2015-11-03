@@ -5285,13 +5285,8 @@ class CatalogTests(object):
 
     def test_service_crud(self):
         # create
-        service_id = uuid.uuid4().hex
-        new_service = {
-            'id': service_id,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        new_service = unit.new_service_ref()
+        service_id = new_service['id']
         res = self.catalog_api.create_service(
             service_id,
             new_service.copy())
@@ -5319,13 +5314,8 @@ class CatalogTests(object):
                           service_id)
 
     def _create_random_service(self):
-        service_id = uuid.uuid4().hex
-        new_service = {
-            'id': service_id,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        new_service = unit.new_service_ref()
+        service_id = new_service['id']
         return self.catalog_api.create_service(service_id, new_service.copy())
 
     def test_service_filtering(self):
@@ -5364,13 +5354,8 @@ class CatalogTests(object):
 
     @unit.skip_if_cache_disabled('catalog')
     def test_cache_layer_service_crud(self):
-        service_id = uuid.uuid4().hex
-        new_service = {
-            'id': service_id,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        new_service = unit.new_service_ref()
+        service_id = new_service['id']
         res = self.catalog_api.create_service(
             service_id,
             new_service.copy())
@@ -5401,16 +5386,9 @@ class CatalogTests(object):
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_service(self):
-        service_id = uuid.uuid4().hex
-        new_service = {
-            'id': service_id,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
-        self.catalog_api.create_service(
-            service_id,
-            new_service.copy())
+        new_service = unit.new_service_ref()
+        service_id = new_service['id']
+        self.catalog_api.create_service(service_id, new_service.copy())
 
         # cache the service
         self.catalog_api.get_service(service_id)
@@ -5425,12 +5403,7 @@ class CatalogTests(object):
 
     def test_delete_service_with_endpoint(self):
         # create a service
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
@@ -5448,12 +5421,7 @@ class CatalogTests(object):
                           endpoint['id'])
 
     def test_cache_layer_delete_service_with_endpoint(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
@@ -5528,12 +5496,7 @@ class CatalogTests(object):
                           new_endpoint)
 
     def test_create_endpoint_nonexistent_region(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service.copy())
 
         endpoint = unit.new_endpoint_ref(service_id=service['id'])
@@ -5562,12 +5525,7 @@ class CatalogTests(object):
                           uuid.uuid4().hex)
 
     def test_create_endpoint(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service.copy())
 
         endpoint = unit.new_endpoint_ref(service_id=service['id'],
@@ -5603,12 +5561,8 @@ class CatalogTests(object):
             return ref
 
         # Create a service for use with the endpoints.
-        service_id = uuid.uuid4().hex
-        service_ref = {
-            'id': service_id,
-            'name': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-        }
+        service_ref = unit.new_service_ref()
+        service_id = service_ref['id']
         self.catalog_api.create_service(service_id, service_ref)
 
         region = {'id': uuid.uuid4().hex}
@@ -5622,12 +5576,7 @@ class CatalogTests(object):
         return service_ref, enabled_endpoint_ref, disabled_endpoint_ref
 
     def test_list_endpoints(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service.copy())
 
         expected_ids = set([uuid.uuid4().hex for _ in range(3)])
@@ -5671,12 +5620,7 @@ class CatalogTests(object):
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_endpoint(self):
-        service = {
-            'id': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-        }
+        service = unit.new_service_ref()
         self.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
