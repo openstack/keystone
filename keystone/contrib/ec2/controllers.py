@@ -75,13 +75,14 @@ class Ec2ControllerCommon(object):
                                         signature):
                     return True
                 raise exception.Unauthorized(
-                    message='Invalid EC2 signature.')
+                    message=_('Invalid EC2 signature.'))
             else:
                 raise exception.Unauthorized(
-                    message='EC2 signature not supplied.')
+                    message=_('EC2 signature not supplied.'))
         # Raise the exception when credentials.get('signature') is None
         else:
-            raise exception.Unauthorized(message='EC2 signature not supplied.')
+            raise exception.Unauthorized(
+                message=_('EC2 signature not supplied.'))
 
     @abc.abstractmethod
     def authenticate(self, context, credentials=None, ec2Credentials=None):
@@ -118,7 +119,8 @@ class Ec2ControllerCommon(object):
             credentials = ec2credentials
 
         if 'access' not in credentials:
-            raise exception.Unauthorized(message='EC2 signature not supplied.')
+            raise exception.Unauthorized(
+                message=_('EC2 signature not supplied.'))
 
         creds_ref = self._get_credentials(credentials['access'])
         self.check_signature(creds_ref, credentials)
@@ -151,7 +153,8 @@ class Ec2ControllerCommon(object):
 
         roles = metadata_ref.get('roles', [])
         if not roles:
-            raise exception.Unauthorized(message='User not valid for tenant.')
+            raise exception.Unauthorized(
+                message=_('User not valid for tenant.'))
         roles_ref = [self.role_api.get_role(role_id) for role_id in roles]
 
         catalog_ref = self.catalog_api.get_catalog(
@@ -250,7 +253,8 @@ class Ec2ControllerCommon(object):
         ec2_credential_id = utils.hash_access_key(credential_id)
         creds = self.credential_api.get_credential(ec2_credential_id)
         if not creds:
-            raise exception.Unauthorized(message='EC2 access key not found.')
+            raise exception.Unauthorized(
+                message=_('EC2 access key not found.'))
         return self._convert_v3_to_ec2_credential(creds)
 
 
