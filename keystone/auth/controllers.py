@@ -45,8 +45,8 @@ AUTH_PLUGINS_LOADED = False
 
 def load_auth_method(method):
     plugin_name = CONF.auth.get(method) or 'default'
+    namespace = 'keystone.auth.%s' % method
     try:
-        namespace = 'keystone.auth.%s' % method
         driver_manager = stevedore.DriverManager(namespace, plugin_name,
                                                  invoke_on_load=True)
         return driver_manager.driver
@@ -55,13 +55,16 @@ def load_auth_method(method):
                   'attempt to load using import_object instead.',
                   method, plugin_name)
 
-    @versionutils.deprecated(as_of=versionutils.deprecated.LIBERTY,
-                             in_favor_of='entrypoints',
-                             what='direct import of driver')
-    def _load_using_import(plugin_name):
-        return importutils.import_object(plugin_name)
+    driver = importutils.import_object(plugin_name)
 
-    return _load_using_import(plugin_name)
+    msg = (_(
+        'Direct import of auth plugin %(name)r is deprecated as of Liberty in '
+        'favor of its entrypoint from %(namespace)r and may be removed in '
+        'N.') %
+        {'name': plugin_name, 'namespace': namespace})
+    versionutils.report_deprecated_feature(LOG, msg)
+
+    return driver
 
 
 def load_auth_methods():
