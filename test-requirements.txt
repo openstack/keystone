@@ -4,7 +4,7 @@
 
 hacking<0.11,>=0.10.0
 pep257==0.7.0 # MIT License
-flake8_docstrings==0.2.1.post1
+flake8-docstrings==0.2.1.post1
 bashate>=0.2 # Apache-2.0
 
 # computes code coverage percentages
