@@ -15,6 +15,7 @@
 from keystoneclient.common import cms
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import environment
@@ -30,6 +31,10 @@ LOG = log.getLogger(__name__)
 ERROR_MESSAGE = _('Unable to sign token.')
 
 
+@versionutils.deprecated(
+    as_of=versionutils.deprecated.MITAKA,
+    what='the PKIZ token provider',
+    in_favor_of='the Fernet or UUID token providers')
 class Provider(common.BaseProvider):
     def _get_token_id(self, token_data):
         try:
