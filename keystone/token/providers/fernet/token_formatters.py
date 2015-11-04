@@ -119,7 +119,7 @@ class TokenFormatter(object):
         # Restore padding on token before decoding it
         fernet_token = TokenFormatter.restore_padding(fernet_token)
 
-        # fernet tokens are base64 encoded, so we need to unpack them first
+        # Fernet tokens are base64 encoded, so we need to unpack them first
         token_bytes = base64.urlsafe_b64decode(fernet_token)
 
         # slice into the byte array to get just the timestamp

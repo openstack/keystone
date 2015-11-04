@@ -200,7 +200,7 @@ class TestValidate(unit.TestCase):
     def test_validate_v3_token_validation_error_exc(self):
         # When the token format isn't recognized, TokenNotFound is raised.
 
-        # A uuid string isn't a valid fernet token.
+        # A uuid string isn't a valid Fernet token.
         token_id = uuid.uuid4().hex
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_v3_token, token_id)

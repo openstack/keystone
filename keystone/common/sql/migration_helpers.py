@@ -119,7 +119,7 @@ def rename_tables_with_constraints(renames, constraints, engine):
     `renames` is a dict, mapping {'to_table_name': from_table, ...}
     """
     if engine.name != 'sqlite':
-        # Sqlite doesn't support constraints, so nothing to remove.
+        # SQLite doesn't support constraints, so nothing to remove.
         remove_constraints(constraints)
 
     for to_table_name in renames:
