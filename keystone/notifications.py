@@ -23,6 +23,7 @@ import socket
 from oslo_config import cfg
 from oslo_log import log
 import oslo_messaging
+from oslo_utils import reflection
 import pycadf
 from pycadf import cadftaxonomy as taxonomy
 from pycadf import cadftype
@@ -254,7 +255,8 @@ def _get_callback_info(callback):
     module_name = getattr(callback, '__module__', None)
     func_name = callback.__name__
     if inspect.ismethod(callback):
-        class_name = callback.__self__.__class__.__name__
+        class_name = reflection.get_class_name(callback.__self__,
+                                               fully_qualified=False)
         return [module_name, class_name, func_name]
     else:
         return [module_name, func_name]
