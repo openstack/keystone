@@ -300,14 +300,9 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
-        self.addCleanup(self.cleanup)
         config_files = super(CliDomainConfigAllTestCase, self).config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
-
-    def cleanup(self):
-        CONF.reset()
-        CONF.unregister_opt(cli.command_opt)
 
     def cleanup_domains(self):
         for domain in self.domains:
