@@ -7,14 +7,13 @@
 # Akihiro Motoki <amotoki@gmail.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev93\n"
+"Project-Id-Version: keystone 9.0.0.dev216\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-09 06:13+0000\n"
+"POT-Creation-Date: 2015-11-05 06:13+0000\n"
 "PO-Revision-Date: 2015-10-08 03:20+0000\n"
 "Last-Translator: Akihiro Motoki <amotoki@gmail.com>\n"
 "Language: ja\n"
-"Language-Team: Japanese (http://www.transifex.com/openstack/keystone/"
-"language/ja/)\n"
+"Language-Team: Japanese\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -350,10 +349,6 @@ msgstr "アクセストークンを検証できませんでした"
 msgid "Credential belongs to another user"
 msgstr "資格情報が別のユーザーに属しています"
 
-#, python-format
-msgid "Database at /domains/%s/config"
-msgstr "/domains/%s/config のデータベース"
-
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
@@ -586,14 +581,6 @@ msgstr ""
 
 msgid "Invalid signature"
 msgstr "シグニチャーが無効です"
-
-#, python-format
-msgid ""
-"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
-"\"REQUIRED\""
-msgstr ""
-"%s の ssl_cert_reqs 値が無効です。「NONE」、「OPTIONAL」、「REQUIRED」のいず"
-"れかでなければなりません"
 
 msgid "Invalid user / password"
 msgstr "ユーザー/パスワードが無効です"
@@ -1138,10 +1125,6 @@ msgstr "auth_type は折衝されていません"
 msgid "authorizing user does not have role required"
 msgstr "ユーザーを認可するのに必要なロールがありません"
 
-#, fuzzy
-msgid "cache_collection name is required"
-msgstr "cache_collection name は必須です"
-
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
@@ -1170,13 +1153,6 @@ msgstr ""
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "親が無効になっているプロジェクト %s は有効にできません"
 
-#, fuzzy
-msgid "database db_name is required"
-msgstr "database db_name は必須です"
-
-msgid "db_hosts value is required"
-msgstr "db_hosts 値は必須です"
-
 msgid "delete the default domain"
 msgstr "デフォルトドメインを削除してください"
 
@@ -1191,12 +1167,6 @@ msgstr ""
 "idp_contact_type は technical、other、support、administrative、billing のいず"
 "れかでなければなりません。"
 
-msgid "integer value expected for mongo_ttl_seconds"
-msgstr "mongo_ttl_seconds には整数値が必要です"
-
-msgid "integer value expected for w (write concern attribute)"
-msgstr "w (書き込み関連属性) には整数値が必要です"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "日付形式 %s は無効です"
@@ -1205,20 +1175,9 @@ msgstr "日付形式 %s は無効です"
 msgid "max hierarchy depth reached for %s branch."
 msgstr "%s ブランチに到達する最大の階層の深さ。"
 
-msgid "no ssl support available"
-msgstr "使用可能な SSL サポートがありません"
-
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "グループ %(group)s のオプション %(option)s"
-
-#, fuzzy
-msgid "pad must be single character"
-msgstr "埋め込みは単一文字でなければなりません"
-
-#, fuzzy
-msgid "padded base64url text must be multiple of 4 characters"
-msgstr "埋め込まれた base64url テキストは 4 の倍数の文字数でなければなりません"
 
 msgid "provided consumer key does not match stored consumer key"
 msgstr ""
@@ -1231,18 +1190,11 @@ msgstr "指定された要求鍵は保管されている要求鍵と一致しま
 msgid "provided verifier does not match stored verifier"
 msgstr "指定されたベリファイヤーは保管済みベリファイヤーと一致しません"
 
-#, fuzzy
-msgid "region not type dogpile.cache.CacheRegion"
-msgstr "領域のタイプが dogpile.cache.CacheRegion ではありません"
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses は正整数またはヌルでなければなりません。"
 
 msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr "再委任が許可されている場合は remaining_uses を設定してはなりません"
-
-msgid "replicaset_name required when use_replica is True"
-msgstr "use_replica が True の場合は replicaset_name が必要です"
 
 #, python-format
 msgid ""
@@ -1254,21 +1206,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "スコープが設定されたトークンのスコープを設定し直します"
-
-#, fuzzy, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr ""
-"テキストは 4 の倍数ですが、最後から2 つ目の文字の前に埋め込み \"%s\" あります"
-
-#, fuzzy, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-"テキストは 4 の倍数ですが、埋め込みではない最後の文字の前に埋め込み \"%s\" あ"
-"ります"
-
-#, fuzzy, python-format
-msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr "テキストは 4 の倍数ではありませんが、埋め込み \"%s\" が含まれています"
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"

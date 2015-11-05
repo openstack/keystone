@@ -12,14 +12,13 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev20\n"
+"Project-Id-Version: keystone 9.0.0.dev216\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-04 06:10+0000\n"
+"POT-Creation-Date: 2015-11-05 06:13+0000\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: fr\n"
-"Language-Team: French (http://www.transifex.com/openstack/keystone/language/"
-"fr/)\n"
+"Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -356,10 +355,6 @@ msgstr "Ne peut pas valider l'acces du token"
 msgid "Credential belongs to another user"
 msgstr "Les données d'identification appartiennent à un autre utilisateur"
 
-#, python-format
-msgid "Database at /domains/%s/config"
-msgstr "Base de données dans /domains/%s/config"
-
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
@@ -592,14 +587,6 @@ msgstr ""
 
 msgid "Invalid signature"
 msgstr "Signature non valide"
-
-#, python-format
-msgid ""
-"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
-"\"REQUIRED\""
-msgstr ""
-"Valeur de ssl_cert_reqs non valide (%s), doit être l'une des valeurs "
-"suivantes : \"NONE\", \"OPTIONAL\", \"REQUIRED\""
 
 msgid "Invalid user / password"
 msgstr "Login / Mot de passe non valide"
@@ -1146,9 +1133,6 @@ msgstr "auth_type n'est pas négocié"
 msgid "authorizing user does not have role required"
 msgstr "un rôle est facultatif pour l'utilisateur d'autorisation"
 
-msgid "cache_collection name is required"
-msgstr "Nom cache_collection est requis"
-
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
@@ -1181,12 +1165,6 @@ msgstr ""
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "Impossible d'activer le projet %s car ses parents sont désactivés"
 
-msgid "database db_name is required"
-msgstr "db_name database est requis"
-
-msgid "db_hosts value is required"
-msgstr "Valeur db_hosts est requis"
-
 msgid "delete the default domain"
 msgstr "Suppression du domaine par défaut"
 
@@ -1201,12 +1179,6 @@ msgstr ""
 "idp_contact_type doit avoir l'une des valeurs suivantes : [technical, other, "
 "support, administrative ou billing."
 
-msgid "integer value expected for mongo_ttl_seconds"
-msgstr "valeur entière attendue pour mongo_ttl_seconds"
-
-msgid "integer value expected for w (write concern attribute)"
-msgstr "valeur entière attendue pour w (attribut d'écriture)"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "Format de date invalid %s"
@@ -1215,18 +1187,9 @@ msgstr "Format de date invalid %s"
 msgid "max hierarchy depth reached for %s branch."
 msgstr "La profondeur maximale de hiérarchie est atteinte pour la branche %s."
 
-msgid "no ssl support available"
-msgstr "pas de support du ssl"
-
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "option %(option)s dans le groupe %(group)s"
-
-msgid "pad must be single character"
-msgstr "pad doit etre un seul caractère"
-
-msgid "padded base64url text must be multiple of 4 characters"
-msgstr "Le texte base64url rempli doit être un multiple de 4 caractères"
 
 msgid "provided consumer key does not match stored consumer key"
 msgstr "la clé du client fournie ne correspond pas à la clé du client stockée"
@@ -1238,18 +1201,12 @@ msgstr ""
 msgid "provided verifier does not match stored verifier"
 msgstr "le vérificateur fourni ne correspond pas au vérificateur stocké"
 
-msgid "region not type dogpile.cache.CacheRegion"
-msgstr "la région n'est pas de type dogpile.cache.CacheRegion"
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses doit être un entier positif ou nul."
 
 msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr ""
 "remaining_uses ne doit pas être défini si la redélégation est autorisée"
-
-msgid "replicaset_name required when use_replica is True"
-msgstr "replicaset_name requis si use_replica a la valeur True"
 
 #, python-format
 msgid ""
@@ -1261,23 +1218,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "Redéfinir la portée d'un jeton"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr ""
-"le texte est un multiple de 4, mais le remplissage \"%s\" se produit avant "
-"l'avant-dernier caractère"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-"le texte est un multiple de 4, mais le remplissage \"%s\" se produit avant "
-"le dernier caractère qui n'est pas de remplissage"
-
-#, python-format
-msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr ""
-"le texte n'est pas un multiple de 4, mais contient le remplissage \"%s\""
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
