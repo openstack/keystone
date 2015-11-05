@@ -66,6 +66,9 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertDictEqual(self.DEFAULT_FIXTURE, catalog_ref)
 
+    # NOTE(lbragstad): This test is skipped because the catalog is being
+    # modified within the test and not through the API.
+    @unit.skip_if_cache_is_enabled('catalog')
     def test_catalog_ignored_malformed_urls(self):
         # both endpoints are in the catalog
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
@@ -126,9 +129,10 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
 
     def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
         user_id = uuid.uuid4().hex
+        tenant_id = None
         # If the URL has no 'tenant_id' to substitute, we will skip the
         # endpoint which contains this kind of URL.
-        catalog_ref = self.catalog_api.get_v3_catalog(user_id, tenant_id=None)
+        catalog_ref = self.catalog_api.get_v3_catalog(user_id, tenant_id)
         exp_catalog = [
             {'endpoints': [],
              'type': 'compute',

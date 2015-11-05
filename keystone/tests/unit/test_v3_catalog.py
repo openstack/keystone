@@ -847,7 +847,8 @@ class TestCatalogAPISQL(unit.TestCase):
 
         # If the URL has no 'tenant_id' to substitute, we will skip the
         # endpoint which contains this kind of URL, negative check.
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id=None)
+        tenant_id = None
+        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
         self.assertThat(catalog[0]['endpoints'], matchers.HasLength(1))
 
     def test_get_catalog_always_returns_service_name(self):
