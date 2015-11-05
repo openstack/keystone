@@ -28,7 +28,7 @@ globally unique, but only unique to their domain.
 Resources
 =========
 
-The Identity portion of keystone includes ``Projects`` and ``Domains``, and
+The Resources portion of keystone includes ``Projects`` and ``Domains``, and
 are commonly stored in an SQL backend.
 
 Projects (Tenants)
