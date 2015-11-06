@@ -336,7 +336,7 @@ class AuthWithToken(AuthTest):
             self.tenant_bar['id'],
             self.role_member['id'])
         # Now create a group role for this user as well
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         new_group = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
         new_group = self.identity_api.create_group(new_group)
@@ -708,13 +708,8 @@ class AuthWithPasswordCredentials(AuthTest):
         # user in auth data is from the new default domain.
 
         # 1) Create a new domain.
-        new_domain_id = uuid.uuid4().hex
-        new_domain = {
-            'description': uuid.uuid4().hex,
-            'enabled': True,
-            'id': new_domain_id,
-            'name': uuid.uuid4().hex,
-        }
+        new_domain = unit.new_domain_ref()
+        new_domain_id = new_domain['id']
 
         self.resource_api.create_domain(new_domain_id, new_domain)
 

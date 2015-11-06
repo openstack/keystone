@@ -298,8 +298,9 @@ def new_endpoint_ref_with_region(service_id, region, interface='public',
     return ref
 
 
-def new_domain_ref():
+def new_domain_ref(**kwargs):
     ref = new_ref()
+    ref.update(**kwargs)
     return ref
 
 

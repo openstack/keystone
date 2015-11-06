@@ -138,7 +138,7 @@ class TestDatabaseDomainConfigs(unit.TestCase):
     def test_loading_config_from_database(self):
         self.config_fixture.config(domain_configurations_from_database=True,
                                    group='identity')
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         # Override two config options for our domain
         conf = {'ldap': {'url': uuid.uuid4().hex,

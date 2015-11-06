@@ -187,8 +187,7 @@ class AssignmentTestHelperMixin(object):
         """
         def _create_domain(domain_id=None):
             if domain_id is None:
-                new_domain = {'id': uuid.uuid4().hex,
-                              'name': uuid.uuid4().hex}
+                new_domain = unit.new_domain_ref()
                 self.resource_api.create_domain(new_domain['id'],
                                                 new_domain)
                 return new_domain
@@ -411,7 +410,7 @@ class AssignmentTestHelperMixin(object):
 
 class IdentityTests(AssignmentTestHelperMixin):
     def _get_domain_fixture(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         return domain
 
@@ -701,7 +700,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           user)
 
     def test_create_duplicate_user_name_in_different_domains(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         user1 = {'name': uuid.uuid4().hex,
                  'domain_id': DEFAULT_DOMAIN_ID,
@@ -713,9 +712,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.identity_api.create_user(user2)
 
     def test_move_user_between_domains(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         user = {'name': uuid.uuid4().hex,
                 'domain_id': domain1['id'],
@@ -728,9 +727,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(domain2['id'], updated_user_ref['domain_id'])
 
     def test_move_user_between_domains_with_clashing_names_fails(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a user in domain1
         user1 = {'name': uuid.uuid4().hex,
@@ -807,7 +806,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           tenant)
 
     def test_create_duplicate_project_name_in_different_domains(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         tenant1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': DEFAULT_DOMAIN_ID}
@@ -817,9 +816,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.create_project(tenant2['id'], tenant2)
 
     def test_move_project_between_domains(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
@@ -832,9 +831,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(domain2['id'], updated_project_ref['domain_id'])
 
     def test_move_project_between_domains_with_clashing_names_fails(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a project in domain1
         project1 = {'id': uuid.uuid4().hex,
@@ -1033,7 +1032,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         - Check we get no roles back for user1 on domain
 
         """
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         new_user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                      'enabled': True, 'domain_id': new_domain['id']}
@@ -1246,7 +1245,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id='member')
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
         new_group = self.identity_api.create_group(new_group)
@@ -1281,7 +1280,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id='member')
 
     def test_get_and_remove_role_grant_by_group_and_domain(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
         new_group = self.identity_api.create_group(new_group)
@@ -1319,7 +1318,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id='member')
 
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         new_project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
@@ -1376,7 +1375,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id='member')
 
     def test_get_and_remove_role_grant_by_user_and_domain(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         new_user = {'name': 'new_user', 'password': 'secret',
                     'enabled': True, 'domain_id': new_domain['id']}
@@ -1415,9 +1414,9 @@ class IdentityTests(AssignmentTestHelperMixin):
                                'name': uuid.uuid4().hex}
         self.role_api.create_role(group1_domain2_role['id'],
                                   group1_domain2_role)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         group1 = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
         group1 = self.identity_api.create_group(group1)
@@ -1464,9 +1463,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1_domain2_role = {'id': uuid.uuid4().hex,
                               'name': uuid.uuid4().hex}
         self.role_api.create_role(user1_domain2_role['id'], user1_domain2_role)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
@@ -1512,9 +1511,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.role_api.create_role(role1['id'], role1)
         role2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role2['id'], role2)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                   'enabled': True}
@@ -1556,9 +1555,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.role_api.create_role(role1['id'], role1)
         role2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role2['id'], role2)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
@@ -1661,7 +1660,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
@@ -1770,7 +1769,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
@@ -1832,7 +1831,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_delete_role_with_user_and_group_grants(self):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -1892,7 +1891,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_delete_user_with_group_project_domain_links(self):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -1931,7 +1930,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_delete_group_with_user_project_domain_links(self):
         role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         self.role_api.create_role(role1['id'], role1)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -2446,8 +2445,8 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertIn(group2['id'], group_ids)
 
     def test_list_domains(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         self.resource_api.create_domain(domain2['id'], domain2)
         domains = self.resource_api.list_domains()
@@ -2508,7 +2507,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @unit.skip_if_no_multiple_domains_support
     def test_list_projects_for_alternate_domain(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -3239,7 +3238,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           uuid.uuid4().hex)
 
     def test_group_crud(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
         group = self.identity_api.create_group(group)
@@ -3308,7 +3307,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           group2)
 
     def test_create_duplicate_group_name_in_different_domains(self):
-        new_domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
         group1 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
         group2 = {'domain_id': new_domain['id'], 'name': group1['name']}
@@ -3316,9 +3315,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         group2 = self.identity_api.create_group(group2)
 
     def test_move_group_between_domains(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         group = {'name': uuid.uuid4().hex,
                  'domain_id': domain1['id']}
@@ -3330,9 +3329,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(domain2['id'], updated_group_ref['domain_id'])
 
     def test_move_group_between_domains_with_clashing_names_fails(self):
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a group in domain1
         group1 = {'name': uuid.uuid4().hex,
@@ -3353,8 +3352,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @unit.skip_if_no_multiple_domains_support
     def test_project_crud(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': domain['id']}
@@ -3373,8 +3371,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           project['id'])
 
     def test_domain_delete_hierarchy(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
 
         # Creating a root and a leaf project inside the domain
@@ -3463,8 +3460,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                         'is_domain': False}
         self.resource_api.create_project(root_project['id'], root_project)
 
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         leaf_project = {'id': uuid.uuid4().hex,
                         'name': uuid.uuid4().hex,
@@ -3639,8 +3635,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertDictEqual(project, project_ref)
 
     def test_domain_crud(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         domain_ref = self.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain, domain_ref)
@@ -3751,7 +3746,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           user['id'])
 
     def test_list_projects_for_user(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
@@ -3771,7 +3766,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Create two groups each with a role on a different project, and
         # make user1 a member of both groups.  Both these new projects
         # should now be included, along with any direct user grants.
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
@@ -3805,8 +3800,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     @unit.skip_if_cache_disabled('resource')
     @unit.skip_if_no_multiple_domains_support
     def test_domain_rename_invalidates_get_domain_by_name_cache(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         domain_id = domain['id']
         domain_name = domain['name']
         self.resource_api.create_domain(domain_id, domain)
@@ -3819,8 +3813,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @unit.skip_if_cache_disabled('resource')
     def test_cache_layer_domain_crud(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         domain_id = domain['id']
         # Create Domain
         self.resource_api.create_domain(domain_id, domain)
@@ -3875,8 +3868,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     @unit.skip_if_cache_disabled('resource')
     @unit.skip_if_no_multiple_domains_support
     def test_project_rename_invalidates_get_project_by_name_cache(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': domain['id']}
         project_id = project['id']
@@ -3895,8 +3887,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     @unit.skip_if_cache_disabled('resource')
     @unit.skip_if_no_multiple_domains_support
     def test_cache_layer_project_crud(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': domain['id']}
         project_id = project['id']
@@ -4009,7 +4000,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_get_default_domain_by_name(self):
         domain_name = 'default'
 
-        domain = {'id': uuid.uuid4().hex, 'name': domain_name, 'enabled': True}
+        domain = unit.new_domain_ref(name=domain_name)
         self.resource_api.create_domain(domain['id'], domain)
 
         domain_ref = self.resource_api.get_domain_by_name(domain_name)
@@ -4114,7 +4105,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         - Ensure that only the non-inherited roles are returned on the domain
 
         """
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         group_list = []
         group_id_list = []
@@ -4166,9 +4157,9 @@ class IdentityTests(AssignmentTestHelperMixin):
           or both the direct one plus the inherited domain role from Domain 1
 
         """
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -4250,7 +4241,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         group_list = []
         group_id_list = []
         for _ in range(3):
-            domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            domain = unit.new_domain_ref()
             self.resource_api.create_domain(domain['id'], domain)
             domain_list.append(domain)
 
@@ -4301,9 +4292,9 @@ class IdentityTests(AssignmentTestHelperMixin):
           inherited role from Domain1.
 
         """
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id'], 'is_domain': False}
@@ -5858,7 +5849,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
@@ -5968,7 +5959,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
@@ -6076,7 +6067,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         """
         self.config_fixture.config(group='os_inherit', enabled=True)
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
@@ -6254,9 +6245,9 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         """
         self.config_fixture.config(group='os_inherit', enabled=True)
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
-        domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
@@ -6643,7 +6634,7 @@ class LimitTests(filtering.FilterTests):
 
     def setUp(self):
         """Setup for Limit Test Cases."""
-        self.domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain1['id'], self.domain1)
         self.addCleanup(self.clean_up_domain)
 

@@ -1551,8 +1551,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 # is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
 
     def test_domain_crud(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True, 'description': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.assertRaises(exception.Forbidden,
                           self.resource_api.create_domain,
                           domain['id'],
@@ -1590,9 +1589,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
     @unit.skip_if_no_multiple_domains_support
     def test_create_domain_case_sensitivity(self):
         # domains are read-only, so case sensitivity isn't an issue
-        ref = {
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex}
+        ref = unit.new_domain_ref()
         self.assertRaises(exception.Forbidden,
                           self.resource_api.create_domain,
                           ref['id'],
@@ -2384,8 +2381,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.assertEqual(orig_default_domain_id, domains[0]['id'])
 
     def test_create_domain(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         self.assertRaises(exception.Forbidden,
                           self.resource_api.create_domain,
                           domain['id'],
@@ -2843,8 +2839,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.assertEqual('fake://memory1', conf.ldap.url)
 
     def test_delete_domain_with_user_added(self):
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                  'enabled': True}
+        domain = unit.new_domain_ref()
         project = {'id': uuid.uuid4().hex,
                    'name': uuid.uuid4().hex,
                    'domain_id': domain['id'],
@@ -3048,7 +3043,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_delete_domain_clears_sql_registration(self):
         """Ensure registration is deleted when a domain is deleted."""
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         domain = self.resource_api.create_domain(domain['id'], domain)
         new_config = {'identity': {'driver': 'sql'}}
         self.domain_config_api.create_config(domain['id'], new_config)
@@ -3075,7 +3070,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
     def test_orphaned_registration_does_not_prevent_getting_sql_driver(self):
         """Ensure we self heal an orphaned sql registration."""
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         domain = self.resource_api.create_domain(domain['id'], domain)
         new_config = {'identity': {'driver': 'sql'}}
         self.domain_config_api.create_config(domain['id'], new_config)

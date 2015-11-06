@@ -395,14 +395,14 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_ACCOUNT_USER)
 
     def test_create_domain(self):
-        domain_ref = self.new_domain_ref()
+        domain_ref = unit.new_domain_ref()
         self.resource_api.create_domain(domain_ref['id'], domain_ref)
         self._assert_last_note(domain_ref['id'], CREATED_OPERATION, 'domain')
         self._assert_last_audit(domain_ref['id'], CREATED_OPERATION, 'domain',
                                 cadftaxonomy.SECURITY_DOMAIN)
 
     def test_update_domain(self):
-        domain_ref = self.new_domain_ref()
+        domain_ref = unit.new_domain_ref()
         self.resource_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['description'] = uuid.uuid4().hex
         self.resource_api.update_domain(domain_ref['id'], domain_ref)
@@ -411,7 +411,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_DOMAIN)
 
     def test_delete_domain(self):
-        domain_ref = self.new_domain_ref()
+        domain_ref = unit.new_domain_ref()
         self.resource_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['enabled'] = False
         self.resource_api.update_domain(domain_ref['id'], domain_ref)
@@ -547,7 +547,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'policy', cadftaxonomy.SECURITY_POLICY)
 
     def test_disable_domain(self):
-        domain_ref = self.new_domain_ref()
+        domain_ref = unit.new_domain_ref()
         self.resource_api.create_domain(domain_ref['id'], domain_ref)
         domain_ref['enabled'] = False
         self.resource_api.update_domain(domain_ref['id'], domain_ref)
@@ -555,8 +555,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                  public=False)
 
     def test_disable_of_disabled_domain_does_not_notify(self):
-        domain_ref = self.new_domain_ref()
-        domain_ref['enabled'] = False
+        domain_ref = unit.new_domain_ref(enabled=False)
         self.resource_api.create_domain(domain_ref['id'], domain_ref)
         # The domain_ref above is not changed during the create process. We
         # can use the same ref to perform the update.
@@ -642,7 +641,7 @@ class CADFNotificationsForEntities(NotificationsForEntities):
         self.config_fixture.config(notification_format='cadf')
 
     def test_initiator_data_is_set(self):
-        ref = self.new_domain_ref()
+        ref = unit.new_domain_ref()
         resp = self.post('/domains', body={'domain': ref})
         resource_id = resp.result.get('domain').get('id')
         self._assert_last_audit(resource_id, CREATED_OPERATION, 'domain',

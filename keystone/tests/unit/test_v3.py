@@ -183,19 +183,17 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             try:
                 self.resource_api.get_domain(DEFAULT_DOMAIN_ID)
             except exception.DomainNotFound:
-                domain = {'description': (u'Owns users and tenants (i.e. '
-                                          u'projects) available on Identity '
-                                          u'API v2.'),
-                          'enabled': True,
-                          'id': DEFAULT_DOMAIN_ID,
-                          'name': u'Default'}
+                domain = unit.new_domain_ref(
+                    description=(u'Owns users and tenants (i.e. projects)'
+                                 u' available on Identity API v2.'),
+                    id=DEFAULT_DOMAIN_ID,
+                    name=u'Default')
                 self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
 
     def load_sample_data(self):
         self._populate_default_domain()
-        self.domain_id = uuid.uuid4().hex
-        self.domain = self.new_domain_ref()
-        self.domain['id'] = self.domain_id
+        self.domain = unit.new_domain_ref()
+        self.domain_id = self.domain['id']
         self.resource_api.create_domain(self.domain_id, self.domain)
 
         self.project_id = uuid.uuid4().hex
@@ -260,9 +258,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def new_ref(self):
         """Populates a ref with attributes common to some API entities."""
         return unit.new_ref()
-
-    def new_domain_ref(self):
-        return unit.new_domain_ref()
 
     def new_project_ref(self, domain_id=None, parent_id=None, is_domain=False):
         return unit.new_project_ref(domain_id=domain_id, parent_id=parent_id,

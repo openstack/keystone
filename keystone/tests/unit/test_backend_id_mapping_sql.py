@@ -19,6 +19,7 @@ from testtools import matchers
 
 from keystone.common import sql
 from keystone.identity.mapping_backends import mapping
+from keystone.tests import unit
 from keystone.tests.unit import identity_mapping as mapping_sql
 from keystone.tests.unit import test_backend_sql
 
@@ -42,9 +43,9 @@ class SqlIDMapping(test_backend_sql.SqlTests):
 
     def load_sample_data(self):
         self.addCleanup(self.clean_sample_data)
-        domainA = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domainA = unit.new_domain_ref()
         self.domainA = self.resource_api.create_domain(domainA['id'], domainA)
-        domainB = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domainB = unit.new_domain_ref()
         self.domainB = self.resource_api.create_domain(domainB['id'], domainB)
 
     def clean_sample_data(self):

@@ -70,7 +70,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """
         # Create a user with a role on the domain so we can get a
         # domain scoped token
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user = self.new_user_ref(domain_id=domain['id'])
         password = user['password']
@@ -136,7 +136,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # Create a user with a role on the domain so we can get a
         # domain scoped token
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user = self.new_user_ref(domain_id=domain['id'])
         password = user['password']

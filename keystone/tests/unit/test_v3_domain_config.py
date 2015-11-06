@@ -17,6 +17,7 @@ from oslo_config import cfg
 from six.moves import http_client
 
 from keystone import exception
+from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
@@ -29,7 +30,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(DomainConfigTestCase, self).setUp()
 
-        self.domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.domain = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain['id'], self.domain)
         self.config = {'ldap': {'url': uuid.uuid4().hex,
                                 'user_tree_dn': uuid.uuid4().hex},

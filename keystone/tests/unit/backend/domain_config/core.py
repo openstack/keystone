@@ -23,7 +23,7 @@ from keystone.tests import unit
 class DomainConfigTests(object):
 
     def setUp(self):
-        self.domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        self.domain = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain['id'], self.domain)
         self.addCleanup(self.clean_up_domain)
 
@@ -179,7 +179,7 @@ class DomainConfigTests(object):
 
     def test_delete_domain_deletes_configs(self):
         """Test domain deletion clears the domain configs."""
-        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         config1 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                    'value': uuid.uuid4().hex}

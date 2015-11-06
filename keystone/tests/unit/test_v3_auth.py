@@ -149,12 +149,7 @@ class TokenAPITests(object):
         # able to validate a v3 token with user in the new domain.
 
         # 1) Create a new domain for the user.
-        new_domain = {
-            'description': uuid.uuid4().hex,
-            'enabled': True,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-        }
+        new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
 
         # 2) Create user in new domain.
@@ -481,7 +476,7 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
 
     def test_rescoped_domain_token_disabled(self):
 
-        self.domainA = self.new_domain_ref()
+        self.domainA = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.user['id'],
@@ -616,7 +611,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         """
         super(TestTokenRevokeSelfAndAdmin, self).load_sample_data()
         # DomainA setup
-        self.domainA = self.new_domain_ref()
+        self.domainA = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'], self.domainA)
 
         self.userAdminA = self.new_user_ref(domain_id=self.domainA['id'])
@@ -718,7 +713,7 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
 
     def test_adminB_fails_revoking_userA_token(self):
         # DomainB setup
-        self.domainB = self.new_domain_ref()
+        self.domainB = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.userAdminB = self.new_user_ref(domain_id=self.domainB['id'])
         password = self.userAdminB['password']
@@ -786,9 +781,9 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         super(TestTokenRevokeById, self).setUp()
 
         # Start by creating a couple of domains and projects
-        self.domainA = self.new_domain_ref()
+        self.domainA = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'], self.domainA)
-        self.domainB = self.new_domain_ref()
+        self.domainB = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.projectA = self.new_project_ref(domain_id=self.domainA['id'])
         self.resource_api.create_project(self.projectA['id'], self.projectA)
@@ -2041,7 +2036,7 @@ class TestAuth(test_v3.RestfulTestCase):
           tokens
 
         """
-        domainA = self.new_domain_ref()
+        domainA = unit.new_domain_ref()
         self.resource_api.create_domain(domainA['id'], domainA)
         projectA = self.new_project_ref(domain_id=domainA['id'])
         self.resource_api.create_project(projectA['id'], projectA)
@@ -2155,7 +2150,7 @@ class TestAuth(test_v3.RestfulTestCase):
     def test_auth_token_cross_domain_group_and_project(self):
         """Verify getting a token in cross domain group/project roles."""
         # create domain, project and group and grant roles to user
-        domain1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -2621,7 +2616,7 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertValidUnscopedTokenResponse(r)
 
     def test_disabled_default_project_domain_result_in_unscoped_token(self):
-        domain_ref = self.new_domain_ref()
+        domain_ref = unit.new_domain_ref()
         r = self.post('/domains', body={'domain': domain_ref})
         domain = self.assertValidDomainResponse(r, domain_ref)
 
@@ -2660,8 +2655,7 @@ class TestAuth(test_v3.RestfulTestCase):
 
     def test_disabled_scope_project_domain_result_in_401(self):
         # create a disabled domain
-        domain = self.new_domain_ref()
-        domain['enabled'] = False
+        domain = unit.new_domain_ref(enabled=False)
         self.resource_api.create_domain(domain['id'], domain)
 
         # create a project in the disabled domain

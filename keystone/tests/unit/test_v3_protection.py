@@ -66,12 +66,11 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
     def load_sample_data(self):
         self._populate_default_domain()
         # Start by creating a couple of domains
-        self.domainA = self.new_domain_ref()
+        self.domainA = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'], self.domainA)
-        self.domainB = self.new_domain_ref()
+        self.domainB = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainB['id'], self.domainB)
-        self.domainC = self.new_domain_ref()
-        self.domainC['enabled'] = False
+        self.domainC = unit.new_domain_ref(enabled=False)
         self.resource_api.create_domain(self.domainC['id'], self.domainC)
 
         # Now create some users, one in domainA and two of them in domainB
@@ -617,11 +616,12 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
     def load_sample_data(self):
         # Start by creating a couple of domains
         self._populate_default_domain()
-        self.domainA = self.new_domain_ref()
+        self.domainA = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'], self.domainA)
-        self.domainB = self.new_domain_ref()
+        self.domainB = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainB['id'], self.domainB)
-        self.admin_domain = {'id': 'admin_domain_id', 'name': 'Admin_domain'}
+        self.admin_domain = unit.new_domain_ref(id='admin_domain_id',
+                                                name='Admin_domain')
         self.resource_api.create_domain(self.admin_domain['id'],
                                         self.admin_domain)
 
@@ -744,7 +744,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.delete(entity_url, auth=self.auth,
                     expected_status=status_no_data)
 
-        domain_ref = self.new_domain_ref()
+        domain_ref = unit.new_domain_ref()
         self.post('/domains', auth=self.auth, body={'domain': domain_ref},
                   expected_status=status_created)
 

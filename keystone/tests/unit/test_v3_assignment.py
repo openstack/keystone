@@ -52,7 +52,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_create_domain(self):
         """Call ``POST /domains``."""
-        ref = self.new_domain_ref()
+        ref = unit.new_domain_ref()
         r = self.post(
             '/domains',
             body={'domain': ref})
@@ -60,7 +60,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_create_domain_case_sensitivity(self):
         """Call `POST /domains`` twice with upper() and lower() cased name."""
-        ref = self.new_domain_ref()
+        ref = unit.new_domain_ref()
 
         # ensure the name is lowercase
         ref['name'] = ref['name'].lower()
@@ -96,7 +96,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_update_domain(self):
         """Call ``PATCH /domains/{domain_id}``."""
-        ref = self.new_domain_ref()
+        ref = unit.new_domain_ref()
         del ref['id']
         r = self.patch('/domains/%(domain_id)s' % {
             'domain_id': self.domain_id},
@@ -106,7 +106,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_disable_domain(self):
         """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
         # Create a 2nd set of entities in a 2nd domain
-        self.domain2 = self.new_domain_ref()
+        self.domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain2['id'], self.domain2)
 
         self.project2 = self.new_project_ref(
@@ -210,7 +210,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         """
         # Create a 2nd set of entities in a 2nd domain
-        self.domain2 = self.new_domain_ref()
+        self.domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain2['id'], self.domain2)
 
         self.project2 = self.new_project_ref(
@@ -289,7 +289,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # results in a 403 Forbidden.
 
         # Create a new domain that's not the default
-        new_domain = self.new_domain_ref()
+        new_domain = unit.new_domain_ref()
         new_domain_id = new_domain['id']
         self.resource_api.create_domain(new_domain_id, new_domain)
 
@@ -312,7 +312,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # works.
 
         # Create a new domain that's not the default
-        new_domain = self.new_domain_ref()
+        new_domain = unit.new_domain_ref()
         new_domain_id = new_domain['id']
         self.resource_api.create_domain(new_domain_id, new_domain)
 
@@ -339,7 +339,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         becomes invalid once that domain is disabled.
 
         """
-        self.domain = self.new_domain_ref()
+        self.domain = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain['id'], self.domain)
 
         self.user2 = self.new_user_ref(domain_id=self.domain['id'])
@@ -376,7 +376,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_delete_domain_hierarchy(self):
         """Call ``DELETE /domains/{domain_id}``."""
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
 
         root_project = self.new_project_ref(
@@ -420,7 +420,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         def create_domains():
             for variation in ('Federated', 'FEDERATED',
                               'federated', 'fEderated'):
-                domain = self.new_domain_ref()
+                domain = unit.new_domain_ref()
                 domain['id'] = variation
                 yield domain
 
@@ -457,8 +457,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         non_default_name = 'beta_federated_domain'
         self.config_fixture.config(group='federation',
                                    federated_domain_name=non_default_name)
-        domain = self.new_domain_ref()
-        domain['name'] = non_default_name
+        domain = unit.new_domain_ref(name=non_default_name)
         self.assertRaises(AssertionError,
                           self.resource_api.create_domain,
                           domain['id'], domain)
@@ -1816,7 +1815,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         super(RoleAssignmentBaseTestCase, self).load_sample_data()
 
         # Create a domain
-        self.domain = self.new_domain_ref()
+        self.domain = unit.new_domain_ref()
         self.domain_id = self.domain['id']
         self.resource_api.create_domain(self.domain_id, self.domain)
 
@@ -2404,7 +2403,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
@@ -2500,7 +2499,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
@@ -2592,7 +2591,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
@@ -2698,7 +2697,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
-        domain = self.new_domain_ref()
+        domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = self.new_user_ref(
             domain_id=domain['id'])
