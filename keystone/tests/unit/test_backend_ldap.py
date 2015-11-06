@@ -1031,7 +1031,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                     'domain_id': CONF.identity.default_domain_id}
         self.resource_api.create_project(project1['id'], project1)
 
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
 
         user1 = {'name': uuid.uuid4().hex,
@@ -1884,7 +1884,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
         role_list = []
         for _ in range(2):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 

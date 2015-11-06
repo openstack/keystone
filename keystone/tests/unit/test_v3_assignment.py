@@ -1061,7 +1061,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_create_role(self):
         """Call ``POST /roles``."""
-        ref = self.new_role_ref()
+        ref = unit.new_role_ref()
         r = self.post(
             '/roles',
             body={'role': ref})
@@ -1087,7 +1087,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_update_role(self):
         """Call ``PATCH /roles/{role_id}``."""
-        ref = self.new_role_ref()
+        ref = unit.new_role_ref()
         del ref['id']
         r = self.patch('/roles/%(role_id)s' % {
             'role_id': self.role_id},
@@ -1102,8 +1102,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_create_member_role(self):
         """Call ``POST /roles``."""
         # specify only the name on creation
-        ref = self.new_role_ref()
-        ref['name'] = CONF.member_role_name
+        ref = unit.new_role_ref(name=CONF.member_role_name)
         r = self.post(
             '/roles',
             body={'role': ref})
@@ -1649,9 +1648,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.project1 = self.new_project_ref(
             domain_id=self.domain['id'])
         self.resource_api.create_project(self.project1['id'], self.project1)
-        self.role1 = self.new_role_ref()
+        self.role1 = unit.new_role_ref()
         self.role_api.create_role(self.role1['id'], self.role1)
-        self.role2 = self.new_role_ref()
+        self.role2 = unit.new_role_ref()
         self.role_api.create_role(self.role2['id'], self.role2)
 
         # Now add one of each of the four types of assignment
@@ -1853,7 +1852,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
                                          role_id=self.role_id)
 
         # Create a role
-        self.role = self.new_role_ref()
+        self.role = unit.new_role_ref()
         self.role_id = self.role['id']
         self.role_api.create_role(self.role_id, self.role)
 
@@ -2210,7 +2209,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                              expected_status=http_client.UNAUTHORIZED)
 
         # Create inherited role
-        inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
+        inherited_role = unit.new_role_ref(name='inherited')
         self.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
@@ -2277,7 +2276,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                              expected_status=http_client.UNAUTHORIZED)
 
         # Create inherited role
-        inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
+        inherited_role = unit.new_role_ref(name='inherited')
         self.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
@@ -2307,7 +2306,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
     def _test_crud_inherited_and_direct_assignment_on_target(self, target_url):
         # Create a new role to avoid assignments loaded from sample data
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         # Define URLs
@@ -2350,7 +2349,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
     def test_crud_user_inherited_domain_role_grants(self):
         role_list = []
         for _ in range(2):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -2399,7 +2398,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         """
         role_list = []
         for _ in range(4):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -2495,7 +2494,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         """
         role_list = []
         for _ in range(4):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -2587,7 +2586,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         """
         role_list = []
         for _ in range(4):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -2693,7 +2692,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         """
         role_list = []
         for _ in range(5):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -2787,9 +2786,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.resource_api.create_project(leaf['id'], leaf)
 
         # Create 'non-inherited' and 'inherited' roles
-        non_inherited_role = {'id': uuid.uuid4().hex, 'name': 'non-inherited'}
+        non_inherited_role = unit.new_role_ref(name='non-inherited')
         self.role_api.create_role(non_inherited_role['id'], non_inherited_role)
-        inherited_role = {'id': uuid.uuid4().hex, 'name': 'inherited'}
+        inherited_role = unit.new_role_ref(name='inherited')
         self.role_api.create_role(inherited_role['id'], inherited_role)
 
         return (root['id'], leaf['id'],
@@ -3078,7 +3077,7 @@ class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
         self.config_fixture.config(group='os_inherit', enabled=False)
 
     def test_crud_inherited_role_grants_failed_if_disabled(self):
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         base_collection_url = (

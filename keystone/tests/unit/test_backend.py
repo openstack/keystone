@@ -245,7 +245,7 @@ class AssignmentTestHelperMixin(object):
 
         """
         def _create_role():
-            new_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            new_role = unit.new_role_ref()
             return self.role_api.create_role(new_role['id'], new_role)
 
         test_data = {}
@@ -568,9 +568,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             project_ref['id'], project_ref)
         # Create 2 roles and give user each role in project
         for i in range(2):
-            role_ref = {
-                'id': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex}
+            role_ref = unit.new_role_ref()
             self.role_api.create_role(role_ref['id'], role_ref)
             self.assignment_api.add_role_to_user_and_project(
                 user_id=user_ref['id'],
@@ -984,7 +982,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         role_ref_list = []
         for i in range(2):
-            role_ref = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role_ref = unit.new_role_ref()
             self.role_api.create_role(role_ref['id'], role_ref)
             role_ref_list.append(role_ref)
 
@@ -1406,12 +1404,10 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id='member')
 
     def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
-        group1_domain1_role = {'id': uuid.uuid4().hex,
-                               'name': uuid.uuid4().hex}
+        group1_domain1_role = unit.new_role_ref()
         self.role_api.create_role(group1_domain1_role['id'],
                                   group1_domain1_role)
-        group1_domain2_role = {'id': uuid.uuid4().hex,
-                               'name': uuid.uuid4().hex}
+        group1_domain2_role = unit.new_role_ref()
         self.role_api.create_role(group1_domain2_role['id'],
                                   group1_domain2_role)
         domain1 = unit.new_domain_ref()
@@ -1457,11 +1453,9 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id=group1_domain2_role['id'])
 
     def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
-        user1_domain1_role = {'id': uuid.uuid4().hex,
-                              'name': uuid.uuid4().hex}
+        user1_domain1_role = unit.new_role_ref()
         self.role_api.create_role(user1_domain1_role['id'], user1_domain1_role)
-        user1_domain2_role = {'id': uuid.uuid4().hex,
-                              'name': uuid.uuid4().hex}
+        user1_domain2_role = unit.new_role_ref()
         self.role_api.create_role(user1_domain2_role['id'], user1_domain2_role)
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -1507,9 +1501,9 @@ class IdentityTests(AssignmentTestHelperMixin):
                           role_id=user1_domain2_role['id'])
 
     def test_role_grant_by_group_and_cross_domain_project(self):
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
-        role2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role2 = unit.new_role_ref()
         self.role_api.create_role(role2['id'], role2)
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -1551,9 +1545,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertDictEqual(role2, roles_ref[0])
 
     def test_role_grant_by_user_and_cross_domain_project(self):
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
-        role2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role2 = unit.new_role_ref()
         self.role_api.create_role(role2['id'], role2)
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -1596,9 +1590,9 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_delete_user_grant_no_user(self):
         # Can delete a grant where the user doesn't exist.
-        role_id = uuid.uuid4().hex
-        role = {'id': role_id, 'name': uuid.uuid4().hex}
-        self.role_api.create_role(role_id, role)
+        role = unit.new_role_ref()
+        role_id = role['id']
+        self.role_api.create_role(role['id'], role)
 
         user_id = uuid.uuid4().hex
 
@@ -1610,9 +1604,9 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_delete_group_grant_no_group(self):
         # Can delete a grant where the group doesn't exist.
-        role_id = uuid.uuid4().hex
-        role = {'id': role_id, 'name': uuid.uuid4().hex}
-        self.role_api.create_role(role_id, role)
+        role = unit.new_role_ref()
+        role_id = role['id']
+        self.role_api.create_role(role['id'], role)
 
         group_id = uuid.uuid4().hex
 
@@ -1657,7 +1651,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         role_list = []
         for _ in range(10):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
@@ -1766,7 +1760,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         """
         role_list = []
         for _ in range(6):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
@@ -1829,7 +1823,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertIn(role_list[2]['id'], combined_role_list)
 
     def test_delete_role_with_user_and_group_grants(self):
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -1889,7 +1883,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(0, len(roles_ref))
 
     def test_delete_user_with_group_project_domain_links(self):
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -1928,7 +1922,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           group1['id'])
 
     def test_delete_group_with_user_project_domain_links(self):
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
@@ -2873,8 +2867,8 @@ class IdentityTests(AssignmentTestHelperMixin):
                           tenant['id'])
 
     def test_delete_role_check_role_grant(self):
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        alt_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = unit.new_role_ref()
+        alt_role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
         self.role_api.create_role(alt_role['id'], alt_role)
         self.assignment_api.add_role_to_user_and_project(
@@ -4116,7 +4110,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             group_list.append(group)
             group_id_list.append(group['id'])
 
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -4176,7 +4170,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             group_list.append(group)
             group_id_list.append(group['id'])
 
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -4250,7 +4244,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             group_list.append(group)
             group_id_list.append(group['id'])
 
-        role1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role1 = unit.new_role_ref()
         self.role_api.create_role(role1['id'], role1)
 
         # Assign the roles - one is inherited
@@ -4315,7 +4309,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             group = self.identity_api.create_group(group)
             group_list.append(group)
 
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -5764,7 +5758,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         """
         self.config_fixture.config(group='os_inherit', enabled=True)
         # Create a new role to avoid assignments loaded from default fixtures
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = unit.new_role_ref()
         role = self.role_api.create_role(role['id'], role)
 
         # Define the common assignment entity
@@ -5846,7 +5840,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.config_fixture.config(group='os_inherit', enabled=True)
         role_list = []
         for _ in range(3):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
@@ -5956,7 +5950,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.config_fixture.config(group='os_inherit', enabled=True)
         role_list = []
         for _ in range(4):
-            role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()

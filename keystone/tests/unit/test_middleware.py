@@ -153,8 +153,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.user_password = uuid.uuid4().hex
         self.user_email = uuid.uuid4().hex
         self.protocol_id = 'x509'
-        self.role_id = uuid.uuid4().hex
-        self.role_name = uuid.uuid4().hex
         # for ephemeral user
         self.group_name = uuid.uuid4().hex
 
@@ -192,10 +190,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
                                        self.idp)
 
         # Add a role
-        self.role = {
-            'id': self.role_id,
-            'name': self.role_name,
-        }
+        self.role = unit.new_role_ref()
+        self.role_id = self.role['id']
+        self.role_name = self.role['name']
         self.role_api.create_role(self.role_id, self.role)
 
         # Add a group

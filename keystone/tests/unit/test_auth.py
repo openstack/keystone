@@ -431,7 +431,7 @@ class AuthWithToken(AuthTest):
         project1 = {'id': 'Project1', 'name': uuid.uuid4().hex,
                     'domain_id': DEFAULT_DOMAIN_ID}
         self.resource_api.create_project(project1['id'], project1)
-        role_one = {'id': 'role_one', 'name': uuid.uuid4().hex}
+        role_one = unit.new_role_ref(id='role_one')
         self.role_api.create_role(role_one['id'], role_one)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project1['id'], role_one['id'])
@@ -469,7 +469,7 @@ class AuthWithToken(AuthTest):
             'name': uuid.uuid4().hex,
             'domain_id': DEFAULT_DOMAIN_ID}
         self.resource_api.create_project(project['id'], project)
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project['id'], role['id'])

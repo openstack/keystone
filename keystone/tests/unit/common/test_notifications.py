@@ -331,7 +331,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'project', cadftaxonomy.SECURITY_PROJECT)
 
     def test_create_role(self):
-        role_ref = self.new_role_ref()
+        role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
         self._assert_last_note(role_ref['id'], CREATED_OPERATION, 'role')
         self._assert_last_audit(role_ref['id'], CREATED_OPERATION, 'role',
@@ -349,7 +349,7 @@ class NotificationsForEntities(BaseNotificationTest):
         trustor = self.identity_api.create_user(trustor)
         trustee = self.new_user_ref(domain_id=self.domain_id)
         trustee = self.identity_api.create_user(trustee)
-        role_ref = self.new_role_ref()
+        role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
         trust_ref = self.new_trust_ref(trustor['id'],
                                        trustee['id'])
@@ -379,7 +379,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'project', cadftaxonomy.SECURITY_PROJECT)
 
     def test_delete_role(self):
-        role_ref = self.new_role_ref()
+        role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
         self.role_api.delete_role(role_ref['id'])
         self._assert_last_note(role_ref['id'], DELETED_OPERATION, 'role')
@@ -425,7 +425,7 @@ class NotificationsForEntities(BaseNotificationTest):
         trustor = self.identity_api.create_user(trustor)
         trustee = self.new_user_ref(domain_id=self.domain_id)
         trustee = self.identity_api.create_user(trustee)
-        role_ref = self.new_role_ref()
+        role_ref = unit.new_role_ref()
         trust_ref = self.new_trust_ref(trustor['id'], trustee['id'])
         self.trust_api.create_trust(trust_ref['id'],
                                     trust_ref,
@@ -608,7 +608,7 @@ class NotificationsForEntities(BaseNotificationTest):
         self._assert_notify_not_sent(project_ref['id'], 'disabled', 'project')
 
     def test_update_role(self):
-        role_ref = self.new_role_ref()
+        role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
         self.role_api.update_role(role_ref['id'], role_ref)
         self._assert_last_note(role_ref['id'], UPDATED_OPERATION, 'role')
@@ -625,7 +625,7 @@ class NotificationsForEntities(BaseNotificationTest):
 
     def test_config_option_no_events(self):
         self.config_fixture.config(notification_format='basic')
-        role_ref = self.new_role_ref()
+        role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
         # The regular notifications will still be emitted, since they are
         # used for callback handling.
