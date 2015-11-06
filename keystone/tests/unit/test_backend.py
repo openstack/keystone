@@ -922,24 +922,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                              {'group': 0, 'role': 2, 'project': 0}]}
             ]
         }
-        test_data = self.execute_assignment_plan(test_plan)
-
-        # Also test that list_role_assignments_for_role() gives the same answer
-        assignment_list = self.assignment_api.list_role_assignments_for_role(
-            role_id=test_data['roles'][2]['id'])
-        self.assertThat(assignment_list, matchers.HasLength(2))
-
-        # Now check that each of our two new entries are in the list
-        self.assertIn(
-            {'group_id': test_data['groups'][0]['id'],
-             'domain_id': DEFAULT_DOMAIN_ID,
-             'role_id': test_data['roles'][2]['id']},
-            assignment_list)
-        self.assertIn(
-            {'group_id': test_data['groups'][0]['id'],
-             'project_id': test_data['projects'][0]['id'],
-             'role_id': test_data['roles'][2]['id']},
-            assignment_list)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_group_role_assignment(self):
         # When a group role assignment is created and the role assignments are
@@ -958,7 +941,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.execute_assignment_plan(test_plan)
 
     def test_list_role_assignments_bad_role(self):
-        assignment_list = self.assignment_api.list_role_assignments_for_role(
+        assignment_list = self.assignment_api.list_role_assignments(
             role_id=uuid.uuid4().hex)
         self.assertEqual([], assignment_list)
 
@@ -5917,6 +5900,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         ('project_id' or 'domain_id'), respectively.
 
         """
+        self.config_fixture.config(group='os_inherit', enabled=True)
         # Create a new role to avoid assignments loaded from default fixtures
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         role = self.role_api.create_role(role['id'], role)
@@ -5934,7 +5918,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assignment_api.create_grant(inherited_to_projects=False,
                                          **assignment_entity)
 
-        grants = self.assignment_api.list_role_assignments_for_role(role['id'])
+        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
         self.assertThat(grants, matchers.HasLength(1))
         self.assertIn(direct_assignment_entity, grants)
 
@@ -5942,7 +5926,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assignment_api.create_grant(inherited_to_projects=True,
                                          **assignment_entity)
 
-        grants = self.assignment_api.list_role_assignments_for_role(role['id'])
+        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
         self.assertThat(grants, matchers.HasLength(2))
         self.assertIn(direct_assignment_entity, grants)
         self.assertIn(inherited_assignment_entity, grants)
@@ -5953,7 +5937,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assignment_api.delete_grant(inherited_to_projects=True,
                                          **assignment_entity)
 
-        grants = self.assignment_api.list_role_assignments_for_role(role['id'])
+        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
         self.assertEqual([], grants)
 
     def test_crud_inherited_and_direct_assignment_for_user_on_domain(self):
