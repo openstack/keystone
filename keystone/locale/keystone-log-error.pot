@@ -6,49 +6,49 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.0.0b4.dev56\n"
+"Project-Id-Version: keystone 9.0.0.dev216\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-09-21 06:08+0000\n"
+"POT-Creation-Date: 2015-11-05 06:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.0\n"
+"Generated-By: Babel 2.1.1\n"
 
 #: keystone/notifications.py:379
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:474
+#: keystone/notifications.py:473
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:743
+#: keystone/notifications.py:738
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/catalog/core.py:63
+#: keystone/catalog/core.py:62
 #, python-format
 msgid "Malformed endpoint - %(url)r is not a string"
 msgstr ""
 
-#: keystone/catalog/core.py:68
+#: keystone/catalog/core.py:67
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr ""
 
-#: keystone/catalog/core.py:76
+#: keystone/catalog/core.py:75
 #, python-format
 msgid ""
 "Malformed endpoint '%(url)s'. The following type error occurred during "
 "string substitution: %(typeerror)s"
 msgstr ""
 
-#: keystone/catalog/core.py:82
+#: keystone/catalog/core.py:81
 #, python-format
 msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type "
@@ -65,18 +65,11 @@ msgstr ""
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr ""
 
-#: keystone/common/utils.py:241
+#: keystone/common/utils.py:243
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
 "listening on that port."
-msgstr ""
-
-#: keystone/common/cache/core.py:100
-#, python-format
-msgid ""
-"Unable to build cache config-key. Expected format \"<argname>:<value>\". "
-"Skipping unknown format: %s"
 msgstr ""
 
 #: keystone/common/environment/eventlet_server.py:112
@@ -84,11 +77,11 @@ msgstr ""
 msgid "Could not bind to %(host)s:%(port)s"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:205
+#: keystone/common/environment/eventlet_server.py:204
 msgid "Server error"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:429
+#: keystone/contrib/federation/idp.py:441
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s%(output)s"
 msgstr ""
@@ -97,7 +90,7 @@ msgstr ""
 msgid "Cannot retrieve Authorization headers"
 msgstr ""
 
-#: keystone/endpoint_policy/core.py:132 keystone/endpoint_policy/core.py:231
+#: keystone/endpoint_policy/core.py:131 keystone/endpoint_policy/core.py:230
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in region tree - "
@@ -111,7 +104,7 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:966
+#: keystone/resource/core.py:963
 #, python-format
 msgid ""
 "Unexpected results in response for domain config - %(count)s responses, "
@@ -125,7 +118,7 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
-#: keystone/token/provider.py:285
+#: keystone/token/provider.py:282
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
@@ -138,7 +131,7 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:701
+#: keystone/token/providers/common.py:702
 msgid "Failed to validate token"
 msgstr ""
 

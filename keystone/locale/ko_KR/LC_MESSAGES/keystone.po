@@ -8,14 +8,13 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev20\n"
+"Project-Id-Version: keystone 9.0.0.dev216\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-04 06:10+0000\n"
+"POT-Creation-Date: 2015-11-05 06:13+0000\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: ko_KR\n"
-"Language-Team: Korean (Korea) (http://www.transifex.com/openstack/keystone/"
-"language/ko_KR/)\n"
+"Language-Team: Korean (South Korea)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -326,10 +325,6 @@ msgstr "액세스 토큰을 유효성 검증할 수 없음"
 msgid "Credential belongs to another user"
 msgstr "신임 정보가 다른 사용자에 속함"
 
-#, python-format
-msgid "Database at /domains/%s/config"
-msgstr "/domains/%s/config의 데이터베이스"
-
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr "구성에서 'enable' 속성이 있는 엔티티의 사용 안함 설정을 무시합니다."
@@ -550,14 +545,6 @@ msgstr ""
 
 msgid "Invalid signature"
 msgstr "올바르지 않은 서명"
-
-#, python-format
-msgid ""
-"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
-"\"REQUIRED\""
-msgstr ""
-"%s의 ssl_cert_reqs 값이 올바르지 않음, \"NONE\", \"OPTIONAL\", \"REQUIRED\" "
-"중 하나여야 함 "
 
 msgid "Invalid user / password"
 msgstr "올바르지 않은 사용자 / 비밀번호"
@@ -1077,9 +1064,6 @@ msgstr "auth_type이 Negotiate가 아님"
 msgid "authorizing user does not have role required"
 msgstr "인증하는 사용자에게 필요한 역할이 없음"
 
-msgid "cache_collection name is required"
-msgstr "cache_collection 이름이 필요함"
-
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr ""
@@ -1108,12 +1092,6 @@ msgstr ""
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "프로젝트 %s에 사용 안함으로 설정된 상위가 있어서 이를 사용할 수 없음"
 
-msgid "database db_name is required"
-msgstr "database db_name이 필요함"
-
-msgid "db_hosts value is required"
-msgstr "db_hosts 값이 필요함"
-
 msgid "delete the default domain"
 msgstr "기본 도메인 삭제"
 
@@ -1127,12 +1105,6 @@ msgid ""
 msgstr ""
 "idp_contact_type은 [기술, 기타, 지원, 관리 또는 비용 청구 중 하나여야 합니다."
 
-msgid "integer value expected for mongo_ttl_seconds"
-msgstr "mongo_ttl_seconds에 대해 정수 값이 예상됨 "
-
-msgid "integer value expected for w (write concern attribute)"
-msgstr "w(write concern 속성)에 대해 정수 값이 예상됨"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "올바르지 않은 날짜 형식 %s"
@@ -1141,18 +1113,9 @@ msgstr "올바르지 않은 날짜 형식 %s"
 msgid "max hierarchy depth reached for %s branch."
 msgstr "%s 분기에 대한 최대 계층 깊이에 도달했습니다."
 
-msgid "no ssl support available"
-msgstr "사용 가능한 ssl 지원이 없음"
-
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "%(group)s 그룹의 %(option)s 옵션"
-
-msgid "pad must be single character"
-msgstr "패드는 단일 문자여야 함"
-
-msgid "padded base64url text must be multiple of 4 characters"
-msgstr "채워진 base64url 텍스트는 4의 배수여야 함"
 
 msgid "provided consumer key does not match stored consumer key"
 msgstr "제공된 이용자 키가 저장된 이용자 키와 일치하지 않음"
@@ -1163,17 +1126,11 @@ msgstr "제공된 요청 키가 저장된 요청 키와 일치하지 않음"
 msgid "provided verifier does not match stored verifier"
 msgstr "제공된 확인자가 저장된 확인자와 일치하지 않음 "
 
-msgid "region not type dogpile.cache.CacheRegion"
-msgstr "리젼이 dogpile.cache.CacheRegion 유형이 아님 "
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses는 양의 정수 또는 널이어야 합니다."
 
 msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr "재위임을 허용하는 경우 remaining_uses를 설정하지 않아야 함"
-
-msgid "replicaset_name required when use_replica is True"
-msgstr "use_replica가 True인 경우 replicaset_name이 필요함 "
 
 #, python-format
 msgid ""
@@ -1185,21 +1142,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "범위 지정된 토큰의 범위 재지정"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr ""
-"텍스트가 4의 배수이지만 패드 \"%s\"이(가) 두 번째 앞에서부터 마지막 문자까지 "
-"발생함"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-"텍스트가 4의 배수이지만 패드 \"%s\"이(가) 비패드 마지막 문자 앞에서 발생함"
-
-#, python-format
-msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr "텍스트가 4의 배수이지만 패드 \"%s\"을(를) 포함함"
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"

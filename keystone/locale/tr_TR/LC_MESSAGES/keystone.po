@@ -9,14 +9,13 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev20\n"
+"Project-Id-Version: keystone 9.0.0.dev216\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-04 06:10+0000\n"
+"POT-Creation-Date: 2015-11-05 06:13+0000\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: tr_TR\n"
-"Language-Team: Turkish (Turkey) (http://www.transifex.com/openstack/keystone/"
-"language/tr_TR/)\n"
+"Language-Team: Turkish (Turkey)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -347,10 +346,6 @@ msgstr "Erişim jetonu doğrulanamadı"
 msgid "Credential belongs to another user"
 msgstr "Kimlik bilgisi başka bir kullanıcıya ait"
 
-#, python-format
-msgid "Database at /domains/%s/config"
-msgstr "/domains/%s/config konumundaki veri tabanı"
-
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
@@ -592,14 +587,6 @@ msgstr ""
 
 msgid "Invalid signature"
 msgstr "Geçersiz imza"
-
-#, python-format
-msgid ""
-"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
-"\"REQUIRED\""
-msgstr ""
-"%s değerinde geçersiz ssl_cert_reqs, \"HİÇBİRİ\", \"İSTEĞE BAĞLI\", \"GEREKLİ"
-"\" den biri olmalı"
 
 msgid "Invalid user / password"
 msgstr "Geçersiz kullanıcı / parola"
@@ -1151,9 +1138,6 @@ msgstr "auth_type Negotiate değil"
 msgid "authorizing user does not have role required"
 msgstr "yetkilendiren kullanıcı gerekli role sahip değil"
 
-msgid "cache_collection name is required"
-msgstr "cache_collection ismi gerekli"
-
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "kapalı bir proje içeren bir alt grupta proje oluşturulamaz: %s"
@@ -1176,12 +1160,6 @@ msgstr "proje %s kapatılamıyor çünkü alt ağacında etkin projeler var"
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "proje %s etkinleştirilemiyor çünkü üstleri kapatılmış"
 
-msgid "database db_name is required"
-msgstr "veri tabanı db_name gerekli"
-
-msgid "db_hosts value is required"
-msgstr "db_hosts değeri gerekli"
-
 msgid "delete the default domain"
 msgstr "varsayılan alanı sil"
 
@@ -1196,12 +1174,6 @@ msgstr ""
 "idp_contact_type şunlardan biri olmalı: [teknik, diğer, destek, idari veya "
 "faturalama."
 
-msgid "integer value expected for mongo_ttl_seconds"
-msgstr "mongo_ttl_seconds için tam sayı değer bekleniyor"
-
-msgid "integer value expected for w (write concern attribute)"
-msgstr "w için tam sayı değer bekleniyor (yazma ilgisi özniteliği)"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "geçersiz tarih biçimi %s"
@@ -1210,18 +1182,9 @@ msgstr "geçersiz tarih biçimi %s"
 msgid "max hierarchy depth reached for %s branch."
 msgstr "%s alt grubu için azami sıralı dizi derinliğine ulaşıldı."
 
-msgid "no ssl support available"
-msgstr "ssl desteği yok"
-
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "%(group)s grubundaki %(option)s seçeneği"
-
-msgid "pad must be single character"
-msgstr "dolgu tek bir karakter olmalı"
-
-msgid "padded base64url text must be multiple of 4 characters"
-msgstr "dolgulanmış base64url metni 4 karakterin katı olmalı"
 
 msgid "provided consumer key does not match stored consumer key"
 msgstr "sağlanan tüketici anahtarı depolanan tüketici anahtarıyla eşleşmiyor"
@@ -1232,17 +1195,11 @@ msgstr "sağlanan istek anahtarı depolanan istek anahtarıyla eşleşmiyor"
 msgid "provided verifier does not match stored verifier"
 msgstr "sağlanan doğrulayıcı depolanan doğrulayıcı ile eşleşmiyor"
 
-msgid "region not type dogpile.cache.CacheRegion"
-msgstr "bölge dogpile.cache.CacheRegion türünde değil"
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses pozitif bir değer ya da null olmalı."
 
 msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr "tekrar yetkilendirmeye izin veriliyorsa remaining_uses ayarlanmamalı"
-
-msgid "replicaset_name required when use_replica is True"
-msgstr "use_replica True olduğunda replicaset_name gereklidir"
 
 #, python-format
 msgid ""
@@ -1254,20 +1211,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "kapsamlı bir jeton tekrar kapsamlandı"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr "metin 4'ün katı, ama dolgu \"%s\" son karaktere 2 önceden önce"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-"metin 4'ün katı, ama doldurma \"%s\" doldurma karakteri olmayan son "
-"karakterden önce"
-
-#, python-format
-msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr "metin 4'ün katı değil, ama \"%s\" dolgusu içeriyor"
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"

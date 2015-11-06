@@ -9,14 +9,13 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev20\n"
+"Project-Id-Version: keystone 9.0.0.dev216\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-04 06:10+0000\n"
+"POT-Creation-Date: 2015-11-05 06:13+0000\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: ru\n"
-"Language-Team: Russian (http://www.transifex.com/openstack/keystone/language/"
-"ru/)\n"
+"Language-Team: Russian\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3)\n"
@@ -346,10 +345,6 @@ msgstr "Не удалось проверить ключ доступа"
 msgid "Credential belongs to another user"
 msgstr "Разрешение принадлежит другому пользователю"
 
-#, python-format
-msgid "Database at /domains/%s/config"
-msgstr "База данных в каталоге /domains/%s/config"
-
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
@@ -579,14 +574,6 @@ msgstr ""
 
 msgid "Invalid signature"
 msgstr "Недопустимая подпись"
-
-#, python-format
-msgid ""
-"Invalid ssl_cert_reqs value of %s, must be one of \"NONE\", \"OPTIONAL\", "
-"\"REQUIRED\""
-msgstr ""
-"Недопустимое значение ssl_cert_reqs, %s, необходимо указать одно из "
-"значений: \"NONE\", \"OPTIONAL\", \"REQUIRED\""
 
 msgid "Invalid user / password"
 msgstr "Недопустимый пользователь / пароль"
@@ -1127,9 +1114,6 @@ msgid "authorizing user does not have role required"
 msgstr ""
 "пользователю, предоставляющему права доступа, не присвоена требуемая роль"
 
-msgid "cache_collection name is required"
-msgstr "имя cache_collection является обязательным"
-
 #, python-format
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "Нельзя создать проект в ветви, содержащей отключенный проект: %s"
@@ -1158,12 +1142,6 @@ msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 "Нельзя включить проект %s, так как у него отключены родительские объекты"
 
-msgid "database db_name is required"
-msgstr "db_name базы данных является обязательным"
-
-msgid "db_hosts value is required"
-msgstr "Значение db_hosts является обязательным"
-
 msgid "delete the default domain"
 msgstr "удалить домен по умолчанию"
 
@@ -1178,12 +1156,6 @@ msgstr ""
 "Значение idp_contact_type должно быть одним из следующих: technical, other, "
 "support, administrative или billing."
 
-msgid "integer value expected for mongo_ttl_seconds"
-msgstr "для атрибута mongo_ttl_seconds ожидается целочисленное значение"
-
-msgid "integer value expected for w (write concern attribute)"
-msgstr "для w (атрибут участия в записи) ожидается целочисленное значение"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "Недопустимый формат даты %s"
@@ -1192,18 +1164,9 @@ msgstr "Недопустимый формат даты %s"
 msgid "max hierarchy depth reached for %s branch."
 msgstr "Для ветви %s достигнута максимальная глубина иерархии."
 
-msgid "no ssl support available"
-msgstr "отсутствует поддержка ssl"
-
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "параметр %(option)s в группе %(group)s"
-
-msgid "pad must be single character"
-msgstr "заполнитель должен соответствовать одному символу"
-
-msgid "padded base64url text must be multiple of 4 characters"
-msgstr "размер текста base64url с заполнителями должен быть кратен 4 символам"
 
 msgid "provided consumer key does not match stored consumer key"
 msgstr "переданный ключ приемника не совпадает с сохраненным"
@@ -1213,9 +1176,6 @@ msgstr "переданный ключ запроса не совпадает с 
 
 msgid "provided verifier does not match stored verifier"
 msgstr "переданная функция проверки не совпадает с сохраненной"
-
-msgid "region not type dogpile.cache.CacheRegion"
-msgstr "регион не относится к типу dogpile.cache.CacheRegion"
 
 msgid "remaining_uses must be a positive integer or null."
 msgstr ""
@@ -1227,11 +1187,6 @@ msgstr ""
 "Если включено изменение делегирования, параметр remaining_uses не должен "
 "быть задан"
 
-msgid "replicaset_name required when use_replica is True"
-msgstr ""
-"replicaset_name является обязательным, если для use_replica задано значение "
-"True"
-
 #, python-format
 msgid ""
 "request to update group %(group)s, but config provided contains group "
@@ -1242,22 +1197,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "Изменить область помещенного в область ключа"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before 2nd to last char"
-msgstr ""
-"размер текста кратен 4, но заполнитель \"%s\" встречается перед 2-м и до "
-"последнего символа"
-
-#, python-format
-msgid "text is multiple of 4, but pad \"%s\" occurs before non-pad last char"
-msgstr ""
-"размер текста кратен 4, но заполнитель \"%s\" встречается перед последним "
-"символом без заполнителя"
-
-#, python-format
-msgid "text is not a multiple of 4, but contains pad \"%s\""
-msgstr "размер текста не кратен 4, но содержит заполнитель \"%s\""
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
