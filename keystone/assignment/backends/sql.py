@@ -57,15 +57,6 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
     def default_resource_driver(self):
         return 'sql'
 
-    def list_user_ids_for_project(self, tenant_id):
-        with sql.transaction() as session:
-            query = session.query(RoleAssignment.actor_id)
-            query = query.filter_by(type=AssignmentType.USER_PROJECT)
-            query = query.filter_by(target_id=tenant_id)
-            query = query.distinct('actor_id')
-            assignments = query.all()
-            return [assignment.actor_id for assignment in assignments]
-
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):

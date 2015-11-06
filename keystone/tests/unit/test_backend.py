@@ -6359,10 +6359,8 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.config_fixture.config(group='os_inherit', enabled=True)
         user_ids = self.assignment_api.list_user_ids_for_project(
             test_data['projects'][1]['id'])
-        # FIXME(henry-nash): This should return four unique IDs, but due to
-        # bug #1513893 only the user with a direct user role is returned
-        self.assertThat(user_ids, matchers.HasLength(1))
-        for x in range(0, 1):
+        self.assertThat(user_ids, matchers.HasLength(4))
+        for x in range(0, 4):
             self.assertIn(test_data['users'][x]['id'], user_ids)
 
 
