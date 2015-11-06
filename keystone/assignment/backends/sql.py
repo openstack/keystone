@@ -153,41 +153,6 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
 
         return [x.target_id for x in query.all()]
 
-    def list_project_ids_for_user(self, user_id, group_ids, hints,
-                                  inherited=False):
-        actor_list = [user_id]
-        if group_ids:
-            actor_list = actor_list + group_ids
-
-        return self._list_project_ids_for_actor(actor_list, hints, inherited)
-
-    def list_domain_ids_for_user(self, user_id, group_ids, hints,
-                                 inherited=False):
-        with sql.transaction() as session:
-            query = session.query(RoleAssignment.target_id)
-            filters = []
-
-            if user_id:
-                sql_constraints = sqlalchemy.and_(
-                    RoleAssignment.actor_id == user_id,
-                    RoleAssignment.inherited == inherited,
-                    RoleAssignment.type == AssignmentType.USER_DOMAIN)
-                filters.append(sql_constraints)
-
-            if group_ids:
-                sql_constraints = sqlalchemy.and_(
-                    RoleAssignment.actor_id.in_(group_ids),
-                    RoleAssignment.inherited == inherited,
-                    RoleAssignment.type == AssignmentType.GROUP_DOMAIN)
-                filters.append(sql_constraints)
-
-            if not filters:
-                return []
-
-            query = query.filter(sqlalchemy.or_(*filters)).distinct()
-
-            return [assignment.target_id for assignment in query.all()]
-
     def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
         if not group_ids:
             # If there's no groups then there will be no domain roles.

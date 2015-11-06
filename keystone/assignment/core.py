@@ -215,52 +215,21 @@ class Manager(manager.Manager):
     # TODO(henry-nash): We might want to consider list limiting this at some
     # point in the future.
     def list_projects_for_user(self, user_id, hints=None):
-        # NOTE(henry-nash): In order to get a complete list of user projects,
-        # the driver will need to look at group assignments.  To avoid cross
-        # calling between the assignment and identity driver we get the group
-        # list here and pass it in. The rest of the detailed logic of listing
-        # projects for a user is pushed down into the driver to enable
-        # optimization with the various backend technologies (SQL, LDAP etc.).
-
-        group_ids = self._get_group_ids_for_user_id(user_id)
-        project_ids = self.list_project_ids_for_user(
-            user_id, group_ids, hints or driver_hints.Hints())
-
-        if not CONF.os_inherit.enabled:
-            return self.resource_api.list_projects_from_ids(project_ids)
-
-        # Inherited roles are enabled, so check to see if this user has any
-        # inherited role (direct or group) on any parent project, in which
-        # case we must add in all the projects in that parent's subtree.
-        project_ids = set(project_ids)
-        project_ids_inherited = self.list_project_ids_for_user(
-            user_id, group_ids, hints or driver_hints.Hints(), inherited=True)
-        for proj_id in project_ids_inherited:
-            project_ids.update(
-                (x['id'] for x in
-                 self.resource_api.list_projects_in_subtree(proj_id)))
-
-        # Now do the same for any domain inherited roles
-        domain_ids = self.list_domain_ids_for_user(
-            user_id, group_ids, hints or driver_hints.Hints(),
-            inherited=True)
-        project_ids.update(
-            self.resource_api.list_project_ids_from_domain_ids(domain_ids))
-
+        assignment_list = self.list_role_assignments(
+            user_id=user_id, effective=True)
+        # Use set() to process the list to remove any duplicates
+        project_ids = list(set([x['project_id'] for x in assignment_list
+                                if x.get('project_id')]))
         return self.resource_api.list_projects_from_ids(list(project_ids))
 
     # TODO(henry-nash): We might want to consider list limiting this at some
     # point in the future.
     def list_domains_for_user(self, user_id, hints=None):
-        # NOTE(henry-nash): In order to get a complete list of user domains,
-        # the driver will need to look at group assignments.  To avoid cross
-        # calling between the assignment and identity driver we get the group
-        # list here and pass it in. The rest of the detailed logic of listing
-        # projects for a user is pushed down into the driver to enable
-        # optimization with the various backend technologies (SQL, LDAP etc.).
-        group_ids = self._get_group_ids_for_user_id(user_id)
-        domain_ids = self.list_domain_ids_for_user(
-            user_id, group_ids, hints or driver_hints.Hints())
+        assignment_list = self.list_role_assignments(
+            user_id=user_id, effective=True)
+        # Use set() to process the list to remove any duplicates
+        domain_ids = list(set([x['domain_id'] for x in assignment_list
+                               if x.get('domain_id')]))
         return self.resource_api.list_domains_from_ids(domain_ids)
 
     def list_domains_for_groups(self, group_ids):
@@ -1013,29 +982,6 @@ class AssignmentDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_project_ids_for_user(self, user_id, group_ids, hints,
-                                  inherited=False):
-        """List all project ids associated with a given user.
-
-        :param user_id: the user in question
-        :param group_ids: the groups this user is a member of.  This list is
-                          built in the Manager, so that the driver itself
-                          does not have to call across to identity.
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-        :param inherited: whether assignments marked as inherited should
-                          be included.
-
-        :returns: a list of project ids or an empty list.
-
-        This method should not try and expand any inherited assignments,
-        just report the projects that have the role for this user. The manager
-        method is responsible for expanding out inherited assignments.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def list_project_ids_for_groups(self, group_ids, hints,
                                     inherited=False):
         """List project ids accessible to specified groups.
@@ -1050,25 +996,6 @@ class AssignmentDriverBase(object):
         This method should not try and expand any inherited assignments,
         just report the projects that have the role for this group. The manager
         method is responsible for expanding out inherited assignments.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_domain_ids_for_user(self, user_id, group_ids, hints,
-                                 inherited=False):
-        """List all domain ids associated with a given user.
-
-        :param user_id: the user in question
-        :param group_ids: the groups this user is a member of.  This list is
-                          built in the Manager, so that the driver itself
-                          does not have to call across to identity.
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-        :param inherited: whether to return domain_ids that have inherited
-                          assignments or not.
-
-        :returns: a list of domain ids or an empty list.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -1163,7 +1090,47 @@ class AssignmentDriverV8(AssignmentDriverBase):
 
     """
 
-    pass
+    @abc.abstractmethod
+    def list_project_ids_for_user(self, user_id, group_ids, hints,
+                                  inherited=False):
+        """List all project ids associated with a given user.
+
+        :param user_id: the user in question
+        :param group_ids: the groups this user is a member of.  This list is
+                          built in the Manager, so that the driver itself
+                          does not have to call across to identity.
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+        :param inherited: whether assignments marked as inherited should
+                          be included.
+
+        :returns: a list of project ids or an empty list.
+
+        This method should not try and expand any inherited assignments,
+        just report the projects that have the role for this user. The manager
+        method is responsible for expanding out inherited assignments.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_domain_ids_for_user(self, user_id, group_ids, hints,
+                                 inherited=False):
+        """List all domain ids associated with a given user.
+
+        :param user_id: the user in question
+        :param group_ids: the groups this user is a member of.  This list is
+                          built in the Manager, so that the driver itself
+                          does not have to call across to identity.
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+        :param inherited: whether to return domain_ids that have inherited
+                          assignments or not.
+
+        :returns: a list of domain ids or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
 
 
 class AssignmentDriverV9(AssignmentDriverBase):
@@ -1265,20 +1232,10 @@ class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
             domain_id=domain_id, project_ids=project_ids,
             inherited_to_projects=inherited_to_projects)
 
-    def list_project_ids_for_user(self, user_id, group_ids, hints,
-                                  inherited=False):
-        return self.driver.list_project_ids_for_user(
-            user_id, group_ids, hints, inherited=inherited)
-
     def list_project_ids_for_groups(self, group_ids, hints,
                                     inherited=False):
         return self.driver.list_project_ids_for_groups(
             group_ids, hints, inherited=inherited)
-
-    def list_domain_ids_for_user(self, user_id, group_ids, hints,
-                                 inherited=False):
-        return self.driver.list_domain_ids_for_user(
-            user_id, group_ids, hints, inherited=inherited)
 
     def list_domain_ids_for_groups(self, group_ids, inherited=False):
         return self.driver.list_domain_ids_for_groups(
