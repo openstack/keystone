@@ -1583,6 +1583,12 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
     def test_list_project_parents(self):
         self.skipTest('Resource LDAP has been removed')
 
+    def test_update_project_enabled_cascade(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_cannot_enable_cascade_with_parent_disabled(self):
+        self.skipTest('Resource LDAP has been removed')
+
     def test_hierarchical_projects_crud(self):
         self.skipTest('Resource LDAP has been removed')
 
