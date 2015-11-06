@@ -428,7 +428,7 @@ class DomainConfigUploadFiles(object):
         """
         try:
             self.upload_config_to_database(file_name, domain_name)
-        except ValueError:
+        except ValueError:  # nosec
             # We've already given all the info we can in a message, so carry
             # on to the next one
             pass

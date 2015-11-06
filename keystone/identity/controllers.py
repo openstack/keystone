@@ -149,7 +149,7 @@ class User(controller.V2Controller):
                     try:
                         self.assignment_api.add_user_to_project(
                             user_ref['tenantId'], user_id)
-                    except exception.Conflict:
+                    except exception.Conflict:  # nosec
                         # We are already a member of that tenant
                         pass
                     except exception.NotFound:

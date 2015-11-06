@@ -154,7 +154,7 @@ def _assert_not_schema_downgrade(extension=None, version=None):
             current_ver = int(six.text_type(get_db_version(extension)))
             if int(version) < current_ver:
                 raise migration.exception.DbMigrationError()
-        except exceptions.DatabaseNotControlledError:
+        except exceptions.DatabaseNotControlledError:  # nosec
             # NOTE(morganfainberg): The database is not controlled, this action
             # cannot be a downgrade.
             pass
@@ -180,7 +180,7 @@ def _sync_extension_repo(extension, version):
         # Register the repo with the version control API
         # If it already knows about the repo, it will throw
         # an exception that we can safely ignore
-        except exceptions.DatabaseAlreadyControlledError:
+        except exceptions.DatabaseAlreadyControlledError:  # nosec
             pass
     except exception.MigrationNotProvided as e:
         print(e)

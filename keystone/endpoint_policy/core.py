@@ -216,7 +216,8 @@ class Manager(manager.Manager):
                         service_id=endpoint['service_id'],
                         region_id=region_id)
                     return ref['policy_id']
-                except exception.PolicyAssociationNotFound:
+                except exception.PolicyAssociationNotFound:  # nosec
+                    # There wasn't one for that region & service, handle below.
                     pass
 
                 # There wasn't one for that region & service, let's
@@ -238,7 +239,9 @@ class Manager(manager.Manager):
         try:
             ref = self.driver.get_policy_association(endpoint_id=endpoint_id)
             return _get_policy(ref['policy_id'], endpoint_id)
-        except exception.PolicyAssociationNotFound:
+        except exception.PolicyAssociationNotFound:  # nosec
+            # There wasn't a policy explicitly defined for this endpoint,
+            # handled below.
             pass
 
         # There wasn't a policy explicitly defined for this endpoint, so
@@ -254,7 +257,8 @@ class Manager(manager.Manager):
             ref = self.driver.get_policy_association(
                 service_id=endpoint['service_id'])
             return _get_policy(ref['policy_id'], endpoint_id)
-        except exception.PolicyAssociationNotFound:
+        except exception.PolicyAssociationNotFound:  # nosec
+            # No policy is associated with endpoint, handled below.
             pass
 
         msg = _('No policy is associated with endpoint '

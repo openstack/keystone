@@ -447,7 +447,8 @@ def _sign_assertion(assertion):
         try:
             if file_path:
                 os.remove(file_path)
-        except OSError:
+        except OSError:  # nosec
+            # The file is already gone, good.
             pass
 
     return saml2.create_class_from_xml_string(saml.Assertion, stdout)

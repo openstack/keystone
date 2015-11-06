@@ -140,7 +140,8 @@ class Manager(manager.Manager):
         # Check duplicate ID
         try:
             self.get_region(region_ref['id'])
-        except exception.RegionNotFound:
+        except exception.RegionNotFound:  # nosec
+            # A region with the same id doesn't exist already, good.
             pass
         else:
             msg = _('Duplicate ID, %s.') % region_ref['id']

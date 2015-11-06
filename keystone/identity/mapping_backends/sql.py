@@ -78,7 +78,7 @@ class Mapping(identity.MappingDriverV8):
             try:
                 session.query(IDMapping).filter(
                     IDMapping.public_id == public_id).delete()
-            except sql.NotFound:
+            except sql.NotFound:  # nosec
                 # NOTE(morganfainberg): There is nothing to delete and nothing
                 # to do.
                 pass

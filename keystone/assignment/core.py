@@ -111,7 +111,8 @@ class Manager(manager.Manager):
                                                   tenant_id=project_ref['id'])
                 role_list = self._roles_from_role_dicts(
                     metadata_ref.get('roles', {}), False)
-            except exception.MetadataNotFound:
+            except exception.MetadataNotFound:  # nosec: No metadata so no
+                # roles.
                 pass
 
             if CONF.os_inherit.enabled:
@@ -121,7 +122,10 @@ class Manager(manager.Manager):
                         user_id=user_id, domain_id=project_ref['domain_id'])
                     role_list += self._roles_from_role_dicts(
                         metadata_ref.get('roles', {}), True)
-                except (exception.MetadataNotFound, exception.NotImplemented):
+                except (exception.MetadataNotFound,  # nosec : No metadata or
+                        # the backend doesn't support the role ops, so no
+                        # roles.
+                        exception.NotImplemented):
                     pass
                 # As well inherited roles from parent projects
                 for p in self.resource_api.list_project_parents(
@@ -156,7 +160,8 @@ class Manager(manager.Manager):
                                                       domain_id=domain_id)
                     role_list += self._roles_from_role_dicts(
                         metadata_ref.get('roles', {}), False)
-                except (exception.MetadataNotFound, exception.NotImplemented):
+                except (exception.MetadataNotFound,  # nosec
+                        exception.NotImplemented):
                     # MetadataNotFound implies no group grant, so skip.
                     # Ignore NotImplemented since not all backends support
                     # domains.
@@ -168,7 +173,8 @@ class Manager(manager.Manager):
             try:
                 metadata_ref = self._get_metadata(user_id=user_id,
                                                   domain_id=domain_id)
-            except (exception.MetadataNotFound, exception.NotImplemented):
+            except (exception.MetadataNotFound,  # nosec
+                    exception.NotImplemented):
                 # MetadataNotFound implies no user grants.
                 # Ignore NotImplemented since not all backends support
                 # domains
@@ -1199,7 +1205,7 @@ class RoleManager(manager.Manager):
     def delete_role(self, role_id, initiator=None):
         try:
             self.assignment_api.delete_tokens_for_role_assignments(role_id)
-        except exception.NotImplemented:
+        except exception.NotImplemented:  # nosec
             # FIXME(morganfainberg): Not all backends (ldap) implement
             # `list_role_assignments_for_role` which would have previously
             # caused a NotImplmented error to be raised when called through

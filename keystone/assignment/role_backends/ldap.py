@@ -55,7 +55,14 @@ class Role(assignment.RoleDriverV8):
         self.role.check_allow_create()
         try:
             self.get_role(role_id)
-        except exception.NotFound:
+        except exception.NotFound:  # nosec
+            # The call to self.get_role() raises this exception when a role
+            # with the given ID doesn't exist. This was done to ensure that
+            # a role with the new role's ID doesn't already exist. As such this
+            # exception is expected to happen in the normal case. The abnormal
+            # case would be if the role does already exist. So this exception
+            # is expected to be ignored and there's no security issue with
+            # ignoring it.
             pass
         else:
             msg = _('Duplicate ID, %s.') % role_id
@@ -63,7 +70,14 @@ class Role(assignment.RoleDriverV8):
 
         try:
             self.role.get_by_name(role['name'])
-        except exception.NotFound:
+        except exception.NotFound:  # nosec
+            # The call to self.role.get_by_name() raises this exception when a
+            # role with the given name doesn't exist. This was done to ensure
+            # that a role with the new role's name doesn't already exist. As
+            # such this exception is expected to happen in the normal case. The
+            # abnormal case would be if a role with the same name does already
+            # exist. So this exception is expected to be ignored and there's no
+            # security issue with ignoring it.
             pass
         else:
             msg = _('Duplicate name, %s.') % role['name']
@@ -117,7 +131,8 @@ class RoleApi(RoleLdapStructureMixin, common_ldap.BaseLdap):
                 if old_role['id'] != role_id:
                     raise exception.Conflict(
                         _('Cannot duplicate name %s') % old_role)
-            except exception.NotFound:
+            except exception.NotFound:  # nosec
+                # Another role with the same name doesn't exist, good.
                 pass
         return super(RoleApi, self).update(role_id, role)
 

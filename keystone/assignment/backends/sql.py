@@ -125,8 +125,8 @@ class Assignment(keystone_assignment.AssignmentDriverV8):
                     target_id=project_id or domain_id,
                     role_id=role_id,
                     inherited=inherited_to_projects))
-        except sql.DBDuplicateEntry:
-            # The v3 grant APIs are silent if the assignment already exists
+        except sql.DBDuplicateEntry:  # nosec : The v3 grant APIs are silent if
+            # the assignment already exists
             pass
 
     def list_grant_role_ids(self, user_id=None, group_id=None,

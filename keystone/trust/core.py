@@ -192,7 +192,7 @@ class Manager(manager.Manager):
                 # recursive call to make sure all notifications are sent
                 try:
                     self.delete_trust(t['id'])
-                except exception.TrustNotFound:
+                except exception.TrustNotFound:  # nosec
                     # if trust was deleted by concurrent process
                     # consistency must not suffer
                     pass

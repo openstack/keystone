@@ -579,7 +579,7 @@ class Auth(controller.V3Controller):
         if user_id:
             try:
                 user_refs = self.assignment_api.list_projects_for_user(user_id)
-            except exception.UserNotFound:
+            except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
                 pass
 
@@ -600,7 +600,7 @@ class Auth(controller.V3Controller):
         if user_id:
             try:
                 user_refs = self.assignment_api.list_domains_for_user(user_id)
-            except exception.UserNotFound:
+            except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
                 pass
 
