@@ -24,7 +24,7 @@ class TestCreateLegacyDriver(unit.BaseTestCase):
         Driver = manager.create_legacy_driver(catalog.CatalogDriverV8)
 
         # NOTE(dstanek): I want to subvert the requirement for this
-        # class to implement all of the abstractmethods.
+        # class to implement all of the abstract methods.
         Driver.__abstractmethods__ = set()
         impl = Driver()
 

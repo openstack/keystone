@@ -303,7 +303,7 @@ class BasePayload(object):
 
         """
         # TODO(lbragstad): Wrap this in an exception. Not sure what the case
-        # would be where we couldn't handle what we've been given but incase
+        # would be where we couldn't handle what we've been given but in case
         # the integrity of the token has been compromised.
         uuid_obj = uuid.UUID(uuid_string)
         return uuid_obj.bytes
@@ -317,7 +317,7 @@ class BasePayload(object):
 
         """
         # TODO(lbragstad): Wrap this in an exception. Not sure what the case
-        # would be where we couldn't handle what we've been given but incase
+        # would be where we couldn't handle what we've been given but in case
         # the integrity of the token has been compromised.
         uuid_obj = uuid.UUID(bytes=uuid_byte_string)
         return uuid_obj.hex

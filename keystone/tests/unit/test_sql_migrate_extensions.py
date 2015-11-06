@@ -321,7 +321,7 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
           properly move data rom identity_provider.remote_id column into
           separate table idp_remote_ids.
         - In the idp_remote_ids table expect to find entries for idp1 and idp2
-          and not find anything for idp3 (identitified by idp's id)
+          and not find anything for idp3 (identified by idp's id)
 
         """
         session = self.Session()

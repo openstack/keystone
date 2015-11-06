@@ -322,7 +322,7 @@ class DomainConfigTests(object):
         expected_config['ldap'].pop('password')
         res = self.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(expected_config, res)
-        # The sensitive option should still existsss
+        # The sensitive option should still exist
         res = self.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual(expected_full_config, res)

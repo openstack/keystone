@@ -24,7 +24,7 @@ def upgrade(migrate_engine):
 
         # NOTE(i159): MySQL requires indexes on referencing columns, and those
         # indexes create automatically. That those indexes will have different
-        # names, depending on version of MySQL used. We shoud make this naming
+        # names, depending on version of MySQL used. We should make this naming
         # consistent, by reverting index name to a consistent condition.
         if any(i for i in table.indexes if
                list(i.columns.keys()) == ['consumer_id']

@@ -2641,7 +2641,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         project['enabled'] = False
         self.resource_api.update_project(project['id'], project)
 
-        # Successfuly delete the project
+        # Successfully delete the project
         self.resource_api.delete_project(project['id'])
 
     @unit.skip_if_no_multiple_domains_support
@@ -2831,7 +2831,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         subtree = self.resource_api.list_projects_in_subtree(project1_id)
 
-        # NOTE(dstanek): If a cyclic refence is detected the code bails
+        # NOTE(dstanek): If a cyclic reference is detected the code bails
         # and returns None instead of falling into the infinite
         # recursion trap.
         self.assertIsNone(subtree)
@@ -5921,7 +5921,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         role = self.role_api.create_role(role['id'], role)
 
-        # Define the common assigment entity
+        # Define the common assignment entity
         assignment_entity = {'role_id': role['id']}
         assignment_entity.update(kwargs)
 
@@ -6055,7 +6055,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         # TODO(henry-nash): The test above uses get_roles_for_user_and_project
         # and get_roles_for_user_and_domain, which will, in a subsequent patch,
-        # be re-implemeted to simply call list_role_assignments (see blueprint
+        # be re-implemented to simply call list_role_assignments (see blueprint
         # remove-role-metadata).
         #
         # The test plan below therefore mirrors this test, to ensure that
@@ -6173,7 +6173,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertIn(role_list[3]['id'], combined_list)
 
         # TODO(henry-nash): The test above uses get_roles_for_user_and_project
-        # which will, in a subsequent patch, be re-implemeted to simply call
+        # which will, in a subsequent patch, be re-implemented to simply call
         # list_role_assignments (see blueprint remove-role-metadata).
         #
         # The test plan below therefore mirrors this test, to ensure that
@@ -6248,7 +6248,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertEqual(3, len(user_projects))
 
         # TODO(henry-nash): The test above uses list_projects_for_user
-        # which may, in a subsequent patch, be re-implemeted to call
+        # which may, in a subsequent patch, be re-implemented to call
         # list_role_assignments and then report only the distinct projects.
         #
         # The test plan below therefore mirrors this test, to ensure that
@@ -6339,7 +6339,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertIn(root_project, user_projects)
 
         # TODO(henry-nash): The test above uses list_projects_for_user
-        # which may, in a subsequent patch, be re-implemeted to call
+        # which may, in a subsequent patch, be re-implemented to call
         # list_role_assignments and then report only the distinct projects.
         #
         # The test plan below therefore mirrors this test, to ensure that
@@ -6447,7 +6447,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertEqual(5, len(user_projects))
 
         # TODO(henry-nash): The test above uses list_projects_for_user
-        # which may, in a subsequent patch, be re-implemeted to call
+        # which may, in a subsequent patch, be re-implemented to call
         # list_role_assignments and then report only the distinct projects.
         #
         # The test plan below therefore mirrors this test, to ensure that
@@ -6472,7 +6472,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             'tests': [
                 # List all effective assignments for user[0]
                 # Should get back both direct roles plus roles on both projects
-                # from each domain. Duplicates should not be fitered out.
+                # from each domain. Duplicates should not be filtered out.
                 {'params': {'user': 0, 'effective': True},
                  'results': [{'user': 0, 'role': 0, 'project': 3},
                              {'user': 0, 'role': 0, 'project': 0},
@@ -6552,7 +6552,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertIn(root_project, user_projects)
 
         # TODO(henry-nash): The test above uses list_projects_for_user
-        # which may, in a subsequent patch, be re-implemeted to call
+        # which may, in a subsequent patch, be re-implemented to call
         # list_role_assignments and then report only the distinct projects.
         #
         # The test plan below therefore mirrors this test, to ensure that
