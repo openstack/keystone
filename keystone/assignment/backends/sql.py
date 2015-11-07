@@ -66,51 +66,6 @@ class Assignment(keystone_assignment.AssignmentDriverV8):
             assignments = query.all()
             return [assignment.actor_id for assignment in assignments]
 
-    def _get_metadata(self, user_id=None, tenant_id=None,
-                      domain_id=None, group_id=None, session=None):
-        # TODO(henry-nash): This method represents the last vestiges of the old
-        # metadata concept in this driver.  Although we no longer need it here,
-        # since the Manager layer uses the metadata concept across all
-        # assignment drivers, we need to remove it from all of them in order to
-        # finally remove this method.
-
-        # We aren't given a session when called by the manager directly.
-        if session is None:
-            session = sql.get_session()
-
-        q = session.query(RoleAssignment)
-
-        def _calc_assignment_type():
-            # Figure out the assignment type we're checking for from the args.
-            if user_id:
-                if tenant_id:
-                    return AssignmentType.USER_PROJECT
-                else:
-                    return AssignmentType.USER_DOMAIN
-            else:
-                if tenant_id:
-                    return AssignmentType.GROUP_PROJECT
-                else:
-                    return AssignmentType.GROUP_DOMAIN
-
-        q = q.filter_by(type=_calc_assignment_type())
-        q = q.filter_by(actor_id=user_id or group_id)
-        q = q.filter_by(target_id=tenant_id or domain_id)
-        refs = q.all()
-        if not refs:
-            raise exception.MetadataNotFound()
-
-        metadata_ref = {}
-        metadata_ref['roles'] = []
-        for assignment in refs:
-            role_ref = {}
-            role_ref['id'] = assignment.role_id
-            if assignment.inherited:
-                role_ref['inherited_to'] = 'projects'
-            metadata_ref['roles'].append(role_ref)
-
-        return metadata_ref
-
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
