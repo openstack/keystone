@@ -119,16 +119,18 @@ class Manager(manager.Manager):
     def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
         """Get a list of roles for this group on domain and/or project."""
         if project_id is not None:
-            project = self.resource_api.get_project(project_id)
-            role_ids = self.list_role_ids_for_groups_on_project(
-                group_ids, project_id, project['domain_id'],
-                self._list_parent_ids_of_project(project_id))
+            self.resource_api.get_project(project_id)
+            assignment_list = self.list_role_assignments(
+                source_from_group_ids=group_ids, project_id=project_id,
+                effective=True)
         elif domain_id is not None:
-            role_ids = self.list_role_ids_for_groups_on_domain(
-                group_ids, domain_id)
+            assignment_list = self.list_role_assignments(
+                source_from_group_ids=group_ids, domain_id=domain_id,
+                effective=True)
         else:
             raise AttributeError(_("Must specify either domain or project"))
 
+        role_ids = list(set([x['role_id'] for x in assignment_list]))
         return self.role_api.list_roles_from_ids(role_ids)
 
     def add_user_to_project(self, tenant_id, user_id):
@@ -227,37 +229,18 @@ class Manager(manager.Manager):
         return self.resource_api.list_domains_from_ids(domain_ids)
 
     def list_domains_for_groups(self, group_ids):
-        domain_ids = self.list_domain_ids_for_groups(group_ids)
+        assignment_list = self.list_role_assignments(
+            source_from_group_ids=group_ids, effective=True)
+        domain_ids = list(set([x['domain_id'] for x in assignment_list
+                               if x.get('domain_id')]))
         return self.resource_api.list_domains_from_ids(domain_ids)
 
     def list_projects_for_groups(self, group_ids):
-        project_ids = (
-            self.list_project_ids_for_groups(group_ids, driver_hints.Hints()))
-        if not CONF.os_inherit.enabled:
-            return self.resource_api.list_projects_from_ids(project_ids)
-
-        # os_inherit extension is enabled, so check to see if these groups have
-        # any inherited role assignment on: i) any domain, in which case we
-        # must add in all the projects in that domain; ii) any project, in
-        # which case we must add in all the subprojects under that project in
-        # the hierarchy.
-
-        domain_ids = self.list_domain_ids_for_groups(group_ids, inherited=True)
-
-        project_ids_from_domains = (
-            self.resource_api.list_project_ids_from_domain_ids(domain_ids))
-
-        parents_ids = self.list_project_ids_for_groups(group_ids,
-                                                       driver_hints.Hints(),
-                                                       inherited=True)
-
-        subproject_ids = []
-        for parent_id in parents_ids:
-            subtree = self.resource_api.list_projects_in_subtree(parent_id)
-            subproject_ids += [subproject['id'] for subproject in subtree]
-
-        return self.resource_api.list_projects_from_ids(
-            list(set(project_ids + project_ids_from_domains + subproject_ids)))
+        assignment_list = self.list_role_assignments(
+            source_from_group_ids=group_ids, effective=True)
+        project_ids = list(set([x['project_id'] for x in assignment_list
+                               if x.get('project_id')]))
+        return self.resource_api.list_projects_from_ids(project_ids)
 
     @notifications.role_assignment('deleted')
     def _remove_role_from_user_and_project_adapter(self, role_id, user_id=None,
@@ -389,8 +372,8 @@ class Manager(manager.Manager):
     # kept as it is in order to detect unnecessarily complex code, which is not
     # this case.
 
-    def _expand_indirect_assignment(self, ref, user_id=None,
-                                    project_id=None, subtree_ids=None):
+    def _expand_indirect_assignment(self, ref, user_id=None, project_id=None,
+                                    subtree_ids=None, expand_groups=True):
         """Returns a list of expanded role assignments.
 
         This methods is called for each discovered assignment that either needs
@@ -407,6 +390,9 @@ class Manager(manager.Manager):
         actual subtree_ids don't need to be used as a filter here, since we
         already ensured only those assignments that could affect them
         were passed to this method.
+
+        If expand_groups is True then we expand groups out to a list of
+        assignments, one for each member of that group.
 
         """
         def create_group_assignment(base_ref, user_id):
@@ -462,12 +448,15 @@ class Manager(manager.Manager):
                     for m in self.identity_api.list_users_in_group(
                         ref['group_id'])]
 
-        def expand_inherited_assignment(ref, user_id, project_id, subtree_ids):
+        def expand_inherited_assignment(ref, user_id, project_id, subtree_ids,
+                                        expand_groups):
             """Expands inherited role assignments.
 
-            If this is a group role assignment on a target, replace it by a
-            list of role assignments containing one for each user of that
-            group, on every project under that target.
+            If expand_groups is True and this is a group role assignment on a
+            target, replace it by a list of role assignments containing one for
+            each user of that group, on every project under that target. If
+            expand_groups is False, then return a group assignment on an
+            inherited target.
 
             If this is a user role assignment on a specific target (i.e.
             project_id is specified, but subtree_ids is None) then simply
@@ -567,8 +556,15 @@ class Manager(manager.Manager):
 
             new_refs = []
             if 'group_id' in ref:
-                # Expand role assignment for all members and for all projects
-                for ref in expand_group_assignment(ref, user_id):
+                if expand_groups:
+                    # Expand role assignment to all group members on any
+                    # inherited target of any of the projects
+                    for ref in expand_group_assignment(ref, user_id):
+                        new_refs += [create_inherited_assignment(ref, proj_id)
+                                     for proj_id in project_ids]
+                else:
+                    # Just place the group assignment on any inherited target
+                    # of any of the projects
                     new_refs += [create_inherited_assignment(ref, proj_id)
                                  for proj_id in project_ids]
             else:
@@ -579,9 +575,9 @@ class Manager(manager.Manager):
             return new_refs
 
         if ref.get('inherited_to_projects') == 'projects':
-            return expand_inherited_assignment(ref, user_id, project_id,
-                                               subtree_ids)
-        elif 'group_id' in ref:
+            return expand_inherited_assignment(
+                ref, user_id, project_id, subtree_ids, expand_groups)
+        elif 'group_id' in ref and expand_groups:
             return expand_group_assignment(ref, user_id)
         return [ref]
 
@@ -649,7 +645,7 @@ class Manager(manager.Manager):
 
     def _list_effective_role_assignments(self, role_id, user_id, group_id,
                                          domain_id, project_id, subtree_ids,
-                                         inherited):
+                                         inherited, source_from_group_ids):
         """List role assignments in effective mode.
 
         When using effective mode, besides the direct assignments, the indirect
@@ -766,24 +762,31 @@ class Manager(manager.Manager):
         if group_id or (domain_id and inherited):
             return []
 
+        if user_id and source_from_group_ids:
+            # You can't do both - and since source_from_group_ids is only used
+            # internally, this must be a coding error by the caller.
+            msg = _('Cannot list assignments sourced from groups and filtered '
+                    'by user ID.')
+            raise exception.UnexpectedError(msg)
+
         # If filtering by domain, then only non-inherited assignments are
         # relevant, since domains don't inherit assignments
         inherited = False if domain_id else inherited
 
-        # List user assignments.
+        # List user or explicit group assignments.
         # Due to the need to expand implied roles, this call will skip
         # filtering by role_id and instead return the whole set of roles.
         # Matching on the specified role is performed at the end.
-
         direct_refs = list_role_assignments_for_actor(
-            role_id=None, user_id=user_id, project_id=project_id,
-            subtree_ids=subtree_ids, domain_id=domain_id,
-            inherited=inherited)
+            role_id=None, user_id=user_id, group_ids=source_from_group_ids,
+            project_id=project_id, subtree_ids=subtree_ids,
+            domain_id=domain_id, inherited=inherited)
 
-        # And those from the user's groups. Again, role_id is not
-        # used to filter here
+        # And those from the user's groups, so long as we are not restricting
+        # to a set of source groups (in which case we already got those
+        # assignments in the direct listing above).
         group_refs = []
-        if user_id:
+        if not source_from_group_ids and user_id:
             group_ids = self._get_group_ids_for_user_id(user_id)
             if group_ids:
                 group_refs = list_role_assignments_for_actor(
@@ -793,10 +796,10 @@ class Manager(manager.Manager):
 
         # Expand grouping and inheritance on retrieved role assignments
         refs = []
+        expand_groups = (source_from_group_ids is None)
         for ref in (direct_refs + group_refs):
             refs += self._expand_indirect_assignment(
-                ref=ref, user_id=user_id, project_id=project_id,
-                subtree_ids=subtree_ids)
+                ref, user_id, project_id, subtree_ids, expand_groups)
 
         refs = self._add_implied_roles(refs)
         if role_id:
@@ -830,7 +833,8 @@ class Manager(manager.Manager):
     def list_role_assignments(self, role_id=None, user_id=None, group_id=None,
                               domain_id=None, project_id=None,
                               include_subtree=False, inherited=None,
-                              effective=None, include_names=False):
+                              effective=None, include_names=False,
+                              source_from_group_ids=None):
         """List role assignments, honoring effective mode and provided filters.
 
         Returns a list of role assignments, where their attributes match the
@@ -849,7 +853,18 @@ class Manager(manager.Manager):
         affect a user, for example the roles that would be placed in a token.
 
         If include_names is set to true the entities' names are returned
-        in addition to their id's
+        in addition to their id's.
+
+        source_from_group_ids is a list of group IDs and, if specified, then
+        only those assignments that are derived from membership of these groups
+        are considered, and any such assignments will not be expanded into
+        their user membership assignments. This is different to a group filter
+        of the resulting list, instead being a restriction on which assignments
+        should be considered before expansion of inheritance. This option is
+        only used internally (i.e. it is not exposed at the API level) and is
+        only supported in effective mode (since in regular mode there is no
+        difference between this and a group filter, other than it is a list of
+        groups).
 
         If OS-INHERIT extension is disabled or the used driver does not support
         inherited roles retrieval, inherited role assignments will be ignored.
@@ -869,7 +884,7 @@ class Manager(manager.Manager):
         if effective:
             role_assignments = self._list_effective_role_assignments(
                 role_id, user_id, group_id, domain_id, project_id,
-                subtree_ids, inherited)
+                subtree_ids, inherited, source_from_group_ids)
         else:
             role_assignments = self._list_direct_role_assignments(
                 role_id, user_id, group_id, domain_id, project_id,
@@ -1086,71 +1101,6 @@ class AssignmentDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_project_ids_for_groups(self, group_ids, hints,
-                                    inherited=False):
-        """List project ids accessible to specified groups.
-
-        :param group_ids: List of group ids.
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-        :param inherited: whether assignments marked as inherited should
-                          be included.
-        :returns: List of project ids accessible to specified groups.
-
-        This method should not try and expand any inherited assignments,
-        just report the projects that have the role for this group. The manager
-        method is responsible for expanding out inherited assignments.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_domain_ids_for_groups(self, group_ids, inherited=False):
-        """List domain ids accessible to specified groups.
-
-        :param group_ids: List of group ids.
-        :param inherited: whether to return domain_ids that have inherited
-                          assignments or not.
-        :returns: List of domain ids accessible to specified groups.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_role_ids_for_groups_on_project(
-            self, group_ids, project_id, project_domain_id, project_parents):
-        """List the group role ids for a specific project.
-
-        Supports the ``OS-INHERIT`` role inheritance from the project's domain
-        if supported by the assignment driver.
-
-        :param group_ids: list of group ids
-        :type group_ids: list
-        :param project_id: project identifier
-        :type project_id: str
-        :param project_domain_id: project's domain identifier
-        :type project_domain_id: str
-        :param project_parents: list of parent ids of this project
-        :type project_parents: list
-        :returns: list of role ids for the project
-        :rtype: list
-        """
-        raise exception.NotImplemented()
-
-    @abc.abstractmethod
-    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
-        """List the group role ids for a specific domain.
-
-        :param group_ids: list of group ids
-        :type group_ids: list
-        :param domain_id: domain identifier
-        :type domain_id: str
-        :returns: list of role ids for the project
-        :rtype: list
-        """
-        raise exception.NotImplemented()
-
-    @abc.abstractmethod
     def delete_project_assignments(self, project_id):
         """Deletes all assignments for a project.
 
@@ -1244,6 +1194,71 @@ class AssignmentDriverV8(AssignmentDriverBase):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_project_ids_for_groups(self, group_ids, hints,
+                                    inherited=False):
+        """List project ids accessible to specified groups.
+
+        :param group_ids: List of group ids.
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+        :param inherited: whether assignments marked as inherited should
+                          be included.
+        :returns: List of project ids accessible to specified groups.
+
+        This method should not try and expand any inherited assignments,
+        just report the projects that have the role for this group. The manager
+        method is responsible for expanding out inherited assignments.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_domain_ids_for_groups(self, group_ids, inherited=False):
+        """List domain ids accessible to specified groups.
+
+        :param group_ids: List of group ids.
+        :param inherited: whether to return domain_ids that have inherited
+                          assignments or not.
+        :returns: List of domain ids accessible to specified groups.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_role_ids_for_groups_on_project(
+            self, group_ids, project_id, project_domain_id, project_parents):
+        """List the group role ids for a specific project.
+
+        Supports the ``OS-INHERIT`` role inheritance from the project's domain
+        if supported by the assignment driver.
+
+        :param group_ids: list of group ids
+        :type group_ids: list
+        :param project_id: project identifier
+        :type project_id: str
+        :param project_domain_id: project's domain identifier
+        :type project_domain_id: str
+        :param project_parents: list of parent ids of this project
+        :type project_parents: list
+        :returns: list of role ids for the project
+        :rtype: list
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
+        """List the group role ids for a specific domain.
+
+        :param group_ids: list of group ids
+        :type group_ids: list
+        :param domain_id: domain identifier
+        :type domain_id: str
+        :returns: list of role ids for the project
+        :rtype: list
+        """
+        raise exception.NotImplemented()
 
 
 class AssignmentDriverV9(AssignmentDriverBase):
@@ -1341,24 +1356,6 @@ class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
             user_id=user_id, group_ids=group_ids,
             domain_id=domain_id, project_ids=project_ids,
             inherited_to_projects=inherited_to_projects)
-
-    def list_project_ids_for_groups(self, group_ids, hints,
-                                    inherited=False):
-        return self.driver.list_project_ids_for_groups(
-            group_ids, hints, inherited=inherited)
-
-    def list_domain_ids_for_groups(self, group_ids, inherited=False):
-        return self.driver.list_domain_ids_for_groups(
-            group_ids, inherited=inherited)
-
-    def list_role_ids_for_groups_on_project(
-            self, group_ids, project_id, project_domain_id, project_parents):
-        return self.driver.list_role_ids_for_groups_on_project(
-            group_ids, project_id, project_domain_id, project_parents)
-
-    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
-        return self.driver.list_role_ids_for_groups_on_domain(
-            group_ids, domain_id)
 
     def delete_project_assignments(self, project_id):
         self.driver.delete_project_assignments(project_id)

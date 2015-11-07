@@ -138,8 +138,9 @@ class AssignmentTestHelperMixin(object):
              'results': [{'group': 0, 'role': 2, 'domain': 0},
                          {'user': 0, 'role': 2, 'project': 0}]}]
 
-        # The 'params' key also supports the 'effective' and
-        # 'inherited_to_projects' options to list_role_assignments.}
+        # The 'params' key also supports the 'effective',
+        # 'inherited_to_projects' and 'source_from_group_ids' options to
+        # list_role_assignments.}
 
     """
 
@@ -394,6 +395,13 @@ class AssignmentTestHelperMixin(object):
                         expected_assignment[key] = value
                 self.assertIn(expected_assignment, actual)
 
+        def convert_group_ids_sourced_from_list(index_list, reference_data):
+            value_list = []
+            for group_index in index_list:
+                value_list.append(
+                    reference_data['groups'][group_index]['id'])
+            return value_list
+
         # Go through each test in the array, processing the input params, which
         # we build into an args dict, and then call list_role_assignments. Then
         # check the results against those specified in the test plan.
@@ -403,6 +411,10 @@ class AssignmentTestHelperMixin(object):
                 if param in ['effective', 'inherited', 'include_subtree']:
                     # Just pass the value into the args
                     args[param] = test['params'][param]
+                elif param == 'source_from_group_ids':
+                    # Convert the list of indexes into a list of IDs
+                    args[param] = convert_group_ids_sourced_from_list(
+                        test['params']['source_from_group_ids'], test_data)
                 else:
                     # Turn 'entity : 0' into 'entity_id = ac6736ba873d'
                     # where entity in user, group, project or domain
@@ -1969,6 +1981,91 @@ class IdentityTests(AssignmentTestHelperMixin):
             ]
         }
         self.execute_assignment_plan(test_plan)
+
+    def test_list_role_assignment_using_sourced_groups(self):
+        """Test listing assignments when restricted by source groups."""
+        test_plan = {
+            # The default domain with 3 users, 3 groups, 3 projects,
+            # plus 3 roles.
+            'entities': {'domains': {'id': DEFAULT_DOMAIN_ID,
+                                     'users': 3, 'groups': 3, 'projects': 3},
+                         'roles': 3},
+            # Users 0 & 1 are in the group 0, User 0 also in group 1
+            'group_memberships': [{'group': 0, 'users': [0, 1]},
+                                  {'group': 1, 'users': [0]}],
+            # Spread the assignments around - we want to be able to show that
+            # if sourced by group, assignments from other sources are excluded
+            'assignments': [{'user': 0, 'role': 0, 'project': 0},
+                            {'group': 0, 'role': 1, 'project': 1},
+                            {'group': 1, 'role': 2, 'project': 0},
+                            {'group': 1, 'role': 2, 'project': 1},
+                            {'user': 2, 'role': 1, 'project': 1},
+                            {'group': 2, 'role': 2, 'project': 2}
+                            ],
+            'tests': [
+                # List all effective assignments sourced from groups 0 and 1
+                {'params': {'source_from_group_ids': [0, 1],
+                            'effective': True},
+                 'results': [{'group': 0, 'role': 1, 'project': 1},
+                             {'group': 1, 'role': 2, 'project': 0},
+                             {'group': 1, 'role': 2, 'project': 1}
+                             ]},
+                # Adding a role a filter should further restrict the entries
+                {'params': {'source_from_group_ids': [0, 1], 'role': 2,
+                            'effective': True},
+                 'results': [{'group': 1, 'role': 2, 'project': 0},
+                             {'group': 1, 'role': 2, 'project': 1}
+                             ]},
+            ]
+        }
+        self.execute_assignment_plan(test_plan)
+
+    def test_list_role_assignment_using_sourced_groups_with_domains(self):
+        """Test listing domain assignments when restricted by source groups."""
+        test_plan = {
+            # A domain with 3 users, 3 groups, 3 projects, a second domain,
+            # plus 3 roles.
+            'entities': {'domains': [{'users': 3, 'groups': 3, 'projects': 3},
+                                     1],
+                         'roles': 3},
+            # Users 0 & 1 are in the group 0, User 0 also in group 1
+            'group_memberships': [{'group': 0, 'users': [0, 1]},
+                                  {'group': 1, 'users': [0]}],
+            # Spread the assignments around - we want to be able to show that
+            # if sourced by group, assignments from other sources are excluded
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'group': 0, 'role': 1, 'domain': 1},
+                            {'group': 1, 'role': 2, 'project': 0},
+                            {'group': 1, 'role': 2, 'project': 1},
+                            {'user': 2, 'role': 1, 'project': 1},
+                            {'group': 2, 'role': 2, 'project': 2}
+                            ],
+            'tests': [
+                # List all effective assignments sourced from groups 0 and 1
+                {'params': {'source_from_group_ids': [0, 1],
+                            'effective': True},
+                 'results': [{'group': 0, 'role': 1, 'domain': 1},
+                             {'group': 1, 'role': 2, 'project': 0},
+                             {'group': 1, 'role': 2, 'project': 1}
+                             ]},
+                # Adding a role a filter should further restrict the entries
+                {'params': {'source_from_group_ids': [0, 1], 'role': 1,
+                            'effective': True},
+                 'results': [{'group': 0, 'role': 1, 'domain': 1},
+                             ]},
+            ]
+        }
+        self.execute_assignment_plan(test_plan)
+
+    def test_list_role_assignment_fails_with_userid_and_source_groups(self):
+        """Show we trap this unsupported internal combination of params."""
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
+        group = self.identity_api.create_group(group)
+        self.assertRaises(exception.UnexpectedError,
+                          self.assignment_api.list_role_assignments,
+                          effective=True,
+                          user_id=self.user_foo['id'],
+                          source_from_group_ids=[group['id']])
 
     def test_delete_domain_with_user_group_project_links(self):
         # TODO(chungg):add test case once expected behaviour defined
@@ -6495,6 +6592,47 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertThat(user_ids, matchers.HasLength(4))
         for x in range(0, 4):
             self.assertIn(test_data['users'][x]['id'], user_ids)
+
+    def test_list_role_assignment_using_inherited_sourced_groups(self):
+        """Test listing inherited assignments when restricted by groups."""
+        test_plan = {
+            # A domain with 3 users, 3 groups, 3 projects, a second domain,
+            # plus 3 roles.
+            'entities': {'domains': [{'users': 3, 'groups': 3, 'projects': 3},
+                                     1],
+                         'roles': 3},
+            # Users 0 & 1 are in the group 0, User 0 also in group 1
+            'group_memberships': [{'group': 0, 'users': [0, 1]},
+                                  {'group': 1, 'users': [0]}],
+            # Spread the assignments around - we want to be able to show that
+            # if sourced by group, assignments from other sources are excluded
+            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
+                            {'group': 0, 'role': 1, 'domain': 1},
+                            {'group': 1, 'role': 2, 'domain': 0,
+                             'inherited_to_projects': True},
+                            {'group': 1, 'role': 2, 'project': 1},
+                            {'user': 2, 'role': 1, 'project': 1,
+                             'inherited_to_projects': True},
+                            {'group': 2, 'role': 2, 'project': 2}
+                            ],
+            'tests': [
+                # List all effective assignments sourced from groups 0 and 1.
+                # We should see the inherited group assigned on the 3 projects
+                # from domain 0, as well as the direct assignments.
+                {'params': {'source_from_group_ids': [0, 1],
+                            'effective': True},
+                 'results': [{'group': 0, 'role': 1, 'domain': 1},
+                             {'group': 1, 'role': 2, 'project': 0,
+                              'indirect': {'domain': 0}},
+                             {'group': 1, 'role': 2, 'project': 1,
+                              'indirect': {'domain': 0}},
+                             {'group': 1, 'role': 2, 'project': 2,
+                              'indirect': {'domain': 0}},
+                             {'group': 1, 'role': 2, 'project': 1}
+                             ]},
+            ]
+        }
+        self.execute_assignment_plan(test_plan)
 
 
 class ImpliedRoleTests(AssignmentTestHelperMixin):

@@ -981,6 +981,13 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_domain_crud(self):
         self.skipTest('Resource LDAP has been removed')
 
+    def test_list_role_assignment_using_sourced_groups_with_domains(self):
+        """Multiple domain assignments are not supported."""
+        self.assertRaises(
+            (exception.Forbidden, exception.DomainNotFound),
+            super(BaseLDAPIdentity, self).
+            test_list_role_assignment_using_sourced_groups_with_domains)
+
 
 class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
@@ -2552,6 +2559,12 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # from BaseLDAPIdentity
         super(BaseLDAPIdentity, self).\
             test_list_role_assignment_by_user_with_domain_group_roles
+
+    def test_list_role_assignment_using_sourced_groups_with_domains(self):
+        # With SQL Assignment this method should work, so override the override
+        # from BaseLDAPIdentity
+        base = super(BaseLDAPIdentity, self)
+        base.test_list_role_assignment_using_sourced_groups_with_domains()
 
 
 class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
