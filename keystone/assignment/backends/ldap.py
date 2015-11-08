@@ -31,7 +31,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-class Assignment(assignment.AssignmentDriverV8):
+class Assignment(assignment.AssignmentDriverV9):
     @versionutils.deprecated(
         versionutils.deprecated.KILO,
         remove_in=+2,

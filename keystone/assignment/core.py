@@ -19,6 +19,7 @@ import copy
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 import six
 
 from keystone.common import cache
@@ -65,6 +66,13 @@ class Manager(manager.Manager):
             assignment_driver = identity_driver.default_assignment_driver()
 
         super(Manager, self).__init__(assignment_driver)
+
+        # Make sure it is a driver version we support, and if it is a legacy
+        # driver, then wrap it.
+        if isinstance(self.driver, AssignmentDriverV8):
+            self.driver = V9AssignmentWrapperForV8Driver(self.driver)
+        elif not isinstance(self.driver, AssignmentDriverV9):
+            raise exception.UnsupportedDriverVersion(driver=assignment_driver)
 
     def _get_group_ids_for_user_id(self, user_id):
         # TODO(morganfainberg): Implement a way to get only group_ids
@@ -903,8 +911,15 @@ class Manager(manager.Manager):
         pass
 
 
+# The AssignmentDriverBase class is the set of driver methods from earlier
+# drivers that we still support, that have not been removed or modified. This
+# class is then used to created the augmented V8 and V9 version abstract driver
+# classes, without having to duplicate a lot of abstract method signatures.
+# If you remove a method from V9, then move the abstact methods from this Base
+# class to the V8 class. Do not modify any of the method signatures in the Base
+# class - changes should only be made in the V8 and subsequent classes.
 @six.add_metaclass(abc.ABCMeta)
-class AssignmentDriverV8(object):
+class AssignmentDriverBase(object):
 
     def _get_list_limit(self):
         return CONF.assignment.list_limit or CONF.list_limit
@@ -1136,6 +1151,159 @@ class AssignmentDriverV8(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+class AssignmentDriverV8(AssignmentDriverBase):
+    """Removed or redefined methods from V8.
+
+    Move the abstract methods of any methods removed or modified in later
+    versions of the driver from AssignmentDriverBase to here. We maintain this
+    so that legacy drivers, which will be a subclass of AssignmentDriverV8, can
+    still reference them.
+
+    """
+
+    pass
+
+
+class AssignmentDriverV9(AssignmentDriverBase):
+    """New or redefined methods from V8.
+
+    Add any new V9 abstract methods (or those with modified signatures) to
+    this class.
+
+    """
+
+    pass
+
+
+class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
+    """Wrapper class to supported a V8 legacy driver.
+
+    In order to support legacy drivers without having to make the manager code
+    driver-version aware, we wrap legacy drivers so that they look like the
+    latest version. For the various changes made in a new driver, here are the
+    actions needed in this wrapper:
+
+    Method removed from new driver - remove the call-through method from this
+                                     class, since the manager will no longer be
+                                     calling it.
+    Method signature (or meaning) changed - wrap the old method in a new
+                                            signature here, and munge the input
+                                            and output parameters accordingly.
+    New method added to new driver - add a method to implement the new
+                                     functionality here if possible. If that is
+                                     not possible, then return NotImplemented,
+                                     since we do not guarantee to support new
+                                     functionality with legacy drivers.
+
+    """
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.MITAKA,
+        what='keystone.assignment.AssignmentDriverV8',
+        in_favor_of='keystone.assignment.AssignmentDriverV9',
+        remove_in=+2)
+    def __init__(self, wrapped_driver):
+        self.driver = wrapped_driver
+
+    def default_role_driver(self):
+        return self.driver.default_role_driver()
+
+    def default_resource_driver(self):
+        return self.driver.default_resource_driver()
+
+    def list_user_ids_for_project(self, tenant_id):
+        return self.driver.list_user_ids_for_project(tenant_id)
+
+    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
+        self.driver.add_role_to_user_and_project(user_id, tenant_id, role_id)
+
+    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
+        self.driver.remove_role_from_user_and_project(
+            user_id, tenant_id, role_id)
+
+    def create_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        self.driver.create_grant(
+            role_id, user_id=user_id, group_id=group_id,
+            domain_id=domain_id, project_id=project_id,
+            inherited_to_projects=inherited_to_projects)
+
+    def list_grant_role_ids(self, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
+        return self.driver.list_grant_role_ids(
+            user_id=user_id, group_id=group_id,
+            domain_id=domain_id, project_id=project_id,
+            inherited_to_projects=inherited_to_projects)
+
+    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
+                            domain_id=None, project_id=None,
+                            inherited_to_projects=False):
+        self.driver.check_grant_role_id(
+            role_id, user_id=user_id, group_id=group_id,
+            domain_id=domain_id, project_id=project_id,
+            inherited_to_projects=inherited_to_projects)
+
+    def delete_grant(self, role_id, user_id=None, group_id=None,
+                     domain_id=None, project_id=None,
+                     inherited_to_projects=False):
+        self.driver.delete_grant(
+            role_id, user_id=user_id, group_id=group_id,
+            domain_id=domain_id, project_id=project_id,
+            inherited_to_projects=inherited_to_projects)
+
+    def list_role_assignments(self, role_id=None,
+                              user_id=None, group_ids=None,
+                              domain_id=None, project_ids=None,
+                              inherited_to_projects=None):
+        return self.driver.list_role_assignments(
+            role_id=role_id,
+            user_id=user_id, group_ids=group_ids,
+            domain_id=domain_id, project_ids=project_ids,
+            inherited_to_projects=inherited_to_projects)
+
+    def list_project_ids_for_user(self, user_id, group_ids, hints,
+                                  inherited=False):
+        return self.driver.list_project_ids_for_user(
+            user_id, group_ids, hints, inherited=inherited)
+
+    def list_project_ids_for_groups(self, group_ids, hints,
+                                    inherited=False):
+        return self.driver.list_project_ids_for_groups(
+            group_ids, hints, inherited=inherited)
+
+    def list_domain_ids_for_user(self, user_id, group_ids, hints,
+                                 inherited=False):
+        return self.driver.list_domain_ids_for_user(
+            user_id, group_ids, hints, inherited=inherited)
+
+    def list_domain_ids_for_groups(self, group_ids, inherited=False):
+        return self.driver.list_domain_ids_for_groups(
+            group_ids, inherited=inherited)
+
+    def list_role_ids_for_groups_on_project(
+            self, group_ids, project_id, project_domain_id, project_parents):
+        return self.driver.list_role_ids_for_groups_on_project(
+            group_ids, project_id, project_domain_id, project_parents)
+
+    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
+        return self.driver.list_role_ids_for_groups_on_domain(
+            group_ids, domain_id)
+
+    def delete_project_assignments(self, project_id):
+        self.driver.delete_project_assignments(project_id)
+
+    def delete_role_assignments(self, role_id):
+        self.driver.delete_role_assignments(role_id)
+
+    def delete_user_assignments(self, user_id):
+        self.driver.delete_user_assignments(user_id)
+
+    def delete_group_assignments(self, group_id):
+        self.driver.delete_group_assignments(group_id)
 
 
 Driver = manager.create_legacy_driver(AssignmentDriverV8)

@@ -506,3 +506,7 @@ class MigrationMovedFailure(RuntimeError):
                 "database control. Use the command: keystone-manage "
                 "db_sync") % self.extension
         super(MigrationMovedFailure, self).__init__(msg)
+
+
+class UnsupportedDriverVersion(UnexpectedError):
+    debug_message_format = _('%(driver)s is not supported driver version')
