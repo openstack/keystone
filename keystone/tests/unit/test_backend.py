@@ -197,10 +197,11 @@ class AssignmentTestHelperMixin(object):
 
         def _create_entity_in_domain(entity_type, domain_id):
             """Create a user or group entity in the domain."""
-            new_entity = {'name': uuid.uuid4().hex, 'domain_id': domain_id}
             if entity_type == 'users':
+                new_entity = {'name': uuid.uuid4().hex, 'domain_id': domain_id}
                 new_entity = self.identity_api.create_user(new_entity)
             elif entity_type == 'groups':
+                new_entity = unit.new_group_ref(domain_id=domain_id)
                 new_entity = self.identity_api.create_group(new_entity)
             else:
                 # Must be a bad test plan
@@ -975,8 +976,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                        'domain_id': DEFAULT_DOMAIN_ID}
         self.resource_api.create_project(project_ref['id'], project_ref)
 
-        group = {'name': uuid.uuid4().hex,
-                 'domain_id': DEFAULT_DOMAIN_ID}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group_id = self.identity_api.create_group(group)['id']
         self.identity_api.add_user_to_group(user_ref['id'], group_id)
 
@@ -1245,7 +1245,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_get_and_remove_role_grant_by_group_and_project(self):
         new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
-        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': 'secret',
                     'enabled': True, 'domain_id': new_domain['id']}
@@ -1280,7 +1280,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_get_and_remove_role_grant_by_group_and_domain(self):
         new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
-        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': new_domain['id']}
@@ -1321,9 +1321,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         new_project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                        'domain_id': new_domain['id']}
         self.resource_api.create_project(new_project['id'], new_project)
-        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = self.identity_api.create_group(new_group)
-        new_group2 = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group2 = unit.new_group_ref(domain_id=new_domain['id'])
         new_group2 = self.identity_api.create_group(new_group2)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': new_domain['id']}
@@ -1414,7 +1414,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
-        group1 = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
         roles_ref = self.assignment_api.list_grants(
             group_id=group1['id'],
@@ -1509,8 +1509,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain2['id']}
@@ -1625,8 +1624,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         user = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
                 'password': uuid.uuid4().hex, 'enabled': True}
         user_resp = self.identity_api.create_user(user)
-        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID,
-                 'enabled': True}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group_resp = self.identity_api.create_group(group)
         project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                    'domain_id': DEFAULT_DOMAIN_ID}
@@ -1659,11 +1657,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
-        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group2 = unit.new_group_ref(domain_id=domain1['id'])
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -1768,11 +1764,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
-        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group2 = unit.new_group_ref(domain_id=domain1['id'])
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -1833,8 +1827,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
         self.assignment_api.create_grant(user_id=user1['id'],
                                          project_id=project1['id'],
@@ -1893,8 +1886,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
         self.assignment_api.create_grant(user_id=user1['id'],
                                          project_id=project1['id'],
@@ -1932,8 +1924,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
 
         self.assignment_api.create_grant(group_id=group1['id'],
@@ -2421,12 +2412,8 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(expected_user_ids, user_ids)
 
     def test_list_groups(self):
-        group1 = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': uuid.uuid4().hex}
-        group2 = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': uuid.uuid4().hex}
+        group1 = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
+        group2 = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group1 = self.identity_api.create_group(group1)
         group2 = self.identity_api.create_group(group2)
         groups = self.identity_api.list_groups(
@@ -3002,7 +2989,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_add_user_to_group(self):
         domain = self._get_domain_fixture()
-        new_group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': domain['id']}
@@ -3027,7 +3014,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           new_user['id'],
                           uuid.uuid4().hex)
 
-        new_group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain['id'])
         new_group = self.identity_api.create_group(new_group)
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.add_user_to_group,
@@ -3041,7 +3028,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_check_user_in_group(self):
         domain = self._get_domain_fixture()
-        new_group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': domain['id']}
@@ -3051,7 +3038,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.identity_api.check_user_in_group(new_user['id'], new_group['id'])
 
     def test_create_invalid_domain_fails(self):
-        new_group = {'domain_id': "doesnotexist", 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id="doesnotexist")
         self.assertRaises(exception.DomainNotFound,
                           self.identity_api.create_group,
                           new_group)
@@ -3062,9 +3049,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           new_user)
 
     def test_check_user_not_in_group(self):
-        new_group = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         new_group = self.identity_api.create_group(new_group)
 
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
@@ -3081,9 +3066,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                     'enabled': True, 'domain_id': DEFAULT_DOMAIN_ID}
         new_user = self.identity_api.create_user(new_user)
 
-        new_group = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         new_group = self.identity_api.create_group(new_group)
 
         self.assertRaises(exception.UserNotFound,
@@ -3103,7 +3086,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_list_users_in_group(self):
         domain = self._get_domain_fixture()
-        new_group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain['id'])
         new_group = self.identity_api.create_group(new_group)
         # Make sure we get an empty list back on a new group, not an error.
         user_refs = self.identity_api.list_users_in_group(new_group['id'])
@@ -3151,8 +3134,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         for x in range(0, GROUP_COUNT):
             before_count = x
             after_count = x + 1
-            new_group = {'domain_id': domain['id'],
-                         'name': uuid.uuid4().hex}
+            new_group = unit.new_group_ref(domain_id=domain['id'])
             new_group = self.identity_api.create_group(new_group)
             test_groups.append(new_group)
 
@@ -3195,7 +3177,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_remove_user_from_group(self):
         domain = self._get_domain_fixture()
-        new_group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': domain['id']}
@@ -3214,7 +3196,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': domain['id']}
         new_user = self.identity_api.create_user(new_user)
-        new_group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain['id'])
         new_group = self.identity_api.create_group(new_group)
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.remove_user_from_group,
@@ -3234,7 +3216,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_group_crud(self):
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
-        group = {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=domain['id'])
         group = self.identity_api.create_group(group)
         group_ref = self.identity_api.get_group(group['id'])
         self.assertDictContainsSubset(group, group_ref)
@@ -3250,10 +3232,10 @@ class IdentityTests(AssignmentTestHelperMixin):
                           group['id'])
 
     def test_get_group_by_name(self):
-        group_name = uuid.uuid4().hex
-        group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': group_name}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
+        group_name = group['name']
         group = self.identity_api.create_group(group)
-        spoiler = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        spoiler = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         self.identity_api.create_group(spoiler)
 
         group_ref = self.identity_api.get_group_by_name(
@@ -3268,7 +3250,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_group_crud(self):
-        group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group = self.identity_api.create_group(group)
         # cache the result
         group_ref = self.identity_api.get_group(group['id'])
@@ -3282,7 +3264,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group, group['id'])
 
-        group = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group = self.identity_api.create_group(group)
         # cache the result
         self.identity_api.get_group(group['id'])
@@ -3293,8 +3275,9 @@ class IdentityTests(AssignmentTestHelperMixin):
                                       group_ref)
 
     def test_create_duplicate_group_name_fails(self):
-        group1 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
-        group2 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': group1['name']}
+        group1 = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
+        group2 = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID,
+                                    name=group1['name'])
         group1 = self.identity_api.create_group(group1)
         self.assertRaises(exception.Conflict,
                           self.identity_api.create_group,
@@ -3303,8 +3286,9 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_create_duplicate_group_name_in_different_domains(self):
         new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
-        group1 = {'domain_id': DEFAULT_DOMAIN_ID, 'name': uuid.uuid4().hex}
-        group2 = {'domain_id': new_domain['id'], 'name': group1['name']}
+        group1 = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
+        group2 = unit.new_group_ref(domain_id=new_domain['id'],
+                                    name=group1['name'])
         group1 = self.identity_api.create_group(group1)
         group2 = self.identity_api.create_group(group2)
 
@@ -3313,8 +3297,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
-        group = {'name': uuid.uuid4().hex,
-                 'domain_id': domain1['id']}
+        group = unit.new_group_ref(domain_id=domain1['id'])
         group = self.identity_api.create_group(group)
         group['domain_id'] = domain2['id']
         self.identity_api.update_group(group['id'], group)
@@ -3328,13 +3311,12 @@ class IdentityTests(AssignmentTestHelperMixin):
         domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(domain2['id'], domain2)
         # First, create a group in domain1
-        group1 = {'name': uuid.uuid4().hex,
-                  'domain_id': domain1['id']}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
         # Now create a group in domain2 with a potentially clashing
         # name - which should work since we have domain separation
-        group2 = {'name': group1['name'],
-                  'domain_id': domain2['id']}
+        group2 = unit.new_group_ref(name=group1['name'],
+                                    domain_id=domain2['id'])
         group2 = self.identity_api.create_group(group2)
         # Now try and move group1 into the 2nd domain - which should
         # fail since the names clash
@@ -3765,9 +3747,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
-        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group2 = unit.new_group_ref(domain_id=domain['id'])
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain['id']}
@@ -4062,9 +4044,9 @@ class IdentityTests(AssignmentTestHelperMixin):
         orig_member_assignments = get_member_assignments()
 
         # Create a group.
-        new_group = {
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'name': self.getUniqueString(prefix='tdgrra')}
+        new_group = unit.new_group_ref(
+            domain_id=DEFAULT_DOMAIN_ID,
+            name=self.getUniqueString(prefix='tdgrra'))
         new_group = self.identity_api.create_group(new_group)
 
         # Create a project.
@@ -4105,7 +4087,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         group_id_list = []
         role_list = []
         for _ in range(3):
-            group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+            group = unit.new_group_ref(domain_id=domain1['id'])
             group = self.identity_api.create_group(group)
             group_list.append(group)
             group_id_list.append(group['id'])
@@ -4165,7 +4147,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         group_id_list = []
         role_list = []
         for _ in range(6):
-            group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+            group = unit.new_group_ref(domain_id=domain1['id'])
             group = self.identity_api.create_group(group)
             group_list.append(group)
             group_id_list.append(group['id'])
@@ -4239,7 +4221,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             self.resource_api.create_domain(domain['id'], domain)
             domain_list.append(domain)
 
-            group = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+            group = unit.new_group_ref(domain_id=domain['id'])
             group = self.identity_api.create_group(group)
             group_list.append(group)
             group_id_list.append(group['id'])
@@ -4305,7 +4287,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         group_list = []
         role_list = []
         for _ in range(7):
-            group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+            group = unit.new_group_ref(domain_id=domain1['id'])
             group = self.identity_api.create_group(group)
             group_list.append(group)
 
@@ -5801,7 +5783,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             user_id=self.user_foo['id'], domain_id=DEFAULT_DOMAIN_ID)
 
     def test_crud_inherited_and_direct_assignment_for_group_on_domain(self):
-        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group = self.identity_api.create_group(group)
 
         self._test_crud_inherited_and_direct_assignment(
@@ -5812,7 +5794,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             user_id=self.user_foo['id'], project_id=self.tenant_baz['id'])
 
     def test_crud_inherited_and_direct_assignment_for_group_on_project(self):
-        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group = self.identity_api.create_group(group)
 
         self._test_crud_inherited_and_direct_assignment(
@@ -5958,11 +5940,9 @@ class InheritanceTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
                  'password': uuid.uuid4().hex, 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group1 = unit.new_group_ref(domain_id=domain1['id'])
         group1 = self.identity_api.create_group(group1)
-        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain1['id'],
-                  'enabled': True}
+        group2 = unit.new_group_ref(domain_id=domain1['id'])
         group2 = self.identity_api.create_group(group2)
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
                     'domain_id': domain1['id']}
@@ -6258,7 +6238,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         user1 = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                  'domain_id': domain['id'], 'enabled': True}
         user1 = self.identity_api.create_user(user1)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
         self.identity_api.add_user_to_group(user1['id'], group1['id'])
 
@@ -6364,7 +6344,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
                 'domain_id': DEFAULT_DOMAIN_ID, 'enabled': True}
         user = self.identity_api.create_user(user)
 
-        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group = self.identity_api.create_group(group)
         self.identity_api.add_user_to_group(user['id'], group['id'])
 

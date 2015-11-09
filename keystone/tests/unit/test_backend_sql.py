@@ -366,9 +366,9 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': domain['id'], 'enabled': True}
         user = self.identity_api.create_user(user)
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
-        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group2 = unit.new_group_ref(domain_id=domain['id'])
         group2 = self.identity_api.create_group(group2)
 
         test_domain1 = unit.new_domain_ref()
@@ -412,7 +412,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                 'domain_id': domain1['id'], 'enabled': True}
         user = self.identity_api.create_user(user)
-        group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
+        group = unit.new_group_ref(domain_id=domain1['id'])
         group = self.identity_api.create_group(group)
         self.identity_api.add_user_to_group(user['id'], group['id'])
         role = unit.new_role_ref()
@@ -703,7 +703,7 @@ class SqlFilterTests(SqlTests, test_backend.FilterTests):
 
         # See if we can add a SQL command...use the group table instead of the
         # user table since 'user' is reserved word for SQLAlchemy.
-        group = {'name': uuid.uuid4().hex, 'domain_id': DEFAULT_DOMAIN_ID}
+        group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         group = self.identity_api.create_group(group)
 
         hints = driver_hints.Hints()

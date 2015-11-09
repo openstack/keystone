@@ -311,7 +311,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
 
         # See if we can add a SQL command...use the group table instead of the
         # user table since 'user' is reserved word for SQLAlchemy.
-        group = self.new_group_ref(domain_id=self.domainB['id'])
+        group = unit.new_group_ref(domain_id=self.domainB['id'])
         group = self.identity_api.create_group(group)
 
         url_by_name = "/users?name=x'; drop table group"

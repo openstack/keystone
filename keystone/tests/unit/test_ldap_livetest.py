@@ -146,8 +146,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
             self.assertEqual(0, len(group_refs))
 
         for x in range(0, GROUP_COUNT):
-            new_group = {'domain_id': domain['id'],
-                         'name': uuid.uuid4().hex}
+            new_group = unit.new_group_ref(domain_id=domain['id'])
             new_group = self.identity_api.create_group(new_group)
             test_groups.append(new_group)
 

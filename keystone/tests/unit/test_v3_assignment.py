@@ -34,8 +34,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def setUp(self):
         super(AssignmentTestCase, self).setUp()
 
-        self.group = self.new_group_ref(
-            domain_id=self.domain_id)
+        self.group = unit.new_group_ref(domain_id=self.domain_id)
         self.group = self.identity_api.create_group(self.group)
         self.group_id = self.group['id']
 
@@ -222,8 +221,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             project_id=self.project2['id'])
         self.user2 = self.identity_api.create_user(self.user2)
 
-        self.group2 = self.new_group_ref(
-            domain_id=self.domain2['id'])
+        self.group2 = unit.new_group_ref(domain_id=self.domain2['id'])
         self.group2 = self.identity_api.create_group(self.group2)
 
         self.credential2 = self.new_credential_ref(
@@ -1638,8 +1636,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         password = self.user2['password']
         self.user2 = self.identity_api.create_user(self.user2)
         self.user2['password'] = password
-        self.group1 = self.new_group_ref(
-            domain_id=self.domain['id'])
+        self.group1 = unit.new_group_ref(domain_id=self.domain['id'])
         self.group1 = self.identity_api.create_group(self.group1)
         self.identity_api.add_user_to_group(self.user1['id'],
                                             self.group1['id'])
@@ -1837,7 +1834,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         # Create 3 groups
         self.group_ids = []
         for i in range(3):
-            group = self.new_group_ref(domain_id=self.domain_id)
+            group = unit.new_group_ref(domain_id=self.domain_id)
             group = self.identity_api.create_group(group)
             self.group_ids.append(group['id'])
 
@@ -2245,7 +2242,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         user = self.identity_api.create_user(user)
         user['password'] = password
 
-        group = self.new_group_ref(domain_id=self.domain['id'])
+        group = unit.new_group_ref(domain_id=self.domain['id'])
         group = self.identity_api.create_group(group)
         self.identity_api.add_user_to_group(user['id'], group['id'])
 
@@ -2602,8 +2599,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         password = user2['password']
         user2 = self.identity_api.create_user(user2)
         user2['password'] = password
-        group1 = self.new_group_ref(
-            domain_id=domain['id'])
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
         self.identity_api.add_user_to_group(user1['id'],
                                             group1['id'])
@@ -2703,8 +2699,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         password = user1['password']
         user1 = self.identity_api.create_user(user1)
         user1['password'] = password
-        group1 = self.new_group_ref(
-            domain_id=domain['id'])
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
         project1 = self.new_project_ref(
             domain_id=domain['id'])
@@ -2858,7 +2853,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             self._setup_hierarchical_projects_scenario())
 
         # Create group and add user to it
-        group = self.new_group_ref(domain_id=self.domain['id'])
+        group = unit.new_group_ref(domain_id=self.domain['id'])
         group = self.identity_api.create_group(group)
         self.identity_api.add_user_to_group(self.user['id'], group['id'])
 
