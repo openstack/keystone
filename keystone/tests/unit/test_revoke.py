@@ -125,9 +125,10 @@ class RevokeTests(object):
         self.revoke_api.revoke_by_user(user_id=1)
         self.revoke_api.revoke_by_user(user_id=2)
         past = timeutils.utcnow() - datetime.timedelta(seconds=1000)
-        self.assertEqual(2, len(self.revoke_api.list_events(past)))
+        self.assertEqual(2, len(self.revoke_api.list_events(last_fetch=past)))
         future = timeutils.utcnow() + datetime.timedelta(seconds=1000)
-        self.assertEqual(0, len(self.revoke_api.list_events(future)))
+        self.assertEqual(0,
+                         len(self.revoke_api.list_events(last_fetch=future)))
 
     def test_past_expiry_are_removed(self):
         user_id = 1
