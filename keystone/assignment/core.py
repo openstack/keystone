@@ -285,17 +285,6 @@ class Manager(manager.Manager):
         return self.resource_api.list_projects_from_ids(
             list(set(project_ids + project_ids_from_domains + subproject_ids)))
 
-    def list_role_assignments_for_role(self, role_id=None):
-        # NOTE(henry-nash): Currently the efficiency of the key driver
-        # implementation (SQL) of list_role_assignments is severely hampered by
-        # the existence of the multiple grant tables - hence there is little
-        # advantage in pushing the logic of this method down into the driver.
-        # Once the single assignment table is implemented, then this situation
-        # will be different, and this method should have its own driver
-        # implementation.
-        return [r for r in self.driver.list_role_assignments()
-                if r['role_id'] == role_id]
-
     @notifications.role_assignment('deleted')
     def _remove_role_from_user_and_project_adapter(self, role_id, user_id=None,
                                                    group_id=None,
@@ -765,7 +754,7 @@ class Manager(manager.Manager):
                 role_id, user_id, group_id, domain_id, project_id, inherited)
 
     def delete_tokens_for_role_assignments(self, role_id):
-        assignments = self.list_role_assignments_for_role(role_id=role_id)
+        assignments = self.list_role_assignments(role_id=role_id)
 
         # Iterate over the assignments for this role and build the list of
         # user or user+project IDs for the tokens we need to delete
@@ -1114,18 +1103,7 @@ class RoleManager(manager.Manager):
         return ret
 
     def delete_role(self, role_id, initiator=None):
-        try:
-            self.assignment_api.delete_tokens_for_role_assignments(role_id)
-        except exception.NotImplemented:  # nosec
-            # FIXME(morganfainberg): Not all backends (ldap) implement
-            # `list_role_assignments_for_role` which would have previously
-            # caused a NotImplmented error to be raised when called through
-            # the controller. Now error or proper action will always come from
-            # the `delete_role` method logic. Work needs to be done to make
-            # the behavior between drivers consistent (capable of revoking
-            # tokens for the same circumstances).  This is related to the bug
-            # https://bugs.launchpad.net/keystone/+bug/1221805
-            pass
+        self.assignment_api.delete_tokens_for_role_assignments(role_id)
         self.assignment_api.delete_role_assignments(role_id)
         self.driver.delete_role(role_id)
         notifications.Audit.deleted(self._ROLE, role_id, initiator)
