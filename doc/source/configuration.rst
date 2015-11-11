@@ -1637,9 +1637,9 @@ have been created. They are enabled by setting their respective flags to True.
 Then the attributes ``user_enabled_emulation_dn`` and
 ``project_enabled_emulation_dn`` may be set to specify how the enabled users
 and projects (tenants) are selected. These attributes work by using a
-``groupOfNames`` and adding whichever users or projects (tenants) that you want
-enabled to the respective group. For example, this will mark any user who is a
-member of ``enabled_users`` as enabled:
+``groupOfNames`` entry and adding whichever users or projects (tenants) that
+you want enabled to the respective group with the ``member`` attribute. For
+example, this will mark any user who is a member of ``enabled_users`` as enabled:
 
 .. code-block:: ini
 
@@ -1650,6 +1650,12 @@ member of ``enabled_users`` as enabled:
 The default values for user and project (tenant) enabled emulation DN is
 ``cn=enabled_users,$user_tree_dn`` and ``cn=enabled_tenants,$project_tree_dn``
 respectively.
+
+If a different LDAP schema is used for group membership, it is possible to use
+the ``group_objectclass`` and ``group_member_attribute`` attributes to
+determine membership in the enabled emulation group by setting the
+``user_enabled_emulation_use_group_config`` and
+``project_enabled_emulation_use_group_config`` attributes to True.
 
 Secure Connection
 -----------------

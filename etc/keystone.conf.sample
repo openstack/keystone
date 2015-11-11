@@ -1047,6 +1047,10 @@
 # (string value)
 #user_enabled_emulation_dn = <None>
 
+# Use the "group_member_attribute" and "group_objectclass" settings to
+# determine membership in the emulated enabled group. (boolean value)
+#user_enabled_emulation_use_group_config = false
+
 # List of additional LDAP attributes used for mapping additional attribute
 # mappings for users. Attribute mapping format is <ldap_attr>:<user_attr>,
 # where ldap_attr is the attribute in the LDAP entry and user_attr is the
@@ -1145,6 +1149,10 @@
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #project_enabled_emulation_dn = <None>
+
+# Use the "group_member_attribute" and "group_objectclass" settings to
+# determine membership in the emulated enabled group. (boolean value)
+#project_enabled_emulation_use_group_config = false
 
 # Additional attribute mappings for projects. Attribute mapping format is
 # <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
