@@ -12,4 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.middleware.auth import *  # noqa
 from keystone.middleware.core import *  # noqa
