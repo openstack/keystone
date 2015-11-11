@@ -110,8 +110,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         service_id = self._service_create()
         # create a v3 endpoint with three interfaces
         body = {
-            'endpoint': unit.new_endpoint_ref(service_id,
-                                              default_region_id=region_id)
+            'endpoint': unit.new_endpoint_ref(service_id, region_id=region_id)
         }
         for interface in catalog.controllers.INTERFACES:
             body['endpoint']['interface'] = interface
@@ -150,8 +149,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         service_id = self._service_create()
         # create a v3 endpoint without public interface
         body = {
-            'endpoint': unit.new_endpoint_ref(service_id,
-                                              default_region_id=region_id)
+            'endpoint': unit.new_endpoint_ref(service_id, region_id=region_id)
         }
         for interface in catalog.controllers.INTERFACES:
             if interface == 'public':
@@ -302,23 +300,18 @@ class TestV2CatalogAPISQL(unit.TestCase):
         service = {'id': self.service_id, 'name': uuid.uuid4().hex}
         self.catalog_api.create_service(self.service_id, service)
 
-        endpoint = self.new_endpoint_ref(service_id=self.service_id)
+        self.create_endpoint(service_id=self.service_id)
+
+    def create_endpoint(self, service_id, **kwargs):
+        endpoint = unit.new_endpoint_ref(service_id=service_id,
+                                         region_id=None,
+                                         **kwargs)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        return endpoint
 
     def config_overrides(self):
         super(TestV2CatalogAPISQL, self).config_overrides()
         self.config_fixture.config(group='catalog', driver='sql')
-
-    def new_endpoint_ref(self, service_id):
-        return {
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'interface': uuid.uuid4().hex[:8],
-            'service_id': service_id,
-            'url': uuid.uuid4().hex,
-            'region': uuid.uuid4().hex,
-        }
 
     def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
         user_id = uuid.uuid4().hex
@@ -331,14 +324,12 @@ class TestV2CatalogAPISQL(unit.TestCase):
         self.assertEqual(1, len(self.catalog_api.list_endpoints()))
 
         # create a new, invalid endpoint - malformed type declaration
-        endpoint = self.new_endpoint_ref(self.service_id)
-        endpoint['url'] = 'http://keystone/%(tenant_id)'
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        self.create_endpoint(self.service_id,
+                             url='http://keystone/%(tenant_id)')
 
         # create a new, invalid endpoint - nonexistent key
-        endpoint = self.new_endpoint_ref(self.service_id)
-        endpoint['url'] = 'http://keystone/%(you_wont_find_me)s'
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        self.create_endpoint(self.service_id,
+                             url='http://keystone/%(you_wont_find_me)s')
 
         # verify that the invalid endpoints don't appear in the catalog
         catalog = self.catalog_api.get_catalog(user_id, tenant_id)
@@ -357,8 +348,7 @@ class TestV2CatalogAPISQL(unit.TestCase):
             'name': uuid.uuid4().hex,
         }
         self.catalog_api.create_service(named_svc['id'], named_svc)
-        endpoint = self.new_endpoint_ref(service_id=named_svc['id'])
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        self.create_endpoint(service_id=named_svc['id'])
 
         # create a service, with no name
         unnamed_svc = {
@@ -366,8 +356,7 @@ class TestV2CatalogAPISQL(unit.TestCase):
             'type': uuid.uuid4().hex
         }
         self.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
-        endpoint = self.new_endpoint_ref(service_id=unnamed_svc['id'])
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        self.create_endpoint(service_id=unnamed_svc['id'])
 
         region = None
         catalog = self.catalog_api.get_catalog(user_id, tenant_id)

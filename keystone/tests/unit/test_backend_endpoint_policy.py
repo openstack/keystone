@@ -18,6 +18,7 @@ from six.moves import range
 from testtools import matchers
 
 from keystone import exception
+from keystone.tests import unit
 
 
 class PolicyAssociationTests(object):
@@ -52,9 +53,10 @@ class PolicyAssociationTests(object):
 
         """
         def new_endpoint(region_id, service_id):
-            endpoint = {'id': uuid.uuid4().hex, 'interface': 'test',
-                        'region_id': region_id, 'service_id': service_id,
-                        'url': '/url'}
+            endpoint = unit.new_endpoint_ref(interface='test',
+                                             region_id=region_id,
+                                             service_id=service_id,
+                                             url='/url')
             self.endpoint.append(self.catalog_api.create_endpoint(
                 endpoint['id'], endpoint))
 

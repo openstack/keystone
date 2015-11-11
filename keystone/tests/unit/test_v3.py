@@ -253,13 +253,12 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             self.service_id,
             self.service.copy())
 
-        self.endpoint_id = uuid.uuid4().hex
-        self.endpoint = self.new_endpoint_ref(service_id=self.service_id)
-        self.endpoint['id'] = self.endpoint_id
-        self.endpoint['region_id'] = self.region['id']
-        self.catalog_api.create_endpoint(
-            self.endpoint_id,
-            self.endpoint.copy())
+        self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
+                                              interface='public',
+                                              region_id=self.region_id)
+        self.endpoint_id = self.endpoint['id']
+        self.catalog_api.create_endpoint(self.endpoint_id,
+                                         self.endpoint.copy())
         # The server adds 'enabled' and defaults to True.
         self.endpoint['enabled'] = True
 
@@ -272,11 +271,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def new_service_ref(self):
         return unit.new_service_ref()
-
-    def new_endpoint_ref(self, service_id, interface='public', **kwargs):
-        return unit.new_endpoint_ref(
-            service_id, interface=interface, default_region_id=self.region_id,
-            **kwargs)
 
     def new_domain_ref(self):
         return unit.new_domain_ref()
