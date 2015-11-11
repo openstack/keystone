@@ -1781,6 +1781,43 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         # the LDAP backend
         self._assert_create_is_domain_project_not_allowed()
 
+    def test_set_default_is_domain_project(self):
+        # Tests the internal method _set_default_is_domain_project, which
+        # allows either a project ref or a list of project refs
+        new_project_ref = {'id': uuid.uuid4().hex,
+                           'name': uuid.uuid4().hex,
+                           'description': uuid.uuid4().hex}
+
+        # Calling it with a dict is valid
+        updated_project_ref = (self.resource_api.driver.
+                               _set_default_is_domain_project(new_project_ref))
+
+        self.assertFalse(updated_project_ref['is_domain'])
+
+        # So it is with a list of refs
+        another_new_project_ref = {'id': uuid.uuid4().hex,
+                                   'name': uuid.uuid4().hex,
+                                   'description': uuid.uuid4().hex}
+        refs_list = [new_project_ref, another_new_project_ref]
+        new_refs_list = (self.resource_api.driver.
+                         _set_default_is_domain_project(refs_list))
+
+        for ref in new_refs_list:
+            self.assertFalse(ref['is_domain'])
+
+        # Passing another type is not allowed
+        self.assertRaises(ValueError,
+                          self.resource_api.driver.
+                          _set_default_is_domain_project,
+                          'foo_bar')
+
+        # A list with another type is not allowed either
+        wrong_list = [new_project_ref, 'foo_bar']
+        self.assertRaises(ValueError,
+                          self.resource_api.driver.
+                          _set_default_is_domain_project,
+                          wrong_list)
+
     def test_create_project_with_parent_id_and_without_domain_id(self):
         self._assert_create_hierarchy_not_allowed()
 
