@@ -157,6 +157,24 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
             '%s %s' % (self.exc_str, exception.SecurityError.amendment),
             six.text_type(e))
 
+    def test_unexpected_error_custom_message_exception_debug(self):
+        self.config_fixture.config(debug=True)
+        orig_e = exception.NotFound(target=uuid.uuid4().hex)
+        e = exception.UnexpectedError(orig_e)
+        self.assertEqual(
+            '%s %s' % (six.text_type(orig_e),
+                       exception.SecurityError.amendment),
+            six.text_type(e))
+
+    def test_unexpected_error_custom_message_binary_debug(self):
+        self.config_fixture.config(debug=True)
+        binary_msg = b'something'
+        e = exception.UnexpectedError(binary_msg)
+        self.assertEqual(
+            '%s %s' % (six.text_type(binary_msg),
+                       exception.SecurityError.amendment),
+            six.text_type(e))
+
 
 class SecurityErrorTestCase(ExceptionTestCase):
     """Tests whether security-related info is exposed to the API user."""
