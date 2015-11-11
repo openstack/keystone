@@ -179,9 +179,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.assertNotEqual(self.user_foo['password'], user_ref['password'])
 
     def test_delete_user_with_project_association(self):
-        user = {'name': uuid.uuid4().hex,
-                'domain_id': DEFAULT_DOMAIN_ID,
-                'password': uuid.uuid4().hex}
+        user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
         user = self.identity_api.create_user(user)
         self.assignment_api.add_user_to_project(self.tenant_bar['id'],
                                                 user['id'])
@@ -191,9 +189,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           user['id'])
 
     def test_create_null_user_name(self):
-        user = {'name': None,
-                'domain_id': DEFAULT_DOMAIN_ID,
-                'password': uuid.uuid4().hex}
+        user = unit.new_user_ref(name=None,
+                                 domain_id=DEFAULT_DOMAIN_ID)
         self.assertRaises(exception.ValidationError,
                           self.identity_api.create_user,
                           user)
@@ -208,9 +205,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         # LDAP.
 
         # create a ref with a lowercase name
-        ref = {
-            'name': uuid.uuid4().hex.lower(),
-            'domain_id': DEFAULT_DOMAIN_ID}
+        ref = unit.new_user_ref(name=uuid.uuid4().hex.lower(),
+                                domain_id=DEFAULT_DOMAIN_ID)
         ref = self.identity_api.create_user(ref)
 
         # assign a new ID with the same name, but this time in uppercase
@@ -251,9 +247,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
                           DEFAULT_DOMAIN_ID)
 
     def test_delete_project_with_user_association(self):
-        user = {'name': 'fakeuser',
-                'domain_id': DEFAULT_DOMAIN_ID,
-                'password': 'passwd'}
+        user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
         user = self.identity_api.create_user(user)
         self.assignment_api.add_user_to_project(self.tenant_bar['id'],
                                                 user['id'])
@@ -300,11 +294,9 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         """
         arbitrary_key = uuid.uuid4().hex
         arbitrary_value = uuid.uuid4().hex
-        user = {
-            'name': uuid.uuid4().hex,
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'password': uuid.uuid4().hex,
-            arbitrary_key: arbitrary_value}
+        user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
+        user[arbitrary_key] = arbitrary_value
+        del user["id"]
         ref = self.identity_api.create_user(user)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertIsNone(ref.get('password'))
@@ -319,11 +311,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 
     def test_sql_user_to_dict_null_default_project_id(self):
-        user = {
-            'name': uuid.uuid4().hex,
-            'domain_id': DEFAULT_DOMAIN_ID,
-            'password': uuid.uuid4().hex}
-
+        user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
         user = self.identity_api.create_user(user)
         session = sql.get_session()
         query = session.query(identity_sql.User)
@@ -337,8 +325,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
     def test_list_domains_for_user(self):
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
-        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
-                'domain_id': domain['id'], 'enabled': True}
+        user = unit.new_user_ref(domain_id=domain['id'])
 
         test_domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(test_domain1['id'], test_domain1)
@@ -363,8 +350,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         # should now be included, along with any direct user grants.
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
-        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
-                'domain_id': domain['id'], 'enabled': True}
+        user = unit.new_user_ref(domain_id=domain['id'])
         user = self.identity_api.create_user(user)
         group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
@@ -409,8 +395,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         domain1 = self.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
         domain2 = self.resource_api.create_domain(domain2['id'], domain2)
-        user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
-                'domain_id': domain1['id'], 'enabled': True}
+        user = unit.new_user_ref(domain_id=domain1['id'])
         user = self.identity_api.create_user(user)
         group = unit.new_group_ref(domain_id=domain1['id'])
         group = self.identity_api.create_group(group)

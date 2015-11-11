@@ -202,10 +202,8 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.project['id'] = self.project_id
         self.resource_api.create_project(self.project_id, self.project)
 
-        self.user = self.new_user_ref(domain_id=self.domain_id)
-        password = self.user['password']
-        self.user = self.identity_api.create_user(self.user)
-        self.user['password'] = password
+        self.user = unit.create_user(self.identity_api,
+                                     domain_id=self.domain_id)
         self.user_id = self.user['id']
 
         self.default_domain_project_id = uuid.uuid4().hex
@@ -215,12 +213,9 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.resource_api.create_project(self.default_domain_project_id,
                                          self.default_domain_project)
 
-        self.default_domain_user = self.new_user_ref(
+        self.default_domain_user = unit.create_user(
+            self.identity_api,
             domain_id=DEFAULT_DOMAIN_ID)
-        password = self.default_domain_user['password']
-        self.default_domain_user = (
-            self.identity_api.create_user(self.default_domain_user))
-        self.default_domain_user['password'] = password
         self.default_domain_user_id = self.default_domain_user['id']
 
         # create & grant policy.json's default role for admin_required
@@ -260,9 +255,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def new_project_ref(self, domain_id=None, parent_id=None, is_domain=False):
         return unit.new_project_ref(domain_id=domain_id, parent_id=parent_id,
                                     is_domain=is_domain)
-
-    def new_user_ref(self, domain_id, project_id=None):
-        return unit.new_user_ref(domain_id, project_id=project_id)
 
     def new_credential_ref(self, user_id, project_id=None, cred_type=None):
         return unit.new_credential_ref(user_id, project_id=project_id,
@@ -845,6 +837,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             resp,
             'users',
             self.assertValidUser,
+            keys_to_check=['name', 'enabled'],
             *args,
             **kwargs)
 
@@ -853,6 +846,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             resp,
             'user',
             self.assertValidUser,
+            keys_to_check=['name', 'enabled'],
             *args,
             **kwargs)
 

@@ -312,13 +312,18 @@ def new_project_ref(domain_id=None, parent_id=None, is_domain=False):
     return ref
 
 
-def new_user_ref(domain_id, project_id=None):
+def new_user_ref(domain_id, project_id=None, **kwargs):
     ref = new_ref()
+
+    # do not include by default, allow user to add with kwargs
+    del ref['description']
+
     ref['domain_id'] = domain_id
     ref['email'] = uuid.uuid4().hex
     ref['password'] = uuid.uuid4().hex
     if project_id:
         ref['default_project_id'] = project_id
+    ref.update(**kwargs)
     return ref
 
 
@@ -398,6 +403,20 @@ def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
             ref['roles'].append({'name': role_name})
 
     return ref
+
+
+def create_user(api, domain_id, **kwargs):
+    """Create a user via the API. Keep the created password.
+
+    The password is saved and restored when api.create_user() is called.
+    Only use this routine if there is a requirement for the user object to
+    have a valid password after api.create_user() is called.
+    """
+    user = new_user_ref(domain_id=domain_id, **kwargs)
+    password = user['password']
+    user = api.create_user(user)
+    user['password'] = password
+    return user
 
 
 class BaseTestCase(oslotest.BaseTestCase):

@@ -209,6 +209,7 @@ class ClientDrivenTestCase(unit.TestCase):
             enabled=tenant['enabled'])
         tenant['id'] = tenant_ref.id
 
+        # v2 style, needs to be created by hand
         user = {
             'name': uuid.uuid4().hex,
             'password': uuid.uuid4().hex,

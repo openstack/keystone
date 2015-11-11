@@ -133,6 +133,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         USER_COUNT = 2
 
         for x in range(0, USER_COUNT):
+            # TODO(shaleh): use unit.new_user_ref()
             new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                         'enabled': True, 'domain_id': domain['id']}
             new_user = self.identity_api.create_user(new_user)

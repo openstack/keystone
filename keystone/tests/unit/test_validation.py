@@ -1717,13 +1717,8 @@ class UserValidationTestCase(unit.BaseTestCase):
 
     def test_validate_user_create_with_all_valid_parameters_succeeds(self):
         """Test that validating a user create request succeeds."""
-        request_to_validate = {'name': self.user_name,
-                               'default_project_id': uuid.uuid4().hex,
-                               'domain_id': uuid.uuid4().hex,
-                               'description': uuid.uuid4().hex,
-                               'enabled': True,
-                               'email': uuid.uuid4().hex,
-                               'password': uuid.uuid4().hex}
+        request_to_validate = unit.new_user_ref(domain_id=uuid.uuid4().hex,
+                                                name=self.user_name)
         self.create_user_validator.validate(request_to_validate)
 
     def test_validate_user_create_fails_without_name(self):
