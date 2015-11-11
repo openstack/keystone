@@ -198,6 +198,7 @@ class ClientDrivenTestCase(unit.TestCase):
     def test_authenticate_disabled_tenant(self):
         admin_client = self.get_client(admin=True)
 
+        # v2 style, needs to be created by hand
         tenant = {
             'name': uuid.uuid4().hex,
             'description': uuid.uuid4().hex,
@@ -935,11 +936,9 @@ class ClientDrivenTestCase(unit.TestCase):
 
         # Add two arbitrary tenants to user for testing purposes
         for i in range(2):
-            tenant_id = uuid.uuid4().hex
-            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
-                      'domain_id': DEFAULT_DOMAIN_ID}
-            self.resource_api.create_project(tenant_id, tenant)
-            self.assignment_api.add_user_to_project(tenant_id,
+            tenant = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+            self.resource_api.create_project(tenant['id'], tenant)
+            self.assignment_api.add_user_to_project(tenant['id'],
                                                     self.user_foo['id'])
 
         tenants = client.tenants.list()
@@ -961,8 +960,9 @@ class ClientDrivenTestCase(unit.TestCase):
         # Add two arbitrary tenants to user for testing purposes
         for i in range(2):
             tenant_id = uuid.uuid4().hex
-            tenant = {'name': 'tenant-%s' % tenant_id, 'id': tenant_id,
-                      'domain_id': DEFAULT_DOMAIN_ID}
+            tenant = unit.new_project_ref(name='tenant-%s' % tenant_id,
+                                          id=tenant_id,
+                                          domain_id=DEFAULT_DOMAIN_ID)
             self.resource_api.create_project(tenant_id, tenant)
             self.assignment_api.add_user_to_project(tenant_id,
                                                     self.user_foo['id'])

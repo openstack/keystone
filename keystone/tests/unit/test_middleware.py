@@ -147,8 +147,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self._load_sample_data()
 
     def _load_sample_data(self):
-        self.project_id = uuid.uuid4().hex
-        self.project_name = uuid.uuid4().hex
         self.protocol_id = 'x509'
 
         # 1) Create a domain for the user.
@@ -158,13 +156,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.resource_api.create_domain(self.domain_id, self.domain)
 
         # 2) Create a project for the user.
-        self.project = {
-            'description': uuid.uuid4().hex,
-            'domain_id': self.domain_id,
-            'enabled': True,
-            'id': self.project_id,
-            'name': self.project_name,
-        }
+        self.project = unit.new_project_ref(domain_id=self.domain_id)
+        self.project_id = self.project['id']
+        self.project_name = self.project['name']
 
         self.resource_api.create_project(self.project_id, self.project)
 

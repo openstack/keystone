@@ -352,7 +352,7 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         self.role_api.create_role(self.admin_role['id'], self.admin_role)
 
         # Create and assign roles to the project
-        self.project = self.new_project_ref(
+        self.project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         self.resource_api.create_project(self.project['id'], self.project)
         self.assignment_api.create_grant(self.role['id'],
@@ -637,7 +637,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
                                          domain_id=self.domainA['id'])
 
         # Create and assign roles to the project
-        self.project = self.new_project_ref(domain_id=self.domainA['id'])
+        self.project = unit.new_project_ref(domain_id=self.domainA['id'])
         self.resource_api.create_project(self.project['id'], self.project)
         self.assignment_api.create_grant(self.admin_role['id'],
                                          user_id=self.project_admin_user['id'],
@@ -689,7 +689,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.delete(entity_url, auth=self.auth,
                     expected_status=status_no_data)
 
-        proj_ref = self.new_project_ref(domain_id=domain_id)
+        proj_ref = unit.new_project_ref(domain_id=domain_id)
         self.post('/projects', auth=self.auth, body={'project': proj_ref},
                   expected_status=status_created)
 
