@@ -276,14 +276,11 @@ class Manager(manager.Manager):
                     action=_('cannot enable project %s since it has '
                              'disabled parents') % project_id)
 
-    def _assert_whole_subtree_is_disabled(self, project_id):
-        subtree_list = self.list_projects_in_subtree(project_id)
-        for ref in subtree_list:
-            if ref.get('enabled', True):
-                raise exception.ForbiddenAction(
-                    action=_('cannot disable project %s since '
-                             'its subtree contains enabled '
-                             'projects') % project_id)
+    def _check_whole_subtree_is_disabled(self, project_id, subtree_list=None):
+        if not subtree_list:
+            subtree_list = self.list_projects_in_subtree(project_id)
+        subtree_enabled = [ref.get('enabled', True) for ref in subtree_list]
+        return (not any(subtree_enabled))
 
     def update_project(self, project_id, project, initiator=None):
         # Use the driver directly to prevent using old cached value.
@@ -325,8 +322,13 @@ class Manager(manager.Manager):
             # project acting as a domain to be disabled irrespective of the
             # state of its children. Disabling a project acting as domain
             # effectively disables its children.
-            if not original_project.get('is_domain'):
-                self._assert_whole_subtree_is_disabled(project_id)
+            if (not original_project.get('is_domain') and not
+                    self._check_whole_subtree_is_disabled(project_id)):
+                raise exception.ForbiddenAction(
+                    action=_('cannot disable project %(project_id)s since its '
+                             'subtree contains enabled projects.')
+                    % {'project_id': project_id})
+
             self._disable_project(project_id)
 
         ret = self.driver.update_project(project_id, project)
@@ -344,7 +346,27 @@ class Manager(manager.Manager):
 
         return ret
 
-    def delete_project(self, project_id, initiator=None):
+    def _pre_delete_cleanup_project(self, project_id, project, initiator=None):
+        project_user_ids = (
+            self.assignment_api.list_user_ids_for_project(project_id))
+        for user_id in project_user_ids:
+            payload = {'user_id': user_id, 'project_id': project_id}
+            self._emit_invalidate_user_project_tokens_notification(payload)
+
+    def _post_delete_cleanup_project(self, project_id, project,
+                                     initiator=None):
+        self.assignment_api.delete_project_assignments(project_id)
+        self.get_project.invalidate(self, project_id)
+        self.get_project_by_name.invalidate(self, project['name'],
+                                            project['domain_id'])
+        self.credential_api.delete_credentials_for_project(project_id)
+        notifications.Audit.deleted(self._PROJECT, project_id, initiator)
+        # Invalidate user role assignments cache region, as it may
+        # be caching role assignments where the target is
+        # the specified project
+        assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+
+    def delete_project(self, project_id, initiator=None, cascade=False):
         # Use the driver directly to prevent using old cached value.
         project = self.driver.get_project(project_id)
         if project['is_domain'] and project['enabled']:
@@ -353,27 +375,37 @@ class Manager(manager.Manager):
                           'domain. Please disable the project %s first.')
                 % project.get('id'))
 
-        if not self.is_leaf_project(project_id):
+        if not self.is_leaf_project(project_id) and not cascade:
             raise exception.ForbiddenAction(
                 action=_('cannot delete the project %s since it is not '
-                         'a leaf in the hierarchy.') % project_id)
+                         'a leaf in the hierarchy. Use the cascade option '
+                         'if you want to delete a whole subtree.')
+                % project_id)
 
-        project_user_ids = (
-            self.assignment_api.list_user_ids_for_project(project_id))
-        for user_id in project_user_ids:
-            payload = {'user_id': user_id, 'project_id': project_id}
-            self._emit_invalidate_user_project_tokens_notification(payload)
-        ret = self.driver.delete_project(project_id)
-        self.assignment_api.delete_project_assignments(project_id)
-        self.get_project.invalidate(self, project_id)
-        self.get_project_by_name.invalidate(self, project['name'],
-                                            project['domain_id'])
-        self.credential_api.delete_credentials_for_project(project_id)
-        notifications.Audit.deleted(self._PROJECT, project_id, initiator)
+        if cascade:
+            # Getting reversed project's subtrees list, i.e. from the leaves
+            # to the root, so we do not break parent_id FK.
+            subtree_list = self.list_projects_in_subtree(project_id)
+            subtree_list.reverse()
+            if not self._check_whole_subtree_is_disabled(
+                    project_id, subtree_list=subtree_list):
+                raise exception.ForbiddenAction(
+                    action=_('cannot delete project %(project_id)s since its '
+                             'subtree contains enabled projects.')
+                    % {'project_id': project_id})
 
-        # Invalidate user role assignments cache region, as it may be caching
-        # role assignments where the target is the specified project
-        assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+            project_list = subtree_list + [project]
+            projects_ids = [x['id'] for x in project_list]
+
+            for prj in project_list:
+                self._pre_delete_cleanup_project(prj['id'], prj, initiator)
+            ret = self.driver.delete_projects_from_ids(projects_ids)
+            for prj in project_list:
+                self._post_delete_cleanup_project(prj['id'], prj, initiator)
+        else:
+            self._pre_delete_cleanup_project(project_id, project, initiator)
+            ret = self.driver.delete_project(project_id)
+            self._post_delete_cleanup_project(project_id, project, initiator)
 
         return ret
 
