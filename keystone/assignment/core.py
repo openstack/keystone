@@ -42,7 +42,7 @@ MEMOIZE = cache.get_memoization_decorator(group='role')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
-    See :mod:`keystone.common.manager.Manager` for more details on how this
+    See :class:`keystone.common.manager.Manager` for more details on how this
     dynamically calls the backend.
 
     """
@@ -456,7 +456,7 @@ class Manager(manager.Manager):
             of role assignments containing one for each user of that group on
             that target.
 
-            An example of accepted ref is:
+            An example of accepted ref is::
 
             {
                 'group_id': group_id,
@@ -466,6 +466,8 @@ class Manager(manager.Manager):
 
             Once expanded, it should be returned as a list of entities like the
             one below, one for each each user_id in the provided group_id.
+
+            ::
 
             {
                 'user_id': user_id,
@@ -504,7 +506,7 @@ class Manager(manager.Manager):
             list of role assignments for that user on every project under
             that target.
 
-            An example of accepted ref is:
+            An example of accepted ref is::
 
             {
                 'group_id': group_id,
@@ -516,6 +518,8 @@ class Manager(manager.Manager):
             Once expanded, it should be returned as a list of entities like the
             one below, one for each each user_id in the provided group_id and
             for each subproject_id in the project_id subtree.
+
+            ::
 
             {
                 'user_id': user_id,

@@ -157,13 +157,13 @@ class ManagerNotificationWrapper(object):
     """Send event notifications for ``Manager`` methods.
 
     Sends a notification if the wrapped Manager method does not raise an
-    ``Exception`` (such as ``keystone.exception.NotFound``).
+    :class:`Exception` (such as :class:`keystone.exception.NotFound`).
 
-    :param operation:  one of the values from ACTIONS
+    :param operation: one of the values from ACTIONS
     :param resource_type: type of resource being affected
     :param public:  If True (default), the event will be sent to the notifier
-                API.  If False, the event will only be sent via
-                notify_event_callbacks to in process listeners
+                    API.  If False, the event will only be sent via
+                    notify_event_callbacks to in process listeners
 
     """
 
@@ -176,6 +176,7 @@ class ManagerNotificationWrapper(object):
         self.result_id_arg_attr = result_id_arg_attr
 
     def __call__(self, f):
+        @functools.wraps(f)
         def wrapper(*args, **kwargs):
             """Send a notification if the wrapped callable is successful."""
             try:
@@ -517,8 +518,8 @@ class CadfNotificationWrapper(object):
     This function is only used for Authentication events. Its ``action`` and
     ``event_type`` are dictated below.
 
-    - action: authenticate
-    - event_type: identity.authenticate
+    - action: ``authenticate``
+    - event_type: ``identity.authenticate``
 
     Sends CADF notifications for events such as whether an authentication was
     successful or not.
@@ -532,6 +533,7 @@ class CadfNotificationWrapper(object):
         self.event_type = '%s.%s' % (SERVICE, operation)
 
     def __call__(self, f):
+        @functools.wraps(f)
         def wrapper(wrapped_self, context, user_id, *args, **kwargs):
             """Always send a notification."""
             initiator = _get_request_audit_info(context, user_id)
@@ -559,12 +561,12 @@ class CadfRoleAssignmentNotificationWrapper(object):
     This function is only used for role assignment events. Its ``action`` and
     ``event_type`` are dictated below.
 
-    - action: created.role_assignment or deleted.role_assignment
-    - event_type: identity.role_assignment.created or
-        identity.role_assignment.deleted
+    - action: ``created.role_assignment`` or ``deleted.role_assignment``
+    - event_type: ``identity.role_assignment.created`` or
+        ``identity.role_assignment.deleted``
 
     Sends a CADF notification if the wrapped method does not raise an
-    ``Exception`` (such as ``keystone.exception.NotFound``).
+    :class:`Exception` (such as :class:`keystone.exception.NotFound`).
 
     :param operation: one of the values from ACTIONS (create or delete)
     """
@@ -579,6 +581,7 @@ class CadfRoleAssignmentNotificationWrapper(object):
                                         operation)
 
     def __call__(self, f):
+        @functools.wraps(f)
         def wrapper(wrapped_self, role_id, *args, **kwargs):
             """Send a notification if the wrapped callable is successful.
 
@@ -586,15 +589,18 @@ class CadfRoleAssignmentNotificationWrapper(object):
             and args for possible target and actor values is because the
             create_grant() (and delete_grant()) method are called
             differently in various tests.
-            Using named arguments, i.e.:
+            Using named arguments, i.e.::
+
                 create_grant(user_id=user['id'], domain_id=domain['id'],
                              role_id=role['id'])
 
-            Or, using positional arguments, i.e.:
+            Or, using positional arguments, i.e.::
+
                 create_grant(role_id['id'], user['id'], None,
                              domain_id=domain['id'], None)
 
-            Or, both, i.e.:
+            Or, both, i.e.::
+
                 create_grant(role_id['id'], user_id=user['id'],
                              domain_id=domain['id'])
 
@@ -602,6 +608,9 @@ class CadfRoleAssignmentNotificationWrapper(object):
             in as a dictionary
 
             The actual method signature is
+
+            ::
+
                 create_grant(role_id, user_id=None, group_id=None,
                              domain_id=None, project_id=None,
                              inherited_to_projects=False)
