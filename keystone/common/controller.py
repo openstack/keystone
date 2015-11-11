@@ -25,6 +25,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone.openstack.common import log
+from keystone.openstack.common import strutils
 
 
 LOG = log.getLogger(__name__)
@@ -50,9 +51,12 @@ def v2_deprecated(f):
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):
+    kwargs_str = ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])
+    kwargs_str = strutils.mask_password(kwargs_str)
+
     LOG.debug('RBAC: Authorizing %(action)s(%(kwargs)s)', {
         'action': action,
-        'kwargs': ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])})
+        'kwargs': kwargs_str})
 
     # see if auth context has already been created. If so use it.
     if ('environment' in context and
