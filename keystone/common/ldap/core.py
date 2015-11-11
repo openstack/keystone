@@ -1771,18 +1771,22 @@ class BaseLdap(object):
 class EnabledEmuMixIn(BaseLdap):
     """Emulates boolean 'enabled' attribute if turned on.
 
-    Creates groupOfNames holding all enabled objects of this class, all missing
+    Creates a group holding all enabled objects of this class, all missing
     objects are considered disabled.
 
     Options:
 
     * $name_enabled_emulation - boolean, on/off
-    * $name_enabled_emulation_dn - DN of that groupOfNames, default is
+    * $name_enabled_emulation_dn - DN of that group, default is
       cn=enabled_${name}s,${tree_dn}
+    * $name_enabled_emulation_use_group_config - boolean, on/off
 
     Where ${name}s is the plural of self.options_name ('users' or 'tenants'),
     ${tree_dn} is self.tree_dn.
     """
+
+    DEFAULT_GROUP_OBJECTCLASS = 'groupOfNames'
+    DEFAULT_MEMBER_ATTRIBUTE = 'member'
 
     def __init__(self, conf):
         super(EnabledEmuMixIn, self).__init__(conf)
@@ -1791,6 +1795,18 @@ class EnabledEmuMixIn(BaseLdap):
 
         enabled_emulation_dn = '%s_enabled_emulation_dn' % self.options_name
         self.enabled_emulation_dn = getattr(conf.ldap, enabled_emulation_dn)
+
+        use_group_config = ('%s_enabled_emulation_use_group_config' %
+                            self.options_name)
+        self.use_group_config = getattr(conf.ldap, use_group_config)
+
+        if not self.use_group_config:
+            self.member_attribute = self.DEFAULT_MEMBER_ATTRIBUTE
+            self.group_objectclass = self.DEFAULT_GROUP_OBJECTCLASS
+        else:
+            self.member_attribute = conf.ldap.group_member_attribute
+            self.group_objectclass = conf.ldap.group_objectclass
+
         if not self.enabled_emulation_dn:
             naming_attr_name = 'cn'
             naming_attr_value = 'enabled_%ss' % self.options_name
@@ -1807,7 +1823,7 @@ class EnabledEmuMixIn(BaseLdap):
 
     def _get_enabled(self, object_id, conn):
         dn = self._id_to_dn(object_id)
-        query = '(member=%s)' % dn
+        query = '(%s=%s)' % (self.member_attribute, dn)
         try:
             enabled_value = conn.search_s(self.enabled_emulation_dn,
                                           ldap.SCOPE_BASE,
@@ -1821,13 +1837,14 @@ class EnabledEmuMixIn(BaseLdap):
         with self.get_connection() as conn:
             if not self._get_enabled(object_id, conn):
                 modlist = [(ldap.MOD_ADD,
-                            'member',
+                            self.member_attribute,
                             [self._id_to_dn(object_id)])]
                 try:
                     conn.modify_s(self.enabled_emulation_dn, modlist)
                 except ldap.NO_SUCH_OBJECT:
-                    attr_list = [('objectClass', ['groupOfNames']),
-                                 ('member', [self._id_to_dn(object_id)]),
+                    attr_list = [('objectClass', [self.group_objectclass]),
+                                 (self.member_attribute,
+                                  [self._id_to_dn(object_id)]),
                                  self.enabled_emulation_naming_attr]
                     if self.use_dumb_member:
                         attr_list[1][1].append(self.dumb_member)
@@ -1835,7 +1852,7 @@ class EnabledEmuMixIn(BaseLdap):
 
     def _remove_enabled(self, object_id):
         modlist = [(ldap.MOD_DELETE,
-                    'member',
+                    self.member_attribute,
                     [self._id_to_dn(object_id)])]
         with self.get_connection() as conn:
             try:

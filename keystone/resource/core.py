@@ -841,6 +841,7 @@ class DomainConfigManager(manager.Manager):
             'user_attribute_ignore', 'user_default_project_id_attribute',
             'user_allow_create', 'user_allow_update', 'user_allow_delete',
             'user_enabled_emulation', 'user_enabled_emulation_dn',
+            'user_enabled_emulation_use_group_config',
             'user_additional_attribute_mapping', 'group_tree_dn',
             'group_filter', 'group_objectclass', 'group_id_attribute',
             'group_name_attribute', 'group_member_attribute',
