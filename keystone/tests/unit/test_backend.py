@@ -3665,9 +3665,8 @@ class IdentityTests(AssignmentTestHelperMixin):
     @unit.skip_if_no_multiple_domains_support
     def test_create_domain_case_sensitivity(self):
         # create a ref with a lowercase name
-        ref = {
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex.lower()}
+        ref = unit.new_domain_ref(name=uuid.uuid4().hex.lower())
+
         self.resource_api.create_domain(ref['id'], ref)
 
         # assign a new ID with the same name, but this time in uppercase
