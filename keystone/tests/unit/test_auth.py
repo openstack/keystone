@@ -1342,14 +1342,8 @@ class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
 
         # Create a service for use with the endpoints.
         def create_service(**kwargs):
-            id_ = uuid.uuid4().hex
-            ref = {
-                'id': id_,
-                'name': uuid.uuid4().hex,
-                'type': uuid.uuid4().hex,
-            }
-            ref.update(kwargs)
-            self.catalog_api.create_service(id_, ref)
+            ref = unit.new_service_ref(**kwargs)
+            self.catalog_api.create_service(ref['id'], ref)
             return ref
 
         enabled_service_ref = create_service(enabled=True)
