@@ -1323,8 +1323,7 @@ class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
 
     def _create_endpoints(self):
         def create_region(**kwargs):
-            ref = {'id': uuid.uuid4().hex}
-            ref.update(kwargs)
+            ref = unit.new_region_ref(**kwargs)
             self.catalog_api.create_region(ref)
             return ref
 
