@@ -828,9 +828,9 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.identity_api.add_user_to_group(self.user3['id'],
                                             self.group2['id'])
 
-        self.role1 = self.new_role_ref()
+        self.role1 = unit.new_role_ref()
         self.role_api.create_role(self.role1['id'], self.role1)
-        self.role2 = self.new_role_ref()
+        self.role2 = unit.new_role_ref()
         self.role_api.create_role(self.role2['id'], self.role2)
 
         self.assignment_api.create_grant(self.role2['id'],
@@ -869,7 +869,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                   expected_status=http_client.OK)
 
         # create a new role
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         # assign a new role
@@ -2069,7 +2069,7 @@ class TestAuth(test_v3.RestfulTestCase):
         # Now create all the roles and assign them
         role_list = []
         for _ in range(8):
-            role = self.new_role_ref()
+            role = unit.new_role_ref()
             self.role_api.create_role(role['id'], role)
             role_list.append(role)
 
@@ -2159,17 +2159,13 @@ class TestAuth(test_v3.RestfulTestCase):
         password = user_foo['password']
         user_foo = self.identity_api.create_user(user_foo)
         user_foo['password'] = password
-        role_member = {'id': uuid.uuid4().hex,
-                       'name': uuid.uuid4().hex}
+        role_member = unit.new_role_ref()
         self.role_api.create_role(role_member['id'], role_member)
-        role_admin = {'id': uuid.uuid4().hex,
-                      'name': uuid.uuid4().hex}
+        role_admin = unit.new_role_ref()
         self.role_api.create_role(role_admin['id'], role_admin)
-        role_foo_domain1 = {'id': uuid.uuid4().hex,
-                            'name': uuid.uuid4().hex}
+        role_foo_domain1 = unit.new_role_ref()
         self.role_api.create_role(role_foo_domain1['id'], role_foo_domain1)
-        role_group_domain1 = {'id': uuid.uuid4().hex,
-                              'name': uuid.uuid4().hex}
+        role_group_domain1 = unit.new_role_ref()
         self.role_api.create_role(role_group_domain1['id'], role_group_domain1)
         self.assignment_api.add_user_to_project(project1['id'],
                                                 user_foo['id'])
@@ -2879,7 +2875,7 @@ class TestTrustRedelegation(test_v3.RestfulTestCase):
 
     def test_roles_subset(self):
         # Build second role
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
         # assign a new role to the user
         self.assignment_api.create_grant(role_id=role['id'],
@@ -2947,7 +2943,7 @@ class TestTrustRedelegation(test_v3.RestfulTestCase):
         trust_token = self._get_trust_token(trust)
 
         # Build second trust with a role not in parent's roles
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
         # assign a new role to the user
         self.assignment_api.create_grant(role_id=role['id'],
@@ -3643,7 +3639,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
 
     def test_trust_deleted_grant(self):
         # create a new role
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         grant_url = (
@@ -3696,7 +3692,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
         sub_trustee_user_id = sub_trustee_user['id']
 
         # create a new role
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         # assign the new role to trustee

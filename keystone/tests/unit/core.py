@@ -343,11 +343,12 @@ def new_credential_ref(user_id, project_id=None, cred_type=None):
     return ref
 
 
-def new_role_ref():
+def new_role_ref(**kwargs):
     ref = new_ref()
     # Roles don't have a description or the enabled flag
     del ref['description']
     del ref['enabled']
+    ref.update(**kwargs)
     return ref
 
 

@@ -415,7 +415,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         group = {'name': uuid.uuid4().hex, 'domain_id': domain1['id']}
         group = self.identity_api.create_group(group)
         self.identity_api.add_user_to_group(user['id'], group['id'])
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         # Create a grant on each domain, one user grant, one group grant,

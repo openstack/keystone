@@ -45,7 +45,7 @@ class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, unit.TestCase):
     """
 
     def test_configurable_allowed_role_actions(self):
-        role = {'id': u'fäké1', 'name': u'fäké1'}
+        role = unit.new_role_ref(id=u'fäké1', name=u'fäké1')
         self.role_api.create_role(u'fäké1', role)
         role_ref = self.role_api.get_role(u'fäké1')
         self.assertEqual(u'fäké1', role_ref['id'])
@@ -64,7 +64,7 @@ class LdapRole(LdapRoleCommon, core_ldap.BaseBackendLdap, unit.TestCase):
             role_allow_delete=False)
         self.load_backends()
 
-        role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        role = unit.new_role_ref()
         self.assertRaises(exception.ForbiddenAction,
                           self.role_api.create_role,
                           role['id'],

@@ -10,10 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
-
 from keystone.common import sql
 from keystone import exception
+from keystone.tests import unit
 from keystone.tests.unit.backend import core_sql
 from keystone.tests.unit.backend.role import core
 
@@ -29,8 +28,7 @@ class SqlRoleModels(core_sql.BaseBackendSqlModels):
 class SqlRole(core_sql.BaseBackendSqlTests, core.RoleTests):
 
     def test_create_null_role_name(self):
-        role = {'id': uuid.uuid4().hex,
-                'name': None}
+        role = unit.new_role_ref(name=None)
         self.assertRaises(exception.UnexpectedError,
                           self.role_api.create_role,
                           role['id'],

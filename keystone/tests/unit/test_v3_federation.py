@@ -262,12 +262,12 @@ class FederatedSetupMixin(object):
         self.group_admins = self.identity_api.create_group(self.group_admins)
 
         # Create and add roles
-        self.role_employee = self.new_role_ref()
+        self.role_employee = unit.new_role_ref()
         self.role_api.create_role(self.role_employee['id'], self.role_employee)
-        self.role_customer = self.new_role_ref()
+        self.role_customer = unit.new_role_ref()
         self.role_api.create_role(self.role_customer['id'], self.role_customer)
 
-        self.role_admin = self.new_role_ref()
+        self.role_admin = unit.new_role_ref()
         self.role_api.create_role(self.role_admin['id'], self.role_admin)
 
         # Employees can access
@@ -1912,7 +1912,7 @@ class FederatedTokenTests(FederationTests, FederatedSetupMixin):
         group = self.new_group_ref(
             domain_id=self.domainA['id'])
         group = self.identity_api.create_group(group)
-        role = self.new_role_ref()
+        role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
 
         # assign role to group and project_admins
