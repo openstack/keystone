@@ -153,8 +153,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.user_password = uuid.uuid4().hex
         self.user_email = uuid.uuid4().hex
         self.protocol_id = 'x509'
-        # for ephemeral user
-        self.group_name = uuid.uuid4().hex
 
         # 1) Create a domain for the user.
         self.domain = unit.new_domain_ref()
@@ -196,10 +194,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.role_api.create_role(self.role_id, self.role)
 
         # Add a group
-        self.group = {
-            'name': self.group_name,
-            'domain_id': self.domain_id,
-        }
+        self.group = unit.new_group_ref(domain_id=self.domain_id)
         self.group = self.identity_api.create_group(self.group)
 
         # Assign a role to the user on a project

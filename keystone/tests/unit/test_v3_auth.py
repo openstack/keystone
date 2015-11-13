@@ -809,16 +809,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.user3 = self.identity_api.create_user(self.user3)
         self.user3['password'] = password
 
-        self.group1 = self.new_group_ref(
-            domain_id=self.domainA['id'])
+        self.group1 = unit.new_group_ref(domain_id=self.domainA['id'])
         self.group1 = self.identity_api.create_group(self.group1)
 
-        self.group2 = self.new_group_ref(
-            domain_id=self.domainA['id'])
+        self.group2 = unit.new_group_ref(domain_id=self.domainA['id'])
         self.group2 = self.identity_api.create_group(self.group2)
 
-        self.group3 = self.new_group_ref(
-            domain_id=self.domainB['id'])
+        self.group3 = unit.new_group_ref(domain_id=self.domainB['id'])
         self.group3 = self.identity_api.create_group(self.group3)
 
         self.identity_api.add_user_to_group(self.user1['id'],
@@ -2053,12 +2050,10 @@ class TestAuth(test_v3.RestfulTestCase):
         user2 = self.identity_api.create_user(user2)
         user2['password'] = password
 
-        group1 = self.new_group_ref(
-            domain_id=domainA['id'])
+        group1 = unit.new_group_ref(domain_id=domainA['id'])
         group1 = self.identity_api.create_group(group1)
 
-        group2 = self.new_group_ref(
-            domain_id=domainA['id'])
+        group2 = unit.new_group_ref(domain_id=domainA['id'])
         group2 = self.identity_api.create_group(group2)
 
         self.identity_api.add_user_to_group(user1['id'],
@@ -2169,7 +2164,7 @@ class TestAuth(test_v3.RestfulTestCase):
         self.role_api.create_role(role_group_domain1['id'], role_group_domain1)
         self.assignment_api.add_user_to_project(project1['id'],
                                                 user_foo['id'])
-        new_group = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain1['id'])
         new_group = self.identity_api.create_group(new_group)
         self.identity_api.add_user_to_group(user_foo['id'],
                                             new_group['id'])
@@ -2305,8 +2300,7 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertValidDomainScopedTokenResponse(r)
 
     def test_domain_scope_token_with_group_role(self):
-        group = self.new_group_ref(
-            domain_id=self.domain_id)
+        group = unit.new_group_ref(domain_id=self.domain_id)
         group = self.identity_api.create_group(group)
 
         # add user to group

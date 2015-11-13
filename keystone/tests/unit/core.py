@@ -322,9 +322,14 @@ def new_user_ref(domain_id, project_id=None):
     return ref
 
 
-def new_group_ref(domain_id):
+def new_group_ref(domain_id, **kwargs):
     ref = new_ref()
+
+    # Group does not have enabled field
+    del ref['enabled']
+
     ref['domain_id'] = domain_id
+    ref.update(**kwargs)
     return ref
 
 

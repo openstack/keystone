@@ -36,8 +36,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(IdentityTestCase, self).setUp()
 
-        self.group = self.new_group_ref(
-            domain_id=self.domain_id)
+        self.group = unit.new_group_ref(domain_id=self.domain_id)
         self.group = self.identity_api.create_group(self.group)
         self.group_id = self.group['id']
 
@@ -392,7 +391,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_create_group(self):
         """Call ``POST /groups``."""
-        ref = self.new_group_ref(domain_id=self.domain_id)
+        # Create a new group to avoid a duplicate check failure
+        ref = unit.new_group_ref(domain_id=self.domain_id)
         r = self.post(
             '/groups',
             body={'group': ref})
@@ -418,7 +418,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_update_group(self):
         """Call ``PATCH /groups/{group_id}``."""
-        group = self.new_group_ref(domain_id=self.domain_id)
+        group = unit.new_group_ref(domain_id=self.domain_id)
         del group['id']
         r = self.patch('/groups/%(group_id)s' % {
             'group_id': self.group_id},
@@ -427,19 +427,17 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_update_group_domain_id(self):
         """Call ``PATCH /groups/{group_id}`` with domain_id."""
-        group = self.new_group_ref(domain_id=self.domain['id'])
-        group = self.identity_api.create_group(group)
-        group['domain_id'] = CONF.identity.default_domain_id
+        self.group['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/groups/%(group_id)s' % {
-            'group_id': group['id']},
-            body={'group': group},
+            'group_id': self.group['id']},
+            body={'group': self.group},
             expected_status=exception.ValidationError.code)
         self.config_fixture.config(domain_id_immutable=False)
-        group['domain_id'] = self.domain['id']
+        self.group['domain_id'] = self.domain['id']
         r = self.patch('/groups/%(group_id)s' % {
-            'group_id': group['id']},
-            body={'group': group})
-        self.assertValidGroupResponse(r, group)
+            'group_id': self.group['id']},
+            body={'group': self.group})
+        self.assertValidGroupResponse(r, self.group)
 
     def test_delete_group(self):
         """Call ``DELETE /groups/{group_id}``."""

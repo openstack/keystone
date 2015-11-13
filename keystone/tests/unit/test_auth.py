@@ -338,7 +338,7 @@ class AuthWithToken(AuthTest):
         # Now create a group role for this user as well
         domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(domain1['id'], domain1)
-        new_group = {'domain_id': domain1['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=domain1['id'])
         new_group = self.identity_api.create_group(new_group)
         self.identity_api.add_user_to_group(self.user_foo['id'],
                                             new_group['id'])

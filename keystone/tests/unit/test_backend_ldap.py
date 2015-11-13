@@ -251,8 +251,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
         new_domain = self._get_domain_fixture()
-        new_group = {'domain_id': new_domain['id'],
-                     'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'enabled': True,
                     'domain_id': new_domain['id']}
@@ -351,7 +350,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                  'domain_id': domain['id'], 'enabled': True}
         user2 = self.identity_api.create_user(user2)
 
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
 
         self.identity_api.add_user_to_group(user2['id'], group1['id'])
@@ -382,7 +381,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         user1 = self.identity_api.create_user(user1)
 
         # Create new group for user1
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
 
         # Add user1 to group1
@@ -416,9 +415,9 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                     'enabled': True, 'domain_id': domain['id']}
         new_user = self.identity_api.create_user(new_user)
 
-        group1 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
-        group2 = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+        group2 = unit.new_group_ref(domain_id=domain['id'])
         group2 = self.identity_api.create_group(group2)
 
         project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
@@ -499,7 +498,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': new_domain['id']}
         new_user = self.identity_api.create_user(new_user)
-        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = self.identity_api.create_group(new_group)
         new_project = {'id': uuid.uuid4().hex,
                        'name': uuid.uuid4().hex,
@@ -583,8 +582,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         """
         # Create a group
-        group = dict(name=uuid.uuid4().hex,
-                     domain_id=CONF.identity.default_domain_id)
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group_id = self.identity_api.create_group(group)['id']
 
         # Create a couple of users and add them to the group.
@@ -616,10 +614,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_list_group_members_when_no_members(self):
         # List group members when there is no member in the group.
         # No exception should be raised.
-        group = {
-            'domain_id': CONF.identity.default_domain_id,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
 
         # If this doesn't raise, then the test is successful.
@@ -632,8 +627,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.load_fixtures(default_fixtures)
 
         # Create a group
-        group = dict(name=uuid.uuid4().hex,
-                     domain_id=CONF.identity.default_domain_id)
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group_id = self.identity_api.create_group(group)['id']
 
         # Create a user
@@ -694,10 +688,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     # In the tests below, the update is demonstrated by updating description.
     # Refer to bug 1136403 for more detail.
     def test_group_crud(self):
-        group = {
-            'domain_id': CONF.identity.default_domain_id,
-            'name': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
         group_ref = self.identity_api.get_group(group['id'])
         self.assertDictEqual(group, group_ref)
@@ -713,9 +704,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_group_crud(self):
-        group = {
-            'domain_id': CONF.identity.default_domain_id,
-            'name': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
         # cache the result
         group_ref = self.identity_api.get_group(group['id'])
@@ -730,9 +719,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group, group['id'])
 
-        group = {
-            'domain_id': CONF.identity.default_domain_id,
-            'name': uuid.uuid4().hex}
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
         # cache the result
         self.identity_api.get_group(group['id'])
@@ -841,13 +828,10 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                 break
 
         # Create a group
-        group_id = uuid.uuid4().hex
-        group = {
-            'id': group_id,
-            'name': self.getUniqueString(prefix='tuidc'),
-            'description': self.getUniqueString(),
-            'domain_id': CONF.identity.default_domain_id,
-        }
+        group = unit.new_group_ref(name=self.getUniqueString(prefix='tuidc'),
+                                   description=self.getUniqueString(),
+                                   domain_id=CONF.identity.default_domain_id)
+        group_id = group['id']
         group = self.identity_api.driver.create_group(group_id, group)
         # Now we'll use the manager to discover it, which will create a
         # Public ID for it.
@@ -939,8 +923,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
 
         # There's no group fixture so create a group.
         new_domain = self._get_domain_fixture()
-        new_group = {'domain_id': new_domain['id'],
-                     'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = self.identity_api.create_group(new_group)
 
         # Attempt to disable the group.
@@ -1979,7 +1962,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         expected_group_ids = []
         numgroups = 3
         for _ in range(numgroups):
-            group = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+            group = unit.new_group_ref(domain_id=domain['id'])
             group = self.identity_api.create_group(group)
             expected_group_ids.append(group['id'])
         # Fetch the test groups and ensure that they don't contain a dn.
@@ -2001,7 +1984,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         expected_group_ids = []
         numgroups = 3
         for _ in range(numgroups):
-            group = {'name': uuid.uuid4().hex, 'domain_id': domain['id']}
+            group = unit.new_group_ref(domain_id=domain['id'])
             group = self.identity_api.create_group(group)
             expected_group_ids.append(group['id'])
             self.identity_api.add_user_to_group(user['id'], group['id'])
@@ -2393,7 +2376,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # that we would not need to override such tests here. This is raised
         # as bug 1373865.
         new_domain = self._get_domain_fixture()
-        new_group = {'domain_id': new_domain['id'], 'name': uuid.uuid4().hex}
+        new_group = unit.new_group_ref(domain_id=new_domain['id'],)
         new_group = self.identity_api.create_group(new_group)
         new_user = {'name': 'new_user', 'password': uuid.uuid4().hex,
                     'enabled': True, 'domain_id': new_domain['id']}
