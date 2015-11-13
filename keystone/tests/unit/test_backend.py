@@ -1525,7 +1525,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Can delete a grant where the user doesn't exist.
         role = unit.new_role_ref()
         role_id = role['id']
-        self.role_api.create_role(role['id'], role)
+        self.role_api.create_role(role_id, role)
 
         user_id = uuid.uuid4().hex
 
@@ -1539,7 +1539,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Can delete a grant where the group doesn't exist.
         role = unit.new_role_ref()
         role_id = role['id']
-        self.role_api.create_role(role['id'], role)
+        self.role_api.create_role(role_id, role)
 
         group_id = uuid.uuid4().hex
 
