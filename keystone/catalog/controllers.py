@@ -48,7 +48,8 @@ class Service(controller.V2Controller):
     @controller.v2_deprecated
     def delete_service(self, context, service_id):
         self.assert_admin(context)
-        self.catalog_api.delete_service(service_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.catalog_api.delete_service(service_id, initiator)
 
     @controller.v2_deprecated
     def create_service(self, context, OS_KSADM_service):
@@ -56,8 +57,9 @@ class Service(controller.V2Controller):
         service_id = uuid.uuid4().hex
         service_ref = OS_KSADM_service.copy()
         service_ref['id'] = service_id
+        initiator = notifications._get_request_audit_info(context)
         new_service_ref = self.catalog_api.create_service(
-            service_id, service_ref)
+            service_id, service_ref, initiator)
         return {'OS-KSADM:service': new_service_ref}
 
 
@@ -141,11 +143,12 @@ class Endpoint(controller.V2Controller):
     def delete_endpoint(self, context, endpoint_id):
         """Delete up to three v3 endpoint refs based on a legacy ref ID."""
         self.assert_admin(context)
+        initiator = notifications._get_request_audit_info(context)
 
         deleted_at_least_one = False
         for endpoint in self.catalog_api.list_endpoints():
             if endpoint['legacy_endpoint_id'] == endpoint_id:
-                self.catalog_api.delete_endpoint(endpoint['id'])
+                self.catalog_api.delete_endpoint(endpoint['id'], initiator)
                 deleted_at_least_one = True
 
         if not deleted_at_least_one:
