@@ -271,7 +271,7 @@ class MappingPurge(BaseApp):
     @staticmethod
     def main():
         def validate_options():
-            # NOTE(henry-nash); It would be nice to use the argparse automated
+            # NOTE(henry-nash): It would be nice to use the argparse automated
             # checking for this validation, but the only way I can see doing
             # that is to make the default (i.e. if no optional parameters
             # are specified) to purge all mappings - and that sounds too
