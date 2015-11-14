@@ -294,6 +294,10 @@
 # service (at DEBUG level). (boolean value)
 #log_options = true
 
+# Specify a timeout after which a gracefully shutdown server will exit. Zero
+# value means endless wait. (integer value)
+#graceful_shutdown_timeout = 0
+
 
 [assignment]
 
@@ -702,7 +706,7 @@
 
 # Timeout for socket operations on a client connection. If an incoming
 # connection is idle for this number of seconds it will be closed. A value of
-# '0' means wait forever. (integer value)
+# "0" means wait forever. (integer value)
 #client_socket_timeout = 900
 
 # Set this to true if you want to enable TCP_KEEPALIVE on server sockets, i.e.
@@ -894,7 +898,7 @@
 # mapping for even the default LDAP driver. It is only safe to do this if you
 # do not already have assignments for users and groups from the default LDAP
 # domain, and it is acceptable for Keystone to provide the different IDs to
-# clients than it did previously.  Typically this means that the only time you
+# clients than it did previously. Typically this means that the only time you
 # can set this value to False is when configuring a fresh installation.
 # (boolean value)
 #backward_compatible_ids = true
