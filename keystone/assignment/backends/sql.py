@@ -429,7 +429,7 @@ class Assignment(keystone_assignment.AssignmentDriverV8):
 class RoleAssignment(sql.ModelBase, sql.DictBase):
     __tablename__ = 'assignment'
     attributes = ['type', 'actor_id', 'target_id', 'role_id', 'inherited']
-    # NOTE(henry-nash); Postgres requires a name to be defined for an Enum
+    # NOTE(henry-nash): Postgres requires a name to be defined for an Enum
     type = sql.Column(
         sql.Enum(AssignmentType.USER_PROJECT, AssignmentType.GROUP_PROJECT,
                  AssignmentType.USER_DOMAIN, AssignmentType.GROUP_DOMAIN,
