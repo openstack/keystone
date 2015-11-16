@@ -17,7 +17,7 @@ from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
-from keystone.i18n import _LE
+from keystone.i18n import _LE, _LW
 from keystone import resource as keystone_resource
 
 
@@ -167,6 +167,20 @@ class Resource(keystone_resource.ResourceDriverV9):
         with sql.transaction() as session:
             project_ref = self._get_project(session, project_id)
             session.delete(project_ref)
+
+    @sql.handle_conflicts(conflict_type='project')
+    def delete_projects_from_ids(self, project_ids):
+        if not project_ids:
+            return
+        with sql.transaction() as session:
+            query = session.query(Project).filter(Project.id.in_(
+                project_ids))
+            project_ids_from_bd = [p['id'] for p in query.all()]
+            for project_id in project_ids:
+                if project_id not in project_ids_from_bd:
+                    LOG.warning(_LW('Project %s does not exist and was not '
+                                    'deleted.') % project_id)
+            query.delete(synchronize_session=False)
 
     # domain crud
 

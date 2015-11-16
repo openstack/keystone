@@ -982,6 +982,18 @@ class ResourceDriverV9(ResourceDriverBase):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
+    @abc.abstractmethod
+    def delete_projects_from_ids(self, project_ids):
+        """Deletes a given list of projects.
+
+        Deletes a list of projects. Ensures no project on the list exists
+        after it is successfully called. If an empty list is provided,
+        the it is silently ignored. In addition, if a project ID in the list
+        of project_ids is not found in the backend, no exception is raised,
+        but a message is logged.
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
 
 class V9ResourceWrapperForV8Driver(ResourceDriverV9):
     """Wrapper class to supported a V8 legacy driver.
@@ -1060,6 +1072,9 @@ class V9ResourceWrapperForV8Driver(ResourceDriverV9):
 
     def delete_project(self, project_id):
         self.driver.delete_project(project_id)
+
+    def delete_projects_from_ids(self, project_ids):
+        raise exception.NotImplemented()  # pragma: no cover
 
     def list_project_parents(self, project_id):
         return self.driver.list_project_parents(project_id)
