@@ -78,7 +78,7 @@ class IdentityProvider(_ControllerBase):
 
     @classmethod
     def _add_self_referential_link(cls, context, ref):
-        id = ref.get('id')
+        id = ref['id']
         self_path = '/'.join([cls.base_url(context), id])
         ref.setdefault('links', {})
         ref['links']['self'] = self_path
@@ -263,7 +263,7 @@ class Auth(auth_controllers.Auth):
 
         """
         if 'origin' in context['query_string']:
-            origin = context['query_string'].get('origin')
+            origin = context['query_string']['origin']
             host = urllib.parse.unquote_plus(origin)
         else:
             msg = _('Request must have an origin query parameter')
@@ -343,7 +343,7 @@ class Auth(auth_controllers.Auth):
         sp_id = auth['scope']['service_provider']['id']
         service_provider = self.federation_api.get_sp(sp_id)
         utils.assert_enabled_service_provider_object(service_provider)
-        sp_url = service_provider.get('sp_url')
+        sp_url = service_provider['sp_url']
 
         token_id = auth['identity']['token']['id']
         token_data = self.token_provider_api.validate_token(token_id)
@@ -397,7 +397,7 @@ class Auth(auth_controllers.Auth):
         """
         t = self._create_base_saml_assertion(context, auth)
         (saml_assertion, service_provider) = t
-        relay_state_prefix = service_provider.get('relay_state_prefix')
+        relay_state_prefix = service_provider['relay_state_prefix']
 
         generator = keystone_idp.ECPGenerator()
         ecp_assertion = generator.generate_ecp(saml_assertion,
