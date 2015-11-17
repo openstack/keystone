@@ -1,0 +1,19 @@
+---
+other:
+  - Running keystone in eventlet remains deprecated and will be removed in the
+    Mitaka release.
+  - Using LDAP as the resource backend, i.e for projects and domains, is now
+    deprecated and will be removed in the Mitaka release.
+  - Using the full path to the driver class is deprecated in favor of using
+    the entrypoint. In the Mitaka release, the entrypoint must be used.
+  - In the [resource] and [role] sections of the ``keystone.conf`` file, not
+    specifying the driver and using the assignment driver is deprecated. In
+    the Mitaka release, the resource and role drivers will default to the SQL
+    driver.
+  - In ``keystone-paste.ini``, using ``paste.filter_factory`` is deprecated in
+    favor of the "use" directive, specifying an entrypoint.
+  - Not specifying a domain during a create user, group or project call, which
+    relied on falling back to the default domain, is now deprecated and will
+    be removed in the N release.
+  - Certain deprecated methods from the assignment manager were removed in
+    favor of the same methods in the [resource] and [role] manager.
