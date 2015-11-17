@@ -11,10 +11,10 @@
 # Raildo Mascena <raildom@gmail.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev216\n"
+"Project-Id-Version: keystone 9.0.0.dev214\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-05 06:13+0000\n"
-"PO-Revision-Date: 2015-10-29 04:58+0000\n"
+"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"PO-Revision-Date: 2015-11-16 05:53+0000\n"
 "Last-Translator: Raildo Mascena <raildom@gmail.com>\n"
 "Language: pt_BR\n"
 "Language-Team: Portuguese (Brazil)\n"
@@ -395,12 +395,12 @@ msgstr "O domínio não pode ser chamado %s"
 msgid "Domain cannot have ID %s"
 msgstr "O domínio não pode ter o ID de %s"
 
+msgid "Domain grants not supported by LDAP"
+msgstr "Permissões de domínio não é suportado pelo LDAP"
+
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "O domínio está desativado: %s"
-
-msgid "Domain metadata not supported by LDAP"
-msgstr "Metadados de domínio não suportados por LDAP"
 
 msgid "Domain scoped token is not supported"
 msgstr "O token de escopo de domínio não é suportado"
@@ -430,6 +430,12 @@ msgstr "ID duplicado, %s."
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Nome duplicado, %s."
+
+msgid "EC2 access key not found."
+msgstr "Chave de acesso EC2 não encontrada."
+
+msgid "EC2 signature not supplied."
+msgstr "assinatura EC2 não fornecida."
 
 msgid "Enabled field must be a boolean"
 msgstr "Campo habilitado precisa ser um booleano"
@@ -558,6 +564,9 @@ msgid ""
 msgstr ""
 "O identificador do provedor de identidade recebido não está incluído entre "
 "os identificadores aceitos."
+
+msgid "Invalid EC2 signature."
+msgstr "Assinatura EC2 inválida."
 
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
@@ -1184,6 +1193,9 @@ msgid ""
 "User not found in the default domain (please use the v3 API instead): %s"
 msgstr ""
 "Usuário não encontrado no domínio padrão (por favor utilize a API v3): %s"
+
+msgid "User not valid for tenant."
+msgstr "Usuário não é válido para o tenant."
 
 msgid "User roles not supported: tenant_id required"
 msgstr "Papéis de usuários não suportado: necessário tenant_id"

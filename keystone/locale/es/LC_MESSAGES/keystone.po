@@ -13,9 +13,9 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev216\n"
+"Project-Id-Version: keystone 9.0.0.dev214\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-05 06:13+0000\n"
+"POT-Creation-Date: 2015-11-17 06:29+0000\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: es\n"
@@ -375,9 +375,6 @@ msgstr "El dominio no puede tener el ID %s"
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "El dominio está inhabilitado: %s"
-
-msgid "Domain metadata not supported by LDAP"
-msgstr "Metadatos de dominio no soportados por LDAP"
 
 msgid "Domain scoped token is not supported"
 msgstr "La señal con ámbito de dominio no está soportada"

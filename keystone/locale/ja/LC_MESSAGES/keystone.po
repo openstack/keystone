@@ -7,9 +7,9 @@
 # Akihiro Motoki <amotoki@gmail.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev216\n"
+"Project-Id-Version: keystone 9.0.0.dev214\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-05 06:13+0000\n"
+"POT-Creation-Date: 2015-11-17 06:29+0000\n"
 "PO-Revision-Date: 2015-10-08 03:20+0000\n"
 "Last-Translator: Akihiro Motoki <amotoki@gmail.com>\n"
 "Language: ja\n"
@@ -369,9 +369,6 @@ msgstr "ドメインに %s という ID を付けることはできません"
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "ドメイン %s が無効になっています"
-
-msgid "Domain metadata not supported by LDAP"
-msgstr "ドメインメタデータは LDAP ではサポートされません"
 
 msgid "Domain scoped token is not supported"
 msgstr "ドメインをスコープにしたトークンはサポートされていません"
