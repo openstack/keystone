@@ -33,6 +33,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone.contrib.ec2 import controllers
 from keystone import exception
+from keystone.i18n import _
 
 
 EXTENSION_DATA = {
@@ -67,16 +68,60 @@ class S3Extension(wsgi.V3ExtensionRouter):
 
 class S3Controller(controllers.Ec2Controller):
     def check_signature(self, creds_ref, credentials):
-        msg = base64.urlsafe_b64decode(str(credentials['token']))
-        key = str(creds_ref['secret']).encode('utf-8')
+        string_to_sign = base64.urlsafe_b64decode(str(credentials['token']))
 
+        if string_to_sign[0:4] != b'AWS4':
+            signature = self._calculate_signature_v1(string_to_sign,
+                                                     creds_ref['secret'])
+        else:
+            signature = self._calculate_signature_v4(string_to_sign,
+                                                     creds_ref['secret'])
+
+        if not utils.auth_str_equal(credentials['signature'], signature):
+            raise exception.Unauthorized(
+                message=_('Credential signature mismatch'))
+
+    def _calculate_signature_v1(self, string_to_sign, secret_key):
+        """Calculates a v1 signature.
+
+        :param bytes string_to_sign: String that contains request params and
+                                     is used for calculate signature of request
+        :param text secret_key: Second auth key of EC2 account that is used to
+                                sign requests
+        """
+        key = str(secret_key).encode('utf-8')
         if six.PY2:
             b64_encode = base64.encodestring
         else:
             b64_encode = base64.encodebytes
+        signed = b64_encode(hmac.new(key, string_to_sign, hashlib.sha1)
+                            .digest()).decode('utf-8').strip()
+        return signed
 
-        signed = b64_encode(
-            hmac.new(key, msg, hashlib.sha1).digest()).decode('utf-8').strip()
+    def _calculate_signature_v4(self, string_to_sign, secret_key):
+        """Calculates a v4 signature.
 
-        if not utils.auth_str_equal(credentials['signature'], signed):
-            raise exception.Unauthorized('Credential signature mismatch')
+        :param bytes string_to_sign: String that contains request params and
+                                     is used for calculate signature of request
+        :param text secret_key: Second auth key of EC2 account that is used to
+                                sign requests
+        """
+        parts = string_to_sign.split(b'\n')
+        if len(parts) != 4 or parts[0] != b'AWS4-HMAC-SHA256':
+            raise exception.Unauthorized(
+                message=_('Invalid EC2 signature.'))
+        scope = parts[2].split(b'/')
+        if len(scope) != 4 or scope[2] != b's3' or scope[3] != b'aws4_request':
+            raise exception.Unauthorized(
+                message=_('Invalid EC2 signature.'))
+
+        def _sign(key, msg):
+            return hmac.new(key, msg, hashlib.sha256).digest()
+
+        signed = _sign(six.b('AWS4' + secret_key), scope[0])
+        signed = _sign(signed, scope[1])
+        signed = _sign(signed, scope[2])
+        signed = _sign(signed, b'aws4_request')
+
+        signature = hmac.new(signed, string_to_sign, hashlib.sha256)
+        return signature.hexdigest()
