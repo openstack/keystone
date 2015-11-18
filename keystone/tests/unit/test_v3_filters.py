@@ -66,21 +66,12 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.resource_api.create_domain(self.domainC['id'], self.domainC)
 
         # Now create some users, one in domainA and two of them in domainB
-        self.user1 = self.new_user_ref(domain_id=self.domainA['id'])
-        password = uuid.uuid4().hex
-        self.user1['password'] = password
-        self.user1 = self.identity_api.create_user(self.user1)
-        self.user1['password'] = password
-
-        self.user2 = self.new_user_ref(domain_id=self.domainB['id'])
-        self.user2['password'] = password
-        self.user2 = self.identity_api.create_user(self.user2)
-        self.user2['password'] = password
-
-        self.user3 = self.new_user_ref(domain_id=self.domainB['id'])
-        self.user3['password'] = password
-        self.user3 = self.identity_api.create_user(self.user3)
-        self.user3['password'] = password
+        self.user1 = unit.create_user(self.identity_api,
+                                      domain_id=self.domainA['id'])
+        self.user2 = unit.create_user(self.identity_api,
+                                      domain_id=self.domainB['id'])
+        self.user3 = unit.create_user(self.identity_api,
+                                      domain_id=self.domainB['id'])
 
         self.role = unit.new_role_ref()
         self.role_api.create_role(self.role['id'], self.role)

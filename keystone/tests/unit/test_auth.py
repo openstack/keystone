@@ -715,15 +715,9 @@ class AuthWithPasswordCredentials(AuthTest):
 
         # 2) Create user "foo" in new domain with different password than
         #    default-domain foo.
-        new_user_password = uuid.uuid4().hex
-        new_user = {
-            'name': self.user_foo['name'],
-            'domain_id': new_domain_id,
-            'password': new_user_password,
-            'email': 'foo@bar2.com',
-        }
-
-        new_user = self.identity_api.create_user(new_user)
+        new_user = unit.create_user(self.identity_api,
+                                    name=self.user_foo['name'],
+                                    domain_id=new_domain_id)
 
         # 3) Update the default_domain_id config option to the new domain
 
@@ -734,7 +728,7 @@ class AuthWithPasswordCredentials(AuthTest):
 
         body_dict = _build_user_auth(
             username=self.user_foo['name'],
-            password=new_user_password)
+            password=new_user['password'])
 
         # The test is successful if this doesn't raise, so no need to assert.
         self.controller.authenticate({}, body_dict)

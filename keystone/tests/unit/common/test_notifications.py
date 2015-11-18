@@ -338,16 +338,16 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_ROLE)
 
     def test_create_user(self):
-        user_ref = self.new_user_ref(domain_id=self.domain_id)
+        user_ref = unit.new_user_ref(domain_id=self.domain_id)
         user_ref = self.identity_api.create_user(user_ref)
         self._assert_last_note(user_ref['id'], CREATED_OPERATION, 'user')
         self._assert_last_audit(user_ref['id'], CREATED_OPERATION, 'user',
                                 cadftaxonomy.SECURITY_ACCOUNT_USER)
 
     def test_create_trust(self):
-        trustor = self.new_user_ref(domain_id=self.domain_id)
+        trustor = unit.new_user_ref(domain_id=self.domain_id)
         trustor = self.identity_api.create_user(trustor)
-        trustee = self.new_user_ref(domain_id=self.domain_id)
+        trustee = unit.new_user_ref(domain_id=self.domain_id)
         trustee = self.identity_api.create_user(trustee)
         role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
@@ -387,7 +387,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_ROLE)
 
     def test_delete_user(self):
-        user_ref = self.new_user_ref(domain_id=self.domain_id)
+        user_ref = unit.new_user_ref(domain_id=self.domain_id)
         user_ref = self.identity_api.create_user(user_ref)
         self.identity_api.delete_user(user_ref['id'])
         self._assert_last_note(user_ref['id'], DELETED_OPERATION, 'user')
@@ -421,9 +421,9 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_DOMAIN)
 
     def test_delete_trust(self):
-        trustor = self.new_user_ref(domain_id=self.domain_id)
+        trustor = unit.new_user_ref(domain_id=self.domain_id)
         trustor = self.identity_api.create_user(trustor)
-        trustee = self.new_user_ref(domain_id=self.domain_id)
+        trustee = unit.new_user_ref(domain_id=self.domain_id)
         trustee = self.identity_api.create_user(trustee)
         role_ref = unit.new_role_ref()
         trust_ref = self.new_trust_ref(trustor['id'], trustee['id'])
@@ -616,7 +616,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_ROLE)
 
     def test_update_user(self):
-        user_ref = self.new_user_ref(domain_id=self.domain_id)
+        user_ref = unit.new_user_ref(domain_id=self.domain_id)
         user_ref = self.identity_api.create_user(user_ref)
         self.identity_api.update_user(user_ref['id'], user_ref)
         self._assert_last_note(user_ref['id'], UPDATED_OPERATION, 'user')

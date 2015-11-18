@@ -149,9 +149,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
     def _load_sample_data(self):
         self.project_id = uuid.uuid4().hex
         self.project_name = uuid.uuid4().hex
-        self.user_name = uuid.uuid4().hex
-        self.user_password = uuid.uuid4().hex
-        self.user_email = uuid.uuid4().hex
         self.protocol_id = 'x509'
 
         # 1) Create a domain for the user.
@@ -172,13 +169,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         self.resource_api.create_project(self.project_id, self.project)
 
         # 3) Create a user in new domain.
-        self.user = {
-            'name': self.user_name,
-            'domain_id': self.domain_id,
-            'project_id': self.project_id,
-            'password': self.user_password,
-            'email': self.user_email,
-        }
+        self.user = unit.new_user_ref(domain_id=self.domain_id,
+                                      project_id=self.project_id)
 
         self.user = self.identity_api.create_user(self.user)
 
@@ -384,7 +376,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         # SSL_CLIENT_USER_NAME and SSL_CLIENT_DOMAIN_NAME are the types
         # defined in the mapping that will map to the user name and
         # domain name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
         req = make_request(environ=env)
         context = self._create_context(
@@ -396,7 +388,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_ID'] = self.project_id
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
         req = make_request(environ=env)
         context = self._create_context(
@@ -409,7 +401,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
         req = make_request(environ=env)
         context = self._create_context(
@@ -422,7 +414,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
         req = make_request(environ=env)
         context = self._create_context(
@@ -434,7 +426,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_id
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
         req = make_request(environ=env)
         context = self._create_context(
@@ -476,7 +468,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
         req = make_request(environ=env)
         context = self._create_context(
@@ -519,7 +511,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_ID'] = self.project_id
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         req = make_request(environ=env)
         context = self._create_context(
             request=req,
@@ -546,7 +538,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
         req = make_request(environ=env)
         self.domain['enabled'] = False
@@ -565,7 +557,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
         req = make_request(environ=env)
         self.user['enabled'] = False
@@ -599,7 +591,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
@@ -616,7 +608,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
@@ -657,7 +649,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = uuid.uuid4().hex
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = uuid.uuid4().hex
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
@@ -677,7 +669,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
@@ -701,7 +693,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
-        env['SSL_CLIENT_USER_NAME'] = self.user_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
         req = make_request(environ=env)
         # This will pick up the incorrect mapping
         self.config_fixture.config(group='tokenless_auth',

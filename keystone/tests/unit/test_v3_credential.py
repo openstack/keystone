@@ -22,6 +22,7 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone import exception
+from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
@@ -289,7 +290,7 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
     def setUp(self):
         super(TestCredentialTrustScoped, self).setUp()
 
-        self.trustee_user = self.new_user_ref(domain_id=self.domain_id)
+        self.trustee_user = unit.new_user_ref(domain_id=self.domain_id)
         password = self.trustee_user['password']
         self.trustee_user = self.identity_api.create_user(self.trustee_user)
         self.trustee_user['password'] = password

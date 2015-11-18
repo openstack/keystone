@@ -105,6 +105,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
                           password=old_password)
 
     def _create_user_and_authenticate(self, password):
+        # TODO(shaleh): port to new_user_ref()
         user_dict = {
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex,

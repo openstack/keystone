@@ -75,17 +75,11 @@ class CertSetupTestCase(rest.RestfulTestCase):
         controller = token.controllers.Auth()
 
         self.config_fixture.config(group='signing', certfile='invalid')
-        password = 'fake1'
-        user = {
-            'name': 'fake1',
-            'password': password,
-            'domain_id': DEFAULT_DOMAIN_ID
-        }
-        user = self.identity_api.create_user(user)
+        user = unit.create_user(self.identity_api, domain_id=DEFAULT_DOMAIN_ID)
         body_dict = {
             'passwordCredentials': {
                 'userId': user['id'],
-                'password': password,
+                'password': user['password'],
             },
         }
         self.assertRaises(exception.UnexpectedError,
