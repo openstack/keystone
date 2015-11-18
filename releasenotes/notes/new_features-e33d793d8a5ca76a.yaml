@@ -1,0 +1,21 @@
+---
+features:
+  - >
+    **Experimental** - Domain specific configuration options can be stored in
+    SQL instead of configuration files, using the new REST APIs.
+  - >
+    **Experimental** - Keystone now supports tokenless authorization with
+    X.509 SSL client certificate.
+  - Configuring per-Identity Provider WebSSO is now supported.
+  - >
+    ``openstack_user_domain`` and ``openstack_project_domain`` attributes were
+    added to SAML assertion in order to map user and project domains,
+    respectively.
+  - The credentials list call can now have its results filtered by credential
+    type.
+  - Support was improved for out-of-tree drivers by defining stable driver
+    interfaces.
+  - Several features were hardened, including Fernet tokens, federation,
+    domain specific configurations from database and role assignments.
+  - Certain variables in ``keystone.conf`` now have options, which determine
+    if the user's setting is valid.

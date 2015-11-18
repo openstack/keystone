@@ -1,0 +1,31 @@
+---
+upgrade:
+  - The EC2 token middleware, deprecated in Juno, is no longer available in
+    keystone. It has been moved to the keystonemiddleware package.
+  - The ``compute_port`` configuration option, deprecated in Juno, is no longer
+    available.
+  - The XML middleware stub has been removed, so references to it must be
+    removed from the ``keystone-paste.ini`` configuration file.
+  - stats_monitoring and stats_reporting paste filters have been removed, so
+    references to it must be removed from the ``keystone-paste.ini``
+    configuration file.
+  - The external authentication plugins ExternalDefault, ExternalDomain,
+    LegacyDefaultDomain, and LegacyDomain, deprecated in Icehouse, are no
+    longer available.
+  - The ``keystone.conf`` file now references entrypoint names for drivers.
+    For example, the drivers are now specified as "sql", "ldap", "uuid",
+    rather than the full module path. See the sample configuration file for
+    other examples.
+  - We now expose entrypoints for the ``keystone-manage`` command instead of a
+    file.
+  - Schema downgrades via ``keystone-manage db_sync`` are no longer supported.
+    Only upgrades are supported.
+  - Features that were "extensions" in previous releases (OAuth delegation,
+    Federated Identity support, Endpoint Policy, etc) are now enabled by
+    default.
+  - A new ``secure_proxy_ssl_header`` configuration option is available when
+    running keystone behind a proxy.
+  - Several configuration options have been deprecated, renamed, or moved to
+    new sections in the ``keystone.conf`` file.
+  - Domain name information can now be used in policy rules with the attribute
+    ``domain_name``.
