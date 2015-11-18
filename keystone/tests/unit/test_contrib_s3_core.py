@@ -29,7 +29,7 @@ class S3ContribCore(unit.TestCase):
 
     def test_good_signature_v1(self):
         creds_ref = {'secret':
-                     'b121dd41cdcc42fe9f70e572e84295aa'}
+                     u'b121dd41cdcc42fe9f70e572e84295aa'}
         credentials = {'token':
                        'UFVUCjFCMk0yWThBc2dUcGdBbVk3UGhDZmc9PQphcHB'
                        'saWNhdGlvbi9vY3RldC1zdHJlYW0KVHVlLCAxMSBEZWMgMjAxM'
@@ -42,7 +42,7 @@ class S3ContribCore(unit.TestCase):
 
     def test_bad_signature_v1(self):
         creds_ref = {'secret':
-                     'b121dd41cdcc42fe9f70e572e84295aa'}
+                     u'b121dd41cdcc42fe9f70e572e84295aa'}
         credentials = {'token':
                        'UFVUCjFCMk0yWThBc2dUcGdBbVk3UGhDZmc9PQphcHB'
                        'saWNhdGlvbi9vY3RldC1zdHJlYW0KVHVlLCAxMSBEZWMgMjAxM'
@@ -56,7 +56,7 @@ class S3ContribCore(unit.TestCase):
 
     def test_good_signature_v4(self):
         creds_ref = {'secret':
-                     'e7a7a2240136494986991a6598d9fb9f'}
+                     u'e7a7a2240136494986991a6598d9fb9f'}
         credentials = {'token':
                        'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
                        'MTUwODI0L1JlZ2lvbk9uZS9zMy9hd3M0X3JlcXVlc3QKZjIy'
@@ -71,7 +71,7 @@ class S3ContribCore(unit.TestCase):
 
     def test_bad_signature_v4(self):
         creds_ref = {'secret':
-                     'e7a7a2240136494986991a6598d9fb9f'}
+                     u'e7a7a2240136494986991a6598d9fb9f'}
         credentials = {'token':
                        'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
                        'MTUwODI0L1JlZ2lvbk9uZS9zMy9hd3M0X3JlcXVlc3QKZjIy'
@@ -85,7 +85,7 @@ class S3ContribCore(unit.TestCase):
 
     def test_bad_token_v4(self):
         creds_ref = {'secret':
-                     'e7a7a2240136494986991a6598d9fb9f'}
+                     u'e7a7a2240136494986991a6598d9fb9f'}
         # token has invalid format of first part
         credentials = {'token':
                        'QVdTNC1BQUEKWApYClg=',
