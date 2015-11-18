@@ -192,6 +192,10 @@
 # value)
 #instance_uuid_format = "[instance: %(uuid)s] "
 
+# Format string for user_identity field of the logging_context_format_string
+# (string value)
+#logging_user_identity_format = %(user)s %(tenant)s %(domain)s %(user_domain)s %(project_domain)s
+
 # Enables or disables fatal status of deprecations. (boolean value)
 #fatal_deprecations = false
 
@@ -241,6 +245,16 @@
 # Shows whether zmq-messaging uses broker or not. (boolean value)
 #zmq_use_broker = true
 
+# Minimal port number for random ports range. (integer value)
+#rpc_zmq_min_port = 49152
+
+# Maximal port number for random ports range. (integer value)
+#rpc_zmq_max_port = 65536
+
+# Number of retries to find free port number before fail with ZMQBindError.
+# (integer value)
+#rpc_zmq_bind_port_retries = 100
+
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
@@ -257,6 +271,10 @@
 # The Drivers(s) to handle sending notifications. Possible values are
 # messaging, messagingv2, routing, log, test, noop (multi valued)
 #notification_driver =
+
+# A URL representing the messaging driver to use for notifications. If not set,
+# we fall back to the same configuration used for RPC. (string value)
+#notification_transport_url = <None>
 
 # AMQP topic used for OpenStack notifications. (list value)
 # Deprecated group/name - [rpc_notifier2]/topics
@@ -296,7 +314,7 @@
 
 # Specify a timeout after which a gracefully shutdown server will exit. Zero
 # value means endless wait. (integer value)
-#graceful_shutdown_timeout = 0
+#graceful_shutdown_timeout = 60
 
 
 [assignment]
