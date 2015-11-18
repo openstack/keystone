@@ -29,6 +29,7 @@ testtools>=1.4.0
 
 # For documentation
 oslosphinx>=2.5.0 # Apache-2.0
+reno>=0.1.1  # Apache2
 
 tempest-lib>=0.8.0
 
