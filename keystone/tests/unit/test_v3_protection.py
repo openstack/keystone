@@ -1021,13 +1021,12 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.get(entity_url, auth=self.auth)
 
     def test_list_user_credentials(self):
-        self.credential_user = self.new_credential_ref(self.just_a_user['id'])
-        self.credential_api.create_credential(self.credential_user['id'],
-                                              self.credential_user)
-        self.credential_admin = self.new_credential_ref(
-            self.cloud_admin_user['id'])
-        self.credential_api.create_credential(self.credential_admin['id'],
-                                              self.credential_admin)
+        credential_user = unit.new_credential_ref(self.just_a_user['id'])
+        self.credential_api.create_credential(credential_user['id'],
+                                              credential_user)
+        credential_admin = unit.new_credential_ref(self.cloud_admin_user['id'])
+        self.credential_api.create_credential(credential_admin['id'],
+                                              credential_admin)
 
         self.auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],

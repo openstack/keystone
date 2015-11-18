@@ -34,14 +34,13 @@ class TestCredentialEc2(unit.TestCase):
         self.load_fixtures(default_fixtures)
         self.user_id = self.user_foo['id']
         self.project_id = self.tenant_bar['id']
-        self.blob = {'access': uuid.uuid4().hex,
-                     'secret': uuid.uuid4().hex}
         self.controller = controllers.Ec2Controller()
-        self.creds_ref = {'user_id': self.user_id,
-                          'tenant_id': self.project_id,
-                          'access': self.blob['access'],
-                          'secret': self.blob['secret'],
-                          'trust_id': None}
+        self.blob, tmp_ref = unit.new_ec2_credential(
+            user_id=self.user_id,
+            project_id=self.project_id)
+
+        self.creds_ref = (controllers.Ec2Controller
+                          ._convert_v3_to_ec2_credential(tmp_ref))
 
     def test_signature_validate_no_host_port(self):
         """Test signature validation with the access/secret provided."""
@@ -149,17 +148,10 @@ class TestCredentialEc2(unit.TestCase):
                    'path': '/bar',
                    'params': params}
 
-        creds_ref = {'user_id': self.user_id,
-                     'tenant_id': self.project_id,
-                     'access': self.blob['access'],
-                     'secret': self.blob['secret'],
-                     'trust_id': None
-                     }
-
         # Now validate the signature based on the dummy request
         self.assertRaises(exception.Unauthorized,
                           self.controller.check_signature,
-                          creds_ref, sig_ref)
+                          self.creds_ref, sig_ref)
 
     def test_signature_validate_invalid_signature(self):
         """Signature is not signed on the correct data."""
@@ -182,17 +174,10 @@ class TestCredentialEc2(unit.TestCase):
                    'path': '/bar',
                    'params': params}
 
-        creds_ref = {'user_id': self.user_id,
-                     'tenant_id': self.project_id,
-                     'access': self.blob['access'],
-                     'secret': self.blob['secret'],
-                     'trust_id': None
-                     }
-
         # Now validate the signature based on the dummy request
         self.assertRaises(exception.Unauthorized,
                           self.controller.check_signature,
-                          creds_ref, sig_ref)
+                          self.creds_ref, sig_ref)
 
     def test_check_non_admin_user(self):
         """Checking if user is admin causes uncaught error.

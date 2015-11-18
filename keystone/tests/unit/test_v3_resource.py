@@ -190,7 +190,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         group = unit.new_group_ref(domain_id=self.domain_id)
         group = self.identity_api.create_group(group)
 
-        credential = self.new_credential_ref(user_id=self.user['id'],
+        credential = unit.new_credential_ref(user_id=self.user['id'],
                                              project_id=self.project_id)
         self.credential_api.create_credential(credential['id'], credential)
 
@@ -208,9 +208,10 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         group2 = unit.new_group_ref(domain_id=domain2['id'])
         group2 = self.identity_api.create_group(group2)
 
-        credential2 = self.new_credential_ref(user_id=user2['id'],
+        credential2 = unit.new_credential_ref(user_id=user2['id'],
                                               project_id=project2['id'])
-        self.credential_api.create_credential(credential2['id'], credential2)
+        self.credential_api.create_credential(credential2['id'],
+                                              credential2)
 
         # Now disable the new domain and delete it
         domain2['enabled'] = False
@@ -1023,7 +1024,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         also deleted, while other credentials are unaffected.
 
         """
-        credential = self.new_credential_ref(user_id=self.user['id'],
+        credential = unit.new_credential_ref(user_id=self.user['id'],
                                              project_id=self.project_id)
         self.credential_api.create_credential(credential['id'], credential)
 
@@ -1033,9 +1034,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         # Create a second credential with a different project
         project2 = unit.new_project_ref(domain_id=self.domain['id'])
         self.resource_api.create_project(project2['id'], project2)
-        credential2 = self.new_credential_ref(
-            user_id=self.user['id'],
-            project_id=project2['id'])
+        credential2 = unit.new_credential_ref(user_id=self.user['id'],
+                                              project_id=project2['id'])
         self.credential_api.create_credential(credential2['id'], credential2)
 
         # Now delete the project

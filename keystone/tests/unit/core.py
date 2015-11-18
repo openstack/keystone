@@ -16,6 +16,7 @@ from __future__ import absolute_import
 import atexit
 import datetime
 import functools
+import hashlib
 import json
 import logging
 import os
@@ -350,20 +351,52 @@ def new_group_ref(domain_id, **kwargs):
     return ref
 
 
-def new_credential_ref(user_id, project_id=None, cred_type=None):
+def new_credential_ref(user_id, project_id=None, type='cert', **kwargs):
     ref = {
         'id': uuid.uuid4().hex,
         'user_id': user_id,
+        'type': type,
     }
-    if cred_type == 'ec2':
-        ref['type'] = 'ec2'
-        ref['blob'] = uuid.uuid4().hex
-    else:
-        ref['type'] = 'cert'
-        ref['blob'] = uuid.uuid4().hex
+
     if project_id:
         ref['project_id'] = project_id
+    if 'blob' not in kwargs:
+        ref['blob'] = uuid.uuid4().hex
+
+    ref.update(kwargs)
     return ref
+
+
+def new_cert_credential(user_id, project_id=None, blob=None, **kwargs):
+    if blob is None:
+        blob = {'access': uuid.uuid4().hex, 'secret': uuid.uuid4().hex}
+
+    credential = new_credential_ref(user_id=user_id,
+                                    project_id=project_id,
+                                    blob=json.dumps(blob),
+                                    type='cert',
+                                    **kwargs)
+    return blob, credential
+
+
+def new_ec2_credential(user_id, project_id=None, blob=None, **kwargs):
+    if blob is None:
+        blob = {
+            'access': uuid.uuid4().hex,
+            'secret': uuid.uuid4().hex,
+            'trust_id': None
+        }
+
+    if 'id' not in kwargs:
+        access = blob['access'].encode('utf-8')
+        kwargs['id'] = hashlib.sha256(access).hexdigest()
+
+    credential = new_credential_ref(user_id=user_id,
+                                    project_id=project_id,
+                                    blob=json.dumps(blob),
+                                    type='ec2',
+                                    **kwargs)
+    return blob, credential
 
 
 def new_role_ref(**kwargs):

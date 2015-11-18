@@ -745,17 +745,10 @@ class SqlModuleInitialization(unit.TestCase):
 class SqlCredential(SqlTests):
 
     def _create_credential_with_user_id(self, user_id=uuid.uuid4().hex):
-        credential_id = uuid.uuid4().hex
-        new_credential = {
-            'id': credential_id,
-            'user_id': user_id,
-            'project_id': uuid.uuid4().hex,
-            'blob': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
-            'extra': uuid.uuid4().hex
-        }
-        self.credential_api.create_credential(credential_id, new_credential)
-        return new_credential
+        credential = unit.new_credential_ref(user_id=user_id,
+                                             extra=uuid.uuid4().hex)
+        self.credential_api.create_credential(credential['id'], credential)
+        return credential
 
     def _validateCredentialList(self, retrieved_credentials,
                                 expected_credentials):

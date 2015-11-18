@@ -246,10 +246,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         # The server adds 'enabled' and defaults to True.
         self.endpoint['enabled'] = True
 
-    def new_credential_ref(self, user_id, project_id=None, cred_type=None):
-        return unit.new_credential_ref(user_id, project_id=project_id,
-                                       cred_type=cred_type)
-
     def create_new_default_project_for_user(self, user_id, domain_id,
                                             enable_project=True):
         ref = unit.new_project_ref(domain_id=domain_id, enabled=enable_project)
