@@ -43,7 +43,7 @@ project_create = {
 project_update = {
     'type': 'object',
     'properties': _project_properties,
-    # NOTE(lbragstad) Make sure at least one property is being updated
+    # NOTE(lbragstad): Make sure at least one property is being updated
     'minProperties': 1,
     'additionalProperties': True
 }
