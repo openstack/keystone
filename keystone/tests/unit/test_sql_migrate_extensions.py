@@ -66,32 +66,12 @@ class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
     def repo_package(self):
         return endpoint_filter
 
-    def upgrade(self, version):
-        super(EndpointFilterExtension, self).upgrade(
-            version, repository=self.repo_path)
-
-    def _assert_v1_tables(self):
-        self.assertTableColumns('project_endpoint',
-                                ['endpoint_id', 'project_id'])
-        self.assertTableDoesNotExist('endpoint_group')
-        self.assertTableDoesNotExist('project_endpoint_group')
-
-    def _assert_v2_tables(self):
-        self.assertTableColumns('project_endpoint',
-                                ['endpoint_id', 'project_id'])
-        self.assertTableColumns('endpoint_group',
-                                ['id', 'name', 'description', 'filters'])
-        self.assertTableColumns('project_endpoint_group',
-                                ['endpoint_group_id', 'project_id'])
-
     def test_upgrade(self):
-        self.assertTableDoesNotExist('project_endpoint')
-        self.upgrade(1)
-        self._assert_v1_tables()
-        self.assertTableColumns('project_endpoint',
-                                ['endpoint_id', 'project_id'])
-        self.upgrade(2)
-        self._assert_v2_tables()
+        for version in range(2):
+            v = version + 1
+            self.assertRaises(exception.MigrationMovedFailure,
+                              self.upgrade, version=v,
+                              repository=self.repo_path)
 
 
 class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):

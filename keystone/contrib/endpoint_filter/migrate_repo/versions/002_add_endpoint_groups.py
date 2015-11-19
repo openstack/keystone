@@ -12,30 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sql
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    # Upgrade operations go here. Don't create your own engine; bind
-    # migrate_engine to your metadata
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    endpoint_group_table = sql.Table(
-        'endpoint_group',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(255), nullable=False),
-        sql.Column('description', sql.Text, nullable=True),
-        sql.Column('filters', sql.Text(), nullable=False))
-    endpoint_group_table.create(migrate_engine, checkfirst=True)
-
-    project_endpoint_group_table = sql.Table(
-        'project_endpoint_group',
-        meta,
-        sql.Column('endpoint_group_id', sql.String(64),
-                   sql.ForeignKey('endpoint_group.id'), nullable=False),
-        sql.Column('project_id', sql.String(64), nullable=False),
-        sql.PrimaryKeyConstraint('endpoint_group_id',
-                                 'project_id'))
-    project_endpoint_group_table.create(migrate_engine, checkfirst=True)
+    raise exception.MigrationMovedFailure(extension='endpoint_filter')
