@@ -50,12 +50,14 @@ class SqlUpgradeExampleExtension(test_sql_upgrade.SqlMigrateBase):
 
 
 class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
+
+    OAUTH1_MIGRATIONS = 5
+
     def repo_package(self):
         return oauth1
 
     def test_upgrade(self):
-        # We have 5 oauth1 migrations, each should fail
-        for version in range(5):
+        for version in range(self.OAUTH1_MIGRATIONS):
             v = version + 1
             self.assertRaises(exception.MigrationMovedFailure,
                               self.upgrade, version=v,
@@ -63,11 +65,14 @@ class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
 
 
 class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
+
+    ENDPOINT_FILTER_MIGRATIONS = 2
+
     def repo_package(self):
         return endpoint_filter
 
     def test_upgrade(self):
-        for version in range(2):
+        for version in range(self.ENDPOINT_FILTER_MIGRATIONS):
             v = version + 1
             self.assertRaises(exception.MigrationMovedFailure,
                               self.upgrade, version=v,
@@ -75,12 +80,16 @@ class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
 
 
 class EndpointPolicyExtension(test_sql_upgrade.SqlMigrateBase):
+
+    ENDPOINT_POLICY_MIGRATIONS = 1
+
     def repo_package(self):
         return endpoint_policy
 
     def test_upgrade(self):
         self.assertRaises(exception.MigrationMovedFailure,
-                          self.upgrade, version=1,
+                          self.upgrade,
+                          version=self.ENDPOINT_POLICY_MIGRATIONS,
                           repository=self.repo_path)
 
 
@@ -101,11 +110,13 @@ class FederationExtension(test_sql_upgrade.SqlMigrateBase):
 
 class RevokeExtension(test_sql_upgrade.SqlMigrateBase):
 
+    REVOKE_MIGRATIONS = 2
+
     def repo_package(self):
         return revoke
 
     def test_upgrade(self):
-        for version in range(2):
+        for version in range(self.REVOKE_MIGRATIONS):
             v = version + 1
             self.assertRaises(exception.MigrationMovedFailure,
                               self.upgrade, version=v,
