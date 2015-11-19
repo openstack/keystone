@@ -16,6 +16,7 @@ from __future__ import absolute_import
 import atexit
 import datetime
 import functools
+import json
 import logging
 import os
 import re
@@ -374,15 +375,19 @@ def new_role_ref(**kwargs):
     return ref
 
 
-def new_policy_ref():
-    return {
+def new_policy_ref(**kwargs):
+    ref = {
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
         'description': uuid.uuid4().hex,
         'enabled': True,
-        'blob': uuid.uuid4().hex,
+        # Store serialized JSON data as the blob to mimic real world usage.
+        'blob': json.dumps({'data': uuid.uuid4().hex, }),
         'type': uuid.uuid4().hex,
     }
+
+    ref.update(kwargs)
+    return ref
 
 
 def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,

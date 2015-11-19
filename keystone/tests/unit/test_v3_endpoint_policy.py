@@ -32,7 +32,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(EndpointPolicyTestCase, self).setUp()
-        self.policy = self.new_policy_ref()
+        self.policy = unit.new_policy_ref()
         self.policy_api.create_policy(self.policy['id'], self.policy)
         self.service = unit.new_service_ref()
         self.catalog_api.create_service(self.service['id'], self.service)

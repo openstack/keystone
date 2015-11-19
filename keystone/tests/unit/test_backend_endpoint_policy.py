@@ -67,8 +67,7 @@ class PolicyAssociationTests(object):
 
         parent_region_id = None
         for i in range(3):
-            policy = {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex,
-                      'blob': {'data': uuid.uuid4().hex}}
+            policy = unit.new_policy_ref()
             self.policy.append(self.policy_api.create_policy(policy['id'],
                                                              policy))
             service = unit.new_service_ref()
