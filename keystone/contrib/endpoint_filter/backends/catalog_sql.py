@@ -23,7 +23,7 @@ from keystone import exception
 CONF = cfg.CONF
 
 
-@dependency.requires('endpoint_filter_api')
+@dependency.requires('catalog_api')
 class EndpointFilterCatalog(sql.Catalog):
     def get_v3_catalog(self, user_id, project_id):
         substitutions = dict(CONF.items())
@@ -31,7 +31,7 @@ class EndpointFilterCatalog(sql.Catalog):
 
         services = {}
 
-        refs = self.endpoint_filter_api.list_endpoints_for_project(project_id)
+        refs = self.catalog_api.list_endpoints_for_project(project_id)
 
         if (not refs and
                 CONF.endpoint_filter.return_all_endpoints_if_no_filter):
@@ -61,7 +61,7 @@ class EndpointFilterCatalog(sql.Catalog):
                     service['endpoints'] = [endpoint]
             except exception.EndpointNotFound:
                 # remove bad reference from association
-                self.endpoint_filter_api.remove_endpoint_from_project(
+                self.catalog_api.remove_endpoint_from_project(
                     entry['endpoint_id'], project_id)
 
         # format catalog

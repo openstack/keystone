@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.common import validation
 from keystone.common.validation import parameter_types
 
 
@@ -95,4 +96,24 @@ endpoint_update = {
     'properties': _endpoint_properties,
     'minProperties': 1,
     'additionalProperties': True
+}
+
+_endpoint_group_properties = {
+    'description': validation.nullable(parameter_types.description),
+    'filters': {
+        'type': 'object'
+    },
+    'name': parameter_types.name
+}
+
+endpoint_group_create = {
+    'type': 'object',
+    'properties': _endpoint_group_properties,
+    'required': ['name', 'filters']
+}
+
+endpoint_group_update = {
+    'type': 'object',
+    'properties': _endpoint_group_properties,
+    'minProperties': 1
 }
