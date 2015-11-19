@@ -256,7 +256,7 @@ def new_service_ref(**kwargs):
         'enabled': True,
         'type': uuid.uuid4().hex,
     }
-    ref.update(**kwargs)
+    ref.update(kwargs)
     return ref
 
 
@@ -305,7 +305,7 @@ def new_domain_ref(**kwargs):
         'description': uuid.uuid4().hex,
         'enabled': True
     }
-    ref.update(**kwargs)
+    ref.update(kwargs)
     return ref
 
 
@@ -334,7 +334,7 @@ def new_user_ref(domain_id, project_id=None, **kwargs):
     }
     if project_id:
         ref['default_project_id'] = project_id
-    ref.update(**kwargs)
+    ref.update(kwargs)
     return ref
 
 
@@ -345,7 +345,7 @@ def new_group_ref(domain_id, **kwargs):
         'description': uuid.uuid4().hex,
         'domain_id': domain_id
     }
-    ref.update(**kwargs)
+    ref.update(kwargs)
     return ref
 
 
@@ -370,7 +370,7 @@ def new_role_ref(**kwargs):
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
     }
-    ref.update(**kwargs)
+    ref.update(kwargs)
     return ref
 
 
