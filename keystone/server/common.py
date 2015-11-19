@@ -15,9 +15,9 @@
 from oslo_config import cfg
 from oslo_log import log
 
+from keystone.common import config
 from keystone.common import dependency
 from keystone.common import sql
-from keystone import config
 from keystone.i18n import _LW
 from keystone.server import backends
 

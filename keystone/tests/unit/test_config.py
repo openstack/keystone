@@ -16,7 +16,7 @@ import uuid
 
 from oslo_config import cfg
 
-from keystone import config
+from keystone.common import config
 from keystone import exception
 from keystone.tests import unit
 

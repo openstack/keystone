@@ -12,10 +12,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
+import os
+
 from oslo_cache import core as cache
 from oslo_config import cfg
+from oslo_log import log
 import oslo_messaging
 import passlib.utils
+
+from keystone import exception
 
 
 _DEFAULT_AUTH_METHODS = ['external', 'password', 'token', 'oauth1']
@@ -1124,6 +1130,68 @@ def setup_authentication(conf=None):
         if method_name not in _DEFAULT_AUTH_METHODS:
             option = cfg.StrOpt(method_name)
             _register_auth_plugin_opt(conf, option)
+
+
+def set_default_for_default_log_levels():
+    """Set the default for the default_log_levels option for keystone.
+
+    Keystone uses some packages that other OpenStack services don't use that do
+    logging. This will set the default_log_levels default level for those
+    packages.
+
+    This function needs to be called before CONF().
+
+    """
+    extra_log_level_defaults = [
+        'dogpile=INFO',
+        'routes=INFO',
+        'keystone.common._memcache_pool=INFO',
+    ]
+
+    log.register_options(CONF)
+    CONF.set_default('default_log_levels',
+                     CONF.default_log_levels + extra_log_level_defaults)
+
+
+def setup_logging():
+    """Sets up logging for the keystone package."""
+    log.setup(CONF, 'keystone')
+    logging.captureWarnings(True)
+
+
+def find_paste_config():
+    """Find Keystone's paste.deploy configuration file.
+
+    Keystone's paste.deploy configuration file is specified in the
+    ``[paste_deploy]`` section of the main Keystone configuration file,
+    ``keystone.conf``.
+
+    For example::
+
+        [paste_deploy]
+        config_file = keystone-paste.ini
+
+    :returns: The selected configuration filename
+    :raises: exception.ConfigFileNotFound
+
+    """
+    if CONF.paste_deploy.config_file:
+        paste_config = CONF.paste_deploy.config_file
+        paste_config_value = paste_config
+        if not os.path.isabs(paste_config):
+            paste_config = CONF.find_file(paste_config)
+    elif CONF.config_file:
+        paste_config = CONF.config_file[0]
+        paste_config_value = paste_config
+    else:
+        # this provides backwards compatibility for keystone.conf files that
+        # still have the entire paste configuration included, rather than just
+        # a [paste_deploy] configuration section referring to an external file
+        paste_config = CONF.find_file('keystone.conf')
+        paste_config_value = 'keystone.conf'
+    if not paste_config or not os.path.exists(paste_config):
+        raise exception.ConfigFileNotFound(config_file=paste_config_value)
+    return paste_config
 
 
 def configure(conf=None):

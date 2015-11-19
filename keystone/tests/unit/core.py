@@ -45,12 +45,11 @@ from keystone.common import environment  # noqa
 environment.use_eventlet()
 
 from keystone import auth
-from keystone.common import config as common_cfg
+from keystone.common import config
 from keystone.common import dependency
 from keystone.common import kvs
 from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
-from keystone import config
 from keystone import exception
 from keystone import notifications
 from keystone.policy.backends import rules
@@ -517,7 +516,7 @@ class TestCase(BaseTestCase):
     def auth_plugin_config_override(self, methods=None, **method_classes):
         if methods is not None:
             self.config_fixture.config(group='auth', methods=methods)
-            common_cfg.setup_authentication()
+            config.setup_authentication()
         if method_classes:
             self.config_fixture.config(group='auth', **method_classes)
 
@@ -538,7 +537,7 @@ class TestCase(BaseTestCase):
         def mocked_register_auth_plugin_opt(conf, opt):
             self.config_fixture.register_opt(opt, group='auth')
         self.useFixture(mockpatch.PatchObject(
-            common_cfg, '_register_auth_plugin_opt',
+            config, '_register_auth_plugin_opt',
             new=mocked_register_auth_plugin_opt))
 
         self.config_overrides()
