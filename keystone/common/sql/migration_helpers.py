@@ -35,12 +35,12 @@ from keystone.i18n import _
 
 CONF = cfg.CONF
 DEFAULT_EXTENSIONS = ['endpoint_filter',
-                      'oauth1',
                       'revoke',
                       ]
 
 MIGRATED_EXTENSIONS = ['endpoint_policy',
                        'federation',
+                       'oauth1',
                        ]
 
 

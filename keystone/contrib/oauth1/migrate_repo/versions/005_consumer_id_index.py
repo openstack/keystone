@@ -13,23 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sa
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-
-    if migrate_engine.name == 'mysql':
-        meta = sa.MetaData(bind=migrate_engine)
-        table = sa.Table('access_token', meta, autoload=True)
-
-        # NOTE(i159): MySQL requires indexes on referencing columns, and those
-        # indexes create automatically. That those indexes will have different
-        # names, depending on version of MySQL used. We should make this naming
-        # consistent, by reverting index name to a consistent condition.
-        if any(i for i in table.indexes if
-               list(i.columns.keys()) == ['consumer_id']
-               and i.name != 'consumer_id'):
-            # NOTE(i159): by this action will be made re-creation of an index
-            # with the new name. This can be considered as renaming under the
-            # MySQL rules.
-            sa.Index('consumer_id', table.c.consumer_id).create()
+    raise exception.MigrationMovedFailure(extension='oauth1')

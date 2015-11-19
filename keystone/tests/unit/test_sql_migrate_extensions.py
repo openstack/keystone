@@ -53,73 +53,13 @@ class SqlUpgradeOAuth1Extension(test_sql_upgrade.SqlMigrateBase):
     def repo_package(self):
         return oauth1
 
-    def upgrade(self, version):
-        super(SqlUpgradeOAuth1Extension, self).upgrade(
-            version, repository=self.repo_path)
-
-    def _assert_v1_3_tables(self):
-        self.assertTableColumns('consumer',
-                                ['id',
-                                 'description',
-                                 'secret',
-                                 'extra'])
-        self.assertTableColumns('request_token',
-                                ['id',
-                                 'request_secret',
-                                 'verifier',
-                                 'authorizing_user_id',
-                                 'requested_project_id',
-                                 'requested_roles',
-                                 'consumer_id',
-                                 'expires_at'])
-        self.assertTableColumns('access_token',
-                                ['id',
-                                 'access_secret',
-                                 'authorizing_user_id',
-                                 'project_id',
-                                 'requested_roles',
-                                 'consumer_id',
-                                 'expires_at'])
-
-    def _assert_v4_later_tables(self):
-        self.assertTableColumns('consumer',
-                                ['id',
-                                 'description',
-                                 'secret',
-                                 'extra'])
-        self.assertTableColumns('request_token',
-                                ['id',
-                                 'request_secret',
-                                 'verifier',
-                                 'authorizing_user_id',
-                                 'requested_project_id',
-                                 'role_ids',
-                                 'consumer_id',
-                                 'expires_at'])
-        self.assertTableColumns('access_token',
-                                ['id',
-                                 'access_secret',
-                                 'authorizing_user_id',
-                                 'project_id',
-                                 'role_ids',
-                                 'consumer_id',
-                                 'expires_at'])
-
     def test_upgrade(self):
-        self.assertTableDoesNotExist('consumer')
-        self.assertTableDoesNotExist('request_token')
-        self.assertTableDoesNotExist('access_token')
-        self.upgrade(1)
-        self._assert_v1_3_tables()
-
-        # NOTE(blk-u): Migrations 2-3 don't modify the tables in a way that we
-        # can easily test for.
-
-        self.upgrade(4)
-        self._assert_v4_later_tables()
-
-        self.upgrade(5)
-        self._assert_v4_later_tables()
+        # We have 5 oauth1 migrations, each should fail
+        for version in range(5):
+            v = version + 1
+            self.assertRaises(exception.MigrationMovedFailure,
+                              self.upgrade, version=v,
+                              repository=self.repo_path)
 
 
 class EndpointFilterExtension(test_sql_upgrade.SqlMigrateBase):
