@@ -10,14 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_db.sqlalchemy import utils
-import sqlalchemy as sql
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    idp_table = utils.get_table(migrate_engine, 'identity_provider')
-    remote_id = sql.Column('remote_id', sql.String(256), nullable=True)
-    idp_table.create_column(remote_id)
+    raise exception.MigrationMovedFailure(extension='federation')

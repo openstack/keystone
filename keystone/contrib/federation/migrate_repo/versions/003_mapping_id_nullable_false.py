@@ -13,17 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sa
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    meta = sa.MetaData(bind=migrate_engine)
-    federation_protocol = sa.Table('federation_protocol', meta, autoload=True)
-    # NOTE(i159): The column is changed to non-nullable. To prevent
-    # database errors when the column will be altered, all the existing
-    # null-records should be filled with not null values.
-    stmt = (federation_protocol.update().
-            where(federation_protocol.c.mapping_id.is_(None)).
-            values(mapping_id=''))
-    migrate_engine.execute(stmt)
-    federation_protocol.c.mapping_id.alter(nullable=False)
+    raise exception.MigrationMovedFailure(extension='federation')

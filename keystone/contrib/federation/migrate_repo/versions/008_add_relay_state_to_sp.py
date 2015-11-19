@@ -10,30 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
-from oslo_db.sqlalchemy import utils
-import sqlalchemy as sql
-
-
-CONF = cfg.CONF
-_SP_TABLE_NAME = 'service_provider'
-_RELAY_STATE_PREFIX = 'relay_state_prefix'
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    idp_table = utils.get_table(migrate_engine, _SP_TABLE_NAME)
-    relay_state_prefix_default = CONF.saml.relay_state_prefix
-    relay_state_prefix = sql.Column(_RELAY_STATE_PREFIX, sql.String(256),
-                                    nullable=False,
-                                    server_default=relay_state_prefix_default)
-    idp_table.create_column(relay_state_prefix)
-
-
-def downgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-    idp_table = utils.get_table(migrate_engine, _SP_TABLE_NAME)
-    idp_table.drop_column(_RELAY_STATE_PREFIX)
+    raise exception.MigrationMovedFailure(extension='federation')

@@ -10,22 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sql
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    sp_table = sql.Table(
-        'service_provider',
-        meta,
-        sql.Column('auth_url', sql.String(256), nullable=True),
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('enabled', sql.Boolean, nullable=False),
-        sql.Column('description', sql.Text(), nullable=True),
-        sql.Column('sp_url', sql.String(256), nullable=True),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8')
-
-    sp_table.create(migrate_engine, checkfirst=True)
+    raise exception.MigrationMovedFailure(extension='federation')

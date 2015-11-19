@@ -46,7 +46,6 @@ from sqlalchemy import schema
 from keystone.common import sql
 from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
-from keystone.contrib import federation
 from keystone.contrib import revoke
 from keystone import exception
 from keystone.tests import unit
@@ -121,8 +120,7 @@ INITIAL_EXTENSION_TABLE_STRUCTURE = {
     ],
 }
 
-EXTENSIONS = {'federation': federation,
-              'revoke': revoke}
+EXTENSIONS = {'revoke': revoke}
 
 
 class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
@@ -567,6 +565,64 @@ class SqlUpgradeTests(SqlMigrateBase):
         # that 081 did not create the table
         self.assertTableDoesNotExist('policy_association')
 
+    def test_create_federation_tables(self):
+        self.identity_provider = 'identity_provider'
+        self.federation_protocol = 'federation_protocol'
+        self.service_provider = 'service_provider'
+        self.mapping = 'mapping'
+        self.remote_ids = 'idp_remote_ids'
+
+        self.assertTableDoesNotExist(self.identity_provider)
+        self.assertTableDoesNotExist(self.federation_protocol)
+        self.assertTableDoesNotExist(self.service_provider)
+        self.assertTableDoesNotExist(self.mapping)
+        self.assertTableDoesNotExist(self.remote_ids)
+
+        self.upgrade(82)
+        self.assertTableColumns(self.identity_provider,
+                                ['id', 'description', 'enabled'])
+
+        self.assertTableColumns(self.federation_protocol,
+                                ['id', 'idp_id', 'mapping_id'])
+
+        self.assertTableColumns(self.mapping,
+                                ['id', 'rules'])
+
+        self.assertTableColumns(self.service_provider,
+                                ['id', 'description', 'enabled', 'auth_url',
+                                 'relay_state_prefix', 'sp_url'])
+
+        self.assertTableColumns(self.remote_ids, ['idp_id', 'remote_id'])
+
+        federation_protocol = sqlalchemy.Table(self.federation_protocol,
+                                               self.metadata,
+                                               autoload=True)
+        self.assertFalse(federation_protocol.c.mapping_id.nullable)
+
+        sp_table = sqlalchemy.Table(self.service_provider,
+                                    self.metadata,
+                                    autoload=True)
+        self.assertFalse(sp_table.c.auth_url.nullable)
+        self.assertFalse(sp_table.c.sp_url.nullable)
+
+    @mock.patch.object(migration_helpers, 'get_db_version', return_value=8)
+    def test_federation_already_migrated(self, mock_federation):
+
+        # By setting the return value to 8, the migration has already been
+        # run, and there's no need to create the table again.
+        self.upgrade(82)
+
+        mock_federation.assert_any_call(extension='federation',
+                                        engine=mock.ANY)
+
+        # It won't exist because we are mocking it, but we can verify
+        # that 082 did not create the table.
+        self.assertTableDoesNotExist('identity_provider')
+        self.assertTableDoesNotExist('federation_protocol')
+        self.assertTableDoesNotExist('mapping')
+        self.assertTableDoesNotExist('service_provider')
+        self.assertTableDoesNotExist('idp_remote_ids')
+
     def test_fixup_service_name_value_upgrade(self):
         """Update service name data from `extra` to empty string."""
         def add_service(**extra_data):
@@ -842,41 +898,6 @@ class VersionTests(SqlMigrateBase):
                 migration_helpers._sync_extension_repo,
                 extension=name,
                 version=0)
-
-    def test_extension_federation_upgraded_values(self):
-        abs_path = migration_helpers.find_migrate_repo(federation)
-        migration.db_version_control(sql.get_engine(), abs_path)
-        migration.db_sync(sql.get_engine(), abs_path, version=6)
-        idp_table = sqlalchemy.Table("identity_provider",
-                                     self.metadata,
-                                     autoload=True)
-        idps = [{'id': uuid.uuid4().hex,
-                 'enabled': True,
-                 'description': uuid.uuid4().hex,
-                 'remote_id': uuid.uuid4().hex},
-                {'id': uuid.uuid4().hex,
-                 'enabled': True,
-                 'description': uuid.uuid4().hex,
-                 'remote_id': uuid.uuid4().hex}]
-        for idp in idps:
-            ins = idp_table.insert().values({'id': idp['id'],
-                                             'enabled': idp['enabled'],
-                                             'description': idp['description'],
-                                             'remote_id': idp['remote_id']})
-            self.engine.execute(ins)
-        migration.db_sync(sql.get_engine(), abs_path)
-        idp_remote_ids_table = sqlalchemy.Table("idp_remote_ids",
-                                                self.metadata,
-                                                autoload=True)
-        for idp in idps:
-            s = idp_remote_ids_table.select().where(
-                idp_remote_ids_table.c.idp_id == idp['id'])
-            remote = self.engine.execute(s).fetchone()
-            self.assertEqual(idp['remote_id'],
-                             remote['remote_id'],
-                             'remote_ids must be preserved during the '
-                             'migration from identity_provider table to '
-                             'idp_remote_ids table')
 
     def test_unexpected_extension(self):
         """The version for a non-existent extension raises ImportError."""
