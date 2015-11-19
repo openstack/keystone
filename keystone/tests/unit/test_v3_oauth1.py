@@ -492,7 +492,7 @@ class AuthTokenTests(OAuthFlowTests):
                           self.keystone_token_id)
 
     def _create_trust_get_token(self):
-        ref = self.new_trust_ref(
+        ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.user_id,
             project_id=self.project_id,
@@ -535,7 +535,7 @@ class AuthTokenTests(OAuthFlowTests):
 
     def test_oauth_token_cannot_create_new_trust(self):
         self.test_oauth_flow()
-        ref = self.new_trust_ref(
+        ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.user_id,
             project_id=self.project_id,
