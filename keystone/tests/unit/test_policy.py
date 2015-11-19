@@ -137,7 +137,7 @@ class PolicyTestCase(BasePolicyTestCase):
     def test_ignore_case_role_check(self):
         lowercase_action = "example:lowercase_admin"
         uppercase_action = "example:uppercase_admin"
-        # NOTE(dprince) we mix case in the Admin role here to ensure
+        # NOTE(dprince): We mix case in the Admin role here to ensure
         # case is ignored
         admin_credentials = {'roles': ['AdMiN']}
         rules.enforce(admin_credentials, lowercase_action, self.target)
