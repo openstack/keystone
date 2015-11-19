@@ -15,7 +15,6 @@ from keystone import auth
 from keystone import catalog
 from keystone.common import cache
 from keystone.contrib import endpoint_filter
-from keystone.contrib import revoke
 from keystone import credential
 from keystone import endpoint_policy
 from keystone import federation
@@ -23,6 +22,7 @@ from keystone import identity
 from keystone import oauth1
 from keystone import policy
 from keystone import resource
+from keystone import revoke
 from keystone import token
 from keystone import trust
 

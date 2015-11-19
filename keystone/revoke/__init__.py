@@ -10,19 +10,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import versionutils
-
-from keystone.revoke.backends import sql
-
-
-_OLD = "keystone.contrib.revoke.backends.sql.Revoke"
-_NEW = "sql"
-
-
-class Revoke(sql.Revoke):
-
-    @versionutils.deprecated(versionutils.deprecated.MITAKA,
-                             in_favor_of=_NEW,
-                             what=_OLD)
-    def __init__(self, *args, **kwargs):
-        super(Revoke, self).__init__(*args, **kwargs)
+from keystone.revoke.core import *  # noqa
+from keystone.revoke.routers import *  # noqa

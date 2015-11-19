@@ -21,6 +21,7 @@ import uuid
 from keystoneclient.common import cms
 import mock
 from oslo_config import cfg
+from oslo_log import versionutils
 from oslo_utils import timeutils
 from six.moves import http_client
 from six.moves import range
@@ -29,6 +30,7 @@ from testtools import testcase
 
 from keystone import auth
 from keystone.common import utils
+from keystone.contrib.revoke import routers
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit
@@ -1473,11 +1475,19 @@ class TestTokenRevokeByAssignment(TestTokenRevokeById):
         self.assertIn(project_token, revoked_tokens)
 
 
-class TestTokenRevokeApi(TestTokenRevokeById):
-    EXTENSION_NAME = 'revoke'
-    EXTENSION_TO_ADD = 'revoke_extension'
+class RevokeContribTests(test_v3.RestfulTestCase):
 
+    @mock.patch.object(versionutils, 'report_deprecated_feature')
+    def test_exception_happens(self, mock_deprecator):
+        routers.RevokeExtension(mock.ANY)
+        mock_deprecator.assert_called_once_with(mock.ANY, mock.ANY)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("Remove revoke_extension from", args[1])
+
+
+class TestTokenRevokeApi(TestTokenRevokeById):
     """Test token revocation on the v3 Identity API."""
+
     def config_overrides(self):
         super(TestTokenRevokeApi, self).config_overrides()
         self.config_fixture.config(group='revoke', driver='kvs')
@@ -3099,8 +3109,6 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
 
 class TestTrustAuth(test_v3.RestfulTestCase):
-    EXTENSION_NAME = 'revoke'
-    EXTENSION_TO_ADD = 'revoke_extension'
 
     def config_overrides(self):
         super(TestTrustAuth, self).config_overrides()

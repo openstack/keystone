@@ -10,20 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import json_home
+from oslo_log import log
+from oslo_log import versionutils
+
 from keystone.common import wsgi
-from keystone.contrib.revoke import controllers
+from keystone.i18n import _
 
 
-class RevokeExtension(wsgi.V3ExtensionRouter):
+LOG = log.getLogger(__name__)
 
-    PATH_PREFIX = '/OS-REVOKE'
 
-    def add_routes(self, mapper):
-        revoke_controller = controllers.RevokeController()
-        self._add_resource(
-            mapper, revoke_controller,
-            path=self.PATH_PREFIX + '/events',
-            get_action='list_revoke_events',
-            rel=json_home.build_v3_extension_resource_relation(
-                'OS-REVOKE', '1.0', 'events'))
+class RevokeExtension(wsgi.Middleware):
+
+    def __init__(self, *args, **kwargs):
+        super(RevokeExtension, self).__init__(*args, **kwargs)
+        msg = _("Remove revoke_extension from the paste pipeline, the "
+                "revoke extension is now always available. Update the "
+                "[pipeline:api_v3] section in keystone-paste.ini accordingly, "
+                "as it will be removed in the O release.")
+        versionutils.report_deprecated_feature(LOG, msg)

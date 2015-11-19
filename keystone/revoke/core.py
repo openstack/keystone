@@ -25,10 +25,10 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
-from keystone.contrib.revoke import model
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
+from keystone.revoke import model
 
 
 CONF = cfg.CONF
@@ -240,7 +240,7 @@ class RevokeDriverV8(object):
         """return the revocation events, as a list of objects
 
         :param last_fetch:   Time of last fetch.  Return all events newer.
-        :returns: A list of keystone.contrib.revoke.model.RevokeEvent
+        :returns: A list of keystone.revoke.model.RevokeEvent
                   newer than `last_fetch.`
                   If no last_fetch is specified, returns all events
                   for tokens issued after the expiration cutoff.
@@ -253,7 +253,7 @@ class RevokeDriverV8(object):
         """register a revocation event
 
         :param event: An instance of
-            keystone.contrib.revoke.model.RevocationEvent
+            keystone.revoke.model.RevocationEvent
 
         """
         raise exception.NotImplemented()  # pragma: no cover

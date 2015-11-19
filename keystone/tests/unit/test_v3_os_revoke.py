@@ -19,7 +19,7 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import utils
-from keystone.contrib.revoke import model
+from keystone.revoke import model
 from keystone.tests.unit import test_v3
 from keystone.token import provider
 
@@ -31,8 +31,6 @@ def _future_time_string():
 
 
 class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
-    EXTENSION_NAME = 'revoke'
-    EXTENSION_TO_ADD = 'revoke_extension'
 
     JSON_HOME_DATA = {
         'http://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/'
