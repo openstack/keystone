@@ -10,19 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sqlalchemy as sql
-
-
-_TABLE_NAME = 'revocation_event'
+from keystone import exception
 
 
 def upgrade(migrate_engine):
-    meta = sql.MetaData()
-    meta.bind = migrate_engine
-
-    event_table = sql.Table(_TABLE_NAME, meta, autoload=True)
-    audit_id_column = sql.Column('audit_id', sql.String(32), nullable=True)
-    audit_chain_column = sql.Column('audit_chain_id', sql.String(32),
-                                    nullable=True)
-    event_table.create_column(audit_id_column)
-    event_table.create_column(audit_chain_column)
+    raise exception.MigrationMovedFailure(extension='revoke')

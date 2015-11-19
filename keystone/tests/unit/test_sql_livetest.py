@@ -13,7 +13,6 @@
 # under the License.
 
 from keystone.tests import unit
-from keystone.tests.unit import test_sql_migrate_extensions
 from keystone.tests.unit import test_sql_upgrade
 
 
@@ -35,29 +34,6 @@ class MysqlMigrateTests(test_sql_upgrade.SqlUpgradeTests):
 
     def config_files(self):
         files = super(MysqlMigrateTests, self).config_files()
-        files.append(unit.dirs.tests_conf("backend_mysql.conf"))
-        return files
-
-
-class PostgresqlRevokeExtensionsTests(
-        test_sql_migrate_extensions.RevokeExtension):
-    def setUp(self):
-        self.skip_if_env_not_set('ENABLE_LIVE_POSTGRES_TEST')
-        super(PostgresqlRevokeExtensionsTests, self).setUp()
-
-    def config_files(self):
-        files = super(PostgresqlRevokeExtensionsTests, self).config_files()
-        files.append(unit.dirs.tests_conf("backend_postgresql.conf"))
-        return files
-
-
-class MysqlRevokeExtensionsTests(test_sql_migrate_extensions.RevokeExtension):
-    def setUp(self):
-        self.skip_if_env_not_set('ENABLE_LIVE_MYSQL_TEST')
-        super(MysqlRevokeExtensionsTests, self).setUp()
-
-    def config_files(self):
-        files = super(MysqlRevokeExtensionsTests, self).config_files()
         files.append(unit.dirs.tests_conf("backend_mysql.conf"))
         return files
 
