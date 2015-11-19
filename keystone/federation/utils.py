@@ -581,7 +581,7 @@ class RuleProcessor(object):
         :param local: local mapping reference that needs to be updated
         :type local: dict
         :param direct_maps: identity values used to update local
-        :type direct_maps: keystone.contrib.federation.utils.DirectMaps
+        :type direct_maps: keystone.federation.utils.DirectMaps
 
         Example local::
 
@@ -659,7 +659,7 @@ class RuleProcessor(object):
             }
 
         :returns: identity values used to update local
-        :rtype: keystone.contrib.federation.utils.DirectMaps or None
+        :rtype: keystone.federation.utils.DirectMaps or None
 
         """
         direct_maps = DirectMaps()

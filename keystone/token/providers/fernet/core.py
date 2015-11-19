@@ -15,8 +15,8 @@ from oslo_log import log
 
 from keystone.common import dependency
 from keystone.common import utils as ks_utils
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
+from keystone.federation import constants as federation_constants
 from keystone.i18n import _
 from keystone.token import provider
 from keystone.token.providers import common

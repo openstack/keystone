@@ -19,9 +19,9 @@ from six.moves.urllib import parse
 from keystone import auth
 from keystone.auth import plugins as auth_plugins
 from keystone.common import dependency
-from keystone.contrib.federation import constants as federation_constants
-from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.federation import constants as federation_constants
+from keystone.federation import utils
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications

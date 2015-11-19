@@ -22,8 +22,8 @@ import webob
 
 from keystone.common import authorization
 from keystone.common import tokenless_auth
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
+from keystone.federation import constants as federation_constants
 from keystone import middleware
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures

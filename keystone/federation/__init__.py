@@ -12,18 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import versionutils
-
-from keystone.federation.backends import sql
-
-_OLD = "keystone.contrib.federation.backends.sql.Federation"
-_NEW = "sql"
-
-
-class Federation(sql.Federation):
-
-    @versionutils.deprecated(versionutils.deprecated.MITAKA,
-                             in_favor_of=_NEW,
-                             what=_OLD)
-    def __init__(self, *args, **kwargs):
-        super(Federation, self).__init__(*args, **kwargs)
+from keystone.federation.core import *  # noqa
+from keystone.federation import routers  # noqa

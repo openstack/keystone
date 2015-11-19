@@ -17,9 +17,9 @@ from oslo_log import log
 from keystone.common import authorization
 from keystone.common import tokenless_auth
 from keystone.common import wsgi
-from keystone.contrib.federation import constants as federation_constants
-from keystone.contrib.federation import utils
 from keystone import exception
+from keystone.federation import constants as federation_constants
+from keystone.federation import utils
 from keystone.i18n import _, _LI, _LW
 from keystone.middleware import core
 from keystone.models import token_model

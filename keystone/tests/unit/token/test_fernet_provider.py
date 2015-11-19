@@ -22,8 +22,8 @@ from six.moves import urllib
 
 from keystone.common import config
 from keystone.common import utils
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
+from keystone.federation import constants as federation_constants
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database

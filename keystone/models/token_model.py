@@ -17,11 +17,11 @@ from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 
-from keystone.contrib.federation import constants as federation_constants
 from keystone import exception
 from keystone.i18n import _
 
-
+# FIXME(stevemar): Use constants from keystone.federation.constants
+OS_FEDERATION = 'OS-FEDERATION'
 CONF = cfg.CONF
 # supported token versions
 V2 = 'v2.0'
@@ -297,8 +297,7 @@ class KeystoneToken(dict):
     @property
     def is_federated_user(self):
         try:
-            return (self.version is V3 and
-                    federation_constants.FEDERATION in self['user'])
+            return (self.version is V3 and OS_FEDERATION in self['user'])
         except KeyError:
             raise exception.UnexpectedError()
 
@@ -307,8 +306,7 @@ class KeystoneToken(dict):
         if self.is_federated_user:
             if self.version is V3:
                 try:
-                    groups = self['user'][federation_constants.FEDERATION].get(
-                        'groups', [])
+                    groups = self['user'][OS_FEDERATION].get('groups', [])
                     return [g['id'] for g in groups]
                 except KeyError:
                     raise exception.UnexpectedError()
@@ -318,15 +316,12 @@ class KeystoneToken(dict):
     def federation_idp_id(self):
         if self.version is not V3 or not self.is_federated_user:
             return None
-        return (
-            self['user'][federation_constants.FEDERATION]
-            ['identity_provider']['id'])
+        return self['user'][OS_FEDERATION]['identity_provider']['id']
 
     @property
     def federation_protocol_id(self):
         if self.version is V3 and self.is_federated_user:
-            return (self['user'][federation_constants.FEDERATION]['protocol']
-                    ['id'])
+            return self['user'][OS_FEDERATION]['protocol']['id']
         return None
 
     @property
