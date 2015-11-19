@@ -85,13 +85,13 @@ class TokenlessAuthHelper(object):
 
     def get_scope(self):
         auth = {}
-        # NOTE(chioleong): auth methods here are insignificant because
+        # NOTE(chioleong): Auth methods here are insignificant because
         # we only care about using auth.controllers.AuthInfo
         # to validate the scope information. Therefore,
         # we don't provide any identity.
         auth['scope'] = self._build_scope_info()
 
-        # NOTE(chioleong): we'll let AuthInfo validate the scope for us
+        # NOTE(chioleong): We'll let AuthInfo validate the scope for us
         auth_info = controllers.AuthInfo.create({}, auth, scope_only=True)
         return auth_info.get_scope()
 

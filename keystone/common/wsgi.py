@@ -377,7 +377,7 @@ class Application(BaseApplication):
 
             url = url % substitutions
         else:
-            # NOTE(jamielennox): if url is not set via the config file we
+            # NOTE(jamielennox): If url is not set via the config file we
             # should set it relative to the url that the user used to get here
             # so as not to mess with version discovery. This is not perfect.
             # host_url omits the path prefix, but there isn't another good
