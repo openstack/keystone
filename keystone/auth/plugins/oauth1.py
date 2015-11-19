@@ -18,10 +18,10 @@ from oslo_utils import timeutils
 from keystone import auth
 from keystone.common import controller
 from keystone.common import dependency
-from keystone.contrib.oauth1 import core as oauth
-from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.i18n import _
+from keystone.oauth1 import core as oauth
+from keystone.oauth1 import validator
 
 
 LOG = log.getLogger(__name__)

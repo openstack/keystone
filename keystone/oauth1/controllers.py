@@ -22,11 +22,11 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import wsgi
-from keystone.contrib.oauth1 import core as oauth1
-from keystone.contrib.oauth1 import validator
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
+from keystone.oauth1 import core as oauth1
+from keystone.oauth1 import validator
 
 
 CONF = cfg.CONF

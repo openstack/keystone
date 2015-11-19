@@ -18,8 +18,8 @@ from oslo_log import log
 import six
 
 from keystone.common import dependency
-from keystone.contrib.oauth1 import core as oauth1
 from keystone import exception
+from keystone.oauth1 import core as oauth1
 
 
 METHOD_NAME = 'oauth_validator'
