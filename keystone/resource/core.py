@@ -81,31 +81,104 @@ class Manager(manager.Manager):
                 action=_('max hierarchy depth reached for '
                          '%s branch.') % project_id)
 
-    def create_project(self, tenant_id, tenant, initiator=None):
-        tenant = tenant.copy()
-        tenant.setdefault('enabled', True)
-        tenant['enabled'] = clean.project_enabled(tenant['enabled'])
-        tenant.setdefault('description', '')
-        tenant.setdefault('parent_id', None)
-        tenant.setdefault('is_domain', False)
+    def _assert_is_domain_project_constraints(self, project_ref, parent_ref):
+        """Enforces specific constraints of projects that act as domains
 
-        self.get_domain(tenant.get('domain_id'))
-        if tenant.get('parent_id') is not None:
-            parent_ref = self.get_project(tenant.get('parent_id'))
-            parents_list = self.list_project_parents(parent_ref['id'])
+        Called when is_domain is true, this method ensures that:
+
+        * multiple domains are enabled
+        * the project name is not the reserved name for a federated domain
+        * the project is a root project
+
+        :raises keystone.exception.ValidationError: If one of the constraints
+            was not satisfied.
+        """
+        if (not self.identity_api.multiple_domains_supported and
+                project_ref['id'] != CONF.identity.default_domain_id):
+            raise exception.ValidationError(
+                message=_('Multiple domains are not supported'))
+
+        self.assert_domain_not_federated(project_ref['id'], project_ref)
+
+        if parent_ref:
+            raise exception.ValidationError(
+                message=_('only root projects are allowed to act as '
+                          'domains.'))
+
+    def _assert_regular_project_constraints(self, project_ref, parent_ref):
+        """Enforces regular project hierarchy constraints
+
+        Called when is_domain is false, and the project must contain a valid
+        parent_id or domain_id (this is checked in the controller). If the
+        parent is a regular project, this project must be in the same domain
+        of its parent.
+
+        :raises keystone.exception.ValidationError: If one of the constraints
+            was not satisfied.
+        :raises keystone.exception.DomainNotFound: In case the domain is not
+            found.
+        """
+        domain = self.get_domain(project_ref['domain_id'])
+
+        if parent_ref:
+            is_domain_parent = parent_ref.get('is_domain')
+            parent_domain_id = parent_ref.get('domain_id')
+
+            if not is_domain_parent and parent_domain_id != domain['id']:
+                raise exception.ValidationError(
+                    message=_('Cannot create project, since it specifies '
+                              'its owner as domain %(domain_id)s, but '
+                              'specifies a parent in a different domain '
+                              '(%(parent_domain_id)s).')
+                    % {'domain_id': domain['id'],
+                       'parent_domain_id': parent_ref.get('domain_id')})
+
+    def _find_domain_id(self, project_ref):
+        parent_ref = self.get_project(project_ref['parent_id'])
+        return parent_ref['domain_id']
+
+    def _enforce_project_constraints(self, project_ref, parent_id):
+        parent_ref = self.get_project(parent_id) if parent_id else None
+        if project_ref.get('is_domain'):
+            self._assert_is_domain_project_constraints(project_ref, parent_ref)
+        else:
+            self._assert_regular_project_constraints(project_ref, parent_ref)
+
+        # The whole hierarchy must be enabled
+        if parent_id:
+            parents_list = self.list_project_parents(parent_id)
             parents_list.append(parent_ref)
             for ref in parents_list:
-                if ref.get('domain_id') != tenant.get('domain_id'):
-                    raise exception.ValidationError(
-                        message=_('cannot create a project within a different '
-                                  'domain than its parents.'))
                 if not ref.get('enabled', True):
                     raise exception.ValidationError(
                         message=_('cannot create a project in a '
                                   'branch containing a disabled '
                                   'project: %s') % ref['id'])
-            self._assert_max_hierarchy_depth(tenant.get('parent_id'),
+
+            self._assert_max_hierarchy_depth(project_ref.get('parent_id'),
                                              parents_list)
+
+    def create_project(self, tenant_id, tenant, initiator=None):
+        tenant = tenant.copy()
+        tenant.setdefault('enabled', True)
+        tenant['enabled'] = clean.project_enabled(tenant['enabled'])
+        tenant.setdefault('description', '')
+        tenant.setdefault('domain_id', None)
+        tenant.setdefault('parent_id', None)
+        tenant.setdefault('is_domain', False)
+
+        # If this is a top level project acting as a domain, the project_id
+        # is, effectively, the domain_id - and for such projects we don't
+        # bother to store a copy of it in the domain_id attribute.
+        # If this is a non-domain top level project,then the domain_id must
+        # have been specified by the caller (this is checked as part of the
+        # project constraints)
+        domain_id = tenant.get('domain_id')
+        parent_id = tenant.get('parent_id')
+        if not domain_id and parent_id:
+            tenant['domain_id'] = self._find_domain_id(tenant)
+
+        self._enforce_project_constraints(tenant, parent_id)
 
         ret = self.driver.create_project(tenant_id, tenant)
         notifications.Audit.created(self._PROJECT, tenant_id, initiator)
@@ -213,7 +286,14 @@ class Manager(manager.Manager):
         if not original_tenant_enabled and tenant_enabled:
             self._assert_all_parents_are_enabled(tenant_id)
         if original_tenant_enabled and not tenant_enabled:
-            self._assert_whole_subtree_is_disabled(tenant_id)
+            # NOTE(htruta): In order to disable a regular project, all its
+            # children must already be disabled. However, to keep
+            # compatibility with the existing domain behaviour, we allow a
+            # project acting as a domain to be disabled irrespective of the
+            # state of its children. Disabling a project acting as domain
+            # effectively disables its children.
+            if not original_tenant.get('is_domain'):
+                self._assert_whole_subtree_is_disabled(tenant_id)
             self._disable_project(tenant_id)
 
         ret = self.driver.update_project(tenant_id, tenant)
@@ -224,12 +304,18 @@ class Manager(manager.Manager):
         return ret
 
     def delete_project(self, tenant_id, initiator=None):
+        project = self.driver.get_project(tenant_id)
+        if project['is_domain'] and project['enabled']:
+            raise exception.ValidationError(
+                message=_('cannot delete an enabled project acting as a '
+                          'domain. Please disable the project %s first.')
+                % project.get('id'))
+
         if not self.driver.is_leaf_project(tenant_id):
             raise exception.ForbiddenAction(
                 action=_('cannot delete the project %s since it is not '
                          'a leaf in the hierarchy.') % tenant_id)
 
-        project = self.driver.get_project(tenant_id)
         project_user_ids = (
             self.assignment_api.list_user_ids_for_project(tenant_id))
         for user_id in project_user_ids:
