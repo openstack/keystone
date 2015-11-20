@@ -33,7 +33,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
 
         self.service = unit.new_service_ref()
         self.service_id = self.service['id']
-        self.catalog_api.create_service(self.service_id, self.service.copy())
+        self.catalog_api.create_service(self.service_id, self.service)
 
         # TODO(termie): add an admin user to the fixtures and use that user
         # override the fixtures, for now
@@ -80,12 +80,6 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         self.catalog_api.create_region(region)
         return region_id
 
-    def _service_create(self):
-        service = unit.new_service_ref()
-        service_id = service['id']
-        self.catalog_api.create_service(service_id, service)
-        return service_id
-
     def test_endpoint_create(self):
         req_body, response = self._endpoint_create()
         self.assertIn('endpoint', response.result)
@@ -104,10 +98,11 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         converted into v2 endpoints.
         """
         region_id = self._region_create()
-        service_id = self._service_create()
+
         # create a v3 endpoint with three interfaces
         body = {
-            'endpoint': unit.new_endpoint_ref(service_id, region_id=region_id)
+            'endpoint': unit.new_endpoint_ref(self.service_id,
+                                              region_id=region_id)
         }
         for interface in catalog.controllers.INTERFACES:
             body['endpoint']['interface'] = interface
@@ -122,7 +117,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         # v3 endpoints having public url can be fetched via v2.0 API
         self.assertEqual(1, len(r.result['endpoints']))
         v2_endpoint = r.result['endpoints'][0]
-        self.assertEqual(service_id, v2_endpoint['service_id'])
+        self.assertEqual(self.service_id, v2_endpoint['service_id'])
         # check urls just in case.
         # This is not the focus of this test, so no different urls are used.
         self.assertEqual(body['endpoint']['url'], v2_endpoint['publicurl'])
@@ -133,7 +128,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         v3_endpoint = self.catalog_api.get_endpoint(v2_endpoint['id'])
         # it's the v3 public endpoint's id as the generated v2 endpoint
         self.assertEqual('public', v3_endpoint['interface'])
-        self.assertEqual(service_id, v3_endpoint['service_id'])
+        self.assertEqual(self.service_id, v3_endpoint['service_id'])
 
     def test_pure_v3_endpoint_without_publicurl_invisible_from_v2(self):
         """Test pure v3 endpoint without public url can't be fetched via v2 API.
@@ -143,10 +138,11 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         ignored.
         """
         region_id = self._region_create()
-        service_id = self._service_create()
+
         # create a v3 endpoint without public interface
         body = {
-            'endpoint': unit.new_endpoint_ref(service_id, region_id=region_id)
+            'endpoint': unit.new_endpoint_ref(self.service_id,
+                                              region_id=region_id)
         }
         for interface in catalog.controllers.INTERFACES:
             if interface == 'public':

@@ -5149,10 +5149,7 @@ class CatalogTests(object):
         # create
         new_service = unit.new_service_ref()
         service_id = new_service['id']
-        res = self.catalog_api.create_service(
-            service_id,
-            new_service.copy())
-        new_service['enabled'] = True
+        res = self.catalog_api.create_service(service_id, new_service)
         self.assertDictEqual(new_service, res)
 
         # list
@@ -5178,7 +5175,7 @@ class CatalogTests(object):
     def _create_random_service(self):
         new_service = unit.new_service_ref()
         service_id = new_service['id']
-        return self.catalog_api.create_service(service_id, new_service.copy())
+        return self.catalog_api.create_service(service_id, new_service)
 
     def test_service_filtering(self):
         target_service = self._create_random_service()
@@ -5218,10 +5215,7 @@ class CatalogTests(object):
     def test_cache_layer_service_crud(self):
         new_service = unit.new_service_ref()
         service_id = new_service['id']
-        res = self.catalog_api.create_service(
-            service_id,
-            new_service.copy())
-        new_service['enabled'] = True
+        res = self.catalog_api.create_service(service_id, new_service)
         self.assertDictEqual(new_service, res)
         self.catalog_api.get_service(service_id)
         updated_service = copy.deepcopy(new_service)
@@ -5250,7 +5244,7 @@ class CatalogTests(object):
     def test_invalidate_cache_when_updating_service(self):
         new_service = unit.new_service_ref()
         service_id = new_service['id']
-        self.catalog_api.create_service(service_id, new_service.copy())
+        self.catalog_api.create_service(service_id, new_service)
 
         # cache the service
         self.catalog_api.get_service(service_id)
@@ -5359,7 +5353,7 @@ class CatalogTests(object):
 
     def test_create_endpoint_nonexistent_region(self):
         service = unit.new_service_ref()
-        self.catalog_api.create_service(service['id'], service.copy())
+        self.catalog_api.create_service(service['id'], service)
 
         endpoint = unit.new_endpoint_ref(service_id=service['id'])
         self.assertRaises(exception.ValidationError,
@@ -5388,7 +5382,7 @@ class CatalogTests(object):
 
     def test_create_endpoint(self):
         service = unit.new_service_ref()
-        self.catalog_api.create_service(service['id'], service.copy())
+        self.catalog_api.create_service(service['id'], service)
 
         endpoint = unit.new_endpoint_ref(service_id=service['id'],
                                          region_id=None)
@@ -5439,7 +5433,7 @@ class CatalogTests(object):
 
     def test_list_endpoints(self):
         service = unit.new_service_ref()
-        self.catalog_api.create_service(service['id'], service.copy())
+        self.catalog_api.create_service(service['id'], service)
 
         expected_ids = set([uuid.uuid4().hex for _ in range(3)])
         for endpoint_id in expected_ids:
