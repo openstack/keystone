@@ -722,7 +722,16 @@ class V3Controller(wsgi.Application):
         being used.
 
         """
-        token_ref = utils.get_token_ref(context)
+        try:
+            token_ref = utils.get_token_ref(context)
+        except exception.Unauthorized:
+            if context.get('is_admin'):
+                raise exception.ValidationError(
+                    _('You have tried to create a resource using the admin '
+                      'token. As this token is not within a domain you must '
+                      'explicitly include a domain for this resource to '
+                      'belong to.'))
+            raise
 
         if token_ref.domain_scoped:
             return token_ref.domain_id

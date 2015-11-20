@@ -108,6 +108,27 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         ref['domain_id'] = CONF.identity.default_domain_id
         return self.assertValidUserResponse(r, ref)
 
+    def test_create_user_with_admin_token_and_domain(self):
+        """Call ``POST /users`` with admin token and domain id."""
+        ref = unit.new_user_ref(domain_id=self.domain_id)
+        self.post('/users', body={'user': ref}, token=CONF.admin_token,
+                  expected_status=http_client.CREATED)
+
+    def test_create_user_with_admin_token_and_no_domain(self):
+        """Call ``POST /users`` with admin token but no domain id.
+
+        It should not be possible to use the admin token to create a user
+        while not explicitly passing the domain in the request body.
+
+        """
+        # Passing a valid domain id to new_user_ref() since domain_id is
+        # not an optional parameter.
+        ref = unit.new_user_ref(domain_id=self.domain_id)
+        # Delete the domain id before sending the request.
+        del ref['domain_id']
+        self.post('/users', body={'user': ref}, token=CONF.admin_token,
+                  expected_status=http_client.BAD_REQUEST)
+
     def test_create_user_bad_request(self):
         """Call ``POST /users``."""
         self.post('/users', body={'user': {}},
