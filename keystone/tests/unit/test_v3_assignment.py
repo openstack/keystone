@@ -217,8 +217,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                   project_id=self.project2['id'])
         user2 = self.identity_api.create_user(user2)
 
-        self.group2 = unit.new_group_ref(domain_id=self.domain2['id'])
-        self.group2 = self.identity_api.create_group(self.group2)
+        group2 = unit.new_group_ref(domain_id=self.domain2['id'])
+        group2 = self.identity_api.create_group(group2)
 
         self.credential2 = self.new_credential_ref(
             user_id=user2['id'],
@@ -245,7 +245,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                           self.project2['id'])
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
-                          self.group2['id'])
+                          group2['id'])
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           user2['id'])
@@ -1614,12 +1614,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         user2 = unit.create_user(self.identity_api,
                                  domain_id=self.domain['id'])
 
-        self.group1 = unit.new_group_ref(domain_id=self.domain['id'])
-        self.group1 = self.identity_api.create_group(self.group1)
-        self.identity_api.add_user_to_group(user1['id'],
-                                            self.group1['id'])
-        self.identity_api.add_user_to_group(user2['id'],
-                                            self.group1['id'])
+        group1 = unit.new_group_ref(domain_id=self.domain['id'])
+        group1 = self.identity_api.create_group(group1)
+        self.identity_api.add_user_to_group(user1['id'], group1['id'])
+        self.identity_api.add_user_to_group(user2['id'], group1['id'])
         self.project1 = self.new_project_ref(
             domain_id=self.domain['id'])
         self.resource_api.create_project(self.project1['id'], self.project1)
@@ -1631,7 +1629,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Now add one of each of the four types of assignment
 
         gd_entity = self.build_role_assignment_entity(
-            domain_id=self.domain_id, group_id=self.group1['id'],
+            domain_id=self.domain_id, group_id=group1['id'],
             role_id=self.role1['id'])
         self.put(gd_entity['links']['assignment'])
 
@@ -1641,7 +1639,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.put(ud_entity['links']['assignment'])
 
         gp_entity = self.build_role_assignment_entity(
-            project_id=self.project1['id'], group_id=self.group1['id'],
+            project_id=self.project1['id'], group_id=group1['id'],
             role_id=self.role1['id'])
         self.put(gp_entity['links']['assignment'])
 
@@ -1678,7 +1676,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, up_entity)
         self.assertRoleAssignmentInListResponse(r, ud_entity)
 
-        collection_url = '/role_assignments?group.id=%s' % self.group1['id']
+        collection_url = '/role_assignments?group.id=%s' % group1['id']
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
@@ -1722,10 +1720,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, ud_entity)
         # ...and the two via group membership...
         gp1_link = self.build_role_assignment_link(
-            project_id=self.project1['id'], group_id=self.group1['id'],
+            project_id=self.project1['id'], group_id=group1['id'],
             role_id=self.role1['id'])
         gd1_link = self.build_role_assignment_link(domain_id=self.domain_id,
-                                                   group_id=self.group1['id'],
+                                                   group_id=group1['id'],
                                                    role_id=self.role1['id'])
 
         up1_entity = self.build_role_assignment_entity(

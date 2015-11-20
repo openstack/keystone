@@ -805,9 +805,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
                 break
 
         # Create a group
-        group = unit.new_group_ref(name=self.getUniqueString(prefix='tuidc'),
-                                   description=self.getUniqueString(),
-                                   domain_id=CONF.identity.default_domain_id)
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group_id = group['id']
         group = self.identity_api.driver.create_group(group_id, group)
         # Now we'll use the manager to discover it, which will create a
