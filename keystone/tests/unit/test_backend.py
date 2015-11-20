@@ -3971,9 +3971,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         orig_member_assignments = get_member_assignments()
 
         # Create a group.
-        new_group = unit.new_group_ref(
-            domain_id=DEFAULT_DOMAIN_ID,
-            name=self.getUniqueString(prefix='tdgrra'))
+        new_group = unit.new_group_ref(domain_id=DEFAULT_DOMAIN_ID)
         new_group = self.identity_api.create_group(new_group)
 
         # Create a project.
