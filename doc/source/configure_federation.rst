@@ -182,7 +182,7 @@ issue an HTTP POST request with authentication data in the request body. To
 start federated authentication a user must access the dedicated URL with
 Identity Provider's and Protocol's identifiers stored within a protected URL.
 The URL has a format of:
-``/v3/OS-FEDERATION/identity_providers/{identity_provider}/protocols/{protocol}/auth``.
+``/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth``.
 
 In this instance we follow a standard SAML2 authentication procedure, that is,
 the user will be redirected to the Identity Provider's authentication webpage
@@ -207,7 +207,7 @@ SAML authentication procedure.
 
 .. code-block:: bash
 
-    $ curl -X GET -D - http://localhost:5000/v3/OS-FEDERATION/identity_providers/{identity_provider}/protocols/{protocol}/auth
+    $ curl -X GET -D - http://localhost:5000/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
 
 Determine accessible resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
