@@ -27,6 +27,22 @@ LOG = log.getLogger(__name__)
 _FATAL_EXCEPTION_FORMAT_ERRORS = False
 
 
+def _format_with_unicode_kwargs(msg_format, kwargs):
+    try:
+        return msg_format % kwargs
+    except UnicodeDecodeError:
+        try:
+            kwargs = {k: encodeutils.safe_decode(v)
+                      for k, v in kwargs.items()}
+        except UnicodeDecodeError:
+            # NOTE(jamielennox): This is the complete failure case
+            # at least by showing the template we have some idea
+            # of where the error is coming from
+            return msg_format
+
+        return msg_format % kwargs
+
+
 class Error(Exception):
     """Base error class.
 
@@ -58,22 +74,9 @@ class Error(Exception):
         :raises: KeyError given insufficient kwargs
 
         """
-        if not message:
-            try:
-                message = self.message_format % kwargs
-            except UnicodeDecodeError:
-                try:
-                    kwargs = {k: encodeutils.safe_decode(v)
-                              for k, v in kwargs.items()}
-                except UnicodeDecodeError:
-                    # NOTE(jamielennox): This is the complete failure case
-                    # at least by showing the template we have some idea
-                    # of where the error is coming from
-                    message = self.message_format
-                else:
-                    message = self.message_format % kwargs
-
-        return message
+        if message:
+            return message
+        return _format_with_unicode_kwargs(self.message_format, kwargs)
 
 
 class ValidationError(Error):
@@ -174,12 +177,12 @@ class SecurityError(Error):
                 # Only do replacement if message is string. The message is
                 # sometimes a different exception or bytes, which would raise
                 # TypeError.
-                message = message % kwargs
+                message = _format_with_unicode_kwargs(message, kwargs)
             return _('%(message)s %(amendment)s') % {
                 'message': message,
                 'amendment': self.amendment}
-        else:
-            return self.message_format % kwargs
+
+        return _format_with_unicode_kwargs(self.message_format, kwargs)
 
 
 class Unauthorized(SecurityError):
