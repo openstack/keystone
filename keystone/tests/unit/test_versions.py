@@ -231,8 +231,8 @@ V3_JSON_HOME_RESOURCES_INHERIT_DISABLED = {
     _build_ec2tokens_relation(resource_name='user_credential'): {
         'href-template': '/users/{user_id}/credentials/OS-EC2/{credential_id}',
         'href-vars': {
-            'credential_id': json_home.build_v3_extension_parameter_relation(
-                'OS-EC2', '1.0', 'credential_id'),
+            'credential_id':
+            json_home.build_v3_parameter_relation('credential_id'),
             'user_id': json_home.Parameters.USER_ID, }},
     _build_ec2tokens_relation(resource_name='user_credentials'): {
         'href-template': '/users/{user_id}/credentials/OS-EC2',

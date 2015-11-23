@@ -23,10 +23,6 @@ build_resource_relation = functools.partial(
     json_home.build_v3_extension_resource_relation, extension_name='OS-EC2',
     extension_version='1.0')
 
-build_parameter_relation = functools.partial(
-    json_home.build_v3_extension_parameter_relation, extension_name='OS-EC2',
-    extension_version='1.0')
-
 
 class Ec2Extension(wsgi.ExtensionRouter):
     def add_routes(self, mapper):
@@ -90,6 +86,6 @@ class Ec2ExtensionV3(wsgi.V3ExtensionRouter):
             rel=build_resource_relation(resource_name='user_credential'),
             path_vars={
                 'credential_id':
-                build_parameter_relation(parameter_name='credential_id'),
+                json_home.build_v3_parameter_relation('credential_id'),
                 'user_id': json_home.Parameters.USER_ID,
             })
