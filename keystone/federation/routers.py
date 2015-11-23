@@ -68,10 +68,10 @@ class Routers(wsgi.RoutersBase):
         DELETE /OS-FEDERATION/service_providers/{sp_id}
         PATCH /OS-FEDERATION/service_providers/{sp_id}
 
-        GET /OS-FEDERATION/identity_providers/{identity_provider}/
-            protocols/{protocol}/auth
-        POST /OS-FEDERATION/identity_providers/{identity_provider}/
-            protocols/{protocol}/auth
+        GET /OS-FEDERATION/identity_providers/{idp_id}/
+            protocols/{protocol_id}/auth
+        POST /OS-FEDERATION/identity_providers/{idp_id}/
+            protocols/{protocol_id}/auth
         GET /auth/OS-FEDERATION/identity_providers/
             {idp_id}/protocols/{protocol_id}/websso
             ?origin=https%3A//horizon.example.com
@@ -206,14 +206,14 @@ class Routers(wsgi.RoutersBase):
         # Auth operations
         self._add_resource(
             mapper, auth_controller,
-            path=self._construct_url('identity_providers/{identity_provider}/'
-                                     'protocols/{protocol}/auth'),
+            path=self._construct_url('identity_providers/{idp_id}/'
+                                     'protocols/{protocol_id}/auth'),
             get_post_action='federated_authentication',
             rel=build_resource_relation(
                 resource_name='identity_provider_protocol_auth'),
             path_vars={
-                'identity_provider': IDP_ID_PARAMETER_RELATION,
-                'protocol': PROTOCOL_ID_PARAMETER_RELATION,
+                'idp_id': IDP_ID_PARAMETER_RELATION,
+                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
             })
         self._add_resource(
             mapper, auth_controller,
