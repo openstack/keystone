@@ -88,18 +88,17 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             self.assertEqual(value, response.result['endpoint'][field])
 
     def test_pure_v3_endpoint_with_publicurl_visible_from_v2(self):
-        """Test pure v3 endpoint can be fetched via v2 API.
+        """Test pure v3 endpoint can be fetched via v2.0 API.
 
-        For those who are using v2 APIs, endpoints created by v3 API should
+        For those who are using v2.0 APIs, endpoints created by v3 API should
         also be visible as there are no differences about the endpoints
-        except the format or the internal implementation.
-        And because public url is required for v2 API, so only the v3 endpoints
-        of the service which has the public interface endpoint will be
-        converted into v2 endpoints.
+        except the format or the internal implementation. Since publicURL is
+        required for v2.0 API, so only v3 endpoints of the service which have
+        the public interface endpoint will be converted into v2.0 endpoints.
         """
         region_id = self._region_create()
 
-        # create a v3 endpoint with three interfaces
+        # create v3 endpoints with three interfaces
         body = {
             'endpoint': unit.new_endpoint_ref(self.service_id,
                                               region_id=region_id)
@@ -114,11 +113,11 @@ class V2CatalogTestCase(rest.RestfulTestCase):
 
         r = self.admin_request(token=self.get_scoped_token(),
                                path='/v2.0/endpoints')
-        # v3 endpoints having public url can be fetched via v2.0 API
+        # Endpoints of the service which have a public interface endpoint
+        # will be returned via v2.0 API
         self.assertEqual(1, len(r.result['endpoints']))
         v2_endpoint = r.result['endpoints'][0]
         self.assertEqual(self.service_id, v2_endpoint['service_id'])
-        # check urls just in case.
         # This is not the focus of this test, so no different urls are used.
         self.assertEqual(body['endpoint']['url'], v2_endpoint['publicurl'])
         self.assertEqual(body['endpoint']['url'], v2_endpoint['adminurl'])
@@ -126,16 +125,16 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         self.assertNotIn('name', v2_endpoint)
 
         v3_endpoint = self.catalog_api.get_endpoint(v2_endpoint['id'])
-        # it's the v3 public endpoint's id as the generated v2 endpoint
+        # Checks the v3 public endpoint's id is the generated v2.0 endpoint
         self.assertEqual('public', v3_endpoint['interface'])
         self.assertEqual(self.service_id, v3_endpoint['service_id'])
 
     def test_pure_v3_endpoint_without_publicurl_invisible_from_v2(self):
-        """Test pure v3 endpoint without public url can't be fetched via v2 API.
+        """Test that the v2.0 API can't fetch v3 endpoints without publicURLs.
 
-        V2 API will return endpoints created by v3 API, but because public url
-        is required for v2 API, so v3 endpoints without public url will be
-        ignored.
+        v2.0 API will return endpoints created by v3 API, but publicURL is
+        required for the service in the v2.0 API, therefore v3 endpoints of
+        a service which don't have publicURL will be ignored.
         """
         region_id = self._region_create()
 
@@ -156,7 +155,8 @@ class V2CatalogTestCase(rest.RestfulTestCase):
 
         r = self.admin_request(token=self.get_scoped_token(),
                                path='/v2.0/endpoints')
-        # v3 endpoints without public url won't be fetched via v2.0 API
+        # v3 endpoints of a service which don't have publicURL can't be
+        # fetched via v2.0 API
         self.assertEqual(0, len(r.result['endpoints']))
 
     def test_endpoint_create_with_null_adminurl(self):
