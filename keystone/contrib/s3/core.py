@@ -108,17 +108,15 @@ class S3Controller(controllers.Ec2Controller):
         """
         parts = string_to_sign.split(b'\n')
         if len(parts) != 4 or parts[0] != b'AWS4-HMAC-SHA256':
-            raise exception.Unauthorized(
-                message=_('Invalid EC2 signature.'))
+            raise exception.Unauthorized(message=_('Invalid EC2 signature.'))
         scope = parts[2].split(b'/')
         if len(scope) != 4 or scope[2] != b's3' or scope[3] != b'aws4_request':
-            raise exception.Unauthorized(
-                message=_('Invalid EC2 signature.'))
+            raise exception.Unauthorized(message=_('Invalid EC2 signature.'))
 
         def _sign(key, msg):
             return hmac.new(key, msg, hashlib.sha256).digest()
 
-        signed = _sign(six.b('AWS4' + secret_key), scope[0])
+        signed = _sign(('AWS4' + secret_key).encode('utf-8'), scope[0])
         signed = _sign(signed, scope[1])
         signed = _sign(signed, scope[2])
         signed = _sign(signed, b'aws4_request')
