@@ -459,7 +459,7 @@
 #
 
 # Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. (string value)
+# requests "origin" header. (list value)
 #allowed_origin = <None>
 
 # Indicate that the actual request can include user credentials (boolean value)
@@ -487,7 +487,7 @@
 #
 
 # Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. (string value)
+# requests "origin" header. (list value)
 #allowed_origin = <None>
 
 # Indicate that the actual request can include user credentials (boolean value)
@@ -659,6 +659,8 @@
 #
 
 # Enable endpoint_policy functionality. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #enabled = true
 
 # Entrypoint for the endpoint policy backend driver in the
