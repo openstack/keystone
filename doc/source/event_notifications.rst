@@ -365,7 +365,7 @@ the unique identifier of the resource type.
 .. code-block:: javascript
 
     {
-        "event_type": "identity.created.role_assignment",
+        "event_type": "identity.role_assignment.created",
         "message_id": "a5901371-d5fd-b3bb-448f-a14dead6f4cb",
         "payload": {
             "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
