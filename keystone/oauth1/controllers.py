@@ -192,7 +192,7 @@ class AccessTokenRolesV3(controller.V3Controller):
             if authed_role_id == role_id:
                 role = self._format_role_entity(role_id)
                 return AccessTokenRolesV3.wrap_member(context, role)
-        raise exception.RoleNotFound(_('Could not find role'))
+        raise exception.RoleNotFound(role_id=role_id)
 
     def _format_role_entity(self, role_id):
         role = self.role_api.get_role(role_id)
