@@ -1,0 +1,4 @@
+---
+other:
+  - Deprecate the ``enabled`` option from ``[endpoint_policy]``, it will be
+    removed in the 'O' release, and the extension will always be enabled.

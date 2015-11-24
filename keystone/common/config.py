@@ -489,6 +489,7 @@ FILE_OPTIONS = {
     'endpoint_policy': [
         cfg.BoolOpt('enabled',
                     default=True,
+                    deprecated_for_removal=True,
                     help='Enable endpoint_policy functionality.'),
         cfg.StrOpt('driver',
                    default='sql',
