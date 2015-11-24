@@ -48,6 +48,14 @@ class Provider(common.BaseProvider):
             raise exception.UnexpectedError(_(
                 'Unable to sign token.'))
 
+    @property
+    def _supports_bind_authentication(self):
+        """Return if the token provider supports bind authentication methods.
+
+        :returns: True
+        """
+        return True
+
     def needs_persistence(self):
         """Should the token be written to a backend."""
         return True
