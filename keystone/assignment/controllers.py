@@ -649,15 +649,3 @@ class RoleAssignmentV3(controller.V3Controller):
         formatted_refs = [self._format_entity(context, ref) for ref in refs]
 
         return self.wrap_collection(context, formatted_refs)
-
-    @controller.protected()
-    def get_role_assignment(self, context):
-        raise exception.NotImplemented()
-
-    @controller.protected()
-    def update_role_assignment(self, context):
-        raise exception.NotImplemented()
-
-    @controller.protected()
-    def delete_role_assignment(self, context):
-        raise exception.NotImplemented()

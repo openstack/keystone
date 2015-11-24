@@ -159,11 +159,11 @@ class Routers(wsgi.RoutersBase):
                 'group_id': json_home.Parameters.GROUP_ID,
             })
 
-        routers.append(
-            router.Router(controllers.RoleAssignmentV3(),
-                          'role_assignments', 'role_assignment',
-                          resource_descriptions=self.v3_resources,
-                          is_entity_implemented=False))
+        self._add_resource(
+            mapper, controllers.RoleAssignmentV3(),
+            path='/role_assignments',
+            get_action='list_role_assignments',
+            rel=json_home.build_v3_resource_relation('role_assignments'))
 
         if CONF.os_inherit.enabled:
             self._add_resource(
