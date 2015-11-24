@@ -1,0 +1,7 @@
+---
+features:
+  - >
+    [`bug 1489061 <https://bugs.launchpad.net/keystone/+bug/1489061>`_]
+    Caching has been added to catalog retrieval on a per user ID and project
+    ID basis. This affects both the v2 and v3 APIs. As a result this should
+    provide a performance benefit to fernet-based deployments.

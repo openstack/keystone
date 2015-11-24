@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1473042 <https://bugs.launchpad.net/keystone/+bug/1473042>`_]
+    Keystone's S3 compatibility support can now authenticate using AWS
+    Signature Version 4.

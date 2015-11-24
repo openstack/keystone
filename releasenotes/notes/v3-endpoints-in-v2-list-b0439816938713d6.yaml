@@ -1,0 +1,6 @@
+---
+fixes:
+  - >
+    [`bug 1480270 <https://bugs.launchpad.net/keystone/+bug/1480270>`_]
+    Endpoints created when using v3 of the keystone REST API will now be
+    included when listing endpoints via the v2.0 API.
