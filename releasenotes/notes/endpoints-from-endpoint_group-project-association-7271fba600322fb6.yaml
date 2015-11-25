@@ -1,0 +1,7 @@
+---
+fixes:
+  - >
+    [`bug 1516469 <https://bugs.launchpad.net/keystone/+bug/1516469>`_]
+    Endpoints filtered by endpoint_group project association will be
+    included in catalog when issue a project scoped token and using
+    ``endpoint_filter.sql`` as catalog's backend driver.

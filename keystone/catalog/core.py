@@ -119,6 +119,7 @@ def check_endpoint_url(url):
 
 
 @dependency.provider('catalog_api')
+@dependency.requires('resource_api')
 class Manager(manager.Manager):
     """Default pivot point for the Catalog backend.
 
@@ -320,6 +321,67 @@ class Manager(manager.Manager):
         self.driver.remove_endpoint_group_from_project(
             endpoint_group_id, project_id)
         COMPUTED_CATALOG_REGION.invalidate()
+
+    def _get_endpoint_groups_for_project(self, project_id):
+        # recover the project endpoint group memberships and for each
+        # membership recover the endpoint group
+        self.resource_api.get_project(project_id)
+        try:
+            refs = self.driver.list_endpoint_groups_for_project(
+                project_id)
+            endpoint_groups = [self.driver.get_endpoint_group(
+                ref['endpoint_group_id']) for ref in refs]
+            return endpoint_groups
+        except exception.EndpointGroupNotFound:
+            return []
+
+    def _get_endpoints_filtered_by_endpoint_group(self, endpoint_group_id):
+        endpoints = self.list_endpoints()
+        filters = self.driver.get_endpoint_group(endpoint_group_id)['filters']
+        filtered_endpoints = []
+
+        for endpoint in endpoints:
+            is_candidate = True
+            for key, value in filters.items():
+                if endpoint[key] != value:
+                    is_candidate = False
+                    break
+            if is_candidate:
+                filtered_endpoints.append(endpoint)
+        return filtered_endpoints
+
+    def list_endpoints_for_project(self, project_id):
+        """List all endpoints associated with a project.
+
+        :param project_id: project identifier to check
+        :type project_id: string
+        :returns: a list of endpoint ids or an empty list.
+
+        """
+        refs = self.driver.list_endpoints_for_project(project_id)
+        filtered_endpoints = {}
+        for ref in refs:
+            try:
+                endpoint = self.get_endpoint(ref['endpoint_id'])
+                filtered_endpoints.update({ref['endpoint_id']: endpoint})
+            except exception.EndpointNotFound:
+                # remove bad reference from association
+                self.remove_endpoint_from_project(ref['endpoint_id'],
+                                                  project_id)
+
+        # need to recover endpoint_groups associated with project
+        # then for each endpoint group return the endpoints.
+        endpoint_groups = self._get_endpoint_groups_for_project(project_id)
+        for endpoint_group in endpoint_groups:
+            endpoint_refs = self._get_endpoints_filtered_by_endpoint_group(
+                endpoint_group['id'])
+            # now check if any endpoints for current endpoint group are not
+            # contained in the list of filtered endpoints
+            for endpoint_ref in endpoint_refs:
+                if endpoint_ref['id'] not in filtered_endpoints:
+                    filtered_endpoints[endpoint_ref['id']] = endpoint_ref
+
+        return filtered_endpoints
 
 
 @six.add_metaclass(abc.ABCMeta)
