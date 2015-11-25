@@ -4941,7 +4941,7 @@ class CatalogTests(object):
         # create
         region_id = '0' * 255
         new_region = unit.new_region_ref(id=region_id)
-        res = self.catalog_api.create_region(new_region.copy())
+        res = self.catalog_api.create_region(new_region)
 
         # Ensure that we don't need to have a
         # parent_region_id in the original supplied
@@ -4957,7 +4957,7 @@ class CatalogTests(object):
         parent_region_id = region_id
         new_region = unit.new_region_ref(parent_region_id=parent_region_id)
         region_id = new_region['id']
-        res = self.catalog_api.create_region(new_region.copy())
+        res = self.catalog_api.create_region(new_region)
         self.assertDictEqual(new_region, res)
 
         # list

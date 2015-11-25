@@ -894,7 +894,8 @@ class TestCatalogAPISQLRegions(unit.TestCase):
         self.catalog_api.create_service(service_id, service)
 
         endpoint = unit.new_endpoint_ref(service_id=service_id)
-        self.catalog_api.create_region({'id': endpoint['region_id']})
+        region = unit.new_region_ref(id=endpoint['region_id'])
+        self.catalog_api.create_region(region)
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         endpoint = self.catalog_api.get_endpoint(endpoint['id'])
