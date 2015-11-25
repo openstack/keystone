@@ -65,41 +65,30 @@ class BaseCertificateConfigure(object):
         try:
             # OpenSSL 1.0 and newer support default_md = default,
             # older versions do not
-            openssl_ver = environment.subprocess.Popen(
-                ['openssl', 'version'],
-                stdout=environment.subprocess.PIPE).stdout.read()
+            openssl_ver = environment.subprocess.check_output(
+                ['openssl', 'version'])
             if "OpenSSL 0." in openssl_ver:
                 self.ssl_dictionary['default_md'] = 'sha1'
-        except OSError:
+        except environment.subprocess.CalledProcessError:
             LOG.warn(_LW('Failed to invoke ``openssl version``, '
                          'assuming is v1.0 or newer'))
         self.ssl_dictionary.update(kwargs)
 
     def exec_command(self, command):
-        to_exec = []
-        for cmd_part in command:
-            to_exec.append(cmd_part % self.ssl_dictionary)
+        to_exec = [part % self.ssl_dictionary for part in command]
         LOG.info(_LI('Running command - %s'), ' '.join(to_exec))
-        # NOTE(Jeffrey4l): Redirect both stdout and stderr to pipe, so the
-        # output can be captured.
-        # NOTE(Jeffrey4l): check_output is not compatible with Python 2.6.
-        # So use Popen instead.
-        process = environment.subprocess.Popen(
-            to_exec,
-            stdout=environment.subprocess.PIPE,
-            stderr=environment.subprocess.STDOUT)
-        output = process.communicate()[0]
-        retcode = process.poll()
-        if retcode:
+        try:
+            # NOTE(shaleh): use check_output instead of the simpler
+            # `check_call()` in order to log any output from an error.
+            environment.subprocess.check_output(
+                to_exec,
+                stderr=environment.subprocess.STDOUT)
+        except environment.subprocess.CalledProcessError as e:
             LOG.error(_LE('Command %(to_exec)s exited with %(retcode)s'
                           '- %(output)s'),
                       {'to_exec': to_exec,
-                       'retcode': retcode,
-                       'output': output})
-            e = environment.subprocess.CalledProcessError(retcode, to_exec[0])
-            # NOTE(Jeffrey4l): Python 2.6 compatibility:
-            # CalledProcessError did not have output keyword argument
-            e.output = output
+                       'retcode': e.returncode,
+                       'output': e.output})
             raise e
 
     def clean_up_existing_files(self):
