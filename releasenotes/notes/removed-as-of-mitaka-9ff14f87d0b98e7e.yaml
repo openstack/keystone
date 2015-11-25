@@ -1,0 +1,24 @@
+---
+other:
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    Removed ``extras`` from token responses. These fields should not be
+    necessary and a well-defined API makes this field redundant. This was
+    deprecated in the Kilo release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    Removed ``RequestBodySizeLimiter`` from keystone middleware. The keystone
+    team suggests using ``oslo_middleware.sizelimit.RequestBodySizeLimiter``
+    instead. This was deprecated in the Kilo release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    Notifications with event_type ``identity.created.role_assignment`` and
+    ``identity.deleted.role_assignment`` have been removed. The keystone team
+    suggests listening for ``identity.role_assignment.created`` and
+    ``identity.role_assignment.deleted`` instead. This was deprecated in the
+    Kilo release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    Removed ``check_role_for_trust`` from the trust controller, ensure policy
+    files do not refer to this target. This was deprecated in the Kilo
+    release.

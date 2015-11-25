@@ -1,0 +1,6 @@
+---
+features:
+  - >
+   [`blueprint federation-group-ids-mapped-without-domain-reference <https://blueprints.launchpad.net/keystone/+spec/federation-group-ids-mapped-without-domain-reference>`_]
+   Enhanced the federation mapping engine to allow for group IDs to be
+   referenced without a domain ID.
