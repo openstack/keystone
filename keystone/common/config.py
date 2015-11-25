@@ -49,6 +49,11 @@ _DEPRECATE_DII_MSG = ('The option to set domain_id_immutable to false '
                       'has been deprecated in the M release and will '
                       'be removed in the O release.')
 
+_DEPRECATE_EVENTLET_MSG = ('Support for running keystone under eventlet has '
+                           'been removed in the N release. These options '
+                           'remain for backwards compatibility because they '
+                           'are used for URL substitutions.')
+
 FILE_OPTIONS = {
     None: [
         cfg.StrOpt('admin_token', secret=True, default=None,
@@ -999,20 +1004,6 @@ FILE_OPTIONS = {
                         'assertions.'),
     ],
     'eventlet_server': [
-        cfg.IntOpt('public_workers',
-                   deprecated_name='public_workers',
-                   deprecated_group='DEFAULT',
-                   deprecated_for_removal=True,
-                   help='The number of worker processes to serve the public '
-                        'eventlet application. Defaults to number of CPUs '
-                        '(minimum of 2).'),
-        cfg.IntOpt('admin_workers',
-                   deprecated_name='admin_workers',
-                   deprecated_group='DEFAULT',
-                   deprecated_for_removal=True,
-                   help='The number of worker processes to serve the admin '
-                        'eventlet application. Defaults to number of CPUs '
-                        '(minimum of 2).'),
         cfg.StrOpt('public_bind_host',
                    default='0.0.0.0',  # nosec : Bind to all interfaces by
                    # default for backwards compatibility.
@@ -1021,12 +1012,14 @@ FILE_OPTIONS = {
                                     cfg.DeprecatedOpt('public_bind_host',
                                                       group='DEFAULT'), ],
                    deprecated_for_removal=True,
+                   deprecated_reason=_DEPRECATE_EVENTLET_MSG,
                    help='The IP address of the network interface for the '
                         'public service to listen on.'),
         cfg.PortOpt('public_port', default=5000,
                     deprecated_name='public_port',
                     deprecated_group='DEFAULT',
                     deprecated_for_removal=True,
+                    deprecated_reason=_DEPRECATE_EVENTLET_MSG,
                     help='The port number which the public service listens '
                          'on.'),
         cfg.StrOpt('admin_bind_host',
@@ -1037,6 +1030,7 @@ FILE_OPTIONS = {
                                     cfg.DeprecatedOpt('admin_bind_host',
                                                       group='DEFAULT')],
                    deprecated_for_removal=True,
+                   deprecated_reason=_DEPRECATE_EVENTLET_MSG,
                    help='The IP address of the network interface for the '
                         'admin service to listen on.'),
         cfg.PortOpt('admin_port', default=35357,
@@ -1045,60 +1039,6 @@ FILE_OPTIONS = {
                     deprecated_for_removal=True,
                     help='The port number which the admin service listens '
                          'on.'),
-        cfg.BoolOpt('wsgi_keep_alive', default=True,
-                    help='If set to false, disables keepalives on the server; '
-                         'all connections will be closed after serving one '
-                         'request.'),
-        cfg.IntOpt('client_socket_timeout', default=900,
-                   help='Timeout for socket operations on a client '
-                        'connection. If an incoming connection is idle for '
-                        'this number of seconds it will be closed. A value '
-                        'of "0" means wait forever.'),
-        cfg.BoolOpt('tcp_keepalive', default=False,
-                    deprecated_name='tcp_keepalive',
-                    deprecated_group='DEFAULT',
-                    deprecated_for_removal=True,
-                    help='Set this to true if you want to enable '
-                         'TCP_KEEPALIVE on server sockets, i.e. sockets used '
-                         'by the Keystone wsgi server for client '
-                         'connections.'),
-        cfg.IntOpt('tcp_keepidle',
-                   default=600,
-                   deprecated_name='tcp_keepidle',
-                   deprecated_group='DEFAULT',
-                   deprecated_for_removal=True,
-                   help='Sets the value of TCP_KEEPIDLE in seconds for each '
-                        'server socket. Only applies if tcp_keepalive is '
-                        'true. Ignored if system does not support it.'),
-    ],
-    'eventlet_server_ssl': [
-        cfg.BoolOpt('enable', default=False, deprecated_name='enable',
-                    deprecated_group='ssl',
-                    deprecated_for_removal=True,
-                    help='Toggle for SSL support on the Keystone '
-                         'eventlet servers.'),
-        cfg.StrOpt('certfile',
-                   default='/etc/keystone/ssl/certs/keystone.pem',
-                   deprecated_name='certfile', deprecated_group='ssl',
-                   deprecated_for_removal=True,
-                   help='Path of the certfile for SSL. For non-production '
-                        'environments, you may be interested in using '
-                        '`keystone-manage ssl_setup` to generate self-signed '
-                        'certificates.'),
-        cfg.StrOpt('keyfile',
-                   default='/etc/keystone/ssl/private/keystonekey.pem',
-                   deprecated_name='keyfile', deprecated_group='ssl',
-                   deprecated_for_removal=True,
-                   help='Path of the keyfile for SSL.'),
-        cfg.StrOpt('ca_certs',
-                   default='/etc/keystone/ssl/certs/ca.pem',
-                   deprecated_name='ca_certs', deprecated_group='ssl',
-                   deprecated_for_removal=True,
-                   help='Path of the CA cert file for SSL.'),
-        cfg.BoolOpt('cert_required', default=False,
-                    deprecated_name='cert_required', deprecated_group='ssl',
-                    deprecated_for_removal=True,
-                    help='Require client certificate.'),
     ],
 }
 

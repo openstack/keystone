@@ -14,11 +14,11 @@
 #
 
 import os
+import subprocess  # nosec : see comments in the code below
 
 from oslo_config import cfg
 from oslo_log import log
 
-from keystone.common import environment
 from keystone.common import utils
 from keystone.i18n import _LI, _LE, _LW
 
@@ -42,22 +42,22 @@ class BaseCertificateConfigure(object):
 
     """
 
-    def __init__(self, conf_obj, server_conf_obj, keystone_user,
+    def __init__(self, conf_obj, keystone_user,
                  keystone_group, rebuild, **kwargs):
-        self.conf_dir = os.path.dirname(server_conf_obj.ca_certs)
+        self.conf_dir = os.path.dirname(conf_obj.ca_certs)
         self.use_keystone_user = keystone_user
         self.use_keystone_group = keystone_group
         self.rebuild = rebuild
         self.ssl_config_file_name = os.path.join(self.conf_dir, "openssl.conf")
         self.request_file_name = os.path.join(self.conf_dir, "req.pem")
         self.ssl_dictionary = {'conf_dir': self.conf_dir,
-                               'ca_cert': server_conf_obj.ca_certs,
+                               'ca_cert': conf_obj.ca_certs,
                                'default_md': 'default',
                                'ssl_config': self.ssl_config_file_name,
                                'ca_private_key': conf_obj.ca_key,
                                'request_file': self.request_file_name,
-                               'signing_key': server_conf_obj.keyfile,
-                               'signing_cert': server_conf_obj.certfile,
+                               'signing_key': conf_obj.keyfile,
+                               'signing_cert': conf_obj.certfile,
                                'key_size': int(conf_obj.key_size),
                                'valid_days': int(conf_obj.valid_days),
                                'cert_subject': conf_obj.cert_subject}
@@ -65,12 +65,12 @@ class BaseCertificateConfigure(object):
         try:
             # OpenSSL 1.0 and newer support default_md = default,
             # older versions do not
-            openssl_ver = environment.subprocess.check_output(  # the arguments
+            openssl_ver = subprocess.check_output(  # nosec : the arguments
                 # are hardcoded and just check the openssl version
                 ['openssl', 'version'])
             if b'OpenSSL 0.' in openssl_ver:
                 self.ssl_dictionary['default_md'] = 'sha1'
-        except environment.subprocess.CalledProcessError:
+        except subprocess.CalledProcessError:
             LOG.warning(_LW('Failed to invoke ``openssl version``, '
                             'assuming is v1.0 or newer'))
         self.ssl_dictionary.update(kwargs)
@@ -81,12 +81,12 @@ class BaseCertificateConfigure(object):
         try:
             # NOTE(shaleh): use check_output instead of the simpler
             # `check_call()` in order to log any output from an error.
-            environment.subprocess.check_output(  # the arguments being passed
+            subprocess.check_output(  # nosec : the arguments being passed
                 # in are defined in this file and trusted to build CAs, keys
                 # and certs
                 to_exec,
-                stderr=environment.subprocess.STDOUT)
-        except environment.subprocess.CalledProcessError as e:
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
             LOG.error(_LE('Command %(to_exec)s exited with %(retcode)s '
                           '- %(output)s'),
                       {'to_exec': to_exec,
@@ -249,9 +249,8 @@ class ConfigurePKI(BaseCertificateConfigure):
     """
 
     def __init__(self, keystone_user, keystone_group, rebuild=False):
-        super(ConfigurePKI, self).__init__(CONF.signing, CONF.signing,
-                                           keystone_user, keystone_group,
-                                           rebuild=rebuild)
+        super(ConfigurePKI, self).__init__(CONF.signing, keystone_user,
+                                           keystone_group, rebuild=rebuild)
 
 
 class ConfigureSSL(BaseCertificateConfigure):
@@ -262,9 +261,8 @@ class ConfigureSSL(BaseCertificateConfigure):
     """
 
     def __init__(self, keystone_user, keystone_group, rebuild=False):
-        super(ConfigureSSL, self).__init__(CONF.ssl, CONF.eventlet_server_ssl,
-                                           keystone_user, keystone_group,
-                                           rebuild=rebuild)
+        super(ConfigureSSL, self).__init__(CONF.ssl, keystone_user,
+                                           keystone_group, rebuild=rebuild)
 
 
 BaseCertificateConfigure.sslconfig = """

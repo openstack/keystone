@@ -15,10 +15,8 @@
 # under the License.
 
 import gettext
-import socket
 import uuid
 
-import eventlet
 import mock
 import oslo_i18n
 from oslo_serialization import jsonutils
@@ -27,7 +25,6 @@ from six.moves import http_client
 from testtools import matchers
 import webob
 
-from keystone.common import environment
 from keystone.common import wsgi
 from keystone import exception
 from keystone.tests import unit
@@ -485,102 +482,3 @@ class LocalizedResponseTest(unit.TestCase):
             self.assertThat(resp.json['error']['message'],
                             matchers.Equals(exp_msg))
             self.assertThat(xlation_mock.called, matchers.Equals(True))
-
-
-class ServerTest(unit.TestCase):
-
-    def setUp(self):
-        super(ServerTest, self).setUp()
-        self.host = '127.0.0.1'
-        self.port = '1234'
-
-    @mock.patch('eventlet.listen')
-    @mock.patch('socket.getaddrinfo')
-    def test_keepalive_unset(self, mock_getaddrinfo, mock_listen):
-        mock_getaddrinfo.return_value = [(1, 2, 3, 4, 5)]
-        mock_sock_dup = mock_listen.return_value.dup.return_value
-
-        server = environment.Server(mock.MagicMock(), host=self.host,
-                                    port=self.port)
-        server.start()
-        self.addCleanup(server.stop)
-        self.assertTrue(mock_listen.called)
-        self.assertFalse(mock_sock_dup.setsockopt.called)
-
-    @mock.patch('eventlet.listen')
-    @mock.patch('socket.getaddrinfo')
-    def test_keepalive_set(self, mock_getaddrinfo, mock_listen):
-        mock_getaddrinfo.return_value = [(1, 2, 3, 4, 5)]
-        mock_sock_dup = mock_listen.return_value.dup.return_value
-
-        server = environment.Server(mock.MagicMock(), host=self.host,
-                                    port=self.port, keepalive=True)
-        server.start()
-        self.addCleanup(server.stop)
-        mock_sock_dup.setsockopt.assert_called_once_with(socket.SOL_SOCKET,
-                                                         socket.SO_KEEPALIVE,
-                                                         1)
-        self.assertTrue(mock_listen.called)
-
-    @mock.patch('eventlet.listen')
-    @mock.patch('socket.getaddrinfo')
-    def test_keepalive_and_keepidle_set(self, mock_getaddrinfo, mock_listen):
-        mock_getaddrinfo.return_value = [(1, 2, 3, 4, 5)]
-        mock_sock_dup = mock_listen.return_value.dup.return_value
-
-        server = environment.Server(mock.MagicMock(), host=self.host,
-                                    port=self.port, keepalive=True,
-                                    keepidle=1)
-        server.start()
-        self.addCleanup(server.stop)
-
-        if hasattr(socket, 'TCP_KEEPIDLE'):
-            self.assertEqual(2, mock_sock_dup.setsockopt.call_count)
-            # Test the last set of call args i.e. for the keepidle
-            mock_sock_dup.setsockopt.assert_called_with(socket.IPPROTO_TCP,
-                                                        socket.TCP_KEEPIDLE,
-                                                        1)
-        else:
-            self.assertEqual(1, mock_sock_dup.setsockopt.call_count)
-
-        self.assertTrue(mock_listen.called)
-
-    def test_client_socket_timeout(self):
-        # mocking server method of eventlet.wsgi to check it is called with
-        # configured 'client_socket_timeout' value.
-        for socket_timeout in range(1, 10):
-            self.config_fixture.config(group='eventlet_server',
-                                       client_socket_timeout=socket_timeout)
-            server = environment.Server(mock.MagicMock(), host=self.host,
-                                        port=self.port)
-            with mock.patch.object(eventlet.wsgi, 'server') as mock_server:
-                fake_application = uuid.uuid4().hex
-                fake_socket = uuid.uuid4().hex
-                server._run(fake_application, fake_socket)
-                mock_server.assert_called_once_with(
-                    fake_socket,
-                    fake_application,
-                    debug=mock.ANY,
-                    socket_timeout=socket_timeout,
-                    log=mock.ANY,
-                    keepalive=mock.ANY)
-
-    def test_wsgi_keep_alive(self):
-        # mocking server method of eventlet.wsgi to check it is called with
-        # configured 'wsgi_keep_alive' value.
-        wsgi_keepalive = False
-        self.config_fixture.config(group='eventlet_server',
-                                   wsgi_keep_alive=wsgi_keepalive)
-
-        server = environment.Server(mock.MagicMock(), host=self.host,
-                                    port=self.port)
-        with mock.patch.object(eventlet.wsgi, 'server') as mock_server:
-            fake_application = uuid.uuid4().hex
-            fake_socket = uuid.uuid4().hex
-            server._run(fake_application, fake_socket)
-            mock_server.assert_called_once_with(fake_socket,
-                                                fake_application,
-                                                debug=mock.ANY,
-                                                socket_timeout=mock.ANY,
-                                                log=mock.ANY,
-                                                keepalive=wsgi_keepalive)

@@ -78,7 +78,6 @@ Man Pages
 .. toctree::
     :maxdepth: 1
 
-    man/keystone-all
     man/keystone-manage
 
 Developers Documentation

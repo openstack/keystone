@@ -30,13 +30,10 @@ if os.path.exists(os.path.join(possible_topdir,
     sys.path.insert(0, possible_topdir)
 
 from keystone.cmd import cli
-from keystone.common import environment
 
 
 # entry point.
 def main():
-    environment.use_stdlib()
-
     dev_conf = os.path.join(possible_topdir,
                             'etc',
                             'keystone.conf')

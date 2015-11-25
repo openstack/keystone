@@ -12,6 +12,7 @@
 
 import datetime
 import os
+import subprocess  # nosec : see comments in the code below
 import uuid
 
 from oslo_config import cfg
@@ -31,7 +32,6 @@ xmldsig = importutils.try_import("saml2.xmldsig")
 if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
-from keystone.common import environment
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _, _LE
@@ -422,7 +422,6 @@ def _sign_assertion(assertion):
             nspair={'saml': saml2.NAMESPACE,
                     'xmldsig': xmldsig.NAMESPACE}))
         command_list.append(file_path)
-        subprocess = environment.subprocess
         stdout = subprocess.check_output(command_list,  # nosec : The contents
                                          # of the command list are coming from
                                          # a trusted source because the

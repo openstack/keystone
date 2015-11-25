@@ -42,12 +42,6 @@ from sqlalchemy import exc
 import testtools
 from testtools import testcase
 
-# NOTE(ayoung)
-# environment.use_eventlet must run before any of the code that will
-# call the eventlet monkeypatching.
-from keystone.common import environment  # noqa
-environment.use_eventlet()
-
 from keystone import auth
 from keystone.common import config
 from keystone.common import dependency
@@ -648,7 +642,7 @@ class TestCase(BaseTestCase):
         # log module. This is not in a function or otherwise available to use
         # without having a CONF object to setup logging. This should help to
         # reduce the log size by limiting what we log (similar to how Keystone
-        # would run under mod_wsgi or eventlet).
+        # would run under mod_wsgi).
         for pair in CONF.default_log_levels:
             mod, _sep, level_name = pair.partition('=')
             logger = logging.getLogger(mod)
