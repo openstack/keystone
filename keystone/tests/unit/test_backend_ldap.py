@@ -329,6 +329,9 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     def test_delete_group_with_user_project_domain_links(self):
         self.skipTest('N/A: LDAP does not support multiple domains')
 
+    def test_list_role_assignment_containing_names(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
     def test_list_projects_for_user(self):
         domain = self._get_domain_fixture()
         user1 = self.new_user_ref(domain_id=domain['id'])
