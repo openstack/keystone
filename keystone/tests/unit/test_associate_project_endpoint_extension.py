@@ -959,6 +959,15 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(len(endpoints), 2)
 
+        # Ensure catalog includes the endpoints from endpoint_group project
+        # association, this is needed when a project scoped token is issued
+        # and "endpoint_filter.sql" backend driver is in place.
+        user_id = uuid.uuid4().hex
+        catalog_list = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+        self.assertEqual(2, len(catalog_list))
+
         # Now remove project endpoint group association
         url = self._get_project_endpoint_group_url(
             endpoint_group_id, self.default_domain_project_id)
@@ -972,6 +981,11 @@ class EndpointGroupCRUDTestCase(TestExtensionCase):
         r = self.get(endpoints_url)
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(len(endpoints), 1)
+
+        catalog_list = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+        self.assertEqual(1, len(catalog_list))
 
     def test_endpoint_group_project_cleanup_with_project(self):
         # create endpoint group

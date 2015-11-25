@@ -103,22 +103,8 @@ class EndpointFilterV3Controller(_ControllerBase):
     def list_endpoints_for_project(self, context, project_id):
         """List all endpoints currently associated with a given project."""
         self.resource_api.get_project(project_id)
-        refs = self.endpoint_filter_api.list_endpoints_for_project(project_id)
-        filtered_endpoints = {ref['endpoint_id']:
-                              self.catalog_api.get_endpoint(ref['endpoint_id'])
-                              for ref in refs}
-
-        # need to recover endpoint_groups associated with project
-        # then for each endpoint group return the endpoints.
-        endpoint_groups = self._get_endpoint_groups_for_project(project_id)
-        for endpoint_group in endpoint_groups:
-            endpoint_refs = self._get_endpoints_filtered_by_endpoint_group(
-                endpoint_group['id'])
-            # now check if any endpoints for current endpoint group are not
-            # contained in the list of filtered endpoints
-            for endpoint_ref in endpoint_refs:
-                if endpoint_ref['id'] not in filtered_endpoints:
-                    filtered_endpoints[endpoint_ref['id']] = endpoint_ref
+        filtered_endpoints = (self.endpoint_filter_api.
+                              list_endpoints_for_project(project_id))
 
         return catalog_controllers.EndpointV3.wrap_collection(
             context, [v for v in six.itervalues(filtered_endpoints)])
