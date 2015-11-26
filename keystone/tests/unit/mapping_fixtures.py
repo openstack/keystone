@@ -1256,6 +1256,27 @@ MAPPING_GROUPS_WHITELIST_PASS_THROUGH = {
     ]
 }
 
+MAPPING_BAD_LOCAL_SETUP = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {"id": "default"}
+                    },
+                    "whatisthis": "local"
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                }
+            ]
+        }
+    ]
+}
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',
