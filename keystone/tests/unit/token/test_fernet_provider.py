@@ -91,7 +91,6 @@ class TestValidate(unit.TestCase):
         token = token_data['token']
         self.assertIsInstance(token['audit_ids'], list)
         self.assertIsInstance(token['expires_at'], str)
-        self.assertEqual({}, token['extras'])
         self.assertIsInstance(token['issued_at'], str)
         self.assertEqual(method_names, token['methods'])
         exp_user_info = {
