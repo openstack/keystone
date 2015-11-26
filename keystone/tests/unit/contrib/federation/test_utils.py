@@ -620,3 +620,52 @@ class MappingRuleEngineTests(unit.BaseTestCase):
 
         self.assertNotIn('id', mapped_properties['user'])
         self.assertNotIn('name', mapped_properties['user'])
+
+    def test_rule_engine_group_ids_mapping_whitelist(self):
+        """Test mapping engine when group_ids is explicitly set
+
+        Also test whitelists on group ids
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_IDS_WHITELIST
+        assertion = mapping_fixtures.GROUP_IDS_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+        self.assertEqual('opilotte', mapped_properties['user']['name'])
+        self.assertListEqual([], mapped_properties['group_names'])
+        self.assertItemsEqual(['abc123', 'ghi789', 'klm012'],
+                              mapped_properties['group_ids'])
+
+    def test_rule_engine_group_ids_mapping_blacklist(self):
+        """Test mapping engine when group_ids is explicitly set.
+
+        Also test blacklists on group ids
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_IDS_BLACKLIST
+        assertion = mapping_fixtures.GROUP_IDS_ASSERTION
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+        self.assertEqual('opilotte', mapped_properties['user']['name'])
+        self.assertListEqual([], mapped_properties['group_names'])
+        self.assertItemsEqual(['abc123', 'ghi789', 'klm012'],
+                              mapped_properties['group_ids'])
+
+    def test_rule_engine_group_ids_mapping_only_one_group(self):
+        """Test mapping engine when group_ids is explicitly set.
+
+        If the group ids list has only one group,
+        test if the transformation is done correctly
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_IDS_WHITELIST
+        assertion = mapping_fixtures.GROUP_IDS_ASSERTION_ONLY_ONE_GROUP
+        rp = mapping_utils.RuleProcessor(mapping['rules'])
+        mapped_properties = rp.process(assertion)
+        self.assertIsNotNone(mapped_properties)
+        self.assertEqual('opilotte', mapped_properties['user']['name'])
+        self.assertListEqual([], mapped_properties['group_names'])
+        self.assertItemsEqual(['210mlk', '321cba'],
+                              mapped_properties['group_ids'])

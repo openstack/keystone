@@ -500,6 +500,9 @@ class RuleProcessor(object):
                     'domain': {
                         'name': 'default_domain'
                     }
+                },
+                {
+                    'group_ids': ['abc123', 'def456', '0cd5e9']
                 }
             ]
 
@@ -571,6 +574,17 @@ class RuleProcessor(object):
                                group_names_list]
 
                 group_names.extend(group_dicts)
+            if 'group_ids' in identity_value:
+                # If identity_values['group_ids'] is a string representation
+                # of a list, parse it to a real list. Also, if the provided
+                # group_ids parameter contains only one element, it will be
+                # parsed as a simple string, and not a list or the
+                # representation of a list.
+                try:
+                    group_ids.update(
+                        ast.literal_eval(identity_value['group_ids']))
+                except (ValueError, SyntaxError):
+                    group_ids.update([identity_value['group_ids']])
 
         normalize_user(user)
 
