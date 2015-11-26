@@ -361,6 +361,31 @@ class TokenAPITests(object):
 
         self.assertEqual(v2_issued_at, v3_issued_at)
 
+    def test_v2_token_deleted_on_v3(self):
+        # Create a v2 token.
+        body = {
+            'auth': {
+                'passwordCredentials': {
+                    'userId': self.default_domain_user['id'],
+                    'password': self.default_domain_user['password']
+                },
+                'tenantId': self.default_domain_project['id']
+            }
+        }
+        r = self.admin_request(
+            path='/v2.0/tokens', method='POST', body=body)
+        v2_token = r.result['access']['token']['id']
+
+        # Delete the v2 token using v3.
+        resp = self.delete(
+            '/auth/tokens', headers={'X-Subject-Token': v2_token})
+        self.assertEqual(resp.status_code, 204)
+
+        # Attempting to use the deleted token on v2 should fail.
+        self.admin_request(
+            path='/v2.0/tenants', method='GET', token=v2_token,
+            expected_status=401)
+
     def test_rescoping_token(self):
         expires = self.token_data['token']['expires_at']
         auth_data = self.build_authentication_request(
