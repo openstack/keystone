@@ -247,6 +247,8 @@ def setup_username(context, mapped_properties):
         user['name'] = user_id
 
     elif not user_id:
-        user['id'] = parse.quote(user_name)
+        user_id = user_name
+
+    user['id'] = parse.quote(user_id)
 
     return user
