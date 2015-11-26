@@ -584,7 +584,7 @@ class V3Controller(wsgi.Application):
             :param filter: the filter in question
             :param ref: the dict to check
 
-            :returns True if there is a match
+            :returns: True if there is a match
 
             """
             comparator = filter['comparator']

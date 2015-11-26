@@ -249,7 +249,7 @@ class FederationDriverV8(object):
     def list_mappings(self):
         """List all mappings.
 
-        returns: list of mappings
+        :returns: list of mappings
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -315,7 +315,7 @@ class FederationDriverV8(object):
     def list_sps(self):
         """List all service providers.
 
-        :returns List of sp_ref objects
+        :returns: List of sp_ref objects
         :rtype: list of dicts
 
         """

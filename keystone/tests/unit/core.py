@@ -661,7 +661,7 @@ class TestCase(BaseTestCase):
         This is useful to load managers initialized by extensions. No extra
         backends are loaded by default.
 
-        :return: dict of name -> manager
+        :returns: dict of name -> manager
         """
         return {}
 
