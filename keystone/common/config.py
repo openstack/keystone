@@ -649,6 +649,10 @@ FILE_OPTIONS = {
         cfg.StrOpt('user_enabled_emulation_dn',
                    help='DN of the group entry to hold enabled users when '
                         'using enabled emulation.'),
+        cfg.BoolOpt('user_enabled_emulation_use_group_config', default=False,
+                    help='Use the "group_member_attribute" and '
+                         '"group_objectclass" settings to determine '
+                         'membership in the emulated enabled group.'),
         cfg.ListOpt('user_additional_attribute_mapping',
                     default=[],
                     help='List of additional LDAP attributes used for mapping '
@@ -724,6 +728,11 @@ FILE_OPTIONS = {
                        'tenant_enabled_emulation_dn', group='ldap')],
                    help='DN of the group entry to hold enabled projects when '
                         'using enabled emulation.'),
+        cfg.BoolOpt('project_enabled_emulation_use_group_config',
+                    default=False,
+                    help='Use the "group_member_attribute" and '
+                         '"group_objectclass" settings to determine '
+                         'membership in the emulated enabled group.'),
         cfg.ListOpt('project_additional_attribute_mapping',
                     deprecated_opts=[cfg.DeprecatedOpt(
                         'tenant_additional_attribute_mapping', group='ldap')],

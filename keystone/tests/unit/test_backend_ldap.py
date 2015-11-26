@@ -2019,6 +2019,26 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         self.skipTest(
             "Enabled emulation conflicts with enabled mask")
 
+    def test_user_enabled_use_group_config(self):
+        self.config_fixture.config(
+            group='ldap',
+            user_enabled_emulation_use_group_config=True,
+            group_member_attribute='uniqueMember',
+            group_objectclass='groupOfUniqueNames')
+        self.clear_database()
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+        # Create a user and ensure they are enabled.
+        user1 = {'name': u'fäké1', 'enabled': True,
+                 'domain_id': CONF.identity.default_domain_id}
+        user_ref = self.identity_api.create_user(user1)
+        self.assertIs(True, user_ref['enabled'])
+
+        # Get a user and ensure they are enabled.
+        user_ref = self.identity_api.get_user(user_ref['id'])
+        self.assertIs(True, user_ref['enabled'])
+
     def test_user_enabled_invert(self):
         self.config_fixture.config(group='ldap', user_enabled_invert=True,
                                    user_enabled_default=False)
