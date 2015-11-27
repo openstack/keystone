@@ -36,4 +36,4 @@ reno>=0.1.1 # Apache2
 tempest-lib>=0.10.0
 
 # Functional tests.
-requests!=2.8.0,>=2.5.2
+requests>=2.8.1
