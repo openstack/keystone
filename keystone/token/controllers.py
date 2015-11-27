@@ -49,16 +49,14 @@ class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
     def ca_cert(self, context, auth=None):
-        ca_file = open(CONF.signing.ca_certs, 'r')
-        data = ca_file.read()
-        ca_file.close()
+        with open(CONF.signing.ca_certs, 'r') as ca_file:
+            data = ca_file.read()
         return data
 
     @controller.v2_deprecated
     def signing_cert(self, context, auth=None):
-        cert_file = open(CONF.signing.certfile, 'r')
-        data = cert_file.read()
-        cert_file.close()
+        with open(CONF.signing.certfile, 'r') as cert_file:
+            data = cert_file.read()
         return data
 
     @controller.v2_deprecated
