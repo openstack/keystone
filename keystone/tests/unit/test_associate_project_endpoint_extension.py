@@ -316,8 +316,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         ep_id_list = [catalog[0]['endpoints'][0]['id'],
                       catalog[0]['endpoints'][1]['id']]
-        self.assertEqual(self.endpoint_id, catalog[0]['endpoints'][0]['id'])
-        self.assertListEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_remove_endpoint_from_project_invalidates_cache(self):
@@ -346,8 +345,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
         ep_id_list = [catalog[0]['endpoints'][0]['id'],
                       catalog[0]['endpoints'][1]['id']]
         self.assertEqual(2, len(catalog[0]['endpoints']))
-        self.assertEqual(self.endpoint_id, catalog[0]['endpoints'][0]['id'])
-        self.assertListEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
 
         # remove the endpoint2 from the default project, bypassing
         # catalog_api API manager.
