@@ -36,21 +36,39 @@ CONF = cfg.CONF
 
 
 def v2_deprecated(f):
-    """No-op decorator in preparation for deprecating Identity API v2.
+    @six.wraps(f)
+    def wrapper(*args, **kwargs):
+        deprecated = versionutils.deprecated(
+            what=f.__name__ + ' of the v2 API',
+            as_of=versionutils.deprecated.MITAKA,
+            in_favor_of='a similar function in the v3 API',
+            remove_in=+4)
+        return deprecated(f)
+    return wrapper()
 
-    This is a placeholder for the pending deprecation of v2. The implementation
-    of this decorator can be replaced with::
 
-        from oslo_log import versionutils
+def v2_ec2_deprecated(f):
+    @six.wraps(f)
+    def wrapper(*args, **kwargs):
+        deprecated = versionutils.deprecated(
+            what=f.__name__ + ' of the v2 EC2 APIs',
+            as_of=versionutils.deprecated.MITAKA,
+            in_favor_of=('a similar function in the v3 Credential APIs'),
+            remove_in=0)
+        return deprecated(f)
+    return wrapper()
 
 
-        v2_deprecated = versionutils.deprecated(
-            what='v2 API',
-            as_of=versionutils.deprecated.JUNO,
-            in_favor_of='v3 API')
-
-    """
-    return f
+def v2_auth_deprecated(f):
+    @six.wraps(f)
+    def wrapper(*args, **kwargs):
+        deprecated = versionutils.deprecated(
+            what=f.__name__ + ' of the v2 Authentication APIs',
+            as_of=versionutils.deprecated.MITAKA,
+            in_favor_of=('a similar function in the v3 Authentication APIs'),
+            remove_in=0)
+        return deprecated(f)
+    return wrapper()
 
 
 def _build_policy_check_credentials(self, action, context, kwargs):

@@ -1,0 +1,8 @@
+---
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
+    Deprecated all v2.0 APIs. The keystone team recommends using v3 APIs instead.
+    Most v2.0 APIs will be removed in the 'Q' release. However, the authentication
+    APIs and EC2 APIs are indefinitely deprecated and will not be removed in
+    the 'Q' release.

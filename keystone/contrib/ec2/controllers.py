@@ -261,7 +261,7 @@ class Ec2ControllerCommon(object):
 @dependency.requires('policy_api', 'token_provider_api')
 class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
-    @controller.v2_deprecated
+    @controller.v2_ec2_deprecated
     def authenticate(self, context, credentials=None, ec2Credentials=None):
         (user_ref, tenant_ref, metadata_ref, roles_ref,
          catalog_ref) = self._authenticate(credentials=credentials,
@@ -281,27 +281,27 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
             auth_token_data, roles_ref, catalog_ref)
         return token_data
 
-    @controller.v2_deprecated
+    @controller.v2_ec2_deprecated
     def get_credential(self, context, user_id, credential_id):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
         return super(Ec2Controller, self).get_credential(user_id,
                                                          credential_id)
 
-    @controller.v2_deprecated
+    @controller.v2_ec2_deprecated
     def get_credentials(self, context, user_id):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
         return super(Ec2Controller, self).get_credentials(user_id)
 
-    @controller.v2_deprecated
+    @controller.v2_ec2_deprecated
     def create_credential(self, context, user_id, tenant_id):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)
         return super(Ec2Controller, self).create_credential(context, user_id,
                                                             tenant_id)
 
-    @controller.v2_deprecated
+    @controller.v2_ec2_deprecated
     def delete_credential(self, context, user_id, credential_id):
         if not self._is_admin(context):
             self._assert_identity(context, user_id)

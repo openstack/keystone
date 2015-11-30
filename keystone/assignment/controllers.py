@@ -40,7 +40,7 @@ LOG = log.getLogger(__name__)
 class TenantAssignment(controller.V2Controller):
     """The V2 Project APIs that are processing assignments."""
 
-    @controller.v2_deprecated
+    @controller.v2_auth_deprecated
     def get_projects_for_token(self, context, **kw):
         """Get valid tenants for token based on token used to authenticate.
 

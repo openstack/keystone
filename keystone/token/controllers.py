@@ -59,7 +59,7 @@ class Auth(controller.V2Controller):
             data = cert_file.read()
         return data
 
-    @controller.v2_deprecated
+    @controller.v2_auth_deprecated
     def authenticate(self, context, auth=None):
         """Authenticate credentials and return a token.
 
