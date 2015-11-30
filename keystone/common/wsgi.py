@@ -71,9 +71,6 @@ def validate_token_bind(context, token_ref):
     # permissive and strict modes don't require there to be a bind
     permissive = bind_mode in ('permissive', 'strict')
 
-    # get the named mode if bind_mode is not one of the known
-    name = None if permissive or bind_mode == 'required' else bind_mode
-
     if not bind:
         if permissive:
             # no bind provided and none required
@@ -81,6 +78,9 @@ def validate_token_bind(context, token_ref):
         else:
             LOG.info(_LI("No bind information present in token"))
             raise exception.Unauthorized()
+
+    # get the named mode if bind_mode is not one of the known
+    name = None if permissive or bind_mode == 'required' else bind_mode
 
     if name and name not in bind:
         LOG.info(_LI("Named bind mode %s not in bind information"), name)
