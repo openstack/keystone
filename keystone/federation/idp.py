@@ -37,8 +37,6 @@ from keystone import exception
 from keystone.i18n import _, _LE
 
 
-subprocess = environment.subprocess
-
 LOG = log.getLogger(__name__)
 CONF = cfg.CONF
 
@@ -424,6 +422,7 @@ def _sign_assertion(assertion):
             nspair={'saml': saml2.NAMESPACE,
                     'xmldsig': xmldsig.NAMESPACE}))
         command_list.append(file_path)
+        subprocess = environment.subprocess
         stdout = subprocess.check_output(command_list,  # nosec : The contents
                                          # of the command list are coming from
                                          # a trusted source because the
