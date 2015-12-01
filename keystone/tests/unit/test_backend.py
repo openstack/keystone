@@ -4124,7 +4124,9 @@ class TokenTests(object):
         token_id = self._create_token_id()
         data = {'id': token_id, 'a': 'b',
                 'trust_id': None,
-                'user': {'id': 'testuserid'}}
+                'user': {'id': 'testuserid'},
+                'token_data': {'access': {'token': {
+                    'audit_ids': [uuid.uuid4().hex]}}}}
         data_ref = self.token_provider_api._persistence.create_token(token_id,
                                                                      data)
         expires = data_ref.pop('expires')
@@ -4159,7 +4161,8 @@ class TokenTests(object):
         # FIXME(morganfainberg): These tokens look nothing like "Real" tokens.
         # This should be fixed when token issuance is cleaned up.
         data = {'id': token_id, 'a': 'b',
-                'user': {'id': user_id}}
+                'user': {'id': user_id},
+                'access': {'token': {'audit_ids': [uuid.uuid4().hex]}}}
         if tenant_id is not None:
             data['tenant'] = {'id': tenant_id, 'name': tenant_id}
         if tenant_id is NULL_OBJECT:
@@ -4168,7 +4171,7 @@ class TokenTests(object):
             data['expires'] = expires
         if trust_id is not None:
             data['trust_id'] = trust_id
-            data.setdefault('access', {}).setdefault('trust', {})
+            data['access'].setdefault('trust', {})
             # Testuserid2 is used here since a trustee will be different in
             # the cases of impersonation and therefore should not match the
             # token's user_id.
@@ -4334,17 +4337,21 @@ class TokenTests(object):
 
         self.assertEqual(data_ref, new_data_ref)
 
-    def check_list_revoked_tokens(self, token_ids):
-        revoked_ids = [x['id']
-                       for x in self.token_provider_api.list_revoked_tokens()]
+    def check_list_revoked_tokens(self, token_infos):
+        revocation_list = self.token_provider_api.list_revoked_tokens()
+        revoked_ids = [x['id'] for x in revocation_list]
+        revoked_audit_ids = [x['audit_id'] for x in revocation_list]
         self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
-        for token_id in token_ids:
+        for token_id, audit_id in token_infos:
             self.assertIn(token_id, revoked_ids)
+            self.assertIn(audit_id, revoked_audit_ids)
 
     def delete_token(self):
         token_id = uuid.uuid4().hex
+        audit_id = uuid.uuid4().hex
         data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
-                'user': {'id': 'testuserid'}}
+                'user': {'id': 'testuserid'},
+                'token_data': {'token': {'audit_ids': [audit_id]}}}
         data_ref = self.token_provider_api._persistence.create_token(token_id,
                                                                      data)
         self.token_provider_api._persistence.delete_token(token_id)
@@ -4356,7 +4363,7 @@ class TokenTests(object):
             exception.TokenNotFound,
             self.token_provider_api._persistence.delete_token,
             data_ref['id'])
-        return token_id
+        return (token_id, audit_id)
 
     def test_list_revoked_tokens_returns_empty_list(self):
         revoked_ids = [x['id']
@@ -4407,12 +4414,16 @@ class TokenTests(object):
         token_data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
                       'expires': expire_time,
                       'trust_id': None,
-                      'user': {'id': 'testuserid'}}
+                      'user': {'id': 'testuserid'},
+                      'token_data': {'token': {
+                          'audit_ids': [uuid.uuid4().hex]}}}
         token2_id = uuid.uuid4().hex
         token2_data = {'id_hash': token2_id, 'id': token2_id, 'a': 'b',
                        'expires': expire_time,
                        'trust_id': None,
-                       'user': {'id': 'testuserid'}}
+                       'user': {'id': 'testuserid'},
+                       'token_data': {'token': {
+                           'audit_ids': [uuid.uuid4().hex]}}}
         # Create 2 Tokens.
         self.token_provider_api._persistence.create_token(token_id,
                                                           token_data)
@@ -4447,7 +4458,8 @@ class TokenTests(object):
     def _test_predictable_revoked_pki_token_id(self, hash_fn):
         token_id = self._create_token_id()
         token_id_hash = hash_fn(token_id.encode('utf-8')).hexdigest()
-        token = {'user': {'id': uuid.uuid4().hex}}
+        token = {'user': {'id': uuid.uuid4().hex},
+                 'token_data': {'token': {'audit_ids': [uuid.uuid4().hex]}}}
 
         self.token_provider_api._persistence.create_token(token_id, token)
         self.token_provider_api._persistence.delete_token(token_id)
@@ -4469,7 +4481,8 @@ class TokenTests(object):
 
     def test_predictable_revoked_uuid_token_id(self):
         token_id = uuid.uuid4().hex
-        token = {'user': {'id': uuid.uuid4().hex}}
+        token = {'user': {'id': uuid.uuid4().hex},
+                 'token_data': {'token': {'audit_ids': [uuid.uuid4().hex]}}}
 
         self.token_provider_api._persistence.create_token(token_id, token)
         self.token_provider_api._persistence.delete_token(token_id)

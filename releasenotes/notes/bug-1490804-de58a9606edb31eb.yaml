@@ -1,0 +1,13 @@
+---
+features:
+  - >
+    [`bug 1490804 <https://bugs.launchpad.net/keystone/+bug/1490804>`_]
+    Audit IDs are included in the token revocation list.
+security:
+  - >
+    [`bug 1490804 <https://bugs.launchpad.net/keystone/+bug/1490804>`_]
+    [`CVE-2015-7546 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-7546>`_]
+    A bug is fixed where an attacker could avoid token revocation when the PKI
+    or PKIZ token provider is used. The complete remediation for this
+    vulnerability requires the corresponding fix in the keystonemiddleware
+    project.
