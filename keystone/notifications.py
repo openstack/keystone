@@ -22,7 +22,6 @@ import socket
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
 import oslo_messaging
 import pycadf
 from pycadf import cadftaxonomy as taxonomy
@@ -575,8 +574,6 @@ class CadfRoleAssignmentNotificationWrapper(object):
 
     def __init__(self, operation):
         self.action = '%s.%s' % (operation, self.ROLE_ASSIGNMENT)
-        self.deprecated_event_type = '%s.%s.%s' % (SERVICE, operation,
-                                                   self.ROLE_ASSIGNMENT)
         self.event_type = '%s.%s.%s' % (SERVICE, self.ROLE_ASSIGNMENT,
                                         operation)
 
@@ -641,30 +638,19 @@ class CadfRoleAssignmentNotificationWrapper(object):
             audit_kwargs['inherited_to_projects'] = inherited
             audit_kwargs['role'] = role_id
 
-            # For backward compatibility, send both old and new event_type.
-            # Deprecate old format and remove it in the next release.
-            event_types = [self.deprecated_event_type, self.event_type]
-            versionutils.deprecated(
-                as_of=versionutils.deprecated.KILO,
-                remove_in=+1,
-                what=('sending duplicate %s notification event type' %
-                      self.deprecated_event_type),
-                in_favor_of='%s notification event type' % self.event_type)
             try:
                 result = f(wrapped_self, role_id, *args, **kwargs)
             except Exception:
-                for event_type in event_types:
-                    _send_audit_notification(self.action, initiator,
-                                             taxonomy.OUTCOME_FAILURE,
-                                             target, event_type,
-                                             **audit_kwargs)
+                _send_audit_notification(self.action, initiator,
+                                         taxonomy.OUTCOME_FAILURE,
+                                         target, self.event_type,
+                                         **audit_kwargs)
                 raise
             else:
-                for event_type in event_types:
-                    _send_audit_notification(self.action, initiator,
-                                             taxonomy.OUTCOME_SUCCESS,
-                                             target, event_type,
-                                             **audit_kwargs)
+                _send_audit_notification(self.action, initiator,
+                                         taxonomy.OUTCOME_SUCCESS,
+                                         target, self.event_type,
+                                         **audit_kwargs)
                 return result
 
         return wrapper
