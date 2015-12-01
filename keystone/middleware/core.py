@@ -14,8 +14,6 @@
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
-from oslo_middleware import sizelimit
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
@@ -151,13 +149,3 @@ class NormalizingFilter(wsgi.Middleware):
         # Rewrites path to root if no path is given.
         elif not request.environ['PATH_INFO']:
             request.environ['PATH_INFO'] = '/'
-
-
-class RequestBodySizeLimiter(sizelimit.RequestBodySizeLimiter):
-    @versionutils.deprecated(
-        versionutils.deprecated.KILO,
-        in_favor_of='oslo_middleware.sizelimit.RequestBodySizeLimiter',
-        remove_in=+1,
-        what='keystone.middleware.RequestBodySizeLimiter')
-    def __init__(self, *args, **kwargs):
-        super(RequestBodySizeLimiter, self).__init__(*args, **kwargs)
