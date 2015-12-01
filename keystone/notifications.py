@@ -567,7 +567,7 @@ class CadfRoleAssignmentNotificationWrapper(object):
     Sends a CADF notification if the wrapped method does not raise an
     :class:`Exception` (such as :class:`keystone.exception.NotFound`).
 
-    :param operation: one of the values from ACTIONS (create or delete)
+    :param operation: one of the values from ACTIONS (created or deleted)
     """
 
     ROLE_ASSIGNMENT = 'role_assignment'
