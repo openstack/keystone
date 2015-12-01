@@ -16,7 +16,6 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
 from oslo_utils import timeutils
 import six
 
@@ -259,12 +258,6 @@ class TrustV3(controller.V3Controller):
         _trustor_trustee_only(trust, user_id)
         return {'roles': trust['roles'],
                 'links': trust['roles_links']}
-
-    @versionutils.deprecated(
-        versionutils.deprecated.KILO,
-        remove_in=+2)
-    def check_role_for_trust(self, context, trust_id, role_id):
-        return self._check_role_for_trust(self, context, trust_id, role_id)
 
     @controller.protected()
     def get_role_for_trust(self, context, trust_id, role_id):
