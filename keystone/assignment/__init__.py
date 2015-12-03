@@ -14,4 +14,3 @@
 
 from keystone.assignment import controllers  # noqa
 from keystone.assignment.core import *  # noqa
-from keystone.assignment import routers  # noqa

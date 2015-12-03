@@ -15,4 +15,3 @@
 from keystone.identity import controllers  # noqa
 from keystone.identity.core import *  # noqa
 from keystone.identity import generator  # noqa
-from keystone.identity import routers  # noqa
