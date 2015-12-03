@@ -29,6 +29,7 @@ from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
+from keystone.federation import constants
 from keystone.i18n import _, _LI, _LW
 from keystone.resource import controllers as resource_controllers
 
@@ -422,8 +423,7 @@ class Auth(controller.V3Controller):
             return
 
         # Skip scoping when unscoped federated token is being issued
-        # FIXME(stevemar): Use constants from keystone.federation.constants
-        if 'OS-FEDERATION:identity_provider' in auth_context:
+        if constants.IDENTITY_PROVIDER in auth_context:
             return
 
         # Do not scope if request is for explicitly unscoped token
