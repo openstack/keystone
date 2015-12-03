@@ -33,8 +33,6 @@ class Password(auth.AuthMethodHandler):
         """Try to authenticate against the identity backend."""
         user_info = auth_plugins.UserAuthInfo.create(auth_payload, METHOD_NAME)
 
-        # FIXME(gyee): identity.authenticate() can use some refactoring since
-        # all we care is password matches
         try:
             self.identity_api.authenticate(
                 context,
