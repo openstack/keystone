@@ -135,9 +135,8 @@ class BaseCertificateConfigure(object):
                         user=self.use_keystone_user,
                         group=self.use_keystone_group, log=LOG)
         if not file_exists(self.ssl_config_file_name):
-            ssl_config_file = open(self.ssl_config_file_name, 'w')
-            ssl_config_file.write(self.sslconfig % self.ssl_dictionary)
-            ssl_config_file.close()
+            with open(self.ssl_config_file_name, 'w') as ssl_config_file:
+                ssl_config_file.write(self.sslconfig % self.ssl_dictionary)
         utils.set_permissions(self.ssl_config_file_name,
                               mode=PRIVATE_FILE_PERMS,
                               user=self.use_keystone_user,
@@ -145,9 +144,8 @@ class BaseCertificateConfigure(object):
 
         index_file_name = os.path.join(self.conf_dir, 'index.txt')
         if not file_exists(index_file_name):
-            index_file = open(index_file_name, 'w')
-            index_file.write('')
-            index_file.close()
+            with open(index_file_name, 'w') as index_file:
+                index_file.write('')
         utils.set_permissions(index_file_name,
                               mode=PRIVATE_FILE_PERMS,
                               user=self.use_keystone_user,
@@ -155,9 +153,8 @@ class BaseCertificateConfigure(object):
 
         serial_file_name = os.path.join(self.conf_dir, 'serial')
         if not file_exists(serial_file_name):
-            index_file = open(serial_file_name, 'w')
-            index_file.write('01')
-            index_file.close()
+            with open(serial_file_name, 'w') as index_file:
+                index_file.write('01')
         utils.set_permissions(serial_file_name,
                               mode=PRIVATE_FILE_PERMS,
                               user=self.use_keystone_user,
