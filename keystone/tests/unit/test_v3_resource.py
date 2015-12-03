@@ -29,21 +29,6 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                        test_v3.AssignmentTestMixin):
     """Test domains and projects."""
 
-    def setUp(self):
-        super(ResourceTestCase, self).setUp()
-
-        self.group = unit.new_group_ref(domain_id=self.domain_id)
-        self.group = self.identity_api.create_group(self.group)
-
-        self.credential_id = uuid.uuid4().hex
-        self.credential = self.new_credential_ref(
-            user_id=self.user['id'],
-            project_id=self.project_id)
-        self.credential['id'] = self.credential_id
-        self.credential_api.create_credential(
-            self.credential_id,
-            self.credential)
-
     # Domain CRUD tests
 
     def test_create_domain(self):
@@ -184,10 +169,10 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     def test_delete_domain(self):
         """Call ``DELETE /domains/{domain_id}``.
 
-        The sample data set up already has a user, group, project
-        and credential that is part of self.domain. Since the user
-        we will authenticate with is in this domain, we create a
-        another set of entities in a second domain.  Deleting this
+        The sample data set up already has a user and project that is part of
+        self.domain. Additionally we will create a group and a credential
+        within it. Since the user we will authenticate with is in this domain,
+        we create a another set of entities in a second domain.  Deleting this
         second domain should delete all these new entities. In addition,
         all the entities in the regular self.domain should be unaffected
         by the delete.
@@ -201,6 +186,14 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         - Check entities in self.domain are unaffected
 
         """
+        # Create a group and a credential in the main domain
+        group = unit.new_group_ref(domain_id=self.domain_id)
+        group = self.identity_api.create_group(group)
+
+        credential = self.new_credential_ref(user_id=self.user['id'],
+                                             project_id=self.project_id)
+        self.credential_api.create_credential(credential['id'], credential)
+
         # Create a 2nd set of entities in a 2nd domain
         self.domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain2['id'], self.domain2)
@@ -253,13 +246,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.assertDictEqual(self.domain, r)
         r = self.resource_api.get_project(self.project['id'])
         self.assertDictEqual(self.project, r)
-        r = self.identity_api.get_group(self.group['id'])
-        self.assertDictEqual(self.group, r)
+        r = self.identity_api.get_group(group['id'])
+        self.assertDictEqual(group, r)
         r = self.identity_api.get_user(self.user['id'])
         self.user.pop('password')
         self.assertDictEqual(self.user, r)
-        r = self.credential_api.get_credential(self.credential['id'])
-        self.assertDictEqual(self.credential, r)
+        r = self.credential_api.get_credential(credential['id'])
+        self.assertDictEqual(credential, r)
 
     def test_delete_default_domain_fails(self):
         # Attempting to delete the default domain results in 403 Forbidden.
@@ -1034,9 +1027,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         also deleted, while other credentials are unaffected.
 
         """
+        credential = self.new_credential_ref(user_id=self.user['id'],
+                                             project_id=self.project_id)
+        self.credential_api.create_credential(credential['id'], credential)
+
         # First check the credential for this project is present
-        r = self.credential_api.get_credential(self.credential['id'])
-        self.assertDictEqual(self.credential, r)
+        r = self.credential_api.get_credential(credential['id'])
+        self.assertDictEqual(credential, r)
         # Create a second credential with a different project
         project2 = unit.new_project_ref(domain_id=self.domain['id'])
         self.resource_api.create_project(project2['id'], project2)
@@ -1056,7 +1053,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         # that reference this project
         self.assertRaises(exception.CredentialNotFound,
                           self.credential_api.get_credential,
-                          credential_id=self.credential['id'])
+                          credential_id=credential['id'])
         # But the credential for project2 is unaffected
         r = self.credential_api.get_credential(self.credential2['id'])
         self.assertDictEqual(self.credential2, r)
