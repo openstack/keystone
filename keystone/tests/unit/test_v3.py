@@ -747,18 +747,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
         return token
 
-    def assertValidProjectTrustScopedTokenResponse(self, r, *args, **kwargs):
-        token = self.assertValidProjectScopedTokenResponse(r, *args, **kwargs)
-
-        trust = token.get('OS-TRUST:trust')
-        self.assertIsNotNone(trust)
-        self.assertIsNotNone(trust.get('id'))
-        self.assertIsInstance(trust.get('impersonation'), bool)
-        self.assertIsNotNone(trust.get('trustor_user'))
-        self.assertIsNotNone(trust.get('trustee_user'))
-        self.assertIsNotNone(trust['trustor_user'].get('id'))
-        self.assertIsNotNone(trust['trustee_user'].get('id'))
-
     def assertValidDomainScopedTokenResponse(self, r, *args, **kwargs):
         token = self.assertValidScopedTokenResponse(r, *args, **kwargs)
 
