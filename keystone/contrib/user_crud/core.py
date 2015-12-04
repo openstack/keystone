@@ -40,7 +40,6 @@ extension.register_public_extension(
         'links': [
             {
                 'rel': 'describedby',
-                # TODO(ayoung): needs a description
                 'type': 'text/html',
                 'href': 'https://github.com/openstack/identity-api',
             }
