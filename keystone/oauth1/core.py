@@ -77,10 +77,9 @@ EXTENSION_DATA = {
     'links': [
         {
             'rel': 'describedby',
-            # TODO(dolph): link needs to be revised after
-            #              bug 928059 merges
             'type': 'text/html',
-            'href': 'https://github.com/openstack/identity-api',
+            'href': 'http://specs.openstack.org/openstack/keystone-specs/api/'
+                    'v3/identity-api-v3-os-oauth1-ext.html',
         }
     ]}
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)

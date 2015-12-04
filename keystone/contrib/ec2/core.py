@@ -26,7 +26,8 @@ EXTENSION_DATA = {
         {
             'rel': 'describedby',
             'type': 'text/html',
-            'href': 'https://github.com/openstack/identity-api',
+            'href': 'http://developer.openstack.org/'
+                    'api-ref-identity-v2-ext.html',
         }
     ]}
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
