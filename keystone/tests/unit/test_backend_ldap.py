@@ -1489,9 +1489,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                          'fake': 'invalid', 'invalid2': ''}
         self.assertDictEqual(expected_dict, mapping)
 
-# TODO(henry-nash): These need to be removed when the full LDAP implementation
-# is submitted - see Bugs 1092187, 1101287, 1101276, 1101289
-
     def test_domain_crud(self):
         domain = unit.new_domain_ref()
         self.assertRaises(exception.Forbidden,
