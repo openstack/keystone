@@ -1399,9 +1399,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # the scoped token can be revoked, and the unscoped token remains
         # valid.
 
-        # FIXME(blk-u): This isn't working correctly. The scoped token should
-        # be revoked. See bug 1347318.
-
         unscoped_token = self.get_v2_token()
 
         # Get a project-scoped token from the unscoped token
