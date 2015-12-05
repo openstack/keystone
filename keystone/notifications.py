@@ -45,6 +45,14 @@ notifier_opts = [
                     'the resource being operated on. A "cadf" notification '
                     'has the same information, as well as information about '
                     'the initiator of the event.'),
+    cfg.MultiStrOpt('notification_opt_out', default=[],
+                    help='Define the notification options to opt-out from. '
+                         'The value expected is: '
+                         'identity.<resource_type>.<operation>. This field '
+                         'can be set multiple times in order to add more '
+                         'notifications to opt-out from. For example:\n '
+                         'notification_opt_out=identity.user.created\n '
+                         'notification_opt_out=identity.authenticate.success'),
 ]
 
 config_section = None
@@ -470,6 +478,8 @@ def _send_notification(operation, resource_type, resource_id, public=True):
                 'service': SERVICE,
                 'resource_type': resource_type,
                 'operation': operation}
+            if _check_notification_opt_out(event_type, outcome=None):
+                return
             try:
                 notifier.info(context, event_type, payload)
             except Exception:
@@ -716,6 +726,9 @@ def _send_audit_notification(action, initiator, outcome, target,
         key-value pairs to the CADF event.
 
     """
+    if _check_notification_opt_out(event_type, outcome):
+        return
+
     event = eventfactory.EventFactory().new_event(
         eventType=cadftype.EVENTTYPE_ACTIVITY,
         outcome=outcome,
@@ -740,6 +753,33 @@ def _send_audit_notification(action, initiator, outcome, target,
             LOG.exception(_LE(
                 'Failed to send %(action)s %(event_type)s notification'),
                 {'action': action, 'event_type': event_type})
+
+
+def _check_notification_opt_out(event_type, outcome):
+    """Check if a particular event_type has been opted-out of.
+
+    This method checks to see if an event should be sent to the messaging
+    service. Any event specified in the opt-out list will not be transmitted.
+
+    :param event_type: This is the meter name that Ceilometer uses to poll
+        events. For example: identity.user.created, or
+        identity.authenticate.success, or identity.role_assignment.created
+    :param outcome: The CADF outcome (taxonomy.OUTCOME_PENDING,
+        taxonomy.OUTCOME_SUCCESS, taxonomy.OUTCOME_FAILURE)
+
+    """
+    # NOTE(stevemar): Special handling for authenticate, we look at the outcome
+    # as well when evaluating. For authN events, event_type is just
+    # idenitity.authenticate, which isn't fine enough to provide any opt-out
+    # value, so we attach the outcome to re-create the meter name used in
+    # ceilometer.
+    if 'authenticate' in event_type:
+        event_type = event_type + "." + outcome
+
+    if event_type in CONF.notification_opt_out:
+        return True
+
+    return False
 
 
 emit_event = CadfNotificationWrapper
