@@ -517,7 +517,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
     def test_catalog_ignored_malformed_urls(self):
         service = unit.new_service_ref()
-        self.catalog_api.create_service(service['id'], service.copy())
+        self.catalog_api.create_service(service['id'], service)
 
         malformed_url = "http://192.168.1.104:8774/v2/$(tenant)s"
         endpoint = unit.new_endpoint_ref(service_id=service['id'],
@@ -531,7 +531,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
     def test_get_catalog_with_empty_public_url(self):
         service = unit.new_service_ref()
-        self.catalog_api.create_service(service['id'], service.copy())
+        self.catalog_api.create_service(service['id'], service)
 
         endpoint = unit.new_endpoint_ref(url='', service_id=service['id'],
                                          region_id=None)
@@ -547,7 +547,7 @@ class SqlCatalog(SqlTests, test_backend.CatalogTests):
 
     def test_create_endpoint_region_returns_not_found(self):
         service = unit.new_service_ref()
-        self.catalog_api.create_service(service['id'], service.copy())
+        self.catalog_api.create_service(service['id'], service)
 
         endpoint = unit.new_endpoint_ref(region_id=uuid.uuid4().hex,
                                          service_id=service['id'])

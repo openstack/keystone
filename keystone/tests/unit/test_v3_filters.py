@@ -334,7 +334,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self.service_list = []
         self.addCleanup(self.clean_up_service)
         for _ in range(10):
-            new_entity = {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex}
+            new_entity = unit.new_service_ref()
             service = self.catalog_api.create_service(new_entity['id'],
                                                       new_entity)
             self.service_list.append(service)
