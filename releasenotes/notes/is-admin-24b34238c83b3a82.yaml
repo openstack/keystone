@@ -1,0 +1,14 @@
+---
+features:
+  - >
+    [`bug 96869 <https://bugs.launchpad.net/keystone/+bug/968696>`_]
+    A pair of configuration options have been added to the ``[resource]``
+    section to specify a special ``admin`` project:
+    ``admin_project_domain_name`` and ``admin_project_name``.  If these are
+    defined, any scoped token issued for that project will have an additional
+    identifier ``is_admin_project`` added to the token. This identifier can then
+    be checked by the policy rules in the policy files of the services when
+    evaluating access control policy for an API. Keystone does not yet
+    support the ability for a project acting as a domain to be the
+    admin project.  That will be added once the rest of the code for
+    domains acting as projects is merged.

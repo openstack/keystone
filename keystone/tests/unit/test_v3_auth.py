@@ -413,6 +413,76 @@ class TokenAPITests(object):
             headers={'X-Subject-Token': v3_token})
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
 
+    def test_is_admin_token_by_ids(self):
+        self.config_fixture.config(
+            group='resource',
+            admin_project_domain_name=self.domain['name'],
+            admin_project_name=self.project['name'])
+        r = self.v3_create_token(self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id']))
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=True)
+        v3_token = r.headers.get('X-Subject-Token')
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=True)
+
+    def test_is_admin_token_by_names(self):
+        self.config_fixture.config(
+            group='resource',
+            admin_project_domain_name=self.domain['name'],
+            admin_project_name=self.project['name'])
+        r = self.v3_create_token(self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_domain_name=self.domain['name'],
+            project_name=self.project['name']))
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=True)
+        v3_token = r.headers.get('X-Subject-Token')
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=True)
+
+    def test_token_for_non_admin_project_is_not_admin(self):
+        self.config_fixture.config(
+            group='resource',
+            admin_project_domain_name=self.domain['name'],
+            admin_project_name=uuid.uuid4().hex)
+        r = self.v3_create_token(self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id']))
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+        v3_token = r.headers.get('X-Subject-Token')
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+
+    def test_token_for_non_admin_domain_same_project_name_is_not_admin(self):
+        self.config_fixture.config(
+            group='resource',
+            admin_project_domain_name=uuid.uuid4().hex,
+            admin_project_name=self.project['name'])
+        r = self.v3_create_token(self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id']))
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+        v3_token = r.headers.get('X-Subject-Token')
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+
+    def test_only_admin_project_set_acts_as_non_admin(self):
+        self.config_fixture.config(
+            group='resource',
+            admin_project_name=self.project['name'])
+        r = self.v3_create_token(self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id']))
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+        v3_token = r.headers.get('X-Subject-Token')
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+
 
 class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def config_overrides(self):
