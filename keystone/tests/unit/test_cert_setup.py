@@ -225,15 +225,17 @@ class TestExecCommand(unit.TestCase):
         ssl = openssl.ConfigureSSL('keystone_user', 'keystone_group')
         ssl.exec_command(['ls'])
 
-    @mock.patch.object(environment.subprocess.Popen, 'communicate')
-    @mock.patch.object(environment.subprocess.Popen, 'poll')
-    def test_running_an_invalid_command(self, mock_poll, mock_communicate):
+    @mock.patch.object(environment.subprocess, 'check_output')
+    def test_running_an_invalid_command(self, mock_check_output):
+        cmd = ['ls']
+
         output = 'this is the output string'
 
-        mock_communicate.return_value = (output, '')
-        mock_poll.return_value = 1
+        error = environment.subprocess.CalledProcessError(returncode=1,
+                                                          cmd=cmd,
+                                                          output=output)
+        mock_check_output.side_effect = error
 
-        cmd = ['ls']
         ssl = openssl.ConfigureSSL('keystone_user', 'keystone_group')
         e = self.assertRaises(environment.subprocess.CalledProcessError,
                               ssl.exec_command,
