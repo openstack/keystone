@@ -323,7 +323,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_GROUP)
 
     def test_create_project(self):
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         self._assert_last_note(
             project_ref['id'], CREATED_OPERATION, 'project')
@@ -370,7 +370,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_GROUP)
 
     def test_delete_project(self):
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         self.resource_api.delete_project(project_ref['id'])
         self._assert_last_note(
@@ -572,7 +572,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 cadftaxonomy.SECURITY_GROUP)
 
     def test_update_project(self):
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         self.resource_api.update_project(project_ref['id'], project_ref)
         self._assert_notify_sent(
@@ -581,7 +581,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'project', cadftaxonomy.SECURITY_PROJECT)
 
     def test_disable_project(self):
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = False
         self.resource_api.update_project(project_ref['id'], project_ref)
@@ -589,8 +589,8 @@ class NotificationsForEntities(BaseNotificationTest):
                                  public=False)
 
     def test_disable_of_disabled_project_does_not_notify(self):
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
-        project_ref['enabled'] = False
+        project_ref = unit.new_project_ref(domain_id=self.domain_id,
+                                           enabled=False)
         self.resource_api.create_project(project_ref['id'], project_ref)
         # The project_ref above is not changed during the create process. We
         # can use the same ref to perform the update.
@@ -599,7 +599,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                      public=False)
 
     def test_update_project_does_not_send_disable(self):
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         project_ref['enabled'] = True
         self.resource_api.update_project(project_ref['id'], project_ref)
@@ -812,7 +812,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
     def test_notification_received(self):
         callback = register_callback(CREATED_OPERATION, 'project')
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         self.assertTrue(callback.called)
 
@@ -857,7 +857,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
                 callback_called.append(True)
 
         Foo()
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         self.assertEqual([True], callback_called)
 
@@ -880,7 +880,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
                 callback_called.append('cb1')
 
         Foo()
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.resource_api.create_project(project_ref['id'], project_ref)
         self.assertItemsEqual(['cb1', 'cb0'], callback_called)
 
@@ -922,7 +922,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         # something like:
         #     self.assertRaises(TypeError, Foo)
         Foo()
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         self.assertRaises(TypeError, self.resource_api.create_project,
                           project_ref['id'], project_ref)
 
@@ -1089,7 +1089,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         # A notification is sent when add_role_to_user_and_project is called on
         # the assignment manager.
 
-        project_ref = self.new_project_ref(self.domain_id)
+        project_ref = unit.new_project_ref(self.domain_id)
         project = self.resource_api.create_project(
             project_ref['id'], project_ref)
         tenant_id = project['id']

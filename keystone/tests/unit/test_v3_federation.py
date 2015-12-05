@@ -233,21 +233,21 @@ class FederatedSetupMixin(object):
                                         self.domainD)
 
         # Create and add projects
-        self.proj_employees = self.new_project_ref(
+        self.proj_employees = unit.new_project_ref(
             domain_id=self.domainA['id'])
         self.resource_api.create_project(self.proj_employees['id'],
                                          self.proj_employees)
-        self.proj_customers = self.new_project_ref(
+        self.proj_customers = unit.new_project_ref(
             domain_id=self.domainA['id'])
         self.resource_api.create_project(self.proj_customers['id'],
                                          self.proj_customers)
 
-        self.project_all = self.new_project_ref(
+        self.project_all = unit.new_project_ref(
             domain_id=self.domainA['id'])
         self.resource_api.create_project(self.project_all['id'],
                                          self.project_all)
 
-        self.project_inherited = self.new_project_ref(
+        self.project_inherited = unit.new_project_ref(
             domain_id=self.domainD['id'])
         self.resource_api.create_project(self.project_inherited['id'],
                                          self.project_inherited)
@@ -1819,7 +1819,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self.config_fixture.config(group='os_inherit', enabled=True)
 
         # Create a subproject
-        subproject_inherited = self.new_project_ref(
+        subproject_inherited = unit.new_project_ref(
             domain_id=self.domainD['id'],
             parent_id=self.project_inherited['id'])
         self.resource_api.create_project(subproject_inherited['id'],

@@ -391,7 +391,7 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
     def test_project_scoped_token_using_endpoint_filter(self):
         """Verify endpoints from project scoped token filtered."""
         # create a project to work with
-        ref = self.new_project_ref(domain_id=self.domain_id)
+        ref = unit.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': ref})
         project = self.assertValidProjectResponse(r, ref)
 
@@ -1108,7 +1108,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # create new project and associate with endpoint_group
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': project_ref})
         project = self.assertValidProjectResponse(r, project_ref)
         url = self._get_project_endpoint_group_url(endpoint_group_id,
@@ -1130,7 +1130,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # create new project and associate with endpoint_group
-        project_ref = self.new_project_ref(domain_id=self.domain_id)
+        project_ref = unit.new_project_ref(domain_id=self.domain_id)
         r = self.post('/projects', body={'project': project_ref})
         project = self.assertValidProjectResponse(r, project_ref)
         url = self._get_project_endpoint_group_url(endpoint_group_id,

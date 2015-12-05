@@ -428,8 +428,7 @@ class AuthWithToken(AuthTest):
 
     def test_deleting_role_revokes_token(self):
         role_controller = assignment.controllers.Role()
-        project1 = {'id': 'Project1', 'name': uuid.uuid4().hex,
-                    'domain_id': DEFAULT_DOMAIN_ID}
+        project1 = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
         self.resource_api.create_project(project1['id'], project1)
         role_one = unit.new_role_ref(id='role_one')
         self.role_api.create_role(role_one['id'], role_one)
@@ -464,10 +463,7 @@ class AuthWithToken(AuthTest):
         no_context = {}
         admin_context = dict(is_admin=True, query_string={})
 
-        project = {
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'domain_id': DEFAULT_DOMAIN_ID}
+        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
         self.resource_api.create_project(project['id'], project)
         role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)

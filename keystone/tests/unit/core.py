@@ -303,11 +303,12 @@ def new_domain_ref(**kwargs):
     return ref
 
 
-def new_project_ref(domain_id=None, parent_id=None, is_domain=False):
+def new_project_ref(domain_id=None, parent_id=None, is_domain=False, **kwargs):
     ref = new_ref()
     ref['domain_id'] = domain_id
     ref['parent_id'] = parent_id
     ref['is_domain'] = is_domain
+    ref.update(kwargs)
     return ref
 
 

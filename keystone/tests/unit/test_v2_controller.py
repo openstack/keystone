@@ -77,8 +77,7 @@ class TenantTestCase(unit.TestCase):
         """Test that list projects only returns those in the default domain."""
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
-        project1 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                    'domain_id': domain['id']}
+        project1 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project1['id'], project1)
         # Check the real total number of projects, we should have the above
         # plus those in the default features
@@ -98,8 +97,8 @@ class TenantTestCase(unit.TestCase):
             self.assertIn(tenant_copy, refs['tenants'])
 
     def _create_is_domain_project(self):
-        project = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex,
-                   'domain_id': 'default', 'is_domain': True}
+        project = unit.new_project_ref(domain_id='default',
+                                       is_domain=True)
         project_ref = self.resource_api.create_project(project['id'], project)
         return self.tenant_controller.v3_to_v2_project(project_ref)
 

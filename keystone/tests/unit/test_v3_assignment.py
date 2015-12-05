@@ -107,15 +107,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain2['id'], self.domain2)
 
-        self.project2 = self.new_project_ref(
-            domain_id=self.domain2['id'])
-        self.resource_api.create_project(self.project2['id'], self.project2)
+        project2 = unit.new_project_ref(domain_id=self.domain2['id'])
+        self.resource_api.create_project(project2['id'], project2)
 
         user2 = unit.create_user(self.identity_api,
                                  domain_id=self.domain2['id'],
-                                 project_id=self.project2['id'])
+                                 project_id=project2['id'])
 
-        self.assignment_api.add_user_to_project(self.project2['id'],
+        self.assignment_api.add_user_to_project(project2['id'],
                                                 user2['id'])
 
         # First check a user in that domain can authenticate. The v2 user
@@ -126,7 +125,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                     'userId': user2['id'],
                     'password': user2['password']
                 },
-                'tenantId': self.project2['id']
+                'tenantId': project2['id']
             }
         }
         self.admin_request(
@@ -136,7 +135,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         auth_data = self.build_authentication_request(
             user_id=user2['id'],
             password=user2['password'],
-            project_id=self.project2['id'])
+            project_id=project2['id'])
         self.v3_create_token(auth_data)
 
         # Now disable the domain
@@ -154,7 +153,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                     'userId': user2['id'],
                     'password': user2['password']
                 },
-                'tenantId': self.project2['id']
+                'tenantId': project2['id']
             }
         }
         self.admin_request(
@@ -165,7 +164,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         auth_data = self.build_authentication_request(
             user_id=user2['id'],
             password=user2['password'],
-            project_id=self.project2['id'])
+            project_id=project2['id'])
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
@@ -173,7 +172,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             username=user2['name'],
             user_domain_id=self.domain2['id'],
             password=user2['password'],
-            project_id=self.project2['id'])
+            project_id=project2['id'])
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
@@ -208,12 +207,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.domain2 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain2['id'], self.domain2)
 
-        self.project2 = self.new_project_ref(
-            domain_id=self.domain2['id'])
-        self.resource_api.create_project(self.project2['id'], self.project2)
+        project2 = unit.new_project_ref(domain_id=self.domain2['id'])
+        self.resource_api.create_project(project2['id'], project2)
 
         user2 = unit.new_user_ref(domain_id=self.domain2['id'],
-                                  project_id=self.project2['id'])
+                                  project_id=project2['id'])
         user2 = self.identity_api.create_user(user2)
 
         group2 = unit.new_group_ref(domain_id=self.domain2['id'])
@@ -221,7 +219,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         self.credential2 = self.new_credential_ref(
             user_id=user2['id'],
-            project_id=self.project2['id'])
+            project_id=project2['id'])
         self.credential_api.create_credential(
             self.credential2['id'],
             self.credential2)
@@ -241,7 +239,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                           self.domain2['id'])
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.get_project,
-                          self.project2['id'])
+                          project2['id'])
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
                           group2['id'])
@@ -370,11 +368,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
 
-        root_project = self.new_project_ref(
-            domain_id=domain['id'])
+        root_project = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(root_project['id'], root_project)
 
-        leaf_project = self.new_project_ref(
+        leaf_project = unit.new_project_ref(
             domain_id=domain['id'],
             parent_id=root_project['id'])
         self.resource_api.create_project(leaf_project['id'], leaf_project)
@@ -470,7 +467,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_create_project(self):
         """Call ``POST /projects``."""
-        ref = self.new_project_ref(domain_id=self.domain_id)
+        ref = unit.new_project_ref(domain_id=self.domain_id)
         r = self.post(
             '/projects',
             body={'project': ref})
@@ -483,7 +480,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_create_project_invalid_domain_id(self):
         """Call ``POST /projects``."""
-        ref = self.new_project_ref(domain_id=uuid.uuid4().hex)
+        ref = unit.new_project_ref(domain_id=uuid.uuid4().hex)
         self.post('/projects', body={'project': ref},
                   expected_status=http_client.BAD_REQUEST)
 
@@ -494,7 +491,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         NotImplemented.
 
         """
-        ref = self.new_project_ref(domain_id=self.domain_id, is_domain=True)
+        ref = unit.new_project_ref(domain_id=self.domain_id, is_domain=True)
         self.post('/projects',
                   body={'project': ref},
                   expected_status=http_client.NOT_IMPLEMENTED)
@@ -520,7 +517,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Without parent_id and domain_id passed as None, the domain_id should
         # be normalized to the domain on the token, when using a domain
         # scoped token.
-        ref = self.new_project_ref()
+        ref = unit.new_project_ref()
         r = self.post(
             '/projects',
             auth=auth,
@@ -549,9 +546,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Without domain_id and parent_id, the domain_id should be
         # normalized to the domain on the token, when using a domain
         # scoped token.
-        ref = self.new_project_ref()
-        ref.pop('domain_id')
-        ref.pop('parent_id')
+        ref = unit.new_project_ref()
         r = self.post(
             '/projects',
             auth=auth,
@@ -563,7 +558,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         """Call ``POST /projects``."""
         # With only the parent_id, the domain_id should be
         # normalized to the parent's domain_id
-        ref_child = self.new_project_ref(parent_id=self.project['id'])
+        ref_child = unit.new_project_ref(parent_id=self.project['id'])
 
         r = self.post(
             '/projects',
@@ -582,13 +577,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         :returns projects: a list of the projects in the created hierarchy.
 
         """
-        new_ref = self.new_project_ref(domain_id=self.domain_id)
+        new_ref = unit.new_project_ref(domain_id=self.domain_id)
         resp = self.post('/projects', body={'project': new_ref})
 
         projects = [resp.result]
 
         for i in range(hierarchy_size):
-            new_ref = self.new_project_ref(
+            new_ref = unit.new_project_ref(
                 domain_id=self.domain_id,
                 parent_id=projects[i]['project']['id'])
             resp = self.post('/projects',
@@ -604,7 +599,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         projects = self._create_projects_hierarchy(hierarchy_size=2)
 
         # Add another child to projects[1] - it will be projects[3]
-        new_ref = self.new_project_ref(
+        new_ref = unit.new_project_ref(
             domain_id=self.domain_id,
             parent_id=projects[1]['project']['id'])
         resp = self.post('/projects',
@@ -813,7 +808,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         projects = self._create_projects_hierarchy(hierarchy_size=2)
 
         # Add another child to projects[0] - it will be projects[3]
-        new_ref = self.new_project_ref(
+        new_ref = unit.new_project_ref(
             domain_id=self.domain_id,
             parent_id=projects[0]['project']['id'])
         resp = self.post('/projects',
@@ -822,7 +817,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         projects.append(resp.result)
 
         # Add another child to projects[1] - it will be projects[4]
-        new_ref = self.new_project_ref(
+        new_ref = unit.new_project_ref(
             domain_id=self.domain_id,
             parent_id=projects[1]['project']['id'])
         resp = self.post('/projects',
@@ -959,7 +954,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_update_project(self):
         """Call ``PATCH /projects/{project_id}``."""
-        ref = self.new_project_ref(domain_id=self.domain_id)
+        ref = unit.new_project_ref(domain_id=self.domain_id)
         del ref['id']
         r = self.patch(
             '/projects/%(project_id)s' % {
@@ -969,7 +964,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_update_project_domain_id(self):
         """Call ``PATCH /projects/{project_id}`` with domain_id."""
-        project = self.new_project_ref(domain_id=self.domain['id'])
+        project = unit.new_project_ref(domain_id=self.domain['id'])
         self.resource_api.create_project(project['id'], project)
         project['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/projects/%(project_id)s' % {
@@ -999,7 +994,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         The is_domain flag is immutable.
         """
-        project = self.new_project_ref(domain_id=self.domain['id'])
+        project = unit.new_project_ref(domain_id=self.domain['id'])
         resp = self.post('/projects',
                          body={'project': project})
         self.assertFalse(resp.result['project']['is_domain'])
@@ -1045,12 +1040,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.credential_api.get_credential(self.credential['id'])
         self.assertDictEqual(self.credential, r)
         # Create a second credential with a different project
-        self.project2 = self.new_project_ref(
-            domain_id=self.domain['id'])
-        self.resource_api.create_project(self.project2['id'], self.project2)
+        project2 = unit.new_project_ref(domain_id=self.domain['id'])
+        self.resource_api.create_project(project2['id'], project2)
         self.credential2 = self.new_credential_ref(
             user_id=self.user['id'],
-            project_id=self.project2['id'])
+            project_id=project2['id'])
         self.credential_api.create_credential(
             self.credential2['id'],
             self.credential2)
@@ -1646,9 +1640,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         group1 = self.identity_api.create_group(group1)
         self.identity_api.add_user_to_group(user1['id'], group1['id'])
         self.identity_api.add_user_to_group(user2['id'], group1['id'])
-        self.project1 = self.new_project_ref(
-            domain_id=self.domain['id'])
-        self.resource_api.create_project(self.project1['id'], self.project1)
+        project1 = unit.new_project_ref(domain_id=self.domain['id'])
+        self.resource_api.create_project(project1['id'], project1)
         self.role1 = unit.new_role_ref()
         self.role_api.create_role(self.role1['id'], self.role1)
         self.role2 = unit.new_role_ref()
@@ -1667,19 +1660,21 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.put(ud_entity['links']['assignment'])
 
         gp_entity = self.build_role_assignment_entity(
-            project_id=self.project1['id'], group_id=group1['id'],
+            project_id=project1['id'],
+            group_id=group1['id'],
             role_id=self.role1['id'])
         self.put(gp_entity['links']['assignment'])
 
         up_entity = self.build_role_assignment_entity(
-            project_id=self.project1['id'], user_id=user1['id'],
+            project_id=project1['id'],
+            user_id=user1['id'],
             role_id=self.role2['id'])
         self.put(up_entity['links']['assignment'])
 
         # Now list by various filters to make sure we get back the right ones
 
         collection_url = ('/role_assignments?scope.project.id=%s' %
-                          self.project1['id'])
+                          project1['id'])
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
@@ -1726,7 +1721,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             '/role_assignments?user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
                 'user_id': user1['id'],
-                'project_id': self.project1['id']})
+                'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=1,
@@ -1748,14 +1743,15 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, ud_entity)
         # ...and the two via group membership...
         gp1_link = self.build_role_assignment_link(
-            project_id=self.project1['id'], group_id=group1['id'],
+            project_id=project1['id'],
+            group_id=group1['id'],
             role_id=self.role1['id'])
         gd1_link = self.build_role_assignment_link(domain_id=self.domain_id,
                                                    group_id=group1['id'],
                                                    role_id=self.role1['id'])
 
         up1_entity = self.build_role_assignment_entity(
-            link=gp1_link, project_id=self.project1['id'],
+            link=gp1_link, project_id=project1['id'],
             user_id=user1['id'], role_id=self.role1['id'])
         ud1_entity = self.build_role_assignment_entity(
             link=gd1_link, domain_id=self.domain_id, user_id=user1['id'],
@@ -1771,7 +1767,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             '/role_assignments?effective&user.id=%(user_id)s'
             '&scope.project.id=%(project_id)s' % {
                 'user_id': user1['id'],
-                'project_id': self.project1['id']})
+                'project_id': project1['id']})
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
@@ -1804,7 +1800,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
 
             subprojects = []
             for i in range(breadth):
-                subprojects.append(self.new_project_ref(
+                subprojects.append(unit.new_project_ref(
                     domain_id=self.domain_id, parent_id=parent_id))
                 self.resource_api.create_project(subprojects[-1]['id'],
                                                  subprojects[-1])
@@ -1820,7 +1816,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         self.resource_api.create_domain(self.domain_id, self.domain)
 
         # Create a project hierarchy
-        self.project = self.new_project_ref(domain_id=self.domain_id)
+        self.project = unit.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
         self.resource_api.create_project(self.project_id, self.project)
 
@@ -2400,11 +2396,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
-        project1 = self.new_project_ref(
-            domain_id=domain['id'])
+        project1 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project1['id'], project1)
-        project2 = self.new_project_ref(
-            domain_id=domain['id'])
+        project2 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
         self.assignment_api.add_role_to_user_and_project(
@@ -2492,11 +2486,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
-        project1 = self.new_project_ref(
-            domain_id=domain['id'])
+        project1 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project1['id'], project1)
-        project2 = self.new_project_ref(
-            domain_id=domain['id'])
+        project2 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
         self.assignment_api.add_role_to_user_and_project(
@@ -2587,11 +2579,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                                             group1['id'])
         self.identity_api.add_user_to_group(user2['id'],
                                             group1['id'])
-        project1 = self.new_project_ref(
-            domain_id=domain['id'])
+        project1 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project1['id'], project1)
-        project2 = self.new_project_ref(
-            domain_id=domain['id'])
+        project2 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
         self.assignment_api.add_role_to_user_and_project(
@@ -2679,11 +2669,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
         group1 = unit.new_group_ref(domain_id=domain['id'])
         group1 = self.identity_api.create_group(group1)
-        project1 = self.new_project_ref(
-            domain_id=domain['id'])
+        project1 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project1['id'], project1)
-        project2 = self.new_project_ref(
-            domain_id=domain['id'])
+        project2 = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_project(project2['id'], project2)
         # Add some spoiler roles to the projects
         self.assignment_api.add_role_to_user_and_project(
@@ -2751,8 +2739,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         """
         # Create project hierarchy
-        root = self.new_project_ref(domain_id=self.domain['id'])
-        leaf = self.new_project_ref(domain_id=self.domain['id'],
+        root = unit.new_project_ref(domain_id=self.domain['id'])
+        leaf = unit.new_project_ref(domain_id=self.domain['id'],
                                     parent_id=root['id'])
 
         self.resource_api.create_project(root['id'], root)
@@ -3076,19 +3064,19 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
         self.domain_id = CONF.identity.default_domain_id
         self.parent_id = uuid.uuid4().hex
         # Project with only domain_id in ref
-        self.project1 = {'id': self.project_id,
-                         'name': self.project_id,
-                         'domain_id': self.domain_id}
+        self.project1 = unit.new_project_ref(id=self.project_id,
+                                             name=self.project_id,
+                                             domain_id=self.domain_id)
         # Project with both domain_id and parent_id in ref
-        self.project2 = {'id': self.project_id,
-                         'name': self.project_id,
-                         'domain_id': self.domain_id,
-                         'parent_id': self.parent_id}
+        self.project2 = unit.new_project_ref(id=self.project_id,
+                                             name=self.project_id,
+                                             domain_id=self.domain_id,
+                                             parent_id=self.parent_id)
         # Project with no domain_id and parent_id in ref
-        self.project3 = {'id': self.project_id,
-                         'name': self.project_id,
-                         'domain_id': self.domain_id,
-                         'parent_id': self.parent_id}
+        self.project3 = unit.new_project_ref(id=self.project_id,
+                                             name=self.project_id,
+                                             domain_id=self.domain_id,
+                                             parent_id=self.parent_id)
         # Expected result with no domain_id and parent_id
         self.expected_project = {'id': self.project_id,
                                  'name': self.project_id}
@@ -3157,6 +3145,17 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
 
     def test_v3_to_v2_project_method(self):
         self._setup_initial_projects()
+
+        # TODO(shaleh): these optional fields are not handled well by the
+        # v3_to_v2 code. Manually remove them for now. Eventually update
+        # new_project_ref to not return optional values
+        del self.project1['enabled']
+        del self.project1['description']
+        del self.project2['enabled']
+        del self.project2['description']
+        del self.project3['enabled']
+        del self.project3['description']
+
         updated_project1 = controller.V2Controller.v3_to_v2_project(
             self.project1)
         self.assertIs(self.project1, updated_project1)
@@ -3173,6 +3172,13 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
     def test_v3_to_v2_project_method_list(self):
         self._setup_initial_projects()
         project_list = [self.project1, self.project2, self.project3]
+
+        # TODO(shaleh): these optional fields are not handled well by the
+        # v3_to_v2 code. Manually remove them for now. Eventually update
+        # new_project_ref to not return optional values
+        for p in project_list:
+            del p['enabled']
+            del p['description']
         updated_list = controller.V2Controller.v3_to_v2_project(project_list)
 
         self.assertEqual(len(updated_list), len(project_list))
