@@ -263,16 +263,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def new_policy_ref(self):
         return unit.new_policy_ref()
 
-    def new_trust_ref(self, trustor_user_id, trustee_user_id, project_id=None,
-                      impersonation=None, expires=None, role_ids=None,
-                      role_names=None, remaining_uses=None,
-                      allow_redelegation=False):
-        return unit.new_trust_ref(
-            trustor_user_id, trustee_user_id, project_id=project_id,
-            impersonation=impersonation, expires=expires, role_ids=role_ids,
-            role_names=role_names, remaining_uses=remaining_uses,
-            allow_redelegation=allow_redelegation)
-
     def create_new_default_project_for_user(self, user_id, domain_id,
                                             enable_project=True):
         ref = self.new_project_ref(domain_id=domain_id)

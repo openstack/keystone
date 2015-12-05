@@ -371,7 +371,7 @@ def new_policy_ref():
 def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
                   impersonation=None, expires=None, role_ids=None,
                   role_names=None, remaining_uses=None,
-                  allow_redelegation=False):
+                  allow_redelegation=False, **kwargs):
     ref = dict()
     ref['id'] = uuid.uuid4().hex
     ref['trustor_user_id'] = trustor_user_id
@@ -401,6 +401,7 @@ def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
         for role_name in role_names:
             ref['roles'].append({'name': role_name})
 
+    ref.update(kwargs)
     return ref
 
 

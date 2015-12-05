@@ -351,7 +351,7 @@ class NotificationsForEntities(BaseNotificationTest):
         trustee = self.identity_api.create_user(trustee)
         role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
-        trust_ref = self.new_trust_ref(trustor['id'],
+        trust_ref = unit.new_trust_ref(trustor['id'],
                                        trustee['id'])
         self.trust_api.create_trust(trust_ref['id'],
                                     trust_ref,
@@ -426,7 +426,7 @@ class NotificationsForEntities(BaseNotificationTest):
         trustee = unit.new_user_ref(domain_id=self.domain_id)
         trustee = self.identity_api.create_user(trustee)
         role_ref = unit.new_role_ref()
-        trust_ref = self.new_trust_ref(trustor['id'], trustee['id'])
+        trust_ref = unit.new_trust_ref(trustor['id'], trustee['id'])
         self.trust_api.create_trust(trust_ref['id'],
                                     trust_ref,
                                     [role_ref])

@@ -303,7 +303,7 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
     def test_trust_scoped_ec2_credential(self):
         """Call ``POST /credentials`` for creating ec2 credential."""
         # Create the trust
-        ref = self.new_trust_ref(
+        ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
