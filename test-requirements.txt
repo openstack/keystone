@@ -33,7 +33,7 @@ testtools>=1.4.0
 oslosphinx!=3.4.0,>=2.5.0 # Apache-2.0
 reno>=0.1.1 # Apache2
 
-tempest-lib>=0.10.0
+tempest-lib>=0.11.0
 
 # Functional tests.
 requests>=2.8.1
