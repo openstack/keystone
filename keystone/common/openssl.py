@@ -84,7 +84,7 @@ class BaseCertificateConfigure(object):
                 to_exec,
                 stderr=environment.subprocess.STDOUT)
         except environment.subprocess.CalledProcessError as e:
-            LOG.error(_LE('Command %(to_exec)s exited with %(retcode)s'
+            LOG.error(_LE('Command %(to_exec)s exited with %(retcode)s '
                           '- %(output)s'),
                       {'to_exec': to_exec,
                        'retcode': e.returncode,
