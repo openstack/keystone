@@ -123,7 +123,7 @@ class AuthTestMixin(object):
 class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                       common_auth.AuthTestMixin):
 
-    def generate_token_schema(self, domain_scoped=False):
+    def generate_token_schema(self, domain_scoped=False, project_scoped=False):
         """Return a dictionary of token properties to validate against."""
         properties = {
             'audit_ids': {
@@ -171,6 +171,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 'additionalProperties': False,
             }
         }
+
         if domain_scoped:
             properties['catalog'] = {'type': 'array'}
             properties['roles'] = {
@@ -197,6 +198,28 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                     'additionalProperties': False
                 }
             }
+        elif project_scoped:
+            properties['is_admin_project'] = {'type': 'boolean'}
+            properties['catalog'] = {'type': 'array'}
+            properties['roles'] = {'type': 'array'}
+            properties['project'] = {
+                'type': ['object'],
+                'required': ['id', 'name', 'domain'],
+                'properties': {
+                    'id': {'type': 'string'},
+                    'name': {'type': 'string'},
+                    'domain': {
+                        'type': ['object'],
+                        'required': ['id', 'name'],
+                        'properties': {
+                            'id': {'type': 'string'},
+                            'name': {'type': 'string'}
+                        },
+                        'additionalProperties': False
+                    }
+                },
+                'additionalProperties': False
+            }
 
         schema = {
             'type': 'object',
@@ -210,6 +233,12 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         if domain_scoped:
             schema['required'].extend(['domain', 'roles'])
             schema['optional'].append('catalog')
+        elif project_scoped:
+            schema['required'].append('project')
+            schema['optional'].append('bind')
+            schema['optional'].append('catalog')
+            schema['optional'].append('OS-TRUST:trust')
+            schema['optional'].append('is_admin_project')
 
         return schema
 
@@ -676,12 +705,43 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def assertValidProjectScopedTokenResponse(self, r, *args, **kwargs):
         token = self.assertValidScopedTokenResponse(r, *args, **kwargs)
 
-        self.assertIn('project', token)
-        self.assertIn('id', token['project'])
-        self.assertIn('name', token['project'])
-        self.assertIn('domain', token['project'])
-        self.assertIn('id', token['project']['domain'])
-        self.assertIn('name', token['project']['domain'])
+        project_scoped_token_schema = self.generate_token_schema(
+            project_scoped=True)
+
+        if token.get('OS-TRUST:trust'):
+            trust_properties = {
+                'OS-TRUST:trust': {
+                    'type': ['object'],
+                    'required': ['id', 'impersonation', 'trustor_user',
+                                 'trustee_user'],
+                    'properties': {
+                        'id': {'type': 'string'},
+                        'impersonation': {'type': 'boolean'},
+                        'trustor_user': {
+                            'type': 'object',
+                            'required': ['id'],
+                            'properties': {
+                                'id': {'type': 'string'}
+                            },
+                            'additionalProperties': False
+                        },
+                        'trustee_user': {
+                            'type': 'object',
+                            'required': ['id'],
+                            'properties': {
+                                'id': {'type': 'string'}
+                            },
+                            'additionalProperties': False
+                        }
+                    },
+                    'additionalProperties': False
+                }
+            }
+            project_scoped_token_schema['properties'].update(trust_properties)
+
+        validator_object = validators.SchemaValidator(
+            project_scoped_token_schema)
+        validator_object.validate(token)
 
         self.assertEqual(self.role_id, token['roles'][0]['id'])
 
