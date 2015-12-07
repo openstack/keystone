@@ -601,6 +601,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             self.assertIn('name', role)
 
         if is_admin_project:
+            # NOTE(samueldmq): We want to explicitly test for boolean
             self.assertIs(True, token['is_admin_project'])
         else:
             self.assertNotIn('is_admin_project', token)

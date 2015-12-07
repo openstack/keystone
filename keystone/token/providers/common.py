@@ -253,16 +253,6 @@ class V3TokenDataHelper(object):
         return filtered_project
 
     def _populate_scope(self, token_data, domain_id, project_id):
-        # TODO(ayoung): Support the ability for a project acting as a domain
-        # to be the admin project once the rest of the code for domains
-        # acting as projects is merged.  Code will likely be:
-        # (r.admin_project_name == None and project['is_domain'] == True
-        #  and project['name'] == r.admin_project_domain_name)
-        def _is_admin_project(project):
-            r = CONF.resource
-            return (project['name'] == r.admin_project_name and
-                    project['domain']['name'] == r.admin_project_domain_name)
-
         if 'domain' in token_data or 'project' in token_data:
             # scope already exist, no need to populate it again
             return
@@ -271,8 +261,18 @@ class V3TokenDataHelper(object):
             token_data['domain'] = self._get_filtered_domain(domain_id)
         if project_id:
             token_data['project'] = self._get_filtered_project(project_id)
-            if _is_admin_project(token_data['project']):
-                token_data['is_admin_project'] = True
+
+    def _populate_is_admin_project(self, token_data):
+        # TODO(ayoung): Support the ability for a project acting as a domain
+        # to be the admin project once the rest of the code for projects
+        # acting as domains is merged.  Code will likely be:
+        # (r.admin_project_name == None and project['is_domain'] == True
+        #  and project['name'] == r.admin_project_domain_name)
+        project = token_data['project']
+        r = CONF.resource
+        if (project['name'] == r.admin_project_name and
+                project['domain']['name'] == r.admin_project_domain_name):
+            token_data['is_admin_project'] = True
 
     def _get_roles_for_user(self, user_id, domain_id, project_id):
         roles = []
@@ -490,6 +490,8 @@ class V3TokenDataHelper(object):
             token_data['bind'] = bind
 
         self._populate_scope(token_data, domain_id, project_id)
+        if token_data.get('project'):
+            self._populate_is_admin_project(token_data)
         self._populate_user(token_data, user_id, trust)
         self._populate_roles(token_data, user_id, domain_id, project_id, trust,
                              access_token)
