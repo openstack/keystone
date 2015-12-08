@@ -1766,6 +1766,17 @@
 # Deprecated group/name - [assignment]/list_limit
 #list_limit = <None>
 
+# Name of the domain that contains the special project for performing
+# administrative operations on remote services. Tokens scoped to this project
+# will contain the key/value `is_admin_project=true`. Defaults to None. (string
+# value)
+#admin_project_domain_name = <None>
+
+# Special project for performing administrative operations on remote services.
+# Tokens scoped to this project will contain the key/value
+# `is_admin_project=true`. Defaults to None. (string value)
+#admin_project_name = <None>
+
 
 [revoke]
 
