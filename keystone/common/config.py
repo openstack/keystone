@@ -387,11 +387,8 @@ FILE_OPTIONS = {
                    help='Maximum number of entities that will be returned '
                         'in a resource collection.'),
         cfg.StrOpt('admin_project_domain_name',
-                   help='Name of the domain that contains the special '
-                   'project for performing administrative operations on '
-                   'remote services. Tokens scoped to this project will '
-                   'contain the key/value `is_admin_project=true`. Defaults '
-                   'to None.'),
+                   help='Name of the domain that owns the '
+                        '`admin_project_name`. Defaults to None.'),
         cfg.StrOpt('admin_project_name',
                    help='Special project for performing administrative '
                    'operations on remote services. Tokens scoped to '

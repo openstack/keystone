@@ -11,4 +11,4 @@ features:
     evaluating access control policy for an API. Keystone does not yet
     support the ability for a project acting as a domain to be the
     admin project.  That will be added once the rest of the code for
-    domains acting as projects is merged.
+    projects acting as domains is merged.
