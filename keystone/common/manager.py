@@ -19,6 +19,8 @@ from oslo_log import versionutils
 from oslo_utils import importutils
 import stevedore
 
+from keystone.i18n import _
+
 
 LOG = log.getLogger(__name__)
 
@@ -70,15 +72,16 @@ def load_driver(namespace, driver_name, *args):
         LOG.debug('Failed to load %r using stevedore: %s', driver_name, e)
         # Ignore failure and continue on.
 
-    @versionutils.deprecated(as_of=versionutils.deprecated.LIBERTY,
-                             in_favor_of='entrypoints',
-                             what='direct import of driver')
-    def _load_using_import(driver_name, *args):
-        return importutils.import_object(driver_name, *args)
+    driver = importutils.import_object(driver_name, *args)
 
-    # For backwards-compatibility, an unregistered class reference can
-    # still be used.
-    return _load_using_import(driver_name, *args)
+    msg = (_(
+        'Direct import of driver %(name)r is deprecated as of Liberty in '
+        'favor of its entrypoint from %(namespace)r and may be removed in '
+        'N.') %
+        {'name': driver_name, 'namespace': namespace})
+    versionutils.report_deprecated_feature(LOG, msg)
+
+    return driver
 
 
 class Manager(object):
