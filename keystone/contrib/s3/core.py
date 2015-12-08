@@ -46,7 +46,6 @@ EXTENSION_DATA = {
     'links': [
         {
             'rel': 'describedby',
-            # TODO(ayoung): needs a description
             'type': 'text/html',
             'href': 'https://github.com/openstack/identity-api',
         }
