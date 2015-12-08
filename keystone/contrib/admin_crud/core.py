@@ -32,10 +32,9 @@ extension.register_admin_extension(
         'links': [
             {
                 'rel': 'describedby',
-                # TODO(dolph): link needs to be revised after
-                #              bug 928059 merges
                 'type': 'text/html',
-                'href': 'https://github.com/openstack/identity-api',
+                'href': 'http://developer.openstack.org/'
+                        'api-ref-identity-v2-ext.html',
             }
         ]})
 
