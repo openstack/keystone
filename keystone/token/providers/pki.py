@@ -17,6 +17,7 @@
 from keystoneclient.common import cms
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import environment
@@ -31,6 +32,10 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
+@versionutils.deprecated(
+    as_of=versionutils.deprecated.MITAKA,
+    what='the PKI token provider',
+    in_favor_of='the Fernet or UUID token providers')
 class Provider(common.BaseProvider):
     def _get_token_id(self, token_data):
         try:
