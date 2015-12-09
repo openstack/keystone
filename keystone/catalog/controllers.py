@@ -385,40 +385,7 @@ class EndpointV3(controller.V3Controller):
 
 
 @dependency.requires('catalog_api', 'resource_api')
-class _ControllerBase(controller.V3Controller):
-    """Base behaviors for endpoint filter controllers."""
-
-    def _get_endpoint_groups_for_project(self, project_id):
-        # recover the project endpoint group memberships and for each
-        # membership recover the endpoint group
-        self.resource_api.get_project(project_id)
-        try:
-            refs = self.catalog_api.list_endpoint_groups_for_project(
-                project_id)
-            endpoint_groups = [self.catalog_api.get_endpoint_group(
-                ref['endpoint_group_id']) for ref in refs]
-            return endpoint_groups
-        except exception.EndpointGroupNotFound:
-            return []
-
-    def _get_endpoints_filtered_by_endpoint_group(self, endpoint_group_id):
-        endpoints = self.catalog_api.list_endpoints()
-        filters = self.catalog_api.get_endpoint_group(
-            endpoint_group_id)['filters']
-        filtered_endpoints = []
-
-        for endpoint in endpoints:
-            is_candidate = True
-            for key, value in filters.items():
-                if endpoint[key] != value:
-                    is_candidate = False
-                    break
-            if is_candidate:
-                filtered_endpoints.append(endpoint)
-        return filtered_endpoints
-
-
-class EndpointFilterV3Controller(_ControllerBase):
+class EndpointFilterV3Controller(controller.V3Controller):
 
     def __init__(self):
         super(EndpointFilterV3Controller, self).__init__()
@@ -487,7 +454,8 @@ class EndpointFilterV3Controller(_ControllerBase):
                                                               projects)
 
 
-class EndpointGroupV3Controller(_ControllerBase):
+@dependency.requires('catalog_api', 'resource_api')
+class EndpointGroupV3Controller(controller.V3Controller):
     collection_name = 'endpoint_groups'
     member_name = 'endpoint_group'
 
@@ -559,7 +527,8 @@ class EndpointGroupV3Controller(_ControllerBase):
     def list_endpoint_groups_for_project(self, context, project_id):
         """List all endpoint groups associated with a given project."""
         return EndpointGroupV3Controller.wrap_collection(
-            context, self._get_endpoint_groups_for_project(project_id))
+            context,
+            self.catalog_api.get_endpoint_groups_for_project(project_id))
 
     @controller.protected()
     def list_projects_associated_with_endpoint_group(self,
@@ -583,12 +552,14 @@ class EndpointGroupV3Controller(_ControllerBase):
                                                       context,
                                                       endpoint_group_id):
         """List all the endpoints filtered by a specific endpoint group."""
-        filtered_endpoints = self._get_endpoints_filtered_by_endpoint_group(
-            endpoint_group_id)
+        filtered_endpoints = (self.catalog_api.
+                              get_endpoints_filtered_by_endpoint_group(
+                                  endpoint_group_id))
         return EndpointV3.wrap_collection(context, filtered_endpoints)
 
 
-class ProjectEndpointGroupV3Controller(_ControllerBase):
+@dependency.requires('catalog_api', 'resource_api')
+class ProjectEndpointGroupV3Controller(controller.V3Controller):
     collection_name = 'project_endpoint_groups'
     member_name = 'project_endpoint_group'
 
