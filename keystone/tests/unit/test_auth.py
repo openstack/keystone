@@ -986,8 +986,6 @@ class AuthWithTrust(AuthTest):
         token_user = auth_response['access']['user']
         self.assertEqual(token_user['id'], new_trust['trustee_user_id'])
 
-        # TODO(ayoung): Endpoints
-
     def test_create_trust_impersonation(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
         self.assertEqual(self.trustor['id'], new_trust['trustor_user_id'])

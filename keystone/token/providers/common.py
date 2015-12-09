@@ -438,7 +438,6 @@ class V3TokenDataHelper(object):
         if project_id or domain_id:
             service_catalog = self.catalog_api.get_v3_catalog(
                 user_id, project_id)
-            # TODO(ayoung): Enforce Endpoints for trust
             token_data['catalog'] = service_catalog
 
     def _populate_service_providers(self, token_data):
