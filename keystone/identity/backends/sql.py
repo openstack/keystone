@@ -76,6 +76,7 @@ class Identity(identity.IdentityDriverV8):
     # NOTE(henry-nash): Override the __init__() method so as to take a
     # config parameter to enable sql to be used as a domain-specific driver.
     def __init__(self, conf=None):
+        self.conf = conf
         super(Identity, self).__init__()
 
     def default_assignment_driver(self):
