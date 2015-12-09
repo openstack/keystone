@@ -618,9 +618,6 @@ class SqlTokenCacheInvalidation(SqlTests, test_backend.TokenCacheInvalidation):
 
 class SqlFilterTests(SqlTests, test_backend.FilterTests):
 
-    def _get_user_name_field_size(self):
-        return identity_sql.User.name.type.length
-
     def clean_up_entities(self):
         """Clean up entity test data from Filter Test Cases."""
         for entity in ['user', 'group', 'project']:
