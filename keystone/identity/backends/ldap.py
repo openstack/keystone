@@ -36,9 +36,11 @@ class Identity(identity.IdentityDriverV8):
     def __init__(self, conf=None):
         super(Identity, self).__init__()
         if conf is None:
-            conf = CONF
-        self.user = UserApi(conf)
-        self.group = GroupApi(conf)
+            self.conf = CONF
+        else:
+            self.conf = conf
+        self.user = UserApi(self.conf)
+        self.group = GroupApi(self.conf)
 
     def default_assignment_driver(self):
         return 'ldap'
