@@ -44,13 +44,6 @@ class Region(sql.ModelBase, sql.DictBase):
     #                 "left" and "right" and provide support for a nested set
     #                 model.
     parent_region_id = sql.Column(sql.String(255), nullable=True)
-
-    # TODO(jaypipes): I think it's absolutely stupid that every single model
-    #                 is required to have an "extra" column because of the
-    #                 DictBase in the keystone.common.sql.core module. Forcing
-    #                 tables to have pointless columns in the database is just
-    #                 bad. Remove all of this extra JSON blob stuff.
-    #                 See: https://bugs.launchpad.net/keystone/+bug/1265071
     extra = sql.Column(sql.JsonBlob())
     endpoints = sqlalchemy.orm.relationship("Endpoint", backref="region")
 
