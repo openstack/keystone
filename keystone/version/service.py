@@ -20,21 +20,21 @@ from oslo_log import log
 from paste import deploy
 import routes
 
-from keystone import assignment
-from keystone import auth
-from keystone import catalog
+from keystone.assignment import routers as assignment_routers
+from keystone.auth import routers as auth_routers
+from keystone.catalog import routers as catalog_routers
 from keystone.common import wsgi
-from keystone import credential
-from keystone import endpoint_policy
-from keystone import federation
+from keystone.credential import routers as credential_routers
+from keystone.endpoint_policy import routers as endpoint_policy_routers
+from keystone.federation import routers as federation_routers
 from keystone.i18n import _LW
-from keystone import identity
-from keystone import oauth1
-from keystone import policy
-from keystone import resource
-from keystone import revoke
-from keystone import token
-from keystone import trust
+from keystone.identity import routers as identity_routers
+from keystone.oauth1 import routers as oauth1_routers
+from keystone.policy import routers as policy_routers
+from keystone.resource import routers as resource_routers
+from keystone.revoke import routers as revoke_routers
+from keystone.token import routers as token_routers
+from keystone.trust import routers as trust_routers
 from keystone.version import controllers
 from keystone.version import routers
 
@@ -82,8 +82,8 @@ def warn_local_conf(f):
 def public_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
     return wsgi.ComposingRouter(routes.Mapper(),
-                                [assignment.routers.Public(),
-                                 token.routers.Router(),
+                                [assignment_routers.Public(),
+                                 token_routers.Router(),
                                  routers.VersionV2('public'),
                                  routers.Extension(False)])
 
@@ -93,10 +93,10 @@ def public_app_factory(global_conf, **local_conf):
 def admin_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
     return wsgi.ComposingRouter(routes.Mapper(),
-                                [identity.routers.Admin(),
-                                 assignment.routers.Admin(),
-                                 token.routers.Router(),
-                                 resource.routers.Admin(),
+                                [identity_routers.Admin(),
+                                 assignment_routers.Admin(),
+                                 token_routers.Router(),
+                                 resource_routers.Admin(),
                                  routers.VersionV2('admin'),
                                  routers.Extension()])
 
@@ -126,25 +126,25 @@ def v3_app_factory(global_conf, **local_conf):
     # NOTE(dstanek): Routers should be ordered by their frequency of use in
     # a live system. This is due to the routes implementation. The most
     # frequently used routers should appear first.
-    router_modules = [auth,
-                      assignment,
-                      catalog,
-                      credential,
-                      identity,
-                      policy,
-                      resource,
-                      revoke,
-                      federation,
-                      oauth1]
+    all_api_routers = [auth_routers,
+                       assignment_routers,
+                       catalog_routers,
+                       credential_routers,
+                       identity_routers,
+                       policy_routers,
+                       resource_routers,
+                       revoke_routers,
+                       federation_routers,
+                       oauth1_routers]
 
     if CONF.trust.enabled:
-        router_modules.append(trust)
+        all_api_routers.append(trust_routers)
 
     if CONF.endpoint_policy.enabled:
-        router_modules.append(endpoint_policy)
+        all_api_routers.append(endpoint_policy_routers)
 
-    for module in router_modules:
-        routers_instance = module.routers.Routers()
+    for api_routers in all_api_routers:
+        routers_instance = api_routers.Routers()
         _routers.append(routers_instance)
         routers_instance.append_v3_routers(mapper, sub_routers)
 

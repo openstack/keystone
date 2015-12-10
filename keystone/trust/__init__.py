@@ -14,4 +14,3 @@
 
 from keystone.trust import controllers  # noqa
 from keystone.trust.core import *  # noqa
-from keystone.trust import routers  # noqa

@@ -11,4 +11,3 @@
 # under the License.
 
 from keystone.endpoint_policy.core import *  # noqa
-from keystone.endpoint_policy import routers  # noqa

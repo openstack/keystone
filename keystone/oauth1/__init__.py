@@ -13,4 +13,3 @@
 # under the License.
 
 from keystone.oauth1.core import *  # noqa
-from keystone.oauth1 import routers  # noqa

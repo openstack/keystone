@@ -14,4 +14,3 @@
 
 from keystone.catalog import controllers  # noqa
 from keystone.catalog.core import *  # noqa
-from keystone.catalog import routers  # noqa

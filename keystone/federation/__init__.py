@@ -13,4 +13,3 @@
 # under the License.
 
 from keystone.federation.core import *  # noqa
-from keystone.federation import routers  # noqa

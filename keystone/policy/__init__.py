@@ -14,4 +14,3 @@
 
 from keystone.policy import controllers  # noqa
 from keystone.policy.core import *  # noqa
-from keystone.policy import routers  # noqa

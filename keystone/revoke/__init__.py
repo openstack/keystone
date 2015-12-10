@@ -11,4 +11,3 @@
 # under the License.
 
 from keystone.revoke.core import *  # noqa
-from keystone.revoke.routers import *  # noqa
