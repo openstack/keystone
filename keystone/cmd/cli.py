@@ -16,6 +16,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+import uuid
 
 from oslo_config import cfg
 from oslo_log import log
@@ -31,7 +32,7 @@ from keystone.common import utils
 from keystone import exception
 from keystone.federation import idp
 from keystone.federation import utils as mapping_engine
-from keystone.i18n import _, _LW
+from keystone.i18n import _, _LW, _LI
 from keystone.server import backends
 from keystone import token
 
@@ -49,6 +50,122 @@ class BaseApp(object):
         parser = subparsers.add_parser(cls.name, help=cls.__doc__)
         parser.set_defaults(cmd_class=cls)
         return parser
+
+
+class BootStrap(BaseApp):
+    """Perform the basic bootstrap process"""
+
+    name = "bootstrap"
+
+    def __init__(self):
+        self.load_backends()
+        self.tenant_id = uuid.uuid4().hex
+        self.role_id = uuid.uuid4().hex
+        self.username = None
+        self.project_name = None
+        self.role_name = None
+        self.password = None
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(BootStrap, cls).add_argument_parser(subparsers)
+        parser.add_argument('--bootstrap-username', default='admin',
+                            help=('The username of the initial keystone '
+                                  'user during bootstrap process.'))
+        # NOTE(morganfainberg): See below for ENV Variable that can be used
+        # in lieu of the command-line arguments.
+        parser.add_argument('--bootstrap-password', default=None,
+                            help='The bootstrap user password')
+        parser.add_argument('--bootstrap-project-name', default='admin',
+                            help=('The initial project created during the '
+                                  'keystone bootstrap process.'))
+        parser.add_argument('--bootstrap-role-name', default='admin',
+                            help=('The initial role-name created during the '
+                                  'keystone bootstrap process.'))
+        return parser
+
+    def load_backends(self):
+        drivers = backends.load_backends()
+        self.resource_manager = drivers['resource_api']
+        self.identity_manager = drivers['identity_api']
+        self.assignment_manager = drivers['assignment_api']
+        self.role_manager = drivers['role_api']
+
+    def _get_config(self):
+        self.username = (
+            os.environ.get('OS_BOOTSTRAP_USERNAME') or
+            CONF.command.bootstrap_username)
+        self.project_name = (
+            os.environ.get('OS_BOOTSTRAP_PROJECT_NAME') or
+            CONF.command.bootstrap_project_name)
+        self.role_name = (
+            os.environ.get('OS_BOOTSTRAP_ROLE_NAME') or
+            CONF.command.bootstrap_role_name)
+        self.password = (
+            os.environ.get('OS_BOOTSTRAP_PASSWORD') or
+            CONF.command.bootstrap_password)
+
+    def do_bootstrap(self):
+        """Perform the bootstrap actions.
+
+        Create bootstrap user, project, and role so that CMS, humans, or
+        scripts can continue to perform initial setup (domains, projects,
+        services, endpoints, etc) of Keystone when standing up a new
+        deployment.
+        """
+        self._get_config()
+
+        if self.password is None:
+            print(_('Either --bootstrap-password argument or '
+                    'OS_BOOTSTRAP_PASSWORD must be set.'))
+            raise ValueError
+
+        # NOTE(morganfainberg): Ensure the default domain is in-fact created
+        default_domain = migration_helpers.get_default_domain()
+        try:
+            self.resource_manager.create_domain(
+                domain_id=default_domain['id'],
+                domain=default_domain)
+            LOG.info(_LI('Created domain %s'), default_domain['id'])
+        except exception.Conflict:
+            # NOTE(morganfainberg): Domain already exists, continue on.
+            LOG.info(_LI('Domain %s already exists, skipping creation.'),
+                     default_domain['id'])
+
+        LOG.info(_LI('Creating project %s'), self.project_name)
+        self.resource_manager.create_project(
+            tenant_id=self.tenant_id,
+            tenant={'enabled': True,
+                    'id': self.tenant_id,
+                    'domain_id': default_domain['id'],
+                    'description': 'Bootstrap project for initializing the '
+                                   'cloud.',
+                    'name': self.project_name},
+        )
+        LOG.info(_LI('Creating user %s'), self.username)
+        user = self.identity_manager.create_user(
+            user_ref={'name': self.username,
+                      'enabled': True,
+                      'domain_id': default_domain['id'],
+                      'password': self.password
+                      }
+        )
+        LOG.info(_LI('Creating Role %s'), self.role_name)
+        self.role_manager.create_role(
+            role_id=self.role_id,
+            role={'name': self.role_name,
+                  'id': self.role_id},
+        )
+        self.assignment_manager.add_role_to_user_and_project(
+            user_id=user['id'],
+            tenant_id=self.tenant_id,
+            role_id=self.role_id
+        )
+
+    @classmethod
+    def main(cls):
+        klass = cls()
+        klass.do_bootstrap()
 
 
 class DbSync(BaseApp):
@@ -641,6 +758,7 @@ class MappingEngineTester(BaseApp):
 
 
 CMDS = [
+    BootStrap,
     DbSync,
     DbVersion,
     DomainConfigUpload,
