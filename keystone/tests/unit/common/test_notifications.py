@@ -521,7 +521,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'region', cadftaxonomy.SECURITY_REGION)
 
     def test_create_policy(self):
-        policy_ref = self.new_policy_ref()
+        policy_ref = unit.new_policy_ref()
         self.policy_api.create_policy(policy_ref['id'], policy_ref)
         self._assert_notify_sent(policy_ref['id'], CREATED_OPERATION,
                                  'policy')
@@ -529,7 +529,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'policy', cadftaxonomy.SECURITY_POLICY)
 
     def test_update_policy(self):
-        policy_ref = self.new_policy_ref()
+        policy_ref = unit.new_policy_ref()
         self.policy_api.create_policy(policy_ref['id'], policy_ref)
         self.policy_api.update_policy(policy_ref['id'], policy_ref)
         self._assert_notify_sent(policy_ref['id'], UPDATED_OPERATION,
@@ -538,7 +538,7 @@ class NotificationsForEntities(BaseNotificationTest):
                                 'policy', cadftaxonomy.SECURITY_POLICY)
 
     def test_delete_policy(self):
-        policy_ref = self.new_policy_ref()
+        policy_ref = unit.new_policy_ref()
         self.policy_api.create_policy(policy_ref['id'], policy_ref)
         self.policy_api.delete_policy(policy_ref['id'])
         self._assert_notify_sent(policy_ref['id'], DELETED_OPERATION,
