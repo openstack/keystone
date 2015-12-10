@@ -322,7 +322,7 @@ class Manager(manager.Manager):
             endpoint_group_id, project_id)
         COMPUTED_CATALOG_REGION.invalidate()
 
-    def _get_endpoint_groups_for_project(self, project_id):
+    def get_endpoint_groups_for_project(self, project_id):
         # recover the project endpoint group memberships and for each
         # membership recover the endpoint group
         self.resource_api.get_project(project_id)
@@ -335,7 +335,7 @@ class Manager(manager.Manager):
         except exception.EndpointGroupNotFound:
             return []
 
-    def _get_endpoints_filtered_by_endpoint_group(self, endpoint_group_id):
+    def get_endpoints_filtered_by_endpoint_group(self, endpoint_group_id):
         endpoints = self.list_endpoints()
         filters = self.driver.get_endpoint_group(endpoint_group_id)['filters']
         filtered_endpoints = []
@@ -371,9 +371,9 @@ class Manager(manager.Manager):
 
         # need to recover endpoint_groups associated with project
         # then for each endpoint group return the endpoints.
-        endpoint_groups = self._get_endpoint_groups_for_project(project_id)
+        endpoint_groups = self.get_endpoint_groups_for_project(project_id)
         for endpoint_group in endpoint_groups:
-            endpoint_refs = self._get_endpoints_filtered_by_endpoint_group(
+            endpoint_refs = self.get_endpoints_filtered_by_endpoint_group(
                 endpoint_group['id'])
             # now check if any endpoints for current endpoint group are not
             # contained in the list of filtered endpoints
