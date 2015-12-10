@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystonemiddleware import auth_token
 from oslo_config import cfg
 from oslo_context import context as oslo_context
 from oslo_log import log
 from oslo_log import versionutils
 
 from keystone.common import authorization
+from keystone.common import dependency
 from keystone.common import tokenless_auth
 from keystone.common import wsgi
 from keystone import exception
@@ -32,83 +34,32 @@ LOG = log.getLogger(__name__)
 __all__ = ('AuthContextMiddleware',)
 
 
-class AuthContextMiddleware(wsgi.Middleware):
+@dependency.requires('token_provider_api')
+class AuthContextMiddleware(auth_token.BaseAuthProtocol):
     """Build the authentication context from the request auth token."""
 
-    def _build_auth_context(self, request):
+    def __init__(self, app):
+        bind = CONF.token.enforce_token_bind
+        super(AuthContextMiddleware, self).__init__(app,
+                                                    log=LOG,
+                                                    enforce_token_bind=bind)
 
-        # NOTE(gyee): token takes precedence over SSL client certificates.
-        # This will preserve backward compatibility with the existing
-        # behavior. Tokenless authorization with X.509 SSL client
-        # certificate is effectively disabled if no trusted issuers are
-        # provided.
-
-        token_id = None
-        if core.AUTH_TOKEN_HEADER in request.headers:
-            token_id = request.headers[core.AUTH_TOKEN_HEADER].strip()
-
-        is_admin = request.environ.get(core.CONTEXT_ENV, {}).get('is_admin',
-                                                                 False)
-        if is_admin:
-            # NOTE(gyee): no need to proceed any further as we already know
-            # this is an admin request.
-            auth_context = {}
-            return auth_context, token_id, is_admin
-
-        if token_id:
-            # In this case the client sent in a token.
-            auth_context, is_admin = self._build_token_auth_context(
-                request, token_id)
-            return auth_context, token_id, is_admin
-
-        # No token, maybe the client presented an X.509 certificate.
-
-        if self._validate_trusted_issuer(request.environ):
-            auth_context = self._build_tokenless_auth_context(
-                request.environ)
-            return auth_context, None, False
-
-        LOG.debug('There is either no auth token in the request or '
-                  'the certificate issuer is not trusted. No auth '
-                  'context will be set.')
-
-        return None, None, False
-
-    def _build_token_auth_context(self, request, token_id):
-        if CONF.admin_token and token_id == CONF.admin_token:
-            versionutils.report_deprecated_feature(
-                LOG,
-                _LW('build_auth_context middleware checking for the admin '
-                    'token is deprecated as of the Mitaka release and will be '
-                    'removed in the O release. If your deployment requires '
-                    'use of the admin token, update keystone-paste.ini so '
-                    'that admin_token_auth is before build_auth_context in '
-                    'the paste pipelines, otherwise remove the '
-                    'admin_token_auth middleware from the paste pipelines.'))
-            return {}, True
-
-        context = {'token_id': token_id}
-        context['environment'] = request.environ
+    def fetch_token(self, token):
+        if CONF.admin_token and token == CONF.admin_token:
+            return {}
 
         try:
-            token_ref = token_model.KeystoneToken(
-                token_id=token_id,
-                token_data=self.token_provider_api.validate_token(token_id))
-            # TODO(gyee): validate_token_bind should really be its own
-            # middleware
-            wsgi.validate_token_bind(context, token_ref)
-            return authorization.token_to_auth_context(token_ref), False
+            return self.token_provider_api.validate_token(token)
         except exception.TokenNotFound:
-            LOG.warning(_LW('RBAC: Invalid token'))
-            raise exception.Unauthorized()
+            raise auth_token.InvalidToken(_('Could not find token'))
 
-    def _build_tokenless_auth_context(self, env):
+    def _build_tokenless_auth_context(self, request):
         """Build the authentication context.
 
         The context is built from the attributes provided in the env,
         such as certificate and scope attributes.
         """
-        tokenless_helper = tokenless_auth.TokenlessAuthHelper(env)
+        tokenless_helper = tokenless_auth.TokenlessAuthHelper(request.environ)
 
         (domain_id, project_id, trust_ref, unscoped) = (
             tokenless_helper.get_scope())
@@ -153,7 +104,7 @@ class AuthContextMiddleware(wsgi.Middleware):
                                      in token_data['token']['roles']]
         return auth_context
 
-    def _validate_trusted_issuer(self, env):
+    def _validate_trusted_issuer(self, request):
         """To further filter the certificates that are trusted.
 
         If the config option 'trusted_issuer' is absent or does
@@ -167,26 +118,39 @@ class AuthContextMiddleware(wsgi.Middleware):
         if not CONF.tokenless_auth.trusted_issuer:
             return False
 
-        client_issuer = env.get(CONF.tokenless_auth.issuer_attribute)
-        if not client_issuer:
+        issuer = request.environ.get(CONF.tokenless_auth.issuer_attribute)
+        if not issuer:
             msg = _LI('Cannot find client issuer in env by the '
                       'issuer attribute - %s.')
             LOG.info(msg, CONF.tokenless_auth.issuer_attribute)
             return False
 
-        if client_issuer in CONF.tokenless_auth.trusted_issuer:
+        if issuer in CONF.tokenless_auth.trusted_issuer:
             return True
 
         msg = _LI('The client issuer %(client_issuer)s does not match with '
                   'the trusted issuer %(trusted_issuer)s')
         LOG.info(
-            msg, {'client_issuer': client_issuer,
+            msg, {'client_issuer': issuer,
                   'trusted_issuer': CONF.tokenless_auth.trusted_issuer})
 
         return False
 
+    @wsgi.middleware_exceptions
     def process_request(self, request):
+        resp = super(AuthContextMiddleware, self).process_request(request)
 
+        if resp:
+            return resp
+
+        # NOTE(jamielennox): function is split so testing can check errors from
+        # fill_context. There is no actual reason for fill_context to raise
+        # errors rather than return a resp, simply that this is what happened
+        # before refactoring and it was easier to port. This can be fixed up
+        # and the middleware_exceptions helper removed.
+        self.fill_context(request)
+
+    def fill_context(self, request):
         # The request context stores itself in thread-local memory for logging.
         request_context = oslo_context.RequestContext(
             request_id=request.environ.get('openstack.request_id'))
@@ -198,13 +162,43 @@ class AuthContextMiddleware(wsgi.Middleware):
             LOG.warning(msg)
             return
 
-        auth_context, token_id, is_admin = self._build_auth_context(request)
+        # NOTE(gyee): token takes precedence over SSL client certificates.
+        # This will preserve backward compatibility with the existing
+        # behavior. Tokenless authorization with X.509 SSL client
+        # certificate is effectively disabled if no trusted issuers are
+        # provided.
 
-        request_context.auth_token = token_id
-        request_context.is_admin = is_admin
+        if request.environ.get(core.CONTEXT_ENV, {}).get('is_admin', False):
+            request_context.is_admin = True
+            auth_context = {}
 
-        if auth_context is None:
-            # The client didn't send any auth info, so don't set auth context.
+        elif CONF.admin_token and request.user_token == CONF.admin_token:
+            versionutils.report_deprecated_feature(
+                LOG,
+                _LW('build_auth_context middleware checking for the admin '
+                    'token is deprecated as of the Mitaka release and will be '
+                    'removed in the O release. If your deployment requires '
+                    'use of the admin token, update keystone-paste.ini so '
+                    'that admin_token_auth is before build_auth_context in '
+                    'the paste pipelines, otherwise remove the '
+                    'admin_token_auth middleware from the paste pipelines.'))
+
+            request_context.is_admin = True
+            auth_context = {}
+
+        elif request.token_auth.has_user_token:
+            request_context.auth_token = request.user_token
+            ref = token_model.KeystoneToken(token_id=request.user_token,
+                                            token_data=request.token_info)
+            auth_context = authorization.token_to_auth_context(ref)
+
+        elif self._validate_trusted_issuer(request):
+            auth_context = self._build_tokenless_auth_context(request)
+
+        else:
+            LOG.debug('There is either no auth token in the request or '
+                      'the certificate issuer is not trusted. No auth '
+                      'context will be set.')
             return
 
         # The attributes of request_context are put into the logs. This is a
@@ -220,3 +214,32 @@ class AuthContextMiddleware(wsgi.Middleware):
 
         LOG.debug('RBAC: auth_context: %s', auth_context)
         request.environ[authorization.AUTH_CONTEXT_ENV] = auth_context
+
+    @classmethod
+    def factory(cls, global_config, **local_config):
+        """Used for paste app factories in paste.deploy config files.
+
+        Any local configuration (that is, values under the [filter:APPNAME]
+        section of the paste config) will be passed into the `__init__` method
+        as kwargs.
+
+        A hypothetical configuration would look like:
+
+            [filter:analytics]
+            redis_host = 127.0.0.1
+            paste.filter_factory = keystone.analytics:Analytics.factory
+
+        which would result in a call to the `Analytics` class as
+
+            import keystone.analytics
+            keystone.analytics.Analytics(app, redis_host='127.0.0.1')
+
+        You could of course re-implement the `factory` method in subclasses,
+        but using the kwarg passing it shouldn't be necessary.
+
+        """
+        def _factory(app):
+            conf = global_config.copy()
+            conf.update(local_config)
+            return cls(app, **local_config)
+        return _factory
