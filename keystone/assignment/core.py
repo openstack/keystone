@@ -1329,6 +1329,13 @@ class RoleManager(manager.Manager):
 
         super(RoleManager, self).__init__(role_driver)
 
+        # Make sure it is a driver version we support, and if it is a legacy
+        # driver, then wrap it.
+        if isinstance(self.driver, RoleDriverV8):
+            self.driver = V9RoleWrapperForV8Driver(self.driver)
+        elif not isinstance(self.driver, RoleDriverV9):
+            raise exception.UnsupportedDriverVersion(driver=role_driver)
+
     @MEMOIZE
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
@@ -1358,8 +1365,15 @@ class RoleManager(manager.Manager):
         self.get_role.invalidate(self, role_id)
 
 
+# The RoleDriverBase class is the set of driver methods from earlier
+# drivers that we still support, that have not been removed or modified. This
+# class is then used to created the augmented V8 and V9 version abstract driver
+# classes, without having to duplicate a lot of abstract method signatures.
+# If you remove a method from V9, then move the abstact methods from this Base
+# class to the V8 class. Do not modify any of the method signatures in the Base
+# class - changes should only be made in the V8 and subsequent classes.
 @six.add_metaclass(abc.ABCMeta)
-class RoleDriverV8(object):
+class RoleDriverBase(object):
 
     def _get_list_limit(self):
         return CONF.role.list_limit or CONF.list_limit
@@ -1427,6 +1441,79 @@ class RoleDriverV8(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+
+class RoleDriverV8(RoleDriverBase):
+    """Removed or redefined methods from V8.
+
+    Move the abstract methods of any methods removed or modified in later
+    versions of the driver from RoleDriverBase to here. We maintain this
+    so that legacy drivers, which will be a subclass of RoleDriverV8, can
+    still reference them.
+
+    """
+
+    pass
+
+
+class RoleDriverV9(RoleDriverBase):
+    """New or redefined methods from V8.
+
+    Add any new V9 abstract methods (or those with modified signatures) to
+    this class.
+
+    """
+
+    pass
+
+
+class V9RoleWrapperForV8Driver(RoleDriverV9):
+    """Wrapper class to supported a V8 legacy driver.
+
+    In order to support legacy drivers without having to make the manager code
+    driver-version aware, we wrap legacy drivers so that they look like the
+    latest version. For the various changes made in a new driver, here are the
+    actions needed in this wrapper:
+
+    Method removed from new driver - remove the call-through method from this
+                                     class, since the manager will no longer be
+                                     calling it.
+    Method signature (or meaning) changed - wrap the old method in a new
+                                            signature here, and munge the input
+                                            and output parameters accordingly.
+    New method added to new driver - add a method to implement the new
+                                     functionality here if possible. If that is
+                                     not possible, then return NotImplemented,
+                                     since we do not guarantee to support new
+                                     functionality with legacy drivers.
+
+    """
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.MITAKA,
+        what='keystone.assignment.RoleDriverV8',
+        in_favor_of='keystone.assignment.RoleDriverV9',
+        remove_in=+2)
+    def __init__(self, wrapped_driver):
+        self.driver = wrapped_driver
+
+    def create_role(self, role_id, role):
+        return self.driver.create_role(role_id, role)
+
+    def list_roles(self, hints):
+        return self.driver.list_roles(hints)
+
+    def list_roles_from_ids(self, role_ids):
+        return self.driver.list_roles_from_ids(role_ids)
+
+    def get_role(self, role_id):
+        return self.driver.get_role(role_id)
+
+    def update_role(self, role_id, role):
+        return self.driver.update_role(role_id, role)
+
+    def delete_role(self, role_id):
+        self.driver.delete_role(role_id)
 
 
 RoleDriver = manager.create_legacy_driver(RoleDriverV8)
