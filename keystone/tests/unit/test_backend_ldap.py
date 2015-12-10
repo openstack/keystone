@@ -38,6 +38,7 @@ from keystone.tests.unit import identity_mapping as mapping_sql
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
 from keystone.tests.unit import test_backend
+from keystone.tests.unit.utils import wip
 
 
 CONF = cfg.CONF
@@ -2009,13 +2010,16 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         self.assertEqual('Foo Bar', user_ref['name'])
 
 
-class LDAPUserList(unit.TestCase):
-
+class LDAPLimitTests(unit.TestCase, test_backend.LimitTests):
     def setUp(self):
-        super(LDAPUserList, self).setUp()
-        self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
+        super(LDAPLimitTests, self).setUp()
 
+        self.useFixture(ldapdb.LDAPDatabase())
+        self.useFixture(database.Database())
         self.load_backends()
+
+        test_backend.LimitTests.setUp(self)
+
         self.load_fixtures(default_fixtures)
         _assert_backends(self,
                          assignment='ldap',
@@ -2023,22 +2027,26 @@ class LDAPUserList(unit.TestCase):
                          resource='ldap')
 
     def config_overrides(self):
-        super(LDAPUserList, self).config_overrides()
+        super(LDAPLimitTests, self).config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
         self.config_fixture.config(group='identity',
                                    list_limit=len(default_fixtures.USERS) - 1)
 
     def config_files(self):
-        config_files = super(LDAPUserList, self).config_files()
+        config_files = super(LDAPLimitTests, self).config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
-    def test_returned_list_size_is_limited(self):
-        users = self.identity_api.list_users()
-        # NOTE(amakarov): this exposes bug 1501698
-        # list_limit number of entries should be returned
-        self.assertNotEqual(CONF.identity.list_limit, len(users))
-        self.assertEqual(len(default_fixtures.USERS), len(users))
+    @wip("limiting doesn't work due to bug 1501698")
+    def test_list_users_filtered_and_limited(self):
+        self._test_list_entity_filtered_and_limited('user')
+
+    @wip("limiting doesn't work due to bug 1501698")
+    def test_list_groups_filtered_and_limited(self):
+        self._test_list_entity_filtered_and_limited('group')
+
+    def test_list_projects_filtered_and_limited(self):
+        self.skipTest("ldap for storing projects is deprecated")
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
