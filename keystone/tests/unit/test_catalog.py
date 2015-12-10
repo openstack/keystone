@@ -57,7 +57,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
                          adminurl='http://localhost:8080'):
         if service_id is SERVICE_FIXTURE:
             service_id = self.service_id
-        # FIXME(dolph): expected status should actually be 201 Created
+
         path = '/v2.0/endpoints'
         body = {
             'endpoint': {
