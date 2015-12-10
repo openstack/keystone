@@ -14,6 +14,7 @@
 
 from oslo_config import cfg
 
+from keystone.common import driver_hints
 from keystone.common import sql
 from keystone.common import utils
 from keystone import exception
@@ -118,7 +119,7 @@ class Identity(identity.IdentityDriverV8):
             session.add(user_ref)
         return identity.filter_user(user_ref.to_dict())
 
-    @sql.truncated
+    @driver_hints.truncated
     def list_users(self, hints):
         session = sql.get_session()
         query = session.query(User)
@@ -249,7 +250,7 @@ class Identity(identity.IdentityDriverV8):
             session.add(ref)
         return ref.to_dict()
 
-    @sql.truncated
+    @driver_hints.truncated
     def list_groups(self, hints):
         session = sql.get_session()
         query = session.query(Group)

@@ -11,6 +11,7 @@
 # under the License.
 
 from keystone import assignment
+from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 
@@ -24,7 +25,7 @@ class Role(assignment.RoleDriverV9):
             session.add(ref)
             return ref.to_dict()
 
-    @sql.truncated
+    @driver_hints.truncated
     def list_roles(self, hints):
         with sql.transaction() as session:
             query = session.query(RoleTable)
