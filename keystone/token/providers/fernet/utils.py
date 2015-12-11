@@ -25,29 +25,33 @@ LOG = log.getLogger(__name__)
 CONF = cfg.CONF
 
 
-def validate_key_repository():
+def validate_key_repository(requires_write=False):
     """Validate permissions on the key repository directory."""
     # NOTE(lbragstad): We shouldn't need to check if the directory was passed
     # in as None because we don't set allow_no_values to True.
 
-    # ensure current user has full access to the key repository
-    if (not os.access(CONF.fernet_tokens.key_repository, os.R_OK) or not
-            os.access(CONF.fernet_tokens.key_repository, os.W_OK) or not
-            os.access(CONF.fernet_tokens.key_repository, os.X_OK)):
+    # ensure current user has sufficient access to the key repository
+    is_valid = (os.access(CONF.fernet_tokens.key_repository, os.R_OK) and
+                os.access(CONF.fernet_tokens.key_repository, os.X_OK))
+    if requires_write:
+        is_valid = (is_valid and
+                    os.access(CONF.fernet_tokens.key_repository, os.W_OK))
+
+    if not is_valid:
         LOG.error(
             _LE('Either [fernet_tokens] key_repository does not exist or '
                 'Keystone does not have sufficient permission to access it: '
                 '%s'), CONF.fernet_tokens.key_repository)
-        return False
+    else:
+        # ensure the key repository isn't world-readable
+        stat_info = os.stat(CONF.fernet_tokens.key_repository)
+        if(stat_info.st_mode & stat.S_IROTH or
+           stat_info.st_mode & stat.S_IXOTH):
+            LOG.warning(_LW(
+                '[fernet_tokens] key_repository is world readable: %s'),
+                CONF.fernet_tokens.key_repository)
 
-    # ensure the key repository isn't world-readable
-    stat_info = os.stat(CONF.fernet_tokens.key_repository)
-    if stat_info.st_mode & stat.S_IROTH or stat_info.st_mode & stat.S_IXOTH:
-        LOG.warning(_LW(
-            '[fernet_tokens] key_repository is world readable: %s'),
-            CONF.fernet_tokens.key_repository)
-
-    return True
+    return is_valid
 
 
 def _convert_to_integers(id_value):
