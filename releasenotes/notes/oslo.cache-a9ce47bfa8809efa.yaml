@@ -7,8 +7,9 @@ upgrade:
     sample configuration file for examples. See `oslo.cache
     <http://docs.openstack.org/developer/oslo.cache>`_ for additional
     documentation.
-other:
+deprecations:
   - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
     ``keystone.common.cache.backends.memcache_pool``,
     ``keystone.common.cache.backends.mongo``, and
     ``keystone.common.cache.backends.noop`` are deprecated in favor of
