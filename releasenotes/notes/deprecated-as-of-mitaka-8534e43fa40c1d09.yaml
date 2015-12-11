@@ -3,4 +3,6 @@ deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
     As of the Mitaka release, the PKI and PKIz token formats have been
-    deprecated. They will be removed in the 'O' release.
+    deprecated. They will be removed in the 'O' release. Due to this change,
+    the ``hash_algorithm`` option in the ``[token]`` section of the
+    configuration file has also been deprecated.
