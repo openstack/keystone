@@ -62,6 +62,9 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def test_bootstrap(self):
         bootstrap = cli.BootStrap()
+        self._do_test_bootstrap(bootstrap)
+
+    def _do_test_bootstrap(self, bootstrap):
         bootstrap.do_bootstrap()
         project = bootstrap.resource_manager.get_project_by_name(
             bootstrap.project_name,
@@ -82,6 +85,13 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             {},
             user['id'],
             bootstrap.password)
+
+    def test_bootstrap_is_idempotent(self):
+        # NOTE(morganfainberg): Ensure we can run bootstrap multiple times
+        # without erroring.
+        bootstrap = cli.BootStrap()
+        self._do_test_bootstrap(bootstrap)
+        self._do_test_bootstrap(bootstrap)
 
 
 class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
