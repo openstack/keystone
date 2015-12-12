@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1525317 <https://bugs.launchpad.net/keystone/+bug/1525317>`_]
+    Enable filtering of identity providers based on ``id``, and ``enabled``
+    attributes.

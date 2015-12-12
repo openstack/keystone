@@ -98,11 +98,12 @@ class IdentityProvider(_ControllerBase):
         response = IdentityProvider.wrap_member(context, idp_ref)
         return wsgi.render_response(body=response, status=('201', 'Created'))
 
-    @controller.protected()
-    def list_identity_providers(self, context):
-        ref = self.federation_api.list_idps()
+    @controller.filterprotected('id', 'enabled')
+    def list_identity_providers(self, context, filters):
+        hints = self.build_driver_hints(context, filters)
+        ref = self.federation_api.list_idps(hints=hints)
         ref = [self.filter_params(x) for x in ref]
-        return IdentityProvider.wrap_collection(context, ref)
+        return IdentityProvider.wrap_collection(context, ref, hints=hints)
 
     @controller.protected()
     def get_identity_provider(self, context, idp_id):
