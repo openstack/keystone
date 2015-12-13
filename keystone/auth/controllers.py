@@ -177,6 +177,10 @@ class AuthInfo(object):
                                             target='domain')
         try:
             if domain_name:
+                if (CONF.resource.domain_name_url_safe == 'strict' and
+                        utils.is_not_url_safe(domain_name)):
+                    msg = _('Domain name cannot contain reserved characters.')
+                    raise exception.Unauthorized(message=msg)
                 domain_ref = self.resource_api.get_domain_by_name(
                     domain_name)
             else:
@@ -196,6 +200,10 @@ class AuthInfo(object):
                                             target='project')
         try:
             if project_name:
+                if (CONF.resource.project_name_url_safe == 'strict' and
+                        utils.is_not_url_safe(project_name)):
+                    msg = _('Project name cannot contain reserved characters.')
+                    raise exception.Unauthorized(message=msg)
                 if 'domain' not in project_info:
                     raise exception.ValidationError(attribute='domain',
                                                     target='project')

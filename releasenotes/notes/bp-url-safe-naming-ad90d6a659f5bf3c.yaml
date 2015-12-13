@@ -1,0 +1,7 @@
+---
+features:
+  - >
+    [`blueprint url-safe-naming <https://blueprints.launchpad.net/keystone/+spec/url-safe-naming>`_]
+    The names of projects and domains can optionally be ensured to be url safe,
+    to support the future ability to specify projects using hierarchical
+    naming.

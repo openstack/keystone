@@ -2735,6 +2735,122 @@ class TestAuth(test_v3.RestfulTestCase):
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
+    def test_authenticate_fails_if_project_unsafe(self):
+        """Verify authenticate to a project with unsafe name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named project
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        project = unit.new_project_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID,
+                                       name=unsafe_name)
+        self.resource_api.create_project(project['id'], project)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user['id'], project['id'], role_member['id'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_id=test_v3.DEFAULT_DOMAIN_ID)
+
+        # Since name url restriction is off, we should be able to autenticate
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to new, which should still allow us to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='strict')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_authenticate_fails_if_domain_unsafe(self):
+        """Verify authenticate to a domain with unsafe name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named domain
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        domain = unit.new_domain_ref(name=unsafe_name)
+        self.resource_api.create_domain(domain['id'], domain)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.create_grant(
+            role_member['id'],
+            user_id=self.user['id'],
+            domain_id=domain['id'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_name=domain['name'])
+
+        # Since name url restriction is off, we should be able to autenticate
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to new, which should still allow us to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='strict')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_authenticate_fails_to_project_if_domain_unsafe(self):
+        """Verify authenticate to a project using unsafe domain name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named domain
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        domain = unit.new_domain_ref(name=unsafe_name)
+        self.resource_api.create_domain(domain['id'], domain)
+        # Add a (safely named) project to that domain
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.create_grant(
+            role_member['id'],
+            user_id=self.user['id'],
+            project_id=project['id'])
+
+        # An auth request via project ID, but specifying domain by name
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_name=domain['name'])
+
+        # Since name url restriction is off, we should be able to autenticate
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to new, which should still allow us to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='strict')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
 
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
     content_type = 'json'
