@@ -523,3 +523,20 @@ def get_token_ref(context):
     except KeyError:
         LOG.warning(_LW("Couldn't find the auth context."))
         raise exception.Unauthorized()
+
+
+URL_RESERVED_CHARS = ":/?#[]@!$&'()*+,;="
+
+
+def is_not_url_safe(name):
+    """Check if a string contains any url reserved characters."""
+    return len(list_url_unsafe_chars(name)) > 0
+
+
+def list_url_unsafe_chars(name):
+    """Return a list of the reserved characters."""
+    reserved_chars = ''
+    for i in name:
+        if i in URL_RESERVED_CHARS:
+            reserved_chars += i
+    return reserved_chars
