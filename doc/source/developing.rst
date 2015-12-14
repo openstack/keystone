@@ -102,14 +102,6 @@ version of the SQL migration is ``1``.
 
 .. _SQLAlchemy-migrate: https://git.openstack.org/cgit/openstack/sqlalchemy-migrate
 
-Extensions should be created as directories under ``keystone/contrib``. An
-extension that requires SQL migrations should not change the common repository,
-but should instead have its own repository. This repository must be in the
-extension's directory in ``keystone/contrib/<extension>/migrate_repo``. In
-addition, it needs a subdirectory named ``versions``. For example, if the
-extension name is ``my_extension`` then the directory structure would be
-``keystone/contrib/my_extension/migrate_repo/versions/``.
-
 For the migration to work, both the ``migrate_repo`` and ``versions``
 subdirectories must have ``__init__.py`` files. SQLAlchemy-migrate will look
 for a configuration file in the ``migrate_repo`` named ``migrate.cfg``. This
@@ -121,10 +113,7 @@ the minimal set of values is::
     version_table=migrate_version
     required_dbs=[]
 
-The directory ``keystone/contrib/example`` contains a sample extension
-migration.
-
-For core components, to run a migration for upgrade, simply run:
+To run a migration for upgrade, simply run:
 
 .. code-block:: bash
 
@@ -134,22 +123,9 @@ For core components, to run a migration for upgrade, simply run:
 
    If no version is specified, then the most recent migration will be used.
 
-For extensions, migrations must be explicitly run for each extension individually.
-To run a migration for a specific extension, simply run:
-
-.. code-block:: bash
-
-    $ keystone-manage db_sync --extension <name>
-
 .. NOTE::
 
-   The meaning of "extension" here has been changed since all of the
-   "extension" are loaded and the migrations are run by default, but
-   the source is maintained in a separate directory.
-
-.. NOTE::
-
-   Schema downgrades are not supported for both core components and extensions.
+   Schema downgrades are not supported.
 
 Initial Sample Data
 -------------------
