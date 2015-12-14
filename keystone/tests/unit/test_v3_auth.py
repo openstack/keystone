@@ -4189,7 +4189,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         user['enabled'] = enabled
         self.identity_api.update_user(user['id'], user)
 
-    def _create_trust(self):
+    def _create_trust(self, impersonation=False):
         # Create a trustee user
         trustee_user = unit.create_user(self.identity_api,
                                         domain_id=self.domain_id)
@@ -4197,7 +4197,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
             trustor_user_id=self.user_id,
             trustee_user_id=trustee_user['id'],
             project_id=self.project_id,
-            impersonation=False,
+            impersonation=impersonation,
             role_ids=[self.role_id])
 
         # Create a trust
@@ -4399,6 +4399,12 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
 
     def test_validate_a_trust_scoped_token(self):
         trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+    def test_validate_a_trust_scoped_token_impersonated(self):
+        trustee_user, trust = self._create_trust(impersonation=True)
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
         self._validate_token(trust_scoped_token)
