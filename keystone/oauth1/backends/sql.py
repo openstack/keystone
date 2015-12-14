@@ -92,17 +92,16 @@ class OAuth1(core.Oauth1DriverV8):
         return consumer_ref
 
     def get_consumer_with_secret(self, consumer_id):
-        session = sql.get_session()
-        consumer_ref = self._get_consumer(session, consumer_id)
-        return consumer_ref.to_dict()
+        with sql.session_for_read() as session:
+            consumer_ref = self._get_consumer(session, consumer_id)
+            return consumer_ref.to_dict()
 
     def get_consumer(self, consumer_id):
         return core.filter_consumer(
             self.get_consumer_with_secret(consumer_id))
 
     def create_consumer(self, consumer_ref):
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             consumer = Consumer.from_dict(consumer_ref)
             session.add(consumer)
         return consumer.to_dict()
@@ -128,20 +127,18 @@ class OAuth1(core.Oauth1DriverV8):
             session.delete(token_ref)
 
     def delete_consumer(self, consumer_id):
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             self._delete_request_tokens(session, consumer_id)
             self._delete_access_tokens(session, consumer_id)
             self._delete_consumer(session, consumer_id)
 
     def list_consumers(self):
-        session = sql.get_session()
-        cons = session.query(Consumer)
-        return [core.filter_consumer(x.to_dict()) for x in cons]
+        with sql.session_for_read() as session:
+            cons = session.query(Consumer)
+            return [core.filter_consumer(x.to_dict()) for x in cons]
 
     def update_consumer(self, consumer_id, consumer_ref):
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             consumer = self._get_consumer(session, consumer_id)
             old_consumer_dict = consumer.to_dict()
             old_consumer_dict.update(consumer_ref)
@@ -169,11 +166,10 @@ class OAuth1(core.Oauth1DriverV8):
         ref['role_ids'] = None
         ref['consumer_id'] = consumer_id
         ref['expires_at'] = expiry_date
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             token_ref = RequestToken.from_dict(ref)
             session.add(token_ref)
-        return token_ref.to_dict()
+            return token_ref.to_dict()
 
     def _get_request_token(self, session, request_token_id):
         token_ref = session.query(RequestToken).get(request_token_id)
@@ -182,14 +178,13 @@ class OAuth1(core.Oauth1DriverV8):
         return token_ref
 
     def get_request_token(self, request_token_id):
-        session = sql.get_session()
-        token_ref = self._get_request_token(session, request_token_id)
-        return token_ref.to_dict()
+        with sql.session_for_read() as session:
+            token_ref = self._get_request_token(session, request_token_id)
+            return token_ref.to_dict()
 
     def authorize_request_token(self, request_token_id, user_id,
                                 role_ids):
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             token_ref = self._get_request_token(session, request_token_id)
             token_dict = token_ref.to_dict()
             token_dict['authorizing_user_id'] = user_id
@@ -203,13 +198,12 @@ class OAuth1(core.Oauth1DriverV8):
                         or attr == 'role_ids'):
                     setattr(token_ref, attr, getattr(new_token, attr))
 
-        return token_ref.to_dict()
+            return token_ref.to_dict()
 
     def create_access_token(self, request_id, access_token_duration):
         access_token_id = uuid.uuid4().hex
         access_token_secret = uuid.uuid4().hex
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             req_token_ref = self._get_request_token(session, request_id)
             token_dict = req_token_ref.to_dict()
 
@@ -235,7 +229,7 @@ class OAuth1(core.Oauth1DriverV8):
             # remove request token, it's been used
             session.delete(req_token_ref)
 
-        return token_ref.to_dict()
+            return token_ref.to_dict()
 
     def _get_access_token(self, session, access_token_id):
         token_ref = session.query(AccessToken).get(access_token_id)
@@ -244,19 +238,18 @@ class OAuth1(core.Oauth1DriverV8):
         return token_ref
 
     def get_access_token(self, access_token_id):
-        session = sql.get_session()
-        token_ref = self._get_access_token(session, access_token_id)
-        return token_ref.to_dict()
+        with sql.session_for_read() as session:
+            token_ref = self._get_access_token(session, access_token_id)
+            return token_ref.to_dict()
 
     def list_access_tokens(self, user_id):
-        session = sql.get_session()
-        q = session.query(AccessToken)
-        user_auths = q.filter_by(authorizing_user_id=user_id)
-        return [core.filter_token(x.to_dict()) for x in user_auths]
+        with sql.session_for_read() as session:
+            q = session.query(AccessToken)
+            user_auths = q.filter_by(authorizing_user_id=user_id)
+            return [core.filter_token(x.to_dict()) for x in user_auths]
 
     def delete_access_token(self, user_id, access_token_id):
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             token_ref = self._get_access_token(session, access_token_id)
             token_dict = token_ref.to_dict()
             if token_dict['authorizing_user_id'] != user_id:

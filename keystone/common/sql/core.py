@@ -18,14 +18,14 @@ Before using this module, call initialize(). This has to be done before
 CONF() because it sets up configuration options.
 
 """
-import contextlib
 import functools
+import threading
 
 from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options as db_options
+from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import models
-from oslo_db.sqlalchemy import session as db_session
 from oslo_log import log
 from oslo_serialization import jsonutils
 import six
@@ -166,38 +166,41 @@ class ModelDictMixin(object):
         return {name: getattr(self, name) for name in names}
 
 
-_engine_facade = None
+_main_context_manager = None
 
 
-def _get_engine_facade():
-    global _engine_facade
+def _get_main_context_manager():
+    global _main_context_manager
 
-    if not _engine_facade:
-        _engine_facade = db_session.EngineFacade.from_config(CONF)
+    if not _main_context_manager:
+        _main_context_manager = enginefacade.transaction_context()
 
-    return _engine_facade
+    return _main_context_manager
 
 
 def cleanup():
-    global _engine_facade
+    global _main_context_manager
 
-    _engine_facade = None
+    _main_context_manager = None
 
 
 def get_engine():
-    return _get_engine_facade().get_engine()
+    return _get_main_context_manager().get_legacy_facade().get_engine()
 
 
-def get_session(expire_on_commit=False):
-    return _get_engine_facade().get_session(expire_on_commit=expire_on_commit)
+def get_session():
+    return _get_main_context_manager().get_legacy_facade().get_session()
 
 
-@contextlib.contextmanager
-def transaction(expire_on_commit=False):
-    """Return a SQLAlchemy session in a scoped transaction."""
-    session = get_session(expire_on_commit=expire_on_commit)
-    with session.begin():
-        yield session
+_CONTEXT = threading.local()
+
+
+def session_for_read():
+    return _get_main_context_manager().reader.using(_CONTEXT)
+
+
+def session_for_write():
+    return _get_main_context_manager().writer.using(_CONTEXT)
 
 
 def truncated(f):

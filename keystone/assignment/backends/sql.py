@@ -55,7 +55,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
         assignment_type = AssignmentType.calculate_type(
             user_id, group_id, project_id, domain_id)
         try:
-            with sql.transaction() as session:
+            with sql.session_for_write() as session:
                 session.add(RoleAssignment(
                     type=assignment_type,
                     actor_id=user_id or group_id,
@@ -69,7 +69,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
     def list_grant_role_ids(self, user_id=None, group_id=None,
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             q = session.query(RoleAssignment.role_id)
             q = q.filter(RoleAssignment.actor_id == (user_id or group_id))
             q = q.filter(RoleAssignment.target_id == (project_id or domain_id))
@@ -88,7 +88,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
     def check_grant_role_id(self, role_id, user_id=None, group_id=None,
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             try:
                 q = self._build_grant_filter(
                     session, role_id, user_id, group_id, domain_id, project_id,
@@ -104,7 +104,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             q = self._build_grant_filter(
                 session, role_id, user_id, group_id, domain_id, project_id,
                 inherited_to_projects)
@@ -117,7 +117,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         try:
-            with sql.transaction() as session:
+            with sql.session_for_write() as session:
                 session.add(RoleAssignment(
                     type=AssignmentType.USER_PROJECT,
                     actor_id=user_id, target_id=tenant_id,
@@ -128,7 +128,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
             raise exception.Conflict(type='role grant', details=msg)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=user_id)
             q = q.filter_by(target_id=tenant_id)
@@ -218,7 +218,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
                 assignment['inherited_to_projects'] = 'projects'
             return assignment
 
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             assignment_types = self._get_assignment_types(
                 user_id, group_ids, project_ids, domain_id)
 
@@ -250,7 +250,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
             return [denormalize_role(ref) for ref in query.all()]
 
     def delete_project_assignments(self, project_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(target_id=project_id).filter(
                 RoleAssignment.type.in_((AssignmentType.USER_PROJECT,
@@ -259,13 +259,13 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
             q.delete(False)
 
     def delete_role_assignments(self, role_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(role_id=role_id)
             q.delete(False)
 
     def delete_user_assignments(self, user_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=user_id).filter(
                 RoleAssignment.type.in_((AssignmentType.USER_PROJECT,
@@ -274,7 +274,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
             q.delete(False)
 
     def delete_group_assignments(self, group_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=group_id).filter(
                 RoleAssignment.type.in_((AssignmentType.GROUP_PROJECT,

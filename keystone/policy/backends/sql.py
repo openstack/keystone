@@ -30,19 +30,16 @@ class Policy(rules.Policy):
 
     @sql.handle_conflicts(conflict_type='policy')
     def create_policy(self, policy_id, policy):
-        session = sql.get_session()
-
-        with session.begin():
+        with sql.session_for_write() as session:
             ref = PolicyModel.from_dict(policy)
             session.add(ref)
 
-        return ref.to_dict()
+            return ref.to_dict()
 
     def list_policies(self):
-        session = sql.get_session()
-
-        refs = session.query(PolicyModel).all()
-        return [ref.to_dict() for ref in refs]
+        with sql.session_for_read() as session:
+            refs = session.query(PolicyModel).all()
+            return [ref.to_dict() for ref in refs]
 
     def _get_policy(self, session, policy_id):
         """Private method to get a policy model object (NOT a dictionary)."""
@@ -52,15 +49,12 @@ class Policy(rules.Policy):
         return ref
 
     def get_policy(self, policy_id):
-        session = sql.get_session()
-
-        return self._get_policy(session, policy_id).to_dict()
+        with sql.session_for_read() as session:
+            return self._get_policy(session, policy_id).to_dict()
 
     @sql.handle_conflicts(conflict_type='policy')
     def update_policy(self, policy_id, policy):
-        session = sql.get_session()
-
-        with session.begin():
+        with sql.session_for_write() as session:
             ref = self._get_policy(session, policy_id)
             old_dict = ref.to_dict()
             old_dict.update(policy)
@@ -72,8 +66,6 @@ class Policy(rules.Policy):
         return ref.to_dict()
 
     def delete_policy(self, policy_id):
-        session = sql.get_session()
-
-        with session.begin():
+        with sql.session_for_write() as session:
             ref = self._get_policy(session, policy_id)
             session.delete(ref)

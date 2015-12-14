@@ -38,11 +38,11 @@ class Resource(keystone_resource.ResourceDriverV9):
         return project_ref
 
     def get_project(self, project_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             return self._get_project(session, project_id).to_dict()
 
     def get_project_by_name(self, project_name, domain_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(Project)
             query = query.filter_by(name=project_name)
             if domain_id is None:
@@ -70,7 +70,7 @@ class Resource(keystone_resource.ResourceDriverV9):
         for f in hints.filters:
             if (f['name'] == 'domain_id' and f['value'] is None):
                 f['value'] = keystone_resource.NULL_DOMAIN_ID
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(Project)
             project_refs = sql.filter_limit_query(Project, query, hints)
             return [project_ref.to_dict() for project_ref in project_refs
@@ -80,7 +80,7 @@ class Resource(keystone_resource.ResourceDriverV9):
         if not ids:
             return []
         else:
-            with sql.transaction() as session:
+            with sql.session_for_read() as session:
                 query = session.query(Project)
                 query = query.filter(Project.id.in_(ids))
                 return [project_ref.to_dict() for project_ref in query.all()
@@ -90,7 +90,7 @@ class Resource(keystone_resource.ResourceDriverV9):
         if not domain_ids:
             return []
         else:
-            with sql.transaction() as session:
+            with sql.session_for_read() as session:
                 query = session.query(Project.id)
                 query = (
                     query.filter(Project.domain_id.in_(domain_ids)))
@@ -98,7 +98,7 @@ class Resource(keystone_resource.ResourceDriverV9):
                         if not self._is_hidden_ref(x)]
 
     def list_projects_in_domain(self, domain_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             self._get_domain(session, domain_id)
             query = session.query(Project)
             project_refs = query.filter_by(domain_id=domain_id)
@@ -111,7 +111,7 @@ class Resource(keystone_resource.ResourceDriverV9):
         return [project_ref.to_dict() for project_ref in project_refs]
 
     def list_projects_in_subtree(self, project_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             children = self._get_children(session, [project_id])
             subtree = []
             examined = set([project_id])
@@ -132,7 +132,7 @@ class Resource(keystone_resource.ResourceDriverV9):
             return subtree
 
     def list_project_parents(self, project_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             project = self._get_project(session, project_id).to_dict()
             parents = []
             examined = set()
@@ -152,7 +152,7 @@ class Resource(keystone_resource.ResourceDriverV9):
             return parents
 
     def is_leaf_project(self, project_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             project_refs = self._get_children(session, [project_id])
             return not project_refs
 
@@ -161,7 +161,7 @@ class Resource(keystone_resource.ResourceDriverV9):
     def create_project(self, project_id, project):
         project['name'] = clean.project_name(project['name'])
         new_project = self._encode_domain_id(project)
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             project_ref = Project.from_dict(new_project)
             session.add(project_ref)
             return project_ref.to_dict()
@@ -172,7 +172,7 @@ class Resource(keystone_resource.ResourceDriverV9):
             project['name'] = clean.project_name(project['name'])
 
         update_project = self._encode_domain_id(project)
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             project_ref = self._get_project(session, project_id)
             old_project_dict = project_ref.to_dict()
             for k in update_project:
@@ -189,7 +189,7 @@ class Resource(keystone_resource.ResourceDriverV9):
 
     @sql.handle_conflicts(conflict_type='project')
     def delete_project(self, project_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             project_ref = self._get_project(session, project_id)
             session.delete(project_ref)
 
@@ -197,7 +197,7 @@ class Resource(keystone_resource.ResourceDriverV9):
     def delete_projects_from_ids(self, project_ids):
         if not project_ids:
             return
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             query = session.query(Project).filter(Project.id.in_(
                 project_ids))
             project_ids_from_bd = [p['id'] for p in query.all()]
@@ -212,14 +212,14 @@ class Resource(keystone_resource.ResourceDriverV9):
 
     @sql.handle_conflicts(conflict_type='domain')
     def create_domain(self, domain_id, domain):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = Domain.from_dict(domain)
             session.add(ref)
-        return ref.to_dict()
+            return ref.to_dict()
 
     @driver_hints.truncated
     def list_domains(self, hints):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(Domain)
             refs = sql.filter_limit_query(Domain, query, hints)
             return [ref.to_dict() for ref in refs
@@ -229,7 +229,7 @@ class Resource(keystone_resource.ResourceDriverV9):
         if not ids:
             return []
         else:
-            with sql.transaction() as session:
+            with sql.session_for_read() as session:
                 query = session.query(Domain)
                 query = query.filter(Domain.id.in_(ids))
                 domain_refs = query.all()
@@ -243,11 +243,11 @@ class Resource(keystone_resource.ResourceDriverV9):
         return ref
 
     def get_domain(self, domain_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             return self._get_domain(session, domain_id).to_dict()
 
     def get_domain_by_name(self, domain_name):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             try:
                 ref = (session.query(Domain).
                        filter_by(name=domain_name).one())
@@ -260,7 +260,7 @@ class Resource(keystone_resource.ResourceDriverV9):
 
     @sql.handle_conflicts(conflict_type='domain')
     def update_domain(self, domain_id, domain):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_domain(session, domain_id)
             old_dict = ref.to_dict()
             for k in domain:
@@ -273,7 +273,7 @@ class Resource(keystone_resource.ResourceDriverV9):
             return ref.to_dict()
 
     def delete_domain(self, domain_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_domain(session, domain_id)
             session.delete(ref)
 

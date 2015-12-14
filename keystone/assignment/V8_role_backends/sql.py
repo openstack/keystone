@@ -19,14 +19,14 @@ class Role(assignment.RoleDriverV8):
 
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = RoleTable.from_dict(role)
             session.add(ref)
             return ref.to_dict()
 
     @sql.truncated
     def list_roles(self, hints):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(RoleTable)
             refs = sql.filter_limit_query(RoleTable, query, hints)
             return [ref.to_dict() for ref in refs]
@@ -35,7 +35,7 @@ class Role(assignment.RoleDriverV8):
         if not ids:
             return []
         else:
-            with sql.transaction() as session:
+            with sql.session_for_read() as session:
                 query = session.query(RoleTable)
                 query = query.filter(RoleTable.id.in_(ids))
                 role_refs = query.all()
@@ -48,12 +48,12 @@ class Role(assignment.RoleDriverV8):
         return ref
 
     def get_role(self, role_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             return self._get_role(session, role_id).to_dict()
 
     @sql.handle_conflicts(conflict_type='role')
     def update_role(self, role_id, role):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_role(session, role_id)
             old_dict = ref.to_dict()
             for k in role:
@@ -66,7 +66,7 @@ class Role(assignment.RoleDriverV8):
             return ref.to_dict()
 
     def delete_role(self, role_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_role(session, role_id)
             session.delete(ref)
 

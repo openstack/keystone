@@ -60,37 +60,37 @@ class Revoke(revoke.RevokeDriverV8):
     def _prune_expired_events(self):
         oldest = revoke.revoked_before_cutoff_time()
 
-        session = sql.get_session()
-        dialect = session.bind.dialect.name
-        batch_size = self._flush_batch_size(dialect)
-        if batch_size > 0:
-            query = session.query(RevocationEvent.id)
-            query = query.filter(RevocationEvent.revoked_at < oldest)
-            query = query.limit(batch_size).subquery()
-            delete_query = (session.query(RevocationEvent).
-                            filter(RevocationEvent.id.in_(query)))
-            while True:
-                rowcount = delete_query.delete(synchronize_session=False)
-                if rowcount == 0:
-                    break
-        else:
-            query = session.query(RevocationEvent)
-            query = query.filter(RevocationEvent.revoked_at < oldest)
-            query.delete(synchronize_session=False)
+        with sql.session_for_write() as session:
+            dialect = session.bind.dialect.name
+            batch_size = self._flush_batch_size(dialect)
+            if batch_size > 0:
+                query = session.query(RevocationEvent.id)
+                query = query.filter(RevocationEvent.revoked_at < oldest)
+                query = query.limit(batch_size).subquery()
+                delete_query = (session.query(RevocationEvent).
+                                filter(RevocationEvent.id.in_(query)))
+                while True:
+                    rowcount = delete_query.delete(synchronize_session=False)
+                    if rowcount == 0:
+                        break
+            else:
+                query = session.query(RevocationEvent)
+                query = query.filter(RevocationEvent.revoked_at < oldest)
+                query.delete(synchronize_session=False)
 
-        session.flush()
+            session.flush()
 
     def list_events(self, last_fetch=None):
-        session = sql.get_session()
-        query = session.query(RevocationEvent).order_by(
-            RevocationEvent.revoked_at)
+        with sql.session_for_read() as session:
+            query = session.query(RevocationEvent).order_by(
+                RevocationEvent.revoked_at)
 
-        if last_fetch:
-            query = query.filter(RevocationEvent.revoked_at > last_fetch)
+            if last_fetch:
+                query = query.filter(RevocationEvent.revoked_at > last_fetch)
 
-        events = [model.RevokeEvent(**e.to_dict()) for e in query]
+            events = [model.RevokeEvent(**e.to_dict()) for e in query]
 
-        return events
+            return events
 
     def revoke(self, event):
         kwargs = dict()
@@ -98,7 +98,6 @@ class Revoke(revoke.RevokeDriverV8):
             kwargs[attr] = getattr(event, attr)
         kwargs['id'] = uuid.uuid4().hex
         record = RevocationEvent(**kwargs)
-        session = sql.get_session()
-        with session.begin():
+        with sql.session_for_write() as session:
             session.add(record)
-        self._prune_expired_events()
+            self._prune_expired_events()

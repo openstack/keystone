@@ -161,7 +161,8 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
             self.repo_package())
         self.schema = versioning_api.ControlledSchema.create(
             self.engine,
-            self.repo_path, self.initial_db_version)
+            self.repo_path,
+            self.initial_db_version)
 
         # auto-detect the highest available schema version in the migrate_repo
         self.max_version = self.schema.repository.version().version
