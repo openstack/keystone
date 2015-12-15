@@ -161,11 +161,13 @@ class DomainV3(controller.V3Controller):
 
 
 @dependency.requires('domain_config_api')
+@dependency.requires('resource_api')
 class DomainConfigV3(controller.V3Controller):
     member_name = 'config'
 
     @controller.protected()
     def create_domain_config(self, context, domain_id, config):
+        self.resource_api.get_domain(domain_id)
         original_config = (
             self.domain_config_api.get_config_with_sensitive_info(domain_id))
         ref = self.domain_config_api.create_config(domain_id, config)
@@ -178,27 +180,32 @@ class DomainConfigV3(controller.V3Controller):
 
     @controller.protected()
     def get_domain_config(self, context, domain_id, group=None, option=None):
+        self.resource_api.get_domain(domain_id)
         ref = self.domain_config_api.get_config(domain_id, group, option)
         return {self.member_name: ref}
 
     @controller.protected()
     def update_domain_config(
             self, context, domain_id, config, group, option):
+        self.resource_api.get_domain(domain_id)
         ref = self.domain_config_api.update_config(
             domain_id, config, group, option)
         return wsgi.render_response(body={self.member_name: ref})
 
     def update_domain_config_group(self, context, domain_id, group, config):
+        self.resource_api.get_domain(domain_id)
         return self.update_domain_config(
             context, domain_id, config, group, option=None)
 
     def update_domain_config_only(self, context, domain_id, config):
+        self.resource_api.get_domain(domain_id)
         return self.update_domain_config(
             context, domain_id, config, group=None, option=None)
 
     @controller.protected()
     def delete_domain_config(
             self, context, domain_id, group=None, option=None):
+        self.resource_api.get_domain(domain_id)
         self.domain_config_api.delete_config(domain_id, group, option)
 
 
