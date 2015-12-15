@@ -482,10 +482,6 @@ class V3TokenDataHelper(object):
                 if x in token:
                     token_data[x] = token[x]
 
-        if CONF.trust.enabled and trust:
-            if user_id != trust['trustee_user_id']:
-                raise exception.Forbidden(_('User is not a trustee.'))
-
         if bind:
             token_data['bind'] = bind
 
@@ -563,6 +559,10 @@ class BaseProvider(provider.Provider):
         if (CONF.trust.enabled and not trust and metadata_ref and
                 'trust_id' in metadata_ref):
             trust = self.trust_api.get_trust(metadata_ref['trust_id'])
+
+        if CONF.trust.enabled and trust:
+            if user_id != trust['trustee_user_id']:
+                raise exception.Forbidden(_('User is not a trustee.'))
 
         token_ref = None
         if auth_context and self._is_mapped_token(auth_context):
