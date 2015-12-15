@@ -165,23 +165,32 @@ def protected(callback=None):
     return wrapper
 
 
-def filterprotected(*filters):
-    """Wraps filtered API calls with role based access controls (RBAC)."""
+def filterprotected(*filters, **callback):
+    """Wraps API list calls with role based access controls (RBAC).
+
+    This handles both the protection of the API parameters as well as any
+    filters supplied.
+
+    More complex API list calls (for example that need to examine the contents
+    of an entity referenced by one of the filters) should pass in a callback
+    function, that will be subsequently called to check protection for these
+    multiple entities. This callback function should gather the appropriate
+    entities needed and then call check_protection() in the V3Controller class.
+
+    """
     def _filterprotected(f):
         @functools.wraps(f)
         def wrapper(self, context, **kwargs):
             if not context['is_admin']:
-                action = 'identity:%s' % f.__name__
-                creds = _build_policy_check_credentials(self, action,
-                                                        context, kwargs)
-                # Now, build the target dict for policy check.  We include:
+                # The target dict for the policy check will include:
                 #
                 # - Any query filter parameters
                 # - Data from the main url (which will be in the kwargs
-                #   parameter) and would typically include the prime key
-                #   of a get/update/delete call
+                #   parameter), which although most of our APIs do not utilize,
+                #   in theory you could have.
                 #
-                # First  any query filter parameters
+
+                # First build the dict of filter parameters
                 target = dict()
                 if filters:
                     for item in filters:
@@ -192,15 +201,29 @@ def filterprotected(*filters):
                         ', '.join(['%s=%s' % (item, target[item])
                                   for item in target])))
 
-                # Now any formal url parameters
-                for key in kwargs:
-                    target[key] = kwargs[key]
+                if 'callback' in callback and callback['callback'] is not None:
+                    # A callback has been specified to load additional target
+                    # data, so pass it the formal url params as well as the
+                    # list of filters, so it can augment these and then call
+                    # the check_protection() method.
+                    prep_info = {'f_name': f.__name__,
+                                 'input_attr': kwargs,
+                                 'filter_attr': target}
+                    callback['callback'](self, context, prep_info, **kwargs)
+                else:
+                    # No callback, so we are going to check the protection here
+                    action = 'identity:%s' % f.__name__
+                    creds = _build_policy_check_credentials(self, action,
+                                                            context, kwargs)
+                    # Add in any formal url parameters
+                    for key in kwargs:
+                        target[key] = kwargs[key]
 
-                self.policy_api.enforce(creds,
-                                        action,
-                                        utils.flatten_dict(target))
+                    self.policy_api.enforce(creds,
+                                            action,
+                                            utils.flatten_dict(target))
 
-                LOG.debug('RBAC: Authorization granted')
+                    LOG.debug('RBAC: Authorization granted')
             else:
                 LOG.warning(_LW('RBAC: Bypassing authorization'))
             return f(self, context, filters, **kwargs)
@@ -781,6 +804,8 @@ class V3Controller(wsgi.Application):
             if target_attr:
                 policy_dict = {'target': target_attr}
             policy_dict.update(prep_info['input_attr'])
+            if 'filter_attr' in prep_info:
+                policy_dict.update(prep_info['filter_attr'])
             self.policy_api.enforce(creds,
                                     action,
                                     utils.flatten_dict(policy_dict))
