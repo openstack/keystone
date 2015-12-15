@@ -242,17 +242,13 @@
 # exception when timeout expired. (integer value)
 #rpc_poll_timeout = 1
 
-# Configures zmq-messaging to use broker or not. (boolean value)
-#zmq_use_broker = false
+# Shows whether zmq-messaging uses broker or not. (boolean value)
+#zmq_use_broker = true
 
-# Minimal port number for random ports range. (port value)
-# Minimum value: 1
-# Maximum value: 65535
+# Minimal port number for random ports range. (integer value)
 #rpc_zmq_min_port = 49152
 
 # Maximal port number for random ports range. (integer value)
-# Minimum value: 1
-# Maximum value: 65536
 #rpc_zmq_max_port = 65536
 
 # Number of retries to find free port number before fail with ZMQBindError.
@@ -262,9 +258,7 @@
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
-# Use this port to connect to redis host. (port value)
-# Minimum value: 1
-# Maximum value: 65535
+# Use this port to connect to redis host. (integer value)
 #port = 6379
 
 # Password for Redis server (optional). (string value)
@@ -276,18 +270,15 @@
 
 # The Drivers(s) to handle sending notifications. Possible values are
 # messaging, messagingv2, routing, log, test, noop (multi valued)
-# Deprecated group/name - [DEFAULT]/notification_driver
-#driver =
+#notification_driver =
 
 # A URL representing the messaging driver to use for notifications. If not set,
 # we fall back to the same configuration used for RPC. (string value)
-# Deprecated group/name - [DEFAULT]/notification_transport_url
-#transport_url = <None>
+#notification_transport_url = <None>
 
 # AMQP topic used for OpenStack notifications. (list value)
 # Deprecated group/name - [rpc_notifier2]/topics
-# Deprecated group/name - [DEFAULT]/notification_topics
-#topics = notifications
+#notification_topics = notifications
 
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
@@ -297,7 +288,7 @@
 # configuration. (string value)
 #transport_url = <None>
 
-# The messaging driver to use, defaults to rabbit. Other drivers include amqp
+# The messaging driver to use, defaults to rabbit. Other drivers include qpid
 # and zmq. (string value)
 #rpc_backend = rabbit
 
@@ -1346,9 +1337,7 @@
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
-# Use this port to connect to redis host. (port value)
-# Minimum value: 1
-# Maximum value: 65535
+# Use this port to connect to redis host. (integer value)
 #port = 6379
 
 # Password for Redis server (optional). (string value)
@@ -1489,6 +1478,79 @@
 #password =
 
 
+[oslo_messaging_qpid]
+
+#
+# From oslo.messaging
+#
+
+# Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_durable_queues
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues = false
+
+# Auto-delete queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_auto_delete
+#amqp_auto_delete = false
+
+# Send a single AMQP reply to call message. The current behaviour since oslo-
+# incubator is to send two AMQP replies - first one with the payload, a second
+# one to ensure the other have finish to send the payload. We are going to
+# remove it in the N release, but we must keep backward compatible at the same
+# time. This option provides such compatibility - it defaults to False in
+# Liberty and can be turned on for early adopters with a new installations or
+# for testing. Please note, that this option will be removed in the Mitaka
+# release. (boolean value)
+#send_single_reply = false
+
+# Qpid broker hostname. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_hostname
+#qpid_hostname = localhost
+
+# Qpid broker port. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_port
+#qpid_port = 5672
+
+# Qpid HA cluster host:port pairs. (list value)
+# Deprecated group/name - [DEFAULT]/qpid_hosts
+#qpid_hosts = $qpid_hostname:$qpid_port
+
+# Username for Qpid connection. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_username
+#qpid_username =
+
+# Password for Qpid connection. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_password
+#qpid_password =
+
+# Space separated list of SASL mechanisms to use for auth. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_sasl_mechanisms
+#qpid_sasl_mechanisms =
+
+# Seconds between connection keepalive heartbeats. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_heartbeat
+#qpid_heartbeat = 60
+
+# Transport to use, either 'tcp' or 'ssl'. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_protocol
+#qpid_protocol = tcp
+
+# Whether to disable the Nagle algorithm. (boolean value)
+# Deprecated group/name - [DEFAULT]/qpid_tcp_nodelay
+#qpid_tcp_nodelay = true
+
+# The number of prefetched messages held by receiver. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_receiver_capacity
+#qpid_receiver_capacity = 1
+
+# The qpid topology version to use.  Version 1 is what was originally used by
+# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
+# broker federation to work.  Users should update to version 2 when they are
+# able to take everything down, as it requires a clean break. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_topology_version
+#qpid_topology_version = 1
+
+
 [oslo_messaging_rabbit]
 
 #
@@ -1537,24 +1599,15 @@
 # Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
 #kombu_reconnect_delay = 1.0
 
-# How long to wait a missing client beforce abandoning to send it its replies.
-# This value should not be longer than rpc_response_timeout. (integer value)
-# Deprecated group/name - [DEFAULT]/kombu_reconnect_timeout
-#kombu_missing_consumer_retry_timeout = 5
-
-# Determines how the next RabbitMQ node is chosen in case the one we are
-# currently connected to becomes unavailable. Takes effect only if more than
-# one RabbitMQ node is provided in config. (string value)
-# Allowed values: round-robin, shuffle
-#kombu_failover_strategy = round-robin
+# How long to wait before considering a reconnect attempt to have failed. This
+# value should not be longer than rpc_response_timeout. (integer value)
+#kombu_reconnect_timeout = 60
 
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
 #rabbit_host = localhost
 
-# The RabbitMQ broker port where a single node is used. (port value)
-# Minimum value: 1
-# Maximum value: 65535
+# The RabbitMQ broker port where a single node is used. (integer value)
 # Deprecated group/name - [DEFAULT]/rabbit_port
 #rabbit_port = 5672
 
