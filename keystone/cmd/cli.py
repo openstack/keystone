@@ -201,7 +201,7 @@ class FernetSetup(BasePermissionsSetup):
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
         fernet.create_key_directory(keystone_user_id, keystone_group_id)
-        if fernet.validate_key_repository():
+        if fernet.validate_key_repository(requires_write=True):
             fernet.initialize_key_repository(
                 keystone_user_id, keystone_group_id)
 
@@ -231,7 +231,7 @@ class FernetRotate(BasePermissionsSetup):
         from keystone.token.providers.fernet import utils as fernet
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        if fernet.validate_key_repository():
+        if fernet.validate_key_repository(requires_write=True):
             fernet.rotate_keys(keystone_user_id, keystone_group_id)
 
 
