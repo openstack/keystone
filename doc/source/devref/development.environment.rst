@@ -40,6 +40,7 @@ And that you have the following tools available on your system:
 - pip_
 - msgfmt (part of the gettext package)
 - virtualenv_
+- tox_
 
 **Reminder**: If you're successfully using a different platform, or a
 different version of the above, please document your configuration here!
@@ -47,6 +48,7 @@ different version of the above, please document your configuration here!
 .. _Python: http://www.python.org/
 .. _git: http://git-scm.com/
 .. _setuptools: http://pypi.python.org/pypi/setuptools
+.. _tox: https://pypi.python.org/pypi/tox
 
 Getting the latest code
 =======================
@@ -108,19 +110,18 @@ PyPi Packages and VirtualEnv
 
 We recommend establishing a virtualenv to run Keystone within. virtualenv
 limits the Python environment to just what you're installing as dependencies,
-useful to keep a clean environment for working on Keystone. The tools directory
-in Keystone has a script already created to make this very simple:
+useful to keep a clean environment for working on Keystone.
 
 .. code-block:: bash
 
-    $ python tools/install_venv.py
+    $ tox -e venv
 
-This will create a local virtual environment in the directory ``.venv``.
+This will create a local virtual environment in the directory ``.tox``.
 Once created, you can activate this virtualenv for your current shell using:
 
 .. code-block:: bash
 
-    $ source .venv/bin/activate
+    $ source .tox/venv/bin/activate
 
 The virtual environment can be disabled using the command:
 
@@ -128,7 +129,7 @@ The virtual environment can be disabled using the command:
 
     $ deactivate
 
-You can also use ``tools\with_venv.sh`` to prefix commands so that they run
+You can also use ``tox -e venv`` to prefix commands so that they run
 within the virtual environment. For more information on virtual environments,
 see virtualenv_.
 
@@ -158,7 +159,7 @@ forget to activate it:
 
 .. code-block:: bash
 
-    $ source .venv/bin/activate
+    $ source .tox/venv/bin/activate
 
 You should then be able to `import keystone` using Python without issue:
 
