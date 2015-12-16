@@ -187,15 +187,19 @@ class Identity(identity.IdentityDriverV8):
 
     def list_users_in_group(self, group_id, hints):
         users = []
-        for user_dn in self.group.list_group_users(group_id):
-            user_id = self.user._dn_to_id(user_dn)
+        for user_key in self.group.list_group_users(group_id):
+            if self.conf.ldap.group_members_are_ids:
+                user_id = user_key
+            else:
+                user_id = self.user._dn_to_id(user_key)
+
             try:
                 users.append(self.user.get_filtered(user_id))
             except exception.UserNotFound:
-                LOG.debug(("Group member '%(user_dn)s' not found in"
+                LOG.debug(("Group member '%(user_key)s' not found in"
                            " '%(group_id)s'. The user should be removed"
                            " from the group. The user will be ignored."),
-                          dict(user_dn=user_dn, group_id=group_id))
+                          dict(user_key=user_key, group_id=group_id))
         return users
 
     def check_user_in_group(self, user_id, group_id):

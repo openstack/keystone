@@ -785,6 +785,11 @@ FILE_OPTIONS = {
                    help='End user auth connection pool size.'),
         cfg.IntOpt('auth_pool_connection_lifetime', default=60,
                    help='End user auth connection lifetime in seconds.'),
+        cfg.BoolOpt('group_members_are_ids', default=False,
+                    help='If the members of the group objectclass are user '
+                         'IDs rather than DNs, set this to true. This is the '
+                         'case when using posixGroup as the group '
+                         'objectclass and OpenDirectory.'),
     ],
     'auth': [
         cfg.ListOpt('methods', default=_DEFAULT_AUTH_METHODS,

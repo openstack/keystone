@@ -68,7 +68,13 @@ def _internal_attr(attr_name, value_or_values):
         if dn == 'cn=Doe\\, John,ou=Users,cn=example,cn=com':
             return 'CN=Doe\\2C John,OU=Users,CN=example,CN=com'
 
-        dn = ldap.dn.str2dn(core.utf8_encode(dn))
+        try:
+            dn = ldap.dn.str2dn(core.utf8_encode(dn))
+        except ldap.DECODING_ERROR:
+            # NOTE(amakarov): In case of IDs instead of DNs in group members
+            # they must be handled as regular values.
+            return normalize_value(dn)
+
         norm = []
         for part in dn:
             name, val, i = part[0]
