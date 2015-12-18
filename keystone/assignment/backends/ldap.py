@@ -80,12 +80,6 @@ class Assignment(assignment.AssignmentDriverV9):
     def list_domain_ids_for_groups(self, group_ids, inherited=False):
         raise exception.NotImplemented()
 
-    def list_user_ids_for_project(self, tenant_id):
-        tenant_dn = self.project._id_to_dn(tenant_id)
-        rolegrants = self.role.get_role_assignments(tenant_dn)
-        return [self.user._dn_to_id(user_dn) for user_dn in
-                self.project.get_user_dns(tenant_id, rolegrants)]
-
     def _subrole_id_to_dn(self, role_id, tenant_id):
         if tenant_id is None:
             return self.role._id_to_dn(role_id)
