@@ -6351,6 +6351,40 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         self.execute_assignment_plan(test_plan)
 
+    def test_list_user_ids_for_project_with_inheritance(self):
+        test_plan = {
+            # A domain with a project and sub-project, plus four users,
+            # two groups, as well as 4 roles.
+            'entities': {
+                'domains': {'id': DEFAULT_DOMAIN_ID, 'users': 4, 'groups': 2,
+                            'projects': {'project': 1}},
+                'roles': 4},
+            # Each group has a unique user member
+            'group_memberships': [{'group': 0, 'users': [1]},
+                                  {'group': 1, 'users': [3]}],
+            # Set up assignments so that there should end up with four
+            # effective assignments on project 1 - one direct, one due to
+            # group membership and one user assignment inherited from the
+            # parent and one group assignment inhertied from the parent.
+            'assignments': [{'user': 0, 'role': 0, 'project': 1},
+                            {'group': 0, 'role': 1, 'project': 1},
+                            {'user': 2, 'role': 2, 'project': 0,
+                             'inherited_to_projects': True},
+                            {'group': 1, 'role': 3, 'project': 0,
+                             'inherited_to_projects': True}],
+        }
+        # Use assignment plan helper to create all the entities and
+        # assignments - then we'll run our own tests using the data
+        test_data = self.execute_assignment_plan(test_plan)
+        self.config_fixture.config(group='os_inherit', enabled=True)
+        user_ids = self.assignment_api.list_user_ids_for_project(
+            test_data['projects'][1]['id'])
+        # FIXME(henry-nash): This should return four unique IDs, but due to
+        # bug #1513893 only the user with a direct user role is returned
+        self.assertThat(user_ids, matchers.HasLength(1))
+        for x in range(0, 1):
+            self.assertIn(test_data['users'][x]['id'], user_ids)
+
 
 class FilterTests(filtering.FilterTests):
     def test_list_entities_filtered(self):
