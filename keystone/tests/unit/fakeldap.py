@@ -22,6 +22,7 @@ library to work with keystone.
 
 """
 
+import random
 import re
 import shelve
 
@@ -208,6 +209,7 @@ class FakeShelve(dict):
 
 
 FakeShelves = {}
+PendingRequests = {}
 
 
 class FakeLdap(core.LDAPHandler):
@@ -540,11 +542,53 @@ class FakeLdap(core.LDAPHandler):
                    filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
                    serverctrls=None, clientctrls=None,
                    timeout=-1, sizelimit=0):
-        raise exception.NotImplemented()
+        if clientctrls is not None or timeout != -1 or sizelimit != 0:
+            raise exception.NotImplemented()
+
+        # only passing a single server control is supported by this fake ldap
+        if len(serverctrls) > 1:
+            raise exception.NotImplemented()
+
+        # search_ext is async and returns an identifier used for
+        # retrieving the results via result3(). This will be emulated by
+        # storing the request in a variable with random integer key and
+        # performing the real lookup in result3()
+        msgid = random.randint(0, 1000)
+        PendingRequests[msgid] = (base, scope, filterstr, attrlist, attrsonly,
+                                  serverctrls)
+        return msgid
 
     def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
                 resp_ctrl_classes=None):
-        raise exception.NotImplemented()
+        """Execute async request
+
+        Only msgid param is supported. Request info is fetched from global
+        variable `PendingRequests` by msgid, executed using search_s and
+        limited if requested.
+        """
+        if all != 1 or timeout is not None or resp_ctrl_classes is not None:
+            raise exception.NotImplemented()
+
+        params = PendingRequests[msgid]
+        # search_s accepts a subset of parameters of search_ext,
+        # that's why we use only the first 5.
+        results = self.search_s(*params[:5])
+
+        # extract limit from serverctrl
+        serverctrls = params[5]
+        ctrl = serverctrls[0]
+
+        if ctrl.size:
+            rdata = results[:ctrl.size]
+        else:
+            rdata = results
+
+        # real result3 returns various service info -- rtype, rmsgid,
+        # serverctrls. Now this info is not used, so all this info is None
+        rtype = None
+        rmsgid = None
+        serverctrls = None
+        return (rtype, rdata, rmsgid, serverctrls)
 
 
 class FakeLdapPool(FakeLdap):
