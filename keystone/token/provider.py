@@ -250,6 +250,9 @@ class Manager(manager.Manager):
             return self.check_revocation_v3(token)
 
     def validate_v3_token(self, token_id):
+        if not token_id:
+            raise exception.TokenNotFound(_('No token in the request'))
+
         unique_id = utils.generate_unique_id(token_id)
         # NOTE(lbragstad): Only go to persistent storage if we have a token to
         # fetch from the backend (the driver persists the token). Otherwise
@@ -266,6 +269,9 @@ class Manager(manager.Manager):
 
     @MEMOIZE
     def _validate_token(self, token_id):
+        if not token_id:
+            raise exception.TokenNotFound(_('No token in the request'))
+
         if not self._needs_persistence:
             return self.driver.validate_v3_token(token_id)
         token_ref = self._persistence.get_token(token_id)

@@ -4294,9 +4294,6 @@ class TokenTests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._persistence.get_token,
                           uuid.uuid4().hex)
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api._persistence.get_token,
-                          None)
 
     def test_delete_token_returns_not_found(self):
         self.assertRaises(exception.TokenNotFound,
