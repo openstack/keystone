@@ -24,7 +24,7 @@ class TestRandomStrings(unit.BaseTestCase):
 
     def test_strings_can_be_converted_to_bytes(self):
         s = provider.random_urlsafe_str()
-        self.assertTrue(isinstance(s, six.string_types))
+        self.assertIsInstance(s, six.text_type)
 
         b = provider.random_urlsafe_str_to_bytes(s)
-        self.assertTrue(isinstance(b, bytes))
+        self.assertIsInstance(b, six.binary_type)

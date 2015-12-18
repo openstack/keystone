@@ -275,6 +275,7 @@ class Provider(common.BaseProvider):
 
         :param token_data: token information
         :type token_data: dict
+        :rtype: six.text_type
 
         """
         return self.token_formatter.create_token(
