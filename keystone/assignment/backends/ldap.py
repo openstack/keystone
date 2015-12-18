@@ -70,32 +70,11 @@ class Assignment(assignment.AssignmentDriverV9):
         # logic.
         return role_list
 
-    def list_project_ids_for_user(self, user_id, group_ids, hints,
-                                  inherited=False):
-        # TODO(henry-nash): The ldap driver does not support inherited
-        # assignments, so the inherited parameter is unused.
-        # See bug #1404273.
-        user_dn = self.user._id_to_dn(user_id)
-        associations = (self.role.list_project_roles_for_user
-                        (user_dn, self.project.tree_dn))
-
-        for group_id in group_ids:
-            group_dn = self.group._id_to_dn(group_id)
-            for group_role in self.role.list_project_roles_for_group(
-                    group_dn, self.project.tree_dn):
-                associations.append(group_role)
-
-        return list(set(
-            [self.project._dn_to_id(x.project_dn) for x in associations]))
-
     def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
         raise exception.NotImplemented()
 
     def list_project_ids_for_groups(self, group_ids, hints,
                                     inherited=False):
-        raise exception.NotImplemented()
-
-    def list_domain_ids_for_user(self, user_id, group_ids, hints):
         raise exception.NotImplemented()
 
     def list_domain_ids_for_groups(self, group_ids, inherited=False):
