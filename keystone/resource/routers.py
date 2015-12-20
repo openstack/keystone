@@ -88,6 +88,37 @@ class Routers(wsgi.RoutersBase):
                     'config_option')
             })
 
+        self._add_resource(
+            mapper, config_controller,
+            path='/domains/config/default',
+            get_action='get_domain_config_default',
+            rel=json_home.build_v3_resource_relation('domain_config_default'),
+            status=json_home.Status.EXPERIMENTAL)
+
+        self._add_resource(
+            mapper, config_controller,
+            path='/domains/config/{group}/default',
+            get_action='get_domain_config_default',
+            rel=json_home.build_v3_resource_relation(
+                'domain_config_default_group'),
+            status=json_home.Status.EXPERIMENTAL,
+            path_vars={
+                'group': config_group_param
+            })
+
+        self._add_resource(
+            mapper, config_controller,
+            path='/domains/config/{group}/{option}/default',
+            get_action='get_domain_config_default',
+            rel=json_home.build_v3_resource_relation(
+                'domain_config_default_option'),
+            status=json_home.Status.EXPERIMENTAL,
+            path_vars={
+                'group': config_group_param,
+                'option': json_home.build_v3_parameter_relation(
+                    'config_option')
+            })
+
         routers.append(
             router.Router(controllers.ProjectV3(),
                           'projects', 'project',

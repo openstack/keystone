@@ -186,7 +186,9 @@ identity:update_domain_config                              - PATCH /v3/domains/{
 identity:delete_domain_config                              - DELETE /v3/domains/{domain_id}/config
                                                            - DELETE /v3/domains/{domain_id}/config/{group}
                                                            - DELETE /v3/domains/{domain_id}/config/{group}/{option}
-
+identity:get_domain_config_default                         - GET /v3/domains/config/default
+                                                           - GET /v3/domains/config/{group}/default
+                                                           - GET /v3/domains/config/{group}/{option}/default
 =========================================================  ===
 
 .. _grant_resources:
