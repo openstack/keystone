@@ -4855,3 +4855,35 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
         }
 
         self.assertEqual({'revoked': [exp_token_revoke_data]}, payload)
+
+    def test_audit_id_only_no_tokens(self):
+        # When there's no revoked tokens and ?audit_id_only is used, the
+        # response is an empty list and is not signed.
+        res = self.get('/auth/tokens/OS-PKI/revoked?audit_id_only')
+        self.assertEqual({'revoked': []}, res.json)
+
+    def test_audit_id_only_token(self):
+        # When there's a revoked token and ?audit_id_only is used, the
+        # response contains the audit_id of the token and is not signed.
+        token_res = self.v3_create_token(
+            self.build_authentication_request(
+                user_id=self.user['id'],
+                password=self.user['password'],
+                project_id=self.project['id']))
+
+        token_id = token_res.headers.get('X-Subject-Token')
+        token_data = token_res.json['token']
+
+        self.delete('/auth/tokens', headers={'X-Subject-Token': token_id})
+
+        res = self.get('/auth/tokens/OS-PKI/revoked?audit_id_only')
+
+        def truncate(ts_str):
+            return ts_str[:19] + 'Z'  # 2016-01-21T15:53:52 == 19 chars.
+
+        exp_token_revoke_data = {
+            'audit_id': token_data['audit_ids'][0],
+            'expires': truncate(token_data['expires_at']),
+        }
+
+        self.assertEqual({'revoked': [exp_token_revoke_data]}, res.json)

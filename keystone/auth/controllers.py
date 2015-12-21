@@ -559,13 +559,23 @@ class Auth(controller.V3Controller):
     def revocation_list(self, context, auth=None):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
+
+        audit_id_only = ('audit_id_only' in context['query_string'])
+
         tokens = self.token_provider_api.list_revoked_tokens()
 
         for t in tokens:
             expires = t['expires']
             if not (expires and isinstance(expires, six.text_type)):
                 t['expires'] = utils.isotime(expires)
+            if audit_id_only:
+                t.pop('id', None)
         data = {'revoked': tokens}
+
+        if audit_id_only:
+            # No need to obfuscate if no token IDs.
+            return data
+
         json_data = jsonutils.dumps(data)
         signed_text = cms.cms_sign_text(json_data,
                                         CONF.signing.certfile,
