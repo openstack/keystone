@@ -701,9 +701,10 @@ class BaseProvider(provider.Provider):
                 self.trust_api.get_trust(trust_id)
 
             return token_data
-        except exception.ValidationError as e:
+        except exception.ValidationError:
             LOG.exception(_LE('Failed to validate token'))
-            raise exception.TokenNotFound(e)
+            token_id = token_ref['token_data']['access']['token']['id']
+            raise exception.TokenNotFound(token_id=token_id)
 
     def validate_v3_token(self, token_ref):
         # FIXME(gyee): performance or correctness? Should we return the
