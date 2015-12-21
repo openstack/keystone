@@ -337,9 +337,14 @@ class TestPayloads(unit.TestCase):
         exp_methods = ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        project_id = None
+        domain_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.UnscopedPayload.assemble(
-            exp_user_id, exp_methods, exp_expires_at, exp_audit_ids)
+            exp_user_id, exp_methods, project_id, domain_id, exp_expires_at,
+            exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, expires_at, audit_ids) = (
             token_formatters.UnscopedPayload.disassemble(payload))
@@ -355,10 +360,13 @@ class TestPayloads(unit.TestCase):
         exp_project_id = uuid.uuid4().hex
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        domain_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.ProjectScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
-            exp_audit_ids)
+            exp_user_id, exp_methods, exp_project_id, domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, project_id, expires_at, audit_ids) = (
             token_formatters.ProjectScopedPayload.disassemble(payload))
@@ -375,10 +383,13 @@ class TestPayloads(unit.TestCase):
         exp_domain_id = uuid.uuid4().hex
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        project_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
-            exp_audit_ids)
+            exp_user_id, exp_methods, project_id, exp_domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, domain_id, expires_at, audit_ids) = (
             token_formatters.DomainScopedPayload.disassemble(payload))
@@ -395,10 +406,13 @@ class TestPayloads(unit.TestCase):
         exp_domain_id = CONF.identity.default_domain_id
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        project_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
-            exp_audit_ids)
+            exp_user_id, exp_methods, project_id, exp_domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, domain_id, expires_at, audit_ids) = (
             token_formatters.DomainScopedPayload.disassemble(payload))
@@ -416,10 +430,12 @@ class TestPayloads(unit.TestCase):
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_trust_id = uuid.uuid4().hex
+        domain_id = None
+        federated_info = None
 
         payload = token_formatters.TrustScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
-            exp_audit_ids, exp_trust_id)
+            exp_user_id, exp_methods, exp_project_id, domain_id,
+            exp_expires_at, exp_audit_ids, exp_trust_id, federated_info)
 
         (user_id, methods, project_id, expires_at, audit_ids, trust_id) = (
             token_formatters.TrustScopedPayload.disassemble(payload))
@@ -435,9 +451,14 @@ class TestPayloads(unit.TestCase):
         exp_methods = ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        project_id = None
+        domain_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.UnscopedPayload.assemble(
-            exp_user_id, exp_methods, exp_expires_at, exp_audit_ids)
+            exp_user_id, exp_methods, project_id, domain_id, exp_expires_at,
+            exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, expires_at, audit_ids) = (
             token_formatters.UnscopedPayload.disassemble(payload))
@@ -458,10 +479,13 @@ class TestPayloads(unit.TestCase):
         exp_methods = ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        domain_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.ProjectScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
-            exp_audit_ids)
+            exp_user_id, exp_methods, exp_project_id, domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, project_id, expires_at, audit_ids) = (
             token_formatters.ProjectScopedPayload.disassemble(payload))
@@ -485,10 +509,13 @@ class TestPayloads(unit.TestCase):
         exp_domain_id = uuid.uuid4().hex
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
+        project_id = None
+        trust_id = None
+        federated_info = None
 
         payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
-            exp_audit_ids)
+            exp_user_id, exp_methods, project_id, exp_domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, federated_info)
 
         (user_id, methods, domain_id, expires_at, audit_ids) = (
             token_formatters.DomainScopedPayload.disassemble(payload))
@@ -510,10 +537,12 @@ class TestPayloads(unit.TestCase):
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
         exp_trust_id = uuid.uuid4().hex
+        domain_id = None
+        federated_info = None
 
         payload = token_formatters.TrustScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
-            exp_audit_ids, exp_trust_id)
+            exp_user_id, exp_methods, exp_project_id, domain_id,
+            exp_expires_at, exp_audit_ids, exp_trust_id, federated_info)
 
         (user_id, methods, project_id, expires_at, audit_ids, trust_id) = (
             token_formatters.TrustScopedPayload.disassemble(payload))
@@ -540,10 +569,13 @@ class TestPayloads(unit.TestCase):
         exp_federated_info = {'group_ids': [{'id': exp_group_id}],
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
+        project_id = None
+        domain_id = None
+        trust_id = None
 
         payload = token_formatters.FederatedUnscopedPayload.assemble(
-            exp_user_id, exp_methods, exp_expires_at, exp_audit_ids,
-            exp_federated_info)
+            exp_user_id, exp_methods, project_id, domain_id, exp_expires_at,
+            exp_audit_ids, trust_id, exp_federated_info)
 
         (user_id, methods, expires_at, audit_ids, federated_info) = (
             token_formatters.FederatedUnscopedPayload.disassemble(payload))
@@ -576,10 +608,12 @@ class TestPayloads(unit.TestCase):
         exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
+        domain_id = None
+        trust_id = None
 
         payload = token_formatters.FederatedProjectScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, exp_expires_at,
-            exp_audit_ids, exp_federated_info)
+            exp_user_id, exp_methods, exp_project_id, domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, exp_federated_info)
 
         (user_id, methods, project_id, expires_at, audit_ids,
          federated_info) = (
@@ -602,10 +636,12 @@ class TestPayloads(unit.TestCase):
         exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
+        project_id = None
+        trust_id = None
 
         payload = token_formatters.FederatedDomainScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_domain_id, exp_expires_at,
-            exp_audit_ids, exp_federated_info)
+            exp_user_id, exp_methods, project_id, exp_domain_id,
+            exp_expires_at, exp_audit_ids, trust_id, exp_federated_info)
 
         (user_id, methods, domain_id, expires_at, audit_ids,
          federated_info) = (

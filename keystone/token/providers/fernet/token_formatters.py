@@ -147,64 +147,17 @@ class TokenFormatter(object):
                      domain_id=None, project_id=None, trust_id=None,
                      federated_info=None):
         """Given a set of payload attributes, generate a Fernet token."""
-        if trust_id:
-            version = TrustScopedPayload.version
-            payload = TrustScopedPayload.assemble(
-                user_id,
-                methods,
-                project_id,
-                expires_at,
-                audit_ids,
-                trust_id)
-        elif project_id and federated_info:
-            version = FederatedProjectScopedPayload.version
-            payload = FederatedProjectScopedPayload.assemble(
-                user_id,
-                methods,
-                project_id,
-                expires_at,
-                audit_ids,
-                federated_info)
-        elif domain_id and federated_info:
-            version = FederatedDomainScopedPayload.version
-            payload = FederatedDomainScopedPayload.assemble(
-                user_id,
-                methods,
-                domain_id,
-                expires_at,
-                audit_ids,
-                federated_info)
-        elif federated_info:
-            version = FederatedUnscopedPayload.version
-            payload = FederatedUnscopedPayload.assemble(
-                user_id,
-                methods,
-                expires_at,
-                audit_ids,
-                federated_info)
-        elif project_id:
-            version = ProjectScopedPayload.version
-            payload = ProjectScopedPayload.assemble(
-                user_id,
-                methods,
-                project_id,
-                expires_at,
-                audit_ids)
-        elif domain_id:
-            version = DomainScopedPayload.version
-            payload = DomainScopedPayload.assemble(
-                user_id,
-                methods,
-                domain_id,
-                expires_at,
-                audit_ids)
-        else:
-            version = UnscopedPayload.version
-            payload = UnscopedPayload.assemble(
-                user_id,
-                methods,
-                expires_at,
-                audit_ids)
+        for payload_class in PAYLOAD_CLASSES:
+            if payload_class.create_arguments_apply(
+                    project_id=project_id, domain_id=domain_id,
+                    trust_id=trust_id, federated_info=federated_info):
+                break
+
+        version = payload_class.version
+        payload = payload_class.assemble(
+            user_id, methods, project_id, domain_id, expires_at, audit_ids,
+            trust_id, federated_info
+        )
 
         versioned_payload = (version,) + payload
         serialized_payload = msgpack.packb(versioned_payload)
@@ -284,10 +237,31 @@ class BasePayload(object):
     version = None
 
     @classmethod
-    def assemble(cls, *args):
+    def create_arguments_apply(cls, **kwargs):
+        """Check the arguments to see if they apply to this payload variant.
+
+        :returns: True if the arguments indicate that this payload class is
+                  needed for the token otherwise returns False.
+        :rtype: bool
+
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         """Assemble the payload of a token.
 
-        :param args: whatever data should go into the payload
+        :param user_id: identifier of the user in the token request
+        :param methods: list of authentication methods used
+        :param project_id: ID of the project to scope to
+        :param domain_id: ID of the domain to scope to
+        :param expires_at: datetime of the token's expiration
+        :param audit_ids: list of the token's audit IDs
+        :param trust_id: ID of the trust in effect
+        :param federated_info: dictionary containing group IDs, the identity
+                               provider ID, protocol ID, and federated domain
+                               ID
         :returns: the payload of a token
 
         """
@@ -388,16 +362,12 @@ class UnscopedPayload(BasePayload):
     version = 0
 
     @classmethod
-    def assemble(cls, user_id, methods, expires_at, audit_ids):
-        """Assemble the payload of an unscoped token.
+    def create_arguments_apply(cls, **kwargs):
+        return True
 
-        :param user_id: identifier of the user in the token request
-        :param methods: list of authentication methods used
-        :param expires_at: datetime of the token's expiration
-        :param audit_ids: list of the token's audit IDs
-        :returns: the payload of an unscoped token
-
-        """
+    @classmethod
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         expires_at_int = cls._convert_time_string_to_float(expires_at)
@@ -427,17 +397,12 @@ class DomainScopedPayload(BasePayload):
     version = 1
 
     @classmethod
-    def assemble(cls, user_id, methods, domain_id, expires_at, audit_ids):
-        """Assemble the payload of a domain-scoped token.
+    def create_arguments_apply(cls, **kwargs):
+        return kwargs['domain_id']
 
-        :param user_id: ID of the user in the token request
-        :param methods: list of authentication methods used
-        :param domain_id: ID of the domain to scope to
-        :param expires_at: datetime of the token's expiration
-        :param audit_ids: list of the token's audit IDs
-        :returns: the payload of a domain-scoped token
-
-        """
+    @classmethod
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         try:
@@ -484,17 +449,12 @@ class ProjectScopedPayload(BasePayload):
     version = 2
 
     @classmethod
-    def assemble(cls, user_id, methods, project_id, expires_at, audit_ids):
-        """Assemble the payload of a project-scoped token.
+    def create_arguments_apply(cls, **kwargs):
+        return kwargs['project_id']
 
-        :param user_id: ID of the user in the token request
-        :param methods: list of authentication methods used
-        :param project_id: ID of the project to scope to
-        :param expires_at: datetime of the token's expiration
-        :param audit_ids: list of the token's audit IDs
-        :returns: the payload of a project-scoped token
-
-        """
+    @classmethod
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
@@ -529,19 +489,12 @@ class TrustScopedPayload(BasePayload):
     version = 3
 
     @classmethod
-    def assemble(cls, user_id, methods, project_id, expires_at, audit_ids,
-                 trust_id):
-        """Assemble the payload of a trust-scoped token.
+    def create_arguments_apply(cls, **kwargs):
+        return kwargs['trust_id']
 
-        :param user_id: ID of the user in the token request
-        :param methods: list of authentication methods used
-        :param project_id: ID of the project to scope to
-        :param expires_at: datetime of the token's expiration
-        :param audit_ids: list of the token's audit IDs
-        :param trust_id: ID of the trust in effect
-        :returns: the payload of a trust-scoped token
-
-        """
+    @classmethod
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
@@ -581,6 +534,10 @@ class FederatedUnscopedPayload(BasePayload):
     version = 4
 
     @classmethod
+    def create_arguments_apply(cls, **kwargs):
+        return kwargs['federated_info']
+
+    @classmethod
     def pack_group_id(cls, group_dict):
         return cls.attempt_convert_uuid_hex_to_bytes(group_dict['id'])
 
@@ -592,19 +549,8 @@ class FederatedUnscopedPayload(BasePayload):
         return {'id': group_id}
 
     @classmethod
-    def assemble(cls, user_id, methods, expires_at, audit_ids, federated_info):
-        """Assemble the payload of a federated token.
-
-        :param user_id: ID of the user in the token request
-        :param methods: list of authentication methods used
-        :param expires_at: datetime of the token's expiration
-        :param audit_ids: list of the token's audit IDs
-        :param federated_info: dictionary containing group IDs, the identity
-                               provider ID, protocol ID, and federated domain
-                               ID
-        :returns: the payload of a federated token
-
-        """
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         b_group_ids = list(map(cls.pack_group_id,
@@ -650,23 +596,12 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
     version = None
 
     @classmethod
-    def assemble(cls, user_id, methods, scope_id, expires_at, audit_ids,
-                 federated_info):
-        """Assemble the project-scoped payload of a federated token.
-
-        :param user_id: ID of the user in the token request
-        :param methods: list of authentication methods used
-        :param scope_id: ID of the project or domain ID to scope to
-        :param expires_at: datetime of the token's expiration
-        :param audit_ids: list of the token's audit IDs
-        :param federated_info: dictionary containing the identity provider ID,
-                               protocol ID, federated domain ID and group IDs
-        :returns: the payload of a federated token
-
-        """
+    def assemble(cls, user_id, methods, project_id, domain_id, expires_at,
+                 audit_ids, trust_id, federated_info):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
-        b_scope_id = cls.attempt_convert_uuid_hex_to_bytes(scope_id)
+        b_scope_id = cls.attempt_convert_uuid_hex_to_bytes(
+            project_id or domain_id)
         b_group_ids = list(map(cls.pack_group_id,
                                federated_info['group_ids']))
         b_idp_id = cls.attempt_convert_uuid_hex_to_bytes(
@@ -714,6 +649,32 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
 class FederatedProjectScopedPayload(FederatedScopedPayload):
     version = 5
 
+    @classmethod
+    def create_arguments_apply(cls, **kwargs):
+        return kwargs['project_id'] and kwargs['federated_info']
+
 
 class FederatedDomainScopedPayload(FederatedScopedPayload):
     version = 6
+
+    @classmethod
+    def create_arguments_apply(cls, **kwargs):
+        return kwargs['domain_id'] and kwargs['federated_info']
+
+
+# For now, the order of the classes in the following list is important. This
+# is because the way they test that the payload applies to them in
+# the create_arguments_apply method requires that the previous ones rejected
+# the payload arguments. For example, UnscopedPayload must be last since it's
+# the catch-all after all the other payloads have been checked.
+# TODO(blk-u): Clean up the create_arguments_apply methods so that they don't
+# depend on the previous classes then these can be in any order.
+PAYLOAD_CLASSES = [
+    TrustScopedPayload,
+    FederatedProjectScopedPayload,
+    FederatedDomainScopedPayload,
+    FederatedUnscopedPayload,
+    ProjectScopedPayload,
+    DomainScopedPayload,
+    UnscopedPayload,
+]
