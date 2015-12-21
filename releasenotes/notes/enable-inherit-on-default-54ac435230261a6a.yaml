@@ -1,0 +1,9 @@
+---
+upgrade:
+  - >
+    The default setting for the os_inherit configuration option is
+    changed to True. If it is required to continue with this portion
+    of the API disabled, then override the default setting by explicitly
+    specifying the os_inherit option as False. Now this option is marked
+    as deprecated. In the future, this option will be removed and this
+    portion of the API will be always enabled.
