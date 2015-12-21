@@ -179,7 +179,7 @@
 
 # List of logger=LEVEL pairs. This option is ignored if log_config_append is
 # set. (list value)
-#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN
+#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN
 
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
@@ -214,9 +214,6 @@
 # MatchMaker driver. (string value)
 #rpc_zmq_matchmaker = redis
 
-# Use REQ/REP pattern for all methods CALL/CAST/FANOUT. (boolean value)
-#rpc_zmq_all_req_rep = true
-
 # Type of concurrency used. Either "native" or "eventlet" (string value)
 #rpc_zmq_concurrency = eventlet
 
@@ -242,13 +239,22 @@
 # exception when timeout expired. (integer value)
 #rpc_poll_timeout = 1
 
-# Shows whether zmq-messaging uses broker or not. (boolean value)
-#zmq_use_broker = true
+# Configures zmq-messaging to use proxy with non PUB/SUB patterns. (boolean
+# value)
+#direct_over_proxy = true
 
-# Minimal port number for random ports range. (integer value)
+# Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
+# value)
+#use_pub_sub = true
+
+# Minimal port number for random ports range. (port value)
+# Minimum value: 1
+# Maximum value: 65535
 #rpc_zmq_min_port = 49152
 
 # Maximal port number for random ports range. (integer value)
+# Minimum value: 1
+# Maximum value: 65536
 #rpc_zmq_max_port = 65536
 
 # Number of retries to find free port number before fail with ZMQBindError.
@@ -258,7 +264,9 @@
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
-# Use this port to connect to redis host. (integer value)
+# Use this port to connect to redis host. (port value)
+# Minimum value: 1
+# Maximum value: 65535
 #port = 6379
 
 # Password for Redis server (optional). (string value)
@@ -270,15 +278,18 @@
 
 # The Drivers(s) to handle sending notifications. Possible values are
 # messaging, messagingv2, routing, log, test, noop (multi valued)
-#notification_driver =
+# Deprecated group/name - [DEFAULT]/notification_driver
+#driver =
 
 # A URL representing the messaging driver to use for notifications. If not set,
 # we fall back to the same configuration used for RPC. (string value)
-#notification_transport_url = <None>
+# Deprecated group/name - [DEFAULT]/notification_transport_url
+#transport_url = <None>
 
 # AMQP topic used for OpenStack notifications. (list value)
 # Deprecated group/name - [rpc_notifier2]/topics
-#notification_topics = notifications
+# Deprecated group/name - [DEFAULT]/notification_topics
+#topics = notifications
 
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
@@ -288,7 +299,7 @@
 # configuration. (string value)
 #transport_url = <None>
 
-# The messaging driver to use, defaults to rabbit. Other drivers include qpid
+# The messaging driver to use, defaults to rabbit. Other drivers include amqp
 # and zmq. (string value)
 #rpc_backend = rabbit
 
@@ -1337,7 +1348,9 @@
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
-# Use this port to connect to redis host. (integer value)
+# Use this port to connect to redis host. (port value)
+# Minimum value: 1
+# Maximum value: 65535
 #port = 6379
 
 # Password for Redis server (optional). (string value)
@@ -1403,8 +1416,12 @@
 #
 
 # role-assignment inheritance to projects from owning domain or from projects
-# higher in the hierarchy can be optionally enabled. (boolean value)
-#enabled = false
+# higher in the hierarchy can be optionally disabled. In the future, this
+# option will be removed and the hierarchy will be always enabled. (boolean
+# value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+#enabled = true
 
 
 [oslo_messaging_amqp]
@@ -1478,79 +1495,6 @@
 #password =
 
 
-[oslo_messaging_qpid]
-
-#
-# From oslo.messaging
-#
-
-# Use durable queues in AMQP. (boolean value)
-# Deprecated group/name - [DEFAULT]/amqp_durable_queues
-# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
-#amqp_durable_queues = false
-
-# Auto-delete queues in AMQP. (boolean value)
-# Deprecated group/name - [DEFAULT]/amqp_auto_delete
-#amqp_auto_delete = false
-
-# Send a single AMQP reply to call message. The current behaviour since oslo-
-# incubator is to send two AMQP replies - first one with the payload, a second
-# one to ensure the other have finish to send the payload. We are going to
-# remove it in the N release, but we must keep backward compatible at the same
-# time. This option provides such compatibility - it defaults to False in
-# Liberty and can be turned on for early adopters with a new installations or
-# for testing. Please note, that this option will be removed in the Mitaka
-# release. (boolean value)
-#send_single_reply = false
-
-# Qpid broker hostname. (string value)
-# Deprecated group/name - [DEFAULT]/qpid_hostname
-#qpid_hostname = localhost
-
-# Qpid broker port. (integer value)
-# Deprecated group/name - [DEFAULT]/qpid_port
-#qpid_port = 5672
-
-# Qpid HA cluster host:port pairs. (list value)
-# Deprecated group/name - [DEFAULT]/qpid_hosts
-#qpid_hosts = $qpid_hostname:$qpid_port
-
-# Username for Qpid connection. (string value)
-# Deprecated group/name - [DEFAULT]/qpid_username
-#qpid_username =
-
-# Password for Qpid connection. (string value)
-# Deprecated group/name - [DEFAULT]/qpid_password
-#qpid_password =
-
-# Space separated list of SASL mechanisms to use for auth. (string value)
-# Deprecated group/name - [DEFAULT]/qpid_sasl_mechanisms
-#qpid_sasl_mechanisms =
-
-# Seconds between connection keepalive heartbeats. (integer value)
-# Deprecated group/name - [DEFAULT]/qpid_heartbeat
-#qpid_heartbeat = 60
-
-# Transport to use, either 'tcp' or 'ssl'. (string value)
-# Deprecated group/name - [DEFAULT]/qpid_protocol
-#qpid_protocol = tcp
-
-# Whether to disable the Nagle algorithm. (boolean value)
-# Deprecated group/name - [DEFAULT]/qpid_tcp_nodelay
-#qpid_tcp_nodelay = true
-
-# The number of prefetched messages held by receiver. (integer value)
-# Deprecated group/name - [DEFAULT]/qpid_receiver_capacity
-#qpid_receiver_capacity = 1
-
-# The qpid topology version to use.  Version 1 is what was originally used by
-# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
-# broker federation to work.  Users should update to version 2 when they are
-# able to take everything down, as it requires a clean break. (integer value)
-# Deprecated group/name - [DEFAULT]/qpid_topology_version
-#qpid_topology_version = 1
-
-
 [oslo_messaging_rabbit]
 
 #
@@ -1565,16 +1509,6 @@
 # Auto-delete queues in AMQP. (boolean value)
 # Deprecated group/name - [DEFAULT]/amqp_auto_delete
 #amqp_auto_delete = false
-
-# Send a single AMQP reply to call message. The current behaviour since oslo-
-# incubator is to send two AMQP replies - first one with the payload, a second
-# one to ensure the other have finish to send the payload. We are going to
-# remove it in the N release, but we must keep backward compatible at the same
-# time. This option provides such compatibility - it defaults to False in
-# Liberty and can be turned on for early adopters with a new installations or
-# for testing. Please note, that this option will be removed in the Mitaka
-# release. (boolean value)
-#send_single_reply = false
 
 # SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
 # SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
@@ -1599,15 +1533,24 @@
 # Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
 #kombu_reconnect_delay = 1.0
 
-# How long to wait before considering a reconnect attempt to have failed. This
-# value should not be longer than rpc_response_timeout. (integer value)
-#kombu_reconnect_timeout = 60
+# How long to wait a missing client beforce abandoning to send it its replies.
+# This value should not be longer than rpc_response_timeout. (integer value)
+# Deprecated group/name - [DEFAULT]/kombu_reconnect_timeout
+#kombu_missing_consumer_retry_timeout = 60
+
+# Determines how the next RabbitMQ node is chosen in case the one we are
+# currently connected to becomes unavailable. Takes effect only if more than
+# one RabbitMQ node is provided in config. (string value)
+# Allowed values: round-robin, shuffle
+#kombu_failover_strategy = round-robin
 
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
 #rabbit_host = localhost
 
-# The RabbitMQ broker port where a single node is used. (integer value)
+# The RabbitMQ broker port where a single node is used. (port value)
+# Minimum value: 1
+# Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/rabbit_port
 #rabbit_port = 5672
 
