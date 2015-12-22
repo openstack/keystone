@@ -195,8 +195,8 @@ class DnCompareTest(unit.BaseTestCase):
 
     def test_startswith_unicode(self):
         # dn_startswith accepts unicode.
-        child = u'cn=cn=fäké,ou=OpenStäck'
-        parent = 'ou=OpenStäck'
+        child = u'cn=fäké,ou=OpenStäck'
+        parent = u'ou=OpenStäck'
         self.assertTrue(ks_ldap.dn_startswith(child, parent))
 
 
