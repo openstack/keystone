@@ -354,7 +354,7 @@ def notify_event_callbacks(service, resource_type, operation, payload):
                               'operation': operation,
                               'payload': payload}
                 LOG.debug('Invoking callback %(cb_name)s for event '
-                          '%(service)s %(resource_type)s %(operation)s for'
+                          '%(service)s %(resource_type)s %(operation)s for '
                           '%(payload)s', subst_dict)
                 cb(service, resource_type, operation, payload)
 

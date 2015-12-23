@@ -956,7 +956,7 @@ class KeystoneLDAPHandler(LDAPHandler):
         if attrlist is not None:
             attrlist = [attr for attr in attrlist if attr is not None]
         LOG.debug('LDAP search_ext: base=%s scope=%s filterstr=%s '
-                  'attrs=%s attrsonly=%s'
+                  'attrs=%s attrsonly=%s '
                   'serverctrls=%s clientctrls=%s timeout=%s sizelimit=%s',
                   base, scope, filterstr, attrlist, attrsonly,
                   serverctrls, clientctrls, timeout, sizelimit)
