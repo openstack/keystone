@@ -15,6 +15,7 @@
 import os
 import uuid
 
+import fixtures
 import mock
 from oslo_config import cfg
 from six.moves import range
@@ -40,6 +41,63 @@ class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self.useFixture(database.Database())
         self.load_backends()
         cli.TokenFlush.main()
+
+
+class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
+
+    def setUp(self):
+        self.useFixture(database.Database())
+        super(CliBootStrapTestCase, self).setUp()
+
+    def config_files(self):
+        self.config_fixture.register_cli_opt(cli.command_opt)
+        config_files = super(CliBootStrapTestCase, self).config_files()
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
+        return config_files
+
+    def config(self, config_files):
+        CONF(args=['bootstrap', '--bootstrap-password', uuid.uuid4().hex],
+             project='keystone',
+             default_config_files=config_files)
+
+    def test_bootstrap(self):
+        bootstrap = cli.BootStrap()
+        bootstrap.do_bootstrap()
+        project = bootstrap.resource_manager.get_project_by_name(
+            bootstrap.project_name,
+            'default')
+        user = bootstrap.identity_manager.get_user_by_name(
+            bootstrap.username,
+            'default')
+        role = bootstrap.role_manager.get_role(bootstrap.role_id)
+        role_list = (
+            bootstrap.assignment_manager.get_roles_for_user_and_project(
+                user['id'],
+                project['id']))
+        self.assertIs(len(role_list), 1)
+        self.assertEqual(role_list[0], role['id'])
+        # NOTE(morganfainberg): Pass an empty context, it isn't used by
+        # `authenticate` method.
+        bootstrap.identity_manager.authenticate(
+            {},
+            user['id'],
+            bootstrap.password)
+
+
+class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
+
+    def config(self, config_files):
+        CONF(args=['bootstrap'], project='keystone',
+             default_config_files=config_files)
+
+    def setUp(self):
+        super(CliBootStrapTestCaseWithEnvironment, self).setUp()
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_PASSWORD',
+                                         newvalue=uuid.uuid4().hex))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_USERNAME',
+                                         newvalue=uuid.uuid4().hex))
 
 
 class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):

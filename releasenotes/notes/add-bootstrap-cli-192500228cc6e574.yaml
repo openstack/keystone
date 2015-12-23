@@ -1,0 +1,15 @@
+---
+features:
+  - keystone-manage now supports the bootstrap command
+    on the CLI so that a keystone install can be
+    initialized without the need of the admin_token
+    filter in the paste-ini.
+security:
+  - The use of admin_token filter is insecure compared
+    to the use of a proper username/password. Historically
+    the admin_token filter has been left enabled in
+    Keystone after initialization due to the way CMS
+    systems work. Moving to an out-of-band initialization
+    will eliminate the security concerns around a static
+    shared string that conveys admin access to Keystone
+    and therefore to the entire installation.
