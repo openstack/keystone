@@ -781,6 +781,12 @@ class TestTokenProvider(unit.TestCase):
         self.assertIsNone(
             self.token_provider_api._is_valid_token(create_v3_token()))
 
+    def test_no_token_raises_token_not_found(self):
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.token_provider_api.validate_token,
+            None)
+
 
 # NOTE(ayoung): renamed to avoid automatic test detection
 class PKIProviderTests(object):

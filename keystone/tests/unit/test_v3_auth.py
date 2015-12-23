@@ -403,6 +403,17 @@ class TokenAPITests(object):
         r = self.get('/auth/tokens', headers=self.headers)
         self.assertValidUnscopedTokenResponse(r)
 
+    def test_validate_missing_subject_token(self):
+        self.get('/auth/tokens',
+                 expected_status=http_client.NOT_FOUND)
+
+    def test_validate_missing_auth_token(self):
+        self.admin_request(
+            method='GET',
+            path='/v3/projects',
+            token=None,
+            expected_status=http_client.UNAUTHORIZED)
+
     def test_validate_token_nocatalog(self):
         v3_token = self.get_requested_token(self.build_authentication_request(
             user_id=self.user['id'],
