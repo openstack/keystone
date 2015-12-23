@@ -16,6 +16,14 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 
+# NOTE(henry-nash): From the manager and above perspective, the domain_id
+# attribute of a role is nullable.  However, to ensure uniqueness in
+# multi-process configurations, it is better to still use a sql uniqueness
+# constraint. Since the support for a nullable component of a uniqueness
+# constraint across different sql databases is mixed, we instead store a
+# special value to represent null, as defined in NULL_DOMAIN_ID beloe.
+NULL_DOMAIN_ID = '<<null>>'
+
 
 class Role(assignment.RoleDriverV9):
 
@@ -28,6 +36,16 @@ class Role(assignment.RoleDriverV9):
 
     @driver_hints.truncated
     def list_roles(self, hints):
+        # If there is a filter on domain_id and the value is None, then to
+        # ensure that the sql filtering works correctly, we need to patch
+        # the value to be NULL_DOMAIN_ID. This is safe to do here since we
+        # know we are able to satisfy any filter of this type in the call to
+        # filter_limit_query() below, which will remove the filter from the
+        # hints (hence ensuring our substitution is not exposed to the caller).
+        for f in hints.filters:
+            if (f['name'] == 'domain_id' and f['value'] is None):
+                f['value'] = NULL_DOMAIN_ID
+
         with sql.transaction() as session:
             query = session.query(RoleTable)
             refs = sql.filter_limit_query(RoleTable, query, hints)
@@ -153,9 +171,28 @@ class ImpliedRoleTable(sql.ModelBase, sql.DictBase):
 
 
 class RoleTable(sql.ModelBase, sql.DictBase):
+
+    def to_dict(self, include_extra_dict=False):
+        d = super(RoleTable, self).to_dict(
+            include_extra_dict=include_extra_dict)
+        if d['domain_id'] == NULL_DOMAIN_ID:
+            d['domain_id'] = None
+        return d
+
+    @classmethod
+    def from_dict(cls, role_dict):
+        if 'domain_id' in role_dict and role_dict['domain_id'] is None:
+            new_dict = role_dict.copy()
+            new_dict['domain_id'] = NULL_DOMAIN_ID
+        else:
+            new_dict = role_dict
+        return super(RoleTable, cls).from_dict(new_dict)
+
     __tablename__ = 'role'
-    attributes = ['id', 'name']
+    attributes = ['id', 'name', 'domain_id']
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(255), unique=True, nullable=False)
+    name = sql.Column(sql.String(255), nullable=False)
+    domain_id = sql.Column(sql.String(64), nullable=False,
+                           server_default=NULL_DOMAIN_ID)
     extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint('name'), {})
+    __table_args__ = (sql.UniqueConstraint('name', 'domain_id'), {})

@@ -401,6 +401,7 @@ def new_role_ref(**kwargs):
     ref = {
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
+        'domain_id': None
     }
     ref.update(kwargs)
     return ref
