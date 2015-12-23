@@ -1089,7 +1089,7 @@ FILE_OPTIONS = {
                    deprecated_for_removal=True,
                    help='Sets the value of TCP_KEEPIDLE in seconds for each '
                         'server socket. Only applies if tcp_keepalive is '
-                        'true.'),
+                        'true. Ignored if system does not support it.'),
     ],
     'eventlet_server_ssl': [
         cfg.BoolOpt('enable', default=False, deprecated_name='enable',
