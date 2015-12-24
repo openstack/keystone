@@ -749,7 +749,8 @@
 #tcp_keepalive = false
 
 # Sets the value of TCP_KEEPIDLE in seconds for each server socket. Only
-# applies if tcp_keepalive is true. (integer value)
+# applies if tcp_keepalive is true. Ignored if system does not support it.
+# (integer value)
 # Deprecated group/name - [DEFAULT]/tcp_keepidle
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
