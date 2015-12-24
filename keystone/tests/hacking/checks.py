@@ -394,7 +394,7 @@ class CheckForLoggingIssues(BaseASTChecker):
                 else:
                     return False
             elif isinstance(peer, ast.Assign):
-                if name in (t.id for t in peer.targets):
+                if name in (t.id for t in peer.targets if hasattr(t, 'id')):
                     return False
 
 
