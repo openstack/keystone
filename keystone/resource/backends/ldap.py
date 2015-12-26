@@ -15,7 +15,6 @@ from __future__ import absolute_import
 import uuid
 
 from oslo_config import cfg
-from oslo_log import log
 from oslo_log import versionutils
 
 from keystone.common import clean
@@ -29,7 +28,6 @@ from keystone import resource
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 class Resource(resource.ResourceDriverV8):

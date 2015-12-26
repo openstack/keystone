@@ -10,13 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-
 from oslo_log import versionutils
 
 from keystone.endpoint_policy.backends import sql
-
-LOG = logging.getLogger(__name__)
 
 _OLD = 'keystone.contrib.endpoint_policy.backends.sql.EndpointPolicy'
 _NEW = 'keystone.endpoint_policy.backends.sql.EndpointPolicy'

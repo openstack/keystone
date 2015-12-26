@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import log
-
 from keystone import auth
 from keystone.auth import plugins as auth_plugins
 from keystone.common import dependency
@@ -22,8 +20,6 @@ from keystone.i18n import _
 
 
 METHOD_NAME = 'password'
-
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('identity_api')

@@ -14,7 +14,6 @@
 
 import time
 
-from oslo_log import log
 from oslo_utils import timeutils
 from six.moves import range
 
@@ -23,7 +22,6 @@ from keystone import exception
 from keystone import trust
 
 
-LOG = log.getLogger(__name__)
 # The maximum number of iterations that will be attempted for optimistic
 # locking on consuming a limited-use trust.
 MAXIMUM_CONSUME_ATTEMPTS = 10

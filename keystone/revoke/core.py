@@ -16,7 +16,6 @@ import abc
 import datetime
 
 from oslo_config import cfg
-from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import timeutils
 import six
@@ -32,7 +31,6 @@ from keystone.revoke import model
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 EXTENSION_DATA = {

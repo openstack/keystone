@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import log
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
@@ -21,7 +20,6 @@ from keystone import exception
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 # Header used to transmit the auth token

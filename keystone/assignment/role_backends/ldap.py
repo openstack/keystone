@@ -13,7 +13,6 @@
 from __future__ import absolute_import
 
 from oslo_config import cfg
-from oslo_log import log
 from oslo_log import versionutils
 
 from keystone import assignment
@@ -25,7 +24,6 @@ from keystone.identity.backends import ldap as ldap_identity
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 class Role(assignment.RoleDriverV8):

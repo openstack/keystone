@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import log
 import sqlalchemy
 from sqlalchemy.sql.expression import false
 
@@ -24,7 +23,6 @@ from keystone.i18n import _
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 class AssignmentType(object):

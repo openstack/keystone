@@ -14,7 +14,6 @@
 
 """oAuthlib request validator."""
 
-from oslo_log import log
 import six
 
 from keystone.common import dependency
@@ -23,7 +22,6 @@ from keystone.oauth1 import core as oauth1
 
 
 METHOD_NAME = 'oauth_validator'
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('oauth_api')
