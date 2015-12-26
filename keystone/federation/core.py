@@ -64,8 +64,8 @@ class Manager(manager.Manager):
         Service Provider in a catalog contains three attributes: ``id``,
         ``auth_url``, ``sp_url``, where:
 
-        - id is an unique, user defined identifier for service provider object
-        - auth_url is a authentication URL of remote Keystone
+        - id is a unique, user defined identifier for service provider object
+        - auth_url is an authentication URL of remote Keystone
         - sp_url a URL accessible at the remote service provider where SAML
           assertion is transmitted.
 
@@ -359,8 +359,8 @@ class FederationDriverV8(object):
         Service Provider in a catalog contains three attributes: ``id``,
         ``auth_url``, ``sp_url``, where:
 
-        - id is an unique, user defined identifier for service provider object
-        - auth_url is a authentication URL of remote Keystone
+        - id is a unique, user defined identifier for service provider object
+        - auth_url is an authentication URL of remote Keystone
         - sp_url a URL accessible at the remote service provider where SAML
           assertion is transmitted.
 
