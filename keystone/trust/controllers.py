@@ -15,7 +15,6 @@
 import uuid
 
 from oslo_config import cfg
-from oslo_log import log
 from oslo_utils import timeutils
 import six
 
@@ -31,8 +30,6 @@ from keystone.trust import schema
 
 
 CONF = cfg.CONF
-
-LOG = log.getLogger(__name__)
 
 
 def _trustor_trustee_only(trust, user_id):

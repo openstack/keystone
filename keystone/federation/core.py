@@ -15,7 +15,6 @@
 import abc
 
 from oslo_config import cfg
-from oslo_log import log as logging
 import six
 
 from keystone.common import dependency
@@ -26,7 +25,6 @@ from keystone.federation import utils
 
 
 CONF = cfg.CONF
-LOG = logging.getLogger(__name__)
 EXTENSION_DATA = {
     'name': 'OpenStack Federation APIs',
     'namespace': 'http://docs.openstack.org/identity/api/ext/'

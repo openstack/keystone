@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import log
 
 from keystone.common import dependency
 from keystone.common import utils as ks_utils
@@ -24,7 +23,6 @@ from keystone.token.providers.fernet import token_formatters as tf
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('trust_api')

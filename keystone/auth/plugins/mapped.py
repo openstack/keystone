@@ -12,7 +12,6 @@
 
 import functools
 
-from oslo_log import log
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 
@@ -26,8 +25,6 @@ from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
 
-
-LOG = log.getLogger(__name__)
 
 METHOD_NAME = 'mapped'
 

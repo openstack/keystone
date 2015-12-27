@@ -18,7 +18,6 @@
 import uuid
 
 from oslo_config import cfg
-from oslo_log import log
 
 from keystone.common import controller
 from keystone.common import dependency
@@ -31,7 +30,6 @@ from keystone.resource import schema
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('resource_api')

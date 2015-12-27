@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import log
 from oslo_utils import timeutils
 
 from keystone import auth
@@ -22,9 +21,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.oauth1 import core as oauth
 from keystone.oauth1 import validator
-
-
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('oauth_api')

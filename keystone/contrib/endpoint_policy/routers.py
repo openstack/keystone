@@ -10,13 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-
 from oslo_log import versionutils
 
 from keystone.common import wsgi
-
-LOG = logging.getLogger(__name__)
 
 _OLD = 'keystone.contrib.endpoint_policy.routers.EndpointPolicyExtension'
 _NEW = 'keystone.endpoint_policy.routers.Routers'

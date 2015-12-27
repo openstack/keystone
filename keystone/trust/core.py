@@ -17,7 +17,6 @@
 import abc
 
 from oslo_config import cfg
-from oslo_log import log
 import six
 from six.moves import zip
 
@@ -29,8 +28,6 @@ from keystone import notifications
 
 
 CONF = cfg.CONF
-
-LOG = log.getLogger(__name__)
 
 
 @dependency.requires('identity_api')

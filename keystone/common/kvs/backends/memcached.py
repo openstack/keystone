@@ -21,7 +21,6 @@ from dogpile.cache import api
 from dogpile.cache.backends import memcached
 from oslo_cache.backends import memcache_pool
 from oslo_config import cfg
-from oslo_log import log
 from six.moves import range
 
 from keystone import exception
@@ -29,7 +28,6 @@ from keystone.i18n import _
 
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 NO_VALUE = api.NO_VALUE
 random = _random.SystemRandom()
 

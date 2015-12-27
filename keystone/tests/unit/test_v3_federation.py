@@ -19,7 +19,6 @@ import fixtures
 from lxml import etree
 import mock
 from oslo_config import cfg
-from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import importutils
 from oslotest import mockpatch
@@ -51,7 +50,6 @@ from keystone.token.providers import common as token_common
 subprocess = environment.subprocess
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.abspath(__file__))
 XMLDIR = os.path.join(ROOTDIR, 'saml2/')
 

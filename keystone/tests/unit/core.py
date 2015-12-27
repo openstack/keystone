@@ -63,7 +63,6 @@ from keystone.version import service
 
 config.configure()
 
-LOG = log.getLogger(__name__)
 PID = six.text_type(os.getpid())
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
 TESTCONF = os.path.join(TESTSDIR, 'config_files')
