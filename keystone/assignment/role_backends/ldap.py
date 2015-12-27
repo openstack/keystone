@@ -26,7 +26,7 @@ from keystone.identity.backends import ldap as ldap_identity
 CONF = cfg.CONF
 
 
-class Role(assignment.RoleDriverV8):
+class Role(assignment.RoleDriverV9):
     @versionutils.deprecated(
         versionutils.deprecated.MITAKA,
         what='ldap role',
