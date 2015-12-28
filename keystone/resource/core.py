@@ -16,6 +16,7 @@ import abc
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 import six
 
 from keystone.common import cache
@@ -69,6 +70,13 @@ class Manager(manager.Manager):
             resource_driver = assignment_manager.default_resource_driver()
 
         super(Manager, self).__init__(resource_driver)
+
+        # Make sure it is a driver version we support, and if it is a legacy
+        # driver, then wrap it.
+        if isinstance(self.driver, ResourceDriverV8):
+            self.driver = V9ResourceWrapperForV8Driver(self.driver)
+        elif not isinstance(self.driver, ResourceDriverV9):
+            raise exception.UnsupportedDriverVersion(driver=resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):
         return len(parents_list) + 1
@@ -659,8 +667,16 @@ class Manager(manager.Manager):
         pass
 
 
+# The ResourceDriverBase class is the set of driver methods from earlier
+# drivers that we still support, that have not been removed or modified. This
+# class is then used to created the augmented V8 and V9 version abstract driver
+# classes, without having to duplicate a lot of abstract method signatures.
+# If you remove a method from V9, then move the abstact methods from this Base
+# class to the V8 class. Do not modify any of the method signatures in the Base
+# class - changes should only be made in the V8 and subsequent classes.
+
 @six.add_metaclass(abc.ABCMeta)
-class ResourceDriverV8(object):
+class ResourceDriverBase(object):
 
     def _get_list_limit(self):
         return CONF.resource.list_limit or CONF.list_limit
@@ -921,6 +937,118 @@ class ResourceDriverV8(object):
         """Validate that the domain ID belongs to the default domain."""
         if domain_id != CONF.identity.default_domain_id:
             raise exception.DomainNotFound(domain_id=domain_id)
+
+
+class ResourceDriverV8(ResourceDriverBase):
+    """Removed or redefined methods from V8.
+
+    Move the abstract methods of any methods removed or modified in later
+    versions of the driver from ResourceDriverBase to here. We maintain this
+    so that legacy drivers, which will be a subclass of ResourceDriverV8, can
+    still reference them.
+
+    """
+
+    pass
+
+
+class ResourceDriverV9(ResourceDriverBase):
+    """New or redefined methods from V8.
+
+    Add any new V9 abstract methods (or those with modified signatures) to
+    this class.
+
+    """
+
+    pass
+
+
+class V9ResourceWrapperForV8Driver(ResourceDriverV9):
+    """Wrapper class to supported a V8 legacy driver.
+
+    In order to support legacy drivers without having to make the manager code
+    driver-version aware, we wrap legacy drivers so that they look like the
+    latest version. For the various changes made in a new driver, here are the
+    actions needed in this wrapper:
+
+    Method removed from new driver - remove the call-through method from this
+                                     class, since the manager will no longer be
+                                     calling it.
+    Method signature (or meaning) changed - wrap the old method in a new
+                                            signature here, and munge the input
+                                            and output parameters accordingly.
+    New method added to new driver - add a method to implement the new
+                                     functionality here if possible. If that is
+                                     not possible, then return NotImplemented,
+                                     since we do not guarantee to support new
+                                     functionality with legacy drivers.
+
+    """
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.MITAKA,
+        what='keystone.resource.ResourceDriverV8',
+        in_favor_of='keystone.resource.ResourceDriverV9',
+        remove_in=+2)
+    def __init__(self, wrapped_driver):
+        self.driver = wrapped_driver
+
+    def get_project_by_name(self, tenant_name, domain_id):
+        return self.driver.get_project_by_name(tenant_name, domain_id)
+
+    def create_domain(self, domain_id, domain):
+        return self.driver.create_domain(domain_id, domain)
+
+    def list_domains(self, hints):
+        return self.driver.list_domains(hints)
+
+    def list_domains_from_ids(self, domain_ids):
+        return self.driver.list_domains_from_ids(domain_ids)
+
+    def get_domain(self, domain_id):
+        return self.driver.get_domain(domain_id)
+
+    def get_domain_by_name(self, domain_name):
+        return self.driver.get_domain_by_name(domain_name)
+
+    def update_domain(self, domain_id, domain):
+        return self.driver.update_domain(domain_id, domain)
+
+    def delete_domain(self, domain_id):
+        self.driver.delete_domain(domain_id)
+
+    def create_project(self, project_id, project):
+        return self.driver.create_project(project_id, project)
+
+    def list_projects(self, hints):
+        return self.driver.list_projects(hints)
+
+    def list_projects_from_ids(self, project_ids):
+        return self.driver.list_projects_from_ids(project_ids)
+
+    def list_project_ids_from_domain_ids(self, domain_ids):
+        return self.driver.list_project_ids_from_domain_ids(domain_ids)
+
+    def list_projects_in_domain(self, domain_id):
+        return self.driver.list_projects_in_domain(domain_id)
+
+    def get_project(self, project_id):
+        return self.driver.get_project(project_id)
+
+    def update_project(self, project_id, project):
+        return self.driver.update_project(project_id, project)
+
+    def delete_project(self, project_id):
+        self.driver.delete_project(project_id)
+
+    def list_project_parents(self, project_id):
+        return self.driver.list_project_parents(project_id)
+
+    def list_projects_in_subtree(self, project_id):
+        return self.driver.list_projects_in_subtree(project_id)
+
+    def is_leaf_project(self, project_id):
+        return self.driver.is_leaf_project(project_id)
 
 
 Driver = manager.create_legacy_driver(ResourceDriverV8)
