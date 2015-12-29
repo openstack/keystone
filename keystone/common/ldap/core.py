@@ -1826,7 +1826,8 @@ class EnabledEmuMixIn(BaseLdap):
 
     def _get_enabled(self, object_id, conn):
         dn = self._id_to_dn(object_id)
-        query = '(%s=%s)' % (self.member_attribute, dn)
+        query = '(%s=%s)' % (self.member_attribute,
+                             ldap.filter.escape_filter_chars(dn))
         try:
             enabled_value = conn.search_s(self.enabled_emulation_dn,
                                           ldap.SCOPE_BASE,
