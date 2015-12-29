@@ -596,6 +596,7 @@ class TestCase(BaseTestCase):
             config, '_register_auth_plugin_opt',
             new=mocked_register_auth_plugin_opt))
 
+        self.sql_driver_version_overrides = {}
         self.config_overrides()
         # NOTE(morganfainberg): ensure config_overrides has been called.
         self.addCleanup(self._assert_config_overrides_called)
@@ -841,7 +842,6 @@ class SQLDriverOverrides(object):
         self.config_fixture.config(group='revoke', driver='sql')
         self.config_fixture.config(group='token', driver='sql')
         self.config_fixture.config(group='trust', driver='sql')
-        self.sql_driver_version_overrides = {}
 
     def use_specific_sql_driver_version(self, driver_path,
                                         versionless_backend, version_suffix):
