@@ -1,5 +1,5 @@
 ---
-other:
+deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
     As of the Mitaka release, the PKI and PKIz token formats have been

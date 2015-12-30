@@ -1,5 +1,7 @@
 ---
-other:
-  - The file ``httpd/keystone.py`` has been deprecated in favor of
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
+    The file ``httpd/keystone.py`` has been deprecated in favor of
     ``keystone-wsgi-admin`` and ``keystone-wsgi-public`` and may be
     removed in the 'O' release.

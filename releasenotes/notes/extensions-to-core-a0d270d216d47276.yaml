@@ -1,12 +1,5 @@
 ---
-other:
-  - >
-    [`blueprint move-extensions <https://blueprints.launchpad.net/keystone/+spec/move-extensions>`_]
-    If any extension migrations are run, for example: ``keystone-manage db_sync
-    --extension endpoint_policy`` an error will be returned. This is working as
-    designed. To run these migrations simply run: ``keystone-manage db_sync``.
-    The complete list of affected extensions are: ``oauth1``, ``federation``,
-    ``endpoint_filter``, ``endpoint_policy``, and ``revoke``.
+upgrade:
   - >
     The ``keystone-paste.ini`` file must be updated to remove extension
     filters, and their use in ``[pipeline:api_v3]``.
@@ -15,3 +8,11 @@ other:
     and ``[filter:revoke_extension]``. See the sample `keystone-paste.ini
     <https://git.openstack.org/cgit/openstack/keystone/tree/etc/keystone-paste.ini>`_
     file for guidance.
+other:
+  - >
+    [`blueprint move-extensions <https://blueprints.launchpad.net/keystone/+spec/move-extensions>`_]
+    If any extension migrations are run, for example: ``keystone-manage db_sync
+    --extension endpoint_policy`` an error will be returned. This is working as
+    designed. To run these migrations simply run: ``keystone-manage db_sync``.
+    The complete list of affected extensions are: ``oauth1``, ``federation``,
+    ``endpoint_filter``, ``endpoint_policy``, and ``revoke``.
