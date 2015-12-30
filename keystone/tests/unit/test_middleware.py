@@ -255,7 +255,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
 
         :param request: HTTP request
         :param mapping_ref: A mapping in JSON structure will be setup in the
-            backend DB for mapping an user or a group.
+            backend DB for mapping a user or a group.
         :param exception_expected: Sets to True when an exception is expected
             to raised based on the given arguments.
         :returns: context an auth context contains user and role information
