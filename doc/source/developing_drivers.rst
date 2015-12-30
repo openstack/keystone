@@ -25,7 +25,7 @@ Each major subsystem (that has data access needs) implements the data access
 by using drivers. Some examples of Keystone's drivers:
 
 - :class:`keystone.identity.backends.ldap.Identity`
-- :class:`keystone.token.providers.fernet.Provider`
+- :class:`keystone.token.providers.fernet.core.Provider`
 - :class:`keystone.contrib.federation.backends.sql.Federation`
 
 In/Out of Tree
