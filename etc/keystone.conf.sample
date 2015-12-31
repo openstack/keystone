@@ -1719,6 +1719,18 @@
 # `is_admin_project=true`. Defaults to None. (string value)
 #admin_project_name = <None>
 
+# Whether the names of projects are restricted from containing url reserved
+# characters. If set to new, attempts to create or update a project with a url
+# unsafe name will return an error. (string value)
+# Allowed values: off, new
+#project_name_url_safe = off
+
+# Whether the names of domains are restricted from containing url reserved
+# characters. If set to new, attempts to create or update a domain with a url
+# unsafe name will return an error. (string value)
+# Allowed values: off, new
+#domain_name_url_safe = off
+
 
 [revoke]
 
