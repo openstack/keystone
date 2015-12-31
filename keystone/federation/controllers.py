@@ -91,6 +91,7 @@ class IdentityProvider(_ControllerBase):
         return {cls.member_name: ref}
 
     @controller.protected()
+    @validation.validated(schema.identity_provider_create, 'identity_provider')
     def create_identity_provider(self, context, idp_id, identity_provider):
         identity_provider = self._normalize_dict(identity_provider)
         identity_provider.setdefault('enabled', False)
@@ -115,6 +116,7 @@ class IdentityProvider(_ControllerBase):
         self.federation_api.delete_idp(idp_id)
 
     @controller.protected()
+    @validation.validated(schema.identity_provider_update, 'identity_provider')
     def update_identity_provider(self, context, idp_id, identity_provider):
         identity_provider = self._normalize_dict(identity_provider)
         IdentityProvider.check_immutable_params(identity_provider)
