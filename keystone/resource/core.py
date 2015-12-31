@@ -23,6 +23,7 @@ from keystone.common import clean
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
+from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 from keystone import notifications
@@ -158,8 +159,22 @@ class Manager(manager.Manager):
             self._assert_max_hierarchy_depth(project_ref.get('parent_id'),
                                              parents_list)
 
+    def _raise_reserved_character_exception(self, entity_type, name):
+        msg = _('%(entity)s name cannot contain the following reserved '
+                'characters: %(chars)s')
+        raise exception.ValidationError(
+            message=msg % {
+                'entity': entity_type,
+                'chars': utils.list_url_unsafe_chars(name)
+            })
+
     def create_project(self, tenant_id, tenant, initiator=None):
         tenant = tenant.copy()
+
+        if (CONF.resource.project_name_url_safe != 'off' and
+                utils.is_not_url_safe(tenant['name'])):
+            self._raise_reserved_character_exception('Project', tenant['name'])
+
         tenant.setdefault('enabled', True)
         tenant['enabled'] = clean.project_enabled(tenant['enabled'])
         tenant.setdefault('description', '')
@@ -263,6 +278,12 @@ class Manager(manager.Manager):
     def update_project(self, tenant_id, tenant, initiator=None):
         original_tenant = self.driver.get_project(tenant_id)
         tenant = tenant.copy()
+
+        if (CONF.resource.project_name_url_safe != 'off' and
+                'name' in tenant and
+                tenant['name'] != original_tenant['name'] and
+                utils.is_not_url_safe(tenant['name'])):
+            self._raise_reserved_character_exception('Project', tenant['name'])
 
         parent_id = original_tenant.get('parent_id')
         if 'parent_id' in tenant and tenant.get('parent_id') != parent_id:
@@ -476,6 +497,10 @@ class Manager(manager.Manager):
         if (not self.identity_api.multiple_domains_supported and
                 domain_id != CONF.identity.default_domain_id):
             raise exception.Forbidden(_('Multiple domains are not supported'))
+        if (CONF.resource.domain_name_url_safe != 'off' and
+                utils.is_not_url_safe(domain['name'])):
+            self._raise_reserved_character_exception('Domain', domain['name'])
+
         self.assert_domain_not_federated(domain_id, domain)
         domain.setdefault('enabled', True)
         domain['enabled'] = clean.domain_enabled(domain['enabled'])
@@ -508,6 +533,10 @@ class Manager(manager.Manager):
     def update_domain(self, domain_id, domain, initiator=None):
         self.assert_domain_not_federated(domain_id, domain)
         original_domain = self.driver.get_domain(domain_id)
+        if (CONF.resource.domain_name_url_safe != 'off' and
+            'name' in domain and domain['name'] != original_domain['name'] and
+                utils.is_not_url_safe(domain['name'])):
+            self._raise_reserved_character_exception('Domain', domain['name'])
         if 'enabled' in domain:
             domain['enabled'] = clean.domain_enabled(domain['enabled'])
         ret = self.driver.update_domain(domain_id, domain)

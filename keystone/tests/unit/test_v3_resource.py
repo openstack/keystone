@@ -62,6 +62,35 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.post('/domains', body={'domain': {}},
                   expected_status=http_client.BAD_REQUEST)
 
+    def test_create_domain_unsafe(self):
+        """Call ``POST /domains with unsafe names``."""
+        unsafe_name = 'i am not / safe'
+
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='off')
+        ref = unit.new_domain_ref(name=unsafe_name)
+        self.post(
+            '/domains',
+            body={'domain': ref})
+
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='new')
+        ref = unit.new_domain_ref(name=unsafe_name)
+        self.post(
+            '/domains',
+            body={'domain': ref},
+            expected_status=http_client.BAD_REQUEST)
+
+    def test_create_domain_unsafe_default(self):
+        """Check default for unsafe names for``POST /domains ``."""
+        unsafe_name = 'i am not / safe'
+
+        # By default, we should be able to create unsafe names
+        ref = unit.new_domain_ref(name=unsafe_name)
+        self.post(
+            '/domains',
+            body={'domain': ref})
+
     def test_list_domains(self):
         """Call ``GET /domains``."""
         resource_url = '/domains'
@@ -83,6 +112,39 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             'domain_id': self.domain_id},
             body={'domain': ref})
         self.assertValidDomainResponse(r, ref)
+
+    def test_update_domain_unsafe(self):
+        """Call ``POST /domains/{domain_id} with unsafe names``."""
+        unsafe_name = 'i am not / safe'
+
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='off')
+        ref = unit.new_domain_ref(name=unsafe_name)
+        del ref['id']
+        self.patch('/domains/%(domain_id)s' % {
+            'domain_id': self.domain_id},
+            body={'domain': ref})
+
+        unsafe_name = 'i am still not / safe'
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='new')
+        ref = unit.new_domain_ref(name=unsafe_name)
+        del ref['id']
+        self.patch('/domains/%(domain_id)s' % {
+            'domain_id': self.domain_id},
+            body={'domain': ref},
+            expected_status=http_client.BAD_REQUEST)
+
+    def test_update_domain_unsafe_default(self):
+        """Check default for unsafe names for``POST /domains ``."""
+        unsafe_name = 'i am not / safe'
+
+        # By default, we should be able to create unsafe names
+        ref = unit.new_domain_ref(name=unsafe_name)
+        del ref['id']
+        self.patch('/domains/%(domain_id)s' % {
+            'domain_id': self.domain_id},
+            body={'domain': ref})
 
     def test_disable_domain(self):
         """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
@@ -471,6 +533,35 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         ref = unit.new_project_ref(domain_id=uuid.uuid4().hex)
         self.post('/projects', body={'project': ref},
                   expected_status=http_client.BAD_REQUEST)
+
+    def test_create_project_unsafe(self):
+        """Call ``POST /projects with unsafe names``."""
+        unsafe_name = 'i am not / safe'
+
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='off')
+        ref = unit.new_project_ref(name=unsafe_name)
+        self.post(
+            '/projects',
+            body={'project': ref})
+
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        ref = unit.new_project_ref(name=unsafe_name)
+        self.post(
+            '/projects',
+            body={'project': ref},
+            expected_status=http_client.BAD_REQUEST)
+
+    def test_create_project_unsafe_default(self):
+        """Check default for unsafe names for``POST /projects ``."""
+        unsafe_name = 'i am not / safe'
+
+        # By default, we should be able to create unsafe names
+        ref = unit.new_project_ref(name=unsafe_name)
+        self.post(
+            '/projects',
+            body={'project': ref})
 
     def test_create_project_is_domain_not_allowed(self):
         """Call ``POST /projects``.
@@ -949,6 +1040,45 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 'project_id': self.project_id},
             body={'project': ref})
         self.assertValidProjectResponse(r, ref)
+
+    def test_update_project_unsafe(self):
+        """Call ``POST /projects/{project_id} with unsafe names``."""
+        unsafe_name = 'i am not / safe'
+
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='off')
+        ref = unit.new_project_ref(name=unsafe_name,
+                                   domain_id=self.domain_id)
+        del ref['id']
+        self.patch(
+            '/projects/%(project_id)s' % {
+                'project_id': self.project_id},
+            body={'project': ref})
+
+        unsafe_name = 'i am still not / safe'
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        ref = unit.new_project_ref(name=unsafe_name,
+                                   domain_id=self.domain_id)
+        del ref['id']
+        self.patch(
+            '/projects/%(project_id)s' % {
+                'project_id': self.project_id},
+            body={'project': ref},
+            expected_status=http_client.BAD_REQUEST)
+
+    def test_update_project_unsafe_default(self):
+        """Check default for unsafe names for``POST /projects ``."""
+        unsafe_name = 'i am not / safe'
+
+        # By default, we should be able to create unsafe names
+        ref = unit.new_project_ref(name=unsafe_name,
+                                   domain_id=self.domain_id)
+        del ref['id']
+        self.patch(
+            '/projects/%(project_id)s' % {
+                'project_id': self.project_id},
+            body={'project': ref})
 
     def test_update_project_domain_id(self):
         """Call ``PATCH /projects/{project_id}`` with domain_id."""
