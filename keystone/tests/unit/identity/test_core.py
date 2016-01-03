@@ -165,7 +165,7 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         # Now turn off using database domain configuration and check that the
         # default config file values are now seen instead of the overrides.
         CONF.set_override('domain_configurations_from_database', False,
-                          'identity')
+                          'identity', enforce_type=True)
         domain_config = identity.DomainConfigs()
         domain_config.setup_domain_drivers(fake_standard_driver,
                                            self.resource_api)
