@@ -101,6 +101,13 @@ class AssignmentTestHelperMixin(object):
                                   {'project': {'project': 3}},
                                   {'project': {'project': 3}}]
 
+        # If the 'roles' entity count is defined as top level key in 'entities'
+        # dict then these are global roles. If it is placed within the
+        # 'domain' dict, then they will be domain specific roles. A mix of
+        # domain specific and global roles are allowed, with the role index
+        # being calculated in the order they are defined in the 'entities'
+        # dict.
+
         # A set of implied role specifications. In this case, prior role
         # index 0 implies role index 1, and role 1 implies roles 2 and 3.
 
@@ -179,6 +186,10 @@ class AssignmentTestHelperMixin(object):
                 test_data['projects'].append(
                     _create_project(domain_id, parent_id))
 
+    def _create_role(self, domain_id=None):
+        new_role = unit.new_role_ref(domain_id=domain_id)
+        return self.role_api.create_role(new_role['id'], new_role)
+
     def _handle_domain_spec(self, test_data, domain_spec):
         """Handle the creation of domains and their contents.
 
@@ -210,6 +221,8 @@ class AssignmentTestHelperMixin(object):
             elif entity_type == 'groups':
                 new_entity = unit.new_group_ref(domain_id=domain_id)
                 new_entity = self.identity_api.create_group(new_entity)
+            elif entity_type == 'roles':
+                new_entity = self._create_role(domain_id=domain_id)
             else:
                 # Must be a bad test plan
                 raise exception.NotImplemented()
@@ -252,10 +265,6 @@ class AssignmentTestHelperMixin(object):
         test_data['users'] = [user[0], user[1]....]
 
         """
-        def _create_role():
-            new_role = unit.new_role_ref()
-            return self.role_api.create_role(new_role['id'], new_role)
-
         test_data = {}
         for entity in ['users', 'groups', 'domains', 'projects', 'roles']:
             test_data[entity] = []
@@ -268,7 +277,7 @@ class AssignmentTestHelperMixin(object):
         # Create any roles requested
         if 'roles' in entity_pattern:
             for _ in range(entity_pattern['roles']):
-                test_data['roles'].append(_create_role())
+                test_data['roles'].append(self._create_role())
 
         return test_data
 
@@ -7109,6 +7118,35 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
             ]
         }
         self.config_fixture.config(group='os_inherit', enabled=True)
+        self.execute_assignment_plan(test_plan)
+
+    def test_role_assignments_domain_specific_with_implied_roles(self):
+        test_plan = {
+            'entities': {'domains': {'users': 1, 'projects': 1, 'roles': 2},
+                         'roles': 2},
+            # Two level tree of implied roles, with the top and 1st level being
+            # domain specific roles, and the bottom level being infered global
+            # roles.
+            'implied_roles': [{'role': 0, 'implied_roles': [1]},
+                              {'role': 1, 'implied_roles': [2, 3]}],
+            'assignments': [{'user': 0, 'role': 0, 'project': 0}],
+            'tests': [
+                # List all direct assignments for user[0], this should just
+                # show the one top level role assignment, even though this is a
+                # domain specific role (since we are in non-effective mode and
+                # we show any direct role assignment in that mode).
+                {'params': {'user': 0},
+                 'results': [{'user': 0, 'role': 0, 'project': 0}]},
+                # Now the effective ones - so the implied roles should be
+                # expanded out, as well as any domain specific roles should be
+                # removed.
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 2, 'project': 0,
+                              'indirect': {'role': 1}},
+                             {'user': 0, 'role': 3, 'project': 0,
+                              'indirect': {'role': 1}}]},
+            ]
+        }
         self.execute_assignment_plan(test_plan)
 
 

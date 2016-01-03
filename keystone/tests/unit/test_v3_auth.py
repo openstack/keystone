@@ -481,9 +481,9 @@ class TokenAPITests(object):
         r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
         self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
 
-    def _create_role(self):
+    def _create_role(self, domain_id=None):
         """Call ``POST /roles``."""
-        ref = unit.new_role_ref()
+        ref = unit.new_role_ref(domain_id=domain_id)
         r = self.post('/roles', body={'role': ref})
         return self.assertValidRoleResponse(r, ref)
 
@@ -665,6 +665,25 @@ class TokenAPITests(object):
         self._delete_implied_role(unrelated['id'], implied['id'])
         token_roles = self._get_scoped_token_roles()
         self.assertEqual(2, len(token_roles))
+
+    def test_domain_scpecific_roles_do_not_show_v3_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        initial_token_roles = self._get_scoped_token_roles()
+
+        new_role = self._create_role(domain_id=self.domain_id)
+        self.assignment_api.create_grant(new_role['id'],
+                                         user_id=self.user['id'],
+                                         project_id=self.project['id'])
+        implied = self._create_implied_role(new_role['id'])
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(len(initial_token_roles) + 1, len(token_roles))
+
+        # The implied role from the domain specific role should be in the
+        # token, but not the domain specific role itself.
+        token_role_ids = [role['id'] for role in token_roles]
+        self.assertIn(implied['id'], token_role_ids)
+        self.assertNotIn(new_role['id'], token_role_ids)
 
 
 class TokenDataTests(object):

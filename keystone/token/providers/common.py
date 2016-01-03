@@ -396,24 +396,39 @@ class V3TokenDataHelper(object):
             token_domain_id = domain_id
 
         if token_domain_id or token_project_id:
-            roles = self._get_roles_for_user(token_user_id,
-                                             token_domain_id,
-                                             token_project_id)
             filtered_roles = []
             if CONF.trust.enabled and trust:
+                # First expand out any roles that were in the trust to include
+                # any implied roles, whether global or domain specific
                 refs = [{'role_id': role['id']} for role in trust['roles']]
-                effective_roles = self.assignment_api.add_implied_roles(refs)
-                for trust_role in effective_roles:
+                effective_trust_roles = (
+                    self.assignment_api.add_implied_roles(refs))
+                # Now get the current role assignments for the trustor,
+                # including any domain specific roles.
+                assignment_list = self.assignment_api.list_role_assignments(
+                    user_id=token_user_id,
+                    project_id=token_project_id,
+                    effective=True, strip_domain_roles=False)
+                current_effective_trustor_roles = (
+                    list(set([x['role_id'] for x in assignment_list])))
+                # Go through each of the effective trust roles, making sure the
+                # trustor still has them, if any have been removed, then we
+                # will treat the trust as invalid
+                for trust_role in effective_trust_roles:
 
-                    match_roles = [x for x in roles
-                                   if x['id'] == trust_role['role_id']]
+                    match_roles = [x for x in current_effective_trustor_roles
+                                   if x == trust_role['role_id']]
                     if match_roles:
-                        filtered_roles.append(match_roles[0])
+                        role = self.role_api.get_role(match_roles[0])
+                        if role['domain_id'] is None:
+                            filtered_roles.append(role)
                     else:
                         raise exception.Forbidden(
                             _('Trustee has no delegated roles.'))
             else:
-                for role in roles:
+                for role in self._get_roles_for_user(token_user_id,
+                                                     token_domain_id,
+                                                     token_project_id):
                     filtered_roles.append({'id': role['id'],
                                            'name': role['name']})
 
