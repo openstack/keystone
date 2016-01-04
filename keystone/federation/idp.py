@@ -68,7 +68,7 @@ class SAMLGenerator(object):
         :param expires_in: Sets how long the assertion is valid for, in seconds
         :type expires_in: int
 
-        :return: XML <Response> object
+        :returns: XML <Response> object
 
         """
         expiration_time = self._determine_expiration_time(expires_in)
@@ -105,7 +105,7 @@ class SAMLGenerator(object):
               Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
         </ns0:Status>
 
-        :return: XML <Status> object
+        :returns: XML <Status> object
 
         """
         status = samlp.Status()
@@ -123,7 +123,7 @@ class SAMLGenerator(object):
           Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
           https://acme.com/FIM/sps/openstack/saml20</ns0:Issuer>
 
-        :return: XML <Issuer> object
+        :returns: XML <Issuer> object
 
         """
         issuer = saml.Issuer()
@@ -145,7 +145,7 @@ class SAMLGenerator(object):
             </ns0:SubjectConfirmation>
         </ns0:Subject>
 
-        :return: XML <Subject> object
+        :returns: XML <Subject> object
 
         """
         name_id = saml.NameID()
@@ -190,7 +190,7 @@ class SAMLGenerator(object):
             </ns0:Attribute>
         </ns0:AttributeStatement>
 
-        :return: XML <AttributeStatement> object
+        :returns: XML <AttributeStatement> object
 
         """
         def _build_attribute(attribute_name, attribute_values):
@@ -236,7 +236,7 @@ class SAMLGenerator(object):
             </ns0:AuthnContext>
         </ns0:AuthnStatement>
 
-        :return: XML <AuthnStatement> object
+        :returns: XML <AuthnStatement> object
 
         """
         authn_statement = saml.AuthnStatement()
@@ -272,7 +272,7 @@ class SAMLGenerator(object):
             <ns0:AttributeStatement> ... </ns0:AttributeStatement>
         </ns0:Assertion>
 
-        :return: XML <Assertion> object
+        :returns: XML <Assertion> object
 
         """
         assertion = saml.Assertion()
@@ -299,7 +299,7 @@ class SAMLGenerator(object):
             <ns0:Status> ... </ns0:Status>
         </ns0:Response>
 
-        :return: XML <Response> object
+        :returns: XML <Response> object
 
         """
         response = samlp.Response()
@@ -342,7 +342,7 @@ class SAMLGenerator(object):
           </KeyInfo>
         </Signature>
 
-        :return: XML <Signature> object
+        :returns: XML <Signature> object
 
         """
         canonicalization_method = xmldsig.CanonicalizationMethod()
@@ -397,7 +397,7 @@ def _sign_assertion(assertion):
     * xmlsec_binary
     * private key file path
     * public key file path
-    :return: XML <Assertion> object
+    :returns: XML <Assertion> object
 
     """
     xmlsec_binary = CONF.saml.xmlsec1_binary
@@ -462,10 +462,9 @@ class MetadataGenerator(object):
         Generate and format metadata into XML that can be exposed and
         consumed by a federated Service Provider.
 
-        :return: XML <EntityDescriptor> object.
+        :returns: XML <EntityDescriptor> object.
         :raises keystone.exception.ValidationError: If the required
             config options aren't set.
-
         """
         self._ensure_required_values_present()
         entity_descriptor = self._create_entity_descriptor()

@@ -342,7 +342,7 @@ def _limit(query, hints):
     :param query: query to apply filters to
     :param hints: contains the list of filters and limit details.
 
-    :returns updated query
+    :returns: updated query
 
     """
     # NOTE(henry-nash): If we were to implement pagination, then we

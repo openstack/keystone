@@ -208,7 +208,7 @@ def auth_str_equal(provided, known):
     :params provided: the first string
     :params known: the second string
 
-    :return: True if the strings are equal.
+    :returns: True if the strings are equal.
 
     This function takes two strings and compares them.  It is intended to be
     used when doing a comparison for authentication purposes to help guard
@@ -273,7 +273,7 @@ def get_unix_user(user=None):
     :param object user: string, int or None specifying the user to
                         lookup.
 
-    :return: tuple of (uid, name)
+    :returns: tuple of (uid, name)
 
     """
     if isinstance(user, six.string_types):
@@ -329,7 +329,7 @@ def get_unix_group(group=None):
     :param object group: string, int or None specifying the group to
                          lookup.
 
-    :return: tuple of (gid, name)
+    :returns: tuple of (gid, name)
 
     """
     if isinstance(group, six.string_types):
