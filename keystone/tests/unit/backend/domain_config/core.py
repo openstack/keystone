@@ -493,7 +493,7 @@ class DomainConfigTests(object):
             with mock.patch('keystone.resource.core.LOG', mock_log):
                 res = self.domain_config_api.get_config_with_sensitive_info(
                     self.domain['id'])
-            mock_log.warn.assert_any_call(mock.ANY)
+            mock_log.warning.assert_any_call(mock.ANY)
             self.assertEqual(
                 invalid_option_config['ldap']['url'], res['ldap']['url'])
 

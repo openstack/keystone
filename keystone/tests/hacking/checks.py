@@ -359,7 +359,7 @@ class CheckForLoggingIssues(BaseASTChecker):
             # because:
             # 1. We have code like this that we'll fix when dealing with the %:
             #       msg = _('....') % {}
-            #       LOG.warn(msg)
+            #       LOG.warning(msg)
             # 2. We also do LOG.exception(e) in several places. I'm not sure
             #    exactly what we should be doing about that.
             if msg.id not in self.assignments:

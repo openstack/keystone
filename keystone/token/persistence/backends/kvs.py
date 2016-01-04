@@ -55,10 +55,10 @@ class Token(token.persistence.TokenDriverV8):
         if self.__class__ == Token:
             # NOTE(morganfainberg): Only warn if the base KVS implementation
             # is instantiated.
-            LOG.warn(_LW('It is recommended to only use the base '
-                         'key-value-store implementation for the token driver '
-                         "for testing purposes. Please use 'memcache' or "
-                         "'sql' instead."))
+            LOG.warning(_LW('It is recommended to only use the base '
+                            'key-value-store implementation for the token '
+                            'driver for testing purposes. Please use '
+                            "'memcache' or 'sql' instead."))
 
     def _prefix_token_id(self, token_id):
         return 'token-%s' % token_id.encode('utf-8')

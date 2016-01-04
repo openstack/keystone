@@ -39,7 +39,7 @@ class TestTestCase(unit.TestCase):
         # If the arguments are invalid for the string in a log it raises an
         # exception during testing.
         self.assertThat(
-            lambda: LOG.warn('String %(p1)s %(p2)s', {'p1': 'something'}),
+            lambda: LOG.warning('String %(p1)s %(p2)s', {'p1': 'something'}),
             matchers.raises(KeyError))
 
     def test_sa_warning(self):
