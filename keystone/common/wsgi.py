@@ -743,6 +743,36 @@ def render_response(body=None, status=None, headers=None, method=None):
                 headers.append(('Content-Type', 'application/json'))
         status = status or (200, 'OK')
 
+    # NOTE(davechen): `mod_wsgi` follows the standards from pep-3333 and
+    # requires the value in response header to be binary type(str) on python2,
+    # unicode based string(str) on python3, or else keystone will not work
+    # under apache with `mod_wsgi`.
+    # keystone needs to check the data type of each header and convert the
+    # type if needed.
+    # see bug:
+    # https://bugs.launchpad.net/keystone/+bug/1528981
+    # see pep-3333:
+    # https://www.python.org/dev/peps/pep-3333/#a-note-on-string-types
+    # see source from mod_wsgi:
+    # https://github.com/GrahamDumpleton/mod_wsgi(methods:
+    # wsgi_convert_headers_to_bytes(...), wsgi_convert_string_to_bytes(...)
+    # and wsgi_validate_header_value(...)).
+    def _convert_to_str(headers):
+        str_headers = []
+        for header in headers:
+            str_header = []
+            for value in header:
+                if not isinstance(value, str):
+                    str_header.append(str(value))
+                else:
+                    str_header.append(value)
+            # convert the list to the immutable tuple to build the headers.
+            # header's key/value will be guaranteed to be str type.
+            str_headers.append(tuple(str_header))
+        return str_headers
+
+    headers = _convert_to_str(headers)
+
     resp = webob.Response(body=body,
                           status='%s %s' % status,
                           headerlist=headers)
