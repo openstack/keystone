@@ -71,7 +71,8 @@ class AppServer(fixtures.Fixture):
     def _update_config_opt(self):
         """Updates the config with the actual port used."""
         opt_name = self._get_config_option_for_section_name()
-        CONF.set_override(opt_name, self.port, group='eventlet_server')
+        CONF.set_override(opt_name, self.port, group='eventlet_server',
+                          enforce_type=True)
 
     def _get_config_option_for_section_name(self):
         """Maps Paster config section names to port option names."""
