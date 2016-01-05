@@ -181,6 +181,7 @@ class FederationProtocol(_ControllerBase):
         return {cls.member_name: ref}
 
     @controller.protected()
+    @validation.validated(schema.federation_protocol_schema, 'protocol')
     def create_protocol(self, context, idp_id, protocol_id, protocol):
         ref = self._normalize_dict(protocol)
         FederationProtocol.check_immutable_params(ref)
@@ -189,6 +190,7 @@ class FederationProtocol(_ControllerBase):
         return wsgi.render_response(body=response, status=('201', 'Created'))
 
     @controller.protected()
+    @validation.validated(schema.federation_protocol_schema, 'protocol')
     def update_protocol(self, context, idp_id, protocol_id, protocol):
         ref = self._normalize_dict(protocol)
         FederationProtocol.check_immutable_params(ref)
