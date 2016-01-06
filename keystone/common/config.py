@@ -116,6 +116,12 @@ FILE_OPTIONS = {
                         'original request, even if it was removed by an SSL '
                         'terminating proxy. Typical value is '
                         '"HTTP_X_FORWARDED_PROTO".'),
+        cfg.BoolOpt('insecure_debug', default=False,
+                    help='If set to true the server will return information '
+                         'in the response that may allow an unauthenticated '
+                         'or authenticated user to get more information than '
+                         'normal, such as why authentication failed. This may '
+                         'be useful for debugging but is insecure.'),
     ],
     'identity': [
         cfg.StrOpt('default_domain_id', default='default',

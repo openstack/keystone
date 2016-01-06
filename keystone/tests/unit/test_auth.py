@@ -286,7 +286,7 @@ class AuthWithToken(AuthTest):
 
     def test_auth_scoped_token_bad_project_with_debug(self):
         """Authenticating with an invalid project fails."""
-        # Bug 1379952 reports poor user feedback, even in debug mode,
+        # Bug 1379952 reports poor user feedback, even in insecure_debug mode,
         # when the user accidentally passes a project name as an ID.
         # This test intentionally does exactly that.
         body_dict = _build_user_auth(
@@ -294,8 +294,8 @@ class AuthWithToken(AuthTest):
             password=self.user_foo['password'],
             tenant_id=self.tenant_bar['name'])
 
-        # with debug enabled, this produces a friendly exception.
-        self.config_fixture.config(debug=True)
+        # with insecure_debug enabled, this produces a friendly exception.
+        self.config_fixture.config(debug=True, insecure_debug=True)
         e = self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
@@ -308,7 +308,7 @@ class AuthWithToken(AuthTest):
 
     def test_auth_scoped_token_bad_project_without_debug(self):
         """Authenticating with an invalid project fails."""
-        # Bug 1379952 reports poor user feedback, even in debug mode,
+        # Bug 1379952 reports poor user feedback, even in insecure_debug mode,
         # when the user accidentally passes a project name as an ID.
         # This test intentionally does exactly that.
         body_dict = _build_user_auth(
@@ -316,8 +316,8 @@ class AuthWithToken(AuthTest):
             password=self.user_foo['password'],
             tenant_id=self.tenant_bar['name'])
 
-        # with debug disabled, authentication failure details are suppressed.
-        self.config_fixture.config(debug=False)
+        # with insecure_debug disabled (the default), authentication failure
+        # details are suppressed.
         e = self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
