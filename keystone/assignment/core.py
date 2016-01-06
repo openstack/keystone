@@ -594,6 +594,61 @@ class Manager(manager.Manager):
             return expand_group_assignment(ref, user_id)
         return [ref]
 
+    def _add_implied_roles(self, role_refs):
+        """Expand out implied roles.
+
+        The role_refs passed in have had all inheritance and group assignments
+        expanded out. We now need to look at the role_id in each ref and see
+        if it is a prior role for some implied roles. If it is, then we need to
+        duplicate that ref, one for each implied role. We store the prior role
+        in the indirect dict that is part of such a duplicated ref, so that a
+        caller can determine where the assignment came from.
+
+        """
+        def _make_implied_ref_copy(prior_ref, implied_role_id):
+            # Create a ref for an implied role from the ref of a prior role,
+            # setting the new role_id to be the implied role and the indirect
+            # role_id to be the prior role
+            implied_ref = copy.deepcopy(prior_ref)
+            implied_ref['role_id'] = implied_role_id
+            indirect = implied_ref.setdefault('indirect', {})
+            indirect['role_id'] = prior_ref['role_id']
+            return implied_ref
+
+        if not CONF.token.infer_roles:
+            return role_refs
+        try:
+            implied_roles_cache = {}
+            role_refs_to_check = list(role_refs)
+            ref_results = list(role_refs)
+            while(role_refs_to_check):
+                next_ref = role_refs_to_check.pop()
+                next_role_id = next_ref['role_id']
+                if next_role_id in implied_roles_cache:
+                    implied_roles = implied_roles_cache[next_role_id]
+                else:
+                    implied_roles = (
+                        self.role_api.list_implied_roles(next_role_id))
+                    implied_roles_cache[next_role_id] = implied_roles
+                for implied_role in implied_roles:
+                    implied_ref = (
+                        _make_implied_ref_copy(
+                            next_ref, implied_role['implied_role_id']))
+                    ref_results.append(implied_ref)
+                    role_refs_to_check.append(implied_ref)
+        except exception.NotImplemented:
+            LOG.debug('Role driver does not support implied roles.')
+
+        return ref_results
+
+    def _filter_by_role_id(self, role_id, ref_results):
+        # if we arrive here, we  need to filer by role_id.
+        filter_results = []
+        for ref in ref_results:
+            if ref['role_id'] == role_id:
+                filter_results.append(ref)
+        return filter_results
+
     def _list_effective_role_assignments(self, role_id, user_id, group_id,
                                          domain_id, project_id, subtree_ids,
                                          inherited):
@@ -717,19 +772,24 @@ class Manager(manager.Manager):
         # relevant, since domains don't inherit assignments
         inherited = False if domain_id else inherited
 
-        # List user assignments
+        # List user assignments.
+        # Due to the need to expand implied roles, this call will skip
+        # filtering by role_id and instead return the whole set of roles.
+        # Matching on the specified role is performed at the end.
+
         direct_refs = list_role_assignments_for_actor(
-            role_id=role_id, user_id=user_id, project_id=project_id,
+            role_id=None, user_id=user_id, project_id=project_id,
             subtree_ids=subtree_ids, domain_id=domain_id,
             inherited=inherited)
 
-        # And those from the user's groups
+        # And those from the user's groups. Again, role_id is not
+        # used to filter here
         group_refs = []
         if user_id:
             group_ids = self._get_group_ids_for_user_id(user_id)
             if group_ids:
                 group_refs = list_role_assignments_for_actor(
-                    role_id=role_id, project_id=project_id,
+                    role_id=None, project_id=project_id,
                     subtree_ids=subtree_ids, group_ids=group_ids,
                     domain_id=domain_id, inherited=inherited)
 
@@ -739,6 +799,10 @@ class Manager(manager.Manager):
             refs += self._expand_indirect_assignment(
                 ref=ref, user_id=user_id, project_id=project_id,
                 subtree_ids=subtree_ids)
+
+        refs = self._add_implied_roles(refs)
+        if role_id:
+            refs = self._filter_by_role_id(role_id, refs)
 
         return refs
 
@@ -1421,7 +1485,39 @@ class RoleDriverV9(RoleDriverBase):
 
     """
 
-    pass
+    @abc.abstractmethod
+    def get_implied_role(self, prior_role_id, implied_role_id):
+        """Fetches a role inference rule
+
+        :raises keystone.exception.ImpliedRoleNotFound: If the implied role
+            doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def create_implied_role(self, prior_role_id, implied_role_id):
+        """Creates a role inference rule
+
+        :raises: keystone.exception.RoleNotFound: If the role doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_implied_role(self, prior_role_id, implied_role_id):
+        """Deletes a role inference rule"""
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_role_inference_rules(self):
+        """Lists all the rules used to imply one role from another"""
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_implied_roles(self, prior_role_id):
+        """Lists roles implied from the prior role id"""
+        raise exception.NotImplemented()  # pragma: no cover
 
 
 class V9RoleWrapperForV8Driver(RoleDriverV9):
@@ -1472,5 +1568,19 @@ class V9RoleWrapperForV8Driver(RoleDriverV9):
     def delete_role(self, role_id):
         self.driver.delete_role(role_id)
 
+    def get_implied_role(self, prior_role_id, implied_role_id):
+        raise exception.NotImplemented()  # pragma: no cover
+
+    def create_implied_role(self, prior_role_id, implied_role_id):
+        raise exception.NotImplemented()  # pragma: no cover
+
+    def delete_implied_role(self, prior_role_id, implied_role_id):
+        raise exception.NotImplemented()  # pragma: no cover
+
+    def list_implied_roles(self, prior_role_id):
+        raise exception.NotImplemented()  # pragma: no cover
+
+    def list_role_inference_rules(self):
+        raise exception.NotImplemented()  # pragma: no cover
 
 RoleDriver = manager.create_legacy_driver(RoleDriverV8)

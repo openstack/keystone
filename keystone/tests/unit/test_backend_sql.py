@@ -611,6 +611,10 @@ class SqlInheritance(SqlTests, test_backend.InheritanceTests):
     pass
 
 
+class SqlImpliedRoles(SqlTests, test_backend.ImpliedRoleTests):
+    pass
+
+
 class SqlTokenCacheInvalidation(SqlTests, test_backend.TokenCacheInvalidation):
     def setUp(self):
         super(SqlTokenCacheInvalidation, self).setUp()
