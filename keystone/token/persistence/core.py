@@ -60,11 +60,6 @@ class PersistenceManager(manager.Manager):
             raise exception.TokenNotFound(token_id=token_id)
 
     def get_token(self, token_id):
-        if not token_id:
-            # NOTE(morganfainberg): There are cases when the
-            # context['token_id'] will in-fact be None. This also saves
-            # a round-trip to the backend if we don't have a token_id.
-            raise exception.TokenNotFound(token_id='')
         unique_id = utils.generate_unique_id(token_id)
         token_ref = self._get_token(unique_id)
         # NOTE(morganfainberg): Lift expired checking to the manager, there is
