@@ -481,6 +481,191 @@ class TokenAPITests(object):
         r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
         self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
 
+    def _create_role(self):
+        """Call ``POST /roles``."""
+        ref = unit.new_role_ref()
+        r = self.post('/roles', body={'role': ref})
+        return self.assertValidRoleResponse(r, ref)
+
+    def _create_implied_role(self, prior_id):
+        implied = self._create_role()
+        url = '/roles/%s/implies/%s' % (prior_id, implied['id'])
+        self.put(url, expected_status=http_client.CREATED)
+        return implied
+
+    def _delete_implied_role(self, prior_role_id, implied_role_id):
+        url = '/roles/%s/implies/%s' % (prior_role_id, implied_role_id)
+        self.delete(url)
+
+    def _get_scoped_token_roles(self, is_domain=False):
+        if is_domain:
+            v3_token = self.get_domain_scoped_token()
+        else:
+            v3_token = self.get_scoped_token()
+
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
+        v3_token_data = r.result
+        token_roles = v3_token_data['token']['roles']
+        return token_roles
+
+    def _create_implied_role_shows_in_v3_token(self, is_domain):
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(1, len(token_roles))
+
+        prior = token_roles[0]['id']
+        implied1 = self._create_implied_role(prior)
+
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(2, len(token_roles))
+
+        implied2 = self._create_implied_role(prior)
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(3, len(token_roles))
+
+        token_role_ids = [role['id'] for role in token_roles]
+        self.assertIn(prior, token_role_ids)
+        self.assertIn(implied1['id'], token_role_ids)
+        self.assertIn(implied2['id'], token_role_ids)
+
+    def test_create_implied_role_shows_in_v3_project_token(self):
+        # regardless of the default chosen, this should always
+        # test with the option set.
+        self.config_fixture.config(group='token', infer_roles=True)
+        self._create_implied_role_shows_in_v3_token(False)
+
+    def test_create_implied_role_shows_in_v3_domain_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+
+        self._create_implied_role_shows_in_v3_token(True)
+
+    def test_group_assigned_implied_role_shows_in_v3_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        is_domain = False
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(1, len(token_roles))
+
+        new_role = self._create_role()
+        prior = new_role['id']
+
+        new_group_ref = unit.new_group_ref(domain_id=self.domain['id'])
+        new_group = self.identity_api.create_group(new_group_ref)
+        self.assignment_api.create_grant(prior,
+                                         group_id=new_group['id'],
+                                         project_id=self.project['id'])
+
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(1, len(token_roles))
+
+        self.identity_api.add_user_to_group(self.user['id'],
+                                            new_group['id'])
+
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(2, len(token_roles))
+
+        implied1 = self._create_implied_role(prior)
+
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(3, len(token_roles))
+
+        implied2 = self._create_implied_role(prior)
+        token_roles = self._get_scoped_token_roles(is_domain)
+        self.assertEqual(4, len(token_roles))
+
+        token_role_ids = [role['id'] for role in token_roles]
+        self.assertIn(prior, token_role_ids)
+        self.assertIn(implied1['id'], token_role_ids)
+        self.assertIn(implied2['id'], token_role_ids)
+
+    def test_multiple_implied_roles_show_in_v3_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(1, len(token_roles))
+
+        prior = token_roles[0]['id']
+        implied1 = self._create_implied_role(prior)
+        implied2 = self._create_implied_role(prior)
+        implied3 = self._create_implied_role(prior)
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(4, len(token_roles))
+
+        token_role_ids = [role['id'] for role in token_roles]
+        self.assertIn(prior, token_role_ids)
+        self.assertIn(implied1['id'], token_role_ids)
+        self.assertIn(implied2['id'], token_role_ids)
+        self.assertIn(implied3['id'], token_role_ids)
+
+    def test_chained_implied_role_shows_in_v3_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(1, len(token_roles))
+
+        prior = token_roles[0]['id']
+        implied1 = self._create_implied_role(prior)
+        implied2 = self._create_implied_role(implied1['id'])
+        implied3 = self._create_implied_role(implied2['id'])
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(4, len(token_roles))
+
+        token_role_ids = [role['id'] for role in token_roles]
+
+        self.assertIn(prior, token_role_ids)
+        self.assertIn(implied1['id'], token_role_ids)
+        self.assertIn(implied2['id'], token_role_ids)
+        self.assertIn(implied3['id'], token_role_ids)
+
+    def test_implied_role_disabled_by_config(self):
+        self.config_fixture.config(group='token', infer_roles=False)
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(1, len(token_roles))
+
+        prior = token_roles[0]['id']
+        implied1 = self._create_implied_role(prior)
+        implied2 = self._create_implied_role(implied1['id'])
+        self._create_implied_role(implied2['id'])
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(1, len(token_roles))
+        token_role_ids = [role['id'] for role in token_roles]
+        self.assertIn(prior, token_role_ids)
+
+    def test_delete_implied_role_do_not_show_in_v3_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        token_roles = self._get_scoped_token_roles()
+        prior = token_roles[0]['id']
+        implied = self._create_implied_role(prior)
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(2, len(token_roles))
+        self._delete_implied_role(prior, implied['id'])
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(1, len(token_roles))
+
+    def test_unrelated_implied_roles_do_not_change_v3_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        token_roles = self._get_scoped_token_roles()
+        prior = token_roles[0]['id']
+        implied = self._create_implied_role(prior)
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(2, len(token_roles))
+
+        unrelated = self._create_role()
+        url = '/roles/%s/implies/%s' % (unrelated['id'], implied['id'])
+        self.put(url, expected_status=http_client.CREATED)
+
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(2, len(token_roles))
+
+        self._delete_implied_role(unrelated['id'], implied['id'])
+        token_roles = self._get_scoped_token_roles()
+        self.assertEqual(2, len(token_roles))
+
 
 class TokenDataTests(object):
     """Test the data in specific token types."""

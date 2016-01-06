@@ -2386,3 +2386,194 @@ class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
         self.head(member_url, expected_status=http_client.NOT_FOUND)
         self.get(collection_url, expected_status=http_client.NOT_FOUND)
         self.delete(member_url, expected_status=http_client.NOT_FOUND)
+
+
+class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
+                        unit.TestCase):
+    def _create_role(self):
+        """Call ``POST /roles``."""
+        ref = unit.new_role_ref()
+        r = self.post('/roles', body={'role': ref})
+        return self.assertValidRoleResponse(r, ref)
+
+    def test_list_implied_roles_none(self):
+        self.prior = self._create_role()
+        url = '/roles/%s/implies' % (self.prior['id'])
+        response = self.get(url).json["role_inference"]
+        self.assertEqual(self.prior['id'], response['prior_role']['id'])
+        self.assertEqual(0, len(response['implies']))
+
+    def _create_implied_role(self, prior, implied):
+        self.put('/roles/%s/implies/%s' % (prior['id'], implied['id']),
+                 expected_status=http_client.CREATED)
+
+    def _delete_implied_role(self, prior, implied):
+        self.delete('/roles/%s/implies/%s' % (prior['id'], implied['id']))
+
+    def _setup_prior_two_implied(self):
+        self.prior = self._create_role()
+        self.implied1 = self._create_role()
+        self._create_implied_role(self.prior, self.implied1)
+        self.implied2 = self._create_role()
+        self._create_implied_role(self.prior, self.implied2)
+
+    def _assert_expected_implied_role_response(
+            self, expected_prior_id, expected_implied_ids):
+        r = self.get('/roles/%s/implies' % expected_prior_id)
+        response = r.json["role_inference"]
+        self.assertEqual(expected_prior_id, response['prior_role']['id'])
+
+        actual_implied_ids = [implied['id'] for implied in response['implies']]
+
+        for expected_id in expected_implied_ids:
+            self.assertIn(expected_id, actual_implied_ids)
+        self.assertEqual(len(expected_implied_ids), len(response['implies']))
+
+        self.assertIsNotNone(response['prior_role']['links']['self'])
+        for implied in response['implies']:
+            self.assertIsNotNone(implied['links']['self'])
+
+    def _assert_two_roles_implied(self):
+        self._assert_expected_implied_role_response(
+            self.prior['id'], [self.implied1['id'], self.implied2['id']])
+
+    def _assert_one_role_implied(self):
+        self._assert_expected_implied_role_response(
+            self.prior['id'], [self.implied1['id']])
+
+        self.get('/roles/%s/implies/%s' %
+                 (self.prior['id'], self.implied2['id']),
+                 expected_status=http_client.NOT_FOUND)
+
+    def _assert_two_rules_defined(self):
+        r = self.get('/role_inferences/')
+
+        rules = r.result['role_inferences']
+
+        self.assertEqual(self.prior['id'], rules[0]['prior_role']['id'])
+        self.assertEqual(2, len(rules[0]['implies']))
+        implied_ids = [implied['id'] for implied in rules[0]['implies']]
+        implied_names = [implied['name'] for implied in rules[0]['implies']]
+
+        self.assertIn(self.implied1['id'], implied_ids)
+        self.assertIn(self.implied2['id'], implied_ids)
+        self.assertIn(self.implied1['name'], implied_names)
+        self.assertIn(self.implied2['name'], implied_names)
+
+    def _assert_one_rule_defined(self):
+        r = self.get('/role_inferences/')
+        rules = r.result['role_inferences']
+        self.assertEqual(self.prior['id'], rules[0]['prior_role']['id'])
+        self.assertEqual(self.implied1['id'], rules[0]['implies'][0]['id'])
+        self.assertEqual(self.implied1['name'], rules[0]['implies'][0]['name'])
+        self.assertEqual(1, len(rules[0]['implies']))
+
+    def test_list_all_rules(self):
+        self._setup_prior_two_implied()
+        self._assert_two_rules_defined()
+
+        self._delete_implied_role(self.prior, self.implied2)
+        self._assert_one_rule_defined()
+
+    def test_CRD_implied_roles(self):
+
+        self._setup_prior_two_implied()
+        self._assert_two_roles_implied()
+
+        self._delete_implied_role(self.prior, self.implied2)
+        self._assert_one_role_implied()
+
+    def _create_three_roles(self):
+        self.role_list = []
+        for _ in range(3):
+            role = unit.new_role_ref()
+            self.role_api.create_role(role['id'], role)
+            self.role_list.append(role)
+
+    def _create_test_domain_user_project(self):
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        user = unit.create_user(self.identity_api, domain_id=domain['id'])
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
+        return domain, user, project
+
+    def _assign_top_role_to_user_on_project(self, user, project):
+        self.assignment_api.add_role_to_user_and_project(
+            user['id'], project['id'], self.role_list[0]['id'])
+
+    def _build_effective_role_assignments_url(self, user):
+        return '/role_assignments?effective&user.id=%(user_id)s' % {
+            'user_id': user['id']}
+
+    def _assert_all_roles_in_assignment(self, response, user):
+        # Now use the list role assignments api to check that all three roles
+        # appear in the collection
+        self.assertValidRoleAssignmentListResponse(
+            response,
+            expected_length=len(self.role_list),
+            resource_url=self._build_effective_role_assignments_url(user))
+
+    def _assert_initial_assignment_in_effective(self, response, user, project):
+        # The initial assignment should be there (the link url will be
+        # generated and checked automatically since it matches the assignment)
+        entity = self.build_role_assignment_entity(
+            project_id=project['id'],
+            user_id=user['id'], role_id=self.role_list[0]['id'])
+        self.assertRoleAssignmentInListResponse(response, entity)
+
+    def _assert_effective_role_for_implied_has_prior_in_links(
+            self, response, user, project, prior_index, implied_index):
+        # An effective role for an implied role will have the prior role
+        # assignment in the links
+        prior_link = '/prior_roles/%(prior)s/implies/%(implied)s' % {
+            'prior': self.role_list[prior_index]['id'],
+            'implied': self.role_list[implied_index]['id']}
+        link = self.build_role_assignment_link(
+            project_id=project['id'], user_id=user['id'],
+            role_id=self.role_list[prior_index]['id'])
+        entity = self.build_role_assignment_entity(
+            link=link, project_id=project['id'],
+            user_id=user['id'], role_id=self.role_list[implied_index]['id'],
+            prior_link=prior_link)
+        self.assertRoleAssignmentInListResponse(response, entity)
+
+    def test_list_role_assignments_with_implied_roles(self):
+        """Call ``GET /role_assignments`` with implied role grant.
+
+        Test Plan:
+        - Create a domain with a user and a project
+        - Create 3 roles
+        - Role 0 implies role 1 and role 1 implies role 2
+        - Assign the top role to the project
+        - Issue the URL to check effective roles on project - this
+          should return all 3 roles.
+        - Check the links of the 3 roles indicate the prior role where
+          appropriate
+
+        """
+        (domain, user, project) = self._create_test_domain_user_project()
+        self._create_three_roles()
+        self._create_implied_role(self.role_list[0], self.role_list[1])
+        self._create_implied_role(self.role_list[1], self.role_list[2])
+        self._assign_top_role_to_user_on_project(user, project)
+
+        response = self.get(self._build_effective_role_assignments_url(user))
+        r = response
+
+        self._assert_all_roles_in_assignment(r, user)
+        self._assert_initial_assignment_in_effective(response, user, project)
+        self._assert_effective_role_for_implied_has_prior_in_links(
+            response, user, project, 0, 1)
+        self._assert_effective_role_for_implied_has_prior_in_links(
+            response, user, project, 1, 2)
+
+    def test_root_role_as_implied_role_forbidden(self):
+        self.config_fixture.config(group='assignment', root_role='root')
+
+        root_role = unit.new_role_ref()
+        root_role['name'] = 'root'
+        self.role_api.create_role(root_role['id'], root_role)
+        prior = self._create_role()
+        url = '/roles/%s/implies/%s' % (prior['id'], root_role['id'])
+        self.put(url, expected_status=http_client.FORBIDDEN)

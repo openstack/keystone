@@ -289,6 +289,10 @@ class ImpliedRoleNotFound(NotFound):
     message_format = _("%(prior_role_id)s does not imply %(implied_role_id)s")
 
 
+class InvalidImpliedRole(Forbidden):
+    message_format = _("%(role_id)s cannot be an implied roles")
+
+
 class RoleAssignmentNotFound(NotFound):
     message_format = _("Could not find role assignment with role: "
                        "%(role_id)s, user or group: %(actor_id)s, "

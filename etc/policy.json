@@ -76,6 +76,13 @@
     "identity:update_role": "rule:admin_required",
     "identity:delete_role": "rule:admin_required",
 
+    "identity:get_implied_role": "rule:admin_required ",
+    "identity:list_implied_roles": "rule:admin_required",
+    "identity:create_implied_role": "rule:admin_required",
+    "identity:delete_implied_role": "rule:admin_required",
+    "identity:list_role_inference_rules": "rule:admin_required",
+    "identity:check_implied_role": "rule:admin_required",
+
     "identity:check_grant": "rule:admin_required",
     "identity:list_grants": "rule:admin_required",
     "identity:create_grant": "rule:admin_required",
