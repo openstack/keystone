@@ -1055,12 +1055,12 @@ FILE_OPTIONS = {
                    deprecated_for_removal=True,
                    help='The IP address of the network interface for the '
                         'public service to listen on.'),
-        cfg.IntOpt('public_port', default=5000, min=1, max=65535,
-                   deprecated_name='public_port',
-                   deprecated_group='DEFAULT',
-                   deprecated_for_removal=True,
-                   help='The port number which the public service listens '
-                        'on.'),
+        cfg.PortOpt('public_port', default=5000,
+                    deprecated_name='public_port',
+                    deprecated_group='DEFAULT',
+                    deprecated_for_removal=True,
+                    help='The port number which the public service listens '
+                         'on.'),
         cfg.StrOpt('admin_bind_host',
                    default='0.0.0.0',  # nosec : Bind to all interfaces by
                    # default for backwards compatibility.
@@ -1071,12 +1071,12 @@ FILE_OPTIONS = {
                    deprecated_for_removal=True,
                    help='The IP address of the network interface for the '
                         'admin service to listen on.'),
-        cfg.IntOpt('admin_port', default=35357, min=1, max=65535,
-                   deprecated_name='admin_port',
-                   deprecated_group='DEFAULT',
-                   deprecated_for_removal=True,
-                   help='The port number which the admin service listens '
-                        'on.'),
+        cfg.PortOpt('admin_port', default=35357,
+                    deprecated_name='admin_port',
+                    deprecated_group='DEFAULT',
+                    deprecated_for_removal=True,
+                    help='The port number which the admin service listens '
+                         'on.'),
         cfg.BoolOpt('wsgi_keep_alive', default=True,
                     help='If set to false, disables keepalives on the server; '
                          'all connections will be closed after serving one '
@@ -1226,8 +1226,8 @@ def configure(conf=None):
         cfg.StrOpt('pydev-debug-host',
                    help='Host to connect to for remote debugger.'))
     conf.register_cli_opt(
-        cfg.IntOpt('pydev-debug-port', min=1, max=65535,
-                   help='Port to connect to for remote debugger.'))
+        cfg.PortOpt('pydev-debug-port',
+                    help='Port to connect to for remote debugger.'))
 
     for section in FILE_OPTIONS:
         for option in FILE_OPTIONS[section]:
