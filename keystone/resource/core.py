@@ -556,13 +556,6 @@ class Manager(manager.Manager):
         return ret
 
     def delete_domain(self, domain_id, initiator=None):
-        # explicitly forbid deleting the default domain (this should be a
-        # carefully orchestrated manual process involving configuration
-        # changes, etc)
-        if domain_id == CONF.identity.default_domain_id:
-            raise exception.ForbiddenAction(action=_('delete the default '
-                                                     'domain'))
-
         # Use the driver directly to prevent using old cached value.
         domain = self.driver.get_domain(domain_id)
 

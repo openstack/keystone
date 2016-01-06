@@ -313,65 +313,15 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         r = self.credential_api.get_credential(credential['id'])
         self.assertDictEqual(credential, r)
 
-    def test_delete_default_domain_fails(self):
-        # Attempting to delete the default domain results in 403 Forbidden.
-
+    def test_delete_default_domain(self):
         # Need to disable it first.
         self.patch('/domains/%(domain_id)s' % {
             'domain_id': CONF.identity.default_domain_id},
             body={'domain': {'enabled': False}})
 
-        self.delete('/domains/%(domain_id)s' % {
-            'domain_id': CONF.identity.default_domain_id},
-            expected_status=exception.ForbiddenAction.code)
-
-    def test_delete_new_default_domain_fails(self):
-        # If change the default domain ID, deleting the new default domain
-        # results in a 403 Forbidden.
-
-        # Create a new domain that's not the default
-        new_domain = unit.new_domain_ref()
-        new_domain_id = new_domain['id']
-        self.resource_api.create_domain(new_domain_id, new_domain)
-
-        # Disable the new domain so can delete it later.
-        self.patch('/domains/%(domain_id)s' % {
-            'domain_id': new_domain_id},
-            body={'domain': {'enabled': False}})
-
-        # Change the default domain
-        self.config_fixture.config(group='identity',
-                                   default_domain_id=new_domain_id)
-
-        # Attempt to delete the new domain
-
-        self.delete('/domains/%(domain_id)s' % {'domain_id': new_domain_id},
-                    expected_status=exception.ForbiddenAction.code)
-
-    def test_delete_old_default_domain(self):
-        # If change the default domain ID, deleting the old default domain
-        # works.
-
-        # Create a new domain that's not the default
-        new_domain = unit.new_domain_ref()
-        new_domain_id = new_domain['id']
-        self.resource_api.create_domain(new_domain_id, new_domain)
-
-        old_default_domain_id = CONF.identity.default_domain_id
-
-        # Disable the default domain so we can delete it later.
-        self.patch('/domains/%(domain_id)s' % {
-            'domain_id': old_default_domain_id},
-            body={'domain': {'enabled': False}})
-
-        # Change the default domain
-        self.config_fixture.config(group='identity',
-                                   default_domain_id=new_domain_id)
-
-        # Delete the old default domain
-
         self.delete(
-            '/domains/%(domain_id)s' % {'domain_id': old_default_domain_id})
+            '/domains/%(domain_id)s' % {
+                'domain_id': CONF.identity.default_domain_id})
 
     def test_token_revoked_once_domain_disabled(self):
         """Test token from a disabled domain has been invalidated.
