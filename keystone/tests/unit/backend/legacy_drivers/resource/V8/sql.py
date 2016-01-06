@@ -40,3 +40,6 @@ class SqlIdentityV8(test_backend_sql.SqlIdentity):
 
     def test_delete_large_project_cascade(self):
         self.skipTest('Operation not supported in v8 and earlier drivers')
+
+    def test_hidden_project_domain_root_is_really_hidden(self):
+        self.skipTest('Operation not supported in v8 and earlier drivers')

@@ -30,9 +30,12 @@ class Resource(keystone_resource.ResourceDriverV9):
     def default_assignment_driver(self):
         return 'sql'
 
+    def _is_hidden_ref(self, ref):
+        return ref.id == keystone_resource.NULL_DOMAIN_ID
+
     def _get_project(self, session, project_id):
         project_ref = session.query(Project).get(project_id)
-        if project_ref is None:
+        if project_ref is None or self._is_hidden_ref(project_ref):
             raise exception.ProjectNotFound(project_id=project_id)
         return project_ref
 
@@ -44,19 +47,36 @@ class Resource(keystone_resource.ResourceDriverV9):
         with sql.transaction() as session:
             query = session.query(Project)
             query = query.filter_by(name=project_name)
-            query = query.filter_by(domain_id=domain_id)
+            if domain_id is None:
+                query = query.filter_by(
+                    domain_id=keystone_resource.NULL_DOMAIN_ID)
+            else:
+                query = query.filter_by(domain_id=domain_id)
             try:
                 project_ref = query.one()
             except sql.NotFound:
+                raise exception.ProjectNotFound(project_id=project_name)
+
+            if self._is_hidden_ref(project_ref):
                 raise exception.ProjectNotFound(project_id=project_name)
             return project_ref.to_dict()
 
     @driver_hints.truncated
     def list_projects(self, hints):
+        # If there is a filter on domain_id and the value is None, then to
+        # ensure that the sql filtering works correctly, we need to patch
+        # the value to be NULL_DOMAIN_ID. This is safe to do here since we
+        # know we are able to satisfy any filter of this type in the call to
+        # filter_limit_query() below, which will remove the filter from the
+        # hints (hence ensuring our substitution is not exposed to the caller).
+        for f in hints.filters:
+            if (f['name'] == 'domain_id' and f['value'] is None):
+                f['value'] = keystone_resource.NULL_DOMAIN_ID
         with sql.transaction() as session:
             query = session.query(Project)
             project_refs = sql.filter_limit_query(Project, query, hints)
-            return [project_ref.to_dict() for project_ref in project_refs]
+            return [project_ref.to_dict() for project_ref in project_refs
+                    if not self._is_hidden_ref(project_ref)]
 
     def list_projects_from_ids(self, ids):
         if not ids:
@@ -65,7 +85,8 @@ class Resource(keystone_resource.ResourceDriverV9):
             with sql.transaction() as session:
                 query = session.query(Project)
                 query = query.filter(Project.id.in_(ids))
-                return [project_ref.to_dict() for project_ref in query.all()]
+                return [project_ref.to_dict() for project_ref in query.all()
+                        if not self._is_hidden_ref(project_ref)]
 
     def list_project_ids_from_domain_ids(self, domain_ids):
         if not domain_ids:
@@ -75,7 +96,8 @@ class Resource(keystone_resource.ResourceDriverV9):
                 query = session.query(Project.id)
                 query = (
                     query.filter(Project.domain_id.in_(domain_ids)))
-                return [x.id for x in query.all()]
+                return [x.id for x in query.all()
+                        if not self._is_hidden_ref(x)]
 
     def list_projects_in_domain(self, domain_id):
         with sql.transaction() as session:
@@ -140,8 +162,9 @@ class Resource(keystone_resource.ResourceDriverV9):
     @sql.handle_conflicts(conflict_type='project')
     def create_project(self, project_id, project):
         project['name'] = clean.project_name(project['name'])
+        new_project = self._encode_domain_id(project)
         with sql.transaction() as session:
-            project_ref = Project.from_dict(project)
+            project_ref = Project.from_dict(new_project)
             session.add(project_ref)
             return project_ref.to_dict()
 
@@ -150,11 +173,15 @@ class Resource(keystone_resource.ResourceDriverV9):
         if 'name' in project:
             project['name'] = clean.project_name(project['name'])
 
+        update_project = self._encode_domain_id(project)
         with sql.transaction() as session:
             project_ref = self._get_project(session, project_id)
             old_project_dict = project_ref.to_dict()
-            for k in project:
-                old_project_dict[k] = project[k]
+            for k in update_project:
+                old_project_dict[k] = update_project[k]
+            # When we read the old_project_dict, any "null" domain_id will have
+            # been decoded, so we need to re-encode it
+            old_project_dict = self._encode_domain_id(old_project_dict)
             new_project = Project.from_dict(old_project_dict)
             for attr in Project.attributes:
                 if attr != 'id':
@@ -177,7 +204,8 @@ class Resource(keystone_resource.ResourceDriverV9):
                 project_ids))
             project_ids_from_bd = [p['id'] for p in query.all()]
             for project_id in project_ids:
-                if project_id not in project_ids_from_bd:
+                if (project_id not in project_ids_from_bd or
+                        project_id == keystone_resource.NULL_DOMAIN_ID):
                     LOG.warning(_LW('Project %s does not exist and was not '
                                     'deleted.') % project_id)
             query.delete(synchronize_session=False)
@@ -196,7 +224,8 @@ class Resource(keystone_resource.ResourceDriverV9):
         with sql.transaction() as session:
             query = session.query(Domain)
             refs = sql.filter_limit_query(Domain, query, hints)
-            return [ref.to_dict() for ref in refs]
+            return [ref.to_dict() for ref in refs
+                    if not self._is_hidden_ref(ref)]
 
     def list_domains_from_ids(self, ids):
         if not ids:
@@ -206,11 +235,12 @@ class Resource(keystone_resource.ResourceDriverV9):
                 query = session.query(Domain)
                 query = query.filter(Domain.id.in_(ids))
                 domain_refs = query.all()
-                return [domain_ref.to_dict() for domain_ref in domain_refs]
+                return [domain_ref.to_dict() for domain_ref in domain_refs
+                        if not self._is_hidden_ref(domain_ref)]
 
     def _get_domain(self, session, domain_id):
         ref = session.query(Domain).get(domain_id)
-        if ref is None:
+        if ref is None or self._is_hidden_ref(ref):
             raise exception.DomainNotFound(domain_id=domain_id)
         return ref
 
@@ -224,6 +254,9 @@ class Resource(keystone_resource.ResourceDriverV9):
                 ref = (session.query(Domain).
                        filter_by(name=domain_name).one())
             except sql.NotFound:
+                raise exception.DomainNotFound(domain_id=domain_name)
+
+            if self._is_hidden_ref(ref):
                 raise exception.DomainNotFound(domain_id=domain_name)
             return ref.to_dict()
 
@@ -258,6 +291,20 @@ class Domain(sql.ModelBase, sql.DictBase):
 
 
 class Project(sql.ModelBase, sql.DictBase):
+    # NOTE(henry-nash): From the manager and above perspective, the domain_id
+    # is nullable.  However, to ensure uniqueness in multi-process
+    # configurations, it is better to still use the sql uniqueness constraint.
+    # Since the support for a nullable component of a uniqueness constraint
+    # across different sql databases is mixed, we instead store a special value
+    # to represent null, as defined in NULL_DOMAIN_ID above.
+
+    def to_dict(self, include_extra_dict=False):
+        d = super(Project, self).to_dict(
+            include_extra_dict=include_extra_dict)
+        if d['domain_id'] == keystone_resource.NULL_DOMAIN_ID:
+            d['domain_id'] = None
+        return d
+
     __tablename__ = 'project'
     attributes = ['id', 'name', 'domain_id', 'description', 'enabled',
                   'parent_id', 'is_domain']
