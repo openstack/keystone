@@ -240,7 +240,7 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
         # Now try and upload the settings in the configuration file for the
         # default domain
         dependency.reset()
-        with mock.patch('__builtin__.print') as mock_print:
+        with mock.patch('six.moves.builtins.print') as mock_print:
             self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
             file_name = ('keystone.%s.conf' %
                          resource.calc_default_domain()['name'])
@@ -266,7 +266,7 @@ class CliDomainConfigNoOptionsTestCase(CliDomainConfigAllTestCase):
 
     def test_config_upload(self):
         dependency.reset()
-        with mock.patch('__builtin__.print') as mock_print:
+        with mock.patch('six.moves.builtins.print') as mock_print:
             self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
             mock_print.assert_has_calls(
                 [mock.call(
@@ -283,7 +283,7 @@ class CliDomainConfigTooManyOptionsTestCase(CliDomainConfigAllTestCase):
 
     def test_config_upload(self):
         dependency.reset()
-        with mock.patch('__builtin__.print') as mock_print:
+        with mock.patch('six.moves.builtins.print') as mock_print:
             self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
             mock_print.assert_has_calls(
                 [mock.call(_('The --all option cannot be used with '
@@ -300,7 +300,7 @@ class CliDomainConfigInvalidDomainTestCase(CliDomainConfigAllTestCase):
 
     def test_config_upload(self):
         dependency.reset()
-        with mock.patch('__builtin__.print') as mock_print:
+        with mock.patch('six.moves.builtins.print') as mock_print:
             self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
             file_name = 'keystone.%s.conf' % self.invalid_domain_name
             error_msg = (_(
