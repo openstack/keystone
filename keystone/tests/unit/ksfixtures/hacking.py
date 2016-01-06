@@ -409,3 +409,15 @@ class HackingLogging(fixtures.Fixture):
             'expected_errors': [],
         },
     ]
+
+    assert_not_using_deprecated_warn = {
+        'code': """
+                # Logger.warn has been deprecated in Python3 in favor of
+                # Logger.warning
+                LOG = log.getLogger(__name__)
+                LOG.warn(_LW('text'))
+        """,
+        'expected_errors': [
+            (4, 9, 'K009'),
+        ],
+    }
