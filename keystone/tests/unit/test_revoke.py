@@ -64,7 +64,7 @@ def _matches(event, token_values):
     :param event: one revocation event to match
     :param token_values: dictionary with set of values taken from the
     token
-    :returns: if the token matches the revocation event, indicating the
+    :returns: True if the token matches the revocation event, indicating the
     token has been revoked
     """
     # The token has three attributes that can match the user_id
