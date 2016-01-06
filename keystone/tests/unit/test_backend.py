@@ -2739,7 +2739,10 @@ class IdentityTests(AssignmentTestHelperMixin):
         user['enabled'] = -42
         self.identity_api.update_user(user['id'], user)
         user_ref = self.identity_api.get_user(user['id'])
-        self.assertTrue(user_ref['enabled'])
+        # NOTE(breton): below, attribute `enabled` is explicitly tested to be
+        # equal True. assertTrue should not be used, because it converts
+        # the passed value to bool().
+        self.assertIs(user_ref['enabled'], True)
 
     def test_update_user_name(self):
         user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
