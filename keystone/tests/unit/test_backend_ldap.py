@@ -3357,7 +3357,3 @@ class LdapFilterTests(test_backend.FilterTests, unit.TestCase):
         # The LDAP identity driver currently does not support filtering on the
         # listing users for a given group, so will fail this test.
         super(LdapFilterTests, self).test_list_users_in_group_exact_filtered()
-
-    @wip('Waiting on bug #1521772 to be fixed')
-    def test_groups_for_user_exact_filtered(self):
-        super(LdapFilterTests, self).test_groups_for_user_exact_filtered()
