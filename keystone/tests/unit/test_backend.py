@@ -6512,7 +6512,6 @@ class FilterTests(filtering.FilterTests):
         self._delete_test_data('user', user_list)
         self._delete_test_data('group', group_list)
 
-    @test_utils.wip('Waiting on bug #1521772 to be fixed')
     def test_groups_for_user_exact_filtered(self):
         """Test exact filters doesn't break groups_for_user listing."""
         group_list, user_list, hints = self._groups_for_user_data()
@@ -6589,7 +6588,6 @@ class FilterTests(filtering.FilterTests):
         self._delete_test_data('user', user_list)
         self._delete_entity('group')(group['id'])
 
-    @test_utils.wip('Waiting on bug #1521772 to be fixed')
     def test_list_users_in_group_exact_filtered(self):
         user_list, group, hints = self._list_users_in_group_data()
         hints.add_filter('name', 'Arthur Rimbaud', comparator='equals')
