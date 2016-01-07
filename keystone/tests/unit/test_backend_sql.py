@@ -746,7 +746,8 @@ class SqlCredential(SqlTests):
 
     def _create_credential_with_user_id(self, user_id=uuid.uuid4().hex):
         credential = unit.new_credential_ref(user_id=user_id,
-                                             extra=uuid.uuid4().hex)
+                                             extra=uuid.uuid4().hex,
+                                             type=uuid.uuid4().hex)
         self.credential_api.create_credential(credential['id'], credential)
         return credential
 
@@ -782,3 +783,9 @@ class SqlCredential(SqlTests):
         credentials = self.credential_api.list_credentials_for_user(
             self.user_foo['id'])
         self._validateCredentialList(credentials, self.user_credentials)
+
+    def test_list_credentials_for_user_and_type(self):
+        cred = self.user_credentials[0]
+        credentials = self.credential_api.list_credentials_for_user(
+            self.user_foo['id'], type=cred['type'])
+        self._validateCredentialList(credentials, [cred])

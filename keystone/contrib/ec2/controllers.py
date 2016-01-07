@@ -17,7 +17,7 @@
 This service allows the creation of access/secret credentials used for
 the ec2 interop layer of OpenStack.
 
-A user can create as many access/secret pairs, each of which map to a
+A user can create as many access/secret pairs, each of which is mapped to a
 specific project.  This is required because OpenStack supports a user
 belonging to multiple projects, whereas the signatures created on ec2-style
 requests don't allow specification of which project the user wishes to act
@@ -46,6 +46,8 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
+
+CRED_TYPE_EC2 = 'ec2'
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
@@ -184,7 +186,7 @@ class Ec2ControllerCommon(object):
                     'project_id': tenant_id,
                     'blob': jsonutils.dumps(blob),
                     'id': credential_id,
-                    'type': 'ec2'}
+                    'type': CRED_TYPE_EC2}
         self.credential_api.create_credential(credential_id, cred_ref)
         return {'credential': self._convert_v3_to_ec2_credential(cred_ref)}
 
@@ -196,7 +198,7 @@ class Ec2ControllerCommon(object):
         """
         self.identity_api.get_user(user_id)
         credential_refs = self.credential_api.list_credentials_for_user(
-            user_id)
+            user_id, type=CRED_TYPE_EC2)
         return {'credentials':
                 [self._convert_v3_to_ec2_credential(credential)
                     for credential in credential_refs]}
@@ -248,14 +250,15 @@ class Ec2ControllerCommon(object):
 
         :param credential_id: id of credential
         :raises keystone.exception.Unauthorized: when credential id is invalid
+            or when the credential type is not ec2
         :returns: credential: dict of ec2 credential.
         """
         ec2_credential_id = utils.hash_access_key(credential_id)
-        creds = self.credential_api.get_credential(ec2_credential_id)
-        if not creds:
+        cred = self.credential_api.get_credential(ec2_credential_id)
+        if not cred or cred['type'] != CRED_TYPE_EC2:
             raise exception.Unauthorized(
                 message=_('EC2 access key not found.'))
-        return self._convert_v3_to_ec2_credential(creds)
+        return self._convert_v3_to_ec2_credential(cred)
 
 
 @dependency.requires('policy_api', 'token_provider_api')
