@@ -514,8 +514,8 @@ class RoleAssignmentV3(controller.V3Controller):
         inherited_assignment = entity.get('inherited_to_projects')
 
         if 'project_id' in entity:
-            formatted_entity['scope'] = (
-                {'project': {'id': entity['project_id']}})
+            formatted_entity['scope'] = {
+                'project': {'id': entity['project_id']}}
 
             if 'domain_id' in entity.get('indirect', {}):
                 inherited_assignment = True
