@@ -158,7 +158,7 @@ class Manager(manager.Manager):
         matching_endpoints = []
         endpoints = self.catalog_api.list_endpoints()
         regions = self.catalog_api.list_regions()
-        for ref in self.driver.list_associations_for_policy(policy_id):
+        for ref in self.list_associations_for_policy(policy_id):
             if ref.get('endpoint_id') is not None:
                 matching_endpoints.append(
                     _get_endpoint(ref['endpoint_id'], policy_id))
@@ -212,7 +212,7 @@ class Manager(manager.Manager):
             regions_examined = []
             while region_id is not None:
                 try:
-                    ref = self.driver.get_policy_association(
+                    ref = self.get_policy_association(
                         service_id=endpoint['service_id'],
                         region_id=region_id)
                     return ref['policy_id']
@@ -237,7 +237,7 @@ class Manager(manager.Manager):
         # this endpoint.
 
         try:
-            ref = self.driver.get_policy_association(endpoint_id=endpoint_id)
+            ref = self.get_policy_association(endpoint_id=endpoint_id)
             return _get_policy(ref['policy_id'], endpoint_id)
         except exception.PolicyAssociationNotFound:  # nosec
             # There wasn't a policy explicitly defined for this endpoint,
@@ -254,7 +254,7 @@ class Manager(manager.Manager):
 
         # Finally, just check if there is one for the service.
         try:
-            ref = self.driver.get_policy_association(
+            ref = self.get_policy_association(
                 service_id=endpoint['service_id'])
             return _get_policy(ref['policy_id'], endpoint_id)
         except exception.PolicyAssociationNotFound:  # nosec
