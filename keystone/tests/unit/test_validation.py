@@ -507,7 +507,7 @@ class ProjectValidationTestCase(unit.BaseTestCase):
             self.create_project_validator.validate(request_to_validate)
 
     def test_validate_project_request_with_invalid_domain_id_fails(self):
-        """Exception is raised when `domain_id` as a non-id value."""
+        """Exception is raised when `domain_id` is a non-id value."""
         for domain_id in [False, 'fake_project']:
             request_to_validate = {'name': self.project_name,
                                    'domain_id': domain_id}
@@ -1996,6 +1996,11 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
     def test_validate_protocol_request_succeeds(self):
         """Test that we validate a protocol request successfully."""
         request_to_validate = {'mapping_id': uuid.uuid4().hex}
+        self.protocol_validator.validate(request_to_validate)
+
+    def test_validate_protocol_request_succeeds_with_nonuuid_mapping_id(self):
+        """Test that we allow underscore in mapping_id value."""
+        request_to_validate = {'mapping_id': 'my_mapping_id'}
         self.protocol_validator.validate(request_to_validate)
 
     def test_validate_protocol_request_fails_with_invalid_params(self):
