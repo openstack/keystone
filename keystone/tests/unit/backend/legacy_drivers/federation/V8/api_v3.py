@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
+from six.moves import http_client
+
 from keystone.tests.unit import test_v3_federation
 
 
@@ -32,6 +36,50 @@ class FederatedIdentityProviderTestsV8(
     def config_overrides(self):
         super(FederatedIdentityProviderTestsV8, self).config_overrides()
         self.useV8driver()
+
+    def test_create_idp_remote_repeated(self):
+        """Creates two IdentityProvider entities with some remote_ids
+
+        A remote_id is the same for both so the second IdP is not
+        created because of the uniqueness of the remote_ids
+
+        Expect HTTP 409 Conflict code for the latter call.
+
+        Note: V9 drivers and later augment the conflict message with
+        additional information, which won't be present if we are running
+        a V8 driver - so override the newer tests to just ensure a
+        conflict message is raised.
+        """
+        body = self.default_body.copy()
+        repeated_remote_id = uuid.uuid4().hex
+        body['remote_ids'] = [uuid.uuid4().hex,
+                              uuid.uuid4().hex,
+                              uuid.uuid4().hex,
+                              repeated_remote_id]
+        self._create_default_idp(body=body)
+
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        body['remote_ids'] = [uuid.uuid4().hex,
+                              repeated_remote_id]
+        self.put(url, body={'identity_provider': body},
+                 expected_status=http_client.CONFLICT)
+
+    def test_check_idp_uniqueness(self):
+        """Add same IdP twice.
+
+        Expect HTTP 409 Conflict code for the latter call.
+
+        Note: V9 drivers and later augment the conflict message with
+        additional information, which won't be present if we are running
+        a V8 driver - so override the newer tests to just ensure a
+        conflict message is raised.
+        """
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        body = self._http_idp_input()
+        self.put(url, body={'identity_provider': body},
+                 expected_status=http_client.CREATED)
+        self.put(url, body={'identity_provider': body},
+                 expected_status=http_client.CONFLICT)
 
 
 class MappingCRUDTestsV8(
