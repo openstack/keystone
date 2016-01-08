@@ -1220,7 +1220,7 @@ class BaseLdap(object):
             try:
                 ldap_attr, attr_map = item.split(':')
             except Exception:
-                LOG.warn(_LW(
+                LOG.warning(_LW(
                     'Invalid additional attribute mapping: "%s". '
                     'Format must be <ldap_attribute>:<keystone_attribute>'),
                     item)
@@ -1336,7 +1336,7 @@ class BaseLdap(object):
                           'as an ID. Will get the ID from DN instead') % (
                               {'id_attr': self.id_attr,
                                'dn': res[0]})
-            LOG.warn(message)
+            LOG.warning(message)
             id_val = self._dn_to_id(res[0])
         else:
             id_val = id_attrs[0]
@@ -1668,11 +1668,12 @@ class BaseLdap(object):
                         not_deleted_nodes.append(node_dn)
 
         if not_deleted_nodes:
-            LOG.warn(_LW("When deleting entries for %(search_base)s, could not"
-                         " delete nonexistent entries %(entries)s%(dots)s"),
-                     {'search_base': search_base,
-                      'entries': not_deleted_nodes[:3],
-                      'dots': '...' if len(not_deleted_nodes) > 3 else ''})
+            LOG.warning(_LW("When deleting entries for %(search_base)s, "
+                            "could not delete nonexistent entries "
+                            "%(entries)s%(dots)s"),
+                        {'search_base': search_base,
+                         'entries': not_deleted_nodes[:3],
+                         'dots': '...' if len(not_deleted_nodes) > 3 else ''})
 
     def filter_query(self, hints, query=None):
         """Applies filtering to a query.

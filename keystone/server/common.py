@@ -39,7 +39,7 @@ def configure(version=None, config_files=None,
     config.setup_logging()
 
     if CONF.insecure_debug:
-        LOG.warn(_LW(
+        LOG.warning(_LW(
             'insecure_debug is enabled so responses may include sensitive '
             'information.'))
 

@@ -306,8 +306,8 @@ class PKISetup(BaseCertificateSetup):
 
     @classmethod
     def main(cls):
-        LOG.warn(_LW('keystone-manage pki_setup is not recommended for '
-                     'production use.'))
+        LOG.warning(_LW('keystone-manage pki_setup is not recommended for '
+                        'production use.'))
         keystone_user_id, keystone_group_id = cls.get_user_group()
         conf_pki = openssl.ConfigurePKI(keystone_user_id, keystone_group_id,
                                         rebuild=CONF.command.rebuild)
@@ -325,8 +325,8 @@ class SSLSetup(BaseCertificateSetup):
 
     @classmethod
     def main(cls):
-        LOG.warn(_LW('keystone-manage ssl_setup is not recommended for '
-                     'production use.'))
+        LOG.warning(_LW('keystone-manage ssl_setup is not recommended for '
+                        'production use.'))
         keystone_user_id, keystone_group_id = cls.get_user_group()
         conf_ssl = openssl.ConfigureSSL(keystone_user_id, keystone_group_id,
                                         rebuild=CONF.command.rebuild)
@@ -630,8 +630,8 @@ class DomainConfigUploadFiles(object):
                             fname[len(DOMAIN_CONF_FHEAD):
                                   -len(DOMAIN_CONF_FTAIL)])
                     else:
-                        LOG.warn(_LW('Ignoring file (%s) while scanning '
-                                     'domain config directory'), fname)
+                        LOG.warning(_LW('Ignoring file (%s) while scanning '
+                                        'domain config directory'), fname)
 
     def run(self):
         # First off, let's just check we can talk to the domain database
