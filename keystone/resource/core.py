@@ -276,6 +276,7 @@ class Manager(manager.Manager):
                              'projects') % project_id)
 
     def update_project(self, tenant_id, tenant, initiator=None):
+        # Use the driver directly to prevent using old cached value.
         original_tenant = self.driver.get_project(tenant_id)
         tenant = tenant.copy()
 
@@ -325,6 +326,7 @@ class Manager(manager.Manager):
         return ret
 
     def delete_project(self, tenant_id, initiator=None):
+        # Use the driver directly to prevent using old cached value.
         project = self.driver.get_project(tenant_id)
         if project['is_domain'] and project['enabled']:
             raise exception.ValidationError(
@@ -332,7 +334,7 @@ class Manager(manager.Manager):
                           'domain. Please disable the project %s first.')
                 % project.get('id'))
 
-        if not self.driver.is_leaf_project(tenant_id):
+        if not self.is_leaf_project(tenant_id):
             raise exception.ForbiddenAction(
                 action=_('cannot delete the project %s since it is not '
                          'a leaf in the hierarchy.') % tenant_id)
@@ -532,6 +534,7 @@ class Manager(manager.Manager):
 
     def update_domain(self, domain_id, domain, initiator=None):
         self.assert_domain_not_federated(domain_id, domain)
+        # Use the driver directly to prevent using old cached value.
         original_domain = self.driver.get_domain(domain_id)
         if (CONF.resource.domain_name_url_safe != 'off' and
             'name' in domain and domain['name'] != original_domain['name'] and
@@ -560,6 +563,7 @@ class Manager(manager.Manager):
             raise exception.ForbiddenAction(action=_('delete the default '
                                                      'domain'))
 
+        # Use the driver directly to prevent using old cached value.
         domain = self.driver.get_domain(domain_id)
 
         # To help avoid inadvertent deletes, we insist that the domain

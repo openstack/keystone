@@ -243,7 +243,7 @@ class Manager(manager.Manager):
         self.revoke_api.check_token(token_values)
 
     def check_revocation(self, token):
-        version = self.driver.get_token_version(token)
+        version = self.get_token_version(token)
         if version == V2:
             return self.check_revocation_v2(token)
         else:
@@ -275,7 +275,7 @@ class Manager(manager.Manager):
         if not self._needs_persistence:
             return self.driver.validate_v3_token(token_id)
         token_ref = self._persistence.get_token(token_id)
-        version = self.driver.get_token_version(token_ref)
+        version = self.get_token_version(token_ref)
         if version == self.V3:
             return self.driver.validate_v3_token(token_ref)
         elif version == self.V2:

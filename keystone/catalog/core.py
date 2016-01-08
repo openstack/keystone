@@ -327,9 +327,8 @@ class Manager(manager.Manager):
         # membership recover the endpoint group
         self.resource_api.get_project(project_id)
         try:
-            refs = self.driver.list_endpoint_groups_for_project(
-                project_id)
-            endpoint_groups = [self.driver.get_endpoint_group(
+            refs = self.list_endpoint_groups_for_project(project_id)
+            endpoint_groups = [self.get_endpoint_group(
                 ref['endpoint_group_id']) for ref in refs]
             return endpoint_groups
         except exception.EndpointGroupNotFound:
@@ -337,7 +336,7 @@ class Manager(manager.Manager):
 
     def get_endpoints_filtered_by_endpoint_group(self, endpoint_group_id):
         endpoints = self.list_endpoints()
-        filters = self.driver.get_endpoint_group(endpoint_group_id)['filters']
+        filters = self.get_endpoint_group(endpoint_group_id)['filters']
         filtered_endpoints = []
 
         for endpoint in endpoints:
