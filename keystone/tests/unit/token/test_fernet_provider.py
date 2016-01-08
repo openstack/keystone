@@ -332,274 +332,102 @@ class TestPayloads(unit.TestCase):
             actual_time_float)
         self.assertEqual(expected_time_str, actual_time_str)
 
-    def test_unscoped_payload(self):
-        exp_user_id = uuid.uuid4().hex
-        exp_methods = ['password']
+    def _test_payload(self, payload_class, exp_user_id=None, exp_methods=None,
+                      exp_project_id=None, exp_domain_id=None,
+                      exp_trust_id=None, exp_federated_info=None):
+        exp_user_id = exp_user_id or uuid.uuid4().hex
+        exp_methods = exp_methods or ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
-        project_id = None
-        domain_id = None
-        trust_id = None
-        federated_info = None
 
-        payload = token_formatters.UnscopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, domain_id, exp_expires_at,
-            exp_audit_ids, trust_id, federated_info)
+        payload = payload_class.assemble(
+            exp_user_id, exp_methods, exp_project_id, exp_domain_id,
+            exp_expires_at, exp_audit_ids, exp_trust_id, exp_federated_info)
 
         (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.UnscopedPayload.disassemble(payload))
+         trust_id, federated_info) = payload_class.disassemble(payload)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_methods, methods)
         self.assertTimestampsEqual(exp_expires_at, expires_at)
         self.assertEqual(exp_audit_ids, audit_ids)
+        self.assertEqual(exp_project_id, project_id)
+        self.assertEqual(exp_domain_id, domain_id)
+        self.assertEqual(exp_trust_id, trust_id)
+
+        if exp_federated_info:
+            self.assertDictEqual(exp_federated_info, federated_info)
+        else:
+            self.assertIsNone(federated_info)
+
+    def test_unscoped_payload(self):
+        self._test_payload(token_formatters.UnscopedPayload)
 
     def test_project_scoped_payload(self):
-        exp_user_id = uuid.uuid4().hex
-        exp_methods = ['password']
-        exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        domain_id = None
-        trust_id = None
-        federated_info = None
-
-        payload = token_formatters.ProjectScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.ProjectScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_project_id, project_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
+        self._test_payload(token_formatters.ProjectScopedPayload,
+                           exp_project_id=uuid.uuid4().hex)
 
     def test_domain_scoped_payload(self):
-        exp_user_id = uuid.uuid4().hex
-        exp_methods = ['password']
-        exp_domain_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        project_id = None
-        trust_id = None
-        federated_info = None
-
-        payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, exp_domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.DomainScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_domain_id, domain_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
+        self._test_payload(token_formatters.DomainScopedPayload,
+                           exp_domain_id=uuid.uuid4().hex)
 
     def test_domain_scoped_payload_with_default_domain(self):
-        exp_user_id = uuid.uuid4().hex
-        exp_methods = ['password']
-        exp_domain_id = CONF.identity.default_domain_id
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        project_id = None
-        trust_id = None
-        federated_info = None
-
-        payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, exp_domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.DomainScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_domain_id, domain_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
+        self._test_payload(token_formatters.DomainScopedPayload,
+                           exp_domain_id=CONF.identity.default_domain_id)
 
     def test_trust_scoped_payload(self):
-        exp_user_id = uuid.uuid4().hex
-        exp_methods = ['password']
-        exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        exp_trust_id = uuid.uuid4().hex
-        domain_id = None
-        federated_info = None
-
-        payload = token_formatters.TrustScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, domain_id,
-            exp_expires_at, exp_audit_ids, exp_trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.TrustScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_project_id, project_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
-        self.assertEqual(exp_trust_id, trust_id)
-
-    def _test_unscoped_payload_with_user_id(self, exp_user_id):
-        exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        project_id = None
-        domain_id = None
-        trust_id = None
-        federated_info = None
-
-        payload = token_formatters.UnscopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, domain_id, exp_expires_at,
-            exp_audit_ids, trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.UnscopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
+        self._test_payload(token_formatters.TrustScopedPayload,
+                           exp_project_id=uuid.uuid4().hex,
+                           exp_trust_id=uuid.uuid4().hex)
 
     def test_unscoped_payload_with_non_uuid_user_id(self):
-        self._test_unscoped_payload_with_user_id('someNonUuidUserId')
+        self._test_payload(token_formatters.UnscopedPayload,
+                           exp_user_id='someNonUuidUserId')
 
     def test_unscoped_payload_with_16_char_non_uuid_user_id(self):
-        self._test_unscoped_payload_with_user_id('0123456789abcdef')
-
-    def _test_project_scoped_payload_with_ids(self, exp_user_id,
-                                              exp_project_id):
-        exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        domain_id = None
-        trust_id = None
-        federated_info = None
-
-        payload = token_formatters.ProjectScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.ProjectScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_project_id, project_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
+        self._test_payload(token_formatters.UnscopedPayload,
+                           exp_user_id='0123456789abcdef')
 
     def test_project_scoped_payload_with_non_uuid_ids(self):
-        self._test_project_scoped_payload_with_ids('someNonUuidUserId',
-                                                   'someNonUuidProjectId')
+        self._test_payload(token_formatters.ProjectScopedPayload,
+                           exp_user_id='someNonUuidUserId',
+                           exp_project_id='someNonUuidProjectId')
 
     def test_project_scoped_payload_with_16_char_non_uuid_ids(self):
-        self._test_project_scoped_payload_with_ids('0123456789abcdef',
-                                                   '0123456789abcdef')
-
-    def _test_domain_scoped_payload_with_user_id(self, exp_user_id):
-        exp_methods = ['password']
-        exp_domain_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        project_id = None
-        trust_id = None
-        federated_info = None
-
-        payload = token_formatters.DomainScopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, exp_domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.DomainScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_domain_id, domain_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
+        self._test_payload(token_formatters.ProjectScopedPayload,
+                           exp_user_id='0123456789abcdef',
+                           exp_project_id='0123456789abcdef')
 
     def test_domain_scoped_payload_with_non_uuid_user_id(self):
-        self._test_domain_scoped_payload_with_user_id('nonUuidUserId')
+        self._test_payload(token_formatters.DomainScopedPayload,
+                           exp_user_id='nonUuidUserId',
+                           exp_domain_id=uuid.uuid4().hex)
 
     def test_domain_scoped_payload_with_16_char_non_uuid_user_id(self):
-        self._test_domain_scoped_payload_with_user_id('0123456789abcdef')
-
-    def _test_trust_scoped_payload_with_ids(self, exp_user_id, exp_project_id):
-        exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
-        exp_trust_id = uuid.uuid4().hex
-        domain_id = None
-        federated_info = None
-
-        payload = token_formatters.TrustScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, domain_id,
-            exp_expires_at, exp_audit_ids, exp_trust_id, federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.TrustScopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_project_id, project_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
-        self.assertEqual(exp_trust_id, trust_id)
+        self._test_payload(token_formatters.DomainScopedPayload,
+                           exp_user_id='0123456789abcdef',
+                           exp_domain_id=uuid.uuid4().hex)
 
     def test_trust_scoped_payload_with_non_uuid_ids(self):
-        self._test_trust_scoped_payload_with_ids('someNonUuidUserId',
-                                                 'someNonUuidProjectId')
+        self._test_payload(token_formatters.TrustScopedPayload,
+                           exp_user_id='someNonUuidUserId',
+                           exp_project_id='someNonUuidProjectId',
+                           exp_trust_id=uuid.uuid4().hex)
 
     def test_trust_scoped_payload_with_16_char_non_uuid_ids(self):
-        self._test_trust_scoped_payload_with_ids('0123456789abcdef',
-                                                 '0123456789abcdef')
+        self._test_payload(token_formatters.TrustScopedPayload,
+                           exp_user_id='0123456789abcdef',
+                           exp_project_id='0123456789abcdef',
+                           exp_trust_id=uuid.uuid4().hex)
 
     def _test_federated_payload_with_ids(self, exp_user_id, exp_group_id):
-        exp_methods = ['password']
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
         exp_federated_info = {'group_ids': [{'id': exp_group_id}],
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
-        project_id = None
-        domain_id = None
-        trust_id = None
 
-        payload = token_formatters.FederatedUnscopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, domain_id, exp_expires_at,
-            exp_audit_ids, trust_id, exp_federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.FederatedUnscopedPayload.disassemble(payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
-        self.assertEqual(exp_federated_info['group_ids'][0]['id'],
-                         federated_info['group_ids'][0]['id'])
-        self.assertEqual(exp_federated_info['idp_id'],
-                         federated_info['idp_id'])
-        self.assertEqual(exp_federated_info['protocol_id'],
-                         federated_info['protocol_id'])
+        self._test_payload(token_formatters.FederatedUnscopedPayload,
+                           exp_user_id=exp_user_id,
+                           exp_federated_info=exp_federated_info)
 
     def test_federated_payload_with_non_uuid_ids(self):
         self._test_federated_payload_with_ids('someNonUuidUserId',
@@ -610,60 +438,26 @@ class TestPayloads(unit.TestCase):
                                               '0123456789abcdef')
 
     def test_federated_project_scoped_payload(self):
-        exp_user_id = 'someNonUuidUserId'
-        exp_methods = ['token']
-        exp_project_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
         exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
-        domain_id = None
-        trust_id = None
 
-        payload = token_formatters.FederatedProjectScopedPayload.assemble(
-            exp_user_id, exp_methods, exp_project_id, domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, exp_federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.FederatedProjectScopedPayload.disassemble(
-                payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_project_id, project_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
-        self.assertDictEqual(exp_federated_info, federated_info)
+        self._test_payload(token_formatters.FederatedProjectScopedPayload,
+                           exp_user_id='someNonUuidUserId',
+                           exp_methods=['token'],
+                           exp_project_id=uuid.uuid4().hex,
+                           exp_federated_info=exp_federated_info)
 
     def test_federated_domain_scoped_payload(self):
-        exp_user_id = 'someNonUuidUserId'
-        exp_methods = ['token']
-        exp_domain_id = uuid.uuid4().hex
-        exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
         exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
                               'idp_id': uuid.uuid4().hex,
                               'protocol_id': uuid.uuid4().hex}
-        project_id = None
-        trust_id = None
 
-        payload = token_formatters.FederatedDomainScopedPayload.assemble(
-            exp_user_id, exp_methods, project_id, exp_domain_id,
-            exp_expires_at, exp_audit_ids, trust_id, exp_federated_info)
-
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = (
-            token_formatters.FederatedDomainScopedPayload.disassemble(
-                payload))
-
-        self.assertEqual(exp_user_id, user_id)
-        self.assertEqual(exp_methods, methods)
-        self.assertEqual(exp_domain_id, domain_id)
-        self.assertTimestampsEqual(exp_expires_at, expires_at)
-        self.assertEqual(exp_audit_ids, audit_ids)
-        self.assertDictEqual(exp_federated_info, federated_info)
+        self._test_payload(token_formatters.FederatedDomainScopedPayload,
+                           exp_user_id='someNonUuidUserId',
+                           exp_methods=['token'],
+                           exp_domain_id=uuid.uuid4().hex,
+                           exp_federated_info=exp_federated_info)
 
 
 class TestFernetKeyRotation(unit.TestCase):
