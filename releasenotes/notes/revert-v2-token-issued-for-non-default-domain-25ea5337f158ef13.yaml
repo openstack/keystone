@@ -1,0 +1,12 @@
+fixes:
+  - >
+    [`bug 1527759 <https://bugs.launchpad.net/keystone/+bug/1527759>`_]
+    Reverted the change that eliminates the ability to get
+    a V2 token with a user or project that is not in the
+    default domain. This change broke real-world deployments
+    that utilized the ability to authenticate via V2 API
+    with a user not in the default domain or with a
+    project not in the default domain. The deployer
+    is being convinced to update code to properly handle
+    V3 auth but the fix broke expected and tested
+    behavior.
