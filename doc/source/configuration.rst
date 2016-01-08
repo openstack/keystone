@@ -73,7 +73,7 @@ services are configured to run in a single process.
 
 .. NOTE::
 
-    The separation into ``admin`` and ``main`` interfaces is an historical
+    The separation into ``admin`` and ``main`` interfaces is a historical
     anomaly. The new V3 API provides the same interface on both the admin and
     main interfaces (this can be configured in ``keystone-paste.ini``, but the
     default is to have both the same). The V2.0 API provides a limited public
