@@ -3286,13 +3286,19 @@ class LdapFilterTests(test_backend.FilterTests, unit.TestCase):
         config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
-    def test_list_users_in_group_filtered(self):
+    @wip('Not supported by LDAP identity driver')
+    def test_list_users_in_group_inexact_filtered(self):
         # The LDAP identity driver currently does not support filtering on the
         # listing users for a given group, so will fail this test.
-        try:
-            super(LdapFilterTests, self).test_list_users_in_group_filtered()
-        except matchers.MismatchError:
-            return
-        # We shouldn't get here...if we do, it means someone has implemented
-        # filtering, so we can remove this test override.
-        self.assertTrue(False)
+        super(LdapFilterTests,
+              self).test_list_users_in_group_inexact_filtered()
+
+    @wip('Not supported by LDAP identity driver')
+    def test_list_users_in_group_exact_filtered(self):
+        # The LDAP identity driver currently does not support filtering on the
+        # listing users for a given group, so will fail this test.
+        super(LdapFilterTests, self).test_list_users_in_group_exact_filtered()
+
+    @wip('Waiting on bug #1521772 to be fixed')
+    def test_groups_for_user_exact_filtered(self):
+        super(LdapFilterTests, self).test_groups_for_user_exact_filtered()
