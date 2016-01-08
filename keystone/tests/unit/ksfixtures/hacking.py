@@ -112,73 +112,6 @@ class HackingCode(fixtures.Fixture):
             (8, 8, 'K004'),
         ]}
 
-    assert_no_translations_for_debug_logging = {
-        'code': """
-            import logging
-            import logging as stlib_logging
-            from keystone.i18n import _
-            from keystone.i18n import _ as oslo_i18n
-            from oslo_log import log
-            from oslo_log import log as oslo_logging
-
-            # stdlib logging
-            L0 = logging.getLogger()
-            L0.debug(_('text'))
-            class C:
-                def __init__(self):
-                    L0.debug(oslo_i18n('text', {}))
-
-            # stdlib logging w/ alias and specifying a logger
-            class C:
-                def __init__(self):
-                    self.L1 = logging.getLogger(__name__)
-                def m(self):
-                    self.L1.debug(
-                        _('text'), {}
-                    )
-
-            # oslo logging and specifying a logger
-            L2 = logging.getLogger(__name__)
-            L2.debug(oslo_i18n('text'))
-
-            # oslo logging w/ alias
-            class C:
-                def __init__(self):
-                    self.L3 = oslo_logging.getLogger()
-                    self.L3.debug(_('text'))
-
-            # translation on a separate line
-            msg = _('text')
-            L2.debug(msg)
-
-            # this should not fail
-            if True:
-                msg = _('message %s') % X
-                L2.error(msg)
-                raise TypeError(msg)
-            if True:
-                msg = 'message'
-                L2.debug(msg)
-
-            # this should not fail
-            if True:
-                if True:
-                    msg = _('message')
-                else:
-                    msg = _('message')
-                L2.debug(msg)
-                raise Exception(msg)
-        """,
-        'expected_errors': [
-            (10, 9, 'K005'),
-            (13, 17, 'K005'),
-            (21, 12, 'K005'),
-            (26, 9, 'K005'),
-            (32, 22, 'K005'),
-            (36, 9, 'K005'),
-        ]
-    }
-
     dict_constructor = {
         'code': """
             lower_res = {k.lower(): v for k, v in six.iteritems(res[1])}
@@ -421,3 +354,64 @@ class HackingLogging(fixtures.Fixture):
             (4, 9, 'K009'),
         ],
     }
+
+    assert_no_translations_for_debug_logging = {
+        'code': """
+                # stdlib logging
+                L0 = logging.getLogger()
+                L0.debug(_('text'))
+                class C:
+                    def __init__(self):
+                        L0.debug(oslo_i18n('text', {}))
+
+                # stdlib logging w/ alias and specifying a logger
+                class C:
+                    def __init__(self):
+                        self.L1 = logging.getLogger(__name__)
+                    def m(self):
+                        self.L1.debug(
+                            _('text'), {}
+                        )
+
+                # oslo logging and specifying a logger
+                L2 = logging.getLogger(__name__)
+                L2.debug(oslo_i18n('text'))
+
+                # oslo logging w/ alias
+                class C:
+                    def __init__(self):
+                        self.L3 = oslo_logging.getLogger()
+                        self.L3.debug(_('text'))
+
+                # translation on a separate line
+                msg = _('text')
+                L2.debug(msg)
+
+                # this should not fail
+                if True:
+                    msg = _('message %s') % X
+                    L2.error(msg)
+                    raise TypeError(msg)
+                if True:
+                    msg = 'message'
+                    L2.debug(msg)
+
+                # this should not fail
+                if True:
+                    if True:
+                        msg = _('message')
+                    else:
+                        msg = _('message')
+                    L2.debug(msg)
+                    raise Exception(msg)
+        """,
+        'expected_errors': [
+            (3, 9, 'K005'),
+            (6, 17, 'K005'),
+            (14, 12, 'K005'),
+            (19, 9, 'K005'),
+            (25, 22, 'K005'),
+            (29, 9, 'K005'),
+        ]
+    }
+

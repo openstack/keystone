@@ -86,18 +86,6 @@ class TestAssertingNoneEquality(BaseStyleCheck):
         self.assert_has_errors(code, expected_errors=errors)
 
 
-class TestCheckForDebugLoggingIssues(BaseStyleCheck):
-
-    def get_checker(self):
-        return checks.CheckForLoggingIssues
-
-    def test_for_translations(self):
-        fixture = self.code_ex.assert_no_translations_for_debug_logging
-        code = fixture['code']
-        errors = fixture['expected_errors']
-        self.assert_has_errors(code, expected_errors=errors)
-
-
 class BaseLoggingCheck(BaseStyleCheck):
 
     def get_checker(self):
@@ -115,6 +103,15 @@ class BaseLoggingCheck(BaseStyleCheck):
         actual_errors = [(e[0] - import_lines, e[1], e[2])
                          for e in actual_errors]
         self.assertEqual(expected_errors or [], actual_errors)
+
+
+class TestCheckForDebugLoggingIssues(BaseLoggingCheck):
+
+    def test_for_translations(self):
+        fixture = self.code_ex.assert_no_translations_for_debug_logging
+        code = self.code_ex.shared_imports + fixture['code']
+        errors = fixture['expected_errors']
+        self.assert_has_errors(code, expected_errors=errors)
 
 
 class TestLoggingWithWarn(BaseLoggingCheck):
