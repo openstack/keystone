@@ -20,6 +20,7 @@ from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 from six.moves import http_client
 from testtools import matchers
+import webtest
 
 from keystone import auth
 from keystone.common import authorization
@@ -1117,21 +1118,27 @@ class VersionTestCase(RestfulTestCase):
 # NOTE(gyee): test AuthContextMiddleware here instead of test_middleware.py
 # because we need the token
 class AuthContextMiddlewareTestCase(RestfulTestCase):
-    def _mock_request_object(self, token_id):
 
-        class fake_req(object):
-            headers = {middleware.AUTH_TOKEN_HEADER: token_id}
-            environ = {}
+    def _middleware_request(self, token, extra_environ=None):
 
-        return fake_req()
+        def application(environ, start_response):
+            body = 'body'
+            headers = [('Content-Type', 'text/html; charset=utf8'),
+                       ('Content-Length', str(len(body)))]
+            start_response('200 OK', headers)
+            return [body]
+
+        app = webtest.TestApp(middleware.AuthContextMiddleware(application),
+                              extra_environ=extra_environ)
+        resp = app.get('/', headers={middleware.AUTH_TOKEN_HEADER: token})
+        self.assertEqual('body', resp.text)  # just to make sure it worked
+        return resp.request
 
     def test_auth_context_build_by_middleware(self):
         # test to make sure AuthContextMiddleware successful build the auth
         # context from the incoming auth token
         admin_token = self.get_scoped_token()
-        req = self._mock_request_object(admin_token)
-        application = None
-        middleware.AuthContextMiddleware(application).process_request(req)
+        req = self._middleware_request(admin_token)
         self.assertEqual(
             self.user['id'],
             req.environ.get(authorization.AUTH_CONTEXT_ENV)['user_id'])
@@ -1140,10 +1147,9 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         overridden_context = 'OVERRIDDEN_CONTEXT'
         # this token should not be used
         token = uuid.uuid4().hex
-        req = self._mock_request_object(token)
-        req.environ[authorization.AUTH_CONTEXT_ENV] = overridden_context
-        application = None
-        middleware.AuthContextMiddleware(application).process_request(req)
+
+        extra_environ = {authorization.AUTH_CONTEXT_ENV: overridden_context}
+        req = self._middleware_request(token, extra_environ=extra_environ)
         # make sure overridden context take precedence
         self.assertEqual(overridden_context,
                          req.environ.get(authorization.AUTH_CONTEXT_ENV))
@@ -1151,17 +1157,13 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
     def test_admin_token_auth_context(self):
         # test to make sure AuthContextMiddleware does not attempt to build
         # auth context if the incoming auth token is the special admin token
-        req = self._mock_request_object(CONF.admin_token)
-        application = None
-        middleware.AuthContextMiddleware(application).process_request(req)
-        self.assertDictEqual({}, req.environ.get(
-            authorization.AUTH_CONTEXT_ENV))
+        req = self._middleware_request(CONF.admin_token)
+        auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
+        self.assertDictEqual({}, auth_context)
 
     def test_unscoped_token_auth_context(self):
         unscoped_token = self.get_unscoped_token()
-        req = self._mock_request_object(unscoped_token)
-        application = None
-        middleware.AuthContextMiddleware(application).process_request(req)
+        req = self._middleware_request(unscoped_token)
         for key in ['project_id', 'domain_id', 'domain_name']:
             self.assertNotIn(
                 key,
@@ -1169,9 +1171,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
 
     def test_project_scoped_token_auth_context(self):
         project_scoped_token = self.get_scoped_token()
-        req = self._mock_request_object(project_scoped_token)
-        application = None
-        middleware.AuthContextMiddleware(application).process_request(req)
+        req = self._middleware_request(project_scoped_token)
         self.assertEqual(
             self.project['id'],
             req.environ.get(authorization.AUTH_CONTEXT_ENV)['project_id'])
@@ -1183,9 +1183,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         self.put(path=path)
 
         domain_scoped_token = self.get_domain_scoped_token()
-        req = self._mock_request_object(domain_scoped_token)
-        application = None
-        middleware.AuthContextMiddleware(application).process_request(req)
+        req = self._middleware_request(domain_scoped_token)
         self.assertEqual(
             self.domain['id'],
             req.environ.get(authorization.AUTH_CONTEXT_ENV)['domain_id'])
@@ -1201,12 +1199,11 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
 
         # Use a scoped token so more fields can be set.
         token = self.get_scoped_token()
-        req = self._mock_request_object(token)
 
         # oslo_middleware RequestId middleware sets openstack.request_id.
         request_id = uuid.uuid4().hex
-        req.environ['openstack.request_id'] = request_id
-        middleware.AuthContextMiddleware(application=None).process_request(req)
+        environ = {'openstack.request_id': request_id}
+        self._middleware_request(token, extra_environ=environ)
 
         req_context = oslo_context.context.get_current()
         self.assertEqual(request_id, req_context.request_id)

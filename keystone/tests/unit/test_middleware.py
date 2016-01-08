@@ -18,7 +18,7 @@ import uuid
 
 from oslo_config import cfg
 from six.moves import http_client
-import webob
+import webtest
 
 from keystone.common import authorization
 from keystone.common import tokenless_auth
@@ -33,104 +33,161 @@ from keystone.tests.unit import test_backend_sql
 CONF = cfg.CONF
 
 
-def make_request(**kwargs):
-    accept = kwargs.pop('accept', None)
-    method = kwargs.pop('method', 'GET')
-    body = kwargs.pop('body', None)
-    req = webob.Request.blank('/', **kwargs)
-    req.method = method
-    if body is not None:
-        req.body = body
-    if accept is not None:
-        req.accept = accept
-    return req
+class MiddlewareRequestTestBase(unit.TestCase):
+
+    MIDDLEWARE_CLASS = None  # override this in subclasses
+
+    def _application(self):
+        """A base wsgi application that returns a simple response."""
+        def app(environ, start_response):
+            body = uuid.uuid4().hex
+            resp_headers = [('Content-Type', 'text/html; charset=utf8'),
+                            ('Content-Length', str(len(body)))]
+            start_response('200 OK', resp_headers)
+            return [body]
+
+        return app
+
+    def _generate_app_response(self, app, headers=None, method='get',
+                               path='/', **kwargs):
+        """Given a wsgi application wrap it in webtest and call it."""
+        return getattr(webtest.TestApp(app), method)(path,
+                                                     headers=headers or {},
+                                                     **kwargs)
+
+    def _middleware_failure(self, exc, *args, **kwargs):
+        """Assert that an exception is being thrown from process_request."""
+        # NOTE(jamielennox): This is a little ugly. We need to call the webtest
+        # framework so that the correct RequestClass object is created for when
+        # we call process_request. However because we go via webtest we only
+        # see the response object and not the actual exception that is thrown
+        # by process_request. To get around this we subclass process_request
+        # with something that checks for the right type of exception being
+        # thrown so we can test the middle of the request process.
+        # TODO(jamielennox): Change these tests to test the value of the
+        # response rather than the error that is raised.
+
+        class _Failing(self.MIDDLEWARE_CLASS):
+
+            _called = False
+
+            def process_request(i_self, *i_args, **i_kwargs):
+                # i_ to distinguish it from and not clobber the outer vars
+                e = self.assertRaises(exc,
+                                      super(_Failing, i_self).process_request,
+                                      *i_args, **i_kwargs)
+                i_self._called = True
+                raise e
+
+        # by default the returned status when an uncaught exception is raised
+        # for validation or caught errors this will likely be 400
+        kwargs.setdefault('status', http_client.INTERNAL_SERVER_ERROR)  # 500
+
+        app = _Failing(self._application())
+        resp = self._generate_app_response(app, *args, **kwargs)
+        self.assertTrue(app._called)
+        return resp
+
+    def _do_middleware_response(self, *args, **kwargs):
+        """Wrap a middleware around a sample application and call it."""
+        app = self.MIDDLEWARE_CLASS(self._application())
+        return self._generate_app_response(app, *args, **kwargs)
+
+    def _do_middleware_request(self, *args, **kwargs):
+        """The request object from a successful middleware call."""
+        return self._do_middleware_response(*args, **kwargs).request
 
 
-def make_response(**kwargs):
-    body = kwargs.pop('body', None)
-    return webob.Response(body)
+class TokenAuthMiddlewareTest(MiddlewareRequestTestBase):
 
+    MIDDLEWARE_CLASS = middleware.TokenAuthMiddleware
 
-class TokenAuthMiddlewareTest(unit.TestCase):
     def test_request(self):
-        req = make_request()
-        req.headers[middleware.AUTH_TOKEN_HEADER] = 'MAGIC'
-        middleware.TokenAuthMiddleware(None).process_request(req)
+        headers = {middleware.AUTH_TOKEN_HEADER: 'MAGIC'}
+        req = self._do_middleware_request(headers=headers)
         context = req.environ[middleware.CONTEXT_ENV]
         self.assertEqual('MAGIC', context['token_id'])
 
 
-class AdminTokenAuthMiddlewareTest(unit.TestCase):
+class AdminTokenAuthMiddlewareTest(MiddlewareRequestTestBase):
+
+    MIDDLEWARE_CLASS = middleware.AdminTokenAuthMiddleware
+
     def test_request_admin(self):
-        req = make_request()
-        req.headers[middleware.AUTH_TOKEN_HEADER] = CONF.admin_token
-        middleware.AdminTokenAuthMiddleware(None).process_request(req)
-        context = req.environ[middleware.CONTEXT_ENV]
-        self.assertTrue(context['is_admin'])
+        headers = {middleware.AUTH_TOKEN_HEADER: CONF.admin_token}
+        req = self._do_middleware_request(headers=headers)
+        self.assertTrue(req.environ[middleware.CONTEXT_ENV]['is_admin'])
 
     def test_request_non_admin(self):
-        req = make_request()
-        req.headers[middleware.AUTH_TOKEN_HEADER] = 'NOT-ADMIN'
-        middleware.AdminTokenAuthMiddleware(None).process_request(req)
-        context = req.environ[middleware.CONTEXT_ENV]
-        self.assertFalse(context['is_admin'])
+        headers = {middleware.AUTH_TOKEN_HEADER: 'NOT-ADMIN'}
+        req = self._do_middleware_request(headers=headers)
+        self.assertFalse(req.environ[middleware.CONTEXT_ENV]['is_admin'])
 
 
-class PostParamsMiddlewareTest(unit.TestCase):
+class PostParamsMiddlewareTest(MiddlewareRequestTestBase):
+
+    MIDDLEWARE_CLASS = middleware.PostParamsMiddleware
+
     def test_request_with_params(self):
-        req = make_request(body="arg1=one", method='POST')
-        middleware.PostParamsMiddleware(None).process_request(req)
-        params = req.environ[middleware.PARAMS_ENV]
-        self.assertEqual({"arg1": "one"}, params)
+        req = self._do_middleware_request(params='arg1=one', method='post')
+        self.assertEqual({"arg1": "one"}, req.environ[middleware.PARAMS_ENV])
 
 
-class JsonBodyMiddlewareTest(unit.TestCase):
+class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
+
+    MIDDLEWARE_CLASS = middleware.JsonBodyMiddleware
+
     def test_request_with_params(self):
-        req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
-                           content_type='application/json',
-                           method='POST')
-        middleware.JsonBodyMiddleware(None).process_request(req)
-        params = req.environ[middleware.PARAMS_ENV]
-        self.assertEqual({"arg1": "one", "arg2": ["a"]}, params)
+        headers = {'Content-Type': 'application/json'}
+        params = '{"arg1": "one", "arg2": ["a"]}'
+        req = self._do_middleware_request(params=params,
+                                          headers=headers,
+                                          method='post')
+        self.assertEqual({"arg1": "one", "arg2": ["a"]},
+                         req.environ[middleware.PARAMS_ENV])
 
     def test_malformed_json(self):
-        req = make_request(body='{"arg1": "on',
-                           content_type='application/json',
-                           method='POST')
-        resp = middleware.JsonBodyMiddleware(None).process_request(req)
-        self.assertEqual(http_client.BAD_REQUEST, resp.status_int)
+        headers = {'Content-Type': 'application/json'}
+        self._do_middleware_response(params='{"arg1": "on',
+                                     headers=headers,
+                                     method='post',
+                                     status=http_client.BAD_REQUEST)
 
     def test_not_dict_body(self):
-        req = make_request(body='42',
-                           content_type='application/json',
-                           method='POST')
-        resp = middleware.JsonBodyMiddleware(None).process_request(req)
-        self.assertEqual(http_client.BAD_REQUEST, resp.status_int)
+        headers = {'Content-Type': 'application/json'}
+        resp = self._do_middleware_response(params='42',
+                                            headers=headers,
+                                            method='post',
+                                            status=http_client.BAD_REQUEST)
+
         self.assertTrue('valid JSON object' in resp.json['error']['message'])
 
     def test_no_content_type(self):
-        req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
-                           method='POST')
-        middleware.JsonBodyMiddleware(None).process_request(req)
-        params = req.environ[middleware.PARAMS_ENV]
-        self.assertEqual({"arg1": "one", "arg2": ["a"]}, params)
+        headers = {'Content-Type': ''}
+        params = '{"arg1": "one", "arg2": ["a"]}'
+        req = self._do_middleware_request(params=params,
+                                          headers=headers,
+                                          method='post')
+        self.assertEqual({"arg1": "one", "arg2": ["a"]},
+                         req.environ[middleware.PARAMS_ENV])
 
     def test_unrecognized_content_type(self):
-        req = make_request(body='{"arg1": "one", "arg2": ["a"]}',
-                           content_type='text/plain',
-                           method='POST')
-        resp = middleware.JsonBodyMiddleware(None).process_request(req)
-        self.assertEqual(http_client.BAD_REQUEST, resp.status_int)
+        headers = {'Content-Type': 'text/plain'}
+        self._do_middleware_response(params='{"arg1": "one", "arg2": ["a"]}',
+                                     headers=headers,
+                                     method='post',
+                                     status=http_client.BAD_REQUEST)
 
     def test_unrecognized_content_type_without_body(self):
-        req = make_request(content_type='text/plain',
-                           method='GET')
-        middleware.JsonBodyMiddleware(None).process_request(req)
-        params = req.environ.get(middleware.PARAMS_ENV, {})
-        self.assertEqual({}, params)
+        headers = {'Content-Type': 'text/plain'}
+        req = self._do_middleware_request(headers=headers)
+        self.assertEqual({}, req.environ.get(middleware.PARAMS_ENV, {}))
 
 
-class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
+class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
+                                MiddlewareRequestTestBase):
+
+    MIDDLEWARE_CLASS = middleware.AuthContextMiddleware
 
     def setUp(self):
         super(AuthContextMiddlewareTest, self).setUp()
@@ -273,30 +330,27 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         return context
 
     def test_context_already_exists(self):
-        req = make_request()
-        token_id = uuid.uuid4().hex
-        req.environ[authorization.AUTH_CONTEXT_ENV] = {'token_id': token_id}
-        context = self._create_context(request=req)
-        self.assertEqual(token_id, context['token_id'])
+        stub_value = uuid.uuid4().hex
+        env = {authorization.AUTH_CONTEXT_ENV: stub_value}
+        req = self._do_middleware_request(extra_environ=env)
+        self.assertEqual(stub_value,
+                         req.environ.get(authorization.AUTH_CONTEXT_ENV))
 
     def test_not_applicable_to_token_request(self):
-        env = {}
-        env['PATH_INFO'] = '/auth/tokens'
-        env['REQUEST_METHOD'] = 'POST'
-        req = make_request(environ=env)
-        context = self._create_context(request=req)
+        req = self._do_middleware_request(path='/auth/tokens', method='post')
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertIsNone(context)
 
     def test_no_tokenless_attributes_request(self):
-        req = make_request()
-        context = self._create_context(request=req)
+        req = self._do_middleware_request()
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertIsNone(context)
 
     def test_no_issuer_attribute_request(self):
         env = {}
         env['HTTP_X_PROJECT_ID'] = uuid.uuid4().hex
-        req = make_request(environ=env)
-        context = self._create_context(request=req)
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertIsNone(context)
 
     def test_has_only_issuer_and_project_name_request(self):
@@ -305,61 +359,51 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         # references to issuer of the client certificate.
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_NAME'] = uuid.uuid4().hex
-        req = make_request(environ=env)
-        context = self._create_context(request=req,
-                                       exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_has_only_issuer_and_project_domain_name_request(self):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = uuid.uuid4().hex
-        req = make_request(environ=env)
-        context = self._create_context(request=req,
-                                       exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_has_only_issuer_and_project_domain_id_request(self):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_DOMAIN_ID'] = uuid.uuid4().hex
-        req = make_request(environ=env)
-        context = self._create_context(request=req,
-                                       exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_missing_both_domain_and_project_request(self):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer
-        req = make_request(environ=env)
-        context = self._create_context(request=req,
-                                       exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_empty_trusted_issuer_list(self):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer
         env['HTTP_X_PROJECT_ID'] = uuid.uuid4().hex
-        req = make_request(environ=env)
+
         self.config_fixture.config(group='tokenless_auth',
                                    trusted_issuer=[])
-        context = self._create_context(request=req)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertIsNone(context)
 
     def test_client_issuer_not_trusted(self):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.untrusted_client_issuer
         env['HTTP_X_PROJECT_ID'] = uuid.uuid4().hex
-        req = make_request(environ=env)
-        context = self._create_context(request=req)
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertIsNone(context)
 
     def test_proj_scope_with_proj_id_and_proj_dom_id_success(self):
@@ -372,10 +416,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         # domain name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_proj_scope_with_proj_id_only_success(self):
@@ -384,10 +430,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_ID'] = self.project_id
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_proj_scope_with_proj_name_and_proj_dom_id_success(self):
@@ -397,10 +445,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_proj_scope_with_proj_name_and_proj_dom_name_success(self):
@@ -410,10 +460,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_proj_scope_with_proj_name_only_fail(self):
@@ -422,14 +474,13 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = self.project_id
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME,
-            exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_mapping_with_userid_and_domainid_success(self):
         env = {}
@@ -438,10 +489,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_ID'] = self.user['id']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERID_AND_DOMAINID)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERID_AND_DOMAINID)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_mapping_with_userid_and_domainname_success(self):
@@ -451,10 +504,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_ID'] = self.user['id']
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERID_AND_DOMAINNAME)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERID_AND_DOMAINNAME)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_mapping_with_username_and_domainid_success(self):
@@ -464,10 +519,12 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_only_domain_name_fail(self):
@@ -476,14 +533,13 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_ID'] = self.project_id
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_DOMAINNAME_ONLY,
-            exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_DOMAINNAME_ONLY)
+
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_only_domain_id_fail(self):
         env = {}
@@ -491,14 +547,13 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_ID'] = self.project_id
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_DOMAINID_ONLY,
-            exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_DOMAINID_ONLY)
+
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_missing_domain_data_fail(self):
         env = {}
@@ -506,14 +561,13 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_ID'] = self.project_id
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_ONLY,
-            exception_expected=True)
-        self.assertRaises(exception.ValidationError,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_ONLY)
+
+        self._middleware_failure(exception.ValidationError,
+                                 extra_environ=env,
+                                 status=400)
 
     def test_userid_success(self):
         env = {}
@@ -521,10 +575,10 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_ID'] = self.project_id
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
         env['SSL_CLIENT_USER_ID'] = self.user['id']
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERID_ONLY)
+
+        self._load_mapping_rules(mapping_fixtures.MAPPING_WITH_USERID_ONLY)
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
 
     def test_domain_disable_fail(self):
@@ -534,17 +588,16 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
-        req = make_request(environ=env)
+
         self.domain['enabled'] = False
         self.domain = self.resource_api.update_domain(
             self.domain['id'], self.domain)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID,
-            exception_expected=True)
-        self.assertRaises(exception.Unauthorized,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID)
+        self._middleware_failure(exception.Unauthorized,
+                                 extra_environ=env,
+                                 status=401)
 
     def test_user_disable_fail(self):
         env = {}
@@ -553,16 +606,15 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
-        req = make_request(environ=env)
+
         self.user['enabled'] = False
         self.user = self.identity_api.update_user(self.user['id'], self.user)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID,
-            exception_expected=True)
-        self.assertRaises(AssertionError,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID)
+
+        self._middleware_failure(AssertionError,
+                                 extra_environ=env)
 
     def test_invalid_user_fail(self):
         env = {}
@@ -571,14 +623,13 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_DOMAIN_ID'] = self.domain_id
         env['SSL_CLIENT_USER_NAME'] = uuid.uuid4().hex
         env['SSL_CLIENT_DOMAIN_NAME'] = self.domain_name
-        req = make_request(environ=env)
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME,
-            exception_expected=True)
-        self.assertRaises(exception.UserNotFound,
-                          context.process_request,
-                          req)
+
+        self._load_mapping_rules(
+            mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME)
+
+        self._middleware_failure(exception.UserNotFound,
+                                 extra_environ=env,
+                                 status=404)
 
     def test_ephemeral_success(self):
         env = {}
@@ -586,15 +637,15 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
-        req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
         mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping)
+        self._load_mapping_rules(mapping)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
 
     def test_ephemeral_with_default_user_type_success(self):
@@ -603,7 +654,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
-        req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
@@ -613,9 +663,10 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         mapping = copy.deepcopy(
             mapping_fixtures.MAPPING_FOR_DEFAULT_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping)
+        self._load_mapping_rules(mapping)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
 
     def test_ephemeral_any_user_success(self):
@@ -627,15 +678,15 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = uuid.uuid4().hex
-        req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
         mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping)
+        self._load_mapping_rules(mapping)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
 
     def test_ephemeral_invalid_scope_fail(self):
@@ -644,19 +695,16 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = uuid.uuid4().hex
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = uuid.uuid4().hex
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
-        req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
         mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = self.group['id']
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping,
-            exception_expected=True)
-        self.assertRaises(exception.Unauthorized,
-                          context.process_request,
-                          req)
+        self._load_mapping_rules(mapping)
+
+        self._middleware_failure(exception.Unauthorized,
+                                 extra_environ=env,
+                                 status=401)
 
     def test_ephemeral_no_group_found_fail(self):
         env = {}
@@ -664,19 +712,15 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
-        req = make_request(environ=env)
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='ephemeral')
         self.protocol_id = 'ephemeral'
         mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = uuid.uuid4().hex
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping,
-            exception_expected=True)
-        self.assertRaises(exception.MappedGroupNotFound,
-                          context.process_request,
-                          req)
+        self._load_mapping_rules(mapping)
+
+        self._middleware_failure(exception.MappedGroupNotFound,
+                                 extra_environ=env)
 
     def test_ephemeral_incorrect_mapping_fail(self):
         """Ephemeral user picks up the non-ephemeral user mapping.
@@ -688,20 +732,16 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests):
         env['HTTP_X_PROJECT_NAME'] = self.project_name
         env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
         env['SSL_CLIENT_USER_NAME'] = self.user['name']
-        req = make_request(environ=env)
         # This will pick up the incorrect mapping
         self.config_fixture.config(group='tokenless_auth',
                                    protocol='x509')
         self.protocol_id = 'x509'
         mapping = copy.deepcopy(mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER)
         mapping['rules'][0]['local'][0]['group']['id'] = uuid.uuid4().hex
-        context = self._create_context(
-            request=req,
-            mapping_ref=mapping,
-            exception_expected=True)
-        self.assertRaises(exception.MappedGroupNotFound,
-                          context.process_request,
-                          req)
+        self._load_mapping_rules(mapping)
+
+        self._middleware_failure(exception.MappedGroupNotFound,
+                                 extra_environ=env)
 
     def test_create_idp_id_success(self):
         env = {}
