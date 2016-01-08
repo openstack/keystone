@@ -20,6 +20,7 @@ import uuid
 import ldap
 import mock
 from oslo_config import cfg
+from oslotest import mockpatch
 import pkg_resources
 from six.moves import http_client
 from six.moves import range
@@ -2238,6 +2239,37 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         user_api = identity.backends.ldap.UserApi(CONF)
         user_ref = user_api.get('123456789')
         self.assertIs(False, user_ref['enabled'])
+
+    def test_escape_member_dn(self):
+        # The enabled member DN is properly escaped when querying for enabled
+        # user.
+
+        object_id = uuid.uuid4().hex
+        driver = self.identity_api._select_identity_driver(
+            CONF.identity.default_domain_id)
+
+        # driver.user is the EnabledEmuMixIn implementation used for this test.
+        mixin_impl = driver.user
+
+        # ) is a special char in a filter and must be escaped.
+        sample_dn = 'cn=foo)bar'
+
+        # Override the tree_dn, it's used to build the enabled member filter
+        mixin_impl.tree_dn = sample_dn
+
+        # The filter that _get_enabled is going to build contains the
+        # tree_dn, which better be escaped in this case.
+        # Note that the tree_dn isn't escaped and will lead to an invalid
+        # filter! See bug 1532345.
+        exp_filter = '(%s=%s=%s,%s)' % (
+            mixin_impl.member_attribute, mixin_impl.id_attr, object_id,
+            sample_dn)
+
+        with mixin_impl.get_connection() as conn:
+            m = self.useFixture(mockpatch.PatchObject(conn, 'search_s')).mock
+            mixin_impl._get_enabled(object_id, conn)
+            # The 3rd argument is the DN.
+            self.assertEqual(exp_filter, m.call_args[0][2])
 
 
 class LdapIdentitySqlAssignment(BaseLDAPIdentity, unit.SQLDriverOverrides,
