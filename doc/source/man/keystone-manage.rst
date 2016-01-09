@@ -7,9 +7,9 @@ Keystone Management Utility
 ---------------------------
 
 :Author: openstack@lists.openstack.org
-:Date:   2015-10-15
+:Date:   2016-4-7
 :Copyright: OpenStack Foundation
-:Version: 8.0.0
+:Version: 9.0.0
 :Manual section: 1
 :Manual group: cloud computing
 
