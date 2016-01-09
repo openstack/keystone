@@ -160,7 +160,7 @@ class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
                                             method='post',
                                             status=http_client.BAD_REQUEST)
 
-        self.assertTrue('valid JSON object' in resp.json['error']['message'])
+        self.assertIn('valid JSON object', resp.json['error']['message'])
 
     def test_no_content_type(self):
         headers = {'Content-Type': ''}
