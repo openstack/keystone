@@ -226,13 +226,23 @@ class Token(token.persistence.TokenDriverV8):
         session = sql.get_session()
         tokens = []
         now = timeutils.utcnow()
-        query = session.query(TokenModel.id, TokenModel.expires)
+        query = session.query(TokenModel.id, TokenModel.expires,
+                              TokenModel.extra)
         query = query.filter(TokenModel.expires > now)
         token_references = query.filter_by(valid=False)
         for token_ref in token_references:
+            token_data = token_ref[2]['token_data']
+            if 'access' in token_data:
+                # It's a v2 token.
+                audit_ids = token_data['access']['token']['audit_ids']
+            else:
+                # It's a v3 token.
+                audit_ids = token_data['token']['audit_ids']
+
             record = {
                 'id': token_ref[0],
                 'expires': token_ref[1],
+                'audit_id': audit_ids[0],
             }
             tokens.append(record)
         return tokens
