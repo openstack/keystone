@@ -772,6 +772,13 @@ class SqlUpgradeTests(SqlMigrateBase):
                                  'enabled', 'domain_id', 'parent_id',
                                  'is_domain'])
 
+    def test_implied_roles_upgrade(self):
+        self.upgrade(87)
+        self.assertTableColumns('implied_role',
+                                ['prior_role_id', 'implied_role_id'])
+        self.assertTrue(self.does_fk_exist('implied_role', 'prior_role_id'))
+        self.assertTrue(self.does_fk_exist('implied_role', 'implied_role_id'))
+
     def test_add_config_registration(self):
         config_registration = 'config_register'
         self.upgrade(74)
