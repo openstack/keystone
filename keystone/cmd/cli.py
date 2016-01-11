@@ -70,16 +70,20 @@ class BootStrap(BaseApp):
     def add_argument_parser(cls, subparsers):
         parser = super(BootStrap, cls).add_argument_parser(subparsers)
         parser.add_argument('--bootstrap-username', default='admin',
+                            metavar='OS_BOOTSTRAP_USERNAME',
                             help=('The username of the initial keystone '
                                   'user during bootstrap process.'))
         # NOTE(morganfainberg): See below for ENV Variable that can be used
         # in lieu of the command-line arguments.
         parser.add_argument('--bootstrap-password', default=None,
+                            metavar='OS_BOOTSTRAP_PASSWORD',
                             help='The bootstrap user password')
         parser.add_argument('--bootstrap-project-name', default='admin',
+                            metavar='OS_BOOTSTRAP_PROJECT_NAME',
                             help=('The initial project created during the '
                                   'keystone bootstrap process.'))
         parser.add_argument('--bootstrap-role-name', default='admin',
+                            metavar='OS_BOOTSTRAP_ROLE_NAME',
                             help=('The initial role-name created during the '
                                   'keystone bootstrap process.'))
         return parser
