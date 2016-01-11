@@ -50,6 +50,8 @@ class EndpointFilterCatalog(sql.Catalog):
             del endpoint['service_id']
             del endpoint['enabled']
             del endpoint['legacy_endpoint_id']
+            # Include deprecated region for backwards compatibility
+            endpoint['region'] = endpoint['region_id']
             endpoint['url'] = catalog_core.format_url(
                 endpoint['url'], substitutions)
             # populate filtered endpoints
@@ -64,6 +66,7 @@ class EndpointFilterCatalog(sql.Catalog):
             formatted_service = {}
             formatted_service['id'] = service['id']
             formatted_service['type'] = service['type']
+            formatted_service['name'] = service['name']
             formatted_service['endpoints'] = service['endpoints']
             catalog.append(formatted_service)
 
