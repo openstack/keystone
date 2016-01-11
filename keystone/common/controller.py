@@ -247,27 +247,13 @@ class V2Controller(wsgi.Application):
     @staticmethod
     def filter_domain_id(ref):
         """Remove domain_id since v2 calls are not domain-aware."""
-        if 'domain_id' in ref:
-            if ref['domain_id'] != CONF.identity.default_domain_id:
-                raise exception.Unauthorized(
-                    _('Non-default domain is not supported'))
-            del ref['domain_id']
+        ref.pop('domain_id', None)
         return ref
 
     @staticmethod
     def filter_domain(ref):
-        """Remove domain since v2 calls are not domain-aware.
-
-        V3 Fernet tokens builds the users with a domain in the token data.
-        This method will ensure that users create in v3 belong to the default
-        domain.
-
-        """
-        if 'domain' in ref:
-            if ref['domain'].get('id') != CONF.identity.default_domain_id:
-                raise exception.Unauthorized(
-                    _('Non-default domain is not supported'))
-            del ref['domain']
+        """Remove domain since v2 calls are not domain-aware."""
+        ref.pop('domain', None)
         return ref
 
     @staticmethod
@@ -310,15 +296,9 @@ class V2Controller(wsgi.Application):
     def v3_to_v2_user(ref):
         """Convert a user_ref from v3 to v2 compatible.
 
-        - v2.0 users are not domain aware, and should have domain_id validated
-          to be the default domain, and then removed.
-
-        - v2.0 users expect the use of tenantId instead of default_project_id.
-
-        - v2.0 users have a username attribute.
-
-        This method should only be applied to user_refs being returned from the
-        v2.0 controller(s).
+        * v2.0 users are not domain aware, and should have domain_id removed
+        * v2.0 users expect the use of tenantId instead of default_project_id
+        * v2.0 users have a username attribute
 
         If ref is a list type, we will iterate through each element and do the
         conversion.
