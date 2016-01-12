@@ -18,6 +18,7 @@ import uuid
 import fixtures
 import ldap.dn
 import mock
+from oslo_config import fixture as config_fixture
 from testtools import matchers
 
 from keystone.common import driver_hints
@@ -297,8 +298,12 @@ class MultiURLTests(unit.TestCase):
         self.assertEqual(urls, ldap_connection.conn.conn_pool.uri)
 
 
-class SslTlsTest(unit.TestCase):
+class SslTlsTest(unit.BaseTestCase):
     """Test for the SSL/TLS functionality in keystone.common.ldap.core."""
+
+    def setUp(self):
+        super(SslTlsTest, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     @mock.patch.object(ldap.ldapobject.LDAPObject, 'start_tls_s')
@@ -506,11 +511,12 @@ class CommonLdapTestCase(unit.BaseTestCase):
             self.assertEqual(user_name, py_result[0][1]['user_name'][0])
 
 
-class LDAPFilterQueryCompositionTest(unit.TestCase):
+class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
     """These test cases test LDAP filter generation."""
 
     def setUp(self):
         super(LDAPFilterQueryCompositionTest, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
         self.base_ldap = common_ldap.BaseLdap(self.config_fixture.conf)
 
