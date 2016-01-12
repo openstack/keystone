@@ -226,12 +226,14 @@ class FederationDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def create_mapping(self, mapping_ref):
+    def create_mapping(self, mapping_id, mapping):
         """Create a mapping.
 
-        :param mapping_ref: mapping ref with mapping name
-        :type mapping_ref: dict
-        :returns: mapping_ref
+        :param mapping_id: id of mapping ref
+        :type mapping_id: string
+        :param mapping: mapping ref with mapping name
+        :type mapping: dict
+        :returns: mapping ref
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -473,8 +475,8 @@ class V9FederationWrapperForV8Driver(FederationDriverV9):
     def delete_protocol(self, idp_id, protocol_id):
         self.driver.delete_protocol(idp_id, protocol_id)
 
-    def create_mapping(self, mapping_ref):
-        return self.driver.create_mapping(mapping_ref)
+    def create_mapping(self, mapping_id, mapping):
+        return self.driver.create_mapping(mapping_id, mapping)
 
     def delete_mapping(self, mapping_id):
         self.driver.delete_mapping(mapping_id)

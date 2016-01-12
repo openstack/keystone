@@ -13,19 +13,42 @@
 from keystone.tests.unit import test_v3_federation
 
 
-class FederatedIdentityProviderTestsV8(
-        test_v3_federation.FederatedIdentityProviderTests):
-    """Test that a V8 driver still passes the same tests.
-
-    We use the SQL driver as an example of a V8 legacy driver.
-
-    """
-
-    def config_overrides(self):
-        super(FederatedIdentityProviderTestsV8, self).config_overrides()
-        # V8 SQL specific driver overrides
+class FederatedSetupMixinV8(object):
+    def useV8driver(self):
+        # We use the SQL driver as an example V8 driver, so override
+        # the current driver with that version.
         self.config_fixture.config(
             group='federation',
             driver='keystone.federation.V8_backends.sql.Federation')
         self.use_specific_sql_driver_version(
             'keystone.federation', 'backends', 'V8_')
+
+
+class FederatedIdentityProviderTestsV8(
+        test_v3_federation.FederatedIdentityProviderTests,
+        FederatedSetupMixinV8):
+    """Test that a V8 driver still passes the same tests."""
+
+    def config_overrides(self):
+        super(FederatedIdentityProviderTestsV8, self).config_overrides()
+        self.useV8driver()
+
+
+class MappingCRUDTestsV8(
+        test_v3_federation.MappingCRUDTests,
+        FederatedSetupMixinV8):
+    """Test that a V8 driver still passes the same tests."""
+
+    def config_overrides(self):
+        super(MappingCRUDTestsV8, self).config_overrides()
+        self.useV8driver()
+
+
+class ServiceProviderTestsV8(
+        test_v3_federation.ServiceProviderTests,
+        FederatedSetupMixinV8):
+    """Test that a V8 driver still passes the same tests."""
+
+    def config_overrides(self):
+        super(ServiceProviderTestsV8, self).config_overrides()
+        self.useV8driver()
