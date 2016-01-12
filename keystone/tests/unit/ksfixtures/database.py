@@ -109,6 +109,13 @@ def _load_sqlalchemy_models(version_specifiers):
             # At this point module_without_backends might be something like
             # 'keystone.assignment', while this_backend might be something
             # 'V8_backends'.
+
+            if module_without_backends.startswith('keystone.contrib'):
+                # All the sql modules have now been moved into the core tree
+                # so no point in loading these again here (and, in fact, doing
+                # so might break trying to load a versioned driver.
+                continue
+
             if module_without_backends in version_specifiers:
                 # OK, so there is a request for a specific version of this one.
                 # We therefore should skip any other versioned backend as well

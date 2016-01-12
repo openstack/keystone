@@ -1,0 +1,7 @@
+---
+upgrade:
+  - The V8 Federation driver interface is deprecated, but still supported in
+    Mitaka, so any custom drivers based on the V8 interface should still work.
+other:
+  - Support for the V8 Federation driver interface is planned to be removed in
+    the 'O' release of OpenStack.
