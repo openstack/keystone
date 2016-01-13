@@ -48,11 +48,9 @@ profiles:
             # - execute_with_run_as_root_equals_true
 
             - hardcoded_bind_all_interfaces
-
-            # Disable these since they're new. TODO(blk-u): see if these work.
-            # - hardcoded_password_string
-            # - hardcoded_password_funcarg
-            # - hardcoded_password_default
+            - hardcoded_password_string
+            - hardcoded_password_funcarg
+            - hardcoded_password_default
 
             # Not used because it's prone to false positives:
             # - hardcoded_sql_expressions
@@ -83,8 +81,7 @@ profiles:
             # Keystone has no use for mako.
             # - use_of_mako_templates
 
-            # Disable this one since it's new. TODO(blk-u): see if these work.
-            # - weak_cryptographic_key
+            - weak_cryptographic_key
 
 blacklist_calls:
     bad_name_sets:
