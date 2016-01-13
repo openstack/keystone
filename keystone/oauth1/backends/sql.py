@@ -102,8 +102,6 @@ class OAuth1(core.Oauth1DriverV8):
 
     def create_consumer(self, consumer):
         consumer['secret'] = uuid.uuid4().hex
-        if not consumer.get('description'):
-            consumer['description'] = None
         session = sql.get_session()
         with session.begin():
             consumer_ref = Consumer.from_dict(consumer)
