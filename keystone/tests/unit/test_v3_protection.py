@@ -24,6 +24,7 @@ from keystone.policy.backends import rules
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils
 
 
 CONF = cfg.CONF
@@ -996,7 +997,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, project_admin_entity)
         self.assertRoleAssignmentInListResponse(r, project_user_entity)
 
-    @unit.utils.wip('waiting on bug #1437407')
+    @utils.wip('waiting on bug #1437407')
     def test_domain_admin_list_assignments_of_project(self):
         self.auth = self.build_authentication_request(
             user_id=self.domain_admin_user['id'],
