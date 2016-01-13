@@ -1,6 +1,4 @@
 ---
-prelude: >
-    New Assignment driver (V9)
 features:
   - The list_project_ids_for_user(), list_domain_ids_for_user() and
     list_user_ids_for_project() methods have been removed from the V9 version
