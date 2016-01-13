@@ -30,7 +30,7 @@ from keystone import resource
 CONF = cfg.CONF
 
 
-class Resource(resource.ResourceDriverV8):
+class Resource(resource.ResourceDriverV9):
     @versionutils.deprecated(
         versionutils.deprecated.LIBERTY,
         remove_in=+1,
