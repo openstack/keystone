@@ -223,7 +223,8 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
                      'user': 'cn=Admin',
                      'password': 'password',
                      'suffix': 'cn=example,cn=com'},
-            'identity': {'driver': 'ldap'}
+            'identity': {'driver': 'ldap',
+                         'list_limit': '101'}
         }
         domain2_config = {
             'ldap': {'url': 'fake://memory',

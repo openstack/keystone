@@ -789,6 +789,41 @@ class Manager(manager.Manager):
                 not hints.get_exact_filter_by_name('domain_id')):
             hints.add_filter('domain_id', domain_id)
 
+    def _set_list_limit_in_hints(self, hints, driver):
+        """Set list limit in hints from driver
+
+        If a hints list is provided, the wrapper will insert the relevant
+        limit into the hints so that the underlying driver call can try and
+        honor it. If the driver does truncate the response, it will update the
+        'truncated' attribute in the 'limit' entry in the hints list, which
+        enables the caller of this function to know if truncation has taken
+        place. If, however, the driver layer is unable to perform truncation,
+        the 'limit' entry is simply left in the hints list for the caller to
+        handle.
+
+        A _get_list_limit() method is required to be present in the object
+        class hierarchy, which returns the limit for this backend to which
+        we will truncate.
+
+        If a hints list is not provided in the arguments of the wrapped call
+        then any limits set in the config file are ignored.  This allows
+        internal use of such wrapped methods where the entire data set is
+        needed as input for the calculations of some other API (e.g. get role
+        assignments for a given project).
+
+        This method, specific to identity manager, is used instead of more
+        general response_truncated, because the limit for identity entities
+        can be overriden in domain-specific config files. The driver to use
+        is determined during processing of the passed parameters and
+        response_truncated is designed to set the limit before any processing.
+        """
+        if hints is None:
+            return
+
+        list_limit = driver._get_list_limit()
+        if list_limit:
+            hints.set_limit(list_limit)
+
     # The actual driver calls - these are pre/post processed here as
     # part of the Manager layer to make sure we:
     #
@@ -859,11 +894,11 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
-    @manager.response_truncated
     @domains_configured
     @exception_translated('user')
     def list_users(self, domain_scope=None, hints=None):
         driver = self._select_identity_driver(domain_scope)
+        self._set_list_limit_in_hints(hints, driver)
         hints = hints or driver_hints.Hints()
         if driver.is_domain_aware():
             # Force the domain_scope into the hint to ensure that we only get
@@ -1082,12 +1117,12 @@ class Manager(manager.Manager):
         """
         pass
 
-    @manager.response_truncated
     @domains_configured
     @exception_translated('user')
     def list_groups_for_user(self, user_id, hints=None):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
+        self._set_list_limit_in_hints(hints, driver)
         hints = hints or driver_hints.Hints()
         if not driver.is_domain_aware():
             # We are effectively satisfying any domain_id filter by the above
@@ -1097,11 +1132,11 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref_list, domain_id, driver, mapping.EntityType.GROUP)
 
-    @manager.response_truncated
     @domains_configured
     @exception_translated('group')
     def list_groups(self, domain_scope=None, hints=None):
         driver = self._select_identity_driver(domain_scope)
+        self._set_list_limit_in_hints(hints, driver)
         hints = hints or driver_hints.Hints()
         if driver.is_domain_aware():
             # Force the domain_scope into the hint to ensure that we only get
@@ -1115,12 +1150,12 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref_list, domain_scope, driver, mapping.EntityType.GROUP)
 
-    @manager.response_truncated
     @domains_configured
     @exception_translated('group')
     def list_users_in_group(self, group_id, hints=None):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
+        self._set_list_limit_in_hints(hints, driver)
         hints = hints or driver_hints.Hints()
         if not driver.is_domain_aware():
             # We are effectively satisfying any domain_id filter by the above
