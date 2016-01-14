@@ -85,6 +85,8 @@ def token_to_auth_context(token):
         auth_context['trustor_id'] = token.trustor_user_id
         auth_context['trustee_id'] = token.trustee_user_id
     else:
+        # NOTE(lbragstad): These variables will already be set to None but we
+        # add the else statement here for readability.
         auth_context['trust_id'] = None
         auth_context['trustor_id'] = None
         auth_context['trustee_id'] = None
@@ -95,8 +97,13 @@ def token_to_auth_context(token):
 
     if token.oauth_scoped:
         auth_context['is_delegated_auth'] = True
-    auth_context['consumer_id'] = token.oauth_consumer_id
-    auth_context['access_token_id'] = token.oauth_access_token_id
+        auth_context['consumer_id'] = token.oauth_consumer_id
+        auth_context['access_token_id'] = token.oauth_access_token_id
+    else:
+        # NOTE(lbragstad): These variables will already be set to None but we
+        # add the else statement here for readability.
+        auth_context['consumer_id'] = None
+        auth_context['access_token_id'] = None
 
     if token.is_federated_user:
         auth_context['group_ids'] = token.federation_group_ids
