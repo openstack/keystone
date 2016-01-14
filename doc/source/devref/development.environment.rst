@@ -97,13 +97,17 @@ Fedora 19+:
 
 .. code-block:: bash
 
-    $ sudo yum install python-lxml python-greenlet-devel python-ldap sqlite-devel openldap-devel python-devel libxslt-devel openssl-devel libffi-devel
+    $ sudo yum install python-lxml python-greenlet-devel python-ldap \
+        sqlite-devel openldap-devel python-devel libxslt-devel \
+        openssl-devel libffi-devel
 
 openSUSE 13.2 (SLE 12):
 
 .. code-block:: bash
 
-    $ sudo zypper install libxslt-devel openldap2-devel libopenssl-devel python-devel python-greenlet-devel python-ldap python-lxml python-pysqlite sqlite3-devel
+    $ sudo zypper install libxslt-devel openldap2-devel libopenssl-devel \
+        python-devel python-greenlet-devel python-ldap python-lxml \
+        python-pysqlite sqlite3-devel
 
 PyPi Packages and VirtualEnv
 ----------------------------
