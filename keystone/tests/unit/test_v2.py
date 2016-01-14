@@ -1395,7 +1395,6 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
 class RevokeApiTestCase(V2TestCase):
     def config_overrides(self):
         super(RevokeApiTestCase, self).config_overrides()
-        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
             provider='pki',

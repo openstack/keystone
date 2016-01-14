@@ -816,7 +816,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestTokenRevokeById, self).config_overrides()
-        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
             provider='pki',
@@ -1503,9 +1502,6 @@ class TestTokenRevokeByAssignment(TestTokenRevokeById):
     def config_overrides(self):
         super(TestTokenRevokeById, self).config_overrides()
         self.config_fixture.config(
-            group='revoke',
-            driver='kvs')
-        self.config_fixture.config(
             group='token',
             provider='uuid',
             revoke_by_id=True)
@@ -1565,7 +1561,6 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
     def config_overrides(self):
         super(TestTokenRevokeApi, self).config_overrides()
-        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
             provider='pki',
@@ -3317,7 +3312,6 @@ class TestTrustAuth(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestTrustAuth, self).config_overrides()
-        self.config_fixture.config(group='revoke', driver='kvs')
         self.config_fixture.config(
             group='token',
             provider='pki',
