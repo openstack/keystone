@@ -492,7 +492,8 @@ class SqlToken(SqlTests, test_backend.TokenTests):
         # necessary.
 
         expected_query_args = (token_sql.TokenModel.id,
-                               token_sql.TokenModel.expires)
+                               token_sql.TokenModel.expires,
+                               token_sql.TokenModel.extra,)
 
         with mock.patch.object(token_sql, 'sql') as mock_sql:
             tok = token_sql.Token()
