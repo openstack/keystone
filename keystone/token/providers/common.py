@@ -84,6 +84,11 @@ class V2TokenDataHelper(object):
                    'API.')
             raise exception.Unauthorized(msg)
 
+        if 'OS-OAUTH1' in v3_token:
+            msg = ('Unable to validate Oauth tokens using the version v2.0 '
+                   'API.')
+            raise exception.Unauthorized(msg)
+
         # Set user roles
         user['roles'] = []
         role_ids = []
@@ -702,7 +707,7 @@ class BaseProvider(provider.Provider):
     def validate_non_persistent_token(self, token_id):
         try:
             (user_id, methods, audit_ids, domain_id, project_id, trust_id,
-                federated_info, created_at, expires_at) = (
+                federated_info, access_token_id, created_at, expires_at) = (
                     self.token_formatter.validate_token(token_id))
         except exception.ValidationError as e:
             raise exception.TokenNotFound(e)
@@ -725,6 +730,10 @@ class BaseProvider(provider.Provider):
         if trust_id:
             trust_ref = self.trust_api.get_trust(trust_id)
 
+        access_token = None
+        if access_token_id:
+            access_token = self.oauth_api.get_access_token(access_token_id)
+
         return self.v3_token_data_helper.get_token_data(
             user_id,
             method_names=methods,
@@ -734,6 +743,7 @@ class BaseProvider(provider.Provider):
             expires=expires_at,
             trust=trust_ref,
             token=token_dict,
+            access_token=access_token,
             audit_info=audit_ids)
 
     def validate_v3_token(self, token_ref):

@@ -23,7 +23,7 @@ from keystone.token.providers.fernet import token_formatters as tf
 CONF = cfg.CONF
 
 
-@dependency.requires('trust_api')
+@dependency.requires('trust_api', 'oauth_api')
 class Provider(common.BaseProvider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
@@ -154,9 +154,10 @@ class Provider(common.BaseProvider):
         project_id = token_data['access']['token'].get('tenant', {}).get('id')
         domain_id = None
         trust_id = None
+        access_token_id = None
         federated_info = None
         return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, federated_info)
+                trust_id, access_token_id, federated_info)
 
     def _extract_v3_token_data(self, token_data):
         """Extract information from a v3 token reference."""
@@ -167,10 +168,12 @@ class Provider(common.BaseProvider):
         domain_id = token_data['token'].get('domain', {}).get('id')
         project_id = token_data['token'].get('project', {}).get('id')
         trust_id = token_data['token'].get('OS-TRUST:trust', {}).get('id')
+        access_token_id = token_data['token'].get('OS-OAUTH1', {}).get(
+            'access_token_id')
         federated_info = self._build_federated_info(token_data)
 
         return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, federated_info)
+                trust_id, access_token_id, federated_info)
 
     def _get_token_id(self, token_data):
         """Generate the token_id based upon the data in token_data.
@@ -184,21 +187,24 @@ class Provider(common.BaseProvider):
         # attribute.
         if token_data.get('access'):
             (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, federated_info) = self._extract_v2_token_data(
-                    token_data)
+                trust_id, access_token_id, federated_info) = (
+                    self._extract_v2_token_data(token_data))
         else:
             (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, federated_info) = self._extract_v3_token_data(
-                    token_data)
+                trust_id, access_token_id, federated_info) = (
+                    self._extract_v3_token_data(token_data))
 
-        return self.token_formatter.create_token(user_id,
-                                                 expires_at,
-                                                 audit_ids,
-                                                 methods=methods,
-                                                 domain_id=domain_id,
-                                                 project_id=project_id,
-                                                 trust_id=trust_id,
-                                                 federated_info=federated_info)
+        return self.token_formatter.create_token(
+            user_id,
+            expires_at,
+            audit_ids,
+            methods=methods,
+            domain_id=domain_id,
+            project_id=project_id,
+            trust_id=trust_id,
+            federated_info=federated_info,
+            access_token_id=access_token_id
+        )
 
     @property
     def _supports_bind_authentication(self):
