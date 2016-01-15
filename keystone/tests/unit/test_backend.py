@@ -6672,24 +6672,7 @@ class FilterTests(filtering.FilterTests):
 
         self._delete_test_data('user', user_list)
 
-    def test_groups_for_user_filtered(self):
-        """Test use of filtering doesn't break groups_for_user listing.
-
-        Some backends may use filtering to achieve the list of groups for a
-        user, so test that it can combine a second filter.
-
-        Test Plan:
-
-        - Create 10 groups, some with names we can filter on
-        - Create 2 users
-        - Assign 1 of those users to most of the groups, including some of the
-          well known named ones
-        - Assign the other user to other groups as spoilers
-        - Ensure that when we list groups for users with a filter on the group
-          name, both restrictions have been enforced on what is returned.
-
-        """
-
+    def _groups_for_user_data(self):
         number_of_groups = 10
         group_name_data = {
             # entity index: name for entity
@@ -6713,6 +6696,26 @@ class FilterTests(filtering.FilterTests):
                                                 group_list[group]['id'])
 
         hints = driver_hints.Hints()
+        return group_list, user_list, hints
+
+    def test_groups_for_user_inexact_filtered(self):
+        """Test use of filtering doesn't break groups_for_user listing.
+
+        Some backends may use filtering to achieve the list of groups for a
+        user, so test that it can combine a second filter.
+
+        Test Plan:
+
+        - Create 10 groups, some with names we can filter on
+        - Create 2 users
+        - Assign 1 of those users to most of the groups, including some of the
+          well known named ones
+        - Assign the other user to other groups as spoilers
+        - Ensure that when we list groups for users with a filter on the group
+          name, both restrictions have been enforced on what is returned.
+
+        """
+        group_list, user_list, hints = self._groups_for_user_data()
         hints.add_filter('name', 'The', comparator='startswith')
         groups = self.identity_api.list_groups_for_user(
             user_list[0]['id'], hints=hints)
@@ -6721,6 +6724,20 @@ class FilterTests(filtering.FilterTests):
         self.assertThat(len(groups), matchers.Equals(2))
         self.assertIn(group_list[5]['id'], [groups[0]['id'], groups[1]['id']])
         self.assertIn(group_list[6]['id'], [groups[0]['id'], groups[1]['id']])
+        self._delete_test_data('user', user_list)
+        self._delete_test_data('group', group_list)
+
+    @test_utils.wip('Waiting on bug #1521772 to be fixed')
+    def test_groups_for_user_exact_filtered(self):
+        """Test exact filters doesn't break groups_for_user listing."""
+        group_list, user_list, hints = self._groups_for_user_data()
+        hints.add_filter('name', 'The Ministry', comparator='equals')
+        groups = self.identity_api.list_groups_for_user(
+            user_list[0]['id'], hints=hints)
+        # We should only get back 1 out of the 3 groups with name 'The
+        # Ministry' hence showing that both "filters" have been applied.
+        self.assertEqual(1, len(groups))
+        self.assertEqual(group_list[6]['id'], groups[0]['id'])
         self._delete_test_data('user', user_list)
         self._delete_test_data('group', group_list)
 
@@ -6758,7 +6775,7 @@ class FilterTests(filtering.FilterTests):
         users = self.identity_api.list_users(hints=hints)
         self.assertEqual([], users)
 
-    def test_list_users_in_group_filtered(self):
+    def _list_users_in_group_data(self):
         number_of_users = 10
         user_name_data = {
             1: 'Arthur Conan Doyle',
@@ -6775,11 +6792,25 @@ class FilterTests(filtering.FilterTests):
                                                 group['id'])
 
         hints = driver_hints.Hints()
+        return user_list, group, hints
+
+    def test_list_users_in_group_inexact_filtered(self):
+        user_list, group, hints = self._list_users_in_group_data()
         hints.add_filter('name', 'Arthur', comparator='startswith')
         users = self.identity_api.list_users_in_group(group['id'], hints=hints)
         self.assertThat(len(users), matchers.Equals(2))
         self.assertIn(user_list[1]['id'], [users[0]['id'], users[1]['id']])
         self.assertIn(user_list[3]['id'], [users[0]['id'], users[1]['id']])
+        self._delete_test_data('user', user_list)
+        self._delete_entity('group')(group['id'])
+
+    @test_utils.wip('Waiting on bug #1521772 to be fixed')
+    def test_list_users_in_group_exact_filtered(self):
+        user_list, group, hints = self._list_users_in_group_data()
+        hints.add_filter('name', 'Arthur Rimbaud', comparator='equals')
+        users = self.identity_api.list_users_in_group(group['id'], hints=hints)
+        self.assertEqual(1, len(users))
+        self.assertEqual(user_list[3]['id'], users[0]['id'])
         self._delete_test_data('user', user_list)
         self._delete_entity('group')(group['id'])
 
