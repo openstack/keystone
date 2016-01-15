@@ -325,41 +325,40 @@ def _filter(model, query, hints):
         satisfied_filters.append(filter_)
         return query.filter(query_term)
 
-    def exact_filter(model, filter_, cumulative_filter_dict):
+    def exact_filter(model, query, filter_, satisfied_filters):
         """Applies an exact filter to a query.
 
         :param model: the table model in question
+        :param query: query to apply filters to
         :param dict filter_: describes this filter
-        :param dict cumulative_filter_dict: describes the set of exact filters
-                                            built up so far
-
+        :param list satisfied_filters: filter_ will be added if it is
+                                       satisfied.
+        :returns query: query updated to add any exact filters we could
+                        satisfy
         """
         key = filter_['name']
 
         col = getattr(model, key)
         if isinstance(col.property.columns[0].type, sql.types.Boolean):
-            cumulative_filter_dict[key] = (
-                utils.attr_as_boolean(filter_['value']))
+            filter_val = utils.attr_as_boolean(filter_['value'])
         else:
             _WontMatch.check(filter_['value'], col)
-            cumulative_filter_dict[key] = filter_['value']
+            filter_val = filter_['value']
+
+        satisfied_filters.append(filter_)
+        return query.filter(col == filter_val)
 
     try:
-        filter_dict = {}
         satisfied_filters = []
         for filter_ in hints.filters:
             if filter_['name'] not in model.attributes:
                 continue
             if filter_['comparator'] == 'equals':
-                exact_filter(model, filter_, filter_dict)
-                satisfied_filters.append(filter_)
+                query = exact_filter(model, query, filter_,
+                                     satisfied_filters)
             else:
                 query = inexact_filter(model, query, filter_,
                                        satisfied_filters)
-
-        # Apply any exact filters we built up
-        if filter_dict:
-            query = query.filter_by(**filter_dict)
 
         # Remove satisfied filters, then the caller will know remaining filters
         for filter_ in satisfied_filters:
