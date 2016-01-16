@@ -20,6 +20,7 @@ from lxml import etree
 import mock
 from oslo_config import cfg
 from oslo_log import versionutils
+from oslo_serialization import jsonutils
 from oslo_utils import importutils
 from oslotest import mockpatch
 import saml2
@@ -898,8 +899,12 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         url = self.base_url(suffix=uuid.uuid4().hex)
         body['remote_ids'] = [uuid.uuid4().hex,
                               repeated_remote_id]
-        self.put(url, body={'identity_provider': body},
-                 expected_status=http_client.CONFLICT)
+        resp = self.put(url, body={'identity_provider': body},
+                        expected_status=http_client.CONFLICT)
+
+        resp_data = jsonutils.loads(resp.body)
+        self.assertIn('Duplicate remote ID',
+                      resp_data.get('error', {}).get('message'))
 
     def test_create_idp_remote_empty(self):
         """Creates an IdP with empty remote_ids."""
@@ -1023,8 +1028,12 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         body = self._http_idp_input()
         self.put(url, body={'identity_provider': body},
                  expected_status=http_client.CREATED)
-        self.put(url, body={'identity_provider': body},
-                 expected_status=http_client.CONFLICT)
+        resp = self.put(url, body={'identity_provider': body},
+                        expected_status=http_client.CONFLICT)
+
+        resp_data = jsonutils.loads(resp.body)
+        self.assertIn('Duplicate entry',
+                      resp_data.get('error', {}).get('message'))
 
     def test_get_idp(self):
         """Create and later fetch IdP."""

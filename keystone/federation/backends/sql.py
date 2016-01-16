@@ -12,12 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
 from oslo_serialization import jsonutils
+import six
 from sqlalchemy import orm
 
 from keystone.common import sql
 from keystone import exception
 from keystone.federation import core
+from keystone.i18n import _
+
+
+LOG = log.getLogger(__name__)
 
 
 class FederationProtocolModel(sql.ModelBase, sql.DictBase):
@@ -157,14 +163,27 @@ class ServiceProviderModel(sql.ModelBase, sql.DictBase):
 
 class Federation(core.FederationDriverV9):
 
+    _CONFLICT_LOG_MSG = 'Conflict %(conflict_type)s: %(details)s'
+
     # Identity Provider CRUD
-    @sql.handle_conflicts(conflict_type='identity_provider')
     def create_idp(self, idp_id, idp):
         idp['id'] = idp_id
-        with sql.transaction() as session:
-            idp_ref = IdentityProviderModel.from_dict(idp)
-            session.add(idp_ref)
-        return idp_ref.to_dict()
+        try:
+            with sql.transaction() as session:
+                idp_ref = IdentityProviderModel.from_dict(idp)
+                session.add(idp_ref)
+            return idp_ref.to_dict()
+        except sql.DBDuplicateEntry as e:
+            conflict_type = 'identity_provider'
+            details = six.text_type(e)
+            LOG.debug(self._CONFLICT_LOG_MSG, {'conflict_type': conflict_type,
+                                               'details': details})
+            if 'remote_id' in details:
+                msg = _('Duplicate remote ID: %s')
+            else:
+                msg = _('Duplicate entry: %s')
+            msg = msg % e.value
+            raise exception.Conflict(type=conflict_type, details=msg)
 
     def delete_idp(self, idp_id):
         with sql.transaction() as session:
