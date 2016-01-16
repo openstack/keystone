@@ -401,3 +401,59 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
                 'invalid_option': invalid_option},
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code)
+
+    def test_get_config_default(self):
+        """Call ``GET /domains/config/default``."""
+        # Create a config that overrides a few of the options so that we can
+        # check that only the defaults are returned.
+        self.domain_config_api.create_config(self.domain['id'], self.config)
+        url = '/domains/config/default'
+        r = self.get(url)
+        default_config = r.result['config']
+        for group in default_config:
+            for option in default_config[group]:
+                self.assertEqual(getattr(getattr(CONF, group), option),
+                                 default_config[group][option])
+
+    def test_get_config_default_by_group(self):
+        """Call ``GET /domains/config/{group}/default``."""
+        # Create a config that overrides a few of the options so that we can
+        # check that only the defaults are returned.
+        self.domain_config_api.create_config(self.domain['id'], self.config)
+        url = '/domains/config/ldap/default'
+        r = self.get(url)
+        default_config = r.result['config']
+        for option in default_config['ldap']:
+            self.assertEqual(getattr(CONF.ldap, option),
+                             default_config['ldap'][option])
+
+    def test_get_config_default_by_option(self):
+        """Call ``GET /domains/config/{group}/{option}/default``."""
+        # Create a config that overrides a few of the options so that we can
+        # check that only the defaults are returned.
+        self.domain_config_api.create_config(self.domain['id'], self.config)
+        url = '/domains/config/ldap/url/default'
+        r = self.get(url)
+        default_config = r.result['config']
+        self.assertEqual(CONF.ldap.url, default_config['url'])
+
+    def test_get_config_default_by_invalid_group(self):
+        """Call ``GET for /domains/config/{bad-group}/default``."""
+        # First try a valid group, but one we don't support for domain config
+        self.get('/domains/config/resouce/default',
+                 expected_status=http_client.FORBIDDEN)
+
+        # Now try a totally invalid group
+        url = '/domains/config/%s/default' % uuid.uuid4().hex
+        self.get(url, expected_status=http_client.FORBIDDEN)
+
+    def test_get_config_default_by_invalid_option(self):
+        """Call ``GET for /domains/config/{group}/{bad-option}/default``."""
+        # First try a valid option, but one we don't support for domain config,
+        # i.e. one that is in the sensitive options list
+        self.get('/domains/config/ldap/password/default',
+                 expected_status=http_client.FORBIDDEN)
+
+        # Now try a totally invalid option
+        url = '/domains/config/ldap/%s/default' % uuid.uuid4().hex
+        self.get(url, expected_status=http_client.FORBIDDEN)

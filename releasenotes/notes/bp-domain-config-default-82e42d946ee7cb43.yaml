@@ -1,0 +1,7 @@
+---
+features:
+  - >
+    [`blueprint domain-config-default <https://blueprints.launchpad.net/keystone/+spec/domain-config-default>`_]
+    The Identity API now supports retrieving the default values for the
+    configuration options that can be overriden via the domain specific
+    configuration API.

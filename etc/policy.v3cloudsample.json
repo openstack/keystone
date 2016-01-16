@@ -193,5 +193,6 @@
     "identity:create_domain_config": "rule:cloud_admin",
     "identity:get_domain_config": "rule:cloud_admin",
     "identity:update_domain_config": "rule:cloud_admin",
-    "identity:delete_domain_config": "rule:cloud_admin"
+    "identity:delete_domain_config": "rule:cloud_admin",
+    "identity:get_domain_config_default": "rule:cloud_admin"
 }

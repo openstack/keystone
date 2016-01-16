@@ -1519,6 +1519,59 @@ class DomainConfigManager(manager.Manager):
         """
         return self._get_config_with_sensitive_info(domain_id)
 
+    def get_config_default(self, group=None, option=None):
+        """Get default config, or partial default config
+
+        :param group: an optional specific group of options
+        :param option: an optional specific option within the group
+
+        :returns: a dict of group dicts containing the default options,
+                  filtered by group and option if specified
+        :raises keystone.exception.InvalidDomainConfig: when the config
+                and group/option parameters specify an option we do not
+                support (or one that is not whitelisted).
+
+        An example response::
+
+            {
+                'ldap': {
+                    'url': 'myurl',
+                    'user_tree_dn': 'OU=myou',
+                    ....},
+                'identity': {
+                    'driver': 'ldap'}
+
+            }
+
+        """
+        def _option_dict(group, option):
+            group_attr = getattr(CONF, group)
+            if group_attr is None:
+                msg = _('Group  %s not found in config') % group
+                raise exception.UnexpectedError(msg)
+            return {'group': group, 'option': option,
+                    'value': getattr(group_attr, option)}
+
+        self._assert_valid_group_and_option(group, option)
+        config_list = []
+        if group:
+            if option:
+                if option not in self.whitelisted_options[group]:
+                    msg = _('Reading the default for option %(option)s in '
+                            'group %(group)s is not supported') % {
+                                'option': option, 'group': group}
+                    raise exception.InvalidDomainConfig(reason=msg)
+                config_list.append(_option_dict(group, option))
+            else:
+                for each_option in self.whitelisted_options[group]:
+                    config_list.append(_option_dict(group, each_option))
+        else:
+            for each_group in self.whitelisted_options:
+                for each_option in self.whitelisted_options[each_group]:
+                    config_list.append(_option_dict(each_group, each_option))
+
+        return self._list_to_config(config_list, req_option=option)
+
 
 @six.add_metaclass(abc.ABCMeta)
 class DomainConfigDriverV8(object):

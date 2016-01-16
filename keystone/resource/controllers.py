@@ -206,6 +206,11 @@ class DomainConfigV3(controller.V3Controller):
         self.resource_api.get_domain(domain_id)
         self.domain_config_api.delete_config(domain_id, group, option)
 
+    @controller.protected()
+    def get_domain_config_default(self, context, group=None, option=None):
+        ref = self.domain_config_api.get_config_default(group, option)
+        return {self.member_name: ref}
+
 
 @dependency.requires('resource_api')
 class ProjectV3(controller.V3Controller):
