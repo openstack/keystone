@@ -394,4 +394,4 @@ class GroupApi(common_ldap.BaseLdap):
     def get_all_filtered(self, hints, query=None):
         query = self.filter_query(hints, query)
         return [common_ldap.filter_entity(group)
-                for group in self.get_all(query)]
+                for group in self.get_all(query, hints)]
