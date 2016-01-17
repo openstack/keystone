@@ -130,4 +130,4 @@ To install the packages:
 Once installed, you still need to initialize data in Keystone, which you can
 find described in :doc:`configuringservices`.
 
-.. _`OpenStack Install Guide`: http://docs.openstack.org/juno/install-guide/install/yum/content/keystone-install.html
+.. _`OpenStack Install Guide`: http://docs.openstack.org/liberty/install-guide-rdo/keystone-install.html
