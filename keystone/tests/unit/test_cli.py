@@ -22,6 +22,7 @@ from six.moves import range
 
 from keystone.cmd import cli
 from keystone.common import dependency
+from keystone.common.sql import migration_helpers
 from keystone.i18n import _
 from keystone import resource
 from keystone.tests import unit
@@ -102,12 +103,54 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
 
     def setUp(self):
         super(CliBootStrapTestCaseWithEnvironment, self).setUp()
+        self.password = uuid.uuid4().hex
+        self.username = uuid.uuid4().hex
+        self.project_name = uuid.uuid4().hex
+        self.role_name = uuid.uuid4().hex
+        self.default_domain = migration_helpers.get_default_domain()
         self.useFixture(
             fixtures.EnvironmentVariable('OS_BOOTSTRAP_PASSWORD',
-                                         newvalue=uuid.uuid4().hex))
+                                         newvalue=self.password))
         self.useFixture(
             fixtures.EnvironmentVariable('OS_BOOTSTRAP_USERNAME',
-                                         newvalue=uuid.uuid4().hex))
+                                         newvalue=self.username))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_PROJECT_NAME',
+                                         newvalue=self.project_name))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_ROLE_NAME',
+                                         newvalue=self.role_name))
+
+    def test_assignment_created_with_user_exists(self):
+        # test assignment can be created if user already exists.
+        bootstrap = cli.BootStrap()
+        bootstrap.resource_manager.create_domain(self.default_domain['id'],
+                                                 self.default_domain)
+        user_ref = unit.new_user_ref(self.default_domain['id'],
+                                     name=self.username,
+                                     password=self.password)
+        bootstrap.identity_manager.create_user(user_ref)
+        self._do_test_bootstrap(bootstrap)
+
+    def test_assignment_created_with_project_exists(self):
+        # test assignment can be created if project already exists.
+        bootstrap = cli.BootStrap()
+        bootstrap.resource_manager.create_domain(self.default_domain['id'],
+                                                 self.default_domain)
+        project_ref = unit.new_project_ref(self.default_domain['id'],
+                                           name=self.project_name)
+        bootstrap.resource_manager.create_project(project_ref['id'],
+                                                  project_ref)
+        self._do_test_bootstrap(bootstrap)
+
+    def test_assignment_created_with_role_exists(self):
+        # test assignment can be created if role already exists.
+        bootstrap = cli.BootStrap()
+        bootstrap.resource_manager.create_domain(self.default_domain['id'],
+                                                 self.default_domain)
+        role = unit.new_role_ref(name=self.role_name)
+        bootstrap.role_manager.create_role(role['id'], role)
+        self._do_test_bootstrap(bootstrap)
 
 
 class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
