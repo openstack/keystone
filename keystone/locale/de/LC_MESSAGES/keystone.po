@@ -1,4 +1,4 @@
-# German translations for keystone.
+# Translations template for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
@@ -10,18 +10,19 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev214\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: German\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 #, python-format
 msgid "%(detail)s"
@@ -77,9 +78,6 @@ msgstr "%s-Feld ist erforderlich und darf nicht leer sein"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s-Felder können nicht leer sein"
-
-msgid "(Disable debug mode to suppress these details.)"
-msgstr "(Debugmodus inaktivieren, um diese Details zu unterdrücken.)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all-Option kann nicht zusammen mit anderen Optionen verwendet werden"
@@ -311,9 +309,6 @@ msgstr "Projekt %(project_id)s konnte nicht gefunden werden"
 #, python-format
 msgid "Could not find region: %(region_id)s"
 msgstr "Region %(region_id)s konnte nicht gefunden werden"
-
-msgid "Could not find role"
-msgstr "Rolle konnte nicht gefunden werden"
 
 #, python-format
 msgid ""
@@ -1141,11 +1136,6 @@ msgstr ""
 "kann kein Projekt in einer Niederlassung erstellen, die ein inaktiviertes "
 "Projekt enthält: %s"
 
-msgid "cannot create a project within a different domain than its parents."
-msgstr ""
-"kann kein Projekt innerhalb einer anderen Domäne als der der übergeordneten "
-"Projekte erstellen."
-
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 "Eine aktivierte Domäne kann nicht gelöscht werden; inaktivieren Sie sie "
@@ -1168,9 +1158,6 @@ msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 "kann Projekt %s nicht aktivieren, da es über inaktivierte übergeordnete "
 "Projekte verfügt"
-
-msgid "delete the default domain"
-msgstr "Standarddomäne löschen"
 
 #, python-format
 msgid "group %(group)s"

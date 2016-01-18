@@ -1,4 +1,4 @@
-# Chinese (Simplified, China) translations for keystone.
+# Translations template for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
@@ -6,23 +6,26 @@
 # Zhong Chaoliang <charliezon@gmail.com>, 2013
 # Dongliang Yu <yudl.nju@gmail.com>, 2013
 # Lee Yao <yaoli111144@gmail.com>, 2013
+# Lee Yao <yaoli111144@gmail.com>, 2013
+# Zhong Chaoliang <charliezon@gmail.com>, 2013
 # 颜海峰 <yanheven@gmail.com>, 2014
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev214\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language: zh_Hans_CN\n"
+"Language: zh-CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: Chinese (China)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 #, python-format
 msgid "%(detail)s"
@@ -76,9 +79,6 @@ msgstr "%s 字段是必填字段，不能为空"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s 字段不能为空"
-
-msgid "(Disable debug mode to suppress these details.)"
-msgstr "（禁用调试方式以避免显示这些详细信息。）"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all 选项不能与其他选项一起使用"
@@ -272,9 +272,6 @@ msgstr "找不到项目：%(project_id)s"
 #, python-format
 msgid "Could not find region: %(region_id)s"
 msgstr "找不到区域：%(region_id)s"
-
-msgid "Could not find role"
-msgstr "找不到角色"
 
 #, python-format
 msgid ""
@@ -1014,9 +1011,6 @@ msgstr "授权用户没有必需的角色"
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "无法在包含已禁用项目的分支中创建项目：%s"
 
-msgid "cannot create a project within a different domain than its parents."
-msgstr "如果某个域不是项目的父代所在的域，那么无法在该域内创建该项目。"
-
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr "无法删除已启用的域，请先禁用该域。"
 
@@ -1031,9 +1025,6 @@ msgstr "无法禁用项目 %s，因为其子树包含已启用的项目"
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "无法启用项目 %s，因为它具有已禁用的父代"
-
-msgid "delete the default domain"
-msgstr "请删除缺省域"
 
 #, python-format
 msgid "group %(group)s"

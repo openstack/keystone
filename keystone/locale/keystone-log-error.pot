@@ -1,21 +1,21 @@
 # Translations template for keystone.
-# Copyright (C) 2015 OpenStack Foundation
+# Copyright (C) 2016 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev216\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-05 06:13+0000\n"
+"POT-Creation-Date: 2016-01-18 06:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
+"Generated-By: Babel 2.2.0\n"
 
 #: keystone/notifications.py:379
 msgid "Failed to construct notifier"
@@ -26,41 +26,41 @@ msgstr ""
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:738
+#: keystone/notifications.py:733
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/catalog/core.py:62
+#: keystone/catalog/core.py:74
 #, python-format
 msgid "Malformed endpoint - %(url)r is not a string"
 msgstr ""
 
-#: keystone/catalog/core.py:67
+#: keystone/catalog/core.py:79
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr ""
 
-#: keystone/catalog/core.py:75
+#: keystone/catalog/core.py:87
 #, python-format
 msgid ""
 "Malformed endpoint '%(url)s'. The following type error occurred during "
 "string substitution: %(typeerror)s"
 msgstr ""
 
-#: keystone/catalog/core.py:81
+#: keystone/catalog/core.py:93
 #, python-format
 msgid ""
 "Malformed endpoint %s - incomplete format (are you missing a type "
 "notifier ?)"
 msgstr ""
 
-#: keystone/common/openssl.py:93
+#: keystone/common/openssl.py:87
 #, python-format
-msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
+msgid "Command %(to_exec)s exited with %(retcode)s - %(output)s"
 msgstr ""
 
-#: keystone/common/openssl.py:121
+#: keystone/common/openssl.py:111
 #, python-format
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr ""
@@ -77,53 +77,55 @@ msgstr ""
 msgid "Could not bind to %(host)s:%(port)s"
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:204
+#: keystone/common/environment/eventlet_server.py:211
 msgid "Server error"
 msgstr ""
 
-#: keystone/contrib/federation/idp.py:441
-#, python-format
-msgid "Error when signing assertion, reason: %(reason)s%(output)s"
-msgstr ""
-
-#: keystone/contrib/oauth1/core.py:136
-msgid "Cannot retrieve Authorization headers"
-msgstr ""
-
-#: keystone/endpoint_policy/core.py:131 keystone/endpoint_policy/core.py:230
+#: keystone/endpoint_policy/core.py:131 keystone/endpoint_policy/core.py:231
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in region tree - "
 "%(region_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:488
+#: keystone/federation/idp.py:440
+#, python-format
+msgid "Error when signing assertion, reason: %(reason)s%(output)s"
+msgstr ""
+
+#: keystone/oauth1/core.py:135
+msgid "Cannot retrieve Authorization headers"
+msgstr ""
+
+#: keystone/resource/core.py:608
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:963
+#: keystone/resource/core.py:1204
 #, python-format
 msgid ""
 "Unexpected results in response for domain config - %(count)s responses, "
 "first option is %(option)s, expected option %(expected)s"
 msgstr ""
 
-#: keystone/resource/backends/sql.py:101 keystone/resource/backends/sql.py:120
+#: keystone/resource/V8_backends/sql.py:102
+#: keystone/resource/V8_backends/sql.py:121
+#: keystone/resource/backends/sql.py:102 keystone/resource/backends/sql.py:121
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/token/provider.py:282
+#: keystone/token/provider.py:308
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:225
+#: keystone/token/persistence/backends/kvs.py:234
 #, python-format
 msgid ""
 "Reinitializing revocation list due to error in loading revocation list "
@@ -131,27 +133,27 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:702
+#: keystone/token/providers/common.py:668
 msgid "Failed to validate token"
 msgstr ""
 
-#: keystone/token/providers/pki.py:47
+#: keystone/token/providers/pki.py:52
 msgid "Unable to sign token"
 msgstr ""
 
-#: keystone/token/providers/fernet/utils.py:38
+#: keystone/token/providers/fernet/utils.py:42
 #, python-format
 msgid ""
 "Either [fernet_tokens] key_repository does not exist or Keystone does not"
 " have sufficient permission to access it: %s"
 msgstr ""
 
-#: keystone/token/providers/fernet/utils.py:62
+#: keystone/token/providers/fernet/utils.py:66
 #, python-format
 msgid "Unable to convert Keystone user or group ID. Error: %s"
 msgstr ""
 
-#: keystone/token/providers/fernet/utils.py:79
+#: keystone/token/providers/fernet/utils.py:83
 msgid ""
 "Failed to create [fernet_tokens] key_repository: either it already exists"
 " or you don't have sufficient permissions to create it"

@@ -8,19 +8,19 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev216\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-05 06:13+0000\n"
-"PO-Revision-Date: 2015-06-26 05:13+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language-Team: Chinese (China)\n"
-"Language: zh-CN\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2015-06-26 05:13+0000\n"
+"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"Language: zh-CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
-"X-Generator: Zanata 3.7.1\n"
+"X-Generator: Zanata 3.7.3\n"
+"Language-Team: Chinese (China)\n"
 
 msgid "Cannot retrieve Authorization headers"
 msgstr "无法获取认证头信息"
@@ -41,10 +41,6 @@ msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr "在项目树-%(project_id)s 中发现循环引用或重复项。"
-
-#, python-format
-msgid "Command %(to_exec)s exited with %(retcode)s- %(output)s"
-msgstr "命令 %(to_exec)s 已退出，退出码及输出为 %(retcode)s- %(output)s"
 
 #, python-format
 msgid "Could not bind to %(host)s:%(port)s"
