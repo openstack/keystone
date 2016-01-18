@@ -1,0 +1,7 @@
+---
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
+    The token memcache and memcache_pool persistence
+    backends have been deprecated in favor of using
+    Fernet tokens (which require no persistence).

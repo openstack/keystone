@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.token.persistence.backends import memcache
 
@@ -21,6 +22,11 @@ CONF = cfg.CONF
 class Token(memcache.Token):
     memcached_backend = 'pooled_memcached'
 
+    @versionutils.deprecated(
+        what='Memcache Pool Token Persistence Driver',
+        as_of=versionutils.deprecated.MITAKA,
+        in_favor_of='fernet token driver (no-persistence)',
+        remove_in=0)
     def __init__(self, *args, **kwargs):
         for arg in ('dead_retry', 'socket_timeout', 'pool_maxsize',
                     'pool_unused_timeout', 'pool_connection_get_timeout'):
