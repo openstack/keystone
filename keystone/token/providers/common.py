@@ -269,10 +269,10 @@ class V3TokenDataHelper(object):
         place.
 
         :param token_data: a dictionary used for building token response
-        :group_ids: list of group IDs a user is a member of
-        :project_id: project ID to scope to
-        :domain_id: domain ID to scope to
-        :user_id: user ID
+        :param group_ids: list of group IDs a user is a member of
+        :param project_id: project ID to scope to
+        :param domain_id: domain ID to scope to
+        :param user_id: user ID
 
         :raises keystone.exception.Unauthorized: when no roles were found for a
             (group_ids, project_id) or (group_ids, domain_id) pairs.
