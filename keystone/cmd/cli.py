@@ -150,6 +150,9 @@ class BootStrap(BaseApp):
         except exception.Conflict:
             LOG.info(_LI('Project %s already exists, skipping creation.'),
                      self.project_name)
+            project = self.resource_manager.get_project_by_name(
+                self.project_name, default_domain['id'])
+            self.tenant_id = project['id']
 
         # NOTE(morganfainberg): Do not create the user if it already exists.
         try:
@@ -177,6 +180,13 @@ class BootStrap(BaseApp):
             LOG.info(_LI('Created Role %s'), self.role_name)
         except exception.Conflict:
             LOG.info(_LI('Role %s exists, skipping creation.'), self.role_name)
+            # NOTE(davechen): There is no backend method to get the role
+            # by name, so build the hints to list the roles and filter by
+            # name instead.
+            hints = driver_hints.Hints()
+            hints.add_filter('name', self.role_name)
+            role = self.role_manager.list_roles(hints)
+            self.role_id = role[0]['id']
 
         # NOTE(morganfainberg): Handle the case that the role assignment has
         # already occured.
