@@ -205,9 +205,10 @@ class Federation(core.FederationDriverV9):
         except sql.NotFound:
             raise exception.IdentityProviderNotFound(idp_id=remote_id)
 
-    def list_idps(self):
+    def list_idps(self, hints=None):
         with sql.transaction() as session:
-            idps = session.query(IdentityProviderModel)
+            query = session.query(IdentityProviderModel)
+            idps = sql.filter_limit_query(IdentityProviderModel, query, hints)
         idps_list = [idp.to_dict() for idp in idps]
         return idps_list
 

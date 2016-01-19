@@ -137,18 +137,6 @@ class FederationDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_idps(self):
-        """List all identity providers.
-
-        :raises keystone.exception.IdentityProviderNotFound: If the IdP
-            doesn't exist.
-        :returns: list of idp refs
-        :rtype: list of dicts
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def get_idp(self, idp_id):
         """Get an identity provider by ID.
 
@@ -459,7 +447,18 @@ class FederationDriverV8(FederationDriverBase):
 
     """
 
-    pass
+    @abc.abstractmethod
+    def list_idps(self):
+        """List all identity providers.
+
+        :returns: list of idp refs
+        :rtype: list of dicts
+
+        :raises keystone.exception.IdentityProviderNotFound: If the IdP
+            doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
 
 
 class FederationDriverV9(FederationDriverBase):
@@ -470,7 +469,20 @@ class FederationDriverV9(FederationDriverBase):
 
     """
 
-    pass
+    @abc.abstractmethod
+    def list_idps(self, hints):
+        """List all identity providers.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+        :returns: list of idp refs
+        :rtype: list of dicts
+
+        :raises keystone.exception.IdentityProviderNotFound: If the IdP
+            doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
 
 
 class V9FederationWrapperForV8Driver(FederationDriverV9):
@@ -509,7 +521,11 @@ class V9FederationWrapperForV8Driver(FederationDriverV9):
     def delete_idp(self, idp_id):
         self.driver.delete_idp(idp_id)
 
-    def list_idps(self):
+    # NOTE(davechen): The hints is ignored here to support legacy drivers,
+    # but the filters in hints will be remain unsatisfied and V3Controller
+    # wrapper will apply these filters at the end. So that the result get
+    # returned for list IdP will still be filtered with the legacy drivers.
+    def list_idps(self, hints):
         return self.driver.list_idps()
 
     def get_idp(self, idp_id):
