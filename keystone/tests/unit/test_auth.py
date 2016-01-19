@@ -223,6 +223,36 @@ class AuthBadRequests(AuthTest):
                           self.controller.authenticate,
                           {}, body_dict)
 
+    def test_authenticate_fails_if_project_unsafe(self):
+        """Verify authenticate to a project with unsafe name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named project
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
+                                       name=unsafe_name)
+        self.resource_api.create_project(project['id'], project)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user_foo['id'], project['id'], self.role_member['id'])
+        no_context = {}
+
+        body_dict = _build_user_auth(
+            username=self.user_foo['name'],
+            password=self.user_foo['password'],
+            tenant_name=project['name'])
+
+        # Since name url restriction is off, we should be able to autenticate
+        self.controller.authenticate(no_context, body_dict)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='strict')
+        self.assertRaises(exception.Unauthorized,
+                          self.controller.authenticate,
+                          no_context, body_dict)
+
 
 class AuthWithToken(AuthTest):
     def test_unscoped_token(self):

@@ -367,6 +367,10 @@ class Auth(controller.V2Controller):
                                                 size=CONF.max_param_size)
 
         if tenant_name:
+            if (CONF.resource.project_name_url_safe == 'strict' and
+                    utils.is_not_url_safe(tenant_name)):
+                msg = _('Tenant name cannot contain reserved characters.')
+                raise exception.Unauthorized(message=msg)
             try:
                 tenant_ref = self.resource_api.get_project_by_name(
                     tenant_name, CONF.identity.default_domain_id)
