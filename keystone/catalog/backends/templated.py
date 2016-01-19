@@ -100,7 +100,8 @@ class Catalog(core.Driver):
 
     def _load_templates(self, template_file):
         try:
-            self.templates = parse_templates(open(template_file))
+            with open(template_file) as f:
+                self.templates = parse_templates(f)
         except IOError:
             LOG.critical(_LC('Unable to open template file %s'), template_file)
             raise
