@@ -1,4 +1,4 @@
-# Turkish (Turkey) translations for keystone.
+# Translations template for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
@@ -6,21 +6,23 @@
 # Alper Çiftçi <alprciftci@gmail.com>, 2015
 # Andreas Jaeger <jaegerandi@gmail.com>, 2015
 # catborise <muhammetalisag@gmail.com>, 2013
+# catborise <muhammetalisag@gmail.com>, 2013
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev214\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language: tr_TR\n"
+"Language: tr-TR\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: Turkish (Turkey)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 #, python-format
 msgid "%(detail)s"
@@ -76,9 +78,6 @@ msgstr "%s alanı gerekli ve boş olamaz"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s alan(lar)ı boş olamaz"
-
-msgid "(Disable debug mode to suppress these details.)"
-msgstr "(Bu detayları gizlemek için hata ayıklama kipini kapatın.)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all seçeneği diğer seçeneklerle birleştirilemez"
@@ -301,9 +300,6 @@ msgstr "Proje bulunamadı: %(project_id)s"
 msgid "Could not find region: %(region_id)s"
 msgstr "Bölge bulunamadı: %(region_id)s"
 
-msgid "Could not find role"
-msgstr "Rol bulunamadı"
-
 #, python-format
 msgid ""
 "Could not find role assignment with role: %(role_id)s, user or group: "
@@ -378,9 +374,6 @@ msgid ""
 msgstr ""
 "Alan: %(domain)s zaten tanımlanmış bir yapılandırmaya sahip - dosya "
 "atlanıyor: %(file)s."
-
-msgid "Domains are not supported by the v2 API. Please use the v3 API instead."
-msgstr "v2 API alanları desteklemiyor. Bunun yerine lütfen v3 API kullanın"
 
 msgid "Domains are read-only against LDAP"
 msgstr "Alanlar LDAP'a karşı yalnızca-okunur"
@@ -1139,9 +1132,6 @@ msgstr "yetkilendiren kullanıcı gerekli role sahip değil"
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "kapalı bir proje içeren bir alt grupta proje oluşturulamaz: %s"
 
-msgid "cannot create a project within a different domain than its parents."
-msgstr "üst projelerinden farklı alanda bir proje oluşturulamaz."
-
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr "etkin alan silinemez, lütfen önce kapatın."
 
@@ -1156,9 +1146,6 @@ msgstr "proje %s kapatılamıyor çünkü alt ağacında etkin projeler var"
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "proje %s etkinleştirilemiyor çünkü üstleri kapatılmış"
-
-msgid "delete the default domain"
-msgstr "varsayılan alanı sil"
 
 #, python-format
 msgid "group %(group)s"

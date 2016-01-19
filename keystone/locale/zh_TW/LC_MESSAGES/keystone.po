@@ -1,4 +1,4 @@
-# Chinese (Traditional, Taiwan) translations for keystone.
+# Translations template for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
@@ -7,18 +7,19 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev214\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
-"Language: zh_Hant_TW\n"
+"Language: zh-TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: Chinese (Taiwan)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 #, python-format
 msgid "%(detail)s"
@@ -72,9 +73,6 @@ msgstr "%s 欄位是必要欄位，因此不能是空的"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s 欄位不能是空的"
-
-msgid "(Disable debug mode to suppress these details.)"
-msgstr "（停用除錯模式，以暫停這些詳細資料。）"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all 選項不能與其他選項混合"
@@ -268,9 +266,6 @@ msgstr "找不到專案：%(project_id)s"
 #, python-format
 msgid "Could not find region: %(region_id)s"
 msgstr "找不到區域：%(region_id)s"
-
-msgid "Could not find role"
-msgstr "找不到角色"
 
 #, python-format
 msgid ""
@@ -1013,9 +1008,6 @@ msgstr "授權使用者不具有必要的角色"
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "無法在包含已停用專案的分支中建立專案：%s"
 
-msgid "cannot create a project within a different domain than its parents."
-msgstr "無法在不同於其母項的網域內建立專案。"
-
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr "無法刪除已啟用的網域，請先停用該網域。"
 
@@ -1030,9 +1022,6 @@ msgstr "無法停用專案 %s，因為其子樹狀結構包含已啟用的專案
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "無法啟用專案 %s，因為它具有已停用的母項"
-
-msgid "delete the default domain"
-msgstr "刪除預設網域"
 
 #, python-format
 msgid "group %(group)s"

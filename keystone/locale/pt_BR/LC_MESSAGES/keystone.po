@@ -1,28 +1,31 @@
-# Portuguese (Brazil) translations for keystone.
+# Translations template for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
 # Translators:
 # Gabriel Wainer, 2013
+# Gabriel Wainer, 2013
 # Lucas Ribeiro <lucasribeiro1990@gmail.com>, 2014
+# Volmar Oliveira Junior <volmar.oliveira.jr@gmail.com>, 2013
 # Volmar Oliveira Junior <volmar.oliveira.jr@gmail.com>, 2013
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 # Raildo Mascena <raildom@gmail.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev214\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-11-16 05:53+0000\n"
 "Last-Translator: Raildo Mascena <raildom@gmail.com>\n"
-"Language: pt_BR\n"
+"Language: pt-BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: Portuguese (Brazil)\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 #, python-format
 msgid "%(detail)s"
@@ -77,9 +80,6 @@ msgstr "campo %s é obrigatório e não pode estar vazio"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s campo(s) não podem estar vazios"
-
-msgid "(Disable debug mode to suppress these details.)"
-msgstr "(Desative o modo de depuração para suprimir esses detalhes.)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "A opção --all não pode ser combinada com outras opções"
@@ -322,9 +322,6 @@ msgstr "Não foi possível localizar o projeto: %(project_id)s"
 msgid "Could not find region: %(region_id)s"
 msgstr "Não foi possível localizar a região: %(region_id)s"
 
-msgid "Could not find role"
-msgstr "Não é possível encontrar role"
-
 #, python-format
 msgid ""
 "Could not find role assignment with role: %(role_id)s, user or group: "
@@ -412,10 +409,6 @@ msgid ""
 msgstr ""
 "Domínio: %(domain)s já possui uma configuração definida - ignorando arquivo: "
 "%(file)s."
-
-#, fuzzy
-msgid "Domains are not supported by the v2 API. Please use the v3 API instead."
-msgstr "Domínios não são suportados na API v2.  Por favor utilize a API v3."
 
 msgid "Domains are read-only against LDAP"
 msgstr "Domínios são somente leitura no LDAP"
@@ -787,12 +780,6 @@ msgstr "Campo projeto é requerido e não pode ser vazio."
 #, python-format
 msgid "Project is disabled: %s"
 msgstr "O projeto está desativado: %s"
-
-#, fuzzy, python-format
-msgid ""
-"Project not found in the default domain (please use the v3 API instead): %s"
-msgstr ""
-"Projeto não encontrado no domínio padrão (por favor utilize a API v3): %s"
 
 #, fuzzy
 msgid "Query string is not UTF-8 encoded"
@@ -1188,12 +1175,6 @@ msgstr "Usuário não é confiável."
 msgid "User not found"
 msgstr "Usuário não localizado"
 
-#, fuzzy, python-format
-msgid ""
-"User not found in the default domain (please use the v3 API instead): %s"
-msgstr ""
-"Usuário não encontrado no domínio padrão (por favor utilize a API v3): %s"
-
 msgid "User not valid for tenant."
 msgstr "Usuário não é válido para o tenant."
 
@@ -1232,9 +1213,6 @@ msgstr ""
 "não é possível criar um projeto em uma ramificação que contém um projeto "
 "desativado: %s"
 
-msgid "cannot create a project within a different domain than its parents."
-msgstr "não é possível criar um projeto em um domínio diferente de seus pais."
-
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 "não é possível excluir um domínio que esteja ativado, desative-o primeiro."
@@ -1254,9 +1232,6 @@ msgstr ""
 msgid "cannot enable project %s since it has disabled parents"
 msgstr ""
 "não é possível ativar o projeto %s desde que ele tenha pais desativados"
-
-msgid "delete the default domain"
-msgstr "excluir o domínio padrão"
 
 #, python-format
 msgid "group %(group)s"

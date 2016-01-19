@@ -1,4 +1,4 @@
-# French translations for keystone.
+# Translations template for keystone.
 # Copyright (C) 2015 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
 #
@@ -7,23 +7,25 @@
 # Maxime COQUEREL <max.coquerel@gmail.com>, 2014
 # Andrew Melim <nokostya.translation@gmail.com>, 2014
 # Olivier Perrin <operrin@heliostech.fr>, 2013
+# Olivier Perrin <operrin@heliostech.fr>, 2013
 # Rémi Le Trocquer <remi.letrocquer@orange.com>, 2014
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.dev214\n"
+"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-11-17 06:29+0000\n"
+"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-09-03 12:54+0000\n"
 "Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
 "Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
 "Language-Team: French\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
 
 #, python-format
 msgid "%(detail)s"
@@ -81,9 +83,6 @@ msgstr "La zone %s est obligatoire et ne peut pas être vide"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s zone(s) ne peut(peuvent) pas être vide(s)"
-
-msgid "(Disable debug mode to suppress these details.)"
-msgstr "(Désactivez le mode de débogage pour supprimer ces informations.)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "-all option ne peut pas être mélanger avec d'autres options."
@@ -309,9 +308,6 @@ msgstr "Impossible de trouver le projet: %(project_id)s"
 #, python-format
 msgid "Could not find region: %(region_id)s"
 msgstr "Impossible de trouver la région: %(region_id)s"
-
-msgid "Could not find role"
-msgstr "Ne peut pas trouvé le role"
 
 #, python-format
 msgid ""
@@ -1136,11 +1132,6 @@ msgstr ""
 "Impossible de créer un projet dans une branche qui contient un projet "
 "désactivé : %s"
 
-msgid "cannot create a project within a different domain than its parents."
-msgstr ""
-"Impossible de créer un projet dans un domaine qui diffère de celui-ci de ses "
-"parents."
-
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 "Impossible de supprimer un domaine activé, s'il vous plait le désactiver en "
@@ -1161,9 +1152,6 @@ msgstr ""
 #, python-format
 msgid "cannot enable project %s since it has disabled parents"
 msgstr "Impossible d'activer le projet %s car ses parents sont désactivés"
-
-msgid "delete the default domain"
-msgstr "Suppression du domaine par défaut"
 
 #, python-format
 msgid "group %(group)s"
