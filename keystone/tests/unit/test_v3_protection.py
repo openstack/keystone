@@ -1384,17 +1384,23 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.delete('/auth/tokens', token=admin_token,
                     headers={'X-Subject-Token': user_token})
 
-    def test_project_admin_get_project(self):
+    def test_user_with_a_role_get_project(self):
         user_auth = self.build_authentication_request(
             user_id=self.just_a_user['id'],
             password=self.just_a_user['password'],
             project_id=self.project['id'])
 
-        self.get('/projects/%s' % self.project['id'], auth=user_auth,
+        # Test user can get project for one they have a role in
+        self.get('/projects/%s' % self.project['id'], auth=user_auth)
+
+        # Test user can not get project for one they don't have a role in,
+        # even if they have a role on another project
+        project2 = unit.new_project_ref(domain_id=self.domainA['id'])
+        self.resource_api.create_project(project2['id'], project2)
+        self.get('/projects/%s' % project2['id'], auth=user_auth,
                  expected_status=exception.ForbiddenAction.code)
 
-        # Now, authenticate with a user that does have the project
-        # admin role
+    def test_project_admin_get_project(self):
         admin_auth = self.build_authentication_request(
             user_id=self.project_admin_user['id'],
             password=self.project_admin_user['password'],
