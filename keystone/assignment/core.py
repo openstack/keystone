@@ -628,12 +628,12 @@ class Manager(manager.Manager):
                     ref_results.append(implied_ref)
                     role_refs_to_check.append(implied_ref)
         except exception.NotImplemented:
-            LOG.debug('Role driver does not support implied roles.')
+            LOG.error('Role driver does not support implied roles.')
 
         return ref_results
 
     def _filter_by_role_id(self, role_id, ref_results):
-        # if we arrive here, we  need to filer by role_id.
+        # if we arrive here, we need to filer by role_id.
         filter_results = []
         for ref in ref_results:
             if ref['role_id'] == role_id:
@@ -1545,7 +1545,12 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def delete_implied_role(self, prior_role_id, implied_role_id):
-        """Deletes a role inference rule"""
+        """Deletes a role inference rule
+
+        :raises keystone.exception.ImpliedRoleNotFound: If the implied role
+            doesn't exist.
+
+        """
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
@@ -1555,7 +1560,7 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def list_implied_roles(self, prior_role_id):
-        """Lists roles implied from the prior role id"""
+        """Lists roles implied from the prior role ID"""
         raise exception.NotImplemented()  # pragma: no cover
 
 

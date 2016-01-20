@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from oslo_db import exception as db_exception
-from sqlalchemy import and_
 
 from keystone import assignment
 from keystone.common import driver_hints
@@ -73,6 +72,19 @@ class Role(assignment.RoleDriverV9):
             ref = self._get_role(session, role_id)
             session.delete(ref)
 
+    def _get_implied_role(self, session, prior_role_id, implied_role_id):
+        query = session.query(
+            ImpliedRoleTable).filter(
+                ImpliedRoleTable.prior_role_id == prior_role_id).filter(
+                    ImpliedRoleTable.implied_role_id == implied_role_id)
+        try:
+            ref = query.one()
+        except sql.NotFound:
+            raise exception.ImpliedRoleNotFound(
+                prior_role_id=prior_role_id,
+                implied_role_id=implied_role_id)
+        return ref
+
     @sql.handle_conflicts(conflict_type='implied_role')
     def create_implied_role(self, prior_role_id, implied_role_id):
         with sql.transaction() as session:
@@ -84,16 +96,15 @@ class Role(assignment.RoleDriverV9):
             except db_exception.DBReferenceError:
                 # We don't know which role threw this.
                 # Query each to trigger the exception.
-                self._get_role(prior_role_id)
-                self._get_role(implied_role_id)
+                self._get_role(session, prior_role_id)
+                self._get_role(session, implied_role_id)
             return ref.to_dict()
 
     def delete_implied_role(self, prior_role_id, implied_role_id):
         with sql.transaction() as session:
-            query = session.query(ImpliedRoleTable).filter(and_(
-                ImpliedRoleTable.prior_role_id == prior_role_id,
-                ImpliedRoleTable.implied_role_id == implied_role_id))
-            query.delete(synchronize_session='fetch')
+            ref = self._get_implied_role(session, prior_role_id,
+                                         implied_role_id)
+            session.delete(ref)
 
     def list_implied_roles(self, prior_role_id):
         with sql.transaction() as session:
@@ -111,16 +122,9 @@ class Role(assignment.RoleDriverV9):
 
     def get_implied_role(self, prior_role_id, implied_role_id):
         with sql.transaction() as session:
-            query = session.query(
-                ImpliedRoleTable).filter(
-                    ImpliedRoleTable.prior_role_id == prior_role_id).filter(
-                        ImpliedRoleTable.implied_role_id == implied_role_id)
-            ref = query.all()
-            if len(ref) < 1:
-                raise exception.ImpliedRoleNotFound(
-                    prior_role_id=prior_role_id,
-                    implied_role_id=implied_role_id)
-            return ref[0].to_dict()
+            ref = self._get_implied_role(session, prior_role_id,
+                                         implied_role_id)
+            return ref.to_dict()
 
 
 class ImpliedRoleTable(sql.ModelBase, sql.DictBase):
