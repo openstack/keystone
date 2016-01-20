@@ -1950,24 +1950,3 @@ class EnabledEmuMixIn(BaseLdap):
         if self.enabled_emulation:
             self._remove_enabled(object_id)
         super(EnabledEmuMixIn, self).delete(object_id)
-
-
-class ProjectLdapStructureMixin(object):
-    """Project LDAP Structure shared between LDAP backends.
-
-    This is shared between the resource and assignment LDAP backends.
-
-    """
-
-    DEFAULT_OU = 'ou=Groups'
-    DEFAULT_STRUCTURAL_CLASSES = []
-    DEFAULT_OBJECTCLASS = 'groupOfNames'
-    DEFAULT_ID_ATTR = 'cn'
-    NotFound = exception.ProjectNotFound
-    notfound_arg = 'project_id'  # NOTE(yorik-sar): while options_name = tenant
-    options_name = 'project'
-    attribute_options_names = {'name': 'name',
-                               'description': 'desc',
-                               'enabled': 'enabled',
-                               'domain_id': 'domain_id'}
-    immutable_attrs = ['name']
