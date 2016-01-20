@@ -222,6 +222,15 @@ class IdentityDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
+    def unset_default_project_id(self, project_id):
+        """Unset a users default project given a specific project ID.
+
+        :param str project_id: project ID
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
     def list_users_in_group(self, group_id, hints):
         """List users in a group.
 

@@ -1,0 +1,14 @@
+fixes:
+  - |
+    [`bug 1523369 <https://bugs.launchpad.net/keystone/+bug/1523369>`_]
+    Currently, if a project is deleted, it is not removed as a user's default
+    project id. Now the default project id is set to none, however changes may
+    not be visible until memcache end of life.
+
+upgrade:
+  - |
+    The identity backend driver interface has changed. We've added a new
+    ``unset_default_project_id(project_id)`` method to unset a users default
+    project id matching the given project id. If you have a custom
+    implementation for the identity driver, you will need to implement this
+    new method.

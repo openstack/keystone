@@ -170,6 +170,14 @@ class Identity(base.IdentityDriverBase):
             user_refs = sql.filter_limit_query(model.User, query, hints)
             return [base.filter_user(x.to_dict()) for x in user_refs]
 
+    def unset_default_project_id(self, project_id):
+        with sql.session_for_write() as session:
+            query = session.query(model.User)
+            query = query.filter(model.User.default_project_id == project_id)
+
+            for user in query:
+                user.default_project_id = None
+
     def _get_user(self, session, user_id):
         user_ref = session.query(model.User).get(user_id)
         if not user_ref:

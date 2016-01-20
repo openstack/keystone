@@ -490,6 +490,7 @@ class Manager(manager.Manager):
         self.event_callbacks = {
             notifications.ACTIONS.deleted: {
                 'domain': [self._domain_deleted],
+                'project': [self._set_default_project_to_none],
             },
         }
 
@@ -520,8 +521,21 @@ class Manager(manager.Manager):
                            'cleanup.'),
                           {'userid': user['id'], 'domainid': domain_id})
 
-    # Domain ID normalization methods
+    def _set_default_project_to_none(self, service, resource_type, operation,
+                                     payload):
+        """Callback, clears user default_project_id after project deletion.
 
+        Notification approach was used instead of using a FK constraint.
+        Reason being, operators are allowed to have separate backends for
+        various keystone subsystems. This doesn't guarantee that projects and
+        users will be stored in the same backend, meaning we can't rely on FK
+        constraints to do this work for us.
+
+        """
+        project_id = payload['resource_info']
+        self.driver.unset_default_project_id(project_id)
+
+    # Domain ID normalization methods
     def _set_domain_id_and_mapping(self, ref, domain_id, driver,
                                    entity_type):
         """Patch the domain_id/public_id into the resulting entity(ies).
