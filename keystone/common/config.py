@@ -301,6 +301,9 @@ FILE_OPTIONS = {
                         'middleware must be configured with the '
                         'hash_algorithms, otherwise token revocation will '
                         'not be processed correctly.'),
+        cfg.BoolOpt('infer_roles', default=True,
+                    help='Add roles to token that are not explicitly added, '
+                    'but that are linked implicitly to other roles.'),
     ],
     'revoke': [
         cfg.StrOpt('driver',

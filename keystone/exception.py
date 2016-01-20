@@ -285,6 +285,10 @@ class RoleNotFound(NotFound):
     message_format = _("Could not find role: %(role_id)s")
 
 
+class ImpliedRoleNotFound(NotFound):
+    message_format = _("%(prior_role_id)s does not imply %(implied_role_id)s")
+
+
 class RoleAssignmentNotFound(NotFound):
     message_format = _("Could not find role assignment with role: "
                        "%(role_id)s, user or group: %(actor_id)s, "
