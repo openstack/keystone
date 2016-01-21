@@ -514,11 +514,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertEqual(existing_assignments + 2, after_assignments)
 
     def test_list_role_assignments_filtered_by_role(self):
-        # Domain roles are not supported by the LDAP Assignment backend
-        self.assertRaises(
-            exception.NotImplemented,
-            super(BaseLDAPIdentity, self).
-            test_list_role_assignments_filtered_by_role)
+        self.skipTest('Resource LDAP has been removed')
 
     def test_list_role_assignments_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
@@ -634,22 +630,20 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertNotIn(dumb_id, user_ids)
 
     def test_list_domains(self):
+        # We have more domains here than the parent class, check for the
+        # correct number of domains for the multildap backend configs
+        domain1 = unit.new_domain_ref()
+        domain2 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain1['id'], domain1)
+        self.resource_api.create_domain(domain2['id'], domain2)
         domains = self.resource_api.list_domains()
-        self.assertEqual(
-            [resource.calc_default_domain()],
-            domains)
-
-    def test_list_domains_non_default_domain_id(self):
-        # If change the default_domain_id, the ID of the default domain
-        # returned by list_domains changes is the new default_domain_id.
-
-        new_domain_id = uuid.uuid4().hex
-        self.config_fixture.config(group='identity',
-                                   default_domain_id=new_domain_id)
-
-        domains = self.resource_api.list_domains()
-
-        self.assertEqual(new_domain_id, domains[0]['id'])
+        self.assertEqual(7, len(domains))
+        domain_ids = []
+        for domain in domains:
+            domain_ids.append(domain.get('id'))
+        self.assertIn(test_backend.DEFAULT_DOMAIN_ID, domain_ids)
+        self.assertIn(domain1['id'], domain_ids)
+        self.assertIn(domain2['id'], domain_ids)
 
     def test_authenticate_requires_simple_bind(self):
         user = self.new_user_ref(domain_id=test_backend.DEFAULT_DOMAIN_ID)
@@ -906,25 +900,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.assertNotIn('enabled', group_info)
 
     def test_project_enabled_ignored_disable_error(self):
-        # When the server is configured so that the enabled attribute is
-        # ignored for projects, projects cannot be disabled.
-
-        self.config_fixture.config(group='ldap',
-                                   project_attribute_ignore=['enabled'])
-
-        # Need to re-load backends for the config change to take effect.
-        self.load_backends()
-
-        # Attempt to disable the project.
-        self.assertRaises(exception.ForbiddenAction,
-                          self.resource_api.update_project,
-                          self.tenant_baz['id'], {'enabled': False})
-
-        project_info = self.resource_api.get_project(self.tenant_baz['id'])
-
-        # Unlike other entities, if 'enabled' is ignored then 'enabled' is
-        # returned as part of the ref.
-        self.assertIs(True, project_info['enabled'])
+        self.skipTest('Resource LDAP has been removed')
 
     def test_list_role_assignment_by_domain(self):
         """Multiple domain assignments are not supported."""
@@ -948,15 +924,15 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         # credentials) that require a database.
         self.useFixture(database.Database())
         super(LDAPIdentity, self).setUp()
-        _assert_backends(self,
-                         assignment='ldap',
-                         identity='ldap',
-                         resource='ldap')
+        _assert_backends(self, identity='ldap')
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
         create_group_container(self.identity_api)
         super(LDAPIdentity, self).load_fixtures(fixtures)
+
+    def test_list_domains(self):
+        self.skipTest('Basic Ldap Identity is not multi-domain-aware.')
 
     def test_configurable_allowed_project_actions(self):
         domain = self._get_domain_fixture()
@@ -1005,48 +981,10 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         self.assertEqual(0, len(list))
 
     def test_configurable_forbidden_project_actions(self):
-        self.config_fixture.config(
-            group='ldap', project_allow_create=False,
-            project_allow_update=False, project_allow_delete=False)
-        self.load_backends()
-
-        domain = self._get_domain_fixture()
-        project = unit.new_project_ref(domain_id=domain['id'])
-        self.assertRaises(exception.ForbiddenAction,
-                          self.resource_api.create_project,
-                          project['id'],
-                          project)
-
-        self.tenant_bar['enabled'] = False
-        self.assertRaises(exception.ForbiddenAction,
-                          self.resource_api.update_project,
-                          self.tenant_bar['id'],
-                          self.tenant_bar)
-        self.assertRaises(exception.ForbiddenAction,
-                          self.resource_api.delete_project,
-                          self.tenant_bar['id'])
+        self.skipTest('Resource LDAP has been removed')
 
     def test_project_filter(self):
-        tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
-        self.assertDictEqual(self.tenant_bar, tenant_ref)
-
-        self.config_fixture.config(group='ldap',
-                                   project_filter='(CN=DOES_NOT_MATCH)')
-        self.load_backends()
-        # NOTE(morganfainberg): CONF.ldap.project_filter  will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.role_api.get_role.invalidate(self.role_api,
-                                          self.role_member['id'])
-        self.role_api.get_role(self.role_member['id'])
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 self.tenant_bar['id'])
-        self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
-                          self.tenant_bar['id'])
+        self.skipTest('Resource LDAP has been removed')
 
     def test_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
@@ -1059,71 +997,10 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                           dumb_id)
 
     def test_project_attribute_mapping(self):
-        self.config_fixture.config(
-            group='ldap', project_name_attribute='ou',
-            project_desc_attribute='description',
-            project_enabled_attribute='enabled')
-        self.ldapdb.clear()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        # NOTE(morganfainberg): CONF.ldap.project_name_attribute,
-        # CONF.ldap.project_desc_attribute, and
-        # CONF.ldap.project_enabled_attribute will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 self.tenant_baz['id'])
-        tenant_ref = self.resource_api.get_project(self.tenant_baz['id'])
-        self.assertEqual(self.tenant_baz['id'], tenant_ref['id'])
-        self.assertEqual(self.tenant_baz['name'], tenant_ref['name'])
-        self.assertEqual(
-            self.tenant_baz['description'],
-            tenant_ref['description'])
-        self.assertEqual(self.tenant_baz['enabled'], tenant_ref['enabled'])
-
-        self.config_fixture.config(group='ldap',
-                                   project_name_attribute='description',
-                                   project_desc_attribute='ou')
-        self.load_backends()
-        # NOTE(morganfainberg): CONF.ldap.project_name_attribute,
-        # CONF.ldap.project_desc_attribute, and
-        # CONF.ldap.project_enabled_attribute will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change config values in tests that
-        # could affect what the drivers would return up to the manager.  This
-        # solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 self.tenant_baz['id'])
-        tenant_ref = self.resource_api.get_project(self.tenant_baz['id'])
-        self.assertEqual(self.tenant_baz['id'], tenant_ref['id'])
-        self.assertEqual(self.tenant_baz['description'], tenant_ref['name'])
-        self.assertEqual(self.tenant_baz['name'], tenant_ref['description'])
-        self.assertEqual(self.tenant_baz['enabled'], tenant_ref['enabled'])
+        self.skipTest('Resource LDAP has been removed')
 
     def test_project_attribute_ignore(self):
-        self.config_fixture.config(
-            group='ldap',
-            project_attribute_ignore=['name', 'description', 'enabled'])
-        self.ldapdb.clear()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        # NOTE(morganfainberg): CONF.ldap.project_attribute_ignore will not be
-        # dynamically changed at runtime. This invalidate is a work-around for
-        # the expectation that it is safe to change configs values in tests
-        # that could affect what the drivers would return up to the manager.
-        # This solves this assumption when working with aggressive (on-create)
-        # cache population.
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 self.tenant_baz['id'])
-        tenant_ref = self.resource_api.get_project(self.tenant_baz['id'])
-        self.assertEqual(self.tenant_baz['id'], tenant_ref['id'])
-        self.assertNotIn('name', tenant_ref)
-        self.assertNotIn('description', tenant_ref)
-        self.assertNotIn('enabled', tenant_ref)
+        self.skipTest('Resource LDAP has been removed')
 
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(group='ldap', user_enabled_mask=2,
@@ -1486,40 +1363,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         self.assertDictEqual(expected_dict, mapping)
 
     def test_domain_crud(self):
-        domain = unit.new_domain_ref()
-        self.assertRaises(exception.Forbidden,
-                          self.resource_api.create_domain,
-                          domain['id'],
-                          domain)
-        self.assertRaises(exception.Conflict,
-                          self.resource_api.create_domain,
-                          CONF.identity.default_domain_id,
-                          domain)
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
-                          domain['id'])
-
-        domain['description'] = uuid.uuid4().hex
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.update_domain,
-                          domain['id'],
-                          domain)
-        self.assertRaises(exception.Forbidden,
-                          self.resource_api.update_domain,
-                          CONF.identity.default_domain_id,
-                          domain)
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
-                          domain['id'])
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.delete_domain,
-                          domain['id'])
-        self.assertRaises(exception.Forbidden,
-                          self.resource_api.delete_domain,
-                          CONF.identity.default_domain_id)
-        self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
-                          domain['id'])
+        self.skipTest('Resource LDAP has been removed')
 
     @unit.skip_if_no_multiple_domains_support
     def test_create_domain_case_sensitivity(self):
@@ -1623,44 +1467,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                           self.resource_api.get_project,
                           project_id)
 
-    def _assert_create_hierarchy_not_allowed(self):
-        domain = self._get_domain_fixture()
-
-        project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
-
-        # Creating project2 under project1. LDAP will not allow
-        # the creation of a project with parent_id being set
-        project2 = unit.new_project_ref(domain_id=domain['id'],
-                                        parent_id=project1['id'])
-
-        self.assertRaises(exception.InvalidParentProject,
-                          self.resource_api.create_project,
-                          project2['id'],
-                          project2)
-
-        # Now, we'll create project 2 with no parent
-        project2['parent_id'] = None
-        self.resource_api.create_project(project2['id'], project2)
-
-        # Returning projects to be used across the tests
-        return [project1, project2]
-
-    def _assert_create_is_domain_project_not_allowed(self):
-        """Tests that we can't create more than one project acting as domain.
-
-        This method will be used at any test that require the creation of a
-        project that act as a domain. LDAP does not support multiple domains
-        and the only domain it has (default) is immutable.
-        """
-        domain = self._get_domain_fixture()
-        project = unit.new_project_ref(domain_id=domain['id'],
-                                       is_domain=True)
-
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
-                          project['id'], project)
-
     def test_update_is_domain_field(self):
         domain = self._get_domain_fixture()
         project = unit.new_project_ref(domain_id=domain['id'])
@@ -1673,112 +1479,64 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                           project['id'], project)
 
     def test_delete_is_domain_project(self):
-        self._assert_create_is_domain_project_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_domain_under_regular_project_hierarchy_fails(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_not_is_domain_project_under_is_domain_hierarchy(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_project_passing_is_domain_flag_true(self):
-        # Creating a project passing is_domain=True is not supported by
-        # the LDAP backend
-        self._assert_create_is_domain_project_not_allowed()
-
-    def test_set_default_is_domain_project(self):
-        # Tests the internal method _set_default_is_domain_project, which
-        # allows either a project ref or a list of project refs
-        new_project_ref = unit.new_project_ref()
-
-        # Calling it with a dict is valid
-        updated_project_ref = (self.resource_api.driver.
-                               _set_default_is_domain_project(new_project_ref))
-
-        self.assertFalse(updated_project_ref['is_domain'])
-
-        # So it is with a list of refs
-        another_new_project_ref = unit.new_project_ref()
-        refs_list = [new_project_ref, another_new_project_ref]
-        new_refs_list = (self.resource_api.driver.
-                         _set_default_is_domain_project(refs_list))
-
-        for ref in new_refs_list:
-            self.assertFalse(ref['is_domain'])
-
-        # Passing another type is not allowed
-        self.assertRaises(ValueError,
-                          self.resource_api.driver.
-                          _set_default_is_domain_project,
-                          'foo_bar')
-
-        # A list with another type is not allowed either
-        wrong_list = [new_project_ref, 'foo_bar']
-        self.assertRaises(ValueError,
-                          self.resource_api.driver.
-                          _set_default_is_domain_project,
-                          wrong_list)
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_project_with_parent_id_and_without_domain_id(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_check_leaf_projects(self):
-        projects = self._assert_create_hierarchy_not_allowed()
-        for project in projects:
-            self.assertTrue(self.resource_api.is_leaf_project(project))
+        self.skipTest('Resource LDAP has been removed')
 
     def test_list_projects_in_subtree(self):
-        projects = self._assert_create_hierarchy_not_allowed()
-        for project in projects:
-            subtree_list = self.resource_api.list_projects_in_subtree(
-                project['id'])
-            self.assertEqual(0, len(subtree_list))
+        self.skipTest('Resource LDAP has been removed')
 
     def test_list_projects_in_subtree_with_circular_reference(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_list_project_parents(self):
-        projects = self._assert_create_hierarchy_not_allowed()
-        for project in projects:
-            parents_list = self.resource_api.list_project_parents(
-                project['id'])
-            self.assertEqual(0, len(parents_list))
+        self.skipTest('Resource LDAP has been removed')
 
     def test_hierarchical_projects_crud(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_project_under_disabled_one(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_project_with_invalid_parent(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_create_leaf_project_with_invalid_domain(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_update_project_parent(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_enable_project_with_disabled_parent(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_disable_hierarchical_leaf_project(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_disable_hierarchical_not_leaf_project(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_delete_hierarchical_leaf_project(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_delete_hierarchical_not_leaf_project(self):
-        self._assert_create_hierarchy_not_allowed()
+        self.skipTest('Resource LDAP has been removed')
 
     def test_check_hierarchy_depth(self):
-        projects = self._assert_create_hierarchy_not_allowed()
-        for project in projects:
-            depth = self._get_hierarchy_depth(project['id'])
-            self.assertEqual(1, depth)
+        self.skipTest('Resource LDAP has been removed')
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
@@ -2018,15 +1776,11 @@ class LDAPLimitTests(unit.TestCase, test_backend.LimitTests):
 
         self.useFixture(ldapdb.LDAPDatabase())
         self.useFixture(database.Database())
+        self.useFixture(database.Database(self.sql_driver_version_overrides))
         self.load_backends()
-
-        test_backend.LimitTests.setUp(self)
-
         self.load_fixtures(default_fixtures)
-        _assert_backends(self,
-                         assignment='ldap',
-                         identity='ldap',
-                         resource='ldap')
+        test_backend.LimitTests.setUp(self)
+        _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
         super(LDAPLimitTests, self).config_overrides()
@@ -2052,10 +1806,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
             obj.setdefault('enabled', True)
-        _assert_backends(self,
-                         assignment='ldap',
-                         identity='ldap',
-                         resource='ldap')
+        _assert_backends(self, identity='ldap')
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
@@ -2070,8 +1821,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
     def config_overrides(self):
         super(LDAPIdentityEnabledEmulation, self).config_overrides()
         self.config_fixture.config(group='ldap',
-                                   user_enabled_emulation=True,
-                                   project_enabled_emulation=True)
+                                   user_enabled_emulation=True)
 
     def test_project_crud(self):
         # NOTE(topol): LDAPIdentityEnabledEmulation will create an
@@ -2283,10 +2033,7 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.load_fixtures(default_fixtures)
         # defaulted by the data load
         self.user_foo['enabled'] = True
-        _assert_backends(self,
-                         assignment='sql',
-                         identity='ldap',
-                         resource='sql')
+        _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
         super(LdapIdentitySqlAssignment, self).config_overrides()
@@ -2300,22 +2047,6 @@ class LdapIdentitySqlAssignment(BaseLDAPIdentity, unit.SQLDriverOverrides,
     def test_list_domains(self):
         domains = self.resource_api.list_domains()
         self.assertEqual([resource.calc_default_domain()], domains)
-
-    def test_list_domains_non_default_domain_id(self):
-        # If change the default_domain_id, the ID of the default domain
-        # returned by list_domains doesn't change because the SQL identity
-        # backend reads it from the database, which doesn't get updated by
-        # config change.
-
-        orig_default_domain_id = CONF.identity.default_domain_id
-
-        new_domain_id = uuid.uuid4().hex
-        self.config_fixture.config(group='identity',
-                                   default_domain_id=new_domain_id)
-
-        domains = self.resource_api.list_domains()
-
-        self.assertEqual(orig_default_domain_id, domains[0]['id'])
 
     def test_create_domain(self):
         domain = unit.new_domain_ref()
@@ -2609,14 +2340,6 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # Get the config for this domain, will return CONF
         # if no specific config defined for this domain
         return self.identity_api.domain_configs.get_domain_conf(domain_id)
-
-    def test_list_domains(self):
-        self.skipTest(
-            'N/A: Not relevant for multi ldap testing')
-
-    def test_list_domains_non_default_domain_id(self):
-        self.skipTest(
-            'N/A: Not relevant for multi ldap testing')
 
     def test_list_users(self):
         # Override the standard list users, since we have added an extra user
@@ -3299,7 +3022,7 @@ class LdapFilterTests(test_backend.FilterTests, unit.TestCase):
         self.load_backends()
         self.load_fixtures(default_fixtures)
         sqldb.recreate()
-        _assert_backends(self, assignment='ldap', identity='ldap')
+        _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
         super(LdapFilterTests, self).config_overrides()
