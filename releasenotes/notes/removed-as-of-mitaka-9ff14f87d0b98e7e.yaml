@@ -34,3 +34,7 @@ other:
     [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
     The LDAP backend for Resource has been removed. This was deprecated in
     the Kilo release.
+  - >
+    [`blueprint removed-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-mitaka>`_]
+    The LDAP backend for Role has been removed. This was deprecated in the
+    Kilo release.

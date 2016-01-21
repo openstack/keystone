@@ -1,7 +1,0 @@
----
-deprecations:
-  - >
-    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
-    Deprecated the LDAP backend for the *role* driver. The keystone team
-    suggests using the SQL backend instead. The LDAP role backend will be
-    removed in the 'O' release.
