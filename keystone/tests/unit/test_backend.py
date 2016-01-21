@@ -4201,6 +4201,46 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(new_role['name'],
                          first_asgmt_dmn['role_name'])
 
+    def test_list_role_assignment_does_not_contain_names(self):
+        """Test names are not included with list role assignments.
+
+        Scenario:
+            - names are NOT included by default
+            - names are NOT included when include_names=False
+
+        """
+        def assert_does_not_contain_names(assignment):
+            first_asgmt_prj = assignment[0]
+            self.assertNotIn('project_name', first_asgmt_prj)
+            self.assertNotIn('project_domain_id', first_asgmt_prj)
+            self.assertNotIn('user_name', first_asgmt_prj)
+            self.assertNotIn('user_domain_id', first_asgmt_prj)
+            self.assertNotIn('role_name', first_asgmt_prj)
+
+        # Create Refs
+        new_role = unit.new_role_ref()
+        new_domain = self._get_domain_fixture()
+        new_user = unit.new_user_ref(domain_id=new_domain['id'])
+        new_project = unit.new_project_ref(domain_id=new_domain['id'])
+        # Create entities
+        new_role = self.role_api.create_role(new_role['id'], new_role)
+        new_user = self.identity_api.create_user(new_user)
+        self.resource_api.create_project(new_project['id'], new_project)
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=new_project['id'],
+                                         role_id=new_role['id'])
+        # Get the created assignments with NO include_names flag
+        role_assign_without_names = self.assignment_api.list_role_assignments(
+            user_id=new_user['id'],
+            project_id=new_project['id'])
+        assert_does_not_contain_names(role_assign_without_names)
+        # Get the created assignments with include_names=False
+        role_assign_without_names = self.assignment_api.list_role_assignments(
+            user_id=new_user['id'],
+            project_id=new_project['id'],
+            include_names=False)
+        assert_does_not_contain_names(role_assign_without_names)
+
 
 class TokenTests(object):
     def _create_token_id(self):

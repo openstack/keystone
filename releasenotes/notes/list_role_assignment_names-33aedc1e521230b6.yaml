@@ -2,5 +2,6 @@
 features:
   - >
     [`bug 1479569 <https://bugs.launchpad.net/keystone/+bug/1479569>`_]
-    Names have been added to list role assignments, rather than returning
-    just the internal ids of the objects the names are also returned.
+    Names have been added to list role assignments
+    (GET /role_assignments?include_names=True), rather than returning
+    just the internal IDs of the objects the names are also returned.
