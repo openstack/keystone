@@ -664,7 +664,7 @@ class Manager(manager.Manager):
 # drivers that we still support, that have not been removed or modified. This
 # class is then used to created the augmented V8 and V9 version abstract driver
 # classes, without having to duplicate a lot of abstract method signatures.
-# If you remove a method from V9, then move the abstact methods from this Base
+# If you remove a method from V9, then move the abstract methods from this Base
 # class to the V8 class. Do not modify any of the method signatures in the Base
 # class - changes should only be made in the V8 and subsequent classes.
 
