@@ -93,26 +93,33 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     # Role Grants tests
 
     def test_crud_user_project_role_grants(self):
+        role = unit.new_role_ref()
+        self.role_api.create_role(role['id'], role)
+
         collection_url = (
             '/projects/%(project_id)s/users/%(user_id)s/roles' % {
                 'project_id': self.project['id'],
                 'user_id': self.user['id']})
         member_url = '%(collection_url)s/%(role_id)s' % {
             'collection_url': collection_url,
-            'role_id': self.role_id}
+            'role_id': role['id']}
+
+        # There is a role assignment for self.user on self.project
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, ref=self.role,
+                                         expected_length=1)
 
         self.put(member_url)
         self.head(member_url)
         r = self.get(collection_url)
-        self.assertValidRoleListResponse(r, ref=self.role,
-                                         resource_url=collection_url)
+        self.assertValidRoleListResponse(r, ref=role,
+                                         resource_url=collection_url,
+                                         expected_length=2)
 
-        # FIXME(gyee): this test is no longer valid as user
-        # have no role in the project. Can't get a scoped token
-        # self.delete(member_url)
-        # r = self.get(collection_url)
-        # self.assertValidRoleListResponse(r, expected_length=0)
-        # self.assertIn(collection_url, r.result['links']['self'])
+        self.delete(member_url)
+        r = self.get(collection_url)
+        self.assertValidRoleListResponse(r, ref=self.role, expected_length=1)
+        self.assertIn(collection_url, r.result['links']['self'])
 
     def test_crud_user_project_role_grants_no_user(self):
         """Grant role on a project to a user that doesn't exist.
