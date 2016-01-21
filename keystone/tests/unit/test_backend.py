@@ -4801,7 +4801,7 @@ class TrustTests(object):
 
 class CatalogTests(object):
 
-    _legacy_endpoint_id_in_endpoint = False
+    _legacy_endpoint_id_in_endpoint = True
     _enabled_default_to_true_when_creating_endpoint = False
 
     def test_region_crud(self):
@@ -5261,6 +5261,7 @@ class CatalogTests(object):
         res = self.catalog_api.update_endpoint(endpoint_ref['id'],
                                                {'interface': 'private'})
         expected_endpoint = endpoint_ref.copy()
+        expected_endpoint['enabled'] = True
         expected_endpoint['interface'] = 'private'
         if self._legacy_endpoint_id_in_endpoint:
             expected_endpoint['legacy_endpoint_id'] = None
