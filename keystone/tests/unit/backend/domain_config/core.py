@@ -438,7 +438,7 @@ class DomainConfigTests(object):
                           self.domain['id'], config)
         # Try an option that IS in the standard conf, but neither whitelisted
         # or marked as sensitive
-        config = {'ldap': {'role_tree_dn': uuid.uuid4().hex}}
+        config = {'identity': {'user_tree_dn': uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
                           self.domain_config_api.create_config,
                           self.domain['id'], config)

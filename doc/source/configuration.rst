@@ -1671,9 +1671,6 @@ The corresponding entries in the Keystone configuration file are:
   user_tree_dn = ou=Users,dc=openstack,dc=org
   user_objectclass = inetOrgPerson
 
-  role_tree_dn = ou=Roles,dc=openstack,dc=org
-  role_objectclass = organizationalRole
-
 The default object classes and attributes are intentionally simplistic. They
 reflect the common standard objects according to the LDAP RFCs. However, in a
 live deployment, the correct attributes can be overridden to support a
@@ -1701,10 +1698,6 @@ and you have only read access, in such case the configuration is:
   user_allow_update = False
   user_allow_delete = False
 
-  role_allow_create = True
-  role_allow_update = True
-  role_allow_delete = True
-
 There are some configuration options for filtering users, tenants and roles, if
 the backend is providing too much output, in such case the configuration will
 look like:
@@ -1713,7 +1706,6 @@ look like:
 
   [ldap]
   user_filter = (memberof=CN=openstack-users,OU=workgroups,DC=openstack,DC=org)
-  role_filter =
 
 In case that the directory server does not have an attribute enabled of type
 boolean for the user, there is several configuration parameters that can be
@@ -1753,11 +1745,6 @@ specified classes in the LDAP module so you can configure them like:
   user_enabled_mask         = 2
   user_enabled_default      = 512
   user_attribute_ignore     = tenant_id,tenants
-  role_objectclass          = organizationalRole
-  role_id_attribute         = cn
-  role_name_attribute       = ou
-  role_member_attribute     = roleOccupant
-  role_attribute_ignore     =
 
 Debugging LDAP
 --------------
