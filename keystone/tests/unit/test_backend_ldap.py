@@ -20,6 +20,7 @@ import uuid
 import ldap
 import mock
 from oslo_config import cfg
+from oslo_log import versionutils
 from oslotest import mockpatch
 import pkg_resources
 from six.moves import http_client
@@ -669,20 +670,45 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
     # do not yet support the update of either group or domain names with LDAP.
     # In the tests below, the update is demonstrated by updating description.
     # Refer to bug 1136403 for more detail.
-    def test_group_crud(self):
+    @mock.patch.object(versionutils, 'report_deprecated_feature')
+    def test_group_crud(self, mock_deprecator):
+        # NOTE(stevemar): As of the Mitaka release, we now check for calls that
+        # the LDAP write functionality has been deprecated.
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("create_group for the LDAP identity backend", args[1])
+
         group_ref = self.identity_api.get_group(group['id'])
         self.assertDictEqual(group, group_ref)
         group['description'] = uuid.uuid4().hex
         self.identity_api.update_group(group['id'], group)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("update_group for the LDAP identity backend", args[1])
+
         group_ref = self.identity_api.get_group(group['id'])
         self.assertDictEqual(group, group_ref)
 
         self.identity_api.delete_group(group['id'])
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("delete_group for the LDAP identity backend", args[1])
         self.assertRaises(exception.GroupNotFound,
                           self.identity_api.get_group,
                           group['id'])
+
+    @mock.patch.object(versionutils, 'report_deprecated_feature')
+    def test_add_remove_user_group_deprecated(self, mock_deprecator):
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
+        group = self.identity_api.create_group(group)
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = self.identity_api.create_user(user)
+        self.identity_api.add_user_to_group(user['id'], group['id'])
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("add_user_to_group for the LDAP identity", args[1])
+
+        self.identity_api.remove_user_from_group(user['id'], group['id'])
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("remove_user_from_group for the LDAP identity", args[1])
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_group_crud(self):
@@ -1852,10 +1878,16 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
                           self.resource_api.get_project,
                           project['id'])
 
-    def test_user_crud(self):
+    @mock.patch.object(versionutils, 'report_deprecated_feature')
+    def test_user_crud(self, mock_deprecator):
+        # NOTE(stevemar): As of the Mitaka release, we now check for calls that
+        # the LDAP write functionality has been deprecated.
         user_dict = self.new_user_ref(
             domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user_dict)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("create_user for the LDAP identity backend", args[1])
+
         del user_dict['password']
         user_ref = self.identity_api.get_user(user['id'])
         user_ref_dict = {x: user_ref[x] for x in user_ref}
@@ -1863,12 +1895,17 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
 
         user_dict['password'] = uuid.uuid4().hex
         self.identity_api.update_user(user['id'], user_dict)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("update_user for the LDAP identity backend", args[1])
+
         del user_dict['password']
         user_ref = self.identity_api.get_user(user['id'])
         user_ref_dict = {x: user_ref[x] for x in user_ref}
         self.assertDictContainsSubset(user_dict, user_ref_dict)
 
         self.identity_api.delete_user(user['id'])
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("delete_user for the LDAP identity backend", args[1])
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           user['id'])
