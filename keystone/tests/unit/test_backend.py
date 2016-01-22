@@ -4127,6 +4127,80 @@ class IdentityTests(AssignmentTestHelperMixin):
                                   {'name': self.role_member['name']})
         # If the previous line didn't raise an exception then the test passes.
 
+    def test_list_role_assignment_containing_names(self):
+        # Create Refs
+        new_role = unit.new_role_ref()
+        new_domain = self._get_domain_fixture()
+        new_user = unit.new_user_ref(domain_id=new_domain['id'])
+        new_project = unit.new_project_ref(domain_id=new_domain['id'])
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
+        # Create entities
+        new_role = self.role_api.create_role(new_role['id'], new_role)
+        new_user = self.identity_api.create_user(new_user)
+        new_group = self.identity_api.create_group(new_group)
+        self.resource_api.create_project(new_project['id'], new_project)
+        self.assignment_api.create_grant(user_id=new_user['id'],
+                                         project_id=new_project['id'],
+                                         role_id=new_role['id'])
+        self.assignment_api.create_grant(group_id=new_group['id'],
+                                         project_id=new_project['id'],
+                                         role_id=new_role['id'])
+        self.assignment_api.create_grant(domain_id=new_domain['id'],
+                                         user_id=new_user['id'],
+                                         role_id=new_role['id'])
+        # Get the created assignments with the include_names flag
+        _asgmt_prj = self.assignment_api.list_role_assignments(
+            user_id=new_user['id'],
+            project_id=new_project['id'],
+            include_names=True)
+        _asgmt_grp = self.assignment_api.list_role_assignments(
+            group_id=new_group['id'],
+            project_id=new_project['id'],
+            include_names=True)
+        _asgmt_dmn = self.assignment_api.list_role_assignments(
+            domain_id=new_domain['id'],
+            user_id=new_user['id'],
+            include_names=True)
+        # Make sure we can get back the correct number of assignments
+        self.assertThat(_asgmt_prj, matchers.HasLength(1))
+        self.assertThat(_asgmt_grp, matchers.HasLength(1))
+        self.assertThat(_asgmt_dmn, matchers.HasLength(1))
+        # get the first assignment
+        first_asgmt_prj = _asgmt_prj[0]
+        first_asgmt_grp = _asgmt_grp[0]
+        first_asgmt_dmn = _asgmt_dmn[0]
+        # Assert the names are correct in the project response
+        self.assertEqual(new_project['name'],
+                         first_asgmt_prj['project_name'])
+        self.assertEqual(new_project['domain_id'],
+                         first_asgmt_prj['project_domain_id'])
+        self.assertEqual(new_user['name'],
+                         first_asgmt_prj['user_name'])
+        self.assertEqual(new_user['domain_id'],
+                         first_asgmt_prj['user_domain_id'])
+        self.assertEqual(new_role['name'],
+                         first_asgmt_prj['role_name'])
+        # Assert the names are correct in the group response
+        self.assertEqual(new_group['name'],
+                         first_asgmt_grp['group_name'])
+        self.assertEqual(new_group['domain_id'],
+                         first_asgmt_grp['group_domain_id'])
+        self.assertEqual(new_project['name'],
+                         first_asgmt_grp['project_name'])
+        self.assertEqual(new_project['domain_id'],
+                         first_asgmt_grp['project_domain_id'])
+        self.assertEqual(new_role['name'],
+                         first_asgmt_grp['role_name'])
+        # Assert the names are correct in the domain response
+        self.assertEqual(new_domain['name'],
+                         first_asgmt_dmn['domain_name'])
+        self.assertEqual(new_user['name'],
+                         first_asgmt_dmn['user_name'])
+        self.assertEqual(new_user['domain_id'],
+                         first_asgmt_dmn['user_domain_id'])
+        self.assertEqual(new_role['name'],
+                         first_asgmt_dmn['role_name'])
+
 
 class TokenTests(object):
     def _create_token_id(self):
