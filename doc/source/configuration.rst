@@ -1671,9 +1671,6 @@ The corresponding entries in the Keystone configuration file are:
   user_tree_dn = ou=Users,dc=openstack,dc=org
   user_objectclass = inetOrgPerson
 
-  project_tree_dn = ou=Projects,dc=openstack,dc=org
-  project_objectclass = groupOfNames
-
   role_tree_dn = ou=Roles,dc=openstack,dc=org
   role_objectclass = organizationalRole
 
@@ -1704,10 +1701,6 @@ and you have only read access, in such case the configuration is:
   user_allow_update = False
   user_allow_delete = False
 
-  project_allow_create = True
-  project_allow_update = True
-  project_allow_delete = True
-
   role_allow_create = True
   role_allow_update = True
   role_allow_delete = True
@@ -1720,7 +1713,6 @@ look like:
 
   [ldap]
   user_filter = (memberof=CN=openstack-users,OU=workgroups,DC=openstack,DC=org)
-  project_filter =
   role_filter =
 
 In case that the directory server does not have an attribute enabled of type
@@ -1761,13 +1753,6 @@ specified classes in the LDAP module so you can configure them like:
   user_enabled_mask         = 2
   user_enabled_default      = 512
   user_attribute_ignore     = tenant_id,tenants
-  project_objectclass       = groupOfNames
-  project_id_attribute      = cn
-  project_member_attribute  = member
-  project_name_attribute    = ou
-  project_desc_attribute    = description
-  project_enabled_attribute = extensionName
-  project_attribute_ignore  =
   role_objectclass          = organizationalRole
   role_id_attribute         = cn
   role_name_attribute       = ou
@@ -1797,14 +1782,13 @@ Enabled Emulation
 -----------------
 
 Some directory servers do not provide any enabled attribute. For these servers,
-the ``user_enabled_emulation`` and ``project_enabled_emulation`` attributes
-have been created. They are enabled by setting their respective flags to True.
-Then the attributes ``user_enabled_emulation_dn`` and
-``project_enabled_emulation_dn`` may be set to specify how the enabled users
-and projects (tenants) are selected. These attributes work by using a
-``groupOfNames`` entry and adding whichever users or projects (tenants) that
-you want enabled to the respective group with the ``member`` attribute. For
-example, this will mark any user who is a member of ``enabled_users`` as enabled:
+the ``user_enabled_emulation`` attribute has been created. It is enabled by
+setting the respective flags to True. Then the attribute
+``user_enabled_emulation_dn`` may be set to specify how the enabled users are
+selected. This attribute works by using a ``groupOfNames`` entry and adding
+whichever users or that you want enabled to the respective group with the
+``member`` attribute. For example, this will mark any user who is a member of
+``enabled_users`` as enabled:
 
 .. code-block:: ini
 
@@ -1812,15 +1796,14 @@ example, this will mark any user who is a member of ``enabled_users`` as enabled
   user_enabled_emulation = True
   user_enabled_emulation_dn = cn=enabled_users,cn=groups,dc=openstack,dc=org
 
-The default values for user and project (tenant) enabled emulation DN is
-``cn=enabled_users,$user_tree_dn`` and ``cn=enabled_tenants,$project_tree_dn``
-respectively.
+The default values for user enabled emulation DN is
+``cn=enabled_users,$user_tree_dn``.
+
 
 If a different LDAP schema is used for group membership, it is possible to use
 the ``group_objectclass`` and ``group_member_attribute`` attributes to
 determine membership in the enabled emulation group by setting the
-``user_enabled_emulation_use_group_config`` and
-``project_enabled_emulation_use_group_config`` attributes to True.
+``user_enabled_emulation_use_group_config`` attribute to True.
 
 Secure Connection
 -----------------
