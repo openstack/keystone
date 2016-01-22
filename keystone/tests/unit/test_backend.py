@@ -964,8 +964,8 @@ class IdentityTests(AssignmentTestHelperMixin):
                 role_id=role_ref['id'])
 
         role_list = self.assignment_api.get_roles_for_user_and_project(
-            user_id=user_ref['id'],
-            tenant_id=project_ref['id'])
+            user_ref['id'],
+            project_ref['id'])
 
         self.assertEqual(set([r['id'] for r in role_ref_list]),
                          set(role_list))

@@ -335,6 +335,126 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                   headers={'x-subject-token': token},
                   expected_status=http_client.NOT_FOUND)
 
+    @unit.skip_if_cache_disabled('assignment')
+    def test_delete_grant_from_user_and_project_invalidate_cache(self):
+        # create a new project
+        new_project = unit.new_project_ref(domain_id=self.domain_id)
+        self.resource_api.create_project(new_project['id'], new_project)
+
+        collection_url = (
+            '/projects/%(project_id)s/users/%(user_id)s/roles' % {
+                'project_id': new_project['id'],
+                'user_id': self.user['id']})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        # create the user a grant on the new project
+        self.put(member_url)
+
+        # check the grant that was just created
+        self.head(member_url)
+        resp = self.get(collection_url)
+        self.assertValidRoleListResponse(resp, ref=self.role,
+                                         resource_url=collection_url)
+
+        # delete the grant
+        self.delete(member_url)
+
+        # get the collection and ensure there are no roles on the project
+        resp = self.get(collection_url)
+        self.assertListEqual(resp.json_body['roles'], [])
+
+    @unit.skip_if_cache_disabled('assignment')
+    def test_delete_grant_from_user_and_domain_invalidates_cache(self):
+        # create a new domain
+        new_domain = unit.new_domain_ref()
+        self.resource_api.create_domain(new_domain['id'], new_domain)
+
+        collection_url = (
+            '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
+                'domain_id': new_domain['id'],
+                'user_id': self.user['id']})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        # create the user a grant on the new domain
+        self.put(member_url)
+
+        # check the grant that was just created
+        self.head(member_url)
+        resp = self.get(collection_url)
+        self.assertValidRoleListResponse(resp, ref=self.role,
+                                         resource_url=collection_url)
+
+        # delete the grant
+        self.delete(member_url)
+
+        # get the collection and ensure there are no roles on the domain
+        resp = self.get(collection_url)
+        self.assertListEqual(resp.json_body['roles'], [])
+
+    @unit.skip_if_cache_disabled('assignment')
+    def test_delete_grant_from_group_and_project_invalidates_cache(self):
+        # create a new project
+        new_project = unit.new_project_ref(domain_id=self.domain_id)
+        self.resource_api.create_project(new_project['id'], new_project)
+
+        collection_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/roles' % {
+                'project_id': new_project['id'],
+                'group_id': self.group['id']})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        # create the group a grant on the new project
+        self.put(member_url)
+
+        # check the grant that was just created
+        self.head(member_url)
+        resp = self.get(collection_url)
+        self.assertValidRoleListResponse(resp, ref=self.role,
+                                         resource_url=collection_url)
+
+        # delete the grant
+        self.delete(member_url)
+
+        # get the collection and ensure there are no roles on the project
+        resp = self.get(collection_url)
+        self.assertListEqual(resp.json_body['roles'], [])
+
+    @unit.skip_if_cache_disabled('assignment')
+    def test_delete_grant_from_group_and_domain_invalidates_cache(self):
+        # create a new domain
+        new_domain = unit.new_domain_ref()
+        self.resource_api.create_domain(new_domain['id'], new_domain)
+
+        collection_url = (
+            '/domains/%(domain_id)s/groups/%(group_id)s/roles' % {
+                'domain_id': new_domain['id'],
+                'group_id': self.group['id']})
+        member_url = '%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id}
+
+        # create the group a grant on the new domain
+        self.put(member_url)
+
+        # check the grant that was just created
+        self.head(member_url)
+        resp = self.get(collection_url)
+        self.assertValidRoleListResponse(resp, ref=self.role,
+                                         resource_url=collection_url)
+
+        # delete the grant
+        self.delete(member_url)
+
+        # get the collection and ensure there are no roles on the domain
+        resp = self.get(collection_url)
+        self.assertListEqual(resp.json_body['roles'], [])
+
     # Role Assignments tests
 
     def test_get_role_assignments(self):

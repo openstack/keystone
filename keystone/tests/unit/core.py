@@ -581,6 +581,7 @@ class TestCase(BaseTestCase):
     def setUp(self):
         super(TestCase, self).setUp()
         self.__config_overrides_called = False
+        self.__load_backends_called = False
         self.addCleanup(CONF.reset)
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.addCleanup(delattr, self, 'config_fixture')
