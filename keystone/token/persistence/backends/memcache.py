@@ -14,6 +14,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.token.persistence.backends import kvs
 
@@ -25,6 +26,11 @@ class Token(kvs.Token):
     kvs_backend = 'openstack.kvs.Memcached'
     memcached_backend = 'memcached'
 
+    @versionutils.deprecated(
+        what='Memcache Token Persistence Driver',
+        as_of=versionutils.deprecated.MITAKA,
+        in_favor_of='fernet token driver (no-persistence)',
+        remove_in=0)
     def __init__(self, *args, **kwargs):
         kwargs['memcached_backend'] = self.memcached_backend
         kwargs['no_expiry_keys'] = [self.revocation_key]
