@@ -6,22 +6,37 @@ catalog.RegionOne.identity.internalURL = http://localhost:$(public_port)s/v2.0
 catalog.RegionOne.identity.name = Identity Service
 
 # fake compute service for now to help novaclient tests work
-catalog.RegionOne.compute.publicURL = http://localhost:8774/v1.1/$(tenant_id)s
-catalog.RegionOne.compute.adminURL = http://localhost:8774/v1.1/$(tenant_id)s
-catalog.RegionOne.compute.internalURL = http://localhost:8774/v1.1/$(tenant_id)s
-catalog.RegionOne.compute.name = Compute Service
+catalog.RegionOne.computev21.publicURL = http://localhost:8774/v2.1/$(tenant_id)s
+catalog.RegionOne.computev21.adminURL = http://localhost:8774/v2.1/$(tenant_id)s
+catalog.RegionOne.computev21.internalURL = http://localhost:8774/v2.1/$(tenant_id)s
+catalog.RegionOne.computev21.name = Compute Service V2.1
 
-catalog.RegionOne.volume.publicURL = http://localhost:8776/v1/$(tenant_id)s
-catalog.RegionOne.volume.adminURL = http://localhost:8776/v1/$(tenant_id)s
-catalog.RegionOne.volume.internalURL = http://localhost:8776/v1/$(tenant_id)s
-catalog.RegionOne.volume.name = Volume Service
+catalog.RegionOne.volumev2.publicURL = http://localhost:8776/v2/$(tenant_id)s
+catalog.RegionOne.volumev2.adminURL = http://localhost:8776/v2/$(tenant_id)s
+catalog.RegionOne.volumev2.internalURL = http://localhost:8776/v2/$(tenant_id)s
+catalog.RegionOne.volumev2.name = Volume Service V2
 
 catalog.RegionOne.ec2.publicURL = http://localhost:8773/services/Cloud
 catalog.RegionOne.ec2.adminURL = http://localhost:8773/services/Admin
 catalog.RegionOne.ec2.internalURL = http://localhost:8773/services/Cloud
 catalog.RegionOne.ec2.name = EC2 Service
 
-catalog.RegionOne.image.publicURL = http://localhost:9292/v1
-catalog.RegionOne.image.adminURL = http://localhost:9292/v1
-catalog.RegionOne.image.internalURL = http://localhost:9292/v1
+catalog.RegionOne.image.publicURL = http://localhost:9292
+catalog.RegionOne.image.adminURL = http://localhost:9292
+catalog.RegionOne.image.internalURL = http://localhost:9292
 catalog.RegionOne.image.name = Image Service
+
+catalog.RegionOne.network.publicURL = http://localhost:9696
+catalog.RegionOne.network.adminURL = http://localhost:9696
+catalog.RegionOne.network.internalURL = http://localhost:9696
+catalog.RegionOne.network.name = Network Service
+
+catalog.RegionOne.orchestration.publicURL = http://localhost:8004/v1/$(tenant_id)s
+catalog.RegionOne.orchestration.adminURL = http://localhost:8004/v1/$(tenant_id)s
+catalog.RegionOne.orchestration.internalURL = http://localhost:8004/v1/$(tenant_id)s
+catalog.RegionOne.orchestration.name = Orchestration Service
+
+catalog.RegionOne.metering.publicURL = http://localhost:8777
+catalog.RegionOne.metering.adminURL = http://localhost:8777
+catalog.RegionOne.metering.internalURL = http://localhost:8777
+catalog.RegionOne.metering.name = Telemetry Service
