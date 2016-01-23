@@ -6560,6 +6560,37 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
         }
         self.execute_assignment_plan(test_plan)
 
+    def test_circular_inferences(self):
+        """Test that implied roles are expanded out."""
+        test_plan = {
+            'entities': {'domains': {'users': 1, 'projects': 1},
+                         'roles': 4},
+            # Three level tree of implied roles
+            'implied_roles': [{'role': 0, 'implied_roles': [1]},
+                              {'role': 1, 'implied_roles': [2, 3]},
+                              {'role': 3, 'implied_roles': [0]}],
+            'assignments': [{'user': 0, 'role': 0, 'project': 0}],
+            'tests': [
+                # List all direct assignments for user[0], this should just
+                # show the one top level role assignment
+                {'params': {'user': 0},
+                 'results': [{'user': 0, 'role': 0, 'project': 0}]},
+                # Listing in effective mode should show the implied roles
+                # expanded out
+                {'params': {'user': 0, 'effective': True},
+                 'results': [{'user': 0, 'role': 0, 'project': 0},
+                             {'user': 0, 'role': 0, 'project': 0,
+                              'indirect': {'role': 3}},
+                             {'user': 0, 'role': 1, 'project': 0,
+                              'indirect': {'role': 0}},
+                             {'user': 0, 'role': 2, 'project': 0,
+                              'indirect': {'role': 1}},
+                             {'user': 0, 'role': 3, 'project': 0,
+                              'indirect': {'role': 1}}]},
+            ]
+        }
+        self.execute_assignment_plan(test_plan)
+
     def test_role_assignments_directed_graph_of_implied_roles(self):
         """Test that a role can have multiple, different prior roles."""
         test_plan = {
@@ -6570,7 +6601,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
             'implied_roles': [{'role': 0, 'implied_roles': [1, 2]},
                               {'role': 1, 'implied_roles': [3, 4]},
                               {'role': 5, 'implied_roles': 4}],
-            # The use gets both top level roles
+            # The user gets both top level roles
             'assignments': [{'user': 0, 'role': 0, 'project': 0},
                             {'user': 0, 'role': 5, 'project': 0}],
             'tests': [

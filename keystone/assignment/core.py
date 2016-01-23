@@ -28,7 +28,7 @@ from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _
-from keystone.i18n import _LI
+from keystone.i18n import _LI, _LE
 from keystone import notifications
 
 
@@ -612,8 +612,10 @@ class Manager(manager.Manager):
             implied_roles_cache = {}
             role_refs_to_check = list(role_refs)
             ref_results = list(role_refs)
+            checked_role_refs = list()
             while(role_refs_to_check):
                 next_ref = role_refs_to_check.pop()
+                checked_role_refs.append(next_ref)
                 next_role_id = next_ref['role_id']
                 if next_role_id in implied_roles_cache:
                     implied_roles = implied_roles_cache[next_role_id]
@@ -625,8 +627,13 @@ class Manager(manager.Manager):
                     implied_ref = (
                         _make_implied_ref_copy(
                             next_ref, implied_role['implied_role_id']))
-                    ref_results.append(implied_ref)
-                    role_refs_to_check.append(implied_ref)
+                    if implied_ref in checked_role_refs:
+                        msg = _LE('Circular reference found '
+                                  'role inference rules - %(prior_role_id)s.')
+                        LOG.error(msg, {'prior_role_id': next_ref['role_id']})
+                    else:
+                        ref_results.append(implied_ref)
+                        role_refs_to_check.append(implied_ref)
         except exception.NotImplemented:
             LOG.error('Role driver does not support implied roles.')
 
