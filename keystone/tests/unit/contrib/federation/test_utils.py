@@ -610,6 +610,12 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual('Developer',
                          mapped_properties['group_names'][0]['name'])
 
+    def test_mapping_with_incorrect_local_keys(self):
+        mapping = mapping_fixtures.MAPPING_BAD_LOCAL_SETUP
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
     def test_type_not_in_assertion(self):
         """Test that if the remote "type" is not in the assertion it fails."""
         mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_PASS_THROUGH

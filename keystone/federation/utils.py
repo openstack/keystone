@@ -42,7 +42,52 @@ MAPPING_SCHEMA = {
                 "additionalProperties": False,
                 "properties": {
                     "local": {
-                        "type": "array"
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {"type": "string"},
+                                        "name": {"type": "string"},
+                                        "email": {"type": "string"},
+                                        "domain": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {"type": "string"},
+                                                "name": {"type": "string"}
+                                            },
+                                            "additionalProperties": False,
+                                        }
+                                    },
+                                    "additionalProperties": False
+                                },
+                                "group": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {"type": "string"},
+                                        "name": {"type": "string"}
+                                    },
+                                    "additionalProperties": False,
+                                },
+                                "groups": {
+                                    "type": "string"
+                                },
+                                "group_ids": {
+                                    "type": "string"
+                                },
+                                "domain": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {"type": "string"},
+                                        "name": {"type": "string"}
+                                    },
+                                    "additionalProperties": False
+                                }
+                            }
+                        }
                     },
                     "remote": {
                         "minItems": 1,
