@@ -98,6 +98,15 @@ _VALID_FILTERS = [{'interface': 'admin'},
 _INVALID_FILTERS = ['some string', 1, 0, True, False]
 
 
+def expected_validation_failure(f):
+    def wrapper(self, *args, **kwargs):
+        args = (self,) + args
+        e = self.assertRaises(exception.ValidationError, f, *args, **kwargs)
+        self.assertIn('Expecting to find entity in request body',
+                      six.text_type(e))
+    return wrapper
+
+
 class ValidatedDecoratorTests(unit.BaseTestCase):
 
     entity_schema = {
@@ -114,40 +123,47 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
 
     invalid_entity = {}
 
-    @validation.validated(entity_schema, 'entity')
-    def do_something(self, entity):
-        pass
-
     @validation.validated(entity_create, 'entity')
     def create_entity(self, entity):
-        pass
+        """Used to test cases where validated param is the only param."""
 
     @validation.validated(entity_update, 'entity')
     def update_entity(self, entity_id, entity):
-        pass
+        """Used to test cases where validated param is not the only param."""
 
-    def _assert_call_entity_method_fails(self, method, *args, **kwargs):
-        e = self.assertRaises(exception.ValidationError, method,
-                              *args, **kwargs)
+    def test_calling_create_with_valid_entity_kwarg_succeeds(self):
+        self.create_entity(entity=self.valid_entity)
 
-        self.assertIn('Expecting to find entity in request body',
-                      six.text_type(e))
+    @expected_validation_failure
+    def test_calling_create_with_invalid_entity_kwarg_fails(self):
+        self.create_entity(entity=self.invalid_entity)
 
-    def test_calling_with_valid_entity_kwarg_succeeds(self):
-        self.do_something(entity=self.valid_entity)
+    @expected_validation_failure
+    def test_calling_create_with_empty_entity_kwarg_fails(self):
+        self.create_entity(entity={})
 
-    def test_calling_with_invalid_entity_kwarg_fails(self):
-        self.assertRaises(exception.ValidationError,
-                          self.do_something,
-                          entity=self.invalid_entity)
+    @expected_validation_failure
+    def test_calling_create_with_kwarg_as_None_fails(self):
+        self.create_entity(entity=None)
 
-    def test_calling_with_valid_entity_arg_succeeds(self):
-        self.do_something(self.valid_entity)
+    def test_calling_create_with_valid_entity_arg_succeeds(self):
+        self.create_entity(self.valid_entity)
 
-    def test_calling_with_invalid_entity_arg_fails(self):
-        self.assertRaises(exception.ValidationError,
-                          self.do_something,
-                          self.invalid_entity)
+    @expected_validation_failure
+    def test_calling_create_with_invalid_entity_arg_fails(self):
+        self.create_entity(self.invalid_entity)
+
+    @expected_validation_failure
+    def test_calling_create_with_empty_entity_arg_fails(self):
+        self.create_entity({})
+
+    @expected_validation_failure
+    def test_calling_create_with_entity_arg_as_None_fails(self):
+        self.create_entity(None)
+
+    @expected_validation_failure
+    def test_calling_create_without_an_entity_fails(self):
+        self.create_entity()
 
     def test_using_the_wrong_name_with_the_decorator_fails(self):
         with testtools.ExpectedException(TypeError):
@@ -155,24 +171,17 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
             def function(entity):
                 pass
 
-    def test_create_entity_no_request_body_with_decorator(self):
-        """Test the case when request body is not provided."""
-        self._assert_call_entity_method_fails(self.create_entity)
+    # NOTE(dstanek): below are the test cases for making sure the validation
+    # works when the validated param is not the only param. Since all of the
+    # actual validation cases are tested above these test are for a sanity
+    # check.
 
-    def test_create_entity_empty_request_body_with_decorator(self):
-        """Test the case when client passing in an empty entity reference."""
-        self._assert_call_entity_method_fails(self.create_entity, entity={})
+    def test_calling_update_with_valid_entity_succeeds(self):
+        self.update_entity(uuid.uuid4().hex, self.valid_entity)
 
-    def test_update_entity_no_request_body_with_decorator(self):
-        """Test the case when request body is not provided."""
-        self._assert_call_entity_method_fails(self.update_entity,
-                                              uuid.uuid4().hex)
-
-    def test_update_entity_empty_request_body_with_decorator(self):
-        """Test the case when client passing in an empty entity reference."""
-        self._assert_call_entity_method_fails(self.update_entity,
-                                              uuid.uuid4().hex,
-                                              entity={})
+    @expected_validation_failure
+    def test_calling_update_with_invalid_entity_fails(self):
+        self.update_entity(uuid.uuid4().hex, self.invalid_entity)
 
 
 class EntityValidationTestCase(unit.BaseTestCase):
