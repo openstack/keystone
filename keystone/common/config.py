@@ -307,7 +307,7 @@ FILE_OPTIONS = {
                         'not be processed correctly.'),
         cfg.BoolOpt('infer_roles', default=True,
                     help='Add roles to token that are not explicitly added, '
-                    'but that are linked implicitly to other roles.'),
+                         'but that are linked implicitly to other roles.'),
     ],
     'revoke': [
         cfg.StrOpt('driver',
