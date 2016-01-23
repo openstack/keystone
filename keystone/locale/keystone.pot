@@ -1,21 +1,21 @@
 # Translations template for keystone.
-# Copyright (C) 2015 OpenStack Foundation
+# Copyright (C) 2016 OpenStack Foundation
 # This file is distributed under the same license as the keystone project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.0.0rc2.dev1\n"
+"Project-Id-Version: keystone 8.0.2.dev18\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2015-10-01 06:09+0000\n"
+"POT-Creation-Date: 2016-01-23 06:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.1.1\n"
+"Generated-By: Babel 2.2.0\n"
 
 #: keystone/exception.py:78
 #, python-format
@@ -412,34 +412,34 @@ msgstr ""
 msgid "Name field is required and cannot be empty"
 msgstr ""
 
-#: keystone/assignment/controllers.py:155
-#: keystone/assignment/controllers.py:174
+#: keystone/assignment/controllers.py:157
+#: keystone/assignment/controllers.py:176
 msgid "User roles not supported: tenant_id required"
 msgstr ""
 
-#: keystone/assignment/controllers.py:338
-#: keystone/assignment/controllers.py:579
+#: keystone/assignment/controllers.py:340
+#: keystone/assignment/controllers.py:581
 msgid "Specify a domain or project, not both"
 msgstr ""
 
-#: keystone/assignment/controllers.py:341
+#: keystone/assignment/controllers.py:343
 msgid "Specify one of domain or project"
 msgstr ""
 
-#: keystone/assignment/controllers.py:346
-#: keystone/assignment/controllers.py:584
+#: keystone/assignment/controllers.py:348
+#: keystone/assignment/controllers.py:586
 msgid "Specify a user or group, not both"
 msgstr ""
 
-#: keystone/assignment/controllers.py:349
+#: keystone/assignment/controllers.py:351
 msgid "Specify one of user or group"
 msgstr ""
 
-#: keystone/assignment/controllers.py:568
+#: keystone/assignment/controllers.py:570
 msgid "Combining effective and group filter will always result in an empty list."
 msgstr ""
 
-#: keystone/assignment/controllers.py:573
+#: keystone/assignment/controllers.py:575
 msgid ""
 "Combining effective, domain and inherited filters will always result in "
 "an empty list."
@@ -505,30 +505,37 @@ msgstr ""
 msgid "Cannot duplicate name %s"
 msgstr ""
 
-#: keystone/auth/controllers.py:118
+#: keystone/auth/controllers.py:60
+#, python-format
+msgid ""
+"Direct import of auth plugin %(name)r is deprecated as of Liberty in "
+"favor of its entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+
+#: keystone/auth/controllers.py:121
 #, python-format
 msgid ""
 "Unable to reconcile identity attribute %(attribute)s as it has "
 "conflicting values %(new)s and %(old)s"
 msgstr ""
 
-#: keystone/auth/controllers.py:344 keystone/middleware/core.py:227
+#: keystone/auth/controllers.py:347 keystone/middleware/core.py:227
 msgid "Scoping to both domain and project is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:347
+#: keystone/auth/controllers.py:350
 msgid "Scoping to both domain and trust is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:350
+#: keystone/auth/controllers.py:353
 msgid "Scoping to both project and trust is not allowed"
 msgstr ""
 
-#: keystone/auth/controllers.py:520
+#: keystone/auth/controllers.py:523
 msgid "User not found"
 msgstr ""
 
-#: keystone/auth/controllers.py:624
+#: keystone/auth/controllers.py:627
 msgid "A project-scoped token is required to produce a service catalog."
 msgstr ""
 
@@ -568,7 +575,7 @@ msgstr ""
 msgid "rescope a scoped token"
 msgstr ""
 
-#: keystone/catalog/controllers.py:175
+#: keystone/catalog/controllers.py:212
 #, python-format
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
@@ -727,6 +734,13 @@ msgstr ""
 #: keystone/common/json_home.py:76
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
+msgstr ""
+
+#: keystone/common/manager.py:77
+#, python-format
+msgid ""
+"Direct import of driver %(name)r is deprecated as of Liberty in favor of "
+"its entrypoint from %(namespace)r and may be removed in N."
 msgstr ""
 
 #: keystone/common/tokenless_auth.py:74
@@ -925,11 +939,11 @@ msgid ""
 " self "
 msgstr ""
 
-#: keystone/common/sql/core.py:445
+#: keystone/common/sql/core.py:444
 msgid "Duplicate Entry"
 msgstr ""
 
-#: keystone/common/sql/core.py:461
+#: keystone/common/sql/core.py:460
 #, python-format
 msgid "An unexpected error occurred when trying to store %s"
 msgstr ""
@@ -1123,8 +1137,8 @@ msgid ""
 msgstr ""
 
 #: keystone/contrib/revoke/core.py:227 keystone/token/provider.py:197
-#: keystone/token/provider.py:221 keystone/token/provider.py:287
-#: keystone/token/provider.py:294
+#: keystone/token/provider.py:221 keystone/token/provider.py:293
+#: keystone/token/provider.py:300
 msgid "Failed to validate token"
 msgstr ""
 
@@ -1137,7 +1151,7 @@ msgstr ""
 msgid "Enabled field must be a boolean"
 msgstr ""
 
-#: keystone/identity/controllers.py:100
+#: keystone/identity/controllers.py:101
 msgid "Enabled field should be a boolean"
 msgstr ""
 
@@ -1194,17 +1208,17 @@ msgstr ""
 msgid "Found invalid token: scoped to both project and domain."
 msgstr ""
 
-#: keystone/resource/controllers.py:218
+#: keystone/resource/controllers.py:222
 msgid "The creation of projects acting as domains is not allowed yet."
 msgstr ""
 
-#: keystone/resource/controllers.py:252
+#: keystone/resource/controllers.py:256
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same "
 "time."
 msgstr ""
 
-#: keystone/resource/controllers.py:258
+#: keystone/resource/controllers.py:262
 msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same "
 "time."
@@ -1283,78 +1297,78 @@ msgstr ""
 msgid "cannot delete a domain that is enabled, please disable it first."
 msgstr ""
 
-#: keystone/resource/core.py:876
+#: keystone/resource/core.py:877
 msgid "No options specified"
 msgstr ""
 
-#: keystone/resource/core.py:882
+#: keystone/resource/core.py:883
 #, python-format
 msgid ""
 "The value of group %(group)s specified in the config should be a "
 "dictionary of options"
 msgstr ""
 
-#: keystone/resource/core.py:906
+#: keystone/resource/core.py:907
 #, python-format
 msgid ""
 "Option %(option)s found with no group specified while checking domain "
 "configuration request"
 msgstr ""
 
-#: keystone/resource/core.py:913
+#: keystone/resource/core.py:914
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
 
-#: keystone/resource/core.py:920
+#: keystone/resource/core.py:921
 #, python-format
 msgid ""
 "Option %(option)s in group %(group)s is not supported for domain specific"
 " configurations"
 msgstr ""
 
-#: keystone/resource/core.py:973
+#: keystone/resource/core.py:974
 msgid "An unexpected error occurred when retrieving domain configs"
 msgstr ""
 
-#: keystone/resource/core.py:1052 keystone/resource/core.py:1136
-#: keystone/resource/core.py:1207 keystone/resource/config_backends/sql.py:76
+#: keystone/resource/core.py:1053 keystone/resource/core.py:1137
+#: keystone/resource/core.py:1208 keystone/resource/config_backends/sql.py:76
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr ""
 
-#: keystone/resource/core.py:1055 keystone/resource/core.py:1141
-#: keystone/resource/core.py:1203
+#: keystone/resource/core.py:1056 keystone/resource/core.py:1142
+#: keystone/resource/core.py:1204
 #, python-format
 msgid "group %(group)s"
 msgstr ""
 
-#: keystone/resource/core.py:1057
+#: keystone/resource/core.py:1058
 msgid "any options"
 msgstr ""
 
-#: keystone/resource/core.py:1101
+#: keystone/resource/core.py:1102
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, so that, and only "
 "that, option must be specified  in the config"
 msgstr ""
 
-#: keystone/resource/core.py:1106
+#: keystone/resource/core.py:1107
 #, python-format
 msgid ""
 "Trying to update group %(group)s, so that, and only that, group must be "
 "specified in the config"
 msgstr ""
 
-#: keystone/resource/core.py:1115
+#: keystone/resource/core.py:1116
 #, python-format
 msgid ""
 "request to update group %(group)s, but config provided contains group "
 "%(group_other)s instead"
 msgstr ""
 
-#: keystone/resource/core.py:1122
+#: keystone/resource/core.py:1123
 #, python-format
 msgid ""
 "Trying to update option %(option)s in group %(group)s, but config "
@@ -1395,6 +1409,10 @@ msgstr ""
 
 #: keystone/token/controllers.py:414 keystone/token/controllers.py:417
 msgid "Token does not belong to specified tenant."
+msgstr ""
+
+#: keystone/token/provider.py:234 keystone/token/provider.py:255
+msgid "No token in the request"
 msgstr ""
 
 #: keystone/token/persistence/backends/kvs.py:132
@@ -1465,17 +1483,17 @@ msgstr ""
 msgid "Unable to sign token."
 msgstr ""
 
-#: keystone/token/providers/fernet/core.py:215
+#: keystone/token/providers/fernet/core.py:217
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
 "tokens."
 msgstr ""
 
-#: keystone/token/providers/fernet/token_formatters.py:83
+#: keystone/token/providers/fernet/token_formatters.py:95
 msgid "This is not a recognized Fernet token"
 msgstr ""
 
-#: keystone/token/providers/fernet/token_formatters.py:246
+#: keystone/token/providers/fernet/token_formatters.py:258
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr ""
