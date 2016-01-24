@@ -563,7 +563,6 @@ class TestCase(BaseTestCase):
                 'routes.middleware=INFO',
                 'stevedore.extension=INFO',
                 'keystone.notifications=INFO',
-                'keystone.common._memcache_pool=INFO',
                 'keystone.common.ldap=INFO',
             ])
         self.auth_plugin_config_override()
