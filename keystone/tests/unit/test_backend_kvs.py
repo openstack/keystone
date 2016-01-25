@@ -29,6 +29,10 @@ class KvsToken(unit.TestCase, token_tests.TokenTests):
         super(KvsToken, self).setUp()
         self.load_backends()
 
+    def config_overrides(self):
+        super(KvsToken, self).config_overrides()
+        self.config_fixture.config(group='token', driver='kvs')
+
     def test_flush_expired_token(self):
         self.assertRaises(
             exception.NotImplemented,

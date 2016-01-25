@@ -602,7 +602,6 @@ class TestCase(BaseTestCase):
             group='signing', certfile=signing_certfile,
             keyfile=signing_keyfile,
             ca_certs='examples/pki/certs/cacert.pem')
-        self.config_fixture.config(group='token', driver='kvs')
         self.config_fixture.config(
             group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
         self.config_fixture.config(

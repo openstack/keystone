@@ -24,6 +24,7 @@ from dogpile.cache import util as dogpile_util
 from dogpile.core import nameregistry
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 from oslo_utils import importutils
 from oslo_utils import reflection
 
@@ -93,8 +94,14 @@ class KeyValueStore(object):
 
     This manager also supports the concept of locking a given key resource to
     allow for a guaranteed atomic transaction to the backend.
+
+    Deprecated as of Newton.
     """
 
+    @versionutils.deprecated(
+        versionutils.deprecated.NEWTON,
+        what='keystone key-value-store common code',
+        remove_in=+2)
     def __init__(self, kvs_region):
         self.locking = True
         self._lock_timeout = 0

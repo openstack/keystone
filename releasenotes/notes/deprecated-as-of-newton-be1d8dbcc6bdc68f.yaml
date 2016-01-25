@@ -1,0 +1,7 @@
+---
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-newton>`_]
+    As of the Newton release, the class plugin `keystone.common.kvs.core.KeyValueStore`
+    has been deprecated. It is recommended to use alternative backends instead.
+    The ``KeyValueStore`` class will be removed in the 'P' release.
