@@ -152,7 +152,11 @@ class RestfulTestCase(unit.TestCase):
             headers['Accept'] = 'application/json'
             if body:
                 headers['Content-Type'] = 'application/json'
-                return jsonutils.dumps(body)
+                # NOTE(davechen):dump the body to bytes since WSGI requires
+                # the body of the response to be `Bytestrings`.
+                # see pep-3333:
+                # https://www.python.org/dev/peps/pep-3333/#a-note-on-string-types
+                return jsonutils.dump_as_bytes(body)
 
     def _from_content_type(self, response, content_type=None):
         """Attempt to decode JSON and XML automatically, if detected."""

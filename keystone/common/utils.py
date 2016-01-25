@@ -135,6 +135,8 @@ def verify_length_and_trunc_password(password):
 
 def hash_access_key(access):
     hash_ = hashlib.sha256()
+    if not isinstance(access, six.binary_type):
+        access = access.encode('utf-8')
     hash_.update(access)
     return hash_.hexdigest()
 
