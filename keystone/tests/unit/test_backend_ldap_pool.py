@@ -207,15 +207,15 @@ class LdapPoolCommonTestMixin(object):
                           password=old_password)
 
 
-class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
-                                test_backend_ldap.LdapIdentitySqlAssignment,
-                                unit.TestCase):
+class LDAPIdentity(LdapPoolCommonTestMixin,
+                   test_backend_ldap.LDAPIdentity,
+                   unit.TestCase):
     """Executes tests in existing base class with pooled LDAP handler."""
 
     def setUp(self):
         self.useFixture(mockpatch.PatchObject(
             ldap_core.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))
-        super(LdapIdentitySqlAssignment, self).setUp()
+        super(LDAPIdentity, self).setUp()
 
         self.addCleanup(self.cleanup_pools)
         # storing to local variable to avoid long references
@@ -226,7 +226,7 @@ class LdapIdentitySqlAssignment(LdapPoolCommonTestMixin,
         self.identity_api.get_user(self.user_foo['id'])
 
     def config_files(self):
-        config_files = super(LdapIdentitySqlAssignment, self).config_files()
+        config_files = super(LDAPIdentity, self).config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_pool.conf'))
         return config_files
 
