@@ -2665,7 +2665,7 @@ class SAMLGenerationTests(FederationTests):
 
         """
         if not _is_xmlsec1_installed():
-            self.skip('xmlsec1 is not installed')
+            self.skipTest('xmlsec1 is not installed')
 
         generator = keystone_idp.SAMLGenerator()
         response = generator.samlize_token(self.ISSUER, self.RECIPIENT,
