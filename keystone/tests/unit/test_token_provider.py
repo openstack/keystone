@@ -843,6 +843,3 @@ class TestPKIProviderWithStdlib(PKIProviderTests, unit.TestCase):
         self.target_subprocess = subprocess
 
         super(TestPKIProviderWithStdlib, self).setUp()
-
-    def test_get_token_id_error_handling(self):
-        self.skipTest("skipping due to bug 1537401")
