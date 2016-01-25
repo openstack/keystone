@@ -13,13 +13,13 @@
 import uuid
 
 from keystone.common import sql
+from keystone.models import revoke_model
 from keystone import revoke
-from keystone.revoke import model
 
 
 class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'revocation_event'
-    attributes = model.REVOKE_KEYS
+    attributes = revoke_model.REVOKE_KEYS
 
     # The id field is not going to be exposed to the outside world.
     # It is, however, necessary for SQLAlchemy.
@@ -88,13 +88,13 @@ class Revoke(revoke.RevokeDriverV8):
             if last_fetch:
                 query = query.filter(RevocationEvent.revoked_at > last_fetch)
 
-            events = [model.RevokeEvent(**e.to_dict()) for e in query]
+            events = [revoke_model.RevokeEvent(**e.to_dict()) for e in query]
 
             return events
 
     def revoke(self, event):
         kwargs = dict()
-        for attr in model.REVOKE_KEYS:
+        for attr in revoke_model.REVOKE_KEYS:
             kwargs[attr] = getattr(event, attr)
         kwargs['id'] = uuid.uuid4().hex
         record = RevocationEvent(**kwargs)
