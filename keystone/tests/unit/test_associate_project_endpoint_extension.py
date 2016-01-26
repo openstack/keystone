@@ -1192,6 +1192,153 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.get(project_endpoint_group_url,
                  expected_status=http_client.NOT_FOUND)
 
+    @unit.skip_if_cache_disabled('catalog')
+    def test_add_endpoint_group_to_project_invalidates_catalog_cache(self):
+        # create another endpoint with 'admin' interface which matches
+        # 'filters' definition in endpoint group, then there should be two
+        # endpoints returned when retrieving v3 catalog if cache works as
+        # expected.
+        # this should be done at first since `create_endpoint` will also
+        # invalidate cache.
+        endpoint_id2 = uuid.uuid4().hex
+        endpoint2 = unit.new_endpoint_ref(service_id=self.service_id,
+                                          region_id=self.region_id,
+                                          interface='admin',
+                                          id=endpoint_id2)
+        self.catalog_api.create_endpoint(endpoint_id2, endpoint2)
+
+        # create a project and endpoint association.
+        self.put(self.default_request_url)
+
+        # there is only one endpoint associated with the default project.
+        user_id = uuid.uuid4().hex
+        catalog = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+
+        self.assertThat(catalog[0]['endpoints'], matchers.HasLength(1))
+
+        # create an endpoint group.
+        endpoint_group_id = self._create_valid_endpoint_group(
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # add the endpoint group to default project, bypassing
+        # catalog_api API manager.
+        self.catalog_api.driver.add_endpoint_group_to_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        # can get back only one endpoint from the cache, since the catalog
+        # is pulled out from cache.
+        invalid_catalog = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+
+        self.assertThat(invalid_catalog[0]['endpoints'],
+                        matchers.HasLength(1))
+        self.assertEqual(catalog, invalid_catalog)
+
+        # remove the endpoint group from default project, and add it again via
+        # catalog_api API manager.
+        self.catalog_api.driver.remove_endpoint_group_from_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        # add the endpoint group to default project.
+        self.catalog_api.add_endpoint_group_to_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        catalog = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+
+        # now, it will return 2 endpoints since the cache has been
+        # invalidated.
+        self.assertThat(catalog[0]['endpoints'], matchers.HasLength(2))
+
+        ep_id_list = [catalog[0]['endpoints'][0]['id'],
+                      catalog[0]['endpoints'][1]['id']]
+        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+
+    @unit.skip_if_cache_disabled('catalog')
+    def test_remove_endpoint_group_from_project_invalidates_cache(self):
+        # create another endpoint with 'admin' interface which matches
+        # 'filters' definition in endpoint group, then there should be two
+        # endpoints returned when retrieving v3 catalog. But only one
+        # endpoint will return after the endpoint group's deletion if cache
+        # works as expected.
+        # this should be done at first since `create_endpoint` will also
+        # invalidate cache.
+        endpoint_id2 = uuid.uuid4().hex
+        endpoint2 = unit.new_endpoint_ref(service_id=self.service_id,
+                                          region_id=self.region_id,
+                                          interface='admin',
+                                          id=endpoint_id2)
+        self.catalog_api.create_endpoint(endpoint_id2, endpoint2)
+
+        # create project and endpoint association.
+        self.put(self.default_request_url)
+
+        # create an endpoint group.
+        endpoint_group_id = self._create_valid_endpoint_group(
+            self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
+
+        # add the endpoint group to default project.
+        self.catalog_api.add_endpoint_group_to_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        # should get back two endpoints, one from endpoint project
+        # association, the other one is from endpoint_group project
+        # association.
+        user_id = uuid.uuid4().hex
+        catalog = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+
+        self.assertThat(catalog[0]['endpoints'], matchers.HasLength(2))
+
+        ep_id_list = [catalog[0]['endpoints'][0]['id'],
+                      catalog[0]['endpoints'][1]['id']]
+        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+
+        # remove endpoint_group project association, bypassing
+        # catalog_api API manager.
+        self.catalog_api.driver.remove_endpoint_group_from_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        # still get back two endpoints, since the catalog is pulled out
+        # from cache and the cache haven't been invalidated.
+        invalid_catalog = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+
+        self.assertThat(invalid_catalog[0]['endpoints'],
+                        matchers.HasLength(2))
+        self.assertEqual(catalog, invalid_catalog)
+
+        # add back the endpoint_group project association and remove it from
+        # manager.
+        self.catalog_api.driver.add_endpoint_group_to_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        self.catalog_api.remove_endpoint_group_from_project(
+            endpoint_group_id,
+            self.default_domain_project_id)
+
+        # should only get back one endpoint since the cache has been
+        # invalidated after the endpoint_group project association was
+        # removed.
+        catalog = self.catalog_api.get_v3_catalog(
+            user_id,
+            self.default_domain_project_id)
+
+        self.assertThat(catalog[0]['endpoints'], matchers.HasLength(1))
+        self.assertEqual(self.endpoint_id, catalog[0]['endpoints'][0]['id'])
+
     def _create_valid_endpoint_group(self, url, body):
         r = self.post(url, body=body)
         return r.result['endpoint_group']['id']
