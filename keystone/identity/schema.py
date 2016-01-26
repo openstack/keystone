@@ -18,7 +18,8 @@ from keystone.common.validation import parameter_types
 # to the SQL backend, LDAP does not have length limitation.
 _identity_name = {
     'type': 'string',
-    'minLength': 1
+    'minLength': 1,
+    'pattern': '[\S]+'
 }
 
 _user_properties = {
