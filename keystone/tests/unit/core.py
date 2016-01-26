@@ -567,11 +567,10 @@ class TestCase(BaseTestCase):
         self.auth_plugin_config_override()
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
-        if methods is not None:
-            self.config_fixture.config(group='auth', methods=methods)
-            config.setup_authentication()
-        if method_classes:
-            self.config_fixture.config(group='auth', **method_classes)
+        self.useFixture(
+            ksfixtures.ConfigAuthPlugins(self.config_fixture,
+                                         methods,
+                                         **method_classes))
 
     def _assert_config_overrides_called(self):
         assert self.__config_overrides_called is True
