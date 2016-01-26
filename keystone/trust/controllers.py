@@ -172,17 +172,23 @@ class TrustV3(controller.V3Controller):
             raise exception.Forbidden(
                 _('At least one role should be specified.'))
 
-    def _get_user_role(self, trust):
+    def _get_trustor_roles(self, trust):
+        original_trust = trust.copy()
+        while original_trust.get('redelegated_trust_id'):
+            original_trust = self.trust_api.get_trust(
+                original_trust['redelegated_trust_id'])
+
         if not self._attribute_is_empty(trust, 'project_id'):
             return self.assignment_api.get_roles_for_user_and_project(
-                trust['trustor_user_id'], trust['project_id'])
+                original_trust['trustor_user_id'],
+                original_trust['project_id'])
         else:
             return []
 
     def _require_trustor_has_role_in_project(self, trust):
-        user_roles = self._get_user_role(trust)
+        trustor_roles = self._get_trustor_roles(trust)
         for trust_role in trust['roles']:
-            matching_roles = [x for x in user_roles
+            matching_roles = [x for x in trustor_roles
                               if x == trust_role['id']]
             if not matching_roles:
                 raise exception.RoleNotFound(role_id=trust_role['id'])
