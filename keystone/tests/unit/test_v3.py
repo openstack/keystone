@@ -29,6 +29,7 @@ from keystone.common.validation import validators
 from keystone import exception
 from keystone import middleware
 from keystone.policy.backends import rules
+from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import rest
 
@@ -120,7 +121,7 @@ class AuthTestMixin(object):
 
 
 class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
-                      AuthTestMixin):
+                      common_auth.AuthTestMixin):
     def config_files(self):
         config_files = super(RestfulTestCase, self).config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))

@@ -33,6 +33,7 @@ from keystone.common import utils
 from keystone.contrib.revoke import routers
 from keystone import exception
 from keystone.policy.backends import rules
+from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
@@ -40,7 +41,7 @@ from keystone.tests.unit import test_v3
 CONF = cfg.CONF
 
 
-class TestAuthInfo(test_v3.AuthTestMixin, testcase.TestCase):
+class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
     def setUp(self):
         super(TestAuthInfo, self).setUp()
         auth.controllers.load_auth_methods()
