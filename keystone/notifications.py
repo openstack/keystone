@@ -31,6 +31,7 @@ from pycadf import eventfactory
 from pycadf import resource
 
 from keystone.i18n import _, _LE
+from keystone.common import utils
 
 
 notifier_opts = [
@@ -501,8 +502,12 @@ def _get_request_audit_info(context, user_id=None):
                                     {}).get('domain_id')
 
     host = pycadf.host.Host(address=remote_addr, agent=http_user_agent)
-    initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
-                                  id=user_id, host=host)
+    initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER, host=host)
+
+    if user_id:
+        initiator.user_id = user_id
+        initiator.id = utils.resource_uuid(user_id)
+
     if project_id:
         initiator.project_id = project_id
     if domain_id:
