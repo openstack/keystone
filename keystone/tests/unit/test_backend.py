@@ -2212,7 +2212,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         project = unit.new_project_ref(
             name=unicode_project_name,
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
         self.resource_api.update_project(project['id'], project)
         self.resource_api.delete_project(project['id'])
 
@@ -2474,7 +2474,7 @@ class IdentityTests(AssignmentTestHelperMixin):
     def test_list_projects_with_multiple_filters(self):
         # Create a project
         project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
 
         # Build driver hints with the project's name and inexistent description
         hints = driver_hints.Hints()
@@ -2548,7 +2548,7 @@ class IdentityTests(AssignmentTestHelperMixin):
             project = unit.new_project_ref(domain_id=domain_id,
                                            is_domain=is_domain)
         project_id = project['id']
-        self.resource_api.create_project(project_id, project)
+        project = self.resource_api.create_project(project_id, project)
 
         projects = [project]
         for i in range(1, hierarchy_size):
@@ -2665,18 +2665,11 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @unit.skip_if_no_multiple_domains_support
     def test_create_subproject_acting_as_domain_fails(self):
-        root_project = {'id': uuid.uuid4().hex,
-                        'domain_id': DEFAULT_DOMAIN_ID,
-                        'name': uuid.uuid4().hex,
-                        'parent_id': None,
-                        'is_domain': True}
+        root_project = unit.new_project_ref(is_domain=True)
         self.resource_api.create_project(root_project['id'], root_project)
 
-        sub_project = {'id': uuid.uuid4().hex,
-                       'domain_id': DEFAULT_DOMAIN_ID,
-                       'name': uuid.uuid4().hex,
-                       'parent_id': root_project['id'],
-                       'is_domain': True}
+        sub_project = unit.new_project_ref(is_domain=True,
+                                           parent_id=root_project['id'])
 
         # Creation of sub projects acting as domains is not allowed yet
         self.assertRaises(exception.ValidationError,
@@ -2719,8 +2712,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @unit.skip_if_no_multiple_domains_support
     def test_create_project_passing_is_domain_flag_true(self):
-        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
-                                       is_domain=True)
+        project = unit.new_project_ref(is_domain=True)
 
         ref = self.resource_api.create_project(project['id'], project)
         self.assertTrue(ref['is_domain'])
@@ -2732,11 +2724,12 @@ class IdentityTests(AssignmentTestHelperMixin):
         ref = self.resource_api.create_project(project['id'], project)
         self.assertIs(False, ref['is_domain'])
 
-    @test_utils.wip('waiting for projects acting as domains implementation')
+    @test_utils.wip('waiting for support for parent_id to imply domain_id')
     def test_create_project_with_parent_id_and_without_domain_id(self):
-        project = unit.new_project_ref(domain_id=None)
+        # First create a domain
+        project = unit.new_project_ref(is_domain=True)
         self.resource_api.create_project(project['id'], project)
-
+        # Now create a child by just naming the parent_id
         sub_project = unit.new_project_ref(parent_id=project['id'])
         ref = self.resource_api.create_project(sub_project['id'], sub_project)
 
@@ -2745,9 +2738,10 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     @test_utils.wip('waiting for projects acting as domains implementation')
     def test_create_project_with_domain_id_and_without_parent_id(self):
-        project = unit.new_project_ref(parent_id=None)
+        # First create a domain
+        project = unit.new_project_ref(is_domain=True)
         self.resource_api.create_project(project['id'], project)
-
+        # Now create a child by just naming the domain_id
         sub_project = unit.new_project_ref(domain_id=project['id'])
         ref = self.resource_api.create_project(sub_project['id'], sub_project)
 
@@ -2796,7 +2790,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_list_projects_in_subtree_with_circular_reference(self):
         project1 = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
-        self.resource_api.create_project(project1['id'], project1)
+        project1 = self.resource_api.create_project(project1['id'], project1)
 
         project2 = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
                                         parent_id=project1['id'])
@@ -3674,7 +3668,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Creating a project with no description attribute.
         project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
         del project['description']
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
 
         # Add a description attribute.
         project['description'] = uuid.uuid4().hex
@@ -3687,7 +3681,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Creating a project with no description attribute.
         project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
         del project['description']
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
 
         # Add a description attribute.
         project['description'] = ''
@@ -3698,12 +3692,14 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def test_domain_crud(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        domain_ref = self.resource_api.create_domain(domain['id'], domain)
+        self.assertDictEqual(domain, domain_ref)
         domain_ref = self.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain, domain_ref)
 
         domain['name'] = uuid.uuid4().hex
-        self.resource_api.update_domain(domain['id'], domain)
+        domain_ref = self.resource_api.update_domain(domain['id'], domain)
+        self.assertDictEqual(domain, domain_ref)
         domain_ref = self.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain, domain_ref)
 
@@ -6365,10 +6361,12 @@ class InheritanceTests(AssignmentTestHelperMixin):
         # Enable OS-INHERIT extension
         self.config_fixture.config(group='os_inherit', enabled=True)
         root_project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
-        self.resource_api.create_project(root_project['id'], root_project)
+        root_project = self.resource_api.create_project(root_project['id'],
+                                                        root_project)
         leaf_project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
                                             parent_id=root_project['id'])
-        self.resource_api.create_project(leaf_project['id'], leaf_project)
+        leaf_project = self.resource_api.create_project(leaf_project['id'],
+                                                        leaf_project)
 
         user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
         user = self.identity_api.create_user(user)
@@ -6557,10 +6555,12 @@ class InheritanceTests(AssignmentTestHelperMixin):
         """
         self.config_fixture.config(group='os_inherit', enabled=True)
         root_project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
-        self.resource_api.create_project(root_project['id'], root_project)
+        root_project = self.resource_api.create_project(root_project['id'],
+                                                        root_project)
         leaf_project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
                                             parent_id=root_project['id'])
-        self.resource_api.create_project(leaf_project['id'], leaf_project)
+        leaf_project = self.resource_api.create_project(leaf_project['id'],
+                                                        leaf_project)
 
         user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
         user = self.identity_api.create_user(user)

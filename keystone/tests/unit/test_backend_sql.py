@@ -270,8 +270,8 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertIsNone(ref.get('extra'))
 
-        project['name'] = uuid.uuid4().hex
-        ref = self.resource_api.update_project(project['id'], project)
+        ref['name'] = uuid.uuid4().hex
+        ref = self.resource_api.update_project(ref['id'], ref)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 
