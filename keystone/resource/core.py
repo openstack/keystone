@@ -396,25 +396,27 @@ class Manager(manager.Manager):
                 type='project',
                 details=self._generate_project_name_conflict_msg(project))
 
-        notifications.Audit.updated(self._PROJECT, project_id, initiator)
-        if original_project['is_domain']:
-            notifications.Audit.updated(self._DOMAIN, project_id, initiator)
-            # If the domain is being disabled, issue the disable notification
-            # as well
-            if original_project_enabled and not project_enabled:
-                notifications.Audit.disabled(self._DOMAIN, project_id,
-                                             public=False)
-
-        self.get_project.invalidate(self, project_id)
-        self.get_project_by_name.invalidate(self, original_project['name'],
-                                            original_project['domain_id'])
-
-        if ('domain_id' in project and
-           project['domain_id'] != original_project['domain_id']):
-            # If the project's domain_id has been updated, invalidate user
-            # role assignments cache region, as it may be caching inherited
-            # assignments from the old domain to the specified project
-            assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        try:
+            self.get_project.invalidate(self, project_id)
+            self.get_project_by_name.invalidate(self, original_project['name'],
+                                                original_project['domain_id'])
+            if ('domain_id' in project and
+               project['domain_id'] != original_project['domain_id']):
+                # If the project's domain_id has been updated, invalidate user
+                # role assignments cache region, as it may be caching inherited
+                # assignments from the old domain to the specified project
+                assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        finally:
+            # attempt to send audit event even if the cache invalidation raises
+            notifications.Audit.updated(self._PROJECT, project_id, initiator)
+            if original_project['is_domain']:
+                notifications.Audit.updated(self._DOMAIN, project_id,
+                                            initiator)
+                # If the domain is being disabled, issue the disable
+                # notification as well
+                if original_project_enabled and not project_enabled:
+                    notifications.Audit.disabled(self._DOMAIN, project_id,
+                                                 public=False)
 
         return ret
 
@@ -464,16 +466,19 @@ class Manager(manager.Manager):
 
     def _post_delete_cleanup_project(self, project_id, project,
                                      initiator=None):
-        self.assignment_api.delete_project_assignments(project_id)
-        self.get_project.invalidate(self, project_id)
-        self.get_project_by_name.invalidate(self, project['name'],
-                                            project['domain_id'])
-        self.credential_api.delete_credentials_for_project(project_id)
-        notifications.Audit.deleted(self._PROJECT, project_id, initiator)
-        # Invalidate user role assignments cache region, as it may
-        # be caching role assignments where the target is
-        # the specified project
-        assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        try:
+            self.get_project.invalidate(self, project_id)
+            self.get_project_by_name.invalidate(self, project['name'],
+                                                project['domain_id'])
+            self.assignment_api.delete_project_assignments(project_id)
+            # Invalidate user role assignments cache region, as it may
+            # be caching role assignments where the target is
+            # the specified project
+            assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+            self.credential_api.delete_credentials_for_project(project_id)
+        finally:
+            # attempt to send audit event even if the cache invalidation raises
+            notifications.Audit.deleted(self._PROJECT, project_id, initiator)
 
     def delete_project(self, project_id, initiator=None, cascade=False):
         """Delete one project or a subtree.
@@ -789,23 +794,15 @@ class Manager(manager.Manager):
 
         self._delete_domain_contents(domain_id)
         self._delete_project(domain_id, initiator)
-        # Delete any database stored domain config
-        self.domain_config_api.delete_config_options(domain_id)
-        self.domain_config_api.release_registration(domain_id)
-        # TODO(henry-nash): Although the controller will ensure deletion of
-        # all users & groups within the domain (which will cause all
-        # assignments for those users/groups to also be deleted), there
-        # could still be assignments on this domain for users/groups in
-        # other domains - so we should delete these here by making a call
-        # to the backend to delete all assignments for this domain.
-        # (see Bug #1277847)
-        notifications.Audit.deleted(self._DOMAIN, domain_id, initiator)
-        self.get_domain.invalidate(self, domain_id)
-        self.get_domain_by_name.invalidate(self, domain['name'])
-
-        # Invalidate user role assignments cache region, as it may be caching
-        # role assignments where the target is the specified domain
-        assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        try:
+            self.get_domain.invalidate(self, domain_id)
+            self.get_domain_by_name.invalidate(self, domain['name'])
+            # Delete any database stored domain config
+            self.domain_config_api.delete_config_options(domain_id)
+            self.domain_config_api.release_registration(domain_id)
+        finally:
+            # attempt to send audit event even if the cache invalidation raises
+            notifications.Audit.deleted(self._DOMAIN, domain_id, initiator)
 
     def _delete_domain_contents(self, domain_id):
         """Delete the contents of a domain.
