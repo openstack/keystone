@@ -321,15 +321,21 @@ def new_policy_ref():
 def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
                   impersonation=None, expires=None, role_ids=None,
                   role_names=None, remaining_uses=None,
-                  allow_redelegation=False):
-    ref = dict()
-    ref['id'] = uuid.uuid4().hex
-    ref['trustor_user_id'] = trustor_user_id
-    ref['trustee_user_id'] = trustee_user_id
-    ref['impersonation'] = impersonation or False
-    ref['project_id'] = project_id
-    ref['remaining_uses'] = remaining_uses
-    ref['allow_redelegation'] = allow_redelegation
+                  allow_redelegation=False, redelegation_count=None,
+                  redelegated_trust_id=None, **kwargs):
+    ref = {
+        'id': uuid.uuid4().hex,
+        'trustor_user_id': trustor_user_id,
+        'trustee_user_id': trustee_user_id,
+        'impersonation': impersonation or False,
+        'project_id': project_id,
+        'remaining_uses': remaining_uses,
+        'allow_redelegation': allow_redelegation,
+        'redelegated_trust_id': redelegated_trust_id,
+    }
+
+    if isinstance(redelegation_count, int):
+        ref.update(redelegation_count=redelegation_count)
 
     if isinstance(expires, six.string_types):
         ref['expires_at'] = expires

@@ -370,7 +370,16 @@ class V3TokenDataHelper(object):
             return
 
         if CONF.trust.enabled and trust:
-            token_user_id = trust['trustor_user_id']
+            # If redelegated_trust_id is set, then we must traverse the
+            # trust_chain in order to determine who the original trustor is. We
+            # need to do this because the user ID of the original trustor helps
+            # us determine scope in the redelegated context.
+            if trust.get('redelegated_trust_id'):
+                trust_chain = self.trust_api.get_trust_pedigree(trust['id'])
+                token_user_id = trust_chain[-1]['trustor_user_id']
+            else:
+                token_user_id = trust['trustor_user_id']
+
             token_project_id = trust['project_id']
             # trusts do not support domains yet
             token_domain_id = None
