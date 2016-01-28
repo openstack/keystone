@@ -3349,6 +3349,21 @@ class WebSSOTests(FederatedTokenTests):
         resp = self.api.federated_sso_auth(context, self.PROTOCOL)
         self.assertIn(self.TRUSTED_DASHBOARD, resp.body)
 
+    def test_get_sso_origin_host_case_insensitive(self):
+        # test lowercase hostname in trusted_dashboard
+        context = {
+            'query_string': {
+                'origin': "http://horizon.com",
+            },
+        }
+        host = self.api._get_sso_origin_host(context)
+        self.assertEqual("http://horizon.com", host)
+        # test uppercase hostname in trusted_dashboard
+        self.config_fixture.config(group='federation',
+                                   trusted_dashboard=['http://Horizon.com'])
+        host = self.api._get_sso_origin_host(context)
+        self.assertEqual("http://horizon.com", host)
+
     def test_federated_sso_auth_with_protocol_specific_remote_id(self):
         self.config_fixture.config(
             group=self.PROTOCOL,
