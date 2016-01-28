@@ -31,6 +31,13 @@ def load_backends():
     # Configure and build the cache
     cache.configure_cache()
     cache.configure_cache(region=catalog.COMPUTED_CATALOG_REGION)
+    cache.apply_invalidation_patch(
+        region=catalog.COMPUTED_CATALOG_REGION,
+        region_name=catalog.COMPUTED_CATALOG_REGION.name)
+    cache.configure_cache(region=assignment.COMPUTED_ASSIGNMENTS_REGION)
+    cache.apply_invalidation_patch(
+        region=assignment.COMPUTED_ASSIGNMENTS_REGION,
+        region_name=assignment.COMPUTED_ASSIGNMENTS_REGION.name)
 
     # Ensure that the assignment driver is created before the resource manager.
     # The default resource driver depends on assignment.
