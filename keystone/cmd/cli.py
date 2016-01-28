@@ -59,7 +59,7 @@ class BootStrap(BaseApp):
 
     def __init__(self):
         self.load_backends()
-        self.tenant_id = uuid.uuid4().hex
+        self.project_id = uuid.uuid4().hex
         self.role_id = uuid.uuid4().hex
         self.username = None
         self.project_name = None
@@ -138,9 +138,9 @@ class BootStrap(BaseApp):
 
         try:
             self.resource_manager.create_project(
-                project_id=self.tenant_id,
+                project_id=self.project_id,
                 project={'enabled': True,
-                         'id': self.tenant_id,
+                         'id': self.project_id,
                          'domain_id': default_domain['id'],
                          'description': 'Bootstrap project for initializing '
                                         'the cloud.',
@@ -152,7 +152,7 @@ class BootStrap(BaseApp):
                      self.project_name)
             project = self.resource_manager.get_project_by_name(
                 self.project_name, default_domain['id'])
-            self.tenant_id = project['id']
+            self.project_id = project['id']
 
         # NOTE(morganfainberg): Do not create the user if it already exists.
         try:
@@ -193,7 +193,7 @@ class BootStrap(BaseApp):
         try:
             self.assignment_manager.add_role_to_user_and_project(
                 user_id=user['id'],
-                tenant_id=self.tenant_id,
+                tenant_id=self.project_id,
                 role_id=self.role_id
             )
             LOG.info(_LI('Granted %(role)s on %(project)s to user'
