@@ -526,3 +526,14 @@ def get_token_ref(context):
     except KeyError:
         LOG.warning(_LW("Couldn't find the auth context."))
         raise exception.Unauthorized()
+
+
+def lower_case_hostname(url):
+    """Change the URL's hostname to lowercase"""
+    # NOTE(gyee): according to
+    # https://www.w3.org/TR/WD-html40-970708/htmlweb.html, the netloc portion
+    # of the URL is case-insensitive
+    parsed = moves.urllib.parse.urlparse(url)
+    # Note: _replace method for named tuples is public and defined in docs
+    replaced = parsed._replace(netloc=parsed.netloc.lower())
+    return moves.urllib.parse.urlunparse(replaced)
