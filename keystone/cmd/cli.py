@@ -138,13 +138,13 @@ class BootStrap(BaseApp):
 
         try:
             self.resource_manager.create_project(
-                tenant_id=self.tenant_id,
-                tenant={'enabled': True,
-                        'id': self.tenant_id,
-                        'domain_id': default_domain['id'],
-                        'description': 'Bootstrap project for initializing '
-                                       'the cloud.',
-                        'name': self.project_name}
+                project_id=self.tenant_id,
+                project={'enabled': True,
+                         'id': self.tenant_id,
+                         'domain_id': default_domain['id'],
+                         'description': 'Bootstrap project for initializing '
+                                        'the cloud.',
+                         'name': self.project_name}
             )
             LOG.info(_LI('Created project %s'), self.project_name)
         except exception.Conflict:

@@ -36,19 +36,19 @@ class Resource(keystone_resource.ResourceDriverV9):
             raise exception.ProjectNotFound(project_id=project_id)
         return project_ref
 
-    def get_project(self, tenant_id):
+    def get_project(self, project_id):
         with sql.transaction() as session:
-            return self._get_project(session, tenant_id).to_dict()
+            return self._get_project(session, project_id).to_dict()
 
-    def get_project_by_name(self, tenant_name, domain_id):
+    def get_project_by_name(self, project_name, domain_id):
         with sql.transaction() as session:
             query = session.query(Project)
-            query = query.filter_by(name=tenant_name)
+            query = query.filter_by(name=project_name)
             query = query.filter_by(domain_id=domain_id)
             try:
                 project_ref = query.one()
             except sql.NotFound:
-                raise exception.ProjectNotFound(project_id=tenant_name)
+                raise exception.ProjectNotFound(project_id=project_name)
             return project_ref.to_dict()
 
     @driver_hints.truncated
@@ -138,35 +138,35 @@ class Resource(keystone_resource.ResourceDriverV9):
 
     # CRUD
     @sql.handle_conflicts(conflict_type='project')
-    def create_project(self, tenant_id, tenant):
-        tenant['name'] = clean.project_name(tenant['name'])
+    def create_project(self, project_id, project):
+        project['name'] = clean.project_name(project['name'])
         with sql.transaction() as session:
-            tenant_ref = Project.from_dict(tenant)
-            session.add(tenant_ref)
-            return tenant_ref.to_dict()
+            project_ref = Project.from_dict(project)
+            session.add(project_ref)
+            return project_ref.to_dict()
 
     @sql.handle_conflicts(conflict_type='project')
-    def update_project(self, tenant_id, tenant):
-        if 'name' in tenant:
-            tenant['name'] = clean.project_name(tenant['name'])
+    def update_project(self, project_id, project):
+        if 'name' in project:
+            project['name'] = clean.project_name(project['name'])
 
         with sql.transaction() as session:
-            tenant_ref = self._get_project(session, tenant_id)
-            old_project_dict = tenant_ref.to_dict()
-            for k in tenant:
-                old_project_dict[k] = tenant[k]
+            project_ref = self._get_project(session, project_id)
+            old_project_dict = project_ref.to_dict()
+            for k in project:
+                old_project_dict[k] = project[k]
             new_project = Project.from_dict(old_project_dict)
             for attr in Project.attributes:
                 if attr != 'id':
-                    setattr(tenant_ref, attr, getattr(new_project, attr))
-            tenant_ref.extra = new_project.extra
-            return tenant_ref.to_dict(include_extra_dict=True)
+                    setattr(project_ref, attr, getattr(new_project, attr))
+            project_ref.extra = new_project.extra
+            return project_ref.to_dict(include_extra_dict=True)
 
     @sql.handle_conflicts(conflict_type='project')
-    def delete_project(self, tenant_id):
+    def delete_project(self, project_id):
         with sql.transaction() as session:
-            tenant_ref = self._get_project(session, tenant_id)
-            session.delete(tenant_ref)
+            project_ref = self._get_project(session, project_id)
+            session.delete(project_ref)
 
     # domain crud
 
