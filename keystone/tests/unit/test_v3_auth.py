@@ -490,6 +490,23 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
         self.assertValidUnscopedTokenResponse(r)
 
+    def test_domain_scoped_token_format(self):
+        # ensure the domain scoped token response contains the appropriate data
+        self.assignment_api.create_grant(
+            self.role['id'],
+            user_id=self.default_domain_user['id'],
+            domain_id=self.domain['id'])
+
+        domain_scoped_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.default_domain_user['id'],
+                password=self.default_domain_user['password'],
+                domain_id=self.domain['id'])
+        )
+        self.headers['X-Subject-Token'] = domain_scoped_token
+        r = self.get('/auth/tokens', headers=self.headers)
+        self.assertValidDomainScopedTokenResponse(r)
+
 
 class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def config_overrides(self):
