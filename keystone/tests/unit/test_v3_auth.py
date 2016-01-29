@@ -507,6 +507,67 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
         self.assertValidDomainScopedTokenResponse(r)
 
+    def test_project_scoped_token_format(self):
+        # ensure project scoped token responses contains the appropriate data
+        project_scoped_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.default_domain_user['id'],
+                password=self.default_domain_user['password'],
+                project_id=self.default_domain_project['id'])
+        )
+        self.headers['X-Subject-Token'] = project_scoped_token
+        r = self.get('/auth/tokens', headers=self.headers)
+        self.assertValidProjectScopedTokenResponse(r)
+
+    def test_extra_data_in_unscoped_token_fails_validation(self):
+        # ensure unscoped token response contains the appropriate data
+        r = self.get('/auth/tokens', headers=self.headers)
+
+        # populate the response result with some extra data
+        r.result['token'][u'extra'] = unicode(uuid.uuid4().hex)
+        self.assertRaises(exception.SchemaValidationError,
+                          self.assertValidUnscopedTokenResponse,
+                          r)
+
+    def test_extra_data_in_domain_scoped_token_fails_validation(self):
+        # ensure domain scoped token response contains the appropriate data
+        self.assignment_api.create_grant(
+            self.role['id'],
+            user_id=self.default_domain_user['id'],
+            domain_id=self.domain['id'])
+
+        domain_scoped_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.default_domain_user['id'],
+                password=self.default_domain_user['password'],
+                domain_id=self.domain['id'])
+        )
+        self.headers['X-Subject-Token'] = domain_scoped_token
+        r = self.get('/auth/tokens', headers=self.headers)
+
+        # populate the response result with some extra data
+        r.result['token'][u'extra'] = unicode(uuid.uuid4().hex)
+        self.assertRaises(exception.SchemaValidationError,
+                          self.assertValidDomainScopedTokenResponse,
+                          r)
+
+    def test_extra_data_in_project_scoped_token_fails_validation(self):
+        # ensure project scoped token responses contains the appropriate data
+        project_scoped_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.default_domain_user['id'],
+                password=self.default_domain_user['password'],
+                project_id=self.default_domain_project['id'])
+        )
+        self.headers['X-Subject-Token'] = project_scoped_token
+        resp = self.get('/auth/tokens', headers=self.headers)
+
+        # populate the response result with some extra data
+        resp.result['token'][u'extra'] = unicode(uuid.uuid4().hex)
+        self.assertRaises(exception.SchemaValidationError,
+                          self.assertValidProjectScopedTokenResponse,
+                          resp)
+
 
 class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def config_overrides(self):
