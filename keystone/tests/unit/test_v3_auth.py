@@ -3709,7 +3709,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             password=self.trustee_user['password'],
             trust_id=trust_id)
         r = self.v3_create_token(auth_data)
-        self.assertValidProjectTrustScopedTokenResponse(
+        self.assertValidProjectScopedTokenResponse(
             r, self.trustee_user)
         trust_token = r.headers['X-Subject-Token']
         self.delete('/OS-TRUST/trusts/%(trust_id)s' % {
@@ -3820,7 +3820,7 @@ class TestTrustAuth(test_v3.RestfulTestCase):
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
 
-        self.assertValidProjectTrustScopedTokenResponse(r, self.user)
+        self.assertValidProjectScopedTokenResponse(r, self.user)
         trust_token = r.headers.get('X-Subject-Token')
 
         self.get('/OS-TRUST/trusts?trustor_user_id=%s' %

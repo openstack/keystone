@@ -261,7 +261,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             password=self.default_domain_user['password'],
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
-        self.assertValidProjectTrustScopedTokenResponse(
+        self.assertValidProjectScopedTokenResponse(
             r, self.default_domain_user)
         token = r.headers.get('X-Subject-Token')
 
@@ -296,7 +296,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
-        self.assertValidProjectTrustScopedTokenResponse(
+        self.assertValidProjectScopedTokenResponse(
             r, self.trustee_user)
         token = r.headers.get('X-Subject-Token')
 
@@ -337,7 +337,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             password=trustee_user['password'],
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
-        self.assertValidProjectTrustScopedTokenResponse(r, trustee_user)
+        self.assertValidProjectScopedTokenResponse(r, trustee_user)
         token = r.headers.get('X-Subject-Token')
 
         # ensure the token is invalid against v2
@@ -366,8 +366,8 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         resp = self.v3_create_token(auth_data)
         resp_body = resp.json_body['token']
 
-        self.assertValidProjectTrustScopedTokenResponse(resp,
-                                                        self.trustee_user)
+        self.assertValidProjectScopedTokenResponse(resp,
+                                                   self.trustee_user)
         self.assertEqual(self.trustee_user['id'], resp_body['user']['id'])
         self.assertEqual(self.trustee_user['name'], resp_body['user']['name'])
         self.assertEqual(self.domain['id'], resp_body['user']['domain']['id'])
@@ -396,7 +396,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         resp = self.v3_create_token(auth_data)
         resp_body = resp.json_body['token']
 
-        self.assertValidProjectTrustScopedTokenResponse(resp, self.user)
+        self.assertValidProjectScopedTokenResponse(resp, self.user)
         self.assertEqual(self.user['id'], resp_body['user']['id'])
         self.assertEqual(self.user['name'], resp_body['user']['name'])
         self.assertEqual(self.domain['id'], resp_body['user']['domain']['id'])
