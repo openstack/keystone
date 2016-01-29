@@ -17,6 +17,7 @@ import functools
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import importutils
+from oslo_utils import reflection
 import stevedore
 
 from keystone.i18n import _
@@ -125,14 +126,14 @@ def create_legacy_driver(driver_class):
 
     """
     module_name = driver_class.__module__
-    class_name = driver_class.__name__
+    class_name = reflection.get_class_name(driver_class)
 
     class Driver(driver_class):
 
         @versionutils.deprecated(
             as_of=versionutils.deprecated.LIBERTY,
             what='%s.Driver' % module_name,
-            in_favor_of='%s.%s' % (module_name, class_name),
+            in_favor_of=class_name,
             remove_in=+2)
         def __init__(self, *args, **kwargs):
             super(Driver, self).__init__(*args, **kwargs)
