@@ -124,7 +124,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                                 self.user2['id'])
 
         # First check a user in that domain can authenticate. The v2 user
-        # cannot authenticate because they exist outside the default domain.
+        # can authenticate even though they exist outside the default domain.
         body = {
             'auth': {
                 'passwordCredentials': {
@@ -135,8 +135,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             }
         }
         self.admin_request(
-            path='/v2.0/tokens', method='POST', body=body,
-            expected_status=http_client.UNAUTHORIZED)
+            path='/v2.0/tokens', method='POST', body=body)
 
         auth_data = self.build_authentication_request(
             user_id=self.user2['id'],
@@ -3170,9 +3169,9 @@ class AssignmentV3toV2MethodsTestCase(unit.TestCase):
                               'other_data': other_data}
         updated_ref = controller.V2Controller.filter_domain(default_domain_ref)
         self.assertNotIn('domain', updated_ref)
-        self.assertRaises(exception.Unauthorized,
-                          controller.V2Controller.filter_domain,
-                          non_default_domain_ref)
+        self.assertNotIn(
+            'domain',
+            controller.V2Controller.filter_domain(non_default_domain_ref))
 
     def test_v2controller_filter_project_parent_id(self):
         # V2.0 is not project hierarchy aware, ensure parent_id is popped off.

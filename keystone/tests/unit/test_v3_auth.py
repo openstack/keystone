@@ -132,18 +132,6 @@ class TokenAPITests(object):
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
 
-    def test_v3_v2_intermix_non_default_domain_failed(self):
-        v3_token = self.get_requested_token(self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password']))
-
-        # now validate the v3 token with v2 API
-        self.admin_request(
-            path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
-            method='GET',
-            expected_status=http_client.UNAUTHORIZED)
-
     def test_v3_v2_intermix_new_default_domain(self):
         # If the default_domain_id config option is changed, then should be
         # able to validate a v3 token with user in the new domain.
@@ -202,7 +190,7 @@ class TokenAPITests(object):
             token=CONF.admin_token,
             expected_status=http_client.UNAUTHORIZED)
 
-    def test_v3_v2_intermix_non_default_project_failed(self):
+    def test_v3_v2_intermix_non_default_project_succeed(self):
         # self.project is in a non-default domain
         v3_token = self.get_requested_token(self.build_authentication_request(
             user_id=self.default_domain_user['id'],
@@ -213,10 +201,9 @@ class TokenAPITests(object):
         self.admin_request(
             method='GET',
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
-            expected_status=http_client.UNAUTHORIZED)
+            token=CONF.admin_token)
 
-    def test_v3_v2_intermix_non_default_user_failed(self):
+    def test_v3_v2_intermix_non_default_user_succeed(self):
         self.assignment_api.create_grant(
             self.role['id'],
             user_id=self.user['id'],
@@ -232,8 +219,7 @@ class TokenAPITests(object):
         self.admin_request(
             method='GET',
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
-            expected_status=http_client.UNAUTHORIZED)
+            token=CONF.admin_token)
 
     def test_v3_v2_intermix_domain_scope_failed(self):
         self.assignment_api.create_grant(
@@ -4570,17 +4556,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           trust_scoped_token)
-
-    def test_v2_validate_unscoped_token_returns_unauthorized(self):
-        """Test raised exception when validating unscoped token.
-
-        Test that validating an unscoped token in v2.0 of a v3 user of a
-        non-default domain returns unauthorized.
-        """
-        unscoped_token = self._get_unscoped_token()
-        self.assertRaises(exception.Unauthorized,
-                          self.token_provider_api.validate_v2_token,
-                          unscoped_token)
 
     def test_v2_validate_domain_scoped_token_returns_unauthorized(self):
         """Test raised exception when validating a domain scoped token.
