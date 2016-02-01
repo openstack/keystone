@@ -84,8 +84,8 @@ Developers Documentation
    apache-httpd
    external-auth
    event_notifications
-   extension_development
    services
+   online_schema_migration_examples
 
 Code Documentation
 ==================

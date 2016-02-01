@@ -53,7 +53,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
         """Convenience method so that we can test authenticated requests
 
         :param user: A dictionary with user information like 'username',
-        'password', 'domain_id'
+                     'password', 'domain_id'
         :returns: urllib3.Response object
 
         """
@@ -70,7 +70,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
         This method doesn't do any token validaton.
 
         :param user: A dictionary with user information like 'username',
-        'password', 'domain_id'
+                     'password', 'domain_id'
         :returns: An OpenStack token for further use
         :rtype: str
 

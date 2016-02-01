@@ -83,7 +83,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 expected_status=http_client.BAD_REQUEST)
 
     def test_create_domain_unsafe_default(self):
-        """Check default for unsafe names for``POST /domains ``."""
+        """Check default for unsafe names for ``POST /domains``."""
         unsafe_name = 'i am not / safe'
 
         # By default, we should be able to create unsafe names
@@ -138,7 +138,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 expected_status=http_client.BAD_REQUEST)
 
     def test_update_domain_unsafe_default(self):
-        """Check default for unsafe names for``POST /domains ``."""
+        """Check default for unsafe names for ``POST /domains``."""
         unsafe_name = 'i am not / safe'
 
         # By default, we should be able to create unsafe names
@@ -505,7 +505,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 expected_status=http_client.BAD_REQUEST)
 
     def test_create_project_unsafe_default(self):
-        """Check default for unsafe names for``POST /projects ``."""
+        """Check default for unsafe names for ``POST /projects``."""
         unsafe_name = 'i am not / safe'
 
         # By default, we should be able to create unsafe names
@@ -1020,7 +1020,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 expected_status=http_client.BAD_REQUEST)
 
     def test_update_project_unsafe_default(self):
-        """Check default for unsafe names for``POST /projects ``."""
+        """Check default for unsafe names for ``POST /projects``."""
         unsafe_name = 'i am not / safe'
 
         # By default, we should be able to create unsafe names

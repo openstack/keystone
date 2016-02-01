@@ -849,7 +849,7 @@ class SQLDriverOverrides(object):
         :param driver_path: The path to the drivers, e.g. 'keystone.assignment'
         :param versionless_backend: The name of the versionless drivers, e.g.
                                     'backends'
-        :param version_suffix: The suffix for the version , e.g. 'V8_'
+        :param version_suffix: The suffix for the version , e.g. ``V8_``
 
         This method assumes that versioned drivers are named:
         <version_suffix><name of versionless driver>, e.g. 'V8_backends'.
