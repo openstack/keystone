@@ -4,16 +4,17 @@
 #
 # Translators:
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Raildo Mascena <raildom@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.2.dev18\n"
+"Project-Id-Version: keystone 8.0.2.dev24\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-15 23:36+0000\n"
+"POT-Creation-Date: 2016-01-31 23:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-06-26 05:13+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"PO-Revision-Date: 2016-01-28 01:30+0000\n"
+"Last-Translator: Raildo Mascena <raildom@gmail.com>\n"
 "Language: pt-BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: Babel 2.0\n"
@@ -40,6 +41,10 @@ msgstr "Falha ao validar token"
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
 msgstr "Endpoint mal formado %(url)s - chave desconhecida %(keyerror)s"
 
+#, python-format
+msgid "Malformed endpoint - %(url)r is not a string"
+msgstr "URL de endpoint malformada  -  %(url)r não é uma string"
+
 msgid "Server error"
 msgstr "Erro do servidor"
 
@@ -50,6 +55,9 @@ msgid ""
 msgstr ""
 "Não é possível construir chave de configuração do cache. Formato esperado "
 "\"<argname>:<value>\".  Pulando formato desconhecido: %s"
+
+msgid "Unable to sign token"
+msgstr "Não é possível assinar o token."
 
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"

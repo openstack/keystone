@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.2.dev18\n"
+"Project-Id-Version: keystone 8.0.2.dev24\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-23 06:11+0000\n"
+"POT-Creation-Date: 2016-02-01 06:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -702,27 +702,22 @@ msgstr ""
 msgid "%(property_name)s is not a %(display_expected_type)s"
 msgstr ""
 
-#: keystone/common/controller.py:230 keystone/common/controller.py:246
-#: keystone/token/providers/common.py:638
-msgid "Non-default domain is not supported"
-msgstr ""
-
-#: keystone/common/controller.py:329 keystone/common/controller.py:358
+#: keystone/common/controller.py:309 keystone/common/controller.py:338
 #: keystone/identity/core.py:596 keystone/resource/core.py:788
 #: keystone/resource/backends/ldap.py:66 keystone/resource/backends/ldap.py:74
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr ""
 
-#: keystone/common/controller.py:371
+#: keystone/common/controller.py:351
 msgid "Marker could not be found"
 msgstr ""
 
-#: keystone/common/controller.py:382
+#: keystone/common/controller.py:362
 msgid "Invalid limit value"
 msgstr ""
 
-#: keystone/common/controller.py:690
+#: keystone/common/controller.py:670
 msgid "Cannot change Domain ID"
 msgstr ""
 
@@ -1420,62 +1415,50 @@ msgstr ""
 msgid "Unknown token version %s"
 msgstr ""
 
-#: keystone/token/providers/common.py:53
-msgid "Domains are not supported by the v2 API. Please use the v3 API instead."
-msgstr ""
-
-#: keystone/token/providers/common.py:63
-#, python-format
-msgid ""
-"Project not found in the default domain (please use the v3 API instead): "
-"%s"
-msgstr ""
-
-#: keystone/token/providers/common.py:82
-#, python-format
-msgid "User not found in the default domain (please use the v3 API instead): %s"
-msgstr ""
-
-#: keystone/token/providers/common.py:299
-#: keystone/token/providers/common.py:404
+#: keystone/token/providers/common.py:274
+#: keystone/token/providers/common.py:388
 #, python-format
 msgid "User %(user_id)s has no access to project %(project_id)s"
 msgstr ""
 
-#: keystone/token/providers/common.py:304
-#: keystone/token/providers/common.py:409
+#: keystone/token/providers/common.py:279
+#: keystone/token/providers/common.py:393
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr ""
 
-#: keystone/token/providers/common.py:331
+#: keystone/token/providers/common.py:306
 msgid "Trustor is disabled."
 msgstr ""
 
-#: keystone/token/providers/common.py:395
+#: keystone/token/providers/common.py:379
 msgid "Trustee has no delegated roles."
 msgstr ""
 
-#: keystone/token/providers/common.py:456
+#: keystone/token/providers/common.py:440
 #, python-format
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
 msgstr ""
 
-#: keystone/token/providers/common.py:484
+#: keystone/token/providers/common.py:468
 msgid "User is not a trustee."
 msgstr ""
 
-#: keystone/token/providers/common.py:553
+#: keystone/token/providers/common.py:537
 msgid "The configured token provider does not support bind authentication."
 msgstr ""
 
-#: keystone/token/providers/common.py:628
+#: keystone/token/providers/common.py:612
 msgid ""
 "Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
 "Authentication"
 msgstr ""
 
-#: keystone/token/providers/common.py:646
+#: keystone/token/providers/common.py:622
+msgid "Non-default domain is not supported"
+msgstr ""
+
+#: keystone/token/providers/common.py:626
 msgid "Domain scoped token is not supported"
 msgstr ""
 
@@ -1532,26 +1515,26 @@ msgstr ""
 msgid "Some of requested roles are not in redelegated trust"
 msgstr ""
 
-#: keystone/trust/core.py:120
+#: keystone/trust/core.py:115
 msgid "One of the trust agents is disabled or deleted"
 msgstr ""
 
-#: keystone/trust/core.py:139
+#: keystone/trust/core.py:134
 msgid "remaining_uses must be a positive integer or null."
 msgstr ""
 
-#: keystone/trust/core.py:145
+#: keystone/trust/core.py:140
 #, python-format
 msgid ""
 "Requested redelegation depth of %(requested_count)d is greater than "
 "allowed %(max_count)d"
 msgstr ""
 
-#: keystone/trust/core.py:152
+#: keystone/trust/core.py:147
 msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr ""
 
-#: keystone/trust/core.py:162
+#: keystone/trust/core.py:157
 msgid ""
 "Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting"
 " this parameter is advised."

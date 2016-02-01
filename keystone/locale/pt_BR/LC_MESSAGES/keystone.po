@@ -10,16 +10,17 @@
 # Volmar Oliveira Junior <volmar.oliveira.jr@gmail.com>, 2013
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Raildo Mascena <raildom@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 8.0.2.dev18\n"
+"Project-Id-Version: keystone 8.0.2.dev24\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-15 23:36+0000\n"
+"POT-Creation-Date: 2016-01-31 23:16+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-09-03 12:54+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"PO-Revision-Date: 2016-01-28 01:24+0000\n"
+"Last-Translator: Raildo Mascena <raildom@gmail.com>\n"
 "Language: pt-BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: Babel 2.0\n"
@@ -143,6 +144,14 @@ msgstr ""
 msgid "Authentication plugin error."
 msgstr "Erro do plugin de autenticação."
 
+#, python-format
+msgid ""
+"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
+"%(backend_list)s"
+msgstr ""
+"Backend `%(backend)s`não é um memcached backend válido. Backends válidos: "
+"%(backend_list)s"
+
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
 "Não é possível autorizar um token de solicitação com um token emitido por "
@@ -163,6 +172,10 @@ msgstr "Não é possível alterar o ID do usuário"
 
 msgid "Cannot change user name"
 msgstr "Não é possível alterar o nome de usuário"
+
+#, python-format
+msgid "Cannot create an endpoint with an invalid URL: %(url)s"
+msgstr "Não é possível criar um endpoint com uma URL inválida: %(url)s"
 
 #, python-format
 msgid "Cannot create project with parent: %(project_id)s"
@@ -215,6 +228,10 @@ msgid ""
 msgstr ""
 "Combinar efetivo, domínio e filtros herdados sempre resultará em uma lista "
 "vazia."
+
+#, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "Entidade de API de configuração em /domains/%s/config"
 
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
@@ -429,6 +446,18 @@ msgstr ""
 "arquivo: %(file)s."
 
 #, python-format
+msgid "Error while opening file %(path)s: %(err)s"
+msgstr "Erro enquanto abria arquivo: %(path)s: %(err)s"
+
+#, python-format
+msgid "Error while parsing line: '%(line)s': %(err)s"
+msgstr "Erro ao analisar linhas %(line)s: %(err)s"
+
+#, python-format
+msgid "Error while parsing rules %(path)s: %(err)s"
+msgstr "Erro ao analisar regras %(path)s: %(err)s"
+
+#, python-format
 msgid "Error while reading metadata file, %(reason)s"
 msgstr "Erro ao ler arquivo de metadados, %(reason)s"
 
@@ -613,6 +642,9 @@ msgstr "Exclusão de LDAP %s"
 msgid "LDAP %s update"
 msgstr "Atualização de LDAP %s"
 
+msgid "LDAP does not support projects with is_domain flag enabled"
+msgstr "LDAP não suporta projetos com a flag is_domain habilitada"
+
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
 msgstr "Ocorreu um tempo limite de bloqueio para a chave, %(target)s"
@@ -665,6 +697,10 @@ msgstr "Deve especificar o domínio ou projeto"
 msgid "Name field is required and cannot be empty"
 msgstr "Campo nome é requerido e não pode ser vazio"
 
+msgid "Neither Project Domain ID nor Project Domain Name was provided."
+msgstr ""
+"Nem ID de Domínio do Projeto nem Nome do Domínio do Projeto foram fornecidos."
+
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
@@ -693,6 +729,9 @@ msgstr "Nenhuma política associada ao terminal %(endpoint_id)s."
 msgid "No remaining uses for trust: %(trust_id)s"
 msgstr "Nenhum uso restante para confiança: %(trust_id)s"
 
+msgid "No token in the request"
+msgstr "Não existe token na requisição."
+
 msgid "Non-default domain is not supported"
 msgstr "O domínio não padrão não é suportado"
 
@@ -720,8 +759,18 @@ msgid "Project (%s)"
 msgstr "Projeto (%s)"
 
 #, python-format
+msgid "Project ID not found: %(t_id)s"
+msgstr "ID de projeto não encontrado: %(t_id)s"
+
+msgid "Project field is required and cannot be empty."
+msgstr "Campo projeto é requerido e não pode ser vazio."
+
+#, python-format
 msgid "Project is disabled: %s"
 msgstr "O projeto está desativado: %s"
+
+msgid "Query string is not UTF-8 encoded"
+msgstr "A query string não é codificada em UTF-8"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "Nova delegação permitida para delegado pela confiança somente"
@@ -818,6 +867,15 @@ msgstr ""
 "Comprimento de string excedido. O comprimento de string '%(string)s' excedeu "
 "o limite da coluna %(type)s(CHAR(%(length)d))."
 
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"O 'expires_at' não deve ser anterior a agora. O servidor não pôde obedecer à "
+"solicitação porque ela está malformada ou de alguma maneira incorreta. O "
+"cliente é assumido como tendo erro."
+
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "A opção --all não pode ser usada com a opção --domain-name"
 
@@ -849,6 +907,12 @@ msgstr ""
 "Os certificados que você solicitou não estão disponíveis. É provável que "
 "esse servidor não utiliza tokens PKI, caso contrário, este é o resultado de "
 "configuração incorreta."
+
+msgid "The configured token provider does not support bind authentication."
+msgstr "O provedor de token configurado não suporta autenticação bind."
+
+msgid "The creation of projects acting as domains is not allowed yet."
+msgstr "A criação de projetos agindo como domínios ainda não é permitida."
 
 #, python-format
 msgid ""
@@ -897,6 +961,9 @@ msgstr "Não deve haver nenhum parâmetro não oauth"
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Esta não é uma versão de carga útil do Fernet reconhecida: %s"
 
+msgid "This is not a recognized Fernet token"
+msgstr "Este não é um token Fernet reconhecido."
+
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
 "tokens."
@@ -928,6 +995,9 @@ msgstr "O token pertence à outro usuário"
 
 msgid "Token does not belong to specified tenant."
 msgstr "O token não pertence ao tenant especificado."
+
+msgid "Token version is unrecognizable or unsupported."
+msgstr "Versão do Token é irreconhecível ou não suportada."
 
 msgid "Trustee has no delegated roles."
 msgstr "Fiador não possui roles delegados."
@@ -1053,6 +1123,9 @@ msgstr "Versão de token desconhecida %s"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "Dependência não registrada: %(name)s para %(targets)s"
 
+msgid "Update of `is_domain` is not allowed."
+msgstr "Atualização de 'is_domain' não é permitida."
+
 msgid "Update of `parent_id` is not allowed."
 msgstr "Atualização de ‘parent_id’ não é permitida."
 
@@ -1088,6 +1161,14 @@ msgstr "Usuário '%(user_id)s' não localizado no grupo '%(group_id)s'"
 msgid "User IDs do not match"
 msgstr "ID de usuário não confere"
 
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"A autenticação do usuário não pode ser construída porque está faltando o ID "
+"ou o nome do usuário com o ID do domínio ou o nome do usuário com o nome do "
+"domínio."
+
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
@@ -1100,6 +1181,9 @@ msgstr "Usuário não é confiável."
 
 msgid "User not found"
 msgstr "Usuário não localizado"
+
+msgid "User roles not supported: tenant_id required"
+msgstr "Papel de usuário não suportado: requer tenant_id"
 
 #, python-format
 msgid "User type %s not supported"
@@ -1270,3 +1354,11 @@ msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "referência de token deve ser um tipo KeystoneToken, obteve: %s"
+
+#, python-format
+msgid ""
+"validated expected to find %(param_name)r in function signature for "
+"%(func_name)r."
+msgstr ""
+"validado esperava localizar %(param_name)r na assinatura da função para "
+"%(func_name)r."
