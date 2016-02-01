@@ -14,9 +14,7 @@ from oslo_config import cfg
 
 from keystone.common import dependency
 from keystone.common import utils as ks_utils
-from keystone import exception
 from keystone.federation import constants as federation_constants
-from keystone.i18n import _
 from keystone.token import provider
 from keystone.token.providers import common
 from keystone.token.providers.fernet import token_formatters as tf
@@ -141,44 +139,6 @@ class Provider(common.BaseProvider):
         group_ids = [x['id'] for x in federated_dict['group_ids']]
         self.v3_token_data_helper.populate_roles_for_groups(
             token_dict, group_ids, project_id, domain_id, user_id)
-
-    # FIXME(lbragstad): Consolidate this into BaseProvider.validate_v2_token()
-    def validate_v2_token(self, token_ref):
-        """Validate a V2 formatted token.
-
-        :param token_ref: reference describing the token to validate. Note that
-                          token_ref is going to be a token ID.
-        :returns: the token data
-        :raises keystone.exception.TokenNotFound: if token format is invalid
-        :raises keystone.exception.Unauthorized: if v3 token is used
-
-        """
-        try:
-            (user_id, methods,
-             audit_ids, domain_id,
-             project_id, trust_id,
-             federated_info, created_at,
-             expires_at) = self.token_formatter.validate_token(token_ref)
-        except exception.ValidationError:
-            raise exception.TokenNotFound(token_id=token_ref)
-
-        if trust_id or domain_id or federated_info:
-            msg = _('This is not a v2.0 Fernet token. Use v3 for trust, '
-                    'domain, or federated tokens.')
-            raise exception.Unauthorized(msg)
-
-        v3_token_data = self.v3_token_data_helper.get_token_data(
-            user_id,
-            methods,
-            project_id=project_id,
-            expires=expires_at,
-            issued_at=created_at,
-            token=token_ref,
-            include_catalog=False,
-            audit_info=audit_ids)
-        token_data = self.v2_token_data_helper.v3_to_v2_token(v3_token_data)
-        token_data['access']['token']['id'] = token_ref
-        return token_data
 
     def _extract_v2_token_data(self, token_data):
         user_id = token_data['access']['user']['id']
