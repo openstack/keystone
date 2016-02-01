@@ -2297,17 +2297,17 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
 
         # ) is a special char in a filter and must be escaped.
         sample_dn = 'cn=foo)bar'
+        # LDAP requires ) is escaped by being replaced with "\29"
+        sample_dn_filter_esc = r'cn=foo\29bar'
 
         # Override the tree_dn, it's used to build the enabled member filter
         mixin_impl.tree_dn = sample_dn
 
         # The filter that _get_enabled is going to build contains the
         # tree_dn, which better be escaped in this case.
-        # Note that the tree_dn isn't escaped and will lead to an invalid
-        # filter! See bug 1532345.
         exp_filter = '(%s=%s=%s,%s)' % (
             mixin_impl.member_attribute, mixin_impl.id_attr, object_id,
-            sample_dn)
+            sample_dn_filter_esc)
 
         with mixin_impl.get_connection() as conn:
             m = self.useFixture(mockpatch.PatchObject(conn, 'search_s')).mock
