@@ -99,18 +99,17 @@ def convert_integer_to_method_list(method_int):
 
 
 @dependency.requires('identity_api', 'resource_api')
-class UserAuthInfo(object):
+class BaseUserInfo(object):
 
-    @staticmethod
-    def create(auth_payload, method_name):
-        user_auth_info = UserAuthInfo()
+    @classmethod
+    def create(cls, auth_payload, method_name):
+        user_auth_info = cls()
         user_auth_info._validate_and_normalize_auth_data(auth_payload)
         user_auth_info.METHOD_NAME = method_name
         return user_auth_info
 
     def __init__(self):
         self.user_id = None
-        self.password = None
         self.user_ref = None
         self.METHOD_NAME = None
 
@@ -164,7 +163,6 @@ class UserAuthInfo(object):
         if not user_id and not user_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='user')
-        self.password = user_info.get('password')
         try:
             if user_name:
                 if 'domain' not in user_info:
@@ -185,3 +183,29 @@ class UserAuthInfo(object):
         self.user_ref = user_ref
         self.user_id = user_ref['id']
         self.domain_id = domain_ref['id']
+
+
+class UserAuthInfo(BaseUserInfo):
+
+    def __init__(self):
+        super(UserAuthInfo, self).__init__()
+        self.password = None
+
+    def _validate_and_normalize_auth_data(self, auth_payload):
+        super(UserAuthInfo, self)._validate_and_normalize_auth_data(
+            auth_payload)
+        user_info = auth_payload['user']
+        self.password = user_info.get('password')
+
+
+class TOTPUserInfo(BaseUserInfo):
+
+    def __init__(self):
+        super(TOTPUserInfo, self).__init__()
+        self.passcode = None
+
+    def _validate_and_normalize_auth_data(self, auth_payload):
+        super(TOTPUserInfo, self)._validate_and_normalize_auth_data(
+            auth_payload)
+        user_info = auth_payload['user']
+        self.passcode = user_info.get('passcode')

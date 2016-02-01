@@ -14,6 +14,7 @@
 
 import copy
 import datetime
+import itertools
 import json
 import operator
 import uuid
@@ -29,6 +30,7 @@ from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
+from keystone.auth.plugins import totp
 from keystone.common import utils
 from keystone.contrib.revoke import routers
 from keystone import exception
@@ -4658,3 +4660,149 @@ class TestAuthFernetTokenProvider(TestAuth):
         # Bind not current supported by Fernet, see bug 1433311.
         self.v3_create_token(auth_data,
                              expected_status=http_client.NOT_IMPLEMENTED)
+
+
+class TestAuthTOTP(test_v3.RestfulTestCase):
+
+    def setUp(self):
+        super(TestAuthTOTP, self).setUp()
+
+        ref = unit.new_totp_credential(
+            user_id=self.default_domain_user['id'],
+            project_id=self.default_domain_project['id'])
+
+        self.secret = ref['blob']
+
+        r = self.post('/credentials', body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+
+        self.addCleanup(self.cleanup)
+
+    def auth_plugin_config_override(self):
+        methods = ['totp', 'token', 'password']
+        super(TestAuthTOTP, self).auth_plugin_config_override(methods)
+
+    def _make_credentials(self, cred_type, count=1, user_id=None,
+                          project_id=None, blob=None):
+        user_id = user_id or self.default_domain_user['id']
+        project_id = project_id or self.default_domain_project['id']
+
+        creds = []
+        for __ in range(count):
+            if cred_type == 'totp':
+                ref = unit.new_totp_credential(
+                    user_id=user_id, project_id=project_id, blob=blob)
+            else:
+                ref = unit.new_credential_ref(
+                    user_id=user_id, project_id=project_id)
+            resp = self.post('/credentials', body={'credential': ref})
+            creds.append(resp.json['credential'])
+        return creds
+
+    def _make_auth_data_by_id(self, passcode, user_id=None):
+        return self.build_authentication_request(
+            user_id=user_id or self.default_domain_user['id'],
+            passcode=passcode,
+            project_id=self.project['id'])
+
+    def _make_auth_data_by_name(self, passcode, username, user_domain_id):
+        return self.build_authentication_request(
+            username=username,
+            user_domain_id=user_domain_id,
+            passcode=passcode,
+            project_id=self.project['id'])
+
+    def cleanup(self):
+        totp_creds = self.credential_api.list_credentials_for_user(
+            self.default_domain_user['id'], type='totp')
+
+        other_creds = self.credential_api.list_credentials_for_user(
+            self.default_domain_user['id'], type='other')
+
+        for cred in itertools.chain(other_creds, totp_creds):
+            self.delete('/credentials/%s' % cred['id'],
+                        expected_status=http_client.NO_CONTENT)
+
+    def test_with_a_valid_passcode(self):
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+        auth_data = self._make_auth_data_by_id(totp._get_totp_token(secret))
+
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_with_an_invalid_passcode_and_user_credentials(self):
+        self._make_credentials('totp')
+        auth_data = self._make_auth_data_by_id('000000')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_with_an_invalid_passcode_with_no_user_credentials(self):
+        auth_data = self._make_auth_data_by_id('000000')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_with_a_corrupt_totp_credential(self):
+        self._make_credentials('totp', count=1, blob='0')
+        auth_data = self._make_auth_data_by_id('000000')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_with_multiple_credentials(self):
+        self._make_credentials('other', 3)
+        creds = self._make_credentials('totp', count=3)
+        secret = creds[-1]['blob']
+
+        auth_data = self._make_auth_data_by_id(totp._get_totp_token(secret))
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_with_multiple_users(self):
+        # make some credentials for the existing user
+        self._make_credentials('totp', count=3)
+
+        # create a new user and their credentials
+        user = unit.create_user(self.identity_api, domain_id=self.domain_id)
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=user['id'],
+                                         project_id=self.project['id'])
+        creds = self._make_credentials('totp', count=1, user_id=user['id'])
+        secret = creds[-1]['blob']
+
+        auth_data = self._make_auth_data_by_id(
+            totp._get_totp_token(secret), user_id=user['id'])
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_with_multiple_users_and_invalid_credentials(self):
+        """Prevent logging in with someone else's credentials.
+
+        It's very easy to forget to limit the credentials query by user.
+        Let's just test it for a sanity check.
+        """
+        # make some credentials for the existing user
+        self._make_credentials('totp', count=3)
+
+        # create a new user and their credentials
+        new_user = unit.create_user(self.identity_api,
+                                    domain_id=self.domain_id)
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=new_user['id'],
+                                         project_id=self.project['id'])
+        user2_creds = self._make_credentials(
+            'totp', count=1, user_id=new_user['id'])
+
+        user_id = self.default_domain_user['id']  # user1
+        secret = user2_creds[-1]['blob']
+
+        auth_data = self._make_auth_data_by_id(
+            totp._get_totp_token(secret), user_id=user_id)
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_with_username_and_domain_id(self):
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+        auth_data = self._make_auth_data_by_name(
+            totp._get_totp_token(secret),
+            username=self.default_domain_user['name'],
+            user_domain_id=self.default_domain_user['domain_id'])
+
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
