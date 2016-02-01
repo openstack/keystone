@@ -347,26 +347,33 @@ FILE_OPTIONS = {
     'signing': [
         cfg.StrOpt('certfile',
                    default=_CERTFILE,
+                   deprecated_for_removal=True,
                    help='Path of the certfile for token signing. For '
                         'non-production environments, you may be interested '
                         'in using `keystone-manage pki_setup` to generate '
                         'self-signed certificates.'),
         cfg.StrOpt('keyfile',
                    default=_KEYFILE,
+                   deprecated_for_removal=True,
                    help='Path of the keyfile for token signing.'),
         cfg.StrOpt('ca_certs',
+                   deprecated_for_removal=True,
                    default='/etc/keystone/ssl/certs/ca.pem',
                    help='Path of the CA for token signing.'),
         cfg.StrOpt('ca_key',
                    default='/etc/keystone/ssl/private/cakey.pem',
+                   deprecated_for_removal=True,
                    help='Path of the CA key for token signing.'),
         cfg.IntOpt('key_size', default=2048, min=1024,
+                   deprecated_for_removal=True,
                    help='Key size (in bits) for token signing cert '
                         '(auto generated certificate).'),
         cfg.IntOpt('valid_days', default=3650,
+                   deprecated_for_removal=True,
                    help='Days the token signing cert is valid for '
                         '(auto generated certificate).'),
         cfg.StrOpt('cert_subject',
+                   deprecated_for_removal=True,
                    default=('/C=US/ST=Unset/L=Unset/O=Unset/'
                             'CN=www.example.com'),
                    help='Certificate subject (auto generated certificate) for '

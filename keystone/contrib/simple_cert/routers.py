@@ -10,32 +10,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import functools
+from oslo_log import log
+from oslo_log import versionutils
 
-from keystone.common import json_home
 from keystone.common import wsgi
-from keystone.contrib.simple_cert import controllers
+from keystone.i18n import _
 
 
-build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation,
-    extension_name='OS-SIMPLE-CERT', extension_version='1.0')
+LOG = log.getLogger(__name__)
 
 
-class SimpleCertExtension(wsgi.V3ExtensionRouter):
+class SimpleCertExtension(wsgi.Middleware):
 
-    PREFIX = 'OS-SIMPLE-CERT'
-
-    def add_routes(self, mapper):
-        controller = controllers.SimpleCert()
-
-        self._add_resource(
-            mapper, controller,
-            path='/%s/ca' % self.PREFIX,
-            get_action='get_ca_certificate',
-            rel=build_resource_relation(resource_name='ca_certificate'))
-        self._add_resource(
-            mapper, controller,
-            path='/%s/certificates' % self.PREFIX,
-            get_action='list_certificates',
-            rel=build_resource_relation(resource_name='certificates'))
+    def __init__(self, application):
+        super(SimpleCertExtension, self).__init__(application)
+        msg = _("Remove simple_cert from the paste pipeline, the "
+                "PKI and PKIz token providers are now deprecated and "
+                "simple_cert was only used insupport of these token "
+                "providers. Update the [pipeline:api_v3] section in "
+                "keystone-paste.ini accordingly, as it will be removed in the "
+                "O release.")
+        versionutils.report_deprecated_feature(LOG, msg)
