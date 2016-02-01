@@ -188,5 +188,5 @@ class TokenlessAuthHelper(object):
             raise exception.TokenlessAuthConfigError(
                 issuer_attribute=CONF.tokenless_auth.issuer_attribute)
 
-        hashed_idp = hashlib.sha256(idp)
+        hashed_idp = hashlib.sha256(idp.encode('utf-8'))
         return hashed_idp.hexdigest()
