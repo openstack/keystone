@@ -16,6 +16,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+import sys
 import uuid
 
 from oslo_config import cfg
@@ -692,7 +693,7 @@ class DomainConfigUpload(BaseApp):
         dcu = DomainConfigUploadFiles()
         status = dcu.run()
         if status is not None:
-            exit(status)
+            sys.exit(status)
 
 
 class SamlIdentityProviderMetadata(BaseApp):
