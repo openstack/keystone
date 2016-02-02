@@ -16,6 +16,6 @@ deprecations:
     removed in the 'O' release.
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
-    As of the Mitaka release, the simple_cert_extension is deprecated since it
-    is only used in support of the PKI and PKIz token formats.  It will be
-    removed in the 'O' release.
+    As of the Mitaka release, the auth plugin ``keystone.auth.plugins.saml2.Saml2``
+    has been deprecated. It is recommended to use ``keystone.auth.plugins.mapped.Mapped``
+    instead. The ``saml2`` plugin will be removed in the 'O' release.

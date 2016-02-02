@@ -90,14 +90,19 @@ configure ``federation``.
 Configure authentication drivers in ``keystone.conf``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. NOTE::
+    ``saml2`` has been deprecated as of the Mitaka release. Support for the
+    ``saml2`` wrapper will be removed as of the "O" release. The recommended authentication method
+    is ``mapped``, which supports ``saml2``.
+
 Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
 Names should be equal to protocol names added via Identity API v3. Here we use
-examples ``saml2`` and ``openid``.
+examples ``mapped`` and ``openid``.
 
 .. code-block:: bash
 
        [auth]
-       methods = external,password,token,saml2,openid
+       methods = external,password,token,mapped,openid
 
 Create keystone groups and assign roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -251,7 +256,7 @@ Example cURL
 
 .. code-block:: bash
 
-    $ curl -X POST -H "Content-Type: application/json" -d '{"auth":{"identity":{"methods":["saml2"],"saml2":{"id":"<unscoped_token_id>"}},"scope":{"project":{"domain": {"name": "Default"},"name":"service"}}}}' -D - http://localhost:5000/v3/auth/tokens
+    $ curl -X POST -H "Content-Type: application/json" -d '{"auth":{"identity":{"methods":["mapped"],"saml2":{"id":"<unscoped_token_id>"}},"scope":{"project":{"domain": {"name": "Default"},"name":"service"}}}}' -D - http://localhost:5000/v3/auth/tokens
 
 --------------------------------------
 Keystone as an Identity Provider (IdP)

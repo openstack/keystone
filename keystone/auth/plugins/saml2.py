@@ -10,9 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
+
 from keystone.auth.plugins import mapped
 
 
+@versionutils.deprecated(
+    versionutils.deprecated.MITAKA,
+    what='keystone.auth.plugins.saml2.Saml2',
+    in_favor_of='keystone.auth.plugins.mapped.Mapped',
+    remove_in=+2)
 class Saml2(mapped.Mapped):
     """Provide an entry point to authenticate with SAML2.
 
