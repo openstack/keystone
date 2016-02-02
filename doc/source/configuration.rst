@@ -52,8 +52,8 @@ Starting and Stopping Keystone under Eventlet
 
     Running keystone under eventlet has been deprecated as of the Kilo release.
     Support for utilizing eventlet will be removed as of the M-release. The
-    recommended deployment is to run keystone in a WSGI server
-    (e.g. ``mod_wsgi`` under ``HTTPD``).
+    recommended deployment is to run keystone in a WSGI server such as Apache
+    httpd with ``mod_wsgi``.
 
 Keystone can be run using either its built-in eventlet server or it can be run
 embedded in a web server. While the eventlet server is convenient and easy to
@@ -446,9 +446,10 @@ The drivers Keystone provides are:
 .. WARNING::
     It is recommended you use the ``memcache_pool`` backend instead of
     ``memcache`` as the token persistence driver if you are deploying Keystone
-    under eventlet instead of Apache + mod_wsgi. This recommendation is due to
-    known issues with the use of ``thread.local`` under eventlet that can allow
-    the leaking of memcache client objects and consumption of extra sockets.
+    under eventlet instead of Apache httpd with ``mod_wsgi``. This
+    recommendation is due to known issues with the use of ``thread.local``
+    under eventlet that can allow the leaking of memcache client objects and
+    consumption of extra sockets.
 
 
 Token Provider
@@ -539,7 +540,8 @@ disabled.
         backend will need to be specified. Current functional backends are:
 
     * ``dogpile.cache.memcached`` - Memcached backend using the standard
-      `python-memcached`_ library
+      `python-memcached`_ library (recommended for use with Apache httpd with
+      ``mod_wsgi``)
     * ``dogpile.cache.pylibmc`` - Memcached backend using the `pylibmc`_
       library
     * ``dogpile.cache.bmemcached`` - Memcached using `python-binary-memcached`_
@@ -548,7 +550,7 @@ disabled.
     * ``dogpile.cache.dbm`` - local DBM file backend
     * ``dogpile.cache.memory`` - in-memory cache
     * ``keystone.cache.mongo`` - MongoDB as caching backend
-    * ``keystone.cache.memcache_pool`` - An eventlet safe implementation of
+    * ``keystone.cache.memcache_pool`` - An eventlet-safe implementation of
       ``dogpile.cache.memcached``. This implementation also provides client
       connection re-use.
 
@@ -955,7 +957,7 @@ this section. Here is the description of each of them and their purpose:
     The SSL configuration options available to the eventlet server
     (``keystone-all``) described here are severely limited. A secure
     deployment should have Keystone running in a web server (such as Apache
-    HTTPd), or behind an SSL terminator. When running Keystone in a web server
+    httpd), or behind an SSL terminator. When running Keystone in a web server
     or behind an SSL terminator the options described in this section have no
     effect and SSL is configured in the web server or SSL terminator.
 
@@ -1126,8 +1128,8 @@ roles to third party consumers via the OAuth 1.0a specification.
 
 To enable OAuth1:
 
-1. Add the oauth1 driver to the ``[oauth1]`` section in ``keystone.conf``.
-For example:
+1. Add the oauth1 driver to the ``[oauth1]`` section in ``keystone.conf``. For
+   example:
 
 .. code-block:: ini
 
@@ -1135,17 +1137,17 @@ For example:
     driver = sql
 
 2. Add the ``oauth1`` authentication method to the ``[auth]`` section in
-``keystone.conf``:
+   ``keystone.conf``:
 
 .. code-block:: ini
 
     [auth]
     methods = external,password,token,oauth1
 
-3. Optionally, if deploying under an HTTPD server (i.e. Apache), set the
-`WSGIPassAuthorization` to allow the OAuth Authorization headers to pass
-through `mod_wsgi`. For example, add the following to the keystone virtual
-host file:
+3. If deploying under Apache httpd with ``mod_wsgi``, set the
+   `WSGIPassAuthorization` to allow the OAuth Authorization headers to pass
+   through `mod_wsgi`. For example, add the following to the keystone virtual
+   host file:
 
 .. code-block:: ini
 
@@ -1895,7 +1897,7 @@ with the user's DN and provided password. This kind of authentication bind
 can fill up the pool pretty quickly, so a separate pool is provided for end
 user authentication bind calls. If a deployment does not want to use a pool for
 those binds, then it can disable pooling selectively by setting
-``use_auth_pool`` to false. If a deployment wants to use a pool for those 
+``use_auth_pool`` to false. If a deployment wants to use a pool for those
 authentication binds, then ``use_auth_pool`` needs to be set to true. For the
 authentication pool, a different pool size (``auth_pool_size``) and connection
 lifetime (``auth_pool_connection_lifetime``) can be specified. With an enabled
