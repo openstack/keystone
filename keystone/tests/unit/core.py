@@ -748,6 +748,17 @@ class TestCase(BaseTestCase):
                 setattr(self, attrname, user_copy)
                 fixtures_to_cleanup.append(attrname)
 
+            for role_assignment in fixtures.ROLE_ASSIGNMENTS:
+                role_id = role_assignment['role_id']
+                user = role_assignment['user']
+                tenant_id = role_assignment['tenant_id']
+                user_id = getattr(self, 'user_%s' % user)['id']
+                try:
+                    self.assignment_api.add_role_to_user_and_project(
+                        user_id, tenant_id, role_id)
+                except exception.Conflict:
+                    pass
+
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 
     def _paste_config(self, config):

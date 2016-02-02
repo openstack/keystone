@@ -268,7 +268,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
         self.admin_request(
-            path=path, token=CONF.admin_token,
+            path=path, token=self.get_admin_token(),
             method='GET', expected_status=http_client.UNAUTHORIZED)
 
     def test_v3_v2_intermix_trustor_not_in_default_domain_failed(self):
@@ -303,7 +303,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # now validate the v3 token with v2 API
         path = '/v2.0/tokens/%s' % (token)
         self.admin_request(
-            path=path, token=CONF.admin_token,
+            path=path, token=self.get_admin_token(),
             method='GET', expected_status=http_client.UNAUTHORIZED)
 
     def test_v3_v2_intermix_project_not_in_default_domain_failed(self):
@@ -343,7 +343,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # ensure the token is invalid against v2
         path = '/v2.0/tokens/%s' % (token)
         self.admin_request(
-            path=path, token=CONF.admin_token,
+            path=path, token=self.get_admin_token(),
             method='GET', expected_status=http_client.UNAUTHORIZED)
 
     def test_exercise_trust_scoped_token_without_impersonation(self):

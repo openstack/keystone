@@ -216,6 +216,17 @@ class RestfulTestCase(unit.TestCase):
         r = self.public_request(method='POST', path='/v2.0/tokens', body=body)
         return self._get_token_id(r)
 
+    def get_admin_token(self):
+        return self._get_token({
+            'auth': {
+                'passwordCredentials': {
+                    'username': self.user_reqadmin['name'],
+                    'password': self.user_reqadmin['password']
+                },
+                'tenantId': 'service'
+            }
+        })
+
     def get_unscoped_token(self):
         """Convenience method so that we can test authenticated requests."""
         return self._get_token({

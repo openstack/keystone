@@ -55,6 +55,15 @@ TENANTS = [
 
 # NOTE(ja): a role of keystone_admin is done in setUp
 USERS = [
+    # NOTE(morganfainberg): Admin user for replacing admin_token_auth
+    {
+        'id': 'reqadmin',
+        'name': 'REQ_ADMIN',
+        'domain_id': DEFAULT_DOMAIN_ID,
+        'password': 'password',
+        'tenants': [],
+        'enabled': True
+    },
     {
         'id': 'foo',
         'name': 'FOO',
@@ -122,6 +131,15 @@ ROLES = [
         'name': 'Service',
         'domain_id': None,
     }
+]
+
+# NOTE(morganfainberg): Admin assignment for replacing admin_token_auth
+ROLE_ASSIGNMENTS = [
+    {
+        'user': 'reqadmin',
+        'tenant_id': 'service',
+        'role_id': 'admin'
+    },
 ]
 
 DOMAINS = [{'description':

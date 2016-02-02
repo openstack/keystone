@@ -266,7 +266,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         r = self.post(
             '/credentials',
             body={'credential': ref},
-            token=CONF.admin_token)
+            token=self.get_admin_token())
         self.assertValidCredentialResponse(r, ref)
 
 

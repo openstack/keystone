@@ -1,4 +1,12 @@
 ---
+upgrade:
+  - >
+    The ``keystone-paste.ini`` file must be updated to remove middleware filters
+    and their use in ``[pipeline:api_v3]``, ``[pipeline:public_api]``,
+    and ``[pipeline:admin_api]``. Remove ``[filter:admin_token_auth]``. See the
+    sample `keystone-paste.ini
+    <https://git.openstack.org/cgit/openstack/keystone/tree/etc/keystone-paste.ini>`_
+    file for guidance.
 deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
@@ -19,3 +27,13 @@ deprecations:
     As of the Mitaka release, the auth plugin ``keystone.auth.plugins.saml2.Saml2``
     has been deprecated. It is recommended to use ``keystone.auth.plugins.mapped.Mapped``
     instead. The ``saml2`` plugin will be removed in the 'O' release.
+  - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
+    As of the Mitaka release, the simple_cert_extension is deprecated since it
+    is only used in support of the PKI and PKIz token formats.  It will be
+    removed in the 'O' release.
+  - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
+    As of the Mitaka release, the use of ``admin_token_auth`` is deprecated in favor
+    of using the ``keystone-manage bootstrap`` CLI. It will be removed in the
+    'O' release.

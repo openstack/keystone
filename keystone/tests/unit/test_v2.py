@@ -1513,7 +1513,7 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         self.admin_request(
             method='GET',
             path=path,
-            token=CONF.admin_token,
+            token=self.get_admin_token(),
             expected_status=http_client.OK)
 
     def test_rescoped_tokens_maintain_original_expiration(self):
