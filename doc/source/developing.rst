@@ -183,7 +183,7 @@ guidelines for schema and data migrations should be followed:
   are filled with null values before removing them.
 
 A good example of an online schema migration is documented in a `cinder spec`_.
-See more examples in :doc:`devref/online_schema_migration_examples`.
+See more examples in :doc:`online_schema_migration_examples`.
 
 .. _`online schema migration`: https://specs.openstack.org/openstack/keystone-specs/specs/mitaka/online-schema-migration.html
 .. _`MySQL docs`: https://dev.mysql.com/doc/refman/5.7/en/innodb-create-index-overview.html

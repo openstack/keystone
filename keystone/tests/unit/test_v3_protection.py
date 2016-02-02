@@ -574,7 +574,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
           - project_admin_user has role 'admin' on the project,
           - just_a_user has a non-admin role on both domainA and the project.
         - admin_domain has admin_project, and user cloud_admin_user, with an
-        'admin' role on admin_project.
+          'admin' role on admin_project.
 
         We test various api protection rules from the cloud sample policy
         file to make sure the sample is valid and that we correctly enforce it.

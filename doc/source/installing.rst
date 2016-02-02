@@ -56,7 +56,7 @@ Install the Keystone web service:
     This step is guaranteed to fail if you do not have the proper binary
     dependencies already installed on your development system. Maintaining a
     list of platform-specific dependencies is outside the scope of this
-    documentation, but is within scope of `DevStack <http://devstack.org/>`_.
+    documentation, but is within scope of DEVSTACK_.
 
 You should have all the pieces you need to run Keystone installed on your
 system. The following commands should be available on the command-line path:
