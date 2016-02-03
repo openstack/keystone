@@ -28,7 +28,6 @@ from keystone.common import cache
 from keystone.common.validation import validators
 from keystone import exception
 from keystone import middleware
-from keystone.policy.backends import rules
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import rest
@@ -280,13 +279,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         super(RestfulTestCase, self).setUp(app_conf=app_conf)
 
         self.empty_context = {'environment': {}}
-
-        # Initialize the policy engine and allow us to write to a temp
-        # file in each test to create the policies
-        rules.reset()
-
-        # drop the policy rules
-        self.addCleanup(rules.reset)
 
     def load_backends(self):
         # ensure the cache region instance is setup
