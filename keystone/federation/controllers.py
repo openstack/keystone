@@ -24,6 +24,7 @@ from keystone.auth import controllers as auth_controllers
 from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import utils as k_utils
 from keystone.common import validation
 from keystone.common import wsgi
 from keystone import exception
@@ -269,7 +270,11 @@ class Auth(auth_controllers.Auth):
             LOG.error(msg)
             raise exception.ValidationError(msg)
 
-        if host not in CONF.federation.trusted_dashboard:
+        # change trusted_dashboard hostnames to lowercase before comparison
+        trusted_dashboards = [k_utils.lower_case_hostname(trusted)
+                              for trusted in CONF.federation.trusted_dashboard]
+
+        if host not in trusted_dashboards:
             msg = _('%(host)s is not a trusted dashboard host')
             msg = msg % {'host': host}
             LOG.error(msg)
