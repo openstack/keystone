@@ -15,6 +15,7 @@ import uuid
 from oslo_config import cfg
 from six.moves import http_client
 from six.moves import range
+from testtools import matchers
 
 from keystone.common import controller
 from keystone import exception
@@ -900,6 +901,66 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s?parents_as_list&parents_as_ids' % {
                 'project_id': projects[1]['project']['id']},
             expected_status=http_client.BAD_REQUEST)
+
+    def test_list_project_is_domain_filter(self):
+        """Call ``GET /projects?is_domain=True/False``."""
+        # Get the initial number of projects, both acting as a domain as well
+        # as regular.
+        r = self.get('/projects?is_domain=True', expected_status=200)
+        initial_number_is_domain_true = len(r.result['projects'])
+        r = self.get('/projects?is_domain=False', expected_status=200)
+        initial_number_is_domain_false = len(r.result['projects'])
+
+        # Add some more projects acting as domains
+        new_is_domain_project = unit.new_project_ref(is_domain=True)
+        new_is_domain_project = self.resource_api.create_project(
+            new_is_domain_project['id'], new_is_domain_project)
+        new_is_domain_project2 = unit.new_project_ref(is_domain=True)
+        new_is_domain_project2 = self.resource_api.create_project(
+            new_is_domain_project2['id'], new_is_domain_project2)
+        number_is_domain_true = initial_number_is_domain_true + 2
+
+        r = self.get('/projects?is_domain=True', expected_status=200)
+        self.assertThat(r.result['projects'],
+                        matchers.HasLength(number_is_domain_true))
+        self.assertIn(new_is_domain_project['id'],
+                      [p['id'] for p in r.result['projects']])
+        self.assertIn(new_is_domain_project2['id'],
+                      [p['id'] for p in r.result['projects']])
+
+        # Now add a regular project
+        new_regular_project = unit.new_project_ref(domain_id=self.domain_id)
+        new_regular_project = self.resource_api.create_project(
+            new_regular_project['id'], new_regular_project)
+        number_is_domain_false = initial_number_is_domain_false + 1
+
+        # Check we still have the same number of projects acting as domains
+        r = self.get('/projects?is_domain=True', expected_status=200)
+        self.assertThat(r.result['projects'],
+                        matchers.HasLength(number_is_domain_true))
+
+        # Check the number of regular projects is correct
+        r = self.get('/projects?is_domain=False', expected_status=200)
+        self.assertThat(r.result['projects'],
+                        matchers.HasLength(number_is_domain_false))
+        self.assertIn(new_regular_project['id'],
+                      [p['id'] for p in r.result['projects']])
+
+    def test_list_project_is_domain_filter_default(self):
+        """Default project list should not see projects acting as domains"""
+        # Get the initial count of regular projects
+        r = self.get('/projects?is_domain=False', expected_status=200)
+        number_is_domain_false = len(r.result['projects'])
+
+        # Make sure we have at least one project acting as a domain
+        new_is_domain_project = unit.new_project_ref(is_domain=True)
+        new_is_domain_project = self.resource_api.create_project(
+            new_is_domain_project['id'], new_is_domain_project)
+
+        r = self.get('/projects', expected_status=200)
+        self.assertThat(r.result['projects'],
+                        matchers.HasLength(number_is_domain_false))
+        self.assertNotIn(new_is_domain_project, r.result['projects'])
 
     def test_get_project_with_subtree_as_ids(self):
         """Call ``GET /projects/{project_id}?subtree_as_ids``.

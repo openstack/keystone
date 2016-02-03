@@ -248,9 +248,13 @@ class ProjectV3(controller.V3Controller):
         return ProjectV3.wrap_member(context, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name',
-                                'parent_id')
+                                'parent_id', 'is_domain')
     def list_projects(self, context, filters):
         hints = ProjectV3.build_driver_hints(context, filters)
+        # If 'is_domain' has not been included as a query, we default it to
+        # False (which in query terms means '0'
+        if 'is_domain' not in context['query_string']:
+            hints.add_filter('is_domain', '0')
         refs = self.resource_api.list_projects(hints=hints)
         return ProjectV3.wrap_collection(context, refs, hints=hints)
 
