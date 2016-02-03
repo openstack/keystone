@@ -73,6 +73,13 @@ identity:create_role                                       POST /v3/roles
 identity:update_role                                       PATCH /v3/roles/{role_id}
 identity:delete_role                                       DELETE /v3/roles/{role_id}
 
+identity:get_implied_role                                  GET /v3/roles/{prior_role_id}/implies/{implied_role_id}
+identity:list_implied_roles                                GET /v3/roles/{prior_role_id}/implies
+identity:create_implied_role                               PUT /v3/roles/{prior_role_id}/implies/{implied_role_id}
+identity:delete_implied_role                               DELETE /v3/roles/{prior_role_id}/implies/{implied_role_id}
+identity:list_role_inference_rules                         GET /v3/role_inferences
+identity:check_implied_role                                HEAD /v3/roles/{prior_role_id}/implies/{implied_role_id}
+
 identity:check_grant                                       GET `grant_resources`_
 identity:list_grants                                       GET `grant_collections`_
 identity:create_grant                                      PUT `grant_resources`_

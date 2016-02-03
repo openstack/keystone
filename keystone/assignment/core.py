@@ -1449,6 +1449,21 @@ class RoleManager(manager.Manager):
         self.get_role.invalidate(self, role_id)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
+    # TODO(ayoung): Add notification
+    def create_implied_role(self, prior_role_id, implied_role_id):
+        implied_role = self.driver.get_role(implied_role_id)
+        self.driver.get_role(prior_role_id)
+        if implied_role['name'] == CONF.assignment.root_role:
+            raise exception.InvalidImpliedRole(role_id=implied_role_id)
+        response = self.driver.create_implied_role(
+            prior_role_id, implied_role_id)
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        return response
+
+    def delete_implied_role(self, prior_role_id, implied_role_id):
+        self.driver.delete_implied_role(prior_role_id, implied_role_id)
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
+
 
 # The RoleDriverBase class is the set of driver methods from earlier
 # drivers that we still support, that have not been removed or modified. This
