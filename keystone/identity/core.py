@@ -1165,8 +1165,15 @@ class Manager(manager.Manager):
 class IdentityDriverV8(object):
     """Interface description for an Identity driver."""
 
+    def _get_conf(self):
+        try:
+            return self.conf or CONF
+        except AttributeError:
+            return CONF
+
     def _get_list_limit(self):
-        return CONF.identity.list_limit or CONF.list_limit
+        conf = self._get_conf()
+        return conf.identity.list_limit or conf.list_limit
 
     def is_domain_aware(self):
         """Indicates if Driver supports domains."""
