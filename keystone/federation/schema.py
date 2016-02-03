@@ -107,7 +107,7 @@ identity_provider_update = {
 federation_protocol_schema = {
     'type': 'object',
     'properties': {
-        'mapping_id': parameter_types.id_string
+        'mapping_id': parameter_types.mapping_id_string
     },
     # `mapping_id` is the property that cannot be ignored
     'minProperties': 1,

@@ -43,6 +43,13 @@ id_string = {
     'pattern': '^[a-zA-Z0-9-]+$'
 }
 
+mapping_id_string = {
+    'type': 'string',
+    'minLength': 1,
+    'maxLength': 64,
+    'pattern': '^[a-zA-Z0-9-_]+$'
+}
+
 description = {
     'type': 'string'
 }
