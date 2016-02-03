@@ -45,6 +45,7 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils
 from keystone.token.providers import common as token_common
 
 
@@ -1932,6 +1933,9 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                 self.assertEqual(domains_ref, domains,
                                  'match failed for url %s' % url)
 
+    @utils.wip('This will fail because of bug #1501032. The returned method'
+               'list should contain "saml2". This is documented in bug '
+               '1501032.')
     def test_full_workflow(self):
         """Test 'standard' workflow for granting access tokens.
 
@@ -1942,6 +1946,8 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         """
         r = self._issue_unscoped_token()
         token_resp = r.json_body['token']
+        # NOTE(lbragstad): Ensure only 'saml2' is in the method list.
+        self.assertListEqual(['saml2'], token_resp['methods'])
         self.assertValidMappedUser(token_resp)
         employee_unscoped_token_id = r.headers.get('X-Subject-Token')
         r = self.get('/auth/projects', token=employee_unscoped_token_id)
@@ -1954,6 +1960,10 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
         r = self.v3_create_token(v3_scope_request)
         token_resp = r.result['token']
+        # FIXME(lbragstad): 'token' should be in the list of methods returned
+        # but it isn't. This is documented in bug 1501032.
+        self.assertIn('token', token_resp['methods'])
+        self.assertIn('saml2', token_resp['methods'])
         self._check_project_scoped_token_attributes(token_resp, project['id'])
 
     def test_workflow_with_groups_deletion(self):
@@ -2503,6 +2513,37 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
         methods = ['saml2', 'token']
         super(FederatedTokenTests,
               self).auth_plugin_config_override(methods)
+
+    @utils.wip('This will fail because of bug #1501032. The returned method'
+               'list should contain "saml2". This is documented in bug '
+               '1501032.')
+    def test_full_workflow(self):
+        """Test 'standard' workflow for granting access tokens.
+
+        * Issue unscoped token
+        * List available projects based on groups
+        * Scope token to one of available projects
+
+        """
+        r = self._issue_unscoped_token()
+        token_resp = r.json_body['token']
+        # NOTE(lbragstad): Ensure only 'saml2' is in the method list.
+        self.assertListEqual(['saml2'], token_resp['methods'])
+        self.assertValidMappedUser(token_resp)
+        employee_unscoped_token_id = r.headers.get('X-Subject-Token')
+        r = self.get('/auth/projects', token=employee_unscoped_token_id)
+        projects = r.result['projects']
+        random_project = random.randint(0, len(projects)) - 1
+        project = projects[random_project]
+
+        v3_scope_request = self._scope_request(employee_unscoped_token_id,
+                                               'project', project['id'])
+
+        r = self.v3_authenticate_token(v3_scope_request)
+        token_resp = r.result['token']
+        self.assertIn('token', token_resp['methods'])
+        self.assertIn('saml2', token_resp['methods'])
+        self._check_project_scoped_token_attributes(token_resp, project['id'])
 
 
 class JsonHomeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
