@@ -25,6 +25,7 @@ from keystone.credential import schema as credential_schema
 from keystone import exception
 from keystone.federation import schema as federation_schema
 from keystone.identity import schema as identity_schema
+from keystone.oauth1 import schema as oauth1_schema
 from keystone.policy import schema as policy_schema
 from keystone.resource import schema as resource_schema
 from keystone.tests import unit
@@ -82,6 +83,8 @@ entity_update = {
 _VALID_ENABLED_FORMATS = [True, False]
 
 _INVALID_ENABLED_FORMATS = ['some string', 1, 0, 'True', 'False']
+
+_INVALID_DESC_FORMATS = [False, 1, 2.0]
 
 _VALID_URLS = ['https://example.com', 'http://EXAMPLE.com/v3',
                'http://localhost', 'http://127.0.0.1:5000',
@@ -2043,3 +2046,56 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
         self.assertRaises(exception.SchemaValidationError,
                           self.protocol_validator.validate,
                           request_to_validate)
+
+
+class OAuth1ValidationTestCase(unit.BaseTestCase):
+    """Test for V3 Identity OAuth1 API validation."""
+
+    def setUp(self):
+        super(OAuth1ValidationTestCase, self).setUp()
+
+        create = oauth1_schema.consumer_create
+        update = oauth1_schema.consumer_update
+        self.create_consumer_validator = validators.SchemaValidator(create)
+        self.update_consumer_validator = validators.SchemaValidator(update)
+
+    def test_validate_consumer_request_succeeds(self):
+        """Test that we validate a consumer request successfully."""
+        request_to_validate = {'description': uuid.uuid4().hex,
+                               'name': uuid.uuid4().hex}
+        self.create_consumer_validator.validate(request_to_validate)
+        self.update_consumer_validator.validate(request_to_validate)
+
+    def test_validate_consumer_request_with_no_parameters(self):
+        """Test that schema validation with empty request body."""
+        request_to_validate = {}
+        self.create_consumer_validator.validate(request_to_validate)
+        # At least one property should be given.
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_consumer_validator.validate,
+                          request_to_validate)
+
+    def test_validate_consumer_request_with_invalid_description_fails(self):
+        """Exception is raised when `description` as a non-string value."""
+        for invalid_desc in _INVALID_DESC_FORMATS:
+            request_to_validate = {'description': invalid_desc}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_consumer_validator.validate,
+                              request_to_validate)
+
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_consumer_validator.validate,
+                              request_to_validate)
+
+    def test_validate_update_consumer_request_fails_with_secret(self):
+        """Exception raised when secret is given."""
+        request_to_validate = {'secret': uuid.uuid4().hex}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_consumer_validator.validate,
+                          request_to_validate)
+
+    def test_validate_consumer_request_with_none_desc(self):
+        """Test that schema validation with None desc."""
+        request_to_validate = {'description': None}
+        self.create_consumer_validator.validate(request_to_validate)
+        self.update_consumer_validator.validate(request_to_validate)

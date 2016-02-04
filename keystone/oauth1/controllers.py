@@ -21,11 +21,13 @@ from oslo_utils import timeutils
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
+from keystone.common import validation
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.oauth1 import core as oauth1
+from keystone.oauth1 import schema
 from keystone.oauth1 import validator
 
 
@@ -56,6 +58,7 @@ class ConsumerCrudV3(controller.V3Controller):
         return controller.V3Controller.base_url(context, path=path)
 
     @controller.protected()
+    @validation.validated(schema.consumer_create, 'consumer')
     def create_consumer(self, context, consumer):
         ref = self._assign_unique_id(self._normalize_dict(consumer))
         initiator = notifications._get_request_audit_info(context)
@@ -63,10 +66,10 @@ class ConsumerCrudV3(controller.V3Controller):
         return ConsumerCrudV3.wrap_member(context, consumer_ref)
 
     @controller.protected()
+    @validation.validated(schema.consumer_update, 'consumer')
     def update_consumer(self, context, consumer_id, consumer):
         self._require_matching_id(consumer_id, consumer)
         ref = self._normalize_dict(consumer)
-        self._validate_consumer_ref(ref)
         initiator = notifications._get_request_audit_info(context)
         ref = self.oauth_api.update_consumer(consumer_id, ref, initiator)
         return ConsumerCrudV3.wrap_member(context, ref)
@@ -89,11 +92,6 @@ class ConsumerCrudV3(controller.V3Controller):
         _emit_user_oauth_consumer_token_invalidate(payload)
         initiator = notifications._get_request_audit_info(context)
         self.oauth_api.delete_consumer(consumer_id, initiator)
-
-    def _validate_consumer_ref(self, consumer):
-        if 'secret' in consumer:
-            msg = _('Cannot change consumer secret')
-            raise exception.ValidationError(message=msg)
 
 
 @dependency.requires('oauth_api')
