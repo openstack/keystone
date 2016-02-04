@@ -52,6 +52,7 @@ from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures as db_fixtures
 from oslo_log import log
+from oslo_serialization import jsonutils
 from oslotest import base as test_base
 import pytz
 from sqlalchemy.engine import reflection
@@ -3282,6 +3283,85 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         app_cred_access_rule_table.insert().values(
             app_cred_access_rule_rel).execute()
+
+    def test_migration_062_add_trust_redelegation(self):
+        # ensure initial schema
+        self.expand(61)
+        self.migrate(61)
+        self.contract(61)
+        self.assertTableColumns('trust', ['id',
+                                          'trustor_user_id',
+                                          'trustee_user_id',
+                                          'project_id',
+                                          'impersonation',
+                                          'expires_at',
+                                          'expires_at_int',
+                                          'remaining_uses',
+                                          'deleted_at',
+                                          'extra'])
+
+        # fixture
+        trust = {
+            'id': uuid.uuid4().hex,
+            'trustor_user_id': uuid.uuid4().hex,
+            'trustee_user_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+            'impersonation': True,
+            'expires_at': datetime.datetime.now(),
+            'remaining_uses': 10,
+            'deleted_at': datetime.datetime.now(),
+            'redelegated_trust_id': uuid.uuid4().hex,
+            'redelegation_count': 3,
+            'other': uuid.uuid4().hex
+        }
+        old_trust = trust.copy()
+        old_extra = {
+            'redelegated_trust_id': old_trust.pop('redelegated_trust_id'),
+            'redelegation_count': old_trust.pop('redelegation_count'),
+            'other': old_trust.pop('other')
+        }
+        old_trust['extra'] = jsonutils.dumps(old_extra)
+        # load fixture
+        session = self.sessionmaker()
+        self.insert_dict(session, 'trust', old_trust)
+
+        # ensure redelegation data is in extra
+        stored_trust = list(self.select_table('trust').execute())[0]
+        self.assertDictEqual({
+            'redelegated_trust_id': trust['redelegated_trust_id'],
+            'redelegation_count': trust['redelegation_count'],
+            'other': trust['other']},
+            jsonutils.loads(stored_trust.extra))
+
+        # upgrade and ensure expected schema
+        self.expand(62)
+        self.migrate(62)
+        self.contract(62)
+        self.assertTableColumns('trust', ['id',
+                                          'trustor_user_id',
+                                          'trustee_user_id',
+                                          'project_id',
+                                          'impersonation',
+                                          'expires_at',
+                                          'expires_at_int',
+                                          'remaining_uses',
+                                          'deleted_at',
+                                          'redelegated_trust_id',
+                                          'redelegation_count',
+                                          'extra'])
+
+        trust_table = sqlalchemy.Table('trust', self.metadata, autoload=True)
+        self.assertTrue(trust_table.c.redelegated_trust_id.nullable)
+        self.assertTrue(trust_table.c.redelegation_count.nullable)
+
+        # test target data layout
+        upgraded_trust = list(self.select_table('trust').execute())[0]
+        self.assertDictEqual({'other': trust['other']},
+                             jsonutils.loads(upgraded_trust.extra))
+        self.assertEqual(trust['redelegated_trust_id'],
+                         upgraded_trust.redelegated_trust_id)
+        self.assertEqual(trust['redelegation_count'],
+                         upgraded_trust.redelegation_count)
 
 
 class MySQLOpportunisticFullMigration(FullMigration):
