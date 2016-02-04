@@ -10,5 +10,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.contrib.simple_cert.core import *  # noqa
 from keystone.contrib.simple_cert.routers import SimpleCertExtension  # noqa

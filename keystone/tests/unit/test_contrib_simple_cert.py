@@ -19,8 +19,6 @@ from keystone.tests.unit import test_v3
 
 class BaseTestCase(test_v3.RestfulTestCase):
 
-    EXTENSION_TO_ADD = 'simple_cert_extension'
-
     CA_PATH = '/v3/OS-SIMPLE-CERT/ca'
     CERT_PATH = '/v3/OS-SIMPLE-CERT/certificates'
 
