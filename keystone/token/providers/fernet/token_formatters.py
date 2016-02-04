@@ -99,7 +99,7 @@ class TokenFormatter(object):
             return self.crypto.decrypt(token.encode('utf-8'))
         except fernet.InvalidToken:
             raise exception.ValidationError(
-                _('This is not a recognized Fernet token'))
+                _('This is not a recognized Fernet token %s') % token)
 
     @classmethod
     def restore_padding(cls, token):

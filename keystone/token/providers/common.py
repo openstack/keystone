@@ -678,6 +678,43 @@ class BaseProvider(provider.Provider):
             token_id = token_ref['token_data']['access']['token']['id']
             raise exception.TokenNotFound(token_id=token_id)
 
+    def validate_non_persistent_token(self, token_id):
+        try:
+            (user_id, methods, audit_ids, domain_id, project_id, trust_id,
+                federated_info, created_at, expires_at) = (
+                    self.token_formatter.validate_token(token_id))
+        except exception.ValidationError as e:
+            raise exception.TokenNotFound(e)
+
+        token_dict = None
+        trust_ref = None
+        if federated_info:
+            # NOTE(lbragstad): We need to rebuild information about the
+            # federated token as well as the federated token roles. This is
+            # because when we validate a non-persistent token, we don't have a
+            # token reference to pull the federated token information out of.
+            # As a result, we have to extract it from the token itself and
+            # rebuild the federated context. These private methods currently
+            # live in the keystone.token.providers.fernet.Provider() class.
+            token_dict = self._rebuild_federated_info(federated_info, user_id)
+            if project_id or domain_id:
+                self._rebuild_federated_token_roles(token_dict, federated_info,
+                                                    user_id, project_id,
+                                                    domain_id)
+        if trust_id:
+            trust_ref = self.trust_api.get_trust(trust_id)
+
+        return self.v3_token_data_helper.get_token_data(
+            user_id,
+            method_names=methods,
+            domain_id=domain_id,
+            project_id=project_id,
+            issued_at=created_at,
+            expires=expires_at,
+            trust=trust_ref,
+            token=token_dict,
+            audit_info=audit_ids)
+
     def validate_v3_token(self, token_ref):
         # FIXME(gyee): performance or correctness? Should we return the
         # cached token or reconstruct it? Obviously if we are going with
