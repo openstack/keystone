@@ -32,11 +32,11 @@
 # Tenant               User      Roles
 # -------------------------------------------------------
 # demo                 admin     admin
-# service              glance    admin
-# service              nova      admin
-# service              ec2       admin
-# service              swift     admin
-# service              neutron   admin
+# service              glance    service
+# service              nova      service
+# service              ec2       service
+# service              swift     service
+# service              neutron   service
 
 # By default, passwords used are those in the OpenStack Install and Deploy Manual.
 # One can override these (publicly known, and hence, insecure) passwords by setting the appropriate
@@ -101,6 +101,14 @@ function get_id () {
 }
 
 #
+# Roles
+#
+
+openstack role create admin
+
+openstack role create service
+
+#
 # Default tenant
 #
 openstack project create demo \
@@ -108,8 +116,6 @@ openstack project create demo \
 
 openstack user create admin --project demo \
                       --password "${ADMIN_PASSWORD}"
-
-openstack role create admin
 
 openstack role add --user admin \
                    --project demo\
@@ -126,35 +132,35 @@ openstack user create glance --project service\
 
 openstack role add --user glance \
                    --project service \
-                   admin
+                   service
 
 openstack user create nova --project service\
                       --password "${NOVA_PASSWORD}"
 
 openstack role add --user nova \
                    --project service \
-                   admin
+                   service
 
 openstack user create ec2 --project service \
                       --password "${EC2_PASSWORD}"
 
 openstack role add --user ec2 \
                    --project service \
-                   admin
+                   service
 
 openstack user create swift --project service \
                       --password "${SWIFT_PASSWORD}" \
 
 openstack role add --user swift \
                    --project service \
-                   admin
+                   service
 
 openstack user create neutron --project service \
                       --password "${NEUTRON_PASSWORD}" \
 
 openstack role add --user neutron \
                    --project service \
-                   admin
+                   service
 
 #
 # Keystone service
