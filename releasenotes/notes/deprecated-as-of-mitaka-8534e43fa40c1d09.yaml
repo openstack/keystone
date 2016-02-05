@@ -5,7 +5,8 @@ deprecations:
     As of the Mitaka release, the PKI and PKIz token formats have been
     deprecated. They will be removed in the 'O' release. Due to this change,
     the ``hash_algorithm`` option in the ``[token]`` section of the
-    configuration file has also been deprecated.
+    configuration file has also been deprecated. Also due to this change, the
+    ``keystone-manage pki_setup`` command has been deprecated as well.
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
     As of the Mitaka release, write support for the LDAP driver of the Identity
