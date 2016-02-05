@@ -747,6 +747,32 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.delete(member_url, auth=self.auth,
                     expected_status=status_no_data)
 
+    def _role_management_cases(self, read_status_OK=False, expected=None):
+        # Set the different status values for different types of call depending
+        # on whether we expect the calls to fail or not.
+        status_OK, status_created, status_no_data = self._stati(expected)
+        entity_url = '/roles/%s' % self.role['id']
+        list_url = '/roles'
+
+        if read_status_OK:
+            self.get(entity_url, auth=self.auth)
+            self.get(list_url, auth=self.auth)
+        else:
+            self.get(entity_url, auth=self.auth,
+                     expected_status=status_OK)
+            self.get(list_url, auth=self.auth,
+                     expected_status=status_OK)
+
+        role = {'name': 'Updated'}
+        self.patch(entity_url, auth=self.auth, body={'role': role},
+                   expected_status=status_OK)
+        self.delete(entity_url, auth=self.auth,
+                    expected_status=status_no_data)
+
+        role_ref = unit.new_role_ref()
+        self.post('/roles', auth=self.auth, body={'role': role_ref},
+                  expected_status=status_created)
+
     def test_user_management(self):
         # First, authenticate with a user that does not have the domain
         # admin role - shouldn't be able to do much.
@@ -1480,3 +1506,51 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         resp = self.get('/projects/%s' % self.project['id'], auth=admin_auth)
         self.assertEqual(self.project['id'],
                          jsonutils.loads(resp.body)['project']['id'])
+
+    def test_role_management_no_admin_no_rights(self):
+        # A non-admin domain user shouldn't be able to manipulate roles
+        self.auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'],
+            domain_id=self.domainA['id'])
+
+        self._role_management_cases(expected=exception.ForbiddenAction.code)
+
+        # ...and nor should non-admin project user
+        self.auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'],
+            project_id=self.project['id'])
+
+        self._role_management_cases(expected=exception.ForbiddenAction.code)
+
+    def test_role_management_with_project_admin(self):
+        # A project admin user should be able to get and list, but not be able
+        # to create/update/delete global roles
+        self.auth = self.build_authentication_request(
+            user_id=self.project_admin_user['id'],
+            password=self.project_admin_user['password'],
+            project_id=self.project['id'])
+
+        self._role_management_cases(read_status_OK=True,
+                                    expected=exception.ForbiddenAction.code)
+
+    def test_role_management_with_domain_admin(self):
+        # A domain admin user should be able to get and list, but not be able
+        # to create/update/delete global roles
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+
+        self._role_management_cases(read_status_OK=True,
+                                    expected=exception.ForbiddenAction.code)
+
+    def test_role_management_with_cloud_admin(self):
+        # A cloud admin user should have rights to manipulate global roles
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            project_id=self.admin_project['id'])
+
+        self._role_management_cases()
