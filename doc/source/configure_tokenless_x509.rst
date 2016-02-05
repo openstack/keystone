@@ -87,7 +87,7 @@ The following options can be defined in `keystone.conf`:
 * ``issuer_attribute`` - The issuer attribute that is served as an IdP ID for
   the X.509 tokenless authorization along with the protocol to look up its
   corresponding mapping. It is the environment variable in the WSGI
-  enviornment that references to the Issuer of the client certificate. It
+  environment that references to the Issuer of the client certificate. It
   defaults to ``SSL_CLIENT_I_DN``.
 
 This is a sample configuration for two `trusted_issuer` and a `protocol` set
@@ -127,7 +127,7 @@ like in a certificate.
     C=US
 
 The issuer DN should be constructed as a string that contains no spaces
-and have the right order seperated by commas like the example below.
+and have the right order separated by commas like the example below.
 Please be aware that ``emailAddress`` and ``ST`` should be used instead
 of ``E`` and ``S`` that are shown in the above example. The following is
 the sample Python code used to create the IdP ID.

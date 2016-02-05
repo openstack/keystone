@@ -784,7 +784,7 @@ MAPPING_GROUPS_BLACKLIST = {
     ]
 }
 
-# Excercise all possibilities of user identitfication. Values are hardcoded on
+# Exercise all possibilities of user identification. Values are hardcoded on
 # purpose.
 MAPPING_USER_IDS = {
     "rules": [

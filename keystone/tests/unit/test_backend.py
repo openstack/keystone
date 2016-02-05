@@ -6891,7 +6891,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
                 {'params': {'user': 0},
                  'results': [{'user': 0, 'role': 0, 'domain': 0,
                               'inherited_to_projects': 'projects'}]},
-                # List in effective mode - we should only see the inital and
+                # List in effective mode - we should only see the initial and
                 # implied role on the project (since inherited roles are not
                 # active on their anchor point).
                 {'params': {'user': 0, 'effective': True},

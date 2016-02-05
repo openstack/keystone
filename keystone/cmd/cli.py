@@ -189,7 +189,7 @@ class BootStrap(BaseApp):
             self.role_id = role[0]['id']
 
         # NOTE(morganfainberg): Handle the case that the role assignment has
-        # already occured.
+        # already occurred.
         try:
             self.assignment_manager.add_role_to_user_and_project(
                 user_id=user['id'],
