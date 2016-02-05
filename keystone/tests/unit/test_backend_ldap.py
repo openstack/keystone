@@ -1371,6 +1371,21 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         dn, attrs = self.identity_api.driver.user._ldap_get(user['id'])
         self.assertThat([user['name']], matchers.Equals(attrs['description']))
 
+    def test_user_description_attribute_mapping(self):
+        self.config_fixture.config(
+            group='ldap',
+            user_description_attribute='displayName')
+        self.load_backends()
+
+        user = self.new_user_ref(domain_id=CONF.identity.default_domain_id,
+                                 displayName=uuid.uuid4().hex)
+        description = user['displayName']
+        user = self.identity_api.create_user(user)
+        res = self.identity_api.driver.user.get_all()
+
+        new_user = [u for u in res if u['id'] == user['id']][0]
+        self.assertThat(new_user['description'], matchers.Equals(description))
+
     def test_user_extra_attribute_mapping_description_is_returned(self):
         # Given a mapping like description:description, the description is
         # returned.

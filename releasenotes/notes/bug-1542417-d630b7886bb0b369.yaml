@@ -1,0 +1,21 @@
+---
+features:
+  - >
+    [`bug 1542417 <https://bugs.launchpad.net/keystone/+bug/1542417>`_]
+    Added support for a "user_description_attribute" mapping
+    to the LDAP driver configuration.
+upgrade:
+  - >
+    The LDAP driver now also maps the user "description" attribute after
+    user retrieval from LDAP.
+    If this is undesired behavior for your setup, please add "description"
+    to the "user_attribute_ignore" LDAP driver config setting.
+
+    The default mapping of the description attribute is set to "description".
+    Please adjust the LDAP driver config setting "user_description_attribute"
+    if your LDAP uses a different attribute name (for instance to "displayName"
+    in case of an AD backed LDAP).
+
+    If your "user_additional_attribute_mapping" setting contains
+    "description:description" you can remove this mapping, since this is
+    now default behavior of the driver.

@@ -224,6 +224,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     attribute_options_names = {'password': 'pass',
                                'email': 'mail',
                                'name': 'name',
+                               'description': 'description',
                                'enabled': 'enabled',
                                'default_project_id': 'default_project_id'}
     immutable_attrs = ['id']
