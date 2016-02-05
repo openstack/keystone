@@ -154,7 +154,8 @@ def _assert_not_schema_downgrade(extension=None, version=None):
         try:
             current_ver = int(six.text_type(get_db_version(extension)))
             if int(version) < current_ver:
-                raise migration.exception.DbMigrationError()
+                raise migration.exception.DbMigrationError(
+                    _("Unable to downgrade schema"))
         except exceptions.DatabaseNotControlledError:  # nosec
             # NOTE(morganfainberg): The database is not controlled, this action
             # cannot be a downgrade.
