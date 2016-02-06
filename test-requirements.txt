@@ -41,7 +41,7 @@ WebTest>=2.0
 discover
 python-subunit>=0.0.18
 testrepository>=0.0.18
-testtools!=1.2.0,>=0.9.36
+testtools!=1.2.0,<2.0.0,>=0.9.36
 
 # For documentation
 oslosphinx<2.6.0,>=2.5.0 # Apache-2.0
