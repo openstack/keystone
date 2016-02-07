@@ -107,12 +107,14 @@ _VALID_FILTERS = [{'interface': 'admin'},
 _INVALID_FILTERS = ['some string', 1, 0, True, False]
 
 
-def expected_validation_failure(f):
-    def wrapper(self, *args, **kwargs):
-        args = (self,) + args
-        e = self.assertRaises(exception.ValidationError, f, *args, **kwargs)
-        self.assertIn('Expecting to find entity in request body',
-                      six.text_type(e))
+def expected_validation_failure(msg):
+    def wrapper(f):
+        def wrapped(self, *args, **kwargs):
+            args = (self,) + args
+            e = self.assertRaises(exception.ValidationError, f,
+                                  *args, **kwargs)
+            self.assertIn(msg, six.text_type(e))
+        return wrapped
     return wrapper
 
 
@@ -128,6 +130,10 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
 
     valid_entity = {
         'name': uuid.uuid4().hex,
+    }
+
+    invalid_entity = {
+        'name': 1.0,  # NOTE(dstanek): this is the incorrect type for name
     }
 
     @validation.validated(entity_create, 'entity')
@@ -149,7 +155,7 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
         """Test the case when client passing in an empty kwarg reference."""
         self.create_entity_optional_body(entity={})
 
-    @expected_validation_failure
+    @expected_validation_failure('Expecting to find entity in request body')
     def test_calling_create_with_kwarg_as_None_fails(self):
         self.create_entity(entity=None)
 
@@ -160,11 +166,15 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
         """Test the case when client passing in an empty entity reference."""
         self.create_entity_optional_body({})
 
-    @expected_validation_failure
+    @expected_validation_failure("Invalid input for field 'name'")
+    def test_calling_create_with_invalid_entity_fails(self):
+        self.create_entity(self.invalid_entity)
+
+    @expected_validation_failure('Expecting to find entity in request body')
     def test_calling_create_with_entity_arg_as_None_fails(self):
         self.create_entity(None)
 
-    @expected_validation_failure
+    @expected_validation_failure('Expecting to find entity in request body')
     def test_calling_create_without_an_entity_fails(self):
         self.create_entity()
 
@@ -181,6 +191,10 @@ class ValidatedDecoratorTests(unit.BaseTestCase):
 
     def test_calling_update_with_valid_entity_succeeds(self):
         self.update_entity(uuid.uuid4().hex, self.valid_entity)
+
+    @expected_validation_failure("Invalid input for field 'name'")
+    def test_calling_update_with_invalid_entity_fails(self):
+        self.update_entity(uuid.uuid4().hex, self.invalid_entity)
 
     def test_calling_update_with_empty_entity_kwarg_succeeds(self):
         """Test the case when client passing in an empty entity reference."""
