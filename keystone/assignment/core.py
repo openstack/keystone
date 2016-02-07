@@ -68,6 +68,28 @@ class Manager(manager.Manager):
 
     def __init__(self):
         assignment_driver = CONF.assignment.driver
+        # If there is no explicit assignment driver specified, we let the
+        # identity driver tell us what to use. This is for backward
+        # compatibility reasons from the time when identity, resource and
+        # assignment were all part of identity.
+        if assignment_driver is None:
+            msg = _('Use of the identity driver config to automatically '
+                    'configure the same assignment driver has been '
+                    'deprecated, in the "O" release, the assignment driver '
+                    'will need to be expicitly configured if different '
+                    'than the default (SQL).')
+            versionutils.report_deprecated_feature(LOG, msg)
+            try:
+                identity_driver = dependency.get_provider(
+                    'identity_api').driver
+                assignment_driver = identity_driver.default_assignment_driver()
+            except ValueError:
+                msg = _('Attempted automatic driver selection for assignment '
+                        'based upon [identity]\driver option failed since '
+                        'driver %s is not found. Set [assignment]/driver to '
+                        'a valid driver in keystone config.')
+                LOG.critical(msg)
+                raise exception.KeystoneConfigurationError(msg)
         super(Manager, self).__init__(assignment_driver)
 
         # Make sure it is a driver version we support, and if it is a legacy

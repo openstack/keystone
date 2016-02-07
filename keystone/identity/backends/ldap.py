@@ -47,9 +47,6 @@ class Identity(identity.IdentityDriverV8):
         self.user = UserApi(self.conf)
         self.group = GroupApi(self.conf)
 
-    def default_assignment_driver(self):
-        return 'ldap'
-
     def is_domain_aware(self):
         return False
 

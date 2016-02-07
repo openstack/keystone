@@ -393,6 +393,12 @@ class ConfigRegistrationNotFound(Exception):
     pass
 
 
+class KeystoneConfigurationError(Exception):
+    # This is an exception to be used in the case that Keystone config is
+    # invalid and Keystone should not start.
+    pass
+
+
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s")

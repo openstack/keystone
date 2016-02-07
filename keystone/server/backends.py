@@ -39,8 +39,14 @@ def load_backends():
         region=assignment.COMPUTED_ASSIGNMENTS_REGION,
         region_name=assignment.COMPUTED_ASSIGNMENTS_REGION.name)
 
-    # Ensure that the assignment driver is created before the resource manager.
-    # The default resource driver depends on assignment.
+    # Ensure that the identity driver is created before the assignment manager
+    # and that the assignment driver is created before the resource manager.
+    # The default resource driver depends on assignment, which in turn
+    # depends on identity - hence we need to ensure the chain is available.
+    # TODO(morganfainberg): In "O" release move _IDENTITY_API to be directly
+    # instantiated in the DRIVERS dict once assignment driver being selected
+    # based upon [identity]/driver is removed.
+    _IDENTITY_API = identity.Manager()
     _ASSIGNMENT_API = assignment.Manager()
 
     DRIVERS = dict(
@@ -52,7 +58,7 @@ def load_backends():
         federation_api=federation.Manager(),
         id_generator_api=identity.generator.Manager(),
         id_mapping_api=identity.MappingManager(),
-        identity_api=identity.Manager(),
+        identity_api=_IDENTITY_API,
         oauth_api=oauth1.Manager(),
         policy_api=policy.Manager(),
         resource_api=resource.Manager(),

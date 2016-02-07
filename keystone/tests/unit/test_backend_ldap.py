@@ -998,7 +998,10 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         # credentials) that require a database.
         self.useFixture(database.Database())
         super(LDAPIdentity, self).setUp()
-        _assert_backends(self, identity='ldap')
+        _assert_backends(self,
+                         assignment='sql',
+                         identity='ldap',
+                         resource='sql')
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
@@ -1875,12 +1878,14 @@ class LDAPLimitTests(unit.TestCase, test_backend.LimitTests):
         super(LDAPLimitTests, self).setUp()
 
         self.useFixture(ldapdb.LDAPDatabase())
-        self.useFixture(database.Database())
         self.useFixture(database.Database(self.sql_driver_version_overrides))
         self.load_backends()
         self.load_fixtures(default_fixtures)
         test_backend.LimitTests.setUp(self)
-        _assert_backends(self, identity='ldap')
+        _assert_backends(self,
+                         assignment='sql',
+                         identity='ldap',
+                         resource='sql')
 
     def config_overrides(self):
         super(LDAPLimitTests, self).config_overrides()

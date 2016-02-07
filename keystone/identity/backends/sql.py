@@ -158,9 +158,6 @@ class Identity(identity.IdentityDriverV8):
         self.conf = conf
         super(Identity, self).__init__()
 
-    def default_assignment_driver(self):
-        return 'sql'
-
     @property
     def is_sql(self):
         return True
