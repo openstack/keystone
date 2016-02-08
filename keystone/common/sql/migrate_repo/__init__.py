@@ -13,5 +13,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-DB_INIT_VERSION = 43
+# NOTE(stevemar): This has to be one less than the current lowest db migration
+DB_INIT_VERSION = 66

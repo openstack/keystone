@@ -66,8 +66,8 @@ INITIAL_TABLE_STRUCTURE = {
         'id', 'name', 'enabled', 'extra',
     ],
     'endpoint': [
-        'id', 'legacy_endpoint_id', 'interface', 'region', 'service_id', 'url',
-        'enabled', 'extra',
+        'id', 'legacy_endpoint_id', 'interface', 'region_id', 'service_id',
+        'url', 'enabled', 'extra',
     ],
     'group': [
         'id', 'domain_id', 'name', 'description', 'extra',
@@ -77,6 +77,7 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'project': [
         'id', 'name', 'extra', 'description', 'enabled', 'domain_id',
+        'parent_id',
     ],
     'role': [
         'id', 'name', 'extra',
@@ -106,6 +107,15 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'assignment': [
         'type', 'actor_id', 'target_id', 'role_id', 'inherited',
+    ],
+    'id_mapping': [
+        'public_id', 'domain_id', 'local_id', 'entity_type',
+    ],
+    'whitelisted_config': [
+        'domain_id', 'group', 'option', 'value',
+    ],
+    'sensitive_config': [
+        'domain_id', 'group', 'option', 'value',
     ],
 }
 
@@ -298,129 +308,43 @@ class SqlUpgradeTests(SqlMigrateBase):
         session.execute(insert)
         session.commit()
 
-    def test_id_mapping(self):
-        self.upgrade(50)
-        self.assertTableDoesNotExist('id_mapping')
-        self.upgrade(51)
-        self.assertTableExists('id_mapping')
+    def test_kilo_squash(self):
+        self.upgrade(67)
 
-    def test_region_url_upgrade(self):
-        self.upgrade(52)
-        self.assertTableColumns('region',
-                                ['id', 'description', 'parent_region_id',
-                                 'extra', 'url'])
+        # In 053 the size of ID and parent region ID columns were changed
+        table = sqlalchemy.Table('region', self.metadata, autoload=True)
+        self.assertEqual(255, table.c.id.type.length)
+        self.assertEqual(255, table.c.parent_region_id.type.length)
+        table = sqlalchemy.Table('endpoint', self.metadata, autoload=True)
+        self.assertEqual(255, table.c.region_id.type.length)
 
-    def test_endpoint_region_upgrade_columns(self):
-        self.upgrade(53)
-        self.assertTableColumns('endpoint',
-                                ['id', 'legacy_endpoint_id', 'interface',
-                                 'service_id', 'url', 'extra', 'enabled',
-                                 'region_id'])
-        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(255, region_table.c.id.type.length)
-        self.assertEqual(255, region_table.c.parent_region_id.type.length)
-        endpoint_table = sqlalchemy.Table('endpoint',
-                                          self.metadata,
-                                          autoload=True)
-        self.assertEqual(255, endpoint_table.c.region_id.type.length)
-
-    def test_endpoint_region_migration(self):
-        self.upgrade(52)
-        session = self.Session()
-        _small_region_name = '0' * 30
-        _long_region_name = '0' * 255
-        _clashing_region_name = '0' * 70
-
-        def add_service():
-            service_id = uuid.uuid4().hex
-            # Older style service ref, must create by hand
-            service = {
-                'id': service_id,
-                'type': uuid.uuid4().hex
-            }
-
-            self.insert_dict(session, 'service', service)
-
-            return service_id
-
-        def add_endpoint(service_id, region):
-            endpoint_id = uuid.uuid4().hex
-
-            # Can't use new_endpoint_ref to make the older style endpoint
-            # so make it by hand.
-            endpoint = {
-                'id': endpoint_id,
-                'interface': uuid.uuid4().hex[:8],
-                'service_id': service_id,
-                'url': uuid.uuid4().hex,
-                'region': region
-            }
-            self.insert_dict(session, 'endpoint', endpoint)
-
-            return endpoint_id
-
-        _service_id_ = add_service()
-        add_endpoint(_service_id_, region=_long_region_name)
-        add_endpoint(_service_id_, region=_long_region_name)
-        add_endpoint(_service_id_, region=_clashing_region_name)
-        add_endpoint(_service_id_, region=_small_region_name)
-        add_endpoint(_service_id_, region=None)
-
-        # upgrade to 53
-        session.close()
-        self.upgrade(53)
-        session = self.Session()
-        self.metadata.clear()
-
-        region_table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(1, session.query(region_table).
-                         filter_by(id=_long_region_name).count())
-        self.assertEqual(1, session.query(region_table).
-                         filter_by(id=_clashing_region_name).count())
-        self.assertEqual(1, session.query(region_table).
-                         filter_by(id=_small_region_name).count())
-
-        endpoint_table = sqlalchemy.Table('endpoint',
-                                          self.metadata,
-                                          autoload=True)
-        self.assertEqual(5, session.query(endpoint_table).count())
-        self.assertEqual(2, session.query(endpoint_table).
-                         filter_by(region_id=_long_region_name).count())
-        self.assertEqual(1, session.query(endpoint_table).
-                         filter_by(region_id=_clashing_region_name).count())
-        self.assertEqual(1, session.query(endpoint_table).
-                         filter_by(region_id=_small_region_name).count())
-
-    def test_add_actor_id_index(self):
-        self.upgrade(53)
-        self.upgrade(54)
+        # In 054 an index was created for the actor_id of the assignment table
         table = sqlalchemy.Table('assignment', self.metadata, autoload=True)
         index_data = [(idx.name, list(idx.columns.keys()))
                       for idx in table.indexes]
         self.assertIn(('ix_actor_id', ['actor_id']), index_data)
 
-    def test_token_user_id_and_trust_id_index_upgrade(self):
-        self.upgrade(54)
-        self.upgrade(55)
+        # In 055 indexes were created for user and trust IDs in the token table
         table = sqlalchemy.Table('token', self.metadata, autoload=True)
         index_data = [(idx.name, list(idx.columns.keys()))
                       for idx in table.indexes]
         self.assertIn(('ix_token_user_id', ['user_id']), index_data)
         self.assertIn(('ix_token_trust_id', ['trust_id']), index_data)
 
-    def test_project_parent_id_upgrade(self):
-        self.upgrade(61)
-        self.assertTableColumns('project',
-                                ['id', 'name', 'extra', 'description',
-                                 'enabled', 'domain_id', 'parent_id'])
-
-    def test_drop_assignment_role_fk(self):
-        self.upgrade(61)
-        self.assertTrue(self.does_fk_exist('assignment', 'role_id'))
-        self.upgrade(62)
-        if self.engine.name != 'sqlite':
-            # SQLite does not support FK deletions (or enforcement)
+        # In 062 the role ID foreign key was removed from the assignment table
+        if self.engine.name == "mysql":
             self.assertFalse(self.does_fk_exist('assignment', 'role_id'))
+
+        # In 064 the domain ID FK was removed from the group and user tables
+        if self.engine.name != 'sqlite':
+            # sqlite does not support FK deletions (or enforcement)
+            self.assertFalse(self.does_fk_exist('group', 'domain_id'))
+            self.assertFalse(self.does_fk_exist('user', 'domain_id'))
+
+        # In 067 the role ID index was removed from the assignment table
+        if self.engine.name == "mysql":
+            self.assertFalse(self._does_index_exist('assignment',
+                                                    'assignment_role_id_fkey'))
 
     def test_insert_assignment_inherited_pk(self):
         ASSIGNMENT_TABLE_NAME = 'assignment'
@@ -502,33 +426,10 @@ class SqlUpgradeTests(SqlMigrateBase):
                 return True
         return False
 
-    def test_drop_region_url_upgrade(self):
-        self.upgrade(63)
-        self.assertTableColumns('region',
-                                ['id', 'description', 'parent_region_id',
-                                 'extra'])
-
-    def test_domain_fk(self):
-        self.upgrade(63)
-        self.assertTrue(self.does_fk_exist('group', 'domain_id'))
-        self.assertTrue(self.does_fk_exist('user', 'domain_id'))
-        self.upgrade(64)
-        if self.engine.name != 'sqlite':
-            # sqlite does not support FK deletions (or enforcement)
-            self.assertFalse(self.does_fk_exist('group', 'domain_id'))
-            self.assertFalse(self.does_fk_exist('user', 'domain_id'))
-
-    def test_add_domain_config(self):
-        whitelisted_table = 'whitelisted_config'
-        sensitive_table = 'sensitive_config'
-        self.upgrade(64)
-        self.assertTableDoesNotExist(whitelisted_table)
-        self.assertTableDoesNotExist(sensitive_table)
-        self.upgrade(65)
-        self.assertTableColumns(whitelisted_table,
-                                ['domain_id', 'group', 'option', 'value'])
-        self.assertTableColumns(sensitive_table,
-                                ['domain_id', 'group', 'option', 'value'])
+    def does_index_exist(self, table_name, index_name):
+        meta = sqlalchemy.MetaData(bind=self.engine)
+        table = sqlalchemy.Table(table_name, meta, autoload=True)
+        return index_name in [idx.name for idx in table.indexes]
 
     def test_endpoint_policy_upgrade(self):
         self.assertTableDoesNotExist('policy_association')
@@ -678,92 +579,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         # It won't exist because we are mocking it, but we can verify
         # that 084 did not create the table.
         self.assertTableDoesNotExist('revocation_event')
-
-    def test_fixup_service_name_value_upgrade(self):
-        """Update service name data from `extra` to empty string."""
-        def add_service(**extra_data):
-            service_id = uuid.uuid4().hex
-            # Older style service ref, must create by hand
-            service = {
-                'id': service_id,
-                'type': uuid.uuid4().hex,
-                'extra': json.dumps(extra_data),
-            }
-
-            self.insert_dict(session, 'service', service)
-
-            return service_id
-
-        self.upgrade(65)
-        session = self.Session()
-
-        # Services with extra values having a random attribute and
-        # different combinations of name
-        random_attr_name = uuid.uuid4().hex
-        random_attr_value = uuid.uuid4().hex
-        random_attr_str = "%s='%s'" % (random_attr_name, random_attr_value)
-        random_attr_no_name = {random_attr_name: random_attr_value}
-        random_attr_no_name_str = "%s='%s'" % (random_attr_name,
-                                               random_attr_value)
-        random_attr_name_value = {random_attr_name: random_attr_value,
-                                  'name': 'myname'}
-        random_attr_name_value_str = 'name=myname,%s' % random_attr_str
-        random_attr_name_empty = {random_attr_name: random_attr_value,
-                                  'name': ''}
-        random_attr_name_empty_str = 'name=,%s' % random_attr_str
-        random_attr_name_none = {random_attr_name: random_attr_value,
-                                 'name': None}
-        random_attr_name_none_str = 'name=None,%s' % random_attr_str
-
-        services = [
-            (add_service(**random_attr_no_name),
-             random_attr_name_empty, random_attr_no_name_str),
-            (add_service(**random_attr_name_value),
-             random_attr_name_value, random_attr_name_value_str),
-            (add_service(**random_attr_name_empty),
-             random_attr_name_empty, random_attr_name_empty_str),
-            (add_service(**random_attr_name_none),
-             random_attr_name_empty, random_attr_name_none_str),
-        ]
-
-        # NOTE(viktors): Add a service with empty extra field
-        self.insert_dict(session, 'service',
-                         {'id': uuid.uuid4().hex, 'type': uuid.uuid4().hex})
-
-        session.close()
-        self.upgrade(66)
-        session = self.Session()
-
-        # Verify that the services have the expected values.
-        self.metadata.clear()
-        service_table = sqlalchemy.Table('service', self.metadata,
-                                         autoload=True)
-
-        def fetch_service_extra(service_id):
-            cols = [service_table.c.extra]
-            f = service_table.c.id == service_id
-            s = sqlalchemy.select(cols).where(f)
-            service = session.execute(s).fetchone()
-            return json.loads(service.extra)
-
-        for service_id, exp_extra, msg in services:
-            extra = fetch_service_extra(service_id)
-            self.assertDictEqual(exp_extra, extra, msg)
-
-    def _does_index_exist(self, table_name, index_name):
-        meta = sqlalchemy.MetaData(bind=self.engine)
-        table = sqlalchemy.Table('assignment', meta, autoload=True)
-        return index_name in [idx.name for idx in table.indexes]
-
-    def test_drop_assignment_role_id_index_mysql(self):
-        self.upgrade(66)
-        if self.engine.name == "mysql":
-            self.assertTrue(self._does_index_exist('assignment',
-                                                   'assignment_role_id_fkey'))
-        self.upgrade(67)
-        if self.engine.name == "mysql":
-            self.assertFalse(self._does_index_exist('assignment',
-                                                    'assignment_role_id_fkey'))
 
     def test_project_is_domain_upgrade(self):
         self.upgrade(74)

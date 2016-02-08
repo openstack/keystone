@@ -1,0 +1,6 @@
+---
+upgrade:
+  - >
+    [`bug 1541092 <https://bugs.launchpad.net/keystone/+bug/1541092>`_]
+    Database schema migrations have been squashed. Only database upgrades from
+    Kilo and newer are supported.
