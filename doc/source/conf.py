@@ -41,8 +41,12 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.coverage',
               'sphinx.ext.viewcode',
+              'oslo_config.sphinxconfiggen',
               'oslosphinx',
               ]
+
+config_generator_config_file = '../../config-generator/keystone.conf'
+sample_config_basename = '_static/keystone'
 
 todo_include_todos = True
 

@@ -87,6 +87,15 @@ Developers Documentation
    services
    online_schema_migration_examples
 
+
+Sample Configuration File
+=========================
+
+.. toctree::
+    :maxdepth: 1
+
+    sample_config
+
 Code Documentation
 ==================
 .. toctree::
