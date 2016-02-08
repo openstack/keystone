@@ -10,9 +10,9 @@
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"POT-Creation-Date: 2016-02-07 08:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -155,9 +155,6 @@ msgstr "%(option_name)s %(attr)s değiştirilemiyor"
 msgid "Cannot change Domain ID"
 msgstr "Alan ID'si değiştirilemez"
 
-msgid "Cannot change consumer secret"
-msgstr "Tüketici sırrı değiştirilemez"
-
 msgid "Cannot change user ID"
 msgstr "Kullanıcı ID'si değiştirilemiyor"
 
@@ -171,10 +168,6 @@ msgstr "%(url)s geçersiz URL' si ile bir bitiş noktası yaratılamıyor"
 #, python-format
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "Üst proje %(project_id)s ye sahip proje oluşturulamıyor"
-
-#, python-format
-msgid "Cannot duplicate name %s"
-msgstr "%s ismi kopyalanamaz"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "Vekalet ile sağlanan bir jeton ile istek jetonları listelenemez."
@@ -374,9 +367,6 @@ msgid ""
 msgstr ""
 "Alan: %(domain)s zaten tanımlanmış bir yapılandırmaya sahip - dosya "
 "atlanıyor: %(file)s."
-
-msgid "Domains are read-only against LDAP"
-msgstr "Alanlar LDAP'a karşı yalnızca-okunur"
 
 msgid "Duplicate Entry"
 msgstr "Kopya Girdi"
@@ -768,10 +758,6 @@ msgstr ""
 "%(requested_count)d istenen tekrar yetki verme derinliği izin verilen "
 "%(max_count)d den fazla"
 
-#, python-format
-msgid "Role %s not found"
-msgstr "%s rolü bulunamadı"
-
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
@@ -987,11 +973,6 @@ msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr "Eşleştirme %(mapping_id)s kullanırken geçerli gruplar bulunamadı"
 
 #, python-format
-msgid ""
-"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr "%(seconds)s saniye sonra havuz %(id)s'den bağlantı alınamadı."
-
-#, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr "Alan yapılandırma dizini bulunamıyor: %s"
 
@@ -1060,12 +1041,6 @@ msgstr ""
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "%(u_id)s kullanıcısı %(t_id)s kiracısı için yetkilendirilmemiş"
-
-#, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"Kullanıcı %(user_id)s zaten %(tenant_id)s kiracısı içinde bir %(role_id)s "
-"rolüne sahip"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"

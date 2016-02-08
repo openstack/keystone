@@ -8,16 +8,17 @@
 # sher <sher@online.ua>, 2013
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"POT-Creation-Date: 2016-02-07 08:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-09-03 12:54+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"PO-Revision-Date: 2016-02-03 07:04+0000\n"
+"Last-Translator: Lucas Palm <lapalm@us.ibm.com>\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
@@ -141,6 +142,14 @@ msgstr ""
 msgid "Authentication plugin error."
 msgstr "Ошибка модуля идентификации."
 
+#, python-format
+msgid ""
+"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
+"%(backend_list)s"
+msgstr ""
+"Базовая система `%(backend)s` не является допустимой базовой системой в кэше "
+"памяти. Допустимые базовые системы: %(backend_list)s"
+
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
 "Предоставить права доступа маркеру запроса с маркером, выданным посредством "
@@ -153,9 +162,6 @@ msgstr "Невозможно изменить %(option_name)s %(attr)s"
 msgid "Cannot change Domain ID"
 msgstr "Невозможно изменить ИД домена"
 
-msgid "Cannot change consumer secret"
-msgstr "Невозможно изменить секретный ключ приемника"
-
 msgid "Cannot change user ID"
 msgstr "Невозможно изменить ИД пользователя"
 
@@ -163,12 +169,12 @@ msgid "Cannot change user name"
 msgstr "Невозможно изменить имя пользователя"
 
 #, python-format
-msgid "Cannot create project with parent: %(project_id)s"
-msgstr "Не удается создать проект с родительским объектом: %(project_id)s"
+msgid "Cannot create an endpoint with an invalid URL: %(url)s"
+msgstr "Не удается создать конечную точку с помощью недопустимого URL: %(url)s"
 
 #, python-format
-msgid "Cannot duplicate name %s"
-msgstr "Невозможно копировать имя %s"
+msgid "Cannot create project with parent: %(project_id)s"
+msgstr "Не удается создать проект с родительским объектом: %(project_id)s"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
@@ -215,6 +221,10 @@ msgstr ""
 "всегда дает пустой список."
 
 #, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "Настроить элемент API в /domains/%s/config"
+
+#, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
 msgstr "При попытке сохранить %(type)s возник конфликт - %(details)s"
 
@@ -230,6 +240,14 @@ msgid ""
 "Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
 msgstr ""
 "Изменить постоянный атрибут '%(attributes)s' в цели %(target)s невозможно"
+
+#, python-format
+msgid ""
+"Could not determine Identity Provider ID. The configuration option "
+"%(issuer_attribute)s was not found in the request environment."
+msgstr ""
+"Не удалось определить ИД поставщика идентификации. Опция конфигурации "
+"%(issuer_attribute)s не найдена в среде запроса."
 
 #, python-format
 msgid ""
@@ -333,6 +351,15 @@ msgstr "Версия %(version)s не найдена"
 msgid "Could not find: %(target)s"
 msgstr "%(target)s не найдена"
 
+msgid ""
+"Could not map user while setting ephemeral user identity. Either mapping "
+"rules must specify user id/name or REMOTE_USER environment variable must be "
+"set."
+msgstr ""
+"Не удалось привязать пользователя во время настройки временного "
+"идентификатора пользователя. Правила привязка должны указывать имя/ИД "
+"пользователя, либо должна быть задана переменная среды REMOTE_USER."
+
 msgid "Could not validate the access token"
 msgstr "Не удалось проверить ключ доступа"
 
@@ -371,9 +398,6 @@ msgid ""
 msgstr ""
 "У домена %(domain)s уже определена конфигурация - файл пропущен: %(file)s."
 
-msgid "Domains are read-only against LDAP"
-msgstr "Домены доступны только для чтения в LDAP"
-
 msgid "Duplicate Entry"
 msgstr "Дубликат записи"
 
@@ -409,6 +433,18 @@ msgid ""
 "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
 msgstr ""
 "Ошибка анализа файла конфигурации для домена %(domain)s, файл: %(file)s."
+
+#, python-format
+msgid "Error while opening file %(path)s: %(err)s"
+msgstr "Ошибка при открытии файла %(path)s: %(err)s"
+
+#, python-format
+msgid "Error while parsing line: '%(line)s': %(err)s"
+msgstr "Ошибка при анализе строки: '%(line)s': %(err)s"
+
+#, python-format
+msgid "Error while parsing rules %(path)s: %(err)s"
+msgstr "Ошибка при анализе правил %(path)s: %(err)s"
 
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
@@ -644,6 +680,9 @@ msgstr "Необходимо указать домен или проект"
 msgid "Name field is required and cannot be empty"
 msgstr "Поле имени является обязательным и не может быть пустым"
 
+msgid "Neither Project Domain ID nor Project Domain Name was provided."
+msgstr "Не указаны ни ИД домена проекта, ни имя домена проекта."
+
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
@@ -699,8 +738,18 @@ msgid "Project (%s)"
 msgstr "Проект (%s)"
 
 #, python-format
+msgid "Project ID not found: %(t_id)s"
+msgstr "Не найден ИД проекта: %(t_id)s"
+
+msgid "Project field is required and cannot be empty."
+msgstr "Поле проекта является обязательным и не может быть пустым."
+
+#, python-format
 msgid "Project is disabled: %s"
 msgstr "Проект отключен: %s"
+
+msgid "Query string is not UTF-8 encoded"
+msgstr "Строка запроса указана в кодировке, отличной от UTF-8"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "Изменение делегирования разрешено только для доверенного пользователя"
@@ -750,10 +799,6 @@ msgstr ""
 "Запрошенная глубина изменения делегирования %(requested_count)d превышает "
 "разрешенную %(max_count)d"
 
-#, python-format
-msgid "Role %s not found"
-msgstr "Роль %s не найдена"
-
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
@@ -801,6 +846,15 @@ msgstr ""
 "Превышена длина строки. Длина строки '%(string)s' превышает ограничение "
 "столбца %(type)s(CHAR(%(length)d))."
 
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"Значение параметра 'expires_at' не должно быть меньше настоящего времени. "
+"Серверу не удалось исполнить запрос, так как он поврежден или неправильно "
+"сформирован. Предположительно, клиент находится в состоянии ошибки."
+
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "Параметр --all нельзя указывать вместе с параметром --domain-name"
 
@@ -830,6 +884,12 @@ msgstr ""
 "Запрошенные сертификаты недоступны. Вероятно, данный сервер не использует "
 "маркеры PKI, в противном случае, это является следствием ошибки в "
 "конфигурации."
+
+msgid "The configured token provider does not support bind authentication."
+msgstr "Настроенный модуль маркера не поддерживает идентификацию привязки."
+
+msgid "The creation of projects acting as domains is not allowed yet."
+msgstr "Создание проектов, работающих в качестве доменов, еще не разрешено."
 
 #, python-format
 msgid ""
@@ -909,6 +969,9 @@ msgstr "Маркер принадлежит другому пользовате�
 msgid "Token does not belong to specified tenant."
 msgstr "Маркер не принадлежит указанному арендатору."
 
+msgid "Token version is unrecognizable or unsupported."
+msgstr "Версия маркера не распознана либо не поддерживается."
+
 msgid "Trustee has no delegated roles."
 msgstr "У доверенного лица нет делегированных ролей."
 
@@ -962,12 +1025,6 @@ msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr ""
 "Невозможно найти допустимые группы при использовании преобразования "
 "%(mapping_id)s"
-
-#, python-format
-msgid ""
-"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr ""
-"Не удалось получить соединение из пула с ИД %(id)s за %(seconds)s секунд."
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1030,6 +1087,9 @@ msgstr "Неизвестная версия маркера %s"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "Незарегистрированная зависимость %(name)s для %(targets)s"
 
+msgid "Update of `is_domain` is not allowed."
+msgstr "Обновление `is_domain` не разрешено."
+
 msgid "Update of `parent_id` is not allowed."
 msgstr "Обновление `parent_id` не разрешено."
 
@@ -1039,12 +1099,6 @@ msgstr "Использовать локальный ключ проекта пр
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "У пользователя %(u_id)s нет доступа к арендатору %(t_id)s"
-
-#, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"Пользователю %(user_id)s уже присвоена роль %(role_id)s в арендаторе "
-"%(tenant_id)s"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -1065,6 +1119,14 @@ msgstr "Пользователь '%(user_id)s' не найден в группе
 msgid "User IDs do not match"
 msgstr "ИД пользователей не совпадают"
 
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"Не удалось скомпоновать идентификацию пользователя, так как отсутствует ИД "
+"пользователя, имя пользователя с ИД домена либо имя пользователя с именем "
+"домена."
+
 #, python-format
 msgid "User is disabled: %s"
 msgstr "Пользователь отключен: %s"
@@ -1077,6 +1139,9 @@ msgstr "Пользователь не является доверенным ли
 
 msgid "User not found"
 msgstr "Пользователь не найден"
+
+msgid "User roles not supported: tenant_id required"
+msgstr "Роли пользователей не поддерживаются, требуется tenant_id"
 
 #, python-format
 msgid "User type %s not supported"
@@ -1192,3 +1257,11 @@ msgstr "tls_cacertfile %s не найден или не является фай�
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "Ссылка на маркер должна относиться к типу KeystoneToken, а получено %s"
+
+#, python-format
+msgid ""
+"validated expected to find %(param_name)r in function signature for "
+"%(func_name)r."
+msgstr ""
+"ожидалось найти проверенный параметр %(param_name)r в подписи функции "
+"%(func_name)r."

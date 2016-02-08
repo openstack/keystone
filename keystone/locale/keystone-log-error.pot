@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 06:05+0000\n"
+"POT-Creation-Date: 2016-02-08 06:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
 
-#: keystone/notifications.py:379
+#: keystone/notifications.py:390
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:473
+#: keystone/notifications.py:486
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:733
+#: keystone/notifications.py:753
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
+msgstr ""
+
+#: keystone/assignment/core.py:647
+#, python-format
+msgid "Circular reference found role inference rules - %(prior_role_id)s."
 msgstr ""
 
 #: keystone/catalog/core.py:74
@@ -65,7 +70,7 @@ msgstr ""
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr ""
 
-#: keystone/common/utils.py:243
+#: keystone/common/utils.py:265
 msgid ""
 "Error setting up the debug environment. Verify that the option --debug-"
 "url has the format <host>:<port> and that a debugger processes is "
@@ -97,14 +102,14 @@ msgstr ""
 msgid "Cannot retrieve Authorization headers"
 msgstr ""
 
-#: keystone/resource/core.py:608
+#: keystone/resource/core.py:628
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:1204
+#: keystone/resource/core.py:1231
 #, python-format
 msgid ""
 "Unexpected results in response for domain config - %(count)s responses, "
@@ -120,7 +125,7 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
-#: keystone/token/provider.py:308
+#: keystone/token/provider.py:310
 #, python-format
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
@@ -133,7 +138,7 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:668
+#: keystone/token/providers/common.py:682
 msgid "Failed to validate token"
 msgstr ""
 

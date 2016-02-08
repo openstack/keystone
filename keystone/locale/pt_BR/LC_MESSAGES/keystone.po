@@ -11,16 +11,17 @@
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 # Raildo Mascena <raildom@gmail.com>, 2015. #zanata
+# Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"POT-Creation-Date: 2016-02-07 08:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-11-16 05:53+0000\n"
-"Last-Translator: Raildo Mascena <raildom@gmail.com>\n"
+"PO-Revision-Date: 2016-02-03 07:04+0000\n"
+"Last-Translator: Lucas Palm <lapalm@us.ibm.com>\n"
 "Language: pt-BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: Babel 2.0\n"
@@ -161,9 +162,6 @@ msgstr "Não é possível alterar %(option_name)s %(attr)s"
 msgid "Cannot change Domain ID"
 msgstr "Não é possível alterar o ID do Domínio"
 
-msgid "Cannot change consumer secret"
-msgstr "Não é possível alterar segredo do consumidor"
-
 msgid "Cannot change user ID"
 msgstr "Não é possível alterar o ID do usuário"
 
@@ -177,10 +175,6 @@ msgstr "Não é possível criar um endpoint com uma URL inválida: %(url)s"
 #, python-format
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "Não é possível criar o projeto com o pai: %(project_id)s"
-
-#, python-format
-msgid "Cannot duplicate name %s"
-msgstr "Não é possível duplicar o nome %s"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
@@ -225,6 +219,10 @@ msgid ""
 msgstr ""
 "Combinar efetivo, domínio e filtros herdados sempre resultará em uma lista "
 "vazia."
+
+#, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "Entidade de API de configuração em /domains/%s/config"
 
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
@@ -392,9 +390,6 @@ msgstr "O domínio não pode ser chamado %s"
 msgid "Domain cannot have ID %s"
 msgstr "O domínio não pode ter o ID de %s"
 
-msgid "Domain grants not supported by LDAP"
-msgstr "Permissões de domínio não é suportado pelo LDAP"
-
 #, python-format
 msgid "Domain is disabled: %s"
 msgstr "O domínio está desativado: %s"
@@ -409,9 +404,6 @@ msgid ""
 msgstr ""
 "Domínio: %(domain)s já possui uma configuração definida - ignorando arquivo: "
 "%(file)s."
-
-msgid "Domains are read-only against LDAP"
-msgstr "Domínios são somente leitura no LDAP"
 
 msgid "Duplicate Entry"
 msgstr "Entrada Duplicada"
@@ -656,9 +648,6 @@ msgstr "Exclusão de LDAP %s"
 msgid "LDAP %s update"
 msgstr "Atualização de LDAP %s"
 
-msgid "LDAP does not support projects with is_domain flag enabled"
-msgstr "LDAP não suporta projetos com a flag is_domain abilitada"
-
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
 msgstr "Ocorreu um tempo limite de bloqueio para a chave, %(target)s"
@@ -831,10 +820,6 @@ msgstr ""
 "Profundidade da nova delegação solicitada de %(requested_count)d é maior que "
 "a %(max_count)d permitida"
 
-#, python-format
-msgid "Role %s not found"
-msgstr "Role %s não localizada"
-
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
@@ -880,6 +865,15 @@ msgstr ""
 "Comprimento de string excedido. O comprimento de string '%(string)s' excedeu "
 "o limite da coluna %(type)s(CHAR(%(length)d))."
 
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"O 'expires_at' não deve ser anterior a agora. O servidor não pôde obedecer à "
+"solicitação porque ela está malformada ou de alguma maneira incorreta. O "
+"cliente é assumido como tendo erro."
+
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "A opção --all não pode ser usada com a opção --domain-name"
 
@@ -911,6 +905,9 @@ msgstr ""
 "Os certificados que você solicitou não estão disponíveis. É provável que "
 "esse servidor não utiliza tokens PKI, caso contrário, este é o resultado de "
 "configuração incorreta."
+
+msgid "The configured token provider does not support bind authentication."
+msgstr "O provedor de token configurado não suporta autenticação de ligação."
 
 msgid "The creation of projects acting as domains is not allowed yet."
 msgstr "A criação de projetos agindo como domínios ainda não é permitida."
@@ -961,9 +958,6 @@ msgstr "Não deve haver nenhum parâmetro não oauth"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Esta não é uma versão de carga útil do Fernet reconhecida: %s"
-
-msgid "This is not a recognized Fernet token"
-msgstr "Este não é um token Fernet reconhecido."
 
 msgid ""
 "This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
@@ -1058,13 +1052,6 @@ msgstr ""
 "%(mapping_id)s"
 
 #, python-format
-msgid ""
-"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr ""
-"Não é possível obter uma conexão do ID do conjunto %(id)s após %(seconds)s "
-"segundos."
-
-#, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr "Não é possível localizar diretório de configuração de domínio: %s"
 
@@ -1139,11 +1126,6 @@ msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "Usuário %(u_id)s  não está autorizado para o tenant %(t_id)s"
 
 #, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"Usuário %(user_id)s já possui a função %(role_id)s no locatário %(tenant_id)s"
-
-#, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
 msgstr "O usuário %(user_id)s não tem acesso ao domínio %(domain_id)s"
 
@@ -1161,6 +1143,14 @@ msgstr "Usuário '%(user_id)s' não localizado no grupo '%(group_id)s'"
 
 msgid "User IDs do not match"
 msgstr "ID de usuário não confere"
+
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"A autenticação do usuário não pode ser construída porque está faltando o ID "
+"ou o nome do usuário com o ID do domínio ou o nome do usuário com o nome do "
+"domínio."
 
 #, python-format
 msgid "User is disabled: %s"
@@ -1302,3 +1292,11 @@ msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "referência de token deve ser um tipo KeystoneToken, obteve: %s"
+
+#, python-format
+msgid ""
+"validated expected to find %(param_name)r in function signature for "
+"%(func_name)r."
+msgstr ""
+"validado esperava localizar %(param_name)r na assinatura da função para "
+"%(func_name)r."

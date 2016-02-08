@@ -11,16 +11,17 @@
 # Pablo Sanchez <furybeat@gmail.com>, 2015
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
+# Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"POT-Creation-Date: 2016-02-07 08:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-09-03 12:54+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"PO-Revision-Date: 2016-02-02 09:48+0000\n"
+"Last-Translator: Tom Cocozzello <tjcocozz@us.ibm.com>\n"
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.0\n"
@@ -145,6 +146,14 @@ msgstr ""
 msgid "Authentication plugin error."
 msgstr "Error en el complemento de autenticación "
 
+#, python-format
+msgid ""
+"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
+"%(backend_list)s"
+msgstr ""
+"El programa de fondo `%(backend)s` no es un programa de fondo almacenado en "
+"caché válido. Programas de fondo válidos: %(backend_list)s"
+
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
 "No se puede autorizar una señal de solicitud con una señal emitida mediante "
@@ -157,9 +166,6 @@ msgstr "No se puede cambiar %(option_name)s %(attr)s"
 msgid "Cannot change Domain ID"
 msgstr "No se puede cambiar el ID del Dominio"
 
-msgid "Cannot change consumer secret"
-msgstr "No se puede cambiar el secreto de consumidor"
-
 msgid "Cannot change user ID"
 msgstr "No se puede cambiar el ID de usuario"
 
@@ -167,12 +173,12 @@ msgid "Cannot change user name"
 msgstr "No se puede cambiar el nombre de usuario"
 
 #, python-format
-msgid "Cannot create project with parent: %(project_id)s"
-msgstr "No se puede crear el proyecto con padre: %(project_id)s"
+msgid "Cannot create an endpoint with an invalid URL: %(url)s"
+msgstr "No se puede crear un punto final con el URL no válido: %(url)s"
 
 #, python-format
-msgid "Cannot duplicate name %s"
-msgstr "No se puede duplicar nombre %s"
+msgid "Cannot create project with parent: %(project_id)s"
+msgstr "No se puede crear el proyecto con padre: %(project_id)s"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
@@ -220,6 +226,10 @@ msgstr ""
 "como resultado una lista vacía."
 
 #, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "Entidad de API de config en /domains/%s/config"
+
+#, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
 msgstr "Ha ocurrido un conflicto al intentar almacenar %(type)s - %(details)s"
 
@@ -238,6 +248,15 @@ msgid ""
 msgstr ""
 "No se pueden cambiar atributos inalterables '%(attributes)s' en el destino "
 "%(target)s"
+
+#, python-format
+msgid ""
+"Could not determine Identity Provider ID. The configuration option "
+"%(issuer_attribute)s was not found in the request environment."
+msgstr ""
+"No se ha podido determinar el ID del proveedor de identidades. La opción de "
+"configuración %(issuer_attribute)s no se ha encontrado en el entorno de la "
+"solicitud."
 
 #, python-format
 msgid ""
@@ -343,6 +362,15 @@ msgstr "No se ha podido encontrar la versión: %(version)s"
 msgid "Could not find: %(target)s"
 msgstr "No se ha podido encontrar : %(target)s"
 
+msgid ""
+"Could not map user while setting ephemeral user identity. Either mapping "
+"rules must specify user id/name or REMOTE_USER environment variable must be "
+"set."
+msgstr ""
+"No se ha podido correlacionar el usuario al establecer la identidad de "
+"usuario efímera. Las reglas de correlación deben especificar ID/nombre de "
+"usuario o se debe establecer la variable de entorno REMOTE_USER."
+
 msgid "Could not validate the access token"
 msgstr "No se ha podido validar la señal de acceso"
 
@@ -381,9 +409,6 @@ msgid ""
 msgstr ""
 "Dominio: %(domain)s ya tiene definida una configuración - ignorando el "
 "archivo: %(file)s."
-
-msgid "Domains are read-only against LDAP"
-msgstr "Los dominios son de sólo lectura para LDAP"
 
 msgid "Duplicate Entry"
 msgstr "Entrada Duplicada "
@@ -427,6 +452,18 @@ msgid ""
 msgstr ""
 "Error al analizar el archivo de configuración para el dominio: %(domain)s, "
 "archivo: %(file)s."
+
+#, python-format
+msgid "Error while opening file %(path)s: %(err)s"
+msgstr "Error al abrir el archivo %(path)s: %(err)s"
+
+#, python-format
+msgid "Error while parsing line: '%(line)s': %(err)s"
+msgstr "Error al analizar la línea: '%(line)s': %(err)s"
+
+#, python-format
+msgid "Error while parsing rules %(path)s: %(err)s"
+msgstr "Error al analizar las reglas %(path)s: %(err)s"
 
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
@@ -661,6 +698,11 @@ msgstr "Debe especificar dominio o proyecto"
 msgid "Name field is required and cannot be empty"
 msgstr "El nombre de campo es necesario y no puede estar vacío"
 
+msgid "Neither Project Domain ID nor Project Domain Name was provided."
+msgstr ""
+"No se ha proporcionado el ID de dominio de proyecto ni el nombre de dominio "
+"de proyecto."
+
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
@@ -716,8 +758,18 @@ msgid "Project (%s)"
 msgstr "Proyecto (%s)"
 
 #, python-format
+msgid "Project ID not found: %(t_id)s"
+msgstr "ID de proyecto no encontrado: %(t_id)s"
+
+msgid "Project field is required and cannot be empty."
+msgstr "El campo de proyecto es obligatorio y no puede estar vacío."
+
+#, python-format
 msgid "Project is disabled: %s"
 msgstr "El proyecto está inhabilitado: %s"
+
+msgid "Query string is not UTF-8 encoded"
+msgstr "La serie de consulta no tiene codificación UTF-8"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "Sólo se permite volver a delegar un delegado por confianza"
@@ -765,10 +817,6 @@ msgstr ""
 "La profundidad de redelegación solicitada de %(requested_count)d es mayor "
 "que la permitida %(max_count)d"
 
-#, python-format
-msgid "Role %s not found"
-msgstr "No se ha encontrado el rol %s"
-
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
@@ -815,6 +863,15 @@ msgstr ""
 "La longitud de la serie se ha excedido. La longitud de la serie '%(string)s' "
 "ha excedido el límite de la columna %(type)s(CHAR(%(length)d))."
 
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"'expires_at' no debe ser antes que ahora. El servidor podría no cumplir la "
+"solicitud porque tiene un formato incorrecto o es incorrecta de alguna otra "
+"forma. Se supone que el cliente es erróneo."
+
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "La opción --all no se puede utilizar con la opción --domain-name"
 
@@ -846,6 +903,15 @@ msgstr ""
 "Los certificados que ha solicitado no están disponibles. Es probable que "
 "este servidor no utilice señales PKI, de lo contrario este es el resultado "
 "de una configuración incorrecta."
+
+msgid "The configured token provider does not support bind authentication."
+msgstr ""
+"El proveedor de señales configurado no da soporte a la autenticación de "
+"enlaces."
+
+msgid "The creation of projects acting as domains is not allowed yet."
+msgstr ""
+"La creación de proyectos que actúa como dominios aún no está permitido."
 
 #, python-format
 msgid ""
@@ -927,6 +993,9 @@ msgstr "El token pertenece a otro usuario"
 msgid "Token does not belong to specified tenant."
 msgstr "La señal no pertenece al arrendatario especificado."
 
+msgid "Token version is unrecognizable or unsupported."
+msgstr "Versión de la señal no reconocida o no soportada."
+
 msgid "Trustee has no delegated roles."
 msgstr "La entidad de confianza no tiene roles delegados."
 
@@ -983,13 +1052,6 @@ msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr ""
 "No se pueden encontrar grupos válidos mientras se utiliza la correlación "
 "%(mapping_id)s"
-
-#, python-format
-msgid ""
-"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr ""
-"No se puede obtener una conexión del ID de agrupación %(id)s después de "
-"%(seconds)s segundos."
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1051,6 +1113,9 @@ msgstr "Versión de señal desconocida %s"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "Dependencia no registrada: %(name)s para %(targets)s"
 
+msgid "Update of `is_domain` is not allowed."
+msgstr "No se permite la actualización de `is_domain`."
+
 msgid "Update of `parent_id` is not allowed."
 msgstr "No se permite la actualización de `parent_id`."
 
@@ -1061,12 +1126,6 @@ msgstr ""
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "El usuario %(u_id)s no está autorizado en el proyecto %(t_id)s"
-
-#, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"El usuario %(user_id)s ya tiene el rol %(role_id)s en el arrendatario "
-"%(tenant_id)s"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -1087,6 +1146,14 @@ msgstr "Usuario '%(user_id)s' no encontrado en el grupo '%(group_id)s'"
 msgid "User IDs do not match"
 msgstr "ID de usuario no coinciden"
 
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"No se puede crear la autorización de usuario porque falta el ID de usuario o "
+"el nombre de usuario con el ID de dominio, o el nombre de usuario con el "
+"nombre de dominio."
+
 #, python-format
 msgid "User is disabled: %s"
 msgstr "El usuario está inhabilitado: %s"
@@ -1099,6 +1166,9 @@ msgstr "El usuario no es de confianza."
 
 msgid "User not found"
 msgstr "Usuario no encontrado"
+
+msgid "User roles not supported: tenant_id required"
+msgstr "Roles de usuario no admitidos: tenant_id obligatorio"
 
 #, python-format
 msgid "User type %s not supported"
@@ -1217,3 +1287,11 @@ msgstr "No se ha encontrado o no es un fichero tls_cacertfile %s"
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr ""
 "la referencia de señal debe ser un tipo KeystoneToken, se ha obtenido: %s"
+
+#, python-format
+msgid ""
+"validated expected to find %(param_name)r in function signature for "
+"%(func_name)r."
+msgstr ""
+"En la validación se esperaba encontrar %(param_name)r en la firma de función "
+"para %(func_name)r."
