@@ -687,6 +687,38 @@ class TokenAPITests(object):
         self.assertIn(implied['id'], token_role_ids)
         self.assertNotIn(new_role['id'], token_role_ids)
 
+    def test_remove_all_roles_from_scope_result_in_404(self):
+        # create a new user
+        new_user = unit.create_user(self.identity_api,
+                                    domain_id=self.domain['id'])
+
+        # give the new user a role on a project
+        path = '/projects/%s/users/%s/roles/%s' % (
+            self.project['id'], new_user['id'], self.role['id'])
+        self.put(path=path)
+
+        # authenticate as the new user and get a project-scoped token
+        auth_data = self.build_authentication_request(
+            user_id=new_user['id'],
+            password=new_user['password'],
+            project_id=self.project['id'])
+        subject_token_id = self.v3_create_token(auth_data).headers.get(
+            'X-Subject-Token')
+
+        # make sure the project-scoped token is valid
+        headers = {'X-Subject-Token': subject_token_id}
+        r = self.get('/auth/tokens', headers=headers)
+        self.assertValidProjectScopedTokenResponse(r)
+
+        # remove the roles from the user for the given scope
+        path = '/projects/%s/users/%s/roles/%s' % (
+            self.project['id'], new_user['id'], self.role['id'])
+        self.delete(path=path)
+
+        # token validation should now result in 404
+        self.get('/auth/tokens', headers=headers,
+                 expected_status=http_client.NOT_FOUND)
+
 
 class TokenDataTests(object):
     """Test the data in specific token types."""
