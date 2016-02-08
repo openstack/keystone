@@ -1942,3 +1942,16 @@ Connection pool configuration is part of the ``[ldap]`` configuration section:
   # End user auth connection lifetime in seconds. (integer value)
   auth_pool_connection_lifetime=60
 
+Specifying Multiple LDAP servers
+--------------------------------
+
+Multiple LDAP server URLs can be provided to keystone to provide
+high-availability support for a single LDAP backend. To specify multiple LDAP
+servers, simply change the ``url`` option in the ``[ldap]`` section. The new
+option should list the different servers, each separated by a comma. For
+example:
+
+.. code-block:: ini
+
+  [ldap]
+  url = "ldap://localhost,ldap://backup.localhost"

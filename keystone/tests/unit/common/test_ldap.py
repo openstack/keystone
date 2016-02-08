@@ -286,6 +286,17 @@ class LDAPDeleteTreeTest(unit.TestCase):
                           conn.search_s, grandchild_dn, ldap.SCOPE_BASE)
 
 
+class MultiURLTests(unit.TestCase):
+    """Tests for setting multiple LDAP URLs."""
+
+    def test_multiple_urls_with_comma(self):
+        urls = 'ldap://localhost,ldap://backup.localhost'
+        self.config_fixture.config(group='ldap', url=urls)
+        base_ldap = ks_ldap.BaseLdap(CONF)
+        ldap_connection = base_ldap.get_connection()
+        self.assertEqual(urls, ldap_connection.conn.conn._uri)
+
+
 class SslTlsTest(unit.TestCase):
     """Tests for the SSL/TLS functionality in keystone.common.ldap.core."""
 
