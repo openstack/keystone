@@ -7,16 +7,17 @@
 # Sungjin Kang <potopro@gmail.com>, 2013
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"POT-Creation-Date: 2016-02-07 08:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-09-03 12:54+0000\n"
-"Last-Translator: openstackjenkins <jenkins@openstack.org>\n"
+"PO-Revision-Date: 2016-02-03 07:03+0000\n"
+"Last-Translator: Lucas Palm <lapalm@us.ibm.com>\n"
 "Language: ko-KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -134,6 +135,14 @@ msgstr ""
 msgid "Authentication plugin error."
 msgstr "인증 플러그인 오류."
 
+#, python-format
+msgid ""
+"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
+"%(backend_list)s"
+msgstr ""
+"백엔드 `%(backend)s`이(가) 올바른 memcached 백엔드가 아닙니다. 올바른 백엔"
+"드: %(backend_list)s"
+
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr "위임을 통해 발행된 토큰으로 요청 토큰에 권한을 부여할 수 없습니다."
 
@@ -144,9 +153,6 @@ msgstr "%(option_name)s %(attr)s을(를) 변경할 수 없음"
 msgid "Cannot change Domain ID"
 msgstr "도메인 ID를 변경할 수 없음"
 
-msgid "Cannot change consumer secret"
-msgstr "이용자 본인확인정보를 변경할 수 없음"
-
 msgid "Cannot change user ID"
 msgstr "사용자 ID를 변경할 수 없음"
 
@@ -154,12 +160,12 @@ msgid "Cannot change user name"
 msgstr "사용자 이름을 변경할 수 없음"
 
 #, python-format
-msgid "Cannot create project with parent: %(project_id)s"
-msgstr "상위로 프로젝트를 작성할 수 없음: %(project_id)s"
+msgid "Cannot create an endpoint with an invalid URL: %(url)s"
+msgstr "올바르지 않은 URL을 사용하여 엔드포인트를 작성할 수 없음: %(url)s"
 
 #, python-format
-msgid "Cannot duplicate name %s"
-msgstr "%s 이름을 복제할 수 없습니다."
+msgid "Cannot create project with parent: %(project_id)s"
+msgstr "상위로 프로젝트를 작성할 수 없음: %(project_id)s"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "위임을 통해 발행된 토큰으로 요청 토큰을 나열할 수 없습니다."
@@ -198,6 +204,10 @@ msgid ""
 msgstr "결합에 효율적인 도메인과 상속 필터는 항상 빈 목록을 생성합니다."
 
 #, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "/domains/%s/config의 구성 API 엔티티"
+
+#, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
 msgstr "%(type)s을(를) 저장하는 중에 충돌이 발생함 - %(details)s"
 
@@ -212,6 +222,14 @@ msgstr "이용자를 찾을 수 없음"
 msgid ""
 "Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
 msgstr "%(target)s 대상에서 불변 속성 '%(attributes)s'을(를) 변경할 수 없음"
+
+#, python-format
+msgid ""
+"Could not determine Identity Provider ID. The configuration option "
+"%(issuer_attribute)s was not found in the request environment."
+msgstr ""
+"ID 제공자 ID를 판별할 수 없습니다. 구성 옵션 %(issuer_attribute)s이(가) 요청 "
+"환경에 없습니다. "
 
 #, python-format
 msgid ""
@@ -314,6 +332,14 @@ msgstr "%(version)s 버전을 찾을 수 없음"
 msgid "Could not find: %(target)s"
 msgstr "%(target)s을(를) 찾을 수 없음"
 
+msgid ""
+"Could not map user while setting ephemeral user identity. Either mapping "
+"rules must specify user id/name or REMOTE_USER environment variable must be "
+"set."
+msgstr ""
+"임시 사용자 ID를 설정하는 중에 사용자를 맵핑할 수 없습니다. 맵핑 규칙이 사용"
+"자 ID/이름을 지정해야 하거나 REMOTE_USER 환경 변수를 설정해야 합니다. "
+
 msgid "Could not validate the access token"
 msgstr "액세스 토큰을 유효성 검증할 수 없음"
 
@@ -351,9 +377,6 @@ msgstr ""
 "%(domain)s 도메인에 이미 정의된 구성이 있음 - 다음 파일을 무시하십시오. "
 "%(file)s."
 
-msgid "Domains are read-only against LDAP"
-msgstr "LDAP에 대한 도메인이 읽기 전용입니다."
-
 msgid "Duplicate Entry"
 msgstr "중복 항목"
 
@@ -390,6 +413,18 @@ msgid ""
 msgstr ""
 "%(domain)s 도메인에 대한 구성 파일을 구문 분석하는 중 오류 발생. 파일: "
 "%(file)s."
+
+#, python-format
+msgid "Error while opening file %(path)s: %(err)s"
+msgstr "파일 %(path)s 여는 중 오류 발생: %(err)s"
+
+#, python-format
+msgid "Error while parsing line: '%(line)s': %(err)s"
+msgstr "행: '%(line)s' 구문 분석 중 오류 발생: %(err)s"
+
+#, python-format
+msgid "Error while parsing rules %(path)s: %(err)s"
+msgstr "규칙 %(path)s 구문 분석 중 오류 발생: %(err)s"
 
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
@@ -615,6 +650,9 @@ msgstr "도메인 프로젝트 중 하나를 지정해야 함"
 msgid "Name field is required and cannot be empty"
 msgstr "이름 필드가 필요하며 비어 있을 수 없음"
 
+msgid "Neither Project Domain ID nor Project Domain Name was provided."
+msgstr "프로젝트 도메인 ID와 프로젝트 도메인 이름이 제공되지 않았습니다. "
+
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
@@ -668,8 +706,18 @@ msgid "Project (%s)"
 msgstr "프로젝트(%s)"
 
 #, python-format
+msgid "Project ID not found: %(t_id)s"
+msgstr "프로젝트 ID를 찾을 수 없음: %(t_id)s"
+
+msgid "Project field is required and cannot be empty."
+msgstr "프로젝트 필드는 필수이므로 비어 있어서는 안 됩니다. "
+
+#, python-format
 msgid "Project is disabled: %s"
 msgstr "프로젝트를 사용 안함: %s"
+
+msgid "Query string is not UTF-8 encoded"
+msgstr "조회 문자열이 UTF-8로 인코딩되어 있지 않음"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "신뢰에서 위임한 경우에만 재위임 허용"
@@ -713,10 +761,6 @@ msgid ""
 "%(max_count)d"
 msgstr ""
 "%(requested_count)d의 요청된 재위임 깊이가 허용되는 %(max_count)d보다 깊음"
-
-#, python-format
-msgid "Role %s not found"
-msgstr "%s 역할을 찾을 수 없음"
 
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
@@ -763,6 +807,15 @@ msgstr ""
 "문자열 길이 제한을 초과합니다. '%(string)s' 문자열 길이가 열의 한도 "
 "%(type)s(CHAR(%(length)d))을(를) 초과합니다."
 
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"'expires_at'은 지금보다 이전이어서는 안 됩니다. 형식이 잘못되었거나 올바르지 "
+"않기 때문에 서버가 요청을 준수할 수 없습니다. 클라이언트는 오류 상태로 간주됩"
+"니다."
+
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "--all 옵션은 --domain-name 옵션과 함께 사용할 수 없습니다."
 
@@ -791,6 +844,12 @@ msgid ""
 msgstr ""
 "요청한 인증서를 사용할 수 없습니다. 서버가 PKI 토큰을 사용하지 않거나 잘못된 "
 "구성의 결과로 인해 발생했을 수 있습니다."
+
+msgid "The configured token provider does not support bind authentication."
+msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
+
+msgid "The creation of projects acting as domains is not allowed yet."
+msgstr "도메인 역할을 수행하는 프로젝트의 작성은 아직 허용되지 않습니다. "
 
 #, python-format
 msgid ""
@@ -865,6 +924,9 @@ msgstr "토큰이 다른 사용자에 속함"
 msgid "Token does not belong to specified tenant."
 msgstr "토큰이 지정된 테넌트에 속하지 않습니다."
 
+msgid "Token version is unrecognizable or unsupported."
+msgstr "토큰 버전이 인식되지 않거나 지원되지 않습니다. "
+
 msgid "Trustee has no delegated roles."
 msgstr "Trustee에 위임된 역할이 없습니다. "
 
@@ -915,11 +977,6 @@ msgstr ""
 #, python-format
 msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr "%(mapping_id)s 맵핑을 사용하는 중에 올바른 그룹을 찾을 수 없음 "
-
-#, python-format
-msgid ""
-"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr "풀 id %(id)s에서 %(seconds)s분 후에 연결할 수 없습니다."
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -980,6 +1037,9 @@ msgstr "알 수 없는 토큰 버전 %s"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "등록되지 않은 종속성: %(targets)s의 %(name)s"
 
+msgid "Update of `is_domain` is not allowed."
+msgstr "`is_domain`의 업데이트는 허용되지 않습니다. "
+
 msgid "Update of `parent_id` is not allowed."
 msgstr "`parent_id` 업데이트가 허용되지 않습니다."
 
@@ -989,12 +1049,6 @@ msgstr "SAML 어설션을 작성할 때 프로젝트 범위 지정 토큰 사용
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "사용자 %(u_id)s이(는) 테넌트 %(t_id)s에 대한 권한이 없습니다. "
-
-#, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"사용자 %(user_id)s이(가) 테넌트 %(tenant_id)s에서 역할 %(role_id)s을(를) 이"
-"미 가집니다. "
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -1017,6 +1071,13 @@ msgstr "'%(group_id)s' 그룹에 '%(user_id)s' 사용자가 없음"
 msgid "User IDs do not match"
 msgstr "사용자 ID가 일치하지 않음"
 
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"사용자 ID, 도메인 ID가 포함된 사용자 이름 또는 도메인 이름이 포함된 사용자 이"
+"름이 누락되어 사용자 인증을 빌드할 수 없습니다. "
+
 #, python-format
 msgid "User is disabled: %s"
 msgstr "사용자를 사용 안함: %s"
@@ -1029,6 +1090,9 @@ msgstr "사용자는 trustee가 아닙니다."
 
 msgid "User not found"
 msgstr "사용자를 찾을 수 없음"
+
+msgid "User roles not supported: tenant_id required"
+msgstr "사용자 역할이 지원되지 않음: tenant_id 필요"
 
 #, python-format
 msgid "User type %s not supported"
@@ -1140,3 +1204,11 @@ msgstr "tls_cacertfile %s를 찾을 수 없스며, 그런 파일이 없습니다
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "토큰 참조는 KeystoneToken 유형이어야 합니다. %s을(를) 가져왔습니다."
+
+#, python-format
+msgid ""
+"validated expected to find %(param_name)r in function signature for "
+"%(func_name)r."
+msgstr ""
+"%(func_name)r에 대한 함수 서명에서 %(param_name)r을(를) 찾기 위해 유효성 검증"
+"하고 예상했습니다. "

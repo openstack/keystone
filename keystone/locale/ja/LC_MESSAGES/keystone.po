@@ -7,9 +7,9 @@
 # Akihiro Motoki <amotoki@gmail.com>, 2015. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 05:50+0000\n"
+"POT-Creation-Date: 2016-02-07 08:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -151,10 +151,6 @@ msgstr "%(option_name)s %(attr)s を変更できません"
 msgid "Cannot change Domain ID"
 msgstr "ドメイン ID を変更できません"
 
-#, fuzzy
-msgid "Cannot change consumer secret"
-msgstr "コンシューマーの秘密を変更できません"
-
 msgid "Cannot change user ID"
 msgstr "ユーザー ID を変更できません"
 
@@ -164,10 +160,6 @@ msgstr "ユーザー名を変更できません"
 #, fuzzy, python-format
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "親を持つプロジェクトを作成できません: %(project_id)s"
-
-#, python-format
-msgid "Cannot duplicate name %s"
-msgstr "名前 %s は重複してはなりません"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
@@ -375,9 +367,6 @@ msgid ""
 msgstr ""
 "ドメイン %(domain)s には既に定義された設定があります。ファイル %(file)s は無"
 "視されます。"
-
-msgid "Domains are read-only against LDAP"
-msgstr "LDAP の場合はドメインは読み取り専用です"
 
 msgid "Duplicate Entry"
 msgstr "重複する項目"
@@ -757,10 +746,6 @@ msgstr ""
 "要求された再委任の深さ %(requested_count)d が、許可された上限 %(max_count)d "
 "を超えています"
 
-#, python-format
-msgid "Role %s not found"
-msgstr "ロール %s が見つかりませんでした"
-
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
@@ -971,12 +956,6 @@ msgstr ""
 "マッピング %(mapping_id)s を使用する際に、有効なグループが見つかりませんでし"
 "た"
 
-#, fuzzy, python-format
-msgid ""
-"Unable to get a connection from pool id %(id)s after %(seconds)s seconds."
-msgstr ""
-"%(seconds)s 秒が経過した時点で、プール ID %(id)s からの接続がありません。"
-
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr "ドメイン設定ディレクトリーが見つかりません: %s"
@@ -1047,12 +1026,6 @@ msgstr ""
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "ユーザー %(u_id)s はテナント %(t_id)s のアクセス権限がありません。"
-
-#, python-format
-msgid "User %(user_id)s already has role %(role_id)s in tenant %(tenant_id)s"
-msgstr ""
-"ユーザー %(user_id)s にはすでにテナント %(tenant_id)s でロール %(role_id)s が"
-"割り当てられています。"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
