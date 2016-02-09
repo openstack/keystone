@@ -13,6 +13,25 @@
 #    under the License.
 
 import oslo_i18n
+import six
+
+
+if six.PY3:
+    # NOTE(dstanek): This block will monkey patch libraries that are not
+    # yet supported in Python3. We do this that that it is possible to
+    # execute any tests at all. Without monkey patching modules the
+    # tests will fail with import errors.
+
+    import sys
+    from unittest import mock  # noqa: our import detection is naive?
+
+    sys.modules['ldap'] = mock.Mock()
+    sys.modules['ldap.controls'] = mock.Mock()
+    sys.modules['ldap.dn'] = mock.Mock()
+    sys.modules['ldap.filter'] = mock.Mock()
+    sys.modules['ldap.modlist'] = mock.Mock()
+    sys.modules['ldappool'] = mock.Mock()
+
 
 # NOTE(dstanek): oslo_i18n.enable_lazy() must be called before
 # keystone.i18n._() is called to ensure it has the desired lazy lookup
