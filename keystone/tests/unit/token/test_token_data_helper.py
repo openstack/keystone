@@ -28,7 +28,8 @@ class TestTokenDataHelper(unit.TestCase):
 
     def test_v3_token_data_helper_populate_audit_info_string(self):
         token_data = {}
-        audit_info = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
+        audit_info_bytes = base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
+        audit_info = audit_info_bytes.decode('utf-8')
         self.v3_data_helper._populate_audit_info(token_data, audit_info)
         self.assertIn(audit_info, token_data['audit_ids'])
         self.assertThat(token_data['audit_ids'], matchers.HasLength(2))
