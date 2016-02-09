@@ -294,7 +294,7 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
         # default domain
         dependency.reset()
         with mock.patch('six.moves.builtins.print') as mock_print:
-            self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
+            self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             file_name = ('keystone.%s.conf' %
                          resource.calc_default_domain()['name'])
             error_msg = _(
@@ -320,7 +320,7 @@ class CliDomainConfigNoOptionsTestCase(CliDomainConfigAllTestCase):
     def test_config_upload(self):
         dependency.reset()
         with mock.patch('six.moves.builtins.print') as mock_print:
-            self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
+            self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             mock_print.assert_has_calls(
                 [mock.call(
                     _('At least one option must be provided, use either '
@@ -337,7 +337,7 @@ class CliDomainConfigTooManyOptionsTestCase(CliDomainConfigAllTestCase):
     def test_config_upload(self):
         dependency.reset()
         with mock.patch('six.moves.builtins.print') as mock_print:
-            self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
+            self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             mock_print.assert_has_calls(
                 [mock.call(_('The --all option cannot be used with '
                              'the --domain-name option'))])
@@ -354,7 +354,7 @@ class CliDomainConfigInvalidDomainTestCase(CliDomainConfigAllTestCase):
     def test_config_upload(self):
         dependency.reset()
         with mock.patch('six.moves.builtins.print') as mock_print:
-            self.assertRaises(SystemExit, cli.DomainConfigUpload.main)
+            self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             file_name = 'keystone.%s.conf' % self.invalid_domain_name
             error_msg = (_(
                 'Invalid domain name: %(domain)s found in config file name: '
