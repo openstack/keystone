@@ -63,27 +63,6 @@ class AdminTokenAuthMiddleware(wsgi.Middleware):
         request.environ[CONTEXT_ENV] = context
 
 
-class PostParamsMiddleware(wsgi.Middleware):
-    """Middleware to allow method arguments to be passed as POST parameters.
-
-    Filters out the parameters `self`, `context` and anything beginning with
-    an underscore.
-
-    """
-
-    def process_request(self, request):
-        params_parsed = request.params
-        params = {}
-        for k, v in params_parsed.items():
-            if k in ('self', 'context'):
-                continue
-            if k.startswith('_'):
-                continue
-            params[k] = v
-
-        request.environ[PARAMS_ENV] = params
-
-
 class JsonBodyMiddleware(wsgi.Middleware):
     """Middleware to allow method arguments to be passed as serialized JSON.
 
