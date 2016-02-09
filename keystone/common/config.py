@@ -571,7 +571,7 @@ FILE_OPTIONS = {
     'ldap': [
         cfg.StrOpt('url', default='ldap://localhost',
                    help='URL(s) for connecting to the LDAP server. Multiple '
-                        'ldap URLs may be specfied as a comma separated '
+                        'LDAP URLs may be specified as a comma separated '
                         'string. The first URL to successfully bind is used '
                         'for the connection.'),
         cfg.StrOpt('user',
