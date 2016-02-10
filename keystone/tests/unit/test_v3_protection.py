@@ -20,8 +20,8 @@ from oslo_serialization import jsonutils
 from six.moves import http_client
 
 from keystone import exception
-from keystone.policy.backends import rules
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils
@@ -33,6 +33,9 @@ DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 class IdentityTestProtectedCase(test_v3.RestfulTestCase):
     """Test policy enforcement on the v3 Identity API."""
+
+    def _policy_fixture(self):
+        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
 
     def setUp(self):
         """Setup for Identity Protection Test Cases.
@@ -50,14 +53,9 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         the default domain.
 
         """
-        # Ensure that test_v3.RestfulTestCase doesn't load its own
-        # sample data, which would make checking the results of our
-        # tests harder
-        super(IdentityTestProtectedCase, self).setUp()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        self.config_fixture.config(group='oslo_policy',
-                                   policy_file=self.tmpfilename)
+        super(IdentityTestProtectedCase, self).setUp()
 
         # A default auth request we can use - un-scoped user token
         self.auth = self.build_authentication_request(
@@ -560,6 +558,10 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
                                       test_v3.AssignmentTestMixin):
     """Test policy enforcement of the sample v3 cloud policy file."""
 
+    def _policy_fixture(self):
+        return ksfixtures.Policy(unit.dirs.etc('policy.v3cloudsample.json'),
+                                 self.config_fixture)
+
     def setUp(self):
         """Setup for v3 Cloud Policy Sample Test Cases.
 
@@ -584,13 +586,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         # sample data, which would make checking the results of our
         # tests harder
         super(IdentityTestv3CloudPolicySample, self).setUp()
-
-        # Finally, switch to the v3 sample policy file
-        self.addCleanup(rules.reset)
-        rules.reset()
-        self.config_fixture.config(
-            group='oslo_policy',
-            policy_file=unit.dirs.etc('policy.v3cloudsample.json'))
 
         self.config_fixture.config(
             group='resource',
