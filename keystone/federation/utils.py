@@ -446,7 +446,9 @@ class RuleProcessor(object):
         self.rules = rules
 
     def process(self, assertion_data):
-        """Transform assertion to a dictionary of user name and group ids
+        """Transform assertion to a dictionary.
+
+        The dictionary contains mapping of user name and group ids
         based on mapping rules.
 
         This function will iterate through the mapping rules to find
@@ -689,8 +691,7 @@ class RuleProcessor(object):
         return new
 
     def _verify_all_requirements(self, requirements, assertion):
-        """Go through the remote requirements of a rule, and compare against
-        the assertion.
+        """Compare remote requirements of a rule against the assertion.
 
         If a value of ``None`` is returned, the rule with this assertion
         doesn't apply.

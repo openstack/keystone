@@ -174,8 +174,11 @@ class NotificationsWrapperTestCase(unit.BaseTestCase):
 class NotificationsTestCase(unit.BaseTestCase):
 
     def test_send_notification(self):
-        """Test the private method _send_notification to ensure event_type,
+        """Test _send_notification.
+
+        Test the private method _send_notification to ensure event_type,
         payload, and context are built and passed properly.
+
         """
         resource = uuid.uuid4().hex
         resource_type = EXP_RESOURCE_TYPE
@@ -1204,7 +1207,9 @@ class TestCallbackRegistration(unit.BaseTestCase):
         self.mock_log.logger.getEffectiveLevel.return_value = logging.DEBUG
 
     def verify_log_message(self, data):
-        """Tests that use this are a little brittle because adding more
+        """Verify log message.
+
+        Tests that use this are a little brittle because adding more
         logging can break them.
 
         TODO(dstanek): remove the need for this in a future refactoring

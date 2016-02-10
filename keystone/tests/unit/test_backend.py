@@ -3526,7 +3526,8 @@ class IdentityTests(AssignmentTestHelperMixin):
                           leaf_project['id'])
 
     def test_delete_projects_from_ids(self):
-        """Tests the resource backend call delete_projects_from_ids
+        """Tests the resource backend call delete_projects_from_ids.
+
         Tests the normal flow of the delete_projects_from_ids backend call,
         that ensures no project on the list exists after it is succesfully
         called.
@@ -3594,7 +3595,8 @@ class IdentityTests(AssignmentTestHelperMixin):
                               project['id'])
 
     def test_delete_large_project_cascade(self):
-        """Try delete a large project with cascade true
+        """Try delete a large project with cascade true.
+
         Tree we will create::
 
                +-p1-+
@@ -4695,9 +4697,10 @@ class IdentityTests(AssignmentTestHelperMixin):
         assert_does_not_contain_names(role_assign_without_names)
 
     def test_delete_project_assignments_same_id_as_domain(self):
-        """Test deleting project assignments in a scenario that
-        project and domain have the same ID. Only project assignments must
-        be deleted (i.e USER_PROJECT or GROUP_PROJECT).
+        """Test deleting project assignments with same project and domain ID.
+
+        Only project assignments must be deleted (i.e USER_PROJECT or
+        GROUP_PROJECT).
 
         Test plan:
         * Create a project and a domain with the same ID;

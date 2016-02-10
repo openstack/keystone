@@ -180,7 +180,8 @@ class V2TokenDataHelper(object):
 
     @classmethod
     def format_catalog(cls, catalog_ref):
-        """Munge catalogs from internal to output format
+        """Munge catalogs from internal to output format.
+
         Internal catalogs look like::
 
           {$REGION: {

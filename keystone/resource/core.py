@@ -1017,8 +1017,7 @@ class ResourceDriverBase(object):
 
     @abc.abstractmethod
     def list_projects_in_subtree(self, project_id):
-        """List all projects in the subtree below the hierarchy of the
-        given project.
+        """List all projects in the subtree of a given project.
 
         :param project_id: the driver will get the subtree under
                            this project.

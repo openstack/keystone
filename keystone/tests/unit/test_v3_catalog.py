@@ -569,8 +569,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
                   expected_status=http_client.BAD_REQUEST)
 
     def test_create_endpoint_with_region(self):
-        """EndpointV3 creates the region before creating the endpoint, if
-        endpoint is provided with 'region' and no 'region_id'
+        """EndpointV3 creates the region before creating the endpoint.
+
+        This occurs when endpoint is provided with 'region' and no 'region_id'.
         """
         ref = unit.new_endpoint_ref_with_region(service_id=self.service_id,
                                                 region=uuid.uuid4().hex)

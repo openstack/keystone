@@ -238,8 +238,7 @@ class Oauth1DriverV8(object):
 
     @abc.abstractmethod
     def get_consumer(self, consumer_id):
-        """Get consumer, returns the consumer id (key)
-        and description.
+        """Get consumer, returns the consumer id (key) and description.
 
         :param consumer_id: id of consumer to get
         :type consumer_id: string
@@ -250,15 +249,15 @@ class Oauth1DriverV8(object):
 
     @abc.abstractmethod
     def get_consumer_with_secret(self, consumer_id):
-        """Like get_consumer() but returned consumer_ref includes
-        the consumer secret.
+        """Like get_consumer(), but also returns consumer secret.
 
+        Returned dictionary consumer_ref includes consumer secret.
         Secrets should only be shared upon consumer creation; the
         consumer secret is required to verify incoming OAuth requests.
 
         :param consumer_id: id of consumer to get
         :type consumer_id: string
-        :returns: consumer_ref
+        :returns: consumer_ref containing consumer secret
 
         """
         raise exception.NotImplemented()  # pragma: no cover

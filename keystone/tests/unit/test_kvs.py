@@ -85,7 +85,9 @@ class RegionProxy2Fixture(proxy.ProxyBackend):
 
 
 class TestMemcacheDriver(api.CacheBackend):
-    """A test dogpile.cache backend that conforms to the mixin-mechanism for
+    """A test dogpile.cache backend.
+
+    This test backend conforms to the mixin-mechanism for
     overriding set and set_multi methods on dogpile memcached drivers.
     """
 

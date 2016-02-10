@@ -113,8 +113,10 @@ def validate_token_bind(context, token_ref):
 
 
 def best_match_language(req):
-    """Determines the best available locale from the Accept-Language
-    HTTP header passed in the request.
+    """Determines the best available locale.
+
+    This returns best available locale based on the Accept-Language HTTP
+    header passed in the request.
     """
     if not req.accept_language:
         return None
@@ -328,9 +330,7 @@ class Application(BaseApplication):
             self.policy_api.enforce(creds, 'admin_required', {})
 
     def _attribute_is_empty(self, ref, attribute):
-        """Returns true if the attribute in the given ref (which is a
-        dict) is empty or None.
-        """
+        """Determine if the attribute in ref is empty or None."""
         return ref.get(attribute) is None or ref.get(attribute) == ''
 
     def _require_attribute(self, ref, attribute):

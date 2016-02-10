@@ -317,8 +317,7 @@ class FederationDriverBase(object):
 
     @abc.abstractmethod
     def get_mapping(self, mapping_id):
-        """Get a mapping, returns the mapping based
-        on mapping_id.
+        """Get a mapping, returns the mapping based on mapping_id.
 
         :param mapping_id: id of mapping to get
         :type mapping_ref: string

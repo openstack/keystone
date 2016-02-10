@@ -668,7 +668,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
 
     def test_ephemeral_any_user_success(self):
-        """Ephemeral user does not need a specified user
+        """Verify ephemeral user does not need a specified user.
+
         Keystone is not looking to match the user, but a corresponding group.
         """
         env = {}
@@ -721,7 +722,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
                                  extra_environ=env)
 
     def test_ephemeral_incorrect_mapping_fail(self):
-        """Ephemeral user picks up the non-ephemeral user mapping.
+        """Test ephemeral user picking up the non-ephemeral user mapping.
+
         Looking up the mapping with protocol Id 'x509' will load up
         the non-ephemeral user mapping, results unauthenticated.
         """

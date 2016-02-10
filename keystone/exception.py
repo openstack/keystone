@@ -164,8 +164,10 @@ class PKITokenExpected(Error):
 
 
 class SecurityError(Error):
-    """Avoids exposing details of security failures, unless in insecure_debug
-    mode.
+    """Security error exception.
+
+    Avoids exposing details of security errors, unless in insecure_debug mode.
+
     """
 
     amendment = _('(Disable insecure_debug mode to suppress these details.)')
@@ -265,9 +267,8 @@ class EndpointNotFound(NotFound):
 
 
 class MetadataNotFound(NotFound):
-    """(dolph): metadata is not a user-facing concept,
-    so this exception should not be exposed
-    """
+    # NOTE (dolph): metadata is not a user-facing concept,
+    # so this exception should not be exposed.
 
     message_format = _("An unhandled exception has occurred:"
                        " Could not find metadata.")

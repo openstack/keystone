@@ -2575,7 +2575,9 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         return role
 
     def test_root_role_as_implied_role_forbidden(self):
-        """Create 2 roles that are prohibited from being an implied role.
+        """Test root role is forbidden to be set as an implied role.
+
+        Create 2 roles that are prohibited from being an implied role.
         Create 1 additional role which should be accepted as an implied
         role. Assure the prohibited role names cannot be set as an implied
         role. Assure the accepted role name which is not a member of the

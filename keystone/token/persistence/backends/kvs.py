@@ -138,8 +138,10 @@ class Token(token.persistence.TokenDriverV8):
         return data_copy
 
     def _get_user_token_list_with_expiry(self, user_key):
-        """Return a list of tuples in the format (token_id, token_expiry) for
-        the user_key.
+        """Return user token list with token expiry.
+
+        :return: the tuples in the format (token_id, token_expiry)
+        :rtype: list
         """
         return self._get_key_or_default(user_key, default=[])
 

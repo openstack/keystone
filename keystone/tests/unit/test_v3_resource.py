@@ -96,8 +96,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
     @test_utils.wip('waiting for projects acting as domains implementation')
     def test_create_domain_creates_is_domain_project(self):
-        """Call ``POST /domains`` and check a project that acts as a domain
-        is created.
+        """Check a project that acts as a domain is created.
+
+        Call ``POST /domains``.
         """
         # Create a new domain
         domain_ref = unit.new_domain_ref()
@@ -188,8 +189,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
     @test_utils.wip('waiting for projects acting as domains implementation')
     def test_update_domain_updates_is_domain_project(self):
-        """Call ``PATCH /domains`` and check the project that acts as a domain
-        is updated.
+        """Check the project that acts as a domain is updated.
+
+        Call ``PATCH /domains``.
         """
         # Create a new domain
         domain_ref = unit.new_domain_ref()
@@ -375,8 +377,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
     @test_utils.wip('waiting for projects acting as domains implementation')
     def test_delete_domain_deletes_is_domain_project(self):
-        """Call ``DELETE /domains`` and check the project that acts as a domain
-        is deleted.
+        """Check the project that acts as a domain is deleted.
+
+        Call ``DELETE /domains``.
         """
         # Create a new domain
         domain_ref = unit.new_domain_ref()

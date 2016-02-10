@@ -131,9 +131,7 @@ class AuthBadRequests(AuthTest):
             context={}, auth={})
 
     def test_empty_remote_user(self):
-        """Verify that _authenticate_external() raises exception if
-        REMOTE_USER is set as the empty string.
-        """
+        """Verify exception is raised when REMOTE_USER is an empty string."""
         context = {'environment': {'REMOTE_USER': ''}}
         self.assertRaises(
             token.controllers.ExternalAuthNotApplicable,
@@ -973,8 +971,9 @@ class AuthWithTrust(AuthTest):
                           expires_at="2010-06-04T08:44:31.999999Z")
 
     def test_create_trust_without_project_id(self):
-        """Verify that trust can be created without project id and
-        token can be generated with that trust.
+        """Verify that trust can be created without project id.
+
+        Also, token can be generated with that trust.
         """
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
         context = self._create_auth_context(
@@ -1005,9 +1004,7 @@ class AuthWithTrust(AuthTest):
             self.assertIn(role['id'], role_ids)
 
     def test_get_trust_without_auth_context(self):
-        """Verify that a trust cannot be retrieved when the auth context is
-        missing.
-        """
+        """Verify a trust cannot be retrieved if auth context is missing."""
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
         context = self._create_auth_context(
             unscoped_token['access']['token']['id'])
