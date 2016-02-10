@@ -53,7 +53,7 @@ class AuthTestMixin(object):
                          message='_build_auth requires 1 (and only 1) '
                                  'secret type and value')
 
-        secret_type, secret_value = kwargs.items()[0]
+        secret_type, secret_value = list(kwargs.items())[0]
 
         # NOTE(dstanek): just to ensure sanity in the tests
         self.assertIn(secret_type, ('passcode', 'password'),

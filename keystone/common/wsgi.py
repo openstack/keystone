@@ -721,8 +721,8 @@ class V3ExtensionRouter(ExtensionRouter, RoutersBase):
 
         response_data = jsonutils.loads(response.body)
         self._update_version_response(response_data)
-        response.body = jsonutils.dumps(response_data,
-                                        cls=utils.SmarterEncoder)
+        response.body = jsonutils.dump_as_bytes(response_data,
+                                                cls=utils.SmarterEncoder)
         return response
 
 
@@ -735,7 +735,7 @@ def render_response(body=None, status=None, headers=None, method=None):
     headers.append(('Vary', 'X-Auth-Token'))
 
     if body is None:
-        body = ''
+        body = b''
         status = status or (204, 'No Content')
     else:
         content_types = [v for h, v in headers if h == 'Content-Type']
@@ -745,7 +745,7 @@ def render_response(body=None, status=None, headers=None, method=None):
             content_type = None
 
         if content_type is None or content_type in JSON_ENCODE_CONTENT_TYPES:
-            body = jsonutils.dumps(body, cls=utils.SmarterEncoder)
+            body = jsonutils.dump_as_bytes(body, cls=utils.SmarterEncoder)
             if content_type is None:
                 headers.append(('Content-Type', 'application/json'))
         status = status or (200, 'OK')
