@@ -831,17 +831,11 @@ class V2Notifications(BaseNotificationTest):
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
 
-    def setUp(self):
-        super(TestEventCallbacks, self).setUp()
-        self.has_been_called = False
+    class FakeManager(object):
 
-    def _project_deleted_callback(self, service, resource_type, operation,
-                                  payload):
-        self.has_been_called = True
-
-    def _project_created_callback(self, service, resource_type, operation,
-                                  payload):
-        self.has_been_called = True
+        def _project_deleted_callback(self, service, resource_type, operation,
+                                      payload):
+            """Used just for the callback interface."""
 
     def test_notification_received(self):
         callback = register_callback(CREATED_OPERATION, 'project')
@@ -858,22 +852,28 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
                           [fake_method])
 
     def test_notification_event_not_valid(self):
+        manager = self.FakeManager()
         self.assertRaises(ValueError,
                           notifications.register_event_callback,
                           uuid.uuid4().hex,
                           'project',
-                          self._project_deleted_callback)
+                          manager._project_deleted_callback)
 
     def test_event_registration_for_unknown_resource_type(self):
         # Registration for unknown resource types should succeed.  If no event
         # is issued for that resource type, the callback wont be triggered.
-        notifications.register_event_callback(DELETED_OPERATION,
-                                              uuid.uuid4().hex,
-                                              self._project_deleted_callback)
+
+        manager = self.FakeManager()
+
+        notifications.register_event_callback(
+            DELETED_OPERATION,
+            uuid.uuid4().hex,
+            manager._project_deleted_callback)
         resource_type = uuid.uuid4().hex
-        notifications.register_event_callback(DELETED_OPERATION,
-                                              resource_type,
-                                              self._project_deleted_callback)
+        notifications.register_event_callback(
+            DELETED_OPERATION,
+            resource_type,
+            manager._project_deleted_callback)
 
     def test_provider_event_callback_subscription(self):
         callback_called = []
@@ -948,7 +948,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
                 self.event_callbacks = {CREATED_OPERATION:
                                         {'project': Foo.callback}}
 
-            def callback(self, *args):
+            def callback(self, service, resource_type, operation, payload):
                 pass
 
         # TODO(dstanek): it would probably be nice to fail early using
