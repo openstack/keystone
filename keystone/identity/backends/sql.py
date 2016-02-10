@@ -12,6 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from sqlalchemy import and_
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import orm
+
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone.common import utils
@@ -25,21 +29,97 @@ class User(sql.ModelBase, sql.DictBase):
     attributes = ['id', 'name', 'domain_id', 'password', 'enabled',
                   'default_project_id']
     id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(255), nullable=False)
-    domain_id = sql.Column(sql.String(64), nullable=False)
-    password = sql.Column(sql.String(128))
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
     default_project_id = sql.Column(sql.String(64))
-    # Unique constraint across two columns to create the separation
-    # rather than just only 'name' being unique
-    __table_args__ = (sql.UniqueConstraint('domain_id', 'name'),)
+    local_user = orm.relationship('LocalUser', uselist=False,
+                                  single_parent=True,
+                                  cascade='all,delete-orphan', backref='user')
+
+    # name property
+    @hybrid_property
+    def name(self):
+        if self.local_user:
+            return self.local_user.name
+        else:
+            return None
+
+    @name.setter
+    def name(self, value):
+        if not self.local_user:
+            self.local_user = LocalUser()
+        self.local_user.name = value
+
+    @name.expression
+    def name(cls):
+        return LocalUser.name
+
+    # password property
+    @hybrid_property
+    def password(self):
+        if self.local_user and self.local_user.passwords:
+            return self.local_user.passwords[0].password
+        else:
+            return None
+
+    @password.setter
+    def password(self, value):
+        if not self.local_user:
+            self.local_user = LocalUser()
+        if not self.local_user.passwords:
+            self.local_user.passwords.append(Password())
+        self.local_user.passwords[0].password = value
+
+    @password.expression
+    def password(cls):
+        return Password.password
+
+    # domain_id property
+    @hybrid_property
+    def domain_id(self):
+        if self.local_user:
+            return self.local_user.domain_id
+        else:
+            return None
+
+    @domain_id.setter
+    def domain_id(self, value):
+        if not self.local_user:
+            self.local_user = LocalUser()
+        self.local_user.domain_id = value
+
+    @domain_id.expression
+    def domain_id(cls):
+        return LocalUser.domain_id
 
     def to_dict(self, include_extra_dict=False):
         d = super(User, self).to_dict(include_extra_dict=include_extra_dict)
         if 'default_project_id' in d and d['default_project_id'] is None:
             del d['default_project_id']
         return d
+
+
+class LocalUser(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'local_user'
+    attributes = ['id', 'user_id', 'domain_id', 'name']
+    id = sql.Column(sql.Integer, primary_key=True)
+    user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
+                         ondelete='CASCADE'), unique=True)
+    domain_id = sql.Column(sql.String(64), nullable=False)
+    name = sql.Column(sql.String(255), nullable=False)
+    passwords = orm.relationship('Password', single_parent=True,
+                                 cascade='all,delete-orphan',
+                                 backref='local_user')
+    __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
+
+
+class Password(sql.ModelBase, sql.DictBase):
+    __tablename__ = 'password'
+    attributes = ['id', 'local_user_id', 'password']
+    id = sql.Column(sql.Integer, primary_key=True)
+    local_user_id = sql.Column(sql.Integer, sql.ForeignKey('local_user.id',
+                               ondelete='CASCADE'))
+    password = sql.Column(sql.String(128))
 
 
 class Group(sql.ModelBase, sql.DictBase):
@@ -118,7 +198,7 @@ class Identity(identity.IdentityDriverV8):
     @driver_hints.truncated
     def list_users(self, hints):
         session = sql.get_session()
-        query = session.query(User)
+        query = session.query(User).outerjoin(LocalUser)
         user_refs = sql.filter_limit_query(User, query, hints)
         return [identity.filter_user(x.to_dict()) for x in user_refs]
 
@@ -134,9 +214,9 @@ class Identity(identity.IdentityDriverV8):
 
     def get_user_by_name(self, user_name, domain_id):
         session = sql.get_session()
-        query = session.query(User)
-        query = query.filter_by(name=user_name)
-        query = query.filter_by(domain_id=domain_id)
+        query = session.query(User).join(LocalUser)
+        query = query.filter(and_(LocalUser.name == user_name,
+                                  LocalUser.domain_id == domain_id))
         try:
             user_ref = query.one()
         except sql.NotFound:
@@ -219,7 +299,8 @@ class Identity(identity.IdentityDriverV8):
     def list_users_in_group(self, group_id, hints):
         session = sql.get_session()
         self.get_group(group_id)
-        query = session.query(User).join(UserGroupMembership)
+        query = session.query(User).outerjoin(LocalUser)
+        query = query.join(UserGroupMembership)
         query = query.filter(UserGroupMembership.group_id == group_id)
         query = sql.filter_limit_query(User, query, hints)
         return [identity.filter_user(u.to_dict()) for u in query]

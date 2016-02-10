@@ -125,13 +125,23 @@ class SqlModels(SqlTests):
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
-                ('name', sql.String, 255),
-                ('password', sql.String, 128),
-                ('domain_id', sql.String, 64),
                 ('default_project_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
                 ('extra', sql.JsonBlob, None))
         self.assertExpectedSchema('user', cols)
+
+    def test_local_user_model(self):
+        cols = (('id', sql.Integer, None),
+                ('user_id', sql.String, 64),
+                ('name', sql.String, 255),
+                ('domain_id', sql.String, 64))
+        self.assertExpectedSchema('local_user', cols)
+
+    def test_password_model(self):
+        cols = (('id', sql.Integer, None),
+                ('local_user_id', sql.Integer, None),
+                ('password', sql.String, 128))
+        self.assertExpectedSchema('password', cols)
 
     def test_group_model(self):
         cols = (('id', sql.String, 64),
