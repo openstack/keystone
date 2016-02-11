@@ -508,6 +508,7 @@ def _domain_config_finder(conf_dir):
 
     :returns: generator yeilding (filename, domain_name) tuples
     """
+    LOG.info(_LI('Scanning %r for domain config files'), conf_dir)
     for r, d, f in os.walk(conf_dir):
         for fname in f:
             if (fname.startswith(DOMAIN_CONF_FHEAD) and
@@ -516,9 +517,10 @@ def _domain_config_finder(conf_dir):
                     domain_name = fname[len(DOMAIN_CONF_FHEAD):
                                         -len(DOMAIN_CONF_FTAIL)]
                     yield (os.path.join(r, fname), domain_name)
-                else:
-                    LOG.warning(_LW('Ignoring file (%s) while scanning '
-                                    'domain config directory'), fname)
+                    continue
+
+            LOG.warning(_LW('Ignoring file (%s) while scanning '
+                            'domain config directory'), fname)
 
 
 class DomainConfigUploadFiles(object):
