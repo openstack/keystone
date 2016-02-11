@@ -37,9 +37,29 @@ class V2TokenDataHelper(object):
     """Creates V2 token data."""
 
     def v3_to_v2_token(self, v3_token_data):
+        """Convert v3 token data into v2.0 token data.
+
+        This method expects a dictionary generated from
+        V3TokenDataHelper.get_token_data() and converts it to look like a v2.0
+        token dictionary.
+
+        :param v3_token_data: dictionary formatted for v3 tokens
+        :returns: dictionary formatted for v2 tokens
+        :raises keystone.exception.Unauthorized: If a specific token type is
+            not supported in v2.
+
+        """
         token_data = {}
         # Build v2 token
         v3_token = v3_token_data['token']
+
+        # NOTE(lbragstad): Version 2.0 tokens don't know about any domain other
+        # than the default domain specified in the configuration.
+        domain_id = v3_token.get('domain', {}).get('id')
+        if domain_id and CONF.identity.default_domain_id != domain_id:
+            msg = ('Unable to validate domain-scoped tokens outside of the '
+                   'default domain')
+            raise exception.Unauthorized(msg)
 
         token = {}
         token['expires'] = v3_token.get('expires_at')
@@ -58,6 +78,11 @@ class V2TokenDataHelper(object):
         v3_user = v3_token['user']
 
         user = common_controller.V2Controller.v3_to_v2_user(v3_user)
+
+        if 'OS-TRUST:trust' in v3_token:
+            msg = ('Unable to validate trust-scoped tokens using version v2.0 '
+                   'API.')
+            raise exception.Unauthorized(msg)
 
         # Set user roles
         user['roles'] = []
@@ -664,8 +689,9 @@ class BaseProvider(provider.Provider):
 
             trust_id = token_data['access'].get('trust', {}).get('id')
             if trust_id:
-                # token trust validation
-                self.trust_api.get_trust(trust_id)
+                msg = ('Unable to validate trust-scoped tokens using version '
+                       'v2.0 API.')
+                raise exception.Unauthorized(msg)
 
             return token_data
         except exception.ValidationError:

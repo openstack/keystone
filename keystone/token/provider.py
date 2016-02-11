@@ -33,6 +33,7 @@ from keystone.i18n import _, _LE
 from keystone.models import token_model
 from keystone import notifications
 from keystone.token import persistence
+from keystone.token import providers
 from keystone.token import utils
 
 
@@ -221,14 +222,29 @@ class Manager(manager.Manager):
         self.revoke_api.check_token(token_values)
 
     def validate_v2_token(self, token_id, belongs_to=None):
-        unique_id = utils.generate_unique_id(token_id)
+        # NOTE(lbragstad): Only go to the persistence backend if the token
+        # provider requires it.
         if self._needs_persistence:
             # NOTE(morganfainberg): Ensure we never use the long-form token_id
             # (PKI) as part of the cache_key.
+            unique_id = utils.generate_unique_id(token_id)
             token_ref = self._persistence.get_token(unique_id)
+            token = self._validate_v2_token(token_ref)
         else:
-            token_ref = token_id
-        token = self._validate_v2_token(token_ref)
+            # NOTE(lbragstad): If the token doesn't require persistence, then
+            # it is a fernet token. The fernet token provider doesn't care if
+            # it's creating version 2.0 tokens or v3 tokens, so we use the same
+            # validate_non_persistent_token() method to validate both. Then we
+            # can leverage a separate method to make version 3 token data look
+            # like version 2.0 token data. The pattern we want to move towards
+            # is one where the token providers just handle data and the
+            # controller layers handle interpreting the token data in a format
+            # that makes sense for the request.
+            v3_token_ref = self.validate_non_persistent_token(token_id)
+            v2_token_data_helper = providers.common.V2TokenDataHelper()
+            token = v2_token_data_helper.v3_to_v2_token(v3_token_ref)
+
+        # these are common things that happen regardless of token provider
         token['access']['token']['id'] = token_id
         self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
