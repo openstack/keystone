@@ -7,5 +7,6 @@ features:
    of another. The rules are of the form ``prior_role`` implies
    ``implied_role``. At token generation time, user/group assignments of roles
    that have implied roles will be expanded to also include such roles in the
-   token. The expansion of implied roles is controlled by the ``root_role``
-   option in the ``[assignment]`` section of `keystone.conf`.
+   token. The expansion of implied roles is controlled by the
+   ``prohibited_implied_role`` option in the ``[assignment]``
+   section of `keystone.conf`.
