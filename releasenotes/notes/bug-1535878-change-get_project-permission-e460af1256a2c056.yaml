@@ -1,0 +1,8 @@
+---
+fixes:
+  - >
+    [`bug 1535878 <https://bugs.launchpad.net/keystone/+bug/1535878>`_]
+    Originally, to perform GET /projects/{project_id}, the provided policy
+    files required a user to have at least project admin level of permission.
+    They have been updated to allow it to be performed by any user who has a
+    role on the project.
