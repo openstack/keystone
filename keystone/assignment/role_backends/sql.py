@@ -21,7 +21,7 @@ from keystone import exception
 # multi-process configurations, it is better to still use a sql uniqueness
 # constraint. Since the support for a nullable component of a uniqueness
 # constraint across different sql databases is mixed, we instead store a
-# special value to represent null, as defined in NULL_DOMAIN_ID beloe.
+# special value to represent null, as defined in NULL_DOMAIN_ID below.
 NULL_DOMAIN_ID = '<<null>>'
 
 
