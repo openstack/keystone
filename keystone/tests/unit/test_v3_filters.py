@@ -19,6 +19,7 @@ from six.moves import range
 
 from keystone.tests import unit
 from keystone.tests.unit import filtering
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
 
@@ -30,13 +31,14 @@ class IdentityTestFilteredCase(filtering.FilterTests,
                                test_v3.RestfulTestCase):
     """Test filter enforcement on the v3 Identity API."""
 
+    def _policy_fixture(self):
+        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
+
     def setUp(self):
         """Setup for Identity Filter Test Cases."""
-        super(IdentityTestFilteredCase, self).setUp()
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        self.config_fixture.config(group='oslo_policy',
-                                   policy_file=self.tmpfilename)
+        super(IdentityTestFilteredCase, self).setUp()
 
     def load_sample_data(self):
         """Create sample data for these tests.

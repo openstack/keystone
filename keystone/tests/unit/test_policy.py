@@ -23,22 +23,11 @@ from testtools import matchers
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 
 
-class BasePolicyTestCase(unit.TestCase):
-    def setUp(self):
-        super(BasePolicyTestCase, self).setUp()
-        rules.reset()
-        self.addCleanup(rules.reset)
-        self.addCleanup(self.clear_cache_safely)
-
-    def clear_cache_safely(self):
-        if rules._ENFORCER:
-            rules._ENFORCER.clear()
-
-
-class PolicyFileTestCase(BasePolicyTestCase):
+class PolicyFileTestCase(unit.TestCase):
     def setUp(self):
         # self.tmpfilename should exist before setUp super is called
         # this is to ensure it is available for the config_fixture in
@@ -48,10 +37,8 @@ class PolicyFileTestCase(BasePolicyTestCase):
         super(PolicyFileTestCase, self).setUp()
         self.target = {}
 
-    def config_overrides(self):
-        super(PolicyFileTestCase, self).config_overrides()
-        self.config_fixture.config(group='oslo_policy',
-                                   policy_file=self.tmpfilename)
+    def _policy_fixture(self):
+        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
 
     def test_modified_policy_reloads(self):
         action = "example:test"
@@ -75,11 +62,9 @@ class PolicyFileTestCase(BasePolicyTestCase):
                           empty_credentials, action, self.target)
 
 
-class PolicyTestCase(BasePolicyTestCase):
+class PolicyTestCase(unit.TestCase):
     def setUp(self):
         super(PolicyTestCase, self).setUp()
-        # NOTE(vish): preload rules to circumvent reloading from file
-        rules.init()
         self.rules = {
             "true": [],
             "example:allowed": [],
@@ -144,10 +129,9 @@ class PolicyTestCase(BasePolicyTestCase):
         rules.enforce(admin_credentials, uppercase_action, self.target)
 
 
-class DefaultPolicyTestCase(BasePolicyTestCase):
+class DefaultPolicyTestCase(unit.TestCase):
     def setUp(self):
         super(DefaultPolicyTestCase, self).setUp()
-        rules.init()
 
         self.rules = {
             "default": [],

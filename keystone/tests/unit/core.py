@@ -53,7 +53,6 @@ from keystone.common.kvs import core as kvs_core
 from keystone.common import sql
 from keystone import exception
 from keystone import notifications
-from keystone.policy.backends import rules
 from keystone.server import common
 from keystone.tests.unit import ksfixtures
 from keystone.version import controllers
@@ -81,7 +80,6 @@ TMPDIR = _calc_tmpdir()
 
 CONF = cfg.CONF
 log.register_options(CONF)
-rules.init()
 
 IN_MEM_DB_CONN_STRING = 'sqlite://'
 
@@ -520,6 +518,9 @@ class TestCase(BaseTestCase):
     def config_files(self):
         return []
 
+    def _policy_fixture(self):
+        return ksfixtures.Policy(dirs.etc('policy.json'), self.config_fixture)
+
     def config_overrides(self):
         # NOTE(morganfainberg): enforce config_overrides can only ever be
         # called a single time.
@@ -528,8 +529,9 @@ class TestCase(BaseTestCase):
 
         signing_certfile = 'examples/pki/certs/signing_cert.pem'
         signing_keyfile = 'examples/pki/private/signing_key.pem'
-        self.config_fixture.config(group='oslo_policy',
-                                   policy_file=dirs.etc('policy.json'))
+
+        self.useFixture(self._policy_fixture())
+
         self.config_fixture.config(
             # TODO(morganfainberg): Make Cache Testing a separate test case
             # in tempest, and move it out of the base unit tests.

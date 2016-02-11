@@ -962,11 +962,9 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
                                          user_id=self.userAdminA['id'],
                                          domain_id=self.domainA['id'])
 
-    def config_overrides(self):
-        super(TestTokenRevokeSelfAndAdmin, self).config_overrides()
-        self.config_fixture.config(
-            group='oslo_policy',
-            policy_file=unit.dirs.etc('policy.v3cloudsample.json'))
+    def _policy_fixture(self):
+        return ksfixtures.Policy(unit.dirs.etc('policy.v3cloudsample.json'),
+                                 self.config_fixture)
 
     def test_user_revokes_own_token(self):
         user_token = self.get_requested_token(
