@@ -500,11 +500,33 @@ DOMAIN_CONF_FHEAD = 'keystone.'
 DOMAIN_CONF_FTAIL = '.conf'
 
 
+def _domain_config_finder(conf_dir):
+    """Return a generator of all domain config files found in a directory.
+
+    Donmain configs match the filename pattern of
+    'keystone.<domain_name>.conf'.
+
+    :returns: generator yeilding (filename, domain_name) tuples
+    """
+    for r, d, f in os.walk(conf_dir):
+        for fname in f:
+            if (fname.startswith(DOMAIN_CONF_FHEAD) and
+                    fname.endswith(DOMAIN_CONF_FTAIL)):
+                if fname.count('.') >= 2:
+                    domain_name = fname[len(DOMAIN_CONF_FHEAD):
+                                        -len(DOMAIN_CONF_FTAIL)]
+                    yield (os.path.join(r, fname), domain_name)
+                else:
+                    LOG.warning(_LW('Ignoring file (%s) while scanning '
+                                    'domain config directory'), fname)
+
+
 class DomainConfigUploadFiles(object):
 
-    def __init__(self):
+    def __init__(self, domain_config_finder=_domain_config_finder):
         super(DomainConfigUploadFiles, self).__init__()
         self.load_backends()
+        self._domain_config_finder = domain_config_finder
 
     def load_backends(self):
         drivers = backends.load_backends()
@@ -638,21 +660,8 @@ class DomainConfigUploadFiles(object):
                 os.path.join(conf_dir, fname), domain_name)
             return
 
-        # Request is to transfer all config files, so let's read all the
-        # files in the config directory, and transfer those that match the
-        # filename pattern of 'keystone.<domain_name>.conf'
-        for r, d, f in os.walk(conf_dir):
-            for fname in f:
-                if (fname.startswith(DOMAIN_CONF_FHEAD) and
-                        fname.endswith(DOMAIN_CONF_FTAIL)):
-                    if fname.count('.') >= 2:
-                        self.upload_configs_to_database(
-                            os.path.join(r, fname),
-                            fname[len(DOMAIN_CONF_FHEAD):
-                                  -len(DOMAIN_CONF_FTAIL)])
-                    else:
-                        LOG.warning(_LW('Ignoring file (%s) while scanning '
-                                        'domain config directory'), fname)
+        for filename, domain_name in self._domain_config_finder(conf_dir):
+            self.upload_configs_to_database(filename, domain_name)
 
     def run(self):
         # First off, let's just check we can talk to the domain database

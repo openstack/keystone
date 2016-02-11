@@ -19,6 +19,7 @@ import fixtures
 import mock
 from oslo_config import cfg
 from six.moves import range
+from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.common import dependency
@@ -363,3 +364,27 @@ class CliDomainConfigInvalidDomainTestCase(CliDomainConfigAllTestCase):
                     'file': os.path.join(CONF.identity.domain_config_dir,
                                          file_name)})
             mock_print.assert_has_calls([mock.call(error_msg)])
+
+
+class TestDomainConfigFinder(unit.BaseTestCase):
+
+    def setUp(self):
+        super(TestDomainConfigFinder, self).setUp()
+        self.logging = self.useFixture(fixtures.LoggerFixture())
+
+    @mock.patch('os.walk')
+    def test_finder_ignores_files(self, mock_walk):
+        mock_walk.return_value = [
+            ['.', [], ['file.txt', 'keystone.conf', 'keystone.domain0.conf']],
+        ]
+
+        domain_configs = list(cli._domain_config_finder('.'))
+
+        expected_domain_configs = [('./keystone.domain0.conf', 'domain0')]
+        self.assertThat(domain_configs,
+                        matchers.Equals(expected_domain_configs))
+
+        expected_msg = ('Ignoring file (keystone.conf) while scanning domain '
+                        'config directory')
+        self.assertThat(self.logging.output,
+                        matchers.Contains(expected_msg))
