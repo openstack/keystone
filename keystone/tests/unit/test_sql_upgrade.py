@@ -925,6 +925,19 @@ class SqlUpgradeTests(SqlMigrateBase):
         projects = session.query(proj_table)
         _check_projects(projects)
 
+    def test_add_federated_user_table(self):
+        federated_user_table = 'federated_user'
+        self.upgrade(93)
+        self.assertTableDoesNotExist(federated_user_table)
+        self.upgrade(94)
+        self.assertTableColumns(federated_user_table,
+                                ['id',
+                                 'user_id',
+                                 'idp_id',
+                                 'protocol_id',
+                                 'unique_id',
+                                 'display_name'])
+
 
 class VersionTests(SqlMigrateBase):
 

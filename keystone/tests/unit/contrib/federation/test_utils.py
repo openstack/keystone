@@ -523,8 +523,8 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         - Check if the user has proper domain ('federated') set
         - Check if the user has property type set ('ephemeral')
         - Check if user's name is properly mapped from the assertion
-        - Check if user's id is properly set and equal to name, as it was not
-        explicitly specified in the mapping.
+        - Check if unique_id is properly set and equal to display_name,
+        as it was not explicitly specified in the mapping.
 
         """
         mapping = mapping_fixtures.MAPPING_USER_IDS
@@ -533,9 +533,11 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         mapped_properties = rp.process(assertion)
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
-        mapped.setup_username({}, mapped_properties)
-        self.assertEqual('jsmith', mapped_properties['user']['id'])
         self.assertEqual('jsmith', mapped_properties['user']['name'])
+        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
+            {}, mapped_properties)
+        self.assertEqual('jsmith', unique_id)
+        self.assertEqual('jsmith', display_name)
 
     def test_user_identifications_name_and_federated_domain(self):
         """Test varius mapping options and how users are identified.
@@ -546,8 +548,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         - Check if the user has proper domain ('federated') set
         - Check if the user has propert type set ('ephemeral')
         - Check if user's name is properly mapped from the assertion
-        - Check if user's id is properly set and equal to name, as it was not
-        explicitly specified in the mapping.
+        - Check if the unique_id and display_name are properly set
 
         """
         mapping = mapping_fixtures.MAPPING_USER_IDS
@@ -556,10 +557,10 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         mapped_properties = rp.process(assertion)
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
-        mapped.setup_username({}, mapped_properties)
-        self.assertEqual('tbo', mapped_properties['user']['name'])
-        self.assertEqual('abc123%40example.com',
-                         mapped_properties['user']['id'])
+        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
+            {}, mapped_properties)
+        self.assertEqual('tbo', display_name)
+        self.assertEqual('abc123%40example.com', unique_id)
 
     def test_user_identification_id(self):
         """Test varius mapping options and how users are identified.
@@ -569,9 +570,8 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         Test plan:
         - Check if the user has proper domain ('federated') set
         - Check if the user has propert type set ('ephemeral')
-        - Check if user's id is properly mapped from the assertion
-        - Check if user's name is properly set and equal to id, as it was not
-        explicitly specified in the mapping.
+        - Check if user's display_name is properly set and equal to unique_id,
+        as it was not explicitly specified in the mapping.
 
         """
         mapping = mapping_fixtures.MAPPING_USER_IDS
@@ -581,9 +581,10 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         context = {'environment': {}}
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
-        mapped.setup_username(context, mapped_properties)
-        self.assertEqual('bob', mapped_properties['user']['name'])
-        self.assertEqual('bob', mapped_properties['user']['id'])
+        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
+            context, mapped_properties)
+        self.assertEqual('bob', unique_id)
+        self.assertEqual('bob', display_name)
 
     def test_user_identification_id_and_name(self):
         """Test varius mapping options and how users are identified.
@@ -593,8 +594,8 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         Test plan:
         - Check if the user has proper domain ('federated') set
         - Check if the user has proper type set ('ephemeral')
-        - Check if user's name is properly mapped from the assertion
-        - Check if user's id is properly set and and equal to value hardcoded
+        - Check if display_name is properly set from the assertion
+        - Check if unique_id is properly set and and equal to value hardcoded
         in the mapping
 
         This test does two iterations with different assertions used as input
@@ -615,10 +616,12 @@ class MappingRuleEngineTests(unit.BaseTestCase):
             context = {'environment': {}}
             self.assertIsNotNone(mapped_properties)
             self.assertValidMappedUserObject(mapped_properties)
-            mapped.setup_username(context, mapped_properties)
-            self.assertEqual(exp_user_name, mapped_properties['user']['name'])
-            self.assertEqual('abc123%40example.com',
-                             mapped_properties['user']['id'])
+            unique_id, display_name = (
+                mapped.get_user_unique_id_and_display_name(context,
+                                                           mapped_properties)
+            )
+            self.assertEqual(exp_user_name, display_name)
+            self.assertEqual('abc123%40example.com', unique_id)
 
     def test_whitelist_pass_through(self):
         mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_PASS_THROUGH

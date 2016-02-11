@@ -235,6 +235,12 @@ FILE_OPTIONS = {
                          'value to False is when configuring a fresh '
                          'installation.'),
     ],
+    'shadow_users': [
+        cfg.StrOpt('driver',
+                   default='sql',
+                   help='Entrypoint for the shadow users backend driver '
+                        'in the keystone.identity.shadow_users namespace.'),
+    ],
     'trust': [
         cfg.BoolOpt('enabled', default=True,
                     help='Delegation and impersonation features can be '

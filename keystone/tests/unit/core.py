@@ -342,6 +342,17 @@ def new_user_ref(domain_id, project_id=None, **kwargs):
     return ref
 
 
+def new_federated_user_ref(idp_id=None, protocol_id=None, **kwargs):
+    ref = {
+        'idp_id': idp_id or 'ORG_IDP',
+        'protocol_id': protocol_id or 'saml2',
+        'unique_id': uuid.uuid4().hex,
+        'display_name': uuid.uuid4().hex,
+    }
+    ref.update(kwargs)
+    return ref
+
+
 def new_group_ref(domain_id, **kwargs):
     ref = {
         'id': uuid.uuid4().hex,

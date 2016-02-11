@@ -59,6 +59,7 @@ def load_backends():
         id_generator_api=identity.generator.Manager(),
         id_mapping_api=identity.MappingManager(),
         identity_api=_IDENTITY_API,
+        shadow_users_api=identity.ShadowUsersManager(),
         oauth_api=oauth1.Manager(),
         policy_api=policy.Manager(),
         resource_api=resource.Manager(),

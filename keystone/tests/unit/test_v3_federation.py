@@ -2548,6 +2548,34 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
         self._check_project_scoped_token_attributes(token_resp, project['id'])
 
 
+class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
+    """Tests for federated users
+
+    Tests new shadow users functionality
+
+    """
+
+    def auth_plugin_config_override(self):
+        methods = ['saml2']
+        super(FederatedUserTests, self).auth_plugin_config_override(methods)
+
+    def setUp(self):
+        super(FederatedUserTests, self).setUp()
+
+    def load_fixtures(self, fixtures):
+        super(FederatedUserTests, self).load_fixtures(fixtures)
+        self.load_federation_sample_data()
+
+    def test_user_id_persistense(self):
+        """Ensure user_id is persistend for multiple federated authn calls."""
+        r = self._issue_unscoped_token()
+        user_id = r.json_body['token']['user']['id']
+
+        r = self._issue_unscoped_token()
+        user_id2 = r.json_body['token']['user']['id']
+        self.assertEqual(user_id, user_id2)
+
+
 class JsonHomeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     JSON_HOME_DATA = {
         'http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/'

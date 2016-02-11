@@ -449,7 +449,7 @@ def exception_translated(exception_type):
 @notifications.listener
 @dependency.provider('identity_api')
 @dependency.requires('assignment_api', 'credential_api', 'id_mapping_api',
-                     'resource_api', 'revoke_api')
+                     'resource_api', 'revoke_api', 'shadow_users_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
@@ -1209,6 +1209,35 @@ class Manager(manager.Manager):
         update_dict = {'password': new_password}
         self.update_user(user_id, update_dict)
 
+    @MEMOIZE
+    def shadow_federated_user(self, idp_id, protocol_id, unique_id,
+                              display_name):
+        """Shadows a federated user by mapping to a user.
+
+        :param idp_id: identity provider id
+        :param protocol_id: protocol id
+        :param unique_id: unique id for the user within the IdP
+        :param display_name: user's display name
+
+        :returns: dictionary of the mapped User entity
+        """
+        user_dict = {}
+        try:
+            user_dict = self.shadow_users_api.get_federated_user(
+                idp_id, protocol_id, unique_id)
+            self.update_federated_user_display_name(idp_id, protocol_id,
+                                                    unique_id, display_name)
+        except exception.UserNotFound:
+            federated_dict = {
+                'idp_id': idp_id,
+                'protocol_id': protocol_id,
+                'unique_id': unique_id,
+                'display_name': display_name
+            }
+            user_dict = self.shadow_users_api.create_federated_user(
+                federated_dict)
+        return user_dict
+
 
 @six.add_metaclass(abc.ABCMeta)
 class IdentityDriverV8(object):
@@ -1517,3 +1546,54 @@ class MappingDriverV8(object):
 
 
 MappingDriver = manager.create_legacy_driver(MappingDriverV8)
+
+
+@dependency.provider('shadow_users_api')
+class ShadowUsersManager(manager.Manager):
+    """Default pivot point for the Shadow Users backend."""
+
+    driver_namespace = 'keystone.identity.shadow_users'
+
+    def __init__(self):
+        super(ShadowUsersManager, self).__init__(CONF.shadow_users.driver)
+
+
+@six.add_metaclass(abc.ABCMeta)
+class ShadowUsersDriverV9(object):
+    """Interface description for an Shadow Users driver."""
+
+    @abc.abstractmethod
+    def create_federated_user(self, federated_dict):
+        """Create a new user with the federated identity
+
+        :param dict federated_dict: Reference to the federated user
+        :param user_id: user ID for linking to the federated identity
+        :returns dict: Containing the user reference
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def get_federated_user(self, idp_id, protocol_id, unique_id):
+        """Returns the found user for the federated identity
+
+        :param idp_id: The identity provider ID
+        :param protocol_id: The federation protocol ID
+        :param unique_id: The unique ID for the user
+        :returns dict: Containing the user reference
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def update_federated_user_display_name(self, idp_id, protocol_id,
+                                           unique_id, display_name):
+        """Updates federated user's display name if changed
+
+        :param idp_id: The identity provider ID
+        :param protocol_id: The federation protocol ID
+        :param unique_id: The unique ID for the user
+        :param display_name: The user's display name
+
+        """
+        raise exception.NotImplemented()

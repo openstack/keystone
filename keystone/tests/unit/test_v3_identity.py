@@ -483,6 +483,22 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.credential_api.get_credential(credential2['id'])
         self.assertDictEqual(credential2, r)
 
+    # shadow user tests
+    def test_shadow_federated_user(self):
+        fed_user = unit.new_federated_user_ref()
+        user = (
+            self.identity_api.shadow_federated_user(fed_user["idp_id"],
+                                                    fed_user["protocol_id"],
+                                                    fed_user["unique_id"],
+                                                    fed_user["display_name"])
+        )
+        self.assertIsNotNone(user["id"])
+        self.assertEqual(len(user.keys()), 4)
+        self.assertIsNotNone(user['id'])
+        self.assertIsNotNone(user['name'])
+        self.assertIsNone(user['domain_id'])
+        self.assertEqual(user['enabled'], True)
+
     # group crud tests
 
     def test_create_group(self):
