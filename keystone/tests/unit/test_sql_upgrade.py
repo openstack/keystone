@@ -637,6 +637,50 @@ class SqlUpgradeTests(SqlMigrateBase):
         constraint_names = [constraint['name'] for constraint in constraints]
         self.assertIn('duplicate_trust_constraint', constraint_names)
 
+    def test_add_domain_specific_roles(self):
+        """Check database upgraded successfully for domain specific roles.
+
+        The following items need to be checked:
+
+        - The domain_id column has been added
+        - That it has been added to the uniqueness constraints
+        - Existing roles have their domain_id columns set to the specific
+          string of '<<null>>'
+
+        """
+        NULL_DOMAIN_ID = '<<null>>'
+
+        self.upgrade(87)
+        session = self.Session()
+        role_table = sqlalchemy.Table('role', self.metadata, autoload=True)
+        # Add a role before we upgrade, so we can check that its new domain_id
+        # attribute is handled correctly
+        role_id = uuid.uuid4().hex
+        self.insert_dict(session, 'role',
+                         {'id': role_id, 'name': uuid.uuid4().hex})
+        session.close()
+
+        self.upgrade(88)
+
+        session = self.Session()
+        self.metadata.clear()
+        self.assertTableColumns('role', ['id', 'name', 'domain_id', 'extra'])
+        # Check the domain_id has been added to the uniqueness constraint
+        inspector = reflection.Inspector.from_engine(self.engine)
+        constraints = inspector.get_unique_constraints('role')
+        constraint_columns = [
+            constraint['column_names'] for constraint in constraints
+            if constraint['name'] == 'ixu_role_name_domain_id']
+        self.assertIn('domain_id', constraint_columns[0])
+
+        # Now check our role has its domain_id attribute set correctly
+        role_table = sqlalchemy.Table('role', self.metadata, autoload=True)
+        cols = [role_table.c.domain_id]
+        filter = role_table.c.id == role_id
+        statement = sqlalchemy.select(cols).where(filter)
+        role_entry = session.execute(statement).fetchone()
+        self.assertEqual(NULL_DOMAIN_ID, role_entry[0])
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user

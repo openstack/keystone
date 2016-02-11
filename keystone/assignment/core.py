@@ -1436,6 +1436,12 @@ class RoleManager(manager.Manager):
         return self.driver.list_roles(hints or driver_hints.Hints())
 
     def update_role(self, role_id, role, initiator=None):
+        original_role = self.driver.get_role(role_id)
+        if ('domain_id' in role and
+                role['domain_id'] != original_role['domain_id']):
+            raise exception.ValidationError(
+                message=_('Update of `domain_id` is not allowed.'))
+
         ret = self.driver.update_role(role_id, role)
         notifications.Audit.updated(self._ROLE, role_id, initiator)
         self.get_role.invalidate(self, role_id)
@@ -1624,6 +1630,16 @@ class V9RoleWrapperForV8Driver(RoleDriverV9):
                                      since we do not guarantee to support new
                                      functionality with legacy drivers.
 
+    This V8 wrapper contains the following support for newer manager code:
+
+    - The current manager code expects a role entity to have a domain_id
+      attribute, with a non-None value indicating a domain specific role. V8
+      drivers will only understand global roles, hence if a non-None domain_id
+      is passed to this wrapper, it will raise a NotImplemented exception.
+      If a None-valued domain_id is passed in, it will be trimmed off before
+      the underlying driver is called (and a None-valued domain_id attribute
+      is added in for any entities returned to the manager.
+
     """
 
     @versionutils.deprecated(
@@ -1634,20 +1650,49 @@ class V9RoleWrapperForV8Driver(RoleDriverV9):
     def __init__(self, wrapped_driver):
         self.driver = wrapped_driver
 
+    def _append_null_domain_id(self, role_or_list):
+        def _append_null_domain_id_to_dict(role):
+            if 'domain_id' not in role:
+                role['domain_id'] = None
+            return role
+
+        if isinstance(role_or_list, list):
+            return [_append_null_domain_id_to_dict(x) for x in role_or_list]
+        else:
+            return _append_null_domain_id_to_dict(role_or_list)
+
+    def _trim_and_assert_null_domain_id(self, role):
+        if 'domain_id' in role:
+            if role['domain_id'] is not None:
+                raise exception.NotImplemented(
+                    _('Domain specific roles are not supported in the V8 '
+                      'role driver'))
+            else:
+                new_role = role.copy()
+                new_role.pop('domain_id')
+                return new_role
+        else:
+            return role
+
     def create_role(self, role_id, role):
-        return self.driver.create_role(role_id, role)
+        new_role = self._trim_and_assert_null_domain_id(role)
+        return self._append_null_domain_id(
+            self.driver.create_role(role_id, new_role))
 
     def list_roles(self, hints):
-        return self.driver.list_roles(hints)
+        return self._append_null_domain_id(self.driver.list_roles(hints))
 
     def list_roles_from_ids(self, role_ids):
-        return self.driver.list_roles_from_ids(role_ids)
+        return self._append_null_domain_id(
+            self.driver.list_roles_from_ids(role_ids))
 
     def get_role(self, role_id):
-        return self.driver.get_role(role_id)
+        return self._append_null_domain_id(self.driver.get_role(role_id))
 
     def update_role(self, role_id, role):
-        return self.driver.update_role(role_id, role)
+        update_role = self._trim_and_assert_null_domain_id(role)
+        return self._append_null_domain_id(
+            self.driver.update_role(role_id, update_role))
 
     def delete_role(self, role_id):
         self.driver.delete_role(role_id)

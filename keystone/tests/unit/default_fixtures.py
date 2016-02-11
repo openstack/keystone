@@ -96,24 +96,31 @@ ROLES = [
     {
         'id': 'admin',
         'name': 'admin',
+        'domain_id': None,
     }, {
         'id': 'member',
         'name': 'Member',
+        'domain_id': None,
     }, {
         'id': '9fe2ff9ee4384b1894a90878d3e92bab',
         'name': '_member_',
+        'domain_id': None,
     }, {
         'id': 'other',
         'name': 'Other',
+        'domain_id': None,
     }, {
         'id': 'browser',
         'name': 'Browser',
+        'domain_id': None,
     }, {
         'id': 'writer',
         'name': 'Writer',
+        'domain_id': None,
     }, {
         'id': 'service',
         'name': 'Service',
+        'domain_id': None,
     }
 ]
 

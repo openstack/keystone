@@ -303,12 +303,20 @@ class RoleV3(controller.V3Controller):
         ref = self.role_api.create_role(ref['id'], ref, initiator)
         return RoleV3.wrap_member(context, ref)
 
-    @controller.filterprotected('name')
+    @controller.filterprotected('name', 'domain_id')
     def list_roles(self, context, filters):
         hints = RoleV3.build_driver_hints(context, filters)
         refs = self.role_api.list_roles(
             hints=hints)
         return RoleV3.wrap_collection(context, refs, hints=hints)
+
+    def list_roles_wrapper(self, context):
+        # If there is no domain_id filter defined, then we only want to return
+        # global roles, so we set the domain_id filter to None.
+        params = context['query_string']
+        if 'domain_id' not in params:
+            context['query_string']['domain_id'] = None
+        return self.list_roles(context)
 
     @controller.protected()
     def get_role(self, context, role_id):

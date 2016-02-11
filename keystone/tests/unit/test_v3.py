@@ -1045,6 +1045,21 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             *args,
             **kwargs)
 
+    def assertRoleInListResponse(self, resp, ref, expected=1):
+        found_count = 0
+        for entity in resp.result.get('roles'):
+            try:
+                self.assertValidRole(entity, ref=ref)
+            except Exception:
+                # It doesn't match, so let's go onto the next one
+                pass
+            else:
+                found_count += 1
+        self.assertEqual(expected, found_count)
+
+    def assertRoleNotInListResponse(self, resp, ref):
+        self.assertRoleInListResponse(resp, ref=ref, expected=0)
+
     def assertValidRoleResponse(self, resp, *args, **kwargs):
         return self.assertValidResponse(
             resp,
@@ -1058,6 +1073,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(entity.get('name'))
         if ref:
             self.assertEqual(ref['name'], entity['name'])
+            self.assertEqual(ref['domain_id'], entity['domain_id'])
         return entity
 
     # role assignment validation
