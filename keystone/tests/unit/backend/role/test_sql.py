@@ -73,6 +73,12 @@ class SqlRole(core_sql.BaseBackendSqlTests, core.RoleTests):
                           self.role_api.update_role,
                           role2['id'],
                           role2)
+        # Now try to make it global
+        role2['domain_id'] = None
+        self.assertRaises(exception.ValidationError,
+                          self.role_api.update_role,
+                          role2['id'],
+                          role2)
 
     def test_domain_specific_separation(self):
         domain1 = unit.new_domain_ref()
