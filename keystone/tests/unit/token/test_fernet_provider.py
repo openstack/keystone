@@ -338,7 +338,8 @@ class TestPayloads(unit.TestCase):
 
     def _test_payload(self, payload_class, exp_user_id=None, exp_methods=None,
                       exp_project_id=None, exp_domain_id=None,
-                      exp_trust_id=None, exp_federated_info=None):
+                      exp_trust_id=None, exp_federated_info=None,
+                      exp_access_token_id=None):
         exp_user_id = exp_user_id or uuid.uuid4().hex
         exp_methods = exp_methods or ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
@@ -346,10 +347,13 @@ class TestPayloads(unit.TestCase):
 
         payload = payload_class.assemble(
             exp_user_id, exp_methods, exp_project_id, exp_domain_id,
-            exp_expires_at, exp_audit_ids, exp_trust_id, exp_federated_info)
+            exp_expires_at, exp_audit_ids, exp_trust_id, exp_federated_info,
+            exp_access_token_id)
 
-        (user_id, methods, project_id, domain_id, expires_at, audit_ids,
-         trust_id, federated_info) = payload_class.disassemble(payload)
+        (user_id, methods, project_id,
+         domain_id, expires_at, audit_ids,
+         trust_id, federated_info,
+         access_token_id) = payload_class.disassemble(payload)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_methods, methods)
@@ -358,6 +362,7 @@ class TestPayloads(unit.TestCase):
         self.assertEqual(exp_project_id, project_id)
         self.assertEqual(exp_domain_id, domain_id)
         self.assertEqual(exp_trust_id, trust_id)
+        self.assertEqual(exp_access_token_id, access_token_id)
 
         if exp_federated_info:
             self.assertDictEqual(exp_federated_info, federated_info)
@@ -462,6 +467,11 @@ class TestPayloads(unit.TestCase):
                            exp_methods=['token'],
                            exp_domain_id=uuid.uuid4().hex,
                            exp_federated_info=exp_federated_info)
+
+    def test_oauth_scoped_payload(self):
+        self._test_payload(token_formatters.OauthScopedPayload,
+                           exp_project_id=uuid.uuid4().hex,
+                           exp_access_token_id=uuid.uuid4().hex)
 
 
 class TestFernetKeyRotation(unit.TestCase):
