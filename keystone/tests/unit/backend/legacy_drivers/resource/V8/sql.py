@@ -28,3 +28,9 @@ class SqlIdentityV8(test_backend_sql.SqlIdentity):
             driver='keystone.resource.V8_backends.sql.Resource')
         self.use_specific_sql_driver_version(
             'keystone.resource', 'backends', 'V8_')
+
+    def test_delete_projects_from_ids(self):
+        self.skipTest('Operation not supported in v8 and earlier drivers')
+
+    def test_delete_projects_from_ids_with_no_existing_project_id(self):
+        self.skipTest('Operation not supported in v8 and earlier drivers')
