@@ -1,4 +1,4 @@
 ---
 other:
-  - The ability to obtain a trust-scoped token against the v2.0 API has been
-    removed, in favor of using the version 3 API.
+  - The ability to validate a trust-scoped token against the v2.0 API has been
+    removed, in favor of using the version 3 of the API.
