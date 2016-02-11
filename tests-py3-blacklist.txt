@@ -3,8 +3,6 @@ keystone.tests.unit.common.test_notifications
 keystone.tests.unit.test_associate_project_endpoint_extension
 keystone.tests.unit.test_backend_ldap
 keystone.tests.unit.test_backend_ldap_pool
-keystone.tests.unit.test_cert_setup
-keystone.tests.unit.test_contrib_simple_cert
 keystone.tests.unit.test_hacking_checks
 keystone.tests.unit.test_ipv6
 keystone.tests.unit.test_v2
