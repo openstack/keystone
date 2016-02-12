@@ -98,16 +98,23 @@
 # Allowed values: basic, cadf
 #notification_format = basic
 
+# Define the notification options to opt-out from. The value expected is:
+# identity.<resource_type>.<operation>. This field can be set multiple times in
+# order to add more notifications to opt-out from. For example:
+#  notification_opt_out=identity.user.created
+#  notification_opt_out=identity.authenticate.success (multi valued)
+#notification_opt_out =
+
 #
 # From oslo.log
 #
 
-# Print debugging output (set logging level to DEBUG instead of default INFO
-# level). (boolean value)
+# If set to true, the logging level will be set to DEBUG instead of the default
+# INFO level. (boolean value)
 #debug = false
 
-# If set to false, will disable INFO logging level, making WARNING the default.
-# (boolean value)
+# If set to false, the logging level will be set to WARNING instead of the
+# default INFO level. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #verbose = true
@@ -115,7 +122,7 @@
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
 # files, see the Python logging module documentation. Note that when logging
-# configuration files are used then all logging configuration is set in the
+# configuration files are used all logging configuration is defined in the
 # configuration file and other logging configuration options are ignored (for
 # example, log_format). (string value)
 # Deprecated group/name - [DEFAULT]/log_config
@@ -127,24 +134,25 @@
 # instead. This option is ignored if log_config_append is set. (string value)
 #log_format = <None>
 
-# Format string for %%(asctime)s in log records. Default: %(default)s . This
-# option is ignored if log_config_append is set. (string value)
+# Defines the format string for %%(asctime)s in log records. Default:
+# %(default)s . This option is ignored if log_config_append is set. (string
+# value)
 #log_date_format = %Y-%m-%d %H:%M:%S
 
-# (Optional) Name of log file to output to. If no default is set, logging will
-# go to stdout. This option is ignored if log_config_append is set. (string
-# value)
+# (Optional) Name of log file to send logging output to. If no default is set,
+# logging will go to stderr as defined by use_stderr. This option is ignored if
+# log_config_append is set. (string value)
 # Deprecated group/name - [DEFAULT]/logfile
 #log_file = <None>
 
-# (Optional) The base directory used for relative --log-file paths. This option
+# (Optional) The base directory used for relative log_file  paths. This option
 # is ignored if log_config_append is set. (string value)
 # Deprecated group/name - [DEFAULT]/logdir
 #log_dir = <None>
 
-# (Optional) Uses logging handler designed to watch file system. When log file
-# is moved or removed this handler will open a new log file with specified path
-# instantaneously. It makes sense only if log-file option is specified and
+# Uses logging handler designed to watch file system. When log file is moved or
+# removed this handler will open a new log file with specified path
+# instantaneously. It makes sense only if log_file option is specified and
 # Linux platform is used. This option is ignored if log_config_append is set.
 # (boolean value)
 #watch_log_file = false
@@ -154,13 +162,13 @@
 # is set. (boolean value)
 #use_syslog = false
 
-# (Optional) Enables or disables syslog rfc5424 format for logging. If enabled,
-# prefixes the MSG part of the syslog message with APP-NAME (RFC5424). The
-# format without the APP-NAME is deprecated in Kilo, and will be removed in
-# Mitaka, along with this option. This option is ignored if log_config_append
-# is set. (boolean value)
+# Enables or disables syslog rfc5424 format for logging. If enabled, prefixes
+# the MSG part of the syslog message with APP-NAME (RFC5424). This option is
+# ignored if log_config_append is set. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
+# Reason: The format without the APP-NAME is deprecated in Kilo, and will be
+# removed in Mitaka, along with this option.
 #use_syslog_rfc_format = true
 
 # Syslog facility to receive log lines. This option is ignored if
@@ -174,18 +182,24 @@
 # Format string to use for log messages with context. (string value)
 #logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
 
-# Format string to use for log messages without context. (string value)
+# Format string to use for log messages when context is undefined. (string
+# value)
 #logging_default_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
 
-# Data to append to log format when level is DEBUG. (string value)
+# Additional data to append to log message when logging level for the message
+# is DEBUG. (string value)
 #logging_debug_format_suffix = %(funcName)s %(pathname)s:%(lineno)d
 
 # Prefix each line of exception output with this format. (string value)
 #logging_exception_prefix = %(asctime)s.%(msecs)03d %(process)d ERROR %(name)s %(instance)s
 
-# List of logger=LEVEL pairs. This option is ignored if log_config_append is
-# set. (list value)
-#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN
+# Defines the format string for %(user_identity)s that is used in
+# logging_context_format_string. (string value)
+#logging_user_identity_format = %(user)s %(tenant)s %(domain)s %(user_domain)s %(project_domain)s
+
+# List of package logging levels in logger=LEVEL pairs. This option is ignored
+# if log_config_append is set. (list value)
+#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN,oslo.cache=INFO,dogpile.core.dogpile=INFO
 
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
@@ -197,10 +211,6 @@
 # The format for an instance UUID that is passed with the log message. (string
 # value)
 #instance_uuid_format = "[instance: %(uuid)s] "
-
-# Format string for user_identity field of the logging_context_format_string
-# (string value)
-#logging_user_identity_format = %(user)s %(tenant)s %(domain)s %(user_domain)s %(project_domain)s
 
 # Enables or disables fatal status of deprecations. (boolean value)
 #fatal_deprecations = false
@@ -245,16 +255,16 @@
 # exception when timeout expired. (integer value)
 #rpc_poll_timeout = 1
 
-# Configures zmq-messaging to use proxy with non PUB/SUB patterns. (boolean
-# value)
-#direct_over_proxy = true
+# Expiration timeout in seconds of a name service record about existing target
+# ( < 0 means no timeout). (integer value)
+#zmq_target_expire = 120
 
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
 #use_pub_sub = true
 
 # Minimal port number for random ports range. (port value)
-# Minimum value: 1
+# Minimum value: 0
 # Maximum value: 65535
 #rpc_zmq_min_port = 49152
 
@@ -271,31 +281,32 @@
 #host = 127.0.0.1
 
 # Use this port to connect to redis host. (port value)
-# Minimum value: 1
+# Minimum value: 0
 # Maximum value: 65535
 #port = 6379
 
 # Password for Redis server (optional). (string value)
 #password =
 
+# List of Redis Sentinel hosts (fault tolerance mode) e.g.
+# [host:port, host1:port ... ] (list value)
+#sentinel_hosts =
+
+# Redis replica set name. (string value)
+#sentinel_group_name = oslo-messaging-zeromq
+
+# Time in ms to wait between connection attempts. (integer value)
+#wait_timeout = 500
+
+# Time in ms to wait before the transaction is killed. (integer value)
+#check_timeout = 20000
+
+# Timeout in ms on blocking socket operations (integer value)
+#socket_timeout = 1000
+
 # Size of executor thread pool. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
 #executor_thread_pool_size = 64
-
-# The Drivers(s) to handle sending notifications. Possible values are
-# messaging, messagingv2, routing, log, test, noop (multi valued)
-# Deprecated group/name - [DEFAULT]/notification_driver
-#driver =
-
-# A URL representing the messaging driver to use for notifications. If not set,
-# we fall back to the same configuration used for RPC. (string value)
-# Deprecated group/name - [DEFAULT]/notification_transport_url
-#transport_url = <None>
-
-# AMQP topic used for OpenStack notifications. (list value)
-# Deprecated group/name - [rpc_notifier2]/topics
-# Deprecated group/name - [DEFAULT]/notification_topics
-#topics = notifications
 
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
@@ -341,10 +352,12 @@
 #
 
 # Entrypoint for the assignment backend driver in the keystone.assignment
-# namespace. Supplied drivers are ldap and sql. If an assignment driver is not
-# specified, the identity driver will choose the assignment driver. (string
-# value)
-#driver = <None>
+# namespace. Only an SQL driver is supplied. (string value)
+#driver = sql
+
+# A role that is not allowed to be an implied role, as it is the root of role
+# inference directed acyclic graph. (string value)
+#root_role = admin
 
 
 [auth]
@@ -678,6 +691,9 @@
 # Enable endpoint_policy functionality. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
+# Reason: The option to enable the OS-ENDPOINT-POLICY extension has been
+# deprecated in the M release and will be removed in the O release. The OS-
+# ENDPOINT-POLICY extension will be enabled by default.
 #enabled = true
 
 # Entrypoint for the endpoint policy backend driver in the
@@ -714,7 +730,7 @@
 #public_bind_host = 0.0.0.0
 
 # The port number which the public service listens on. (port value)
-# Minimum value: 1
+# Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/public_port
 # This option is deprecated for removal.
@@ -730,7 +746,7 @@
 #admin_bind_host = 0.0.0.0
 
 # The port number which the admin service listens on. (port value)
-# Minimum value: 1
+# Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/admin_port
 # This option is deprecated for removal.
@@ -972,7 +988,9 @@
 # From keystone
 #
 
-# URL for connecting to the LDAP server. (string value)
+# URL(s) for connecting to the LDAP server. Multiple LDAP URLs may be specified
+# as a comma separated string. The first URL to successfully bind is used for
+# the connection. (string value)
 #url = ldap://localhost
 
 # User BindDN to query the LDAP server. (string value)
@@ -1072,12 +1090,24 @@
 #user_default_project_id_attribute = <None>
 
 # Allow user creation in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for Identity LDAP backends has been deprecated in the M
+# release and will be removed in the O release.
 #user_allow_create = true
 
 # Allow user updates in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for Identity LDAP backends has been deprecated in the M
+# release and will be removed in the O release.
 #user_allow_update = true
 
 # Allow user deletion in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for Identity LDAP backends has been deprecated in the M
+# release and will be removed in the O release.
 #user_allow_delete = true
 
 # If true, Keystone uses an alternative method to determine if a user is
@@ -1098,168 +1128,6 @@
 # where ldap_attr is the attribute in the LDAP entry and user_attr is the
 # Identity API attribute. (list value)
 #user_additional_attribute_mapping =
-
-# Search base for projects. Defaults to the suffix value. (string value)
-# Deprecated group/name - [ldap]/tenant_tree_dn
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_tree_dn = <None>
-
-# LDAP search filter for projects. (string value)
-# Deprecated group/name - [ldap]/tenant_filter
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_filter = <None>
-
-# LDAP objectclass for projects. (string value)
-# Deprecated group/name - [ldap]/tenant_objectclass
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_objectclass = groupOfNames
-
-# LDAP attribute mapped to project id. (string value)
-# Deprecated group/name - [ldap]/tenant_id_attribute
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_id_attribute = cn
-
-# LDAP attribute mapped to project membership for user. (string value)
-# Deprecated group/name - [ldap]/tenant_member_attribute
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_member_attribute = member
-
-# LDAP attribute mapped to project name. (string value)
-# Deprecated group/name - [ldap]/tenant_name_attribute
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_name_attribute = ou
-
-# LDAP attribute mapped to project description. (string value)
-# Deprecated group/name - [ldap]/tenant_desc_attribute
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_desc_attribute = description
-
-# LDAP attribute mapped to project enabled. (string value)
-# Deprecated group/name - [ldap]/tenant_enabled_attribute
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_enabled_attribute = enabled
-
-# LDAP attribute mapped to project domain_id. (string value)
-# Deprecated group/name - [ldap]/tenant_domain_id_attribute
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_domain_id_attribute = businessCategory
-
-# List of attributes stripped off the project on update. (list value)
-# Deprecated group/name - [ldap]/tenant_attribute_ignore
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_attribute_ignore =
-
-# Allow project creation in LDAP backend. (boolean value)
-# Deprecated group/name - [ldap]/tenant_allow_create
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_allow_create = true
-
-# Allow project update in LDAP backend. (boolean value)
-# Deprecated group/name - [ldap]/tenant_allow_update
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_allow_update = true
-
-# Allow project deletion in LDAP backend. (boolean value)
-# Deprecated group/name - [ldap]/tenant_allow_delete
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_allow_delete = true
-
-# If true, Keystone uses an alternative method to determine if a project is
-# enabled or not by checking if they are a member of the
-# "project_enabled_emulation_dn" group. (boolean value)
-# Deprecated group/name - [ldap]/tenant_enabled_emulation
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_enabled_emulation = false
-
-# DN of the group entry to hold enabled projects when using enabled emulation.
-# (string value)
-# Deprecated group/name - [ldap]/tenant_enabled_emulation_dn
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_enabled_emulation_dn = <None>
-
-# Use the "group_member_attribute" and "group_objectclass" settings to
-# determine membership in the emulated enabled group. (boolean value)
-#project_enabled_emulation_use_group_config = false
-
-# Additional attribute mappings for projects. Attribute mapping format is
-# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
-# and user_attr is the Identity API attribute. (list value)
-# Deprecated group/name - [ldap]/tenant_additional_attribute_mapping
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#project_additional_attribute_mapping =
-
-# Search base for roles. Defaults to the suffix value. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_tree_dn = <None>
-
-# LDAP search filter for roles. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_filter = <None>
-
-# LDAP objectclass for roles. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_objectclass = organizationalRole
-
-# LDAP attribute mapped to role id. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_id_attribute = cn
-
-# LDAP attribute mapped to role name. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_name_attribute = ou
-
-# LDAP attribute mapped to role membership. (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_member_attribute = roleOccupant
-
-# List of attributes stripped off the role on update. (list value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_attribute_ignore =
-
-# Allow role creation in LDAP backend. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_allow_create = true
-
-# Allow role update in LDAP backend. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_allow_update = true
-
-# Allow role deletion in LDAP backend. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_allow_delete = true
-
-# Additional attribute mappings for roles. Attribute mapping format is
-# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
-# and user_attr is the Identity API attribute. (list value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#role_additional_attribute_mapping =
 
 # Search base for groups. Defaults to the suffix value. (string value)
 #group_tree_dn = <None>
@@ -1286,12 +1154,24 @@
 #group_attribute_ignore =
 
 # Allow group creation in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for Identity LDAP backends has been deprecated in the M
+# release and will be removed in the O release.
 #group_allow_create = true
 
 # Allow group update in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for Identity LDAP backends has been deprecated in the M
+# release and will be removed in the O release.
 #group_allow_update = true
 
 # Allow group deletion in LDAP backend. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for Identity LDAP backends has been deprecated in the M
+# release and will be removed in the O release.
 #group_allow_delete = true
 
 # Additional attribute mappings for groups. Attribute mapping format is
@@ -1356,12 +1236,28 @@
 #host = 127.0.0.1
 
 # Use this port to connect to redis host. (port value)
-# Minimum value: 1
+# Minimum value: 0
 # Maximum value: 65535
 #port = 6379
 
 # Password for Redis server (optional). (string value)
 #password =
+
+# List of Redis Sentinel hosts (fault tolerance mode) e.g.
+# [host:port, host1:port ... ] (list value)
+#sentinel_hosts =
+
+# Redis replica set name. (string value)
+#sentinel_group_name = oslo-messaging-zeromq
+
+# Time in ms to wait between connection attempts. (integer value)
+#wait_timeout = 500
+
+# Time in ms to wait before the transaction is killed. (integer value)
+#check_timeout = 20000
+
+# Timeout in ms on blocking socket operations (integer value)
+#socket_timeout = 1000
 
 
 [memcache]
@@ -1428,6 +1324,9 @@
 # value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
+# Reason: The option to enable the OS-INHERIT extension has been deprecated in
+# the M release and will be removed in the O release. The OS-INHERIT extension
+# will be enabled by default.
 #enabled = true
 
 
@@ -1502,6 +1401,28 @@
 #password =
 
 
+[oslo_messaging_notifications]
+
+#
+# From oslo.messaging
+#
+
+# The Drivers(s) to handle sending notifications. Possible values are
+# messaging, messagingv2, routing, log, test, noop (multi valued)
+# Deprecated group/name - [DEFAULT]/notification_driver
+#driver =
+
+# A URL representing the messaging driver to use for notifications. If not set,
+# we fall back to the same configuration used for RPC. (string value)
+# Deprecated group/name - [DEFAULT]/notification_transport_url
+#transport_url = <None>
+
+# AMQP topic used for OpenStack notifications. (list value)
+# Deprecated group/name - [rpc_notifier2]/topics
+# Deprecated group/name - [DEFAULT]/notification_topics
+#topics = notifications
+
+
 [oslo_messaging_rabbit]
 
 #
@@ -1556,7 +1477,7 @@
 #rabbit_host = localhost
 
 # The RabbitMQ broker port where a single node is used. (port value)
-# Minimum value: 1
+# Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/rabbit_port
 #rabbit_port = 5672
@@ -1593,6 +1514,10 @@
 # Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
 #rabbit_retry_backoff = 2
 
+# Maximum interval of RabbitMQ connection retries. Default is 30 seconds.
+# (integer value)
+#rabbit_interval_max = 30
+
 # Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
 # count). (integer value)
 # Deprecated group/name - [DEFAULT]/rabbit_max_retries
@@ -1602,6 +1527,16 @@
 # must wipe the RabbitMQ database. (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_ha_queues
 #rabbit_ha_queues = false
+
+# Positive integer representing duration in seconds for queue TTL (x-expires).
+# Queues which are unused for the duration of the TTL are automatically
+# deleted. The parameter affects only reply and fanout queues. (integer value)
+# Minimum value: 1
+#rabbit_transient_queues_ttl = 600
+
+# Specifies the number of messages to prefetch. Setting to zero allows
+# unlimited messages. (integer value)
+#rabbit_qos_prefetch_count = 0
 
 # Number of seconds after which the Rabbit broker is considered down if
 # heartbeat's keep-alive fails (0 disable the heartbeat). EXPERIMENTAL (integer
@@ -1627,10 +1562,6 @@
 # Deprecated group/name - [DEFAULT]/osapi_max_request_body_size
 # Deprecated group/name - [DEFAULT]/max_request_body_size
 #max_request_body_size = 114688
-
-#
-# From oslo.middleware
-#
 
 # The HTTP Header that will be used to determine what the original request
 # protocol scheme was, even if it was hidden by an SSL termination proxy.
@@ -1696,7 +1627,7 @@
 #
 
 # Entrypoint for the resource backend driver in the keystone.resource
-# namespace. Supplied drivers are ldap and sql. If a resource driver is not
+# namespace. Only an SQL driver is supplied. If a resource driver is not
 # specified, the assignment driver will choose the resource driver. (string
 # value)
 #driver = <None>
@@ -1727,14 +1658,18 @@
 
 # Whether the names of projects are restricted from containing url reserved
 # characters. If set to new, attempts to create or update a project with a url
-# unsafe name will return an error. (string value)
-# Allowed values: off, new
+# unsafe name will return an error. In addition, if set to strict, attempts to
+# scope a token using an unsafe project name will return an error. (string
+# value)
+# Allowed values: off, new, strict
 #project_name_url_safe = off
 
 # Whether the names of domains are restricted from containing url reserved
 # characters. If set to new, attempts to create or update a domain with a url
-# unsafe name will return an error. (string value)
-# Allowed values: off, new
+# unsafe name will return an error. In addition, if set to strict, attempts to
+# scope a token using a domain name which is unsafe will return an error.
+# (string value)
+# Allowed values: off, new, strict
 #domain_name_url_safe = off
 
 
@@ -1872,28 +1807,56 @@
 # Path of the certfile for token signing. For non-production environments, you
 # may be interested in using `keystone-manage pki_setup` to generate self-
 # signed certificates. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
 # Path of the keyfile for token signing. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 
 # Path of the CA for token signing. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 
 # Path of the CA key for token signing. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #ca_key = /etc/keystone/ssl/private/cakey.pem
 
 # Key size (in bits) for token signing cert (auto generated certificate).
 # (integer value)
 # Minimum value: 1024
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #key_size = 2048
 
 # Days the token signing cert is valid for (auto generated certificate).
 # (integer value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #valid_days = 3650
 
 # Certificate subject (auto generated certificate) for token signing. (string
 # value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
 
 
@@ -1971,7 +1934,15 @@
 # that hashlib supports. WARNING: Before changing this value, the auth_token
 # middleware must be configured with the hash_algorithms, otherwise token
 # revocation will not be processed correctly. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: PKI token support has been deprecated in the M release and will be
+# removed in the O release. Fernet or UUID tokens are recommended.
 #hash_algorithm = md5
+
+# Add roles to token that are not explicitly added, but that are linked
+# implicitly to other roles. (boolean value)
+#infer_roles = true
 
 
 [tokenless_auth]
