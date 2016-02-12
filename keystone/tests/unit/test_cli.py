@@ -384,7 +384,11 @@ class TestDomainConfigFinder(unit.BaseTestCase):
         self.assertThat(domain_configs,
                         matchers.Equals(expected_domain_configs))
 
-        expected_msg = ('Ignoring file (keystone.conf) while scanning domain '
-                        'config directory')
-        self.assertThat(self.logging.output,
-                        matchers.Contains(expected_msg))
+        expected_msg_template = ('Ignoring file (%s) while scanning '
+                                 'domain config directory')
+        self.assertThat(
+            self.logging.output,
+            matchers.Contains(expected_msg_template % 'file.txt'))
+        self.assertThat(
+            self.logging.output,
+            matchers.Contains(expected_msg_template % 'keystone.conf'))
