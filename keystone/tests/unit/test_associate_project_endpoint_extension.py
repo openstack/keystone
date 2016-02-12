@@ -448,6 +448,15 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
         self.assertEqual(self.project['id'],
                          r.result['token']['project']['id'])
 
+        # Ensure name of the service exists
+        self.assertIn('name', r.result['token']['catalog'][0])
+
+        # region and region_id should be the same in endpoints
+        endpoint = r.result['token']['catalog'][0]['endpoints'][0]
+        self.assertIn('region', endpoint)
+        self.assertIn('region_id', endpoint)
+        self.assertEqual(endpoint['region'], endpoint['region_id'])
+
     def test_scoped_token_with_no_catalog_using_endpoint_filter(self):
         """Verify endpoint filter does not affect no catalog."""
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
