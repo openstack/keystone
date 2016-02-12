@@ -20,7 +20,6 @@ from testtools import matchers
 
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils
 
 
 CONF = cfg.CONF
@@ -2611,7 +2610,6 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
             implied_role_id=accepted_role1['id'])
         self.put(url, expected_status=http_client.CREATED)
 
-    @utils.wip('This will fail because of bug #1543318.')
     def test_trusts_from_implied_role(self):
         self._create_three_roles()
         self._create_implied_role(self.role_list[0], self.role_list[1])
@@ -2639,11 +2637,12 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
         token = r.result['token']
-
-        # FIXME(stevemar): See bug 1543318: Only one role appears in the
-        # token, it should have all the implied roles (3).
         self.assertThat(token['roles'],
                         matchers.HasLength(len(self.role_list)))
+        for role in token['roles']:
+            self.assertIn(role, self.role_list)
+        for role in self.role_list:
+            self.assertIn(role, token['roles'])
 
 
 class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
