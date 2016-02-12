@@ -160,7 +160,7 @@ class TokenAPITests(object):
         # 5) Validate token using v2 API.
         self.admin_request(
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
+            token=self.get_admin_token(),
             method='GET')
 
     def test_v3_v2_intermix_domain_scoped_token_failed(self):
@@ -179,7 +179,7 @@ class TokenAPITests(object):
         self.admin_request(
             method='GET',
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
+            token=self.get_admin_token(),
             expected_status=http_client.UNAUTHORIZED)
 
     def test_v3_v2_intermix_non_default_project_succeed(self):
@@ -193,7 +193,7 @@ class TokenAPITests(object):
         self.admin_request(
             method='GET',
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token)
+            token=self.get_admin_token())
 
     def test_v3_v2_intermix_non_default_user_succeed(self):
         self.assignment_api.create_grant(
@@ -211,7 +211,7 @@ class TokenAPITests(object):
         self.admin_request(
             method='GET',
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token)
+            token=self.get_admin_token())
 
     def test_v3_v2_intermix_domain_scope_failed(self):
         self.assignment_api.create_grant(
@@ -227,7 +227,7 @@ class TokenAPITests(object):
         # v2 cannot reference projects outside the default domain
         self.admin_request(
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
+            token=self.get_admin_token(),
             method='GET',
             expected_status=http_client.UNAUTHORIZED)
 
@@ -242,7 +242,7 @@ class TokenAPITests(object):
         # now validate the v3 token with v2 API
         r = self.admin_request(
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token,
+            token=self.get_admin_token(),
             method='GET')
         v2_token_data = r.result
 
@@ -268,7 +268,7 @@ class TokenAPITests(object):
         r = self.admin_request(
             method='GET',
             path='/v2.0/tokens/%s' % v3_token,
-            token=CONF.admin_token)
+            token=self.get_admin_token())
         v2_token_data = r.result
 
         self.assertEqual(v2_token_data['access']['user']['id'],
@@ -881,7 +881,7 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         token = cms.cms_hash_token(token)
         path = '/v2.0/tokens/%s' % (token)
         resp = self.admin_request(path=path,
-                                  token=CONF.admin_token,
+                                  token=self.get_admin_token(),
                                   method='GET')
         v2_token = resp.result
         self.assertEqual(v2_token['access']['user']['id'],

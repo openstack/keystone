@@ -30,6 +30,36 @@ from keystone.tests.unit import test_v3
 CONF = cfg.CONF
 
 
+# NOTE(morganfainberg): To be removed when admin_token_auth middleware is
+# removed. This was moved to it's own testcase so it can setup the
+# admin_token_auth pipeline without impacting other tests.
+class IdentityTestCaseStaticAdminToken(test_v3.RestfulTestCase):
+    EXTENSION_TO_ADD = 'admin_token_auth'
+
+    def test_list_users_with_static_admin_token_and_multiple_backends(self):
+        # domain-specific operations with the bootstrap ADMIN token is
+        # disallowed when domain-specific drivers are enabled
+        self.config_fixture.config(group='identity',
+                                   domain_specific_drivers_enabled=True)
+        self.get('/users', token=CONF.admin_token,
+                 expected_status=exception.Unauthorized.code)
+
+    def test_create_user_with_admin_token_and_no_domain(self):
+        """Call ``POST /users`` with admin token but no domain id.
+
+        It should not be possible to use the admin token to create a user
+        while not explicitly passing the domain in the request body.
+
+        """
+        # Passing a valid domain id to new_user_ref() since domain_id is
+        # not an optional parameter.
+        ref = unit.new_user_ref(domain_id=self.domain_id)
+        # Delete the domain id before sending the request.
+        del ref['domain_id']
+        self.post('/users', body={'user': ref}, token=CONF.admin_token,
+                  expected_status=http_client.BAD_REQUEST)
+
+
 class IdentityTestCase(test_v3.RestfulTestCase):
     """Test users and groups."""
 
@@ -109,23 +139,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_create_user_with_admin_token_and_domain(self):
         """Call ``POST /users`` with admin token and domain id."""
         ref = unit.new_user_ref(domain_id=self.domain_id)
-        self.post('/users', body={'user': ref}, token=CONF.admin_token,
+        self.post('/users', body={'user': ref}, token=self.get_admin_token(),
                   expected_status=http_client.CREATED)
-
-    def test_create_user_with_admin_token_and_no_domain(self):
-        """Call ``POST /users`` with admin token but no domain id.
-
-        It should not be possible to use the admin token to create a user
-        while not explicitly passing the domain in the request body.
-
-        """
-        # Passing a valid domain id to new_user_ref() since domain_id is
-        # not an optional parameter.
-        ref = unit.new_user_ref(domain_id=self.domain_id)
-        # Delete the domain id before sending the request.
-        del ref['domain_id']
-        self.post('/users', body={'user': ref}, token=CONF.admin_token,
-                  expected_status=http_client.BAD_REQUEST)
 
     def test_user_management_normalized_keys(self):
         """Illustrate the inconsistent handling of hyphens in keys.
@@ -249,14 +264,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # Now try the same thing without a domain token or filter,
         # which should fail
         r = self.get('/users', expected_status=exception.Unauthorized.code)
-
-    def test_list_users_with_static_admin_token_and_multiple_backends(self):
-        # domain-specific operations with the bootstrap ADMIN token is
-        # disallowed when domain-specific drivers are enabled
-        self.config_fixture.config(group='identity',
-                                   domain_specific_drivers_enabled=True)
-        self.get('/users', token=CONF.admin_token,
-                 expected_status=exception.Unauthorized.code)
 
     def test_list_users_no_default_project(self):
         """Call ``GET /users`` making sure no default_project_id."""
