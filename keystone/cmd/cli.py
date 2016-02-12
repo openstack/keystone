@@ -34,7 +34,7 @@ from keystone.common import utils
 from keystone import exception
 from keystone.federation import idp
 from keystone.federation import utils as mapping_engine
-from keystone.i18n import _, _LW, _LI
+from keystone.i18n import _, _LE, _LI, _LW
 from keystone.server import backends
 from keystone import token
 
@@ -678,29 +678,22 @@ class DomainConfigUploadFiles(object):
                 CONF.command.domain_name is None):
             print(_('At least one option must be provided, use either '
                     '--all or --domain-name'))
-            raise ValueError
+            return False
 
         if (CONF.command.all is True and
                 CONF.command.domain_name is not None):
             print(_('The --all option cannot be used with '
                     'the --domain-name option'))
-            raise ValueError
+            return False
 
-    def upload_config_to_database(self, file_name, domain_name):
+        return True
+
+    def _upload_config_to_database(self, file_name, domain_name):
         """Upload a single config file to the database.
 
         :param file_name: the file containing the config options
         :param domain_name: the domain name
-
-        :raises ValueError: the domain does not exist or already has domain
-            specific configurations defined.
-        :raises Exceptions from oslo config: there is an issue with options
-            defined in the config file or its format.
-
-        The caller of this method should catch the errors raised and handle
-        appropriately in order that the best UX experience can be provided for
-        both the case of when a user has asked for a specific config file to
-        be uploaded, as well as all config files in a directory.
+        :returns: a boolean indicating if the upload succeeded
 
         """
         try:
@@ -711,7 +704,7 @@ class DomainConfigUploadFiles(object):
                     'name: %(file)s - ignoring this file.') % {
                         'domain': domain_name,
                         'file': file_name})
-            raise ValueError
+            return False
 
         if self.domain_config_manager.get_config_with_sensitive_info(
                 domain_ref['id']):
@@ -719,7 +712,7 @@ class DomainConfigUploadFiles(object):
                     'defined - ignoring file: %(file)s.') % {
                         'domain': domain_name,
                         'file': file_name})
-            raise ValueError
+            return False
 
         sections = {}
         try:
@@ -733,40 +726,24 @@ class DomainConfigUploadFiles(object):
                     'file: %(file)s.') % {
                         'domain': domain_name,
                         'file': file_name})
-            raise
+            return False
 
-        for group in sections:
-            for option in sections[group]:
-                    sections[group][option] = sections[group][option][0]
-        self.domain_config_manager.create_config(domain_ref['id'], sections)
-
-    def upload_configs_to_database(self, file_name, domain_name):
-        """Upload configs from file and load into database.
-
-        This method will be called repeatedly for all the config files in the
-        config directory. To provide a better UX, we differentiate the error
-        handling in this case (versus when the user has asked for a single
-        config file to be uploaded).
-
-        """
         try:
-            self.upload_config_to_database(file_name, domain_name)
-        except ValueError:  # nosec
-            # We've already given all the info we can in a message, so carry
-            # on to the next one
-            pass
-        except Exception:
-            # Some other error occurred relating to this specific config file
-            # or domain. Since we are trying to upload all the config files,
-            # we'll continue and hide this exception. However, we tell the
-            # user how to get more info about this error by re-running with
-            # just the domain at fault. When we run in single-domain mode we
-            # will NOT hide the exception.
-            print(_('To get a more detailed information on this error, re-run '
-                    'this command for the specific domain, i.e.: '
-                    'keystone-manage domain_config_upload --domain-name %s') %
-                  domain_name)
-            pass
+            for group in sections:
+                for option in sections[group]:
+                        sections[group][option] = sections[group][option][0]
+            self.domain_config_manager.create_config(domain_ref['id'],
+                                                     sections)
+            return True
+        except Exception as e:
+            msg = _LE('Error processing config file for domain: '
+                      '%(domain_name)s, file: %(filename)s, error: %(error)s')
+            LOG.error(msg,
+                      {'domain_name': domain_name,
+                       'filename': file_name,
+                       'error': e},
+                      exc_info=True)
+            return False
 
     def read_domain_configs_from_files(self):
         """Read configs from file(s) and load into database.
@@ -786,12 +763,15 @@ class DomainConfigUploadFiles(object):
         if domain_name:
             # Request is to upload the configs for just one domain
             fname = DOMAIN_CONF_FHEAD + domain_name + DOMAIN_CONF_FTAIL
-            self.upload_config_to_database(
-                os.path.join(conf_dir, fname), domain_name)
-            return
+            if not self._upload_config_to_database(
+                    os.path.join(conf_dir, fname), domain_name):
+                return False
+            return True
 
         for filename, domain_name in self._domain_config_finder(conf_dir):
-            self.upload_configs_to_database(filename, domain_name)
+            self._upload_config_to_database(filename, domain_name)
+
+        return True
 
     def run(self):
         # First off, let's just check we can talk to the domain database
@@ -804,12 +784,10 @@ class DomainConfigUploadFiles(object):
                     'is configured correctly.'))
             raise
 
-        try:
-            self.valid_options()
-            self.read_domain_configs_from_files()
-        except ValueError:
-            # We will already have printed out a nice message, so indicate
-            # to caller the non-success error code to be used.
+        if not self.valid_options():
+            return 1
+
+        if not self.read_domain_configs_from_files():
             return 1
 
 
