@@ -13,6 +13,7 @@
 from oslo_config import cfg
 from oslo_context import context as oslo_context
 from oslo_log import log
+from oslo_log import versionutils
 
 from keystone.common import authorization
 from keystone.common import tokenless_auth
@@ -34,14 +35,55 @@ __all__ = ('AuthContextMiddleware',)
 class AuthContextMiddleware(wsgi.Middleware):
     """Build the authentication context from the request auth token."""
 
-    def _build_auth_context(self, request, token_id):
+    def _build_auth_context(self, request):
+
+        # NOTE(gyee): token takes precedence over SSL client certificates.
+        # This will preserve backward compatibility with the existing
+        # behavior. Tokenless authorization with X.509 SSL client
+        # certificate is effectively disabled if no trusted issuers are
+        # provided.
+
+        token_id = None
+        if core.AUTH_TOKEN_HEADER in request.headers:
+            token_id = request.headers[core.AUTH_TOKEN_HEADER].strip()
+
+        is_admin = request.environ.get(core.CONTEXT_ENV, {}).get('is_admin',
+                                                                 False)
+        if is_admin:
+            # NOTE(gyee): no need to proceed any further as we already know
+            # this is an admin request.
+            auth_context = {}
+            return auth_context, token_id, is_admin
+
+        if token_id:
+            # In this case the client sent in a token.
+            auth_context, is_admin = self._build_token_auth_context(
+                request, token_id)
+            return auth_context, token_id, is_admin
+
+        # No token, maybe the client presented an X.509 certificate.
+
+        if self._validate_trusted_issuer(request.environ):
+            auth_context = self._build_tokenless_auth_context(
+                request.environ)
+            return auth_context, None, False
+
+        LOG.debug('There is either no auth token in the request or '
+                  'the certificate issuer is not trusted. No auth '
+                  'context will be set.')
+
+        return None, None, False
+
+    def _build_token_auth_context(self, request, token_id):
         if token_id == CONF.admin_token:
-            # NOTE(gyee): no need to proceed any further as the special admin
-            # token is being handled by AdminTokenAuthMiddleware. This code
-            # will not be impacted even if AdminTokenAuthMiddleware is removed
-            # from the pipeline as "is_admin" is default to "False". This code
-            # is independent of AdminTokenAuthMiddleware.
-            return {}
+            versionutils.report_deprecated_feature(
+                LOG,
+                _LW('Auth context checking for the admin token is deprecated '
+                    'as of the Mitaka release and will be removed in the O '
+                    'release. Update keystone-paste.ini so that '
+                    'admin_token_auth is before build_auth_context in the '
+                    'paste pipelines.'))
+            return {}, True
 
         context = {'token_id': token_id}
         context['environment'] = request.environ
@@ -53,7 +95,7 @@ class AuthContextMiddleware(wsgi.Middleware):
             # TODO(gyee): validate_token_bind should really be its own
             # middleware
             wsgi.validate_token_bind(context, token_ref)
-            return authorization.token_to_auth_context(token_ref)
+            return authorization.token_to_auth_context(token_ref), False
         except exception.TokenNotFound:
             LOG.warning(_LW('RBAC: Invalid token'))
             raise exception.Unauthorized()
@@ -154,23 +196,13 @@ class AuthContextMiddleware(wsgi.Middleware):
             LOG.warning(msg)
             return
 
-        # NOTE(gyee): token takes precedence over SSL client certificates.
-        # This will preserve backward compatibility with the existing
-        # behavior. Tokenless authorization with X.509 SSL client
-        # certificate is effectively disabled if no trusted issuers are
-        # provided.
-        if core.AUTH_TOKEN_HEADER in request.headers:
-            token_id = request.headers[core.AUTH_TOKEN_HEADER].strip()
-            request_context.auth_token = token_id
+        auth_context, token_id, is_admin = self._build_auth_context(request)
 
-            auth_context = self._build_auth_context(request, token_id)
-        elif self._validate_trusted_issuer(request.environ):
-            auth_context = self._build_tokenless_auth_context(
-                request.environ)
-        else:
-            LOG.debug('There is either no auth token in the request or '
-                      'the certificate issuer is not trusted. No auth '
-                      'context will be set.')
+        request_context.auth_token = token_id
+        request_context.is_admin = is_admin
+
+        if auth_context is None:
+            # The client didn't send any auth info, so don't set auth context.
             return
 
         # The attributes of request_context are put into the logs. This is a
@@ -182,7 +214,6 @@ class AuthContextMiddleware(wsgi.Middleware):
         request_context.domain = auth_context.get('domain_id')
         request_context.user_domain = auth_context.get('user_domain_id')
         request_context.project_domain = auth_context.get('project_domain_id')
-        request_context.is_admin = request.environ.get('is_admin', False)
 
         LOG.debug('RBAC: auth_context: %s', auth_context)
         request.environ[authorization.AUTH_CONTEXT_ENV] = auth_context
