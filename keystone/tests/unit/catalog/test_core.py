@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from oslo_config import cfg
 
 from keystone.catalog import core
@@ -24,12 +26,13 @@ class FormatUrlTests(unit.BaseTestCase):
 
     def test_successful_formatting(self):
         url_template = ('http://$(public_bind_host)s:$(admin_port)d/'
-                        '$(tenant_id)s/$(user_id)s')
+                        '$(tenant_id)s/$(user_id)s/$(project_id)s')
+        project_id = uuid.uuid4().hex
         values = {'public_bind_host': 'server', 'admin_port': 9090,
-                  'tenant_id': 'A', 'user_id': 'B'}
+                  'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
         actual_url = core.format_url(url_template, values)
 
-        expected_url = 'http://server:9090/A/B'
+        expected_url = 'http://server:9090/A/B/%s' % (project_id,)
         self.assertEqual(expected_url, actual_url)
 
     def test_raises_malformed_on_missing_key(self):
@@ -73,7 +76,7 @@ class FormatUrlTests(unit.BaseTestCase):
                           url_template,
                           values)
 
-    def test_substitution_with_allowed_keyerror(self):
+    def test_substitution_with_allowed_tenant_keyerror(self):
         # No value of 'tenant_id' is passed into url_template.
         # mod: format_url will return None instead of raising
         # "MalformedEndpoint" exception.
@@ -86,3 +89,17 @@ class FormatUrlTests(unit.BaseTestCase):
                   'user_id': 'B'}
         self.assertIsNone(core.format_url(url_template, values,
                           silent_keyerror_failures=['tenant_id']))
+
+    def test_substitution_with_allowed_project_keyerror(self):
+        # No value of 'project_id' is passed into url_template.
+        # mod: format_url will return None instead of raising
+        # "MalformedEndpoint" exception.
+        # This is intentional behavior since we don't want to skip
+        # all the later endpoints once there is an URL of endpoint
+        # trying to replace 'project_id' with None.
+        url_template = ('http://$(public_bind_host)s:$(admin_port)d/'
+                        '$(project_id)s/$(user_id)s')
+        values = {'public_bind_host': 'server', 'admin_port': 9090,
+                  'user_id': 'B'}
+        self.assertIsNone(core.format_url(url_template, values,
+                          silent_keyerror_failures=['project_id']))

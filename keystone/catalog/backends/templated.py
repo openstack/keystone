@@ -214,9 +214,12 @@ class Catalog(core.Driver):
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if tenant_id:
-            substitutions.update({'tenant_id': tenant_id})
+            substitutions.update({
+                'tenant_id': tenant_id,
+                'project_id': tenant_id,
+            })
         else:
-            silent_keyerror_failures = ['tenant_id']
+            silent_keyerror_failures = ['tenant_id', 'project_id', ]
 
         catalog = {}
         # TODO(davechen): If there is service with no endpoints, we should

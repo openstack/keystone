@@ -282,9 +282,12 @@ class Catalog(catalog.CatalogDriverV8):
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if tenant_id:
-            substitutions.update({'tenant_id': tenant_id})
+            substitutions.update({
+                'tenant_id': tenant_id,
+                'project_id': tenant_id
+            })
         else:
-            silent_keyerror_failures = ['tenant_id']
+            silent_keyerror_failures = ['tenant_id', 'project_id', ]
 
         session = sql.get_session()
         endpoints = (session.query(Endpoint).
@@ -339,9 +342,12 @@ class Catalog(catalog.CatalogDriverV8):
         d.update({'user_id': user_id})
         silent_keyerror_failures = []
         if tenant_id:
-            d.update({'tenant_id': tenant_id})
+            d.update({
+                'tenant_id': tenant_id,
+                'project_id': tenant_id,
+            })
         else:
-            silent_keyerror_failures = ['tenant_id']
+            silent_keyerror_failures = ['tenant_id', 'project_id', ]
 
         session = sql.get_session()
         services = (session.query(Service).filter(Service.enabled == true()).

@@ -1,0 +1,9 @@
+---
+deprecations:
+  - Use of ``$(tenant_id)s`` in the catalog endpoints is deprecated in favor
+    of ``$(project_id)s``.
+features:
+  - Keystone supports ``$(project_id)s`` in the catalog. It works the same as
+    ``$(tenant_id)s``. Use of ``$(tenant_id)s`` is deprecated and catalog
+    endpoints should be updated to use ``$(project_id)s``.
+
