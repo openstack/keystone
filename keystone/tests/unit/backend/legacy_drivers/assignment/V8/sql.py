@@ -28,3 +28,6 @@ class SqlIdentityV8(test_backend_sql.SqlIdentity):
             driver='keystone.assignment.V8_backends.sql.Assignment')
         self.use_specific_sql_driver_version(
             'keystone.assignment', 'backends', 'V8_')
+
+    def test_delete_project_assignments_same_id_as_domain(self):
+        self.skipTest("V8 doesn't support project acting as a domain.")
