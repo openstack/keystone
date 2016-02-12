@@ -2524,7 +2524,8 @@ class IdentityTests(AssignmentTestHelperMixin):
 
     def _create_projects_hierarchy(self, hierarchy_size=2,
                                    domain_id=DEFAULT_DOMAIN_ID,
-                                   is_domain=False):
+                                   is_domain=False,
+                                   parent_project_id=None):
         """Creates a project hierarchy with specified size.
 
         :param hierarchy_size: the desired hierarchy size, default is 2 -
@@ -2532,12 +2533,20 @@ class IdentityTests(AssignmentTestHelperMixin):
         :param domain_id: domain where the projects hierarchy will be created.
         :param is_domain: if the hierarchy will have the is_domain flag active
                           or not.
+        :param parent_project_id: if the intention is to create a
+            sub-hierarchy, sets the sub-hierarchy root. Defaults to creating
+            a new hierarchy, i.e. a new root project.
 
         :returns projects: a list of the projects in the created hierarchy.
 
         """
-        project = unit.new_project_ref(domain_id=domain_id,
-                                       is_domain=is_domain)
+        if parent_project_id:
+            project = unit.new_project_ref(parent_id=parent_project_id,
+                                           domain_id=domain_id,
+                                           is_domain=is_domain)
+        else:
+            project = unit.new_project_ref(domain_id=domain_id,
+                                           is_domain=is_domain)
         project_id = project['id']
         self.resource_api.create_project(project_id, project)
 
@@ -3355,6 +3364,83 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Even if we only have one project, and it does not exist, it returns
         # no error.
         self.resource_api.driver.delete_projects_from_ids([uuid.uuid4().hex])
+
+    def test_delete_project_cascade(self):
+        # create a hierarchy with 3 levels
+        projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=3)
+        root_project = projects_hierarchy[0]
+        project1 = projects_hierarchy[1]
+        project2 = projects_hierarchy[2]
+
+        # Disabling all projects before attempting to delete
+        for project in (project2, project1, root_project):
+            project['enabled'] = False
+            self.resource_api.update_project(project['id'], project)
+
+        self.resource_api.delete_project(root_project['id'], cascade=True)
+
+        for project in projects_hierarchy:
+            self.assertRaises(exception.ProjectNotFound,
+                              self.resource_api.get_project,
+                              project['id'])
+
+    def test_delete_large_project_cascade(self):
+        """Try delete a large project with cascade true
+        Tree we will create::
+
+               +-p1-+
+               |    |
+              p5    p2
+               |    |
+              p6  +-p3-+
+                  |    |
+                  p7   p4
+        """
+        # create a hierarchy with 4 levels
+        projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=4)
+        p1 = projects_hierarchy[0]
+        # Add the left branch to the hierarchy (p5, p6)
+        self._create_projects_hierarchy(hierarchy_size=2,
+                                        parent_project_id=p1['id'])
+        # Add p7 to the hierarchy
+        p3_id = projects_hierarchy[2]['id']
+        self._create_projects_hierarchy(hierarchy_size=1,
+                                        parent_project_id=p3_id)
+        # Reverse the hierarchy to disable the leaf first
+        prjs_hierarchy = ([p1] + self.resource_api.list_projects_in_subtree(
+                          p1['id']))[::-1]
+
+        # Disabling all projects before attempting to delete
+        for project in prjs_hierarchy:
+            project['enabled'] = False
+            self.resource_api.update_project(project['id'], project)
+
+        self.resource_api.delete_project(p1['id'], cascade=True)
+        for project in prjs_hierarchy:
+            self.assertRaises(exception.ProjectNotFound,
+                              self.resource_api.get_project,
+                              project['id'])
+
+    def test_cannot_delete_project_cascade_with_enabled_child(self):
+        # create a hierarchy with 3 levels
+        projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=3)
+        root_project = projects_hierarchy[0]
+        project1 = projects_hierarchy[1]
+        project2 = projects_hierarchy[2]
+
+        project2['enabled'] = False
+        self.resource_api.update_project(project2['id'], project2)
+
+        # Cannot cascade delete root_project, since project1 is enabled
+        self.assertRaises(exception.ForbiddenAction,
+                          self.resource_api.delete_project,
+                          root_project['id'],
+                          cascade=True)
+
+        # Ensuring no project was deleted, not even project2
+        self.resource_api.get_project(root_project['id'])
+        self.resource_api.get_project(project1['id'])
+        self.resource_api.get_project(project2['id'])
 
     def test_hierarchical_projects_crud(self):
         # create a hierarchy with just a root project (which is a leaf as well)
