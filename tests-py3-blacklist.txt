@@ -24,4 +24,3 @@ keystone.tests.unit.test_v3_resource
 keystone.tests.unit.test_v3_trust
 keystone.tests.unit.test_versions
 keystone.tests.unit.token.test_fernet_provider
-keystone.tests.unit.token.test_token_data_helper
