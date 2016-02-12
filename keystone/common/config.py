@@ -405,10 +405,9 @@ FILE_OPTIONS = {
                         'keystone.assignment namespace. Only an SQL driver is '
                         'supplied.',
                    default='sql'),
-        cfg.StrOpt('root_role', default='admin',
-                   help='A role that is not allowed to be an implied '
-                   'role, as it is the root of role inference directed '
-                   'acyclic graph.'),
+        cfg.ListOpt('prohibited_implied_role', default=['admin'],
+                    help='A list of role names which are prohibited from '
+                         'being an implied role.'),
 
     ],
     'resource': [

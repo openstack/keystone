@@ -2568,15 +2568,47 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         self._assert_effective_role_for_implied_has_prior_in_links(
             response, user, project, 1, 2)
 
-    def test_root_role_as_implied_role_forbidden(self):
-        self.config_fixture.config(group='assignment', root_role='root')
+    def _create_named_role(self, name):
+        role = unit.new_role_ref()
+        role['name'] = name
+        self.role_api.create_role(role['id'], role)
+        return role
 
-        root_role = unit.new_role_ref()
-        root_role['name'] = 'root'
-        self.role_api.create_role(root_role['id'], root_role)
-        prior = self._create_role()
-        url = '/roles/%s/implies/%s' % (prior['id'], root_role['id'])
+    def test_root_role_as_implied_role_forbidden(self):
+        """Create 2 roles that are prohibited from being an implied role.
+        Create 1 additional role which should be accepted as an implied
+        role. Assure the prohibited role names cannot be set as an implied
+        role. Assure the accepted role name which is not a member of the
+        prohibited implied role list can be successfully set an implied
+        role.
+        """
+        prohibited_name1 = 'root1'
+        prohibited_name2 = 'root2'
+        accepted_name1 = 'implied1'
+
+        prohibited_names = [prohibited_name1, prohibited_name2]
+        self.config_fixture.config(group='assignment',
+                                   prohibited_implied_role=prohibited_names)
+
+        prior_role = self._create_role()
+
+        prohibited_role1 = self._create_named_role(prohibited_name1)
+        url = '/roles/{prior_role_id}/implies/{implied_role_id}'.format(
+            prior_role_id=prior_role['id'],
+            implied_role_id=prohibited_role1['id'])
         self.put(url, expected_status=http_client.FORBIDDEN)
+
+        prohibited_role2 = self._create_named_role(prohibited_name2)
+        url = '/roles/{prior_role_id}/implies/{implied_role_id}'.format(
+            prior_role_id=prior_role['id'],
+            implied_role_id=prohibited_role2['id'])
+        self.put(url, expected_status=http_client.FORBIDDEN)
+
+        accepted_role1 = self._create_named_role(accepted_name1)
+        url = '/roles/{prior_role_id}/implies/{implied_role_id}'.format(
+            prior_role_id=prior_role['id'],
+            implied_role_id=accepted_role1['id'])
+        self.put(url, expected_status=http_client.CREATED)
 
 
 class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
