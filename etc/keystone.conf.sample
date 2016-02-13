@@ -355,9 +355,9 @@
 # namespace. Only an SQL driver is supplied. (string value)
 #driver = sql
 
-# A role that is not allowed to be an implied role, as it is the root of role
-# inference directed acyclic graph. (string value)
-#root_role = admin
+# A list of role names which are prohibited from being an implied role. (list
+# value)
+#prohibited_implied_role = admin
 
 
 [auth]
