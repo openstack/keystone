@@ -402,8 +402,14 @@ def get_assertion_params_from_env(context):
     LOG.debug('Environment variables: %s', context['environment'])
     prefix = CONF.federation.assertion_prefix
     for k, v in list(context['environment'].items()):
-        if k.startswith(prefix):
-            yield (k, v)
+        if not k.startswith(prefix):
+            continue
+        # These bytes may be decodable as ISO-8859-1 according to Section
+        # 3.2.4 of RFC 7230. Let's assume that our web server plugins are
+        # correctly encoding the data.
+        if not isinstance(v, six.text_type) and getattr(v, 'decode', False):
+            v = v.decode('ISO-8859-1')
+        yield (k, v)
 
 
 class UserType(object):

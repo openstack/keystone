@@ -12,6 +12,10 @@
 
 import uuid
 
+from oslo_config import cfg
+from oslo_config import fixture as config_fixture
+from oslo_serialization import jsonutils
+
 from keystone.auth.plugins import mapped
 from keystone import exception
 from keystone.federation import utils as mapping_utils
@@ -692,3 +696,52 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertListEqual([], mapped_properties['group_names'])
         self.assertItemsEqual(['210mlk', '321cba'],
                               mapped_properties['group_ids'])
+
+
+class TestUnicodeAssertionData(unit.BaseTestCase):
+    """Ensure that unicode data in the assertion headers works.
+
+    Bug #1525250 reported that something was not getting correctly encoded
+    and/or decoded when assertion data contained non-ASCII characters.
+
+    This test class mimics what happens in a real HTTP request.
+    """
+
+    def setUp(self):
+        super(TestUnicodeAssertionData, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(cfg.CONF))
+        self.config_fixture.config(group='federation',
+                                   assertion_prefix='PFX')
+
+    def _pull_mapping_rules_from_the_database(self):
+        # NOTE(dstanek): In a live system. The rules are dumped into JSON bytes
+        # before being # stored in the database. Upon retrieval the bytes are
+        # loaded and the resulting dictionary is full of unicode text strings.
+        # Most of tests in this file incorrectly assume the mapping fixture
+        # dictionary is the same as what it would look like coming out of the
+        # database. The string, when coming out of the database, are all text.
+        return jsonutils.loads(jsonutils.dumps(
+            mapping_fixtures.MAPPING_UNICODE))
+
+    def _pull_assertion_from_the_request_headers(self):
+        # NOTE(dstanek): In a live system the bytes for the assertion are
+        # pulled from the HTTP headers. These bytes may be decodable as
+        # ISO-8859-1 according to Section 3.2.4 of RFC 7230. Let's assume
+        # that our web server plugins are correctly encoding the data.
+        context = dict(environment=mapping_fixtures.UNICODE_NAME_ASSERTION)
+        data = mapping_utils.get_assertion_params_from_env(context)
+        # NOTE(dstanek): keystone.auth.plugins.mapped
+        return dict(data)
+
+    def test_unicode(self):
+        mapping = self._pull_mapping_rules_from_the_database()
+        assertion = self._pull_assertion_from_the_request_headers()
+
+        rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
+        values = rp.process(assertion)
+
+        fn = assertion.get('PFX_FirstName')
+        ln = assertion.get('PFX_LastName')
+        full_name = '%s %s' % (fn, ln)
+        user_name = values.get('user', {}).get('name')
+        self.assertEqual(full_name, user_name)
