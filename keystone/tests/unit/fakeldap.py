@@ -535,7 +535,7 @@ class FakeLdap(core.LDAPHandler):
         self._ldap_options[option] = invalue
 
     def get_option(self, option):
-        value = self._ldap_options.get(option, None)
+        value = self._ldap_options.get(option)
         return value
 
     def search_ext(self, base, scope,

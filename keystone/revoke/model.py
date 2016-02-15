@@ -73,7 +73,7 @@ def blank_token_data(issued_at):
 class RevokeEvent(object):
     def __init__(self, **kwargs):
         for k in REVOKE_KEYS:
-            v = kwargs.get(k, None)
+            v = kwargs.get(k)
             setattr(self, k, v)
 
         if self.domain_id and self.expires_at:

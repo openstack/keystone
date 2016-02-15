@@ -275,7 +275,7 @@ def new_endpoint_ref(service_id, interface='public',
 
     if region_id is NEEDS_REGION_ID:
         ref['region_id'] = uuid.uuid4().hex
-    elif region_id is None and kwargs.get('region', None) is not None:
+    elif region_id is None and kwargs.get('region') is not None:
         # pre-3.2 form endpoints are not supported by this function
         raise NotImplementedError("use new_endpoint_ref_with_region")
     else:
