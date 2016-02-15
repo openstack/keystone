@@ -126,14 +126,21 @@ class CheckForAssertingNoneEquality(BaseASTChecker):
         # NOTE(dstanek): I wrote this in a verbose way to make it easier to
         # read for those that have little experience with Python's AST.
 
+        def _is_None(node):
+            if six.PY3:
+                return (isinstance(node, ast.NameConstant)
+                        and node.value is None)
+            else:
+                return isinstance(node, ast.Name) and node.id == 'None'
+
         if isinstance(node.func, ast.Attribute):
             if node.func.attr == 'assertEqual':
                 for arg in node.args:
-                    if isinstance(arg, ast.Name) and arg.id == 'None':
+                    if _is_None(arg):
                         self.add_error(node, message=self.CHECK_DESC_IS)
             elif node.func.attr == 'assertNotEqual':
                 for arg in node.args:
-                    if isinstance(arg, ast.Name) and arg.id == 'None':
+                    if _is_None(arg):
                         self.add_error(node, message=self.CHECK_DESC_ISNOT)
 
         super(CheckForAssertingNoneEquality, self).generic_visit(node)
@@ -391,10 +398,14 @@ class CheckForLoggingIssues(BaseASTChecker):
         peers = find_peers(node)
         for peer in peers:
             if isinstance(peer, ast.Raise):
-                if (isinstance(peer.type, ast.Call) and
-                        len(peer.type.args) > 0 and
-                        isinstance(peer.type.args[0], ast.Name) and
-                        name in (a.id for a in peer.type.args)):
+                if six.PY3:
+                    exc = peer.exc
+                else:
+                    exc = peer.type
+                if (isinstance(exc, ast.Call) and
+                        len(exc.args) > 0 and
+                        isinstance(exc.args[0], ast.Name) and
+                        name in (a.id for a in exc.args)):
                     return True
                 else:
                     return False
