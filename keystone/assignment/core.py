@@ -601,7 +601,7 @@ class Manager(manager.Manager):
             return expand_group_assignment(ref, user_id)
         return [ref]
 
-    def _add_implied_roles(self, role_refs):
+    def add_implied_roles(self, role_refs):
         """Expand out implied roles.
 
         The role_refs passed in have had all inheritance and group assignments
@@ -821,7 +821,7 @@ class Manager(manager.Manager):
             refs += self._expand_indirect_assignment(
                 ref, user_id, project_id, subtree_ids, expand_groups)
 
-        refs = self._add_implied_roles(refs)
+        refs = self.add_implied_roles(refs)
         if role_id:
             refs = self._filter_by_role_id(role_id, refs)
 

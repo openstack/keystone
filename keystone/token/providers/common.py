@@ -32,7 +32,7 @@ LOG = log.getLogger(__name__)
 CONF = cfg.CONF
 
 
-@dependency.requires('catalog_api', 'resource_api')
+@dependency.requires('catalog_api', 'resource_api', 'assignment_api')
 class V2TokenDataHelper(object):
     """Creates V2 token data."""
 
@@ -401,9 +401,12 @@ class V3TokenDataHelper(object):
                                              token_project_id)
             filtered_roles = []
             if CONF.trust.enabled and trust:
-                for trust_role in trust['roles']:
+                refs = [{'role_id': role['id']} for role in trust['roles']]
+                effective_roles = self.assignment_api.add_implied_roles(refs)
+                for trust_role in effective_roles:
+
                     match_roles = [x for x in roles
-                                   if x['id'] == trust_role['id']]
+                                   if x['id'] == trust_role['role_id']]
                     if match_roles:
                         filtered_roles.append(match_roles[0])
                     else:
