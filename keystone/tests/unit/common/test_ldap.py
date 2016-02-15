@@ -229,11 +229,11 @@ class LDAPDeleteTreeTest(unit.TestCase):
         config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
-    def test_deleteTree(self):
+    def test_delete_tree(self):
         """Test manually deleting a tree.
 
         Few LDAP servers support CONTROL_DELETETREE.  This test
-        exercises the alternate code paths in BaseLdap.deleteTree.
+        exercises the alternate code paths in BaseLdap.delete_tree.
 
         """
         conn = self.identity_api.user.get_connection()
@@ -254,7 +254,7 @@ class LDAPDeleteTreeTest(unit.TestCase):
         # cn=base
         # cn=child,cn=base
         # cn=grandchild,cn=child,cn=base
-        # then attempt to deleteTree(cn=base)
+        # then attempt to delete_tree(cn=base)
         base_id = 'base'
         base_dn = create_entry(base_id)
         child_dn = create_entry('child', base_dn)
@@ -276,8 +276,8 @@ class LDAPDeleteTreeTest(unit.TestCase):
         self.assertRaises(ldap.NOT_ALLOWED_ON_NONLEAF,
                           conn.delete_s, child_dn)
 
-        # call our deleteTree implementation
-        self.identity_api.user.deleteTree(base_id)
+        # call our delete_tree implementation
+        self.identity_api.user.delete_tree(base_id)
         self.assertRaises(ldap.NO_SUCH_OBJECT,
                           conn.search_s, base_dn, ldap.SCOPE_BASE)
         self.assertRaises(ldap.NO_SUCH_OBJECT,
