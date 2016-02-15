@@ -4494,7 +4494,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         * Grant one role to user and one to group on project;
         * Grant one role to user and one to group on domain;
         * Delete all project assignments;
-        * Domain roles must stay intact.
+        * Domain assignments must stay intact.
         """
         # Created a common ID
         common_id = uuid.uuid4().hex
@@ -4533,27 +4533,27 @@ class IdentityTests(AssignmentTestHelperMixin):
                                                 project_id=project['id'],
                                                 role_id=roles[3]['id'])
         # Make sure they were assigned
-        domain_roles = self.assignment_api.list_role_assignments(
+        domain_assignments = self.assignment_api.list_role_assignments(
             domain_id=domain['id'])
-        self.assertThat(domain_roles, matchers.HasLength(2))
-        project_roles = self.assignment_api.list_role_assignments(
+        self.assertThat(domain_assignments, matchers.HasLength(2))
+        project_assignments = self.assignment_api.list_role_assignments(
             project_id=project['id']
         )
-        self.assertThat(project_roles, matchers.HasLength(2))
+        self.assertThat(project_assignments, matchers.HasLength(2))
         # Delete project assignments
         self.assignment_api.delete_project_assignments(
             project_id=project['id'])
         # Assert only project assignments were deleted
-        project_roles = self.assignment_api.list_role_assignments(
+        project_assignments = self.assignment_api.list_role_assignments(
             project_id=project['id']
         )
-        self.assertThat(project_roles, matchers.HasLength(0))
-        domain_roles = self.assignment_api.list_role_assignments(
+        self.assertThat(project_assignments, matchers.HasLength(0))
+        domain_assignments = self.assignment_api.list_role_assignments(
             domain_id=domain['id'])
-        self.assertThat(domain_roles, matchers.HasLength(2))
-        # Make sure these remaining roles are domain-related
-        for role in domain_roles:
-            self.assertThat(role.keys(), matchers.Contains('domain_id'))
+        self.assertThat(domain_assignments, matchers.HasLength(2))
+        # Make sure these remaining assignments are domain-related
+        for assignment in domain_assignments:
+            self.assertThat(assignment.keys(), matchers.Contains('domain_id'))
 
 
 class TokenTests(object):
