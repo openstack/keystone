@@ -798,7 +798,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         project['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
                           self.resource_api.create_project,
-                          project_id,
+                          project['id'],
                           project)
 
     def test_create_duplicate_project_name_in_different_domains(self):
