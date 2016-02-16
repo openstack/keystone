@@ -122,17 +122,11 @@
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
 # files, see the Python logging module documentation. Note that when logging
-# configuration files are used all logging configuration is defined in the
+# configuration files are used then all logging configuration is set in the
 # configuration file and other logging configuration options are ignored (for
-# example, log_format). (string value)
+# example, logging_context_format_string). (string value)
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append = <None>
-
-# DEPRECATED. A logging.Formatter log message format string which may use any
-# of the available logging.LogRecord attributes. This option is deprecated.
-# Please use logging_context_format_string and logging_default_format_string
-# instead. This option is ignored if log_config_append is set. (string value)
-#log_format = <None>
 
 # Defines the format string for %%(asctime)s in log records. Default:
 # %(default)s . This option is ignored if log_config_append is set. (string
@@ -247,9 +241,11 @@
 # "host" option, if running Nova. (string value)
 #rpc_zmq_host = localhost
 
-# Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.
-# (integer value)
-#rpc_cast_timeout = 30
+# Seconds to wait before a cast expires (TTL). The default value of -1
+# specifies an infinite linger period. The value of 0 specifies no linger
+# period. Pending messages shall be discarded immediately when the socket is
+# closed. Only supported by impl_zmq. (integer value)
+#rpc_cast_timeout = -1
 
 # The default number of seconds that poll should wait. Poll raises timeout
 # exception when timeout expired. (integer value)
@@ -276,33 +272,6 @@
 # Number of retries to find free port number before fail with ZMQBindError.
 # (integer value)
 #rpc_zmq_bind_port_retries = 100
-
-# Host to locate redis. (string value)
-#host = 127.0.0.1
-
-# Use this port to connect to redis host. (port value)
-# Minimum value: 0
-# Maximum value: 65535
-#port = 6379
-
-# Password for Redis server (optional). (string value)
-#password =
-
-# List of Redis Sentinel hosts (fault tolerance mode) e.g.
-# [host:port, host1:port ... ] (list value)
-#sentinel_hosts =
-
-# Redis replica set name. (string value)
-#sentinel_group_name = oslo-messaging-zeromq
-
-# Time in ms to wait between connection attempts. (integer value)
-#wait_timeout = 500
-
-# Time in ms to wait before the transaction is killed. (integer value)
-#check_timeout = 20000
-
-# Timeout in ms on blocking socket operations (integer value)
-#socket_timeout = 1000
 
 # Size of executor thread pool. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
@@ -1460,6 +1429,10 @@
 # notification. (floating point value)
 # Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
 #kombu_reconnect_delay = 1.0
+
+# EXPERIMENTAL: Possible values are: gzip, bz2. If not set compression will not
+# be used. This option may notbe available in future versions. (string value)
+#kombu_compression = <None>
 
 # How long to wait a missing client beforce abandoning to send it its replies.
 # This value should not be longer than rpc_response_timeout. (integer value)
