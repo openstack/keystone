@@ -729,7 +729,11 @@ class IdentityTests(AssignmentTestHelperMixin):
         user = unit.new_user_ref(domain_id=domain1['id'])
         user = self.identity_api.create_user(user)
         user['domain_id'] = domain2['id']
-        self.identity_api.update_user(user['id'], user)
+        # Update the user asserting that a deprecation warning is emitted
+        with mock.patch(
+                'oslo_log.versionutils.report_deprecated_feature') as mock_dep:
+            self.identity_api.update_user(user['id'], user)
+            self.assertTrue(mock_dep.called)
 
         updated_user_ref = self.identity_api.get_user(user['id'])
         self.assertEqual(domain2['id'], updated_user_ref['domain_id'])
@@ -818,7 +822,11 @@ class IdentityTests(AssignmentTestHelperMixin):
         project = unit.new_project_ref(domain_id=domain1['id'])
         self.resource_api.create_project(project['id'], project)
         project['domain_id'] = domain2['id']
-        self.resource_api.update_project(project['id'], project)
+        # Update the project asserting that a deprecation warning is emitted
+        with mock.patch(
+                'oslo_log.versionutils.report_deprecated_feature') as mock_dep:
+            self.resource_api.update_project(project['id'], project)
+            self.assertTrue(mock_dep.called)
 
         updated_project_ref = self.resource_api.get_project(project['id'])
         self.assertEqual(domain2['id'], updated_project_ref['domain_id'])
@@ -843,6 +851,75 @@ class IdentityTests(AssignmentTestHelperMixin):
                           self.resource_api.update_project,
                           project1['id'],
                           project1)
+
+    @unit.skip_if_no_multiple_domains_support
+    def test_move_project_with_children_between_domains_fails(self):
+        domain1 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain1['id'], domain1)
+        domain2 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain2['id'], domain2)
+        project = unit.new_project_ref(domain_id=domain1['id'])
+        self.resource_api.create_project(project['id'], project)
+        child_project = unit.new_project_ref(domain_id=domain1['id'],
+                                             parent_id=project['id'])
+        self.resource_api.create_project(child_project['id'], child_project)
+        project['domain_id'] = domain2['id']
+
+        # Update is not allowed, since updating the whole subtree would be
+        # necessary
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.update_project,
+                          project['id'],
+                          project)
+
+    @unit.skip_if_no_multiple_domains_support
+    def test_move_project_not_root_between_domains_fails(self):
+        domain1 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain1['id'], domain1)
+        domain2 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain2['id'], domain2)
+        project = unit.new_project_ref(domain_id=domain1['id'])
+        self.resource_api.create_project(project['id'], project)
+        child_project = unit.new_project_ref(domain_id=domain1['id'],
+                                             parent_id=project['id'])
+        self.resource_api.create_project(child_project['id'], child_project)
+        child_project['domain_id'] = domain2['id']
+
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.update_project,
+                          child_project['id'],
+                          child_project)
+
+    @unit.skip_if_no_multiple_domains_support
+    def test_move_root_project_between_domains_succeeds(self):
+        domain1 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain1['id'], domain1)
+        domain2 = unit.new_domain_ref()
+        self.resource_api.create_domain(domain2['id'], domain2)
+        root_project = unit.new_project_ref(domain_id=domain1['id'],
+                                            parent_id=None)
+        self.resource_api.create_project(root_project['id'], root_project)
+
+        root_project['domain_id'] = domain2['id']
+        self.resource_api.update_project(root_project['id'], root_project)
+        project_from_db = self.resource_api.get_project(root_project['id'])
+
+        self.assertEqual(domain2['id'], project_from_db['domain_id'])
+
+    @unit.skip_if_no_multiple_domains_support
+    def test_update_domain_id_project_is_domain_fails(self):
+        other_domain = unit.new_domain_ref()
+        self.resource_api.create_domain(other_domain['id'], other_domain)
+        project = unit.new_project_ref(is_domain=True,
+                                       domain_id=self.domain_default['id'])
+        self.resource_api.create_project(project['id'], project)
+        project['domain_id'] = other_domain['id']
+
+        # Update of domain_id of projects acting as domains is not allowed
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.update_project,
+                          project['id'],
+                          project)
 
     def test_rename_duplicate_project_name_fails(self):
         project1 = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
@@ -3239,7 +3316,11 @@ class IdentityTests(AssignmentTestHelperMixin):
         group = unit.new_group_ref(domain_id=domain1['id'])
         group = self.identity_api.create_group(group)
         group['domain_id'] = domain2['id']
-        self.identity_api.update_group(group['id'], group)
+        # Update the group asserting that a deprecation warning is emitted
+        with mock.patch(
+                'oslo_log.versionutils.report_deprecated_feature') as mock_dep:
+            self.identity_api.update_group(group['id'], group)
+            self.assertTrue(mock_dep.called)
 
         updated_group_ref = self.identity_api.get_group(group['id'])
         self.assertEqual(domain2['id'], updated_group_ref['domain_id'])
