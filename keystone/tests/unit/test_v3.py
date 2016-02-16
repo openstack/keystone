@@ -1330,6 +1330,11 @@ class VersionTestCase(RestfulTestCase):
 class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
     EXTENSION_TO_ADD = 'admin_token_auth'
 
+    def config_overrides(self):
+        super(AuthContextMiddlewareAdminTokenTestCase, self).config_overrides()
+        self.config_fixture.config(
+            admin_token='ADMIN')
+
     # NOTE(morganfainberg): This is knowingly copied from below for simplicity
     # during the deprecation cycle.
     def _middleware_request(self, token, extra_environ=None):
@@ -1364,7 +1369,7 @@ class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
         # For backwards compatibility AuthContextMiddleware will check that the
         # admin token (as configured in the CONF file) is present and not
         # attempt to build the auth context. This is deprecated.
-        req = self._middleware_request(CONF.admin_token)
+        req = self._middleware_request('ADMIN')
         auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertDictEqual({}, auth_context)
         self.assertEqual(1, mock_report_deprecated.call_count)
