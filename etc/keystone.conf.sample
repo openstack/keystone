@@ -74,9 +74,8 @@
 #strict_password_check = false
 
 # The HTTP header used to determine the scheme for the original request, even
-# if it was removed by an SSL terminating proxy. Typical value is
-# "HTTP_X_FORWARDED_PROTO". (string value)
-#secure_proxy_ssl_header = <None>
+# if it was removed by an SSL terminating proxy. (string value)
+#secure_proxy_ssl_header = HTTP_X_FORWARDED_PROTO
 
 # If set to true the server will return information in the response that may
 # allow an unauthenticated or authenticated user to get more information than
