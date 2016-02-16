@@ -1173,7 +1173,10 @@ class IdentityDriverV8(object):
 
     def _get_list_limit(self):
         conf = self._get_conf()
-        return conf.identity.list_limit or conf.list_limit
+        # use list_limit from domain-specific config. If list_limit in
+        # domain-specific config is not set, look it up in the default config
+        return (conf.identity.list_limit or conf.list_limit or
+                CONF.identity.list_limit or CONF.list_limit)
 
     def is_domain_aware(self):
         """Indicates if Driver supports domains."""
