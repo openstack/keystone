@@ -12,14 +12,9 @@
 
 import uuid
 
-from oslo_config import cfg
-
 from keystone.catalog import core
 from keystone import exception
 from keystone.tests import unit
-
-
-CONF = cfg.CONF
 
 
 class FormatUrlTests(unit.BaseTestCase):

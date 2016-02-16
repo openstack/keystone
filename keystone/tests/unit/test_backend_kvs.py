@@ -14,7 +14,6 @@
 import datetime
 import uuid
 
-from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 
@@ -23,9 +22,6 @@ from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_backend
-
-
-CONF = cfg.CONF
 
 
 class KvsToken(unit.TestCase, test_backend.TokenTests):

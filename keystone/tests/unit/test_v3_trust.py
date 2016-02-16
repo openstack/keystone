@@ -13,13 +13,10 @@
 import datetime
 import uuid
 
-from oslo_config import cfg
 from six.moves import http_client
 
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-
-CONF = cfg.CONF
 
 
 class TestTrustOperations(test_v3.RestfulTestCase):

@@ -12,17 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
-
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
 from keystone import identity
-
-
-CONF = cfg.CONF
 
 
 class User(sql.ModelBase, sql.DictBase):

@@ -12,7 +12,6 @@
 
 
 import migrate
-from oslo_config import cfg
 from oslo_log import log
 import sqlalchemy as sql
 from sqlalchemy import orm
@@ -24,7 +23,6 @@ from keystone.identity.mapping_backends import mapping as mapping_backend
 
 
 LOG = log.getLogger(__name__)
-CONF = cfg.CONF
 
 
 def upgrade(migrate_engine):
