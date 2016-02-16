@@ -1600,7 +1600,7 @@ class BaseLdap(object):
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(object_id)
 
-    def deleteTree(self, object_id):
+    def delete_tree(self, object_id):
         tree_delete_control = ldap.controls.LDAPControl(CONTROL_TREEDELETE,
                                                         0,
                                                         None)

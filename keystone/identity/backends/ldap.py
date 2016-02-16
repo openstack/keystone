@@ -337,7 +337,7 @@ class GroupApi(common_ldap.BaseLdap):
 
     def delete(self, group_id):
         if self.subtree_delete_enabled:
-            super(GroupApi, self).deleteTree(group_id)
+            super(GroupApi, self).delete_tree(group_id)
         else:
             # TODO(spzala): this is only placeholder for group and domain
             # role support which will be added under bug 1101287
