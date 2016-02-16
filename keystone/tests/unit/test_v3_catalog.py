@@ -743,6 +743,16 @@ class CatalogTestCase(test_v3.RestfulTestCase):
                                     url=valid_url)
         self.post('/endpoints', body={'endpoint': ref})
 
+    def test_endpoint_create_with_valid_url_project_id(self):
+        """Create endpoint with valid url should be tested,too."""
+        valid_url = 'http://127.0.0.1:8774/v1.1/$(project_id)s'
+
+        ref = unit.new_endpoint_ref(self.service_id,
+                                    interface='public',
+                                    region_id=self.region_id,
+                                    url=valid_url)
+        self.post('/endpoints', body={'endpoint': ref})
+
     def test_endpoint_create_with_invalid_url(self):
         """Test the invalid cases: substitutions is not exactly right."""
         invalid_urls = [

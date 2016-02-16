@@ -26,7 +26,11 @@ CONF = cfg.CONF
 class EndpointFilterCatalog(sql.Catalog):
     def get_v3_catalog(self, user_id, project_id):
         substitutions = dict(CONF.items())
-        substitutions.update({'tenant_id': project_id, 'user_id': user_id})
+        substitutions.update({
+            'tenant_id': project_id,
+            'project_id': project_id,
+            'user_id': user_id,
+        })
 
         services = {}
 
