@@ -134,7 +134,7 @@ The primary configuration file is organized into the following sections:
 * ``[signing]`` - Cryptographic signatures for PKI based tokens
 * ``[ssl]`` - SSL certificate generation configuration
 * ``[token]`` - Token driver & token provider configuration
-* ``[trust]`` - Trust extension configuration
+* ``[trust]`` - Trust configuration
 
 The Keystone primary configuration file is expected to be named
 ``keystone.conf``. When starting Keystone, you can specify a different
