@@ -124,7 +124,7 @@ The primary configuration file is organized into the following sections:
 * ``[ldap]`` - LDAP configuration options
 * ``[memcache]`` - Memcache configuration options
 * ``[oauth1]`` - OAuth 1.0a system driver configuration
-* ``[os_inherit]`` - Inherited role assignment extension
+* ``[os_inherit]`` - Inherited role assignment configuration
 * ``[paste_deploy]`` - Pointer to the PasteDeploy configuration file
 * ``[policy]`` - Policy system driver configuration for RBAC
 * ``[resource]`` - Resource system driver configuration
@@ -1070,29 +1070,19 @@ In addition to changing their password all of the user's current tokens will be
 revoked.
 
 
-Inherited Role Assignment Extension
------------------------------------
+Inherited Role Assignments
+--------------------------
 
-Keystone provides an optional extension that adds the capability to assign
-roles on a project or domain that, rather than affect the project or domain
-itself, are instead inherited to the project subtree or to all projects owned
-by that domain. This extension is disabled by default, but can be enabled by
-including the following in ``keystone.conf``:
+Keystone provides an optional capability to assign roles on a project or domain
+that, rather than affect the project or domain itself, are instead inherited to
+the project subtree or to all projects owned by that domain. This capability is
+enabled by default, but can be disabled by including the following in
+``keystone.conf``:
 
 .. code-block:: ini
 
     [os_inherit]
-    enabled = True
-
-See `API Specification for Inherit <http://specs.openstack.org/
-openstack/keystone-specs/api/v3/identity-api-v3-os-inherit-ext.html>`_
-for the details of API definition.
-
-
-.. NOTE:: Support status for Inherit Role Assignment
-
-   *Experimental* (Havava, Icehouse)
-   *Stable* (Juno)
+    enabled = False
 
 
 Endpoint Policy
