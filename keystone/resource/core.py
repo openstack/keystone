@@ -1093,7 +1093,7 @@ class DomainConfigManager(manager.Manager):
     driver_namespace = 'keystone.resource.domain_config'
 
     whitelisted_options = {
-        'identity': ['driver'],
+        'identity': ['driver', 'list_limit'],
         'ldap': [
             'url', 'user', 'suffix', 'use_dumb_member', 'dumb_member',
             'allow_subtree_delete', 'query_scope', 'page_size',
