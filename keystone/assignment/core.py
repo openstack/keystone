@@ -663,9 +663,28 @@ class Manager(manager.Manager):
                 filter_results.append(ref)
         return filter_results
 
+    def _strip_domain_roles(self, role_refs):
+        """Post process assignment list for domain roles.
+
+        Domain roles are only designed to do the job of inferring other roles
+        and since that has been done before this method is called, we need to
+        remove any assignments that include a domain role.
+
+        """
+        def _role_is_global(role_id):
+            ref = self.role_api.get_role(role_id)
+            return (ref['domain_id'] is None)
+
+        filter_results = []
+        for ref in role_refs:
+            if _role_is_global(ref['role_id']):
+                filter_results.append(ref)
+        return filter_results
+
     def _list_effective_role_assignments(self, role_id, user_id, group_id,
                                          domain_id, project_id, subtree_ids,
-                                         inherited, source_from_group_ids):
+                                         inherited, source_from_group_ids,
+                                         strip_domain_roles):
         """List role assignments in effective mode.
 
         When using effective mode, besides the direct assignments, the indirect
@@ -822,6 +841,8 @@ class Manager(manager.Manager):
                 ref, user_id, project_id, subtree_ids, expand_groups)
 
         refs = self.add_implied_roles(refs)
+        if strip_domain_roles:
+            refs = self._strip_domain_roles(refs)
         if role_id:
             refs = self._filter_by_role_id(role_id, refs)
 
@@ -854,7 +875,8 @@ class Manager(manager.Manager):
                               domain_id=None, project_id=None,
                               include_subtree=False, inherited=None,
                               effective=None, include_names=False,
-                              source_from_group_ids=None):
+                              source_from_group_ids=None,
+                              strip_domain_roles=True):
         """List role assignments, honoring effective mode and provided filters.
 
         Returns a list of role assignments, where their attributes match the
@@ -886,6 +908,12 @@ class Manager(manager.Manager):
         difference between this and a group filter, other than it is a list of
         groups).
 
+        In effective mode, any domain specific roles are usually stripped from
+        the returned assignments (since such roles are not placed in tokens).
+        This stripping can be disabled by specifying strip_domain_roles=False,
+        which is useful for internal calls like trusts which need to examine
+        the full set of roles.
+
         If OS-INHERIT extension is disabled or the used driver does not support
         inherited roles retrieval, inherited role assignments will be ignored.
 
@@ -904,7 +932,8 @@ class Manager(manager.Manager):
         if effective:
             role_assignments = self._list_effective_role_assignments(
                 role_id, user_id, group_id, domain_id, project_id,
-                subtree_ids, inherited, source_from_group_ids)
+                subtree_ids, inherited, source_from_group_ids,
+                strip_domain_roles)
         else:
             role_assignments = self._list_direct_role_assignments(
                 role_id, user_id, group_id, domain_id, project_id,

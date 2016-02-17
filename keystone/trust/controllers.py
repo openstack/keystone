@@ -39,8 +39,8 @@ def _admin_trustor_only(context, trust, user_id):
         raise exception.Forbidden()
 
 
-@dependency.requires('assignment_api', 'identity_api', 'role_api',
-                     'token_provider_api', 'trust_api')
+@dependency.requires('assignment_api', 'identity_api', 'resource_api',
+                     'role_api', 'token_provider_api', 'trust_api')
 class TrustV3(controller.V3Controller):
     collection_name = "trusts"
     member_name = "trust"
@@ -175,9 +175,13 @@ class TrustV3(controller.V3Controller):
                 original_trust['redelegated_trust_id'])
 
         if not self._attribute_is_empty(trust, 'project_id'):
-            return self.assignment_api.get_roles_for_user_and_project(
-                original_trust['trustor_user_id'],
-                original_trust['project_id'])
+            self.resource_api.get_project(original_trust['project_id'])
+            # Get a list of roles including any domain specific roles
+            assignment_list = self.assignment_api.list_role_assignments(
+                user_id=original_trust['trustor_user_id'],
+                project_id=original_trust['project_id'],
+                effective=True, strip_domain_roles=False)
+            return list(set([x['role_id'] for x in assignment_list]))
         else:
             return []
 
