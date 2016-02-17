@@ -114,8 +114,13 @@ class AdminTokenAuthMiddlewareTest(MiddlewareRequestTestBase):
 
     MIDDLEWARE_CLASS = middleware.AdminTokenAuthMiddleware
 
+    def config_overrides(self):
+        super(AdminTokenAuthMiddlewareTest, self).config_overrides()
+        self.config_fixture.config(
+            admin_token='ADMIN')
+
     def test_request_admin(self):
-        headers = {middleware.AUTH_TOKEN_HEADER: CONF.admin_token}
+        headers = {middleware.AUTH_TOKEN_HEADER: 'ADMIN'}
         req = self._do_middleware_request(headers=headers)
         self.assertTrue(req.environ[middleware.CONTEXT_ENV]['is_admin'])
 

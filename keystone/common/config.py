@@ -46,10 +46,13 @@ _DEPRECATE_EP_MSG = ('The option to enable the OS-ENDPOINT-POLICY extension '
 
 FILE_OPTIONS = {
     None: [
-        cfg.StrOpt('admin_token', secret=True, default='ADMIN',
+        cfg.StrOpt('admin_token', secret=True, default=None,
                    help='A "shared secret" that can be used to bootstrap '
                         'Keystone. This "token" does not represent a user, '
-                        'and carries no explicit authorization. To disable '
+                        'and carries no explicit authorization. If set '
+                        'to `None`, the value is ignored and the '
+                        '`admin_token` log in mechanism is effectively '
+                        'disabled. To completely disable `admin_token` '
                         'in production (highly recommended), remove '
                         'AdminTokenAuthMiddleware from your paste '
                         'application pipelines (for example, in '

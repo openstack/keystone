@@ -36,6 +36,11 @@ CONF = cfg.CONF
 class IdentityTestCaseStaticAdminToken(test_v3.RestfulTestCase):
     EXTENSION_TO_ADD = 'admin_token_auth'
 
+    def config_overrides(self):
+        super(IdentityTestCaseStaticAdminToken, self).config_overrides()
+        self.config_fixture.config(
+            admin_token='ADMIN')
+
     def test_list_users_with_static_admin_token_and_multiple_backends(self):
         # domain-specific operations with the bootstrap ADMIN token is
         # disallowed when domain-specific drivers are enabled
