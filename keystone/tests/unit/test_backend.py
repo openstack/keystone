@@ -2873,6 +2873,73 @@ class IdentityTests(AssignmentTestHelperMixin):
         parents = self.resource_api.list_project_parents(project1['id'])
         self.assertEqual(0, len(parents))
 
+    def test_update_project_enabled_cascade(self):
+        """Test update_project_cascade
+
+        Ensures the enabled attribute is correctly updated across
+        a simple 3-level projects hierarchy.
+        """
+        projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=3)
+        parent = projects_hierarchy[0]
+
+        # Disable in parent project disables the whole subtree
+        parent['enabled'] = False
+        # Store the ref from backend in another variable so we don't bother
+        # to remove other attributes that were not originally provided and
+        # were set in the manager, like parent_id and domain_id.
+        parent_ref = self.resource_api.update_project(parent['id'],
+                                                      parent,
+                                                      cascade=True)
+
+        subtree = self.resource_api.list_projects_in_subtree(parent['id'])
+        self.assertEqual(2, len(subtree))
+        self.assertFalse(parent_ref['enabled'])
+        self.assertFalse(subtree[0]['enabled'])
+        self.assertFalse(subtree[1]['enabled'])
+
+        # Enable parent project enables the whole subtree
+        parent['enabled'] = True
+        parent_ref = self.resource_api.update_project(parent['id'],
+                                                      parent,
+                                                      cascade=True)
+
+        subtree = self.resource_api.list_projects_in_subtree(parent['id'])
+        self.assertEqual(2, len(subtree))
+        self.assertTrue(parent_ref['enabled'])
+        self.assertTrue(subtree[0]['enabled'])
+        self.assertTrue(subtree[1]['enabled'])
+
+    def test_cannot_enable_cascade_with_parent_disabled(self):
+        projects_hierarchy = self._create_projects_hierarchy(hierarchy_size=3)
+        grandparent = projects_hierarchy[0]
+        parent = projects_hierarchy[1]
+
+        grandparent['enabled'] = False
+        self.resource_api.update_project(grandparent['id'],
+                                         grandparent,
+                                         cascade=True)
+        subtree = self.resource_api.list_projects_in_subtree(parent['id'])
+        self.assertFalse(subtree[0]['enabled'])
+
+        parent['enabled'] = True
+        self.assertRaises(exception.ForbiddenAction,
+                          self.resource_api.update_project,
+                          parent['id'],
+                          parent,
+                          cascade=True)
+
+    def test_update_cascade_only_accepts_enabled(self):
+        # Update cascade does not accept any other attribute but 'enabled'
+        new_project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+        self.resource_api.create_project(new_project['id'], new_project)
+
+        new_project['name'] = 'project1'
+        self.assertRaises(exception.ValidationError,
+                          self.resource_api.update_project,
+                          new_project['id'],
+                          new_project,
+                          cascade=True)
+
     def test_list_project_parents_invalid_project_id(self):
         self.assertRaises(exception.ValidationError,
                           self.resource_api.list_project_parents,
