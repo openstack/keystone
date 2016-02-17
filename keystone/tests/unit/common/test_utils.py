@@ -39,36 +39,32 @@ class UtilsTestCase(unit.BaseTestCase):
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_resource_uuid(self):
-        uuid_str = '536e28c2017e405e89b25a1ed777b952'
-        self.assertEqual(uuid_str, common_utils.resource_uuid(uuid_str))
+        # Basic uuid test, most IDs issued by keystone look like this:
+        value = u'536e28c2017e405e89b25a1ed777b952'
+        self.assertEqual(value, common_utils.resource_uuid(value))
 
-        # Exact 64 length string.
-        uuid_str = ('536e28c2017e405e89b25a1ed777b952'
-                    'f13de678ac714bb1b7d1e9a007c10db5')
-        resource_id_namespace = common_utils.RESOURCE_ID_NAMESPACE
-        transformed_id = uuid.uuid5(resource_id_namespace, uuid_str).hex
-        self.assertEqual(transformed_id, common_utils.resource_uuid(uuid_str))
-
-        # Non-ASCII character test.
-        non_ascii_ = 'ß' * 32
-        transformed_id = uuid.uuid5(resource_id_namespace, non_ascii_).hex
-        self.assertEqual(transformed_id,
-                         common_utils.resource_uuid(non_ascii_))
-
-        # This input is invalid because it's length is more than 64.
-        invalid_input = 'x' * 65
-        self.assertRaises(ValueError, common_utils.resource_uuid,
-                          invalid_input)
-
-        # 64 length unicode string, to mimic what is returned from mapping_id
-        # backend.
-        uuid_str = six.text_type('536e28c2017e405e89b25a1ed777b952'
-                                 'f13de678ac714bb1b7d1e9a007c10db5')
-        resource_id_namespace = common_utils.RESOURCE_ID_NAMESPACE
+    def test_resource_64_char_uuid(self):
+        # Exact 64 length string, like ones used by mapping_id backend, are not
+        # valid UUIDs, so they will be UUID5 namespaced
+        value = u'f13de678ac714bb1b7d1e9a007c10db5' * 2
         if six.PY2:
-            uuid_str = uuid_str.encode('utf-8')
-        transformed_id = uuid.uuid5(resource_id_namespace, uuid_str).hex
-        self.assertEqual(transformed_id, common_utils.resource_uuid(uuid_str))
+            value = value.encode('utf-8')
+        expected_id = uuid.uuid5(common_utils.RESOURCE_ID_NAMESPACE, value).hex
+        self.assertEqual(expected_id, common_utils.resource_uuid(value))
+
+    def test_resource_non_ascii_chars(self):
+        # IDs with non-ASCII characters will be UUID5 namespaced
+        value = u'ß' * 32
+        if six.PY2:
+            value = value.encode('utf-8')
+        expected_id = uuid.uuid5(common_utils.RESOURCE_ID_NAMESPACE, value).hex
+        self.assertEqual(expected_id, common_utils.resource_uuid(value))
+
+    def test_resource_invalid_id(self):
+        # This input is invalid because it's length is more than 64.
+        value = u'x' * 65
+        self.assertRaises(ValueError, common_utils.resource_uuid,
+                          value)
 
     def test_hash(self):
         password = 'right'
