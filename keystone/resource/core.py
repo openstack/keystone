@@ -177,6 +177,16 @@ class Manager(manager.Manager):
                 'chars': utils.list_url_unsafe_chars(name)
             })
 
+    def _generate_project_name_conflict_msg(self, project):
+        if project['is_domain']:
+            return _('it is not permitted to have two projects '
+                     'acting as domains with the same name: %s'
+                     ) % project['name']
+        else:
+            return _('it is not permitted to have two projects '
+                     'within a domain with the same name : %s'
+                     ) % project['name']
+
     def create_project(self, project_id, project, initiator=None):
         project = project.copy()
 
@@ -205,7 +215,17 @@ class Manager(manager.Manager):
 
         self._enforce_project_constraints(project, parent_id)
 
-        ret = self.driver.create_project(project_id, project)
+        # We leave enforcing name uniqueness to the underlying driver (instead
+        # of doing it in code in the project_constraints above), so as to allow
+        # this check to be done at the storage level, avoiding race conditions
+        # in multi-process keystone configurations.
+        try:
+            ret = self.driver.create_project(project_id, project)
+        except exception.Conflict:
+            raise exception.Conflict(
+                type='project',
+                details=self._generate_project_name_conflict_msg(project))
+
         notifications.Audit.created(self._PROJECT, project_id, initiator)
         if MEMOIZE.should_cache(ret):
             self.get_project.set(ret, self, project_id)
@@ -366,7 +386,13 @@ class Manager(manager.Manager):
                                                        original_project)
             self._update_project_enabled_cascade(project_id, project_enabled)
 
-        ret = self.driver.update_project(project_id, project)
+        try:
+            ret = self.driver.update_project(project_id, project)
+        except exception.Conflict:
+            raise exception.Conflict(
+                type='project',
+                details=self._generate_project_name_conflict_msg(project))
+
         notifications.Audit.updated(self._PROJECT, project_id, initiator)
         self.get_project.invalidate(self, project_id)
         self.get_project_by_name.invalidate(self, original_project['name'],

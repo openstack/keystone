@@ -2657,6 +2657,53 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertEqual(DEFAULT_DOMAIN_ID, ref['domain_id'])
 
     @unit.skip_if_no_multiple_domains_support
+    def test_project_as_a_domain_uniqueness_constraints(self):
+        """Tests project uniqueness for those acting as domains.
+
+        If it is a project acting as a domain, we can't have two or more with
+        the same name.
+
+        """
+        # Create two projects acting as a domain
+        project = unit.new_project_ref(is_domain=True)
+        project = self.resource_api.create_project(project['id'], project)
+        project2 = unit.new_project_ref(is_domain=True)
+        project2 = self.resource_api.create_project(project2['id'], project2)
+
+        # All projects acting as domains have a null domain_id, so should not
+        # be able to create another with the same name but a different
+        # project ID.
+        new_project = project.copy()
+        new_project['id'] = uuid.uuid4().hex
+
+        self.assertRaises(exception.Conflict,
+                          self.resource_api.create_project,
+                          new_project['id'],
+                          new_project)
+
+        # We also should not be able to update one to have a name clash
+        project2['name'] = project['name']
+        self.assertRaises(exception.Conflict,
+                          self.resource_api.update_project,
+                          project2['id'],
+                          project2)
+
+        # But updating it to a unique name is OK
+        project2['name'] = uuid.uuid4().hex
+        self.resource_api.update_project(project2['id'], project2)
+
+        # Finally, it should be OK to create a project with same name as one of
+        # these acting as a domain, as long as it is a regular project
+        project3 = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
+                                        name=project2['name'])
+        self.resource_api.create_project(project3['id'], project3)
+        # In fact, it should be OK to create such a project in the domain which
+        # has the matching name.
+        # TODO(henry-nash): Once we fully support projects acting as a domain,
+        # add a test here to create a sub-project with a name that matches its
+        # project acting as a domain
+
+    @unit.skip_if_no_multiple_domains_support
     @test_utils.wip('waiting for sub projects acting as domains support')
     def test_is_domain_sub_project_has_parent_domain_id(self):
         project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
