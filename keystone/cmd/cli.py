@@ -131,8 +131,7 @@ class BootStrap(BaseApp):
             'id': CONF.identity.default_domain_id,
             'name': 'Default',
             'enabled': True,
-            'description': 'Owns users and tenants (i.e. projects) available '
-                           'on Identity API v2.'
+            'description': 'The default domain'
         }
         try:
             self.resource_manager.create_domain(

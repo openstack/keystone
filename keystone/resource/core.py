@@ -38,8 +38,7 @@ MEMOIZE = cache.get_memoization_decorator(group='resource')
 
 def calc_default_domain():
     return {'description':
-            (u'Owns users and tenants (i.e. projects)'
-                ' available on Identity API v2.'),
+            (u'The default domain'),
             'enabled': True,
             'id': CONF.identity.default_domain_id,
             'name': u'Default'}

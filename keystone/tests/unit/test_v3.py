@@ -301,8 +301,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 self.resource_api.get_domain(DEFAULT_DOMAIN_ID)
             except exception.DomainNotFound:
                 domain = unit.new_domain_ref(
-                    description=(u'Owns users and tenants (i.e. projects)'
-                                 u' available on Identity API v2.'),
+                    description=(u'The default domain'),
                     id=DEFAULT_DOMAIN_ID,
                     name=u'Default')
                 self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
