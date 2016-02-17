@@ -14,12 +14,11 @@
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _LW
 
 
 CONF = cfg.CONF
@@ -61,13 +60,11 @@ class AdminTokenAuthMiddleware(wsgi.Middleware):
 
     def __init__(self, application):
         super(AdminTokenAuthMiddleware, self).__init__(application)
-        msg = _("Remove admin_token_auth from the paste-ini file, the "
-                "admin_token_auth middleware has been deprecated in favor of "
-                "using keystone-manage bootstrap and real users after "
-                "bootstrap process. Update the [pipeline:api_v3], "
-                "[pipeline:admin_api], and [pipeline:public_api] sections "
-                "accordingly, as it will be removed in the O release.")
-        versionutils.report_deprecated_feature(LOG, msg)
+        LOG.warning(_LW("The admin_token_auth middleware presents a security "
+                        "risk and should be removed from the "
+                        "[pipeline:api_v3], [pipeline:admin_api], and "
+                        "[pipeline:public_api] sections of your paste ini "
+                        "file."))
 
     def process_request(self, request):
         token = request.headers.get(AUTH_TOKEN_HEADER)
