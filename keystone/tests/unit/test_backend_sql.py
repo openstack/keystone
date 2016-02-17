@@ -29,6 +29,7 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
+from keystone import resource
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
@@ -410,6 +411,155 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         # No domains should be returned since both domains have only inherited
         # roles assignments.
         self.assertThat(user_domains, matchers.HasLength(0))
+
+    def test_storing_null_domain_id_in_project_ref(self):
+        """Test the special storage of domain_id=None in sql resource driver.
+
+        The resource driver uses a special value in place of None for domain_id
+        in the project record. This shouldn't escape the driver. Hence we test
+        the interface to ensure that you can store a domain_id of None, and
+        that any special value used inside the driver does not escape through
+        the interface.
+
+        """
+        spoiler_project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+        self.resource_api.create_project(spoiler_project['id'],
+                                         spoiler_project)
+
+        # First let's create a project with a None domain_id and make sure we
+        # can read it back.
+        project = unit.new_project_ref(domain_id=None, is_domain=True)
+        project = self.resource_api.create_project(project['id'], project)
+        ref = self.resource_api.get_project(project['id'])
+        self.assertDictEqual(project, ref)
+
+        # Can we get it by name?
+        ref = self.resource_api.get_project_by_name(project['name'], None)
+        self.assertDictEqual(project, ref)
+
+        # Can we filter for them - create a second domain to ensure we are
+        # testing the receipt of more than one.
+        project2 = unit.new_project_ref(domain_id=None, is_domain=True)
+        project2 = self.resource_api.create_project(project2['id'], project2)
+        hints = driver_hints.Hints()
+        hints.add_filter('domain_id', None)
+        refs = self.resource_api.list_projects(hints)
+        self.assertThat(refs, matchers.HasLength(2))
+        self.assertIn(project, refs)
+        self.assertIn(project2, refs)
+
+        # Can we update it?
+        project['name'] = uuid.uuid4().hex
+        self.resource_api.update_project(project['id'], project)
+        ref = self.resource_api.get_project(project['id'])
+        self.assertDictEqual(project, ref)
+
+        # Finally, make sure we can delete it
+        project['enabled'] = False
+        self.resource_api.update_project(project['id'], project)
+        self.resource_api.delete_project(project['id'])
+        self.assertRaises(exception.ProjectNotFound,
+                          self.resource_api.get_project,
+                          project['id'])
+
+    def test_hidden_project_domain_root_is_really_hidden(self):
+        """Ensure we cannot access the hidden root of all project domains.
+
+        Calling any of the driver methods should result in the same as
+        would be returned if we passed a project that does not exist. We don't
+        test create_project, since we do not allow a caller of our API to
+        specify their own ID for a new entity.
+
+        """
+        def _exercise_project_api(ref_id):
+            driver = self.resource_api.driver
+            self.assertRaises(exception.ProjectNotFound,
+                              driver.get_project,
+                              ref_id)
+
+            self.assertRaises(exception.ProjectNotFound,
+                              driver.get_project_by_name,
+                              resource.NULL_DOMAIN_ID,
+                              ref_id)
+
+            project_ids = [x['id'] for x in
+                           driver.list_projects(driver_hints.Hints())]
+            self.assertNotIn(ref_id, project_ids)
+
+            projects = driver.list_projects_from_ids([ref_id])
+            self.assertThat(projects, matchers.HasLength(0))
+
+            project_ids = [x for x in
+                           driver.list_project_ids_from_domain_ids([ref_id])]
+            self.assertNotIn(ref_id, project_ids)
+
+            self.assertRaises(exception.DomainNotFound,
+                              driver.list_projects_in_domain,
+                              ref_id)
+
+            projects = driver.list_projects_in_subtree(ref_id)
+            self.assertThat(projects, matchers.HasLength(0))
+
+            self.assertRaises(exception.ProjectNotFound,
+                              driver.list_project_parents,
+                              ref_id)
+
+            # A non-existing project just returns True from the driver
+            self.assertTrue(driver.is_leaf_project(ref_id))
+
+            self.assertRaises(exception.ProjectNotFound,
+                              driver.update_project,
+                              ref_id,
+                              {})
+
+            self.assertRaises(exception.ProjectNotFound,
+                              driver.delete_project,
+                              ref_id)
+
+            # Deleting list of projects that includes a non-existing project
+            # should be silent
+            driver.delete_projects_from_ids([ref_id])
+
+        _exercise_project_api(uuid.uuid4().hex)
+        _exercise_project_api(resource.NULL_DOMAIN_ID)
+
+    def test_hidden_domain_root_is_really_hidden(self):
+        """Ensure we cannot access the hidden root of all domains.
+
+        Calling any of the driver methods should result in the same as
+        would be returned if we passed a domain that does not exist. We don't
+        test create_domain, since we do not allow a caller of our API to
+        specify their own ID for a new entity.
+
+        """
+        def _exercise_domain_api(ref_id):
+            driver = self.resource_api.driver
+            self.assertRaises(exception.DomainNotFound,
+                              driver.get_domain,
+                              ref_id)
+
+            self.assertRaises(exception.DomainNotFound,
+                              driver.get_domain_by_name,
+                              resource.NULL_DOMAIN_ID)
+
+            domain_ids = [x['id'] for x in
+                          driver.list_domains(driver_hints.Hints())]
+            self.assertNotIn(ref_id, domain_ids)
+
+            domains = driver.list_domains_from_ids([ref_id])
+            self.assertThat(domains, matchers.HasLength(0))
+
+            self.assertRaises(exception.DomainNotFound,
+                              driver.update_domain,
+                              ref_id,
+                              {})
+
+            self.assertRaises(exception.DomainNotFound,
+                              driver.delete_domain,
+                              ref_id)
+
+        _exercise_domain_api(uuid.uuid4().hex)
+        _exercise_domain_api(resource.NULL_DOMAIN_ID)
 
 
 class SqlTrust(SqlTests, test_backend.TrustTests):

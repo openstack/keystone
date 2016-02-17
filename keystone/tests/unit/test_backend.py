@@ -2679,6 +2679,9 @@ class IdentityTests(AssignmentTestHelperMixin):
                                        is_domain=True)
         self.resource_api.create_project(project['id'], project)
 
+        # Check that a corresponding domain was created
+        self.resource_api.get_domain(project['id'])
+
         # Try to delete is_domain project that is enabled
         self.assertRaises(exception.ValidationError,
                           self.resource_api.delete_project,
@@ -2690,6 +2693,14 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         # Successfully delete the project
         self.resource_api.delete_project(project['id'])
+
+        self.assertRaises(exception.ProjectNotFound,
+                          self.resource_api.get_project,
+                          project['id'])
+
+        self.assertRaises(exception.DomainNotFound,
+                          self.resource_api.get_domain,
+                          project['id'])
 
     @unit.skip_if_no_multiple_domains_support
     def test_create_subproject_acting_as_domain_fails(self):

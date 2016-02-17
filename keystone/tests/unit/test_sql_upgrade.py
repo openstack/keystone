@@ -681,6 +681,25 @@ class SqlUpgradeTests(SqlMigrateBase):
         role_entry = session.execute(statement).fetchone()
         self.assertEqual(NULL_DOMAIN_ID, role_entry[0])
 
+    def test_add_root_of_all_domains(self):
+        NULL_DOMAIN_ID = '<<keystone.domain.root>>'
+        self.upgrade(89)
+        session = self.Session()
+
+        domain_table = sqlalchemy.Table(
+            'domain', self.metadata, autoload=True)
+        query = session.query(domain_table).filter_by(id=NULL_DOMAIN_ID)
+        domain_from_db = query.one()
+        self.assertIn(NULL_DOMAIN_ID, domain_from_db)
+
+        project_table = sqlalchemy.Table(
+            'project', self.metadata, autoload=True)
+        query = session.query(project_table).filter_by(id=NULL_DOMAIN_ID)
+        project_from_db = query.one()
+        self.assertIn(NULL_DOMAIN_ID, project_from_db)
+
+        session.close()
+
     def populate_user_table(self, with_pass_enab=False,
                             with_pass_enab_domain=False):
         # Populate the appropriate fields in the user
