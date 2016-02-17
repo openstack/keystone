@@ -14,6 +14,8 @@
 
 import copy
 import datetime
+import random
+import string
 import uuid
 
 import mock
@@ -41,7 +43,9 @@ CONF = cfg.CONF
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
-HOST_URL = 'http://keystone:5001'
+HOST = ''.join(random.choice(string.ascii_lowercase) for x in range(
+    random.randint(5, 15)))
+HOST_URL = 'http://%s' % (HOST)
 
 
 def _build_user_auth(token=None, user_id=None, username=None,
@@ -871,7 +875,16 @@ class AuthWithTrust(AuthTest):
             token_id=token_id,
             token_data=self.token_provider_api.validate_token(token_id))
         auth_context = authorization.token_to_auth_context(token_ref)
-        return {'environment': {authorization.AUTH_CONTEXT_ENV: auth_context},
+        # NOTE(gyee): if public_endpoint and admin_endpoint are not set, which
+        # is the default, the base url will be constructed from the environment
+        # variables wsgi.url_scheme, SERVER_NAME, SERVER_PORT, and SCRIPT_NAME.
+        # We have to set them in the context so the base url can be constructed
+        # accordingly.
+        return {'environment': {authorization.AUTH_CONTEXT_ENV: auth_context,
+                                'wsgi.url_scheme': 'http',
+                                'SCRIPT_NAME': '/v3',
+                                'SERVER_PORT': '80',
+                                'SERVER_NAME': HOST},
                 'token_id': token_id,
                 'host_url': HOST_URL}
 

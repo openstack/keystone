@@ -213,7 +213,9 @@ class ApplicationTest(BaseWSGITest):
 
     def test_render_exception_host(self):
         e = exception.Unauthorized(message=u'\u7f51\u7edc')
-        context = {'host_url': 'http://%s:5000' % uuid.uuid4().hex}
+        req = self._make_request(url='/')
+        context = {'host_url': 'http://%s:5000' % uuid.uuid4().hex,
+                   'environment': req.environ}
         resp = wsgi.render_exception(e, context=context)
 
         self.assertEqual(http_client.UNAUTHORIZED, resp.status_int)
@@ -237,6 +239,77 @@ class ApplicationTest(BaseWSGITest):
         resp = req.get_response(FakeApp())
         self.assertEqual({'name': u'nonexit\xe8nt'},
                          jsonutils.loads(resp.body))
+
+    def test_base_url(self):
+        class FakeApp(wsgi.Application):
+            def index(self, context):
+                return self.base_url(context, 'public')
+        req = self._make_request(url='/')
+        # NOTE(gyee): according to wsgiref, if HTTP_HOST is present in the
+        # request environment, it will be used to construct the base url.
+        # SERVER_NAME and SERVER_PORT will be ignored. These are standard
+        # WSGI environment variables populated by the webserver.
+        req.environ.update({
+            'SCRIPT_NAME': '/identity',
+            'SERVER_NAME': '1.2.3.4',
+            'wsgi.url_scheme': 'http',
+            'SERVER_PORT': '80',
+            'HTTP_HOST': '1.2.3.4',
+        })
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"http://1.2.3.4/identity", resp.body)
+
+        # if HTTP_HOST is absent, SERVER_NAME and SERVER_PORT will be used
+        req = self._make_request(url='/')
+        del req.environ['HTTP_HOST']
+        req.environ.update({
+            'SCRIPT_NAME': '/identity',
+            'SERVER_NAME': '1.1.1.1',
+            'wsgi.url_scheme': 'http',
+            'SERVER_PORT': '1234',
+        })
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"http://1.1.1.1:1234/identity", resp.body)
+
+        # make sure keystone normalize the standard HTTP port 80 by stripping
+        # it
+        req = self._make_request(url='/')
+        req.environ.update({'HTTP_HOST': 'foo:80',
+                            'SCRIPT_NAME': '/identity'})
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"http://foo/identity", resp.body)
+
+        # make sure keystone normalize the standard HTTPS port 443 by stripping
+        # it
+        req = self._make_request(url='/')
+        req.environ.update({'HTTP_HOST': 'foo:443',
+                            'SCRIPT_NAME': '/identity',
+                            'wsgi.url_scheme': 'https'})
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"https://foo/identity", resp.body)
+
+        # make sure non-standard port is preserved
+        req = self._make_request(url='/')
+        req.environ.update({'HTTP_HOST': 'foo:1234',
+                            'SCRIPT_NAME': '/identity'})
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"http://foo:1234/identity", resp.body)
+
+        # make sure version portion of the SCRIPT_NAME, '/v2.0',  is stripped
+        # from base url
+        req = self._make_request(url='/')
+        req.environ.update({'HTTP_HOST': 'foo:80',
+                            'SCRIPT_NAME': '/bar/identity/v2.0'})
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"http://foo/bar/identity", resp.body)
+
+        # make sure version portion of the SCRIPT_NAME, '/v3' is stripped from
+        # base url
+        req = self._make_request(url='/')
+        req.environ.update({'HTTP_HOST': 'foo:80',
+                            'SCRIPT_NAME': '/identity/v3'})
+        resp = req.get_response(FakeApp())
+        self.assertEqual(b"http://foo/identity", resp.body)
 
 
 class ExtensionRouterTest(BaseWSGITest):

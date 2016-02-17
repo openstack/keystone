@@ -577,3 +577,20 @@ def lower_case_hostname(url):
     # Note: _replace method for named tuples is public and defined in docs
     replaced = parsed._replace(netloc=parsed.netloc.lower())
     return moves.urllib.parse.urlunparse(replaced)
+
+
+def remove_standard_port(url):
+    # remove the default ports specified in RFC2616 and 2818
+    o = moves.urllib.parse.urlparse(url)
+    separator = ':'
+    (host, separator, port) = o.netloc.partition(':')
+    if o.scheme.lower() == 'http' and port == '80':
+        # NOTE(gyee): _replace() is not a private method. It has an
+        # an underscore prefix to prevent conflict with field names.
+        # See https://docs.python.org/2/library/collections.html#
+        # collections.namedtuple
+        o = o._replace(netloc=host)
+    if o.scheme.lower() == 'https' and port == '443':
+        o = o._replace(netloc=host)
+
+    return moves.urllib.parse.urlunparse(o)
