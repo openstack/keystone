@@ -16,7 +16,6 @@ import copy
 import uuid
 
 import mock
-from oslo_config import cfg
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
@@ -33,9 +32,6 @@ from keystone.tests.unit.common import test_notifications
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
-
-
-CONF = cfg.CONF
 
 
 class OAuth1ContribTests(test_v3.RestfulTestCase):

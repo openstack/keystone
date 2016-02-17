@@ -14,7 +14,6 @@
 
 import uuid
 
-from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 
@@ -27,9 +26,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.trust import schema
-
-
-CONF = cfg.CONF
 
 
 def _trustor_trustee_only(trust, user_id):

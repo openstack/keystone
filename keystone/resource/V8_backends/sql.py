@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common import clean
@@ -21,7 +20,6 @@ from keystone.i18n import _LE
 from keystone import resource as keystone_resource
 
 
-CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 

@@ -12,15 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
-
 from keystone import assignment as keystone_assignment
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _
-
-
-CONF = cfg.CONF
 
 
 class AssignmentType(object):
