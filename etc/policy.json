@@ -75,6 +75,11 @@
     "identity:create_role": "rule:admin_required",
     "identity:update_role": "rule:admin_required",
     "identity:delete_role": "rule:admin_required",
+    "identity:get_domain_role": "rule:admin_required",
+    "identity:list_domain_roles": "rule:admin_required",
+    "identity:create_domain_role": "rule:admin_required",
+    "identity:update_domain_role": "rule:admin_required",
+    "identity:delete_domain_role": "rule:admin_required",
 
     "identity:get_implied_role": "rule:admin_required ",
     "identity:list_implied_roles": "rule:admin_required",

@@ -277,7 +277,19 @@ class ProjectAssignmentV3(controller.V3Controller):
 
 @dependency.requires('role_api')
 class RoleV3(controller.V3Controller):
-    """The V3 Role CRUD APIs."""
+    """The V3 Role CRUD APIs.
+
+    To ease complexity (and hence risk) in writing the policy rules for the
+    role APIs, we create separate policy actions for roles that are domain
+    specific, as opposed to those that are global. In order to achieve this
+    each of the role API methods has a wrapper method that checks to see if the
+    role is global or domain specific.
+
+    NOTE (henry-nash): If this separate global vs scoped policy action pattern
+    becomes repeated for other entities, we should consider encapsulating this
+    into a specialized router class.
+
+    """
 
     collection_name = 'roles'
     member_name = 'role'
@@ -286,9 +298,104 @@ class RoleV3(controller.V3Controller):
         super(RoleV3, self).__init__()
         self.get_member_from_driver = self.role_api.get_role
 
+    def _is_domain_role(self, role):
+        return role.get('domain_id') is not None
+
+    def _is_domain_role_target(self, role_id):
+        try:
+            role = self.role_api.get_role(role_id)
+        except exception.RoleNotFound:
+            # We hide this error since we have not yet carried out a policy
+            # check - and it maybe that the caller isn't authorized to make
+            # this call. If so, we want that error to be raised instead.
+            return False
+        return self._is_domain_role(role)
+
+    def create_role_wrapper(self, context, role):
+        if self._is_domain_role(role):
+            return self.create_domain_role(context, role=role)
+        else:
+            return self.create_role(context, role=role)
+
     @controller.protected()
     @validation.validated(schema.role_create, 'role')
     def create_role(self, context, role):
+        return self._create_role(context, role)
+
+    @controller.protected()
+    @validation.validated(schema.role_create, 'role')
+    def create_domain_role(self, context, role):
+        return self._create_role(context, role)
+
+    def list_roles_wrapper(self, context):
+        # If there is no domain_id filter defined, then we only want to return
+        # global roles, so we set the domain_id filter to None.
+        params = context['query_string']
+        if 'domain_id' not in params:
+            context['query_string']['domain_id'] = None
+
+        if context['query_string']['domain_id'] is not None:
+            return self.list_domain_roles(context)
+        else:
+            return self.list_roles(context)
+
+    @controller.filterprotected('name', 'domain_id')
+    def list_roles(self, context, filters):
+        return self._list_roles(context, filters)
+
+    @controller.filterprotected('name', 'domain_id')
+    def list_domain_roles(self, context, filters):
+        return self._list_roles(context, filters)
+
+    def get_role_wrapper(self, context, role_id):
+        if self._is_domain_role_target(role_id):
+            return self.get_domain_role(context, role_id=role_id)
+        else:
+            return self.get_role(context, role_id=role_id)
+
+    @controller.protected()
+    def get_role(self, context, role_id):
+        return self._get_role(context, role_id)
+
+    @controller.protected()
+    def get_domain_role(self, context, role_id):
+        return self._get_role(context, role_id)
+
+    def update_role_wrapper(self, context, role_id, role):
+        # Since we don't allow you change whether a role is global or domain
+        # specific, we can ignore the new update attributes and just look at
+        # the existing role.
+        if self._is_domain_role_target(role_id):
+            return self.update_domain_role(
+                context, role_id=role_id, role=role)
+        else:
+            return self.update_role(context, role_id=role_id, role=role)
+
+    @controller.protected()
+    @validation.validated(schema.role_update, 'role')
+    def update_role(self, context, role_id, role):
+        return self._update_role(context, role_id, role)
+
+    @controller.protected()
+    @validation.validated(schema.role_update, 'role')
+    def update_domain_role(self, context, role_id, role):
+        return self._update_role(context, role_id, role)
+
+    def delete_role_wrapper(self, context, role_id):
+        if self._is_domain_role_target(role_id):
+            return self.delete_domain_role(context, role_id=role_id)
+        else:
+            return self.delete_role(context, role_id=role_id)
+
+    @controller.protected()
+    def delete_role(self, context, role_id):
+        return self._delete_role(context, role_id)
+
+    @controller.protected()
+    def delete_domain_role(self, context, role_id):
+        return self._delete_role(context, role_id)
+
+    def _create_role(self, context, role):
         if role['name'] == CONF.member_role_name:
             # Use the configured member role ID when creating the configured
             # member role name. This avoids the potential of creating a
@@ -303,36 +410,23 @@ class RoleV3(controller.V3Controller):
         ref = self.role_api.create_role(ref['id'], ref, initiator)
         return RoleV3.wrap_member(context, ref)
 
-    @controller.filterprotected('name', 'domain_id')
-    def list_roles(self, context, filters):
+    def _list_roles(self, context, filters):
         hints = RoleV3.build_driver_hints(context, filters)
         refs = self.role_api.list_roles(
             hints=hints)
         return RoleV3.wrap_collection(context, refs, hints=hints)
 
-    def list_roles_wrapper(self, context):
-        # If there is no domain_id filter defined, then we only want to return
-        # global roles, so we set the domain_id filter to None.
-        params = context['query_string']
-        if 'domain_id' not in params:
-            context['query_string']['domain_id'] = None
-        return self.list_roles(context)
-
-    @controller.protected()
-    def get_role(self, context, role_id):
+    def _get_role(self, context, role_id):
         ref = self.role_api.get_role(role_id)
         return RoleV3.wrap_member(context, ref)
 
-    @controller.protected()
-    @validation.validated(schema.role_update, 'role')
-    def update_role(self, context, role_id, role):
+    def _update_role(self, context, role_id, role):
         self._require_matching_id(role_id, role)
         initiator = notifications._get_request_audit_info(context)
         ref = self.role_api.update_role(role_id, role, initiator)
         return RoleV3.wrap_member(context, ref)
 
-    @controller.protected()
-    def delete_role(self, context, role_id):
+    def _delete_role(self, context, role_id):
         initiator = notifications._get_request_audit_info(context)
         self.role_api.delete_role(role_id, initiator)
 

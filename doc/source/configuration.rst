@@ -1339,6 +1339,7 @@ are filtered out (e.g. user passwords).
 List of object attributes:
 
 * role:
+    * target.role.domain_id
     * target.role.id
     * target.role.name
 

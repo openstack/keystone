@@ -620,13 +620,21 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.domain_admin_user = unit.create_user(
             self.identity_api,
             domain_id=self.domainA['id'])
+        self.domainB_admin_user = unit.create_user(
+            self.identity_api,
+            domain_id=self.domainB['id'])
         self.project_admin_user = unit.create_user(
             self.identity_api,
             domain_id=self.domainA['id'])
+        self.project_adminB_user = unit.create_user(
+            self.identity_api,
+            domain_id=self.domainB['id'])
 
-        # The admin role and another plain role
+        # The admin role, a domain specific role and another plain role
         self.admin_role = unit.new_role_ref(name='admin')
         self.role_api.create_role(self.admin_role['id'], self.admin_role)
+        self.roleA = unit.new_role_ref(domain_id=self.domainA['id'])
+        self.role_api.create_role(self.roleA['id'], self.roleA)
         self.role = unit.new_role_ref()
         self.role_api.create_role(self.role['id'], self.role)
 
@@ -642,13 +650,21 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.just_a_user['id'],
                                          domain_id=self.domainA['id'])
+        self.assignment_api.create_grant(self.admin_role['id'],
+                                         user_id=self.domainB_admin_user['id'],
+                                         domain_id=self.domainB['id'])
 
         # Create and assign roles to the project
         self.project = unit.new_project_ref(domain_id=self.domainA['id'])
         self.resource_api.create_project(self.project['id'], self.project)
+        self.projectB = unit.new_project_ref(domain_id=self.domainB['id'])
+        self.resource_api.create_project(self.projectB['id'], self.projectB)
         self.assignment_api.create_grant(self.admin_role['id'],
                                          user_id=self.project_admin_user['id'],
                                          project_id=self.project['id'])
+        self.assignment_api.create_grant(
+            self.admin_role['id'], user_id=self.project_adminB_user['id'],
+            project_id=self.projectB['id'])
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.just_a_user['id'],
                                          project_id=self.project['id'])
@@ -765,6 +781,33 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
                     expected_status=status_no_data)
 
         role_ref = unit.new_role_ref()
+        self.post('/roles', auth=self.auth, body={'role': role_ref},
+                  expected_status=status_created)
+
+    def _domain_role_management_cases(self, domain_id, read_status_OK=False,
+                                      expected=None):
+        # Set the different status values for different types of call depending
+        # on whether we expect the calls to fail or not.
+        status_OK, status_created, status_no_data = self._stati(expected)
+        entity_url = '/roles/%s' % self.roleA['id']
+        list_url = '/roles?domain_id=%s' % domain_id
+
+        if read_status_OK:
+            self.get(entity_url, auth=self.auth)
+            self.get(list_url, auth=self.auth)
+        else:
+            self.get(entity_url, auth=self.auth,
+                     expected_status=status_OK)
+            self.get(list_url, auth=self.auth,
+                     expected_status=status_OK)
+
+        role = {'name': 'Updated'}
+        self.patch(entity_url, auth=self.auth, body={'role': role},
+                   expected_status=status_OK)
+        self.delete(entity_url, auth=self.auth,
+                    expected_status=status_no_data)
+
+        role_ref = unit.new_role_ref(domain_id=domain_id)
         self.post('/roles', auth=self.auth, body={'role': role_ref},
                   expected_status=status_created)
 
@@ -1555,3 +1598,75 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             project_id=self.admin_project['id'])
 
         self._role_management_cases()
+
+    def test_domain_role_management_no_admin_no_rights(self):
+        # A non-admin domain user shouldn't be able to manipulate domain roles
+        self.auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'],
+            domain_id=self.domainA['id'])
+
+        self._domain_role_management_cases(
+            self.domainA['id'], expected=exception.ForbiddenAction.code)
+
+        # ...and nor should non-admin project user
+        self.auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'],
+            project_id=self.project['id'])
+
+        self._domain_role_management_cases(
+            self.domainA['id'], expected=exception.ForbiddenAction.code)
+
+    def test_domain_role_management_with_cloud_admin(self):
+        # A cloud admin user should have rights to manipulate domain roles
+        self.auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            project_id=self.admin_project['id'])
+
+        self._domain_role_management_cases(self.domainA['id'])
+
+    def test_domain_role_management_with_domain_admin(self):
+        # A domain admin user should only be able to manipulate the domain
+        # specific roles in their own domain
+        self.auth = self.build_authentication_request(
+            user_id=self.domainB_admin_user['id'],
+            password=self.domainB_admin_user['password'],
+            domain_id=self.domainB['id'])
+
+        # Try to access the domain specific roles in another domain
+        self._domain_role_management_cases(
+            self.domainA['id'], expected=exception.ForbiddenAction.code)
+
+        # ...but they should be able to work with those in their own domain
+        self.auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+
+        self._domain_role_management_cases(self.domainA['id'])
+
+    def test_domain_role_management_with_project_admin(self):
+        # A project admin user should have not access to domain specific roles
+        # in another domain. They should be able to get and list domain
+        # specific roles from their own domain, but not be able to create,
+        # update or delete them,
+        self.auth = self.build_authentication_request(
+            user_id=self.project_adminB_user['id'],
+            password=self.project_adminB_user['password'],
+            project_id=self.projectB['id'])
+
+        # Try access the domain specific roless in another domain
+        self._domain_role_management_cases(
+            self.domainA['id'], expected=exception.ForbiddenAction.code)
+
+        # ...but they should be ablet to work with those in their own domain
+        self.auth = self.build_authentication_request(
+            user_id=self.project_admin_user['id'],
+            password=self.project_admin_user['password'],
+            project_id=self.project['id'])
+
+        self._domain_role_management_cases(
+            self.domainA['id'], read_status_OK=True,
+            expected=exception.ForbiddenAction.code)
