@@ -5,11 +5,12 @@
 #
 
 # A "shared secret" that can be used to bootstrap Keystone. This "token" does
-# not represent a user, and carries no explicit authorization. To disable in
-# production (highly recommended), remove AdminTokenAuthMiddleware from your
-# paste application pipelines (for example, in keystone-paste.ini). (string
-# value)
-#admin_token = ADMIN
+# not represent a user, and carries no explicit authorization. If set to
+# `None`, the value is ignored and the `admin_token` log in mechanism is
+# effectively disabled. To completely disable `admin_token` in production
+# (highly recommended), remove AdminTokenAuthMiddleware from your paste
+# application pipelines (for example, in keystone-paste.ini). (string value)
+#admin_token = <None>
 
 # The base public endpoint URL for Keystone that is advertised to clients
 # (NOTE: this does NOT affect how Keystone listens for connections). Defaults
@@ -64,7 +65,10 @@
 # project entities to be moved between domains by updating their domain_id.
 # Allowing such movement is not recommended if the scope of a domain admin is
 # being restricted by use of an appropriate policy file (see
-# policy.v3cloudsample as an example). (boolean value)
+# policy.v3cloudsample as an example). This ability is deprecated and will be
+# removed in a future release. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #domain_id_immutable = true
 
 # If set to true, strict password length checking is performed for password
