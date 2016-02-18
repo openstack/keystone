@@ -2109,6 +2109,64 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             self.assertEqual(exp_filter, m.call_args[0][2])
 
 
+class LDAPPosixGroupsTest(unit.TestCase):
+
+    def setUp(self):
+
+        super(LDAPPosixGroupsTest, self).setUp()
+
+        self.useFixture(ldapdb.LDAPDatabase())
+        self.useFixture(database.Database())
+
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+        _assert_backends(self, identity='ldap')
+
+    def load_fixtures(self, fixtures):
+        # Override super impl since need to create group container.
+        create_group_container(self.identity_api)
+        super(LDAPPosixGroupsTest, self).load_fixtures(fixtures)
+
+    def config_overrides(self):
+        super(LDAPPosixGroupsTest, self).config_overrides()
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='ldap', group_members_are_ids=True,
+                                   group_member_attribute='memberUID')
+
+    def config_files(self):
+        config_files = super(LDAPPosixGroupsTest, self).config_files()
+        config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
+        return config_files
+
+    def _get_domain_fixture(self):
+        """Domains in LDAP are read-only, so just return the static one."""
+        return self.resource_api.get_domain(CONF.identity.default_domain_id)
+
+    def test_posix_member_id(self):
+        domain = self._get_domain_fixture()
+        new_group = unit.new_group_ref(domain_id=domain['id'])
+        new_group = self.identity_api.create_group(new_group)
+        # Make sure we get an empty list back on a new group, not an error.
+        user_refs = self.identity_api.list_users_in_group(new_group['id'])
+        self.assertEqual([], user_refs)
+        # Make sure we get the correct users back once they have been added
+        # to the group.
+        new_user = unit.new_user_ref(domain_id=domain['id'])
+        new_user = self.identity_api.create_user(new_user)
+
+        # NOTE(amakarov): Create the group directly using LDAP operations
+        # rather than going through the manager.
+        group_api = self.identity_api.driver.group
+        group_ref = group_api.get(new_group['id'])
+        mod = (ldap.MOD_ADD, group_api.member_attribute, new_user['id'])
+        conn = group_api.get_connection()
+        conn.modify_s(group_ref['dn'], [mod])
+
+        user_refs = self.identity_api.list_users_in_group(new_group['id'])
+        self.assertIn(new_user['id'], (x['id'] for x in user_refs))
+
+
 class LdapIdentityWithMapping(
         BaseLDAPIdentity, unit.SQLDriverOverrides, unit.TestCase):
     """Class to test mapping of default LDAP backend.
