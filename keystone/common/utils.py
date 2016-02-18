@@ -57,6 +57,8 @@ def resource_uuid(value):
         return value
     except ValueError:
         if len(value) <= 64:
+            if six.PY2 and isinstance(value, six.text_type):
+                value = value.encode('utf-8')
             return uuid.uuid5(RESOURCE_ID_NAMESPACE, value).hex
         raise ValueError(_('Length of transformable resource id > 64, '
                          'which is max allowed characters'))
