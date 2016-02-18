@@ -728,6 +728,8 @@ class V3Controller(wsgi.Application):
 
         if token_ref.domain_scoped:
             return token_ref.domain_id
+        elif token_ref.project_scoped:
+            return token_ref.project_domain_id
         else:
             LOG.warning(
                 _LW('No domain information specified as part of list request'))
