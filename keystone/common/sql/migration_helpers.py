@@ -21,7 +21,6 @@ import migrate
 from migrate import exceptions
 from oslo_config import cfg
 from oslo_db.sqlalchemy import migration
-from oslo_serialization import jsonutils
 from oslo_utils import importutils
 import six
 import sqlalchemy
@@ -42,18 +41,6 @@ MIGRATED_EXTENSIONS = ['endpoint_policy',
                        'revoke',
                        'endpoint_filter'
                        ]
-
-
-def get_default_domain():
-    # Return the reference used for the default domain structure during
-    # sql migrations.
-    return {
-        'id': CONF.identity.default_domain_id,
-        'name': 'Default',
-        'enabled': True,
-        'extra': jsonutils.dumps({'description': 'Owns users and tenants '
-                                                 '(i.e. projects) available '
-                                                 'on Identity API v2.'})}
 
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
