@@ -281,22 +281,6 @@ class SqlUpgradeTests(SqlMigrateBase):
         for table in INITIAL_TABLE_STRUCTURE:
             self.assertTableColumns(table, INITIAL_TABLE_STRUCTURE[table])
 
-        # Ensure the default domain was properly created.
-        default_domain = migration_helpers.get_default_domain()
-
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-
-        domain_table = sqlalchemy.Table('domain', meta, autoload=True)
-
-        session = self.Session()
-        q = session.query(domain_table)
-        refs = q.all()
-
-        self.assertEqual(1, len(refs))
-        for k in default_domain.keys():
-            self.assertEqual(default_domain[k], getattr(refs[0], k))
-
     def insert_dict(self, session, table_name, d, table=None):
         """Naively inserts key-value pairs into a table, given a dictionary."""
         if table is None:
