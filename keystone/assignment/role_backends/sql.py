@@ -148,10 +148,14 @@ class Role(assignment.RoleDriverV9):
 class ImpliedRoleTable(sql.ModelBase, sql.DictBase):
     __tablename__ = 'implied_role'
     attributes = ['prior_role_id', 'implied_role_id']
-    prior_role_id = sql.Column(sql.String(64), sql.ForeignKey('role.id'),
-                               primary_key=True)
-    implied_role_id = sql.Column(sql.String(64), sql.ForeignKey('role.id'),
-                                 primary_key=True)
+    prior_role_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('role.id', ondelete="CASCADE"),
+        primary_key=True)
+    implied_role_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('role.id', ondelete="CASCADE"),
+        primary_key=True)
 
     @classmethod
     def from_dict(cls, dictionary):
