@@ -28,6 +28,7 @@ from six.moves import range
 from testtools import matchers
 
 from keystone.common import cache
+from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import core as common_ldap_core
 from keystone import exception
@@ -2417,7 +2418,8 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         """
         self.config_fixture.config(
             group='identity', domain_specific_drivers_enabled=True,
-            domain_config_dir=unit.TESTCONF + '/domain_configs_multi_ldap')
+            domain_config_dir=unit.TESTCONF + '/domain_configs_multi_ldap',
+            list_limit=1000)
         self.config_fixture.config(group='identity_mapping',
                                    backward_compatible_ids=False)
 
@@ -2441,6 +2443,36 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         for user_ref in users:
             self.assertNotIn('password', user_ref)
         self.assertEqual(expected_user_ids, user_ids)
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get_all')
+    def test_list_limit_domain_specific_inheritance(self, ldap_get_all):
+        # passiging hints is important, because if it's not passed, limiting
+        # is considered be disabled
+        hints = driver_hints.Hints()
+        self.identity_api.list_users(
+            domain_scope=self.domains['domain2']['id'],
+            hints=hints)
+        # since list_limit is not specified in keystone.domain2.conf, it should
+        # take the default, which is 1000
+        self.assertTrue(ldap_get_all.called)
+        args, kwargs = ldap_get_all.call_args
+        hints = args[0]
+        self.assertEqual(1000, hints.limit['limit'])
+
+    @mock.patch.object(common_ldap_core.BaseLdap, '_ldap_get_all')
+    def test_list_limit_domain_specific_override(self, ldap_get_all):
+        # passiging hints is important, because if it's not passed, limiting
+        # is considered to be disabled
+        hints = driver_hints.Hints()
+        self.identity_api.list_users(
+            domain_scope=self.domains['domain1']['id'],
+            hints=hints)
+        # this should have the list_limit set in Keystone.domain1.conf, which
+        # is 101
+        self.assertTrue(ldap_get_all.called)
+        args, kwargs = ldap_get_all.call_args
+        hints = args[0]
+        self.assertEqual(101, hints.limit['limit'])
 
     def test_domain_segregation(self):
         """Test that separate configs have segregated the domain.
@@ -2666,7 +2698,8 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
                      'user': 'cn=Admin',
                      'password': 'password',
                      'suffix': 'cn=example,cn=com'},
-            'identity': {'driver': 'ldap'}
+            'identity': {'driver': 'ldap',
+                         'list_limit': '101'}
         }
         domain2_config = {
             'ldap': {'url': 'fake://memory',
@@ -2687,7 +2720,8 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
         self.config_fixture.config(
             group='identity', domain_specific_drivers_enabled=True,
-            domain_configurations_from_database=True)
+            domain_configurations_from_database=True,
+            list_limit=1000)
         self.config_fixture.config(group='identity_mapping',
                                    backward_compatible_ids=False)
 
