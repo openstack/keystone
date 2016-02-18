@@ -1477,7 +1477,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
 
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
         project_ref = self.resource_api.get_project(project['id'])
 
         self.assertDictEqual(project, project_ref)
@@ -1501,7 +1501,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
         # Create a project
-        self.resource_api.create_project(project_id, project)
+        project = self.resource_api.create_project(project_id, project)
         self.resource_api.get_project(project_id)
         updated_project = copy.deepcopy(project)
         updated_project['description'] = uuid.uuid4().hex
@@ -1548,7 +1548,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
     def test_update_is_domain_field(self):
         domain = self._get_domain_fixture()
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
 
         # Try to update the is_domain field to True
         project['is_domain'] = True
@@ -1914,7 +1914,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
 
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
         project_ref = self.resource_api.get_project(project['id'])
 
         # self.resource_api.create_project adds an enabled
@@ -2518,7 +2518,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         domain = unit.new_domain_ref()
         project = unit.new_project_ref(domain_id=domain['id'])
         self.resource_api.create_domain(domain['id'], domain)
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
         project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(project, project_ref)
 

@@ -315,7 +315,8 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
         self.project = unit.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
-        self.resource_api.create_project(self.project_id, self.project)
+        self.project = self.resource_api.create_project(self.project_id,
+                                                        self.project)
 
         self.user = unit.create_user(self.identity_api,
                                      domain_id=self.domain_id)

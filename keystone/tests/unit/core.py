@@ -307,16 +307,19 @@ def new_domain_ref(**kwargs):
     return ref
 
 
-def new_project_ref(domain_id=None, parent_id=None, is_domain=False, **kwargs):
+def new_project_ref(domain_id=None, is_domain=False, **kwargs):
     ref = {
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
         'description': uuid.uuid4().hex,
         'enabled': True,
         'domain_id': domain_id,
-        'parent_id': parent_id,
         'is_domain': is_domain,
     }
+    # NOTE(henry-nash): We don't include parent_id in the initial list above
+    # since specifying it is optional depending on where the project sits in
+    # the hierarchy (and a parent_id of None has meaning - i.e. it's a top
+    # level project).
     ref.update(kwargs)
     return ref
 

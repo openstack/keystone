@@ -20,6 +20,7 @@ from keystone.common import controller
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = cfg.CONF
@@ -92,6 +93,42 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/domains',
             body={'domain': ref})
 
+    @test_utils.wip('waiting for projects acting as domains implementation')
+    def test_create_domain_creates_is_domain_project(self):
+        """Call ``POST /domains`` and check a project that acts as a domain
+        is created.
+        """
+        # Create a new domain
+        domain_ref = unit.new_domain_ref()
+        r = self.post('/domains', body={'domain': domain_ref})
+        self.assertValidDomainResponse(r, domain_ref)
+
+        # Retrieve its correspondent project
+        r = self.get('/projects/%(project_id)s' % {
+            'project_id': r.result['domain']['id']})
+        self.assertValidProjectResponse(r)
+
+        # The created project has is_domain flag as True
+        self.assertTrue(r.result['project']['is_domain'])
+
+        # And its parent_id and domain_id attributes are equal
+        self.assertIsNone(r.result['project']['parent_id'])
+        self.assertIsNone(r.result['project']['domain_id'])
+
+    @test_utils.wip('waiting for projects acting as domains implementation')
+    def test_create_is_domain_project_creates_domain(self):
+        """Call ``POST /projects`` is_domain and check a domain is created."""
+        # Create a new project that acts as a domain
+        project_ref = unit.new_project_ref(domain_id=None, is_domain=True)
+        r = self.post('/projects', body={'project': project_ref})
+        self.assertValidProjectResponse(r)
+
+        # Retrieve its correspondent domain
+        r = self.get('/domains/%(domain_id)s' % {
+            'domain_id': r.result['project']['id']})
+        self.assertValidDomainResponse(r)
+        self.assertIsNotNone(r.result['domain'])
+
     def test_list_domains(self):
         """Call ``GET /domains``."""
         resource_url = '/domains'
@@ -147,6 +184,28 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.patch('/domains/%(domain_id)s' % {
             'domain_id': self.domain_id},
             body={'domain': ref})
+
+    @test_utils.wip('waiting for projects acting as domains implementation')
+    def test_update_domain_updates_is_domain_project(self):
+        """Call ``PATCH /domains`` and check the project that acts as a domain
+        is updated.
+        """
+        # Create a new domain
+        domain_ref = unit.new_domain_ref()
+        r = self.post('/domains', body={'domain': domain_ref})
+        self.assertValidDomainResponse(r, domain_ref)
+
+        # Disable it
+        self.patch('/domains/%s' % r.result['domain']['id'],
+                   body={'domain': {'enabled': False}})
+
+        # Retrieve its correspondent project
+        r = self.get('/projects/%(project_id)s' % {
+            'project_id': r.result['domain']['id']})
+        self.assertValidProjectResponse(r)
+
+        # The created project is disabled as well
+        self.assertFalse(r.result['project']['enabled'])
 
     def test_disable_domain(self):
         """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
@@ -261,7 +320,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.resource_api.create_domain(domain2['id'], domain2)
 
         project2 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        project2 = self.resource_api.create_project(project2['id'], project2)
 
         user2 = unit.new_user_ref(domain_id=domain2['id'],
                                   project_id=project2['id'])
@@ -312,6 +371,29 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.assertDictEqual(self.user, r)
         r = self.credential_api.get_credential(credential['id'])
         self.assertDictEqual(credential, r)
+
+    @test_utils.wip('waiting for projects acting as domains implementation')
+    def test_delete_domain_deletes_is_domain_project(self):
+        """Call ``DELETE /domains`` and check the project that acts as a domain
+        is deleted.
+        """
+        # Create a new domain
+        domain_ref = unit.new_domain_ref()
+        r = self.post('/domains', body={'domain': domain_ref})
+        self.assertValidDomainResponse(r, domain_ref)
+
+        # Retrieve its correspondent project
+        self.get('/projects/%(project_id)s' % {
+            'project_id': r.result['domain']['id']})
+
+        # Delete the domain
+        self.patch('/domains/%s' % r.result['domain']['id'],
+                   body={'domain': {'enabled': False}})
+        self.delete('/domains/%s' % r.result['domain']['id'])
+
+        # The created project is deleted as well
+        self.get('/projects/%(project_id)s' % {
+            'project_id': r.result['domain']['id']}, expected_status=404)
 
     def test_delete_default_domain(self):
         # Need to disable it first.
@@ -369,7 +451,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.resource_api.create_domain(domain['id'], domain)
 
         root_project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(root_project['id'], root_project)
+        root_project = self.resource_api.create_project(root_project['id'],
+                                                        root_project)
 
         leaf_project = unit.new_project_ref(
             domain_id=domain['id'],
@@ -984,7 +1067,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
     def test_update_project(self):
         """Call ``PATCH /projects/{project_id}``."""
-        ref = unit.new_project_ref(domain_id=self.domain_id)
+        ref = unit.new_project_ref(domain_id=self.domain_id,
+                                   parent_id=self.project['parent_id'])
         del ref['id']
         r = self.patch(
             '/projects/%(project_id)s' % {
@@ -999,7 +1083,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.config_fixture.config(group='resource',
                                    project_name_url_safe='off')
         ref = unit.new_project_ref(name=unsafe_name,
-                                   domain_id=self.domain_id)
+                                   domain_id=self.domain_id,
+                                   parent_id=self.project['parent_id'])
         del ref['id']
         self.patch(
             '/projects/%(project_id)s' % {
@@ -1011,7 +1096,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             self.config_fixture.config(group='resource',
                                        project_name_url_safe=config_setting)
             ref = unit.new_project_ref(name=unsafe_name,
-                                       domain_id=self.domain_id)
+                                       domain_id=self.domain_id,
+                                       parent_id=self.project['parent_id'])
             del ref['id']
             self.patch(
                 '/projects/%(project_id)s' % {
@@ -1025,7 +1111,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         # By default, we should be able to create unsafe names
         ref = unit.new_project_ref(name=unsafe_name,
-                                   domain_id=self.domain_id)
+                                   domain_id=self.domain_id,
+                                   parent_id=self.project['parent_id'])
         del ref['id']
         self.patch(
             '/projects/%(project_id)s' % {
@@ -1035,7 +1122,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     def test_update_project_domain_id(self):
         """Call ``PATCH /projects/{project_id}`` with domain_id."""
         project = unit.new_project_ref(domain_id=self.domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        project = self.resource_api.create_project(project['id'], project)
         project['domain_id'] = CONF.identity.default_domain_id
         r = self.patch('/projects/%(project_id)s' % {
             'project_id': project['id']},
@@ -1069,6 +1156,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                          body={'project': project})
         self.assertFalse(resp.result['project']['is_domain'])
 
+        project['parent_id'] = resp.result['project']['parent_id']
         project['is_domain'] = True
         self.patch('/projects/%(project_id)s' % {
             'project_id': resp.result['project']['id']},
