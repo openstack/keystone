@@ -1723,14 +1723,15 @@ specified classes in the LDAP module so you can configure them like:
 .. code-block:: ini
 
   [ldap]
-  user_objectclass          = person
-  user_id_attribute         = cn
-  user_name_attribute       = cn
-  user_mail_attribute       = mail
-  user_enabled_attribute    = userAccountControl
-  user_enabled_mask         = 2
-  user_enabled_default      = 512
-  user_attribute_ignore     = tenant_id,tenants
+  user_objectclass           = person
+  user_id_attribute          = cn
+  user_name_attribute        = cn
+  user_description_attribute = displayName
+  user_mail_attribute        = mail
+  user_enabled_attribute     = userAccountControl
+  user_enabled_mask          = 2
+  user_enabled_default       = 512
+  user_attribute_ignore      = tenant_id,tenants
 
 Debugging LDAP
 --------------
