@@ -32,7 +32,7 @@ class PolicyAssociation(sql.ModelBase, sql.ModelDictMixin):
     service_id = sql.Column(sql.String(64), nullable=True)
     region_id = sql.Column(sql.String(64), nullable=True)
     __table_args__ = (sql.UniqueConstraint('endpoint_id', 'service_id',
-                                           'region_id'), {})
+                                           'region_id'),)
 
     def to_dict(self):
         """Returns the model's attributes as a dictionary.

@@ -32,7 +32,7 @@ class IDMapping(sql.ModelBase, sql.ModelDictMixin):
     # Unique constraint to ensure you can't store more than one mapping to the
     # same underlying values
     __table_args__ = (
-        sql.UniqueConstraint('domain_id', 'local_id', 'entity_type'), {})
+        sql.UniqueConstraint('domain_id', 'local_id', 'entity_type'),)
 
 
 @dependency.requires('id_generator_api')

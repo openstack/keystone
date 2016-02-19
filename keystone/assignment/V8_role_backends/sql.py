@@ -77,4 +77,4 @@ class RoleTable(sql.ModelBase, sql.DictBase):
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), unique=True, nullable=False)
     extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint('name'), {})
+    __table_args__ = (sql.UniqueConstraint('name'),)
