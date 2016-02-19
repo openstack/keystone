@@ -100,12 +100,12 @@ class OAuth1(core.Oauth1DriverV8):
         return core.filter_consumer(
             self.get_consumer_with_secret(consumer_id))
 
-    def create_consumer(self, consumer):
+    def create_consumer(self, consumer_ref):
         session = sql.get_session()
         with session.begin():
-            consumer_ref = Consumer.from_dict(consumer)
-            session.add(consumer_ref)
-        return consumer_ref.to_dict()
+            consumer = Consumer.from_dict(consumer_ref)
+            session.add(consumer)
+        return consumer.to_dict()
 
     def _delete_consumer(self, session, consumer_id):
         consumer_ref = self._get_consumer(session, consumer_id)
@@ -139,27 +139,25 @@ class OAuth1(core.Oauth1DriverV8):
         cons = session.query(Consumer)
         return [core.filter_consumer(x.to_dict()) for x in cons]
 
-    def update_consumer(self, consumer_id, consumer):
+    def update_consumer(self, consumer_id, consumer_ref):
         session = sql.get_session()
         with session.begin():
-            consumer_ref = self._get_consumer(session, consumer_id)
-            old_consumer_dict = consumer_ref.to_dict()
-            old_consumer_dict.update(consumer)
+            consumer = self._get_consumer(session, consumer_id)
+            old_consumer_dict = consumer.to_dict()
+            old_consumer_dict.update(consumer_ref)
             new_consumer = Consumer.from_dict(old_consumer_dict)
-            consumer_ref.description = new_consumer.description
-            consumer_ref.extra = new_consumer.extra
-        return core.filter_consumer(consumer_ref.to_dict())
+            consumer.description = new_consumer.description
+            consumer.extra = new_consumer.extra
+        return core.filter_consumer(consumer.to_dict())
 
-    def create_request_token(self, consumer_id, project_id, token_duration,
-                             request_token_id=None, request_token_secret=None):
-        if request_token_id is None:
-            request_token_id = uuid.uuid4().hex
-        if request_token_secret is None:
-            request_token_secret = uuid.uuid4().hex
+    def create_request_token(self, consumer_id, requested_project,
+                             request_token_duration):
+        request_token_id = uuid.uuid4().hex
+        request_token_secret = uuid.uuid4().hex
         expiry_date = None
-        if token_duration:
+        if request_token_duration:
             now = timeutils.utcnow()
-            future = now + datetime.timedelta(seconds=token_duration)
+            future = now + datetime.timedelta(seconds=request_token_duration)
             expiry_date = utils.isotime(future, subsecond=True)
 
         ref = {}
@@ -167,7 +165,7 @@ class OAuth1(core.Oauth1DriverV8):
         ref['request_secret'] = request_token_secret
         ref['verifier'] = None
         ref['authorizing_user_id'] = None
-        ref['requested_project_id'] = project_id
+        ref['requested_project_id'] = requested_project
         ref['role_ids'] = None
         ref['consumer_id'] = consumer_id
         ref['expires_at'] = expiry_date
@@ -207,21 +205,19 @@ class OAuth1(core.Oauth1DriverV8):
 
         return token_ref.to_dict()
 
-    def create_access_token(self, request_token_id, token_duration,
-                            access_token_id=None, access_token_secret=None):
-        if access_token_id is None:
-            access_token_id = uuid.uuid4().hex
-        if access_token_secret is None:
-            access_token_secret = uuid.uuid4().hex
+    def create_access_token(self, request_id, access_token_duration):
+        access_token_id = uuid.uuid4().hex
+        access_token_secret = uuid.uuid4().hex
         session = sql.get_session()
         with session.begin():
-            req_token_ref = self._get_request_token(session, request_token_id)
+            req_token_ref = self._get_request_token(session, request_id)
             token_dict = req_token_ref.to_dict()
 
             expiry_date = None
-            if token_duration:
+            if access_token_duration:
                 now = timeutils.utcnow()
-                future = now + datetime.timedelta(seconds=token_duration)
+                future = (now +
+                          datetime.timedelta(seconds=access_token_duration))
                 expiry_date = utils.isotime(future, subsecond=True)
 
             # add Access Token
