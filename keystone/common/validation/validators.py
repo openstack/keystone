@@ -20,7 +20,6 @@ from keystone.i18n import _
 class SchemaValidator(object):
     """Resource reference validator class."""
 
-    validator = None
     validator_org = jsonschema.Draft4Validator
 
     def __init__(self, schema):
