@@ -101,7 +101,6 @@ class OAuth1(core.Oauth1DriverV8):
             self.get_consumer_with_secret(consumer_id))
 
     def create_consumer(self, consumer):
-        consumer['secret'] = uuid.uuid4().hex
         session = sql.get_session()
         with session.begin():
             consumer_ref = Consumer.from_dict(consumer)
