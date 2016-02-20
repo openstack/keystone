@@ -195,4 +195,4 @@ class RoleTable(sql.ModelBase, sql.DictBase):
     domain_id = sql.Column(sql.String(64), nullable=False,
                            server_default=NULL_DOMAIN_ID)
     extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint('name', 'domain_id'), {})
+    __table_args__ = (sql.UniqueConstraint('name', 'domain_id'),)

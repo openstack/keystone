@@ -588,4 +588,4 @@ class ProjectEndpointGroupMembership(sql.ModelBase, sql.ModelDictMixin):
                                    nullable=False)
     project_id = sql.Column(sql.String(64), nullable=False)
     __table_args__ = (sql.PrimaryKeyConstraint('endpoint_group_id',
-                                               'project_id'), {})
+                                               'project_id'),)
