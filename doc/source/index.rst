@@ -55,6 +55,7 @@ Getting Started
     mapping_combinations
     mapping_schema
     configure_tokenless_x509
+    auth-totp
     configuringservices
     extensions
     key_terms
