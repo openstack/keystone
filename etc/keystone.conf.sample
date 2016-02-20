@@ -1025,6 +1025,9 @@
 # LDAP attribute mapped to user name. (string value)
 #user_name_attribute = sn
 
+# LDAP attribute mapped to user description. (string value)
+#user_description_attribute = description
+
 # LDAP attribute mapped to user email. (string value)
 #user_mail_attribute = mail
 
@@ -1196,6 +1199,11 @@
 
 # End user auth connection lifetime in seconds. (integer value)
 #auth_pool_connection_lifetime = 60
+
+# If the members of the group objectclass are user IDs rather than DNs, set
+# this to true. This is the case when using posixGroup as the group objectclass
+# and OpenDirectory. (boolean value)
+#group_members_are_ids = false
 
 
 [matchmaker_redis]
