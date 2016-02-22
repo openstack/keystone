@@ -308,6 +308,12 @@
 # The chosen port is displayed in the service's log file. (string value)
 #backdoor_port = <None>
 
+# Enable eventlet backdoor, using the provided path as a unix socket that can
+# receive connections. This option is mutually exclusive with 'backdoor_port'
+# in that only one should be be provided. If both are provided then the
+# existence of this option overrides the usage of that option. (string value)
+#backdoor_socket = <None>
+
 # Enables or disables logging values of all registered options when starting a
 # service (at DEBUG level). (boolean value)
 #log_options = true
