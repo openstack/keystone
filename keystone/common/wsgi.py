@@ -210,8 +210,7 @@ class Application(BaseApplication):
 
         context['headers'] = dict(req.headers.items())
         context['path'] = req.environ['PATH_INFO']
-        scheme = (None if not CONF.secure_proxy_ssl_header
-                  else req.environ.get(CONF.secure_proxy_ssl_header))
+        scheme = req.environ.get(CONF.secure_proxy_ssl_header)
         if scheme:
             # NOTE(andrey-mp): "wsgi.url_scheme" contains the protocol used
             # before the proxy removed it ('https' usually). So if
