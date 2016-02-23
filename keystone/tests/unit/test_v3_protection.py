@@ -28,7 +28,6 @@ from keystone.tests.unit import utils
 
 
 CONF = cfg.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 class IdentityTestProtectedCase(test_v3.RestfulTestCase):

@@ -30,7 +30,6 @@ from keystone import token
 
 SSLDIR = unit.dirs.tmp('ssl')
 CONF = unit.CONF
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 
 CERTDIR = os.path.join(SSLDIR, 'certs')
@@ -75,7 +74,8 @@ class CertSetupTestCase(rest.RestfulTestCase):
         controller = token.controllers.Auth()
 
         self.config_fixture.config(group='signing', certfile='invalid')
-        user = unit.create_user(self.identity_api, domain_id=DEFAULT_DOMAIN_ID)
+        user = unit.create_user(self.identity_api,
+                                domain_id=CONF.identity.default_domain_id)
         body_dict = {
             'passwordCredentials': {
                 'userId': user['id'],

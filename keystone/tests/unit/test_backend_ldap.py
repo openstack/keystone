@@ -583,7 +583,7 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        user = self.new_user_ref(domain_id=test_backend.DEFAULT_DOMAIN_ID)
+        user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
         user = self.identity_api.create_user(user)
         self.assignment_api.add_user_to_project(self.tenant_baz['id'],
@@ -680,12 +680,12 @@ class BaseLDAPIdentity(test_backend.IdentityTests):
         domain_ids = []
         for domain in domains:
             domain_ids.append(domain.get('id'))
-        self.assertIn(test_backend.DEFAULT_DOMAIN_ID, domain_ids)
+        self.assertIn(CONF.identity.default_domain_id, domain_ids)
         self.assertIn(domain1['id'], domain_ids)
         self.assertIn(domain2['id'], domain_ids)
 
     def test_authenticate_requires_simple_bind(self):
-        user = self.new_user_ref(domain_id=test_backend.DEFAULT_DOMAIN_ID)
+        user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user)
         self.assignment_api.add_user_to_project(self.tenant_baz['id'],
                                                 user['id'])

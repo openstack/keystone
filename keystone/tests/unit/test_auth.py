@@ -41,7 +41,6 @@ from keystone import trust
 
 CONF = cfg.CONF
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
-DEFAULT_DOMAIN_ID = CONF.identity.default_domain_id
 
 HOST = ''.join(random.choice(string.ascii_lowercase) for x in range(
     random.randint(5, 15)))
@@ -232,8 +231,8 @@ class AuthBadRequests(AuthTest):
         self.config_fixture.config(group='resource',
                                    project_name_url_safe='off')
         unsafe_name = 'i am not / safe'
-        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
-                                       name=unsafe_name)
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id, name=unsafe_name)
         self.resource_api.create_project(project['id'], project)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project['id'], self.role_member['id'])
@@ -460,7 +459,8 @@ class AuthWithToken(AuthTest):
 
     def test_deleting_role_revokes_token(self):
         role_controller = assignment.controllers.Role()
-        project1 = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+        project1 = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
         self.resource_api.create_project(project1['id'], project1)
         role_one = unit.new_role_ref(id='role_one')
         self.role_api.create_role(role_one['id'], role_one)
@@ -495,7 +495,8 @@ class AuthWithToken(AuthTest):
         no_context = {}
         admin_context = dict(is_admin=True, query_string={})
 
-        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
         self.resource_api.create_project(project['id'], project)
         role = unit.new_role_ref()
         self.role_api.create_role(role['id'], role)
