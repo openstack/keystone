@@ -5,4 +5,5 @@ features:
    Keystone now supports authenticating via Time-based One-time Password (TOTP).
    To enable this feature, add the ``totp`` auth plugin to the ``methods``
    option in the ``[auth]`` section of ``keystone.conf``. More information
-   about using TOTP can be found in keystone's documentation.
+   about using TOTP can be found in `keystone's documentation
+   <http://docs.openstack.org/developer/keystone/auth-totp.html>`_.
