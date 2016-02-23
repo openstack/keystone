@@ -29,7 +29,6 @@ WARNING::
     all data will be lost.
 """
 
-import copy
 import json
 import uuid
 
@@ -224,6 +223,23 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
             pass
         else:
             raise AssertionError('Table "%s" already exists' % table_name)
+
+    def assertTableCountsMatch(self, table1_name, table2_name):
+        try:
+            table1 = self.select_table(table1_name)
+        except sqlalchemy.exc.NoSuchTableError:
+            raise AssertionError('Table "%s" does not exist' % table1_name)
+        try:
+            table2 = self.select_table(table2_name)
+        except sqlalchemy.exc.NoSuchTableError:
+            raise AssertionError('Table "%s" does not exist' % table2_name)
+        session = self.Session()
+        table1_count = session.execute(table1.count()).scalar()
+        table2_count = session.execute(table2.count()).scalar()
+        if table1_count != table2_count:
+            raise AssertionError('Table counts do not match: {0} ({1}), {2} '
+                                 '({3})'.format(table1_name, table1_count,
+                                                table2_name, table2_count))
 
     def upgrade(self, *args, **kwargs):
         self._migrate(*args, **kwargs)
@@ -700,126 +716,105 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         session.close()
 
-    def populate_user_table(self, with_pass_enab=False,
-                            with_pass_enab_domain=False):
-        # Populate the appropriate fields in the user
-        # table, depending on the parameters:
-        #
-        # Default: id, name, extra
-        # pass_enab: Add password, enabled as well
-        # pass_enab_domain: Add password, enabled and domain as well
-        #
-        this_table = sqlalchemy.Table("user",
-                                      self.metadata,
-                                      autoload=True)
-        for user in default_fixtures.USERS:
-            extra = copy.deepcopy(user)
-            extra.pop('id')
-            extra.pop('name')
+    def test_add_local_user_and_password_tables(self):
+        local_user_table = 'local_user'
+        password_table = 'password'
+        self.upgrade(89)
+        self.assertTableDoesNotExist(local_user_table)
+        self.assertTableDoesNotExist(password_table)
+        self.upgrade(90)
+        self.assertTableColumns(local_user_table,
+                                ['id',
+                                 'user_id',
+                                 'domain_id',
+                                 'name'])
+        self.assertTableColumns(password_table,
+                                ['id',
+                                 'local_user_id',
+                                 'password'])
 
-            if with_pass_enab:
-                password = extra.pop('password', None)
-                enabled = extra.pop('enabled', True)
-                ins = this_table.insert().values(
+    def test_migrate_data_to_local_user_and_password_tables(self):
+        def get_expected_users():
+            expected_users = []
+            for test_user in default_fixtures.USERS:
+                user = {}
+                user['id'] = uuid.uuid4().hex
+                user['name'] = test_user['name']
+                user['domain_id'] = test_user['domain_id']
+                user['password'] = test_user['password']
+                user['enabled'] = True
+                user['extra'] = json.dumps(uuid.uuid4().hex)
+                user['default_project_id'] = uuid.uuid4().hex
+                expected_users.append(user)
+            return expected_users
+
+        def add_users_to_db(expected_users, user_table):
+            for user in expected_users:
+                ins = user_table.insert().values(
                     {'id': user['id'],
                      'name': user['name'],
-                     'password': password,
-                     'enabled': bool(enabled),
-                     'extra': json.dumps(extra)})
-            else:
-                if with_pass_enab_domain:
-                    password = extra.pop('password', None)
-                    enabled = extra.pop('enabled', True)
-                    extra.pop('domain_id')
-                    ins = this_table.insert().values(
-                        {'id': user['id'],
-                         'name': user['name'],
-                         'domain_id': user['domain_id'],
-                         'password': password,
-                         'enabled': bool(enabled),
-                         'extra': json.dumps(extra)})
-                else:
-                    ins = this_table.insert().values(
-                        {'id': user['id'],
-                         'name': user['name'],
-                         'extra': json.dumps(extra)})
-            self.engine.execute(ins)
+                     'domain_id': user['domain_id'],
+                     'password': user['password'],
+                     'enabled': user['enabled'],
+                     'extra': user['extra'],
+                     'default_project_id': user['default_project_id']})
+                ins.execute()
 
-    def populate_tenant_table(self, with_desc_enab=False,
-                              with_desc_enab_domain=False):
-        # Populate the appropriate fields in the tenant or
-        # project table, depending on the parameters
-        #
-        # Default: id, name, extra
-        # desc_enab: Add description, enabled as well
-        # desc_enab_domain: Add description, enabled and domain as well,
-        #                   plus use project instead of tenant
-        #
-        if with_desc_enab_domain:
-            # By this time tenants are now projects
-            this_table = sqlalchemy.Table("project",
-                                          self.metadata,
+        def get_users_from_db(user_table, local_user_table, password_table):
+            sel = (
+                sqlalchemy.select([user_table.c.id,
+                                   user_table.c.enabled,
+                                   user_table.c.extra,
+                                   user_table.c.default_project_id,
+                                   local_user_table.c.name,
+                                   local_user_table.c.domain_id,
+                                   password_table.c.password])
+                .select_from(user_table.join(local_user_table,
+                                             user_table.c.id ==
+                                             local_user_table.c.user_id)
+                                       .join(password_table,
+                                             local_user_table.c.id ==
+                                             password_table.c.local_user_id))
+            )
+            user_rows = sel.execute()
+            users = []
+            for row in user_rows:
+                users.append(
+                    {'id': row['id'],
+                     'name': row['name'],
+                     'domain_id': row['domain_id'],
+                     'password': row['password'],
+                     'enabled': row['enabled'],
+                     'extra': row['extra'],
+                     'default_project_id': row['default_project_id']})
+            return users
+
+        meta = sqlalchemy.MetaData()
+        meta.bind = self.engine
+
+        user_table_name = 'user'
+        local_user_table_name = 'local_user'
+        password_table_name = 'password'
+
+        # populate current user table
+        self.upgrade(90)
+        user_table = sqlalchemy.Table(user_table_name, meta, autoload=True)
+        expected_users = get_expected_users()
+        add_users_to_db(expected_users, user_table)
+
+        # upgrade to migration and test
+        self.upgrade(91)
+        self.assertTableCountsMatch(user_table_name, local_user_table_name)
+        self.assertTableCountsMatch(local_user_table_name, password_table_name)
+        meta.clear()
+        user_table = sqlalchemy.Table(user_table_name, meta, autoload=True)
+        local_user_table = sqlalchemy.Table(local_user_table_name, meta,
+                                            autoload=True)
+        password_table = sqlalchemy.Table(password_table_name, meta,
                                           autoload=True)
-        else:
-            this_table = sqlalchemy.Table("tenant",
-                                          self.metadata,
-                                          autoload=True)
-
-        for tenant in default_fixtures.TENANTS:
-            extra = copy.deepcopy(tenant)
-            extra.pop('id')
-            extra.pop('name')
-
-            if with_desc_enab:
-                desc = extra.pop('description', None)
-                enabled = extra.pop('enabled', True)
-                ins = this_table.insert().values(
-                    {'id': tenant['id'],
-                     'name': tenant['name'],
-                     'description': desc,
-                     'enabled': bool(enabled),
-                     'extra': json.dumps(extra)})
-            else:
-                if with_desc_enab_domain:
-                    desc = extra.pop('description', None)
-                    enabled = extra.pop('enabled', True)
-                    extra.pop('domain_id')
-                    ins = this_table.insert().values(
-                        {'id': tenant['id'],
-                         'name': tenant['name'],
-                         'domain_id': tenant['domain_id'],
-                         'description': desc,
-                         'enabled': bool(enabled),
-                         'extra': json.dumps(extra)})
-                else:
-                    ins = this_table.insert().values(
-                        {'id': tenant['id'],
-                         'name': tenant['name'],
-                         'extra': json.dumps(extra)})
-            self.engine.execute(ins)
-
-    def _mysql_check_all_tables_innodb(self):
-        database = self.engine.url.database
-
-        connection = self.engine.connect()
-        # sanity check
-        total = connection.execute("SELECT count(*) "
-                                   "from information_schema.TABLES "
-                                   "where TABLE_SCHEMA='%(database)s'" %
-                                   dict(database=database))
-        self.assertTrue(total.scalar() > 0, "No tables found. Wrong schema?")
-
-        noninnodb = connection.execute("SELECT table_name "
-                                       "from information_schema.TABLES "
-                                       "where TABLE_SCHEMA='%(database)s' "
-                                       "and ENGINE!='InnoDB' "
-                                       "and TABLE_NAME!='migrate_version'" %
-                                       dict(database=database))
-        names = [x[0] for x in noninnodb]
-        self.assertEqual([], names,
-                         "Non-InnoDB tables exist")
-
-        connection.close()
+        actual_users = get_users_from_db(user_table, local_user_table,
+                                         password_table)
+        self.assertListEqual(expected_users, actual_users)
 
 
 class VersionTests(SqlMigrateBase):
