@@ -189,6 +189,27 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         user_ref = self.identity_api._get_user(session, self.user_foo['id'])
         self.assertNotEqual(self.user_foo['password'], user_ref['password'])
 
+    def test_create_user_with_null_password(self):
+        user_dict = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
+        user_dict["password"] = None
+        new_user_dict = self.identity_api.create_user(user_dict)
+        session = sql.get_session()
+        new_user_ref = self.identity_api._get_user(session,
+                                                   new_user_dict['id'])
+        self.assertFalse(new_user_ref.local_user.passwords)
+
+    def test_update_user_with_null_password(self):
+        user_dict = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
+        self.assertTrue(user_dict['password'])
+        new_user_dict = self.identity_api.create_user(user_dict)
+        new_user_dict["password"] = None
+        new_user_dict = self.identity_api.update_user(new_user_dict['id'],
+                                                      new_user_dict)
+        session = sql.get_session()
+        new_user_ref = self.identity_api._get_user(session,
+                                                   new_user_dict['id'])
+        self.assertFalse(new_user_ref.local_user.passwords)
+
     def test_delete_user_with_project_association(self):
         user = unit.new_user_ref(domain_id=DEFAULT_DOMAIN_ID)
         user = self.identity_api.create_user(user)

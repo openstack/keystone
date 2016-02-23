@@ -64,11 +64,15 @@ class User(sql.ModelBase, sql.DictBase):
 
     @password.setter
     def password(self, value):
-        if not self.local_user:
-            self.local_user = LocalUser()
-        if not self.local_user.passwords:
-            self.local_user.passwords.append(Password())
-        self.local_user.passwords[0].password = value
+        if not value:
+            if self.local_user and self.local_user.passwords:
+                self.local_user.passwords = []
+        else:
+            if not self.local_user:
+                self.local_user = LocalUser()
+            if not self.local_user.passwords:
+                self.local_user.passwords.append(Password())
+            self.local_user.passwords[0].password = value
 
     @password.expression
     def password(cls):
