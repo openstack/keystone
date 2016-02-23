@@ -303,7 +303,7 @@ class OAuthControllerV3(controller.V3Controller):
             body=context['query_string'],
             headers=headers)
         params = oauth1.extract_non_oauth_params(b)
-        if len(params) != 0:
+        if params:
             msg = _('There should not be any non-oauth parameters')
             raise exception.Unauthorized(message=msg)
 

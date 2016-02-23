@@ -305,7 +305,7 @@ class CheckForLoggingIssues(BaseASTChecker):
                 return super(CheckForLoggingIssues, self).generic_visit(node)
 
             # the call must have arguments
-            if not len(node.args):
+            if not node.args:
                 return super(CheckForLoggingIssues, self).generic_visit(node)
 
             if method_name == 'debug':
