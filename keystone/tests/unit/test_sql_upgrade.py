@@ -41,6 +41,7 @@ from oslo_db.sqlalchemy import session as db_session
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
 from sqlalchemy import schema
+from testtools import matchers
 
 from keystone.common import sql
 from keystone.common.sql import migrate_repo
@@ -134,6 +135,7 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
+        self.load_backends()
         database.initialize_sql_session()
         conn_str = CONF.database.connection
         if (conn_str != unit.IN_MEM_DB_CONN_STRING and
@@ -815,6 +817,33 @@ class SqlUpgradeTests(SqlMigrateBase):
         actual_users = get_users_from_db(user_table, local_user_table,
                                          password_table)
         self.assertListEqual(expected_users, actual_users)
+
+    def test_implied_roles_fk_on_delete_cascade(self):
+        if self.engine.name == 'sqlite':
+            self.skipTest('sqlite backend does not support foreign keys')
+
+        self.upgrade(92)
+
+        def _create_three_roles():
+            id_list = []
+            for _ in range(3):
+                role = unit.new_role_ref()
+                self.role_api.create_role(role['id'], role)
+                id_list.append(role['id'])
+            return id_list
+
+        role_id_list = _create_three_roles()
+        self.role_api.create_implied_role(role_id_list[0], role_id_list[1])
+        self.role_api.create_implied_role(role_id_list[0], role_id_list[2])
+
+        # assert that there are two roles implied by role 0.
+        implied_roles = self.role_api.list_implied_roles(role_id_list[0])
+        self.assertThat(implied_roles, matchers.HasLength(2))
+
+        self.role_api.delete_role(role_id_list[0])
+        # assert the cascade deletion is effective.
+        implied_roles = self.role_api.list_implied_roles(role_id_list[0])
+        self.assertThat(implied_roles, matchers.HasLength(0))
 
 
 class VersionTests(SqlMigrateBase):
