@@ -45,27 +45,27 @@ class Mapping(identity.MappingDriverV8):
         # work if we hashed all the entries, even those that already generate
         # UUIDs, like SQL.  Further, this would only work if the generation
         # algorithm was immutable (e.g. it had always been sha256).
-        session = sql.get_session()
-        query = session.query(IDMapping.public_id)
-        query = query.filter_by(domain_id=local_entity['domain_id'])
-        query = query.filter_by(local_id=local_entity['local_id'])
-        query = query.filter_by(entity_type=local_entity['entity_type'])
-        try:
-            public_ref = query.one()
-            public_id = public_ref.public_id
-            return public_id
-        except sql.NotFound:
-            return None
+        with sql.session_for_read() as session:
+            query = session.query(IDMapping.public_id)
+            query = query.filter_by(domain_id=local_entity['domain_id'])
+            query = query.filter_by(local_id=local_entity['local_id'])
+            query = query.filter_by(entity_type=local_entity['entity_type'])
+            try:
+                public_ref = query.one()
+                public_id = public_ref.public_id
+                return public_id
+            except sql.NotFound:
+                return None
 
     def get_id_mapping(self, public_id):
-        session = sql.get_session()
-        mapping_ref = session.query(IDMapping).get(public_id)
-        if mapping_ref:
-            return mapping_ref.to_dict()
+        with sql.session_for_read() as session:
+            mapping_ref = session.query(IDMapping).get(public_id)
+            if mapping_ref:
+                return mapping_ref.to_dict()
 
     def create_id_mapping(self, local_entity, public_id=None):
         entity = local_entity.copy()
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             if public_id is None:
                 public_id = self.id_generator_api.generate_public_ID(entity)
             entity['public_id'] = public_id
@@ -74,7 +74,7 @@ class Mapping(identity.MappingDriverV8):
         return public_id
 
     def delete_id_mapping(self, public_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             try:
                 session.query(IDMapping).filter(
                     IDMapping.public_id == public_id).delete()
@@ -84,14 +84,15 @@ class Mapping(identity.MappingDriverV8):
                 pass
 
     def purge_mappings(self, purge_filter):
-        session = sql.get_session()
-        query = session.query(IDMapping)
-        if 'domain_id' in purge_filter:
-            query = query.filter_by(domain_id=purge_filter['domain_id'])
-        if 'public_id' in purge_filter:
-            query = query.filter_by(public_id=purge_filter['public_id'])
-        if 'local_id' in purge_filter:
-            query = query.filter_by(local_id=purge_filter['local_id'])
-        if 'entity_type' in purge_filter:
-            query = query.filter_by(entity_type=purge_filter['entity_type'])
-        query.delete()
+        with sql.session_for_write() as session:
+            query = session.query(IDMapping)
+            if 'domain_id' in purge_filter:
+                query = query.filter_by(domain_id=purge_filter['domain_id'])
+            if 'public_id' in purge_filter:
+                query = query.filter_by(public_id=purge_filter['public_id'])
+            if 'local_id' in purge_filter:
+                query = query.filter_by(local_id=purge_filter['local_id'])
+            if 'entity_type' in purge_filter:
+                query = query.filter_by(
+                    entity_type=purge_filter['entity_type'])
+            query.delete()

@@ -178,7 +178,7 @@ def _sync_extension_repo(extension, version):
     try:
         abs_path = find_migrate_repo(package)
         try:
-            migration.db_version_control(sql.get_engine(), abs_path)
+            migration.db_version_control(engine, abs_path)
         # Register the repo with the version control API
         # If it already knows about the repo, it will throw
         # an exception that we can safely ignore

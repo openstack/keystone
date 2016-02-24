@@ -611,7 +611,7 @@ class SqlToken(SqlTests, test_backend.TokenTests):
             tok = token_sql.Token()
             tok.list_revoked_tokens()
 
-        mock_query = mock_sql.get_session().query
+        mock_query = mock_sql.session_for_read().__enter__().query
         mock_query.assert_called_with(*expected_query_args)
 
     def test_flush_expired_tokens_batch(self):
@@ -636,8 +636,12 @@ class SqlToken(SqlTests, test_backend.TokenTests):
         # other tests below test the differences between how they use the batch
         # strategy
         with mock.patch.object(token_sql, 'sql') as mock_sql:
-            mock_sql.get_session().query().filter().delete.return_value = 0
-            mock_sql.get_session().bind.dialect.name = 'mysql'
+            mock_sql.session_for_write().__enter__(
+            ).query().filter().delete.return_value = 0
+
+            mock_sql.session_for_write().__enter__(
+            ).bind.dialect.name = 'mysql'
+
             tok = token_sql.Token()
             expiry_mock = mock.Mock()
             ITERS = [1, 2, 3]
@@ -648,7 +652,10 @@ class SqlToken(SqlTests, test_backend.TokenTests):
             # The expiry strategy is only invoked once, the other calls are via
             # the yield return.
             self.assertEqual(1, expiry_mock.call_count)
-            mock_delete = mock_sql.get_session().query().filter().delete
+
+            mock_delete = mock_sql.session_for_write().__enter__(
+            ).query().filter().delete
+
             self.assertThat(mock_delete.call_args_list,
                             matchers.HasLength(len(ITERS)))
 

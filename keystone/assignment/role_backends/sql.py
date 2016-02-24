@@ -29,7 +29,7 @@ class Role(assignment.RoleDriverV9):
 
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = RoleTable.from_dict(role)
             session.add(ref)
             return ref.to_dict()
@@ -46,7 +46,7 @@ class Role(assignment.RoleDriverV9):
             if (f['name'] == 'domain_id' and f['value'] is None):
                 f['value'] = NULL_DOMAIN_ID
 
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(RoleTable)
             refs = sql.filter_limit_query(RoleTable, query, hints)
             return [ref.to_dict() for ref in refs]
@@ -55,7 +55,7 @@ class Role(assignment.RoleDriverV9):
         if not ids:
             return []
         else:
-            with sql.transaction() as session:
+            with sql.session_for_read() as session:
                 query = session.query(RoleTable)
                 query = query.filter(RoleTable.id.in_(ids))
                 role_refs = query.all()
@@ -68,12 +68,12 @@ class Role(assignment.RoleDriverV9):
         return ref
 
     def get_role(self, role_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             return self._get_role(session, role_id).to_dict()
 
     @sql.handle_conflicts(conflict_type='role')
     def update_role(self, role_id, role):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_role(session, role_id)
             old_dict = ref.to_dict()
             for k in role:
@@ -86,7 +86,7 @@ class Role(assignment.RoleDriverV9):
             return ref.to_dict()
 
     def delete_role(self, role_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_role(session, role_id)
             session.delete(ref)
 
@@ -105,7 +105,7 @@ class Role(assignment.RoleDriverV9):
 
     @sql.handle_conflicts(conflict_type='implied_role')
     def create_implied_role(self, prior_role_id, implied_role_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             inference = {'prior_role_id': prior_role_id,
                          'implied_role_id': implied_role_id}
             ref = ImpliedRoleTable.from_dict(inference)
@@ -119,13 +119,13 @@ class Role(assignment.RoleDriverV9):
             return ref.to_dict()
 
     def delete_implied_role(self, prior_role_id, implied_role_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             ref = self._get_implied_role(session, prior_role_id,
                                          implied_role_id)
             session.delete(ref)
 
     def list_implied_roles(self, prior_role_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(
                 ImpliedRoleTable).filter(
                     ImpliedRoleTable.prior_role_id == prior_role_id)
@@ -133,13 +133,13 @@ class Role(assignment.RoleDriverV9):
             return [ref.to_dict() for ref in refs]
 
     def list_role_inference_rules(self):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(ImpliedRoleTable)
             refs = query.all()
             return [ref.to_dict() for ref in refs]
 
     def get_implied_role(self, prior_role_id, implied_role_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             ref = self._get_implied_role(session, prior_role_id,
                                          implied_role_id)
             return ref.to_dict()

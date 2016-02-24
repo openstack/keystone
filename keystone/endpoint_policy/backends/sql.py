@@ -51,7 +51,7 @@ class EndpointPolicy(object):
 
     def create_policy_association(self, policy_id, endpoint_id=None,
                                   service_id=None, region_id=None):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             try:
                 # See if there is already a row for this association, and if
                 # so, update it with the new policy_id
@@ -79,14 +79,14 @@ class EndpointPolicy(object):
 
         # NOTE(henry-nash): Getting a single value to save object
         # management overhead.
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             if session.query(PolicyAssociation.id).filter(
                     sql_constraints).distinct().count() == 0:
                 raise exception.PolicyAssociationNotFound()
 
     def delete_policy_association(self, policy_id, endpoint_id=None,
                                   service_id=None, region_id=None):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(policy_id=policy_id)
             query = query.filter_by(endpoint_id=endpoint_id)
@@ -102,7 +102,7 @@ class EndpointPolicy(object):
             PolicyAssociation.region_id == region_id)
 
         try:
-            with sql.transaction() as session:
+            with sql.session_for_read() as session:
                 policy_id = session.query(PolicyAssociation.policy_id).filter(
                     sql_constraints).distinct().one()
             return {'policy_id': policy_id}
@@ -110,31 +110,31 @@ class EndpointPolicy(object):
             raise exception.PolicyAssociationNotFound()
 
     def list_associations_for_policy(self, policy_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(policy_id=policy_id)
             return [ref.to_dict() for ref in query.all()]
 
     def delete_association_by_endpoint(self, endpoint_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(endpoint_id=endpoint_id)
             query.delete()
 
     def delete_association_by_service(self, service_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(service_id=service_id)
             query.delete()
 
     def delete_association_by_region(self, region_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(region_id=region_id)
             query.delete()
 
     def delete_association_by_policy(self, policy_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(policy_id=policy_id)
             query.delete()

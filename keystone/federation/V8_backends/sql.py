@@ -161,13 +161,13 @@ class Federation(core.FederationDriverV8):
     @sql.handle_conflicts(conflict_type='identity_provider')
     def create_idp(self, idp_id, idp):
         idp['id'] = idp_id
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             idp_ref = IdentityProviderModel.from_dict(idp)
             session.add(idp_ref)
-        return idp_ref.to_dict()
+            return idp_ref.to_dict()
 
     def delete_idp(self, idp_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             self._delete_assigned_protocols(session, idp_id)
             idp_ref = self._get_idp(session, idp_id)
             session.delete(idp_ref)
@@ -187,30 +187,30 @@ class Federation(core.FederationDriverV8):
             raise exception.IdentityProviderNotFound(idp_id=remote_id)
 
     def list_idps(self):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             idps = session.query(IdentityProviderModel)
-        idps_list = [idp.to_dict() for idp in idps]
-        return idps_list
+            idps_list = [idp.to_dict() for idp in idps]
+            return idps_list
 
     def get_idp(self, idp_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             idp_ref = self._get_idp(session, idp_id)
-        return idp_ref.to_dict()
+            return idp_ref.to_dict()
 
     def get_idp_from_remote_id(self, remote_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             ref = self._get_idp_from_remote_id(session, remote_id)
-        return ref.to_dict()
+            return ref.to_dict()
 
     def update_idp(self, idp_id, idp):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             idp_ref = self._get_idp(session, idp_id)
             old_idp = idp_ref.to_dict()
             old_idp.update(idp)
             new_idp = IdentityProviderModel.from_dict(old_idp)
             for attr in IdentityProviderModel.mutable_attributes:
                 setattr(idp_ref, attr, getattr(new_idp, attr))
-        return idp_ref.to_dict()
+            return idp_ref.to_dict()
 
     # Protocol CRUD
     def _get_protocol(self, session, idp_id, protocol_id):
@@ -227,36 +227,36 @@ class Federation(core.FederationDriverV8):
     def create_protocol(self, idp_id, protocol_id, protocol):
         protocol['id'] = protocol_id
         protocol['idp_id'] = idp_id
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             self._get_idp(session, idp_id)
             protocol_ref = FederationProtocolModel.from_dict(protocol)
             session.add(protocol_ref)
-        return protocol_ref.to_dict()
+            return protocol_ref.to_dict()
 
     def update_protocol(self, idp_id, protocol_id, protocol):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             proto_ref = self._get_protocol(session, idp_id, protocol_id)
             old_proto = proto_ref.to_dict()
             old_proto.update(protocol)
             new_proto = FederationProtocolModel.from_dict(old_proto)
             for attr in FederationProtocolModel.mutable_attributes:
                 setattr(proto_ref, attr, getattr(new_proto, attr))
-        return proto_ref.to_dict()
+            return proto_ref.to_dict()
 
     def get_protocol(self, idp_id, protocol_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             protocol_ref = self._get_protocol(session, idp_id, protocol_id)
-        return protocol_ref.to_dict()
+            return protocol_ref.to_dict()
 
     def list_protocols(self, idp_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             q = session.query(FederationProtocolModel)
             q = q.filter_by(idp_id=idp_id)
-        protocols = [protocol.to_dict() for protocol in q]
-        return protocols
+            protocols = [protocol.to_dict() for protocol in q]
+            return protocols
 
     def delete_protocol(self, idp_id, protocol_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             key_ref = self._get_protocol(session, idp_id, protocol_id)
             session.delete(key_ref)
 
@@ -277,58 +277,58 @@ class Federation(core.FederationDriverV8):
         ref = {}
         ref['id'] = mapping_id
         ref['rules'] = mapping.get('rules')
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             mapping_ref = MappingModel.from_dict(ref)
             session.add(mapping_ref)
-        return mapping_ref.to_dict()
+            return mapping_ref.to_dict()
 
     def delete_mapping(self, mapping_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             mapping_ref = self._get_mapping(session, mapping_id)
             session.delete(mapping_ref)
 
     def list_mappings(self):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             mappings = session.query(MappingModel)
-        return [x.to_dict() for x in mappings]
+            return [x.to_dict() for x in mappings]
 
     def get_mapping(self, mapping_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             mapping_ref = self._get_mapping(session, mapping_id)
-        return mapping_ref.to_dict()
+            return mapping_ref.to_dict()
 
     @sql.handle_conflicts(conflict_type='mapping')
     def update_mapping(self, mapping_id, mapping):
         ref = {}
         ref['id'] = mapping_id
         ref['rules'] = mapping.get('rules')
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             mapping_ref = self._get_mapping(session, mapping_id)
             old_mapping = mapping_ref.to_dict()
             old_mapping.update(ref)
             new_mapping = MappingModel.from_dict(old_mapping)
             for attr in MappingModel.attributes:
                 setattr(mapping_ref, attr, getattr(new_mapping, attr))
-        return mapping_ref.to_dict()
+            return mapping_ref.to_dict()
 
     def get_mapping_from_idp_and_protocol(self, idp_id, protocol_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             protocol_ref = self._get_protocol(session, idp_id, protocol_id)
             mapping_id = protocol_ref.mapping_id
             mapping_ref = self._get_mapping(session, mapping_id)
-        return mapping_ref.to_dict()
+            return mapping_ref.to_dict()
 
     # Service Provider CRUD
     @sql.handle_conflicts(conflict_type='service_provider')
     def create_sp(self, sp_id, sp):
         sp['id'] = sp_id
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             sp_ref = ServiceProviderModel.from_dict(sp)
             session.add(sp_ref)
-        return sp_ref.to_dict()
+            return sp_ref.to_dict()
 
     def delete_sp(self, sp_id):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             sp_ref = self._get_sp(session, sp_id)
             session.delete(sp_ref)
 
@@ -339,28 +339,28 @@ class Federation(core.FederationDriverV8):
         return sp_ref
 
     def list_sps(self):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             sps = session.query(ServiceProviderModel)
-        sps_list = [sp.to_dict() for sp in sps]
-        return sps_list
+            sps_list = [sp.to_dict() for sp in sps]
+            return sps_list
 
     def get_sp(self, sp_id):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             sp_ref = self._get_sp(session, sp_id)
-        return sp_ref.to_dict()
+            return sp_ref.to_dict()
 
     def update_sp(self, sp_id, sp):
-        with sql.transaction() as session:
+        with sql.session_for_write() as session:
             sp_ref = self._get_sp(session, sp_id)
             old_sp = sp_ref.to_dict()
             old_sp.update(sp)
             new_sp = ServiceProviderModel.from_dict(old_sp)
             for attr in ServiceProviderModel.mutable_attributes:
                 setattr(sp_ref, attr, getattr(new_sp, attr))
-        return sp_ref.to_dict()
+            return sp_ref.to_dict()
 
     def get_enabled_service_providers(self):
-        with sql.transaction() as session:
+        with sql.session_for_read() as session:
             service_providers = session.query(ServiceProviderModel)
             service_providers = service_providers.filter_by(enabled=True)
-        return service_providers
+            return service_providers
