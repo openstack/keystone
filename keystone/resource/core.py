@@ -87,9 +87,8 @@ class Manager(manager.Manager):
             parents_list = self.list_project_parents(project_id)
         max_depth = CONF.max_project_tree_depth
         if self._get_hierarchy_depth(parents_list) > max_depth:
-            raise exception.ForbiddenAction(
-                action=_('max hierarchy depth reached for '
-                         '%s branch.') % project_id)
+            raise exception.ForbiddenNotSecurity(
+                _('Max hierarchy depth reached for %s branch.') % project_id)
 
     def _assert_is_domain_project_constraints(self, project_ref, parent_ref):
         """Enforces specific constraints of projects that act as domains
@@ -292,9 +291,9 @@ class Manager(manager.Manager):
         parents_list = self.list_project_parents(project_id)
         for project in parents_list:
             if not project.get('enabled', True):
-                raise exception.ForbiddenAction(
-                    action=_('cannot enable project %s since it has '
-                             'disabled parents') % project_id)
+                raise exception.ForbiddenNotSecurity(
+                    _('Cannot enable project %s since it has disabled '
+                      'parents') % project_id)
 
     def _check_whole_subtree_is_disabled(self, project_id, subtree_list=None):
         if not subtree_list:
@@ -317,8 +316,8 @@ class Manager(manager.Manager):
 
         parent_id = original_project.get('parent_id')
         if 'parent_id' in project and project.get('parent_id') != parent_id:
-            raise exception.ForbiddenAction(
-                action=_('Update of `parent_id` is not allowed.'))
+            raise exception.ForbiddenNotSecurity(
+                _('Update of `parent_id` is not allowed.'))
 
         if ('is_domain' in project and
                 project['is_domain'] != original_project['is_domain']):
@@ -375,9 +374,9 @@ class Manager(manager.Manager):
             # effectively disables its children.
             if (not original_project.get('is_domain') and not cascade and not
                     self._check_whole_subtree_is_disabled(project_id)):
-                raise exception.ForbiddenAction(
-                    action=_('cannot disable project %(project_id)s since its '
-                             'subtree contains enabled projects.')
+                raise exception.ForbiddenNotSecurity(
+                    _('Cannot disable project %(project_id)s since its '
+                      'subtree contains enabled projects.')
                     % {'project_id': project_id})
 
             self._disable_project(project_id)
@@ -461,10 +460,10 @@ class Manager(manager.Manager):
                 % project.get('id'))
 
         if not self.is_leaf_project(project_id) and not cascade:
-            raise exception.ForbiddenAction(
-                action=_('cannot delete the project %s since it is not '
-                         'a leaf in the hierarchy. Use the cascade option '
-                         'if you want to delete a whole subtree.')
+            raise exception.ForbiddenNotSecurity(
+                _('Cannot delete the project %s since it is not a leaf in the '
+                  'hierarchy. Use the cascade option if you want to delete a '
+                  'whole subtree.')
                 % project_id)
 
         if cascade:
@@ -474,9 +473,9 @@ class Manager(manager.Manager):
             subtree_list.reverse()
             if not self._check_whole_subtree_is_disabled(
                     project_id, subtree_list=subtree_list):
-                raise exception.ForbiddenAction(
-                    action=_('cannot delete project %(project_id)s since its '
-                             'subtree contains enabled projects.')
+                raise exception.ForbiddenNotSecurity(
+                    _('Cannot delete project %(project_id)s since its subtree '
+                      'contains enabled projects.')
                     % {'project_id': project_id})
 
             project_list = subtree_list + [project]
@@ -705,9 +704,9 @@ class Manager(manager.Manager):
         # their own domain since, once it is disabled, they won't be able
         # to get a valid token to issue this delete.
         if domain['enabled']:
-            raise exception.ForbiddenAction(
-                action=_('cannot delete a domain that is enabled, '
-                         'please disable it first.'))
+            raise exception.ForbiddenNotSecurity(
+                _('Cannot delete a domain that is enabled, please disable it '
+                  'first.'))
 
         self._delete_domain_contents(domain_id)
         # Delete any database stored domain config

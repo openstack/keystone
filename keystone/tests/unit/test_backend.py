@@ -2974,7 +2974,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertFalse(subtree[0]['enabled'])
 
         parent['enabled'] = True
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.update_project,
                           parent['id'],
                           parent,
@@ -3643,7 +3643,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.resource_api.update_project(project2['id'], project2)
 
         # Cannot cascade delete root_project, since project1 is enabled
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.delete_project,
                           root_project['id'],
                           cascade=True)
@@ -3671,7 +3671,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         # update the parent_id is not allowed
         leaf_project['parent_id'] = root_project1['id']
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.update_project,
                           leaf_project['id'],
                           leaf_project)
@@ -3683,7 +3683,7 @@ class IdentityTests(AssignmentTestHelperMixin):
                           root_project1['id'])
 
         # delete root_project2 is not allowed since it is not a leaf project
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.delete_project,
                           root_project2['id'])
 
@@ -3729,7 +3729,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         projects_hierarchy = self._create_projects_hierarchy()
         root_project = projects_hierarchy[0]
 
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.delete_project,
                           root_project['id'])
 
@@ -3744,7 +3744,7 @@ class IdentityTests(AssignmentTestHelperMixin):
 
         # try to update project3 parent to parent1
         project3['parent_id'] = project1['id']
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.update_project,
                           project3['id'],
                           project3)
@@ -3779,7 +3779,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         root_project = projects_hierarchy[0]
 
         root_project['enabled'] = False
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.update_project,
                           root_project['id'],
                           root_project)
@@ -3798,7 +3798,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Try to enable the leaf project, it's not possible since it has
         # a disabled parent
         leaf_project['enabled'] = True
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.update_project,
                           leaf_project['id'],
                           leaf_project)
@@ -3818,7 +3818,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         # Creating another project in the hierarchy shouldn't be allowed
         project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID,
                                        parent_id=leaf_project['id'])
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.create_project,
                           project['id'],
                           project)
@@ -3863,7 +3863,7 @@ class IdentityTests(AssignmentTestHelperMixin):
         self.assertDictEqual(domain, domain_ref)
 
         # Ensure an 'enabled' domain cannot be deleted
-        self.assertRaises(exception.ForbiddenAction,
+        self.assertRaises(exception.ForbiddenNotSecurity,
                           self.resource_api.delete_domain,
                           domain_id=domain['id'])
 
