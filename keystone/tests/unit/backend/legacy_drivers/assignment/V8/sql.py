@@ -31,3 +31,9 @@ class SqlIdentityV8(test_backend_sql.SqlIdentity):
 
     def test_delete_project_assignments_same_id_as_domain(self):
         self.skipTest("V8 doesn't support project acting as a domain.")
+
+    def test_delete_user_assignments_user_same_id_as_group(self):
+        self.skipTest("Groups and users with the same ID are not supported.")
+
+    def test_delete_group_assignments_group_same_id_as_user(self):
+        self.skipTest("Groups and users with the same ID are not supported.")

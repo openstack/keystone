@@ -4769,6 +4769,138 @@ class IdentityTests(AssignmentTestHelperMixin):
         for assignment in domain_assignments:
             self.assertThat(assignment.keys(), matchers.Contains('domain_id'))
 
+    def test_delete_user_assignments_user_same_id_as_group(self):
+        """Test deleting user assignments when user_id == group_id.
+
+        In this scenario, only user assignments must be deleted (i.e.
+        USER_DOMAIN or USER_PROJECT).
+
+        Test plan:
+        * Create a user and a group with the same ID;
+        * Create four roles and assign them to both user and group;
+        * Delete all user assignments;
+        * Group assignments must stay intact.
+        """
+        # Create a common ID
+        common_id = uuid.uuid4().hex
+        # Create a project
+        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+        project = self.resource_api.create_project(project['id'], project)
+        # Create a user
+        user = unit.new_user_ref(id=common_id,
+                                 domain_id=DEFAULT_DOMAIN_ID)
+        user = self.identity_api.driver.create_user(common_id, user)
+        self.assertEqual(common_id, user['id'])
+        # Create a group
+        group = unit.new_group_ref(id=common_id,
+                                   domain_id=DEFAULT_DOMAIN_ID)
+        group = self.identity_api.driver.create_group(common_id, group)
+        self.assertEqual(common_id, group['id'])
+        # Create four roles
+        roles = []
+        for _ in range(4):
+            role = unit.new_role_ref()
+            roles.append(self.role_api.create_role(role['id'], role))
+        # Assign roles for user
+        self.assignment_api.driver.create_grant(user_id=user['id'],
+                                                domain_id=DEFAULT_DOMAIN_ID,
+                                                role_id=roles[0]['id'])
+        self.assignment_api.driver.create_grant(user_id=user['id'],
+                                                project_id=project['id'],
+                                                role_id=roles[1]['id'])
+        # Assign roles for group
+        self.assignment_api.driver.create_grant(group_id=group['id'],
+                                                domain_id=DEFAULT_DOMAIN_ID,
+                                                role_id=roles[2]['id'])
+        self.assignment_api.driver.create_grant(group_id=group['id'],
+                                                project_id=project['id'],
+                                                role_id=roles[3]['id'])
+        # Make sure they were assigned
+        user_assignments = self.assignment_api.list_role_assignments(
+            user_id=user['id'])
+        self.assertThat(user_assignments, matchers.HasLength(2))
+        group_assignments = self.assignment_api.list_role_assignments(
+            group_id=group['id'])
+        self.assertThat(group_assignments, matchers.HasLength(2))
+        # Delete user assignments
+        self.assignment_api.delete_user_assignments(user_id=user['id'])
+        # Assert only user assignments were deleted
+        user_assignments = self.assignment_api.list_role_assignments(
+            user_id=user['id'])
+        self.assertThat(user_assignments, matchers.HasLength(0))
+        group_assignments = self.assignment_api.list_role_assignments(
+            group_id=group['id'])
+        self.assertThat(group_assignments, matchers.HasLength(2))
+        # Make sure these remaining assignments are group-related
+        for assignment in group_assignments:
+            self.assertThat(assignment.keys(), matchers.Contains('group_id'))
+
+    def test_delete_group_assignments_group_same_id_as_user(self):
+        """Test deleting group assignments when group_id == user_id.
+
+        In this scenario, only group assignments must be deleted (i.e.
+        GROUP_DOMAIN or GROUP_PROJECT).
+
+        Test plan:
+        * Create a group and a user with the same ID;
+        * Create four roles and assign them to both group and user;
+        * Delete all group assignments;
+        * User assignments must stay intact.
+        """
+        # Create a common ID
+        common_id = uuid.uuid4().hex
+        # Create a project
+        project = unit.new_project_ref(domain_id=DEFAULT_DOMAIN_ID)
+        project = self.resource_api.create_project(project['id'], project)
+        # Create a user
+        user = unit.new_user_ref(id=common_id,
+                                 domain_id=DEFAULT_DOMAIN_ID)
+        user = self.identity_api.driver.create_user(common_id, user)
+        self.assertEqual(common_id, user['id'])
+        # Create a group
+        group = unit.new_group_ref(id=common_id,
+                                   domain_id=DEFAULT_DOMAIN_ID)
+        group = self.identity_api.driver.create_group(common_id, group)
+        self.assertEqual(common_id, group['id'])
+        # Create four roles
+        roles = []
+        for _ in range(4):
+            role = unit.new_role_ref()
+            roles.append(self.role_api.create_role(role['id'], role))
+        # Assign roles for user
+        self.assignment_api.driver.create_grant(user_id=user['id'],
+                                                domain_id=DEFAULT_DOMAIN_ID,
+                                                role_id=roles[0]['id'])
+        self.assignment_api.driver.create_grant(user_id=user['id'],
+                                                project_id=project['id'],
+                                                role_id=roles[1]['id'])
+        # Assign roles for group
+        self.assignment_api.driver.create_grant(group_id=group['id'],
+                                                domain_id=DEFAULT_DOMAIN_ID,
+                                                role_id=roles[2]['id'])
+        self.assignment_api.driver.create_grant(group_id=group['id'],
+                                                project_id=project['id'],
+                                                role_id=roles[3]['id'])
+        # Make sure they were assigned
+        user_assignments = self.assignment_api.list_role_assignments(
+            user_id=user['id'])
+        self.assertThat(user_assignments, matchers.HasLength(2))
+        group_assignments = self.assignment_api.list_role_assignments(
+            group_id=group['id'])
+        self.assertThat(group_assignments, matchers.HasLength(2))
+        # Delete group assignments
+        self.assignment_api.delete_group_assignments(group_id=group['id'])
+        # Assert only group assignments were deleted
+        group_assignments = self.assignment_api.list_role_assignments(
+            group_id=group['id'])
+        self.assertThat(group_assignments, matchers.HasLength(0))
+        user_assignments = self.assignment_api.list_role_assignments(
+            user_id=user['id'])
+        self.assertThat(user_assignments, matchers.HasLength(2))
+        # Make sure these remaining assignments are user-related
+        for assignment in group_assignments:
+            self.assertThat(assignment.keys(), matchers.Contains('user_id'))
+
 
 class TokenTests(object):
     def _create_token_id(self):

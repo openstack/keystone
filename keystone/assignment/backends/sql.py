@@ -267,13 +267,19 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
     def delete_user_assignments(self, user_id):
         with sql.transaction() as session:
             q = session.query(RoleAssignment)
-            q = q.filter_by(actor_id=user_id)
+            q = q.filter_by(actor_id=user_id).filter(
+                RoleAssignment.type.in_((AssignmentType.USER_PROJECT,
+                                         AssignmentType.USER_DOMAIN))
+            )
             q.delete(False)
 
     def delete_group_assignments(self, group_id):
         with sql.transaction() as session:
             q = session.query(RoleAssignment)
-            q = q.filter_by(actor_id=group_id)
+            q = q.filter_by(actor_id=group_id).filter(
+                RoleAssignment.type.in_((AssignmentType.GROUP_PROJECT,
+                                         AssignmentType.GROUP_DOMAIN))
+            )
             q.delete(False)
 
 
