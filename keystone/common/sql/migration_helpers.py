@@ -130,10 +130,11 @@ def find_migrate_repo(package=None, repo_name='migrate_repo'):
 def _sync_common_repo(version):
     abs_path = find_migrate_repo()
     init_version = migrate_repo.DB_INIT_VERSION
-    engine = sql.get_engine()
-    _assert_not_schema_downgrade(version=version)
-    migration.db_sync(engine, abs_path, version=version,
-                      init_version=init_version, sanity_check=False)
+    with sql.session_for_write() as session:
+        engine = session.get_bind()
+        _assert_not_schema_downgrade(version=version)
+        migration.db_sync(engine, abs_path, version=version,
+                          init_version=init_version, sanity_check=False)
 
 
 def _assert_not_schema_downgrade(extension=None, version=None):
@@ -154,31 +155,32 @@ def _sync_extension_repo(extension, version):
         raise exception.MigrationMovedFailure(extension=extension)
 
     init_version = 0
-    engine = sql.get_engine()
+    with sql.session_for_write() as session:
+        engine = session.get_bind()
 
-    try:
-        package_name = '.'.join((contrib.__name__, extension))
-        package = importutils.import_module(package_name)
-    except ImportError:
-        raise ImportError(_("%s extension does not exist.")
-                          % package_name)
-    try:
-        abs_path = find_migrate_repo(package)
         try:
-            migration.db_version_control(engine, abs_path)
-        # Register the repo with the version control API
-        # If it already knows about the repo, it will throw
-        # an exception that we can safely ignore
-        except exceptions.DatabaseAlreadyControlledError:  # nosec
-            pass
-    except exception.MigrationNotProvided as e:
-        print(e)
-        sys.exit(1)
+            package_name = '.'.join((contrib.__name__, extension))
+            package = importutils.import_module(package_name)
+        except ImportError:
+            raise ImportError(_("%s extension does not exist.")
+                              % package_name)
+        try:
+            abs_path = find_migrate_repo(package)
+            try:
+                migration.db_version_control(engine, abs_path)
+            # Register the repo with the version control API
+            # If it already knows about the repo, it will throw
+            # an exception that we can safely ignore
+            except exceptions.DatabaseAlreadyControlledError:  # nosec
+                pass
+        except exception.MigrationNotProvided as e:
+            print(e)
+            sys.exit(1)
 
-    _assert_not_schema_downgrade(extension=extension, version=version)
+        _assert_not_schema_downgrade(extension=extension, version=version)
 
-    migration.db_sync(engine, abs_path, version=version,
-                      init_version=init_version, sanity_check=False)
+        migration.db_sync(engine, abs_path, version=version,
+                          init_version=init_version, sanity_check=False)
 
 
 def sync_database_to_version(extension=None, version=None):
@@ -195,8 +197,10 @@ def sync_database_to_version(extension=None, version=None):
 
 def get_db_version(extension=None):
     if not extension:
-        return migration.db_version(sql.get_engine(), find_migrate_repo(),
-                                    migrate_repo.DB_INIT_VERSION)
+        with sql.session_for_write() as session:
+            return migration.db_version(session.get_bind(),
+                                        find_migrate_repo(),
+                                        migrate_repo.DB_INIT_VERSION)
 
     try:
         package_name = '.'.join((contrib.__name__, extension))
@@ -205,8 +209,9 @@ def get_db_version(extension=None):
         raise ImportError(_("%s extension does not exist.")
                           % package_name)
 
-    return migration.db_version(
-        sql.get_engine(), find_migrate_repo(package), 0)
+    with sql.session_for_write() as session:
+        return migration.db_version(
+            session.get_bind(), find_migrate_repo(package), 0)
 
 
 def print_db_version(extension=None):

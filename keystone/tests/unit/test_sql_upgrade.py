@@ -151,7 +151,9 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
                 connection='sqlite:///%s' % db_file)
 
         # create and share a single sqlalchemy engine for testing
-        self.engine = sql.get_engine()
+        with sql.session_for_write() as session:
+            self.engine = session.get_bind()
+            self.addCleanup(self.cleanup_instance('engine'))
         self.Session = db_session.get_maker(self.engine, autocommit=False)
         self.addCleanup(sqlalchemy.orm.session.Session.close_all)
 
@@ -284,8 +286,9 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableDoesNotExist('user')
 
     def test_start_version_db_init_version(self):
-        version = migration.db_version(sql.get_engine(), self.repo_path,
-                                       migrate_repo.DB_INIT_VERSION)
+        with sql.session_for_write() as session:
+            version = migration.db_version(session.get_bind(), self.repo_path,
+                                           migrate_repo.DB_INIT_VERSION)
         self.assertEqual(
             migrate_repo.DB_INIT_VERSION,
             version,

@@ -148,7 +148,8 @@ class Database(fixtures.Fixture):
     def setUp(self):
         super(Database, self).setUp()
 
-        self.engine = sql.get_engine()
+        with sql.session_for_write() as session:
+            self.engine = session.get_bind()
         self.addCleanup(sql.cleanup)
         sql.ModelBase.metadata.create_all(bind=self.engine)
         self.addCleanup(sql.ModelBase.metadata.drop_all, bind=self.engine)
