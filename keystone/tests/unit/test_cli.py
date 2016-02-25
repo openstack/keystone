@@ -23,7 +23,6 @@ from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.common import dependency
-from keystone.common.sql import migration_helpers
 from keystone.i18n import _
 from keystone import resource
 from keystone.tests import unit
@@ -108,7 +107,10 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         self.username = uuid.uuid4().hex
         self.project_name = uuid.uuid4().hex
         self.role_name = uuid.uuid4().hex
-        self.default_domain = migration_helpers.get_default_domain()
+        self.default_domain = {
+            'id': CONF.identity.default_domain_id,
+            'name': 'Default',
+        }
         self.useFixture(
             fixtures.EnvironmentVariable('OS_BOOTSTRAP_PASSWORD',
                                          newvalue=self.password))

@@ -127,7 +127,13 @@ class BootStrap(BaseApp):
             raise ValueError
 
         # NOTE(morganfainberg): Ensure the default domain is in-fact created
-        default_domain = migration_helpers.get_default_domain()
+        default_domain = {
+            'id': CONF.identity.default_domain_id,
+            'name': 'Default',
+            'enabled': True,
+            'description': 'Owns users and tenants (i.e. projects) available '
+                           'on Identity API v2.'
+        }
         try:
             self.resource_manager.create_domain(
                 domain_id=default_domain['id'],
