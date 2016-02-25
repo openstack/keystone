@@ -80,6 +80,8 @@ class User(controller.V2Controller):
             self.resource_api.get_project(default_project_id)
             user['default_project_id'] = default_project_id
 
+        self.resource_api.ensure_default_domain_exists()
+
         # The manager layer will generate the unique ID for users
         user_ref = self._normalize_domain_id(context, user.copy())
         initiator = notifications._get_request_audit_info(context)

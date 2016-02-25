@@ -794,6 +794,32 @@ class Manager(manager.Manager):
         # from persistence if persistence is enabled.
         pass
 
+    def ensure_default_domain_exists(self):
+        """Creates the default domain if it doesn't exist.
+
+        This is only used for the v2 API and can go away when V2 does.
+
+        """
+        try:
+            default_domain_attrs = {
+                'name': 'Default',
+                'id': CONF.identity.default_domain_id,
+                'description': 'Domain created automatically to support V2.0 '
+                               'operations.',
+            }
+            self.create_domain(CONF.identity.default_domain_id,
+                               default_domain_attrs)
+            LOG.warning(_LW(
+                'The default domain was created automatically to contain V2 '
+                'resources. This is deprecated in the M release and will not '
+                'be supported in the O release. Create the default domain '
+                'manually or use the keystone-manage bootstrap command.'))
+        except exception.Conflict:
+            LOG.debug('The default domain already exists.')
+        except Exception:
+            LOG.error(_LE('Failed to create the default domain.'))
+            raise
+
 
 # The ResourceDriverBase class is the set of driver methods from earlier
 # drivers that we still support, that have not been removed or modified. This
